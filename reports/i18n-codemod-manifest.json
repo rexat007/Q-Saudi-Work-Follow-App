@@ -1,8 +1,8 @@
 {
-  "version": "1.5.0",
-  "generatedAt": "2026-09-12T13:37:37.449Z",
+  "version": "1.6.0",
+  "generatedAt": "2026-09-12T14:05:00.000Z",
   "mode": "APPLIED",
-  "cumulativeTotalApplied": 1161,
+  "cumulativeTotalApplied": 1165,
   "block49Pilot": {
     "block": "BLOCK 49",
     "status": "PILOT_COMPLETE",
@@ -20,6 +20,15 @@
     "remainingLowRisk": 110,
     "timestamp": "2026-09-12T13:37:37.450Z"
   },
+  "block52ComponentSafe": {
+    "block": "BLOCK 52",
+    "status": "COMPONENT_SAFE_APPLIED_AND_METADATA_HOOKS_PREPARED",
+    "totalAppliedInBatch": 4,
+    "cumulativeTotalApplied": 1165,
+    "filesModifiedCount": 3,
+    "remainingLowRisk": 106,
+    "timestamp": "2026-09-12T14:05:00.000Z"
+  },
   "entries": [
     {
       "sourceFile": "src/components/offline/ConflictResolutionModal.tsx",
@@ -29,6 +38,37 @@
         "offline.labels.txt_5b9d20"
       ],
       "timestamp": "2026-09-12T13:34:52.925Z",
+      "transformCount": 1,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/offline/OutboxDrawer.tsx",
+      "translationKeysInserted": [
+        "offline.labels.pricing"
+      ],
+      "timestamp": "2026-09-12T14:05:00.000Z",
+      "transformCount": 1,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/tripEngine/StateMachineController.tsx",
+      "translationKeysInserted": [
+        "trips.labels.txt_304e68",
+        "trips.labels.txt_226b89"
+      ],
+      "timestamp": "2026-09-12T14:05:00.000Z",
+      "transformCount": 2,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/importCenter/WeighbridgeImportSection.tsx",
+      "translationKeysInserted": [
+        "weighbridge.messages.txt_5d74e2"
+      ],
+      "timestamp": "2026-09-12T14:05:00.000Z",
       "transformCount": 1,
       "skippedCount": 0,
       "validationStatus": "VALIDATED_AND_APPLIED"

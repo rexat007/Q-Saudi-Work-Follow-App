@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-09-12T13:50:58.646Z",
+  "generatedAt": "2026-09-12T14:00:43.556Z",
   "version": "1.0.0-block42",
   "summary": {
-    "totalCatalogEntries": 8436,
+    "totalCatalogEntries": 8468,
     "translatedCount": 6,
-    "untranslatedCount": 5431,
-    "reviewRequiredCount": 5431,
-    "ambiguousCount": 2998,
+    "untranslatedCount": 5447,
+    "reviewRequiredCount": 5447,
+    "ambiguousCount": 3014,
     "protectedCount": 1,
     "interpolationCount": 192,
     "pluralizationCount": 120,
-    "duplicateSharingCandidates": 1406,
-    "semanticConflictCount": 305,
+    "duplicateSharingCandidates": 1413,
+    "semanticConflictCount": 312,
     "highRiskEntries": 1288,
     "directionalMigrationQueue": 229,
     "categoryStatistics": {
@@ -104,19 +104,19 @@
         "protected": 0
       },
       "offline": {
-        "total": 272,
+        "total": 271,
         "translated": 0,
-        "untranslated": 180,
-        "reviewRequired": 180,
+        "untranslated": 179,
+        "reviewRequired": 179,
         "ambiguous": 92,
         "protected": 0
       },
       "other": {
-        "total": 2184,
+        "total": 2220,
         "translated": 4,
-        "untranslated": 1273,
-        "reviewRequired": 1273,
-        "ambiguous": 907,
+        "untranslated": 1293,
+        "reviewRequired": 1293,
+        "ambiguous": 923,
         "protected": 0
       },
       "pricing": {
@@ -152,10 +152,10 @@
         "protected": 0
       },
       "trips": {
-        "total": 523,
+        "total": 521,
         "translated": 0,
-        "untranslated": 403,
-        "reviewRequired": 403,
+        "untranslated": 401,
+        "reviewRequired": 401,
         "ambiguous": 120,
         "protected": 0
       },
@@ -184,10 +184,10 @@
         "protected": 0
       },
       "weighbridge": {
-        "total": 419,
+        "total": 418,
         "translated": 0,
-        "untranslated": 230,
-        "reviewRequired": 230,
+        "untranslated": 229,
+        "reviewRequired": 229,
         "ambiguous": 189,
         "protected": 0
       },
@@ -202,10 +202,10 @@
     }
   },
   "duplicateGroupsSummary": {
-    "totalGroups": 2561,
-    "typeA_exactSameMeaning": 1406,
-    "typeB_differentMeaning": 832,
-    "typeC_formatVariation": 1504,
+    "totalGroups": 2596,
+    "typeA_exactSameMeaning": 1413,
+    "typeB_differentMeaning": 846,
+    "typeC_formatVariation": 1509,
     "typeD_uncertain": 1
   },
   "directionalMigrationQueue": {
@@ -6683,17 +6683,6 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "trips.labels.txt_226b89",
-        "category": "trips",
-        "sourceTextAr": "destNet + فرق",
-        "context": "prop_sub",
-        "sourceFiles": [
-          "src/components/tripEngine/StateMachineController.tsx:1023"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
         "key": "trips.labels.txt_2342ca",
         "category": "trips",
         "sourceTextAr": "بواسطة:",
@@ -6848,17 +6837,6 @@
         "context": "jsx_text",
         "sourceFiles": [
           "src/components/tripEngine/StateMachineController.tsx:1076"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "trips.labels.txt_304e68",
-        "category": "trips",
-        "sourceTextAr": "تسعير معتمد",
-        "context": "prop_sub",
-        "sourceFiles": [
-          "src/components/tripEngine/StateMachineController.tsx:1020"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -16615,17 +16593,6 @@
         "context": "prop_messageAr",
         "sourceFiles": [
           "src/services/weightEngine.service.ts:331"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "weighbridge.messages.txt_5d74e2",
-        "category": "weighbridge",
-        "sourceTextAr": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
-        "context": "call_alert",
-        "sourceFiles": [
-          "src/components/importCenter/WeighbridgeImportSection.tsx:258"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -58053,17 +58020,6 @@
       {
         "key": "offline.labels.pricing",
         "category": "offline",
-        "sourceTextAr": "قواعد التسعير (Pricing Rules)",
-        "context": "prop_pricingRules",
-        "sourceFiles": [
-          "src/components/offline/OutboxDrawer.tsx:291"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "offline.labels.pricing_2",
-        "category": "offline",
         "sourceTextAr": "${payload.notes || ''} [تم حل التعارض واعتماد لقطة التسعير المحمية]",
         "context": "template_literal",
         "sourceFiles": [
@@ -58073,7 +58029,7 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "offline.labels.pricing_3",
+        "key": "offline.labels.pricing_2",
         "category": "offline",
         "sourceTextAr": "قاعدة التسعير المحلية خارج نطاق الصلاحية للتشغيل (${pricingRule.effectiveFrom} إلى ${pricingRule.effectiveTo})",
         "context": "template_literal",
@@ -58084,7 +58040,7 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "offline.labels.pricing_4",
+        "key": "offline.labels.pricing_3",
         "category": "offline",
         "sourceTextAr": "${p.notes || ''} [تمت مزامنة العملية خادومياً مع حماية لقطة التسعير الميدانية]",
         "context": "template_literal",
@@ -61176,7 +61132,8 @@
         "sourceTextAr": "react",
         "context": "literal",
         "sourceFiles": [
-          "src/components/exceptionEngine/ExceptionEngineView.tsx:1"
+          "src/components/exceptionEngine/ExceptionEngineView.tsx:1",
+          "src/hooks/useExceptionTypeMeta.ts:12"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -66767,7 +66724,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -67159,7 +67116,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_carriers_22",
+      "duplicateGroupId": "dup_carriers_24",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "carriers",
@@ -67223,7 +67180,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "projects",
@@ -68502,7 +68459,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_carriers_22",
+      "duplicateGroupId": "dup_carriers_24",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -68952,7 +68909,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -69008,7 +68965,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -73681,7 +73638,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -79120,7 +79077,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_drivers_20",
+      "duplicateGroupId": "dup_drivers_22",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "drivers",
@@ -79184,7 +79141,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "projects",
@@ -79816,7 +79773,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_drivers_20",
+      "duplicateGroupId": "dup_drivers_22",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -79990,7 +79947,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -84498,7 +84455,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_130",
+      "duplicateGroupId": "dup_HIGH_136",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -86159,7 +86116,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -96156,7 +96113,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_exceptions_17",
+      "duplicateGroupId": "dup_exceptions_19",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "exceptions",
@@ -96220,7 +96177,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "projects",
@@ -96284,7 +96241,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "trips",
@@ -100696,7 +100653,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_exceptions_17",
+      "duplicateGroupId": "dup_exceptions_19",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -101668,6 +101625,42 @@
           "element": "attr_value"
         },
         {
+          "file": "src/hooks/useExceptionTypeMeta.ts",
+          "line": 29,
+          "column": 24,
+          "element": "prop_defaultSeverity"
+        },
+        {
+          "file": "src/hooks/useExceptionTypeMeta.ts",
+          "line": 39,
+          "column": 24,
+          "element": "prop_defaultSeverity"
+        },
+        {
+          "file": "src/hooks/useExceptionTypeMeta.ts",
+          "line": 59,
+          "column": 24,
+          "element": "prop_defaultSeverity"
+        },
+        {
+          "file": "src/hooks/useExceptionTypeMeta.ts",
+          "line": 69,
+          "column": 24,
+          "element": "prop_defaultSeverity"
+        },
+        {
+          "file": "src/hooks/useExceptionTypeMeta.ts",
+          "line": 74,
+          "column": 24,
+          "element": "prop_defaultSeverity"
+        },
+        {
+          "file": "src/hooks/useExceptionTypeMeta.ts",
+          "line": 84,
+          "column": 24,
+          "element": "prop_defaultSeverity"
+        },
+        {
           "file": "src/services/exceptionEngine.service.ts",
           "line": 29,
           "column": 15,
@@ -101734,7 +101727,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_130",
+      "duplicateGroupId": "dup_HIGH_136",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -103494,7 +103487,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -103548,9 +103541,16 @@
           "line": 1,
           "column": 44,
           "element": "literal"
+        },
+        {
+          "file": "src/hooks/useExceptionTypeMeta.ts",
+          "line": 12,
+          "column": 25,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
+      "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -104757,7 +104757,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -112148,7 +112148,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_130",
+      "duplicateGroupId": "dup_HIGH_136",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -112917,7 +112917,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "projects",
@@ -135816,7 +135816,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_130",
+      "duplicateGroupId": "dup_HIGH_136",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -142894,7 +142894,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_13",
+      "duplicateGroupId": "dup_path_14",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -144932,7 +144932,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -145359,7 +145359,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -193726,7 +193726,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_utf_8_35",
+      "duplicateGroupId": "dup_utf_8_41",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -206422,7 +206422,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_function_3",
+      "duplicateGroupId": "dup_function_5",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -206478,7 +206478,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_130",
+      "duplicateGroupId": "dup_HIGH_136",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -211133,7 +211133,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -224898,7 +224898,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -225637,7 +225637,7 @@
           "element": "call_put"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -229010,7 +229010,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_materials_22",
+      "duplicateGroupId": "dup_materials_24",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "materials",
@@ -229074,7 +229074,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "projects",
@@ -230591,7 +230591,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_materials_22",
+      "duplicateGroupId": "dup_materials_24",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -230659,7 +230659,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -230715,7 +230715,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -236843,7 +236843,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -245314,7 +245314,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "isReportOrExportField": true,
       "internalDataKey": "projects",
       "presentationLabel": "projects",
@@ -245544,7 +245544,7 @@
           "element": "prop_targetCollection"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "isReportOrExportField": true,
       "internalDataKey": "trips",
       "presentationLabel": "trips",
@@ -250118,7 +250118,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_carriers_22",
+      "duplicateGroupId": "dup_carriers_24",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -251261,7 +251261,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_drivers_20",
+      "duplicateGroupId": "dup_drivers_22",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -252186,7 +252186,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_materials_22",
+      "duplicateGroupId": "dup_materials_24",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -252922,58 +252922,6 @@
     "offline.labels.pricing": {
       "key": "offline.labels.pricing",
       "category": "offline",
-      "semanticContext": "prop_pricingRules",
-      "sourceTextAr": "قواعد التسعير (Pricing Rules)",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "قواعد التسعير (Pricing Rules)",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_pricingRules",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/OutboxDrawer.tsx",
-          "line": 291,
-          "column": 19,
-          "element": "prop_pricingRules"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "offline.labels.pricing_2": {
-      "key": "offline.labels.pricing_2",
-      "category": "offline",
       "semanticContext": "template_literal",
       "sourceTextAr": "${payload.notes || ''} [تم حل التعارض واعتماد لقطة التسعير المحمية]",
       "sourceTextEn": null,
@@ -253024,8 +252972,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "offline.labels.pricing_3": {
-      "key": "offline.labels.pricing_3",
+    "offline.labels.pricing_2": {
+      "key": "offline.labels.pricing_2",
       "category": "offline",
       "semanticContext": "template_literal",
       "sourceTextAr": "قاعدة التسعير المحلية خارج نطاق الصلاحية للتشغيل (${pricingRule.effectiveFrom} إلى ${pricingRule.effectiveTo})",
@@ -253077,8 +253025,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "offline.labels.pricing_4": {
-      "key": "offline.labels.pricing_4",
+    "offline.labels.pricing_3": {
+      "key": "offline.labels.pricing_3",
       "category": "offline",
       "semanticContext": "template_literal",
       "sourceTextAr": "${p.notes || ''} [تمت مزامنة العملية خادومياً مع حماية لقطة التسعير الميدانية]",
@@ -253221,7 +253169,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_pricingRules_9",
+      "duplicateGroupId": "dup_pricingRules_11",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -253624,7 +253572,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -253880,7 +253828,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -254779,7 +254727,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -255463,7 +255411,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_trucks_20",
+      "duplicateGroupId": "dup_trucks_22",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -262525,7 +262473,7 @@
           "element": "prop_extractionConfidence"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_130",
+      "duplicateGroupId": "dup_HIGH_136",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -264420,7 +264368,7 @@
           "element": "prop_targetCollection"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "trips",
@@ -267026,6 +266974,65 @@
       "notes": [
         "Quantity detected: Requires 6 Arabic plural forms (zero, one, two, few, many, other)",
         "Protected business/currency tokens: [SAR] must not be altered"
+      ]
+    },
+    "other.fields.pricing_2": {
+      "key": "other.fields.pricing_2",
+      "category": "other",
+      "semanticContext": "prop_'offline.labels.pricing'",
+      "sourceTextAr": "قواعد التسعير (Pricing Rules)",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "قواعد التسعير (Pricing Rules)",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > prop_'offline.labels.pricing'",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ar/index.ts",
+          "line": 73,
+          "column": 29,
+          "element": "prop_'offline.labels.pricing'"
+        }
+      ],
+      "duplicateGroupId": "dup_قواعد_التسعير__Pricing_Rules__2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_قواعد_التسعير__Pricing_Rules_",
+      "isReportOrExportField": true,
+      "internalDataKey": "pricing_2",
+      "presentationLabel": "قواعد التسعير (Pricing Rules)",
+      "notes": [
+        "Semantic conflict group conflict_قواعد_التسعير__Pricing_Rules_: Retained distinct key \"other.fields.pricing_2\" to avoid accidental merge."
       ]
     },
     "other.fields.pricingruleid": {
@@ -269870,6 +269877,71 @@
       "presentationLabel": "إرسال اسم ملف يحتوي على تسلسلات الخروج من المجلد مثل ../../etc/passwd",
       "notes": []
     },
+    "other.fields.txt_226b89": {
+      "key": "other.fields.txt_226b89",
+      "category": "other",
+      "semanticContext": "prop_'trips.labels.txt_226b89'",
+      "sourceTextAr": "destNet + فرق",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "destNet + فرق",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > prop_'trips.labels.txt_226b89'",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ar/index.ts",
+          "line": 75,
+          "column": 30,
+          "element": "prop_'trips.labels.txt_226b89'"
+        },
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 75,
+          "column": 30,
+          "element": "prop_'trips.labels.txt_226b89'"
+        }
+      ],
+      "duplicateGroupId": "dup_destNet___فرق_4",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_destNet___فرق",
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_226b89",
+      "presentationLabel": "destNet + فرق",
+      "notes": [
+        "Semantic conflict group conflict_destNet___فرق: Retained distinct key \"other.fields.txt_226b89\" to avoid accidental merge."
+      ]
+    },
     "other.fields.txt_22b47e": {
       "key": "other.fields.txt_22b47e",
       "category": "other",
@@ -271350,6 +271422,65 @@
       "internalDataKey": "txt_302b84",
       "presentationLabel": "وزن کا فرق",
       "notes": []
+    },
+    "other.fields.txt_304e68": {
+      "key": "other.fields.txt_304e68",
+      "category": "other",
+      "semanticContext": "prop_'trips.labels.txt_304e68'",
+      "sourceTextAr": "تسعير معتمد",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "تسعير معتمد",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > prop_'trips.labels.txt_304e68'",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ar/index.ts",
+          "line": 74,
+          "column": 30,
+          "element": "prop_'trips.labels.txt_304e68'"
+        }
+      ],
+      "duplicateGroupId": "dup_تسعير_معتمد_2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_تسعير_معتمد",
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_304e68",
+      "presentationLabel": "تسعير معتمد",
+      "notes": [
+        "Semantic conflict group conflict_تسعير_معتمد: Retained distinct key \"other.fields.txt_304e68\" to avoid accidental merge."
+      ]
     },
     "other.fields.txt_315651": {
       "key": "other.fields.txt_315651",
@@ -274981,6 +275112,65 @@
       "presentationLabel": "خالص وزن",
       "notes": []
     },
+    "other.fields.txt_70f435": {
+      "key": "other.fields.txt_70f435",
+      "category": "other",
+      "semanticContext": "prop_'offline.labels.pricing'",
+      "sourceTextAr": "قیمت کے قواعد (Pricing Rules)",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "قیمت کے قواعد (Pricing Rules)",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > prop_'offline.labels.pricing'",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 73,
+          "column": 29,
+          "element": "prop_'offline.labels.pricing'"
+        }
+      ],
+      "duplicateGroupId": "dup_قیمت_کے_قواعد__Pricing_Rules__2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_قیمت_کے_قواعد__Pricing_Rules_",
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_70f435",
+      "presentationLabel": "قیمت کے قواعد (Pricing Rules)",
+      "notes": [
+        "Semantic conflict group conflict_قیمت_کے_قواعد__Pricing_Rules_: Retained distinct key \"other.fields.txt_70f435\" to avoid accidental merge."
+      ]
+    },
     "other.fields.txt_70f585": {
       "key": "other.fields.txt_70f585",
       "category": "other",
@@ -276054,6 +276244,65 @@
       "internalDataKey": "txt_7d4f3d",
       "presentationLabel": "صاف ستھرا وزن",
       "notes": []
+    },
+    "other.fields.txt_7d9192": {
+      "key": "other.fields.txt_7d9192",
+      "category": "other",
+      "semanticContext": "prop_'trips.labels.txt_304e68'",
+      "sourceTextAr": "منظور شدہ قیمت",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "منظور شدہ قیمت",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > prop_'trips.labels.txt_304e68'",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 74,
+          "column": 30,
+          "element": "prop_'trips.labels.txt_304e68'"
+        }
+      ],
+      "duplicateGroupId": "dup_منظور_شدہ_قیمت_2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_منظور_شدہ_قیمت",
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_7d9192",
+      "presentationLabel": "منظور شدہ قیمت",
+      "notes": [
+        "Semantic conflict group conflict_منظور_شدہ_قیمت: Retained distinct key \"other.fields.txt_7d9192\" to avoid accidental merge."
+      ]
     },
     "other.fields.txt_7e06c4": {
       "key": "other.fields.txt_7e06c4",
@@ -279948,9 +280197,33 @@
           "line": 340,
           "column": 24,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 157,
+          "column": 61,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 166,
+          "column": 62,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 175,
+          "column": 62,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 184,
+          "column": 70,
+          "element": "call_resolveTranslation"
         }
       ],
-      "duplicateGroupId": "dup_ar_26",
+      "duplicateGroupId": "dup_ar_30",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -280891,8 +281164,22 @@
           "line": 235,
           "column": 10,
           "element": "prop_key"
+        },
+        {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 80,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 54,
+          "column": 3,
+          "element": "literal"
         }
       ],
+      "duplicateGroupId": "dup_auditLogs_3",
+      "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -281297,6 +281584,762 @@
           "line": 25,
           "column": 96,
           "element": "literal"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Meta01": {
+      "key": "other.labels.b52Meta01",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-META-01",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-META-01",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 78,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Meta02": {
+      "key": "other.labels.b52Meta02",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-META-02",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-META-02",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 84,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Meta03": {
+      "key": "other.labels.b52Meta03",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-META-03",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-META-03",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 91,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Meta04": {
+      "key": "other.labels.b52Meta04",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-META-04",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-META-04",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 104,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Mig01": {
+      "key": "other.labels.b52Mig01",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-MIG-01",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-MIG-01",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 111,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Mig02": {
+      "key": "other.labels.b52Mig02",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-MIG-02",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-MIG-02",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 122,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Mig03": {
+      "key": "other.labels.b52Mig03",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-MIG-03",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-MIG-03",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 133,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Mig04": {
+      "key": "other.labels.b52Mig04",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-MIG-04",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-MIG-04",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 144,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Res01": {
+      "key": "other.labels.b52Res01",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-RES-01",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-RES-01",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 156,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Res02": {
+      "key": "other.labels.b52Res02",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-RES-02",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-RES-02",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 165,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Res03": {
+      "key": "other.labels.b52Res03",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-RES-03",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-RES-03",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 174,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Res04": {
+      "key": "other.labels.b52Res04",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-RES-04",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-RES-04",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 183,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Safe01": {
+      "key": "other.labels.b52Safe01",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-SAFE-01",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-SAFE-01",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 199,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.b52Safe02": {
+      "key": "other.labels.b52Safe02",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "B52-SAFE-02",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "B52-SAFE-02",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_test",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 208,
+          "column": 8,
+          "element": "call_test"
         }
       ],
       "isReportOrExportField": false,
@@ -285751,6 +286794,12 @@
           "element": "prop_key"
         },
         {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 35,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
           "file": "src/i18n/catalog/catalog.constants.ts",
           "line": 12,
           "column": 3,
@@ -285787,13 +286836,19 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 45,
+          "column": 3,
+          "element": "literal"
+        },
+        {
           "file": "src/types/wizard.ts",
           "line": 112,
           "column": 35,
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_carriers_22",
+      "duplicateGroupId": "dup_carriers_24",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -294830,6 +295885,12 @@
           "element": "prop_key"
         },
         {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 55,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
           "file": "src/i18n/catalog/catalog.constants.ts",
           "line": 14,
           "column": 3,
@@ -294864,9 +295925,15 @@
           "line": 116,
           "column": 24,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 49,
+          "column": 3,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_drivers_20",
+      "duplicateGroupId": "dup_drivers_22",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -296695,9 +297762,33 @@
           "line": 334,
           "column": 70,
           "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 158,
+          "column": 61,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 167,
+          "column": 62,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 176,
+          "column": 62,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 185,
+          "column": 70,
+          "element": "call_resolveTranslation"
         }
       ],
-      "duplicateGroupId": "dup_en_27",
+      "duplicateGroupId": "dup_en_31",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -298517,6 +299608,12 @@
           "element": "prop_key"
         },
         {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 75,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
           "file": "src/i18n/catalog/catalog.constants.ts",
           "line": 27,
           "column": 3,
@@ -298557,9 +299654,15 @@
           "line": 130,
           "column": 5,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 53,
+          "column": 3,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_exceptions_17",
+      "duplicateGroupId": "dup_exceptions_19",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -299668,9 +300771,15 @@
           "line": 6,
           "column": 16,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 18,
+          "column": 16,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_11",
+      "duplicateGroupId": "dup_fs_12",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -299781,6 +300890,68 @@
           "element": "literal"
         }
       ],
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
+    "other.labels.function": {
+      "key": "other.labels.function",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "function",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "function",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > literal",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 79,
+          "column": 41,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 85,
+          "column": 34,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_function_5",
+      "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -301390,7 +302561,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_130",
+      "duplicateGroupId": "dup_HIGH_136",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -306126,8 +307297,22 @@
           "line": 269,
           "column": 10,
           "element": "prop_key"
+        },
+        {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 90,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 56,
+          "column": 3,
+          "element": "literal"
         }
       ],
+      "duplicateGroupId": "dup_importBatches_3",
+      "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -312415,6 +313600,12 @@
           "element": "prop_key"
         },
         {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 45,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
           "file": "src/i18n/catalog/catalog.constants.ts",
           "line": 15,
           "column": 3,
@@ -312451,13 +313642,19 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 47,
+          "column": 3,
+          "element": "literal"
+        },
+        {
           "file": "src/types/wizard.ts",
           "line": 112,
           "column": 21,
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_materials_22",
+      "duplicateGroupId": "dup_materials_24",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -318481,9 +319678,15 @@
           "line": 7,
           "column": 18,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 19,
+          "column": 18,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_13",
+      "duplicateGroupId": "dup_path_14",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -320964,6 +322167,116 @@
       "isReportOrExportField": false,
       "notes": []
     },
+    "other.labels.pricing_11": {
+      "key": "other.labels.pricing_11",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "pricingRules: 'قواعد التسعير (Pricing Rules)'",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "pricingRules: 'قواعد التسعير (Pricing Rules)'",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_includes",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 117,
+          "column": 26,
+          "element": "call_includes"
+        }
+      ],
+      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
+      "isReportOrExportField": false,
+      "notes": []
+    },
+    "other.labels.pricing_12": {
+      "key": "other.labels.pricing_12",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "قواعد التسعير (Pricing Rules)",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "قواعد التسعير (Pricing Rules)",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > literal",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 160,
+          "column": 16,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_قواعد_التسعير__Pricing_Rules__2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_قواعد_التسعير__Pricing_Rules_",
+      "isReportOrExportField": false,
+      "notes": [
+        "Semantic conflict group conflict_قواعد_التسعير__Pricing_Rules_: Retained distinct key \"other.labels.pricing_12\" to avoid accidental merge."
+      ]
+    },
     "other.labels.pricing_2": {
       "key": "other.labels.pricing_2",
       "category": "other",
@@ -321571,9 +322884,22 @@
           "line": 97,
           "column": 10,
           "element": "prop_key"
+        },
+        {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 40,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 46,
+          "column": 3,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_pricingRules_9",
+      "duplicateGroupId": "dup_pricingRules_11",
+      "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -324150,6 +325476,12 @@
           "element": "prop_key"
         },
         {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 30,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
           "file": "src/i18n/catalog/catalog.constants.ts",
           "line": 11,
           "column": 3,
@@ -324190,9 +325522,15 @@
           "line": 119,
           "column": 24,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 44,
+          "column": 3,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -325506,6 +326844,12 @@
           "element": "literal"
         },
         {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 12,
+          "column": 25,
+          "element": "literal"
+        },
+        {
           "file": "src/hooks/useOnlineStatus.ts",
           "line": 1,
           "column": 37,
@@ -325522,9 +326866,15 @@
           "line": 1,
           "column": 26,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 12,
+          "column": 19,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -332421,6 +333771,68 @@
         "Ambiguous/isolated string: Human verification required before translation."
       ]
     },
+    "other.labels.synclogs": {
+      "key": "other.labels.synclogs",
+      "category": "other",
+      "semanticContext": "prop_key",
+      "sourceTextAr": "syncLogs",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "syncLogs",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "AMBIGUOUS",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > prop_key",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "AMBIGUOUS",
+      "translationConfidence": "LOW",
+      "migrationRisk": "MEDIUM",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 85,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 55,
+          "column": 3,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_syncLogs_2",
+      "duplicateClassification": "A_EXACT_SAME_MEANING",
+      "isReportOrExportField": false,
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ]
+    },
     "other.labels.syncoperationrepository": {
       "key": "other.labels.syncoperationrepository",
       "category": "other",
@@ -333770,9 +335182,15 @@
           "line": 441,
           "column": 41,
           "element": "call_getLogicalReplacement"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 216,
+          "column": 22,
+          "element": "call_includes"
         }
       ],
-      "duplicateGroupId": "dup_text_left_9",
+      "duplicateGroupId": "dup_text_left_10",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -333838,9 +335256,15 @@
           "line": 106,
           "column": 21,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 216,
+          "column": 50,
+          "element": "call_includes"
         }
       ],
-      "duplicateGroupId": "dup_text_right_11",
+      "duplicateGroupId": "dup_text_right_12",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -337136,8 +338560,22 @@
           "line": 201,
           "column": 10,
           "element": "prop_key"
+        },
+        {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 70,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 52,
+          "column": 3,
+          "element": "literal"
         }
       ],
+      "duplicateGroupId": "dup_tripEvents_3",
+      "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -337477,6 +338915,12 @@
           "element": "prop_key"
         },
         {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 65,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
           "file": "src/i18n/catalog/catalog.constants.ts",
           "line": 16,
           "column": 3,
@@ -337601,9 +339045,15 @@
           "line": 361,
           "column": 19,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 51,
+          "column": 3,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -340381,6 +341831,12 @@
           "element": "prop_key"
         },
         {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 50,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
           "file": "src/i18n/catalog/catalog.constants.ts",
           "line": 13,
           "column": 3,
@@ -340415,9 +341871,15 @@
           "line": 115,
           "column": 24,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 48,
+          "column": 3,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_trucks_20",
+      "duplicateGroupId": "dup_trucks_22",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -348135,6 +349597,69 @@
         "Quantity detected: Requires 6 Arabic plural forms (zero, one, two, few, many, other)"
       ]
     },
+    "other.labels.txt_226b89": {
+      "key": "other.labels.txt_226b89",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "destNet + فرق",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "destNet + فرق",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > literal",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 178,
+          "column": 16,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 180,
+          "column": 16,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_destNet___فرق_4",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_destNet___فرق",
+      "isReportOrExportField": false,
+      "notes": [
+        "Semantic conflict group conflict_destNet___فرق: Retained distinct key \"other.labels.txt_226b89\" to avoid accidental merge."
+      ]
+    },
     "other.labels.txt_229c30": {
       "key": "other.labels.txt_229c30",
       "category": "other",
@@ -352991,6 +354516,63 @@
       ],
       "isReportOrExportField": false,
       "notes": []
+    },
+    "other.labels.txt_304e68": {
+      "key": "other.labels.txt_304e68",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "تسعير معتمد",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "تسعير معتمد",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > literal",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 169,
+          "column": 16,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_تسعير_معتمد_2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_تسعير_معتمد",
+      "isReportOrExportField": false,
+      "notes": [
+        "Semantic conflict group conflict_تسعير_معتمد: Retained distinct key \"other.labels.txt_304e68\" to avoid accidental merge."
+      ]
     },
     "other.labels.txt_30667f": {
       "key": "other.labels.txt_30667f",
@@ -359202,6 +360784,59 @@
         "Protected business/currency tokens: [TON] must not be altered"
       ]
     },
+    "other.labels.txt_45cae3": {
+      "key": "other.labels.txt_45cae3",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "StateMachineController.tsx still contains unmigrated 'تسعير معتمد'",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "StateMachineController.tsx still contains unmigrated 'تسعير معتمد'",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > literal",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 129,
+          "column": 23,
+          "element": "literal"
+        }
+      ],
+      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
+      "isReportOrExportField": false,
+      "notes": []
+    },
     "other.labels.txt_462d0d": {
       "key": "other.labels.txt_462d0d",
       "category": "other",
@@ -360621,6 +362256,59 @@
       "isReportOrExportField": false,
       "notes": []
     },
+    "other.labels.txt_4b0290": {
+      "key": "other.labels.txt_4b0290",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "StateMachineController.tsx still contains unmigrated 'destNet + فرق'",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "StateMachineController.tsx still contains unmigrated 'destNet + فرق'",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > literal",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 140,
+          "column": 23,
+          "element": "literal"
+        }
+      ],
+      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
+      "isReportOrExportField": false,
+      "notes": []
+    },
     "other.labels.txt_4b11e8": {
       "key": "other.labels.txt_4b11e8",
       "category": "other",
@@ -360772,6 +362460,59 @@
           "line": 157,
           "column": 21,
           "element": "prop_roleInSystemAr"
+        }
+      ],
+      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
+      "isReportOrExportField": false,
+      "notes": []
+    },
+    "other.labels.txt_4be5f4": {
+      "key": "other.labels.txt_4be5f4",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "sub: 'تسعير معتمد'",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "sub: 'تسعير معتمد'",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_includes",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 128,
+          "column": 26,
+          "element": "call_includes"
         }
       ],
       "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
@@ -361327,6 +363068,59 @@
       "notes": [
         "Semantic conflict group conflict_المستخدمون_المعينون: Retained distinct key \"other.labels.txt_4e435a\" to avoid accidental merge."
       ]
+    },
+    "other.labels.txt_4e49ff": {
+      "key": "other.labels.txt_4e49ff",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "alert('تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.')",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "alert('تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.')",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_includes",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 150,
+          "column": 26,
+          "element": "call_includes"
+        }
+      ],
+      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
+      "isReportOrExportField": false,
+      "notes": []
     },
     "other.labels.txt_4e8773": {
       "key": "other.labels.txt_4e8773",
@@ -366927,6 +368721,63 @@
       "isReportOrExportField": false,
       "notes": []
     },
+    "other.labels.txt_5d74e2": {
+      "key": "other.labels.txt_5d74e2",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > literal",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 187,
+          "column": 16,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_تمت_إعادة_ضبط_ذاكرة_التحقق_الت_2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_تمت_إعادة_ضبط_ذاكرة_التحقق_الت",
+      "isReportOrExportField": false,
+      "notes": [
+        "Semantic conflict group conflict_تمت_إعادة_ضبط_ذاكرة_التحقق_الت: Retained distinct key \"other.labels.txt_5d74e2\" to avoid accidental merge."
+      ]
+    },
     "other.labels.txt_5e2354": {
       "key": "other.labels.txt_5e2354",
       "category": "other",
@@ -367267,6 +369118,59 @@
           "line": 185,
           "column": 12,
           "element": "prop_title"
+        }
+      ],
+      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
+      "isReportOrExportField": false,
+      "notes": []
+    },
+    "other.labels.txt_5f6a89": {
+      "key": "other.labels.txt_5f6a89",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "sub: 'destNet + فرق'",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "sub: 'destNet + فرق'",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > call_includes",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 139,
+          "column": 26,
+          "element": "call_includes"
         }
       ],
       "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
@@ -372071,6 +373975,63 @@
       "isReportOrExportField": false,
       "notes": []
     },
+    "other.labels.txt_70f435": {
+      "key": "other.labels.txt_70f435",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "قیمت کے قواعد (Pricing Rules)",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "قیمت کے قواعد (Pricing Rules)",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > literal",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 162,
+          "column": 16,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_قیمت_کے_قواعد__Pricing_Rules__2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_قیمت_کے_قواعد__Pricing_Rules_",
+      "isReportOrExportField": false,
+      "notes": [
+        "Semantic conflict group conflict_قیمت_کے_قواعد__Pricing_Rules_: Retained distinct key \"other.labels.txt_70f435\" to avoid accidental merge."
+      ]
+    },
     "other.labels.txt_711cd9": {
       "key": "other.labels.txt_711cd9",
       "category": "other",
@@ -373503,6 +375464,63 @@
       ],
       "isReportOrExportField": false,
       "notes": []
+    },
+    "other.labels.txt_76513b": {
+      "key": "other.labels.txt_76513b",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "جانچ کے لیے ادیمپوٹینسی کیش کو دوبارہ ترتیب دیا گیا ہے۔",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "جانچ کے لیے ادیمپوٹینسی کیش کو دوبارہ ترتیب دیا گیا ہے۔",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > literal",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 193,
+          "column": 16,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_جانچ_کے_لیے_ادیمپوٹینسی_کیش_کو_2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_جانچ_کے_لیے_ادیمپوٹینسی_کیش_کو",
+      "isReportOrExportField": false,
+      "notes": [
+        "Semantic conflict group conflict_جانچ_کے_لیے_ادیمپوٹینسی_کیش_کو: Retained distinct key \"other.labels.txt_76513b\" to avoid accidental merge."
+      ]
     },
     "other.labels.txt_7652a9": {
       "key": "other.labels.txt_7652a9",
@@ -375616,6 +377634,63 @@
       ],
       "isReportOrExportField": false,
       "notes": []
+    },
+    "other.labels.txt_7d9192": {
+      "key": "other.labels.txt_7d9192",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "منظور شدہ قیمت",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "منظور شدہ قیمت",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > literal",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 171,
+          "column": 16,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_منظور_شدہ_قیمت_2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_منظور_شدہ_قیمت",
+      "isReportOrExportField": false,
+      "notes": [
+        "Semantic conflict group conflict_منظور_شدہ_قیمت: Retained distinct key \"other.labels.txt_7d9192\" to avoid accidental merge."
+      ]
     },
     "other.labels.txt_7d94d9": {
       "key": "other.labels.txt_7d94d9",
@@ -380277,9 +382352,33 @@
           "line": 388,
           "column": 46,
           "element": "call_directionOf"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 159,
+          "column": 61,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 168,
+          "column": 62,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 177,
+          "column": 62,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 186,
+          "column": 70,
+          "element": "call_resolveTranslation"
         }
       ],
-      "duplicateGroupId": "dup_ur_21",
+      "duplicateGroupId": "dup_ur_25",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -381330,13 +383429,25 @@
           "element": "prop_key"
         },
         {
+          "file": "src/hooks/useDomainMeta.ts",
+          "line": 60,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
           "file": "src/repositories/user.repository.ts",
           "line": 16,
           "column": 37,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 50,
+          "column": 3,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_users_2",
+      "duplicateGroupId": "dup_users_4",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -382179,9 +384290,45 @@
           "line": 439,
           "column": 60,
           "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 113,
+          "column": 47,
+          "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 124,
+          "column": 47,
+          "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 135,
+          "column": 47,
+          "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 146,
+          "column": 47,
+          "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 201,
+          "column": 45,
+          "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/metadataHooks.test.ts",
+          "line": 215,
+          "column": 62,
+          "element": "call_readFileSync"
         }
       ],
-      "duplicateGroupId": "dup_utf_8_35",
+      "duplicateGroupId": "dup_utf_8_41",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -384853,6 +387000,63 @@
       "isReportOrExportField": false,
       "notes": []
     },
+    "other.messages.txt_5d74e2": {
+      "key": "other.messages.txt_5d74e2",
+      "category": "other",
+      "semanticContext": "prop_'weighbridge.messages.txt_5d74e2'",
+      "sourceTextAr": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > prop_'weighbridge.messages.txt_5d74e2'",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ar/index.ts",
+          "line": 76,
+          "column": 38,
+          "element": "prop_'weighbridge.messages.txt_5d74e2'"
+        }
+      ],
+      "duplicateGroupId": "dup_تمت_إعادة_ضبط_ذاكرة_التحقق_الت_2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_تمت_إعادة_ضبط_ذاكرة_التحقق_الت",
+      "isReportOrExportField": false,
+      "notes": [
+        "Semantic conflict group conflict_تمت_إعادة_ضبط_ذاكرة_التحقق_الت: Retained distinct key \"other.messages.txt_5d74e2\" to avoid accidental merge."
+      ]
+    },
     "other.messages.txt_69f15b": {
       "key": "other.messages.txt_69f15b",
       "category": "other",
@@ -384905,6 +387109,63 @@
       "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
       "isReportOrExportField": false,
       "notes": []
+    },
+    "other.messages.txt_76513b": {
+      "key": "other.messages.txt_76513b",
+      "category": "other",
+      "semanticContext": "prop_'weighbridge.messages.txt_5d74e2'",
+      "sourceTextAr": "جانچ کے لیے ادیمپوٹینسی کیش کو دوبارہ ترتیب دیا گیا ہے۔",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "جانچ کے لیے ادیمپوٹینسی کیش کو دوبارہ ترتیب دیا گیا ہے۔",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "other > prop_'weighbridge.messages.txt_5d74e2'",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 76,
+          "column": 38,
+          "element": "prop_'weighbridge.messages.txt_5d74e2'"
+        }
+      ],
+      "duplicateGroupId": "dup_جانچ_کے_لیے_ادیمپوٹینسی_کیش_کو_2",
+      "duplicateClassification": "B_DIFFERENT_MEANING_SAME_TEXT",
+      "semanticConflictGroupId": "conflict_جانچ_کے_لیے_ادیمپوٹینسی_کیش_کو",
+      "isReportOrExportField": false,
+      "notes": [
+        "Semantic conflict group conflict_جانچ_کے_لیے_ادیمپوٹینسی_کیش_کو: Retained distinct key \"other.messages.txt_76513b\" to avoid accidental merge."
+      ]
     },
     "other.messages.txt_a0af31": {
       "key": "other.messages.txt_a0af31",
@@ -387618,7 +389879,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -388875,7 +391136,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "projects",
@@ -398637,7 +400898,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_function_3",
+      "duplicateGroupId": "dup_function_5",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -406734,7 +408995,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -406955,7 +409216,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -421004,7 +423265,7 @@
           "element": "prop_stepKey"
         }
       ],
-      "duplicateGroupId": "dup_carriers_22",
+      "duplicateGroupId": "dup_carriers_24",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -422426,7 +424687,7 @@
           "element": "prop_stepKey"
         }
       ],
-      "duplicateGroupId": "dup_materials_22",
+      "duplicateGroupId": "dup_materials_24",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -423519,7 +425780,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -423639,7 +425900,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -443105,7 +445366,7 @@
           "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_exceptions_17",
+      "duplicateGroupId": "dup_exceptions_19",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "exceptions",
@@ -443844,7 +446105,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_11",
+      "duplicateGroupId": "dup_fs_12",
       "isReportOrExportField": true,
       "internalDataKey": "fs",
       "presentationLabel": "fs",
@@ -444197,7 +446458,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_130",
+      "duplicateGroupId": "dup_HIGH_136",
       "isReportOrExportField": true,
       "internalDataKey": "high",
       "presentationLabel": "HIGH",
@@ -446386,7 +448647,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_13",
+      "duplicateGroupId": "dup_path_14",
       "isReportOrExportField": true,
       "internalDataKey": "path",
       "presentationLabel": "path",
@@ -448418,7 +450679,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "react",
@@ -451219,7 +453480,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_text_left_9",
+      "duplicateGroupId": "dup_text_left_10",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "textLeft",
@@ -451295,7 +453556,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_text_right_11",
+      "duplicateGroupId": "dup_text_right_12",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "textRight",
@@ -461641,7 +463902,7 @@
           "element": "call_writeFileSync"
         }
       ],
-      "duplicateGroupId": "dup_utf_8_35",
+      "duplicateGroupId": "dup_utf_8_41",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "utf8",
@@ -463310,7 +465571,7 @@
           "element": "prop_targetCollection"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "trips",
@@ -470221,7 +472482,7 @@
           "element": "prop_severity"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_130",
+      "duplicateGroupId": "dup_HIGH_136",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -473193,7 +475454,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -491951,7 +494212,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "projects",
@@ -492033,7 +494294,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "trips",
@@ -503034,7 +505295,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_130",
+      "duplicateGroupId": "dup_HIGH_136",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -505762,7 +508023,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -505824,7 +508085,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -509196,7 +511457,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_trips_47",
+      "duplicateGroupId": "dup_trips_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -513471,58 +515732,6 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "trips.labels.txt_226b89": {
-      "key": "trips.labels.txt_226b89",
-      "category": "trips",
-      "semanticContext": "prop_sub",
-      "sourceTextAr": "destNet + فرق",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "destNet + فرق",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "trips > prop_sub",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/tripEngine/StateMachineController.tsx",
-          "line": 1023,
-          "column": 68,
-          "element": "prop_sub"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "trips.labels.txt_2342ca": {
       "key": "trips.labels.txt_2342ca",
       "category": "trips",
@@ -514303,58 +516512,6 @@
         }
       ],
       "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "trips.labels.txt_304e68": {
-      "key": "trips.labels.txt_304e68",
-      "category": "trips",
-      "semanticContext": "prop_sub",
-      "sourceTextAr": "تسعير معتمد",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تسعير معتمد",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "trips > prop_sub",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/tripEngine/StateMachineController.tsx",
-          "line": 1020,
-          "column": 65,
-          "element": "prop_sub"
-        }
-      ],
       "isReportOrExportField": false,
       "notes": []
     },
@@ -522462,7 +524619,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "projects",
@@ -522526,7 +524683,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_trucks_20",
+      "duplicateGroupId": "dup_trucks_22",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": true,
       "internalDataKey": "trucks",
@@ -523458,7 +525615,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_64",
+      "duplicateGroupId": "dup_projects_66",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -523704,7 +525861,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_trucks_20",
+      "duplicateGroupId": "dup_trucks_22",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -526567,7 +528724,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -532418,7 +534575,7 @@
           "element": "call_checkBrackets"
         }
       ],
-      "duplicateGroupId": "dup_ar_26",
+      "duplicateGroupId": "dup_ar_30",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -532634,7 +534791,7 @@
           "element": "call_checkBrackets"
         }
       ],
-      "duplicateGroupId": "dup_en_27",
+      "duplicateGroupId": "dup_en_31",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -533066,7 +535223,7 @@
           "element": "call_checkBrackets"
         }
       ],
-      "duplicateGroupId": "dup_ur_21",
+      "duplicateGroupId": "dup_ur_25",
       "isReportOrExportField": false,
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
@@ -545596,7 +547753,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_46",
+      "duplicateGroupId": "dup_react_49",
       "duplicateClassification": "A_EXACT_SAME_MEANING",
       "isReportOrExportField": false,
       "notes": [
@@ -556395,59 +558552,6 @@
           "line": 331,
           "column": 20,
           "element": "prop_messageAr"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "weighbridge.messages.txt_5d74e2": {
-      "key": "weighbridge.messages.txt_5d74e2",
-      "category": "weighbridge",
-      "semanticContext": "call_alert",
-      "sourceTextAr": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "weighbridge > call_alert",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/importCenter/WeighbridgeImportSection.tsx",
-          "line": 258,
-          "column": 23,
-          "element": "call_alert"
         }
       ],
       "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",

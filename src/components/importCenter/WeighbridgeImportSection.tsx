@@ -255,7 +255,7 @@ export function WeighbridgeImportSection({
             <button
               onClick={() => {
                 ExcelCsvTripCommitter.resetIdempotencyCache();
-                alert('تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.');
+                alert(t('weighbridge.messages.txt_5d74e2'));
               }}
               className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-all border border-stone-200 flex items-center gap-1.5 cursor-pointer"
             >

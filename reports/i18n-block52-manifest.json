@@ -1,0 +1,348 @@
+{
+  "version": "1.0.0",
+  "block": "BLOCK 52",
+  "title": "Component-Safe LOW_RISK Migration & UI Metadata Hook Preparation",
+  "generatedAt": "2026-09-12T14:05:00.000Z",
+  "status": "COMPONENT_SAFE_MIGRATIONS_AND_UI_METADATA_HOOKS_COMPLETE",
+  "metrics": {
+    "totalCandidatesExamined": 110,
+    "componentSafeSelected": 4,
+    "componentSafeApplied": 4,
+    "topLevelDataExamined": 31,
+    "topLevelDataBreakdown": {
+      "presentationMetadata": 27,
+      "technicalMetadata": 0,
+      "mixedMetadata": 4
+    },
+    "businessDataProtected": 31,
+    "stateMachineProtected": 43,
+    "technicalProtected": 1,
+    "remainingLowRisk": 106,
+    "previousCumulativeApplied": 1161,
+    "newCumulativeApplied": 1165
+  },
+  "appliedEntries": [
+    {
+      "candidateId": "cand_block51_020",
+      "sourceFile": "src/components/offline/OutboxDrawer.tsx",
+      "line": 291,
+      "translationKey": "offline.labels.pricing",
+      "originalText": "قواعد التسعير (Pricing Rules)",
+      "replacement": "t('offline.labels.pricing')",
+      "category": "offline",
+      "classification": "COMPONENT_SAFE",
+      "status": "APPLIED"
+    },
+    {
+      "candidateId": "cand_block51_093",
+      "sourceFile": "src/components/tripEngine/StateMachineController.tsx",
+      "line": 1020,
+      "translationKey": "trips.labels.txt_304e68",
+      "originalText": "تسعير معتمد",
+      "replacement": "t('trips.labels.txt_304e68')",
+      "category": "trips",
+      "classification": "COMPONENT_SAFE",
+      "status": "APPLIED"
+    },
+    {
+      "candidateId": "cand_block51_094",
+      "sourceFile": "src/components/tripEngine/StateMachineController.tsx",
+      "line": 1023,
+      "translationKey": "trips.labels.txt_226b89",
+      "originalText": "destNet + فرق",
+      "replacement": "t('trips.labels.txt_226b89')",
+      "category": "trips",
+      "classification": "COMPONENT_SAFE",
+      "status": "APPLIED"
+    },
+    {
+      "candidateId": "cand_block51_109",
+      "sourceFile": "src/components/importCenter/WeighbridgeImportSection.tsx",
+      "line": 258,
+      "translationKey": "weighbridge.messages.txt_5d74e2",
+      "originalText": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
+      "replacement": "t('weighbridge.messages.txt_5d74e2')",
+      "category": "weighbridge",
+      "classification": "COMPONENT_SAFE",
+      "status": "APPLIED"
+    }
+  ],
+  "topLevelDataAnalysis": {
+    "presentationMetadataCandidates": [
+      {
+        "id": "cand_block51_002",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 53,
+        "classification": "PRESENTATION_METADATA",
+        "field": "EXCEPTION_TYPE_META.TRUCK_CARRIER_CONFLICT.descAr",
+        "description": "User-visible exception type description"
+      },
+      {
+        "id": "cand_block51_003",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 59,
+        "classification": "PRESENTATION_METADATA",
+        "field": "EXCEPTION_TYPE_META.DRIVER_CARRIER_CONFLICT.descAr",
+        "description": "User-visible exception type description"
+      },
+      {
+        "id": "cand_block51_004",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 65,
+        "classification": "PRESENTATION_METADATA",
+        "field": "EXCEPTION_TYPE_META.MATERIAL_NOT_ALLOWED.descAr",
+        "description": "User-visible exception type description"
+      },
+      {
+        "id": "cand_block51_005",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 71,
+        "classification": "PRESENTATION_METADATA",
+        "field": "EXCEPTION_TYPE_META.CARRIER_NOT_ALLOWED.descAr",
+        "description": "User-visible exception type description"
+      },
+      {
+        "id": "cand_block51_006",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 95,
+        "classification": "PRESENTATION_METADATA",
+        "field": "EXCEPTION_TYPE_META.MISSING_PRICING.descAr",
+        "description": "User-visible exception type description"
+      },
+      {
+        "id": "cand_block51_007",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 101,
+        "classification": "PRESENTATION_METADATA",
+        "field": "EXCEPTION_TYPE_META.PRICING_CONFLICT.descAr",
+        "description": "User-visible exception type description"
+      },
+      {
+        "id": "cand_block51_008",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 107,
+        "classification": "PRESENTATION_METADATA",
+        "field": "EXCEPTION_TYPE_META.SYNC_FAILURE.descAr",
+        "description": "User-visible exception type description"
+      },
+      {
+        "id": "cand_block51_009",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 113,
+        "classification": "PRESENTATION_METADATA",
+        "field": "EXCEPTION_TYPE_META.VERSION_CONFLICT.descAr",
+        "description": "User-visible exception type description"
+      },
+      {
+        "id": "cand_block51_021",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 64,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[0].nameAr",
+        "description": "Domain title: Projects"
+      },
+      {
+        "id": "cand_block51_022",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 72,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[0].descriptionAr",
+        "description": "Domain description: Projects"
+      },
+      {
+        "id": "cand_block51_023",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 81,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[1].nameAr",
+        "description": "Domain title: Carriers"
+      },
+      {
+        "id": "cand_block51_024",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 89,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[1].descriptionAr",
+        "description": "Domain description: Carriers"
+      },
+      {
+        "id": "cand_block51_025",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 106,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[2].descriptionAr",
+        "description": "Domain description: Pricing Rules"
+      },
+      {
+        "id": "cand_block51_026",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 123,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[3].descriptionAr",
+        "description": "Domain description: Materials"
+      },
+      {
+        "id": "cand_block51_027",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 150,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[5].nameAr",
+        "description": "Domain title: Drivers"
+      },
+      {
+        "id": "cand_block51_028",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 158,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[5].descriptionAr",
+        "description": "Domain description: Drivers"
+      },
+      {
+        "id": "cand_block51_029",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 167,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[6].nameAr",
+        "description": "Domain title: Users"
+      },
+      {
+        "id": "cand_block51_030",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 175,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[6].descriptionAr",
+        "description": "Domain description: Users"
+      },
+      {
+        "id": "cand_block51_031",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 202,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[8].nameAr",
+        "description": "Domain title: Trip Events"
+      },
+      {
+        "id": "cand_block51_032",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 210,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[8].descriptionAr",
+        "description": "Domain description: Trip Events"
+      },
+      {
+        "id": "cand_block51_033",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 219,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[9].nameAr",
+        "description": "Domain title: Operational Exceptions"
+      },
+      {
+        "id": "cand_block51_034",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 227,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[9].descriptionAr",
+        "description": "Domain description: Operational Exceptions"
+      },
+      {
+        "id": "cand_block51_035",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 236,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[10].nameAr",
+        "description": "Domain title: Audit Logs"
+      },
+      {
+        "id": "cand_block51_036",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 244,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[10].descriptionAr",
+        "description": "Domain description: Audit Logs"
+      },
+      {
+        "id": "cand_block51_037",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 253,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[11].nameAr",
+        "description": "Domain title: Sync Logs"
+      },
+      {
+        "id": "cand_block51_038",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 261,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[11].descriptionAr",
+        "description": "Domain description: Sync Logs"
+      },
+      {
+        "id": "cand_block51_039",
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "line": 270,
+        "classification": "PRESENTATION_METADATA",
+        "field": "DOMAINS_LIST[12].nameAr",
+        "description": "Domain title: Import Batches"
+      }
+    ],
+    "mixedMetadataCandidates": [
+      {
+        "id": "cand_block51_010",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 202,
+        "classification": "MIXED_METADATA",
+        "field": "actorName: م. سالم القحطاني",
+        "reason": "Audit trail action payload actor identity"
+      },
+      {
+        "id": "cand_block51_011",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 204,
+        "classification": "MIXED_METADATA",
+        "field": "notes: بدء التدقيق والتحقق من الأدلة المرفقة",
+        "reason": "Audit trail action payload reason note"
+      },
+      {
+        "id": "cand_block51_012",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 220,
+        "classification": "MIXED_METADATA",
+        "field": "actorName: فهد العتيبي (المدقق المالي)",
+        "reason": "Audit trail action payload actor identity"
+      },
+      {
+        "id": "cand_block51_013",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "line": 241,
+        "classification": "MIXED_METADATA",
+        "field": "actorName: سلطان الدوسري (مدير الموقع)",
+        "reason": "Audit trail action payload actor identity"
+      }
+    ]
+  },
+  "hooksCreated": [
+    {
+      "name": "useExceptionTypeMeta",
+      "path": "src/hooks/useExceptionTypeMeta.ts",
+      "entitiesCovered": 12,
+      "purePresentation": true,
+      "consumersMigrated": false
+    },
+    {
+      "name": "useDomainMeta",
+      "path": "src/hooks/useDomainMeta.ts",
+      "entitiesCovered": 13,
+      "purePresentation": true,
+      "consumersMigrated": false
+    }
+  ],
+  "verification": {
+    "tests": "ALL PASS (14/14 metadataHooks, 6/6 test suites in npm test, 46/46 pricingEngine, 11/11 reportsEngine)",
+    "lint": "PASS (0 errors, tsc --noEmit)",
+    "build": "PASS (Vite + esbuild production build succeeded)",
+    "businessLogicMutations": 0,
+    "stateMachineMutations": 0,
+    "directionalCssMutations": 0
+  }
+}

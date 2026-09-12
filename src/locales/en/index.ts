@@ -69,4 +69,9 @@ export const enTranslations: TranslationDictionary = {
   'navigation.labels.txt_72b405': 'ملخص المستند:',
   'navigation.labels.txt_3a0110': 'لا يحتوي على بيانات وهمية (Mock Data) أو واجهات مؤقتة',
   'navigation.labels.txt_276201': 'هندسة معمارية للمشاريع الكبرى وسلاسل الإمداد الميدانية بالمملكة',
+  // BLOCK 52 — Component-Safe LOW_RISK Migrations
+  'offline.labels.pricing': 'Pricing Rules',
+  'trips.labels.txt_304e68': 'Approved Pricing',
+  'trips.labels.txt_226b89': 'destNet + Variance',
+  'weighbridge.messages.txt_5d74e2': 'Idempotency cache has been reset for testing.',
 };

@@ -1,8 +1,8 @@
 # Professional Translation Human Review Queue (BLOCK 43)
 
-**Generated At:** 2026-09-12T13:51:05.176Z
-**Total Catalog Entries Processed:** 8436
-**Total Proposals Requiring Human Review:** 8430 (99.9%)
+**Generated At:** 2026-09-12T14:00:49.780Z
+**Total Catalog Entries Processed:** 8468
+**Total Proposals Requiring Human Review:** 8462 (99.9%)
 
 ## Review Instructions for Translators & Enterprise Auditors
 
@@ -15,18 +15,18 @@
 
 | Review Reason | Queue Count | Architectural Description |
 | :--- | :--- | :--- |
-| `SEMANTIC_CONFLICT` | **832** | Identical source texts with different operational meanings quarantined to prevent UI/business conflation |
+| `SEMANTIC_CONFLICT` | **846** | Identical source texts with different operational meanings quarantined to prevent UI/business conflation |
 | `DOMAIN_TERM` | **0** | Domain-specific terminology requiring operational verification by enterprise domain leads |
 | `INTERPOLATION_RISK` | **8** | Complex dynamic placeholders or parameter sequences requiring syntax verification |
 | `PLURALIZATION_RISK` | **112** | Quantities requiring 6 Arabic plural forms aligned with target language plural rules |
 | `REPORT_EXPORT_RISK` | **1466** | Report column or export header requiring separation of internal data key from display label |
 | `BUSINESS_DATA_RISK` | **690** | Formulas, rates, or business calculations requiring strict identifier preservation |
-| `LOW_CONFIDENCE` | **5322** | Ambiguous or composite phrases generated with low statistical confidence |
+| `LOW_CONFIDENCE` | **5340** | Ambiguous or composite phrases generated with low statistical confidence |
 | `DIRECTIONAL_RISK` | **0** | Mixed-direction content (Arabic and Latin/numbers) needing directional inspection |
 | `VALIDATION_FAILURE` | **0** | Proposal encountered parameter mismatch, missing tokens, or structural defects |
 | `OTHER` | **0** | General review requirements flagged by migration pipeline |
 
-### 1. Reason: `SEMANTIC_CONFLICT` (832 items)
+### 1. Reason: `SEMANTIC_CONFLICT` (846 items)
 
 > Identical source texts with different operational meanings quarantined to prevent UI/business conflation
 
@@ -57,7 +57,7 @@
 | `dashboard.labels.materials` | "كافة المواد (All Materials)" | "كافة Materials (All Materials)" | "كافة مٹیریلز (All Materials)" | Verify context 'jsx_text'. Do NOT merge with other instances of 'كافة المواد (All Materials)'. |
 | `dashboard.labels.materials_2` | "كافة المواد" | "كافة Materials" | "كافة مٹیریلز" | Verify context 'jsx_text'. Do NOT merge with other instances of 'كافة المواد'. |
 | `dashboard.labels.pricing` | "نوع التسعير (Pricing Type)" | "نوع التسعير (Pricing Type)" | "نوع التسعير (Pricing Type)" | Verify context 'jsx_text'. Do NOT merge with other instances of 'نوع التسعير (Pricing Type)'. |
-| ... | *and 807 more items in this queue* | | | |
+| ... | *and 821 more items in this queue* | | | |
 
 ### 1. Reason: `INTERPOLATION_RISK` (8 items)
 
@@ -233,7 +233,7 @@
 | `entityResolution.labels.txt_1164f5` | "عُثر على تطابق مقترح (Possible Match) بنسبة ${highestScore}% مع "${bestCandidate.value}". ${matchDetails}" | "عُثر على تطابق مقترح (Possible Match) بنسبة ${highestScore}% مع "${bestCandidate.value}". ${matchDetails}" | "عُثر على تطابق مقترح (Possible Match) بنسبة ${highestScore}% مع "${bestCandidate.value}". ${matchDetails}" | Protect financial or scale tokens: [highestScore, matchDetails]. |
 | ... | *and 665 more items in this queue* | | | |
 
-### 1. Reason: `LOW_CONFIDENCE` (5322 items)
+### 1. Reason: `LOW_CONFIDENCE` (5340 items)
 
 > Ambiguous or composite phrases generated with low statistical confidence
 
@@ -264,5 +264,5 @@
 | `carriers.messages.projectCarrier` | "معرّف المشروع التابع له الناقل مطلوب" | "معرّف Project التابع له Carrier Required" | "معرّف پروجیکٹ التابع له کیریئر لازمی" | Review phrasing carefully; replace with verified domain phrase if needed. |
 | `dashboard.actions.shiftdatefrom` | "shiftDateFrom" | "shiftDateFrom" | "shiftDateFrom" | Review phrasing carefully; replace with verified domain phrase if needed. |
 | `dashboard.labels.20260101` | "2026-01-01" | "2026-01-01" | "2026-01-01" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| ... | *and 5297 more items in this queue* | | | |
+| ... | *and 5315 more items in this queue* | | | |
 

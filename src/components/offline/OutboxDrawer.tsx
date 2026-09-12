@@ -288,7 +288,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
     materials: 'المواد (Materials)',
     trucks: 'الشاحنات (Trucks)',
     drivers: t('offline.labels.txt_499f33'),
-    pricingRules: 'قواعد التسعير (Pricing Rules)',
+    pricingRules: t('offline.labels.pricing'),
   };
 
   return (

@@ -1017,10 +1017,10 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
               {[
                 { st: 'DRAFT', label: '1. مسودة', sub: t('trips.labels.create_2'), roles: 'DISPATCHER' },
                 { st: 'LOADED', label: '2. تحميل ووزن', sub: t('trips.labels.txt_2f47a4'), roles: 'SCALE_OP' },
-                { st: 'IN_TRANSIT', label: '3. في الطريق', sub: 'تسعير معتمد', roles: 'DISPATCHER' },
+                { st: 'IN_TRANSIT', label: '3. في الطريق', sub: t('trips.labels.txt_304e68'), roles: 'DISPATCHER' },
                 { st: 'ARRIVED', label: '4. وصول الموقع', sub: t('trips.labels.txt_61ff0a'), roles: 'DRIVER/REC' },
                 { st: 'UNLOADING', label: '5. قيد التفريغ', sub: t('trips.labels.txt_4d1719'), roles: 'RECEIVER' },
-                { st: 'COMPLETED', label: '6. مكتملة ومسواة', sub: 'destNet + فرق', roles: 'RECEIVER' }
+                { st: 'COMPLETED', label: '6. مكتملة ومسواة', sub: t('trips.labels.txt_226b89'), roles: 'RECEIVER' }
               ].map((item, idx) => {
                 const isCurrent = activeTrip?.status === item.st;
                 return (
