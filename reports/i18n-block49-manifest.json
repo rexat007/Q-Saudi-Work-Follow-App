@@ -1,0 +1,154 @@
+{
+  "version": "1.0.0",
+  "block": 49,
+  "mode": "APPLIED",
+  "generatedAt": "2026-09-12T13:26:39.623Z",
+  "totalLowRiskCandidatesSelected": 44,
+  "totalAppliedInBatch": 44,
+  "filesModifiedCount": 9,
+  "entries": [
+    {
+      "sourceFile": "src/components/workspace/WorkspaceIntegrationView.tsx",
+      "originalHash": "325d825b2d407b30",
+      "modifiedHash": "07d93eb675119d71",
+      "translationKeysInserted": [
+        "navigation.labels.projectUpload",
+        "navigation.labels.project_2",
+        "navigation.status.txt_7568b1",
+        "navigation.labels.txt_a4ab42"
+      ],
+      "timestamp": "2026-09-12T13:26:39.168Z",
+      "transformCount": 4,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/wizard/ProjectSetupWizard.tsx",
+      "originalHash": "87665f5d0ee94e17",
+      "modifiedHash": "84f37b796b92c990",
+      "translationKeysInserted": [
+        "projects.labels.txt_2bed60",
+        "projects.labels.txt_3d1068",
+        "projects.labels.txt_6e8506",
+        "projects.labels.txt_3ba0be",
+        "projects.labels.materials",
+        "projects.labels.project"
+      ],
+      "timestamp": "2026-09-12T13:26:39.203Z",
+      "transformCount": 6,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/offline/OutboxDrawer.tsx",
+      "originalHash": "caae073d44010c6e",
+      "modifiedHash": "11452712a91f554d",
+      "translationKeysInserted": [
+        "offline.labels.txt_499f33",
+        "offline.labels.txt_262349",
+        "offline.labels.projects",
+        "offline.status.success",
+        "offline.messages.txt_2165a5",
+        "offline.messages.txt_36ec7e"
+      ],
+      "timestamp": "2026-09-12T13:26:39.287Z",
+      "transformCount": 6,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/offline/ConflictResolutionModal.tsx",
+      "originalHash": "08e991fb7d220861",
+      "modifiedHash": "f4f2ff12efee8558",
+      "translationKeysInserted": [
+        "offline.labels.edit",
+        "offline.labels.truck",
+        "offline.labels.trip",
+        "offline.labels.txt_10f795",
+        "offline.labels.txt_7e9398"
+      ],
+      "timestamp": "2026-09-12T13:26:39.320Z",
+      "transformCount": 5,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/masterData/MasterDataView.tsx",
+      "originalHash": "ae47f9945f72fc3d",
+      "modifiedHash": "cc702dc3c179be56",
+      "translationKeysInserted": [
+        "other.messages.driverCarrier_2",
+        "other.messages.driverCarrier",
+        "other.messages.truckCarrier_2",
+        "other.messages.truckCarrier",
+        "other.status.success_2",
+        "other.messages.txt_731859",
+        "other.messages.txt_197fc5"
+      ],
+      "timestamp": "2026-09-12T13:26:39.432Z",
+      "transformCount": 7,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/dataQuality/DataQualityView.tsx",
+      "originalHash": "9468f01fe66e26df",
+      "modifiedHash": "44ca98bac4c4f2b9",
+      "translationKeysInserted": [
+        "entityResolution.labels.view",
+        "entityResolution.labels.txt_63d60e",
+        "entityResolution.labels.txt_392bf7",
+        "entityResolution.labels.driver",
+        "entityResolution.labels.txt_a74c7a",
+        "entityResolution.labels.txt_3a6cb9",
+        "entityResolution.labels.txt_16c00c",
+        "entityResolution.labels.txt_30e91e",
+        "entityResolution.labels.txt_2b8f60",
+        "entityResolution.labels.txt_30daee"
+      ],
+      "timestamp": "2026-09-12T13:26:39.494Z",
+      "transformCount": 10,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/tripEngine/UnloadingStation.tsx",
+      "originalHash": "1d69db576f1c66ca",
+      "modifiedHash": "440870f52702cded",
+      "translationKeysInserted": [
+        "unloading.status.truck"
+      ],
+      "timestamp": "2026-09-12T13:26:39.536Z",
+      "transformCount": 1,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/TripEngineView.tsx",
+      "originalHash": "0073acd19b33d8e1",
+      "modifiedHash": "be08d67ce5e72217",
+      "translationKeysInserted": [
+        "trips.messages.trips"
+      ],
+      "timestamp": "2026-09-12T13:26:39.585Z",
+      "transformCount": 1,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    },
+    {
+      "sourceFile": "src/components/tripEngine/StateMachineController.tsx",
+      "originalHash": "d43dff4e8ad45d4e",
+      "modifiedHash": "a6c0999552575592",
+      "translationKeysInserted": [
+        "trips.labels.txt_4d1719",
+        "trips.labels.txt_61ff0a",
+        "trips.labels.txt_2f47a4",
+        "trips.labels.create_2"
+      ],
+      "timestamp": "2026-09-12T13:26:39.623Z",
+      "transformCount": 4,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    }
+  ]
+}

@@ -185,7 +185,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
       if (onNotification) {
         onNotification({
           type: 'SUCCESS',
-          message: `تم توثيق وصول الشاحنة للموقع بنجاح: تم الانتقال إلى [ARRIVED] وتسجيل وقت الوصول.`
+          message: t('unloading.status.truck')
         });
       }
     } catch (err: any) {

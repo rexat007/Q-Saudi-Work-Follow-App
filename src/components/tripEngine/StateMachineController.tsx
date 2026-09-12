@@ -1015,11 +1015,11 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
             <span className="text-xs font-bold text-stone-700 block">{t("trips.labels.txt_23fa6b")}</span>
             <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
               {[
-                { st: 'DRAFT', label: '1. مسودة', sub: 'إنشاء أولي', roles: 'DISPATCHER' },
-                { st: 'LOADED', label: '2. تحميل ووزن', sub: 'فارغ + قائم', roles: 'SCALE_OP' },
+                { st: 'DRAFT', label: '1. مسودة', sub: t('trips.labels.create_2'), roles: 'DISPATCHER' },
+                { st: 'LOADED', label: '2. تحميل ووزن', sub: t('trips.labels.txt_2f47a4'), roles: 'SCALE_OP' },
                 { st: 'IN_TRANSIT', label: '3. في الطريق', sub: 'تسعير معتمد', roles: 'DISPATCHER' },
-                { st: 'ARRIVED', label: '4. وصول الموقع', sub: 'بوابة الاستلام', roles: 'DRIVER/REC' },
-                { st: 'UNLOADING', label: '5. قيد التفريغ', sub: 'فحص الحوض', roles: 'RECEIVER' },
+                { st: 'ARRIVED', label: '4. وصول الموقع', sub: t('trips.labels.txt_61ff0a'), roles: 'DRIVER/REC' },
+                { st: 'UNLOADING', label: '5. قيد التفريغ', sub: t('trips.labels.txt_4d1719'), roles: 'RECEIVER' },
                 { st: 'COMPLETED', label: '6. مكتملة ومسواة', sub: 'destNet + فرق', roles: 'RECEIVER' }
               ].map((item, idx) => {
                 const isCurrent = activeTrip?.status === item.st;

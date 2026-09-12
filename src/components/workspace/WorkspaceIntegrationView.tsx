@@ -73,9 +73,9 @@ export function WorkspaceIntegrationView() {
 
   const handleRequestOAuth = async () => {
     try {
-      setNotification({ type: 'info', text: 'جاري طلب تصاريح Google Drive و Google Sheets...' });
+      setNotification({ type: 'info', text: t('navigation.labels.txt_a4ab42') });
       const token = await clientWorkspaceService.requestGoogleScopes();
-      setNotification({ type: 'success', text: 'تم تسجيل الدخول وتفعيل تصاريح Google Workspace بنجاح!' });
+      setNotification({ type: 'success', text: t('navigation.status.txt_7568b1') });
     } catch (err: any) {
       setNotification({ type: 'error', text: err.message || 'تعذر الحصول على تصاريح Google' });
     }
@@ -117,7 +117,7 @@ export function WorkspaceIntegrationView() {
     if (!spreadsheetId) {
       setNotification({
         type: 'error',
-        text: 'يرجى تهيئة المشروع في Google Workspace أولاً لتوليد spreadsheetId في سجل المشروع (Project Registry).',
+        text: t('navigation.labels.project_2'),
       });
       return;
     }
@@ -142,7 +142,7 @@ export function WorkspaceIntegrationView() {
     if (!provisionResult?.subfolders && !currentProject.settings.googleDriveFolderId) {
       setNotification({
         type: 'error',
-        text: 'يرجى تهيئة مجلدات المشروع في Google Drive أولاً قبل رفع الملفات.',
+        text: t('navigation.labels.projectUpload'),
       });
       return;
     }

@@ -1,18 +1,18 @@
 {
-  "generatedAt": "2026-09-12T13:11:29.992Z",
+  "generatedAt": "2026-09-12T13:27:00.154Z",
   "version": "1.0.0-block42",
   "summary": {
-    "totalCatalogEntries": 8481,
+    "totalCatalogEntries": 8437,
     "translatedCount": 6,
-    "untranslatedCount": 5476,
-    "reviewRequiredCount": 5476,
+    "untranslatedCount": 5432,
+    "reviewRequiredCount": 5432,
     "ambiguousCount": 2998,
     "protectedCount": 1,
     "interpolationCount": 192,
     "pluralizationCount": 120,
     "duplicateSharingCandidates": 1406,
     "semanticConflictCount": 305,
-    "highRiskEntries": 1290,
+    "highRiskEntries": 1288,
     "directionalMigrationQueue": 229,
     "categoryStatistics": {
       "authentication": {
@@ -48,10 +48,10 @@
         "protected": 0
       },
       "entityResolution": {
-        "total": 277,
+        "total": 267,
         "translated": 0,
-        "untranslated": 198,
-        "reviewRequired": 198,
+        "untranslated": 188,
+        "reviewRequired": 188,
         "ambiguous": 79,
         "protected": 0
       },
@@ -96,26 +96,26 @@
         "protected": 0
       },
       "navigation": {
-        "total": 236,
+        "total": 232,
         "translated": 0,
-        "untranslated": 133,
-        "reviewRequired": 133,
+        "untranslated": 129,
+        "reviewRequired": 129,
         "ambiguous": 103,
         "protected": 0
       },
       "offline": {
-        "total": 284,
+        "total": 273,
         "translated": 0,
-        "untranslated": 192,
-        "reviewRequired": 192,
+        "untranslated": 181,
+        "reviewRequired": 181,
         "ambiguous": 92,
         "protected": 0
       },
       "other": {
-        "total": 2191,
+        "total": 2184,
         "translated": 4,
-        "untranslated": 1280,
-        "reviewRequired": 1280,
+        "untranslated": 1273,
+        "reviewRequired": 1273,
         "ambiguous": 907,
         "protected": 0
       },
@@ -128,10 +128,10 @@
         "protected": 0
       },
       "projects": {
-        "total": 188,
+        "total": 182,
         "translated": 0,
-        "untranslated": 121,
-        "reviewRequired": 121,
+        "untranslated": 115,
+        "reviewRequired": 115,
         "ambiguous": 67,
         "protected": 0
       },
@@ -152,10 +152,10 @@
         "protected": 0
       },
       "trips": {
-        "total": 528,
+        "total": 523,
         "translated": 0,
-        "untranslated": 408,
-        "reviewRequired": 408,
+        "untranslated": 403,
+        "reviewRequired": 403,
         "ambiguous": 120,
         "protected": 0
       },
@@ -168,10 +168,10 @@
         "protected": 0
       },
       "unloading": {
-        "total": 134,
+        "total": 133,
         "translated": 0,
-        "untranslated": 104,
-        "reviewRequired": 104,
+        "untranslated": 103,
+        "reviewRequired": 103,
         "ambiguous": 30,
         "protected": 0
       },
@@ -205,7 +205,7 @@
     "totalGroups": 2561,
     "typeA_exactSameMeaning": 1406,
     "typeB_differentMeaning": 832,
-    "typeC_formatVariation": 1534,
+    "typeC_formatVariation": 1505,
     "typeD_uncertain": 1
   },
   "directionalMigrationQueue": {
@@ -4155,17 +4155,6 @@
       {
         "key": "trips.labels.create_2",
         "category": "trips",
-        "sourceTextAr": "إنشاء أولي",
-        "context": "prop_sub",
-        "sourceFiles": [
-          "src/components/tripEngine/StateMachineController.tsx:1018"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "trips.labels.create_3",
-        "category": "trips",
         "sourceTextAr": "تعذر إنشاء واعتماد الشحنة بمحطة التحميل: ${validation.blockingError}",
         "context": "template_literal",
         "sourceFiles": [
@@ -6864,17 +6853,6 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "trips.labels.txt_2f47a4",
-        "category": "trips",
-        "sourceTextAr": "فارغ + قائم",
-        "context": "prop_sub",
-        "sourceFiles": [
-          "src/components/tripEngine/StateMachineController.tsx:1019"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
         "key": "trips.labels.txt_304e68",
         "category": "trips",
         "sourceTextAr": "تسعير معتمد",
@@ -7147,17 +7125,6 @@
         "protectedTokens": [
           "TON"
         ]
-      },
-      {
-        "key": "trips.labels.txt_4d1719",
-        "category": "trips",
-        "sourceTextAr": "فحص الحوض",
-        "context": "prop_sub",
-        "sourceFiles": [
-          "src/components/tripEngine/StateMachineController.tsx:1022"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
       },
       {
         "key": "trips.labels.txt_4d830c",
@@ -7488,17 +7455,6 @@
         ],
         "priority": "MEDIUM",
         "reviewReason": "Semantic conflict isolation"
-      },
-      {
-        "key": "trips.labels.txt_61ff0a",
-        "category": "trips",
-        "sourceTextAr": "بوابة الاستلام",
-        "context": "prop_sub",
-        "sourceFiles": [
-          "src/components/tripEngine/StateMachineController.tsx:1021"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
       },
       {
         "key": "trips.labels.txt_627907",
@@ -8179,17 +8135,6 @@
         "context": "prop_messageAr",
         "sourceFiles": [
           "src/validators/tripEvent.validator.ts:21"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "trips.messages.trips",
-        "category": "trips",
-        "sourceTextAr": "تمت استعادة الرحلات التوضيحية الافتراضية",
-        "context": "prop_message",
-        "sourceFiles": [
-          "src/components/TripEngineView.tsx:442"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -12034,17 +11979,6 @@
           "src/components/tripEngine/UnloadingStation.tsx:553"
         ],
         "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "unloading.status.truck",
-        "category": "unloading",
-        "sourceTextAr": "تم توثيق وصول الشاحنة للموقع بنجاح: تم الانتقال إلى [ARRIVED] وتسجيل وقت الوصول.",
-        "context": "template_literal",
-        "sourceFiles": [
-          "src/components/tripEngine/UnloadingStation.tsx:188"
-        ],
-        "priority": "HIGH",
         "reviewReason": "Domain-specific terminology translation"
       },
       {
@@ -35885,17 +35819,6 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "entityResolution.labels.driver",
-        "category": "entityResolution",
-        "sourceTextAr": "التحقق الصارم من التبعيات (الشاحنة للناقل، السائق للناقل، والترخيص في المشروع).",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/dataQuality/DataQualityView.tsx:328"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
         "key": "entityResolution.labels.driverCarrier",
         "category": "entityResolution",
         "sourceTextAr": "تعارض السائق مع الناقل: السائق [${sourceValue}] مسجل تحت كفالة/تشغيل الناقل (${expCarrier}) وليس الناقل (${provCarrier}).",
@@ -35912,7 +35835,7 @@
         ]
       },
       {
-        "key": "entityResolution.labels.driver_3",
+        "key": "entityResolution.labels.driver_2",
         "category": "entityResolution",
         "sourceTextAr": "السائق",
         "context": "jsx_text",
@@ -35923,7 +35846,7 @@
         "reviewReason": "Semantic conflict isolation"
       },
       {
-        "key": "entityResolution.labels.driver_4",
+        "key": "entityResolution.labels.driver_3",
         "category": "entityResolution",
         "sourceTextAr": "تعارض تبعية السائق للناقل (DRIVER_CARRIER_CONFLICT)",
         "context": "call_push",
@@ -36958,17 +36881,6 @@
         "reviewReason": "Semantic conflict isolation"
       },
       {
-        "key": "entityResolution.labels.txt_16c00c",
-        "category": "entityResolution",
-        "sourceTextAr": "معايرة قياسية ذكية تحافظ على المعنى (إزالة التشكيل والتطويل، توحيد الأرقام، الإبقاء على الفروق الجوهرية).",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/dataQuality/DataQualityView.tsx:325"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
         "key": "entityResolution.labels.txt_16dc8f",
         "category": "entityResolution",
         "sourceTextAr": "فارق في حرف المد أو الألف بين \"${rawVal}\" و \"${bestCandidate.value}\". النظام يمنع الدمج التلقائي (Auto-Merge) لاحتمالية اختلاف العائلة أو الكيان.",
@@ -37211,17 +37123,6 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "entityResolution.labels.txt_2b8f60",
-        "category": "entityResolution",
-        "sourceTextAr": "تم استبعاد وحظر السجل من الإدخال.",
-        "context": "prop_resolutionNote",
-        "sourceFiles": [
-          "src/components/dataQuality/DataQualityView.tsx:225"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
         "key": "entityResolution.labels.txt_2c17da",
         "category": "entityResolution",
         "sourceTextAr": "نقليات الصقر",
@@ -37277,28 +37178,6 @@
         ],
         "priority": "HIGH",
         "reviewReason": "Semantic conflict isolation"
-      },
-      {
-        "key": "entityResolution.labels.txt_30daee",
-        "category": "entityResolution",
-        "sourceTextAr": "تم الاعتماد بعد اجتياز التحقق والمطابقة.",
-        "context": "prop_resolutionNote",
-        "sourceFiles": [
-          "src/components/dataQuality/DataQualityView.tsx:216"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "entityResolution.labels.txt_30e91e",
-        "category": "entityResolution",
-        "sourceTextAr": "استلام القيمة النصية الأولية من الملف أو واجهة الإدخال بدون أي تعديل.",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/dataQuality/DataQualityView.tsx:324"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
       },
       {
         "key": "entityResolution.labels.txt_32ae6d",
@@ -37413,17 +37292,6 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "entityResolution.labels.txt_392bf7",
-        "category": "entityResolution",
-        "sourceTextAr": "مطابقة لوائح النقل السعودية (صيغ اللوحات، أرقام الهويات، حدود الأوزان والحمولات).",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/dataQuality/DataQualityView.tsx:329"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
         "key": "entityResolution.labels.txt_39a6dd",
         "category": "entityResolution",
         "sourceTextAr": "تشابه لغوي بنسبة ${highestScore}% مع \"${bestCandidate.value}\".",
@@ -37436,17 +37304,6 @@
         "interpolationParams": [
           "highestScore"
         ]
-      },
-      {
-        "key": "entityResolution.labels.txt_3a6cb9",
-        "category": "entityResolution",
-        "sourceTextAr": "فحص التطابق التام 100% مع السجلات المفهرسة والمعتمدة في قاعدة البيانات.",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/dataQuality/DataQualityView.tsx:326"
-        ],
-        "priority": "HIGH",
-        "reviewReason": "Domain-specific terminology translation"
       },
       {
         "key": "entityResolution.labels.txt_3cbca8",
@@ -37746,17 +37603,6 @@
         "context": "prop_title",
         "sourceFiles": [
           "src/components/dataQuality/DataQualityView.tsx:329"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "entityResolution.labels.txt_63d60e",
-        "category": "entityResolution",
-        "sourceTextAr": "احتساب درجة المخاطرة الحتمية (CRITICAL / HIGH / MEDIUM / LOW).",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/dataQuality/DataQualityView.tsx:330"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -38095,17 +37941,6 @@
         "reviewReason": "Semantic conflict isolation"
       },
       {
-        "key": "entityResolution.labels.txt_a74c7a",
-        "category": "entityResolution",
-        "sourceTextAr": "خوارزميات التشابه (Levenshtein & Jaro-Winkler) لحساب نسبة التطابق واكتشاف Possible Matches.",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/dataQuality/DataQualityView.tsx:327"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
         "key": "entityResolution.labels.txt_b9b0f2",
         "category": "entityResolution",
         "sourceTextAr": "9999-ص ص ص",
@@ -38203,17 +38038,6 @@
         "context": "prop_userId",
         "sourceFiles": [
           "src/tests/entityResolution.test.ts:45"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "entityResolution.labels.view",
-        "category": "entityResolution",
-        "sourceTextAr": "تحديد الإجراء المطلوب وعرض قرارات التدخل البشري والخيارات التصحيحية.",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/dataQuality/DataQualityView.tsx:331"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -57935,10 +57759,10 @@
       {
         "key": "offline.labels.edit",
         "category": "offline",
-        "sourceTextAr": "أحد الكيانات (المشروع/المادة/الناقل) تم إيقافه أو تعديل مواصفاته.",
-        "context": "prop_desc",
+        "sourceTextAr": "تم تعليق أو تعديل الكيان خادومياً أثناء عمل الـ Offline",
+        "context": "prop_notesAr",
         "sourceFiles": [
-          "src/components/offline/ConflictResolutionModal.tsx:121"
+          "src/services/offline/conflictResolution.service.ts:330"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -57950,17 +57774,6 @@
         "context": "prop_notes",
         "sourceFiles": [
           "src/services/offline/conflictResolution.service.ts:826"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "offline.labels.edit_2",
-        "category": "offline",
-        "sourceTextAr": "تم تعليق أو تعديل الكيان خادومياً أثناء عمل الـ Offline",
-        "context": "prop_notesAr",
-        "sourceFiles": [
-          "src/services/offline/conflictResolution.service.ts:330"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -58354,17 +58167,6 @@
       {
         "key": "offline.labels.projects",
         "category": "offline",
-        "sourceTextAr": "المشاريع (Projects)",
-        "context": "prop_projects",
-        "sourceFiles": [
-          "src/components/offline/OutboxDrawer.tsx:286"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "offline.labels.projects_2",
-        "category": "offline",
         "sourceTextAr": "projects",
         "context": "call_doc",
         "sourceFiles": [
@@ -58552,17 +58354,6 @@
       {
         "key": "offline.labels.trip",
         "category": "offline",
-        "sourceTextAr": "تم استلام وتفريغ الرحلة وإغلاقها مسبقاً في الموقع.",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/offline/ConflictResolutionModal.tsx:101"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "offline.labels.trip_2",
-        "category": "offline",
         "sourceTextAr": "تعارض: الرحلة مصنفة كمرتجعة (RETURNED) على الخادم",
         "context": "prop_titleAr",
         "sourceFiles": [
@@ -58572,7 +58363,7 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "offline.labels.trip_3",
+        "key": "offline.labels.trip_2",
         "category": "offline",
         "sourceTextAr": "التذكرة محجوزة لرحلة سابقة",
         "context": "prop_notesAr",
@@ -58583,7 +58374,7 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "offline.labels.trip_4",
+        "key": "offline.labels.trip_3",
         "category": "offline",
         "sourceTextAr": "محاولة ترحيل لرحلة تم رفضها وإرجاعها على الخادم",
         "context": "prop_notes",
@@ -58594,7 +58385,7 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "offline.labels.trip_5",
+        "key": "offline.labels.trip_4",
         "category": "offline",
         "sourceTextAr": "مزامنة واعتماد الرحلة خادومياً بعد اتصال الجهاز (${op.deviceId})",
         "context": "template_literal",
@@ -58693,10 +58484,10 @@
       {
         "key": "offline.labels.truck",
         "category": "offline",
-        "sourceTextAr": "تبعية الشاحنة للناقل بالخادم تختلف عن الذاكرة المحلية.",
-        "context": "prop_desc",
+        "sourceTextAr": "تعارض تبعية الشاحنة للناقل (Truck-Carrier Conflict)",
+        "context": "prop_titleAr",
         "sourceFiles": [
-          "src/components/offline/ConflictResolutionModal.tsx:116"
+          "src/services/offline/conflictResolution.service.ts:283"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -58717,17 +58508,6 @@
       },
       {
         "key": "offline.labels.truck_2",
-        "category": "offline",
-        "sourceTextAr": "تعارض تبعية الشاحنة للناقل (Truck-Carrier Conflict)",
-        "context": "prop_titleAr",
-        "sourceFiles": [
-          "src/services/offline/conflictResolution.service.ts:283"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "offline.labels.truck_3",
         "category": "offline",
         "sourceTextAr": "الشاحنة (${params.truckId}) غير متوفرة أو معطلة في الذاكرة المحلية",
         "context": "template_literal",
@@ -58774,17 +58554,6 @@
           "src/components/offline/OutboxDrawer.tsx:502",
           "src/services/offline/conflictResolution.service.ts:166",
           "src/services/offline/conflictResolution.service.ts:167"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "offline.labels.txt_10f795",
-        "category": "offline",
-        "sourceTextAr": "السجل على الخادم تم تعديله بالتوازي بإصدار أحدث.",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/offline/ConflictResolutionModal.tsx:91"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -58963,17 +58732,6 @@
         "context": "jsx_text",
         "sourceFiles": [
           "src/components/offline/OutboxDrawer.tsx:335"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "offline.labels.txt_262349",
-        "category": "offline",
-        "sourceTextAr": "الناقلين (Carriers)",
-        "context": "prop_carriers",
-        "sourceFiles": [
-          "src/components/offline/OutboxDrawer.tsx:287"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -59236,17 +58994,6 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "offline.labels.txt_499f33",
-        "category": "offline",
-        "sourceTextAr": "السائقين (Drivers)",
-        "context": "prop_drivers",
-        "sourceFiles": [
-          "src/components/offline/OutboxDrawer.tsx:290"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
         "key": "offline.labels.txt_4d1664",
         "category": "offline",
         "sourceTextAr": "الالتزام بقرار الخادم النهائي (",
@@ -59457,17 +59204,6 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "offline.labels.txt_7e9398",
-        "category": "offline",
-        "sourceTextAr": "مشرف العمليات الميدانية (Scale Supervisor)",
-        "context": "prop_resolvedBy",
-        "sourceFiles": [
-          "src/components/offline/ConflictResolutionModal.tsx:73"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
         "key": "offline.labels.txt_7e9ae3",
         "category": "offline",
         "sourceTextAr": "${payload.settlementAmount?.toLocaleString()} ر.س",
@@ -59634,34 +59370,12 @@
         "reviewReason": "Domain-specific terminology translation"
       },
       {
-        "key": "offline.messages.txt_2165a5",
-        "category": "offline",
-        "sourceTextAr": "تمت إعادة تعيين العملية إلى حالة الانتظار (PENDING). ستتم المزامنة عند الاتصال.",
-        "context": "prop_message",
-        "sourceFiles": [
-          "src/components/offline/OutboxDrawer.tsx:144"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
         "key": "offline.messages.txt_30de08",
         "category": "offline",
         "sourceTextAr": "معرّف العملية (Idempotency Key) مطلوب",
         "context": "prop_messageAr",
         "sourceFiles": [
           "src/validators/syncOperation.validator.ts:12"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "offline.messages.txt_36ec7e",
-        "category": "offline",
-        "sourceTextAr": "لا يمكن بدء المزامنة: التطبيق في وضع عدم الاتصال (Offline).",
-        "context": "prop_message",
-        "sourceFiles": [
-          "src/components/offline/OutboxDrawer.tsx:114"
         ],
         "priority": "MEDIUM",
         "reviewReason": "Domain-specific terminology translation"
@@ -59840,12 +59554,12 @@
       {
         "key": "offline.status.success",
         "category": "offline",
-        "sourceTextAr": "تم مسح العمليات المزامنة والمؤكدة بنجاح من صندوق الصادر.",
-        "context": "prop_message",
+        "sourceTextAr": "اجتازت جميع اختبارات التعارضات (${res.passedTests}/${res.totalTests}) بنجاح تام وفق المحددات الإلزامية.",
+        "context": "template_literal",
         "sourceFiles": [
-          "src/components/offline/OutboxDrawer.tsx:154"
+          "src/components/offline/OutboxDrawer.tsx:227"
         ],
-        "priority": "MEDIUM",
+        "priority": "HIGH",
         "reviewReason": "Domain-specific terminology translation"
       },
       {
@@ -59861,17 +59575,6 @@
       },
       {
         "key": "offline.status.success_2",
-        "category": "offline",
-        "sourceTextAr": "اجتازت جميع اختبارات التعارضات (${res.passedTests}/${res.totalTests}) بنجاح تام وفق المحددات الإلزامية.",
-        "context": "template_literal",
-        "sourceFiles": [
-          "src/components/offline/OutboxDrawer.tsx:227"
-        ],
-        "priority": "HIGH",
-        "reviewReason": "Domain-specific terminology translation"
-      },
-      {
-        "key": "offline.status.success_3",
         "category": "offline",
         "sourceTextAr": "تمت المصادقة والاعتماد الخادومي بنجاح (ACK Confirmed)",
         "context": "prop_messageAr",
@@ -84086,59 +83789,6 @@
         "Ambiguous/isolated string: Human verification required before translation."
       ]
     },
-    "entityResolution.labels.driver": {
-      "key": "entityResolution.labels.driver",
-      "category": "entityResolution",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "التحقق الصارم من التبعيات (الشاحنة للناقل، السائق للناقل، والترخيص في المشروع).",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "التحقق الصارم من التبعيات (الشاحنة للناقل، السائق للناقل، والترخيص في المشروع).",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "entityResolution > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/dataQuality/DataQualityView.tsx",
-          "line": 328,
-          "column": 72,
-          "element": "prop_desc"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "entityResolution.labels.driverCarrier": {
       "key": "entityResolution.labels.driverCarrier",
       "category": "entityResolution",
@@ -84198,8 +83848,8 @@
         "Preserve dynamic parameters: {sourceValue, expCarrier, provCarrier}"
       ]
     },
-    "entityResolution.labels.driver_3": {
-      "key": "entityResolution.labels.driver_3",
+    "entityResolution.labels.driver_2": {
+      "key": "entityResolution.labels.driver_2",
       "category": "entityResolution",
       "semanticContext": "jsx_text",
       "sourceTextAr": "السائق",
@@ -84252,11 +83902,11 @@
       "semanticConflictGroupId": "conflict_السائق",
       "isReportOrExportField": false,
       "notes": [
-        "Semantic conflict group conflict_السائق: Retained distinct key \"entityResolution.labels.driver_3\" to avoid accidental merge."
+        "Semantic conflict group conflict_السائق: Retained distinct key \"entityResolution.labels.driver_2\" to avoid accidental merge."
       ]
     },
-    "entityResolution.labels.driver_4": {
-      "key": "entityResolution.labels.driver_4",
+    "entityResolution.labels.driver_3": {
+      "key": "entityResolution.labels.driver_3",
       "category": "entityResolution",
       "semanticContext": "call_push",
       "sourceTextAr": "تعارض تبعية السائق للناقل (DRIVER_CARRIER_CONFLICT)",
@@ -89594,59 +89244,6 @@
         "Semantic conflict group conflict_ركام_خشن_10_20_مم: Retained distinct key \"entityResolution.labels.txt_167ad9\" to avoid accidental merge."
       ]
     },
-    "entityResolution.labels.txt_16c00c": {
-      "key": "entityResolution.labels.txt_16c00c",
-      "category": "entityResolution",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "معايرة قياسية ذكية تحافظ على المعنى (إزالة التشكيل والتطويل، توحيد الأرقام، الإبقاء على الفروق الجوهرية).",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "معايرة قياسية ذكية تحافظ على المعنى (إزالة التشكيل والتطويل، توحيد الأرقام، الإبقاء على الفروق الجوهرية).",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "entityResolution > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/dataQuality/DataQualityView.tsx",
-          "line": 325,
-          "column": 55,
-          "element": "prop_desc"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "entityResolution.labels.txt_16dc8f": {
       "key": "entityResolution.labels.txt_16dc8f",
       "category": "entityResolution",
@@ -90879,59 +90476,6 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "entityResolution.labels.txt_2b8f60": {
-      "key": "entityResolution.labels.txt_2b8f60",
-      "category": "entityResolution",
-      "semanticContext": "prop_resolutionNote",
-      "sourceTextAr": "تم استبعاد وحظر السجل من الإدخال.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم استبعاد وحظر السجل من الإدخال.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "entityResolution > prop_resolutionNote",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/dataQuality/DataQualityView.tsx",
-          "line": 225,
-          "column": 60,
-          "element": "prop_resolutionNote"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "entityResolution.labels.txt_2c17da": {
       "key": "entityResolution.labels.txt_2c17da",
       "category": "entityResolution",
@@ -91212,112 +90756,6 @@
       "notes": [
         "Semantic conflict group conflict_2020_د_هـ_و: Retained distinct key \"entityResolution.labels.txt_307b12\" to avoid accidental merge."
       ]
-    },
-    "entityResolution.labels.txt_30daee": {
-      "key": "entityResolution.labels.txt_30daee",
-      "category": "entityResolution",
-      "semanticContext": "prop_resolutionNote",
-      "sourceTextAr": "تم الاعتماد بعد اجتياز التحقق والمطابقة.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم الاعتماد بعد اجتياز التحقق والمطابقة.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "entityResolution > prop_resolutionNote",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/dataQuality/DataQualityView.tsx",
-          "line": 216,
-          "column": 60,
-          "element": "prop_resolutionNote"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "entityResolution.labels.txt_30e91e": {
-      "key": "entityResolution.labels.txt_30e91e",
-      "category": "entityResolution",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "استلام القيمة النصية الأولية من الملف أو واجهة الإدخال بدون أي تعديل.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "استلام القيمة النصية الأولية من الملف أو واجهة الإدخال بدون أي تعديل.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "entityResolution > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/dataQuality/DataQualityView.tsx",
-          "line": 324,
-          "column": 55,
-          "element": "prop_desc"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
     },
     "entityResolution.labels.txt_32ae6d": {
       "key": "entityResolution.labels.txt_32ae6d",
@@ -91862,59 +91300,6 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "entityResolution.labels.txt_392bf7": {
-      "key": "entityResolution.labels.txt_392bf7",
-      "category": "entityResolution",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "مطابقة لوائح النقل السعودية (صيغ اللوحات، أرقام الهويات، حدود الأوزان والحمولات).",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "مطابقة لوائح النقل السعودية (صيغ اللوحات، أرقام الهويات، حدود الأوزان والحمولات).",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "entityResolution > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/dataQuality/DataQualityView.tsx",
-          "line": 329,
-          "column": 70,
-          "element": "prop_desc"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "entityResolution.labels.txt_39a6dd": {
       "key": "entityResolution.labels.txt_39a6dd",
       "category": "entityResolution",
@@ -91971,59 +91356,6 @@
       "notes": [
         "Preserve dynamic parameters: {highestScore}"
       ]
-    },
-    "entityResolution.labels.txt_3a6cb9": {
-      "key": "entityResolution.labels.txt_3a6cb9",
-      "category": "entityResolution",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "فحص التطابق التام 100% مع السجلات المفهرسة والمعتمدة في قاعدة البيانات.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "فحص التطابق التام 100% مع السجلات المفهرسة والمعتمدة في قاعدة البيانات.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "entityResolution > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "HIGH",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/dataQuality/DataQualityView.tsx",
-          "line": 326,
-          "column": 59,
-          "element": "prop_desc"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
     },
     "entityResolution.labels.txt_3cbca8": {
       "key": "entityResolution.labels.txt_3cbca8",
@@ -93467,59 +92799,6 @@
           "line": 329,
           "column": 43,
           "element": "prop_title"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "entityResolution.labels.txt_63d60e": {
-      "key": "entityResolution.labels.txt_63d60e",
-      "category": "entityResolution",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "احتساب درجة المخاطرة الحتمية (CRITICAL / HIGH / MEDIUM / LOW).",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "احتساب درجة المخاطرة الحتمية (CRITICAL / HIGH / MEDIUM / LOW).",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "entityResolution > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/dataQuality/DataQualityView.tsx",
-          "line": 330,
-          "column": 57,
-          "element": "prop_desc"
         }
       ],
       "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
@@ -95264,59 +94543,6 @@
         "Semantic conflict group conflict_تطابق_تام__EXACT_: Retained distinct key \"entityResolution.labels.txt_987b13\" to avoid accidental merge."
       ]
     },
-    "entityResolution.labels.txt_a74c7a": {
-      "key": "entityResolution.labels.txt_a74c7a",
-      "category": "entityResolution",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "خوارزميات التشابه (Levenshtein & Jaro-Winkler) لحساب نسبة التطابق واكتشاف Possible Matches.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "خوارزميات التشابه (Levenshtein & Jaro-Winkler) لحساب نسبة التطابق واكتشاف Possible Matches.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "entityResolution > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/dataQuality/DataQualityView.tsx",
-          "line": 327,
-          "column": 59,
-          "element": "prop_desc"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "entityResolution.labels.txt_b9b0f2": {
       "key": "entityResolution.labels.txt_b9b0f2",
       "category": "entityResolution",
@@ -95814,59 +95040,6 @@
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ]
-    },
-    "entityResolution.labels.view": {
-      "key": "entityResolution.labels.view",
-      "category": "entityResolution",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "تحديد الإجراء المطلوب وعرض قرارات التدخل البشري والخيارات التصحيحية.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تحديد الإجراء المطلوب وعرض قرارات التدخل البشري والخيارات التصحيحية.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "entityResolution > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/dataQuality/DataQualityView.tsx",
-          "line": 331,
-          "column": 61,
-          "element": "prop_desc"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
     },
     "entityResolution.labels.wb20269021": {
       "key": "entityResolution.labels.wb20269021",
@@ -237335,114 +236508,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "navigation.labels.projectUpload": {
-      "key": "navigation.labels.projectUpload",
-      "category": "navigation",
-      "semanticContext": "prop_text",
-      "sourceTextAr": "يرجى تهيئة مجلدات المشروع في Google Drive أولاً قبل رفع الملفات.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "يرجى تهيئة مجلدات المشروع في Google Drive أولاً قبل رفع الملفات.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "navigation > prop_text",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/workspace/WorkspaceIntegrationView.tsx",
-          "line": 145,
-          "column": 15,
-          "element": "prop_text"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "navigation.labels.project_2": {
       "key": "navigation.labels.project_2",
-      "category": "navigation",
-      "semanticContext": "prop_text",
-      "sourceTextAr": "يرجى تهيئة المشروع في Google Workspace أولاً لتوليد spreadsheetId في سجل المشروع (Project Registry).",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "يرجى تهيئة المشروع في Google Workspace أولاً لتوليد spreadsheetId في سجل المشروع (Project Registry).",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "navigation > prop_text",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/workspace/WorkspaceIntegrationView.tsx",
-          "line": 120,
-          "column": 15,
-          "element": "prop_text"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "navigation.labels.project_3": {
-      "key": "navigation.labels.project_3",
       "category": "navigation",
       "semanticContext": "literal",
       "sourceTextAr": "تهيئة هيكل المشروع في Drive & Sheets",
@@ -237493,8 +236560,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "navigation.labels.project_4": {
-      "key": "navigation.labels.project_4",
+    "navigation.labels.project_3": {
+      "key": "navigation.labels.project_3",
       "category": "navigation",
       "semanticContext": "jsx_text",
       "sourceTextAr": "المشروع المحدد",
@@ -237547,11 +236614,11 @@
       "semanticConflictGroupId": "conflict_المشروع_المحدد",
       "isReportOrExportField": false,
       "notes": [
-        "Semantic conflict group conflict_المشروع_المحدد: Retained distinct key \"navigation.labels.project_4\" to avoid accidental merge."
+        "Semantic conflict group conflict_المشروع_المحدد: Retained distinct key \"navigation.labels.project_3\" to avoid accidental merge."
       ]
     },
-    "navigation.labels.project_5": {
-      "key": "navigation.labels.project_5",
+    "navigation.labels.project_4": {
+      "key": "navigation.labels.project_4",
       "category": "navigation",
       "semanticContext": "prop_reportNameAr",
       "sourceTextAr": "إجمالي الكميات الموردة بالمشروع",
@@ -242639,59 +241706,6 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "navigation.labels.txt_a4ab42": {
-      "key": "navigation.labels.txt_a4ab42",
-      "category": "navigation",
-      "semanticContext": "prop_text",
-      "sourceTextAr": "جاري طلب تصاريح Google Drive و Google Sheets...",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "جاري طلب تصاريح Google Drive و Google Sheets...",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "navigation > prop_text",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/workspace/WorkspaceIntegrationView.tsx",
-          "line": 76,
-          "column": 45,
-          "element": "prop_text"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "navigation.labels.txt_f646f5": {
       "key": "navigation.labels.txt_f646f5",
       "category": "navigation",
@@ -245886,59 +244900,6 @@
           "line": 213,
           "column": 11,
           "element": "template_literal"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "navigation.status.txt_7568b1": {
-      "key": "navigation.status.txt_7568b1",
-      "category": "navigation",
-      "semanticContext": "prop_text",
-      "sourceTextAr": "تم تسجيل الدخول وتفعيل تصاريح Google Workspace بنجاح!",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم تسجيل الدخول وتفعيل تصاريح Google Workspace بنجاح!",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "navigation > prop_text",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/workspace/WorkspaceIntegrationView.tsx",
-          "line": 78,
-          "column": 48,
-          "element": "prop_text"
         }
       ],
       "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
@@ -252450,13 +251411,13 @@
     "offline.labels.edit": {
       "key": "offline.labels.edit",
       "category": "offline",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "أحد الكيانات (المشروع/المادة/الناقل) تم إيقافه أو تعديل مواصفاته.",
+      "semanticContext": "prop_notesAr",
+      "sourceTextAr": "تم تعليق أو تعديل الكيان خادومياً أثناء عمل الـ Offline",
       "sourceTextEn": null,
       "sourceTextUr": null,
       "translations": {
         "ar": {
-          "text": "أحد الكيانات (المشروع/المادة/الناقل) تم إيقافه أو تعديل مواصفاته.",
+          "text": "تم تعليق أو تعديل الكيان خادومياً أثناء عمل الـ Offline",
           "status": "TRANSLATED",
           "confidence": "HIGH"
         },
@@ -252473,7 +251434,7 @@
           "notes": "Requires professional translator review"
         }
       },
-      "description": "offline > prop_desc",
+      "description": "offline > prop_notesAr",
       "interpolationParams": [],
       "pluralizationRequired": false,
       "pluralFormsRequired": [
@@ -252490,13 +251451,12 @@
       "protectedTokens": [],
       "sourceReferences": [
         {
-          "file": "src/components/offline/ConflictResolutionModal.tsx",
-          "line": 121,
-          "column": 15,
-          "element": "prop_desc"
+          "file": "src/services/offline/conflictResolution.service.ts",
+          "line": 330,
+          "column": 22,
+          "element": "prop_notesAr"
         }
       ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
       "isReportOrExportField": false,
       "notes": []
     },
@@ -252547,58 +251507,6 @@
           "line": 826,
           "column": 20,
           "element": "prop_notes"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "offline.labels.edit_2": {
-      "key": "offline.labels.edit_2",
-      "category": "offline",
-      "semanticContext": "prop_notesAr",
-      "sourceTextAr": "تم تعليق أو تعديل الكيان خادومياً أثناء عمل الـ Offline",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم تعليق أو تعديل الكيان خادومياً أثناء عمل الـ Offline",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_notesAr",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/services/offline/conflictResolution.service.ts",
-          "line": 330,
-          "column": 22,
-          "element": "prop_notesAr"
         }
       ],
       "isReportOrExportField": false,
@@ -254621,58 +253529,6 @@
     "offline.labels.projects": {
       "key": "offline.labels.projects",
       "category": "offline",
-      "semanticContext": "prop_projects",
-      "sourceTextAr": "المشاريع (Projects)",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "المشاريع (Projects)",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_projects",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/OutboxDrawer.tsx",
-          "line": 286,
-          "column": 15,
-          "element": "prop_projects"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "offline.labels.projects_2": {
-      "key": "offline.labels.projects_2",
-      "category": "offline",
       "semanticContext": "call_doc",
       "sourceTextAr": "projects",
       "sourceTextEn": null,
@@ -255660,59 +254516,6 @@
     "offline.labels.trip": {
       "key": "offline.labels.trip",
       "category": "offline",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "تم استلام وتفريغ الرحلة وإغلاقها مسبقاً في الموقع.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم استلام وتفريغ الرحلة وإغلاقها مسبقاً في الموقع.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/ConflictResolutionModal.tsx",
-          "line": 101,
-          "column": 15,
-          "element": "prop_desc"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "offline.labels.trip_2": {
-      "key": "offline.labels.trip_2",
-      "category": "offline",
       "semanticContext": "prop_titleAr",
       "sourceTextAr": "تعارض: الرحلة مصنفة كمرتجعة (RETURNED) على الخادم",
       "sourceTextEn": null,
@@ -255763,8 +254566,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "offline.labels.trip_3": {
-      "key": "offline.labels.trip_3",
+    "offline.labels.trip_2": {
+      "key": "offline.labels.trip_2",
       "category": "offline",
       "semanticContext": "prop_notesAr",
       "sourceTextAr": "التذكرة محجوزة لرحلة سابقة",
@@ -255815,8 +254618,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "offline.labels.trip_4": {
-      "key": "offline.labels.trip_4",
+    "offline.labels.trip_3": {
+      "key": "offline.labels.trip_3",
       "category": "offline",
       "semanticContext": "prop_notes",
       "sourceTextAr": "محاولة ترحيل لرحلة تم رفضها وإرجاعها على الخادم",
@@ -255867,8 +254670,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "offline.labels.trip_5": {
-      "key": "offline.labels.trip_5",
+    "offline.labels.trip_4": {
+      "key": "offline.labels.trip_4",
       "category": "offline",
       "semanticContext": "template_literal",
       "sourceTextAr": "مزامنة واعتماد الرحلة خادومياً بعد اتصال الجهاز (${op.deviceId})",
@@ -256364,13 +255167,13 @@
     "offline.labels.truck": {
       "key": "offline.labels.truck",
       "category": "offline",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "تبعية الشاحنة للناقل بالخادم تختلف عن الذاكرة المحلية.",
+      "semanticContext": "prop_titleAr",
+      "sourceTextAr": "تعارض تبعية الشاحنة للناقل (Truck-Carrier Conflict)",
       "sourceTextEn": null,
       "sourceTextUr": null,
       "translations": {
         "ar": {
-          "text": "تبعية الشاحنة للناقل بالخادم تختلف عن الذاكرة المحلية.",
+          "text": "تعارض تبعية الشاحنة للناقل (Truck-Carrier Conflict)",
           "status": "TRANSLATED",
           "confidence": "HIGH"
         },
@@ -256387,7 +255190,7 @@
           "notes": "Requires professional translator review"
         }
       },
-      "description": "offline > prop_desc",
+      "description": "offline > prop_titleAr",
       "interpolationParams": [],
       "pluralizationRequired": false,
       "pluralFormsRequired": [
@@ -256404,13 +255207,12 @@
       "protectedTokens": [],
       "sourceReferences": [
         {
-          "file": "src/components/offline/ConflictResolutionModal.tsx",
-          "line": 116,
-          "column": 15,
-          "element": "prop_desc"
+          "file": "src/services/offline/conflictResolution.service.ts",
+          "line": 283,
+          "column": 20,
+          "element": "prop_titleAr"
         }
       ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
       "isReportOrExportField": false,
       "notes": []
     },
@@ -256473,58 +255275,6 @@
     },
     "offline.labels.truck_2": {
       "key": "offline.labels.truck_2",
-      "category": "offline",
-      "semanticContext": "prop_titleAr",
-      "sourceTextAr": "تعارض تبعية الشاحنة للناقل (Truck-Carrier Conflict)",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تعارض تبعية الشاحنة للناقل (Truck-Carrier Conflict)",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_titleAr",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/services/offline/conflictResolution.service.ts",
-          "line": 283,
-          "column": 20,
-          "element": "prop_titleAr"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "offline.labels.truck_3": {
-      "key": "offline.labels.truck_3",
       "category": "offline",
       "semanticContext": "template_literal",
       "sourceTextAr": "الشاحنة (${params.truckId}) غير متوفرة أو معطلة في الذاكرة المحلية",
@@ -256822,59 +255572,6 @@
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ]
-    },
-    "offline.labels.txt_10f795": {
-      "key": "offline.labels.txt_10f795",
-      "category": "offline",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "السجل على الخادم تم تعديله بالتوازي بإصدار أحدث.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "السجل على الخادم تم تعديله بالتوازي بإصدار أحدث.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/ConflictResolutionModal.tsx",
-          "line": 91,
-          "column": 15,
-          "element": "prop_desc"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
     },
     "offline.labels.txt_12a50c": {
       "key": "offline.labels.txt_12a50c",
@@ -257702,58 +256399,6 @@
         }
       ],
       "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "offline.labels.txt_262349": {
-      "key": "offline.labels.txt_262349",
-      "category": "offline",
-      "semanticContext": "prop_carriers",
-      "sourceTextAr": "الناقلين (Carriers)",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "الناقلين (Carriers)",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_carriers",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/OutboxDrawer.tsx",
-          "line": 287,
-          "column": 15,
-          "element": "prop_carriers"
-        }
-      ],
       "isReportOrExportField": false,
       "notes": []
     },
@@ -258929,58 +257574,6 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "offline.labels.txt_499f33": {
-      "key": "offline.labels.txt_499f33",
-      "category": "offline",
-      "semanticContext": "prop_drivers",
-      "sourceTextAr": "السائقين (Drivers)",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "السائقين (Drivers)",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_drivers",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/OutboxDrawer.tsx",
-          "line": 290,
-          "column": 14,
-          "element": "prop_drivers"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "offline.labels.txt_4d1664": {
       "key": "offline.labels.txt_4d1664",
       "category": "offline",
@@ -259959,58 +258552,6 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "offline.labels.txt_7e9398": {
-      "key": "offline.labels.txt_7e9398",
-      "category": "offline",
-      "semanticContext": "prop_resolvedBy",
-      "sourceTextAr": "مشرف العمليات الميدانية (Scale Supervisor)",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "مشرف العمليات الميدانية (Scale Supervisor)",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_resolvedBy",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/ConflictResolutionModal.tsx",
-          "line": 73,
-          "column": 21,
-          "element": "prop_resolvedBy"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "offline.labels.txt_7e9ae3": {
       "key": "offline.labels.txt_7e9ae3",
       "category": "offline",
@@ -260816,59 +259357,6 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "offline.messages.txt_2165a5": {
-      "key": "offline.messages.txt_2165a5",
-      "category": "offline",
-      "semanticContext": "prop_message",
-      "sourceTextAr": "تمت إعادة تعيين العملية إلى حالة الانتظار (PENDING). ستتم المزامنة عند الاتصال.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تمت إعادة تعيين العملية إلى حالة الانتظار (PENDING). ستتم المزامنة عند الاتصال.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_message",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/OutboxDrawer.tsx",
-          "line": 144,
-          "column": 18,
-          "element": "prop_message"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "offline.messages.txt_30de08": {
       "key": "offline.messages.txt_30de08",
       "category": "offline",
@@ -260918,59 +259406,6 @@
           "element": "prop_messageAr"
         }
       ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "offline.messages.txt_36ec7e": {
-      "key": "offline.messages.txt_36ec7e",
-      "category": "offline",
-      "semanticContext": "prop_message",
-      "sourceTextAr": "لا يمكن بدء المزامنة: التطبيق في وضع عدم الاتصال (Offline).",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "لا يمكن بدء المزامنة: التطبيق في وضع عدم الاتصال (Offline).",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_message",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/OutboxDrawer.tsx",
-          "line": 114,
-          "column": 18,
-          "element": "prop_message"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
       "isReportOrExportField": false,
       "notes": []
     },
@@ -261785,13 +260220,13 @@
     "offline.status.success": {
       "key": "offline.status.success",
       "category": "offline",
-      "semanticContext": "prop_message",
-      "sourceTextAr": "تم مسح العمليات المزامنة والمؤكدة بنجاح من صندوق الصادر.",
+      "semanticContext": "template_literal",
+      "sourceTextAr": "اجتازت جميع اختبارات التعارضات (${res.passedTests}/${res.totalTests}) بنجاح تام وفق المحددات الإلزامية.",
       "sourceTextEn": null,
       "sourceTextUr": null,
       "translations": {
         "ar": {
-          "text": "تم مسح العمليات المزامنة والمؤكدة بنجاح من صندوق الصادر.",
+          "text": "اجتازت جميع اختبارات التعارضات (${res.passedTests}/${res.totalTests}) بنجاح تام وفق المحددات الإلزامية.",
           "status": "TRANSLATED",
           "confidence": "HIGH"
         },
@@ -261808,7 +260243,7 @@
           "notes": "Requires professional translator review"
         }
       },
-      "description": "offline > prop_message",
+      "description": "offline > template_literal",
       "interpolationParams": [],
       "pluralizationRequired": false,
       "pluralFormsRequired": [
@@ -261821,14 +260256,14 @@
       ],
       "reviewStatus": "REVIEW_REQUIRED",
       "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
+      "migrationRisk": "HIGH",
       "protectedTokens": [],
       "sourceReferences": [
         {
           "file": "src/components/offline/OutboxDrawer.tsx",
-          "line": 154,
-          "column": 16,
-          "element": "prop_message"
+          "line": 227,
+          "column": 13,
+          "element": "template_literal"
         }
       ],
       "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
@@ -261890,59 +260325,6 @@
     },
     "offline.status.success_2": {
       "key": "offline.status.success_2",
-      "category": "offline",
-      "semanticContext": "template_literal",
-      "sourceTextAr": "اجتازت جميع اختبارات التعارضات (${res.passedTests}/${res.totalTests}) بنجاح تام وفق المحددات الإلزامية.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "اجتازت جميع اختبارات التعارضات (${res.passedTests}/${res.totalTests}) بنجاح تام وفق المحددات الإلزامية.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > template_literal",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "HIGH",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/OutboxDrawer.tsx",
-          "line": 227,
-          "column": 13,
-          "element": "template_literal"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "offline.status.success_3": {
-      "key": "offline.status.success_3",
       "category": "offline",
       "semanticContext": "prop_messageAr",
       "sourceTextAr": "تمت المصادقة والاعتماد الخادومي بنجاح (ACK Confirmed)",
@@ -386160,218 +384542,6 @@
         "Ambiguous/isolated string: Human verification required before translation."
       ]
     },
-    "other.messages.driverCarrier": {
-      "key": "other.messages.driverCarrier",
-      "category": "other",
-      "semanticContext": "prop_message",
-      "sourceTextAr": "تم تسجيل السائق وربطه بالناقل (Driver → Carrier) محلياً.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم تسجيل السائق وربطه بالناقل (Driver → Carrier) محلياً.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "other > prop_message",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/masterData/MasterDataView.tsx",
-          "line": 589,
-          "column": 51,
-          "element": "prop_message"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "other.messages.driverCarrier_2": {
-      "key": "other.messages.driverCarrier_2",
-      "category": "other",
-      "semanticContext": "prop_message",
-      "sourceTextAr": "تم تسجيل السائق وربطه بالناقل (Driver → Carrier) مع تطبيع الهوية والجوال.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم تسجيل السائق وربطه بالناقل (Driver → Carrier) مع تطبيع الهوية والجوال.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "other > prop_message",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/masterData/MasterDataView.tsx",
-          "line": 597,
-          "column": 51,
-          "element": "prop_message"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "other.messages.truckCarrier": {
-      "key": "other.messages.truckCarrier",
-      "category": "other",
-      "semanticContext": "prop_message",
-      "sourceTextAr": "تم تسجيل الشاحنة وربطها بالناقل (Truck → Carrier) محلياً.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم تسجيل الشاحنة وربطها بالناقل (Truck → Carrier) محلياً.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "other > prop_message",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/masterData/MasterDataView.tsx",
-          "line": 546,
-          "column": 51,
-          "element": "prop_message"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "other.messages.truckCarrier_2": {
-      "key": "other.messages.truckCarrier_2",
-      "category": "other",
-      "semanticContext": "prop_message",
-      "sourceTextAr": "تم تسجيل الشاحنة وربطها بالناقل (Truck → Carrier) مع تطبيع اللوحة.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم تسجيل الشاحنة وربطها بالناقل (Truck → Carrier) مع تطبيع اللوحة.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "other > prop_message",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/masterData/MasterDataView.tsx",
-          "line": 554,
-          "column": 51,
-          "element": "prop_message"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "other.messages.txt_16473f": {
       "key": "other.messages.txt_16473f",
       "category": "other",
@@ -386481,59 +384651,6 @@
       "notes": [
         "Protected business/currency tokens: [status] must not be altered"
       ]
-    },
-    "other.messages.txt_197fc5": {
-      "key": "other.messages.txt_197fc5",
-      "category": "other",
-      "semanticContext": "prop_message",
-      "sourceTextAr": "يتطلب تشغيل الفحوصات الآلية على Firestore تسجيل الدخول بحساب Google أولاً.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "يتطلب تشغيل الفحوصات الآلية على Firestore تسجيل الدخول بحساب Google أولاً.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "other > prop_message",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/masterData/MasterDataView.tsx",
-          "line": 76,
-          "column": 18,
-          "element": "prop_message"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
     },
     "other.messages.txt_2ca061": {
       "key": "other.messages.txt_2ca061",
@@ -386846,59 +384963,6 @@
           "file": "src/i18n/codemod/codemod.safety.ts",
           "line": 63,
           "column": 18,
-          "element": "prop_message"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "other.messages.txt_731859": {
-      "key": "other.messages.txt_731859",
-      "category": "other",
-      "semanticContext": "prop_message",
-      "sourceTextAr": "تعذر الاتصال ببيانات Firestore المباشرة، تم تفعيل وضع المعاينة المحلي.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تعذر الاتصال ببيانات Firestore المباشرة، تم تفعيل وضع المعاينة المحلي.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "other > prop_message",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/masterData/MasterDataView.tsx",
-          "line": 179,
-          "column": 20,
           "element": "prop_message"
         }
       ],
@@ -389190,59 +387254,6 @@
     "other.status.success_2": {
       "key": "other.status.success_2",
       "category": "other",
-      "semanticContext": "prop_success",
-      "sourceTextAr": "تم تعطيل السجل بنجاح (الحذف المنطقي Soft Delete) وحمايته من العمليات الجديدة.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم تعطيل السجل بنجاح (الحذف المنطقي Soft Delete) وحمايته من العمليات الجديدة.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "other > prop_success",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/masterData/MasterDataView.tsx",
-          "line": 338,
-          "column": 18,
-          "element": "prop_success"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "other.status.success_3": {
-      "key": "other.status.success_3",
-      "category": "other",
       "semanticContext": "literal",
       "sourceTextAr": "تمت التهيئة والأرشفة بنجاح",
       "sourceTextEn": null,
@@ -389292,8 +387303,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "other.status.success_4": {
-      "key": "other.status.success_4",
+    "other.status.success_3": {
+      "key": "other.status.success_3",
       "category": "other",
       "semanticContext": "prop_'نجاح'",
       "sourceTextAr": "نجاح",
@@ -389352,8 +387363,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "other.status.success_5": {
-      "key": "other.status.success_5",
+    "other.status.success_4": {
+      "key": "other.status.success_4",
       "category": "other",
       "semanticContext": "prop_ar",
       "sourceTextAr": "تمت العملية بنجاح",
@@ -389412,8 +387423,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "other.status.success_6": {
-      "key": "other.status.success_6",
+    "other.status.success_5": {
+      "key": "other.status.success_5",
       "category": "other",
       "semanticContext": "prop_'تم بنجاح'",
       "sourceTextAr": "تم بنجاح",
@@ -389464,8 +387475,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "other.status.success_7": {
-      "key": "other.status.success_7",
+    "other.status.success_6": {
+      "key": "other.status.success_6",
       "category": "other",
       "semanticContext": "prop_notes",
       "sourceTextAr": "تم التحقق من ضبط مصدر البيانات ومنفذ العملية كـ MANUAL و USER بنجاح",
@@ -422998,7 +421009,7 @@
         {
           "file": "src/components/wizard/ProjectSetupWizard.tsx",
           "line": 66,
-          "column": 45,
+          "column": 63,
           "element": "prop_sub"
         }
       ],
@@ -424321,58 +422332,6 @@
     "projects.labels.materials": {
       "key": "projects.labels.materials",
       "category": "projects",
-      "semanticContext": "prop_title",
-      "sourceTextAr": "المواد والتوريد",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "المواد والتوريد",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "projects > prop_title",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/wizard/ProjectSetupWizard.tsx",
-          "line": 65,
-          "column": 25,
-          "element": "prop_title"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "projects.labels.materials_2": {
-      "key": "projects.labels.materials_2",
-      "category": "projects",
       "semanticContext": "prop_sub",
       "sourceTextAr": "Materials",
       "sourceTextEn": null,
@@ -424415,7 +422374,7 @@
         {
           "file": "src/components/wizard/ProjectSetupWizard.tsx",
           "line": 65,
-          "column": 49,
+          "column": 62,
           "element": "prop_sub"
         }
       ],
@@ -424425,8 +422384,8 @@
         "Ambiguous/isolated string: Human verification required before translation."
       ]
     },
-    "projects.labels.materials_3": {
-      "key": "projects.labels.materials_3",
+    "projects.labels.materials_2": {
+      "key": "projects.labels.materials_2",
       "category": "projects",
       "semanticContext": "literal",
       "sourceTextAr": "كافة المواد",
@@ -424479,11 +422438,11 @@
       "semanticConflictGroupId": "conflict_كافة_المواد",
       "isReportOrExportField": false,
       "notes": [
-        "Semantic conflict group conflict_كافة_المواد: Retained distinct key \"projects.labels.materials_3\" to avoid accidental merge."
+        "Semantic conflict group conflict_كافة_المواد: Retained distinct key \"projects.labels.materials_2\" to avoid accidental merge."
       ]
     },
-    "projects.labels.materials_4": {
-      "key": "projects.labels.materials_4",
+    "projects.labels.materials_3": {
+      "key": "projects.labels.materials_3",
       "category": "projects",
       "semanticContext": "prop_stepKey",
       "sourceTextAr": "materials",
@@ -424537,8 +422496,8 @@
         "Ambiguous/isolated string: Human verification required before translation."
       ]
     },
-    "projects.labels.materials_5": {
-      "key": "projects.labels.materials_5",
+    "projects.labels.materials_4": {
+      "key": "projects.labels.materials_4",
       "category": "projects",
       "semanticContext": "prop_titleAr",
       "sourceTextAr": "إدارة المواد ونطاق التوريد",
@@ -425098,110 +423057,6 @@
     "projects.labels.project": {
       "key": "projects.labels.project",
       "category": "projects",
-      "semanticContext": "prop_title",
-      "sourceTextAr": "بيانات المشروع",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "بيانات المشروع",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "projects > prop_title",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/wizard/ProjectSetupWizard.tsx",
-          "line": 64,
-          "column": 25,
-          "element": "prop_title"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "projects.labels.project_10": {
-      "key": "projects.labels.project_10",
-      "category": "projects",
-      "semanticContext": "prop_titleAr",
-      "sourceTextAr": "بيانات المشروع الأساسية",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "بيانات المشروع الأساسية",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "projects > prop_titleAr",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/validators/projectProvisioning.validator.ts",
-          "line": 153,
-          "column": 16,
-          "element": "prop_titleAr"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "projects.labels.project_2": {
-      "key": "projects.labels.project_2",
-      "category": "projects",
       "semanticContext": "prop_rootFolderName",
       "sourceTextAr": "PRJ - أرشيف ومستندات المشروع اللوجستية",
       "sourceTextEn": null,
@@ -425251,8 +423106,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "projects.labels.project_3": {
-      "key": "projects.labels.project_3",
+    "projects.labels.project_2": {
+      "key": "projects.labels.project_2",
       "category": "projects",
       "semanticContext": "prop_spreadsheetTitle",
       "sourceTextAr": "سجل رحلات وموازين المشروع",
@@ -425305,11 +423160,11 @@
       "semanticConflictGroupId": "conflict_سجل_رحلات_وموازين_المشروع",
       "isReportOrExportField": false,
       "notes": [
-        "Semantic conflict group conflict_سجل_رحلات_وموازين_المشروع: Retained distinct key \"projects.labels.project_3\" to avoid accidental merge."
+        "Semantic conflict group conflict_سجل_رحلات_وموازين_المشروع: Retained distinct key \"projects.labels.project_2\" to avoid accidental merge."
       ]
     },
-    "projects.labels.project_4": {
-      "key": "projects.labels.project_4",
+    "projects.labels.project_3": {
+      "key": "projects.labels.project_3",
       "category": "projects",
       "semanticContext": "jsx_text",
       "sourceTextAr": "رمز المشروع:",
@@ -425361,8 +423216,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "projects.labels.project_5": {
-      "key": "projects.labels.project_5",
+    "projects.labels.project_4": {
+      "key": "projects.labels.project_4",
       "category": "projects",
       "semanticContext": "jsx_text",
       "sourceTextAr": "مديرو المشروع (Admin):",
@@ -425414,8 +423269,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "projects.labels.project_6": {
-      "key": "projects.labels.project_6",
+    "projects.labels.project_5": {
+      "key": "projects.labels.project_5",
       "category": "projects",
       "semanticContext": "literal",
       "sourceTextAr": "المشروع غير موجود",
@@ -425468,11 +423323,11 @@
       "semanticConflictGroupId": "conflict_المشروع_غير_موجود",
       "isReportOrExportField": false,
       "notes": [
-        "Semantic conflict group conflict_المشروع_غير_موجود: Retained distinct key \"projects.labels.project_6\" to avoid accidental merge."
+        "Semantic conflict group conflict_المشروع_غير_موجود: Retained distinct key \"projects.labels.project_5\" to avoid accidental merge."
       ]
     },
-    "projects.labels.project_7": {
-      "key": "projects.labels.project_7",
+    "projects.labels.project_6": {
+      "key": "projects.labels.project_6",
       "category": "projects",
       "semanticContext": "call_push",
       "sourceTextAr": "رمز المشروع (projectCode) مطلوب",
@@ -425523,8 +423378,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "projects.labels.project_8": {
-      "key": "projects.labels.project_8",
+    "projects.labels.project_7": {
+      "key": "projects.labels.project_7",
       "category": "projects",
       "semanticContext": "call_push",
       "sourceTextAr": "رمز المشروع يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات",
@@ -425575,8 +423430,8 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "projects.labels.project_9": {
-      "key": "projects.labels.project_9",
+    "projects.labels.project_8": {
+      "key": "projects.labels.project_8",
       "category": "projects",
       "semanticContext": "call_push",
       "sourceTextAr": "حالة المشروع مطلوبة",
@@ -425622,6 +423477,58 @@
           "line": 125,
           "column": 21,
           "element": "call_push"
+        }
+      ],
+      "isReportOrExportField": false,
+      "notes": []
+    },
+    "projects.labels.project_9": {
+      "key": "projects.labels.project_9",
+      "category": "projects",
+      "semanticContext": "prop_titleAr",
+      "sourceTextAr": "بيانات المشروع الأساسية",
+      "sourceTextEn": null,
+      "sourceTextUr": null,
+      "translations": {
+        "ar": {
+          "text": "بيانات المشروع الأساسية",
+          "status": "TRANSLATED",
+          "confidence": "HIGH"
+        },
+        "en": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        },
+        "ur": {
+          "text": null,
+          "status": "UNTRANSLATED",
+          "confidence": "LOW",
+          "notes": "Requires professional translator review"
+        }
+      },
+      "description": "projects > prop_titleAr",
+      "interpolationParams": [],
+      "pluralizationRequired": false,
+      "pluralFormsRequired": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "reviewStatus": "REVIEW_REQUIRED",
+      "translationConfidence": "LOW",
+      "migrationRisk": "LOW",
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/validators/projectProvisioning.validator.ts",
+          "line": 153,
+          "column": 16,
+          "element": "prop_titleAr"
         }
       ],
       "isReportOrExportField": false,
@@ -426950,58 +424857,6 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "projects.labels.txt_2bed60": {
-      "key": "projects.labels.txt_2bed60",
-      "category": "projects",
-      "semanticContext": "prop_title",
-      "sourceTextAr": "المراجعة والإنشاء",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "المراجعة والإنشاء",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "projects > prop_title",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/wizard/ProjectSetupWizard.tsx",
-          "line": 70,
-          "column": 25,
-          "element": "prop_title"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "projects.labels.txt_2f1287": {
       "key": "projects.labels.txt_2f1287",
       "category": "projects",
@@ -427158,110 +425013,6 @@
           "line": 146,
           "column": 23,
           "element": "call_push"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "projects.labels.txt_3ba0be": {
-      "key": "projects.labels.txt_3ba0be",
-      "category": "projects",
-      "semanticContext": "prop_title",
-      "sourceTextAr": "شركات النقل",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "شركات النقل",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "projects > prop_title",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/wizard/ProjectSetupWizard.tsx",
-          "line": 66,
-          "column": 25,
-          "element": "prop_title"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "projects.labels.txt_3d1068": {
-      "key": "projects.labels.txt_3d1068",
-      "category": "projects",
-      "semanticContext": "prop_title",
-      "sourceTextAr": "تكامل Google",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تكامل Google",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "projects > prop_title",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/wizard/ProjectSetupWizard.tsx",
-          "line": 69,
-          "column": 25,
-          "element": "prop_title"
         }
       ],
       "isReportOrExportField": false,
@@ -428369,58 +426120,6 @@
       "notes": [
         "Semantic conflict group conflict_المملكة_العربية_السعودية: Retained distinct key \"projects.labels.txt_6d9e78\" to avoid accidental merge."
       ]
-    },
-    "projects.labels.txt_6e8506": {
-      "key": "projects.labels.txt_6e8506",
-      "category": "projects",
-      "semanticContext": "prop_title",
-      "sourceTextAr": "صلاحيات الوصول",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "صلاحيات الوصول",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "projects > prop_title",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/wizard/ProjectSetupWizard.tsx",
-          "line": 68,
-          "column": 25,
-          "element": "prop_title"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
     },
     "projects.labels.txt_72dfaa": {
       "key": "projects.labels.txt_72dfaa",
@@ -503167,58 +500866,6 @@
     "trips.labels.create_2": {
       "key": "trips.labels.create_2",
       "category": "trips",
-      "semanticContext": "prop_sub",
-      "sourceTextAr": "إنشاء أولي",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "إنشاء أولي",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "trips > prop_sub",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/tripEngine/StateMachineController.tsx",
-          "line": 1018,
-          "column": 56,
-          "element": "prop_sub"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "trips.labels.create_3": {
-      "key": "trips.labels.create_3",
-      "category": "trips",
       "semanticContext": "template_literal",
       "sourceTextAr": "تعذر إنشاء واعتماد الشحنة بمحطة التحميل: ${validation.blockingError}",
       "sourceTextEn": null,
@@ -516723,58 +514370,6 @@
       "isReportOrExportField": false,
       "notes": []
     },
-    "trips.labels.txt_2f47a4": {
-      "key": "trips.labels.txt_2f47a4",
-      "category": "trips",
-      "semanticContext": "prop_sub",
-      "sourceTextAr": "فارغ + قائم",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "فارغ + قائم",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "trips > prop_sub",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/tripEngine/StateMachineController.tsx",
-          "line": 1019,
-          "column": 62,
-          "element": "prop_sub"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
     "trips.labels.txt_304e68": {
       "key": "trips.labels.txt_304e68",
       "category": "trips",
@@ -518071,58 +515666,6 @@
       "notes": [
         "Protected business/currency tokens: [TON] must not be altered"
       ]
-    },
-    "trips.labels.txt_4d1719": {
-      "key": "trips.labels.txt_4d1719",
-      "category": "trips",
-      "semanticContext": "prop_sub",
-      "sourceTextAr": "فحص الحوض",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "فحص الحوض",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "trips > prop_sub",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/tripEngine/StateMachineController.tsx",
-          "line": 1022,
-          "column": 66,
-          "element": "prop_sub"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
     },
     "trips.labels.txt_4d830c": {
       "key": "trips.labels.txt_4d830c",
@@ -519701,58 +517244,6 @@
       "notes": [
         "Semantic conflict group conflict_شركة_المجدوعي_اللوجستية: Retained distinct key \"trips.labels.txt_61d881\" to avoid accidental merge."
       ]
-    },
-    "trips.labels.txt_61ff0a": {
-      "key": "trips.labels.txt_61ff0a",
-      "category": "trips",
-      "semanticContext": "prop_sub",
-      "sourceTextAr": "بوابة الاستلام",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "بوابة الاستلام",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "trips > prop_sub",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/tripEngine/StateMachineController.tsx",
-          "line": 1021,
-          "column": 64,
-          "element": "prop_sub"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
     },
     "trips.labels.txt_627907": {
       "key": "trips.labels.txt_627907",
@@ -523026,58 +520517,6 @@
           "line": 21,
           "column": 20,
           "element": "prop_messageAr"
-        }
-      ],
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "trips.messages.trips": {
-      "key": "trips.messages.trips",
-      "category": "trips",
-      "semanticContext": "prop_message",
-      "sourceTextAr": "تمت استعادة الرحلات التوضيحية الافتراضية",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تمت استعادة الرحلات التوضيحية الافتراضية",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "trips > prop_message",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/TripEngineView.tsx",
-          "line": 442,
-          "column": 61,
-          "element": "prop_message"
         }
       ],
       "isReportOrExportField": false,
@@ -534194,59 +531633,6 @@
           "line": 553,
           "column": 31,
           "element": "jsx_text"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
-    },
-    "unloading.status.truck": {
-      "key": "unloading.status.truck",
-      "category": "unloading",
-      "semanticContext": "template_literal",
-      "sourceTextAr": "تم توثيق وصول الشاحنة للموقع بنجاح: تم الانتقال إلى [ARRIVED] وتسجيل وقت الوصول.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم توثيق وصول الشاحنة للموقع بنجاح: تم الانتقال إلى [ARRIVED] وتسجيل وقت الوصول.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "unloading > template_literal",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "HIGH",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/tripEngine/UnloadingStation.tsx",
-          "line": 188,
-          "column": 20,
-          "element": "template_literal"
         }
       ],
       "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",

@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-12T13:11:29.992Z
+**Generated At:** 2026-09-12T13:27:00.154Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,10 +9,10 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **8481** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **8437** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **5476** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **5476** | Domain terminology requiring semantic verification |
+| **Untranslated Slots (Pending Review)** | **5432** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **5432** | Domain terminology requiring semantic verification |
 | **Ambiguous Keys Isolated** | **2998** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
 | **Interpolation Placeholders** | **192** | Dynamic parameters (e.g. `{count}`) strictly preserved |
@@ -25,22 +25,22 @@
 
 | Category | Total Keys | Translated | Untranslated | Review Required | Ambiguous |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `other` | 2191 | 4 | 1280 | 1280 | 907 |
+| `other` | 2184 | 4 | 1273 | 1273 | 907 |
 | `imports` | 1574 | 0 | 1086 | 1086 | 488 |
 | `reports` | 567 | 0 | 375 | 375 | 191 |
-| `trips` | 528 | 0 | 408 | 408 | 120 |
+| `trips` | 523 | 0 | 403 | 403 | 120 |
 | `security` | 502 | 1 | 396 | 396 | 105 |
 | `pricing` | 491 | 0 | 321 | 321 | 170 |
 | `weighbridge` | 419 | 0 | 230 | 230 | 189 |
 | `exceptions` | 295 | 0 | 178 | 178 | 117 |
 | `legacyMigration` | 295 | 0 | 124 | 124 | 171 |
-| `offline` | 284 | 0 | 192 | 192 | 92 |
-| `entityResolution` | 277 | 0 | 198 | 198 | 79 |
-| `navigation` | 236 | 0 | 133 | 133 | 103 |
-| `projects` | 188 | 0 | 121 | 121 | 67 |
+| `offline` | 273 | 0 | 181 | 181 | 92 |
+| `entityResolution` | 267 | 0 | 188 | 188 | 79 |
+| `navigation` | 232 | 0 | 129 | 129 | 103 |
+| `projects` | 182 | 0 | 115 | 115 | 67 |
 | `loading` | 154 | 0 | 121 | 121 | 33 |
 | `dashboard` | 150 | 0 | 90 | 90 | 60 |
-| `unloading` | 134 | 0 | 104 | 104 | 30 |
+| `unloading` | 133 | 0 | 103 | 103 | 30 |
 | `carriers` | 52 | 0 | 40 | 40 | 12 |
 | `materials` | 50 | 0 | 32 | 32 | 18 |
 | `validation` | 33 | 0 | 16 | 16 | 17 |

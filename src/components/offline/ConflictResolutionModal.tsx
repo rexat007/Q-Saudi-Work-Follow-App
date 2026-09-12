@@ -70,7 +70,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
     try {
       const res = await conflictResolutionService.resolveConflict(conflict.conflictId, {
         strategy: currentStrategy,
-        resolvedBy: 'مشرف العمليات الميدانية (Scale Supervisor)',
+        resolvedBy: t('offline.labels.txt_7e9398'),
         justification: justification.trim() || 'تم اعتماد القرار وفق سياسات الحوكمة ومنع الكتابة التلقائية',
       });
 
@@ -88,7 +88,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
       VERSION_CONFLICT: {
         label: 'تعارض إصدار (VERSION_CONFLICT)',
         color: 'bg-indigo-100 text-indigo-900 border-indigo-300',
-        desc: 'السجل على الخادم تم تعديله بالتوازي بإصدار أحدث.'
+        desc: t('offline.labels.txt_10f795')
       },
       PRICING_CHANGED: {
         label: 'تحديث سعر الخادم (PRICING_CHANGED)',
@@ -98,7 +98,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
       TRIP_ALREADY_COMPLETED: {
         label: 'الرحلة مكتملة خادومياً (TRIP_ALREADY_COMPLETED)',
         color: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-        desc: 'تم استلام وتفريغ الرحلة وإغلاقها مسبقاً في الموقع.'
+        desc: t('offline.labels.trip')
       },
       TRIP_ALREADY_RETURNED: {
         label: 'الرحلة مرتجعة (TRIP_ALREADY_RETURNED)',
@@ -113,12 +113,12 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
       TRUCK_CARRIER_CONFLICT: {
         label: 'تعارض الناقل للشاحنة (TRUCK_CARRIER_CONFLICT)',
         color: 'bg-purple-100 text-purple-900 border-purple-300',
-        desc: 'تبعية الشاحنة للناقل بالخادم تختلف عن الذاكرة المحلية.'
+        desc: t('offline.labels.truck')
       },
       MASTER_DATA_CHANGED: {
         label: 'تغيير بيانات أساسية (MASTER_DATA_CHANGED)',
         color: 'bg-cyan-100 text-cyan-900 border-cyan-300',
-        desc: 'أحد الكيانات (المشروع/المادة/الناقل) تم إيقافه أو تعديل مواصفاته.'
+        desc: t('offline.labels.edit')
       },
     };
     const c = map[type] || { label: type, color: 'bg-stone-100 text-stone-800 border-stone-300', desc: '' };

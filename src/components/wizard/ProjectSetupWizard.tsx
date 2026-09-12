@@ -61,13 +61,13 @@ export const ProjectSetupWizard: React.FC = () => {
   }, [validation, currentStep]);
 
   const stepsMeta = [
-    { number: 1, title: 'بيانات المشروع', sub: 'Project Info', icon: Building2 },
-    { number: 2, title: 'المواد والتوريد', sub: 'Materials', icon: Boxes },
-    { number: 3, title: 'شركات النقل', sub: 'Carriers', icon: Truck },
+    { number: 1, title: t('projects.labels.project'), sub: 'Project Info', icon: Building2 },
+    { number: 2, title: t('projects.labels.materials'), sub: 'Materials', icon: Boxes },
+    { number: 3, title: t('projects.labels.txt_3ba0be'), sub: 'Carriers', icon: Truck },
     { number: 4, title: 'قواعد التسعير', sub: 'Pricing Rules', icon: CircleDollarSign },
-    { number: 5, title: 'صلاحيات الوصول', sub: 'Project Access', icon: Users },
-    { number: 6, title: 'تكامل Google', sub: 'Drive & Sheets', icon: FolderSync },
-    { number: 7, title: 'المراجعة والإنشاء', sub: 'Review & Gate', icon: ShieldCheck },
+    { number: 5, title: t('projects.labels.txt_6e8506'), sub: 'Project Access', icon: Users },
+    { number: 6, title: t('projects.labels.txt_3d1068'), sub: 'Drive & Sheets', icon: FolderSync },
+    { number: 7, title: t('projects.labels.txt_2bed60'), sub: 'Review & Gate', icon: ShieldCheck },
   ];
 
   // Updaters for each step

@@ -439,7 +439,7 @@ export const TripEngineView: React.FC = () => {
               onClick={() => {
                 tripEngineService.resetTrips();
                 refreshTrips();
-                setNotification({ type: 'SUCCESS', message: 'تمت استعادة الرحلات التوضيحية الافتراضية' });
+                setNotification({ type: 'SUCCESS', message: t('trips.messages.trips') });
               }}
               title={t("trips.labels.trips_3")}
               className="p-2 rounded-lg text-xs font-medium bg-stone-100 text-stone-600 hover:bg-stone-200"

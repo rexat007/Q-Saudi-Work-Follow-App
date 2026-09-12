@@ -73,7 +73,7 @@ export const MasterDataView: React.FC = () => {
     if (!user) {
       setActionNotice({
         type: 'error',
-        message: 'يتطلب تشغيل الفحوصات الآلية على Firestore تسجيل الدخول بحساب Google أولاً.',
+        message: t('other.messages.txt_197fc5'),
       });
       return;
     }
@@ -176,7 +176,7 @@ export const MasterDataView: React.FC = () => {
         console.warn('Live Firestore synchronization issue, using fallback data:', err);
         setActionNotice({
           type: 'error',
-          message: 'تعذر الاتصال ببيانات Firestore المباشرة، تم تفعيل وضع المعاينة المحلي.',
+          message: t('other.messages.txt_731859'),
         });
         setProjects(DEFAULT_PROJECTS);
         const defaultProjId = DEFAULT_PROJECTS[0].projectId;
@@ -335,7 +335,7 @@ export const MasterDataView: React.FC = () => {
       setOverview(buildDefaultOverview(selectedProjectId, updatedCarriers, updatedMaterials, updatedTrucks, updatedDrivers));
       setDeleteModal(prev => ({
         ...prev,
-        success: 'تم تعطيل السجل بنجاح (الحذف المنطقي Soft Delete) وحمايته من العمليات الجديدة.',
+        success: t('other.status.success_2'),
       }));
       setTimeout(() => {
         setDeleteModal(prev => ({ ...prev, isOpen: false }));
@@ -543,7 +543,7 @@ export const MasterDataView: React.FC = () => {
       setCreateModal({ isOpen: false, entityType: 'TRUCK' });
       setNewTruck({ truckId: '', plate: '', carrierId: '', tareKg: 14000, grossKg: 45000 });
       setOverview(buildDefaultOverview(selectedProjectId, localCarriers, localMaterials, updated, localDrivers));
-      setActionNotice({ type: 'success', message: 'تم تسجيل الشاحنة وربطها بالناقل (Truck → Carrier) محلياً.' });
+      setActionNotice({ type: 'success', message: t('other.messages.truckCarrier') });
       return;
     }
 
@@ -551,7 +551,7 @@ export const MasterDataView: React.FC = () => {
       await truckRepository.create(truckEntity);
       setCreateModal({ isOpen: false, entityType: 'TRUCK' });
       setNewTruck({ truckId: '', plate: '', carrierId: '', tareKg: 14000, grossKg: 45000 });
-      setActionNotice({ type: 'success', message: 'تم تسجيل الشاحنة وربطها بالناقل (Truck → Carrier) مع تطبيع اللوحة.' });
+      setActionNotice({ type: 'success', message: t('other.messages.truckCarrier_2') });
       await refreshOverview(selectedProjectId);
     } catch (err: any) {
       setActionNotice({ type: 'error', message: err.message });
@@ -586,7 +586,7 @@ export const MasterDataView: React.FC = () => {
       setCreateModal({ isOpen: false, entityType: 'DRIVER' });
       setNewDriver({ driverId: '', name: '', phone: '0501234567', idNumber: '1087654321', carrierId: '' });
       setOverview(buildDefaultOverview(selectedProjectId, localCarriers, localMaterials, localTrucks, updated));
-      setActionNotice({ type: 'success', message: 'تم تسجيل السائق وربطه بالناقل (Driver → Carrier) محلياً.' });
+      setActionNotice({ type: 'success', message: t('other.messages.driverCarrier') });
       return;
     }
 
@@ -594,7 +594,7 @@ export const MasterDataView: React.FC = () => {
       await driverRepository.create(driverEntity);
       setCreateModal({ isOpen: false, entityType: 'DRIVER' });
       setNewDriver({ driverId: '', name: '', phone: '0501234567', idNumber: '1087654321', carrierId: '' });
-      setActionNotice({ type: 'success', message: 'تم تسجيل السائق وربطه بالناقل (Driver → Carrier) مع تطبيع الهوية والجوال.' });
+      setActionNotice({ type: 'success', message: t('other.messages.driverCarrier_2') });
       await refreshOverview(selectedProjectId);
     } catch (err: any) {
       setActionNotice({ type: 'error', message: err.message });

@@ -1,6 +1,6 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-12T13:11:00.736Z
+**Generated At:** 2026-09-12T13:26:55.697Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
@@ -9,36 +9,36 @@
 | :--- | :--- | :--- |
 | **Total Files Scanned** | 235 | TypeScript and TSX files analyzed in `src/` |
 | **Total Extracted Candidates** | 24687 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 6376 | Confirmed visible Arabic and UI texts |
+| **Real User-Facing Texts** | 6332 | Confirmed visible Arabic and UI texts |
 | **Likely User-Facing Texts** | 339 | English UI text in visible elements |
 | **Ambiguous Texts** | 6975 | Short or context-isolated tokens for manual review |
 | **Technical Strings** | 6867 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 4130 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 5489 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Non-User-Facing Strings** | 4174 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 5445 | Hierarchical keys generated (e.g. `shared.actions.save`) |
 | **Duplicate Groups** | 2561 | Sets of identical/normalized recurring texts |
 | **Semantic Conflict Groups** | 305 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 8566 | Entries flagged with special cases or ambiguity |
-| **High / Critical Risk Hotspots** | 1903 | Concatenations, templates, or business data overlaps |
+| **Keys Requiring Review** | 8565 | Entries flagged with special cases or ambiguity |
+| **High / Critical Risk Hotspots** | 1901 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
 
 | Semantic Category | User-Facing Strings | Description |
 | :--- | :--- | :--- |
-| `other` | 1693 | Classified operational domain |
+| `other` | 1686 | Classified operational domain |
 | `imports` | 1430 | Classified operational domain |
-| `trips` | 462 | Classified operational domain |
+| `trips` | 457 | Classified operational domain |
 | `security` | 451 | Classified operational domain |
 | `reports` | 449 | Classified operational domain |
 | `pricing` | 345 | Classified operational domain |
 | `weighbridge` | 282 | Classified operational domain |
-| `entityResolution` | 274 | Classified operational domain |
-| `offline` | 197 | Classified operational domain |
+| `entityResolution` | 264 | Classified operational domain |
 | `exceptions` | 188 | Classified operational domain |
+| `offline` | 186 | Classified operational domain |
 | `legacyMigration` | 173 | Classified operational domain |
-| `navigation` | 141 | Classified operational domain |
+| `navigation` | 137 | Classified operational domain |
 | `loading` | 137 | Classified operational domain |
-| `unloading` | 133 | Classified operational domain |
-| `projects` | 127 | Classified operational domain |
+| `unloading` | 132 | Classified operational domain |
+| `projects` | 121 | Classified operational domain |
 | `dashboard` | 110 | Classified operational domain |
 | `carriers` | 41 | Classified operational domain |
 | `materials` | 35 | Classified operational domain |
@@ -94,9 +94,9 @@ Identical visible text appearing across different operational domains with disti
 ## 5. High-Risk Hotspots & Special Cases
 
 - **Concatenated Strings (`+`):** 9
-- **Template Literals (`${...}`):** 624
+- **Template Literals (`${...}`):** 623
 - **Interpolation Placeholders (`{...}`):** 209
-- **Mixed Numbers & Units:** 665
+- **Mixed Numbers & Units:** 664
 - **Currency String Usages:** 353
 - **Unit String Usages:** 631
 - **Protected Business Field Matches:** 293

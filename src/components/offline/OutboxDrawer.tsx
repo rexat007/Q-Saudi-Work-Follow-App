@@ -111,7 +111,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
     if (!isOnline) {
       onNotification?.({
         type: 'ERROR',
-        message: 'لا يمكن بدء المزامنة: التطبيق في وضع عدم الاتصال (Offline).'
+        message: t('offline.messages.txt_36ec7e')
       });
       return;
     }
@@ -141,7 +141,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
     } else {
       onNotification?.({
         type: 'SUCCESS',
-        message: 'تمت إعادة تعيين العملية إلى حالة الانتظار (PENDING). ستتم المزامنة عند الاتصال.'
+        message: t('offline.messages.txt_2165a5')
       });
     }
   };
@@ -151,7 +151,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
     await loadData();
     onNotification?.({
       type: 'SUCCESS',
-      message: 'تم مسح العمليات المزامنة والمؤكدة بنجاح من صندوق الصادر.'
+      message: t('offline.status.success')
     });
   };
 
@@ -283,11 +283,11 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
   };
 
   const STORE_LABELS: Record<string, string> = {
-    projects: 'المشاريع (Projects)',
-    carriers: 'الناقلين (Carriers)',
+    projects: t('offline.labels.projects'),
+    carriers: t('offline.labels.txt_262349'),
     materials: 'المواد (Materials)',
     trucks: 'الشاحنات (Trucks)',
-    drivers: 'السائقين (Drivers)',
+    drivers: t('offline.labels.txt_499f33'),
     pricingRules: 'قواعد التسعير (Pricing Rules)',
   };
 

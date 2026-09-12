@@ -213,7 +213,7 @@ export function DataQualityView() {
   const handleAcceptRecord = (rowId: string) => {
     setStagedRecords(prev => prev.map(r => {
       if (r.rowId === rowId) {
-        return { ...r, status: 'ACCEPTED', resolutionNote: 'تم الاعتماد بعد اجتياز التحقق والمطابقة.' };
+        return { ...r, status: 'ACCEPTED', resolutionNote: t('entityResolution.labels.txt_30daee') };
       }
       return r;
     }));
@@ -222,7 +222,7 @@ export function DataQualityView() {
   const handleRejectRecord = (rowId: string) => {
     setStagedRecords(prev => prev.map(r => {
       if (r.rowId === rowId) {
-        return { ...r, status: 'REJECTED', resolutionNote: 'تم استبعاد وحظر السجل من الإدخال.' };
+        return { ...r, status: 'REJECTED', resolutionNote: t('entityResolution.labels.txt_2b8f60') };
       }
       return r;
     }));
@@ -321,14 +321,14 @@ export function DataQualityView() {
   };
 
   const pipelineStepsInfo: { step: PipelineStep; title: string; desc: string; icon: any }[] = [
-    { step: 'RAW_VALUE', title: '1. RAW VALUE', desc: 'استلام القيمة النصية الأولية من الملف أو واجهة الإدخال بدون أي تعديل.', icon: FileSpreadsheet },
-    { step: 'NORMALIZE', title: '2. NORMALIZE', desc: 'معايرة قياسية ذكية تحافظ على المعنى (إزالة التشكيل والتطويل، توحيد الأرقام، الإبقاء على الفروق الجوهرية).', icon: SlidersHorizontal },
-    { step: 'EXACT_MATCH', title: '3. EXACT MATCH', desc: 'فحص التطابق التام 100% مع السجلات المفهرسة والمعتمدة في قاعدة البيانات.', icon: CheckCheck },
-    { step: 'FUZZY_MATCH', title: '4. FUZZY MATCH', desc: 'خوارزميات التشابه (Levenshtein & Jaro-Winkler) لحساب نسبة التطابق واكتشاف Possible Matches.', icon: Sparkles },
-    { step: 'RELATIONSHIP_VALIDATION', title: '5. RELATIONSHIP', desc: 'التحقق الصارم من التبعيات (الشاحنة للناقل، السائق للناقل، والترخيص في المشروع).', icon: Layers },
-    { step: 'BUSINESS_VALIDATION', title: '6. BUSINESS RULES', desc: 'مطابقة لوائح النقل السعودية (صيغ اللوحات، أرقام الهويات، حدود الأوزان والحمولات).', icon: ShieldCheck },
-    { step: 'RISK_SCORE', title: '7. RISK SCORE', desc: 'احتساب درجة المخاطرة الحتمية (CRITICAL / HIGH / MEDIUM / LOW).', icon: AlertTriangle },
-    { step: 'HUMAN_REVIEW', title: '8. HUMAN REVIEW', desc: 'تحديد الإجراء المطلوب وعرض قرارات التدخل البشري والخيارات التصحيحية.', icon: UserCheck },
+    { step: 'RAW_VALUE', title: '1. RAW VALUE', desc: t('entityResolution.labels.txt_30e91e'), icon: FileSpreadsheet },
+    { step: 'NORMALIZE', title: '2. NORMALIZE', desc: t('entityResolution.labels.txt_16c00c'), icon: SlidersHorizontal },
+    { step: 'EXACT_MATCH', title: '3. EXACT MATCH', desc: t('entityResolution.labels.txt_3a6cb9'), icon: CheckCheck },
+    { step: 'FUZZY_MATCH', title: '4. FUZZY MATCH', desc: t('entityResolution.labels.txt_a74c7a'), icon: Sparkles },
+    { step: 'RELATIONSHIP_VALIDATION', title: '5. RELATIONSHIP', desc: t('entityResolution.labels.driver'), icon: Layers },
+    { step: 'BUSINESS_VALIDATION', title: '6. BUSINESS RULES', desc: t('entityResolution.labels.txt_392bf7'), icon: ShieldCheck },
+    { step: 'RISK_SCORE', title: '7. RISK SCORE', desc: t('entityResolution.labels.txt_63d60e'), icon: AlertTriangle },
+    { step: 'HUMAN_REVIEW', title: '8. HUMAN REVIEW', desc: t('entityResolution.labels.view'), icon: UserCheck },
   ];
 
   const selectedRecordItem = evaluatedRecords.find(r => r.record.rowId === selectedRecordId) || evaluatedRecords[0];
