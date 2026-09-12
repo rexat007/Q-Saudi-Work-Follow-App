@@ -107,12 +107,11 @@ This document contains domain-specific terminology requiring human verification 
 | `weighbridge.fields.null` | "null" | attr_placeholder | `MEDIUM` | Semantic conflict isolation |
 | ... | *and 399 more items in this domain queue* | | | |
 
-## Domain: `imports` (1575 items requiring review)
+## Domain: `imports` (1574 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
-| `imports.actions.cancel` | "إلغاء" | jsx_text | `MEDIUM` | Semantic conflict isolation |
-| `imports.actions.cancel_2` | "cancel" | call_includes | `MEDIUM` | Domain-specific terminology translation |
+| `imports.actions.cancel` | "cancel" | call_includes | `MEDIUM` | Domain-specific terminology translation |
 | `imports.actions.download` | "تحميل" | call_includes | `MEDIUM` | Semantic conflict isolation |
 | `imports.columns.importBatches` | "import_batches" | call_collection | `MEDIUM` | Domain-specific terminology translation |
 | `imports.columns.none` | "NONE" | prop_matchMethod | `MEDIUM` | Domain-specific terminology translation |
@@ -131,7 +130,8 @@ This document contains domain-specific terminology requiring human verification 
 | `imports.fields.date_2` | "صيغة التاريخ غير صالحة (${dateStr}). يجب أن تكون YYYY-MM-DD." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {dateStr}) |
 | `imports.fields.destnetweight` | "destNetWeight" | prop_canonicalField | `MEDIUM` | Domain-specific terminology translation |
 | `imports.fields.driver` | "اكتب سبب قبول هذه التحذيرات (مثال: تم التأكد من هوية السائق ورقياً، أو تم التنسيق مع مقاول النقل)..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
-| ... | *and 1555 more items in this domain queue* | | | |
+| `imports.fields.driverName` | "اسم السائق" | literal | `MEDIUM` | Semantic conflict isolation |
+| ... | *and 1554 more items in this domain queue* | | | |
 
 ## Domain: `entityResolution` (277 items requiring review)
 
@@ -211,11 +211,10 @@ This document contains domain-specific terminology requiring human verification 
 | `reports.fields.formula` | "Formula" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
 | ... | *and 546 more items in this domain queue* | | | |
 
-## Domain: `security` (502 items requiring review)
+## Domain: `security` (501 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
-| `security.actions.cancel` | "إلغاء" | jsx_text | `MEDIUM` | Semantic conflict isolation |
 | `security.columns.trips` | "trips" | prop_targetCollection | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.action` | "action" | prop_field | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.auditlogid` | "auditLogId" | prop_field | `MEDIUM` | Domain-specific terminology translation |
@@ -235,7 +234,8 @@ This document contains domain-specific terminology requiring human verification 
 | `security.fields.edit_3` | "حظر تعديل صافي وزن الوجهة (destNetWeight) مباشرة" | prop_titleAr | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.edit_4` | "حظر تعديل فارق الوزن (varianceWeight) مباشرة" | prop_titleAr | `MEDIUM` | Domain-specific terminology translation (Protected: [varianceWeight]) |
 | `security.fields.entity` | "entity" | prop_field | `MEDIUM` | Domain-specific terminology translation |
-| ... | *and 482 more items in this domain queue* | | | |
+| `security.fields.location` | "فارق وزني بين ميزان المقلع وميزان الموقع (-1,450 كجم، بنسبة تفاوت -4.62% بينما الحد الأقصى 1.5%)" | prop_description | `HIGH` | Domain-specific terminology translation (Protected: [KG]) |
+| ... | *and 481 more items in this domain queue* | | | |
 
 ## Domain: `offline` (284 items requiring review)
 

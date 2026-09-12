@@ -1458,8 +1458,7 @@ export const MasterDataView: React.FC = () => {
                 onClick={() => setDeleteModal(prev => ({ ...prev, isOpen: false }))}
                 className="px-3.5 py-1.5 text-xs font-bold text-stone-600 hover:bg-stone-200 rounded-lg transition-colors"
               >
-                إلغاء
-              </button>
+                {t("shared.actions.cancel")}</button>
               <button
                 onClick={handleConfirmSoftDelete}
                 disabled={deleteModal.checking || !!deleteModal.success}
@@ -1537,8 +1536,7 @@ export const MasterDataView: React.FC = () => {
                     onClick={() => setCreateModal({ isOpen: false, entityType: 'CARRIER' })}
                     className="px-3 py-1.5 text-stone-600 hover:bg-stone-100 rounded"
                   >
-                    إلغاء
-                  </button>
+                    {t("shared.actions.cancel")}</button>
                   <button
                     type="submit"
                     className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded"
@@ -1607,8 +1605,7 @@ export const MasterDataView: React.FC = () => {
                     onClick={() => setCreateModal({ isOpen: false, entityType: 'MATERIAL' })}
                     className="px-3 py-1.5 text-stone-600 hover:bg-stone-100 rounded"
                   >
-                    إلغاء
-                  </button>
+                    {t("shared.actions.cancel")}</button>
                   <button
                     type="submit"
                     className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded"
@@ -1692,8 +1689,7 @@ export const MasterDataView: React.FC = () => {
                     onClick={() => setCreateModal({ isOpen: false, entityType: 'TRUCK' })}
                     className="px-3 py-1.5 text-stone-600 hover:bg-stone-100 rounded"
                   >
-                    إلغاء
-                  </button>
+                    {t("shared.actions.cancel")}</button>
                   <button
                     type="submit"
                     className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded"
@@ -1783,8 +1779,7 @@ export const MasterDataView: React.FC = () => {
                     onClick={() => setCreateModal({ isOpen: false, entityType: 'DRIVER' })}
                     className="px-3 py-1.5 text-stone-600 hover:bg-stone-100 rounded"
                   >
-                    إلغاء
-                  </button>
+                    {t("shared.actions.cancel")}</button>
                   <button
                     type="submit"
                     className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded"

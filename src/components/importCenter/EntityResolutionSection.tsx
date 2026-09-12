@@ -38,6 +38,8 @@ import {
 import { EntityResolutionService } from '../../services/import/entityResolution.service';
 import { EntityNormalizationService } from '../../services/import/entityNormalization.service';
 import { PipelineContext } from '../../types/unifiedImport';
+import { useI18n } from '../../i18n';
+
 
 interface SampleDemoRow {
   rowNumber: number;
@@ -93,6 +95,7 @@ const INITIAL_DEMO_ROWS: SampleDemoRow[] = [
 ];
 
 export function EntityResolutionSection() {
+  const { t } = useI18n();
   const currentProjectId = 'PRJ-NEOM-NORTH-01';
   const currentUserId = 'USR-INSPECTOR-09';
   const currentUserName = 'م. أحمد الشمري (أخصائي ضبط جودة البيانات)';
@@ -828,8 +831,7 @@ export function EntityResolutionSection() {
                 onClick={() => setCustomSelectModalOpen(false)}
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold"
               >
-                إلغاء
-              </button>
+                {t("shared.actions.cancel")}</button>
             </div>
           </div>
         </div>

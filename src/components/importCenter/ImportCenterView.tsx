@@ -48,8 +48,11 @@ import { GoogleDriveImportSection } from './GoogleDriveImportSection';
 import { GoogleSheetsImportSection } from './GoogleSheetsImportSection';
 import { WeighbridgeImportSection } from './WeighbridgeImportSection';
 import { EntityResolutionSection } from './EntityResolutionSection';
+import { useI18n } from '../../i18n';
+
 
 export function ImportCenterView() {
+  const { t } = useI18n();
   // Navigation between Entity Resolution, Weighbridge, Google Sheets, Google Drive, Excel/CSV, Unified Architecture, and Active Batch
   const [centerSubTab, setCenterSubTab] = useState<'ENTITY_RESOLUTION' | 'WEIGHBRIDGE_IMPORT' | 'GOOGLE_SHEETS_IMPORT' | 'GOOGLE_DRIVE_IMPORT' | 'EXCEL_CSV_IMPORT' | 'UNIFIED_ARCHITECTURE' | 'ACTIVE_BATCH'>('ENTITY_RESOLUTION');
 
@@ -1018,8 +1021,7 @@ export function ImportCenterView() {
                 onClick={() => setShowUploadModal(false)}
                 className="px-4 py-2 rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-100"
               >
-                إلغاء
-              </button>
+                {t("shared.actions.cancel")}</button>
               <button
                 disabled={isAnalyzing}
                 onClick={handleStartImport}
@@ -1197,8 +1199,7 @@ export function ImportCenterView() {
                 onClick={() => setShowWarningConfirmModal(false)}
                 className="px-4 py-2 rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-100"
               >
-                إلغاء
-              </button>
+                {t("shared.actions.cancel")}</button>
               <button
                 onClick={() => handleCommitBatch(true)}
                 className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black shadow-xs flex items-center gap-1.5 cursor-pointer"
@@ -1377,8 +1378,7 @@ export function ImportCenterView() {
                 onClick={() => setEditingItem(null)}
                 className="px-4 py-2 rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-100"
               >
-                إلغاء
-              </button>
+                {t("shared.actions.cancel")}</button>
               <button
                 onClick={() => {
                   handleApplyAction(editingItem.id, 'EDIT_MANUALLY', {

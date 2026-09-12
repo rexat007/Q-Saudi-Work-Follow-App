@@ -51,6 +51,8 @@ import {
   FileCheck,
   HelpCircle
 } from 'lucide-react';
+import { useI18n } from '../../i18n';
+
 
 type AdminSection = 
   | 'PROJECTS'
@@ -66,6 +68,7 @@ type AdminSection =
   | 'SYNC_HEALTH';
 
 export function AdminConsoleView() {
+  const { t } = useI18n();
   const [activeSection, setActiveSection] = useState<AdminSection>('PRICING_RULES');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -1336,8 +1339,7 @@ export function AdminConsoleView() {
                   onClick={() => setIsVersionModalOpen(false)}
                   className="px-4 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-bold hover:bg-stone-50"
                 >
-                  إلغاء
-                </button>
+                  {t("shared.actions.cancel")}</button>
                 <button
                   type="submit"
                   className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-xs flex items-center gap-2"

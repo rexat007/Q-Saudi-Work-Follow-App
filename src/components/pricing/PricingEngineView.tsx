@@ -27,8 +27,11 @@ import { runPricingEngineTests, TestCaseResult } from '../../tests/pricingEngine
 import { pricingService } from '../../services/pricing.service';
 import { PricingRule, TripPricingSnapshot } from '../../types/pricing';
 import { PricingRuleValidator } from '../../validators/pricingRule.validator';
+import { useI18n } from '../../i18n';
+
 
 export const PricingEngineView: React.FC = () => {
+  const { t } = useI18n();
   // --- Active Tab ---
   const [activeTab, setActiveTab] = useState<'SIMULATOR' | 'RULES' | 'TESTS'>('SIMULATOR');
 
@@ -971,8 +974,7 @@ export const PricingEngineView: React.FC = () => {
                   onClick={() => setShowAddModal(false)}
                   className="px-4 py-2 rounded-xl text-xs font-bold text-stone-600 hover:bg-stone-100 cursor-pointer"
                 >
-                  إلغاء
-                </button>
+                  {t("shared.actions.cancel")}</button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
@@ -1043,8 +1045,7 @@ export const PricingEngineView: React.FC = () => {
                   onClick={() => setVersioningRule(null)}
                   className="px-4 py-2 rounded-xl text-xs font-bold text-stone-600 hover:bg-stone-100 cursor-pointer"
                 >
-                  إلغاء
-                </button>
+                  {t("shared.actions.cancel")}</button>
                 <button
                   type="button"
                   onClick={handleApplyCowVersioning}
