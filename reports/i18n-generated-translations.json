@@ -1,29 +1,29 @@
 {
-  "generatedAt": "2026-09-12T12:09:25.041Z",
+  "generatedAt": "2026-09-12T12:58:29.149Z",
   "version": "1.0.0-block43",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 8469,
-    "generatedEnCount": 8469,
-    "generatedUrCount": 8469,
-    "reviewRequiredCount": 8464,
+    "totalEntries": 8483,
+    "generatedEnCount": 8483,
+    "generatedUrCount": 8483,
+    "reviewRequiredCount": 8477,
     "skippedCount": 0,
     "protectedCount": 1,
     "interpolationCount": 192,
     "pluralizationCount": 120,
-    "highRiskCount": 8464,
+    "highRiskCount": 8477,
     "semanticConflictCount": 834,
     "domainTerminologyCount": 0,
     "confidenceBreakdown": {
-      "HIGH": 137,
+      "HIGH": 138,
       "MEDIUM": 2354,
-      "LOW": 5978
+      "LOW": 5991
     },
     "tierBreakdown": {
-      "1": 5,
+      "1": 6,
       "2": 0,
       "3": 0,
-      "4": 8464
+      "4": 8477
     },
     "reviewReasonsBreakdown": {
       "SEMANTIC_CONFLICT": 834,
@@ -32,7 +32,7 @@
       "PLURALIZATION_RISK": 120,
       "REPORT_EXPORT_RISK": 1686,
       "BUSINESS_DATA_RISK": 1290,
-      "LOW_CONFIDENCE": 8464,
+      "LOW_CONFIDENCE": 8477,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
@@ -207,20 +207,20 @@
         "low": 29
       },
       "shared": {
-        "total": 0,
-        "generated": 0,
+        "total": 1,
+        "generated": 1,
         "reviewRequired": 0,
-        "high": 0,
+        "high": 1,
         "medium": 0,
         "low": 0
       },
       "other": {
-        "total": 2178,
-        "generated": 2178,
-        "reviewRequired": 2174,
+        "total": 2191,
+        "generated": 2191,
+        "reviewRequired": 2187,
         "high": 81,
         "medium": 422,
-        "low": 1675
+        "low": 1688
       }
     }
   },
@@ -765,7 +765,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"carriers.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -12959,7 +12959,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"entityResolution.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -16816,7 +16816,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_119",
+      "duplicateGroupId": "dup_HIGH_130",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -17079,7 +17079,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_LOW_84",
+      "duplicateGroupId": "dup_LOW_87",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -27858,7 +27858,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"exceptions.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -33057,7 +33057,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_119",
+      "duplicateGroupId": "dup_HIGH_130",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -33166,7 +33166,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_LOW_84",
+      "duplicateGroupId": "dup_LOW_87",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -42561,7 +42561,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_119",
+      "duplicateGroupId": "dup_HIGH_130",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -43044,7 +43044,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"imports.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -64483,7 +64483,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_119",
+      "duplicateGroupId": "dup_HIGH_130",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -67538,7 +67538,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_LOW_84",
+      "duplicateGroupId": "dup_LOW_87",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -124907,7 +124907,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"legacyMigration.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -128862,7 +128862,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_119",
+      "duplicateGroupId": "dup_HIGH_130",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -149389,7 +149389,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"materials.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -179727,13 +179727,37 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 150,
+          "line": 155,
           "column": 93,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 387,
+          "column": 16,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 398,
+          "column": 21,
+          "element": "prop_ar"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 448,
+          "column": 96,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 523,
+          "column": 19,
+          "element": "prop_originalText"
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"other.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -179844,9 +179868,33 @@
           "line": 5,
           "column": 28,
           "element": "prop_'shared.actions.cancel'"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 388,
+          "column": 16,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 398,
+          "column": 34,
+          "element": "prop_en"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 487,
+          "column": 35,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 503,
+          "column": 23,
+          "element": "prop_proposedTextEn"
         }
       ],
-      "duplicateGroupId": "dup_Cancel_3",
+      "duplicateGroupId": "dup_Cancel_7",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -180833,7 +180881,7 @@
           "element": "prop_extractionConfidence"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_119",
+      "duplicateGroupId": "dup_HIGH_130",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -181186,7 +181234,7 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 333,
+          "line": 338,
           "column": 26,
           "element": "literal"
         },
@@ -181563,7 +181611,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_منسوخ_کریں",
-      "duplicateGroupId": "dup_منسوخ_کریں_4",
+      "duplicateGroupId": "dup_منسوخ_کریں_8",
       "notes": [
         "Semantic conflict group conflict_منسوخ_کریں: Retained distinct key \"other.actions.txt_7abb52\" to avoid accidental merge."
       ],
@@ -184610,7 +184658,7 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 222,
+          "line": 227,
           "column": 75,
           "element": "call_deriveInternalDataKey"
         }
@@ -185823,7 +185871,7 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 223,
+          "line": 228,
           "column": 77,
           "element": "call_deriveInternalDataKey"
         }
@@ -187237,7 +187285,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 170,
+          "line": 175,
           "column": 55,
           "element": "call_extractInterpolationParams"
         }
@@ -195586,7 +195634,7 @@
     "other.labels.actionButton": {
       "key": "other.labels.actionButton",
       "category": "other",
-      "semanticContext": "call_generateKey",
+      "semanticContext": "prop_semanticContext",
       "sourceTextAr": "action_button",
       "proposedTextEn": "action_button",
       "proposedTextUr": "action_button",
@@ -195616,12 +195664,19 @@
       ],
       "sourceReferences": [
         {
+          "file": "src/i18n/catalog/translationCatalog.generator.ts",
+          "line": 378,
+          "column": 26,
+          "element": "prop_semanticContext"
+        },
+        {
           "file": "src/tests/i18nCatalog.test.ts",
           "line": 349,
           "column": 53,
           "element": "call_generateKey"
         }
       ],
+      "duplicateGroupId": "dup_action_button_2",
       "notes": [
         "Protected business/currency tokens: [TON] must not be altered",
         "Ambiguous/isolated string: Human verification required before translation."
@@ -197063,13 +197118,13 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 328,
+          "line": 333,
           "column": 68,
           "element": "call_resolveTranslation"
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 335,
+          "line": 340,
           "column": 24,
           "element": "literal"
         }
@@ -197360,7 +197415,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 83,
+          "line": 88,
           "column": 12,
           "element": "prop_title"
         }
@@ -202733,6 +202788,349 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.catFoundation01": {
+      "key": "other.labels.catFoundation01",
+      "category": "other",
+      "semanticContext": "prop_id",
+      "sourceTextAr": "CAT-FOUNDATION-01",
+      "proposedTextEn": "CAT-FOUNDATION-01",
+      "proposedTextUr": "CAT-FOUNDATION-01",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 362,
+          "column": 9,
+          "element": "prop_id"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.catFoundation02": {
+      "key": "other.labels.catFoundation02",
+      "category": "other",
+      "semanticContext": "prop_id",
+      "sourceTextAr": "CAT-FOUNDATION-02",
+      "proposedTextEn": "CAT-FOUNDATION-02",
+      "proposedTextUr": "CAT-FOUNDATION-02",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 392,
+          "column": 9,
+          "element": "prop_id"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.catFoundation03": {
+      "key": "other.labels.catFoundation03",
+      "category": "other",
+      "semanticContext": "prop_id",
+      "sourceTextAr": "CAT-FOUNDATION-03",
+      "proposedTextEn": "CAT-FOUNDATION-03",
+      "proposedTextUr": "CAT-FOUNDATION-03",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 421,
+          "column": 9,
+          "element": "prop_id"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.catFoundation04": {
+      "key": "other.labels.catFoundation04",
+      "category": "other",
+      "semanticContext": "prop_id",
+      "sourceTextAr": "CAT-FOUNDATION-04",
+      "proposedTextEn": "CAT-FOUNDATION-04",
+      "proposedTextUr": "CAT-FOUNDATION-04",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 457,
+          "column": 9,
+          "element": "prop_id"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.catFoundation05": {
+      "key": "other.labels.catFoundation05",
+      "category": "other",
+      "semanticContext": "prop_id",
+      "sourceTextAr": "CAT-FOUNDATION-05",
+      "proposedTextEn": "CAT-FOUNDATION-05",
+      "proposedTextUr": "CAT-FOUNDATION-05",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 492,
+          "column": 9,
+          "element": "prop_id"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.catFoundation06": {
+      "key": "other.labels.catFoundation06",
+      "category": "other",
+      "semanticContext": "prop_id",
+      "sourceTextAr": "CAT-FOUNDATION-06",
+      "proposedTextEn": "CAT-FOUNDATION-06",
+      "proposedTextUr": "CAT-FOUNDATION-06",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 544,
+          "column": 9,
+          "element": "prop_id"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.catFoundation06Candidate": {
+      "key": "other.labels.catFoundation06Candidate",
+      "category": "other",
+      "semanticContext": "prop_id",
+      "sourceTextAr": "cat-foundation-06-candidate",
+      "proposedTextEn": "cat-foundation-06-candidate",
+      "proposedTextUr": "cat-foundation-06-candidate",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 519,
+          "column": 9,
+          "element": "prop_id"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.catalogKeysAreDeterministicAcrossRuns": {
       "key": "other.labels.catalogKeysAreDeterministicAcrossRuns",
       "category": "other",
@@ -202765,7 +203163,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 58,
+          "line": 63,
           "column": 12,
           "element": "prop_title"
         }
@@ -205282,7 +205680,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 191,
+          "line": 196,
           "column": 38,
           "element": "call_requiresPluralization"
         }
@@ -205807,19 +206205,19 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 172,
+          "line": 177,
           "column": 25,
           "element": "call_includes"
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 182,
+          "line": 187,
           "column": 30,
           "element": "literal"
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 189,
+          "line": 194,
           "column": 66,
           "element": "literal"
         },
@@ -207380,13 +207778,13 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 175,
+          "line": 180,
           "column": 31,
           "element": "call_includes"
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 182,
+          "line": 187,
           "column": 80,
           "element": "literal"
         }
@@ -209546,7 +209944,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 169,
+          "line": 174,
           "column": 49,
           "element": "call_extractInterpolationParams"
         }
@@ -211183,7 +211581,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 159,
+          "line": 164,
           "column": 12,
           "element": "prop_title"
         }
@@ -212007,7 +212405,7 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 329,
+          "line": 334,
           "column": 70,
           "element": "call_resolveTranslation"
         }
@@ -212260,7 +212658,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 115,
+          "line": 120,
           "column": 12,
           "element": "prop_title"
         }
@@ -216065,13 +216463,37 @@
         },
         {
           "file": "src/i18n/catalog/translationCatalog.generator.ts",
-          "line": 380,
+          "line": 386,
+          "column": 25,
+          "element": "prop_confidence"
+        },
+        {
+          "file": "src/i18n/catalog/translationCatalog.generator.ts",
+          "line": 391,
+          "column": 25,
+          "element": "prop_confidence"
+        },
+        {
+          "file": "src/i18n/catalog/translationCatalog.generator.ts",
+          "line": 397,
+          "column": 25,
+          "element": "prop_confidence"
+        },
+        {
+          "file": "src/i18n/catalog/translationCatalog.generator.ts",
+          "line": 406,
+          "column": 32,
+          "element": "prop_translationConfidence"
+        },
+        {
+          "file": "src/i18n/catalog/translationCatalog.generator.ts",
+          "line": 450,
           "column": 95,
           "element": "literal"
         },
         {
           "file": "src/i18n/catalog/translationCatalog.generator.ts",
-          "line": 380,
+          "line": 450,
           "column": 104,
           "element": "literal"
         },
@@ -216233,9 +216655,51 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 274,
+          "line": 279,
           "column": 32,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 414,
+          "column": 48,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 415,
+          "column": 48,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 416,
+          "column": 48,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 431,
+          "column": 19,
+          "element": "prop_confidence"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 485,
+          "column": 31,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 501,
+          "column": 19,
+          "element": "prop_confidence"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 528,
+          "column": 17,
+          "element": "prop_confidence"
         },
         {
           "file": "src/tests/i18nTranslationGeneration.test.ts",
@@ -216256,7 +216720,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_119",
+      "duplicateGroupId": "dup_HIGH_130",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -219106,7 +219570,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 57,
+          "line": 62,
           "column": 9,
           "element": "prop_id"
         }
@@ -219155,7 +219619,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 82,
+          "line": 87,
           "column": 9,
           "element": "prop_id"
         }
@@ -219204,7 +219668,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 114,
+          "line": 119,
           "column": 9,
           "element": "prop_id"
         }
@@ -219253,7 +219717,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 139,
+          "line": 144,
           "column": 9,
           "element": "prop_id"
         }
@@ -219302,7 +219766,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 158,
+          "line": 163,
           "column": 9,
           "element": "prop_id"
         }
@@ -219351,7 +219815,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 178,
+          "line": 183,
           "column": 9,
           "element": "prop_id"
         }
@@ -219400,7 +219864,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 195,
+          "line": 200,
           "column": 9,
           "element": "prop_id"
         }
@@ -219449,7 +219913,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 211,
+          "line": 216,
           "column": 9,
           "element": "prop_id"
         }
@@ -219498,7 +219962,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 227,
+          "line": 232,
           "column": 9,
           "element": "prop_id"
         }
@@ -219547,7 +220011,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 243,
+          "line": 248,
           "column": 9,
           "element": "prop_id"
         }
@@ -219596,7 +220060,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 261,
+          "line": 266,
           "column": 9,
           "element": "prop_id"
         }
@@ -219645,7 +220109,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 278,
+          "line": 283,
           "column": 9,
           "element": "prop_id"
         }
@@ -219694,7 +220158,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 297,
+          "line": 302,
           "column": 9,
           "element": "prop_id"
         }
@@ -219743,7 +220207,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 317,
+          "line": 322,
           "column": 9,
           "element": "prop_id"
         }
@@ -219792,7 +220256,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 338,
+          "line": 343,
           "column": 9,
           "element": "prop_id"
         }
@@ -221145,7 +221609,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 179,
+          "line": 184,
           "column": 12,
           "element": "prop_title"
         }
@@ -221958,9 +222422,15 @@
           "line": 675,
           "column": 17,
           "element": "prop_nodeKind"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 522,
+          "column": 15,
+          "element": "prop_nodeKind"
         }
       ],
-      "duplicateGroupId": "dup_JsxText_10",
+      "duplicateGroupId": "dup_JsxText_11",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -222158,13 +222628,13 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 240,
+          "line": 245,
           "column": 55,
           "element": "call_includes"
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 247,
+          "line": 252,
           "column": 32,
           "element": "literal"
         }
@@ -223907,6 +224377,12 @@
           "element": "literal"
         },
         {
+          "file": "src/i18n/catalog/translationCatalog.generator.ts",
+          "line": 407,
+          "column": 24,
+          "element": "prop_migrationRisk"
+        },
+        {
           "file": "src/i18n/catalog/translationCatalog.types.ts",
           "line": 23,
           "column": 57,
@@ -224057,6 +224533,18 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 418,
+          "column": 35,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 433,
+          "column": 22,
+          "element": "prop_migrationRisk"
+        },
+        {
           "file": "src/tests/i18nTranslationGeneration.test.ts",
           "line": 71,
           "column": 42,
@@ -224075,7 +224563,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_LOW_84",
+      "duplicateGroupId": "dup_LOW_87",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -233058,7 +233546,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 196,
+          "line": 201,
           "column": 12,
           "element": "prop_title"
         }
@@ -239096,7 +239584,7 @@
         },
         {
           "file": "src/i18n/catalog/translationCatalog.generator.ts",
-          "line": 549,
+          "line": 619,
           "column": 43,
           "element": "call_resolve"
         },
@@ -239612,7 +240100,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 298,
+          "line": 303,
           "column": 12,
           "element": "prop_title"
         }
@@ -240335,9 +240823,15 @@
           "line": 680,
           "column": 13,
           "element": "prop_risk"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 527,
+          "column": 11,
+          "element": "prop_risk"
         }
       ],
-      "duplicateGroupId": "dup_SAFE_11",
+      "duplicateGroupId": "dup_SAFE_12",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -240547,13 +241041,13 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 240,
+          "line": 245,
           "column": 84,
           "element": "call_includes"
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 247,
+          "line": 252,
           "column": 38,
           "element": "literal"
         },
@@ -241226,6 +241720,53 @@
         }
       ],
       "duplicateGroupId": "dup_Semantic_conflict_isolation_2",
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.semanticConflictIsolationPreservesSeparateDomainSpecificCancelKeysWithoutPrematureCollapse": {
+      "key": "other.labels.semanticConflictIsolationPreservesSeparateDomainSpecificCancelKeysWithoutPrematureCollapse",
+      "category": "other",
+      "semanticContext": "prop_title",
+      "sourceTextAr": "Semantic conflict isolation preserves separate domain-specific cancel keys without premature collapse",
+      "proposedTextEn": "Semantic conflict isolation preserves separate domain-specific cancel keys without premature collapse",
+      "proposedTextUr": "Semantic conflict isolation preserves separate domain-specific cancel keys without premature collapse",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 458,
+          "column": 12,
+          "element": "prop_title"
+        }
+      ],
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -241959,6 +242500,12 @@
           "element": "literal"
         },
         {
+          "file": "src/i18n/catalog/translationCatalog.generator.ts",
+          "line": 367,
+          "column": 43,
+          "element": "literal"
+        },
+        {
           "file": "src/i18n/codemod/codemod.classifier.ts",
           "line": 360,
           "column": 86,
@@ -242017,9 +242564,15 @@
           "line": 368,
           "column": 19,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 526,
+          "column": 15,
+          "element": "prop_category"
         }
       ],
-      "duplicateGroupId": "dup_shared_17",
+      "duplicateGroupId": "dup_shared_19",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -246406,13 +246959,13 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 174,
+          "line": 179,
           "column": 31,
           "element": "call_includes"
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 182,
+          "line": 187,
           "column": 68,
           "element": "literal"
         }
@@ -246486,13 +247039,13 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 224,
+          "line": 229,
           "column": 77,
           "element": "literal"
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 231,
+          "line": 236,
           "column": 58,
           "element": "prop_internalKey2"
         }
@@ -247078,13 +247631,13 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 240,
+          "line": 245,
           "column": 25,
           "element": "call_includes"
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 247,
+          "line": 252,
           "column": 25,
           "element": "literal"
         },
@@ -247431,13 +247984,13 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 173,
+          "line": 178,
           "column": 25,
           "element": "call_includes"
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 182,
+          "line": 187,
           "column": 39,
           "element": "literal"
         }
@@ -248234,7 +248787,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 189,
+          "line": 194,
           "column": 38,
           "element": "call_requiresPluralization"
         }
@@ -253972,7 +254525,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 190,
+          "line": 195,
           "column": 38,
           "element": "call_requiresPluralization"
         }
@@ -256019,6 +256572,53 @@
           "line": 417,
           "column": 34,
           "element": "prop_ur"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_19d170": {
+      "key": "other.labels.txt_19d170",
+      "category": "other",
+      "semanticContext": "prop_title",
+      "sourceTextAr": "Codemod matcher and safety validator verify shared.actions.cancel existence without rejection",
+      "proposedTextEn": "Codemod matcher and safety validator verify shared.actions.cancel existence without rejection",
+      "proposedTextUr": "Codemod matcher and safety validator verify shared.actions.cancel existence without rejection",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 545,
+          "column": 12,
+          "element": "prop_title"
         }
       ],
       "notes": [],
@@ -264883,6 +265483,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_3445f5": {
+      "key": "other.labels.txt_3445f5",
+      "category": "other",
+      "semanticContext": "prop_title",
+      "sourceTextAr": "shared.actions.cancel canonical texts match BLOCK 40 foundation dictionary across ar, en, ur verbatim",
+      "proposedTextEn": "shared.actions.cancel canonical texts match BLOCK 40 foundation dictionary across ar, en, ur verbatim",
+      "proposedTextUr": "shared.actions.cancel canonical texts match BLOCK 40 foundation dictionary across ar, en, ur verbatim",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 393,
+          "column": 12,
+          "element": "prop_title"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_349a04": {
       "key": "other.labels.txt_349a04",
       "category": "other",
@@ -270085,7 +270732,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 238,
+          "line": 243,
           "column": 46,
           "element": "call_identifyProtectedTokens"
         }
@@ -272975,7 +273622,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 339,
+          "line": 344,
           "column": 12,
           "element": "prop_title"
         }
@@ -273369,6 +274016,57 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_583b23": {
+      "key": "other.labels.txt_583b23",
+      "category": "other",
+      "semanticContext": "prop_title",
+      "sourceTextAr": "Language slot status and confidence parity for shared.actions.cancel",
+      "proposedTextEn": "Language slot status and confidence parity for shared.actions.cancel",
+      "proposedTextUr": "Language slot status and confidence parity for shared.actions.cancel",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [
+        "status"
+      ],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 422,
+          "column": 12,
+          "element": "prop_title"
+        }
+      ],
+      "notes": [
+        "Protected business/currency tokens: [status] must not be altered"
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },
@@ -276313,7 +277011,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 318,
+          "line": 323,
           "column": 12,
           "element": "prop_title"
         }
@@ -277608,7 +278306,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 212,
+          "line": 217,
           "column": 12,
           "element": "prop_title"
         }
@@ -278336,7 +279034,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 206,
+          "line": 211,
           "column": 47,
           "element": "call_identifyProtectedTokens"
         }
@@ -279212,7 +279910,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 140,
+          "line": 145,
           "column": 12,
           "element": "prop_title"
         }
@@ -282046,7 +282744,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 279,
+          "line": 284,
           "column": 12,
           "element": "prop_title"
         }
@@ -282849,7 +283547,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 244,
+          "line": 249,
           "column": 12,
           "element": "prop_title"
         }
@@ -283120,10 +283818,34 @@
           "line": 552,
           "column": 48,
           "element": "prop_ur"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 389,
+          "column": 16,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 398,
+          "column": 48,
+          "element": "prop_ur"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 488,
+          "column": 35,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 504,
+          "column": 23,
+          "element": "prop_proposedTextUr"
         }
       ],
       "semanticConflictGroupId": "conflict_منسوخ_کریں",
-      "duplicateGroupId": "dup_منسوخ_کریں_4",
+      "duplicateGroupId": "dup_منسوخ_کریں_8",
       "notes": [
         "Semantic conflict group conflict_منسوخ_کریں: Retained distinct key \"other.labels.txt_7abb52\" to avoid accidental merge."
       ],
@@ -283431,6 +284153,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_7c8b6d": {
+      "key": "other.labels.txt_7c8b6d",
+      "category": "other",
+      "semanticContext": "prop_title",
+      "sourceTextAr": "shared.actions.cancel is guaranteed present in production translation catalog",
+      "proposedTextEn": "shared.actions.cancel is guaranteed present in production translation catalog",
+      "proposedTextUr": "shared.actions.cancel is guaranteed present in production translation catalog",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 363,
+          "column": 12,
+          "element": "prop_title"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_7cd733": {
       "key": "other.labels.txt_7cd733",
       "category": "other",
@@ -283510,7 +284279,54 @@
       "sourceReferences": [
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 262,
+          "line": 267,
+          "column": 12,
+          "element": "prop_title"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_7d6234": {
+      "key": "other.labels.txt_7d6234",
+      "category": "other",
+      "semanticContext": "prop_title",
+      "sourceTextAr": "Deterministic translation engine generates VALIDATED, reviewRequired=false proposal for shared.actions.cancel",
+      "proposedTextEn": "Deterministic translation engine generates VALIDATED, reviewRequired=false proposal for shared.actions.cancel",
+      "proposedTextUr": "Deterministic translation engine generates VALIDATED, reviewRequired=false proposal for shared.actions.cancel",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/i18nTranslationCatalog.test.ts",
+          "line": 493,
           "column": 12,
           "element": "prop_title"
         }
@@ -289496,19 +290312,19 @@
         },
         {
           "file": "src/i18n/catalog/translationCatalog.generator.ts",
-          "line": 559,
+          "line": 629,
           "column": 64,
           "element": "call_writeFileSync"
         },
         {
           "file": "src/i18n/catalog/translationCatalog.generator.ts",
-          "line": 560,
+          "line": 630,
           "column": 78,
           "element": "call_writeFileSync"
         },
         {
           "file": "src/i18n/catalog/translationCatalog.generator.ts",
-          "line": 561,
+          "line": 631,
           "column": 76,
           "element": "call_writeFileSync"
         },
@@ -289652,7 +290468,7 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 314,
+          "line": 319,
           "column": 72,
           "element": "call_readFileSync"
         },
@@ -295975,7 +296791,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"pricing.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -321903,7 +322719,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"projects.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -347762,7 +348578,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_119",
+      "duplicateGroupId": "dup_HIGH_130",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -353222,7 +354038,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_SAFE_11",
+      "duplicateGroupId": "dup_SAFE_12",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -365641,7 +366457,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"security.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -372052,7 +372868,7 @@
           "element": "prop_severity"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_119",
+      "duplicateGroupId": "dup_HIGH_130",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -391588,7 +392404,7 @@
         },
         {
           "file": "src/tests/i18nTranslationCatalog.test.ts",
-          "line": 332,
+          "line": 337,
           "column": 24,
           "element": "literal"
         },
@@ -391657,7 +392473,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_إلغاء",
-      "duplicateGroupId": "dup_إلغاء_41",
+      "duplicateGroupId": "dup_إلغاء_45",
       "notes": [
         "Semantic conflict group conflict_إلغاء: Retained distinct key \"trips.actions.cancel\" to avoid accidental merge.",
         "Disambiguated in standard/file context"
@@ -402149,7 +402965,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_119",
+      "duplicateGroupId": "dup_HIGH_130",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -452781,6 +453597,65 @@
         "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
+    },
+    "shared.actions.cancel": {
+      "key": "shared.actions.cancel",
+      "category": "shared",
+      "semanticContext": "action_button",
+      "sourceTextAr": "إلغاء",
+      "proposedTextEn": "Cancel",
+      "proposedTextUr": "منسوخ کریں",
+      "statusEn": "VALIDATED",
+      "statusUr": "VALIDATED",
+      "confidence": "HIGH",
+      "reviewRequired": false,
+      "reviewReasons": [],
+      "risk": "LOW",
+      "tier": 1,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ar/index.ts",
+          "line": 5,
+          "column": 3,
+          "element": "prop_'shared.actions.cancel'"
+        },
+        {
+          "file": "src/i18n/catalog/translationCatalog.constants.ts",
+          "line": 51,
+          "column": 3,
+          "element": "prop_'shared.actions.cancel'"
+        },
+        {
+          "file": "src/i18n/codemod/codemod.constants.ts",
+          "line": 178,
+          "column": 3,
+          "element": "prop_'إلغاء'"
+        }
+      ],
+      "notes": [
+        "Verified BLOCK 40 Foundation Vocabulary",
+        "Mapped to verified BLOCK 40 Foundation Vocabulary"
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      }
     }
   }
 }

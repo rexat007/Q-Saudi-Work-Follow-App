@@ -266,6 +266,29 @@
 - **Arabic Production Behavior Preserved:** All applied keys resolve to identical Arabic strings registered in the Arabic locale dictionary.
 - **Idempotency Verified:** Re-running the scanner confirms 0 pending SAFE candidates for migrated nodes, with zero duplicate translations.
 
-## 5. Next Steps
+## 5. Withheld Candidates & BLOCK 48A Catalog Repair Status
 
-BLOCK 48 SAFE batch migration is complete. All regression tests green and changes verified.
+During BLOCK 48, 12 SAFE candidate transformations targeting the shared foundation action `shared.actions.cancel` ("إلغاء") were withheld because `shared.actions.cancel` had not been populated in `reports/i18n-translation-catalog.json`.
+
+Following the BLOCK 48A Translation Catalog Consistency Repair, `shared.actions.cancel` has been registered with canonical texts across `ar`, `en`, and `ur` (`ar`: "إلغاء", `en`: "Cancel", `ur`: "منسوخ کریں") with `HIGH` confidence and `APPROVED` status.
+
+All 12 withheld candidates are now verified and marked as **`READY_FOR_FUTURE_SAFE_MIGRATION`**:
+
+| # | Source File & Location | Original Text | Translation Key | Category | Classification | Pre-Repair Status | Post-Repair Status |
+|---|------------------------|---------------|-----------------|----------|----------------|-------------------|--------------------|
+| 1 | `/app/applet/src/components/admin/AdminConsoleView.tsx:1339` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 2 | `/app/applet/src/components/importCenter/EntityResolutionSection.tsx:831` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 3 | `/app/applet/src/components/importCenter/ImportCenterView.tsx:1021` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 4 | `/app/applet/src/components/importCenter/ImportCenterView.tsx:1200` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 5 | `/app/applet/src/components/importCenter/ImportCenterView.tsx:1380` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 6 | `/app/applet/src/components/masterData/MasterDataView.tsx:1461` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 7 | `/app/applet/src/components/masterData/MasterDataView.tsx:1540` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 8 | `/app/applet/src/components/masterData/MasterDataView.tsx:1610` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 9 | `/app/applet/src/components/masterData/MasterDataView.tsx:1695` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 10 | `/app/applet/src/components/masterData/MasterDataView.tsx:1786` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 11 | `/app/applet/src/components/pricing/PricingEngineView.tsx:974` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+| 12 | `/app/applet/src/components/pricing/PricingEngineView.tsx:1046` | `إلغاء` | `shared.actions.cancel` | `shared` | `TRANSFORM_SAFE` | WITHHELD | `READY_FOR_FUTURE_SAFE_MIGRATION` |
+
+## 6. Next Steps
+
+BLOCK 48 SAFE batch migration and BLOCK 48A translation catalog consistency repair are complete. All regression tests green (including CAT-FOUNDATION-01 through 06) and changes verified without modifying application components or executing premature codemods.

@@ -21,6 +21,11 @@ import {
 } from '../i18n/catalog/translationCatalog.constants';
 import { resolveTranslation, interpolate } from '../i18n/utils';
 import { DEFAULT_LOCALE } from '../i18n/constants';
+import { CodemodCatalogMatcher } from '../i18n/codemod/codemod.matcher';
+import { CodemodSafety } from '../i18n/codemod/codemod.safety';
+import { CodemodCandidate } from '../i18n/codemod/codemod.types';
+import { DeterministicTerminologyProvider } from '../i18n/translation/translation.provider';
+import { dictionaries } from '../locales';
 
 interface TestCaseResult {
   id: string;
@@ -341,6 +346,210 @@ async function runBlock42Tests() {
     details: `Foundation runtime resolveTranslation, interpolate, and default locale ('ar') operate without regression.`,
     expected: { foundationGreen: true },
     actual: { foundationGreen },
+  });
+
+  // =========================================================================
+  // BLOCK 48A REGRESSION TESTS: Translation Catalog Consistency & shared.actions.cancel
+  // =========================================================================
+
+  // ----------------------------------------------------
+  // CAT-FOUNDATION-01: shared.actions.cancel is present in production translation catalog
+  // ----------------------------------------------------
+  const cancelEntry = prodCatalog.entries['shared.actions.cancel'];
+  const hasCancelEntry = Boolean(cancelEntry);
+
+  results.push({
+    id: 'CAT-FOUNDATION-01',
+    title: 'shared.actions.cancel is guaranteed present in production translation catalog',
+    passed: hasCancelEntry,
+    details: hasCancelEntry
+      ? `Key 'shared.actions.cancel' exists in production translation catalog with category '${cancelEntry.category}'.`
+      : `Key 'shared.actions.cancel' is missing from production translation catalog entries.`,
+    expected: { hasCancelEntry: true },
+    actual: { hasCancelEntry, keyFound: cancelEntry?.key },
+  });
+
+  // ----------------------------------------------------
+  // CAT-FOUNDATION-02: Canonical translation values match BLOCK 40 foundation dictionary verbatim
+  // ----------------------------------------------------
+  const dictAr = dictionaries.ar['shared.actions.cancel'];
+  const dictEn = dictionaries.en['shared.actions.cancel'];
+  const dictUr = dictionaries.ur['shared.actions.cancel'];
+
+  const valuesMatch =
+    hasCancelEntry &&
+    cancelEntry.sourceTextAr === dictAr &&
+    cancelEntry.sourceTextEn === dictEn &&
+    cancelEntry.sourceTextUr === dictUr &&
+    cancelEntry.translations.ar.text === dictAr &&
+    cancelEntry.translations.en.text === dictEn &&
+    cancelEntry.translations.ur.text === dictUr &&
+    dictAr === 'إلغاء' &&
+    dictEn === 'Cancel' &&
+    dictUr === 'منسوخ کریں';
+
+  results.push({
+    id: 'CAT-FOUNDATION-02',
+    title: 'shared.actions.cancel canonical texts match BLOCK 40 foundation dictionary across ar, en, ur verbatim',
+    passed: Boolean(valuesMatch),
+    details: valuesMatch
+      ? `Canonical texts match: ar='${dictAr}', en='${dictEn}', ur='${dictUr}'.`
+      : `Mismatch between catalog entry and foundation dictionary for 'shared.actions.cancel'.`,
+    expected: { ar: 'إلغاء', en: 'Cancel', ur: 'منسوخ کریں' },
+    actual: {
+      ar: cancelEntry?.translations.ar.text,
+      en: cancelEntry?.translations.en.text,
+      ur: cancelEntry?.translations.ur.text,
+    },
+  });
+
+  // ----------------------------------------------------
+  // CAT-FOUNDATION-03: Language slot status and confidence parity for foundation action key
+  // ----------------------------------------------------
+  const statusAndConfParity =
+    hasCancelEntry &&
+    cancelEntry.translations.ar.status === 'TRANSLATED' &&
+    cancelEntry.translations.en.status === 'TRANSLATED' &&
+    cancelEntry.translations.ur.status === 'TRANSLATED' &&
+    cancelEntry.translations.ar.confidence === 'HIGH' &&
+    cancelEntry.translations.en.confidence === 'HIGH' &&
+    cancelEntry.translations.ur.confidence === 'HIGH' &&
+    cancelEntry.reviewStatus === 'APPROVED' &&
+    cancelEntry.migrationRisk === 'LOW';
+
+  results.push({
+    id: 'CAT-FOUNDATION-03',
+    title: 'Language slot status and confidence parity for shared.actions.cancel',
+    passed: Boolean(statusAndConfParity),
+    details: statusAndConfParity
+      ? `All 3 language slots verified with TRANSLATED status, HIGH confidence, and APPROVED review status.`
+      : `Incomplete status/confidence slots on 'shared.actions.cancel'.`,
+    expected: {
+      arStatus: 'TRANSLATED',
+      enStatus: 'TRANSLATED',
+      urStatus: 'TRANSLATED',
+      confidence: 'HIGH',
+      reviewStatus: 'APPROVED',
+      migrationRisk: 'LOW',
+    },
+    actual: {
+      arStatus: cancelEntry?.translations.ar.status,
+      enStatus: cancelEntry?.translations.en.status,
+      urStatus: cancelEntry?.translations.ur.status,
+      confidence: cancelEntry?.translationConfidence,
+      reviewStatus: cancelEntry?.reviewStatus,
+      migrationRisk: cancelEntry?.migrationRisk,
+    },
+  });
+
+  // ----------------------------------------------------
+  // CAT-FOUNDATION-04: Semantic conflict isolation from domain-specific cancel keys
+  // ----------------------------------------------------
+  const allCancelEntries = Object.values(prodCatalog.entries).filter((e) => e.sourceTextAr === 'إلغاء');
+  const allCancelKeys = allCancelEntries.map((e) => e.key);
+  const distinctDomainCancelExists = allCancelKeys.some(
+    (k) => k !== 'shared.actions.cancel' && (k.startsWith('trips.') || k.startsWith('pricing.') || k.includes('.cancel'))
+  );
+  const semanticIsolationMaintained =
+    allCancelKeys.includes('shared.actions.cancel') && distinctDomainCancelExists;
+
+  results.push({
+    id: 'CAT-FOUNDATION-04',
+    title: 'Semantic conflict isolation preserves separate domain-specific cancel keys without premature collapse',
+    passed: semanticIsolationMaintained,
+    details: semanticIsolationMaintained
+      ? `Found ${allCancelEntries.length} distinct cancel keys; 'shared.actions.cancel' kept isolated from domain cancel keys.`
+      : `Cancel keys were either collapsed or missing domain separation.`,
+    expected: { sharedKeyExists: true, distinctDomainCancelExists: true },
+    actual: {
+      totalCancelKeys: allCancelKeys.length,
+      keys: allCancelKeys.slice(0, 5),
+    },
+  });
+
+  // ----------------------------------------------------
+  // CAT-FOUNDATION-05: Deterministic terminology provider generates validated proposal
+  // ----------------------------------------------------
+  let proposalValid = false;
+  let genEn = '';
+  let genUr = '';
+  if (hasCancelEntry) {
+    const provider = new DeterministicTerminologyProvider();
+    const proposal = await provider.generateProposal(cancelEntry);
+    genEn = proposal.proposedTextEn || '';
+    genUr = proposal.proposedTextUr || '';
+    proposalValid =
+      proposal.key === 'shared.actions.cancel' &&
+      proposal.statusEn === 'VALIDATED' &&
+      proposal.statusUr === 'VALIDATED' &&
+      proposal.confidence === 'HIGH' &&
+      proposal.reviewRequired === false &&
+      proposal.proposedTextEn === 'Cancel' &&
+      proposal.proposedTextUr === 'منسوخ کریں';
+  }
+
+  results.push({
+    id: 'CAT-FOUNDATION-05',
+    title: 'Deterministic translation engine generates VALIDATED, reviewRequired=false proposal for shared.actions.cancel',
+    passed: proposalValid,
+    details: proposalValid
+      ? `Proposal verified with en='${genEn}', ur='${genUr}', confidence='HIGH', reviewRequired=false.`
+      : `Proposal generation failed or produced invalid state for 'shared.actions.cancel'.`,
+    expected: {
+      statusEn: 'VALIDATED',
+      statusUr: 'VALIDATED',
+      confidence: 'HIGH',
+      reviewRequired: false,
+      proposedTextEn: 'Cancel',
+      proposedTextUr: 'منسوخ کریں',
+    },
+    actual: { proposedTextEn: genEn, proposedTextUr: genUr, proposalValid },
+  });
+
+  // ----------------------------------------------------
+  // CAT-FOUNDATION-06: Codemod catalog matcher and safety validator verify key existence
+  // ----------------------------------------------------
+  const matcher = CodemodCatalogMatcher.getInstance();
+  matcher.loadCatalogs({ silent: true });
+  const matcherHasProposal = Boolean(matcher.getProposal('shared.actions.cancel'));
+  const matcherHasCatalog = Boolean(matcher.getCatalogEntry('shared.actions.cancel'));
+
+  const safety = new CodemodSafety(matcher);
+  const testCandidate: CodemodCandidate = {
+    id: 'cat-foundation-06-candidate',
+    sourceFile: 'src/components/masterData/MasterDataView.tsx',
+    sourceLocation: { line: 1461, column: 1, startPos: 0, endPos: 10 },
+    nodeKind: 'JsxText',
+    originalText: 'إلغاء',
+    proposedReplacement: '{t("shared.actions.cancel")}',
+    translationKey: 'shared.actions.cancel',
+    category: 'shared',
+    risk: 'SAFE',
+    confidence: 'HIGH',
+    classification: 'TRANSFORM_SAFE',
+    reason: 'SHARED_ACTION_EXACT_MATCH',
+    reviewReasons: [],
+    interpolationParams: [],
+    protectedTokens: [],
+    requiresImport: false,
+    requiresHook: false,
+    targetComponent: null,
+    isAlreadyTranslated: false,
+    semanticContext: 'Button action in MasterDataView',
+  };
+
+  const keyCheck = safety.verifyTranslationKeyExistence(testCandidate);
+  const safetyVerified = matcherHasCatalog && matcherHasProposal && keyCheck.passed;
+
+  results.push({
+    id: 'CAT-FOUNDATION-06',
+    title: 'Codemod matcher and safety validator verify shared.actions.cancel existence without rejection',
+    passed: safetyVerified,
+    details: safetyVerified
+      ? `Key verified in matcher catalog & proposal; safety validation passed: '${keyCheck.message}'.`
+      : `Key existence verification failed in Codemod safety checks.`,
+    expected: { matcherHasCatalog: true, matcherHasProposal: true, keyCheckPassed: true },
+    actual: { matcherHasCatalog, matcherHasProposal, keyCheckPassed: keyCheck.passed, message: keyCheck.message },
   });
 
   // ----------------------------------------------------
