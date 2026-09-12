@@ -1,0 +1,612 @@
+{
+  "auditName": "BLOCK 53 — i18n Runtime Key Audit & Unresolved-Key Detection",
+  "timestamp": "2026-09-12T14:15:00.000Z",
+  "status": "COMPLETE",
+  "scope": "ANALYSIS_ONLY",
+  "summary": {
+    "totalKeysReferenced": 1115,
+    "totalCallSites": 1186,
+    "resolvableKeysCount": 54,
+    "unresolvedKeysCount": 1061,
+    "keyAsValueCount": 1061,
+    "emptyValueCount": 0,
+    "missingArCount": 1061,
+    "missingEnCount": 1061,
+    "missingUrCount": 1061,
+    "resolutionPercentage": 4.84,
+    "runtimeDictionarySize": {
+      "ar": 67,
+      "en": 67,
+      "ur": 67
+    }
+  },
+  "txtKeyAudit": {
+    "totalReferenced": 736,
+    "resolvable": 42,
+    "unresolved": 694,
+    "classifications": {
+      "A_correctlyResolvable": {
+        "count": 42,
+        "description": "Defined in runtime dictionaries with valid non-empty AR/EN/UR translations",
+        "sample": [
+          "navigation.labels.txt_3fe43d",
+          "navigation.labels.txt_9a0a23",
+          "navigation.labels.txt_230d9e",
+          "navigation.labels.txt_601c17",
+          "navigation.labels.txt_152452",
+          "navigation.labels.txt_6c2131",
+          "navigation.labels.txt_61c13d",
+          "navigation.labels.txt_b4b841",
+          "navigation.labels.txt_185076",
+          "navigation.labels.txt_45b282"
+        ]
+      },
+      "B_missingFromRuntimeDictionaries": {
+        "count": 694,
+        "description": "Referenced by application JSX/TS code but missing from src/locales dictionaries",
+        "sample": [
+          "other.labels.txt_259961",
+          "other.labels.txt_1ea1ac",
+          "other.labels.txt_4c37e4",
+          "other.labels.txt_109310",
+          "other.labels.txt_68176b",
+          "other.labels.txt_1b9b40",
+          "other.labels.txt_38f4aa",
+          "other.labels.txt_6aaf22",
+          "other.labels.txt_54bf89",
+          "other.labels.txt_2168d6"
+        ]
+      },
+      "C_mappedIncorrectly": {
+        "count": 0,
+        "description": "Malformed key hierarchy or non-conforming identifier syntax",
+        "sample": []
+      },
+      "D_fallbackFailure": {
+        "count": 694,
+        "description": "Fails fallback lookup because base locale (ar) is also missing, returning literal key string",
+        "sample": [
+          "other.labels.txt_259961",
+          "other.labels.txt_1ea1ac",
+          "other.labels.txt_4c37e4",
+          "other.labels.txt_109310",
+          "other.labels.txt_68176b",
+          "other.labels.txt_1b9b40",
+          "other.labels.txt_38f4aa",
+          "other.labels.txt_6aaf22",
+          "other.labels.txt_54bf89",
+          "other.labels.txt_2168d6"
+        ]
+      },
+      "E_staleArtifacts": {
+        "countInCatalog": 3382,
+        "countInProposals": 3382,
+        "description": "Generated during earlier extraction phases but unreferenced by application components"
+      },
+      "F_validInArButUntranslatedInEnUr": {
+        "count": 0,
+        "description": "Present in Arabic runtime dictionary but missing in English or Urdu (zero cases; runtime dictionaries have full 3-locale parity)",
+        "sample": []
+      }
+    }
+  },
+  "metadataHookCoverage": {
+    "useExceptionTypeMeta": {
+      "hookFile": "src/hooks/useExceptionTypeMeta.ts",
+      "status": "UNUSED_IN_COMPONENTS",
+      "keysCovered": 13,
+      "activeComponentConsumers": [],
+      "staticDictionaryFeeder": "EXCEPTION_TYPE_META in src/components/exceptionEngine/ExceptionEngineView.tsx (lines 37-116)",
+      "futureMigrationAction": "Refactor ExceptionEngineView.tsx to consume useExceptionTypeMeta() instead of static EXCEPTION_TYPE_META"
+    },
+    "useDomainMeta": {
+      "hookFile": "src/hooks/useDomainMeta.ts",
+      "status": "UNUSED_IN_COMPONENTS",
+      "keysCovered": 19,
+      "activeComponentConsumers": [],
+      "staticDictionaryFeeder": "DOMAINS_LIST in src/components/FirestoreArchitectureView.tsx (lines 58-278)",
+      "futureMigrationAction": "Refactor FirestoreArchitectureView.tsx to consume useDomainMeta() instead of static DOMAINS_LIST"
+    }
+  },
+  "componentCoverage": {
+    "totalFilesEvaluated": 35,
+    "fullyResolvableFilesCount": 8,
+    "partiallyOrUnresolvedFilesCount": 27,
+    "files": [
+      {
+        "file": "src/components/TripEngineView.tsx",
+        "totalCalls": 102,
+        "uniqueKeysCount": 95,
+        "resolvableCount": 0,
+        "unresolvedCount": 95,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/tripEngine/LoadingStation.tsx",
+        "totalCalls": 85,
+        "uniqueKeysCount": 85,
+        "resolvableCount": 0,
+        "unresolvedCount": 85,
+        "resolutionRate": 0,
+        "callers": [
+          "t",
+          "translate"
+        ]
+      },
+      {
+        "file": "src/components/masterData/MasterDataView.tsx",
+        "totalCalls": 89,
+        "uniqueKeysCount": 81,
+        "resolvableCount": 1,
+        "unresolvedCount": 80,
+        "resolutionRate": 1.2,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/dataQuality/DataQualityView.tsx",
+        "totalCalls": 75,
+        "uniqueKeysCount": 75,
+        "resolvableCount": 0,
+        "unresolvedCount": 75,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/offline/OutboxDrawer.tsx",
+        "totalCalls": 73,
+        "uniqueKeysCount": 72,
+        "resolvableCount": 1,
+        "unresolvedCount": 71,
+        "resolutionRate": 1.4,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/tripEngine/StateMachineController.tsx",
+        "totalCalls": 72,
+        "uniqueKeysCount": 72,
+        "resolvableCount": 2,
+        "unresolvedCount": 70,
+        "resolutionRate": 2.8,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/tripEngine/UnloadingStation.tsx",
+        "totalCalls": 67,
+        "uniqueKeysCount": 66,
+        "resolvableCount": 0,
+        "unresolvedCount": 66,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/dashboard/OperationsDashboardView.tsx",
+        "totalCalls": 68,
+        "uniqueKeysCount": 65,
+        "resolvableCount": 0,
+        "unresolvedCount": 65,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/workspace/WorkspaceIntegrationView.tsx",
+        "totalCalls": 61,
+        "uniqueKeysCount": 61,
+        "resolvableCount": 3,
+        "unresolvedCount": 58,
+        "resolutionRate": 4.9,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/migration/LegacyMigrationView.tsx",
+        "totalCalls": 57,
+        "uniqueKeysCount": 57,
+        "resolvableCount": 0,
+        "unresolvedCount": 57,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/tripEngine/WeightEngineView.tsx",
+        "totalCalls": 58,
+        "uniqueKeysCount": 53,
+        "resolvableCount": 0,
+        "unresolvedCount": 53,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/importCenter/WeighbridgeImportSection.tsx",
+        "totalCalls": 50,
+        "uniqueKeysCount": 50,
+        "resolvableCount": 1,
+        "unresolvedCount": 49,
+        "resolutionRate": 2,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "totalCalls": 43,
+        "uniqueKeysCount": 42,
+        "resolvableCount": 0,
+        "unresolvedCount": 42,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/offline/ConflictResolutionModal.tsx",
+        "totalCalls": 36,
+        "uniqueKeysCount": 36,
+        "resolvableCount": 0,
+        "unresolvedCount": 36,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/FirestoreArchitectureView.tsx",
+        "totalCalls": 25,
+        "uniqueKeysCount": 25,
+        "resolvableCount": 0,
+        "unresolvedCount": 25,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/hooks/useDomainMeta.ts",
+        "totalCalls": 26,
+        "uniqueKeysCount": 20,
+        "resolvableCount": 1,
+        "unresolvedCount": 19,
+        "resolutionRate": 5,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/wizard/Step2Materials.tsx",
+        "totalCalls": 18,
+        "uniqueKeysCount": 18,
+        "resolvableCount": 0,
+        "unresolvedCount": 18,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/wizard/Step6GoogleDrive.tsx",
+        "totalCalls": 17,
+        "uniqueKeysCount": 17,
+        "resolvableCount": 0,
+        "unresolvedCount": 17,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/wizard/Step1ProjectInfo.tsx",
+        "totalCalls": 14,
+        "uniqueKeysCount": 14,
+        "resolvableCount": 0,
+        "unresolvedCount": 14,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/wizard/Step5ProjectAccess.tsx",
+        "totalCalls": 17,
+        "uniqueKeysCount": 13,
+        "resolvableCount": 0,
+        "unresolvedCount": 13,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/hooks/useExceptionTypeMeta.ts",
+        "totalCalls": 24,
+        "uniqueKeysCount": 13,
+        "resolvableCount": 0,
+        "unresolvedCount": 13,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/offline/PWAInstallButton.tsx",
+        "totalCalls": 12,
+        "uniqueKeysCount": 12,
+        "resolvableCount": 0,
+        "unresolvedCount": 12,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/wizard/ProjectSetupWizard.tsx",
+        "totalCalls": 12,
+        "uniqueKeysCount": 12,
+        "resolvableCount": 0,
+        "unresolvedCount": 12,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/wizard/Step3Carriers.tsx",
+        "totalCalls": 11,
+        "uniqueKeysCount": 11,
+        "resolvableCount": 2,
+        "unresolvedCount": 9,
+        "resolutionRate": 18.2,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/dashboard/WidgetFilterBar.tsx",
+        "totalCalls": 7,
+        "uniqueKeysCount": 7,
+        "resolvableCount": 0,
+        "unresolvedCount": 7,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/auth/AuthButton.tsx",
+        "totalCalls": 4,
+        "uniqueKeysCount": 4,
+        "resolvableCount": 0,
+        "unresolvedCount": 4,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/offline/OfflineIndicator.tsx",
+        "totalCalls": 1,
+        "uniqueKeysCount": 1,
+        "resolvableCount": 0,
+        "unresolvedCount": 1,
+        "resolutionRate": 0,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/App.tsx",
+        "totalCalls": 46,
+        "uniqueKeysCount": 46,
+        "resolvableCount": 46,
+        "unresolvedCount": 0,
+        "resolutionRate": 100,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/admin/AdminConsoleView.tsx",
+        "totalCalls": 1,
+        "uniqueKeysCount": 1,
+        "resolvableCount": 1,
+        "unresolvedCount": 0,
+        "resolutionRate": 100,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/importCenter/EntityResolutionSection.tsx",
+        "totalCalls": 1,
+        "uniqueKeysCount": 1,
+        "resolvableCount": 1,
+        "unresolvedCount": 0,
+        "resolutionRate": 100,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/importCenter/ImportCenterView.tsx",
+        "totalCalls": 3,
+        "uniqueKeysCount": 1,
+        "resolvableCount": 1,
+        "unresolvedCount": 0,
+        "resolutionRate": 100,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/pricing/PricingEngineView.tsx",
+        "totalCalls": 2,
+        "uniqueKeysCount": 1,
+        "resolvableCount": 1,
+        "unresolvedCount": 0,
+        "resolutionRate": 100,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/i18n/LanguageSwitcher.tsx",
+        "totalCalls": 1,
+        "uniqueKeysCount": 1,
+        "resolvableCount": 1,
+        "unresolvedCount": 0,
+        "resolutionRate": 100,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/wizard/Step4PricingRules.tsx",
+        "totalCalls": 2,
+        "uniqueKeysCount": 2,
+        "resolvableCount": 2,
+        "unresolvedCount": 0,
+        "resolutionRate": 100,
+        "callers": [
+          "t"
+        ]
+      },
+      {
+        "file": "src/components/wizard/Step7Review.tsx",
+        "totalCalls": 6,
+        "uniqueKeysCount": 1,
+        "resolvableCount": 1,
+        "unresolvedCount": 0,
+        "resolutionRate": 100,
+        "callers": [
+          "t"
+        ]
+      }
+    ]
+  },
+  "unresolvedKeysSample": [
+    "other.labels.txt_259961",
+    "other.labels.txt_1ea1ac",
+    "other.labels.txt_4c37e4",
+    "other.labels.txt_109310",
+    "other.labels.txt_68176b",
+    "other.labels.txt_1b9b40",
+    "other.labels.txt_38f4aa",
+    "other.labels.txt_6aaf22",
+    "other.labels.txt_54bf89",
+    "other.labels.txt_2168d6",
+    "other.labels.save",
+    "other.labels.txt_9d8db2",
+    "other.labels.txt_2bbe99",
+    "other.labels.txt_3c30da",
+    "other.labels.refresh",
+    "other.labels.txt_20e3e1",
+    "other.labels.txt_139e03",
+    "other.labels.user_4",
+    "other.labels.txt_158f99",
+    "other.labels.txt_265a70",
+    "other.labels.txt_4648ec",
+    "other.labels.txt_16e97e",
+    "other.labels.trip_3",
+    "other.labels.txt_72168c",
+    "other.labels.txt_633e2d",
+    "trips.labels.trips",
+    "trips.labels.txt_7064be",
+    "trips.labels.download",
+    "trips.labels.txt_934de7",
+    "trips.labels.txt_14036c",
+    "trips.labels.txt_4fd2e9",
+    "trips.labels.createTrip",
+    "trips.labels.txt_268208",
+    "trips.messages.trips",
+    "trips.labels.trips_3",
+    "trips.labels.txt_1af9f4",
+    "trips.labels.txt_429ecc",
+    "trips.labels.txt_3cbe5a",
+    "trips.labels.txt_40f0a8",
+    "trips.labels.txt_7d5bc8",
+    "trips.labels.txt_6ae7c3",
+    "trips.labels.createTrip_2",
+    "trips.labels.txt_622420",
+    "trips.labels.txt_5eb20e",
+    "trips.labels.txt_6615b4",
+    "trips.labels.project_2",
+    "trips.labels.txt_77937d",
+    "trips.labels.pricing",
+    "trips.labels.carrier",
+    "trips.labels.txt_22b00b"
+  ],
+  "resolvableKeysList": [
+    "navigation.labels.projects",
+    "navigation.labels.txt_3fe43d",
+    "navigation.labels.txt_9a0a23",
+    "navigation.labels.txt_230d9e",
+    "navigation.labels.txt_601c17",
+    "navigation.labels.txt_152452",
+    "navigation.labels.txt_6c2131",
+    "navigation.labels.txt_61c13d",
+    "navigation.labels.txt_b4b841",
+    "navigation.labels.reports",
+    "navigation.labels.txt_185076",
+    "navigation.labels.trips",
+    "navigation.labels.txt_45b282",
+    "navigation.labels.txt_7265aa",
+    "navigation.labels.import",
+    "navigation.labels.txt_3711ef",
+    "navigation.labels.txt_1a75fa",
+    "navigation.labels.txt_2439c4",
+    "navigation.labels.txt_70f585",
+    "navigation.labels.txt_50c969",
+    "navigation.labels.pricing",
+    "navigation.labels.projects_2",
+    "navigation.labels.txt_11ed5e",
+    "navigation.labels.txt_1b8b59",
+    "navigation.labels.txt_198d0f",
+    "navigation.labels.txt_4452c7",
+    "navigation.labels.txt_13cd84",
+    "navigation.status.txt_4c0b8d",
+    "navigation.labels.txt_10324c",
+    "navigation.labels.txt_4df8c5",
+    "navigation.labels.txt_23bdd6",
+    "navigation.labels.txt_46b695",
+    "navigation.labels.txt_777008",
+    "navigation.labels.txt_41e146",
+    "navigation.labels.txt_4ada99",
+    "navigation.labels.txt_5dc573",
+    "navigation.labels.txt_6dd618",
+    "navigation.labels.txt_791f1b",
+    "navigation.labels.view",
+    "navigation.labels.txt_4c8195",
+    "navigation.labels.txt_17c5e1",
+    "navigation.labels.txt_c37ba7",
+    "navigation.labels.txt_8cf69f",
+    "navigation.labels.txt_72b405",
+    "navigation.labels.txt_3a0110",
+    "navigation.labels.txt_276201",
+    "shared.actions.cancel",
+    "navigation.language",
+    "weighbridge.messages.txt_5d74e2",
+    "offline.labels.pricing",
+    "trips.labels.txt_304e68",
+    "trips.labels.txt_226b89",
+    "shared.actions.edit",
+    "shared.actions.delete"
+  ]
+}

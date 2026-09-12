@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-12T14:00:43.556Z
+**Generated At:** 2026-09-12T14:13:56.754Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,16 +9,16 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **8468** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **8487** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **5447** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **5447** | Domain terminology requiring semantic verification |
-| **Ambiguous Keys Isolated** | **3014** | Short tokens or codes quarantined from auto-translation |
+| **Untranslated Slots (Pending Review)** | **5450** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **5450** | Domain terminology requiring semantic verification |
+| **Ambiguous Keys Isolated** | **3030** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
-| **Interpolation Placeholders** | **192** | Dynamic parameters (e.g. `{count}`) strictly preserved |
+| **Interpolation Placeholders** | **194** | Dynamic parameters (e.g. `{count}`) strictly preserved |
 | **Pluralization Requirements** | **120** | Expressions requiring 6 Arabic plural forms |
 | **Semantic Conflicts Isolated** | **312** | Identical texts split into separate contextual keys |
-| **Duplicate Groups (Type A Sharing)** | **1413** | Safe identical-context key reuse candidates |
+| **Duplicate Groups (Type A Sharing)** | **1418** | Safe identical-context key reuse candidates |
 | **Directional Migration Queue** | **229** | Physical Tailwind classes flagged for RTL/LTR migration |
 
 ## 2. Category Distribution & Translation Readiness
@@ -28,8 +28,8 @@
 | `other` | 2220 | 4 | 1293 | 1293 | 923 |
 | `imports` | 1574 | 0 | 1086 | 1086 | 488 |
 | `reports` | 567 | 0 | 375 | 375 | 191 |
+| `security` | 521 | 1 | 399 | 399 | 121 |
 | `trips` | 521 | 0 | 401 | 401 | 120 |
-| `security` | 502 | 1 | 396 | 396 | 105 |
 | `pricing` | 491 | 0 | 321 | 321 | 170 |
 | `weighbridge` | 418 | 0 | 229 | 229 | 189 |
 | `exceptions` | 295 | 0 | 178 | 178 | 117 |

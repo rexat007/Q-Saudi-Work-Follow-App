@@ -1,8 +1,8 @@
 # Professional Translation Human Review Queue (BLOCK 43)
 
-**Generated At:** 2026-09-12T14:00:49.780Z
-**Total Catalog Entries Processed:** 8468
-**Total Proposals Requiring Human Review:** 8462 (99.9%)
+**Generated At:** 2026-09-12T14:14:03.146Z
+**Total Catalog Entries Processed:** 8487
+**Total Proposals Requiring Human Review:** 8481 (99.9%)
 
 ## Review Instructions for Translators & Enterprise Auditors
 
@@ -20,8 +20,8 @@
 | `INTERPOLATION_RISK` | **8** | Complex dynamic placeholders or parameter sequences requiring syntax verification |
 | `PLURALIZATION_RISK` | **112** | Quantities requiring 6 Arabic plural forms aligned with target language plural rules |
 | `REPORT_EXPORT_RISK` | **1466** | Report column or export header requiring separation of internal data key from display label |
-| `BUSINESS_DATA_RISK` | **690** | Formulas, rates, or business calculations requiring strict identifier preservation |
-| `LOW_CONFIDENCE` | **5340** | Ambiguous or composite phrases generated with low statistical confidence |
+| `BUSINESS_DATA_RISK` | **692** | Formulas, rates, or business calculations requiring strict identifier preservation |
+| `LOW_CONFIDENCE` | **5357** | Ambiguous or composite phrases generated with low statistical confidence |
 | `DIRECTIONAL_RISK` | **0** | Mixed-direction content (Arabic and Latin/numbers) needing directional inspection |
 | `VALIDATION_FAILURE` | **0** | Proposal encountered parameter mismatch, missing tokens, or structural defects |
 | `OTHER` | **0** | General review requirements flagged by migration pipeline |
@@ -200,7 +200,7 @@
 | `dashboard.fields.price` | "العدد × السعر" | "العدد × Price" | "العدد × قیمت" | Ensure internal key 'price' remains untranslated; translate presentation label only. |
 | ... | *and 1441 more items in this queue* | | | |
 
-### 1. Reason: `BUSINESS_DATA_RISK` (690 items)
+### 1. Reason: `BUSINESS_DATA_RISK` (692 items)
 
 > Formulas, rates, or business calculations requiring strict identifier preservation
 
@@ -231,9 +231,9 @@
 | `entityResolution.labels.material_6` | "تم رصد المادة الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | "تم رصد Material الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | "تم رصد مٹیریل الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | Protect financial or scale tokens: []. |
 | `entityResolution.labels.truckCarrier` | "تم تصحيح تبعية الشاحنة يدوياً إلى الناقل [${resolutionCarrierId}]." | "تم تصحيح تبعية Truck يدوياً إلى Carrier [${resolutionCarrierId}]." | "تم تصحيح تبعية ٹرک يدوياً إلى کیریئر [${resolutionCarrierId}]." | Protect financial or scale tokens: [resolutionCarrierId]. |
 | `entityResolution.labels.txt_1164f5` | "عُثر على تطابق مقترح (Possible Match) بنسبة ${highestScore}% مع "${bestCandidate.value}". ${matchDetails}" | "عُثر على تطابق مقترح (Possible Match) بنسبة ${highestScore}% مع "${bestCandidate.value}". ${matchDetails}" | "عُثر على تطابق مقترح (Possible Match) بنسبة ${highestScore}% مع "${bestCandidate.value}". ${matchDetails}" | Protect financial or scale tokens: [highestScore, matchDetails]. |
-| ... | *and 665 more items in this queue* | | | |
+| ... | *and 667 more items in this queue* | | | |
 
-### 1. Reason: `LOW_CONFIDENCE` (5340 items)
+### 1. Reason: `LOW_CONFIDENCE` (5357 items)
 
 > Ambiguous or composite phrases generated with low statistical confidence
 
@@ -264,5 +264,5 @@
 | `carriers.messages.projectCarrier` | "معرّف المشروع التابع له الناقل مطلوب" | "معرّف Project التابع له Carrier Required" | "معرّف پروجیکٹ التابع له کیریئر لازمی" | Review phrasing carefully; replace with verified domain phrase if needed. |
 | `dashboard.actions.shiftdatefrom` | "shiftDateFrom" | "shiftDateFrom" | "shiftDateFrom" | Review phrasing carefully; replace with verified domain phrase if needed. |
 | `dashboard.labels.20260101` | "2026-01-01" | "2026-01-01" | "2026-01-01" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| ... | *and 5315 more items in this queue* | | | |
+| ... | *and 5332 more items in this queue* | | | |
 
