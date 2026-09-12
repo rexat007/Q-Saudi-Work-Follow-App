@@ -1,29 +1,29 @@
 {
-  "generatedAt": "2026-09-12T13:27:06.613Z",
+  "generatedAt": "2026-09-12T13:35:58.912Z",
   "version": "1.0.0-block43",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 8437,
-    "generatedEnCount": 8437,
-    "generatedUrCount": 8437,
-    "reviewRequiredCount": 8431,
+    "totalEntries": 8436,
+    "generatedEnCount": 8436,
+    "generatedUrCount": 8436,
+    "reviewRequiredCount": 8430,
     "skippedCount": 0,
     "protectedCount": 1,
     "interpolationCount": 192,
     "pluralizationCount": 120,
-    "highRiskCount": 8431,
+    "highRiskCount": 8430,
     "semanticConflictCount": 832,
     "domainTerminologyCount": 0,
     "confidenceBreakdown": {
       "HIGH": 138,
       "MEDIUM": 2324,
-      "LOW": 5975
+      "LOW": 5974
     },
     "tierBreakdown": {
       "1": 6,
       "2": 0,
       "3": 0,
-      "4": 8431
+      "4": 8430
     },
     "reviewReasonsBreakdown": {
       "SEMANTIC_CONFLICT": 832,
@@ -32,7 +32,7 @@
       "PLURALIZATION_RISK": 120,
       "REPORT_EXPORT_RISK": 1686,
       "BUSINESS_DATA_RISK": 1288,
-      "LOW_CONFIDENCE": 8431,
+      "LOW_CONFIDENCE": 8430,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
@@ -183,12 +183,12 @@
         "low": 302
       },
       "offline": {
-        "total": 273,
-        "generated": 273,
-        "reviewRequired": 273,
+        "total": 272,
+        "generated": 272,
+        "reviewRequired": 272,
         "high": 1,
         "medium": 116,
-        "low": 156
+        "low": 155
       },
       "exceptions": {
         "total": 295,
@@ -175288,53 +175288,6 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": false
-    },
-    "offline.labels.txt_5b9d20": {
-      "key": "offline.labels.txt_5b9d20",
-      "category": "offline",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
-      "proposedTextEn": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
-      "proposedTextUr": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/ConflictResolutionModal.tsx",
-          "line": 106,
-          "column": 15,
-          "element": "prop_desc"
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },

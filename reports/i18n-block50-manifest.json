@@ -1,0 +1,34 @@
+{
+  "version": "1.0.0",
+  "block": 50,
+  "mode": "APPLIED",
+  "generatedAt": "2026-09-12T13:34:52.925Z",
+  "totalLowRiskCandidatesAvailable": 111,
+  "totalSelected": 1,
+  "totalAppliedInBatch": 1,
+  "totalSkipped": 110,
+  "skipBreakdown": {
+    "stateMachineController": 41,
+    "topLevelScopeOutsideReactComponent": 12,
+    "pricingAndOfflineLogic": 7,
+    "firestoreArchitectureExport": 25,
+    "importLogicOrBusinessNames": 5,
+    "mockSimulationOrBusinessData": 19,
+    "technicalHtmlAttribute": 1
+  },
+  "filesModifiedCount": 1,
+  "entries": [
+    {
+      "sourceFile": "src/components/offline/ConflictResolutionModal.tsx",
+      "originalHash": "f4f2ff12efee8558",
+      "modifiedHash": "31b8dc0fb5752f41",
+      "translationKeysInserted": [
+        "offline.labels.txt_5b9d20"
+      ],
+      "timestamp": "2026-09-12T13:34:52.925Z",
+      "transformCount": 1,
+      "skippedCount": 0,
+      "validationStatus": "VALIDATED_AND_APPLIED"
+    }
+  ]
+}

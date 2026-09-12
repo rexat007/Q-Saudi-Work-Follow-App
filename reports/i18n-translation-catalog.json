@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-09-12T13:27:00.154Z",
+  "generatedAt": "2026-09-12T13:35:52.999Z",
   "version": "1.0.0-block42",
   "summary": {
-    "totalCatalogEntries": 8437,
+    "totalCatalogEntries": 8436,
     "translatedCount": 6,
-    "untranslatedCount": 5432,
-    "reviewRequiredCount": 5432,
+    "untranslatedCount": 5431,
+    "reviewRequiredCount": 5431,
     "ambiguousCount": 2998,
     "protectedCount": 1,
     "interpolationCount": 192,
@@ -104,10 +104,10 @@
         "protected": 0
       },
       "offline": {
-        "total": 273,
+        "total": 272,
         "translated": 0,
-        "untranslated": 181,
-        "reviewRequired": 181,
+        "untranslated": 180,
+        "reviewRequired": 180,
         "ambiguous": 92,
         "protected": 0
       },
@@ -205,7 +205,7 @@
     "totalGroups": 2561,
     "typeA_exactSameMeaning": 1406,
     "typeB_differentMeaning": 832,
-    "typeC_formatVariation": 1505,
+    "typeC_formatVariation": 1504,
     "typeD_uncertain": 1
   },
   "directionalMigrationQueue": {
@@ -59053,17 +59053,6 @@
         "interpolationParams": [
           "targetVersion"
         ]
-      },
-      {
-        "key": "offline.labels.txt_5b9d20",
-        "category": "offline",
-        "sourceTextAr": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
-        "context": "prop_desc",
-        "sourceFiles": [
-          "src/components/offline/ConflictResolutionModal.tsx:106"
-        ],
-        "priority": "MEDIUM",
-        "reviewReason": "Domain-specific terminology translation"
       },
       {
         "key": "offline.labels.txt_5e3dec",
@@ -257845,59 +257834,6 @@
       "notes": [
         "Preserve dynamic parameters: {targetVersion}"
       ]
-    },
-    "offline.labels.txt_5b9d20": {
-      "key": "offline.labels.txt_5b9d20",
-      "category": "offline",
-      "semanticContext": "prop_desc",
-      "sourceTextAr": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
-      "sourceTextEn": null,
-      "sourceTextUr": null,
-      "translations": {
-        "ar": {
-          "text": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
-          "status": "TRANSLATED",
-          "confidence": "HIGH"
-        },
-        "en": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        },
-        "ur": {
-          "text": null,
-          "status": "UNTRANSLATED",
-          "confidence": "LOW",
-          "notes": "Requires professional translator review"
-        }
-      },
-      "description": "offline > prop_desc",
-      "interpolationParams": [],
-      "pluralizationRequired": false,
-      "pluralFormsRequired": [
-        "zero",
-        "one",
-        "two",
-        "few",
-        "many",
-        "other"
-      ],
-      "reviewStatus": "REVIEW_REQUIRED",
-      "translationConfidence": "LOW",
-      "migrationRisk": "LOW",
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/offline/ConflictResolutionModal.tsx",
-          "line": 106,
-          "column": 15,
-          "element": "prop_desc"
-        }
-      ],
-      "duplicateClassification": "C_FORMAT_PUNCTUATION_VARIATION",
-      "isReportOrExportField": false,
-      "notes": []
     },
     "offline.labels.txt_5e3dec": {
       "key": "offline.labels.txt_5e3dec",

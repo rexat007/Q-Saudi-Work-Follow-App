@@ -1,6 +1,6 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-12T13:26:55.697Z
+**Generated At:** 2026-09-12T13:35:48.360Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
@@ -9,12 +9,12 @@
 | :--- | :--- | :--- |
 | **Total Files Scanned** | 235 | TypeScript and TSX files analyzed in `src/` |
 | **Total Extracted Candidates** | 24687 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 6332 | Confirmed visible Arabic and UI texts |
+| **Real User-Facing Texts** | 6331 | Confirmed visible Arabic and UI texts |
 | **Likely User-Facing Texts** | 339 | English UI text in visible elements |
 | **Ambiguous Texts** | 6975 | Short or context-isolated tokens for manual review |
 | **Technical Strings** | 6867 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 4174 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 5445 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Non-User-Facing Strings** | 4175 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 5444 | Hierarchical keys generated (e.g. `shared.actions.save`) |
 | **Duplicate Groups** | 2561 | Sets of identical/normalized recurring texts |
 | **Semantic Conflict Groups** | 305 | Identical texts requiring distinct contextual keys |
 | **Keys Requiring Review** | 8565 | Entries flagged with special cases or ambiguity |
@@ -33,7 +33,7 @@
 | `weighbridge` | 282 | Classified operational domain |
 | `entityResolution` | 264 | Classified operational domain |
 | `exceptions` | 188 | Classified operational domain |
-| `offline` | 186 | Classified operational domain |
+| `offline` | 185 | Classified operational domain |
 | `legacyMigration` | 173 | Classified operational domain |
 | `navigation` | 137 | Classified operational domain |
 | `loading` | 137 | Classified operational domain |

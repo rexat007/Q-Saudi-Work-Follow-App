@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-12T13:27:00.154Z
+**Generated At:** 2026-09-12T13:35:52.999Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,10 +9,10 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **8437** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **8436** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **5432** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **5432** | Domain terminology requiring semantic verification |
+| **Untranslated Slots (Pending Review)** | **5431** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **5431** | Domain terminology requiring semantic verification |
 | **Ambiguous Keys Isolated** | **2998** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
 | **Interpolation Placeholders** | **192** | Dynamic parameters (e.g. `{count}`) strictly preserved |
@@ -34,7 +34,7 @@
 | `weighbridge` | 419 | 0 | 230 | 230 | 189 |
 | `exceptions` | 295 | 0 | 178 | 178 | 117 |
 | `legacyMigration` | 295 | 0 | 124 | 124 | 171 |
-| `offline` | 273 | 0 | 181 | 181 | 92 |
+| `offline` | 272 | 0 | 180 | 180 | 92 |
 | `entityResolution` | 267 | 0 | 188 | 188 | 79 |
 | `navigation` | 232 | 0 | 129 | 129 | 103 |
 | `projects` | 182 | 0 | 115 | 115 | 67 |
