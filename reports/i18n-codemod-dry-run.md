@@ -1,7 +1,7 @@
 # BLOCK 44: Safe Automated i18n Codemod Dry-Run Report
 
 **Execution Mode:** `DRY_RUN` (Zero Application Files Modified)  
-**Timestamp:** `2026-09-12T10:45:09.165Z`  
+**Timestamp:** `2026-09-12T12:08:22.464Z`  
 **Engine Version:** `1.0.0 (BLOCK 44 Production Engine)`  
 
 ---
@@ -11,18 +11,18 @@
 | Metric | Count | Architectural Description |
 | :--- | :---: | :--- |
 | **Source Files Scanned** | `159` | Application `.ts` and `.tsx` modules scanned with TypeScript AST |
-| **Total Candidates Detected** | `10864` | Extracted string, attribute, call, and template occurrences |
-| **SAFE Transformations** | `1112` | Unambiguous JSX texts, safe attributes, and shared action keys |
+| **Total Candidates Detected** | `10863` | Extracted string, attribute, call, and template occurrences |
+| **SAFE Transformations** | `87` | Unambiguous JSX texts, safe attributes, and shared action keys |
 | **LOW_RISK Transformations** | `155` | Contextual UI labels, standard toasts, and simple messages |
-| **HIGH_RISK Transformations** | `862` | Report presentation labels, sensitive domain terms, valid templates |
-| **REVIEW_ONLY Candidates** | `2016` | Concatenations, parameter mismatches, unsafe hooks, protected tokens |
-| **SKIP Candidates** | `6719` | Technical attributes, internal logging, status codes, already-translated |
-| **Proposed AST Edits** | `2129` | Total verified transformations ready for staged batch application |
-| **Target Files Affected** | `31` | Files that would receive transformations upon explicit approval |
-| **Import & Hook Injections** | `3736` | Clean `useI18n()` hook and import introductions without duplicates |
+| **HIGH_RISK Transformations** | `861` | Report presentation labels, sensitive domain terms, valid templates |
+| **REVIEW_ONLY Candidates** | `2014` | Concatenations, parameter mismatches, unsafe hooks, protected tokens |
+| **SKIP Candidates** | `7746` | Technical attributes, internal logging, status codes, already-translated |
+| **Proposed AST Edits** | `1103` | Total verified transformations ready for staged batch application |
+| **Target Files Affected** | `25` | Files that would receive transformations upon explicit approval |
+| **Import & Hook Injections** | `1915` | Clean `useI18n()` hook and import introductions without duplicates |
 | **Interpolation Transforms** | `345` | Dynamic template literals preserving exact parameter names |
-| **Protected Token Violations** | `458` | Business identifiers (ticketId, truckNo, SAR, KG) kept intact |
-| **Report / Export Invariants** | `751` | Internal keys decoupled and protected from presentation labels |
+| **Protected Token Violations** | `396` | Business identifiers (ticketId, truckNo, SAR, KG) kept intact |
+| **Report / Export Invariants** | `750` | Internal keys decoupled and protected from presentation labels |
 | **Semantic Conflicts Isolated** | `463` | Ambiguous keys separated from automatic transformation |
 
 ---
@@ -30,12 +30,12 @@
 ## 2. Risk Classification Distribution
 
 ```
-Total Candidates: 10864
-  ├── SAFE:         1112 (10.2%)
+Total Candidates: 10863
+  ├── SAFE:           87 (0.8%)
   ├── LOW_RISK:      155 (1.4%)
-  ├── HIGH_RISK:     862 (7.9%)
-  ├── REVIEW_ONLY:  2016 (18.6%)
-  └── SKIP:         6719 (61.8%)
+  ├── HIGH_RISK:     861 (7.9%)
+  ├── REVIEW_ONLY:  2014 (18.5%)
+  └── SKIP:         7746 (71.3%)
 ```
 
 ---
@@ -44,27 +44,27 @@ Total Candidates: 10864
 
 | Domain Category | Candidates | SAFE / Actionable | Review Required / Skipped |
 | :--- | :---: | :---: | :---: |
-| `uncategorized` | 7125 | 0 | 0 |
-| `navigation` | 103 | 66 | 37 |
-| `exceptions` | 178 | 101 | 77 |
-| `other` | 520 | 236 | 284 |
-| `legacyMigration` | 101 | 68 | 33 |
-| `dashboard` | 191 | 82 | 109 |
-| `entityResolution` | 162 | 78 | 84 |
-| `trips` | 420 | 269 | 151 |
+| `uncategorized` | 8150 | 0 | 0 |
+| `navigation` | 46 | 9 | 37 |
+| `exceptions` | 135 | 58 | 77 |
+| `other` | 402 | 118 | 284 |
+| `legacyMigration` | 44 | 11 | 33 |
+| `dashboard` | 116 | 7 | 109 |
+| `entityResolution` | 97 | 13 | 84 |
+| `trips` | 254 | 103 | 151 |
 | `reports` | 229 | 0 | 229 |
 | `imports` | 545 | 317 | 228 |
 | `shared` | 26 | 26 | 0 |
 | `security` | 201 | 159 | 42 |
-| `materials` | 41 | 23 | 18 |
-| `carriers` | 59 | 29 | 30 |
-| `authentication` | 5 | 5 | 0 |
-| `weighbridge` | 178 | 136 | 42 |
-| `loading` | 136 | 114 | 22 |
-| `offline` | 236 | 149 | 87 |
+| `materials` | 23 | 5 | 18 |
+| `carriers` | 40 | 10 | 30 |
+| `authentication` | 1 | 1 | 0 |
+| `weighbridge` | 71 | 29 | 42 |
+| `loading` | 51 | 29 | 22 |
+| `offline` | 127 | 40 | 87 |
 | `pricing` | 184 | 119 | 65 |
-| `unloading` | 93 | 84 | 9 |
-| `projects` | 91 | 68 | 23 |
+| `unloading` | 27 | 18 | 9 |
+| `projects` | 54 | 31 | 23 |
 | `drivers` | 12 | 0 | 12 |
 | `trucks` | 12 | 0 | 12 |
 | `validation` | 16 | 0 | 16 |
@@ -76,90 +76,90 @@ Total Candidates: 10864
 *Note: All diffs were verified in-memory by compiling the transformed AST with the TypeScript Compiler. Zero changes were written to application files on disk.*
 
 
-### Sample Proposed Diffs (12 of 22536)
+### Sample Proposed Diffs (12 of 7423)
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:44**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:64**
 
 ```diff
-- 
-+ import { useI18n } from '../i18n';
+- nameAr: 'المشاريع',
++ nameAr: t("other.labels.projects_2"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:45**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:72**
 
 ```diff
-- export interface DomainMeta {
-+ 
+- descriptionAr: 'كيان العزل التام للمشاريع (Multi-Tenant Root)، يضبط النطاق الجغرافي والضريبي.',
++ descriptionAr: t("other.labels.txt_2d6b3b"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:46**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:81**
 
 ```diff
-- key: string;
-+ 
+- nameAr: 'الناقلون',
++ nameAr: t("other.labels.carriers_2"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:47**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:89**
 
 ```diff
-- nameAr: string;
-+ export interface DomainMeta {
+- descriptionAr: 'شركات النقل المعتمدة والمتعاقدة لتنفيذ توريد وتفريغ المواد.',
++ descriptionAr: t("other.labels.txt_6be985"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:48**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:106**
 
 ```diff
-- nameEn: string;
-+ key: string;
+- descriptionAr: 'التعريفات المالية المعتمدة لاحتساب قيمة النقل وغرامات التأخير وضريبة 15%.',
++ descriptionAr: t("other.labels.txt_792227"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:49**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:123**
 
 ```diff
-- idField: string;
-+ nameAr: string;
+- descriptionAr: 'المواد الإنشائية أو الركام المنقول مع مواصفات الكثافة والرطوبة.',
++ descriptionAr: t("other.labels.materials_4"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:50**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:150**
 
 ```diff
-- pathPattern: string;
-+ nameEn: string;
+- nameAr: 'السائقون',
++ nameAr: t("other.labels.drivers_2"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:51**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:158**
 
 ```diff
-- icon: any;
-+ idField: string;
+- descriptionAr: 'السائقون الميدانيون المرخصون والمربوطون بالناقلين.',
++ descriptionAr: t("other.labels.drivers_4"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:52**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:167**
 
 ```diff
-- validatorName: string;
-+ pathPattern: string;
+- nameAr: 'المستخدمون',
++ nameAr: t("other.labels.txt_15a8ac"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:53**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:175**
 
 ```diff
-- repositoryName: string;
-+ icon: any;
+- descriptionAr: 'حسابات مستخدمي المنظومة مع توزيع الأدوار والصلاحيات (RBAC).',
++ descriptionAr: t("other.labels.txt_aba485"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:54**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:202**
 
 ```diff
-- serviceName: string;
-+ validatorName: string;
+- nameAr: 'أحداث الرحلة',
++ nameAr: t("other.labels.trip"),
 ```
 
-**/app/applet/src/components/FirestoreArchitectureView.tsx:55**
+**/app/applet/src/components/FirestoreArchitectureView.tsx:210**
 
 ```diff
-- descriptionAr: string;
-+ repositoryName: string;
+- descriptionAr: 'سجل زمني تسلسلي غير قابل للتعديل (Append-Only) لتوثيق مراحل الحركة والموازين.',
++ descriptionAr: t("other.labels.txt_4a13ec"),
 ```
 
 ---
@@ -171,8 +171,8 @@ Total Candidates: 10864
 | `SEMANTIC_CONFLICT` | 463 | Manual review required; automated AST codemod suppressed to guarantee invariance |
 | `FILE_NOT_REACT_COMPONENT` | 1217 | Manual review required; automated AST codemod suppressed to guarantee invariance |
 | `INTERPOLATION_PARAM_COUNT_MISMATCH` | 263 | Manual review required; automated AST codemod suppressed to guarantee invariance |
-| `EMBEDDED_JSX_SIBLING_EXPRESSION` | 395 | Manual review required; automated AST codemod suppressed to guarantee invariance |
-| `NO_CATALOG_MAPPING` | 11 | Manual review required; automated AST codemod suppressed to guarantee invariance |
+| `EMBEDDED_JSX_SIBLING_EXPRESSION` | 396 | Manual review required; automated AST codemod suppressed to guarantee invariance |
+| `NO_CATALOG_MAPPING` | 8 | Manual review required; automated AST codemod suppressed to guarantee invariance |
 
 ---
 

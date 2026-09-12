@@ -1,8 +1,8 @@
 # Professional Translation Human Review Queue (BLOCK 43)
 
-**Generated At:** 2026-09-12T11:48:38.230Z
-**Total Catalog Entries Processed:** 8688
-**Total Proposals Requiring Human Review:** 8683 (99.9%)
+**Generated At:** 2026-09-12T12:09:25.197Z
+**Total Catalog Entries Processed:** 8469
+**Total Proposals Requiring Human Review:** 8464 (99.9%)
 
 ## Review Instructions for Translators & Enterprise Auditors
 
@@ -18,10 +18,10 @@
 | `SEMANTIC_CONFLICT` | **834** | Identical source texts with different operational meanings quarantined to prevent UI/business conflation |
 | `DOMAIN_TERM` | **0** | Domain-specific terminology requiring operational verification by enterprise domain leads |
 | `INTERPOLATION_RISK` | **8** | Complex dynamic placeholders or parameter sequences requiring syntax verification |
-| `PLURALIZATION_RISK` | **117** | Quantities requiring 6 Arabic plural forms aligned with target language plural rules |
+| `PLURALIZATION_RISK` | **112** | Quantities requiring 6 Arabic plural forms aligned with target language plural rules |
 | `REPORT_EXPORT_RISK` | **1466** | Report column or export header requiring separation of internal data key from display label |
-| `BUSINESS_DATA_RISK` | **702** | Formulas, rates, or business calculations requiring strict identifier preservation |
-| `LOW_CONFIDENCE` | **5556** | Ambiguous or composite phrases generated with low statistical confidence |
+| `BUSINESS_DATA_RISK` | **692** | Formulas, rates, or business calculations requiring strict identifier preservation |
+| `LOW_CONFIDENCE` | **5352** | Ambiguous or composite phrases generated with low statistical confidence |
 | `DIRECTIONAL_RISK` | **0** | Mixed-direction content (Arabic and Latin/numbers) needing directional inspection |
 | `VALIDATION_FAILURE` | **0** | Proposal encountered parameter mismatch, missing tokens, or structural defects |
 | `OTHER` | **0** | General review requirements flagged by migration pipeline |
@@ -134,7 +134,7 @@
 /audit_logs/{auditLogId}" | Ensure parameter(s) [projectId, carrierId, materialId, ruleId, truckId, driverId, tripId, eventId, exceptionId, syncOpId, projectionId, userId, auditLogId] remain unmodified in translation syntax. |
 | `projects.labels.carrier` | "تضارب تسعير: الناقل (${carrierDisplay}) لديه قاعدتا تسعير متطابقتان بنموذج (${pricingTypeLabel}) لمادة (${materialDisplay}) في فترتين زمنيتين متداخلتين: [${period1Str}] و [${period2Str}]." | "تضارب تسعير: Carrier (${carrierDisplay}) لديه قاعدتا تسعير متطابقتان بنموذج (${pricingTypeLabel}) لمادة (${materialDisplay}) في فترتين زمنيتين متداخلتين: [${period1Str}] و [${period2Str}]." | "تضارب تسعير: کیریئر (${carrierDisplay}) لديه قاعدتا تسعير متطابقتان بنموذج (${pricingTypeLabel}) لمادة (${materialDisplay}) في فترتين زمنيتين متداخلتين: [${period1Str}] و [${period2Str}]." | Ensure parameter(s) [carrierDisplay, pricingTypeLabel, materialDisplay, period1Str, period2Str] remain unmodified in translation syntax. |
 
-### 1. Reason: `PLURALIZATION_RISK` (117 items)
+### 1. Reason: `PLURALIZATION_RISK` (112 items)
 
 > Quantities requiring 6 Arabic plural forms aligned with target language plural rules
 
@@ -165,7 +165,7 @@
 | `loading.labels.txt_4d6b95` | "من إجمالي" | "من إجمالي" | "من إجمالي" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
 | `loading.messages.downloadPricing` | "تم تحميل سيناريو مثال التسعير بالطن (37.4 طن × 8.5 ر.س = 317.90 ر.س)" | "تم تحميل سيناريو مثال التسعير بالton (37.4 ton × 8.5 SAR = 317.90 SAR)" | "تم تحميل سيناريو مثال التسعير بالٹن (37.4 ٹن × 8.5 سعودی ریال = 317.90 سعودی ریال)" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
 | `navigation.labels.project_5` | "إجمالي الكميات الموردة بالمشروع" | "إجمالي الكميات الموردة بProject" | "إجمالي الكميات الموردة بپروجیکٹ" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| ... | *and 92 more items in this queue* | | | |
+| ... | *and 87 more items in this queue* | | | |
 
 ### 1. Reason: `REPORT_EXPORT_RISK` (1466 items)
 
@@ -200,7 +200,7 @@
 | `dashboard.fields.price` | "العدد × السعر" | "العدد × Price" | "العدد × قیمت" | Ensure internal key 'price' remains untranslated; translate presentation label only. |
 | ... | *and 1441 more items in this queue* | | | |
 
-### 1. Reason: `BUSINESS_DATA_RISK` (702 items)
+### 1. Reason: `BUSINESS_DATA_RISK` (692 items)
 
 > Formulas, rates, or business calculations requiring strict identifier preservation
 
@@ -231,9 +231,9 @@
 | `entityResolution.labels.material_6` | "تم رصد المادة الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | "تم رصد Material الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | "تم رصد مٹیریل الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | Protect financial or scale tokens: []. |
 | `entityResolution.labels.truckCarrier` | "تم تصحيح تبعية الشاحنة يدوياً إلى الناقل [${resolutionCarrierId}]." | "تم تصحيح تبعية Truck يدوياً إلى Carrier [${resolutionCarrierId}]." | "تم تصحيح تبعية ٹرک يدوياً إلى کیریئر [${resolutionCarrierId}]." | Protect financial or scale tokens: [resolutionCarrierId]. |
 | `entityResolution.labels.txt_1164f5` | "عُثر على تطابق مقترح (Possible Match) بنسبة ${highestScore}% مع "${bestCandidate.value}". ${matchDetails}" | "عُثر على تطابق مقترح (Possible Match) بنسبة ${highestScore}% مع "${bestCandidate.value}". ${matchDetails}" | "عُثر على تطابق مقترح (Possible Match) بنسبة ${highestScore}% مع "${bestCandidate.value}". ${matchDetails}" | Protect financial or scale tokens: [highestScore, matchDetails]. |
-| ... | *and 677 more items in this queue* | | | |
+| ... | *and 667 more items in this queue* | | | |
 
-### 1. Reason: `LOW_CONFIDENCE` (5556 items)
+### 1. Reason: `LOW_CONFIDENCE` (5352 items)
 
 > Ambiguous or composite phrases generated with low statistical confidence
 
@@ -264,5 +264,5 @@
 | `carriers.messages.projectCarrier` | "معرّف المشروع التابع له الناقل مطلوب" | "معرّف Project التابع له Carrier Required" | "معرّف پروجیکٹ التابع له کیریئر لازمی" | Review phrasing carefully; replace with verified domain phrase if needed. |
 | `dashboard.actions.shiftdatefrom` | "shiftDateFrom" | "shiftDateFrom" | "shiftDateFrom" | Review phrasing carefully; replace with verified domain phrase if needed. |
 | `dashboard.labels.20260101` | "2026-01-01" | "2026-01-01" | "2026-01-01" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| ... | *and 5531 more items in this queue* | | | |
+| ... | *and 5327 more items in this queue* | | | |
 

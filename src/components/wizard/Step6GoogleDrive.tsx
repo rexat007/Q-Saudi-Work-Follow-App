@@ -12,6 +12,8 @@ import {
   FolderTree,
   ExternalLink
 } from 'lucide-react';
+import { useI18n } from '../../i18n';
+
 
 interface Step6Props {
   data: WizardGoogleDriveProvisioning;
@@ -28,6 +30,7 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
   onChange,
   errors = [],
 }) => {
+  const { t } = useI18n();
   const [testingConnection, setTestingConnection] = useState(false);
   const [connectionTested, setConnectionTested] = useState(false);
 
@@ -68,8 +71,7 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
         <div>
           <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
             <FolderSync className="w-5 h-5 text-amber-600" />
-            الخطوة 6: تهيئة مساحة العمل السحابية (Google Drive & Sheets Provisioning)
-          </h2>
+            {t("other.labels.txt_1118c2")}</h2>
           <p className="text-xs text-stone-500 mt-1">
             أتمتة إنشاء مجلدات الأرشفة الرقمية في Google Drive وجداول المطابقات والموازين في Google Sheets.
           </p>
@@ -81,13 +83,13 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
           className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-xs font-semibold transition-colors self-start sm:self-auto"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-          <span>توليد التسميات الآلية للمشروع</span>
+          <span>{t("other.labels.txt_412551")}</span>
         </button>
       </div>
 
       {errors.length > 0 && (
         <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-800 space-y-1">
-          <p className="font-semibold">تنبيهات تهيئة Google Workspace:</p>
+          <p className="font-semibold">{t("other.labels.txt_f8afcf")}</p>
           <ul className="list-disc list-inside space-y-0.5">
             {errors.map((err, idx) => (
               <li key={idx}>{err}</li>
@@ -105,11 +107,9 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-stone-900">
-                تفعيل التهيئة الآلية لمساحة عمل Google Drive و Sheets
-              </h3>
+                {t("other.labels.txt_558322")}</h3>
               <p className="text-xs text-stone-500 mt-0.5">
-                إنشاء المجلدات السحابية وتوزيع الجداول تلقائياً فور اعتماد المشروع في Firestore.
-              </p>
+                {t("other.labels.createProject")}</p>
             </div>
           </div>
 
@@ -141,14 +141,12 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
                   className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                 />
                 <p className="text-[11px] text-stone-400 mt-1">
-                  المجلد الحاوي لكافة تذاكر الميزان، إشعارات التوريد وسجلات الشاحنات.
-                </p>
+                  {t("other.labels.txt_14af6c")}</p>
               </div>
 
               <div>
                 <label className="block font-bold text-stone-700 mb-1">
-                  عنوان جدول العمليات Google Sheets (spreadsheetTitle)
-                </label>
+                  {t("other.labels.txt_1a0a87")}</label>
                 <input
                   type="text"
                   value={data.spreadsheetTitle}
@@ -157,8 +155,7 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
                   className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                 />
                 <p className="text-[11px] text-stone-400 mt-1">
-                  المصنف المالي والتشغيلي المتزامن لحظياً مع Firestore.
-                </p>
+                  {t("other.labels.txt_5860fa")}</p>
               </div>
             </div>
 
@@ -166,15 +163,13 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
             <div className="bg-stone-50 rounded-xl p-4 border border-stone-200">
               <h4 className="text-xs font-bold text-stone-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <FolderTree className="w-4 h-4 text-stone-600" />
-                هيكل المجلدات والأوراق السحابية التي سيتم إنشاؤها تلقائياً:
-              </h4>
+                {t("other.labels.txt_24cc60")}</h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 {/* Drive Structure */}
                 <div className="bg-white p-3 rounded-lg border border-stone-200 space-y-1.5">
                   <span className="font-bold text-stone-800 block text-[11px] text-amber-700">
-                    📂 مجلدات Google Drive:
-                  </span>
+                    {t("other.labels.txt_330dcc")}</span>
                   <ul className="text-stone-600 space-y-1 font-mono text-[11px]">
                     {data.folderStructure.map((folder, idx) => (
                       <li key={idx} className="flex items-center gap-1.5">
@@ -188,12 +183,11 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
                 {/* Sheets Structure */}
                 <div className="bg-white p-3 rounded-lg border border-stone-200 space-y-1.5">
                   <span className="font-bold text-stone-800 block text-[11px] text-emerald-700">
-                    📊 أوراق عمل Google Sheets (Tabs):
-                  </span>
+                    {t("other.labels.txt_13cd13")}</span>
                   <ul className="text-stone-600 space-y-1 text-[11px]">
                     <li className="flex items-center gap-1.5">
                       <Sheet className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="font-semibold">سجل الرحلات اليومي (Trips Log)</span>
+                      <span className="font-semibold">{t("other.labels.trips_6")}</span>
                     </li>
                     <li className="flex items-center gap-1.5">
                       <Sheet className="w-3.5 h-3.5 text-emerald-600" />
@@ -201,11 +195,11 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
                     </li>
                     <li className="flex items-center gap-1.5">
                       <Sheet className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="font-semibold">كشف مطابقات الناقلين (Carrier Settlements)</span>
+                      <span className="font-semibold">{t("other.labels.txt_4a65bf")}</span>
                     </li>
                     <li className="flex items-center gap-1.5">
                       <Sheet className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="font-semibold">ملخص استهلاك المواد الصادرة (Material Totals)</span>
+                      <span className="font-semibold">{t("other.labels.materials_7")}</span>
                     </li>
                   </ul>
                 </div>
@@ -234,8 +228,7 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
                   className="w-4 h-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500"
                 />
                 <span className="font-semibold text-stone-700">
-                  أرشفة ملخص الرحلات وإشعارات التوريد بنهاية كل وردية
-                </span>
+                  {t("other.labels.trips_7")}</span>
               </label>
             </div>
 
@@ -244,16 +237,14 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
               <div className="flex items-center gap-2 text-stone-700">
                 <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
                 <span>
-                  جاهزية حساب الخدمة وحقوق الوصول السحابية (Service Account Credentials)
-                </span>
+                  {t("other.labels.txt_24c076")}</span>
               </div>
 
               <div className="flex items-center gap-2">
                 {connectionTested && (
                   <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded flex items-center gap-1 border border-emerald-200">
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    تم التحقق من الاتصال السحابي بنجاح
-                  </span>
+                    {t("other.status.success_3")}</span>
                 )}
                 <button
                   type="button"

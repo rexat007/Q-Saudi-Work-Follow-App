@@ -41,6 +41,8 @@ import {
 } from '../services';
 import { TripValidator, TruckValidator, DriverValidator } from '../validators';
 import { AuthUserContext } from '../types/common';
+import { useI18n } from '../i18n';
+
 
 export interface DomainMeta {
   key: string;
@@ -283,6 +285,7 @@ export const DOMAINS_LIST: DomainMeta[] = [
 ];
 
 export default function FirestoreArchitectureView() {
+  const { t } = useI18n();
   const [selectedDomainKey, setSelectedDomainKey] = useState<string>('trips');
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus | null>(null);
   const [isCheckingConnection, setIsCheckingConnection] = useState<boolean>(false);
@@ -450,8 +453,7 @@ export default function FirestoreArchitectureView() {
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h2 className="text-base font-bold text-stone-900">
-                  حالة اتصال وتكامل Firestore & Firebase
-                </h2>
+                  {t("other.labels.txt_259961")}</h2>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
                   Active & Deployed
@@ -461,8 +463,7 @@ export default function FirestoreArchitectureView() {
                 </span>
               </div>
               <p className="text-xs text-stone-600 mt-1">
-                قاعدة البيانات التشغيلية الأساسية (SSOT) مفعّلة وفق قواعد الأمان الصارمة Zero-Trust ABAC.
-              </p>
+                {t("other.labels.txt_1ea1ac")}</p>
             </div>
           </div>
 
@@ -477,7 +478,7 @@ export default function FirestoreArchitectureView() {
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isCheckingConnection ? 'animate-spin' : ''}`} />
-              <span>فحص الاتصال (Server Ping)</span>
+              <span>{t("other.labels.txt_4c37e4")}</span>
             </button>
           </div>
         </div>
@@ -488,28 +489,28 @@ export default function FirestoreArchitectureView() {
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <div>
               <span className="text-[11px] font-mono font-bold text-stone-800 block">createdAt & createdBy</span>
-              <span className="text-[10px] text-stone-500">طابع زمني وهوية منشئ السجل</span>
+              <span className="text-[10px] text-stone-500">{t("other.labels.txt_109310")}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 bg-stone-50 p-2.5 rounded-xl border border-stone-200/60">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <div>
               <span className="text-[11px] font-mono font-bold text-stone-800 block">updatedAt & updatedBy</span>
-              <span className="text-[10px] text-stone-500">طابع زمني وهوية آخر مُعدّل</span>
+              <span className="text-[10px] text-stone-500">{t("other.labels.txt_68176b")}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 bg-stone-50 p-2.5 rounded-xl border border-stone-200/60">
             <Lock className="w-4 h-4 text-amber-600 shrink-0" />
             <div>
               <span className="text-[11px] font-bold text-stone-800 block">No Direct React Writes</span>
-              <span className="text-[10px] text-stone-500">حظر الكتابة المباشرة من المتصفح</span>
+              <span className="text-[10px] text-stone-500">{t("other.labels.txt_1b9b40")}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 bg-stone-50 p-2.5 rounded-xl border border-stone-200/60">
             <ShieldCheck className="w-4 h-4 text-indigo-600 shrink-0" />
             <div>
               <span className="text-[11px] font-bold text-stone-800 block">13 Repositories & Services</span>
-              <span className="text-[10px] text-stone-500">بنية مجزأة لكل نطاق بشكل مستقل</span>
+              <span className="text-[10px] text-stone-500">{t("other.labels.txt_38f4aa")}</span>
             </div>
           </div>
         </div>
@@ -521,7 +522,7 @@ export default function FirestoreArchitectureView() {
         <div className="lg:col-span-4 space-y-2">
           <div className="bg-white rounded-2xl border border-stone-200 p-3 shadow-xs">
             <div className="px-3 py-2 border-b border-stone-100 flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-800">النطاقات الـ 13 (Domain Modules)</span>
+              <span className="text-xs font-bold text-stone-800">{t("other.labels.txt_6aaf22")}</span>
               <span className="text-[10px] bg-stone-100 font-mono text-stone-600 px-2 py-0.5 rounded-full font-bold">13 Modules</span>
             </div>
 
@@ -588,7 +589,7 @@ export default function FirestoreArchitectureView() {
             {/* Path in Firestore */}
             <div className="mt-4 p-3 bg-stone-900 text-emerald-400 rounded-xl font-mono text-xs flex items-center justify-between">
               <div>
-                <span className="text-stone-400 text-[10px] block">مسار المجموعة الهيكلي في Firestore:</span>
+                <span className="text-stone-400 text-[10px] block">{t("other.labels.txt_54bf89")}</span>
                 <span>{selectedDomain.pathPattern}</span>
               </div>
               <span className="text-[10px] bg-stone-800 text-stone-300 px-2 py-1 rounded">
@@ -603,14 +604,13 @@ export default function FirestoreArchitectureView() {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <FileCheck className="w-4 h-4 text-emerald-600" />
-                    <span className="text-xs font-bold text-stone-800">محرك التحقق (Validator)</span>
+                    <span className="text-xs font-bold text-stone-800">{t("other.labels.txt_2168d6")}</span>
                   </div>
                   <div className="font-mono text-xs font-bold text-emerald-800 mb-2">
                     {selectedDomain.validatorName}
                   </div>
                   <p className="text-[11px] text-stone-600 leading-relaxed">
-                    يفحص ضوابط النطاق وقواعد المملكة قبل أي حفظ في قاعدة البيانات.
-                  </p>
+                    {t("other.labels.save")}</p>
                 </div>
                 <div className="mt-3 pt-2 border-t border-stone-200/60 text-[10px] text-stone-500">
                   Output: ValidationResult (isValid, errors)
@@ -622,14 +622,13 @@ export default function FirestoreArchitectureView() {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Cpu className="w-4 h-4 text-amber-600" />
-                    <span className="text-xs font-bold text-stone-800">طبقة المنطق (Service)</span>
+                    <span className="text-xs font-bold text-stone-800">{t("other.labels.txt_9d8db2")}</span>
                   </div>
                   <div className="font-mono text-xs font-bold text-amber-800 mb-2">
                     {selectedDomain.serviceName}
                   </div>
                   <p className="text-[11px] text-stone-600 leading-relaxed">
-                    بوابة الأعمال الوحيدة المسموح لـ React باستدعائها. يمنع الكتابات المباشرة.
-                  </p>
+                    {t("other.labels.txt_2bbe99")}</p>
                 </div>
                 <div className="mt-3 pt-2 border-t border-amber-200/60 text-[10px] text-stone-500">
                   Secured & Audit-Stamped
@@ -641,14 +640,13 @@ export default function FirestoreArchitectureView() {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Database className="w-4 h-4 text-indigo-600" />
-                    <span className="text-xs font-bold text-stone-800">مستودع البيانات (Repository)</span>
+                    <span className="text-xs font-bold text-stone-800">{t("other.labels.txt_3c30da")}</span>
                   </div>
                   <div className="font-mono text-xs font-bold text-indigo-800 mb-2">
                     {selectedDomain.repositoryName}
                   </div>
                   <p className="text-[11px] text-stone-600 leading-relaxed">
-                    يعزل استدعاءات Firestore مع معالجة الأخطاء وطوابع التحديث التلقائية.
-                  </p>
+                    {t("other.labels.refresh")}</p>
                 </div>
                 <div className="mt-3 pt-2 border-t border-indigo-200/60 text-[10px] text-stone-500">
                   Enforces createdAt & updatedAt
@@ -679,25 +677,24 @@ export default function FirestoreArchitectureView() {
               <div>
                 <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                   <Terminal className="w-4 h-4 text-indigo-600" />
-                  <span>محاكي التدفق المعماري التفاعلي (Pipeline Verification)</span>
+                  <span>{t("other.labels.txt_20e3e1")}</span>
                 </h3>
                 <p className="text-xs text-stone-500 mt-0.5">
-                  تحقق عملي يثبت أن الواجهة لا تكتب في Firestore إلا بعد المرور عبر Service ➔ Validator ➔ Repository.
-                </p>
+                  {t("other.labels.txt_139e03")}</p>
               </div>
 
               {/* Actor Role Picker */}
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-stone-500">دور المستخدم الفاعل:</span>
+                <span className="text-stone-500">{t("other.labels.user_4")}</span>
                 <select 
                   value={simulatedRole} 
                   onChange={(e) => setSimulatedRole(e.target.value as any)}
                   className="bg-stone-100 border border-stone-300 rounded-lg px-2.5 py-1 text-xs font-semibold text-stone-800 focus:outline-none"
                 >
-                  <option value="PROJECT_ADMIN">PROJECT_ADMIN (مدير مشروع)</option>
-                  <option value="DISPATCHER">DISPATCHER (مأمور حركة)</option>
-                  <option value="FINANCE_AUDITOR">FINANCE_AUDITOR (مدقق مالي)</option>
-                  <option value="DRIVER">DRIVER (سائق ميداني)</option>
+                  <option value="PROJECT_ADMIN">{t("other.labels.txt_158f99")}</option>
+                  <option value="DISPATCHER">{t("other.labels.txt_265a70")}</option>
+                  <option value="FINANCE_AUDITOR">{t("other.labels.txt_4648ec")}</option>
+                  <option value="DRIVER">{t("other.labels.txt_16e97e")}</option>
                 </select>
               </div>
             </div>
@@ -710,7 +707,7 @@ export default function FirestoreArchitectureView() {
                 className="px-3.5 py-2 rounded-xl text-xs font-bold bg-stone-900 text-white hover:bg-stone-800 transition-all shadow-xs flex items-center gap-2"
               >
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>محاكاة إطلاق رحلة نظامية (Valid Trip Dispatch)</span>
+                <span>{t("other.labels.trip_3")}</span>
               </button>
 
               <button
@@ -719,7 +716,7 @@ export default function FirestoreArchitectureView() {
                 className="px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100 transition-all flex items-center gap-2"
               >
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                <span>اختبار رفض هوية سائق غير صحيحة (Driver Validator Test)</span>
+                <span>{t("other.labels.txt_72168c")}</span>
               </button>
 
               <button
@@ -757,7 +754,7 @@ export default function FirestoreArchitectureView() {
               <div className="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs">
                 <div className="font-bold text-emerald-900 mb-1 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>الوثيقة المحتسبة والمختومة بالطوابع الإلزامية (Ready for Firestore SSOT):</span>
+                  <span>{t("other.labels.txt_633e2d")}</span>
                 </div>
                 <div className="text-[11px] text-emerald-800 space-y-1 font-mono mt-2 bg-white/70 p-3 rounded-lg border border-emerald-200/60">
                   <div>tripId: <span className="font-bold">{simulationOutput.payload.tripId}</span></div>

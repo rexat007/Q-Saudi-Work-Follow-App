@@ -31,6 +31,8 @@ import { normalizeName, normalizePlate, normalizePhone, normalizeIdNumber, norma
 import { runMasterDataTests, MasterDataTestCaseResult } from '../../tests/masterData.test';
 import { useAuth } from '../../firebase/authContext';
 import { DEFAULT_PROJECTS, DEFAULT_CARRIERS, DEFAULT_MATERIALS, DEFAULT_TRUCKS, DEFAULT_DRIVERS, buildDefaultOverview } from '../../data/defaultMasterData';
+import { useI18n } from '../../i18n';
+
 
 const MOCK_AUTH_CONTEXT = {
   userId: 'USR-ADMIN-01',
@@ -40,6 +42,7 @@ const MOCK_AUTH_CONTEXT = {
 };
 
 export const MasterDataView: React.FC = () => {
+  const { t } = useI18n();
   const { user, isAuthReady, signInWithGoogle } = useAuth();
   const [projects, setProjects] = useState<ProjectEntity[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
@@ -623,17 +626,16 @@ export const MasterDataView: React.FC = () => {
               <Info className="w-5 h-5" />
             </span>
             <div>
-              <p className="text-sm font-bold">وضع الاستعراض والتجربة (Preview Mode)</p>
+              <p className="text-sm font-bold">{t("other.labels.txt_486bf8")}</p>
               <p className="text-xs text-amber-900/80">
-                يعمل التطبيق حالياً بالبيانات المرجعية الكاملة للمشاريع السعودية. لتفعيل المزامنة المباشرة لقواعد بيانات Firestore وتخزين التعديلات سحابياً، يمكنك تسجيل الدخول بحساب Google.
-              </p>
+                {t("other.labels.txt_4e4d76")}</p>
             </div>
           </div>
           <button
             onClick={signInWithGoogle}
             className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-xs font-bold transition-colors shrink-0 shadow-xs flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>تسجيل الدخول عبر Google</span>
+            <span>{t("other.labels.txt_1e1bdf")}</span>
           </button>
         </div>
       )}
@@ -647,11 +649,9 @@ export const MasterDataView: React.FC = () => {
                 <Building2 className="w-5 h-5" />
               </span>
               <h2 className="text-lg font-bold text-stone-900">
-                إدارة البيانات الرئيسية (Master Data Modules)
-              </h2>
+                {t("other.labels.txt_7f7eb1")}</h2>
               <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                عزل المشاريع ونزاهة السجلات
-              </span>
+                {t("other.labels.projects_5")}</span>
             </div>
             <p className="text-sm text-stone-600">
               إدارة النواقل، المواد، الشاحنات، والسائقين مع حظر الحذف الفعلي (Hard Delete)، والحفاظ على النزاهة التاريخية، والربط الدقيق للعلاقات (Truck → Carrier و Driver → Carrier).
@@ -660,7 +660,7 @@ export const MasterDataView: React.FC = () => {
 
           {/* Project Selector */}
           <div className="flex items-center gap-3 bg-stone-50 border border-stone-200 rounded-lg p-2 shrink-0">
-            <span className="text-xs font-semibold text-stone-600">المشروع النشط:</span>
+            <span className="text-xs font-semibold text-stone-600">{t("other.status.projectActive")}</span>
             <select
               id="masterdata-project-select"
               value={selectedProjectId}
@@ -675,7 +675,7 @@ export const MasterDataView: React.FC = () => {
             </select>
             <button
               onClick={() => refreshOverview(selectedProjectId)}
-              title="تحديث البيانات"
+              title={t("other.labels.refresh_2")}
               className="p-1.5 hover:bg-stone-200 rounded text-stone-600 transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
@@ -688,22 +688,22 @@ export const MasterDataView: React.FC = () => {
           <div className="flex items-start gap-2 bg-amber-50/70 border border-amber-200/60 p-2.5 rounded-lg">
             <Lock className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-amber-900">ممنوع حذف السجلات المستخدمة:</span>
-              <p className="text-amber-800 mt-0.5">أي ناقل أو مادة أو شاحنة أو سائق ورد في رحلات سابقة لا يُحذف مطلقاً لحماية الحسابات.</p>
+              <span className="font-bold text-amber-900">{t("other.labels.delete")}</span>
+              <p className="text-amber-800 mt-0.5">{t("other.labels.txt_714016")}</p>
             </div>
           </div>
           <div className="flex items-start gap-2 bg-emerald-50/70 border border-emerald-200/60 p-2.5 rounded-lg">
             <Power className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-emerald-900">نظام ACTIVE / INACTIVE:</span>
-              <p className="text-emerald-800 mt-0.5">يُعتمد التعطيل (INACTIVE) بدلاً من الحذف الفعلي، لمنع استخدامه في رحلات مستقبلية.</p>
+              <span className="font-bold text-emerald-900">{t("other.labels.txt_207857")}</span>
+              <p className="text-emerald-800 mt-0.5">{t("other.labels.delete_2")}</p>
             </div>
           </div>
           <div className="flex items-start gap-2 bg-blue-50/70 border border-blue-200/60 p-2.5 rounded-lg">
             <ShieldCheck className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-blue-900">حصر المواد والنواقل لكل مشروع:</span>
-              <p className="text-blue-800 mt-0.5">كل مشروع يحتوي فقط على المواد والنواقل المصرح لهم به رسمياً، وتتبعهم الشاحنات والسائقين.</p>
+              <span className="font-bold text-blue-900">{t("other.labels.materials_5")}</span>
+              <p className="text-blue-800 mt-0.5">{t("other.labels.materialsTrucks")}</p>
             </div>
           </div>
         </div>
@@ -741,7 +741,7 @@ export const MasterDataView: React.FC = () => {
               }`}
             >
               <Building2 className="w-4 h-4" />
-              <span>الناقلون (Carriers)</span>
+              <span>{t("other.labels.carriers_4")}</span>
               <span className={`px-1.5 py-0.5 rounded text-[10px] ${
                 activeModule === 'CARRIERS' ? 'bg-amber-700 text-white' : 'bg-stone-200 text-stone-700'
               }`}>
@@ -798,7 +798,7 @@ export const MasterDataView: React.FC = () => {
               }`}
             >
               <UserCheck className="w-4 h-4" />
-              <span>السائقون (Drivers)</span>
+              <span>{t("other.labels.drivers_5")}</span>
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">
                 Driver → Carrier
               </span>
@@ -824,7 +824,7 @@ export const MasterDataView: React.FC = () => {
               }`}
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>فحص النزاهة والاختبارات الآلية</span>
+              <span>{t("other.labels.txt_35c4cc")}</span>
               <span className={`px-1.5 py-0.5 rounded text-[10px] ${
                 activeModule === 'TESTS' ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-800 font-bold'
               }`}>
@@ -871,9 +871,9 @@ export const MasterDataView: React.FC = () => {
               onChange={e => setStatusFilter(e.target.value as any)}
               className="bg-stone-50 border border-stone-200 text-xs font-medium rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-amber-500"
             >
-              <option value="ALL">الكل (ACTIVE + INACTIVE)</option>
-              <option value="ACTIVE">النشطة فقط (ACTIVE)</option>
-              <option value="INACTIVE">المعطلة فقط (INACTIVE)</option>
+              <option value="ALL">{t("other.labels.txt_2ed1b5")}</option>
+              <option value="ACTIVE">{t("other.status.txt_671eeb")}</option>
+              <option value="INACTIVE">{t("other.labels.txt_f4c520")}</option>
             </select>
           </div>
 
@@ -886,7 +886,7 @@ export const MasterDataView: React.FC = () => {
                 onChange={e => setCarrierFilter(e.target.value)}
                 className="bg-stone-50 border border-stone-200 text-xs font-medium rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-amber-500"
               >
-                <option value="ALL">جميع النواقل</option>
+                <option value="ALL">{t("other.labels.txt_6b093a")}</option>
                 {overview.allCarriers.map(c => (
                   <option key={c.carrierId} value={c.carrierId}>
                     {c.name || c.companyNameAr}
@@ -906,11 +906,11 @@ export const MasterDataView: React.FC = () => {
             <table className="w-full text-right text-xs">
               <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
-                  <th className="py-3 px-4">معرّف الناقل</th>
+                  <th className="py-3 px-4">{t("other.labels.carrier_3")}</th>
                   <th className="py-3 px-4">اسم الناقل (الاسم المطبّع)</th>
                   <th className="py-3 px-4">السجل التجاري</th>
-                  <th className="py-3 px-4">تصريح المشروع</th>
-                  <th className="py-3 px-4">حالة الناقل</th>
+                  <th className="py-3 px-4">{t("other.labels.project_4")}</th>
+                  <th className="py-3 px-4">{t("other.labels.carrier_4")}</th>
                   <th className="py-3 px-4 text-center">الإجراءات</th>
                 </tr>
               </thead>
@@ -943,12 +943,12 @@ export const MasterDataView: React.FC = () => {
                                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200'
                                 : 'bg-stone-100 text-stone-500 border border-stone-200 hover:bg-stone-200'
                             }`}
-                            title="تبديل تصريح الناقل لهذا المشروع"
+                            title={t("other.labels.carrierProject_2")}
                           >
                             {isAuthorized ? (
                               <>
                                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                                <span>مصرح بالمشروع</span>
+                                <span>{t("other.labels.project_5")}</span>
                               </>
                             ) : (
                               <>
@@ -982,7 +982,7 @@ export const MasterDataView: React.FC = () => {
                             <button
                               onClick={() => handleAttemptDelete('CARRIER', carrier.carrierId, carrier.name || carrier.companyNameAr || carrier.carrierId)}
                               className="p-1.5 hover:bg-rose-100 rounded text-rose-700 transition-colors"
-                              title="حذف الناقل (فحص الرحلات والنزاهة)"
+                              title={t("other.labels.deleteCarrierTrips")}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -1002,12 +1002,12 @@ export const MasterDataView: React.FC = () => {
             <table className="w-full text-right text-xs">
               <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
-                  <th className="py-3 px-4">معرّف المادة</th>
+                  <th className="py-3 px-4">{t("other.labels.material_4")}</th>
                   <th className="py-3 px-4">رمز المادة (Code)</th>
                   <th className="py-3 px-4">اسم المادة (الاسم المطبّع)</th>
                   <th className="py-3 px-4">وحدة القياس</th>
-                  <th className="py-3 px-4">تصريح التوريد بالمشروع</th>
-                  <th className="py-3 px-4">حالة المادة</th>
+                  <th className="py-3 px-4">{t("other.labels.project_6")}</th>
+                  <th className="py-3 px-4">{t("other.labels.material_6")}</th>
                   <th className="py-3 px-4 text-center">الإجراءات</th>
                 </tr>
               </thead>
@@ -1043,12 +1043,12 @@ export const MasterDataView: React.FC = () => {
                                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200'
                                 : 'bg-stone-100 text-stone-500 border border-stone-200 hover:bg-stone-200'
                             }`}
-                            title="تبديل تصريح المادة لهذا المشروع"
+                            title={t("other.labels.materialProject_3")}
                           >
                             {isAuthorized ? (
                               <>
                                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                                <span>مصرح بالمشروع</span>
+                                <span>{t("other.labels.project_5")}</span>
                               </>
                             ) : (
                               <>
@@ -1082,7 +1082,7 @@ export const MasterDataView: React.FC = () => {
                             <button
                               onClick={() => handleAttemptDelete('MATERIAL', mat.materialId, mat.name || mat.nameAr || mat.materialId)}
                               className="p-1.5 hover:bg-rose-100 rounded text-rose-700 transition-colors"
-                              title="حذف المادة (فحص الرحلات والنزاهة)"
+                              title={t("other.labels.deleteMaterialTrips")}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -1102,11 +1102,11 @@ export const MasterDataView: React.FC = () => {
             <table className="w-full text-right text-xs">
               <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
-                  <th className="py-3 px-4">معرّف الشاحنة</th>
+                  <th className="py-3 px-4">{t("other.labels.truck")}</th>
                   <th className="py-3 px-4">رقم اللوحة (اللوحة المطبّعة)</th>
-                  <th className="py-3 px-4">الناقل التابع له (Truck → Carrier)</th>
-                  <th className="py-3 px-4">أوزان الأمان (فارغ / إجمالي)</th>
-                  <th className="py-3 px-4">حالة الشاحنة</th>
+                  <th className="py-3 px-4">{t("other.labels.carrier_7")}</th>
+                  <th className="py-3 px-4">{t("other.labels.txt_3aa747")}</th>
+                  <th className="py-3 px-4">{t("other.labels.truck_2")}</th>
                   <th className="py-3 px-4 text-center">الإجراءات</th>
                 </tr>
               </thead>
@@ -1134,9 +1134,9 @@ export const MasterDataView: React.FC = () => {
                           <div className="flex items-center gap-1.5">
                             <span className="font-bold text-stone-900">{carrier?.name || carrier?.companyNameAr || truck.carrierId}</span>
                             {isCarrierAuthorized ? (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">ناقل معتمد</span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">{t("other.labels.txt_36b6da")}</span>
                             ) : (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 font-bold">ناقل غير مصرح</span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 font-bold">{t("other.labels.txt_66cfae")}</span>
                             )}
                           </div>
                           <div className="text-[11px] font-mono text-stone-400">{truck.carrierId}</div>
@@ -1169,7 +1169,7 @@ export const MasterDataView: React.FC = () => {
                             <button
                               onClick={() => handleAttemptDelete('TRUCK', truck.truckId, truck.plate || truck.plateNumberAr || truck.truckId)}
                               className="p-1.5 hover:bg-rose-100 rounded text-rose-700 transition-colors"
-                              title="حذف الشاحنة (فحص الرحلات والنزاهة)"
+                              title={t("other.labels.deleteTruckTrips")}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -1189,12 +1189,12 @@ export const MasterDataView: React.FC = () => {
             <table className="w-full text-right text-xs">
               <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
-                  <th className="py-3 px-4">معرّف السائق</th>
+                  <th className="py-3 px-4">{t("other.labels.driver_2")}</th>
                   <th className="py-3 px-4">اسم السائق (الاسم المطبّع)</th>
-                  <th className="py-3 px-4">الهوية / الإقامة</th>
+                  <th className="py-3 px-4">{t("other.labels.txt_618712")}</th>
                   <th className="py-3 px-4">رقم الجوال</th>
-                  <th className="py-3 px-4">الناقل التابع له (Driver → Carrier)</th>
-                  <th className="py-3 px-4">حالة السائق</th>
+                  <th className="py-3 px-4">{t("other.labels.carrier_8")}</th>
+                  <th className="py-3 px-4">{t("other.labels.driver_3")}</th>
                   <th className="py-3 px-4 text-center">الإجراءات</th>
                 </tr>
               </thead>
@@ -1228,9 +1228,9 @@ export const MasterDataView: React.FC = () => {
                           <div className="flex items-center gap-1.5">
                             <span className="font-bold text-stone-900">{carrier?.name || carrier?.companyNameAr || driver.carrierId}</span>
                             {isCarrierAuthorized ? (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">ناقل معتمد</span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">{t("other.labels.txt_36b6da")}</span>
                             ) : (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 font-bold">ناقل غير مصرح</span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 font-bold">{t("other.labels.txt_66cfae")}</span>
                             )}
                           </div>
                           <div className="text-[11px] font-mono text-stone-400">{driver.carrierId}</div>
@@ -1259,7 +1259,7 @@ export const MasterDataView: React.FC = () => {
                             <button
                               onClick={() => handleAttemptDelete('DRIVER', driver.driverId, driver.name || driver.fullNameAr || driver.driverId)}
                               className="p-1.5 hover:bg-rose-100 rounded text-rose-700 transition-colors"
-                              title="حذف السائق (فحص الرحلات والنزاهة)"
+                              title={t("other.labels.deleteDriverTrips")}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -1280,11 +1280,10 @@ export const MasterDataView: React.FC = () => {
               <div>
                 <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                  <span>نتائج الفحص الهندسي الصارم لوحدات Master Data (9 فئات اختبار)</span>
+                  <span>{t("other.labels.txt_47f763")}</span>
                 </h3>
                 <p className="text-xs text-stone-600 mt-1">
-                  التحقق البرمجي التلقائي من علاقات الكيانات، عزل المشاريع، حظر الحذف للسجلات المستخدمة، ودورة حياة ACTIVE/INACTIVE.
-                </p>
+                  {t("other.labels.delete_3")}</p>
               </div>
 
               <button
@@ -1307,15 +1306,15 @@ export const MasterDataView: React.FC = () => {
                 </div>
                 <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg text-center">
                   <div className="text-xl font-black text-emerald-700">{testResults.passedTests}</div>
-                  <div className="text-[11px] font-semibold text-emerald-800">فحوصات ناجحة (100%)</div>
+                  <div className="text-[11px] font-semibold text-emerald-800">{t("other.labels.txt_5c9a61")}</div>
                 </div>
                 <div className="bg-rose-50 border border-rose-200 p-3 rounded-lg text-center">
                   <div className="text-xl font-black text-rose-700">{testResults.failedTests}</div>
-                  <div className="text-[11px] font-semibold text-rose-800">إخفاقات</div>
+                  <div className="text-[11px] font-semibold text-rose-800">{t("other.labels.txt_ebe0e2")}</div>
                 </div>
                 <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg text-center">
-                  <div className="text-xl font-black text-amber-700">Enterprise</div>
-                  <div className="text-[11px] font-semibold text-amber-800">حالة الاعتماد المعماري</div>
+                  <div className="text-xl font-black text-amber-700">{t("other.labels.enterprise")}</div>
+                  <div className="text-[11px] font-semibold text-amber-800">{t("other.labels.txt_394b13")}</div>
                 </div>
               </div>
             )}
@@ -1324,7 +1323,7 @@ export const MasterDataView: React.FC = () => {
             {testingRunning ? (
               <div className="p-8 text-center text-xs text-stone-600 flex flex-col items-center justify-center gap-2">
                 <RefreshCw className="w-6 h-6 animate-spin text-amber-600" />
-                <span>جارٍ تنفيذ السيناريوهات الاختبارية في الذاكرة ومستودع Firestore...</span>
+                <span>{t("other.labels.txt_71317d")}</span>
               </div>
             ) : testResults ? (
               <div className="space-y-2.5">
@@ -1364,7 +1363,7 @@ export const MasterDataView: React.FC = () => {
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-100 border border-rose-300 text-rose-900 rounded-full text-xs font-black">
                           <AlertTriangle className="w-4 h-4 text-rose-700" />
-                          <span>راسب (FAILED)</span>
+                          <span>{t("other.labels.txt_592f64")}</span>
                         </span>
                       )}
                     </div>
@@ -1373,8 +1372,7 @@ export const MasterDataView: React.FC = () => {
               </div>
             ) : (
               <div className="p-8 text-center text-xs text-stone-500">
-                اضغط على زر «إعادة تشغيل الاختبارات» لتشغيل الحزمة فورياً.
-              </div>
+                {t("other.labels.txt_674f3e")}</div>
             )}
           </div>
         )}
@@ -1405,31 +1403,29 @@ export const MasterDataView: React.FC = () => {
               {deleteModal.checking ? (
                 <div className="p-4 text-center text-xs text-stone-600 flex items-center justify-center gap-2">
                   <RefreshCw className="w-4 h-4 animate-spin text-amber-600" />
-                  <span>جارٍ فحص الرحلات السابقة والعمليات المحاسبية المرتبطة بهذا السجل...</span>
+                  <span>{t("other.labels.trips_4")}</span>
                 </div>
               ) : deleteModal.usageResult?.isUsed ? (
                 <div className="space-y-3">
                   <div className="p-3 bg-rose-100/70 border border-rose-300 rounded-lg text-rose-900 text-xs space-y-2">
                     <div className="font-bold flex items-center gap-1.5 text-rose-950">
                       <AlertTriangle className="w-4 h-4 text-rose-700 shrink-0" />
-                      <span>ممنوع الحذف الفعلي (Hard Delete) نهائياً!</span>
+                      <span>{t("other.labels.delete_5")}</span>
                     </div>
                     <p>
-                      هذا السجل مرتبط بـ <span className="font-bold">{deleteModal.usageResult.count} رحلة سابقة</span> مسجلة في النظام:
-                    </p>
+                      {t("other.labels.txt_73dcb9")}<span className="font-bold">{deleteModal.usageResult.count} رحلة سابقة</span> {t("other.labels.txt_67f664")}</p>
                     <div className="bg-white/80 p-2 rounded border border-rose-200 font-mono text-[11px] text-rose-800">
                       أرقام الرحلات: {deleteModal.usageResult.tripNumbers.slice(0, 5).join('، ')}
                       {deleteModal.usageResult.tripNumbers.length > 5 && ' ...'}
                     </div>
                     <p className="text-[11px] text-rose-800">
-                      وفقاً للقاعدة الصارمة لمنظومة النقل الثقيل (Q Saudi): «ممنوع حذف Master Data المستخدمة في رحلات سابقة، واستخدم ACTIVE/INACTIVE بدلاً من hard delete».
-                    </p>
+                      {t("other.labels.delete_6")}</p>
                   </div>
 
                   <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-900">
-                    <span className="font-bold">الإجراء النظامي المتاح:</span>
+                    <span className="font-bold">{t("other.labels.txt_4755d8")}</span>
                     <p className="mt-1">
-                      يمكنك تحويل حالة السجل إلى <span className="font-bold bg-amber-200 px-1 py-0.5 rounded">INACTIVE</span> لمنع إدراجه في أي رحلات جديدة، مع صون السجلات التاريخية للرحلات السابقة.
+                      {t("other.labels.txt_63748e")}<span className="font-bold bg-amber-200 px-1 py-0.5 rounded">INACTIVE</span> لمنع إدراجه في أي رحلات جديدة، مع صون السجلات التاريخية للرحلات السابقة.
                     </p>
                   </div>
                 </div>
@@ -1437,11 +1433,10 @@ export const MasterDataView: React.FC = () => {
                 <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 text-xs space-y-2">
                   <div className="font-bold flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>لم يتم استخدام هذا السجل في أي رحلات سابقة</span>
+                    <span>{t("other.labels.txt_f87929")}</span>
                   </div>
                   <p className="text-emerald-800">
-                    مع ذلك، وتطبيقاً لقاعدة «استخدم ACTIVE/INACTIVE بدلاً من hard delete»، سيتم تعطيل السجل بتحويل حالته إلى (INACTIVE).
-                  </p>
+                    {t("other.labels.txt_7bb941")}</p>
                 </div>
               )}
 
@@ -1470,8 +1465,7 @@ export const MasterDataView: React.FC = () => {
                 disabled={deleteModal.checking || !!deleteModal.success}
                 className="px-4 py-1.5 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors shadow-xs"
               >
-                تعطيل السجل (تحويل إلى INACTIVE)
-              </button>
+                {t("other.labels.txt_34897c")}</button>
             </div>
           </div>
         </div>
@@ -1527,7 +1521,7 @@ export const MasterDataView: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label className="block font-bold text-stone-700 mb-1">السجل التجاري (10 أرقام):</label>
+                  <label className="block font-bold text-stone-700 mb-1">{t("other.labels.txt_68f9e8")}</label>
                   <input
                     type="text"
                     required
@@ -1549,8 +1543,7 @@ export const MasterDataView: React.FC = () => {
                     type="submit"
                     className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded"
                   >
-                    حفظ وتطبيع الناقل
-                  </button>
+                    {t("other.labels.saveCarrier")}</button>
                 </div>
               </form>
             )}
@@ -1559,7 +1552,7 @@ export const MasterDataView: React.FC = () => {
             {createModal.entityType === 'MATERIAL' && (
               <form onSubmit={handleCreateMaterial} className="p-5 space-y-3.5 text-xs">
                 <div>
-                  <label className="block font-bold text-stone-700 mb-1">معرّف المادة (Material ID):</label>
+                  <label className="block font-bold text-stone-700 mb-1">{t("other.labels.material_9")}</label>
                   <input
                     type="text"
                     required
@@ -1597,7 +1590,7 @@ export const MasterDataView: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label className="block font-bold text-stone-700 mb-1">وحدة القياس الأساسية:</label>
+                  <label className="block font-bold text-stone-700 mb-1">{t("other.labels.txt_109c7a")}</label>
                   <select
                     value={newMaterial.uom}
                     onChange={e => setNewMaterial({ ...newMaterial, uom: e.target.value as any })}
@@ -1605,7 +1598,7 @@ export const MasterDataView: React.FC = () => {
                   >
                     <option value="TON">طن (TON)</option>
                     <option value="M3">متر مكعب (M3)</option>
-                    <option value="TRIP">بالرد (TRIP)</option>
+                    <option value="TRIP">{t("other.labels.txt_3fb9ae")}</option>
                   </select>
                 </div>
                 <div className="pt-2 flex justify-end gap-2">
@@ -1620,8 +1613,7 @@ export const MasterDataView: React.FC = () => {
                     type="submit"
                     className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded"
                   >
-                    حفظ وتطبيع المادة
-                  </button>
+                    {t("other.labels.saveMaterial")}</button>
                 </div>
               </form>
             )}
@@ -1637,7 +1629,7 @@ export const MasterDataView: React.FC = () => {
                     onChange={e => setNewTruck({ ...newTruck, carrierId: e.target.value })}
                     className="w-full px-3 py-1.5 bg-stone-50 border border-stone-300 rounded-md font-bold"
                   >
-                    <option value="">-- اختر الناقل المعتمد --</option>
+                    <option value="">{t("other.labels.carrier_10")}</option>
                     {overview?.allCarriers.map(c => (
                       <option key={c.carrierId} value={c.carrierId}>
                         {c.name || c.companyNameAr} ({c.carrierId})
@@ -1646,7 +1638,7 @@ export const MasterDataView: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-stone-700 mb-1">معرّف الشاحنة (Truck ID):</label>
+                  <label className="block font-bold text-stone-700 mb-1">{t("other.labels.truck_5")}</label>
                   <input
                     type="text"
                     required
@@ -1706,8 +1698,7 @@ export const MasterDataView: React.FC = () => {
                     type="submit"
                     className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded"
                   >
-                    حفظ وتطبيع الشاحنة
-                  </button>
+                    {t("other.labels.saveTruck")}</button>
                 </div>
               </form>
             )}
@@ -1723,7 +1714,7 @@ export const MasterDataView: React.FC = () => {
                     onChange={e => setNewDriver({ ...newDriver, carrierId: e.target.value })}
                     className="w-full px-3 py-1.5 bg-stone-50 border border-stone-300 rounded-md font-bold"
                   >
-                    <option value="">-- اختر الناقل المعتمد --</option>
+                    <option value="">{t("other.labels.carrier_10")}</option>
                     {overview?.allCarriers.map(c => (
                       <option key={c.carrierId} value={c.carrierId}>
                         {c.name || c.companyNameAr} ({c.carrierId})
@@ -1732,7 +1723,7 @@ export const MasterDataView: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-stone-700 mb-1">معرّف السائق (Driver ID):</label>
+                  <label className="block font-bold text-stone-700 mb-1">{t("other.labels.driver_6")}</label>
                   <input
                     type="text"
                     required
@@ -1798,8 +1789,7 @@ export const MasterDataView: React.FC = () => {
                     type="submit"
                     className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded"
                   >
-                    حفظ وتطبيع السائق
-                  </button>
+                    {t("other.labels.saveDriver")}</button>
                 </div>
               </form>
             )}

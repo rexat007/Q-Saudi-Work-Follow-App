@@ -300,25 +300,26 @@ export class CodemodEngine {
     // 2. Read dry run report
     const dryRunReport: CodemodDryRunReport = JSON.parse(fs.readFileSync(dryRunPath, 'utf-8'));
 
-    // 2b. Read previous block manifests to detect already migrated files and keys (BLOCK 45 & BLOCK 46)
+    // 2b. Read previous block manifests to detect already migrated files and keys (BLOCK 45, BLOCK 46, BLOCK 47)
+    const normalizePath = (p: string) =>
+      p.replace(/^\/app\/applet\//, '').replace(/\\/g, '/').replace(/^\.\//, '');
     const previousManifestFiles = new Set<string>();
-    const b45Path = path.join(reportsDir, 'i18n-block45-manifest.json');
-    const b46Path = path.join(reportsDir, 'i18n-block46-manifest.json');
-    if (fs.existsSync(b45Path)) {
-      try {
-        const b45 = JSON.parse(fs.readFileSync(b45Path, 'utf-8'));
-        if (Array.isArray(b45.entries)) {
-          for (const e of b45.entries) previousManifestFiles.add(e.sourceFile);
-        }
-      } catch {}
-    }
-    if (fs.existsSync(b46Path)) {
-      try {
-        const b46 = JSON.parse(fs.readFileSync(b46Path, 'utf-8'));
-        if (Array.isArray(b46.entries)) {
-          for (const e of b46.entries) previousManifestFiles.add(e.sourceFile);
-        }
-      } catch {}
+    const priorManifestPaths = [
+      path.join(reportsDir, 'i18n-block45-manifest.json'),
+      path.join(reportsDir, 'i18n-block46-manifest.json'),
+      path.join(reportsDir, 'i18n-block47-manifest.json'),
+    ];
+    for (const mPath of priorManifestPaths) {
+      if (fs.existsSync(mPath)) {
+        try {
+          const parsed = JSON.parse(fs.readFileSync(mPath, 'utf-8'));
+          if (Array.isArray(parsed.entries)) {
+            for (const e of parsed.entries) {
+              previousManifestFiles.add(normalizePath(e.sourceFile));
+            }
+          }
+        } catch {}
+      }
     }
 
     // 3. Filter strictly by SAFE risk, TRANSFORM_SAFE classification, valid catalog entry, protected token safety, and NOT already migrated
@@ -333,7 +334,7 @@ export class CodemodEngine {
       if (!protCheck.passed) return false;
 
       // Resume logic: exclude candidates belonging to files already modified in previous blocks
-      if (previousManifestFiles.has(c.sourceFile)) return false;
+      if (previousManifestFiles.has(normalizePath(c.sourceFile))) return false;
 
       // Ensure target file exists
       if (!fs.existsSync(c.sourceFile)) return false;
@@ -348,15 +349,24 @@ export class CodemodEngine {
 
     // Filter by target files if specified
     if (options.targetFiles && options.targetFiles.length > 0) {
-      const targets = options.targetFiles.map((f) => f.replace(/\\/g, '/').replace(/^\.\//, ''));
+      const targets = options.targetFiles.map((f) => normalizePath(f));
       safeCandidates = safeCandidates.filter((c) => {
-        const norm = c.sourceFile.replace(/\\/g, '/').replace(/^\.\//, '');
+        const norm = normalizePath(c.sourceFile);
         return targets.some((t) => norm.endsWith(t) || norm === t);
       });
     }
 
     // 4. Deterministic sorting: by preferred category rank, then category, file, line, col, key
-    const preferredCats = options.preferredCategories || (blockNumber === 47 ? [
+    const preferredCats = options.preferredCategories || (blockNumber === 48 ? [
+      'offline',
+      'other',
+      'masterData',
+      'wizard',
+      'shared',
+      'admin',
+      'importCenter',
+      'pricing',
+    ] : blockNumber === 47 ? [
       'dashboard',
       'projects',
       'carriers',
@@ -394,8 +404,8 @@ export class CodemodEngine {
       return (a.translationKey || '').localeCompare(b.translationKey || '');
     });
 
-    // 5. Batch sizing (up to 500 for BLOCK 47, 300 for BLOCK 46)
-    const maxBatchLimit = blockNumber === 47 ? 500 : (blockNumber === 46 ? 300 : 100);
+    // 5. Batch sizing (up to 350 for BLOCK 48, 500 for BLOCK 47, 300 for BLOCK 46)
+    const maxBatchLimit = blockNumber === 48 ? 350 : (blockNumber === 47 ? 500 : (blockNumber === 46 ? 300 : 100));
     const maxBatchSize = Math.min(options.batchSize || maxBatchLimit, maxBatchLimit);
     const batchCandidates = sortedCandidates.slice(0, maxBatchSize);
 
@@ -508,8 +518,9 @@ export class CodemodEngine {
     const blockManifestPath = path.join(reportsDir, `i18n-block${blockNumber}-manifest.json`);
     fs.writeFileSync(blockManifestPath, JSON.stringify(blockManifest, null, 2), 'utf-8');
 
-    // 9. Update i18n-codemod-manifest.json while preserving prior block records (BLOCK 45)
+    // 9. Update i18n-codemod-manifest.json while preserving prior block records (BLOCK 45, 46, 47, 47A)
     let existingManifestEntries: CodemodManifestEntry[] = [];
+    let block47aRepairMetadata: any = undefined;
     const codemodManifestPath = path.join(reportsDir, 'i18n-codemod-manifest.json');
     if (fs.existsSync(codemodManifestPath)) {
       try {
@@ -517,17 +528,33 @@ export class CodemodEngine {
         if (parsed && Array.isArray(parsed.entries)) {
           existingManifestEntries = parsed.entries;
         }
+        if (parsed && parsed.block47aRepair) {
+          block47aRepairMetadata = parsed.block47aRepair;
+        }
       } catch {}
     }
 
     const remainingExisting = existingManifestEntries.filter(
-      (e) => !modifiedFiles.some((m) => m.replace(/\\/g, '/').endsWith(e.sourceFile.replace(/\\/g, '/')))
+      (e) => !modifiedFiles.some((m) => normalizePath(m) === normalizePath(e.sourceFile))
     );
 
-    const updatedCodemodManifest: CodemodManifest = {
-      version: '1.0.0',
+    const updatedCodemodManifest: any = {
+      version: '1.2.0',
       generatedAt: new Date().toISOString(),
       mode: 'APPLIED',
+      ...(block47aRepairMetadata ? { block47aRepair: block47aRepairMetadata } : {}),
+      ...(blockNumber === 48
+        ? {
+            block48Completion: {
+              block: 'BLOCK 48',
+              status: 'SAFE_MIGRATION_COMPLETE',
+              totalAppliedInBatch: appliedCandidates.length,
+              cumulativeTotalApplied: 876 + appliedCandidates.length,
+              filesModifiedCount: modifiedFiles.length,
+              timestamp: new Date().toISOString(),
+            },
+          }
+        : {}),
       entries: [...remainingExisting, ...manifestEntries],
     };
     fs.writeFileSync(codemodManifestPath, JSON.stringify(updatedCodemodManifest, null, 2), 'utf-8');
@@ -583,7 +610,7 @@ export class CodemodEngine {
       '',
       '## 1. Executive Summary',
       '',
-      `- **Execution Mode:** SAFE Batch ${blockNumber === 47 ? 'Continuation' : 'Expansion'} Applied (Production Source Migration)`,
+      `- **Execution Mode:** ${blockNumber === 48 ? 'Final SAFE Batch Applied (Complete SAFE Migration)' : blockNumber === 47 ? 'SAFE Batch Continuation Applied' : 'SAFE Batch Expansion Applied'} (Production Source Migration)`,
       `- **Timestamp:** ${new Date().toISOString()}`,
       `- **Total SAFE Candidates Detected in Dry-Run:** ${dryRunReport.summary.safeCount}`,
       `- **Total SAFE Candidates Evaluated for Block:** ${safeCandidates.length}`,

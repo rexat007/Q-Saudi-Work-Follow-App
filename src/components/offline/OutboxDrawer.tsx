@@ -34,6 +34,8 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { OutboxOperation, OutboxStatus, CacheStoreMetadata, OutboxStats } from '../../types/offline';
 import { ConflictRecord, ConflictType } from '../../types/conflict';
 import { runConflictResolutionTestSuite, ConflictTestCaseResult } from '../../tests/conflictResolution.test';
+import { useI18n } from '../../i18n';
+
 
 interface OutboxDrawerProps {
   isOpen: boolean;
@@ -46,6 +48,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
   onClose,
   onNotification
 }) => {
+  const { t } = useI18n();
   const { isOnline, isSimulatedOffline, toggleSimulatedOffline } = useOnlineStatus();
 
   const [activeTab, setActiveTab] = useState<'OUTBOX' | 'CONFLICTS' | 'CACHE'>('OUTBOX');
@@ -245,35 +248,35 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-bold">
             <Clock className="w-3 h-3" />
-            <span>قيد الانتظار PENDING</span>
+            <span>{t("offline.labels.txt_7eabcf")}</span>
           </span>
         );
       case 'SENDING':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-300 text-[11px] font-bold animate-pulse">
             <RotateCw className="w-3 h-3 animate-spin" />
-            <span>جاري الإرسال SENDING</span>
+            <span>{t("offline.labels.txt_3bb240")}</span>
           </span>
         );
       case 'SYNCED':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-bold">
             <CheckCircle2 className="w-3 h-3" />
-            <span>تمت المزامنة SYNCED</span>
+            <span>{t("offline.labels.txt_731fc0")}</span>
           </span>
         );
       case 'FAILED':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-300 text-[11px] font-bold">
             <XCircle className="w-3 h-3" />
-            <span>فشلت FAILED</span>
+            <span>{t("offline.status.txt_177559")}</span>
           </span>
         );
       case 'CONFLICT':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-300 text-[11px] font-bold">
             <AlertTriangle className="w-3 h-3" />
-            <span>تعارض CONFLICT</span>
+            <span>{t("offline.labels.txt_751d01")}</span>
           </span>
         );
     }
@@ -299,8 +302,8 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
               <Layers className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-stone-900">إدارة عدم الاتصال والمزامنة (Offline-First PWA)</h2>
-              <p className="text-xs text-stone-500">حالة IndexedDB المحلية، طابور الصادر Outbox، وخطوات المزامنة الخادومية</p>
+              <h2 className="text-base font-bold text-stone-900">{t("offline.labels.txt_5542eb")}</h2>
+              <p className="text-xs text-stone-500">{t("offline.labels.txt_140117")}</p>
             </div>
           </div>
 
@@ -318,12 +321,12 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
             {isOnline ? (
               <span className="flex items-center gap-1.5 font-bold text-emerald-400">
                 <Wifi className="w-4 h-4" />
-                <span>حالة الشبكة: متصل بالإنترنت (Online)</span>
+                <span>{t("offline.labels.txt_3f37a7")}</span>
               </span>
             ) : (
               <span className="flex items-center gap-1.5 font-bold text-amber-400">
                 <WifiOff className="w-4 h-4" />
-                <span>حالة الشبكة: غير متصل (Offline Mode)</span>
+                <span>{t("offline.labels.txt_74ecba")}</span>
               </span>
             )}
             <span className="text-stone-400">|</span>
@@ -334,7 +337,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-stone-300 text-[11px]">محاكاة انقطاع الإنترنت:</span>
+            <span className="text-stone-300 text-[11px]">{t("offline.labels.txt_31f297")}</span>
             <button
               onClick={toggleSimulatedOffline}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
@@ -359,7 +362,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
             }`}
           >
             <Send className="w-4 h-4" />
-            <span>طابور الصادر (Outbox Queue)</span>
+            <span>{t("offline.labels.txt_66c55e")}</span>
             {stats.pending > 0 && (
               <span className="px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-900 text-[10px]">
                 {stats.pending}
@@ -376,7 +379,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
             }`}
           >
             <ShieldAlert className="w-4 h-4 text-purple-600" />
-            <span>معالجة التعارضات (Conflicts)</span>
+            <span>{t("offline.labels.txt_47ad3c")}</span>
             {conflicts.filter(c => c.status === 'OPEN').length > 0 && (
               <span className="px-1.5 py-0.2 rounded-full bg-purple-600 text-white text-[10px] animate-pulse">
                 {conflicts.filter(c => c.status === 'OPEN').length}
@@ -393,7 +396,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
             }`}
           >
             <Database className="w-4 h-4" />
-            <span>الذاكرة المحلية IndexedDB (Master Data)</span>
+            <span>{t("offline.labels.txt_519208")}</span>
           </button>
         </div>
 
@@ -404,7 +407,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
               {/* Quick Actions & Stats Bar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-stone-200 shadow-2xs">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-bold text-stone-600">التصفية:</span>
+                  <span className="text-xs font-bold text-stone-600">{t("offline.labels.filter")}</span>
                   {(['ALL', 'PENDING', 'SENDING', 'SYNCED', 'FAILED', 'CONFLICT'] as const).map(st => (
                     <button
                       key={st}
@@ -425,10 +428,10 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                     <button
                       onClick={handleClearSynced}
                       className="px-2.5 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-medium flex items-center gap-1 transition-colors"
-                      title="تنظيف العمليات المزامنة"
+                      title={t("offline.labels.txt_4043c4")}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                      <span>مسح المؤكدة</span>
+                      <span>{t("offline.labels.txt_8b427e")}</span>
                     </button>
                   )}
                   <button
@@ -446,10 +449,9 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
               {filteredOps.length === 0 ? (
                 <div className="bg-white rounded-xl border border-dashed border-stone-300 p-8 text-center space-y-2">
                   <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
-                  <p className="text-sm font-bold text-stone-800">لا توجد عمليات في هذا التصنيف</p>
+                  <p className="text-sm font-bold text-stone-800">{t("offline.labels.txt_9b46da")}</p>
                   <p className="text-xs text-stone-500">
-                    عند العمل في وضع عدم الاتصال (Offline) وإنشاء رحلة من محطة التحميل، ستظهر العمليات هنا تلقائياً لتتم مزامنتها.
-                  </p>
+                    {t("offline.labels.createTrip_2")}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -489,7 +491,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             </span>
                           </div>
                           <div>
-                            <span className="text-stone-500 block text-[10px]">المبلغ والتسوية:</span>
+                            <span className="text-stone-500 block text-[10px]">{t("offline.labels.txt_402c63")}</span>
                             {op.payload?.pricingSnapshot?.isPending || op.payload?.pricingStatus === 'PENDING' || op.payload?.pricingRuleId === 'UNRESOLVED_PENDING' ? (
                               <span className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded text-[11px] border border-amber-300">
                                 <AlertTriangle className="w-3 h-3 text-amber-600" />
@@ -502,7 +504,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             )}
                           </div>
                           <div>
-                            <span className="text-stone-500 block text-[10px]">المحاولات:</span>
+                            <span className="text-stone-500 block text-[10px]">{t("offline.labels.txt_6526c5")}</span>
                             <span className="font-bold text-stone-900">{op.retryCount} محاولة</span>
                           </div>
                         </div>
@@ -512,7 +514,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           <div className="text-xs bg-amber-50 border border-amber-300 rounded-lg p-2.5 text-amber-950 flex items-start gap-2">
                             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                             <div>
-                              <div className="font-bold">تنبيه تسعير معلق (Pending Pricing Resolution):</div>
+                              <div className="font-bold">{t("offline.status.pending_2")}</div>
                               <div className="text-[11px] text-amber-900 mt-0.5 leading-relaxed">
                                 تم تسجيل العملية تشغيلياً بنجاح في سجل الإرسال، ولكن التسوية المالية معلقة لعدم توفر قاعدة تسعير تعاقدية مطابقة. لن يتم احتساب تسوية نهائية لحين اعتماد العقد (لا يتم اعتماد 0.00 ر.س كسعر نهائي).
                               </div>
@@ -525,7 +527,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           <div className="text-xs bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-emerald-900 flex items-start gap-2">
                             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                             <div>
-                              <div className="font-bold">استجابة المصادقة الخادومية (Server ACK):</div>
+                              <div className="font-bold">{t("offline.labels.txt_292ade")}</div>
                               <div>{op.serverAck.messageAr} (رقم الرحلة الخادومي: {op.serverAck.tripSerial})</div>
                             </div>
                           </div>
@@ -535,7 +537,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           <div className="text-xs bg-rose-50 border border-rose-200 rounded-lg p-2.5 text-rose-900 flex items-start gap-2">
                             <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                             <div>
-                              <div className="font-bold">سبب الفشل (Server Validation Error):</div>
+                              <div className="font-bold">{t("offline.status.failed_2")}</div>
                               <div>{op.errorReason}</div>
                             </div>
                           </div>
@@ -545,7 +547,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           <div className="text-xs bg-purple-50 border border-purple-200 rounded-lg p-2.5 text-purple-900 flex items-start gap-2">
                             <AlertTriangle className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
                             <div>
-                              <div className="font-bold">تفاصيل التعارض (Conflict Detected):</div>
+                              <div className="font-bold">{t("offline.labels.details")}</div>
                               <div>{op.conflictDetails.messageAr}</div>
                             </div>
                           </div>
@@ -568,7 +570,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                                 className="px-3.5 py-1.5 rounded-lg bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors"
                               >
                                 <ShieldAlert className="w-3.5 h-3.5" />
-                                <span>حل التعارض الصريح</span>
+                                <span>{t("offline.labels.txt_46be08")}</span>
                               </button>
                             )}
 
@@ -578,7 +580,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                                 className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-900 text-stone-200 text-xs font-bold flex items-center gap-1 shadow-2xs transition-colors"
                               >
                                 <RotateCw className="w-3 h-3" />
-                                <span>إعادة فحص (Retry)</span>
+                                <span>{t("offline.labels.txt_a748f4")}</span>
                               </button>
                             )}
                           </div>
@@ -604,7 +606,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
                     <ShieldAlert className="w-4 h-4" />
-                    <span>محددات حوكمة التعارضات (Conflict Resolution Mandates)</span>
+                    <span>{t("offline.labels.txt_21781d")}</span>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-stone-800 text-purple-300 border border-purple-500/30">
                     Strict Audit Trail
@@ -613,19 +615,19 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] text-stone-300 pt-1">
                   <li className="flex items-start gap-1.5">
                     <span className="text-amber-400 font-bold">•</span>
-                    <span><strong>منع "آخر كتابة تفوز" (No LWW):</strong> لا يتم استبدال البيانات التشغيلية للرحلات تلقائياً، بل يُلزم المشرف بالحل الصريح.</span>
+                    <span><strong>{t("offline.labels.txt_44754a")}</strong> {t("offline.labels.txt_5753f6")}</span>
                   </li>
                   <li className="flex items-start gap-1.5">
                     <span className="text-emerald-400 font-bold">•</span>
-                    <span><strong>ثبات تسعير الـ Offline:</strong> لقطة التسعير المعتمدة وقت الإنشاء بدون اتصال ملزمة للرحلة ولا تتغير بتحديث السعر اللاحق.</span>
+                    <span><strong>{t("offline.labels.txt_197045")}</strong> لقطة التسعير المعتمدة وقت الإنشاء بدون اتصال ملزمة للرحلة ولا تتغير بتحديث السعر اللاحق.</span>
                   </li>
                   <li className="flex items-start gap-1.5">
                     <span className="text-purple-400 font-bold">•</span>
-                    <span><strong>حفظ الأمرين:</strong> يتم تجميد الأمر المحلي وحفظ حالة الخادم وإصدار سجل تعارض موثق في IndexedDB.</span>
+                    <span><strong>{t("offline.labels.save")}</strong> {t("offline.labels.save_2")}</span>
                   </li>
                   <li className="flex items-start gap-1.5">
                     <span className="text-blue-400 font-bold">•</span>
-                    <span><strong>سريان الأسعار الجديدة:</strong> السعر المحدث على الخادم يقتصر أثره فقط على الرحلات المستقبلية الجديدة.</span>
+                    <span><strong>{t("offline.labels.txt_6aae4c")}</strong> السعر المحدث على الخادم يقتصر أثره فقط على الرحلات المستقبلية الجديدة.</span>
                   </li>
                 </ul>
               </div>
@@ -636,17 +638,15 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   <div>
                     <h3 className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
                       <Play className="w-3.5 h-3.5 text-amber-600" />
-                      <span>محاكي التعارضات التشغيلية (Interactive Conflict Simulator)</span>
+                      <span>{t("offline.labels.txt_55319d")}</span>
                     </h3>
                     <p className="text-[11px] text-stone-500">
-                      اضغط لتوليد أي سيناريو واختبار آلية التدقيق وحماية التسعير ومنع الكتابة التلقائية:
-                    </p>
+                      {t("offline.labels.pricing_2")}</p>
                   </div>
                   {isSimulatingConflict && (
                     <span className="text-xs text-amber-600 flex items-center gap-1 font-bold animate-pulse">
                       <RefreshCw className="w-3 h-3 animate-spin" />
-                      جاري المحاكاة...
-                    </span>
+                      {t("offline.labels.txt_532950")}</span>
                   )}
                 </div>
 
@@ -660,7 +660,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                       <Lock className="w-3.5 h-3.5 text-amber-700" />
                       <span>1. تحديث السعر</span>
                     </div>
-                    <span className="text-[10px] text-amber-800 block mt-0.5">PRICING_CHANGED وحماية Snapshot</span>
+                    <span className="text-[10px] text-amber-800 block mt-0.5">{t("offline.labels.txt_2eef0a")}</span>
                   </button>
 
                   <button
@@ -670,9 +670,9 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   >
                     <div className="flex items-center gap-1 text-indigo-900 font-bold text-xs">
                       <Scale className="w-3.5 h-3.5 text-indigo-700" />
-                      <span>2. تعارض إصدار</span>
+                      <span>{t("offline.labels.txt_4e058d")}</span>
                     </div>
-                    <span className="text-[10px] text-indigo-800 block mt-0.5">VERSION_CONFLICT توازي التعديل</span>
+                    <span className="text-[10px] text-indigo-800 block mt-0.5">{t("offline.labels.edit_2")}</span>
                   </button>
 
                   <button
@@ -682,9 +682,9 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   >
                     <div className="flex items-center gap-1 text-emerald-900 font-bold text-xs">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>3. رحلة مكتملة</span>
+                      <span>{t("offline.status.trip")}</span>
                     </div>
-                    <span className="text-[10px] text-emerald-800 block mt-0.5">TRIP_ALREADY_COMPLETED مغلقة</span>
+                    <span className="text-[10px] text-emerald-800 block mt-0.5">{t("offline.labels.txt_2a087d")}</span>
                   </button>
 
                   <button
@@ -694,9 +694,9 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   >
                     <div className="flex items-center gap-1 text-rose-900 font-bold text-xs">
                       <XCircle className="w-3.5 h-3.5 text-rose-700" />
-                      <span>4. رحلة مرتجعة</span>
+                      <span>{t("offline.labels.trip_2")}</span>
                     </div>
-                    <span className="text-[10px] text-rose-800 block mt-0.5">TRIP_ALREADY_RETURNED مرفوضة</span>
+                    <span className="text-[10px] text-rose-800 block mt-0.5">{t("offline.labels.txt_5fc250")}</span>
                   </button>
 
                   <button
@@ -706,9 +706,9 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   >
                     <div className="flex items-center gap-1 text-orange-900 font-bold text-xs">
                       <Layers className="w-3.5 h-3.5 text-orange-700" />
-                      <span>5. تكرار تذكرة</span>
+                      <span>{t("offline.labels.txt_32233e")}</span>
                     </div>
-                    <span className="text-[10px] text-orange-800 block mt-0.5">DUPLICATE_OPERATION تكرار القيد</span>
+                    <span className="text-[10px] text-orange-800 block mt-0.5">{t("offline.labels.txt_15265b")}</span>
                   </button>
 
                   <button
@@ -718,9 +718,9 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   >
                     <div className="flex items-center gap-1 text-purple-900 font-bold text-xs">
                       <HardDrive className="w-3.5 h-3.5 text-purple-700" />
-                      <span>6. تعارض الناقل</span>
+                      <span>{t("offline.labels.carrier")}</span>
                     </div>
-                    <span className="text-[10px] text-purple-800 block mt-0.5">TRUCK_CARRIER_CONFLICT تبعية</span>
+                    <span className="text-[10px] text-purple-800 block mt-0.5">{t("offline.labels.txt_7eb4ca")}</span>
                   </button>
 
                   <button
@@ -730,9 +730,9 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   >
                     <div className="flex items-center gap-1 text-cyan-900 font-bold text-xs">
                       <Database className="w-3.5 h-3.5 text-cyan-700" />
-                      <span>7. تغيير بيانات أساسية</span>
+                      <span>{t("offline.labels.txt_759c62")}</span>
                     </div>
-                    <span className="text-[10px] text-cyan-800 block mt-0.5">MASTER_DATA_CHANGED إيقاف أو تعديل المادة</span>
+                    <span className="text-[10px] text-cyan-800 block mt-0.5">{t("offline.labels.editMaterial")}</span>
                   </button>
                 </div>
               </div>
@@ -743,11 +743,10 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   <div>
                     <h3 className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
                       <FileCode className="w-3.5 h-3.5 text-indigo-600" />
-                      <span>فحص التحقق الآلي للتعارضات (Automated Conflict Test Suite)</span>
+                      <span>{t("offline.labels.txt_712649")}</span>
                     </h3>
                     <p className="text-[11px] text-stone-500">
-                      برنامج فحص برمجي للتحقق من كافة القواعد والمحددات الإلزامية: الأنواع الـ 7، Anti-LWW، حفظ الأمرين، إشعار المستخدم، ثبات تسعير الـ Offline، والحل الصريح.
-                    </p>
+                      {t("offline.labels.save_3")}</p>
                   </div>
 
                   <button
@@ -819,10 +818,9 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <h4 className="text-sm font-bold text-stone-800">لا توجد تعارضات معلقة في النظام حالياً</h4>
+                  <h4 className="text-sm font-bold text-stone-800">{t("offline.status.txt_60598f")}</h4>
                   <p className="text-xs text-stone-500 max-w-md mx-auto">
-                    جميع العمليات متوافقة مع الخادم. يمكنك الضغط على أي زر في المحاكي أعلاه لاختبار منظومة معالجة التعارضات وحماية لقطات التسعير.
-                  </p>
+                    {t("offline.labels.txt_10b6c4")}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -863,7 +861,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                               className="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors shrink-0"
                             >
                               <ShieldAlert className="w-4 h-4" />
-                              <span>حل التعارض الصريح</span>
+                              <span>{t("offline.labels.txt_46be08")}</span>
                             </button>
                           )}
                         </div>
@@ -874,7 +872,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             <div className="flex items-center gap-2">
                               <Lock className="w-4 h-4 text-emerald-700 shrink-0" />
                               <div>
-                                <span className="font-bold text-emerald-950">حماية تسعير الـ Offline: </span>
+                                <span className="font-bold text-emerald-950">{t("offline.labels.txt_6aaee2")}</span>
                                 <span className="text-emerald-900">
                                   سعر اللقطة المحفوظة: {conf.pricingProtection.snapshotRate} ر.س | سعر الخادم الجديد: {conf.pricingProtection.serverCurrentRate} ر.س
                                 </span>
@@ -888,7 +886,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
 
                         {/* Diff Fields Mini View */}
                         <div className="bg-stone-50 rounded-lg p-2.5 border border-stone-200 text-xs">
-                          <div className="text-[11px] font-bold text-stone-700 mb-1">الفروقات الميدانية المرصودة:</div>
+                          <div className="text-[11px] font-bold text-stone-700 mb-1">{t("offline.labels.txt_231b48")}</div>
                           <div className="space-y-1">
                             {conf.diffFields.map((d, i) => (
                               <div key={i} className="flex items-center justify-between text-[11px] bg-white p-1.5 px-2.5 rounded border border-stone-200">
@@ -920,7 +918,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                               </span>
                             </div>
                             <div className="text-[11px] text-emerald-900">
-                              <strong>المبرر التدقيقي:</strong> {conf.resolution.justification}
+                              <strong>{t("offline.labels.txt_a9b605")}</strong> {conf.resolution.justification}
                             </div>
                           </div>
                         )}
@@ -936,7 +934,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
             <div className="space-y-4">
               <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-xs font-bold text-stone-900">سجل تخزين Master Data في IndexedDB</h3>
+                  <h3 className="text-xs font-bold text-stone-900">{t("offline.labels.txt_6fc0d8")}</h3>
                   <p className="text-xs text-stone-500">
                     تتضمن كل باقة مخزنة محلياً رقم الإصدار (Version) والطابع الزمني (Timestamp) لضمان اتساق البيانات
                   </p>
@@ -969,11 +967,11 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
 
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
-                        <span className="text-stone-400 block text-[10px]">عدد السجلات:</span>
+                        <span className="text-stone-400 block text-[10px]">{t("offline.labels.txt_6464df")}</span>
                         <span className="font-bold text-stone-800">{meta.recordCount} سجل</span>
                       </div>
                       <div>
-                        <span className="text-stone-400 block text-[10px]">الطابع الزمني:</span>
+                        <span className="text-stone-400 block text-[10px]">{t("offline.labels.txt_7490af")}</span>
                         <span className="font-mono text-stone-700 text-[10px]">
                           {new Date(meta.timestamp).toLocaleTimeString('ar-SA')}
                         </span>
@@ -982,7 +980,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
 
                     <div className="text-[10px] text-stone-400 pt-1 border-t border-stone-50 flex items-center justify-between">
                       <span>مصدر التخزين: {meta.lastSyncedBy || 'SYSTEM'}</span>
-                      <span className="text-emerald-700 font-medium">جاهز للاستخدام Offline</span>
+                      <span className="text-emerald-700 font-medium">{t("offline.labels.txt_41cc14")}</span>
                     </div>
                   </div>
                 ))}
@@ -992,12 +990,12 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
               <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4 text-xs text-amber-900 space-y-2">
                 <div className="flex items-center gap-1.5 font-bold">
                   <Info className="w-4 h-4 text-amber-700" />
-                  <span>معايير التشغيل بدون اتصال (Offline Rules):</span>
+                  <span>{t("offline.labels.txt_9a78d6")}</span>
                 </div>
                 <ul className="list-disc list-inside space-y-1 text-[11px] text-amber-800 pr-2">
-                  <li>يتم التحقق من وجود جميع Master Data (المشروع، الناقل، الشاحنة، السائق، المادة) في IndexedDB.</li>
-                  <li><strong>قاعدة إلزامية:</strong> لا يُسمح بإنشاء أي رحلة Offline إذا كانت بيانات التسعير غير متوفرة محلياً.</li>
-                  <li>تتم الحسابات المالية وصافي الأوزان محلياً وتُدرج في Outbox بحالة PENDING حتى عودة الاتصال.</li>
+                  <li>{t("offline.labels.txt_539bb6")}</li>
+                  <li><strong>{t("offline.labels.txt_66cc97")}</strong> {t("offline.labels.createTripPricing")}</li>
+                  <li>{t("offline.labels.txt_5cde42")}</li>
                 </ul>
               </div>
             </div>

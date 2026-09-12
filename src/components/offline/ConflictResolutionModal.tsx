@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { ConflictRecord, ResolutionStrategy, ConflictType } from '../../types/conflict';
 import { conflictResolutionService } from '../../services/offline/conflictResolution.service';
+import { useI18n } from '../../i18n';
+
 
 interface ConflictResolutionModalProps {
   conflict: ConflictRecord | null;
@@ -32,6 +34,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
   onClose,
   onResolved
 }) => {
+  const { t } = useI18n();
   const [selectedStrategy, setSelectedStrategy] = useState<ResolutionStrategy | null>(null);
   const [justification, setJustification] = useState<string>('');
   const [isResolving, setIsResolving] = useState<boolean>(false);
@@ -141,14 +144,13 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-stone-100">مركز معالجة التعارضات التشغيلية (Conflict Resolution)</h3>
+                <h3 className="font-bold text-base text-stone-100">{t("offline.labels.txt_18aa37")}</h3>
                 <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-stone-800 text-amber-300 border border-amber-500/30">
                   {conflict.conflictId}
                 </span>
               </div>
               <p className="text-xs text-stone-400 mt-0.5">
-                مبدأ إلزامي: منع "آخر كتابة تفوز" (Anti Last-Write-Wins) لحماية سلامة بيانات الرحلات
-              </p>
+                {t("offline.labels.trips")}</p>
             </div>
           </div>
           <button
@@ -177,7 +179,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-emerald-950 font-bold text-sm">
                   <Lock className="w-4 h-4 text-emerald-700" />
-                  <span>ضمانة ثبات تسعير الـ Offline (Pricing Snapshot Invariance)</span>
+                  <span>{t("offline.labels.txt_41c156")}</span>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-200/80 text-emerald-900 border border-emerald-300">
                   سعر محمي تعاقدياً
@@ -190,7 +192,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                   <div className="text-base font-bold text-emerald-900 font-mono mt-0.5">
                     {conflict.pricingProtection.snapshotRate} {conflict.pricingProtection.currency} / طن
                   </div>
-                  <span className="text-[10px] text-emerald-700 block mt-1">ساري وقت إنشاء الرحلة بدون اتصال</span>
+                  <span className="text-[10px] text-emerald-700 block mt-1">{t("offline.labels.createTrip")}</span>
                 </div>
 
                 <div className="bg-white p-3 rounded-lg border border-emerald-200">
@@ -204,7 +206,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                 </div>
 
                 <div className="bg-white p-3 rounded-lg border border-emerald-200">
-                  <span className="text-stone-500 block text-[11px]">القاعدة المعمارية الصارمة:</span>
+                  <span className="text-stone-500 block text-[11px]">{t("offline.labels.txt_71eceb")}</span>
                   <p className="text-[11px] text-stone-700 font-medium leading-relaxed mt-0.5">
                     لا يتم تغيير قيمة هذه الرحلة لاحقاً بسبب تحديث السعر. السعر الجديد يستخدم فقط للرحلات المستقبلية.
                   </p>
@@ -222,7 +224,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
                 <ArrowRightLeft className="w-4 h-4 text-stone-500" />
-                <span>مقارنة الحالة المحفوظة (Preserved Local Command vs Server State)</span>
+                <span>{t("offline.labels.status")}</span>
               </h4>
               <div className="flex items-center gap-1 text-xs">
                 <button
@@ -231,16 +233,14 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                     activeView === 'DIFF' ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                   }`}
                 >
-                  جدول الفروقات (Diff)
-                </button>
+                  {t("offline.labels.txt_4d3e1f")}</button>
                 <button
                   onClick={() => setActiveView('RAW')}
                   className={`px-2.5 py-1 rounded-md font-bold transition-colors ${
                     activeView === 'RAW' ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                   }`}
                 >
-                  البيانات الخام (JSON)
-                </button>
+                  {t("offline.labels.txt_5037be")}</button>
               </div>
             </div>
 
@@ -249,18 +249,18 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                 <table className="w-full text-right text-xs">
                   <thead className="bg-stone-100 text-stone-700 border-b border-stone-200">
                     <tr>
-                      <th className="py-2.5 px-4 font-bold">الحقل</th>
+                      <th className="py-2.5 px-4 font-bold">{t("offline.labels.txt_59a3b5")}</th>
                       <th className="py-2.5 px-4 font-bold flex items-center gap-1">
                         <Smartphone className="w-3.5 h-3.5 text-amber-600" />
-                        <span>الأمر الميداني المحلي (Local Command)</span>
+                        <span>{t("offline.labels.txt_24195a")}</span>
                       </th>
                       <th className="py-2.5 px-4 font-bold">
                         <div className="flex items-center gap-1">
                           <Server className="w-3.5 h-3.5 text-blue-600" />
-                          <span>حالة الخادم (Server State)</span>
+                          <span>{t("offline.labels.txt_69531e")}</span>
                         </div>
                       </th>
-                      <th className="py-2.5 px-4 font-bold">ملاحظات التحكيم</th>
+                      <th className="py-2.5 px-4 font-bold">{t("offline.labels.txt_3e2425")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100 bg-white">
@@ -284,7 +284,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                           {df.isProtectedBySnapshot ? (
                             <span className="inline-flex items-center gap-1 text-emerald-700 font-bold">
                               <Lock className="w-3 h-3" />
-                              <span>محمي باللقطة</span>
+                              <span>{t("offline.labels.txt_4c59dc")}</span>
                             </span>
                           ) : (
                             df.notesAr || 'يتطلب اعتماد المشرف'
@@ -314,11 +314,10 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
             <div>
               <h4 className="font-bold text-sm text-stone-900 flex items-center gap-2">
                 <Scale className="w-4 h-4 text-amber-600" />
-                <span>القرار الإلزامي الصريح (Explicit Resolution Strategy)</span>
+                <span>{t("offline.labels.txt_47cf18")}</span>
               </h4>
               <p className="text-xs text-stone-500 mt-0.5">
-                اختر استراتيجية الحل المناسبة مع توثيق سبب القرار في سجل التدقيق الأمني
-              </p>
+                {t("offline.labels.txt_184f19")}</p>
             </div>
 
             {/* Contextual Options tailored by conflictType */}
@@ -396,8 +395,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                       />
                       <div className="space-y-1">
                         <div className="font-bold text-xs text-blue-950">
-                          اعتماد حالة الخادم (Accept Server State)
-                        </div>
+                          {t("offline.labels.txt_3d9611")}</div>
                         <p className="text-xs text-blue-900 leading-relaxed">
                           الاحتفاظ ببيانات الخادم الحالية v{conflict.serverState.serverVersion} وإلغاء التعديل المحلي القديم.
                         </p>
@@ -421,8 +419,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                       />
                       <div className="space-y-1">
                         <div className="font-bold text-xs text-stone-900">
-                          فرض الأمر المحلي بالإصدار الجديد (Force Local With Audit)
-                        </div>
+                          {t("offline.labels.txt_60c85c")}</div>
                         <p className="text-xs text-stone-600 leading-relaxed">
                           تطبيق الأمر الميداني فوق بيانات الخادم مع رفع رقم الإصدار تلقائياً وتوثيق هوية المشرف.
                         </p>
@@ -453,8 +450,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                           الالتزام بقرار الخادم النهائي ({conflict.serverState.status})
                         </div>
                         <p className="text-xs text-stone-600 leading-relaxed">
-                          إغلاق العملية المعلقة واعتبار الرحلة في حالتها النهائية المسجلة خادومياً.
-                        </p>
+                          {t("offline.status.closeTrip")}</p>
                       </div>
                     </div>
                   </label>
@@ -475,11 +471,9 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                       />
                       <div className="space-y-1">
                         <div className="font-bold text-xs text-rose-900">
-                          إلغاء العملية المحلية مع تسجيل تقرير تباين تشغيلي (Exception Report)
-                        </div>
+                          {t("offline.labels.cancel")}</div>
                         <p className="text-xs text-stone-600 leading-relaxed">
-                          حذف العملية من طابور الصادر وحفظ ملف التدقيق للمراجعة اللوجستية.
-                        </p>
+                          {t("offline.labels.deleteSave")}</p>
                       </div>
                     </div>
                   </label>
@@ -504,11 +498,9 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                       />
                       <div className="space-y-1">
                         <div className="font-bold text-xs text-stone-900">
-                          استبعاد العملية المكررة (Discard Duplicate)
-                        </div>
+                          {t("offline.labels.txt_604d7b")}</div>
                         <p className="text-xs text-stone-600 leading-relaxed">
-                          إلغاء التذكرة المكررة محلياً حيث تم ترحيلها بنجاح مسبقاً.
-                        </p>
+                          {t("offline.status.cancelSuccess")}</p>
                       </div>
                     </div>
                   </label>
@@ -558,11 +550,9 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                       />
                       <div className="space-y-1">
                         <div className="font-bold text-xs text-stone-900">
-                          تسوية ومطابقة التبعية مع البيانات الأساسية للخادم
-                        </div>
+                          {t("offline.labels.txt_305c29")}</div>
                         <p className="text-xs text-stone-600 leading-relaxed">
-                          إعادة ربط الشاحنة أو الكيان بالناقل/المشروع المصرح به خادومياً واعتماد الرحلة.
-                        </p>
+                          {t("offline.labels.truck_2")}</p>
                       </div>
                     </div>
                   </label>
@@ -583,11 +573,9 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                       />
                       <div className="space-y-1">
                         <div className="font-bold text-xs text-rose-900">
-                          إلغاء أمر الرحلة لعدم صلاحية الكيان (Cancel Dispatch)
-                        </div>
+                          {t("offline.labels.cancelTrip")}</div>
                         <p className="text-xs text-stone-600 leading-relaxed">
-                          رفض ترحيل الشحنة لمخالفتها شروط التفويض في السجل المركزي.
-                        </p>
+                          {t("offline.labels.txt_4d4137")}</p>
                       </div>
                     </div>
                   </label>
@@ -598,8 +586,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
             {/* Mandatory Justification */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-stone-700 block">
-                مبرر القرار التدقيقي (Audit Justification):
-              </label>
+                {t("offline.labels.txt_3d5113")}</label>
               <textarea
                 value={justification}
                 onChange={(e) => setJustification(e.target.value)}
@@ -616,7 +603,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
         <div className="bg-stone-100 p-4 px-6 border-t border-stone-200 flex items-center justify-between">
           <div className="text-xs text-stone-500 flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5 text-stone-400" />
-            <span>سيتم تسجيل القرار في سجل التدقيق ومزامنة حالة Outbox تلقائياً</span>
+            <span>{t("offline.labels.txt_4e1b80")}</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -625,15 +612,14 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
               disabled={isResolving}
               className="px-4 py-2 rounded-xl border border-stone-300 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-colors"
             >
-              إلغاء ومراجعة لاحقاً
-            </button>
+              {t("offline.labels.cancel_2")}</button>
             <button
               onClick={handleResolve}
               disabled={isResolving}
               className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors disabled:opacity-50"
             >
               {isResolving && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-              <span>اعتماد الحل الصريح والترحيل</span>
+              <span>{t("offline.labels.txt_3ba53d")}</span>
             </button>
           </div>
         </div>

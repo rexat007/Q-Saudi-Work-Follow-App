@@ -1,6 +1,8 @@
 import React from 'react';
 import { WifiOff, Layers, RefreshCw } from 'lucide-react';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
+import { useI18n } from '../../i18n';
+
 
 interface OfflineIndicatorProps {
   pendingCount?: number;
@@ -8,6 +10,7 @@ interface OfflineIndicatorProps {
 }
 
 export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ pendingCount = 0, onOpenOutbox }) => {
+  const { t } = useI18n();
   const { isOnline, isSimulatedOffline } = useOnlineStatus();
 
   if (isOnline) return null;
@@ -40,7 +43,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ pendingCount
           className="mr-2 px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-[11px] transition-colors flex items-center gap-1 shadow-2xs"
         >
           <Layers className="w-3 h-3" />
-          <span>إدارة المزامنة</span>
+          <span>{t("offline.labels.txt_1f39b6")}</span>
         </button>
       )}
     </div>

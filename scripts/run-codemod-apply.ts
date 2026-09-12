@@ -1,9 +1,9 @@
 /**
- * BLOCK 47 — CLI Entry Point for Controlled i18n Migration: SAFE Batch Continuation
+ * BLOCK 48 — CLI Entry Point for Complete Remaining SAFE i18n Migration
  *
  * Usage:
  *   npx tsx scripts/run-codemod-apply.ts
- *   npx tsx scripts/run-codemod-apply.ts --batch-size 500 --block 47
+ *   npx tsx scripts/run-codemod-apply.ts --batch-size 350 --block 48
  */
 
 import { CodemodEngine } from '../src/i18n/codemod/codemod.runner';
@@ -13,7 +13,7 @@ async function main() {
   let batchSize: number | undefined;
   let categories: string[] | undefined;
   let targetFiles: string[] | undefined;
-  let blockNumber = 47;
+  let blockNumber = 48;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--batch-size' && args[i + 1]) {
@@ -32,12 +32,20 @@ async function main() {
   }
 
   console.log('================================================================');
-  console.log(` BLOCK ${blockNumber}: Controlled i18n Migration (SAFE BATCH CONTINUATION)`);
+  console.log(` BLOCK ${blockNumber}: Complete Remaining SAFE i18n Migration`);
   console.log('================================================================');
 
   const engine = new CodemodEngine();
 
   const defaultCats = [
+    'offline',
+    'other',
+    'masterData',
+    'wizard',
+    'shared',
+    'admin',
+    'importCenter',
+    'pricing',
     'dashboard',
     'projects',
     'carriers',
@@ -50,9 +58,9 @@ async function main() {
     'weighbridge',
   ];
 
-  console.log('Applying SAFE batch transformations with atomic verification...');
+  console.log('Applying remaining SAFE batch transformations with atomic verification...');
   const result = await engine.runApplyBatch({
-    batchSize: batchSize || (blockNumber === 47 ? 500 : 300),
+    batchSize: batchSize || (blockNumber === 48 ? 350 : blockNumber === 47 ? 500 : 300),
     preferredCategories: categories || defaultCats,
     targetFiles,
     blockNumber,
