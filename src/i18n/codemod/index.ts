@@ -13,4 +13,5 @@ export * from './codemod.transformer';
 export * from './codemod.diff';
 export * from './codemod.reporter';
 export * from './codemod.safety';
+export * from './codemod.scope';
 export * from './codemod.runner';

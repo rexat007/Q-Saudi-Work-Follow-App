@@ -1,23 +1,19 @@
 /**
- * BLOCK 46 — CLI Entry Point for Controlled i18n Migration: SAFE Batch Application
+ * BLOCK 47 — CLI Entry Point for Controlled i18n Migration: SAFE Batch Continuation
  *
  * Usage:
  *   npx tsx scripts/run-codemod-apply.ts
- *   npx tsx scripts/run-codemod-apply.ts --batch-size 300 --categories shared,navigation,authentication,dashboard,projects
+ *   npx tsx scripts/run-codemod-apply.ts --batch-size 500 --block 47
  */
 
 import { CodemodEngine } from '../src/i18n/codemod/codemod.runner';
 
 async function main() {
-  console.log('================================================================');
-  console.log(' BLOCK 46: Controlled i18n Migration (SAFE BATCH EXPANSION)    ');
-  console.log('================================================================');
-
   const args = process.argv.slice(2);
   let batchSize: number | undefined;
   let categories: string[] | undefined;
   let targetFiles: string[] | undefined;
-  let blockNumber = 46;
+  let blockNumber = 47;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--batch-size' && args[i + 1]) {
@@ -35,12 +31,29 @@ async function main() {
     }
   }
 
+  console.log('================================================================');
+  console.log(` BLOCK ${blockNumber}: Controlled i18n Migration (SAFE BATCH CONTINUATION)`);
+  console.log('================================================================');
+
   const engine = new CodemodEngine();
+
+  const defaultCats = [
+    'dashboard',
+    'projects',
+    'carriers',
+    'trucks',
+    'drivers',
+    'materials',
+    'trips',
+    'loading',
+    'unloading',
+    'weighbridge',
+  ];
 
   console.log('Applying SAFE batch transformations with atomic verification...');
   const result = await engine.runApplyBatch({
-    batchSize: batchSize || 300,
-    preferredCategories: categories || ['shared', 'navigation', 'authentication', 'dashboard', 'projects'],
+    batchSize: batchSize || (blockNumber === 47 ? 500 : 300),
+    preferredCategories: categories || defaultCats,
     targetFiles,
     blockNumber,
   });

@@ -392,4 +392,30 @@ export class CodemodSafety {
       message: 'Candidate is not already translated.',
     };
   }
+
+  /**
+   * CODEMOD-SCOPE: Lexical scope identifier collision verification
+   * Confirms that candidate position does not have its translation function shadowed
+   * by local variables, parameters, or patterns without an appropriate alias.
+   */
+  public verifyScopeIdentifierSafety(
+    sourceFile: ts.SourceFile,
+    candidatePos: number,
+    bindingName: string = 't'
+  ): SafetyCheckResult {
+    const { CodemodScopeAnalyzer } = require('./codemod.scope');
+    const analyzer = CodemodScopeAnalyzer.getInstance();
+    const collisions = analyzer.findBindingCollisions(sourceFile, [candidatePos], bindingName);
+
+    const passed = collisions.length === 0;
+    return {
+      id: 'CODEMOD-SCOPE',
+      name: 'Scope identifier collision verification',
+      passed,
+      message: passed
+        ? `No scope collision detected for binding '${bindingName}'.`
+        : `Scope collision detected: binding '${bindingName}' is shadowed at line ${collisions[0].line}:${collisions[0].column} by '${collisions[0].collidingNodeText}'.`,
+    };
+  }
 }
+

@@ -12,6 +12,8 @@ import {
   Check, 
   X 
 } from 'lucide-react';
+import { useI18n } from '../../i18n';
+
 
 interface Step2Props {
   materials: WizardMaterialItem[];
@@ -20,6 +22,7 @@ interface Step2Props {
 }
 
 export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, errors = [] }) => {
+  const { t } = useI18n();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
 
@@ -153,11 +156,9 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
         <div>
           <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
             <Boxes className="w-5 h-5 text-amber-600" />
-            الخطوة 2: إدارة المواد ونطاق التوريد (Materials)
-          </h2>
+            {t("materials.labels.materials")}</h2>
           <p className="text-xs text-stone-500 mt-1">
-            أضف المواد المعتمدة للمشروع مع تحديد الرموز، وحدات القياس، والترتيب التشغيلي.
-          </p>
+            {t("materials.labels.materials_2")}</p>
         </div>
         {!showAddForm && (
           <button
@@ -177,7 +178,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
 
       {errors.length > 0 && (
         <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-800 space-y-1">
-          <p className="font-semibold">تنبيهات إدارة المواد:</p>
+          <p className="font-semibold">{t("materials.labels.materials_3")}</p>
           <ul className="list-disc list-inside space-y-0.5">
             {errors.map((err, idx) => (
               <li key={idx}>{err}</li>
@@ -227,7 +228,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
 
             <div>
               <label className="block font-bold text-stone-700 mb-1">
-                رمز المادة (materialCode) <span className="text-rose-500">*</span>
+                {t("materials.labels.material_2")}<span className="text-rose-500">*</span>
               </label>
               <input
                 id="input-material-code"
@@ -241,8 +242,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
 
             <div>
               <label className="block font-bold text-stone-700 mb-1">
-                وحدة القياس المعتمدة
-              </label>
+                {t("materials.labels.txt_3b64b7")}</label>
               <select
                 id="select-material-uom"
                 value={formUom}
@@ -250,8 +250,8 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
                 className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
               >
                 <option value="TON">طن (TON) - الوزن الصافي</option>
-                <option value="M3">متر مكعب (M3) - حجمي</option>
-                <option value="TRIP">رد كامل (TRIP) - مقطوع</option>
+                <option value="M3">{t("materials.labels.txt_6688ac")}</option>
+                <option value="TRIP">{t("materials.labels.txt_60028f")}</option>
               </select>
             </div>
 
@@ -299,33 +299,31 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
             قائمة المواد المعتمدة ({materials.length})
           </span>
           <span className="text-[11px] text-stone-500">
-            يمكنك استخدام الأسهم ⬆️⬇️ لتغيير الترتيب المعتمد في السندات
-          </span>
+            {t("materials.labels.txt_1a4fae")}</span>
         </div>
 
         {materials.length === 0 ? (
           <div className="p-8 text-center">
             <Boxes className="w-8 h-8 text-stone-300 mx-auto mb-2" />
-            <p className="text-xs text-stone-500">لم تتم إضافة أي مواد للمشروع بعد.</p>
+            <p className="text-xs text-stone-500">{t("materials.labels.add_2")}</p>
             <button
               type="button"
               onClick={() => setShowAddForm(true)}
               className="mt-3 inline-flex items-center gap-1 px-3 py-1.5 text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg font-semibold transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              أضف أول مادة الآن
-            </button>
+              {t("materials.labels.txt_9e7170")}</button>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-right text-xs">
               <thead className="bg-stone-50/60 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
-                  <th className="px-3 py-2 w-16 text-center">الترتيب</th>
+                  <th className="px-3 py-2 w-16 text-center">{t("materials.labels.txt_7f591f")}</th>
                   <th className="px-3 py-2">رمز المادة (Code)</th>
                   <th className="px-3 py-2">اسم المادة (Material Name)</th>
-                  <th className="px-3 py-2">الوحدة</th>
-                  <th className="px-3 py-2">الحالة (Status)</th>
+                  <th className="px-3 py-2">{t("materials.labels.txt_252118")}</th>
+                  <th className="px-3 py-2">{t("materials.labels.status_2")}</th>
                   <th className="px-3 py-2 text-center w-40">الإجراءات</th>
                 </tr>
               </thead>
@@ -343,7 +341,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
                         <div className="flex items-center justify-center gap-1">
                           <button
                             type="button"
-                            title="تحريك لأعلى"
+                            title={t("materials.labels.txt_73756a")}
                             disabled={index === 0}
                             onClick={() => handleMoveUp(index)}
                             className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-20 disabled:hover:text-stone-400"
@@ -353,7 +351,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
                           <span className="font-mono text-stone-500 font-bold">{index + 1}</span>
                           <button
                             type="button"
-                            title="تحريك لأسفل"
+                            title={t("materials.labels.txt_737581")}
                             disabled={index === materials.length - 1}
                             onClick={() => handleMoveDown(index)}
                             className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-20 disabled:hover:text-stone-400"
@@ -391,7 +389,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                               : 'bg-stone-100 text-stone-500 border-stone-200 hover:bg-stone-200'
                           }`}
-                          title="اضغط للتبديل بين التفعيل والتعطيل"
+                          title={t("materials.labels.txt_112afc")}
                         >
                           {isActive ? (
                             <>
@@ -415,7 +413,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
                             id={`btn-edit-mat-${m.id}`}
                             onClick={() => startEdit(m)}
                             className="p-1.5 text-stone-500 hover:text-amber-700 hover:bg-amber-50 rounded-md transition-colors"
-                            title="تعديل بيانات المادة"
+                            title={t("materials.labels.editMaterial")}
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
@@ -424,7 +422,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
                             id={`btn-del-mat-${m.id}`}
                             onClick={() => handleDelete(m.id)}
                             className="p-1.5 text-stone-400 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors"
-                            title="حذف المادة"
+                            title={t("materials.labels.deleteMaterial")}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>

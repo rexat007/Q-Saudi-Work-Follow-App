@@ -16,6 +16,7 @@ import {
   CodemodTransformer,
   CodemodDiffGenerator,
   CodemodSafety,
+  CodemodScopeAnalyzer,
 } from '../i18n/codemod';
 
 function assert(condition: boolean, message: string): void {
@@ -457,8 +458,250 @@ async function runTests() {
     testsPassed++;
   }
 
+  // TEST 26: CODEMOD-SCOPE-01: Arrow callback parameter t must not shadow translation binding
+  {
+    const scopeAnalyzer = CodemodScopeAnalyzer.getInstance();
+    const code = `
+      function Comp() {
+        const { t } = useI18n();
+        const items = [1, 2];
+        return <div>{items.map(t => <span>{t}</span>)}</div>;
+      }
+    `;
+    const sf = ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    // Find position of <span>{t}</span>
+    const pos = code.indexOf('<span>{t}</span>') + 8;
+    const collisions = scopeAnalyzer.findBindingCollisions(sf, [pos], 't');
+    assert(collisions.length === 1, 'CODEMOD-SCOPE-01: Detected collision with arrow parameter t');
+    assert(collisions[0].collidingNodeText === 't', 'CODEMOD-SCOPE-01: Parameter name is t');
+    console.log('✅ TEST 26: CODEMOD-SCOPE-01 Arrow callback parameter t collision detection');
+    testsPassed++;
+  }
+
+  // TEST 27: CODEMOD-SCOPE-02: Array.map(t => ...) must remain valid after migration
+  {
+    const transformer = new CodemodTransformer();
+    const code = `
+      export function TruckList({ trucks }: { trucks: any[] }) {
+        return (
+          <div>
+            {trucks.map(t => (
+              <span key={t.id}>فحص دوري سارٍ</span>
+            ))}
+          </div>
+        );
+      }
+    `;
+    const startPos = code.indexOf('فحص دوري سارٍ');
+    const endPos = startPos + 'فحص دوري سارٍ'.length;
+    const candidate: any = {
+      id: 'cand_test_map',
+      sourceFile: 'TruckList.tsx',
+      sourceLocation: { line: 6, column: 32, startPos, endPos },
+      nodeKind: 'JsxText',
+      originalText: 'فحص دوري سارٍ',
+      proposedReplacement: '{t("loading.labels.txt_754551")}',
+      translationKey: 'loading.labels.txt_754551',
+      category: 'loading',
+      risk: 'SAFE',
+      confidence: 'HIGH',
+      classification: 'TRANSFORM_SAFE',
+      reason: 'PLAIN_JSX_TEXT_EXACT_MATCH',
+      reviewReasons: [],
+      interpolationParams: [],
+      protectedTokens: [],
+      requiresImport: true,
+      requiresHook: true,
+      targetComponent: 'TruckList',
+      isAlreadyTranslated: false,
+      semanticContext: 'jsx_text',
+      isReportOrExportField: false,
+    };
+
+    const res = transformer.transformInMemory(code, 'TruckList.tsx', [candidate]);
+    assert(res.isValid, 'CODEMOD-SCOPE-02: Transformed AST is valid');
+    assert(res.transformedContent.includes('translate("loading.labels.txt_754551")'), 'CODEMOD-SCOPE-02: Uses collision-safe translate binding');
+    assert(res.transformedContent.includes('const { t, t: translate } = useI18n();') || res.transformedContent.includes('const { t: translate } = useI18n();'), 'CODEMOD-SCOPE-02: Declares translate alias in useI18n hook');
+    console.log('✅ TEST 27: CODEMOD-SCOPE-02 Array.map(t => ...) remains valid after migration');
+    testsPassed++;
+  }
+
+  // TEST 28: CODEMOD-SCOPE-03: Array.filter(t => ...) must remain valid after migration
+  {
+    const scopeAnalyzer = CodemodScopeAnalyzer.getInstance();
+    const code = `
+      function Comp({ trips }: any) {
+        const { t } = useI18n();
+        const active = trips.filter(t => t.status === "ACTIVE");
+        return <div>{active.length}</div>;
+      }
+    `;
+    const sf = ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const filterBodyPos = code.indexOf('t.status');
+    const isBound = scopeAnalyzer.isIdentifierBoundInScope(sf, filterBodyPos, 't');
+    assert(isBound, 'CODEMOD-SCOPE-03: Identifier t is bound inside filter callback');
+    console.log('✅ TEST 28: CODEMOD-SCOPE-03 Array.filter(t => ...) scope validation');
+    testsPassed++;
+  }
+
+  // TEST 29: CODEMOD-SCOPE-04: Array.reduce(t => ...) must remain valid after migration
+  {
+    const scopeAnalyzer = CodemodScopeAnalyzer.getInstance();
+    const code = `
+      function Comp({ items }: any) {
+        const total = items.reduce((t, item) => t + item.val, 0);
+        return <div>{total}</div>;
+      }
+    `;
+    const sf = ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const reduceBodyPos = code.indexOf('t + item.val');
+    const isBound = scopeAnalyzer.isIdentifierBoundInScope(sf, reduceBodyPos, 't');
+    assert(isBound, 'CODEMOD-SCOPE-04: Identifier t is bound inside reduce accumulator');
+    console.log('✅ TEST 29: CODEMOD-SCOPE-04 Array.reduce(t => ...) scope validation');
+    testsPassed++;
+  }
+
+  // TEST 30: CODEMOD-SCOPE-05: Nested function parameter t must not shadow translation binding
+  {
+    const scopeAnalyzer = CodemodScopeAnalyzer.getInstance();
+    const code = `
+      function Comp() {
+        function helper(t: number) {
+          return t * 2;
+        }
+        return <div>{helper(5)}</div>;
+      }
+    `;
+    const sf = ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const helperBodyPos = code.indexOf('t * 2');
+    const collisions = scopeAnalyzer.findBindingCollisions(sf, [helperBodyPos], 't');
+    assert(collisions.length === 1, 'CODEMOD-SCOPE-05: Nested function parameter t collision detected');
+    console.log('✅ TEST 30: CODEMOD-SCOPE-05 Nested function parameter t collision detection');
+    testsPassed++;
+  }
+
+  // TEST 31: CODEMOD-SCOPE-06: Destructured local t must be detected
+  {
+    const scopeAnalyzer = CodemodScopeAnalyzer.getInstance();
+    const code = `
+      function Comp(props: any) {
+        const { t } = props;
+        return <div>{t}</div>;
+      }
+    `;
+    const sf = ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const pos = code.indexOf('<div>{t}</div>') + 7;
+    const isBound = scopeAnalyzer.isIdentifierBoundInScope(sf, pos, 't');
+    assert(isBound, 'CODEMOD-SCOPE-06: Destructured local variable t detected');
+    console.log('✅ TEST 31: CODEMOD-SCOPE-06 Destructured local t detected');
+    testsPassed++;
+  }
+
+  // TEST 32: CODEMOD-SCOPE-07: Existing t translation calls remain valid
+  {
+    const scopeAnalyzer = CodemodScopeAnalyzer.getInstance();
+    const code = `
+      function Comp() {
+        const { t } = useI18n();
+        return <div>{t("shared.title")}</div>;
+      }
+    `;
+    const sf = ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const callPos = code.indexOf('t("shared.title")');
+    const collisions = scopeAnalyzer.findBindingCollisions(sf, [callPos], 't');
+    assert(collisions.length === 0, 'CODEMOD-SCOPE-07: Zero collisions for standard useI18n hook declaration');
+    console.log('✅ TEST 32: CODEMOD-SCOPE-07 Existing t translation calls remain valid');
+    testsPassed++;
+  }
+
+  // TEST 33: CODEMOD-SCOPE-08: translate fallback binding is deterministic
+  {
+    const scopeAnalyzer = CodemodScopeAnalyzer.getInstance();
+    const code = `
+      function Comp() {
+        const items = [1];
+        return <div>{items.map(t => <span>نص تجريبي</span>)}</div>;
+      }
+    `;
+    const sf = ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const pos = code.indexOf('نص تجريبي');
+    const binding = scopeAnalyzer.resolveTranslationBindingName(sf, sf, [pos]);
+    assert(binding === 'translate', 'CODEMOD-SCOPE-08: Deterministically selected translate fallback');
+    console.log('✅ TEST 33: CODEMOD-SCOPE-08 translate fallback binding is deterministic');
+    testsPassed++;
+  }
+
+  // TEST 34: CODEMOD-SCOPE-09: translateText fallback is deterministic when required
+  {
+    const scopeAnalyzer = CodemodScopeAnalyzer.getInstance();
+    const code = `
+      function Comp() {
+        const items = [1];
+        const translate = (s: string) => s;
+        return <div>{items.map(t => <span>نص تجريبي</span>)}</div>;
+      }
+    `;
+    const sf = ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const pos = code.indexOf('نص تجريبي');
+    const binding = scopeAnalyzer.resolveTranslationBindingName(sf, sf, [pos]);
+    assert(binding === 'translateText', 'CODEMOD-SCOPE-09: Deterministically selected translateText fallback when translate is bound');
+    console.log('✅ TEST 34: CODEMOD-SCOPE-09 translateText fallback is deterministic when required');
+    testsPassed++;
+  }
+
+  // TEST 35: CODEMOD-SCOPE-10: No business variable names are automatically renamed
+  {
+    const transformer = new CodemodTransformer();
+    const origCode = `
+      function RenderTrucks({ availableTrucks }: any) {
+        return (
+          <div>
+            {availableTrucks.map(t => (
+              <div key={t.truckId}>
+                <span>{t.plate}</span>
+                <span>فحص دوري</span>
+              </div>
+            ))}
+          </div>
+        );
+      }
+    `;
+    const startPos = origCode.indexOf('فحص دوري');
+    const endPos = startPos + 'فحص دوري'.length;
+    const candidate: any = {
+      id: 'cand_business_var',
+      sourceFile: 'RenderTrucks.tsx',
+      sourceLocation: { line: 8, column: 22, startPos, endPos },
+      nodeKind: 'JsxText',
+      originalText: 'فحص دوري',
+      proposedReplacement: '{t("loading.labels.inspection")}',
+      translationKey: 'loading.labels.inspection',
+      category: 'loading',
+      risk: 'SAFE',
+      confidence: 'HIGH',
+      classification: 'TRANSFORM_SAFE',
+      reason: 'PLAIN_JSX_TEXT_EXACT_MATCH',
+      reviewReasons: [],
+      interpolationParams: [],
+      protectedTokens: [],
+      requiresImport: true,
+      requiresHook: true,
+      targetComponent: 'RenderTrucks',
+      isAlreadyTranslated: false,
+      semanticContext: 'jsx_text',
+      isReportOrExportField: false,
+    };
+
+    const res = transformer.transformInMemory(origCode, 'RenderTrucks.tsx', [candidate]);
+    assert(res.transformedContent.includes('availableTrucks.map(t =>'), 'CODEMOD-SCOPE-10: Business iterator parameter t is preserved intact');
+    assert(res.transformedContent.includes('{t.plate}'), 'CODEMOD-SCOPE-10: Business property access {t.plate} is preserved intact');
+    assert(res.transformedContent.includes('key={t.truckId}'), 'CODEMOD-SCOPE-10: Business key={t.truckId} is preserved intact');
+    console.log('✅ TEST 35: CODEMOD-SCOPE-10 No business variable names are automatically renamed');
+    testsPassed++;
+  }
+
   console.log('\n================================================================');
-  console.log(` ALL 25 CODEMOD TESTS PASSED SUCCESSFULLY! (${testsPassed}/25) `);
+  console.log(` ALL 35 CODEMOD TESTS PASSED SUCCESSFULLY! (${testsPassed}/35) `);
   console.log('================================================================\n');
 }
 

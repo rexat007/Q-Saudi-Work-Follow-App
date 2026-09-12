@@ -35,6 +35,8 @@ import {
 } from '../../types/tripEngine';
 import { tripEngineService, MASTER_PRICING_RULES } from '../../services/tripEngine.service';
 import { tripStateMachine, STATE_TRANSITIONS } from '../../services/tripStateMachine.service';
+import { useI18n } from '../../i18n';
+
 
 interface StateMachineControllerProps {
   trips: TripRecord[];
@@ -51,6 +53,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
   selectedTripId,
   onSelectTrip
 }) => {
+  const { t } = useI18n();
   // Current active actor / persona for RBAC validation testing
   const [activeRole, setActiveRole] = useState<TripActorRole>('DISPATCHER');
   const [activeActorId, setActiveActorId] = useState<string>('USR-DISPATCHER-01');
@@ -449,21 +452,21 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
       case 'LOADED':
         return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-300">تم التحميل والوزن (LOADED)</span>;
       case 'IN_TRANSIT':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 animate-pulse">في الطريق (IN_TRANSIT)</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 animate-pulse">{t("trips.labels.txt_499473")}</span>;
       case 'ARRIVED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-900 border border-purple-300">وصلت الموقع (ARRIVED)</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-900 border border-purple-300">{t("trips.labels.location")}</span>;
       case 'UNLOADING':
         return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-900 border border-blue-300">قيد التفريغ (UNLOADING)</span>;
       case 'COMPLETED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">مكتملة ومسواة (COMPLETED)</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">{t("trips.status.txt_4c5ffa")}</span>;
       case 'RETURN_REQUESTED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-950 border border-orange-300">طلب إرجاع (RETURN_REQUESTED)</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-950 border border-orange-300">{t("trips.labels.txt_45a060")}</span>;
       case 'RETURNED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-200 text-stone-900 border border-stone-400">مرتجعة للمصدر (RETURNED)</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-200 text-stone-900 border border-stone-400">{t("trips.labels.txt_135d7e")}</span>;
       case 'EXCEPTION':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-950 border border-rose-300">استثناء مسجل (EXCEPTION)</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-950 border border-rose-300">{t("trips.labels.txt_4fb822")}</span>;
       case 'CANCELLED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-900 border border-red-300">ملغاة (CANCELLED)</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-900 border border-red-300">{t("trips.labels.txt_3740a7")}</span>;
     }
   };
 
@@ -478,14 +481,12 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                <span>محرك الحالات المركزي (Centralized Trip State Machine)</span>
+                <span>{t("trips.labels.txt_2ae109")}</span>
                 <span className="px-2 py-0.5 text-[10px] font-black bg-amber-100 text-amber-900 rounded-md">
-                  10 حالات رسمية + حظر التعديل المباشر
-                </span>
+                  {t("trips.labels.edit_3")}</span>
               </h2>
               <p className="text-xs text-stone-500">
-                حوكمة كاملة لجميع تحولات دورة الحياة، التحقق من الرتبة والمشروع، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.
-              </p>
+                {t("trips.labels.txt_5f22c5")}</p>
             </div>
           </div>
 
@@ -500,7 +501,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
               }`}
             >
               <Sliders className="w-3.5 h-3.5" />
-              <span>لوحة التحكم والانتقال</span>
+              <span>{t("trips.labels.txt_a636ce")}</span>
             </button>
             <button
               onClick={() => setInnerTab('DIAGRAM')}
@@ -511,7 +512,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>مخطط الحالات العشر (Diagram)</span>
+              <span>{t("trips.labels.txt_68729b")}</span>
             </button>
             <button
               onClick={() => setInnerTab('EVENTS')}
@@ -543,7 +544,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
           <div className="flex items-center gap-2">
             <span className="font-bold text-stone-700 flex items-center gap-1">
               <UserCheck className="w-3.5 h-3.5 text-amber-600" />
-              <span>رتبة المشغل الحالي:</span>
+              <span>{t("trips.labels.txt_54360d")}</span>
             </span>
             <select
               value={activeRole}
@@ -559,27 +560,27 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
               }}
               className="bg-white border border-stone-300 rounded-lg px-2.5 py-1 text-xs font-bold text-stone-900 focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
-              <option value="DISPATCHER">DISPATCHER (مرحل العمليات)</option>
-              <option value="SCALE_OPERATOR">SCALE_OPERATOR (كاتب ميزان المصدر)</option>
-              <option value="DRIVER">DRIVER (السائق)</option>
-              <option value="SITE_RECEIVER">SITE_RECEIVER (مستلم ومفتش الموقع)</option>
-              <option value="OPERATIONS_MANAGER">OPERATIONS_MANAGER (مدير العمليات)</option>
-              <option value="AUDITOR">AUDITOR (المدقق المالي ومفتش الجودة)</option>
+              <option value="DISPATCHER">{t("trips.labels.txt_f4327d")}</option>
+              <option value="SCALE_OPERATOR">{t("trips.labels.txt_2e23b2")}</option>
+              <option value="DRIVER">{t("trips.labels.txt_7517d4")}</option>
+              <option value="SITE_RECEIVER">{t("trips.labels.txt_29b5f9")}</option>
+              <option value="OPERATIONS_MANAGER">{t("trips.labels.txt_2750ef")}</option>
+              <option value="AUDITOR">{t("trips.labels.txt_7ccbe0")}</option>
             </select>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="font-bold text-stone-700 flex items-center gap-1">
               <Building2 className="w-3.5 h-3.5 text-indigo-600" />
-              <span>المشروع النشط للمستخدم:</span>
+              <span>{t("trips.status.projectActive")}</span>
             </span>
             <select
               value={activeProjectId}
               onChange={e => setActiveProjectId(e.target.value)}
               className="bg-white border border-stone-300 rounded-lg px-2.5 py-1 text-xs font-bold text-stone-900 focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
-              <option value="PRJ-NEOM-001">PRJ-NEOM-001 (مشروع نيوم - مطابق)</option>
-              <option value="PRJ-REDSEA-002">PRJ-REDSEA-002 (مشروع البحر الأحمر - لاختبار التعارض ✗)</option>
+              <option value="PRJ-NEOM-001">{t("trips.labels.txt_233016")}</option>
+              <option value="PRJ-REDSEA-002">{t("trips.labels.txt_4cc4c6")}</option>
             </select>
           </div>
 
@@ -593,7 +594,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
       <div className="bg-white rounded-2xl border border-stone-200/80 p-4 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-stone-700">اختر رحلة للاختبار والتحكم:</span>
+            <span className="text-xs font-bold text-stone-700">{t("trips.labels.trip_16")}</span>
             <select
               value={activeTrip?.tripId || ''}
               onChange={e => onSelectTrip(e.target.value)}
@@ -661,7 +662,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                     <div className="font-mono text-sm font-bold">
                       {activeTrip.destNetWeight !== null ? `${activeTrip.destNetWeight.toLocaleString()} كجم` : 'null (غير مدخل)'}
                     </div>
-                    <span className="text-[9px]">إلزامي قبل إكمال الرحلة</span>
+                    <span className="text-[9px]">{t("trips.labels.trip_18")}</span>
                   </div>
 
                   <div className={`p-3 rounded-xl border ${
@@ -677,7 +678,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   </div>
 
                   <div className="bg-amber-50/60 p-3 rounded-xl border border-amber-200/60 text-amber-950">
-                    <span className="text-[10px] text-amber-800 block mb-1">التسعير والتسوية الخادومية</span>
+                    <span className="text-[10px] text-amber-800 block mb-1">{t("trips.labels.pricing_3")}</span>
                     <div className="font-mono text-sm font-bold">
                       {activeTrip.settlementAmount.toLocaleString()} <span className="text-[10px]">SAR</span>
                     </div>
@@ -701,8 +702,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                     </div>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                    صالح ومحلول ✓
-                  </span>
+                    {t("trips.labels.txt_10cba9")}</span>
                 </div>
 
                 {/* Available Transitions For Current Role */}
@@ -769,8 +769,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                         onClick={() => setTransitionTarget(null)}
                         className="text-stone-400 hover:text-stone-600 text-xs"
                       >
-                        إلغاء ✕
-                      </button>
+                        {t("trips.labels.cancel")}</button>
                     </div>
 
                     {/* Specific required fields for COMPLETED */}
@@ -802,7 +801,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] font-bold text-stone-700 mb-1">وقت التفريغ الفعلي (unloadTime)</label>
+                            <label className="block text-[10px] font-bold text-stone-700 mb-1">{t("trips.labels.txt_f45a43")}</label>
                             <input
                               type="text"
                               value={transitionPayload.unloadTime || ''}
@@ -825,8 +824,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                     {/* Reason input for transitions requiring reason */}
                     <div>
                       <label className="block text-[10px] font-bold text-stone-700 mb-1">
-                        سبب أو ملاحظة التحول (يُحفظ في سجل الأحداث والتدقيق):
-                      </label>
+                        {t("trips.labels.txt_5d1540")}</label>
                       <input
                         type="text"
                         value={transitionPayload.reason || ''}
@@ -848,7 +846,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                         className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs"
                       >
                         <Check className="w-3.5 h-3.5" />
-                        <span>اعتماد الانتقال وزيادة الـ Version</span>
+                        <span>{t("trips.labels.txt_178295")}</span>
                       </button>
                     </div>
                   </div>
@@ -862,12 +860,10 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                 <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                   <ShieldAlert className="w-4 h-4 text-rose-600" />
                   <h3 className="text-xs font-bold text-stone-900">
-                    مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)
-                  </h3>
+                    {t("trips.labels.txt_2cd3f8")}</h3>
                 </div>
                 <p className="text-[11px] text-stone-500 leading-relaxed">
-                  انقر على أي تجربة أدناه لإثبات أن محرك الحالات يرفض أي اختراق أو انتهاك لقواعد الحوكمة الصارمة:
-                </p>
+                  {t("trips.labels.txt_58f744")}</p>
 
                 <div className="space-y-2">
                   {/* Test 1: Direct Client Mutation */}
@@ -877,8 +873,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <Lock className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">1. تجربة التعديل المباشر من العميل (Direct Mutation)</span>
-                      <span className="text-[10px] text-rose-700">يحظر تعديل status مباشرة دون المرور بالمحرك</span>
+                      <span className="font-bold block">{t("trips.labels.edit_4")}</span>
+                      <span className="text-[10px] text-rose-700">{t("trips.labels.edit_5")}</span>
                     </div>
                   </button>
 
@@ -890,7 +886,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                     <Scale className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
                       <span className="font-bold block">2. إكمال الرحلة بدون صافي وزن الاستلام</span>
-                      <span className="text-[10px] text-amber-800">يحظر إكمال الرحلة إذا كان destNetWeight مفقوداً</span>
+                      <span className="text-[10px] text-amber-800">{t("trips.labels.trip_19")}</span>
                     </div>
                   </button>
 
@@ -901,8 +897,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <UserCheck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">3. إكمال الرحلة بدون unloaderId أو unloadTime</span>
-                      <span className="text-[10px] text-amber-800">يحظر الإكمال بدون هوية المستلم ووقت التفريغ</span>
+                      <span className="font-bold block">{t("trips.labels.trip_20")}</span>
+                      <span className="text-[10px] text-amber-800">{t("trips.labels.txt_2c17d4")}</span>
                     </div>
                   </button>
 
@@ -913,8 +909,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <Scale className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">4. إتمام رحلة بدون حساب variance</span>
-                      <span className="text-[10px] text-amber-800">يحظر الإتمام إذا تعذر احتساب الفارق بدقة</span>
+                      <span className="font-bold block">{t("trips.labels.trip_21")}</span>
+                      <span className="text-[10px] text-amber-800">{t("trips.labels.txt_37b15d")}</span>
                     </div>
                   </button>
 
@@ -925,8 +921,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">5. بدء رحلة إذا فشل Pricing Resolution</span>
-                      <span className="text-[10px] text-rose-700">يحظر التحول إلى IN_TRANSIT إذا فشل التسعير</span>
+                      <span className="font-bold block">{t("trips.status.tripFailed_4")}</span>
+                      <span className="text-[10px] text-rose-700">{t("trips.status.failedPricing")}</span>
                     </div>
                   </button>
 
@@ -937,8 +933,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <GitCommit className="w-4 h-4 text-stone-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">6. قفز غير قانوني (DRAFT ➔ COMPLETED)</span>
-                      <span className="text-[10px] text-stone-500">يحظر تخطي المراحل التشغيلية الإلزامية</span>
+                      <span className="font-bold block">{t("trips.labels.txt_1a8cbe")}</span>
+                      <span className="text-[10px] text-stone-500">{t("trips.labels.txt_701a0c")}</span>
                     </div>
                   </button>
 
@@ -949,8 +945,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <ShieldAlert className="w-4 h-4 text-stone-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">7. تغيير الحالة برتبة غير مصرحة</span>
-                      <span className="text-[10px] text-stone-500">مثال: محاولة السائق اعتماد التحميل أو الاستلام</span>
+                      <span className="font-bold block">{t("trips.labels.status_6")}</span>
+                      <span className="text-[10px] text-stone-500">{t("trips.labels.driverDownload")}</span>
                     </div>
                   </button>
 
@@ -961,8 +957,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <Building2 className="w-4 h-4 text-stone-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">8. تعارض المشروع (Project Isolation)</span>
-                      <span className="text-[10px] text-stone-500">يحظر تعديل رحلة من مستخدم يتبع مشروعاً آخر</span>
+                      <span className="font-bold block">{t("trips.labels.project_4")}</span>
+                      <span className="text-[10px] text-stone-500">{t("trips.labels.editTrip_2")}</span>
                     </div>
                   </button>
                 </div>
@@ -1004,11 +1000,10 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
             <div>
               <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-amber-600" />
-                <span>المخطط الهيكلي للحالات العشر (10-State Lifecycle Topology)</span>
+                <span>{t("trips.labels.txt_7a972e")}</span>
               </h3>
               <p className="text-xs text-stone-500">
-                تسلسل الحالات التشغيلية، بوابات الحوكمة، ومسارات الاستثناء والإرجاع والإلغاء:
-              </p>
+                {t("trips.labels.txt_3ac325")}</p>
             </div>
             <span className="text-xs text-stone-400 font-mono">
               الرحلة الحالية: <strong className="text-stone-800">{activeTrip?.tripSerial}</strong> في [{activeTrip?.status}]
@@ -1017,7 +1012,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
           {/* Primary Golden Path Flow */}
           <div className="space-y-2">
-            <span className="text-xs font-bold text-stone-700 block">المسار الذهبي القياسي (Happy Path):</span>
+            <span className="text-xs font-bold text-stone-700 block">{t("trips.labels.txt_23fa6b")}</span>
             <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
               {[
                 { st: 'DRAFT', label: '1. مسودة', sub: 'إنشاء أولي', roles: 'DISPATCHER' },
@@ -1055,29 +1050,29 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
           {/* Alternative & Exception Branches */}
           <div className="space-y-2 pt-4 border-t border-stone-100">
-            <span className="text-xs font-bold text-stone-700 block">مسارات الاستثناء والإرجاع والإلغاء (Branches & Terminals):</span>
+            <span className="text-xs font-bold text-stone-700 block">{t("trips.labels.txt_13cdfe")}</span>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
               <div className={`p-3 rounded-xl border ${activeTrip?.status === 'RETURN_REQUESTED' ? 'border-orange-500 bg-orange-50' : 'border-stone-200 bg-stone-50'}`}>
-                <div className="font-bold text-orange-900 mb-1">RETURN_REQUESTED (طلب إرجاع)</div>
-                <div className="text-[11px] text-stone-500 mb-2">رفض الشحنة بالموقع أو تلف العينات مع اشتراط كتابة السبب.</div>
+                <div className="font-bold text-orange-900 mb-1">{t("trips.labels.txt_1b87fb")}</div>
+                <div className="text-[11px] text-stone-500 mb-2">{t("trips.labels.location_9")}</div>
                 <span className="text-[10px] bg-white px-2 py-0.5 rounded border text-stone-700">SITE_RECEIVER, DISPATCHER</span>
               </div>
 
               <div className={`p-3 rounded-xl border ${activeTrip?.status === 'RETURNED' ? 'border-stone-600 bg-stone-200' : 'border-stone-200 bg-stone-50'}`}>
-                <div className="font-bold text-stone-900 mb-1">RETURNED (تم الإرجاع للمصدر)</div>
-                <div className="text-[11px] text-stone-500 mb-2">تأكيد رجوع الشاحنة إلى الكسارة أو المحجر المصدر.</div>
+                <div className="font-bold text-stone-900 mb-1">{t("trips.labels.txt_1e7d43")}</div>
+                <div className="text-[11px] text-stone-500 mb-2">{t("trips.labels.confirmBackTruck")}</div>
                 <span className="text-[10px] bg-white px-2 py-0.5 rounded border text-stone-700">SCALE_OPERATOR</span>
               </div>
 
               <div className={`p-3 rounded-xl border ${activeTrip?.status === 'EXCEPTION' ? 'border-rose-500 bg-rose-50' : 'border-stone-200 bg-stone-50'}`}>
-                <div className="font-bold text-rose-900 mb-1">EXCEPTION (استثناء / عطل)</div>
+                <div className="font-bold text-rose-900 mb-1">{t("trips.labels.txt_4e4194")}</div>
                 <div className="text-[11px] text-stone-500 mb-2">حادث، عطل طريق، نزاع وزني، أو تعذر الوصول للموقع.</div>
                 <span className="text-[10px] bg-white px-2 py-0.5 rounded border text-stone-700">DRIVER, DISPATCHER, RECEIVER</span>
               </div>
 
               <div className={`p-3 rounded-xl border ${activeTrip?.status === 'CANCELLED' ? 'border-red-500 bg-red-50' : 'border-stone-200 bg-stone-50'}`}>
-                <div className="font-bold text-red-900 mb-1">CANCELLED (ملغاة)</div>
-                <div className="text-[11px] text-stone-500 mb-2">إلغاء أمر الرحلة قبل الانطلاق بقرار تشغيلي معتمد ومبرر.</div>
+                <div className="font-bold text-red-900 mb-1">{t("trips.labels.txt_2e7926")}</div>
+                <div className="text-[11px] text-stone-500 mb-2">{t("trips.labels.cancelTrip")}</div>
                 <span className="text-[10px] bg-white px-2 py-0.5 rounded border text-stone-700">DISPATCHER, OPERATIONS_MGR</span>
               </div>
             </div>
@@ -1095,8 +1090,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                 <span>سجل أحداث دورة الحياة (Lifecycle Events Stream) — الرحلة {activeTrip.tripSerial}</span>
               </h3>
               <p className="text-xs text-stone-500">
-                كل تحول ينشئ حدثاً مستقلاً موثقاً بالوقت والرتبة والمشروع والبيانات المرفقة:
-              </p>
+                {t("trips.labels.timeProject")}</p>
             </div>
             <span className="text-xs font-mono text-stone-400 font-bold">
               {tripEvents.length} حدث مسجل
@@ -1105,8 +1099,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
           {tripEvents.length === 0 ? (
             <div className="text-center py-8 text-xs text-stone-400">
-              لا توجد أحداث مسجلة لهذه الرحلة بعد. قم بتنفيذ تحول في دورة الحياة لتوليد الحدث الأول.
-            </div>
+              {t("trips.labels.trip_25")}</div>
           ) : (
             <div className="space-y-3">
               {tripEvents.map(evt => (
@@ -1127,7 +1120,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                       </div>
                     </div>
                     <div className="text-[11px] text-stone-600">
-                      السبب/الملاحظة: <strong className="text-stone-800">{evt.reason || 'لا يوجد سبب إضافي'}</strong>
+                      {t("trips.labels.txt_124138")}<strong className="text-stone-800">{evt.reason || 'لا يوجد سبب إضافي'}</strong>
                     </div>
                   </div>
 
@@ -1150,11 +1143,10 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
             <div>
               <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                 <Lock className="w-4 h-4 text-amber-600" />
-                <span>سجل التدقيق الرقابي غير القابل للتعديل (Immutable Audit Trail)</span>
+                <span>{t("trips.labels.txt_46a3cb")}</span>
               </h3>
               <p className="text-xs text-stone-500">
-                توثيق التغييرات والمقارنة التفاضلية (Diff) وتتبع تزايد الإصدارات (Optimistic Versioning):
-              </p>
+                {t("trips.labels.txt_4c39d7")}</p>
             </div>
             <span className="text-xs font-mono text-stone-400 font-bold">
               {tripAudits.length} إدخال تدقيقي
@@ -1163,8 +1155,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
           {tripAudits.length === 0 ? (
             <div className="text-center py-8 text-xs text-stone-400">
-              لا يوجد سجل تدقيق متاح حالياً لهذه الرحلة.
-            </div>
+              {t("trips.labels.txt_584eb0")}</div>
           ) : (
             <div className="space-y-3">
               {tripAudits.map(aud => (
@@ -1180,7 +1171,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                       <span className="text-indigo-900 font-bold">{aud.action}</span>
                     </div>
                     <div className="flex items-center gap-2 text-[11px] font-mono text-stone-600">
-                      <span>إصدار: <strong>v{aud.versionBefore}</strong> ➔ <strong className="text-amber-700">v{aud.versionAfter}</strong></span>
+                      <span>{t("trips.labels.txt_5980b8")}<strong>v{aud.versionBefore}</strong> ➔ <strong className="text-amber-700">v{aud.versionAfter}</strong></span>
                       <span className="text-stone-300">|</span>
                       <span>بواسطة: <strong>{aud.actorName}</strong> ({aud.actorRole})</span>
                     </div>
@@ -1192,7 +1183,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
                   {aud.diff && Object.keys(aud.diff).length > 0 && (
                     <div className="bg-white p-2.5 rounded-lg border border-stone-200 space-y-1 font-mono text-[11px]">
-                      <span className="text-[10px] font-bold text-stone-500 block">الفروقات الموثقة (Field-level Diff):</span>
+                      <span className="text-[10px] font-bold text-stone-500 block">{t("trips.labels.txt_625185")}</span>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(aud.diff).map(([key, value]) => (
                           <div key={key} className="px-2 py-1 rounded bg-stone-100 border border-stone-200 text-stone-800">

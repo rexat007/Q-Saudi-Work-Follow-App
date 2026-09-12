@@ -50,6 +50,8 @@ import {
 } from '../../types/unifiedImport';
 import { WeighbridgeImportService } from '../../services/import/weighbridgeImport.service';
 import { ExcelCsvTripCommitter } from '../../services/import/tripImportCommitter';
+import { useI18n } from '../../i18n';
+
 
 // Sample Weighbridge Datasets for interactive demonstration
 const SAMPLE_WEIGHBRIDGE_CSV = `تاريخ,رقم_التذكرة,رقم_الشاحنة,الناقل,المادة,الوزن_الفارغ,الوزن_القائم,الوزن_الصافي,ساعة_الوزن
@@ -71,6 +73,7 @@ interface WeighbridgeImportSectionProps {
 export function WeighbridgeImportSection({
   projectId = 'PRJ-NEOM-NORTH-01',
 }: WeighbridgeImportSectionProps) {
+  const { t } = useI18n();
   // Intake configuration state
   const [intakeType, setIntakeType] = useState<WeighbridgeFileIntakeType>('CSV');
   const [csvContent, setCsvContent] = useState<string>(SAMPLE_WEIGHBRIDGE_CSV);
@@ -235,8 +238,7 @@ export function WeighbridgeImportSection({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-xl font-black tracking-tight text-stone-900">
-                  استيراد بيانات الميزان (Weighbridge Import)
-                </h2>
+                  {t("weighbridge.labels.importWeighbridge")}</h2>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
                   BLOCK 34 Profile
                 </span>
@@ -245,8 +247,7 @@ export function WeighbridgeImportSection({
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                بروفايل متخصص لاستيراد تذاكر وسجلات ميزان البسكول عبر مسار الاستيراد الموحد (Unified Pipeline). يفصل بين المصدر التشغيلي (WEIGHBRIDGE) ومصدر الإدخال (Excel/CSV/Sheets/Drive).
-              </p>
+                {t("weighbridge.labels.import")}</p>
             </div>
           </div>
 
@@ -259,7 +260,7 @@ export function WeighbridgeImportSection({
               className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-all border border-stone-200 flex items-center gap-1.5 cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5 text-stone-500" />
-              <span>إعادة ضبط Idempotency</span>
+              <span>{t("weighbridge.labels.txt_150ad3")}</span>
             </button>
           </div>
         </div>
@@ -269,7 +270,7 @@ export function WeighbridgeImportSection({
           <div className="bg-stone-50 rounded-xl p-3 border border-stone-200/70 flex items-start gap-2.5">
             <ShieldCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
             <div>
-              <span className="font-bold text-stone-900 block">الحقول الإلزامية لتذكرة الميزان:</span>
+              <span className="font-bold text-stone-900 block">{t("weighbridge.labels.weighbridge")}</span>
               <span className="text-stone-600 text-[11px] leading-relaxed">
                 التاريخ (date)، رقم التذكرة (ticketId)، رقم الشاحنة (truckNo)، الوزن الفارغ (tare)، الوزن القائم (gross).
               </span>
@@ -279,7 +280,7 @@ export function WeighbridgeImportSection({
           <div className="bg-stone-50 rounded-xl p-3 border border-stone-200/70 flex items-start gap-2.5">
             <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
             <div>
-              <span className="font-bold text-stone-900 block">غياب بيانات التفريغ (Non-blocking):</span>
+              <span className="font-bold text-stone-900 block">{t("weighbridge.labels.txt_3524f5")}</span>
               <span className="text-stone-600 text-[11px] leading-relaxed">
                 غياب بيانات وزن الوصول يُنشئ تحذيراً ولا يمنع الاعتماد. يُنشئ الرحلة بحالة WEIGHED_ORIGIN دون فرق وزن وهمي.
               </span>
@@ -289,10 +290,9 @@ export function WeighbridgeImportSection({
           <div className="bg-stone-50 rounded-xl p-3 border border-stone-200/70 flex items-start gap-2.5">
             <Scale className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
             <div>
-              <span className="font-bold text-stone-900 block">اعتماد صافي المصدر كصافي وصول:</span>
+              <span className="font-bold text-stone-900 block">{t("weighbridge.labels.txt_355854")}</span>
               <span className="text-stone-600 text-[11px] leading-relaxed">
-                إجراء رقابي صريح بتأكيد بشري ومسار تدقيق مستقل. يحدد destNetWeight ويحسب الفرق الحقيقي = 0 كجم.
-              </span>
+                {t("weighbridge.labels.confirm")}</span>
             </div>
           </div>
         </div>
@@ -304,11 +304,10 @@ export function WeighbridgeImportSection({
           <div>
             <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
               <UploadCloud className="w-4 h-4 text-amber-600" />
-              <span>مصدر وتنسيق إدخال بيانات الميزان</span>
+              <span>{t("weighbridge.labels.weighbridge_2")}</span>
             </h3>
             <p className="text-xs text-stone-500 mt-0.5">
-              يدعم مسار الاستيراد الموحد قراءة بيانات الميزان من ملفات CSV وExcel وتكامل Google Drive وSheets.
-            </p>
+              {t("weighbridge.labels.importWeighbridge_2")}</p>
           </div>
 
           {/* Quick Preset Buttons */}
@@ -322,8 +321,7 @@ export function WeighbridgeImportSection({
               }}
               className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all border border-emerald-200 cursor-pointer"
             >
-              نموذج تذاكر ميزان صالحة (4 صفوف)
-            </button>
+              {t("weighbridge.labels.txt_574ba6")}</button>
             <button
               type="button"
               onClick={() => {
@@ -333,8 +331,7 @@ export function WeighbridgeImportSection({
               }}
               className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold transition-all border border-rose-200 cursor-pointer"
             >
-              نموذج يتضمن مخالفات وأخطاء ميزان
-            </button>
+              {t("weighbridge.labels.txt_63b3fb")}</button>
           </div>
         </div>
 
@@ -343,7 +340,7 @@ export function WeighbridgeImportSection({
           <div className="flex items-center justify-between text-xs text-stone-600">
             <label className="font-bold flex items-center gap-1.5">
               <FileSpreadsheet className="w-3.5 h-3.5 text-stone-500" />
-              <span>محتوى ملف الميزان (CSV Text / Raw Input):</span>
+              <span>{t("weighbridge.labels.weighbridge_3")}</span>
             </label>
             <span className="font-mono text-[11px] text-stone-400">الملف: {fileName}</span>
           </div>
@@ -360,8 +357,7 @@ export function WeighbridgeImportSection({
             <div className="text-xs text-stone-500 flex items-center gap-2">
               <Info className="w-4 h-4 text-stone-400" />
               <span>
-                المعالجة تتوقف إلزامياً عند مرحلة المراجعة (REVIEW) ولا تُنشئ رحلات أو تكتب في قاعدة البيانات إلا بعد الاعتماد الصريح (COMMIT).
-              </span>
+                {t("weighbridge.labels.txt_72ad0e")}</span>
             </div>
 
             <button
@@ -373,12 +369,12 @@ export function WeighbridgeImportSection({
               {isProcessing ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>جاري معالجة المسار الموحد (10 مراحل)...</span>
+                  <span>{t("weighbridge.labels.txt_5ace0a")}</span>
                 </>
               ) : (
                 <>
                   <Play className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  <span>تنفيذ مسار استيراد الميزان وصولاً للمراجعة</span>
+                  <span>{t("weighbridge.labels.importWeighbridge_3")}</span>
                 </>
               )}
             </button>
@@ -391,7 +387,7 @@ export function WeighbridgeImportSection({
         <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-start gap-3 shadow-xs">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <span className="block font-black text-emerald-950 mb-0.5">تم تنفيذ الإجراء الرقابي بنجاح:</span>
+            <span className="block font-black text-emerald-950 mb-0.5">{t("weighbridge.status.success_2")}</span>
             <span>{actionSuccessMessage}</span>
           </div>
           <button
@@ -414,11 +410,10 @@ export function WeighbridgeImportSection({
                 </span>
                 <span className="text-xs text-stone-400 font-bold">المشروع: {activeBatch.projectId}</span>
                 <span className="text-xs text-stone-400">|</span>
-                <span className="text-xs text-stone-400 font-bold">المصدر التشغيلي: WEIGHBRIDGE</span>
+                <span className="text-xs text-stone-400 font-bold">{t("weighbridge.labels.txt_70030c")}</span>
               </div>
               <h3 className="text-base font-black text-white mt-1">
-                دفعة الميزان في مرحلة المراجعة (Review Stage - Human Gate)
-              </h3>
+                {t("weighbridge.labels.weighbridge_4")}</h3>
             </div>
 
             <div className="flex items-center gap-2">
@@ -450,20 +445,20 @@ export function WeighbridgeImportSection({
             </div>
 
             <div className="bg-stone-800/80 p-3 rounded-xl border border-emerald-500/30">
-              <span className="text-[11px] text-emerald-400 block font-semibold">صفوف صالحة (Valid)</span>
+              <span className="text-[11px] text-emerald-400 block font-semibold">{t("weighbridge.labels.txt_2eacb2")}</span>
               <span className="text-xl font-black text-emerald-400">{activeBatch.validRows}</span>
             </div>
 
             <div className="bg-stone-800/80 p-3 rounded-xl border border-amber-500/30">
               <span className="text-[11px] text-amber-400 block font-semibold">تحذيرات (Warnings)</span>
               <span className="text-xl font-black text-amber-400">{activeBatch.warningRows}</span>
-              <span className="text-[10px] text-stone-400 block mt-0.5">تتطلب إقراراً ولا تمنع</span>
+              <span className="text-[10px] text-stone-400 block mt-0.5">{t("weighbridge.labels.txt_614e8f")}</span>
             </div>
 
             <div className="bg-stone-800/80 p-3 rounded-xl border border-rose-500/30">
               <span className="text-[11px] text-rose-400 block font-semibold">أخطاء مانعة (Errors)</span>
               <span className="text-xl font-black text-rose-400">{activeBatch.errorRows}</span>
-              <span className="text-[10px] text-stone-400 block mt-0.5">تمنع الاعتماد حتمياً</span>
+              <span className="text-[10px] text-stone-400 block mt-0.5">{t("weighbridge.labels.txt_3b5d97")}</span>
             </div>
           </div>
 
@@ -484,12 +479,12 @@ export function WeighbridgeImportSection({
                       onChange={(e) => setAllowWarnings(e.target.checked)}
                       className="w-4 h-4 rounded border-stone-600 bg-stone-800 text-amber-500 focus:ring-amber-400"
                     />
-                    <span>أقر بالموافقة على اعتماد الصفوف المتضمنة تحذيرات (مثل شحنات بدون بيانات تفريغ).</span>
+                    <span>{t("weighbridge.labels.txt_4ee2df")}</span>
                   </label>
                 ) : (
                   <span className="text-emerald-400 font-bold flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    <span>جميع الصفوف مطابقة لبروفايل الميزان وجاهزة للاعتماد الفوري.</span>
+                    <span>{t("weighbridge.labels.weighbridge_5")}</span>
                   </span>
                 )}
               </div>
@@ -507,12 +502,12 @@ export function WeighbridgeImportSection({
                 {isCommitting ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>جاري الاعتماد وتوليد الرحلات...</span>
+                    <span>{t("weighbridge.labels.txt_4c9996")}</span>
                   </>
                 ) : (
                   <>
                     <ShieldCheck className="w-4 h-4" />
-                    <span>اعتماد دفعة الميزان نهائياً (COMMIT)</span>
+                    <span>{t("weighbridge.labels.weighbridge_6")}</span>
                   </>
                 )}
               </button>
@@ -540,12 +535,12 @@ export function WeighbridgeImportSection({
           </div>
 
           <div className="text-xs space-y-1">
-            <div><strong>معرف العملية (Operation ID):</strong> <span className="font-mono">{commitResult.operationId}</span></div>
-            <div><strong>عدد الرحلات المعتمدة:</strong> {commitResult.committedRows} من أصل {commitResult.totalRows}</div>
-            <div><strong>المصدر التشغيلي المسجل:</strong> {commitResult.sourceType}</div>
+            <div><strong>{t("weighbridge.labels.txt_24fc12")}</strong> <span className="font-mono">{commitResult.operationId}</span></div>
+            <div><strong>{t("weighbridge.labels.trips")}</strong> {commitResult.committedRows} من أصل {commitResult.totalRows}</div>
+            <div><strong>{t("weighbridge.labels.txt_600341")}</strong> {commitResult.sourceType}</div>
             {commitResult.committedEntityIds && commitResult.committedEntityIds.length > 0 && (
               <div className="pt-2">
-                <span className="font-bold block mb-1">أرقام الرحلات المنشأة:</span>
+                <span className="font-bold block mb-1">{t("weighbridge.labels.trips_2")}</span>
                 <div className="flex items-center gap-2 flex-wrap">
                   {commitResult.committedEntityIds.map((id) => (
                     <span key={id} className="px-2 py-0.5 rounded bg-emerald-100 font-mono text-[11px] font-bold text-emerald-900 border border-emerald-300">
@@ -566,11 +561,10 @@ export function WeighbridgeImportSection({
             <div>
               <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                 <Scale className="w-4 h-4 text-amber-600" />
-                <span>جدول مراجعة تذاكر الميزان والأوزان (Weighbridge Review Table)</span>
+                <span>{t("weighbridge.labels.weighbridge_7")}</span>
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
-                فحص تطابق الأوزان، احتساب الصافي، التحقق من الحقول الإلزامية، وتطبيق قرار قبول صافي المصدر كصافي وصول.
-              </p>
+                {t("weighbridge.labels.txt_609ec2")}</p>
             </div>
 
             {/* Filters */}
@@ -608,13 +602,13 @@ export function WeighbridgeImportSection({
                   <th className="py-2.5 px-3">رقم التذكرة</th>
                   <th className="py-2.5 px-3">رقم الشاحنة</th>
                   <th className="py-2.5 px-3">الناقل</th>
-                  <th className="py-2.5 px-3">الفارغ (كجم)</th>
-                  <th className="py-2.5 px-3">القائم (كجم)</th>
-                  <th className="py-2.5 px-3">صافي المصدر</th>
+                  <th className="py-2.5 px-3">{t("weighbridge.labels.txt_a59113")}</th>
+                  <th className="py-2.5 px-3">{t("weighbridge.labels.txt_46d801")}</th>
+                  <th className="py-2.5 px-3">{t("weighbridge.labels.txt_2523f6")}</th>
                   <th className="py-2.5 px-3">صافي الوصول</th>
                   <th className="py-2.5 px-3">فرق الوزن</th>
-                  <th className="py-2.5 px-3">حالة التدقيق</th>
-                  <th className="py-2.5 px-3 text-center">إجراء رقابي (Decision)</th>
+                  <th className="py-2.5 px-3">{t("weighbridge.labels.txt_58cd17")}</th>
+                  <th className="py-2.5 px-3 text-center">{t("weighbridge.labels.txt_30b047")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
@@ -632,10 +626,10 @@ export function WeighbridgeImportSection({
                     >
                       <td className="py-3 px-3 font-mono text-stone-400 font-bold">{row.rowNumber}</td>
                       <td className="py-3 px-3 font-mono font-black text-stone-900">
-                        {row.ticketId || <span className="text-rose-500 font-bold">مفقود (Missing)</span>}
+                        {row.ticketId || <span className="text-rose-500 font-bold">{t("weighbridge.labels.txt_119698")}</span>}
                       </td>
                       <td className="py-3 px-3 font-mono font-bold text-stone-800">
-                        {row.truckNo || <span className="text-rose-500 font-bold">مفقود</span>}
+                        {row.truckNo || <span className="text-rose-500 font-bold">{t("weighbridge.labels.txt_5b4968")}</span>}
                       </td>
                       <td className="py-3 px-3 text-stone-700">{row.carrier || 'غير محدد'}</td>
                       <td className="py-3 px-3 font-mono text-stone-600">{row.tareWeight.toLocaleString()}</td>
@@ -644,15 +638,14 @@ export function WeighbridgeImportSection({
                         <span>{row.netWeight.toLocaleString()} كجم</span>
                         {row.isCalculatedNet && (
                           <span className="mr-1.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-100 text-blue-800">
-                            محسوب (gross-tare)
-                          </span>
+                            {t("weighbridge.labels.txt_6e04d1")}</span>
                         )}
                       </td>
                       <td className="py-3 px-3 font-mono">
                         {row.destNetWeight !== null ? (
                           <span className="font-bold text-emerald-800">{row.destNetWeight.toLocaleString()} كجم</span>
                         ) : (
-                          <span className="text-stone-400 font-bold">— (غير متوفر)</span>
+                          <span className="text-stone-400 font-bold">{t("weighbridge.labels.txt_68c5e6")}</span>
                         )}
                       </td>
                       <td className="py-3 px-3 font-mono">
@@ -669,12 +662,10 @@ export function WeighbridgeImportSection({
                           </span>
                         ) : row.isAcceptedOriginNet ? (
                           <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                            صافي معتمد
-                          </span>
+                            {t("weighbridge.labels.txt_65ecd8")}</span>
                         ) : row.destNetWeight === null ? (
                           <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                            بدون تفريغ (تحذير)
-                          </span>
+                            {t("weighbridge.labels.txt_70b26a")}</span>
                         ) : (
                           <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                             مطابق
@@ -697,13 +688,11 @@ export function WeighbridgeImportSection({
                             onClick={() => setConfirmingRow(row)}
                             className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-bold border border-blue-200 transition-all cursor-pointer whitespace-nowrap"
                           >
-                            قبول صافي المصدر
-                          </button>
+                            {t("weighbridge.labels.txt_2fc5ef")}</button>
                         )}
                         {row.isAcceptedOriginNet && (
                           <span className="text-[10px] text-emerald-700 font-bold flex items-center justify-center gap-1">
-                            <Check className="w-3 h-3" /> تم القبول الرقابي
-                          </span>
+                            <Check className="w-3 h-3" /> {t("weighbridge.labels.txt_5e145b")}</span>
                         )}
                       </td>
                     </tr>
@@ -722,7 +711,7 @@ export function WeighbridgeImportSection({
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
                 <Scale className="w-5 h-5 text-blue-600" />
-                <span>تأكيد اعتماد صافي المصدر كصافي وصول (Audit Confirmation)</span>
+                <span>{t("weighbridge.labels.confirm_3")}</span>
               </h3>
               <button
                 onClick={() => setConfirmingRow(null)}
@@ -742,7 +731,7 @@ export function WeighbridgeImportSection({
                 <div><strong>رقم الشاحنة:</strong> {confirmingRow.truckNo}</div>
                 <div><strong>الناقل:</strong> {confirmingRow.carrier || 'غير محدد'}</div>
                 <div><strong>الوزن الصافي المعتمد:</strong> {confirmingRow.netWeight.toLocaleString()} كجم</div>
-                <div><strong>فرق الوزن المحسوب (Variance):</strong> 0.00 كجم</div>
+                <div><strong>فرق الوزن المحسوب (Variance):</strong> {t("weighbridge.labels.txt_504ae8")}</div>
               </div>
 
               <p className="text-amber-800 font-bold bg-amber-50 p-2.5 rounded-lg border border-amber-200 text-[11px]">
@@ -751,8 +740,7 @@ export function WeighbridgeImportSection({
 
               <div>
                 <label className="font-bold block text-stone-700 mb-1">
-                  ملاحظات أو مبرر الاعتماد (اختياري):
-                </label>
+                  {t("weighbridge.labels.txt_1e62d1")}</label>
                 <input
                   type="text"
                   placeholder="مثال: مطابقة سند التسليم الميداني لموقع التفريغ"
@@ -769,15 +757,14 @@ export function WeighbridgeImportSection({
                 onClick={() => setConfirmingRow(null)}
                 className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-all cursor-pointer"
               >
-                إلغاء وتراجع (Cancel)
-              </button>
+                {t("weighbridge.labels.cancel")}</button>
               <button
                 type="button"
                 onClick={handleConfirmAcceptOriginNet}
                 className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
               >
                 <Check className="w-4 h-4" />
-                <span>تأكيد واعتماد القرار الرقابي</span>
+                <span>{t("weighbridge.labels.confirm_4")}</span>
               </button>
             </div>
           </div>

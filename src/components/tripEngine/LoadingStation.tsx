@@ -38,6 +38,8 @@ import { outboxService } from '../../services/offline/outbox.service';
 import { indexedDBService } from '../../services/offline/indexedDB.service';
 import { OfflineTripPrerequisitesReport } from '../../types/offline';
 import { tripStateMachine } from '../../services/tripStateMachine.service';
+import { useI18n } from '../../i18n';
+
 
 interface LoadingStationProps {
   onTripCreated: (newTrip: TripRecord) => void;
@@ -71,6 +73,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
   onViewTripDetails,
   onNotification
 }) => {
+  const { t, t: translate } = useI18n();
   // Current Workflow Step
   const [currentStep, setCurrentStep] = useState<WorkflowStep>('PROJECT');
 
@@ -577,7 +580,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
               <Scale className="w-5 h-5" />
             </span>
             <div>
-              <h2 className="text-base font-bold text-stone-900">محطة التحميل والميزان (Loading Station)</h2>
+              <h2 className="text-base font-bold text-stone-900">{t("loading.labels.downloadWeighbridge_2")}</h2>
               <p className="text-xs text-stone-500">
                 تسلسل خطوات التحميل والوزن بالمصدر، احتساب صافي الحمولة، والتحقق من التسعيرة قبل الترحيل
               </p>
@@ -590,29 +593,29 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
           <button
             onClick={() => setShowVerificationModal(true)}
             className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs"
-            title="فحص ومطابقة جميع متطلبات البرومبت برمجياً"
+            title={t("loading.labels.txt_7339fe")}
           >
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             <span>مطابقة متطلبات البرومبت ({testReport.passed}/{testReport.total} بنجاح)</span>
           </button>
 
           <span className="text-xs font-semibold text-stone-400">|</span>
-          <span className="text-xs font-semibold text-stone-500">الأمثلة المباشرة:</span>
+          <span className="text-xs font-semibold text-stone-500">{t("loading.labels.txt_6d4e47")}</span>
           <button
             onClick={() => loadScenario('PER_TON')}
             className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs"
-            title="تحميل مثال التسعير بالطن (37.4 × 8.5 = 317.90 SAR)"
+            title={t("loading.labels.downloadPricing")}
           >
             <Zap className="w-3.5 h-3.5 text-sky-600" />
-            <span>بالطن: 37.4 × 8.5 = 317.90 ر.س</span>
+            <span>{t("loading.labels.txt_17a514")}</span>
           </button>
           <button
             onClick={() => loadScenario('PER_TRIP')}
             className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs"
-            title="تحميل مثال التسعير بالمقطوعية (120 SAR)"
+            title={t("loading.labels.downloadPricing_2")}
           >
             <Zap className="w-3.5 h-3.5 text-emerald-600" />
-            <span>بالمقطوعية: 120 ر.س</span>
+            <span>{t("loading.labels.txt_78af8a")}</span>
           </button>
         </div>
       </div>
@@ -669,7 +672,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
           <div className="flex items-center gap-2 flex-wrap text-[11px] font-medium">
             <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-stone-200 shadow-2xs">
               <Database className="w-3 h-3 text-stone-500" />
-              <span>البيانات الأساسية:</span>
+              <span>{t("loading.labels.txt_4c9019")}</span>
               <strong className={offlinePrereq?.hasCarrier && offlinePrereq?.hasTruck ? 'text-emerald-700' : 'text-amber-700'}>
                 {offlinePrereq?.hasCarrier && offlinePrereq?.hasTruck ? 'مكتملة محلياً ✓' : 'جاري الفحص...'}
               </strong>
@@ -681,7 +684,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 : 'bg-rose-100/70 border-rose-300 text-rose-900 font-bold'
             }`}>
               <Calculator className="w-3 h-3" />
-              <span>بيانات التسعير:</span>
+              <span>{t("loading.labels.pricing_2")}</span>
               <strong>
                 {offlinePrereq?.hasPricingRule 
                   ? `معتمدة محلياً (${offlinePrereq.pricingRule?.agreedRate} ر.س) ✓` 
@@ -746,13 +749,13 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                   <Building2 className="w-5 h-5 text-amber-600" />
                   <div>
-                    <h3 className="text-sm font-bold text-stone-900">الخطوة 1: اختيار المشروع (Project)</h3>
-                    <p className="text-xs text-stone-500">تحديد المشروع التابع له أمر التحميل لتطبيق لوائح العزل والتسعير</p>
+                    <h3 className="text-sm font-bold text-stone-900">{t("loading.labels.project")}</h3>
+                    <p className="text-xs text-stone-500">{t("loading.labels.projectDownloadPricing")}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3 pt-2">
-                  <label className="block text-xs font-bold text-stone-700">مشروع العمل المعتمد</label>
+                  <label className="block text-xs font-bold text-stone-700">{t("loading.labels.txt_6555e1")}</label>
                   <div className="grid grid-cols-1 gap-3">
                     {availableProjects.map(p => (
                       <div
@@ -776,8 +779,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                           </div>
                         </div>
                         <span className="px-2 py-1 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                          نشط ومعتمد
-                        </span>
+                          {t("loading.status.active")}</span>
                       </div>
                     ))}
                   </div>
@@ -791,13 +793,13 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                   <Truck className="w-5 h-5 text-amber-600" />
                   <div>
-                    <h3 className="text-sm font-bold text-stone-900">الخطوة 2: اختيار الناقل المعتمد (Carrier)</h3>
-                    <p className="text-xs text-stone-500">يقتصر الاختيار على شركات النقل المصرح لها بالعمل في المشروع</p>
+                    <h3 className="text-sm font-bold text-stone-900">{t("loading.labels.carrier_2")}</h3>
+                    <p className="text-xs text-stone-500">{t("loading.labels.project_3")}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3 pt-2">
-                  <label className="block text-xs font-bold text-stone-700">شركات النقل المصرحة</label>
+                  <label className="block text-xs font-bold text-stone-700">{t("loading.labels.txt_545437")}</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {availableCarriers.map(c => (
                       <div
@@ -838,13 +840,13 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                   <Truck className="w-5 h-5 text-amber-600" />
                   <div>
-                    <h3 className="text-sm font-bold text-stone-900">الخطوة 3: اختيار الشاحنة (Truck)</h3>
-                    <p className="text-xs text-stone-500">شاحنات أسطول الناقل التابعة للمشروع</p>
+                    <h3 className="text-sm font-bold text-stone-900">{t("loading.labels.truck")}</h3>
+                    <p className="text-xs text-stone-500">{t("loading.labels.carrier_4")}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3 pt-2">
-                  <label className="block text-xs font-bold text-stone-700">الشاحنات المتاحة للناقل المختار</label>
+                  <label className="block text-xs font-bold text-stone-700">{t("loading.labels.trucks")}</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {availableTrucks.map(t => (
                       <div
@@ -866,7 +868,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                         </div>
                         <div className="flex items-center justify-between text-[11px] text-stone-500">
                           <span>رقم الشاحنة: {t.truckId}</span>
-                          <span className="font-mono text-stone-600">فحص دوري سارٍ</span>
+                          <span className="font-mono text-stone-600">{translate("loading.labels.txt_754551")}</span>
                         </div>
                       </div>
                     ))}
@@ -881,13 +883,13 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                   <User className="w-5 h-5 text-amber-600" />
                   <div>
-                    <h3 className="text-sm font-bold text-stone-900">الخطوة 4: اختيار السائق (Driver)</h3>
-                    <p className="text-xs text-stone-500">السائقون المصرحون والمسجلون تحت الناقل والشاحنة</p>
+                    <h3 className="text-sm font-bold text-stone-900">{t("loading.labels.driver")}</h3>
+                    <p className="text-xs text-stone-500">{t("loading.labels.driversCarrierTruck")}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3 pt-2">
-                  <label className="block text-xs font-bold text-stone-700">السائقون المصرحون</label>
+                  <label className="block text-xs font-bold text-stone-700">{t("loading.labels.drivers")}</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {availableDrivers.map(d => (
                       <div
@@ -908,7 +910,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                           </span>
                         </div>
                         <div className="space-y-0.5 text-[11px] text-stone-500">
-                          <div>الهوية/الإقامة: <span className="font-mono text-stone-700">{d.idNumber}</span></div>
+                          <div>{t("loading.labels.txt_2dfd1b")}<span className="font-mono text-stone-700">{d.idNumber}</span></div>
                           <div>الجوال: <span className="font-mono text-stone-700">{d.phone}</span></div>
                         </div>
                       </div>
@@ -924,13 +926,13 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                   <Boxes className="w-5 h-5 text-amber-600" />
                   <div>
-                    <h3 className="text-sm font-bold text-stone-900">الخطوة 5: اختيار المادة (Material)</h3>
-                    <p className="text-xs text-stone-500">المواد المعتمدة للتوريد في موقع المشروع</p>
+                    <h3 className="text-sm font-bold text-stone-900">{t("loading.labels.material_2")}</h3>
+                    <p className="text-xs text-stone-500">{t("loading.labels.materialsProject")}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3 pt-2">
-                  <label className="block text-xs font-bold text-stone-700">المواد المصرحة بالمشروع</label>
+                  <label className="block text-xs font-bold text-stone-700">{t("loading.labels.materialsProject_2")}</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {availableMaterials.map(m => (
                       <div
@@ -950,7 +952,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                             {materialId === m.materialId && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                           </span>
                         </div>
-                        <div className="text-[11px] text-stone-500">كود المادة: <span className="font-mono text-stone-700">{m.code}</span></div>
+                        <div className="text-[11px] text-stone-500">{t("loading.labels.material_3")}<span className="font-mono text-stone-700">{m.code}</span></div>
                       </div>
                     ))}
                   </div>
@@ -965,7 +967,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <Scale className="w-5 h-5 text-amber-600" />
                   <div>
                     <h3 className="text-sm font-bold text-stone-900">الخطوة 6: وزن الشاحنة الفارغة (Tare Weight)</h3>
-                    <p className="text-xs text-stone-500">قراءة ميزان الدخول بالمصدر (Scale In) بالكيلوجرام</p>
+                    <p className="text-xs text-stone-500">{t("loading.labels.txt_177f70")}</p>
                   </div>
                 </div>
 
@@ -987,29 +989,26 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
 
                   {/* Fast simulator buttons */}
                   <div>
-                    <span className="text-[11px] font-bold text-stone-500 block mb-1.5">أوزان فارغة نموذجية (محاكاة الميزان):</span>
+                    <span className="text-[11px] font-bold text-stone-500 block mb-1.5">{t("loading.labels.txt_604b70")}</span>
                     <div className="flex items-center gap-2 flex-wrap">
                       <button
                         type="button"
                         onClick={() => setTareWeight(8200)}
                         className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-mono font-bold"
                       >
-                        8,200 كجم (تريلا خفيفة)
-                      </button>
+                        {t("loading.labels.txt_419290")}</button>
                       <button
                         type="button"
                         onClick={() => setTareWeight(14200)}
                         className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-mono font-bold"
                       >
-                        14,200 كجم (قلاب ثقيل)
-                      </button>
+                        {t("loading.labels.txt_4116bc")}</button>
                       <button
                         type="button"
                         onClick={() => setTareWeight(15000)}
                         className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-mono font-bold"
                       >
-                        15,000 كجم (رأس وتيدر)
-                      </button>
+                        {t("loading.labels.txt_2dbe14")}</button>
                     </div>
                   </div>
                 </div>
@@ -1023,7 +1022,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <Scale className="w-5 h-5 text-amber-600" />
                   <div>
                     <h3 className="text-sm font-bold text-stone-900">الخطوة 7: الوزن القائم للشاحنة (Gross Weight)</h3>
-                    <p className="text-xs text-stone-500">قراءة ميزان الخروج بعد اكتمال تعبئة الحمولة (Scale Out) بالكيلوجرام</p>
+                    <p className="text-xs text-stone-500">{t("loading.labels.txt_72a483")}</p>
                   </div>
                 </div>
 
@@ -1046,7 +1045,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   {/* Immediate dynamic calculation card */}
                   <div className="bg-amber-50/60 border border-amber-200 rounded-xl p-3.5 flex items-center justify-between">
                     <div>
-                      <div className="text-[11px] text-amber-800 font-medium">صافي الحمولة المحسوب فورياً (Net Weight):</div>
+                      <div className="text-[11px] text-amber-800 font-medium">{t("loading.labels.txt_6e3072")}</div>
                       <div className="text-base font-mono font-bold text-amber-950">
                         {calculatedNetWeightKg.toLocaleString()} كجم ({netWeightTons} طن)
                       </div>
@@ -1058,29 +1057,26 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
 
                   {/* Fast simulator buttons */}
                   <div>
-                    <span className="text-[11px] font-bold text-stone-500 block mb-1.5">أوزان قائمة نموذجية:</span>
+                    <span className="text-[11px] font-bold text-stone-500 block mb-1.5">{t("loading.labels.txt_74acad")}</span>
                     <div className="flex items-center gap-2 flex-wrap">
                       <button
                         type="button"
                         onClick={() => setGrossWeight(45600)}
                         className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-mono font-bold"
                       >
-                        45,600 كجم (صافي 37.4 طن)
-                      </button>
+                        {t("loading.labels.txt_4d6846")}</button>
                       <button
                         type="button"
                         onClick={() => setGrossWeight(42000)}
                         className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-mono font-bold"
                       >
-                        42,000 كجم (صافي 28 طن)
-                      </button>
+                        {t("loading.labels.txt_3668a3")}</button>
                       <button
                         type="button"
                         onClick={() => setGrossWeight(49800)}
                         className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-mono font-bold"
                       >
-                        49,800 كجم (صافي 35.6 طن)
-                      </button>
+                        {t("loading.labels.txt_1f364f")}</button>
                     </div>
                   </div>
                 </div>
@@ -1094,7 +1090,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <div className="flex items-center gap-2">
                     <Calculator className="w-5 h-5 text-amber-600" />
                     <div>
-                      <h3 className="text-sm font-bold text-stone-900">الخطوة 8: معاينة بطاقة التحميل والتسعير (Preview)</h3>
+                      <h3 className="text-sm font-bold text-stone-900">{t("loading.labels.downloadPricing_4")}</h3>
                       <p className="text-xs text-stone-500">
                         مراجعة صافي الوزن، نوع التسعير، السعر المتفق عليه، والتسوية التقديرية قبل التأكيد
                       </p>
@@ -1102,7 +1098,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   </div>
                   <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold flex items-center gap-1">
                     <Lock className="w-3 h-3 text-amber-700" />
-                    <span>التسوية محمية رقابياً</span>
+                    <span>{t("loading.labels.txt_37e310")}</span>
                   </span>
                 </div>
 
@@ -1139,17 +1135,17 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                         {activePricingRule?.currency || 'SAR'} / {activePricingRule?.pricingType === 'PER_TON' ? 'طن' : 'رد'}
                       </span>
                     </div>
-                    <div className="text-[10px] text-emerald-600 font-medium">سارٍ وموثق بالعقد</div>
+                    <div className="text-[10px] text-emerald-600 font-medium">{t("loading.labels.txt_67b2a1")}</div>
                   </div>
 
                   {/* 4. Estimated Settlement */}
                   <div className="bg-amber-50 border border-amber-300 rounded-xl p-3">
-                    <div className="text-[11px] font-bold text-amber-900 mb-1">التسوية التقديرية (Settlement)</div>
+                    <div className="text-[11px] font-bold text-amber-900 mb-1">{t("loading.labels.txt_73e4a3")}</div>
                     <div className="text-lg font-mono font-bold text-amber-950">
                       {estimatedSettlement.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{' '}
                       <span className="text-xs font-normal text-amber-800">{estimatedSettlement.currency}</span>
                     </div>
-                    <div className="text-[10px] text-amber-700 font-medium">محسوبة خادومياً بالكامل</div>
+                    <div className="text-[10px] text-amber-700 font-medium">{t("loading.labels.txt_31e3da")}</div>
                   </div>
                 </div>
 
@@ -1158,7 +1154,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <Calculator className="w-4 h-4 text-amber-700" />
-                      <span className="text-xs font-bold text-amber-950">طريقة احتساب التسعيرة المعتمدة قبل التأكيد:</span>
+                      <span className="text-xs font-bold text-amber-950">{t("loading.labels.confirm")}</span>
                     </div>
                     <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-amber-200/60 text-amber-900">
                       {activePricingRule?.pricingType}
@@ -1167,7 +1163,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
 
                   <div className="p-3 bg-white rounded-lg border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <div className="text-xs text-stone-600">المعادلة الحسابية المطبقة:</div>
+                      <div className="text-xs text-stone-600">{t("loading.labels.txt_56bb7e")}</div>
                       <div className="text-base font-mono font-bold text-stone-900 mt-0.5">
                         {activePricingRule?.pricingType === 'PER_TON' ? (
                           <span>
@@ -1183,14 +1179,14 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
 
                     <div className="flex items-center gap-1.5 text-xs text-stone-500 bg-stone-50 px-3 py-1.5 rounded-lg border border-stone-200">
                       <Lock className="w-3.5 h-3.5 text-stone-400" />
-                      <span className="text-[11px]">ممنوع تعديل قيمة التسوية من الواجهة</span>
+                      <span className="text-[11px]">{t("loading.labels.edit")}</span>
                     </div>
                   </div>
 
                   {/* Switch pricing rule selector if needed */}
                   {applicablePricingRules.length > 1 && (
                     <div className="mt-3 flex items-center gap-2">
-                      <span className="text-[11px] font-bold text-stone-600">تبديل قاعدة التسعير للمقارنة:</span>
+                      <span className="text-[11px] font-bold text-stone-600">{t("loading.labels.pricing_4")}</span>
                       <select
                         value={activePricingRule?.pricingRuleId}
                         onChange={e => setPricingRuleId(e.target.value)}
@@ -1211,7 +1207,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <div className="bg-rose-50 border border-rose-200 rounded-xl p-3.5 space-y-1.5">
                     <div className="flex items-center gap-2 text-rose-900 text-xs font-bold">
                       <AlertTriangle className="w-4 h-4 text-rose-600" />
-                      <span>التنبيهات الرقابية والفحص المسبق (Warnings):</span>
+                      <span>{t("loading.labels.txt_458dbb")}</span>
                     </div>
                     <ul className="space-y-1 pr-5 list-disc text-xs text-rose-800">
                       {warnings.map((w, i) => (
@@ -1222,7 +1218,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 ) : (
                   <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-2 text-emerald-900 text-xs font-bold">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>تم اجتياز جميع الفحوصات الرقابية، الأوزان، وقواعد التسعير بنجاح تام!</span>
+                    <span>{t("loading.status.pricingSuccess")}</span>
                   </div>
                 )}
 
@@ -1232,7 +1228,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-emerald-950 font-bold text-sm">
                         <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                        <span>تم إنشاء وتأكيد أمر الرحلة بمحطة التحميل بنجاح!</span>
+                        <span>{t("loading.status.createConfirmTripDownload")}</span>
                       </div>
                       <span className="px-2.5 py-1 rounded bg-emerald-200 text-emerald-900 font-mono text-xs font-bold">
                         {createdTripResult.status} (v{createdTripResult.version})
@@ -1253,7 +1249,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                         <span className="font-mono font-bold text-stone-900">{createdTripResult.netWeight.toLocaleString()} كجم</span>
                       </div>
                       <div>
-                        <span className="text-stone-500 block">التسوية المعتمدة:</span>
+                        <span className="text-stone-500 block">{t("loading.labels.txt_57f8de")}</span>
                         <span className="font-mono font-bold text-emerald-700">
                           {createdTripResult.settlementAmount.toFixed(2)} {createdTripResult.currency}
                         </span>
@@ -1262,15 +1258,14 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
 
                     <div className="flex items-center gap-2 pt-1">
                       <div className="text-[11px] text-emerald-800">
-                        تسلسل المحرك المنجز: <strong>createTrip()</strong> ➔ <strong>createEvent(LOADED)</strong> ➔ <strong>transition(IN_TRANSIT)</strong>
+                        {t("loading.labels.txt_195be1")}<strong>createTrip()</strong> ➔ <strong>createEvent(LOADED)</strong> ➔ <strong>transition(IN_TRANSIT)</strong>
                       </div>
                       {onViewTripDetails && (
                         <button
                           onClick={() => onViewTripDetails(createdTripResult)}
                           className="mr-auto px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-xs font-bold transition-colors"
                         >
-                          عرض تفاصيل الرحلة
-                        </button>
+                          {t("loading.labels.viewDetailsTrip")}</button>
                       )}
                     </div>
                   </div>
@@ -1301,7 +1296,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                     className="px-3 py-2 rounded-lg border border-stone-300 text-stone-700 text-xs font-bold hover:bg-stone-50 transition-colors flex items-center gap-1"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>إنشاء رحلة جديدة</span>
+                    <span>{t("loading.labels.createTrip_2")}</span>
                   </button>
                 )}
 
@@ -1404,7 +1399,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <span>- {tareWeight.toLocaleString()} KG</span>
               </div>
               <div className="border-t border-stone-700 pt-1.5 flex justify-between font-bold text-amber-400 text-sm">
-                <span>صافي الحمولة (Net):</span>
+                <span>{t("loading.labels.txt_6765dc")}</span>
                 <span>{calculatedNetWeightKg.toLocaleString()} KG</span>
               </div>
               <div className="text-left text-[11px] text-stone-400">
@@ -1416,7 +1411,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
             <div className="bg-amber-950/40 border border-amber-800/60 rounded-lg p-3 space-y-1">
               <div className="flex items-center gap-1.5 text-amber-400 text-[11px] font-bold">
                 <ShieldCheck className="w-4 h-4" />
-                <span>حماية التسوية الآلية</span>
+                <span>{t("loading.labels.txt_212255")}</span>
               </div>
               <p className="text-[10px] text-stone-300 leading-relaxed">
                 يتم احتساب تسوية الرحلة ({estimatedSettlement.amount.toFixed(2)} {estimatedSettlement.currency}) برمجياً بناءً على صافي الوزن المعتمد وسعر العقد. لا يُسمح بإدخال أو تعديل القيمة من الواجهة لضمان الشفافية المحاسبية.
@@ -1428,11 +1423,11 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
           <div className="bg-white border border-stone-200 rounded-xl p-4 text-xs space-y-2 text-stone-700">
             <div className="font-bold text-stone-900 flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-600" />
-              <span>تسلسل المحرك بعد التأكيد:</span>
+              <span>{t("loading.labels.confirm_4")}</span>
             </div>
             <ol className="space-y-1 pr-4 list-decimal text-[11px] text-stone-600">
-              <li><strong>createTrip()</strong>: إنشاء سجل الرحلة بحالة التحميل المبدئية.</li>
-              <li><strong>createEvent(LOADED)</strong>: تسجيل حدث توثيق الأوزان بالميزان.</li>
+              <li><strong>createTrip()</strong>{t("loading.labels.createTripDownload")}</li>
+              <li><strong>createEvent(LOADED)</strong>{t("loading.labels.txt_79f87c")}</li>
               <li><strong>transition(IN_TRANSIT)</strong>: فحص وحل التسعيرة التاريخية والتحول لحالة في الطريق.</li>
             </ol>
           </div>
@@ -1451,8 +1446,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 </span>
                 <div>
                   <h3 className="text-base font-bold text-stone-900">
-                    تقرير التحقق والمطابقة الصارمة لمتطلبات البرومبت
-                  </h3>
+                    {t("loading.labels.txt_3400c3")}</h3>
                   <p className="text-xs text-stone-500 font-medium">
                     Loading Station Engineering Specification & Test Results
                   </p>
@@ -1476,8 +1470,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   </span>
                   <div>
                     <div className="text-sm font-bold text-emerald-950">
-                      تم تنفيذ واختبار جميع متطلبات البرومبت بنجاح (100%)
-                    </div>
+                      {t("loading.status.success")}</div>
                     <div className="text-xs text-emerald-800">
                       اجتياز {testReport.passed} من إجمالي {testReport.total} فحوصات برمجية آلية
                     </div>
@@ -1487,15 +1480,14 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   onClick={() => setShowVerificationModal(false)}
                   className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition-colors"
                 >
-                  العودة للواجهة
-                </button>
+                  {t("loading.labels.txt_73aefc")}</button>
               </div>
 
               {/* Requirement by Requirement Breakdown */}
               <div className="space-y-4">
                 <h4 className="text-xs font-bold text-stone-700 flex items-center gap-2">
                   <ListOrdered className="w-4 h-4 text-amber-600" />
-                  <span>مصفوفة التحقق التفصيلية من بنود البرومبت:</span>
+                  <span>{t("loading.labels.txt_258b75")}</span>
                 </h4>
 
                 {/* Item 1 */}
@@ -1503,16 +1495,15 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold flex items-center justify-center">1</span>
-                      <span className="text-xs font-bold text-stone-900">مسار خطوات العمل (Workflow):</span>
+                      <span className="text-xs font-bold text-stone-900">{t("loading.labels.txt_68840f")}</span>
                     </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">مكتمل 8 خطوات</span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">{t("loading.status.completed")}</span>
                   </div>
                   <p className="text-xs font-mono text-stone-600 bg-white p-2.5 rounded-lg border border-stone-200">
                     Project ➔ Carrier ➔ Truck ➔ Driver ➔ Material ➔ Tare ➔ Gross ➔ Preview
                   </p>
                   <p className="text-[11px] text-stone-500">
-                    تم تنفيذ الشريط التتابعي بالكامل (Workflow Stepper) مع التحقق من صلاحيات الكيانات وعزل المشاريع.
-                  </p>
+                    {t("loading.labels.txt_2f5b25")}</p>
                 </div>
 
                 {/* Item 2 */}
@@ -1520,9 +1511,9 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold flex items-center justify-center">2</span>
-                      <span className="text-xs font-bold text-stone-900">عناصر شاشة المعاينة (Preview يعرض):</span>
+                      <span className="text-xs font-bold text-stone-900">{t("loading.labels.txt_285ec5")}</span>
                     </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">مكتمل 5 عناصر</span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">{t("loading.status.completed_2")}</span>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
                     <div className="bg-white p-2 rounded-lg border border-stone-200 font-medium text-stone-800">Net Weight ✓</div>
@@ -1538,21 +1529,20 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold flex items-center justify-center">3</span>
-                      <span className="text-xs font-bold text-stone-900">أمثلة التسعير المطلوبة نصاً في البرومبت:</span>
+                      <span className="text-xs font-bold text-stone-900">{t("loading.labels.pricing_6")}</span>
                     </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">دقة حسابية 100%</span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">{t("loading.labels.txt_20c9dd")}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="bg-white p-3 rounded-lg border border-stone-200 space-y-1">
-                      <div className="text-xs font-bold text-sky-800">مثال PER_TON:</div>
+                      <div className="text-xs font-bold text-sky-800">{t("loading.labels.txt_797eb0")}</div>
                       <div className="text-sm font-mono font-bold text-stone-900">37.4 × 8.5 = 317.90 SAR</div>
                       <div className="text-[10px] text-stone-500">
-                        صافي: 45,600 كجم (Gross) - 8,200 كجم (Tare) = 37,400 كجم = 37.4 طن
-                      </div>
+                        {t("loading.labels.txt_a2ced3")}</div>
                     </div>
                     <div className="bg-white p-3 rounded-lg border border-stone-200 space-y-1">
-                      <div className="text-xs font-bold text-emerald-800">مثال PER_TRIP:</div>
-                      <div className="text-sm font-mono font-bold text-stone-900">120 SAR (مقطوعية ثابتة للرد)</div>
+                      <div className="text-xs font-bold text-emerald-800">{t("loading.labels.txt_49a8b5")}</div>
+                      <div className="text-sm font-mono font-bold text-stone-900">{t("loading.labels.txt_a9fcb1")}</div>
                       <div className="text-[10px] text-stone-500">
                         تسوية ثابتة مستقلة عن الوزن الفارغ والقائم
                       </div>
@@ -1565,9 +1555,9 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold flex items-center justify-center">4</span>
-                      <span className="text-xs font-bold text-stone-900">إظهار طريقة التسعير للمستخدم قبل التأكيد:</span>
+                      <span className="text-xs font-bold text-stone-900">{t("loading.labels.pricingConfirm")}</span>
                     </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">مفعّل بوضوح</span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">{t("loading.labels.txt_31e684")}</span>
                   </div>
                   <p className="text-xs text-stone-600 bg-white p-2.5 rounded-lg border border-stone-200 leading-relaxed">
                     تم تضمين بطاقة حسابية بارزة في خطوة المعاينة (Preview) تعرض اسم العقد، نوع التسعير (PER_TON / PER_TRIP)، وسلسلة العملية الحسابية كاملة قبل الضغط على زر التأكيد والترحيل.
@@ -1579,19 +1569,17 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold flex items-center justify-center">5</span>
-                      <span className="text-xs font-bold text-stone-900">التسلسل الإجرائي الصارم بعد Confirm:</span>
+                      <span className="text-xs font-bold text-stone-900">{t("loading.labels.txt_2b7e09")}</span>
                     </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">تسلسل ذري (Atomic)</span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">{t("loading.labels.txt_19142a")}</span>
                   </div>
                   <div className="bg-white p-3 rounded-lg border border-stone-200 space-y-1.5 font-mono text-xs">
                     <div className="flex items-center gap-2 text-stone-800">
                       <span className="text-emerald-600 font-bold">✔</span>
-                      <strong>createTrip()</strong>: إنشاء سجل الرحلة المبدئي بالحالة LOADED وحفظ Pricing Snapshot
-                    </div>
+                      <strong>createTrip()</strong>{t("loading.labels.createTripStatusSave")}</div>
                     <div className="flex items-center gap-2 text-stone-800">
                       <span className="text-emerald-600 font-bold">✔</span>
-                      <strong>createEvent(LOADED)</strong>: تسجيل حدث SCALE_WEIGHT_CONFIRMED وسجل التدقيق
-                    </div>
+                      <strong>createEvent(LOADED)</strong>{t("loading.labels.txt_1a9224")}</div>
                     <div className="flex items-center gap-2 text-stone-800">
                       <span className="text-emerald-600 font-bold">✔</span>
                       <strong>transition(IN_TRANSIT)</strong>: نقل الحالة رسمياً إلى IN_TRANSIT وتوليد رقم التذكرة والنسخة
@@ -1604,19 +1592,18 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold flex items-center justify-center">6</span>
-                      <span className="text-xs font-bold text-stone-900">حظر تعديل settlementAmount من الواجهة:</span>
+                      <span className="text-xs font-bold text-stone-900">{t("loading.labels.edit_2")}</span>
                     </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">محمي ومحصن</span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">{t("loading.labels.txt_3c2d03")}</span>
                   </div>
                   <p className="text-xs text-stone-600 bg-white p-2.5 rounded-lg border border-stone-200 leading-relaxed">
-                    قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها وحفظ السجل الأمني في سجلات الرقابة.
-                  </p>
+                    {t("loading.labels.save_3")}</p>
                 </div>
               </div>
 
               {/* Automated Test Suite Results */}
               <div className="space-y-2 pt-2 border-t border-stone-200">
-                <div className="text-xs font-bold text-stone-800">نتائج الفحص البرمجي الآلي المباشر (Automated Suite):</div>
+                <div className="text-xs font-bold text-stone-800">{t("loading.labels.txt_732b41")}</div>
                 <div className="space-y-1.5">
                   {testReport.results.map(r => (
                     <div key={r.id} className="flex items-center justify-between p-2.5 bg-emerald-50/70 border border-emerald-200 rounded-lg text-xs">

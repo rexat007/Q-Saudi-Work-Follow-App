@@ -29,8 +29,11 @@ import {
 import { weightEngine } from '../../services/weightEngine.service';
 import { MASTER_PRICING_RULES, MasterPricingRule } from '../../data/masterPricingRules';
 import { runWeightEngineTestSuite, WeightEngineTestCaseResult } from '../../tests/weightEngine.test';
+import { useI18n } from '../../i18n';
+
 
 export const WeightEngineView: React.FC = () => {
+  const { t } = useI18n();
   // Active Sub-panel
   const [activeTab, setActiveTab] = useState<'FUNCTIONS_SANDBOX' | 'TOLERANCE_RULES' | 'AUTOMATED_TESTS'>('FUNCTIONS_SANDBOX');
 
@@ -172,18 +175,14 @@ export const WeightEngineView: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <h1 className="text-xl font-bold text-stone-900">
-                  محرك الأوزان المستقل (Standalone Weight Engine)
-                </h1>
+                  {t("weighbridge.labels.txt_2837b3")}</h1>
                 <span className="bg-amber-100 text-amber-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  محرك حسابي خادومي
-                </span>
+                  {t("weighbridge.labels.txt_518cd3")}</span>
                 <span className="bg-blue-100 text-blue-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  حظر الصفر البديل (null قطعي)
-                </span>
+                  {t("weighbridge.labels.txt_32f0a0")}</span>
               </div>
               <p className="text-xs text-stone-600 max-w-3xl leading-relaxed">
-                وحدة مستقلة تتولى حصرياً العمليات الحسابية للأوزان، فروقات التحميل، تقييم التفاوت (مطلق / نسبة / كلاهما) مع مخرجات الحالات (NORMAL / WARNING / EXCEPTION)، واحتساب التسويات المالية وفق قواعد التحقق الصارمة.
-              </p>
+                {t("weighbridge.labels.txt_44da4c")}</p>
             </div>
           </div>
 
@@ -198,7 +197,7 @@ export const WeightEngineView: React.FC = () => {
               }`}
             >
               <Calculator className="w-3.5 h-3.5" />
-              <span>دوال المحرك الـ 4 (Functions Sandbox)</span>
+              <span>{t("weighbridge.labels.txt_7fffbf")}</span>
             </button>
 
             <button
@@ -210,7 +209,7 @@ export const WeightEngineView: React.FC = () => {
               }`}
             >
               <Sliders className="w-3.5 h-3.5" />
-              <span>قواعد التفاوت (Tolerance Rules)</span>
+              <span>{t("weighbridge.labels.txt_53ce46")}</span>
             </button>
 
             <button
@@ -234,7 +233,7 @@ export const WeightEngineView: React.FC = () => {
         <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3 flex items-center justify-between flex-wrap gap-2 text-xs">
           <div className="flex items-center gap-2 text-amber-900 font-bold">
             <ShieldAlert className="w-4 h-4 text-amber-700 shrink-0" />
-            <span>قواعد التحقق الصارمة (Strict Validation):</span>
+            <span>{t("weighbridge.labels.txt_18b9e9")}</span>
           </div>
           <div className="flex items-center gap-2 flex-wrap text-[11px] font-mono">
             <span className="bg-white px-2 py-0.5 rounded border border-amber-300 text-amber-950">tare &gt; 0</span>
@@ -242,8 +241,7 @@ export const WeightEngineView: React.FC = () => {
             <span className="bg-white px-2 py-0.5 rounded border border-amber-300 text-amber-950">net &gt; 0</span>
             <span className="bg-white px-2 py-0.5 rounded border border-amber-300 text-amber-950">received &gt; 0</span>
             <span className="bg-rose-100 px-2 py-0.5 rounded border border-rose-300 text-rose-950 font-bold">
-              لا تستخدم 0 كبديل عن missing data ➔ النتيجة null
-            </span>
+              {t("weighbridge.labels.txt_17aab5")}</span>
           </div>
         </div>
       </div>
@@ -303,35 +301,31 @@ export const WeightEngineView: React.FC = () => {
 
             {/* Quick Test Presets */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] text-stone-400">أمثلة سريعة:</span>
+              <span className="text-[10px] text-stone-400">{t("weighbridge.labels.txt_17ffad")}</span>
               <button
                 type="button"
                 onClick={() => { setTareInput('14200'); setGrossInput('44700'); }}
                 className="text-[10px] bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded text-stone-700 font-semibold"
               >
-                صحيح (44,700 - 14,200)
-              </button>
+                {t("weighbridge.labels.txt_69dab8")}</button>
               <button
                 type="button"
                 onClick={() => { setTareInput('0'); setGrossInput('30000'); }}
                 className="text-[10px] bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-semibold"
               >
-                tare = 0 (مرفوض)
-              </button>
+                {t("weighbridge.labels.txt_487f8f")}</button>
               <button
                 type="button"
                 onClick={() => { setTareInput('20000'); setGrossInput('18000'); }}
                 className="text-[10px] bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-semibold"
               >
-                gross &lt; tare (مرفوض)
-              </button>
+                {t("weighbridge.labels.txt_6ff41d")}</button>
               <button
                 type="button"
                 onClick={() => { setTareInput(''); setGrossInput('44700'); }}
                 className="text-[10px] bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded text-amber-800 font-semibold"
               >
-                tare مفقود (➔ null)
-              </button>
+                {t("weighbridge.labels.txt_241697")}</button>
             </div>
 
             {/* Result Display */}
@@ -339,7 +333,7 @@ export const WeightEngineView: React.FC = () => {
               netResult.isValid ? 'bg-emerald-50/50 border-emerald-200' : 'bg-rose-50/50 border-rose-200'
             }`}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold text-stone-700">النتيجة المُرجعة (netWeight):</span>
+                <span className="text-xs font-semibold text-stone-700">{t("weighbridge.labels.txt_780026")}</span>
                 <span className={`text-sm font-mono font-black ${
                   netResult.netWeight !== null ? 'text-emerald-800' : 'text-rose-700'
                 }`}>
@@ -368,7 +362,7 @@ export const WeightEngineView: React.FC = () => {
                 </span>
                 <div>
                   <h3 className="text-sm font-bold text-stone-900 font-mono">calculateVariance(loadedNet, receivedNet)</h3>
-                  <span className="text-[11px] text-stone-500">حساب الفارق واشتراط net &gt; 0 و received &gt; 0</span>
+                  <span className="text-[11px] text-stone-500">{t("weighbridge.labels.txt_446bca")}</span>
                 </div>
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
@@ -382,8 +376,7 @@ export const WeightEngineView: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold text-stone-700 mb-1">
-                  صافي التحميل بالمصدر (loadedNet) كجم
-                </label>
+                  {t("weighbridge.labels.download")}</label>
                 <input
                   type="text"
                   value={loadedNetInput}
@@ -394,8 +387,7 @@ export const WeightEngineView: React.FC = () => {
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-stone-700 mb-1">
-                  صافي الاستلام بالموقع (receivedNet) كجم
-                </label>
+                  {t("weighbridge.labels.location")}</label>
                 <input
                   type="text"
                   value={receivedNetInput}
@@ -408,35 +400,31 @@ export const WeightEngineView: React.FC = () => {
 
             {/* Quick Test Presets */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] text-stone-400">أمثلة سريعة:</span>
+              <span className="text-[10px] text-stone-400">{t("weighbridge.labels.txt_17ffad")}</span>
               <button
                 type="button"
                 onClick={() => { setLoadedNetInput('30500'); setReceivedNetInput('30350'); }}
                 className="text-[10px] bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded text-stone-700 font-semibold"
               >
-                طبيعي (-150 كجم)
-              </button>
+                {t("weighbridge.labels.txt_222b14")}</button>
               <button
                 type="button"
                 onClick={() => { setLoadedNetInput('30500'); setReceivedNetInput('28000'); }}
                 className="text-[10px] bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-semibold"
               >
-                عجز كبير (-2500 كجم)
-              </button>
+                {t("weighbridge.labels.txt_577d5a")}</button>
               <button
                 type="button"
                 onClick={() => { setLoadedNetInput('0'); setReceivedNetInput('30000'); }}
                 className="text-[10px] bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-semibold"
               >
-                loadedNet = 0 (مرفوض)
-              </button>
+                {t("weighbridge.labels.txt_aced6f")}</button>
               <button
                 type="button"
                 onClick={() => { setLoadedNetInput('30500'); setReceivedNetInput(''); }}
                 className="text-[10px] bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded text-amber-800 font-semibold"
               >
-                استلام مفقود (➔ null)
-              </button>
+                {t("weighbridge.labels.txt_265f32")}</button>
             </div>
 
             {/* Result Display */}
@@ -483,14 +471,13 @@ export const WeightEngineView: React.FC = () => {
                 <div>
                   <h3 className="text-sm font-bold text-stone-900 font-mono">evaluateTolerance(variance, tolerance, loadedNet)</h3>
                   <span className="text-[11px] text-stone-500">
-                    دعم أنواع التفاوت: absolute | percentage | or both ➔ وإخراج: NORMAL | WARNING | EXCEPTION
-                  </span>
+                    {t("weighbridge.labels.txt_cd2e11")}</span>
                 </div>
               </div>
               
               {/* Output Status Badge */}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-stone-400 font-medium">المخرج (Output):</span>
+                <span className="text-xs text-stone-400 font-medium">{t("weighbridge.labels.txt_641620")}</span>
                 <span className={`text-xs font-bold px-3 py-1 rounded-full font-mono ${
                   toleranceEvalResult.status === 'NORMAL' 
                     ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' 
@@ -506,22 +493,21 @@ export const WeightEngineView: React.FC = () => {
             {/* Tolerance Rule Config Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-stone-50 p-3.5 rounded-xl border border-stone-200/80">
               <div>
-                <label className="block text-[11px] font-semibold text-stone-700 mb-1">نوع التفاوت (Tolerance Mode)</label>
+                <label className="block text-[11px] font-semibold text-stone-700 mb-1">{t("weighbridge.labels.txt_14234f")}</label>
                 <select
                   value={toleranceMode}
                   onChange={(e) => setToleranceMode(e.target.value as any)}
                   className="w-full bg-white border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-bold text-stone-800"
                 >
-                  <option value="BOTH">both (مطلق ونسبة معاً)</option>
-                  <option value="ABSOLUTE">absolute (مطلق فقط)</option>
-                  <option value="PERCENTAGE">percentage (نسبة فقط)</option>
+                  <option value="BOTH">{t("weighbridge.labels.txt_2161ff")}</option>
+                  <option value="ABSOLUTE">{t("weighbridge.labels.txt_722bae")}</option>
+                  <option value="PERCENTAGE">{t("weighbridge.labels.txt_5c97fe")}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-[11px] font-semibold text-stone-700 mb-1">
-                  تفاوت مطلق (absoluteTolerance)
-                </label>
+                  {t("weighbridge.labels.txt_1644f0")}</label>
                 <input
                   type="text"
                   disabled={toleranceMode === 'PERCENTAGE'}
@@ -534,8 +520,7 @@ export const WeightEngineView: React.FC = () => {
 
               <div>
                 <label className="block text-[11px] font-semibold text-stone-700 mb-1">
-                  تفاوت نسبة (percentageTolerance)
-                </label>
+                  {t("weighbridge.labels.txt_d894c3")}</label>
                 <input
                   type="text"
                   disabled={toleranceMode === 'ABSOLUTE'}
@@ -547,7 +532,7 @@ export const WeightEngineView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-stone-700 mb-1">الفارق المراد فحصه (variance)</label>
+                <label className="block text-[11px] font-semibold text-stone-700 mb-1">{t("weighbridge.labels.txt_709573")}</label>
                 <input
                   type="text"
                   value={evalVarianceInput}
@@ -558,7 +543,7 @@ export const WeightEngineView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-stone-700 mb-1">صافي التحميل (loadedNet)</label>
+                <label className="block text-[11px] font-semibold text-stone-700 mb-1">{t("weighbridge.labels.download_2")}</label>
                 <input
                   type="text"
                   value={evalLoadedNetInput}
@@ -571,7 +556,7 @@ export const WeightEngineView: React.FC = () => {
 
             {/* Quick 3-Outcome Preset Buttons */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] text-stone-500 font-semibold">اختبار المخرجات الثلاثة مباشرة:</span>
+              <span className="text-[11px] text-stone-500 font-semibold">{t("weighbridge.labels.txt_57ac4b")}</span>
               
               <button
                 type="button"
@@ -579,7 +564,7 @@ export const WeightEngineView: React.FC = () => {
                 className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold flex items-center gap-1"
               >
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>تجربة مخرج: NORMAL (-120 كجم)</span>
+                <span>{t("weighbridge.labels.txt_60b8a5")}</span>
               </button>
 
               <button
@@ -588,7 +573,7 @@ export const WeightEngineView: React.FC = () => {
                 className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-bold flex items-center gap-1"
               >
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                <span>تجربة مخرج: WARNING (-380 كجم / &gt;75%)</span>
+                <span>{t("weighbridge.labels.txt_1247cf")}</span>
               </button>
 
               <button
@@ -597,7 +582,7 @@ export const WeightEngineView: React.FC = () => {
                 className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 rounded-lg text-[11px] font-bold flex items-center gap-1"
               >
                 <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
-                <span>تجربة مخرج: EXCEPTION (-750 كجم / تجاوز الحد)</span>
+                <span>{t("weighbridge.labels.txt_26b92a")}</span>
               </button>
             </div>
 
@@ -611,7 +596,7 @@ export const WeightEngineView: React.FC = () => {
             }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-200/50 pb-2 mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-xs">تفاصيل التقييم الخادومي:</span>
+                  <span className="font-bold text-xs">{t("weighbridge.labels.details")}</span>
                   <span className="text-[11px] bg-white/80 px-2 py-0.5 rounded border border-stone-200 font-mono">
                     النوع المطبق: {toleranceEvalResult.toleranceTypeApplied}
                   </span>
@@ -644,8 +629,7 @@ export const WeightEngineView: React.FC = () => {
                 <div>
                   <h3 className="text-sm font-bold text-stone-900 font-mono">calculateSettlement(pricingRule, netWeight)</h3>
                   <span className="text-[11px] text-stone-500">
-                    احتساب التسوية المالية بدقة بالطن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان البيانات
-                  </span>
+                    {t("weighbridge.labels.txt_35a0be")}</span>
                 </div>
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
@@ -659,8 +643,7 @@ export const WeightEngineView: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[11px] font-semibold text-stone-700 mb-1">
-                  اختر قاعدة التسعير (Master Pricing Rule)
-                </label>
+                  {t("weighbridge.labels.pricing")}</label>
                 <select
                   value={selectedPricingRuleId}
                   onChange={(e) => setSelectedPricingRuleId(e.target.value)}
@@ -690,28 +673,25 @@ export const WeightEngineView: React.FC = () => {
 
             {/* Quick Test Presets */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] text-stone-400">أمثلة سريعة:</span>
+              <span className="text-[10px] text-stone-400">{t("weighbridge.labels.txt_17ffad")}</span>
               <button
                 type="button"
                 onClick={() => setSettlementNetInput('37400')}
                 className="text-[10px] bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded text-stone-700 font-semibold"
               >
-                37,400 كجم (37.4 طن)
-              </button>
+                {t("weighbridge.labels.txt_6e06f6")}</button>
               <button
                 type="button"
                 onClick={() => setSettlementNetInput('0')}
                 className="text-[10px] bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-semibold"
               >
-                net = 0 (مرفوض ➔ null)
-              </button>
+                {t("weighbridge.labels.txt_7a0944")}</button>
               <button
                 type="button"
                 onClick={() => setSettlementNetInput('')}
                 className="text-[10px] bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded text-amber-800 font-semibold"
               >
-                net مفقود (➔ null قطعي دون استبداله بـ 0)
-              </button>
+                {t("weighbridge.labels.txt_4851db")}</button>
             </div>
 
             {/* Result Box */}
@@ -720,14 +700,14 @@ export const WeightEngineView: React.FC = () => {
             }`}>
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <span className="text-xs text-stone-500 block mb-0.5">معادلة الاحتساب المالية:</span>
+                  <span className="text-xs text-stone-500 block mb-0.5">{t("weighbridge.labels.txt_47e373")}</span>
                   <span className="text-xs font-bold text-stone-900 font-mono">
                     {settlementResult.formula}
                   </span>
                 </div>
 
                 <div className="text-left">
-                  <span className="text-xs text-stone-500 block mb-0.5">المبلغ النهائي المستحق:</span>
+                  <span className="text-xs text-stone-500 block mb-0.5">{t("weighbridge.labels.txt_69b595")}</span>
                   <span className={`text-lg font-mono font-black ${
                     settlementResult.settlementAmount !== null ? 'text-emerald-800' : 'text-rose-700'
                   }`}>
@@ -763,7 +743,7 @@ export const WeightEngineView: React.FC = () => {
           <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs space-y-4">
             <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
               <Plus className="w-4 h-4 text-amber-700" />
-              <span>إضافة أو تحديث قاعدة تفاوت (Tolerance Rule)</span>
+              <span>{t("weighbridge.labels.addRefresh")}</span>
             </h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -778,7 +758,7 @@ export const WeightEngineView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-stone-700 mb-1">معرف المادة (materialId)</label>
+                <label className="block text-[11px] font-semibold text-stone-700 mb-1">{t("weighbridge.labels.material")}</label>
                 <input
                   type="text"
                   value={newRuleForm.materialId}
@@ -788,20 +768,20 @@ export const WeightEngineView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-stone-700 mb-1">نوع التفاوت المسموح</label>
+                <label className="block text-[11px] font-semibold text-stone-700 mb-1">{t("weighbridge.labels.txt_4dce1b")}</label>
                 <select
                   value={newRuleForm.mode}
                   onChange={(e) => setNewRuleForm({ ...newRuleForm, mode: e.target.value as any })}
                   className="w-full bg-stone-50 border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-bold text-stone-800"
                 >
-                  <option value="BOTH">both (مطلق ونسبة معاً)</option>
-                  <option value="ABSOLUTE">absolute (مطلق فقط)</option>
-                  <option value="PERCENTAGE">percentage (نسبة فقط)</option>
+                  <option value="BOTH">{t("weighbridge.labels.txt_2161ff")}</option>
+                  <option value="ABSOLUTE">{t("weighbridge.labels.txt_722bae")}</option>
+                  <option value="PERCENTAGE">{t("weighbridge.labels.txt_5c97fe")}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-stone-700 mb-1">حالة القاعدة (status)</label>
+                <label className="block text-[11px] font-semibold text-stone-700 mb-1">{t("weighbridge.labels.txt_2456f5")}</label>
                 <select
                   value={newRuleForm.status}
                   onChange={(e) => setNewRuleForm({ ...newRuleForm, status: e.target.value as any })}
@@ -824,7 +804,7 @@ export const WeightEngineView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-stone-700 mb-1">تفاوت مطلق (كجم)</label>
+                <label className="block text-[11px] font-semibold text-stone-700 mb-1">{t("weighbridge.labels.txt_579085")}</label>
                 <input
                   type="text"
                   disabled={newRuleForm.mode === 'PERCENTAGE'}
@@ -836,7 +816,7 @@ export const WeightEngineView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-stone-700 mb-1">تفاوت نسبة (%)</label>
+                <label className="block text-[11px] font-semibold text-stone-700 mb-1">{t("weighbridge.labels.txt_405131")}</label>
                 <input
                   type="text"
                   disabled={newRuleForm.mode === 'ABSOLUTE'}
@@ -853,7 +833,7 @@ export const WeightEngineView: React.FC = () => {
               className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
-              <span>حفظ القاعدة في محرك الأوزان</span>
+              <span>{t("weighbridge.labels.save")}</span>
             </button>
           </div>
 
@@ -904,11 +884,9 @@ export const WeightEngineView: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-sm font-bold text-stone-900">
-                  تقرير التحقق البرمجي لاشتراطات Weight Engine (13 فحصاً آلياً)
-                </h3>
+                  {t("weighbridge.labels.txt_3142f6")}</h3>
                 <p className="text-[11px] text-stone-500">
-                  فحص دوال الحساب، معايير التحقق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)
-                </p>
+                  {t("weighbridge.labels.txt_407887")}</p>
               </div>
             </div>
 
@@ -917,7 +895,7 @@ export const WeightEngineView: React.FC = () => {
               className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-lg text-xs font-bold transition-all flex items-center gap-1"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>إعادة الفحص الآن</span>
+              <span>{t("weighbridge.labels.txt_78dd06")}</span>
             </button>
           </div>
 

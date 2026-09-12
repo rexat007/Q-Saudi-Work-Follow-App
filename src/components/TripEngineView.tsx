@@ -39,8 +39,11 @@ import { StateMachineController } from './tripEngine/StateMachineController';
 import { LoadingStation } from './tripEngine/LoadingStation';
 import { UnloadingStation } from './tripEngine/UnloadingStation';
 import { WeightEngineView } from './tripEngine/WeightEngineView';
+import { useI18n } from '../i18n';
+
 
 export const TripEngineView: React.FC = () => {
+  const { t } = useI18n();
   const [trips, setTrips] = useState<TripRecord[]>(() => tripEngineService.getTrips());
   const [selectedTrip, setSelectedTrip] = useState<TripRecord | null>(null);
   const [receiptModalTrip, setReceiptModalTrip] = useState<TripRecord | null>(null);
@@ -345,11 +348,9 @@ export const TripEngineView: React.FC = () => {
                 <Truck className="w-4 h-4" />
               </div>
               <h1 className="text-xl font-bold text-stone-900">
-                محرك الرحلات اللوجستية (Trip Engine)
-              </h1>
+                {t("trips.labels.trips")}</h1>
               <span className="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                قواعد البيانات المرجعية الستة
-              </span>
+                {t("trips.labels.txt_7064be")}</span>
             </div>
             <p className="text-xs text-stone-600 max-w-3xl">
               المحرك المركزي للتحقق من علاقات الكيانات، فرض الحساب الخادومي الصارم للوزن الصافي، تجميد التسعير التاريخي (Pricing Snapshot)، وحوكمة استلام الموقع وتوثيق فارق الوزن.
@@ -366,7 +367,7 @@ export const TripEngineView: React.FC = () => {
               }`}
             >
               <Scale className="w-3.5 h-3.5" />
-              <span>محطة التحميل (Loading)</span>
+              <span>{t("trips.labels.download")}</span>
             </button>
             <button
               onClick={() => setActiveSubTab('UNLOADING_STATION')}
@@ -377,7 +378,7 @@ export const TripEngineView: React.FC = () => {
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>محطة التفريغ (Unloading)</span>
+              <span>{t("trips.labels.txt_934de7")}</span>
             </button>
             <button
               onClick={() => setActiveSubTab('WEIGHT_ENGINE')}
@@ -388,7 +389,7 @@ export const TripEngineView: React.FC = () => {
               }`}
             >
               <Calculator className="w-3.5 h-3.5" />
-              <span>محرك الأوزان والتفاوت (Weight Engine)</span>
+              <span>{t("trips.labels.txt_14036c")}</span>
             </button>
             <button
               onClick={() => setActiveSubTab('STATE_MACHINE')}
@@ -399,7 +400,7 @@ export const TripEngineView: React.FC = () => {
               }`}
             >
               <GitCommit className="w-3.5 h-3.5" />
-              <span>محرك الحالات المركزي (State Machine)</span>
+              <span>{t("trips.labels.txt_4fd2e9")}</span>
             </button>
             <button
               onClick={() => setActiveSubTab('LIST')}
@@ -421,7 +422,7 @@ export const TripEngineView: React.FC = () => {
               }`}
             >
               <Send className="w-3.5 h-3.5" />
-              <span>إنشاء وترحيل رحلة (New Trip)</span>
+              <span>{t("trips.labels.createTrip")}</span>
             </button>
             <button
               onClick={() => setActiveSubTab('TEST_MATRIX')}
@@ -432,7 +433,7 @@ export const TripEngineView: React.FC = () => {
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>مصفوفة سيناريوهات الاختبار (7 حالات)</span>
+              <span>{t("trips.labels.txt_268208")}</span>
             </button>
             <button
               onClick={() => {
@@ -440,7 +441,7 @@ export const TripEngineView: React.FC = () => {
                 refreshTrips();
                 setNotification({ type: 'SUCCESS', message: 'تمت استعادة الرحلات التوضيحية الافتراضية' });
               }}
-              title="إعادة ضبط الرحلات الافتراضية"
+              title={t("trips.labels.trips_3")}
               className="p-2 rounded-lg text-xs font-medium bg-stone-100 text-stone-600 hover:bg-stone-200"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -453,11 +454,11 @@ export const TripEngineView: React.FC = () => {
           <div className="bg-stone-50 rounded-xl p-3 border border-stone-200/60">
             <span className="text-[11px] font-medium text-stone-500 block mb-1">إجمالي الرحلات</span>
             <div className="text-xl font-black text-stone-900">{totalTripsCount}</div>
-            <span className="text-[10px] text-stone-400">سجلات نظامية موثقة</span>
+            <span className="text-[10px] text-stone-400">{t("trips.labels.txt_1af9f4")}</span>
           </div>
 
           <div className="bg-amber-50/60 rounded-xl p-3 border border-amber-200/60">
-            <span className="text-[11px] font-medium text-amber-800 block mb-1">قيد النقل (In-Transit)</span>
+            <span className="text-[11px] font-medium text-amber-800 block mb-1">{t("trips.labels.txt_429ecc")}</span>
             <div className="text-xl font-black text-amber-900 flex items-center gap-1.5">
               <span>{inTransitCount}</span>
               <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
@@ -466,15 +467,15 @@ export const TripEngineView: React.FC = () => {
           </div>
 
           <div className="bg-emerald-50/60 rounded-xl p-3 border border-emerald-200/60">
-            <span className="text-[11px] font-medium text-emerald-800 block mb-1">مستلمة ومفرغة بالكامل</span>
+            <span className="text-[11px] font-medium text-emerald-800 block mb-1">{t("trips.labels.txt_3cbe5a")}</span>
             <div className="text-xl font-black text-emerald-900">{completedCount}</div>
-            <span className="text-[10px] text-emerald-700">تم احتساب varianceWeight</span>
+            <span className="text-[10px] text-emerald-700">{t("trips.labels.txt_40f0a8")}</span>
           </div>
 
           <div className="bg-indigo-50/60 rounded-xl p-3 border border-indigo-200/60">
-            <span className="text-[11px] font-medium text-indigo-800 block mb-1">إجمالي التسوية المحسوبة</span>
+            <span className="text-[11px] font-medium text-indigo-800 block mb-1">{t("trips.labels.txt_7d5bc8")}</span>
             <div className="text-xl font-black text-indigo-900">{totalSettlementSAR} <span className="text-xs font-normal">ر.س</span></div>
-            <span className="text-[10px] text-indigo-700">احتساب خادومي Server-Side</span>
+            <span className="text-[10px] text-indigo-700">{t("trips.labels.txt_6ae7c3")}</span>
           </div>
         </div>
       </div>
@@ -542,8 +543,8 @@ export const TripEngineView: React.FC = () => {
                   <Send className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-stone-900">إنشاء وترحيل رحلة جديدة (Dispatch Trip)</h2>
-                  <p className="text-xs text-stone-500">يتم التحقق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.</p>
+                  <h2 className="text-base font-bold text-stone-900">{t("trips.labels.createTrip_2")}</h2>
+                  <p className="text-xs text-stone-500">{t("trips.labels.txt_622420")}</p>
                 </div>
               </div>
               <span className={`text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 ${
@@ -552,12 +553,12 @@ export const TripEngineView: React.FC = () => {
                 {liveValidation.isValid ? (
                   <>
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>مطابق للقواعد الـ 6</span>
+                    <span>{t("trips.labels.txt_5eb20e")}</span>
                   </>
                 ) : (
                   <>
                     <AlertTriangle className="w-3.5 h-3.5" />
-                    <span>انتهاك قواعد التحقق</span>
+                    <span>{t("trips.labels.txt_6615b4")}</span>
                   </>
                 )}
               </span>
@@ -567,14 +568,14 @@ export const TripEngineView: React.FC = () => {
               {/* Row 1: Project & Shift Date & Ticket */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">المشروع (projectId)</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">{t("trips.labels.project_2")}</label>
                   <input 
                     type="text" 
                     value={formData.projectId} 
                     disabled 
                     className="w-full bg-stone-100 border border-stone-200 rounded-lg px-3 py-2 text-xs font-semibold text-stone-600 cursor-not-allowed"
                   />
-                  <span className="text-[10px] text-stone-400">نيوم - القطاع 4 اللوجستي</span>
+                  <span className="text-[10px] text-stone-400">{t("trips.labels.txt_77937d")}</span>
                 </div>
 
                 <div>
@@ -586,7 +587,7 @@ export const TripEngineView: React.FC = () => {
                     className="w-full bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     required
                   />
-                  <span className="text-[10px] text-stone-400">يُفحص به سريان قاعدة التسعير</span>
+                  <span className="text-[10px] text-stone-400">{t("trips.labels.pricing")}</span>
                 </div>
 
                 <div>
@@ -605,8 +606,7 @@ export const TripEngineView: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-stone-700 mb-1">
-                    الناقل (carrierId)
-                    <span className="text-stone-400 font-normal mr-1">[قاعدة 3: مصرح للمشروع]</span>
+                    {t("trips.labels.carrier")}<span className="text-stone-400 font-normal mr-1">{t("trips.labels.txt_22b00b")}</span>
                   </label>
                   <select
                     value={formData.carrierId}
@@ -626,8 +626,7 @@ export const TripEngineView: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-stone-700 mb-1">
-                    المادة (materialId)
-                    <span className="text-stone-400 font-normal mr-1">[قاعدة 4: مصرح للمشروع]</span>
+                    {t("trips.labels.material")}<span className="text-stone-400 font-normal mr-1">{t("trips.labels.txt_411e2d")}</span>
                   </label>
                   <select
                     value={formData.materialId}
@@ -650,8 +649,7 @@ export const TripEngineView: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-stone-700 mb-1">
-                    الشاحنة (truckId)
-                    <span className="text-stone-400 font-normal mr-1">[قاعدة 1 و 5: تبعية الناقل]</span>
+                    {t("trips.labels.truck_2")}<span className="text-stone-400 font-normal mr-1">{t("trips.labels.txt_3969ce")}</span>
                   </label>
                   <select
                     value={formData.truckId}
@@ -671,8 +669,7 @@ export const TripEngineView: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-stone-700 mb-1">
-                    السائق (driverId)
-                    <span className="text-stone-400 font-normal mr-1">[قاعدة 2 و 5: صالح وكفالة الناقل]</span>
+                    {t("trips.labels.driver")}<span className="text-stone-400 font-normal mr-1">{t("trips.labels.txt_1b13ad")}</span>
                   </label>
                   <select
                     value={formData.driverId}
@@ -694,8 +691,7 @@ export const TripEngineView: React.FC = () => {
               {/* Row 4: Pricing Rule Selection */}
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1">
-                  قاعدة التسعير (pricingRuleId)
-                  <span className="text-stone-400 font-normal mr-1">[قاعدة 6: سارية في تاريخ الرحلة]</span>
+                  {t("trips.labels.pricing_2")}<span className="text-stone-400 font-normal mr-1">[قاعدة 6: سارية في تاريخ الرحلة]</span>
                 </label>
                 <select
                   value={formData.pricingRuleId}
@@ -714,7 +710,7 @@ export const TripEngineView: React.FC = () => {
               <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200">
                 <div className="flex items-center gap-2 mb-2">
                   <Scale className="w-4 h-4 text-amber-600" />
-                  <span className="text-xs font-bold text-stone-900">أوزان ميزان البسكول في موقع المصدر (Origin Scale)</span>
+                  <span className="text-xs font-bold text-stone-900">{t("trips.labels.txt_3da9ae")}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
@@ -762,8 +758,7 @@ export const TripEngineView: React.FC = () => {
                       className="w-4 h-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500"
                     />
                     <span className="text-xs font-bold text-rose-800">
-                      محاكاة إرسال netWeight غير موثوق من العميل لاختبار الحماية الرقابية: "لا تقبل netWeight من client"
-                    </span>
+                      {t("trips.labels.txt_41dcd5")}</span>
                   </label>
 
                   {simulateTampering && (
@@ -789,7 +784,7 @@ export const TripEngineView: React.FC = () => {
               {/* Loader ID & Notes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-stone-700 mb-1">مسؤول التحميل / كاتب الميزان (loaderId)</label>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">{t("trips.labels.downloadWeighbridge")}</label>
                   <input 
                     type="text" 
                     value={formData.loaderId || ''} 
@@ -799,7 +794,7 @@ export const TripEngineView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-700 mb-1">ملاحظات الرحلة (notes)</label>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">{t("trips.labels.trip")}</label>
                   <input 
                     type="text" 
                     value={formData.notes || ''} 
@@ -821,7 +816,7 @@ export const TripEngineView: React.FC = () => {
                   }`}
                 >
                   <Send className="w-4 h-4" />
-                  <span>ترحيل واعتماد الرحلة فوراً في النظام (Dispatch Trip)</span>
+                  <span>{t("trips.labels.trip_2")}</span>
                 </button>
                 {!liveValidation.isValid && (
                   <p className="text-[11px] text-rose-600 font-bold text-center mt-1.5">
@@ -838,7 +833,7 @@ export const TripEngineView: React.FC = () => {
             <div className="bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs">
               <h3 className="text-xs font-bold text-stone-900 flex items-center gap-1.5 mb-3 border-b border-stone-100 pb-2.5">
                 <ShieldCheck className="w-4 h-4 text-amber-600" />
-                <span>حالة فحص القواعد الستة اللحظي</span>
+                <span>{t("trips.labels.txt_5ed1a7")}</span>
               </h3>
 
               <div className="space-y-2">
@@ -879,8 +874,7 @@ export const TripEngineView: React.FC = () => {
               <div className="flex items-center gap-2 mb-3 border-b border-stone-800 pb-2.5">
                 <Calculator className="w-4 h-4 text-amber-400" />
                 <h3 className="text-xs font-bold text-stone-200">
-                  الحسابات الخادومية الصارمة (Server-Side)
-                </h3>
+                  {t("trips.labels.txt_599f05")}</h3>
               </div>
 
               <div className="space-y-2.5 text-xs">
@@ -891,16 +885,16 @@ export const TripEngineView: React.FC = () => {
 
                 <div className="flex justify-between py-1 border-b border-stone-800">
                   <span className="text-stone-400">وزن الوصول (destNetWeight):</span>
-                  <span className="font-mono text-stone-400 italic">null (في انتظار الاستلام)</span>
+                  <span className="font-mono text-stone-400 italic">{t("trips.labels.txt_7f5953")}</span>
                 </div>
 
                 <div className="flex justify-between py-1 border-b border-stone-800">
                   <span className="text-stone-400">فارق الوزن (varianceWeight):</span>
-                  <span className="font-mono text-stone-400 italic">null (في انتظار الاستلام)</span>
+                  <span className="font-mono text-stone-400 italic">{t("trips.labels.txt_7f5953")}</span>
                 </div>
 
                 <div className="flex justify-between py-1 border-b border-stone-800">
-                  <span className="text-stone-400">أساس التسوية (settlementBase):</span>
+                  <span className="text-stone-400">{t("trips.labels.txt_15d5c6")}</span>
                   <span className="font-mono text-stone-200">
                     {liveSettlementBase} {selectedRule?.pricingType === 'PER_TON' ? 'طن' : 'رد'}
                   </span>
@@ -914,14 +908,14 @@ export const TripEngineView: React.FC = () => {
                 </div>
 
                 <div className="flex justify-between py-1.5 bg-stone-800/80 px-2.5 rounded-lg text-emerald-400 font-bold">
-                  <span>مبلغ التسوية المستحق:</span>
+                  <span>{t("trips.labels.txt_3a0ff7")}</span>
                   <span className="font-mono text-sm">{liveSettlementAmount.toLocaleString()} ر.س</span>
                 </div>
               </div>
 
               <div className="mt-3 pt-2 text-[10px] text-stone-400 flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>يتم حفظ لقطة التسعير (Pricing Snapshot) داخل سجل الرحلة لضمان عدم التلاعب المستقبلي.</span>
+                <span>{t("trips.labels.savePricingTrip")}</span>
               </div>
             </div>
           </div>
@@ -934,11 +928,10 @@ export const TripEngineView: React.FC = () => {
           <div className="bg-white rounded-2xl border border-stone-200/80 p-6 shadow-xs">
             <h2 className="text-base font-bold text-stone-900 mb-1 flex items-center gap-2">
               <ShieldAlert className="w-5 h-5 text-amber-600" />
-              <span>مصفوفة سيناريوهات الاختبار العملي للقواعد المعمارية</span>
+              <span>{t("trips.labels.txt_5bcf4e")}</span>
             </h2>
             <p className="text-xs text-stone-500 mb-5">
-              انقر على أي سيناريو أدناه لتحميل بياناته فوراً وملاحظة سلوك محرك الرحلات في القبول أو الحظر:
-            </p>
+              {t("trips.labels.downloadTrips")}</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
               {/* Scenario 1 */}
@@ -947,14 +940,13 @@ export const TripEngineView: React.FC = () => {
                 className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-all space-y-2 group"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-900">سيناريو 1: رحلة مطابقة (بالطن)</span>
-                  <span className="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded font-black">ناجح ✓</span>
+                  <span className="text-xs font-bold text-emerald-900">{t("trips.labels.trip_3")}</span>
+                  <span className="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded font-black">{t("trips.labels.txt_e1f245")}</span>
                 </div>
                 <p className="text-[11px] text-emerald-800 leading-relaxed">
-                  ناقل مصرح (المجدوعي)، شاحنة وسائق مطابقان، مادة ركام معتمدة، وتسعيرة سارية بالطن.
-                </p>
+                  {t("trips.labels.txt_333d61")}</p>
                 <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 group-hover:underline">
-                  <span>تحميل واختبار السيناريو</span>
+                  <span>{t("trips.labels.download_2")}</span>
                   <ArrowRight className="w-3 h-3" />
                 </div>
               </div>
@@ -965,14 +957,13 @@ export const TripEngineView: React.FC = () => {
                 className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-all space-y-2 group"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-900">سيناريو 2: رحلة مقطوعية (بالرد)</span>
-                  <span className="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded font-black">ناجح ✓</span>
+                  <span className="text-xs font-bold text-emerald-900">{t("trips.labels.trip_4")}</span>
+                  <span className="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded font-black">{t("trips.labels.txt_e1f245")}</span>
                 </div>
                 <p className="text-[11px] text-emerald-800 leading-relaxed">
-                  ناقل بن لادن، شاحنة وسائق مطابقان، مادة رمل، تسعيرة مقطوعية ثابتة 1400 ر.س للرد الواحد.
-                </p>
+                  {t("trips.labels.txt_762e97")}</p>
                 <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 group-hover:underline">
-                  <span>تحميل واختبار السيناريو</span>
+                  <span>{t("trips.labels.download_2")}</span>
                   <ArrowRight className="w-3 h-3" />
                 </div>
               </div>
@@ -983,14 +974,13 @@ export const TripEngineView: React.FC = () => {
                 className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 hover:bg-rose-50 cursor-pointer transition-all space-y-2 group"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-rose-900">سيناريو 3: ناقل غير مصرح</span>
-                  <span className="text-[10px] bg-rose-200 text-rose-900 px-2 py-0.5 rounded font-black">قاعدة 3 ✗</span>
+                  <span className="text-xs font-bold text-rose-900">{t("trips.labels.txt_3da066")}</span>
+                  <span className="text-[10px] bg-rose-200 text-rose-900 px-2 py-0.5 rounded font-black">{t("trips.labels.txt_99d528")}</span>
                 </div>
                 <p className="text-[11px] text-rose-800 leading-relaxed">
-                  اختيار "مؤسسة الشرقي" التي لا تملك ترخيص عمل في مشروع نيوم. يحظر النظام إنشاء الرحلة.
-                </p>
+                  {t("trips.labels.create")}</p>
                 <div className="text-[10px] text-rose-700 font-bold flex items-center gap-1 group-hover:underline">
-                  <span>تحميل واختبار السيناريو</span>
+                  <span>{t("trips.labels.download_2")}</span>
                   <ArrowRight className="w-3 h-3" />
                 </div>
               </div>
@@ -1001,14 +991,13 @@ export const TripEngineView: React.FC = () => {
                 className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 hover:bg-rose-50 cursor-pointer transition-all space-y-2 group"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-rose-900">سيناريو 4: مادة غير مسموحة</span>
-                  <span className="text-[10px] bg-rose-200 text-rose-900 px-2 py-0.5 rounded font-black">قاعدة 4 ✗</span>
+                  <span className="text-xs font-bold text-rose-900">{t("trips.labels.txt_6ff1cd")}</span>
+                  <span className="text-[10px] bg-rose-200 text-rose-900 px-2 py-0.5 rounded font-black">{t("trips.labels.txt_99d167")}</span>
                 </div>
                 <p className="text-[11px] text-rose-800 leading-relaxed">
-                  محاولة توريد "خلطة أسفلتية ساخنة" في مشروع مخصص لنقل الردميات والركام. حظر فوري.
-                </p>
+                  {t("trips.labels.txt_761b23")}</p>
                 <div className="text-[10px] text-rose-700 font-bold flex items-center gap-1 group-hover:underline">
-                  <span>تحميل واختبار السيناريو</span>
+                  <span>{t("trips.labels.download_2")}</span>
                   <ArrowRight className="w-3 h-3" />
                 </div>
               </div>
@@ -1019,14 +1008,13 @@ export const TripEngineView: React.FC = () => {
                 className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 hover:bg-rose-50 cursor-pointer transition-all space-y-2 group"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-rose-900">سيناريو 5: تعارض الشاحنة والناقل</span>
-                  <span className="text-[10px] bg-rose-200 text-rose-900 px-2 py-0.5 rounded font-black">قاعدة 5 ✗</span>
+                  <span className="text-xs font-bold text-rose-900">{t("trips.labels.truckCarrier")}</span>
+                  <span className="text-[10px] bg-rose-200 text-rose-900 px-2 py-0.5 rounded font-black">{t("trips.labels.txt_99cda6")}</span>
                 </div>
                 <p className="text-[11px] text-rose-800 leading-relaxed">
-                  اختيار شاحنة كفالتها تتبع المجدوعي مع تعيين الناقل بن لادن. يتم الحظر لعدم صحة العلاقة.
-                </p>
+                  {t("trips.labels.carrier_2")}</p>
                 <div className="text-[10px] text-rose-700 font-bold flex items-center gap-1 group-hover:underline">
-                  <span>تحميل واختبار السيناريو</span>
+                  <span>{t("trips.labels.download_2")}</span>
                   <ArrowRight className="w-3 h-3" />
                 </div>
               </div>
@@ -1037,14 +1025,14 @@ export const TripEngineView: React.FC = () => {
                 className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 hover:bg-rose-50 cursor-pointer transition-all space-y-2 group"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-rose-900">سيناريو 6: تسعيرة منتهية الصلاحية</span>
-                  <span className="text-[10px] bg-rose-200 text-rose-900 px-2 py-0.5 rounded font-black">قاعدة 6 ✗</span>
+                  <span className="text-xs font-bold text-rose-900">{t("trips.labels.txt_16825e")}</span>
+                  <span className="text-[10px] bg-rose-200 text-rose-900 px-2 py-0.5 rounded font-black">{t("trips.labels.txt_99c9e5")}</span>
                 </div>
                 <p className="text-[11px] text-rose-800 leading-relaxed">
                   اختيار قاعدة تسعير انتهت صلاحيتها بتاريخ 2025-12-31 وتاريخ الرحلة 2026. حظر فوري.
                 </p>
                 <div className="text-[10px] text-rose-700 font-bold flex items-center gap-1 group-hover:underline">
-                  <span>تحميل واختبار السيناريو</span>
+                  <span>{t("trips.labels.download_2")}</span>
                   <ArrowRight className="w-3 h-3" />
                 </div>
               </div>
@@ -1058,8 +1046,7 @@ export const TripEngineView: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <ShieldAlert className="w-4 h-4 text-amber-700" />
                     <span className="text-xs font-bold text-amber-950">
-                      سيناريو 7: اختبار أمان الأوزان - رفض netWeight من العميل وحسابه خادومياً
-                    </span>
+                      {t("trips.labels.txt_752683")}</span>
                   </div>
                   <span className="text-[10px] bg-amber-200 text-amber-950 px-2 py-0.5 rounded font-black">SECURITY GUARD 🛡️</span>
                 </div>
@@ -1067,7 +1054,7 @@ export const TripEngineView: React.FC = () => {
                   يحاكي محاولة العميل إرسال صافي وزن مزور (99,999 كجم) بينما الأوزان هي: قائم 44,000 كجم وفارغ 14,000 كجم. يقوم المحرك برفض قيمة العميل، واحتساب 30,000 كجم بدقة، وتوثيق تنبيه الحوكمة الأمني في ملاحظات الرحلة.
                 </p>
                 <div className="text-[10px] text-amber-800 font-bold flex items-center gap-1 group-hover:underline">
-                  <span>تحميل واختبار سيناريو الأمان الرقابي</span>
+                  <span>{t("trips.labels.download_3")}</span>
                   <ArrowRight className="w-3 h-3" />
                 </div>
               </div>
@@ -1098,17 +1085,17 @@ export const TripEngineView: React.FC = () => {
                 onChange={e => setStatusFilter(e.target.value)}
                 className="border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-700 bg-stone-50 font-medium"
               >
-                <option value="ALL">جميع الحالات (10 حالات)</option>
+                <option value="ALL">{t("trips.labels.txt_72e74a")}</option>
                 <option value="DRAFT">مسودة (DRAFT)</option>
                 <option value="LOADED">تم التحميل (LOADED)</option>
-                <option value="IN_TRANSIT">في الطريق (IN_TRANSIT)</option>
-                <option value="ARRIVED">وصلت الموقع (ARRIVED)</option>
+                <option value="IN_TRANSIT">{t("trips.labels.txt_499473")}</option>
+                <option value="ARRIVED">{t("trips.labels.location")}</option>
                 <option value="UNLOADING">قيد التفريغ (UNLOADING)</option>
-                <option value="COMPLETED">مكتملة ومستلمة (COMPLETED)</option>
-                <option value="RETURN_REQUESTED">طلب إرجاع (RETURN_REQ)</option>
+                <option value="COMPLETED">{t("trips.status.txt_6e12f5")}</option>
+                <option value="RETURN_REQUESTED">{t("trips.labels.txt_66dfa3")}</option>
                 <option value="RETURNED">مرتجعة (RETURNED)</option>
                 <option value="EXCEPTION">استثناء (EXCEPTION)</option>
-                <option value="CANCELLED">ملغاة (CANCELLED)</option>
+                <option value="CANCELLED">{t("trips.labels.txt_3740a7")}</option>
               </select>
             </div>
 
@@ -1123,22 +1110,21 @@ export const TripEngineView: React.FC = () => {
               <thead className="bg-stone-50/80 text-stone-600 font-bold border-b border-stone-200">
                 <tr>
                   <th className="py-3 px-3">رقم الرحلة / التذكرة</th>
-                  <th className="py-3 px-3">الناقل والشاحنة</th>
-                  <th className="py-3 px-3">السائق والمادة</th>
-                  <th className="py-3 px-3 text-center">أوزان المصدر (كجم)</th>
+                  <th className="py-3 px-3">{t("trips.labels.carrierTruck")}</th>
+                  <th className="py-3 px-3">{t("trips.labels.driverMaterial")}</th>
+                  <th className="py-3 px-3 text-center">{t("trips.labels.txt_414461")}</th>
                   <th className="py-3 px-3 text-center">وزن الوصول الصافي</th>
                   <th className="py-3 px-3 text-center">فارق الوزن</th>
-                  <th className="py-3 px-3 text-center">التسوية (SAR)</th>
-                  <th className="py-3 px-3 text-center">الحالة / الإصدار</th>
-                  <th className="py-3 px-3 text-center">إجراءات</th>
+                  <th className="py-3 px-3 text-center">{t("trips.labels.txt_7d6134")}</th>
+                  <th className="py-3 px-3 text-center">{t("trips.labels.status")}</th>
+                  <th className="py-3 px-3 text-center">{t("trips.labels.txt_1309b3")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
                 {filteredTrips.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="py-8 text-center text-stone-400 text-xs font-medium">
-                      لا توجد رحلات مطابقة لمعايير البحث
-                    </td>
+                      {t("trips.labels.search")}</td>
                   </tr>
                 ) : (
                   filteredTrips.map((trip, idx) => (
@@ -1188,8 +1174,7 @@ export const TripEngineView: React.FC = () => {
                           </div>
                         ) : (
                           <span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-stone-100 text-stone-500 italic">
-                            null (لم تُستلم)
-                          </span>
+                            {t("trips.labels.txt_7b64c0")}</span>
                         )}
                       </td>
 
@@ -1270,16 +1255,16 @@ export const TripEngineView: React.FC = () => {
                               setActiveSubTab('STATE_MACHINE');
                             }}
                             className="px-2 py-1 rounded bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-[10px] font-bold transition-all flex items-center gap-1 shadow-2xs"
-                            title="التحكم في دورة الحياة بالمحرك المركزي"
+                            title={t("trips.labels.txt_371dfc")}
                           >
                             <GitCommit className="w-3 h-3 text-amber-700" />
-                            <span>محرك الحالة</span>
+                            <span>{t("trips.labels.status_2")}</span>
                           </button>
 
                           <button
                             onClick={() => setSelectedTrip(trip)}
                             className="p-1.5 rounded hover:bg-stone-100 text-stone-600 hover:text-stone-900 transition-colors"
-                            title="عرض تفاصيل الرحلة والـ Snapshot"
+                            title={t("trips.labels.viewDetailsTrip")}
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -1296,10 +1281,10 @@ export const TripEngineView: React.FC = () => {
                                 });
                               }}
                               className="px-2 py-1 rounded bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold transition-all flex items-center gap-1 shadow-2xs"
-                              title="تسجيل وصول واستلام في الموقع"
+                              title={t("trips.labels.location_4")}
                             >
                               <Scale className="w-3 h-3" />
-                              <span>استلام الموقع</span>
+                              <span>{t("trips.labels.location_5")}</span>
                             </button>
                           )}
                         </div>
@@ -1323,7 +1308,7 @@ export const TripEngineView: React.FC = () => {
                   <Scale className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-stone-900">تسجيل استلام الموقع وميزان الوصول</h3>
+                  <h3 className="text-sm font-bold text-stone-900">{t("trips.labels.location_6")}</h3>
                   <p className="text-xs text-stone-500">الرحلة: {receiptModalTrip.tripSerial}</p>
                 </div>
               </div>
@@ -1382,13 +1367,12 @@ export const TripEngineView: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-[10px] text-indigo-700">
-                    التحقق من القاعدة: يتم تحويل destNetWeight و varianceWeight من null إلى أرقام محققة.
-                  </p>
+                    {t("trips.labels.txt_240ccf")}</p>
                 </div>
               )}
 
               <div>
-                <label className="block font-medium text-stone-700 mb-1">مستلم الموقع / المفتش (unloaderId)</label>
+                <label className="block font-medium text-stone-700 mb-1">{t("trips.labels.location_7")}</label>
                 <input 
                   type="text"
                   value={receiptForm.unloaderId}
@@ -1399,7 +1383,7 @@ export const TripEngineView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-stone-700 mb-1">ملاحظات الاستلام</label>
+                <label className="block font-medium text-stone-700 mb-1">{t("trips.labels.txt_74ca11")}</label>
                 <input 
                   type="text"
                   value={receiptForm.notes}
@@ -1420,8 +1404,7 @@ export const TripEngineView: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold"
                 >
-                  تأكيد الاستلام واعتماد الفارق
-                </button>
+                  {t("trips.labels.confirm")}</button>
               </div>
             </form>
           </div>
@@ -1457,7 +1440,7 @@ export const TripEngineView: React.FC = () => {
 
             {/* Trip Attributes Grid */}
             <div className="space-y-4 text-xs">
-              <h3 className="font-bold text-stone-900 border-b pb-1">1. المعرفات والبيانات التشغيلية</h3>
+              <h3 className="font-bold text-stone-900 border-b pb-1">{t("trips.labels.txt_50e5d7")}</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div className="p-2.5 rounded-lg bg-stone-50 border">
                   <span className="text-[10px] text-stone-500 block">tripId</span>
@@ -1497,7 +1480,7 @@ export const TripEngineView: React.FC = () => {
                 </div>
               </div>
 
-              <h3 className="font-bold text-stone-900 border-b pb-1 pt-2">2. حوكمة الأوزان (Weights)</h3>
+              <h3 className="font-bold text-stone-900 border-b pb-1 pt-2">{t("trips.labels.txt_2ed89d")}</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div className="p-2.5 rounded-lg bg-stone-50 border">
                   <span className="text-[10px] text-stone-500 block">وزن الفارغ (tareWeight)</span>
@@ -1508,12 +1491,12 @@ export const TripEngineView: React.FC = () => {
                   <span className="font-mono font-bold text-stone-900">{selectedTrip.grossWeight.toLocaleString()} كجم</span>
                 </div>
                 <div className="p-2.5 rounded-lg bg-indigo-50 border border-indigo-200">
-                  <span className="text-[10px] text-indigo-700 block font-bold">صافي المصدر (netWeight)</span>
+                  <span className="text-[10px] text-indigo-700 block font-bold">{t("trips.labels.txt_ca71d3")}</span>
                   <span className="font-mono font-black text-indigo-950">{selectedTrip.netWeight.toLocaleString()} كجم</span>
-                  <span className="text-[9px] text-indigo-600 block">حساب خادومي صارم</span>
+                  <span className="text-[9px] text-indigo-600 block">{t("trips.labels.txt_34781c")}</span>
                 </div>
                 <div className="p-2.5 rounded-lg bg-stone-50 border">
-                  <span className="text-[10px] text-stone-500 block">صافي الوصول (destNetWeight)</span>
+                  <span className="text-[10px] text-stone-500 block">{t("trips.labels.txt_566fcf")}</span>
                   <span className="font-mono font-bold text-stone-900">
                     {selectedTrip.destNetWeight !== null ? `${selectedTrip.destNetWeight.toLocaleString()} كجم` : 'null (لم تُستلم)'}
                   </span>
@@ -1554,7 +1537,7 @@ export const TripEngineView: React.FC = () => {
                 </div>
               </div>
 
-              <h3 className="font-bold text-stone-900 border-b pb-1 pt-2">4. المشغلون والتوقيت والملاحظات</h3>
+              <h3 className="font-bold text-stone-900 border-b pb-1 pt-2">{t("trips.labels.notes")}</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-2.5 rounded-lg bg-stone-50 border">
                   <span className="text-[10px] text-stone-500 block">loaderId</span>
@@ -1575,7 +1558,7 @@ export const TripEngineView: React.FC = () => {
               </div>
 
               <div className="p-3 bg-stone-50 rounded-lg border">
-                <span className="text-[10px] text-stone-500 block mb-1">ملاحظات الرحلة والتتبع الرقابي (notes):</span>
+                <span className="text-[10px] text-stone-500 block mb-1">{t("trips.labels.trip_7")}</span>
                 <p className="text-xs text-stone-800 leading-relaxed font-mono">
                   {selectedTrip.notes || 'لا توجد ملاحظات'}
                 </p>

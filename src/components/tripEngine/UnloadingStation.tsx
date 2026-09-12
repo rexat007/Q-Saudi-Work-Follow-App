@@ -29,6 +29,8 @@ import {
 import { TripExceptionEntity } from '../../types/entities';
 import { tripEngineService } from '../../services/tripEngine.service';
 import { runUnloadingStationTestSuite, UnloadingTestResult } from '../../tests/unloadingStation.test';
+import { useI18n } from '../../i18n';
+
 
 interface UnloadingStationProps {
   onTripUpdated?: (updatedTrip: TripRecord) => void;
@@ -41,6 +43,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
   onViewTripDetails,
   onNotification
 }) => {
+  const { t } = useI18n();
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState<UnloadingSearchResult | null>(null);
@@ -311,14 +314,11 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
             <div>
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <h1 className="text-xl font-bold text-stone-900">
-                  محطة التفريغ والاستلام بموقع المشروع (Unloading Station)
-                </h1>
+                  {t("unloading.labels.project")}</h1>
                 <span className="bg-amber-100 text-amber-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  حوكمة استلام الموقع
-                </span>
+                  {t("unloading.labels.location")}</span>
                 <span className="bg-emerald-100 text-emerald-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  حساب الفارق الخادومي الصارم
-                </span>
+                  {t("unloading.labels.txt_58bc1a")}</span>
               </div>
               <p className="text-xs text-stone-600 max-w-3xl leading-relaxed">
                 منظومة استلام وتفريغ الشحنات بالموقع: البحث بالتدرج الإلزامي (tripSerial ➔ ticketId ➔ truckId)، حظر البحث باللوحة المنفردة، التدرج التشغيلي للحالات، واحتساب فارق الوزن خادومياً وإنشاء كائنات الاستثناءات الرسمية عند تجاوز التفاوت.
@@ -331,10 +331,10 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
             <button
               onClick={handleRunTests}
               className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-2 shrink-0"
-              title="فحص الامتثال لقواعد البحث الخادومي، حظر اللوحة، التدرج، وإنشاء كائنات الاستثناء"
+              title={t("unloading.labels.searchCreate")}
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>فحص الامتثال الآلي (7 متطلبات)</span>
+              <span>{t("unloading.labels.txt_1bec3a")}</span>
             </button>
           </div>
         </div>
@@ -347,15 +347,14 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
             <div>
               <h2 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                 <Search className="w-4 h-4 text-amber-700" />
-                <span>البحث والتعرف على الرحلة (Search & Identification)</span>
+                <span>{t("unloading.labels.searchTrip")}</span>
               </h2>
               <p className="text-[11px] text-stone-500">
-                تسلسل البحث: الأساسي <span className="font-bold text-stone-800">tripSerial</span> ➔ ثم: <span className="font-bold text-stone-800">ticketId</span> ➔ ثم: <span className="font-bold text-stone-800">truckId</span>. (يُمنع استخدام truckPlate وحده).
-              </p>
+                {t("unloading.labels.txt_3aa019")}<span className="font-bold text-stone-800">tripSerial</span> {t("unloading.labels.txt_11fefd")}<span className="font-bold text-stone-800">ticketId</span> {t("unloading.labels.txt_11fefd")}<span className="font-bold text-stone-800">truckId</span>{t("unloading.labels.txt_424fcb")}</p>
             </div>
 
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-stone-400 font-medium text-[11px]">قواعد النتائج:</span>
+              <span className="text-stone-400 font-medium text-[11px]">{t("unloading.labels.txt_5bfe91")}</span>
               <span className="bg-stone-200 text-stone-700 px-2 py-0.5 rounded text-[10px] font-mono">0: NOT_FOUND</span>
               <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-mono">1: CONTINUE</span>
               <span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded text-[10px] font-mono">&gt;1: AMBIGUOUS</span>
@@ -381,13 +380,13 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
               className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 flex items-center justify-center gap-1.5"
             >
               <Search className="w-3.5 h-3.5" />
-              <span>بحث وتحقق</span>
+              <span>{t("unloading.labels.search")}</span>
             </button>
           </div>
 
           {/* Quick Preset Buttons for Easy Demonstration of all 4 Prompt Rules */}
           <div className="flex items-center gap-1.5 flex-wrap pt-1">
-            <span className="text-[11px] text-stone-400 font-medium">سيناريوهات تجربة فورية:</span>
+            <span className="text-[11px] text-stone-400 font-medium">{t("unloading.labels.txt_13d6c6")}</span>
             
             <button
               onClick={() => {
@@ -396,7 +395,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
               }}
               className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-stone-200 text-stone-700 border border-stone-200 transition-all flex items-center gap-1"
             >
-              <span>1️⃣ الأساسي tripSerial (1 ➔ CONTINUE)</span>
+              <span>{t("unloading.labels.txt_ab913c")}</span>
             </button>
 
             <button
@@ -406,7 +405,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
               }}
               className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-stone-200 text-stone-700 border border-stone-200 transition-all flex items-center gap-1"
             >
-              <span>2️⃣ التذكرة ticketId (1 ➔ CONTINUE)</span>
+              <span>{t("unloading.labels.txt_714754")}</span>
             </button>
 
             <button
@@ -416,7 +415,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
               }}
               className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-stone-200 text-stone-700 border border-stone-200 transition-all flex items-center gap-1"
             >
-              <span>3️⃣ معرف الشاحنة truckId (&gt;1 ➔ AMBIGUOUS)</span>
+              <span>{t("unloading.labels.truck")}</span>
             </button>
 
             <button
@@ -427,7 +426,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
               className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 transition-all flex items-center gap-1"
             >
               <ShieldAlert className="w-3 h-3 text-rose-600" />
-              <span>4️⃣ حظر اللوحة المنفردة (PROHIBITED)</span>
+              <span>{t("unloading.labels.txt_5f0c9f")}</span>
             </button>
 
             <button
@@ -437,7 +436,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
               }}
               className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-stone-200 text-stone-600 border border-stone-200 transition-all flex items-center gap-1"
             >
-              <span>5️⃣ غير موجود (0 ➔ NOT_FOUND)</span>
+              <span>{t("unloading.labels.txt_e24ccf")}</span>
             </button>
           </div>
 
@@ -453,7 +452,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                       <span className="bg-amber-200 text-amber-900 px-2 py-0.5 rounded text-[10px] font-bold">
                         0 ➔ NOT_FOUND
                       </span>
-                      <span>لم يتم العثور على أي رحلة مطابقة</span>
+                      <span>{t("unloading.labels.trip")}</span>
                     </div>
                     <p className="text-[11px] text-amber-800 mt-1">
                       {searchResult.messageAr}
@@ -469,9 +468,8 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   <div>
                     <div className="font-bold flex items-center gap-2">
                       <span className="bg-rose-200 text-rose-900 px-2 py-0.5 rounded text-[10px] font-bold">
-                        حظر أمني رقابي (BLOCKED)
-                      </span>
-                      <span>اشتراط صارم: لا تستخدم truckPlate وحده لتحديد الرحلة</span>
+                        {t("unloading.labels.txt_68980a")}</span>
+                      <span>{t("unloading.labels.trip_2")}</span>
                     </div>
                     <p className="text-[11px] text-rose-900 mt-1 leading-relaxed">
                       {searchResult.messageAr}
@@ -490,11 +488,10 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                         <span className="bg-purple-200 text-purple-900 px-2 py-0.5 rounded text-[10px] font-bold">
                           &gt;1 ➔ AMBIGUOUS (العدد: {searchResult.count})
                         </span>
-                        <span>تنبيه غامض: تم العثور على أكثر من رحلة للشاحنة</span>
+                        <span>{t("unloading.labels.trip_3")}</span>
                       </div>
                       <p className="text-[11px] text-purple-800 mt-0.5">
-                        يُحظر المضي التلقائي لمنع الخلط بين الرحلات أو الورديات المختلفة. الرجاء اختيار الرحلة المستهدفة أدناه:
-                      </p>
+                        {t("unloading.labels.tripsTrip")}</p>
                     </div>
                   </div>
 
@@ -556,8 +553,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                         <span>تم تحديد الرحلة الفريدة بنجاح: {activeTrip.tripSerial}</span>
                       </div>
                       <p className="text-[11px] text-emerald-800 mt-0.5">
-                        تمت المطابقة عبر: <span className="font-bold">{searchResult.matchedBy}</span>. تم تفعيل مسار محطة التفريغ أدناه.
-                      </p>
+                        {t("unloading.labels.txt_17be32")}<span className="font-bold">{searchResult.matchedBy}</span>{t("unloading.labels.txt_53c5e6")}</p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -588,7 +584,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 <span className="font-bold text-stone-900">{activeTrip.ticketId}</span>
               </div>
               <div>
-                <span className="text-stone-400 text-[10px] block">معرف ولـوحة الشاحنة</span>
+                <span className="text-stone-400 text-[10px] block">{t("unloading.labels.truck_2")}</span>
                 <span className="font-bold text-stone-900">
                   {activeTrip.truckId} 
                   {activeTrip.entitySnapshots?.truck?.plateNumberAr && ` (${activeTrip.entitySnapshots.truck.plateNumberAr})`}
@@ -601,13 +597,13 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 </span>
               </div>
               <div>
-                <span className="text-stone-400 text-[10px] block">التسعيرة المعتمدة</span>
+                <span className="text-stone-400 text-[10px] block">{t("unloading.labels.txt_173722")}</span>
                 <span className="font-bold text-stone-900">
                   {activeTrip.agreedRate} {activeTrip.currency} ({activeTrip.pricingType})
                 </span>
               </div>
               <div>
-                <span className="text-stone-400 text-[10px] block">حالة دورة الحياة</span>
+                <span className="text-stone-400 text-[10px] block">{t("unloading.labels.txt_2f5c04")}</span>
                 <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   activeTrip.status === 'IN_TRANSIT' ? 'bg-amber-100 text-amber-800' :
                   activeTrip.status === 'ARRIVED' ? 'bg-blue-100 text-blue-800' :
@@ -634,18 +630,17 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
                     <span className="w-5 h-5 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center text-[10px] font-bold">1</span>
-                    <span>عند الوصول (Arrival)</span>
+                    <span>{t("unloading.labels.txt_304aff")}</span>
                   </span>
                   <span className="text-[10px] font-mono text-stone-500">
                     IN_TRANSIT ➔ ARRIVED
                   </span>
                 </div>
                 <p className="text-[11px] text-stone-600 mb-3">
-                  تسجيل وصول الشاحنة عند البوابة الرئيسية وتوثيق طابع الوقت الزمني.
-                </p>
+                  {t("unloading.labels.truckTime")}</p>
 
                 <div className="space-y-2 mb-3">
-                  <label className="block text-[11px] font-semibold text-stone-700">وقت الوصول الفعلي (arrivalTime)</label>
+                  <label className="block text-[11px] font-semibold text-stone-700">{t("unloading.labels.txt_12f468")}</label>
                   <input
                     type="datetime-local"
                     value={arrivalTimeInput}
@@ -674,7 +669,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   ) : (
                     <>
                       <Truck className="w-3.5 h-3.5" />
-                      <span>تأكيد وصول الشاحنة (IN_TRANSIT ➔ ARRIVED)</span>
+                      <span>{t("unloading.labels.confirmTruck")}</span>
                     </>
                   )}
                 </button>
@@ -691,15 +686,14 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
                     <span className="w-5 h-5 rounded-full bg-blue-200 text-blue-900 flex items-center justify-center text-[10px] font-bold">2</span>
-                    <span>عند بدء التفريغ (Start Unloading)</span>
+                    <span>{t("unloading.labels.txt_280c6b")}</span>
                   </span>
                   <span className="text-[10px] font-mono text-stone-500">
                     ARRIVED ➔ UNLOADING
                   </span>
                 </div>
                 <p className="text-[11px] text-stone-600 mb-3">
-                  إسناد منصة التفريغ وتعيين هوية مستلم الموقع المعتمد.
-                </p>
+                  {t("unloading.labels.location_2")}</p>
 
                 <div className="space-y-2 mb-3">
                   <label className="block text-[11px] font-semibold text-stone-700">هوية مستلم الموقع (unloaderId)</label>
@@ -732,7 +726,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   ) : (
                     <>
                       <ArrowLeft className="w-3.5 h-3.5" />
-                      <span>بدء التفريغ (ARRIVED ➔ UNLOADING)</span>
+                      <span>{t("unloading.labels.txt_753b7a")}</span>
                     </>
                   )}
                 </button>
@@ -756,8 +750,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   </span>
                 </div>
                 <p className="text-[11px] text-stone-600 mb-3">
-                  يحسب الخادم varianceWeight ويحدّث: unloaderId, arrivalTime, unloadTime, destNetWeight, varianceWeight.
-                </p>
+                  {t("unloading.labels.txt_2e57eb")}</p>
 
                 <div className="space-y-2 mb-3">
                   <div className="flex items-center justify-between text-[11px]">
@@ -774,7 +767,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   {weightEntryMode === 'DUAL_SCALE' && (
                     <div className="grid grid-cols-2 gap-2 bg-stone-100 p-2 rounded-lg text-xs">
                       <div>
-                        <span className="text-[10px] text-stone-500 block">القائم بالموقع</span>
+                        <span className="text-[10px] text-stone-500 block">{t("unloading.labels.location_4")}</span>
                         <input
                           type="number"
                           value={destGrossInput}
@@ -784,7 +777,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] text-stone-500 block">الفارغ بالموقع</span>
+                        <span className="text-[10px] text-stone-500 block">{t("unloading.labels.location_5")}</span>
                         <input
                           type="number"
                           value={destTareInput}
@@ -809,22 +802,20 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 {/* Live Presets for Quick Testing in Unloading Station */}
                 {activeTrip.status === 'UNLOADING' && (
                   <div className="mb-3">
-                    <span className="text-[10px] text-stone-500 block mb-1">أمثلة أوزان سريعة للاختبار:</span>
+                    <span className="text-[10px] text-stone-500 block mb-1">{t("unloading.labels.txt_540518")}</span>
                     <div className="flex gap-1 flex-wrap">
                       <button
                         type="button"
                         onClick={() => setDestNetWeightInput(activeTrip.netWeight - 150)}
                         className="text-[10px] bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-semibold"
                       >
-                        مطابق طبيعي (-150 كجم)
-                      </button>
+                        {t("unloading.labels.txt_34f055")}</button>
                       <button
                         type="button"
                         onClick={() => setDestNetWeightInput(activeTrip.netWeight - 2500)}
                         className="text-[10px] bg-white hover:bg-rose-50 text-rose-800 border border-rose-200 px-2 py-0.5 rounded font-semibold"
                       >
-                        عجز كبير (-2500 كجم ➔ Exception)
-                      </button>
+                        {t("unloading.labels.txt_70c619")}</button>
                     </div>
                   </div>
                 )}
@@ -843,12 +834,12 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   {activeTrip.status === 'COMPLETED' ? (
                     <>
                       <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                      <span>مكتملة ومفرغة بالكامل (COMPLETED)</span>
+                      <span>{t("unloading.status.txt_2c78c0")}</span>
                     </>
                   ) : (
                     <>
                       <Scale className="w-3.5 h-3.5" />
-                      <span>اعتماد التفريغ وتحديث الحقول الـ 5</span>
+                      <span>{t("unloading.labels.refresh")}</span>
                     </>
                   )}
                 </button>
@@ -869,13 +860,13 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                       معاينة الحساب الخادومي ومراقبة تفاوت الوزن (Server Variance & Tolerance)
                     </h3>
                     <p className="text-[11px] text-stone-500">
-                      المعادلة الخادومية الصارمة: <span className="font-mono text-stone-800 font-bold">varianceWeight = destNetWeight - netWeight</span>
+                      {t("unloading.labels.txt_9a2a40")}<span className="font-mono text-stone-800 font-bold">varianceWeight = destNetWeight - netWeight</span>
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-stone-500 font-medium">حد التسامح المعتمد:</span>
+                  <span className="text-[11px] text-stone-500 font-medium">{t("unloading.labels.txt_5adc67")}</span>
                   <span className="bg-stone-100 text-stone-800 text-xs px-2 py-0.5 rounded font-mono font-bold">
                     ±{tolerancePercent}% (أو ±{toleranceKg} كجم)
                   </span>
@@ -889,7 +880,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   <div className="text-lg font-black text-stone-900 font-mono">
                     {currentOriginNet.toLocaleString()} <span className="text-xs font-normal">كجم</span>
                   </div>
-                  <span className="text-[10px] text-stone-400">محسوب مسبقاً بالمصدر</span>
+                  <span className="text-[10px] text-stone-400">{t("unloading.labels.txt_3af241")}</span>
                 </div>
 
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200/80">
@@ -897,7 +888,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   <div className="text-lg font-black text-stone-900 font-mono">
                     {currentDestNet > 0 ? `${currentDestNet.toLocaleString()} كجم` : 'بانتظار الإدخال'}
                   </div>
-                  <span className="text-[10px] text-stone-400">مدخل محطة التفريغ</span>
+                  <span className="text-[10px] text-stone-400">{t("unloading.labels.txt_576fc8")}</span>
                 </div>
 
                 <div className={`p-3 rounded-xl border ${
@@ -931,14 +922,14 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 </div>
 
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200/80">
-                  <span className="text-[10px] font-medium text-stone-500 block mb-1">نتيجة فحص المطابقة</span>
+                  <span className="text-[10px] font-medium text-stone-500 block mb-1">{t("unloading.labels.txt_23937a")}</span>
                   {liveVariance === null ? (
                     <div className="text-xs font-bold text-stone-400 mt-2">بانتظار تسجيل الوزن</div>
                   ) : isLiveOutOfTolerance ? (
                     <div>
                       <span className="inline-flex items-center gap-1 text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full mb-1">
                         <AlertTriangle className="w-3 h-3" />
-                        <span>خارج التسامح (Exception)</span>
+                        <span>{t("unloading.labels.txt_30adf1")}</span>
                       </span>
                       <span className="text-[10px] text-rose-800 block">
                         يتجاوز التفاوت المسموح (±{effectiveTolerance.toLocaleString()} كجم)
@@ -948,11 +939,10 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                     <div>
                       <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full mb-1">
                         <CheckCircle2 className="w-3 h-3" />
-                        <span>ضمن التسامح المسموح</span>
+                        <span>{t("unloading.labels.txt_4db372")}</span>
                       </span>
                       <span className="text-[10px] text-emerald-700 block">
-                        تفاوت طبيعي مبرر للشحنة
-                      </span>
+                        {t("unloading.labels.txt_1efd8d")}</span>
                     </div>
                   )}
                 </div>
@@ -961,8 +951,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
               {/* Atomic 5-Field Update Preview Box */}
               <div className="bg-stone-100/70 rounded-xl p-3.5 border border-stone-200 text-xs">
                 <span className="font-bold text-stone-800 block mb-2 text-[11px]">
-                  ✓ حزم التحديث الذري الإلزامي للحقول الخمسة على السيرفر (Atomic Server Updates):
-                </span>
+                  {t("unloading.labels.refresh_2")}</span>
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[11px] font-mono">
                   <div className="bg-white p-2 rounded border border-stone-200">
                     <span className="text-stone-400 block text-[9px]">1. unloaderId</span>
@@ -1009,21 +998,18 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="text-sm font-bold text-rose-950">
-                          سجل الاستثناءات الرسمية المنشأة (Created Official Exception Entity)
-                        </h3>
+                          {t("unloading.labels.txt_7dbd48")}</h3>
                         <span className="bg-rose-200 text-rose-900 text-[10px] px-2 py-0.5 rounded font-mono font-bold">
                           {tripExceptions.length} استثناء نشط
                         </span>
                       </div>
                       <p className="text-[11px] text-rose-800">
-                        تنفيذاً للاشتراط: <span className="font-bold">"ولا تعتبر الفرق مجرد لون في الواجهة"</span> — تم إنشاء كائن استثناء مالي وتشغيلي رسمي في قاعدة البيانات يمنع التسوية المالية حتى الاعتماد الإداري.
-                      </p>
+                        {t("unloading.labels.txt_57f705")}<span className="font-bold">{t("unloading.labels.txt_2af283")}</span> {t("unloading.labels.create")}</p>
                     </div>
                   </div>
 
                   <span className="text-xs font-bold text-rose-900 bg-rose-200/80 px-3 py-1 rounded-full">
-                    مطلوب اعتماد مدير المشروع
-                  </span>
+                    {t("unloading.labels.project_2")}</span>
                 </div>
 
                 <div className="space-y-3">
@@ -1059,8 +1045,8 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
 
                       <div className="flex items-center justify-between text-[11px] text-stone-500 pt-1 flex-wrap gap-2">
                         <div className="flex items-center gap-3">
-                          <span>المسؤول المُبلّغ: <strong className="text-stone-700">{exc.reportedBy.displayName}</strong></span>
-                          <span>معرف المستخدم: <code className="text-stone-600 font-mono">{exc.reportedBy.userId}</code></span>
+                          <span>{t("unloading.labels.txt_4f7379")}<strong className="text-stone-700">{exc.reportedBy.displayName}</strong></span>
+                          <span>{t("unloading.labels.user")}<code className="text-stone-600 font-mono">{exc.reportedBy.userId}</code></span>
                         </div>
 
                         {exc.status === 'OPEN' && (
@@ -1086,14 +1072,12 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                               }}
                               className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-[10px] font-bold transition-all shadow-2xs"
                             >
-                              اعتماد الاستثناء والسماح بالتسوية (Waive Exception)
-                            </button>
+                              {t("unloading.labels.txt_1cfd3c")}</button>
                           </div>
                         )}
                         {exc.status === 'WAIVED' && (
                           <span className="text-emerald-800 font-bold text-[10px] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                            ✓ تم اعتماد الاستثناء إدارياً
-                          </span>
+                            {t("unloading.labels.txt_67076e")}</span>
                         )}
                       </div>
                     </div>
@@ -1107,7 +1091,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
             <div className="w-12 h-12 rounded-full bg-stone-200/70 text-stone-500 flex items-center justify-center mx-auto mb-2">
               <Search className="w-5 h-5" />
             </div>
-            <h4 className="text-sm font-bold text-stone-700 mb-1">بانتظار البحث عن رحلة</h4>
+            <h4 className="text-sm font-bold text-stone-700 mb-1">{t("unloading.labels.searchTrip_2")}</h4>
             <p className="text-xs text-stone-500 max-w-md mx-auto">
               أدخل رقم الرحلة (tripSerial) أو رقم التذكرة (ticketId) أو معرف الشاحنة (truckId) لبدء إجراءات الاستلام والتفريغ.
             </p>
@@ -1128,11 +1112,9 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-stone-900">
-                    تقرير الامتثال الآلي لاشتراطات محطة التفريغ (Unloading Station Tests)
-                  </h3>
+                    {t("unloading.labels.txt_186f77")}</h3>
                   <p className="text-[11px] text-stone-500">
-                    تم فحص جميع القواعد الصارمة الواردة في البرومبت برمجياً
-                  </p>
+                    {t("unloading.labels.txt_23ed64")}</p>
                 </div>
               </div>
 
@@ -1152,7 +1134,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   <span className="text-lg font-black text-stone-800">{testResults.summary.total}</span>
                 </div>
                 <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-center">
-                  <span className="text-[10px] text-emerald-700 block">ناجحة 100%</span>
+                  <span className="text-[10px] text-emerald-700 block">{t("unloading.labels.txt_e43d44")}</span>
                   <span className="text-lg font-black text-emerald-800">{testResults.summary.passed}</span>
                 </div>
                 <div className="bg-rose-50 p-3 rounded-xl border border-rose-200 text-center">
@@ -1194,8 +1176,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
 
             <div className="p-4 border-t border-stone-100 bg-stone-50 flex items-center justify-between">
               <span className="text-xs text-stone-500 font-medium">
-                جميع الاختبارات الخادومية مطابقة للمواصفات القياسية.
-              </span>
+                {t("unloading.labels.txt_48bcec")}</span>
               <button
                 onClick={() => setIsTestModalOpen(false)}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-900 text-white rounded-lg text-xs font-bold"
