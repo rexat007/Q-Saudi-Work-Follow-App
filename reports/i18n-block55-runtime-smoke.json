@@ -1,0 +1,663 @@
+{
+  "auditName": "BLOCK 55 — Runtime UI Smoke Test & Translation Quality Gate",
+  "timestamp": "2026-09-13T08:24:52.717Z",
+  "status": "COMPLETE",
+  "scope": "RUNTIME_UI_QUALITY_GATE",
+  "summary": {
+    "totalReferencedKeys": 1115,
+    "resolvedInAr": 1115,
+    "resolvedInEn": 1115,
+    "resolvedInUr": 1115,
+    "resolutionPercentage": 100,
+    "rawKeyLeakageCount": 0,
+    "keyAsValueCount": 0
+  },
+  "localeSwitching": {
+    "status": "VERIFIED",
+    "locales": [
+      {
+        "locale": "ar",
+        "direction": "rtl",
+        "isRTL": true,
+        "expectedDir": "rtl",
+        "matches": true,
+        "documentLang": "ar",
+        "documentDir": "rtl"
+      },
+      {
+        "locale": "en",
+        "direction": "ltr",
+        "isRTL": false,
+        "expectedDir": "ltr",
+        "matches": true,
+        "documentLang": "en",
+        "documentDir": "ltr"
+      },
+      {
+        "locale": "ur",
+        "direction": "rtl",
+        "isRTL": true,
+        "expectedDir": "rtl",
+        "matches": true,
+        "documentLang": "ur",
+        "documentDir": "rtl"
+      }
+    ]
+  },
+  "foundation": {
+    "status": "VERIFIED",
+    "allActionsMatch": true,
+    "allStatusAndUnitsMatch": true,
+    "actions": [
+      {
+        "key": "shared.actions.save",
+        "ar": "حفظ",
+        "en": "Save",
+        "ur": "محفوظ کریں",
+        "valid": true
+      },
+      {
+        "key": "shared.actions.cancel",
+        "ar": "إلغاء",
+        "en": "Cancel",
+        "ur": "منسوخ کریں",
+        "valid": true
+      },
+      {
+        "key": "shared.actions.confirm",
+        "ar": "تأكيد",
+        "en": "Confirm",
+        "ur": "تصدیق کریں",
+        "valid": true
+      },
+      {
+        "key": "shared.actions.close",
+        "ar": "إغلاق",
+        "en": "Close",
+        "ur": "بند کریں",
+        "valid": true
+      },
+      {
+        "key": "shared.actions.delete",
+        "ar": "حذف",
+        "en": "Delete",
+        "ur": "حذف کریں",
+        "valid": true
+      },
+      {
+        "key": "shared.actions.edit",
+        "ar": "تعديل",
+        "en": "Edit",
+        "ur": "ترمیم کریں",
+        "valid": true
+      }
+    ],
+    "statusAndUnits": [
+      {
+        "key": "shared.status.loading",
+        "ar": "جاري التحميل...",
+        "en": "Loading...",
+        "ur": "لوڈ ہو رہا ہے...",
+        "valid": true
+      },
+      {
+        "key": "shared.status.error",
+        "ar": "حدث خطأ",
+        "en": "An error occurred",
+        "ur": "خرابی پیش آگئی",
+        "valid": true
+      },
+      {
+        "key": "shared.status.success",
+        "ar": "تمت العملية بنجاح",
+        "en": "Operation completed successfully",
+        "ur": "آپریشن کامیابی سے مکمل ہوا",
+        "valid": true
+      },
+      {
+        "key": "shared.units.kg",
+        "ar": "كجم",
+        "en": "kg",
+        "ur": "کلوگرام",
+        "valid": true
+      },
+      {
+        "key": "shared.units.ton",
+        "ar": "طن",
+        "en": "ton",
+        "ur": "ٹن",
+        "valid": true
+      },
+      {
+        "key": "shared.units.sar",
+        "ar": "ر.س",
+        "en": "SAR",
+        "ur": "سعودی ریال",
+        "valid": true
+      }
+    ]
+  },
+  "generatedHashKeys": {
+    "totalTxtKeys": 736,
+    "txtLabelsCount": 721,
+    "txtMessagesCount": 5,
+    "txtStatusCount": 10,
+    "resolvableCount": 736,
+    "leakageCount": 0,
+    "leakageRate": 0,
+    "status": "VERIFIED_ZERO_LEAKAGE"
+  },
+  "domainSampling": {
+    "dashboard": [
+      {
+        "key": "dashboard.labels.continue_2",
+        "ar": "متابعة فورية ومباشرة للشاحنات عبر موازين التحميل، الترحيل الميداني، والتفريغ في المواقع",
+        "en": "Continue فورية ومباشرة للشاحنات عبر موازين التحميل، الترحيل الميداني، والتفريغ في المواقع",
+        "ur": "جاری رکھیں فورية ومباشرة للشاحنات عبر موازين التحميل، الترحيل الميداني، والتفريغ في المواقع"
+      },
+      {
+        "key": "dashboard.labels.pricing_2",
+        "ar": "نوع التسعير",
+        "en": "نوع التسعير",
+        "ur": "نوع التسعير"
+      },
+      {
+        "key": "dashboard.labels.weighbridge",
+        "ar": "فارق الميزان",
+        "en": "فارق الميزان",
+        "ur": "فارق الميزان"
+      }
+    ],
+    "projects": [
+      {
+        "key": "projects.labels.pricing_2",
+        "ar": "${ruleLabel}: نوع التسعير يجب أن يكون بالرد (PER_TRIP) أو بالطن (PER_TON)",
+        "en": "${ruleLabel}: نوع التسعير يجب أن يكون بالرد (PER_TRIP) أو بالton (PER_TON)",
+        "ur": "${ruleLabel}: نوع التسعير يجب أن يكون بالرد (PER_TRIP) أو بالٹن (PER_TON)"
+      },
+      {
+        "key": "navigation.labels.projects",
+        "ar": "المعمارية الهندسية الصارمة لمنظومة النقل الثقيل والمشاريع متعددة الأطراف (Multi-Project)",
+        "en": "المعمارية الهندسية الصارمة لمنظومة النقل الثقيل وProjects متعددة الأطراف (Multi-Project)",
+        "ur": "المعمارية الهندسية الصارمة لمنظومة النقل الثقيل وپروجیکٹس متعددة الأطراف (Multi-Project)"
+      },
+      {
+        "key": "navigation.labels.projects_2",
+        "ar": "معالج تهيئة المشاريع (Project Wizard)",
+        "en": "معالج تهيئة Projects (Project Wizard)",
+        "ur": "معالج تهيئة پروجیکٹس (Project Wizard)"
+      }
+    ],
+    "trips": [
+      {
+        "key": "trips.labels.pricing",
+        "ar": "حل التسعير (Pricing Resolution):",
+        "en": "حل التسعير (Pricing Resolution):",
+        "ur": "حل التسعير (Pricing Resolution):"
+      },
+      {
+        "key": "trips.labels.txt_304e68",
+        "ar": "تسعير معتمد",
+        "en": "Approved Pricing",
+        "ur": "منظور شدہ قیمت"
+      },
+      {
+        "key": "trips.labels.txt_226b89",
+        "ar": "destNet + فرق",
+        "en": "destNet + Variance",
+        "ur": "destNet + فرق"
+      }
+    ],
+    "loading": [
+      {
+        "key": "loading.labels.carrier_2",
+        "ar": "رمز الناقل:",
+        "en": "رمز Carrier:",
+        "ur": "رمز کیریئر:"
+      },
+      {
+        "key": "loading.labels.carrier_4",
+        "ar": "شاحنات أسطول الناقل التابعة للمشروع",
+        "en": "شاحنات أسطول Carrier التابعة للمشروع",
+        "ur": "شاحنات أسطول کیریئر التابعة للمشروع"
+      },
+      {
+        "key": "shared.status.loading",
+        "ar": "جاري التحميل...",
+        "en": "Loading...",
+        "ur": "لوڈ ہو رہا ہے..."
+      }
+    ],
+    "unloading": [
+      {
+        "key": "unloading.labels.confirmTruck",
+        "ar": "تأكيد وصول الشاحنة (IN_TRANSIT ➔ ARRIVED)",
+        "en": "Confirm وصول Truck (IN_TRANSIT ➔ ARRIVED)",
+        "ur": "تصدیق کریں وصول ٹرک (IN_TRANSIT ➔ ARRIVED)"
+      },
+      {
+        "key": "unloading.labels.create",
+        "ar": "إنشاء كائن استثناء رسمي (TripExceptionEntity) حقيقي وليس مجرد لون واجهة",
+        "en": "Create كائن استثناء رسمي (TripExceptionEntity) حقيقي وليس مجرد لون واجهة",
+        "ur": "تخلیق کریں كائن استثناء رسمي (TripExceptionEntity) حقيقي وليس مجرد لون واجهة"
+      },
+      {
+        "key": "unloading.labels.location",
+        "ar": "هوية مستلم الموقع (unloaderId)",
+        "en": "هوية مستلم Location (unloaderId)",
+        "ur": "هوية مستلم مقام (unloaderId)"
+      }
+    ],
+    "weighbridge": [
+      {
+        "key": "weighbridge.labels.importWeighbridge",
+        "ar": "استيراد بيانات الميزان (Weighbridge Import)",
+        "en": "Import بيانات الميزان (Weighbridge Import)",
+        "ur": "امپورٹ کریں بيانات الميزان (Weighbridge Import)"
+      },
+      {
+        "key": "weighbridge.labels.addRefresh",
+        "ar": "إضافة أو تحديث قاعدة تفاوت (Tolerance Rule)",
+        "en": "Add أو Refresh قاعدة تفاوت (Tolerance Rule)",
+        "ur": "شامل کریں أو تازہ کریں قاعدة تفاوت (Tolerance Rule)"
+      },
+      {
+        "key": "weighbridge.messages.txt_5d74e2",
+        "ar": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
+        "en": "Idempotency cache has been reset for testing.",
+        "ur": "جانچ کے لیے ادیمپوٹینسی کیش کو دوبارہ ترتیب دیا گیا ہے۔"
+      }
+    ],
+    "imports": [
+      {
+        "key": "weighbridge.labels.import",
+        "ar": "بروفايل متخصص لاستيراد تذاكر وسجلات ميزان البسكول عبر مسار الاستيراد الموحد (Unified Pipeline). يفصل بين المصدر التشغيلي (WEIGHBRIDGE) ومصدر الإدخال (Excel/CSV/Sheets/Drive).",
+        "en": "بروفايل متخصص لImport تذاكر وسجلات ميزان البسكول عبر مسار الImport الموحد (Unified Pipeline). يفصل بين Source التشغيلي (WEIGHBRIDGE) ومصدر الإدخال (Excel/CSV/Sheets/Drive).",
+        "ur": "بروفايل متخصص لامپورٹ کریں تذاكر وسجلات ميزان البسكول عبر مسار الامپورٹ کریں الموحد (Unified Pipeline). يفصل بين ماخذ التشغيلي (WEIGHBRIDGE) ومصدر الإدخال (Excel/CSV/Sheets/Drive)."
+      },
+      {
+        "key": "entityResolution.labels.import",
+        "ar": "تعارض حرج في العلاقات أو الصلاحيات. يمنع الإدخال أو الاستيراد نهائياً حتى تتم المعالجة والتصحيح.",
+        "en": "تعارض حرج في العلاقات أو الصلاحيات. يمنع الإدخال أو الImport نهائياً حتى تتم المعالجة والتصحيح.",
+        "ur": "تعارض حرج في العلاقات أو الصلاحيات. يمنع الإدخال أو الامپورٹ کریں نهائياً حتى تتم المعالجة والتصحيح."
+      },
+      {
+        "key": "other.labels.import",
+        "ar": "دفعات الاستيراد",
+        "en": "دفعات الImport",
+        "ur": "دفعات الامپورٹ کریں"
+      }
+    ],
+    "pricing": [
+      {
+        "key": "offline.labels.pricing",
+        "ar": "قواعد التسعير (Pricing Rules)",
+        "en": "Pricing Rules",
+        "ur": "قیمت کے قواعد (Pricing Rules)"
+      },
+      {
+        "key": "navigation.labels.pricing",
+        "ar": "محرك التسعير (Pricing Engine)",
+        "en": "محرك التسعير (Pricing Engine)",
+        "ur": "محرك التسعير (Pricing Engine)"
+      },
+      {
+        "key": "loading.labels.pricingConfirm",
+        "ar": "إظهار طريقة التسعير للمستخدم قبل التأكيد:",
+        "en": "إظهار طريقة التسعير للمستخدم قبل الConfirm:",
+        "ur": "إظهار طريقة التسعير للمستخدم قبل التصدیق کریں:"
+      }
+    ],
+    "reports": [
+      {
+        "key": "navigation.labels.reports",
+        "ar": "محرك التقارير (Reports Engine)",
+        "en": "محرك التقارير (Reports Engine)",
+        "ur": "محرك التقارير (Reports Engine)"
+      },
+      {
+        "key": "navigation.labels.reports_2",
+        "ar": "التقارير وسجلات التشغيل",
+        "en": "التقارير وسجلات التشغيل",
+        "ur": "التقارير وسجلات التشغيل"
+      },
+      {
+        "key": "trips.labels.txt_226b89",
+        "ar": "destNet + فرق",
+        "en": "destNet + Variance",
+        "ur": "destNet + فرق"
+      }
+    ],
+    "offline": [
+      {
+        "key": "offline.labels.pricing",
+        "ar": "قواعد التسعير (Pricing Rules)",
+        "en": "Pricing Rules",
+        "ur": "قیمت کے قواعد (Pricing Rules)"
+      },
+      {
+        "key": "offline.labels.add",
+        "ar": "إضافة إلى الصفحة الرئيسية (Add to Home Screen)",
+        "en": "Add إلى الصفحة الرئيسية (Add to Home Screen)",
+        "ur": "شامل کریں إلى الصفحة الرئيسية (Add to Home Screen)"
+      },
+      {
+        "key": "offline.messages.txt_2165a5",
+        "ar": "تمت إعادة تعيين العملية إلى حالة الانتظار (PENDING). ستتم المزامنة عند الاتصال.",
+        "en": "تمت إعادة تعيين العملية إلى حالة الانتظار (PENDING). ستتم Synchronization عند الاتصال.",
+        "ur": "تمت إعادة تعيين العملية إلى حالة الانتظار (PENDING). ستتم مطابقت پذیری عند الاتصال."
+      }
+    ],
+    "exceptions": [
+      {
+        "key": "exceptions.labels.weight",
+        "ar": "فارق وزني غير مسموح",
+        "en": "فارق وزني غير مسموح",
+        "ur": "فارق وزني غير مسموح"
+      },
+      {
+        "key": "exceptions.labels.ambiguous",
+        "ar": "رحلة غامضة أو غير محددة",
+        "en": "Trip غامضة أو غير محددة",
+        "ur": "ٹرپ غامضة أو غير محددة"
+      },
+      {
+        "key": "exceptions.labels.duplicate",
+        "ar": "رحلة مكررة (Duplicate)",
+        "en": "Trip مكررة (Duplicate)",
+        "ur": "ٹرپ مكررة (Duplicate)"
+      }
+    ],
+    "legacyMigration": [
+      {
+        "key": "legacyMigration.labels.carrier_2",
+        "ar": "الناقل",
+        "en": "Carrier",
+        "ur": "کیریئر"
+      },
+      {
+        "key": "legacyMigration.labels.confirm",
+        "ar": "تأكيد وترحيل السجلات (Admin Commit)",
+        "en": "Confirm وترحيل السجلات (Admin Commit)",
+        "ur": "تصدیق کریں وترحيل السجلات (Admin Commit)"
+      },
+      {
+        "key": "legacyMigration.status.txt_1d98ed",
+        "ar": "تم اعتماد وترحيل البيانات بنجاح!",
+        "en": "تم Approval وترحيل Data بSuccess!",
+        "ur": "تم منظوری وترحيل ڈیٹا بکامیاب!"
+      }
+    ]
+  },
+  "metadataHooks": {
+    "useExceptionTypeMeta": {
+      "totalExceptions": 12,
+      "status": "VERIFIED",
+      "sample": [
+        {
+          "type": "WEIGHT_VARIANCE",
+          "labelKey": "exceptions.labels.weight",
+          "descKey": "exceptions.labels.truckTrip",
+          "ar": {
+            "label": "فارق وزني غير مسموح",
+            "desc": "الشاحنة مسجلة رسمياً تحت ناقل مختلف عن ناقل الرحلة المحرر بالبوليصة"
+          },
+          "en": {
+            "label": "فارق وزني غير مسموح",
+            "desc": "Truck مسجلة رسمياً تحت ناقل مختلف عن ناقل الTrip المحرر بالبوليصة"
+          },
+          "ur": {
+            "label": "فارق وزني غير مسموح",
+            "desc": "ٹرک مسجلة رسمياً تحت ناقل مختلف عن ناقل الٹرپ المحرر بالبوليصة"
+          }
+        },
+        {
+          "type": "TRUCK_CARRIER_CONFLICT",
+          "labelKey": "exceptions.labels.truck",
+          "descKey": "exceptions.labels.truckTrip",
+          "ar": {
+            "label": "غموض في مطابقة الرحلة: وجود تذكرتي ميزان صادرتين لنفس الشاحنة في نافذة زمنية متقاربة (خلال 20 دقيقة) بدون أمر تفريغ وسيط",
+            "desc": "الشاحنة مسجلة رسمياً تحت ناقل مختلف عن ناقل الرحلة المحرر بالبوليصة"
+          },
+          "en": {
+            "label": "غموض في مطابقة الTrip: وجود تذكرتي ميزان صادرتين لنفس Truck في نافذة زمنية متقاربة (خلال 20 دقيقة) بدون أمر تفريغ وسيط",
+            "desc": "Truck مسجلة رسمياً تحت ناقل مختلف عن ناقل الTrip المحرر بالبوليصة"
+          },
+          "ur": {
+            "label": "غموض في مطابقة الٹرپ: وجود تذكرتي ميزان صادرتين لنفس ٹرک في نافذة زمنية متقاربة (خلال 20 دقيقة) بدون أمر تفريغ وسيط",
+            "desc": "ٹرک مسجلة رسمياً تحت ناقل مختلف عن ناقل الٹرپ المحرر بالبوليصة"
+          }
+        },
+        {
+          "type": "DRIVER_CARRIER_CONFLICT",
+          "labelKey": "exceptions.labels.driver",
+          "descKey": "exceptions.labels.driver",
+          "ar": {
+            "label": "كفالة السائق غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+            "desc": "كفالة السائق غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ"
+          },
+          "en": {
+            "label": "كفالة Driver غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+            "desc": "كفالة Driver غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ"
+          },
+          "ur": {
+            "label": "كفالة ڈرائیور غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+            "desc": "كفالة ڈرائیور غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ"
+          }
+        },
+        {
+          "type": "MATERIAL_NOT_ALLOWED",
+          "labelKey": "exceptions.labels.materialMaterials",
+          "descKey": "exceptions.labels.materialMaterials",
+          "ar": {
+            "label": "المادة غير مدرجة في قائمة المواد المعتمدة للمشروع أو المنطقة المحددة",
+            "desc": "المادة غير مدرجة في قائمة المواد المعتمدة للمشروع أو المنطقة المحددة"
+          },
+          "en": {
+            "label": "Material غير مدرجة في قائمة Materials المعتمدة للمشروع أو المنطقة المحددة",
+            "desc": "Material غير مدرجة في قائمة Materials المعتمدة للمشروع أو المنطقة المحددة"
+          },
+          "ur": {
+            "label": "مٹیریل غير مدرجة في قائمة مٹیریلز المعتمدة للمشروع أو المنطقة المحددة",
+            "desc": "مٹیریل غير مدرجة في قائمة مٹیریلز المعتمدة للمشروع أو المنطقة المحددة"
+          }
+        }
+      ]
+    },
+    "useDomainMeta": {
+      "totalDomains": 13,
+      "status": "VERIFIED",
+      "sample": [
+        {
+          "key": "projects",
+          "nameKey": "other.labels.projects_2",
+          "descKey": "other.labels.txt_2d6b3b",
+          "ar": {
+            "name": "المشاريع",
+            "desc": "كيان العزل التام للمشاريع (Multi-Tenant Root)، يضبط النطاق الجغرافي والضريبي."
+          },
+          "en": {
+            "name": "Projects",
+            "desc": "كيان العزل التام للمشاريع (Multi-Tenant Root)، يضبط النطاق الجغرافي والضريبي."
+          },
+          "ur": {
+            "name": "پروجیکٹس",
+            "desc": "كيان العزل التام للمشاريع (Multi-Tenant Root)، يضبط النطاق الجغرافي والضريبي."
+          }
+        },
+        {
+          "key": "carriers",
+          "nameKey": "other.labels.carriers_2",
+          "descKey": "other.labels.txt_6be985",
+          "ar": {
+            "name": "الناقلون",
+            "desc": "شركات النقل المعتمدة والمتعاقدة لتنفيذ توريد وتفريغ المواد."
+          },
+          "en": {
+            "name": "Carriers",
+            "desc": "شركات النقل المعتمدة والمتعاقدة لتنفيذ توريد وتفريغ Materials."
+          },
+          "ur": {
+            "name": "کیریئرز",
+            "desc": "شركات النقل المعتمدة والمتعاقدة لتنفيذ توريد وتفريغ مٹیریلز."
+          }
+        },
+        {
+          "key": "pricingRules",
+          "nameKey": "offline.labels.pricing",
+          "descKey": "other.labels.txt_792227",
+          "ar": {
+            "name": "قواعد التسعير (Pricing Rules)",
+            "desc": "التعريفات المالية المعتمدة لاحتساب قيمة النقل وغرامات التأخير وضريبة 15%."
+          },
+          "en": {
+            "name": "Pricing Rules",
+            "desc": "التعريفات المالية المعتمدة لاحتساب قيمة النقل وغرامات التأخير وضريبة 15%."
+          },
+          "ur": {
+            "name": "قیمت کے قواعد (Pricing Rules)",
+            "desc": "التعريفات المالية المعتمدة لاحتساب قيمة النقل وغرامات التأخير وضريبة 15%."
+          }
+        },
+        {
+          "key": "materials",
+          "nameKey": "other.labels.materials_4",
+          "descKey": "other.labels.materials_4",
+          "ar": {
+            "name": "المواد الإنشائية أو الركام المنقول مع مواصفات الكثافة والرطوبة.",
+            "desc": "المواد الإنشائية أو الركام المنقول مع مواصفات الكثافة والرطوبة."
+          },
+          "en": {
+            "name": "Materials الإنشائية أو الركام المنقول مع مواصفات الكثافة والرطوبة.",
+            "desc": "Materials الإنشائية أو الركام المنقول مع مواصفات الكثافة والرطوبة."
+          },
+          "ur": {
+            "name": "مٹیریلز الإنشائية أو الركام المنقول مع مواصفات الكثافة والرطوبة.",
+            "desc": "مٹیریلز الإنشائية أو الركام المنقول مع مواصفات الكثافة والرطوبة."
+          }
+        }
+      ]
+    }
+  },
+  "translationQualitySanity": {
+    "status": "AUDITED_OBSERVED",
+    "note": "Per BLOCK 55 mandate: Do NOT rewrite translations in this block. Flag findings for downstream linguistic refinement.",
+    "metrics": {
+      "englishWithArabicCharactersCount": 1052,
+      "englishIdenticalToArabicCount": 551,
+      "urduIdenticalToArabicCount": 552,
+      "hybridSuffixArtifactsCount": 34
+    },
+    "flaggedCategories": {
+      "untranslatedPhrasesInEnglish": {
+        "description": "English entries where non-dictionary Arabic words remain intact from deterministic proposal generation",
+        "sampleCount": 1052,
+        "samples": [
+          {
+            "key": "authentication.labels.txt_3548e6",
+            "ar": "متصل بـ Firestore",
+            "en": "متصل بـ Firestore"
+          },
+          {
+            "key": "authentication.labels.txt_413ffd",
+            "ar": "تسجيل الدخول (Google)",
+            "en": "تسجيل الدخول (Google)"
+          },
+          {
+            "key": "authentication.labels.txt_49cb21",
+            "ar": "جاري تهيئة التحقق...",
+            "en": "جاري تهيئة Verification..."
+          },
+          {
+            "key": "authentication.labels.txt_b1a849",
+            "ar": "تسجيل الخروج",
+            "en": "تسجيل الخروج"
+          },
+          {
+            "key": "carriers.labels.carrier_2",
+            "ar": "تسجيل الناقل",
+            "en": "تسجيل Carrier"
+          },
+          {
+            "key": "carriers.labels.materialsProject",
+            "ar": "حدد الناقلين المصرح لهم بنقل وتوريد المواد في هذا المشروع (مثل Carrier A، Carrier B، Carrier C).",
+            "en": "حدد Carrierين المصرح لهم بنقل وتوريد Materials في هذا Project (مثل Carrier A، Carrier B، Carrier C)."
+          },
+          {
+            "key": "carriers.labels.project_2",
+            "ar": "لا يوجد ناقلون مسجلون في المشروع حتى الآن.",
+            "en": "لا يوجد ناقلون مسجلون في Project حتى الآن."
+          },
+          {
+            "key": "carriers.labels.trucksPricing",
+            "ar": "معرف وحيد للربط مع الشاحنات وقواعد التسعير",
+            "en": "معرف وحيد للربط مع Trucks وقواعد التسعير"
+          }
+        ]
+      },
+      "hybridGrammarArtifacts": {
+        "description": "Entries where English word stems received Arabic feminine morphemes (e.g. Completedة)",
+        "sampleCount": 34,
+        "samples": [
+          {
+            "key": "carriers.labels.materialsProject",
+            "en": "حدد Carrierين المصرح لهم بنقل وتوريد Materials في هذا Project (مثل Carrier A، Carrier B، Carrier C).",
+            "ur": "حدد کیریئرين المصرح لهم بنقل وتوريد مٹیریلز في هذا پروجیکٹ (مثل Carrier A، Carrier B، Carrier C)."
+          },
+          {
+            "key": "carriers.labels.txt_4ef914",
+            "en": "تنبيهات بيانات Carrierين:",
+            "ur": "تنبيهات بيانات کیریئرين:"
+          },
+          {
+            "key": "carriers.labels.txt_5ee946",
+            "en": "الخطوة 3: شركات النقل وCarrierين المعتمدين (Carriers)",
+            "ur": "الخطوة 3: شركات النقل وکیریئرين المعتمدين (Carriers)"
+          },
+          {
+            "key": "dashboard.labels.txt_45844d",
+            "en": "لوحة أداء ومطابقة Carrierين (Carrier Performance)",
+            "ur": "لوحة أداء ومطابقة کیریئرين (Carrier Performance)"
+          },
+          {
+            "key": "dashboard.labels.txt_553cd5",
+            "en": "كافة Carrierين",
+            "ur": "كافة کیریئرين"
+          }
+        ]
+      },
+      "fallbackIdenticalEntries": {
+        "description": "Entries where entire string was preserved verbatim across languages without English/Urdu translation",
+        "sampleCount": 551,
+        "samples": [
+          {
+            "key": "authentication.labels.txt_3548e6",
+            "text": "متصل بـ Firestore"
+          },
+          {
+            "key": "authentication.labels.txt_413ffd",
+            "text": "تسجيل الدخول (Google)"
+          },
+          {
+            "key": "authentication.labels.txt_b1a849",
+            "text": "تسجيل الخروج"
+          },
+          {
+            "key": "carriers.labels.txt_5a7969",
+            "text": "أضف أول ناقل الآن"
+          },
+          {
+            "key": "carriers.labels.txt_6354e4",
+            "text": "ترخيص هيئة النقل العامة (TGA)"
+          }
+        ]
+      }
+    }
+  },
+  "recommendedNextActions": [
+    "Proceed with confidence: 100% of referenced keys (1,115/1,115) resolve cleanly at runtime with zero key-as-value raw token leaks.",
+    "Maintain existing codemod safety gates and freeze all business, state machine, and pricing calculations.",
+    "Plan a dedicated Linguistic Refinement Pass in a future block to replace hybrid machine-replacement artifacts (e.g., \"Completedة\", partial Arabic phrases in EN) with fluent professional translations.",
+    "Continue LOW_RISK migration blocks according to architectural schedule."
+  ]
+}

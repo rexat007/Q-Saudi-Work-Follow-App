@@ -1,30 +1,30 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-13T08:15:03.424Z
+**Generated At:** 2026-09-13T08:25:40.570Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 241 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 31606 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 9549 | Confirmed visible Arabic and UI texts |
+| **Total Files Scanned** | 242 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 31833 | Total strings and text nodes parsed |
+| **Real User-Facing Texts** | 9561 | Confirmed visible Arabic and UI texts |
 | **Likely User-Facing Texts** | 353 | English UI text in visible elements |
-| **Ambiguous Texts** | 7222 | Short or context-isolated tokens for manual review |
+| **Ambiguous Texts** | 7299 | Short or context-isolated tokens for manual review |
 | **Technical Strings** | 6867 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 7615 | Internal IDs, collection names, database keys |
+| **Non-User-Facing Strings** | 7753 | Internal IDs, collection names, database keys |
 | **Distinct Proposed Keys** | 7639 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 4271 | Sets of identical/normalized recurring texts |
+| **Duplicate Groups** | 4273 | Sets of identical/normalized recurring texts |
 | **Semantic Conflict Groups** | 485 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 9200 | Entries flagged with special cases or ambiguity |
+| **Keys Requiring Review** | 9277 | Entries flagged with special cases or ambiguity |
 | **High / Critical Risk Hotspots** | 2289 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
 
 | Semantic Category | User-Facing Strings | Description |
 | :--- | :--- | :--- |
-| `other` | 4917 | Classified operational domain |
+| `other` | 4929 | Classified operational domain |
 | `imports` | 1430 | Classified operational domain |
 | `security` | 456 | Classified operational domain |
 | `trips` | 455 | Classified operational domain |
@@ -97,8 +97,8 @@ Identical visible text appearing across different operational domains with disti
 - **Template Literals (`${...}`):** 625
 - **Interpolation Placeholders (`{...}`):** 232
 - **Mixed Numbers & Units:** 982
-- **Currency String Usages:** 376
-- **Unit String Usages:** 714
+- **Currency String Usages:** 380
+- **Unit String Usages:** 722
 - **Protected Business Field Matches:** 303
 
 ## 6. Safety & Non-Destructive Invariance Confirmation

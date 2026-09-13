@@ -1,29 +1,29 @@
 {
-  "generatedAt": "2026-09-13T08:15:20.194Z",
+  "generatedAt": "2026-09-13T08:25:57.204Z",
   "version": "1.0.0-block54b",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 11651,
-    "generatedEnCount": 11651,
-    "generatedUrCount": 11651,
-    "reviewRequiredCount": 11243,
+    "totalEntries": 11660,
+    "generatedEnCount": 11660,
+    "generatedUrCount": 11660,
+    "reviewRequiredCount": 11252,
     "skippedCount": 0,
     "protectedCount": 1,
     "interpolationCount": 215,
     "pluralizationCount": 155,
-    "highRiskCount": 10728,
+    "highRiskCount": 10737,
     "semanticConflictCount": 1219,
     "domainTerminologyCount": 369,
     "confidenceBreakdown": {
       "HIGH": 140,
       "MEDIUM": 3595,
-      "LOW": 7916
+      "LOW": 7925
     },
     "tierBreakdown": {
       "1": 6,
       "2": 548,
       "3": 369,
-      "4": 10728
+      "4": 10737
     },
     "reviewReasonsBreakdown": {
       "SEMANTIC_CONFLICT": 1219,
@@ -32,7 +32,7 @@
       "PLURALIZATION_RISK": 155,
       "REPORT_EXPORT_RISK": 3695,
       "BUSINESS_DATA_RISK": 1536,
-      "LOW_CONFIDENCE": 11243,
+      "LOW_CONFIDENCE": 11252,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
@@ -215,12 +215,12 @@
         "low": 0
       },
       "other": {
-        "total": 4536,
-        "generated": 4536,
-        "reviewRequired": 4499,
+        "total": 4545,
+        "generated": 4545,
+        "reviewRequired": 4508,
         "high": 82,
         "medium": 1105,
-        "low": 3349
+        "low": 3358
       }
     }
   },
@@ -823,7 +823,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_carriers_24",
+      "duplicateGroupId": "dup_carriers_25",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -882,7 +882,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -2074,7 +2074,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_carriers_24",
+      "duplicateGroupId": "dup_carriers_25",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -2482,7 +2482,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -6942,7 +6942,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"dashboard.labels.sar\" to avoid accidental merge.",
@@ -11847,7 +11847,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_drivers_22",
+      "duplicateGroupId": "dup_drivers_23",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -11906,7 +11906,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -12489,7 +12489,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_drivers_22",
+      "duplicateGroupId": "dup_drivers_23",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -12647,7 +12647,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -18444,7 +18444,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"entityResolution.labels.sar\" to avoid accidental merge.",
@@ -27494,7 +27494,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_exceptions_19",
+      "duplicateGroupId": "dup_exceptions_20",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -27553,7 +27553,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -27612,7 +27612,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -31708,7 +31708,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_exceptions_19",
+      "duplicateGroupId": "dup_exceptions_20",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -34312,7 +34312,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -35498,7 +35498,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -42968,7 +42968,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -70580,7 +70580,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_17",
+      "duplicateGroupId": "dup_path_18",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -72435,7 +72435,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -73475,7 +73475,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"imports.labels.sar\" to avoid accidental merge.",
@@ -74871,7 +74871,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_string_44",
+      "duplicateGroupId": "dup_string_47",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -133716,7 +133716,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"legacyMigration.labels.sar\" to avoid accidental merge.",
@@ -145394,7 +145394,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"loading.labels.sar\" to avoid accidental merge.",
@@ -145998,7 +145998,7 @@
           "element": "call_put"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -149104,7 +149104,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_materials_27",
+      "duplicateGroupId": "dup_materials_28",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -149163,7 +149163,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -150568,7 +150568,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_materials_27",
+      "duplicateGroupId": "dup_materials_28",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -150630,7 +150630,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -156835,7 +156835,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"navigation.labels.sar\" to avoid accidental merge.",
@@ -163989,7 +163989,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -164203,7 +164203,7 @@
           "element": "prop_targetCollection"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -168445,7 +168445,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_carriers_24",
+      "duplicateGroupId": "dup_carriers_25",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -169495,7 +169495,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_drivers_22",
+      "duplicateGroupId": "dup_drivers_23",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -170345,7 +170345,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_materials_27",
+      "duplicateGroupId": "dup_materials_28",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -171256,7 +171256,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_pricingRules_11",
+      "duplicateGroupId": "dup_pricingRules_12",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -171631,7 +171631,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -172137,7 +172137,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"offline.labels.sar\" to avoid accidental merge.",
@@ -172697,7 +172697,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -173332,7 +173332,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_trucks_22",
+      "duplicateGroupId": "dup_trucks_23",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -178800,9 +178800,15 @@
           "line": 503,
           "column": 23,
           "element": "prop_proposedTextEn"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 113,
+          "column": 32,
+          "element": "prop_'shared.actions.cancel'"
         }
       ],
-      "duplicateGroupId": "dup_Cancel_7",
+      "duplicateGroupId": "dup_Cancel_8",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -178917,9 +178923,15 @@
           "line": 160,
           "column": 44,
           "element": "call_includes"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 115,
+          "column": 31,
+          "element": "prop_'shared.actions.close'"
         }
       ],
-      "duplicateGroupId": "dup_Close_4",
+      "duplicateGroupId": "dup_Close_5",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -179035,9 +179047,15 @@
           "line": 7,
           "column": 29,
           "element": "prop_\"shared.actions.confirm\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 114,
+          "column": 33,
+          "element": "prop_'shared.actions.confirm'"
         }
       ],
-      "duplicateGroupId": "dup_Confirm_3",
+      "duplicateGroupId": "dup_Confirm_4",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -179261,9 +179279,15 @@
           "line": 9,
           "column": 28,
           "element": "prop_\"shared.actions.delete\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 116,
+          "column": 32,
+          "element": "prop_'shared.actions.delete'"
         }
       ],
-      "duplicateGroupId": "dup_Delete_3",
+      "duplicateGroupId": "dup_Delete_4",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -179312,10 +179336,16 @@
           "line": 9,
           "column": 28,
           "element": "prop_\"shared.actions.delete\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 152,
+          "column": 32,
+          "element": "prop_'shared.actions.delete'"
         }
       ],
       "semanticConflictGroupId": "conflict_حذف_کریں",
-      "duplicateGroupId": "dup_حذف_کریں_4",
+      "duplicateGroupId": "dup_حذف_کریں_5",
       "notes": [
         "Semantic conflict group conflict_حذف_کریں: Retained distinct key \"other.actions.delete_3\" to avoid accidental merge."
       ],
@@ -179507,9 +179537,15 @@
           "line": 10,
           "column": 26,
           "element": "prop_\"shared.actions.edit\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 117,
+          "column": 30,
+          "element": "prop_'shared.actions.edit'"
         }
       ],
-      "duplicateGroupId": "dup_Edit_3",
+      "duplicateGroupId": "dup_Edit_4",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -180157,9 +180193,15 @@
           "line": 271,
           "column": 33,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 112,
+          "column": 30,
+          "element": "prop_'shared.actions.save'"
         }
       ],
-      "duplicateGroupId": "dup_Save_7",
+      "duplicateGroupId": "dup_Save_8",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -180366,10 +180408,16 @@
           "line": 5,
           "column": 26,
           "element": "prop_\"shared.actions.save\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 148,
+          "column": 30,
+          "element": "prop_'shared.actions.save'"
         }
       ],
       "semanticConflictGroupId": "conflict_محفوظ_کریں",
-      "duplicateGroupId": "dup_محفوظ_کریں_6",
+      "duplicateGroupId": "dup_محفوظ_کریں_7",
       "notes": [
         "Semantic conflict group conflict_محفوظ_کریں: Retained distinct key \"other.actions.txt_36093f\" to avoid accidental merge."
       ],
@@ -180418,10 +180466,16 @@
           "line": 7,
           "column": 29,
           "element": "prop_\"shared.actions.confirm\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 150,
+          "column": 33,
+          "element": "prop_'shared.actions.confirm'"
         }
       ],
       "semanticConflictGroupId": "conflict_تصدیق_کریں",
-      "duplicateGroupId": "dup_تصدیق_کریں_4",
+      "duplicateGroupId": "dup_تصدیق_کریں_5",
       "notes": [
         "Semantic conflict group conflict_تصدیق_کریں: Retained distinct key \"other.actions.txt_4db2d9\" to avoid accidental merge."
       ],
@@ -180470,10 +180524,16 @@
           "line": 10,
           "column": 26,
           "element": "prop_\"shared.actions.edit\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 153,
+          "column": 30,
+          "element": "prop_'shared.actions.edit'"
         }
       ],
       "semanticConflictGroupId": "conflict_ترمیم_کریں",
-      "duplicateGroupId": "dup_ترمیم_کریں_3",
+      "duplicateGroupId": "dup_ترمیم_کریں_4",
       "notes": [
         "Semantic conflict group conflict_ترمیم_کریں: Retained distinct key \"other.actions.txt_53b3cf\" to avoid accidental merge."
       ],
@@ -180522,10 +180582,16 @@
           "line": 6,
           "column": 28,
           "element": "prop_\"shared.actions.cancel\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 149,
+          "column": 32,
+          "element": "prop_'shared.actions.cancel'"
         }
       ],
       "semanticConflictGroupId": "conflict_منسوخ_کریں",
-      "duplicateGroupId": "dup_منسوخ_کریں_8",
+      "duplicateGroupId": "dup_منسوخ_کریں_9",
       "notes": [
         "Semantic conflict group conflict_منسوخ_کریں: Retained distinct key \"other.actions.txt_7abb52\" to avoid accidental merge."
       ],
@@ -180574,10 +180640,16 @@
           "line": 8,
           "column": 27,
           "element": "prop_\"shared.actions.close\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 151,
+          "column": 31,
+          "element": "prop_'shared.actions.close'"
         }
       ],
       "semanticConflictGroupId": "conflict_بند_کریں",
-      "duplicateGroupId": "dup_بند_کریں_3",
+      "duplicateGroupId": "dup_بند_کریں_4",
       "notes": [
         "Semantic conflict group conflict_بند_کریں: Retained distinct key \"other.actions.txt_f4275f\" to avoid accidental merge."
       ],
@@ -182198,7 +182270,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_حذف_کریں",
-      "duplicateGroupId": "dup_حذف_کریں_4",
+      "duplicateGroupId": "dup_حذف_کریں_5",
       "notes": [
         "Semantic conflict group conflict_حذف_کریں: Retained distinct key \"other.columns.delete_2\" to avoid accidental merge."
       ],
@@ -185430,7 +185502,7 @@
           "element": "prop_targetCollection"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -207655,7 +207727,7 @@
           "element": "prop_\"materials.labels.materials_2\""
         }
       ],
-      "duplicateGroupId": "dup_materials_27",
+      "duplicateGroupId": "dup_materials_28",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -212389,7 +212461,7 @@
           "element": "prop_\"projects.labels.projects\""
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -216887,7 +216959,7 @@
           "element": "prop_\"trips.labels.trips_3\""
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -305599,9 +305671,75 @@
           "line": 184,
           "column": 70,
           "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 90,
+          "column": 42,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 98,
+          "column": 41,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 189,
+          "column": 24,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 205,
+          "column": 21,
+          "element": "call_directionOf"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 205,
+          "column": 47,
+          "element": "call_isRTL"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 206,
+          "column": 66,
+          "element": "call_directionOf"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 206,
+          "column": 88,
+          "element": "call_isRTL"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 224,
+          "column": 67,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 259,
+          "column": 28,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 288,
+          "column": 26,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 318,
+          "column": 26,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ar_39",
+      "duplicateGroupId": "dup_ar_50",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -306513,9 +306651,15 @@
           "line": 54,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 312,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_auditLogs_3",
+      "duplicateGroupId": "dup_auditLogs_4",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -311706,13 +311850,19 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 303,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
           "file": "src/types/wizard.ts",
           "line": 112,
           "column": 35,
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_carriers_24",
+      "duplicateGroupId": "dup_carriers_25",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -317678,7 +317828,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_حذف_کریں",
-      "duplicateGroupId": "dup_حذف_کریں_4",
+      "duplicateGroupId": "dup_حذف_کریں_5",
       "notes": [
         "Semantic conflict group conflict_حذف_کریں: Retained distinct key \"other.labels.delete_2\" to avoid accidental merge."
       ],
@@ -320390,9 +320540,15 @@
           "line": 49,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 307,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_drivers_22",
+      "duplicateGroupId": "dup_drivers_23",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -322097,9 +322253,75 @@
           "line": 185,
           "column": 70,
           "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 126,
+          "column": 41,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 134,
+          "column": 41,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 189,
+          "column": 30,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 211,
+          "column": 21,
+          "element": "call_directionOf"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 211,
+          "column": 46,
+          "element": "call_isRTL"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 212,
+          "column": 66,
+          "element": "call_directionOf"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 212,
+          "column": 88,
+          "element": "call_isRTL"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 230,
+          "column": 67,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 259,
+          "column": 34,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 288,
+          "column": 32,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 318,
+          "column": 32,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_en_40",
+      "duplicateGroupId": "dup_en_51",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -323907,9 +324129,15 @@
           "line": 53,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 311,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_exceptions_19",
+      "duplicateGroupId": "dup_exceptions_20",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -325038,9 +325266,15 @@
           "line": 18,
           "column": 16,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 14,
+          "column": 16,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_15",
+      "duplicateGroupId": "dup_fs_16",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -330243,6 +330477,349 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.i18nSmoke01": {
+      "key": "other.labels.i18nSmoke01",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SMOKE-01",
+      "proposedTextEn": "I18N-SMOKE-01",
+      "proposedTextUr": "I18N-SMOKE-01",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 70,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSmoke02": {
+      "key": "other.labels.i18nSmoke02",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SMOKE-02",
+      "proposedTextEn": "I18N-SMOKE-02",
+      "proposedTextUr": "I18N-SMOKE-02",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 109,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSmoke03": {
+      "key": "other.labels.i18nSmoke03",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SMOKE-03",
+      "proposedTextEn": "I18N-SMOKE-03",
+      "proposedTextUr": "I18N-SMOKE-03",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 145,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSmoke04": {
+      "key": "other.labels.i18nSmoke04",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SMOKE-04",
+      "proposedTextEn": "I18N-SMOKE-04",
+      "proposedTextUr": "I18N-SMOKE-04",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 181,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSmoke05": {
+      "key": "other.labels.i18nSmoke05",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SMOKE-05",
+      "proposedTextEn": "I18N-SMOKE-05",
+      "proposedTextUr": "I18N-SMOKE-05",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 204,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSmoke06": {
+      "key": "other.labels.i18nSmoke06",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SMOKE-06",
+      "proposedTextEn": "I18N-SMOKE-06",
+      "proposedTextUr": "I18N-SMOKE-06",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 236,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSmoke07": {
+      "key": "other.labels.i18nSmoke07",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SMOKE-07",
+      "proposedTextEn": "I18N-SMOKE-07",
+      "proposedTextUr": "I18N-SMOKE-07",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 270,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.i18nTcat01": {
       "key": "other.labels.i18nTcat01",
       "category": "other",
@@ -331742,9 +332319,15 @@
           "line": 56,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 314,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_importBatches_3",
+      "duplicateGroupId": "dup_importBatches_4",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -333611,9 +334194,15 @@
           "line": 206,
           "column": 31,
           "element": "call_includes"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 121,
+          "column": 26,
+          "element": "prop_'shared.units.kg'"
         }
       ],
-      "duplicateGroupId": "dup_kg_9",
+      "duplicateGroupId": "dup_kg_10",
       "notes": [
         "Protected business/currency tokens: [KG] must not be altered",
         "Ambiguous/isolated string: Human verification required before translation."
@@ -335636,9 +336225,21 @@
           "line": 397,
           "column": 21,
           "element": "prop_en"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 211,
+          "column": 31,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 230,
+          "column": 33,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ltr_20",
+      "duplicateGroupId": "dup_ltr_22",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -337798,13 +338399,19 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 305,
+          "column": 14,
+          "element": "prop_key"
+        },
+        {
           "file": "src/types/wizard.ts",
           "line": 112,
           "column": 21,
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_materials_27",
+      "duplicateGroupId": "dup_materials_28",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -343469,9 +344076,15 @@
           "line": 19,
           "column": 18,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 15,
+          "column": 18,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_17",
+      "duplicateGroupId": "dup_path_18",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -346402,9 +347015,15 @@
           "line": 46,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 304,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_pricingRules_11",
+      "duplicateGroupId": "dup_pricingRules_12",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -348828,9 +349447,15 @@
           "line": 44,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 302,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -352545,9 +353170,82 @@
           "line": 397,
           "column": 43,
           "element": "prop_ar"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 205,
+          "column": 31,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 208,
+          "column": 31,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 224,
+          "column": 33,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 227,
+          "column": 33,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_rtl_41",
+      "duplicateGroupId": "dup_rtl_45",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.runtimesmokeblock55": {
+      "key": "other.labels.runtimesmokeblock55",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "runtimeSmokeBlock55",
+      "proposedTextEn": "runtimeSmokeBlock55",
+      "proposedTextUr": "runtimeSmokeBlock55",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 344,
+          "column": 76,
+          "element": "call_includes"
+        }
+      ],
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -352932,6 +353630,12 @@
           "element": "prop_currency"
         },
         {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 123,
+          "column": 27,
+          "element": "prop_'shared.units.sar'"
+        },
+        {
           "file": "src/types/entities.ts",
           "line": 275,
           "column": 15,
@@ -352939,7 +353643,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"other.labels.sar\" to avoid accidental merge.",
@@ -356327,9 +357031,27 @@
           "line": 89,
           "column": 55,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 99,
+          "column": 34,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 135,
+          "column": 34,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 171,
+          "column": 34,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_string_44",
+      "duplicateGroupId": "dup_string_47",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -357194,9 +357916,15 @@
           "line": 55,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 313,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_syncLogs_2",
+      "duplicateGroupId": "dup_syncLogs_3",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -359894,9 +360622,15 @@
           "line": 207,
           "column": 32,
           "element": "call_includes"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 122,
+          "column": 27,
+          "element": "prop_'shared.units.ton'"
         }
       ],
-      "duplicateGroupId": "dup_ton_8",
+      "duplicateGroupId": "dup_ton_9",
       "notes": [
         "Protected business/currency tokens: [TON] must not be altered",
         "Ambiguous/isolated string: Human verification required before translation."
@@ -361576,9 +362310,15 @@
           "line": 52,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 310,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_tripEvents_3",
+      "duplicateGroupId": "dup_tripEvents_4",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -362024,9 +362764,15 @@
           "line": 51,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 309,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -364624,9 +365370,15 @@
           "line": 48,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 306,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_trucks_22",
+      "duplicateGroupId": "dup_trucks_23",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -365149,6 +365901,56 @@
         }
       ],
       "duplicateGroupId": "dup_two_3",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt": {
+      "key": "other.labels.txt",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "txt_",
+      "proposedTextEn": "txt_",
+      "proposedTextUr": "txt_",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 183,
+          "column": 52,
+          "element": "call_includes"
+        }
+      ],
+      "duplicateGroupId": "dup_txt__2",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -366098,9 +366900,15 @@
           "line": 207,
           "column": 54,
           "element": "call_includes"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 158,
+          "column": 27,
+          "element": "prop_'shared.units.ton'"
         }
       ],
-      "duplicateGroupId": "dup_ٹن_7",
+      "duplicateGroupId": "dup_ٹن_8",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -370794,7 +371602,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_لوڈ_ہو_رہا_ہے___",
-      "duplicateGroupId": "dup_لوڈ_ہو_رہا_ہے____3",
+      "duplicateGroupId": "dup_لوڈ_ہو_رہا_ہے____4",
       "notes": [
         "Semantic conflict group conflict_لوڈ_ہو_رہا_ہے___: Retained distinct key \"other.labels.txt_1e6e23\" to avoid accidental merge."
       ],
@@ -379422,7 +380230,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_محفوظ_کریں",
-      "duplicateGroupId": "dup_محفوظ_کریں_6",
+      "duplicateGroupId": "dup_محفوظ_کریں_7",
       "notes": [
         "Semantic conflict group conflict_محفوظ_کریں: Retained distinct key \"other.labels.txt_36093f\" to avoid accidental merge."
       ],
@@ -380113,9 +380921,15 @@
           "line": 187,
           "column": 46,
           "element": "call_includes"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 159,
+          "column": 27,
+          "element": "prop_'shared.units.sar'"
         }
       ],
-      "duplicateGroupId": "dup_سعودی_ریال_7",
+      "duplicateGroupId": "dup_سعودی_ریال_8",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -383972,7 +384786,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_آپریشن_کامیابی_سے_مکمل_ہوا",
-      "duplicateGroupId": "dup_آپریشن_کامیابی_سے_مکمل_ہوا_2",
+      "duplicateGroupId": "dup_آپریشن_کامیابی_سے_مکمل_ہوا_3",
       "notes": [
         "Semantic conflict group conflict_آپریشن_کامیابی_سے_مکمل_ہوا: Retained distinct key \"other.labels.txt_47e0fd\" to avoid accidental merge."
       ],
@@ -385438,7 +386252,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_تصدیق_کریں",
-      "duplicateGroupId": "dup_تصدیق_کریں_4",
+      "duplicateGroupId": "dup_تصدیق_کریں_5",
       "notes": [
         "Semantic conflict group conflict_تصدیق_کریں: Retained distinct key \"other.labels.txt_4db2d9\" to avoid accidental merge."
       ],
@@ -387515,7 +388329,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_ترمیم_کریں",
-      "duplicateGroupId": "dup_ترمیم_کریں_3",
+      "duplicateGroupId": "dup_ترمیم_کریں_4",
       "notes": [
         "Semantic conflict group conflict_ترمیم_کریں: Retained distinct key \"other.labels.txt_53b3cf\" to avoid accidental merge."
       ],
@@ -391411,9 +392225,15 @@
           "line": 206,
           "column": 52,
           "element": "call_includes"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 157,
+          "column": 26,
+          "element": "prop_'shared.units.kg'"
         }
       ],
-      "duplicateGroupId": "dup_کلوگرام_7",
+      "duplicateGroupId": "dup_کلوگرام_8",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -399264,7 +400084,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_منسوخ_کریں",
-      "duplicateGroupId": "dup_منسوخ_کریں_8",
+      "duplicateGroupId": "dup_منسوخ_کریں_9",
       "notes": [
         "Semantic conflict group conflict_منسوخ_کریں: Retained distinct key \"other.labels.txt_7abb52\" to avoid accidental merge."
       ],
@@ -403223,7 +404043,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_بند_کریں",
-      "duplicateGroupId": "dup_بند_کریں_3",
+      "duplicateGroupId": "dup_بند_کریں_4",
       "notes": [
         "Semantic conflict group conflict_بند_کریں: Retained distinct key \"other.labels.txt_f4275f\" to avoid accidental merge."
       ],
@@ -404995,9 +405815,75 @@
           "line": 186,
           "column": 70,
           "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 162,
+          "column": 41,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 170,
+          "column": 41,
+          "element": "call_resolveTranslation"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 189,
+          "column": 36,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 208,
+          "column": 21,
+          "element": "call_directionOf"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 208,
+          "column": 47,
+          "element": "call_isRTL"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 209,
+          "column": 66,
+          "element": "call_directionOf"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 209,
+          "column": 88,
+          "element": "call_isRTL"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 227,
+          "column": 67,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 259,
+          "column": 40,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 288,
+          "column": 38,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 318,
+          "column": 38,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ur_34",
+      "duplicateGroupId": "dup_ur_45",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -405990,9 +406876,15 @@
           "line": 50,
           "column": 3,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 308,
+          "column": 14,
+          "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_users_4",
+      "duplicateGroupId": "dup_users_5",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -406907,9 +407799,21 @@
           "line": 59,
           "column": 45,
           "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 31,
+          "column": 59,
+          "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 39,
+          "column": 47,
+          "element": "call_readFileSync"
         }
       ],
-      "duplicateGroupId": "dup_utf8_10",
+      "duplicateGroupId": "dup_utf8_12",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -413864,7 +414768,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -414583,10 +415487,16 @@
           "line": 11,
           "column": 28,
           "element": "prop_\"shared.status.loading\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 154,
+          "column": 32,
+          "element": "prop_'shared.status.loading'"
         }
       ],
       "semanticConflictGroupId": "conflict_لوڈ_ہو_رہا_ہے___",
-      "duplicateGroupId": "dup_لوڈ_ہو_رہا_ہے____3",
+      "duplicateGroupId": "dup_لوڈ_ہو_رہا_ہے____4",
       "notes": [
         "Semantic conflict group conflict_لوڈ_ہو_رہا_ہے___: Retained distinct key \"other.status.txt_1e6e23\" to avoid accidental merge."
       ],
@@ -415956,10 +416866,16 @@
           "line": 13,
           "column": 28,
           "element": "prop_\"shared.status.success\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 156,
+          "column": 32,
+          "element": "prop_'shared.status.success'"
         }
       ],
       "semanticConflictGroupId": "conflict_آپریشن_کامیابی_سے_مکمل_ہوا",
-      "duplicateGroupId": "dup_آپریشن_کامیابی_سے_مکمل_ہوا_2",
+      "duplicateGroupId": "dup_آپریشن_کامیابی_سے_مکمل_ہوا_3",
       "notes": [
         "Semantic conflict group conflict_آپریشن_کامیابی_سے_مکمل_ہوا: Retained distinct key \"other.status.txt_47e0fd\" to avoid accidental merge."
       ],
@@ -418035,8 +418951,15 @@
           "line": 12,
           "column": 26,
           "element": "prop_\"shared.status.error\""
+        },
+        {
+          "file": "src/tests/runtimeSmokeBlock55.test.ts",
+          "line": 155,
+          "column": 30,
+          "element": "prop_'shared.status.error'"
         }
       ],
+      "duplicateGroupId": "dup_خرابی_پیش_آگئی_2",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -418257,7 +419180,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -434726,7 +435649,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -435419,7 +436342,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"pricing.labels.sar\" to avoid accidental merge.",
@@ -435753,7 +436676,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_string_44",
+      "duplicateGroupId": "dup_string_47",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -443379,7 +444302,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"pricing.status.sar\" to avoid accidental merge.",
@@ -447867,7 +448790,7 @@
           "element": "prop_stepKey"
         }
       ],
-      "duplicateGroupId": "dup_carriers_24",
+      "duplicateGroupId": "dup_carriers_25",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -449168,7 +450091,7 @@
           "element": "prop_stepKey"
         }
       ],
-      "duplicateGroupId": "dup_materials_27",
+      "duplicateGroupId": "dup_materials_28",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -450189,7 +451112,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -450425,7 +451348,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"projects.labels.sar\" to avoid accidental merge.",
@@ -468680,7 +469603,7 @@
           "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_exceptions_19",
+      "duplicateGroupId": "dup_exceptions_20",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -469364,7 +470287,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_15",
+      "duplicateGroupId": "dup_fs_16",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -471770,7 +472693,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_17",
+      "duplicateGroupId": "dup_path_18",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -475271,7 +476194,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"reports.labels.sar\" to avoid accidental merge.",
@@ -487578,7 +488501,7 @@
           "element": "prop_targetCollection"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -491426,7 +492349,7 @@
           "element": "call_resolveTranslation"
         }
       ],
-      "duplicateGroupId": "dup_ar_39",
+      "duplicateGroupId": "dup_ar_50",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -493858,7 +494781,7 @@
           "element": "call_resolveTranslation"
         }
       ],
-      "duplicateGroupId": "dup_en_40",
+      "duplicateGroupId": "dup_en_51",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -494218,7 +495141,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_15",
+      "duplicateGroupId": "dup_fs_16",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -496260,7 +497183,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_17",
+      "duplicateGroupId": "dup_path_18",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -498363,7 +499286,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"security.labels.sar\" to avoid accidental merge.",
@@ -499740,7 +500663,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_string_44",
+      "duplicateGroupId": "dup_string_47",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -501005,6 +501928,7 @@
           "element": "call_includes"
         }
       ],
+      "duplicateGroupId": "dup_txt__2",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -511793,7 +512717,7 @@
           "element": "call_resolveTranslation"
         }
       ],
-      "duplicateGroupId": "dup_ur_34",
+      "duplicateGroupId": "dup_ur_45",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -512657,7 +513581,7 @@
           "element": "call_readFileSync"
         }
       ],
-      "duplicateGroupId": "dup_utf8_10",
+      "duplicateGroupId": "dup_utf8_12",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -515579,7 +516503,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -515656,7 +516580,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -528442,7 +529366,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -528959,7 +529883,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"trips.labels.sar\" to avoid accidental merge.",
@@ -531691,7 +532615,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_trips_55",
+      "duplicateGroupId": "dup_trips_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -543709,7 +544633,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -543768,7 +544692,7 @@
           "element": "call_collection"
         }
       ],
-      "duplicateGroupId": "dup_trucks_22",
+      "duplicateGroupId": "dup_trucks_23",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -544632,7 +545556,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_projects_72",
+      "duplicateGroupId": "dup_projects_73",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -544870,7 +545794,7 @@
           "element": "call_doc"
         }
       ],
-      "duplicateGroupId": "dup_trucks_22",
+      "duplicateGroupId": "dup_trucks_23",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -552874,7 +553798,7 @@
           "element": "call_checkBrackets"
         }
       ],
-      "duplicateGroupId": "dup_ar_39",
+      "duplicateGroupId": "dup_ar_50",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -553070,7 +553994,7 @@
           "element": "call_checkBrackets"
         }
       ],
-      "duplicateGroupId": "dup_en_40",
+      "duplicateGroupId": "dup_en_51",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -553268,7 +554192,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_string_44",
+      "duplicateGroupId": "dup_string_47",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -553466,7 +554390,7 @@
           "element": "call_checkBrackets"
         }
       ],
-      "duplicateGroupId": "dup_ur_34",
+      "duplicateGroupId": "dup_ur_45",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -565241,7 +566165,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_171",
+      "duplicateGroupId": "dup_SAR_172",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"weighbridge.labels.sar\" to avoid accidental merge.",
@@ -565461,7 +566385,7 @@
           "element": "prop_type"
         }
       ],
-      "duplicateGroupId": "dup_string_44",
+      "duplicateGroupId": "dup_string_47",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
