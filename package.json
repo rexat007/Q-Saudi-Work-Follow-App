@@ -15,7 +15,8 @@
     "test:i18n-codemod": "tsx src/tests/i18nCodemod.test.ts",
     "test:i18n-gen": "tsx src/tests/i18nTranslationGeneration.test.ts",
     "test:i18n-recovery": "tsx src/tests/i18nRecoveryBlock54a.test.ts",
-    "test": "tsx src/tests/excelCsvImport.test.ts && tsx src/tests/i18nFoundation.test.ts && tsx src/tests/i18nCatalog.test.ts && tsx src/tests/i18nTranslationGeneration.test.ts && tsx src/tests/i18nTranslationCatalog.test.ts && tsx src/tests/i18nCodemod.test.ts && tsx src/tests/i18nRecoveryBlock54a.test.ts"
+    "test:i18n-gen-54b": "tsx src/tests/i18nGenerationBlock54b.test.ts",
+    "test": "tsx src/tests/excelCsvImport.test.ts && tsx src/tests/i18nFoundation.test.ts && tsx src/tests/i18nCatalog.test.ts && tsx src/tests/i18nTranslationGeneration.test.ts && tsx src/tests/i18nTranslationCatalog.test.ts && tsx src/tests/i18nCodemod.test.ts && tsx src/tests/i18nRecoveryBlock54a.test.ts && tsx src/tests/i18nGenerationBlock54b.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

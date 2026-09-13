@@ -1,30 +1,30 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-13T03:28:41.032Z
+**Generated At:** 2026-09-13T03:43:07.206Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 240 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 25009 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 6354 | Confirmed visible Arabic and UI texts |
-| **Likely User-Facing Texts** | 345 | English UI text in visible elements |
-| **Ambiguous Texts** | 7092 | Short or context-isolated tokens for manual review |
+| **Total Files Scanned** | 241 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 25183 | Total strings and text nodes parsed |
+| **Real User-Facing Texts** | 6441 | Confirmed visible Arabic and UI texts |
+| **Likely User-Facing Texts** | 353 | English UI text in visible elements |
+| **Ambiguous Texts** | 7138 | Short or context-isolated tokens for manual review |
 | **Technical Strings** | 6867 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 4351 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 5469 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 2601 | Sets of identical/normalized recurring texts |
-| **Semantic Conflict Groups** | 312 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 8684 | Entries flagged with special cases or ambiguity |
+| **Non-User-Facing Strings** | 4384 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 5555 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Duplicate Groups** | 2607 | Sets of identical/normalized recurring texts |
+| **Semantic Conflict Groups** | 313 | Identical texts requiring distinct contextual keys |
+| **Keys Requiring Review** | 8730 | Entries flagged with special cases or ambiguity |
 | **High / Critical Risk Hotspots** | 1903 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
 
 | Semantic Category | User-Facing Strings | Description |
 | :--- | :--- | :--- |
-| `other` | 1714 | Classified operational domain |
+| `other` | 1809 | Classified operational domain |
 | `imports` | 1430 | Classified operational domain |
 | `security` | 456 | Classified operational domain |
 | `trips` | 455 | Classified operational domain |
@@ -97,8 +97,8 @@ Identical visible text appearing across different operational domains with disti
 - **Template Literals (`${...}`):** 625
 - **Interpolation Placeholders (`{...}`):** 211
 - **Mixed Numbers & Units:** 664
-- **Currency String Usages:** 353
-- **Unit String Usages:** 631
+- **Currency String Usages:** 356
+- **Unit String Usages:** 637
 - **Protected Business Field Matches:** 293
 
 ## 6. Safety & Non-Destructive Invariance Confirmation
