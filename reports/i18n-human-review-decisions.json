@@ -1,0 +1,1584 @@
+{
+  "metadata": {
+    "block": "BLOCK-68",
+    "title": "Human Review Decision & Controlled Approval Preparation Dossier",
+    "generatedAt": "2026-09-13T13:25:17.228Z",
+    "governanceStatus": "REVIEW_REQUIRED_PENDING_APPROVAL",
+    "compliancePolicy": "ZERO_LOCALE_MODIFICATION_CONTROLLED_REVIEW",
+    "totalItems": 33,
+    "allDecisionsPending": true,
+    "appliedCount": 0
+  },
+  "summary": {
+    "totalItems": 33,
+    "pendingCount": 33,
+    "reviewRequiredCount": 33,
+    "appliedToLocalesCount": 0,
+    "bilingualSourceCount": 17,
+    "monolingualSourceCount": 16,
+    "interpolationCount": 1,
+    "protectedTokenCount": 20,
+    "financialLegalOperationalRiskCasesCount": 15,
+    "classificationCounts": {
+      "TOKEN_INTERPOLATION_RISK": 1,
+      "TECHNICAL_TERM": 7,
+      "REAL_TRANSLATION_DEFECT": 7,
+      "BILINGUAL_SOURCE": 5,
+      "FINANCIAL_OPERATIONAL_RISK": 12,
+      "KEEP_EXCEPTION": 1
+    },
+    "recommendedDecisionCounts": {
+      "REVISE": 29,
+      "KEEP_EXCEPTION": 1,
+      "APPROVE": 1,
+      "FIX_SOURCE": 2
+    },
+    "riskLevelCounts": {
+      "CRITICAL": 4,
+      "HIGH": 17,
+      "MEDIUM": 7,
+      "LOW": 5
+    },
+    "domainCounts": {
+      "trips": 13,
+      "loading": 2,
+      "unloading": 2,
+      "weighbridge": 2,
+      "offline": 2,
+      "security": 5,
+      "pricing": 2,
+      "shared": 1,
+      "entityResolution": 2,
+      "projects": 1,
+      "exceptions": 1
+    },
+    "priorityCounts": {
+      "P1": 1,
+      "P2": 24,
+      "P3": 8
+    }
+  },
+  "items": [
+    {
+      "index": 1,
+      "key": "trips.status.failedPricing",
+      "domain": "trips",
+      "priority": "P1",
+      "classification": "TOKEN_INTERPOLATION_RISK",
+      "arabicCanonical": "[حظر بدء الرحلة]: فشل حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "currentEn": "[حظر بدء الTrip]: Failed حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "currentUr": "[حظر بدء الٹرپ]: ناکام حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "proposedEn": "[Trip Dispatch Prohibited]: Pricing resolution and settlement calculation failed (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "proposedUr": "[ٹرپ روانگی ممنوع]: قیمت کا تعین اور تصفیہ کا حساب ناکام (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "protectedTokens": [
+        "${pricingResolutionResult.message}",
+        "Pricing Resolution Failed"
+      ],
+      "interpolationVariables": [
+        "${pricingResolutionResult.message}"
+      ],
+      "riskLevel": "CRITICAL",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Contains critical runtime template variable ${pricingResolutionResult.message}. Source has bilingual parenthetical. Recommended to preserve runtime variable and parenthetical while ensuring full professional phrasing.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "[حظر بدء الرحلة]: فشل حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+          "currentEn": "[حظر بدء الTrip]: Failed حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+          "currentUr": "[حظر بدء الٹرپ]: ناکام حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}"
+        },
+        "proposedCorrection": {
+          "proposedEn": "[Trip Dispatch Prohibited]: Pricing resolution and settlement calculation failed (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+          "proposedUr": "[ٹرپ روانگی ممنوع]: قیمت کا تعین اور تصفیہ کا حساب ناکام (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+          "protectedTokens": [
+            "${pricingResolutionResult.message}",
+            "Pricing Resolution Failed"
+          ],
+          "interpolationVariables": [
+            "${pricingResolutionResult.message}"
+          ]
+        },
+        "reasonForProposal": {
+          "classification": "TOKEN_INTERPOLATION_RISK",
+          "riskLevel": "CRITICAL",
+          "rationale": "Contains critical runtime template variable ${pricingResolutionResult.message}. Source has bilingual parenthetical. Recommended to preserve runtime variable and parenthetical while ensuring full professional phrasing."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 2,
+      "key": "trips.labels.trip_4",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "TECHNICAL_TERM",
+      "arabicCanonical": "حظر إكمال الرحلة بدون destNetWeight",
+      "currentEn": "حظر إكمال الTrip بدون destNetWeight",
+      "currentUr": "حظر إكمال الٹرپ بدون destNetWeight",
+      "proposedEn": "Trip completion blocked without destNetWeight",
+      "proposedUr": "destNetWeight کے بغیر ٹرپ کی تکمیل ممنوع ہے",
+      "protectedTokens": [
+        "destNetWeight"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "destNetWeight is an immutable technical schema property. Current EN and UR have mixed-language fragments. Recommended to professionally translate surrounding text while preserving destNetWeight.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "حظر إكمال الرحلة بدون destNetWeight",
+          "currentEn": "حظر إكمال الTrip بدون destNetWeight",
+          "currentUr": "حظر إكمال الٹرپ بدون destNetWeight"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Trip completion blocked without destNetWeight",
+          "proposedUr": "destNetWeight کے بغیر ٹرپ کی تکمیل ممنوع ہے",
+          "protectedTokens": [
+            "destNetWeight"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "TECHNICAL_TERM",
+          "riskLevel": "HIGH",
+          "rationale": "destNetWeight is an immutable technical schema property. Current EN and UR have mixed-language fragments. Recommended to professionally translate surrounding text while preserving destNetWeight."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 3,
+      "key": "trips.labels.trip_7",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "TECHNICAL_TERM",
+      "arabicCanonical": "[قاعدة رقابية]: تم حظر إكمال الرحلة بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+      "currentEn": "[قاعدة رقابية]: تم حظر إكمال الTrip بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+      "currentUr": "[قاعدة رقابية]: تم حظر إكمال الٹرپ بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+      "proposedEn": "[Regulatory Rule]: Trip completion blocked without an authorized unloader (unloaderId) and unloading timestamp (unloadTime).",
+      "proposedUr": "[نگرانی کا ضابطہ]: مجاز وصول کنندہ (unloaderId) اور ان لوڈنگ وقت (unloadTime) کے بغیر ٹرپ مکمل کرنا ممنوع ہے۔",
+      "protectedTokens": [
+        "unloaderId",
+        "unloadTime"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Regulatory audit rule referencing schema keys unloaderId and unloadTime. Current EN and UR contain mixed language. Recommended to translate audit envelope while strictly keeping parameter names.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "[قاعدة رقابية]: تم حظر إكمال الرحلة بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+          "currentEn": "[قاعدة رقابية]: تم حظر إكمال الTrip بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+          "currentUr": "[قاعدة رقابية]: تم حظر إكمال الٹرپ بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime)."
+        },
+        "proposedCorrection": {
+          "proposedEn": "[Regulatory Rule]: Trip completion blocked without an authorized unloader (unloaderId) and unloading timestamp (unloadTime).",
+          "proposedUr": "[نگرانی کا ضابطہ]: مجاز وصول کنندہ (unloaderId) اور ان لوڈنگ وقت (unloadTime) کے بغیر ٹرپ مکمل کرنا ممنوع ہے۔",
+          "protectedTokens": [
+            "unloaderId",
+            "unloadTime"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "TECHNICAL_TERM",
+          "riskLevel": "HIGH",
+          "rationale": "Regulatory audit rule referencing schema keys unloaderId and unloadTime. Current EN and UR contain mixed language. Recommended to translate audit envelope while strictly keeping parameter names."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 4,
+      "key": "trips.labels.txt_2c17d4",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "REAL_TRANSLATION_DEFECT",
+      "arabicCanonical": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+      "currentEn": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+      "currentUr": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+      "proposedEn": "Completion prohibited without recipient identity and unloading timestamp",
+      "proposedUr": "وصول کنندہ کی شناخت اور ان لوڈنگ وقت کے بغیر تکمیل ممنوع ہے",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "MEDIUM",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Compliance check on unloading credentials. Currently has complete Arabic fallback in EN and UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+          "currentEn": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+          "currentUr": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Completion prohibited without recipient identity and unloading timestamp",
+          "proposedUr": "وصول کنندہ کی شناخت اور ان لوڈنگ وقت کے بغیر تکمیل ممنوع ہے",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "REAL_TRANSLATION_DEFECT",
+          "riskLevel": "MEDIUM",
+          "rationale": "Compliance check on unloading credentials. Currently has complete Arabic fallback in EN and UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 5,
+      "key": "trips.labels.txt_2cd3f8",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "BILINGUAL_SOURCE",
+      "arabicCanonical": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+      "currentEn": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+      "currentUr": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+      "proposedEn": "Negative Stress Tests Regulatory Enforcement Matrix",
+      "proposedUr": "ریگولیٹری نفاذ کا میٹرکس (Negative Stress Tests)",
+      "protectedTokens": [
+        "Negative Stress Tests"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "LOW",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "QA automation suite header. Source intentionally contains English technical parenthetical. In EN, redundant Arabic should be replaced. In UR, Urdu technical phrasing should precede the English parenthetical.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+          "currentEn": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+          "currentUr": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Negative Stress Tests Regulatory Enforcement Matrix",
+          "proposedUr": "ریگولیٹری نفاذ کا میٹرکس (Negative Stress Tests)",
+          "protectedTokens": [
+            "Negative Stress Tests"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "BILINGUAL_SOURCE",
+          "riskLevel": "LOW",
+          "rationale": "QA automation suite header. Source intentionally contains English technical parenthetical. In EN, redundant Arabic should be replaced. In UR, Urdu technical phrasing should precede the English parenthetical."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 6,
+      "key": "trips.labels.txt_37b15d",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+      "currentEn": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+      "currentUr": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+      "proposedEn": "Completion prohibited if discrepancy cannot be accurately calculated",
+      "proposedUr": "اگر فرق کا درست حساب کتاب نہ ہو سکے تو تکمیل ممنوع ہے",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Settlement variance calculation rule. High financial impact. Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+          "currentEn": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+          "currentUr": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Completion prohibited if discrepancy cannot be accurately calculated",
+          "proposedUr": "اگر فرق کا درست حساب کتاب نہ ہو سکے تو تکمیل ممنوع ہے",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "HIGH",
+          "rationale": "Settlement variance calculation rule. High financial impact. Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 7,
+      "key": "trips.labels.txt_3a0ff7",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "مبلغ التسوية المستحق:",
+      "currentEn": "مبلغ التسوية المستحق:",
+      "currentUr": "مبلغ التسوية المستحق:",
+      "proposedEn": "Settlement Amount Due:",
+      "proposedUr": "واجب الادا تصفیہ کی رقم:",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Settlement amount parameter. High financial impact. Pure Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "مبلغ التسوية المستحق:",
+          "currentEn": "مبلغ التسوية المستحق:",
+          "currentUr": "مبلغ التسوية المستحق:"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Settlement Amount Due:",
+          "proposedUr": "واجب الادا تصفیہ کی رقم:",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "HIGH",
+          "rationale": "Settlement amount parameter. High financial impact. Pure Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 8,
+      "key": "trips.labels.txt_5f22c5",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "REAL_TRANSLATION_DEFECT",
+      "arabicCanonical": "حوكمة كاملة لجميع تحولات دورة الحياة، التحقق من الرتبة والمشروع، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+      "currentEn": "حوكمة كاملة لجميع تحولات دورة الحياة، Verify الرتبة وProject، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+      "currentUr": "حوكمة كاملة لجميع تحولات دورة الحياة، تصدیق کریں الرتبة وپروجیکٹ، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+      "proposedEn": "Full lifecycle transition governance: verifying rank and project, mandatory weights, recipient, and arrival time, with server-side calculation of variance and settlement.",
+      "proposedUr": "لائف سائیکل کے تمام مراحل کی مکمل نگرانی: رینک اور پروجیکٹ کی تصدیق، لازمی وزن، وصول کنندہ اور آمد کا وقت، اور سرور پر فرق اور تصفیہ کا خودکار حساب۔",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "MEDIUM",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Lifecycle transition rule description. Contains hybrid machine translation fragments in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "حوكمة كاملة لجميع تحولات دورة الحياة، التحقق من الرتبة والمشروع، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+          "currentEn": "حوكمة كاملة لجميع تحولات دورة الحياة، Verify الرتبة وProject، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+          "currentUr": "حوكمة كاملة لجميع تحولات دورة الحياة، تصدیق کریں الرتبة وپروجیکٹ، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً."
+        },
+        "proposedCorrection": {
+          "proposedEn": "Full lifecycle transition governance: verifying rank and project, mandatory weights, recipient, and arrival time, with server-side calculation of variance and settlement.",
+          "proposedUr": "لائف سائیکل کے تمام مراحل کی مکمل نگرانی: رینک اور پروجیکٹ کی تصدیق، لازمی وزن، وصول کنندہ اور آمد کا وقت، اور سرور پر فرق اور تصفیہ کا خودکار حساب۔",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "REAL_TRANSLATION_DEFECT",
+          "riskLevel": "MEDIUM",
+          "rationale": "Lifecycle transition rule description. Contains hybrid machine translation fragments in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 9,
+      "key": "trips.labels.txt_622420",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "REAL_TRANSLATION_DEFECT",
+      "arabicCanonical": "يتم التحقق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+      "currentEn": "يتم Verification خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+      "currentUr": "يتم تصدیق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+      "proposedEn": "Server-side verification of the six rules, with automated weight calculation and settlement.",
+      "proposedUr": "چھ قواعد کی سرور پر تصدیق، اور وزن و تصفیہ کا خودکار حساب کتاب۔",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "MEDIUM",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Six-rule verification description. Mixed fragments in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "يتم التحقق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+          "currentEn": "يتم Verification خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+          "currentUr": "يتم تصدیق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً."
+        },
+        "proposedCorrection": {
+          "proposedEn": "Server-side verification of the six rules, with automated weight calculation and settlement.",
+          "proposedUr": "چھ قواعد کی سرور پر تصدیق، اور وزن و تصفیہ کا خودکار حساب کتاب۔",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "REAL_TRANSLATION_DEFECT",
+          "riskLevel": "MEDIUM",
+          "rationale": "Six-rule verification description. Mixed fragments in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 10,
+      "key": "trips.labels.txt_701a0c",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "يحظر تخطي المراحل التشغيلية الإلزامية",
+      "currentEn": "يحظر تخطي المراحل التشغيلية الإلزامية",
+      "currentUr": "يحظر تخطي المراحل التشغيلية الإلزامية",
+      "proposedEn": "Skipping mandatory operational stages is prohibited",
+      "proposedUr": "لازمی آپریشنل مراحل کو چھوڑنا ممنوع ہے",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Workflow state-machine constraint. Prevents bypassing weighbridge or unloading. Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "يحظر تخطي المراحل التشغيلية الإلزامية",
+          "currentEn": "يحظر تخطي المراحل التشغيلية الإلزامية",
+          "currentUr": "يحظر تخطي المراحل التشغيلية الإلزامية"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Skipping mandatory operational stages is prohibited",
+          "proposedUr": "لازمی آپریشنل مراحل کو چھوڑنا ممنوع ہے",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "HIGH",
+          "rationale": "Workflow state-machine constraint. Prevents bypassing weighbridge or unloading. Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 11,
+      "key": "trips.labels.txt_761b23",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "KEEP_EXCEPTION",
+      "arabicCanonical": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+      "currentEn": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+      "currentUr": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+      "proposedEn": "Attempting to deliver \"hot asphalt mix\" in a project dedicated to backfill and aggregate transport. Immediate prohibition.",
+      "proposedUr": "بھرائی اور ملبے کی نقل و حمل کے لیے مختص منصوبے میں \"خلطة أسفلتية ساخنة\" سپلائی کرنے کی کوشش۔ فوری پابندی۔",
+      "protectedTokens": [
+        "\"خلطة أسفلتية ساخنة\""
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "LOW",
+      "recommendedDecision": "KEEP_EXCEPTION",
+      "conciseRationale": "Negative test simulation fixture testing contract material rejection. Contains literal material name matching test assertions. Keep as exception or revise carefully without breaking contract tests.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+          "currentEn": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+          "currentUr": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري."
+        },
+        "proposedCorrection": {
+          "proposedEn": "Attempting to deliver \"hot asphalt mix\" in a project dedicated to backfill and aggregate transport. Immediate prohibition.",
+          "proposedUr": "بھرائی اور ملبے کی نقل و حمل کے لیے مختص منصوبے میں \"خلطة أسفلتية ساخنة\" سپلائی کرنے کی کوشش۔ فوری پابندی۔",
+          "protectedTokens": [
+            "\"خلطة أسفلتية ساخنة\""
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "KEEP_EXCEPTION",
+          "riskLevel": "LOW",
+          "rationale": "Negative test simulation fixture testing contract material rejection. Contains literal material name matching test assertions. Keep as exception or revise carefully without breaking contract tests."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "KEEP_EXCEPTION",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 12,
+      "key": "trips.labels.txt_7d5bc8",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "إجمالي التسوية المحسوبة",
+      "currentEn": "إجمالي التسوية المحسوبة",
+      "currentUr": "إجمالي التسوية المحسوبة",
+      "proposedEn": "Total Calculated Settlement",
+      "proposedUr": "کل حسابی تصفیہ",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Financial settlement calculation summary. High financial visibility. Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "إجمالي التسوية المحسوبة",
+          "currentEn": "إجمالي التسوية المحسوبة",
+          "currentUr": "إجمالي التسوية المحسوبة"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Total Calculated Settlement",
+          "proposedUr": "کل حسابی تصفیہ",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "HIGH",
+          "rationale": "Financial settlement calculation summary. High financial visibility. Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 13,
+      "key": "trips.labels.txt_7d6134",
+      "domain": "trips",
+      "priority": "P2",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "التسوية (SAR)",
+      "currentEn": "التسوية (SAR)",
+      "currentUr": "التسوية (SAR)",
+      "proposedEn": "Settlement (SAR)",
+      "proposedUr": "تصفیہ (SAR)",
+      "protectedTokens": [
+        "SAR"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "APPROVE",
+      "conciseRationale": "ISO-4217 Currency representation. Source has Arabic text with SAR. EN and UR correctly use international standard SAR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "التسوية (SAR)",
+          "currentEn": "التسوية (SAR)",
+          "currentUr": "التسوية (SAR)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Settlement (SAR)",
+          "proposedUr": "تصفیہ (SAR)",
+          "protectedTokens": [
+            "SAR"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "HIGH",
+          "rationale": "ISO-4217 Currency representation. Source has Arabic text with SAR. EN and UR correctly use international standard SAR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "APPROVE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 14,
+      "key": "loading.labels.txt_57f8de",
+      "domain": "loading",
+      "priority": "P2",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "التسوية المعتمدة:",
+      "currentEn": "التسوية المعتمدة:",
+      "currentUr": "التسوية المعتمدة:",
+      "proposedEn": "Approved Settlement:",
+      "proposedUr": "منظور شدہ تصفیہ:",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Approved settlement parameter in loading dispatch. Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "التسوية المعتمدة:",
+          "currentEn": "التسوية المعتمدة:",
+          "currentUr": "التسوية المعتمدة:"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Approved Settlement:",
+          "proposedUr": "منظور شدہ تصفیہ:",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "HIGH",
+          "rationale": "Approved settlement parameter in loading dispatch. Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 15,
+      "key": "loading.labels.txt_73e4a3",
+      "domain": "loading",
+      "priority": "P2",
+      "classification": "BILINGUAL_SOURCE",
+      "arabicCanonical": "التسوية التقديرية (Settlement)",
+      "currentEn": "التسوية التقديرية (Settlement)",
+      "currentUr": "التسوية التقديرية (Settlement)",
+      "proposedEn": "Estimated Settlement",
+      "proposedUr": "تخمینی تصفیہ (Settlement)",
+      "protectedTokens": [
+        "Settlement"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "FIX_SOURCE",
+      "conciseRationale": "Supply and settlement dues tab. Canonical Arabic text has English parenthetical (Settlement). Recommended to remove English parenthetical in Arabic or revise EN to eliminate tautology.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "التسوية التقديرية (Settlement)",
+          "currentEn": "التسوية التقديرية (Settlement)",
+          "currentUr": "التسوية التقديرية (Settlement)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Estimated Settlement",
+          "proposedUr": "تخمینی تصفیہ (Settlement)",
+          "protectedTokens": [
+            "Settlement"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "BILINGUAL_SOURCE",
+          "riskLevel": "HIGH",
+          "rationale": "Supply and settlement dues tab. Canonical Arabic text has English parenthetical (Settlement). Recommended to remove English parenthetical in Arabic or revise EN to eliminate tautology."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "FIX_SOURCE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 16,
+      "key": "unloading.labels.txt_1cfd3c",
+      "domain": "unloading",
+      "priority": "P2",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "اعتماد الاستثناء والسماح بالتسوية (Waive Exception)",
+      "currentEn": "Approval الاستثناء والسماح بالتسوية (Waive Exception)",
+      "currentUr": "منظوری الاستثناء والسماح بالتسوية (Waive Exception)",
+      "proposedEn": "Approve Exception & Authorize Settlement (Waive Exception)",
+      "proposedUr": "استثناء کی منظوری اور تصفیہ کی اجازت (Waive Exception)",
+      "protectedTokens": [
+        "Waive Exception"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "CRITICAL",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "High-risk security audit action allowing exception waiver and triggering financial settlement. Hybrid translation in EN/UR. Must preserve operational rigor.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "اعتماد الاستثناء والسماح بالتسوية (Waive Exception)",
+          "currentEn": "Approval الاستثناء والسماح بالتسوية (Waive Exception)",
+          "currentUr": "منظوری الاستثناء والسماح بالتسوية (Waive Exception)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Approve Exception & Authorize Settlement (Waive Exception)",
+          "proposedUr": "استثناء کی منظوری اور تصفیہ کی اجازت (Waive Exception)",
+          "protectedTokens": [
+            "Waive Exception"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "CRITICAL",
+          "rationale": "High-risk security audit action allowing exception waiver and triggering financial settlement. Hybrid translation in EN/UR. Must preserve operational rigor."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 17,
+      "key": "unloading.labels.txt_5f0c9f",
+      "domain": "unloading",
+      "priority": "P2",
+      "classification": "TECHNICAL_TERM",
+      "arabicCanonical": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+      "currentEn": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+      "currentUr": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+      "proposedEn": "4️⃣ Single License Plate Block (PROHIBITED)",
+      "proposedUr": "4️⃣ سنگل لائسنس پلیٹ بلاک (PROHIBITED)",
+      "protectedTokens": [
+        "PROHIBITED"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "MEDIUM",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Strict compliance blocking status. Canonical source has PROHIBITED token. Current EN/UR have Arabic fallback. Must preserve PROHIBITED token.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+          "currentEn": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+          "currentUr": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "4️⃣ Single License Plate Block (PROHIBITED)",
+          "proposedUr": "4️⃣ سنگل لائسنس پلیٹ بلاک (PROHIBITED)",
+          "protectedTokens": [
+            "PROHIBITED"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "TECHNICAL_TERM",
+          "riskLevel": "MEDIUM",
+          "rationale": "Strict compliance blocking status. Canonical source has PROHIBITED token. Current EN/UR have Arabic fallback. Must preserve PROHIBITED token."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 18,
+      "key": "weighbridge.labels.txt_35a0be",
+      "domain": "weighbridge",
+      "priority": "P2",
+      "classification": "TECHNICAL_TERM",
+      "arabicCanonical": "احتساب التسوية المالية بدقة بالطن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان البيانات",
+      "currentEn": "احتساب التسوية المالية بدقة بالton أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان Data",
+      "currentUr": "احتساب التسوية المالية بدقة بالٹن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان ڈیٹا",
+      "proposedEn": "Precise calculation of financial settlement by ton or trip requiring net &gt; 0, returning null on missing data",
+      "proposedUr": "ٹن یا ٹرپ کے حساب سے مالی تصفیہ کا درست حساب جس میں net &gt; 0 درکار ہے، اور ڈیٹا غائب ہونے پر null واپس کیا جائے گا",
+      "protectedTokens": [
+        "net &gt; 0",
+        "null"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Weighbridge validation constraint. Contains code logic expressions (net > 0) and (null). Mixed fragments in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "احتساب التسوية المالية بدقة بالطن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان البيانات",
+          "currentEn": "احتساب التسوية المالية بدقة بالton أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان Data",
+          "currentUr": "احتساب التسوية المالية بدقة بالٹن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان ڈیٹا"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Precise calculation of financial settlement by ton or trip requiring net &gt; 0, returning null on missing data",
+          "proposedUr": "ٹن یا ٹرپ کے حساب سے مالی تصفیہ کا درست حساب جس میں net &gt; 0 درکار ہے، اور ڈیٹا غائب ہونے پر null واپس کیا جائے گا",
+          "protectedTokens": [
+            "net &gt; 0",
+            "null"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "TECHNICAL_TERM",
+          "riskLevel": "HIGH",
+          "rationale": "Weighbridge validation constraint. Contains code logic expressions (net > 0) and (null). Mixed fragments in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 19,
+      "key": "weighbridge.labels.txt_407887",
+      "domain": "weighbridge",
+      "priority": "P2",
+      "classification": "TECHNICAL_TERM",
+      "arabicCanonical": "فحص دوال الحساب، معايير التحقق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+      "currentEn": "Check دوال الحساب، معايير Verification، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+      "currentUr": "جانچ دوال الحساب، معايير تصدیق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+      "proposedEn": "Audit calculation functions, validation criteria, prohibit replacing missing values with zero, and evaluate variance (NORMAL / WARNING / EXCEPTION)",
+      "proposedUr": "حساب کے فنکشنز، تصدیقی معیارات کی جانچ، گمشدہ ڈیٹا کو صفر سے بدلنے کی ممانعت، اور فرق کی جانچ (NORMAL / WARNING / EXCEPTION)",
+      "protectedTokens": [
+        "NORMAL",
+        "WARNING",
+        "EXCEPTION"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "MEDIUM",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Weighbridge accuracy evaluation indicator referencing system enum states. Enum tokens must be strictly preserved.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "فحص دوال الحساب، معايير التحقق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+          "currentEn": "Check دوال الحساب، معايير Verification، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+          "currentUr": "جانچ دوال الحساب، معايير تصدیق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Audit calculation functions, validation criteria, prohibit replacing missing values with zero, and evaluate variance (NORMAL / WARNING / EXCEPTION)",
+          "proposedUr": "حساب کے فنکشنز، تصدیقی معیارات کی جانچ، گمشدہ ڈیٹا کو صفر سے بدلنے کی ممانعت، اور فرق کی جانچ (NORMAL / WARNING / EXCEPTION)",
+          "protectedTokens": [
+            "NORMAL",
+            "WARNING",
+            "EXCEPTION"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "TECHNICAL_TERM",
+          "riskLevel": "MEDIUM",
+          "rationale": "Weighbridge accuracy evaluation indicator referencing system enum states. Enum tokens must be strictly preserved."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 20,
+      "key": "offline.labels.txt_402c63",
+      "domain": "offline",
+      "priority": "P2",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "المبلغ والتسوية:",
+      "currentEn": "المبلغ والتسوية:",
+      "currentUr": "المبلغ والتسوية:",
+      "proposedEn": "Amount & Settlement:",
+      "proposedUr": "رقم اور تصفیہ:",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Offline queue settlement summary label. Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "المبلغ والتسوية:",
+          "currentEn": "المبلغ والتسوية:",
+          "currentUr": "المبلغ والتسوية:"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Amount & Settlement:",
+          "proposedUr": "رقم اور تصفیہ:",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "HIGH",
+          "rationale": "Offline queue settlement summary label. Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 21,
+      "key": "loading.labels.save_3",
+      "domain": "security",
+      "priority": "P2",
+      "classification": "TECHNICAL_TERM",
+      "arabicCanonical": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها وحفظ السجل الأمني في سجلات الرقابة.",
+      "currentEn": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها وSave السجل الأمني في سجلات الرقابة.",
+      "currentUr": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها ومحفوظ کریں السجل الأمني في سجلات الرقابة.",
+      "proposedEn": "The settlement amount (settlementAmount) has no input field in the interface and is calculated exclusively server-side (Server-Side Calculation). Any client-submitted value is ignored and logged in regulatory audit trails.",
+      "proposedUr": "تصفیہ کی رقم (settlementAmount) کے لیے انٹرفیس میں کوئی ان پٹ فیلڈ نہیں ہے، اور یہ مکمل طور پر سرور کی طرف (Server-Side Calculation) شمار ہوتی ہے۔ کلائنٹ سے بھیجی گئی کسی بھی قیمت کو نظر انداز کر کے سیکیورٹی لاگ میں محفوظ کیا جاتا ہے۔",
+      "protectedTokens": [
+        "settlementAmount",
+        "Server-Side Calculation"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "CRITICAL",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Crucial security specification preventing client tampering of settlementAmount. Preserves audit trail. EN and UR currently contain hybrid machine-translated words.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها وحفظ السجل الأمني في سجلات الرقابة.",
+          "currentEn": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها وSave السجل الأمني في سجلات الرقابة.",
+          "currentUr": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها ومحفوظ کریں السجل الأمني في سجلات الرقابة."
+        },
+        "proposedCorrection": {
+          "proposedEn": "The settlement amount (settlementAmount) has no input field in the interface and is calculated exclusively server-side (Server-Side Calculation). Any client-submitted value is ignored and logged in regulatory audit trails.",
+          "proposedUr": "تصفیہ کی رقم (settlementAmount) کے لیے انٹرفیس میں کوئی ان پٹ فیلڈ نہیں ہے، اور یہ مکمل طور پر سرور کی طرف (Server-Side Calculation) شمار ہوتی ہے۔ کلائنٹ سے بھیجی گئی کسی بھی قیمت کو نظر انداز کر کے سیکیورٹی لاگ میں محفوظ کیا جاتا ہے۔",
+          "protectedTokens": [
+            "settlementAmount",
+            "Server-Side Calculation"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "TECHNICAL_TERM",
+          "riskLevel": "CRITICAL",
+          "rationale": "Crucial security specification preventing client tampering of settlementAmount. Preserves audit trail. EN and UR currently contain hybrid machine-translated words."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 22,
+      "key": "unloading.labels.txt_186f77",
+      "domain": "security",
+      "priority": "P2",
+      "classification": "BILINGUAL_SOURCE",
+      "arabicCanonical": "تقرير الامتثال الآلي لاشتراطات محطة التفريغ (Unloading Station Tests)",
+      "currentEn": "تقرير الامتثال الآلي لاشتراطات Unloading Station (Unloading Station Tests)",
+      "currentUr": "تقرير الامتثال الآلي لاشتراطات ان لوڈنگ اسٹیشن (Unloading Station Tests)",
+      "proposedEn": "Automated Compliance Report for Unloading Station Requirements (Unloading Station Tests)",
+      "proposedUr": "ان لوڈنگ اسٹیشن کے تقاضوں کی خودکار تعمیلی رپورٹ (Unloading Station Tests)",
+      "protectedTokens": [
+        "Unloading Station Tests"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "LOW",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Station compliance QA report header. Bilingual English tag in Arabic source. Mixed morphology in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "تقرير الامتثال الآلي لاشتراطات محطة التفريغ (Unloading Station Tests)",
+          "currentEn": "تقرير الامتثال الآلي لاشتراطات Unloading Station (Unloading Station Tests)",
+          "currentUr": "تقرير الامتثال الآلي لاشتراطات ان لوڈنگ اسٹیشن (Unloading Station Tests)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Automated Compliance Report for Unloading Station Requirements (Unloading Station Tests)",
+          "proposedUr": "ان لوڈنگ اسٹیشن کے تقاضوں کی خودکار تعمیلی رپورٹ (Unloading Station Tests)",
+          "protectedTokens": [
+            "Unloading Station Tests"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "BILINGUAL_SOURCE",
+          "riskLevel": "LOW",
+          "rationale": "Station compliance QA report header. Bilingual English tag in Arabic source. Mixed morphology in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 23,
+      "key": "unloading.labels.txt_1bec3a",
+      "domain": "security",
+      "priority": "P2",
+      "classification": "REAL_TRANSLATION_DEFECT",
+      "arabicCanonical": "فحص الامتثال الآلي (7 متطلبات)",
+      "currentEn": "Check الامتثال الآلي (7 متطلبات)",
+      "currentUr": "جانچ الامتثال الآلي (7 متطلبات)",
+      "proposedEn": "Automated Compliance Check (7 Requirements)",
+      "proposedUr": "خودکار تعمیلی جانچ (7 شرائط)",
+      "protectedTokens": [
+        "7"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "LOW",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Automated compliance checklist item. Hybrid machine artifact (Check الامتثال الآلي).",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "فحص الامتثال الآلي (7 متطلبات)",
+          "currentEn": "Check الامتثال الآلي (7 متطلبات)",
+          "currentUr": "جانچ الامتثال الآلي (7 متطلبات)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Automated Compliance Check (7 Requirements)",
+          "proposedUr": "خودکار تعمیلی جانچ (7 شرائط)",
+          "protectedTokens": [
+            "7"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "REAL_TRANSLATION_DEFECT",
+          "riskLevel": "LOW",
+          "rationale": "Automated compliance checklist item. Hybrid machine artifact (Check الامتثال الآلي)."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 24,
+      "key": "unloading.labels.txt_68980a",
+      "domain": "security",
+      "priority": "P2",
+      "classification": "TECHNICAL_TERM",
+      "arabicCanonical": "حظر أمني رقابي (BLOCKED)",
+      "currentEn": "حظر أمني رقابي (BLOCKED)",
+      "currentUr": "حظر أمني رقابي (BLOCKED)",
+      "proposedEn": "Regulatory Security Block (BLOCKED)",
+      "proposedUr": "نگرانی کا سیکیورٹی بلاک (BLOCKED)",
+      "protectedTokens": [
+        "BLOCKED"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Security regulatory block status. Contains BLOCKED status code. Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "حظر أمني رقابي (BLOCKED)",
+          "currentEn": "حظر أمني رقابي (BLOCKED)",
+          "currentUr": "حظر أمني رقابي (BLOCKED)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Regulatory Security Block (BLOCKED)",
+          "proposedUr": "نگرانی کا سیکیورٹی بلاک (BLOCKED)",
+          "protectedTokens": [
+            "BLOCKED"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "TECHNICAL_TERM",
+          "riskLevel": "HIGH",
+          "rationale": "Security regulatory block status. Contains BLOCKED status code. Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 25,
+      "key": "offline.labels.createTripPricing",
+      "domain": "pricing",
+      "priority": "P2",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "حظر إنشاء الرحلة بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بإنشاء أي رحلة بدون احتساب تسعيري معتمد.",
+      "currentEn": "حظر Create الTrip بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بCreate أي Trip بدون احتساب تسعيري معتمد.",
+      "currentUr": "حظر تخلیق کریں الٹرپ بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بتخلیق کریں أي ٹرپ بدون احتساب تسعيري معتمد.",
+      "proposedEn": "Offline Trip Creation Prohibited: Pricing data is not available locally in browser storage (IndexedDB). Legally, no trip may be created without an approved price calculation.",
+      "proposedUr": "آف لائن ٹرپ کی تخلیق ممنوع: قیمتوں کا ڈیٹا براؤزر میموری (IndexedDB) میں مقامی طور پر دستیاب نہیں ہے۔ باضابطہ طور پر منظور شدہ قیمت کے حساب کتاب کے بغیر کوئی ٹرپ بنانے کی اجازت نہیں ہے۔",
+      "protectedTokens": [
+        "IndexedDB"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "CRITICAL",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Statutory trip creation block when offline pricing cache is missing. Contains IndexedDB. EN and UR contain hybrid fragments.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "حظر إنشاء الرحلة بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بإنشاء أي رحلة بدون احتساب تسعيري معتمد.",
+          "currentEn": "حظر Create الTrip بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بCreate أي Trip بدون احتساب تسعيري معتمد.",
+          "currentUr": "حظر تخلیق کریں الٹرپ بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بتخلیق کریں أي ٹرپ بدون احتساب تسعيري معتمد."
+        },
+        "proposedCorrection": {
+          "proposedEn": "Offline Trip Creation Prohibited: Pricing data is not available locally in browser storage (IndexedDB). Legally, no trip may be created without an approved price calculation.",
+          "proposedUr": "آف لائن ٹرپ کی تخلیق ممنوع: قیمتوں کا ڈیٹا براؤزر میموری (IndexedDB) میں مقامی طور پر دستیاب نہیں ہے۔ باضابطہ طور پر منظور شدہ قیمت کے حساب کتاب کے بغیر کوئی ٹرپ بنانے کی اجازت نہیں ہے۔",
+          "protectedTokens": [
+            "IndexedDB"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "CRITICAL",
+          "rationale": "Statutory trip creation block when offline pricing cache is missing. Contains IndexedDB. EN and UR contain hybrid fragments."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 26,
+      "key": "navigation.labels.txt_2f3fde",
+      "domain": "shared",
+      "priority": "P3",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "مستحق التسوية",
+      "currentEn": "مستحق التسوية",
+      "currentUr": "مستحق التسوية",
+      "proposedEn": "Settlement Due",
+      "proposedUr": "تصفیہ کے واجب الادا",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Financial status filter pill. Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "مستحق التسوية",
+          "currentEn": "مستحق التسوية",
+          "currentUr": "مستحق التسوية"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Settlement Due",
+          "proposedUr": "تصفیہ کے واجب الادا",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "HIGH",
+          "rationale": "Financial status filter pill. Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 27,
+      "key": "entityResolution.labels.importEdit",
+      "domain": "entityResolution",
+      "priority": "P3",
+      "classification": "BILINGUAL_SOURCE",
+      "arabicCanonical": "يعمل قبل اعتماد أي ملف استيراد (Import) أو تعديل على البيانات المرجعية (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية.",
+      "currentEn": "يعمل قبل Approval أي ملف Import (Import) أو Edit على Data Reference (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية.",
+      "currentUr": "يعمل قبل منظوری أي ملف امپورٹ کریں (Import) أو ترمیم کریں على ڈیٹا حوالہ جاتی (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية.",
+      "proposedEn": "Executes prior to approving any import file (Import) or modifying reference data (Master Data). Prevents erroneous automatic merges (Auto-Merge) and prohibits regulatory conflicts.",
+      "proposedUr": "کسی بھی امپورٹ فائل (Import) کی منظوری یا ماسٹر ڈیٹا (Master Data) میں ترمیم سے پہلے چلتا ہے۔ غلط خودکار انضمام (Auto-Merge) کو روکتا ہے اور تنظیمی تنازعات کو ممنوع قرار دیتا ہے۔",
+      "protectedTokens": [
+        "Import",
+        "Master Data",
+        "Auto-Merge"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Data governance constraint preventing regulatory collisions. Source has multiple English technical parentheticals (Import, Master Data, Auto-Merge). Current EN/UR have severe hybrid word salad.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "يعمل قبل اعتماد أي ملف استيراد (Import) أو تعديل على البيانات المرجعية (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية.",
+          "currentEn": "يعمل قبل Approval أي ملف Import (Import) أو Edit على Data Reference (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية.",
+          "currentUr": "يعمل قبل منظوری أي ملف امپورٹ کریں (Import) أو ترمیم کریں على ڈیٹا حوالہ جاتی (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية."
+        },
+        "proposedCorrection": {
+          "proposedEn": "Executes prior to approving any import file (Import) or modifying reference data (Master Data). Prevents erroneous automatic merges (Auto-Merge) and prohibits regulatory conflicts.",
+          "proposedUr": "کسی بھی امپورٹ فائل (Import) کی منظوری یا ماسٹر ڈیٹا (Master Data) میں ترمیم سے پہلے چلتا ہے۔ غلط خودکار انضمام (Auto-Merge) کو روکتا ہے اور تنظیمی تنازعات کو ممنوع قرار دیتا ہے۔",
+          "protectedTokens": [
+            "Import",
+            "Master Data",
+            "Auto-Merge"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "BILINGUAL_SOURCE",
+          "riskLevel": "HIGH",
+          "rationale": "Data governance constraint preventing regulatory collisions. Source has multiple English technical parentheticals (Import, Master Data, Auto-Merge). Current EN/UR have severe hybrid word salad."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 28,
+      "key": "entityResolution.labels.txt_2b8f60",
+      "domain": "entityResolution",
+      "priority": "P3",
+      "classification": "REAL_TRANSLATION_DEFECT",
+      "arabicCanonical": "تم استبعاد وحظر السجل من الإدخال.",
+      "currentEn": "تم استبعاد وحظر السجل من الإدخال.",
+      "currentUr": "تم استبعاد وحظر السجل من الإدخال.",
+      "proposedEn": "Record excluded and blocked from entry.",
+      "proposedUr": "ریکارڈ کو اندراج سے خارج اور بلاک کر دیا گیا ہے۔",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "MEDIUM",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Data validation exclusion message. Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "تم استبعاد وحظر السجل من الإدخال.",
+          "currentEn": "تم استبعاد وحظر السجل من الإدخال.",
+          "currentUr": "تم استبعاد وحظر السجل من الإدخال."
+        },
+        "proposedCorrection": {
+          "proposedEn": "Record excluded and blocked from entry.",
+          "proposedUr": "ریکارڈ کو اندراج سے خارج اور بلاک کر دیا گیا ہے۔",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "REAL_TRANSLATION_DEFECT",
+          "riskLevel": "MEDIUM",
+          "rationale": "Data validation exclusion message. Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 29,
+      "key": "projects.labels.txt_6757e5",
+      "domain": "projects",
+      "priority": "P3",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "نسبة ضريبة القيمة المضافة % (VAT)",
+      "currentEn": "نسبة ضريبة القيمة المضافة % (VAT)",
+      "currentUr": "نسبة ضريبة القيمة المضافة % (VAT)",
+      "proposedEn": "Value Added Tax Rate % (VAT)",
+      "proposedUr": "ویلیو ایڈڈ ٹیکس کی شرح % (VAT)",
+      "protectedTokens": [
+        "VAT",
+        "%"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Tax rate configuration field. Contains VAT and % symbols. Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "نسبة ضريبة القيمة المضافة % (VAT)",
+          "currentEn": "نسبة ضريبة القيمة المضافة % (VAT)",
+          "currentUr": "نسبة ضريبة القيمة المضافة % (VAT)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Value Added Tax Rate % (VAT)",
+          "proposedUr": "ویلیو ایڈڈ ٹیکس کی شرح % (VAT)",
+          "protectedTokens": [
+            "VAT",
+            "%"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "HIGH",
+          "rationale": "Tax rate configuration field. Contains VAT and % symbols. Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 30,
+      "key": "offline.labels.txt_305c29",
+      "domain": "offline",
+      "priority": "P3",
+      "classification": "REAL_TRANSLATION_DEFECT",
+      "arabicCanonical": "تسوية ومطابقة التبعية مع البيانات الأساسية للخادم",
+      "currentEn": "تسوية ومطابقة التبعية مع Data الأساسية للخادم",
+      "currentUr": "تسوية ومطابقة التبعية مع ڈیٹا الأساسية للخادم",
+      "proposedEn": "Dependency reconciliation and synchronization with server master data",
+      "proposedUr": "سرور کے بنیادی ڈیٹا کے ساتھ وابستگی کی مطابقت پذیری اور تصفیہ",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "MEDIUM",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Offline synchronization status description. Hybrid machine translation in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "تسوية ومطابقة التبعية مع البيانات الأساسية للخادم",
+          "currentEn": "تسوية ومطابقة التبعية مع Data الأساسية للخادم",
+          "currentUr": "تسوية ومطابقة التبعية مع ڈیٹا الأساسية للخادم"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Dependency reconciliation and synchronization with server master data",
+          "proposedUr": "سرور کے بنیادی ڈیٹا کے ساتھ وابستگی کی مطابقت پذیری اور تصفیہ",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "REAL_TRANSLATION_DEFECT",
+          "riskLevel": "MEDIUM",
+          "rationale": "Offline synchronization status description. Hybrid machine translation in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 31,
+      "key": "exceptions.labels.driver",
+      "domain": "exceptions",
+      "priority": "P3",
+      "classification": "REAL_TRANSLATION_DEFECT",
+      "arabicCanonical": "كفالة السائق غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+      "currentEn": "كفالة Driver غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+      "currentUr": "كفالة ڈرائیور غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+      "proposedEn": "Driver sponsorship does not match the contracted carrier, with no valid Ajeer permit",
+      "proposedUr": "ڈرائیور کی کفالت معاہدہ شدہ کیریئر سے مماثل نہیں ہے اور کوئی درست اجیر اجازت نامہ موجود نہیں ہے",
+      "protectedTokens": [
+        "Ajeer"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Saudi Ministry of Human Resources (Ajeer) regulatory compliance rule. Requires specific legal term \"Ajeer permit\". Current EN and UR have hybrid fragments.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "كفالة السائق غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+          "currentEn": "كفالة Driver غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+          "currentUr": "كفالة ڈرائیور غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Driver sponsorship does not match the contracted carrier, with no valid Ajeer permit",
+          "proposedUr": "ڈرائیور کی کفالت معاہدہ شدہ کیریئر سے مماثل نہیں ہے اور کوئی درست اجیر اجازت نامہ موجود نہیں ہے",
+          "protectedTokens": [
+            "Ajeer"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "REAL_TRANSLATION_DEFECT",
+          "riskLevel": "HIGH",
+          "rationale": "Saudi Ministry of Human Resources (Ajeer) regulatory compliance rule. Requires specific legal term \"Ajeer permit\". Current EN and UR have hybrid fragments."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 32,
+      "key": "projects.labels.settings",
+      "domain": "security",
+      "priority": "P3",
+      "classification": "BILINGUAL_SOURCE",
+      "arabicCanonical": "الإعدادات الافتراضية والامتثال النظامي (Default Settings & Compliance)",
+      "currentEn": "Settings الافتراضية والامتثال النظامي (Default Settings & Compliance)",
+      "currentUr": "ترتیبات الافتراضية والامتثال النظامي (Default Settings & Compliance)",
+      "proposedEn": "Default Settings & Regulatory Compliance",
+      "proposedUr": "طے شدہ ترتیبات اور تنظیمی تعمیل (Default Settings & Compliance)",
+      "protectedTokens": [
+        "Default Settings & Compliance"
+      ],
+      "interpolationVariables": [],
+      "riskLevel": "LOW",
+      "recommendedDecision": "FIX_SOURCE",
+      "conciseRationale": "Project governance settings header. Source includes full English title in parentheses, creating tautological repetition if translated directly. Recommend fixing canonical source to remove redundant English or providing concise translation.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "الإعدادات الافتراضية والامتثال النظامي (Default Settings & Compliance)",
+          "currentEn": "Settings الافتراضية والامتثال النظامي (Default Settings & Compliance)",
+          "currentUr": "ترتیبات الافتراضية والامتثال النظامي (Default Settings & Compliance)"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Default Settings & Regulatory Compliance",
+          "proposedUr": "طے شدہ ترتیبات اور تنظیمی تعمیل (Default Settings & Compliance)",
+          "protectedTokens": [
+            "Default Settings & Compliance"
+          ],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "BILINGUAL_SOURCE",
+          "riskLevel": "LOW",
+          "rationale": "Project governance settings header. Source includes full English title in parentheses, creating tautological repetition if translated directly. Recommend fixing canonical source to remove redundant English or providing concise translation."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "FIX_SOURCE",
+          "committeeSignoffPending": true
+        }
+      }
+    },
+    {
+      "index": 33,
+      "key": "navigation.labels.pricing_2",
+      "domain": "pricing",
+      "priority": "P3",
+      "classification": "FINANCIAL_OPERATIONAL_RISK",
+      "arabicCanonical": "بناءً على لقطات التسعير التعاقدية للرحلات",
+      "currentEn": "بناءً على لقطات التسعير التعاقدية للرحلات",
+      "currentUr": "بناءً على لقطات التسعير التعاقدية للرحلات",
+      "proposedEn": "Based on trip contractual pricing snapshots",
+      "proposedUr": "ٹرپس کی معاہداتی قیمتوں کے اسنیپ شاٹس پر مبنی",
+      "protectedTokens": [],
+      "interpolationVariables": [],
+      "riskLevel": "HIGH",
+      "recommendedDecision": "REVISE",
+      "conciseRationale": "Pricing audit methodology disclaimer. Explains calculation baseline from contractual rate snapshots. Arabic fallback in EN/UR.",
+      "reviewerDecision": "PENDING",
+      "reviewStatus": "REVIEW_REQUIRED",
+      "auditSeparation": {
+        "existingTranslation": {
+          "arabic": "بناءً على لقطات التسعير التعاقدية للرحلات",
+          "currentEn": "بناءً على لقطات التسعير التعاقدية للرحلات",
+          "currentUr": "بناءً على لقطات التسعير التعاقدية للرحلات"
+        },
+        "proposedCorrection": {
+          "proposedEn": "Based on trip contractual pricing snapshots",
+          "proposedUr": "ٹرپس کی معاہداتی قیمتوں کے اسنیپ شاٹس پر مبنی",
+          "protectedTokens": [],
+          "interpolationVariables": []
+        },
+        "reasonForProposal": {
+          "classification": "FINANCIAL_OPERATIONAL_RISK",
+          "riskLevel": "HIGH",
+          "rationale": "Pricing audit methodology disclaimer. Explains calculation baseline from contractual rate snapshots. Arabic fallback in EN/UR."
+        },
+        "humanApprovalRequired": {
+          "reviewerDecision": "PENDING",
+          "reviewStatus": "REVIEW_REQUIRED",
+          "recommendedDecision": "REVISE",
+          "committeeSignoffPending": true
+        }
+      }
+    }
+  ]
+}
