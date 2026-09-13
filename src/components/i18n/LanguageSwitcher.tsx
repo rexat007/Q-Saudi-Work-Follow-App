@@ -25,12 +25,12 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <div className="relative inline-block text-left" ref={containerRef} id="language-switcher-container">
+    <div className="relative inline-block text-left shrink-0 z-40" ref={containerRef} id="language-switcher-container">
       <button
         id="language-switcher-btn"
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-stone-100 hover:bg-stone-200/70 border border-stone-200/80 text-stone-800 transition-colors shadow-2xs"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-stone-100 hover:bg-stone-200/70 border border-stone-200/80 text-stone-800 transition-colors shadow-2xs cursor-pointer"
         aria-label={t('navigation.language')}
         aria-expanded={isOpen}
       >
@@ -52,7 +52,7 @@ export function LanguageSwitcher() {
                 id={`lang-option-${loc}`}
                 type="button"
                 onClick={() => handleSelect(loc)}
-                className={`w-full flex items-center justify-between px-3 py-1.5 text-xs text-start transition-colors ${
+                className={`w-full flex items-center justify-between px-3 py-1.5 text-xs text-start transition-colors cursor-pointer ${
                   isSelected 
                     ? 'bg-amber-50 font-bold text-amber-900' 
                     : 'text-stone-700 hover:bg-stone-50 hover:text-stone-900'

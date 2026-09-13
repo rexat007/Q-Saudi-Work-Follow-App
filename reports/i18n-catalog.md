@@ -1,30 +1,30 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-13T08:25:40.570Z
+**Generated At:** 2026-09-13T08:37:12.647Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 242 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 31833 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 9561 | Confirmed visible Arabic and UI texts |
+| **Total Files Scanned** | 243 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 31936 | Total strings and text nodes parsed |
+| **Real User-Facing Texts** | 9569 | Confirmed visible Arabic and UI texts |
 | **Likely User-Facing Texts** | 353 | English UI text in visible elements |
-| **Ambiguous Texts** | 7299 | Short or context-isolated tokens for manual review |
-| **Technical Strings** | 6867 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 7753 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 7639 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Ambiguous Texts** | 7353 | Short or context-isolated tokens for manual review |
+| **Technical Strings** | 6868 | CSS classes, paths, enums, regexes, operators |
+| **Non-User-Facing Strings** | 7793 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 7645 | Hierarchical keys generated (e.g. `shared.actions.save`) |
 | **Duplicate Groups** | 4273 | Sets of identical/normalized recurring texts |
 | **Semantic Conflict Groups** | 485 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 9277 | Entries flagged with special cases or ambiguity |
-| **High / Critical Risk Hotspots** | 2289 | Concatenations, templates, or business data overlaps |
+| **Keys Requiring Review** | 9334 | Entries flagged with special cases or ambiguity |
+| **High / Critical Risk Hotspots** | 2292 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
 
 | Semantic Category | User-Facing Strings | Description |
 | :--- | :--- | :--- |
-| `other` | 4929 | Classified operational domain |
+| `other` | 4937 | Classified operational domain |
 | `imports` | 1430 | Classified operational domain |
 | `security` | 456 | Classified operational domain |
 | `trips` | 455 | Classified operational domain |
@@ -58,9 +58,9 @@
 
 | File | Line | Class / Icon | Type | Risk | Suggested Replacement |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `src/App.tsx` | 442 | `mr-0.5` | margin | `MUST_MIGRATE` | `me-0.5` |
-| `src/App.tsx` | 703 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
-| `src/App.tsx` | 726 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
+| `src/App.tsx` | 447 | `mr-0.5` | margin | `MUST_MIGRATE` | `me-0.5` |
+| `src/App.tsx` | 706 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
+| `src/App.tsx` | 729 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
 | `src/components/FirestoreArchitectureView.tsx` | 471 | `text-left` | text-alignment | `MUST_MIGRATE` | `text-start` |
 | `src/components/FirestoreArchitectureView.tsx` | 529 | `pr-1` | padding | `MUST_MIGRATE` | `pe-1` |
 | `src/components/FirestoreArchitectureView.tsx` | 716 | `border-rose-200` | border | `PROBABLY_SAFE` | `border-rose-200` |
@@ -94,9 +94,9 @@ Identical visible text appearing across different operational domains with disti
 ## 5. High-Risk Hotspots & Special Cases
 
 - **Concatenated Strings (`+`):** 9
-- **Template Literals (`${...}`):** 625
+- **Template Literals (`${...}`):** 627
 - **Interpolation Placeholders (`{...}`):** 232
-- **Mixed Numbers & Units:** 982
+- **Mixed Numbers & Units:** 983
 - **Currency String Usages:** 380
 - **Unit String Usages:** 722
 - **Protected Business Field Matches:** 303

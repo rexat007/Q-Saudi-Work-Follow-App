@@ -1,29 +1,29 @@
 {
-  "generatedAt": "2026-09-13T08:25:57.204Z",
+  "generatedAt": "2026-09-13T08:37:29.017Z",
   "version": "1.0.0-block54b",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 11660,
-    "generatedEnCount": 11660,
-    "generatedUrCount": 11660,
-    "reviewRequiredCount": 11252,
+    "totalEntries": 11681,
+    "generatedEnCount": 11681,
+    "generatedUrCount": 11681,
+    "reviewRequiredCount": 11273,
     "skippedCount": 0,
     "protectedCount": 1,
     "interpolationCount": 215,
     "pluralizationCount": 155,
-    "highRiskCount": 10737,
+    "highRiskCount": 10758,
     "semanticConflictCount": 1219,
     "domainTerminologyCount": 369,
     "confidenceBreakdown": {
       "HIGH": 140,
       "MEDIUM": 3595,
-      "LOW": 7925
+      "LOW": 7946
     },
     "tierBreakdown": {
       "1": 6,
       "2": 548,
       "3": 369,
-      "4": 10737
+      "4": 10758
     },
     "reviewReasonsBreakdown": {
       "SEMANTIC_CONFLICT": 1219,
@@ -31,8 +31,8 @@
       "INTERPOLATION_RISK": 8,
       "PLURALIZATION_RISK": 155,
       "REPORT_EXPORT_RISK": 3695,
-      "BUSINESS_DATA_RISK": 1536,
-      "LOW_CONFIDENCE": 11252,
+      "BUSINESS_DATA_RISK": 1539,
+      "LOW_CONFIDENCE": 11273,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
@@ -215,12 +215,12 @@
         "low": 0
       },
       "other": {
-        "total": 4545,
-        "generated": 4545,
-        "reviewRequired": 4508,
+        "total": 4566,
+        "generated": 4566,
+        "reviewRequired": 4529,
         "high": 82,
         "medium": 1105,
-        "low": 3358
+        "low": 3379
       }
     }
   },
@@ -70580,7 +70580,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_18",
+      "duplicateGroupId": "dup_path_19",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -128444,7 +128444,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_function_5",
+      "duplicateGroupId": "dup_function_6",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -152725,7 +152725,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 721,
+          "line": 724,
           "column": 40,
           "element": "call_setSelectedDocId"
         }
@@ -152931,7 +152931,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 580,
+          "line": 583,
           "column": 81,
           "element": "literal"
         }
@@ -153528,7 +153528,7 @@
         },
         {
           "file": "src/App.tsx",
-          "line": 782,
+          "line": 785,
           "column": 24,
           "element": "literal"
         }
@@ -154083,7 +154083,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 876,
+          "line": 879,
           "column": 19,
           "element": "jsx_text"
         }
@@ -154179,7 +154179,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 878,
+          "line": 881,
           "column": 19,
           "element": "jsx_text"
         }
@@ -154500,7 +154500,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 760,
+          "line": 763,
           "column": 25,
           "element": "jsx_text"
         }
@@ -155174,7 +155174,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 561,
+          "line": 564,
           "column": 89,
           "element": "jsx_text"
         }
@@ -155271,8 +155271,8 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 441,
-          "column": 44,
+          "line": 446,
+          "column": 46,
           "element": "literal"
         }
       ],
@@ -155321,8 +155321,8 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 441,
-          "column": 33,
+          "line": 446,
+          "column": 35,
           "element": "literal"
         }
       ],
@@ -155840,7 +155840,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 841,
+          "line": 844,
           "column": 23,
           "element": "jsx_text"
         }
@@ -156214,7 +156214,7 @@
         },
         {
           "file": "src/App.tsx",
-          "line": 871,
+          "line": 874,
           "column": 56,
           "element": "jsx_text"
         }
@@ -157181,7 +157181,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 585,
+          "line": 588,
           "column": 78,
           "element": "literal"
         }
@@ -157234,13 +157234,13 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 807,
+          "line": 810,
           "column": 89,
           "element": "literal"
         },
         {
           "file": "src/App.tsx",
-          "line": 807,
+          "line": 810,
           "column": 108,
           "element": "literal"
         }
@@ -157293,7 +157293,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 585,
+          "line": 588,
           "column": 97,
           "element": "literal"
         }
@@ -158103,7 +158103,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 808,
+          "line": 811,
           "column": 27,
           "element": "jsx_text"
         }
@@ -158347,7 +158347,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 880,
+          "line": 883,
           "column": 19,
           "element": "jsx_text"
         }
@@ -158452,7 +158452,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 702,
+          "line": 705,
           "column": 33,
           "element": "jsx_text"
         }
@@ -158640,7 +158640,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 826,
+          "line": 829,
           "column": 19,
           "element": "jsx_text"
         }
@@ -158838,7 +158838,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 668,
+          "line": 671,
           "column": 27,
           "element": "jsx_text"
         }
@@ -160320,8 +160320,8 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 459,
-          "column": 39,
+          "line": 464,
+          "column": 41,
           "element": "jsx_text"
         }
       ],
@@ -161613,7 +161613,7 @@
         },
         {
           "file": "src/App.tsx",
-          "line": 720,
+          "line": 723,
           "column": 36,
           "element": "call_setActiveTab"
         }
@@ -305737,9 +305737,57 @@
           "line": 318,
           "column": 26,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 89,
+          "column": 15,
+          "element": "call_setLocale"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 90,
+          "column": 24,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 92,
+          "column": 22,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 92,
+          "column": 102,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 97,
+          "column": 22,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 129,
+          "column": 13,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 137,
+          "column": 21,
+          "element": "call_directionOf"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 140,
+          "column": 16,
+          "element": "call_isRTL"
         }
       ],
-      "duplicateGroupId": "dup_ar_50",
+      "duplicateGroupId": "dup_ar_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -322319,9 +322367,63 @@
           "line": 318,
           "column": 32,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 82,
+          "column": 22,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 104,
+          "column": 15,
+          "element": "call_setLocale"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 105,
+          "column": 24,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 107,
+          "column": 22,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 107,
+          "column": 102,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 112,
+          "column": 22,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 129,
+          "column": 19,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 139,
+          "column": 21,
+          "element": "call_directionOf"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 142,
+          "column": 15,
+          "element": "call_isRTL"
         }
       ],
-      "duplicateGroupId": "dup_en_51",
+      "duplicateGroupId": "dup_en_60",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -322522,9 +322624,15 @@
           "line": 9,
           "column": 7,
           "element": "prop_en"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 107,
+          "column": 32,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_English_4",
+      "duplicateGroupId": "dup_English_5",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -325272,9 +325380,15 @@
           "line": 14,
           "column": 16,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 17,
+          "column": 16,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_16",
+      "duplicateGroupId": "dup_fs_17",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -325427,9 +325541,15 @@
           "line": 85,
           "column": 34,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 52,
+          "column": 37,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_function_5",
+      "duplicateGroupId": "dup_function_6",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -330183,6 +330303,202 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.i18nQuality01": {
+      "key": "other.labels.i18nQuality01",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-01",
+      "proposedTextEn": "I18N-QUALITY-01",
+      "proposedTextUr": "I18N-QUALITY-01",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 146,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality02": {
+      "key": "other.labels.i18nQuality02",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-02",
+      "proposedTextEn": "I18N-QUALITY-02",
+      "proposedTextUr": "I18N-QUALITY-02",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 170,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality03": {
+      "key": "other.labels.i18nQuality03",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-03",
+      "proposedTextEn": "I18N-QUALITY-03",
+      "proposedTextUr": "I18N-QUALITY-03",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 181,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality04": {
+      "key": "other.labels.i18nQuality04",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-04",
+      "proposedTextEn": "I18N-QUALITY-04",
+      "proposedTextUr": "I18N-QUALITY-04",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 201,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.i18nRec01": {
       "key": "other.labels.i18nRec01",
       "category": "other",
@@ -330804,6 +331120,300 @@
         {
           "file": "src/tests/runtimeSmokeBlock55.test.ts",
           "line": 270,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSwitcher01": {
+      "key": "other.labels.i18nSwitcher01",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SWITCHER-01",
+      "proposedTextEn": "I18N-SWITCHER-01",
+      "proposedTextUr": "I18N-SWITCHER-01",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 51,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSwitcher02": {
+      "key": "other.labels.i18nSwitcher02",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SWITCHER-02",
+      "proposedTextEn": "I18N-SWITCHER-02",
+      "proposedTextUr": "I18N-SWITCHER-02",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 81,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSwitcher03": {
+      "key": "other.labels.i18nSwitcher03",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SWITCHER-03",
+      "proposedTextEn": "I18N-SWITCHER-03",
+      "proposedTextUr": "I18N-SWITCHER-03",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 96,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSwitcher04": {
+      "key": "other.labels.i18nSwitcher04",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SWITCHER-04",
+      "proposedTextEn": "I18N-SWITCHER-04",
+      "proposedTextUr": "I18N-SWITCHER-04",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 111,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSwitcher05": {
+      "key": "other.labels.i18nSwitcher05",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SWITCHER-05",
+      "proposedTextEn": "I18N-SWITCHER-05",
+      "proposedTextUr": "I18N-SWITCHER-05",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 126,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nSwitcher06": {
+      "key": "other.labels.i18nSwitcher06",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-SWITCHER-06",
+      "proposedTextEn": "I18N-SWITCHER-06",
+      "proposedTextUr": "I18N-SWITCHER-06",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 136,
           "column": 8,
           "element": "call_test"
         }
@@ -336237,9 +336847,33 @@
           "line": 230,
           "column": 33,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 83,
+          "column": 19,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 106,
+          "column": 21,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 113,
+          "column": 19,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 139,
+          "column": 31,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ltr_22",
+      "duplicateGroupId": "dup_ltr_26",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -344082,9 +344716,15 @@
           "line": 15,
           "column": 18,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 18,
+          "column": 18,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_18",
+      "duplicateGroupId": "dup_path_19",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -352622,6 +353262,55 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.right0": {
+      "key": "other.labels.right0",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "right-0",
+      "proposedTextEn": "right-0",
+      "proposedTextUr": "right-0",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 65,
+          "column": 34,
+          "element": "call_includes"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.role": {
       "key": "other.labels.role",
       "category": "other",
@@ -353194,9 +353883,39 @@
           "line": 227,
           "column": 33,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 91,
+          "column": 21,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 98,
+          "column": 19,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 121,
+          "column": 21,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 137,
+          "column": 31,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 138,
+          "column": 31,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_rtl_45",
+      "duplicateGroupId": "dup_rtl_50",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -355542,6 +356261,55 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.shrink0": {
+      "key": "other.labels.shrink0",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "shrink-0",
+      "proposedTextEn": "shrink-0",
+      "proposedTextUr": "shrink-0",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 59,
+          "column": 34,
+          "element": "call_includes"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.sidebar": {
       "key": "other.labels.sidebar",
       "category": "other",
@@ -357763,6 +358531,55 @@
           "line": 26,
           "column": 3,
           "element": "literal"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.switcherandqualityblock56": {
+      "key": "other.labels.switcherandqualityblock56",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "switcherAndQualityBlock56",
+      "proposedTextEn": "switcherAndQualityBlock56",
+      "proposedTextUr": "switcherAndQualityBlock56",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 228,
+          "column": 76,
+          "element": "call_includes"
         }
       ],
       "notes": [
@@ -366734,6 +367551,53 @@
       "notes": [
         "Semantic conflict group conflict_٩: Retained distinct key \"other.labels.txt_000669\" to avoid accidental merge."
       ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_00c55b": {
+      "key": "other.labels.txt_00c55b",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "تم",
+      "proposedTextEn": "تم",
+      "proposedTextUr": "تم",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 175,
+          "column": 23,
+          "element": "call_includes"
+        }
+      ],
+      "notes": [],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -376049,10 +376913,16 @@
           "line": 10,
           "column": 7,
           "element": "prop_ur"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 122,
+          "column": 32,
+          "element": "literal"
         }
       ],
       "semanticConflictGroupId": "conflict_اردو",
-      "duplicateGroupId": "dup_اردو_4",
+      "duplicateGroupId": "dup_اردو_5",
       "notes": [
         "Semantic conflict group conflict_اردو: Retained distinct key \"other.labels.txt_2e3f86\" to avoid accidental merge."
       ],
@@ -390025,6 +390895,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_59c559": {
+      "key": "other.labels.txt_59c559",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "ترحيل",
+      "proposedTextEn": "ترحيل",
+      "proposedTextUr": "ترحيل",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 175,
+          "column": 46,
+          "element": "call_includes"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_59c72a": {
       "key": "other.labels.txt_59c72a",
       "category": "other",
@@ -392385,6 +393302,54 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_5e8dcf": {
+      "key": "other.labels.txt_5e8dcf",
+      "category": "other",
+      "semanticContext": "template_literal",
+      "sourceTextAr": "Expected name اردو, got ${LOCALE_NAMES['ur']}",
+      "proposedTextEn": "Expected name اردو, got ${LOCALE_NAMES['ur']}",
+      "proposedTextUr": "Expected name اردو, got ${LOCALE_NAMES['ur']}",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 122,
+          "column": 56,
+          "element": "template_literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_5e8dd2": {
       "key": "other.labels.txt_5e8dd2",
       "category": "other",
@@ -392476,6 +393441,58 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_5f0d53": {
+      "key": "other.labels.txt_5f0d53",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "Expected dashboard.status.txt_4f5139 (Completedة) to be detected",
+      "proposedTextEn": "Expected dashboard.status.txt_4f5139 (Completedة) to be detected",
+      "proposedTextUr": "Expected dashboard.status.txt_4f5139 (Completedة) to be detected",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [
+        "status"
+      ],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 215,
+          "column": 23,
+          "element": "literal"
+        }
+      ],
+      "notes": [
+        "Protected business/currency tokens: [status] must not be altered"
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
       },
       "isReportOrExportField": false
     },
@@ -397063,6 +398080,54 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_6f2a7e": {
+      "key": "other.labels.txt_6f2a7e",
+      "category": "other",
+      "semanticContext": "template_literal",
+      "sourceTextAr": "Expected name العربية, got ${LOCALE_NAMES['ar']}",
+      "proposedTextEn": "Expected name العربية, got ${LOCALE_NAMES['ar']}",
+      "proposedTextUr": "Expected name العربية, got ${LOCALE_NAMES['ar']}",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 92,
+          "column": 59,
+          "element": "template_literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_6f6147": {
       "key": "other.labels.txt_6f6147",
       "category": "other",
@@ -400945,6 +402010,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_7e2a5c": {
+      "key": "other.labels.txt_7e2a5c",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "Hybrid morphology (e.g. Completedة) is detected accurately",
+      "proposedTextEn": "Hybrid morphology (e.g. Completedة) is detected accurately",
+      "proposedTextUr": "Hybrid morphology (e.g. Completedة) is detected accurately",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 201,
+          "column": 27,
+          "element": "call_test"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_7e2bc7": {
       "key": "other.labels.txt_7e2bc7",
       "category": "other",
@@ -401516,10 +402628,16 @@
           "line": 8,
           "column": 7,
           "element": "prop_ar"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 92,
+          "column": 32,
+          "element": "literal"
         }
       ],
       "semanticConflictGroupId": "conflict_العربية",
-      "duplicateGroupId": "dup_العربية_3",
+      "duplicateGroupId": "dup_العربية_4",
       "notes": [
         "Semantic conflict group conflict_العربية: Retained distinct key \"other.labels.txt_7fd387\" to avoid accidental merge."
       ],
@@ -405881,9 +406999,51 @@
           "line": 318,
           "column": 38,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 119,
+          "column": 15,
+          "element": "call_setLocale"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 120,
+          "column": 24,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 122,
+          "column": 22,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 122,
+          "column": 96,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 129,
+          "column": 25,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 138,
+          "column": 21,
+          "element": "call_directionOf"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 141,
+          "column": 16,
+          "element": "call_isRTL"
         }
       ],
-      "duplicateGroupId": "dup_ur_45",
+      "duplicateGroupId": "dup_ur_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -407811,9 +408971,21 @@
           "line": 39,
           "column": 47,
           "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 57,
+          "column": 62,
+          "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 70,
+          "column": 52,
+          "element": "call_readFileSync"
         }
       ],
-      "duplicateGroupId": "dup_utf8_12",
+      "duplicateGroupId": "dup_utf8_14",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -409830,6 +411002,104 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.z40": {
+      "key": "other.labels.z40",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "z-40",
+      "proposedTextEn": "z-40",
+      "proposedTextUr": "z-40",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 62,
+          "column": 34,
+          "element": "call_includes"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.z50": {
+      "key": "other.labels.z50",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "z-50",
+      "proposedTextEn": "z-50",
+      "proposedTextUr": "z-50",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/switcherAndQualityBlock56.test.ts",
+          "line": 62,
+          "column": 70,
+          "element": "call_includes"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.zatcataxnumber": {
       "key": "other.labels.zatcataxnumber",
       "category": "other",
@@ -411057,7 +412327,7 @@
           "element": "prop_\"navigation.language.en\""
         }
       ],
-      "duplicateGroupId": "dup_English_4",
+      "duplicateGroupId": "dup_English_5",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -411165,7 +412435,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_اردو",
-      "duplicateGroupId": "dup_اردو_4",
+      "duplicateGroupId": "dup_اردو_5",
       "notes": [
         "Semantic conflict group conflict_اردو: Retained distinct key \"other.nav.txt_2e3f86\" to avoid accidental merge."
       ],
@@ -411425,7 +412695,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_العربية",
-      "duplicateGroupId": "dup_العربية_3",
+      "duplicateGroupId": "dup_العربية_4",
       "notes": [
         "Semantic conflict group conflict_العربية: Retained distinct key \"other.nav.txt_7fd387\" to avoid accidental merge."
       ],
@@ -428269,7 +429539,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_function_5",
+      "duplicateGroupId": "dup_function_6",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -470287,7 +471557,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_16",
+      "duplicateGroupId": "dup_fs_17",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -472693,7 +473963,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_18",
+      "duplicateGroupId": "dup_path_19",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -492349,7 +493619,7 @@
           "element": "call_resolveTranslation"
         }
       ],
-      "duplicateGroupId": "dup_ar_50",
+      "duplicateGroupId": "dup_ar_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -494781,7 +496051,7 @@
           "element": "call_resolveTranslation"
         }
       ],
-      "duplicateGroupId": "dup_en_51",
+      "duplicateGroupId": "dup_en_60",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -495141,7 +496411,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_16",
+      "duplicateGroupId": "dup_fs_17",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -497183,7 +498453,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_18",
+      "duplicateGroupId": "dup_path_19",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -512717,7 +513987,7 @@
           "element": "call_resolveTranslation"
         }
       ],
-      "duplicateGroupId": "dup_ur_45",
+      "duplicateGroupId": "dup_ur_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -513581,7 +514851,7 @@
           "element": "call_readFileSync"
         }
       ],
-      "duplicateGroupId": "dup_utf8_12",
+      "duplicateGroupId": "dup_utf8_14",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -553798,7 +555068,7 @@
           "element": "call_checkBrackets"
         }
       ],
-      "duplicateGroupId": "dup_ar_50",
+      "duplicateGroupId": "dup_ar_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -553994,7 +555264,7 @@
           "element": "call_checkBrackets"
         }
       ],
-      "duplicateGroupId": "dup_en_51",
+      "duplicateGroupId": "dup_en_60",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -554390,7 +555660,7 @@
           "element": "call_checkBrackets"
         }
       ],
-      "duplicateGroupId": "dup_ur_45",
+      "duplicateGroupId": "dup_ur_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],

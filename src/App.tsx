@@ -148,8 +148,8 @@ export default function App() {
           </div>
 
           {/* Navigation Mode Switcher & Auth Button */}
-          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            <nav className="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200/80 gap-1 overflow-x-auto">
+          <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
+            <nav className="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200/80 gap-1 overflow-x-auto min-w-0 shrink">
               <button
                 id="tab-security-audit"
                 onClick={() => setActiveTab('SECURITY_AUDIT')}
@@ -426,47 +426,50 @@ export default function App() {
               </button>
             </nav>
 
-            {/* Outbox & Network Status Pill */}
-            <button
-              id="header-outbox-btn"
-              onClick={() => setIsOutboxOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border shadow-2xs ${
-                isOnline 
-                  ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-900' 
-                  : 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950 animate-pulse'
-              }`}
-              title={t("navigation.status.txt_4c0b8d")}
-            >
-              {isOnline ? <Wifi className="w-3.5 h-3.5 text-emerald-600" /> : <WifiOff className="w-3.5 h-3.5 text-amber-700" />}
-              <span>{isOnline ? 'Online' : 'Offline'}</span>
-              <Inbox className="w-3 h-3 text-stone-500 mr-0.5" />
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                pendingCount > 0 ? 'bg-amber-500 text-white font-bold' : 'bg-stone-200 text-stone-700'
-              }`}>
-                {pendingCount}
-              </span>
-            </button>
+            {/* Header Utility Controls */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Language Switcher */}
+              <LanguageSwitcher />
 
-            {/* Conflict Alert Pill */}
-            {conflictCount > 0 && (
+              {/* Outbox & Network Status Pill */}
               <button
-                id="header-conflicts-btn"
+                id="header-outbox-btn"
                 onClick={() => setIsOutboxOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-100 hover:bg-purple-200 border border-purple-400 text-purple-950 shadow-2xs animate-pulse transition-all"
-                title={t("navigation.labels.txt_10324c")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border shadow-2xs ${
+                  isOnline 
+                    ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-900' 
+                    : 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950 animate-pulse'
+                }`}
+                title={t("navigation.status.txt_4c0b8d")}
               >
-                <ShieldAlert className="w-3.5 h-3.5 text-purple-700" />
-                <span>{conflictCount} تعارض تشغيلي</span>
+                {isOnline ? <Wifi className="w-3.5 h-3.5 text-emerald-600" /> : <WifiOff className="w-3.5 h-3.5 text-amber-700" />}
+                <span>{isOnline ? 'Online' : 'Offline'}</span>
+                <Inbox className="w-3 h-3 text-stone-500 mr-0.5" />
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                  pendingCount > 0 ? 'bg-amber-500 text-white font-bold' : 'bg-stone-200 text-stone-700'
+                }`}>
+                  {pendingCount}
+                </span>
               </button>
-            )}
 
-            {/* Language Switcher */}
-            <LanguageSwitcher />
+              {/* Conflict Alert Pill */}
+              {conflictCount > 0 && (
+                <button
+                  id="header-conflicts-btn"
+                  onClick={() => setIsOutboxOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-100 hover:bg-purple-200 border border-purple-400 text-purple-950 shadow-2xs animate-pulse transition-all"
+                  title={t("navigation.labels.txt_10324c")}
+                >
+                  <ShieldAlert className="w-3.5 h-3.5 text-purple-700" />
+                  <span>{conflictCount} تعارض تشغيلي</span>
+                </button>
+              )}
 
-            {/* PWA Install Button */}
-            <PWAInstallButton />
+              {/* PWA Install Button */}
+              <PWAInstallButton />
 
-            <AuthButton />
+              <AuthButton />
+            </div>
           </div>
         </div>
       </header>

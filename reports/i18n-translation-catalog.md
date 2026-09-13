@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-13T08:25:50.665Z
+**Generated At:** 2026-09-13T08:37:22.696Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,11 +9,11 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **10743** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **10764** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **7626** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **7626** | Domain terminology requiring semantic verification |
-| **Ambiguous Keys Isolated** | **3110** | Short tokens or codes quarantined from auto-translation |
+| **Untranslated Slots (Pending Review)** | **7632** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **7632** | Domain terminology requiring semantic verification |
+| **Ambiguous Keys Isolated** | **3125** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
 | **Interpolation Placeholders** | **215** | Dynamic parameters (e.g. `{count}`) strictly preserved |
 | **Pluralization Requirements** | **155** | Expressions requiring 6 Arabic plural forms |
@@ -25,7 +25,7 @@
 
 | Category | Total Keys | Translated | Untranslated | Review Required | Ambiguous |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `other` | 4462 | 4 | 3469 | 3469 | 989 |
+| `other` | 4483 | 4 | 3475 | 3475 | 1004 |
 | `imports` | 1574 | 0 | 1086 | 1086 | 488 |
 | `reports` | 567 | 0 | 375 | 375 | 191 |
 | `security` | 535 | 1 | 399 | 399 | 135 |
@@ -75,9 +75,9 @@ Identical Arabic terms separated into distinct keys based on operational context
 
 | File | Line | Physical Class | Recommended Logical Class | Risk |
 | :--- | :--- | :--- | :--- | :--- |
-| `src/App.tsx` | 442 | `mr-0.5` | `me-0.5` | `MUST_MIGRATE` |
-| `src/App.tsx` | 703 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
-| `src/App.tsx` | 726 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
+| `src/App.tsx` | 447 | `mr-0.5` | `me-0.5` | `MUST_MIGRATE` |
+| `src/App.tsx` | 706 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
+| `src/App.tsx` | 729 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
 | `src/components/FirestoreArchitectureView.tsx` | 471 | `text-left` | `text-start` | `MUST_MIGRATE` |
 | `src/components/FirestoreArchitectureView.tsx` | 529 | `pr-1` | `pe-1` | `MUST_MIGRATE` |
 | `src/components/TripEngineView.tsx` | 609 | `mr-1` | `me-1` | `MUST_MIGRATE` |
