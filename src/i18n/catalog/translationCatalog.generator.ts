@@ -626,7 +626,28 @@ export function writeProductionCatalogReports(
   const mdCatalogPath = path.join(outputDir, 'i18n-translation-catalog.md');
   const mdReviewPath = path.join(outputDir, 'i18n-translation-review.md');
 
-  fs.writeFileSync(jsonPath, JSON.stringify(catalog, null, 2), 'utf-8');
+  const mergedCatalog: ProductionTranslationCatalog = {
+    ...catalog,
+    summary: { ...catalog.summary },
+    entries: { ...catalog.entries },
+  };
+
+  // Preserve recovered entries from BLOCK 54A if present
+  const recoveryPath = path.join(outputDir, 'i18n-block54a-recovery.json');
+  if (fs.existsSync(recoveryPath)) {
+    try {
+      const rec = JSON.parse(fs.readFileSync(recoveryPath, 'utf8'));
+      if (rec.recoveredEntries) {
+        for (const [k, v] of Object.entries(rec.recoveredEntries)) {
+          if (!mergedCatalog.entries[k]) {
+            mergedCatalog.entries[k] = v as any;
+          }
+        }
+      }
+    } catch {}
+  }
+
+  fs.writeFileSync(jsonPath, JSON.stringify(mergedCatalog, null, 2), 'utf-8');
   fs.writeFileSync(mdCatalogPath, formatTranslationCatalogMarkdown(catalog), 'utf-8');
   fs.writeFileSync(mdReviewPath, formatTranslationReviewMarkdown(catalog), 'utf-8');
 }
