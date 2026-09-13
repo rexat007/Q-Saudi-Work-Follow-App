@@ -1,0 +1,1352 @@
+[
+  {
+    "key": "other.labels.driver_6",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "السائق",
+    "oldEn": "Driver",
+    "oldUr": "ڈرائیور"
+  },
+  {
+    "key": "other.labels.drivers_5",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "السائقون (Drivers)",
+    "oldEn": "Drivers (Drivers)",
+    "oldUr": "ڈرائیورز (Drivers)"
+  },
+  {
+    "key": "other.labels.material_4",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "رمز المادة (Code)",
+    "oldEn": "رمز Material (Code)",
+    "oldUr": "رمز مٹیریل (Code)"
+  },
+  {
+    "key": "other.labels.material_6",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تفعيل المادة (تحويل إلى ACTIVE)",
+    "oldEn": "تفعيل Material (تحويل إلى ACTIVE)",
+    "oldUr": "تفعيل مٹیریل (تحويل إلى ACTIVE)"
+  },
+  {
+    "key": "other.labels.material_9",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "المادة الإنشائية أو الخام المنقولة ومواصفاتها الفيزيائية والتوريدية.",
+    "oldEn": "Material الإنشائية أو الخام المنقولة ومواصفاتها الفيزيائية والتوريدية.",
+    "oldUr": "مٹیریل الإنشائية أو الخام المنقولة ومواصفاتها الفيزيائية والتوريدية."
+  },
+  {
+    "key": "other.labels.materialProject_3",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تبديل تصريح المادة لهذا المشروع",
+    "oldEn": "تبديل تصريح Material لهذا Project",
+    "oldUr": "تبديل تصريح مٹیریل لهذا پروجیکٹ"
+  },
+  {
+    "key": "other.labels.materials_5",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "المواد (Materials)",
+    "oldEn": "Materials (Materials)",
+    "oldUr": "مٹیریلز (Materials)"
+  },
+  {
+    "key": "other.labels.materials_7",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "المواد المعتمدة (Step 2)",
+    "oldEn": "Materials المعتمدة (Step 2)",
+    "oldUr": "مٹیریلز المعتمدة (Step 2)"
+  },
+  {
+    "key": "other.labels.project_4",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "${code} - أرشيف ومستندات المشروع اللوجستية",
+    "oldEn": "${code} - أرشيف ومستندات Project اللوجستية",
+    "oldUr": "${code} - أرشيف ومستندات پروجیکٹ اللوجستية"
+  },
+  {
+    "key": "other.labels.project_5",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "معرف المشروع في Firestore:",
+    "oldEn": "معرف Project في Firestore:",
+    "oldUr": "معرف پروجیکٹ في Firestore:"
+  },
+  {
+    "key": "other.labels.project_6",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "نسخ رمز المشروع",
+    "oldEn": "Copy رمز Project",
+    "oldUr": "کاپی کریں رمز پروجیکٹ"
+  },
+  {
+    "key": "other.labels.projects_5",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "الكيان الجذري التشغيلي والحدود المالية وحاجز عزل المشاريع (Tenant Boundary).",
+    "oldEn": "الكيان الجذري التشغيلي والحدود المالية وحاجز عزل Projects (Tenant Boundary).",
+    "oldUr": "الكيان الجذري التشغيلي والحدود المالية وحاجز عزل پروجیکٹس (Tenant Boundary)."
+  },
+  {
+    "key": "other.labels.refresh_2",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "العميل يرسل مقترحات أحداث، بينما الخادم هو الكيان الوحيد المخول باعتماد التغيير وتحديث حالة الرحلة.",
+    "oldEn": "العميل يرسل مقترحات أحداث، بينما الخادم هو الكيان الوحيد المخول بApproval التغيير وRefresh حالة الTrip.",
+    "oldUr": "العميل يرسل مقترحات أحداث، بينما الخادم هو الكيان الوحيد المخول بمنظوری التغيير وتازہ کریں حالة الٹرپ."
+  },
+  {
+    "key": "other.labels.saveCarrier",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "حفظ وتطبيع الناقل",
+    "oldEn": "Save وتطبيع Carrier",
+    "oldUr": "محفوظ کریں وتطبيع کیریئر"
+  },
+  {
+    "key": "other.labels.saveDriver",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "حفظ وتطبيع السائق",
+    "oldEn": "Save وتطبيع Driver",
+    "oldUr": "محفوظ کریں وتطبيع ڈرائیور"
+  },
+  {
+    "key": "other.labels.saveMaterial",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "حفظ وتطبيع المادة",
+    "oldEn": "Save وتطبيع Material",
+    "oldUr": "محفوظ کریں وتطبيع مٹیریل"
+  },
+  {
+    "key": "other.labels.saveTruck",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "حفظ وتطبيع الشاحنة",
+    "oldEn": "Save وتطبيع Truck",
+    "oldUr": "محفوظ کریں وتطبيع ٹرک"
+  },
+  {
+    "key": "other.labels.truck",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تعطيل الشاحنة (تحويل إلى INACTIVE)",
+    "oldEn": "تعطيل Truck (تحويل إلى INACTIVE)",
+    "oldUr": "تعطيل ٹرک (تحويل إلى INACTIVE)"
+  },
+  {
+    "key": "other.labels.truck_2",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تفعيل الشاحنة (تحويل إلى ACTIVE)",
+    "oldEn": "تفعيل Truck (تحويل إلى ACTIVE)",
+    "oldUr": "تفعيل ٹرک (تحويل إلى ACTIVE)"
+  },
+  {
+    "key": "other.labels.truck_5",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "الشاحنة (Truck)",
+    "oldEn": "Truck (Truck)",
+    "oldUr": "ٹرک (Truck)"
+  },
+  {
+    "key": "other.labels.txt_14af6c",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "المجلد الحاوي لكافة تذاكر الميزان، إشعارات التوريد وسجلات الشاحنات.",
+    "oldEn": "المجلد الحاوي لكافة تذاكر الميزان، إشعارات التوريد وسجلات Trucks.",
+    "oldUr": "المجلد الحاوي لكافة تذاكر الميزان، إشعارات التوريد وسجلات ٹرکس."
+  },
+  {
+    "key": "other.labels.txt_1a0a87",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "عنوان جدول العمليات Google Sheets (spreadsheetTitle)",
+    "oldEn": "عنوان جدول Operations Google Sheets (spreadsheetTitle)",
+    "oldUr": "عنوان جدول آپریشنز Google Sheets (spreadsheetTitle)"
+  },
+  {
+    "key": "other.labels.txt_2ed1b5",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "الكل (ACTIVE + INACTIVE)",
+    "oldEn": "All (ACTIVE + INACTIVE)",
+    "oldUr": "تمام (ACTIVE + INACTIVE)"
+  },
+  {
+    "key": "other.labels.txt_35c4cc",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "فحص النزاهة والاختبارات الآلية",
+    "oldEn": "Check النزاهة والاختبارات الآلية",
+    "oldUr": "جانچ النزاهة والاختبارات الآلية"
+  },
+  {
+    "key": "other.labels.txt_36b6da",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "ناقل معتمد",
+    "oldEn": "ناقل معتمد",
+    "oldUr": "ناقل معتمد"
+  },
+  {
+    "key": "other.labels.txt_394b13",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "حالة الاعتماد المعماري",
+    "oldEn": "حالة الApproval المعماري",
+    "oldUr": "حالة المنظوری المعماري"
+  },
+  {
+    "key": "other.labels.txt_3fb9ae",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "بالرد (TRIP)",
+    "oldEn": "بالرد (TRIP)",
+    "oldUr": "بالرد (TRIP)"
+  },
+  {
+    "key": "other.labels.txt_47f763",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "نتائج الفحص الهندسي الصارم لوحدات Master Data (9 فئات اختبار)",
+    "oldEn": "نتائج الCheck الهندسي الصارم لوحدات Master Data (9 فئات اختبار)",
+    "oldUr": "نتائج الجانچ الهندسي الصارم لوحدات Master Data (9 فئات اختبار)"
+  },
+  {
+    "key": "other.labels.txt_4e4d76",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "يعمل التطبيق حالياً بالبيانات المرجعية الكاملة للمشاريع السعودية. لتفعيل المزامنة المباشرة لقواعد بيانات Firestore وتخزين التعديلات سحابياً، يمكنك تسجيل الدخول بحساب Google.",
+    "oldEn": "يعمل الApply حالياً بData Reference الكاملة للمشاريع السعودية. لتفعيل Synchronization المباشرة لقواعد بيانات Firestore وتخزين الEditات سحابياً، يمكنك تسجيل الدخول بحساب Google.",
+    "oldUr": "يعمل اللاگو کریں حالياً بڈیٹا حوالہ جاتی الكاملة للمشاريع السعودية. لتفعيل مطابقت پذیری المباشرة لقواعد بيانات Firestore وتخزين الترمیم کریںات سحابياً، يمكنك تسجيل الدخول بحساب Google."
+  },
+  {
+    "key": "other.labels.txt_592f64",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "راسب (FAILED)",
+    "oldEn": "راسب (FAILED)",
+    "oldUr": "راسب (FAILED)"
+  },
+  {
+    "key": "other.labels.txt_5c9a61",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "فحوصات ناجحة (100%)",
+    "oldEn": "فحوصات ناجحة (100%)",
+    "oldUr": "فحوصات ناجحة (100%)"
+  },
+  {
+    "key": "other.labels.txt_618712",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "الهوية / الإقامة",
+    "oldEn": "الهوية / الإقامة",
+    "oldUr": "الهوية / الإقامة"
+  },
+  {
+    "key": "other.labels.txt_66cfae",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "ناقل غير مصرح",
+    "oldEn": "ناقل غير مصرح",
+    "oldUr": "ناقل غير مصرح"
+  },
+  {
+    "key": "other.labels.txt_67f664",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "مسجلة في النظام:",
+    "oldEn": "مسجلة في النظام:",
+    "oldUr": "مسجلة في النظام:"
+  },
+  {
+    "key": "other.labels.txt_6b093a",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "جميع النواقل",
+    "oldEn": "جميع النواقل",
+    "oldUr": "جميع النواقل"
+  },
+  {
+    "key": "other.labels.txt_714016",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "أي ناقل أو مادة أو شاحنة أو سائق ورد في رحلات سابقة لا يُحذف مطلقاً لحماية الحسابات.",
+    "oldEn": "أي ناقل أو مادة أو شاحنة أو سائق ورد في رحلات سابقة لا يُDelete مطلقاً لحماية الحسابات.",
+    "oldUr": "أي ناقل أو مادة أو شاحنة أو سائق ورد في رحلات سابقة لا يُحذف کریں مطلقاً لحماية الحسابات."
+  },
+  {
+    "key": "other.labels.txt_73dcb9",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "هذا السجل مرتبط بـ",
+    "oldEn": "هذا السجل مرتبط بـ",
+    "oldUr": "هذا السجل مرتبط بـ"
+  },
+  {
+    "key": "other.labels.txt_7bb941",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "مع ذلك، وتطبيقاً لقاعدة «استخدم ACTIVE/INACTIVE بدلاً من hard delete»، سيتم تعطيل السجل بتحويل حالته إلى (INACTIVE).",
+    "oldEn": "مع ذلك، وApplyاً لقاعدة «استخدم ACTIVE/INACTIVE بدلاً من hard delete»، سيتم تعطيل السجل بتحويل حالته إلى (INACTIVE).",
+    "oldUr": "مع ذلك، ولاگو کریںاً لقاعدة «استخدم ACTIVE/INACTIVE بدلاً من hard delete»، سيتم تعطيل السجل بتحويل حالته إلى (INACTIVE)."
+  },
+  {
+    "key": "other.labels.txt_7f7eb1",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "إدارة البيانات الرئيسية (Master Data Modules)",
+    "oldEn": "إدارة Data الرئيسية (Master Data Modules)",
+    "oldUr": "إدارة ڈیٹا الرئيسية (Master Data Modules)"
+  },
+  {
+    "key": "other.labels.txt_ebe0e2",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "إخفاقات",
+    "oldEn": "إخفاقات",
+    "oldUr": "إخفاقات"
+  },
+  {
+    "key": "other.messages.driverCarrier",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تم تسجيل السائق وربطه بالناقل (Driver → Carrier) محلياً.",
+    "oldEn": "تم تسجيل Driver وربطه بCarrier (Driver → Carrier) محلياً.",
+    "oldUr": "تم تسجيل ڈرائیور وربطه بکیریئر (Driver → Carrier) محلياً."
+  },
+  {
+    "key": "other.messages.driverCarrier_2",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تم تسجيل السائق وربطه بالناقل (Driver → Carrier) مع تطبيع الهوية والجوال.",
+    "oldEn": "تم تسجيل Driver وربطه بCarrier (Driver → Carrier) مع تطبيع الهوية والجوال.",
+    "oldUr": "تم تسجيل ڈرائیور وربطه بکیریئر (Driver → Carrier) مع تطبيع الهوية والجوال."
+  },
+  {
+    "key": "other.messages.truckCarrier",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تم تسجيل الشاحنة وربطها بالناقل (Truck → Carrier) محلياً.",
+    "oldEn": "تم تسجيل Truck وربطها بCarrier (Truck → Carrier) محلياً.",
+    "oldUr": "تم تسجيل ٹرک وربطها بکیریئر (Truck → Carrier) محلياً."
+  },
+  {
+    "key": "other.messages.truckCarrier_2",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تم تسجيل الشاحنة وربطها بالناقل (Truck → Carrier) مع تطبيع اللوحة.",
+    "oldEn": "تم تسجيل Truck وربطها بCarrier (Truck → Carrier) مع تطبيع اللوحة.",
+    "oldUr": "تم تسجيل ٹرک وربطها بکیریئر (Truck → Carrier) مع تطبيع اللوحة."
+  },
+  {
+    "key": "other.status.projectActive",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "المشروع النشط:",
+    "oldEn": "Project الActive:",
+    "oldUr": "پروجیکٹ الفعال:"
+  },
+  {
+    "key": "other.status.success_2",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تمت التهيئة والأرشفة بنجاح",
+    "oldEn": "تمت التهيئة والأرشفة بSuccess",
+    "oldUr": "تمت التهيئة والأرشفة بکامیاب"
+  },
+  {
+    "key": "other.status.success_3",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "نجاح",
+    "oldEn": "Success",
+    "oldUr": "کامیاب"
+  },
+  {
+    "key": "projects.labels.add_2",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "يجب إضافة ناقل واحد على الأقل للمشروع",
+    "oldEn": "يجب Add ناقل واحد على الأقل للمشروع",
+    "oldUr": "يجب شامل کریں ناقل واحد على الأقل للمشروع"
+  },
+  {
+    "key": "projects.labels.add_3",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "إضافة وتعيين الصلاحية",
+    "oldEn": "Add وتعيين الصلاحية",
+    "oldUr": "شامل کریں وتعيين الصلاحية"
+  },
+  {
+    "key": "projects.labels.location",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "الموقع الجغرافي للمشروع",
+    "oldEn": "Location الجغرافي للمشروع",
+    "oldUr": "مقام الجغرافي للمشروع"
+  },
+  {
+    "key": "projects.labels.project_10",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "دعوة مستخدم جديد وتعيين صلاحياته في المشروع",
+    "oldEn": "دعوة مستخدم جديد وتعيين صلاحياته في Project",
+    "oldUr": "دعوة مستخدم جديد وتعيين صلاحياته في پروجیکٹ"
+  },
+  {
+    "key": "projects.labels.project_11",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "مدير المشروع (PROJECT_ADMIN)",
+    "oldEn": "مدير Project (PROJECT_ADMIN)",
+    "oldUr": "مدير پروجیکٹ (PROJECT_ADMIN)"
+  },
+  {
+    "key": "projects.labels.project_4",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "مديرو المشروع (Admin):",
+    "oldEn": "مديرو Project (Admin):",
+    "oldUr": "مديرو پروجیکٹ (Admin):"
+  },
+  {
+    "key": "projects.labels.project_6",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "رمز المشروع (projectCode) مطلوب",
+    "oldEn": "رمز Project (projectCode) Required",
+    "oldUr": "رمز پروجیکٹ (projectCode) لازمی"
+  },
+  {
+    "key": "projects.labels.project_7",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "رمز المشروع يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات",
+    "oldEn": "رمز Project يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات",
+    "oldUr": "رمز پروجیکٹ يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات"
+  },
+  {
+    "key": "projects.labels.trucks",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "التفاوت المسموح في أوزان الشاحنات (كجم)",
+    "oldEn": "التفاوت المسموح في أوزان Trucks (kg)",
+    "oldUr": "التفاوت المسموح في أوزان ٹرکس (کلوگرام)"
+  },
+  {
+    "key": "projects.labels.txt_42e94e",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "مراقب عام (VIEWER)",
+    "oldEn": "مراقب عام (VIEWER)",
+    "oldUr": "مراقب عام (VIEWER)"
+  },
+  {
+    "key": "projects.labels.txt_50bf83",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تنبيهات الصلاحيات:",
+    "oldEn": "تنبيهات الصلاحيات:",
+    "oldUr": "تنبيهات الصلاحيات:"
+  },
+  {
+    "key": "projects.labels.txt_74b183",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "معرف وحيد للمشروع في Firestore يمنع تعديله بعد الإنشاء.",
+    "oldEn": "معرف وحيد للمشروع في Firestore يمنع Editه بعد الCreate.",
+    "oldUr": "معرف وحيد للمشروع في Firestore يمنع ترمیم کریںه بعد التخلیق کریں."
+  },
+  {
+    "key": "projects.labels.txt_78a490",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "الدور التشغيلي (Role)",
+    "oldEn": "الدور التشغيلي (Role)",
+    "oldUr": "الدور التشغيلي (Role)"
+  },
+  {
+    "key": "projects.labels.userProject",
+    "domain": "projects",
+    "category": "B",
+    "priority": "P3",
+    "ar": "حدد مربع الاختيار لضم المستخدم إلى هذا المشروع وتحديد دوره",
+    "oldEn": "حدد مربع الاختيار لضم User إلى هذا Project وتحديد دوره",
+    "oldUr": "حدد مربع الاختيار لضم صارف إلى هذا پروجیکٹ وتحديد دوره"
+  },
+  {
+    "key": "offline.labels.status",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "مقارنة الحالة المحفوظة (Preserved Local Command vs Server State)",
+    "oldEn": "مقارنة Status المحفوظة (Preserved Local Command vs Server State)",
+    "oldUr": "مقارنة حالت المحفوظة (Preserved Local Command vs Server State)"
+  },
+  {
+    "key": "offline.labels.trip",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تعارض: الرحلة مصنفة كمرتجعة (RETURNED) على الخادم",
+    "oldEn": "تعارض: الTrip مصنفة كمرتجعة (RETURNED) على الخادم",
+    "oldUr": "تعارض: الٹرپ مصنفة كمرتجعة (RETURNED) على الخادم"
+  },
+  {
+    "key": "offline.labels.truck",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تعارض تبعية الشاحنة للناقل (Truck-Carrier Conflict)",
+    "oldEn": "تعارض تبعية Truck للناقل (Truck-Carrier Conflict)",
+    "oldUr": "تعارض تبعية ٹرک للناقل (Truck-Carrier Conflict)"
+  },
+  {
+    "key": "offline.labels.txt_10f795",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "السجل على الخادم تم تعديله بالتوازي بإصدار أحدث.",
+    "oldEn": "السجل على الخادم تم Editه بالتوازي بإصدار أحدث.",
+    "oldUr": "السجل على الخادم تم ترمیم کریںه بالتوازي بإصدار أحدث."
+  },
+  {
+    "key": "offline.labels.txt_2a088a",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "سيعمل التطبيق كبرنامج مستقل بالكامل بدون إنترنت عبر تقنية Offline PWA.",
+    "oldEn": "سيعمل الApply كبرنامج مستقل بالكامل بدون إنترنت عبر تقنية Offline PWA.",
+    "oldUr": "سيعمل اللاگو کریں كبرنامج مستقل بالكامل بدون إنترنت عبر تقنية Offline PWA."
+  },
+  {
+    "key": "offline.labels.txt_35c87e",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تثبيت التطبيق على أجهزة iOS",
+    "oldEn": "تثبيت الApply على أجهزة iOS",
+    "oldUr": "تثبيت اللاگو کریں على أجهزة iOS"
+  },
+  {
+    "key": "offline.labels.txt_3ba53d",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "اعتماد الحل الصريح والترحيل",
+    "oldEn": "Approve Explicit Resolution والترحيل",
+    "oldUr": "واضح حل کی منظوری والترحيل"
+  },
+  {
+    "key": "offline.labels.txt_3d9611",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "اعتماد حالة الخادم (Accept Server State)",
+    "oldEn": "Approval حالة الخادم (Accept Server State)",
+    "oldUr": "منظوری حالة الخادم (Accept Server State)"
+  },
+  {
+    "key": "offline.labels.txt_3db2df",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "فهمت ذلك",
+    "oldEn": "فهمت ذلك",
+    "oldUr": "فهمت ذلك"
+  },
+  {
+    "key": "offline.labels.txt_3e2425",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "ملاحظات التحكيم",
+    "oldEn": "ملاحظات التحكيم",
+    "oldUr": "ملاحظات التحكيم"
+  },
+  {
+    "key": "offline.labels.txt_4c59dc",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "محمي باللقطة",
+    "oldEn": "محمي باللقطة",
+    "oldUr": "محمي باللقطة"
+  },
+  {
+    "key": "offline.labels.txt_4d3e1f",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "جدول الفروقات (Diff)",
+    "oldEn": "جدول الفروقات (Diff)",
+    "oldUr": "جدول الفروقات (Diff)"
+  },
+  {
+    "key": "offline.labels.txt_4e1b80",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "سيتم تسجيل القرار في سجل التدقيق ومزامنة حالة Outbox تلقائياً",
+    "oldEn": "سيتم تسجيل القرار في Audit Log ومزامنة حالة Outbox تلقائياً",
+    "oldUr": "سيتم تسجيل القرار في آڈٹ لاگ ومزامنة حالة Outbox تلقائياً"
+  },
+  {
+    "key": "offline.labels.txt_5037be",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "البيانات الخام (JSON)",
+    "oldEn": "Data الخام (JSON)",
+    "oldUr": "ڈیٹا الخام (JSON)"
+  },
+  {
+    "key": "offline.labels.txt_540354",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "اضغط على زر",
+    "oldEn": "اضغط على زر",
+    "oldUr": "اضغط على زر"
+  },
+  {
+    "key": "offline.labels.txt_59a3b5",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "الحقل",
+    "oldEn": "الحقل",
+    "oldUr": "الحقل"
+  },
+  {
+    "key": "offline.labels.txt_6357c3",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تثبيت PWA",
+    "oldEn": "تثبيت PWA",
+    "oldUr": "تثبيت PWA"
+  },
+  {
+    "key": "offline.labels.txt_6a75f1",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "المشاركة (Share)",
+    "oldEn": "الShare (Share)",
+    "oldUr": "الشیئر کریں (Share)"
+  },
+  {
+    "key": "offline.labels.txt_6fd255",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تثبيت التطبيق (PWA)",
+    "oldEn": "تثبيت الApply (PWA)",
+    "oldUr": "تثبيت اللاگو کریں (PWA)"
+  },
+  {
+    "key": "offline.labels.txt_71eceb",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "القاعدة المعمارية الصارمة:",
+    "oldEn": "القاعدة المعمارية Strict:",
+    "oldUr": "القاعدة المعمارية سخت:"
+  },
+  {
+    "key": "offline.labels.txt_7c7b96",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تثبيت التطبيق على جهازك للعمل بدون إنترنت PWA",
+    "oldEn": "تثبيت الApply على جهازك للعمل بدون إنترنت PWA",
+    "oldUr": "تثبيت اللاگو کریں على جهازك للعمل بدون إنترنت PWA"
+  },
+  {
+    "key": "offline.labels.txt_7e9398",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "مشرف العمليات الميدانية (Scale Supervisor)",
+    "oldEn": "مشرف Operations الميدانية (Scale Supervisor)",
+    "oldUr": "مشرف آپریشنز الميدانية (Scale Supervisor)"
+  },
+  {
+    "key": "offline.status.cancelSuccess",
+    "domain": "offline",
+    "category": "B",
+    "priority": "P3",
+    "ar": "إلغاء التذكرة المكررة محلياً حيث تم ترحيلها بنجاح مسبقاً.",
+    "oldEn": "Cancel التذكرة المكررة محلياً حيث تم ترحيلها بSuccess مسبقاً.",
+    "oldUr": "منسوخ کریں التذكرة المكررة محلياً حيث تم ترحيلها بکامیاب مسبقاً."
+  },
+  {
+    "key": "entityResolution.labels.carrier_3",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "الناقل",
+    "oldEn": "Carrier",
+    "oldUr": "کیریئر"
+  },
+  {
+    "key": "entityResolution.labels.driver_2",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "السائق",
+    "oldEn": "Driver",
+    "oldUr": "ڈرائیور"
+  },
+  {
+    "key": "entityResolution.labels.edit",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تعديل بالتوازي في وضع عدم الاتصال",
+    "oldEn": "Edit بالتوازي في وضع عدم الاتصال",
+    "oldUr": "ترمیم کریں بالتوازي في وضع عدم الاتصال"
+  },
+  {
+    "key": "entityResolution.labels.import",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تعارض حرج في العلاقات أو الصلاحيات. يمنع الإدخال أو الاستيراد نهائياً حتى تتم المعالجة والتصحيح.",
+    "oldEn": "تعارض حرج في العلاقات أو الصلاحيات. يمنع الإدخال أو الImport نهائياً حتى تتم المعالجة والتصحيح.",
+    "oldUr": "تعارض حرج في العلاقات أو الصلاحيات. يمنع الإدخال أو الامپورٹ کریں نهائياً حتى تتم المعالجة والتصحيح."
+  },
+  {
+    "key": "entityResolution.labels.truck",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تعارض الشاحنة (CARRIER_TRUCK_CONFLICT)",
+    "oldEn": "تعارض Truck (CARRIER_TRUCK_CONFLICT)",
+    "oldUr": "تعارض ٹرک (CARRIER_TRUCK_CONFLICT)"
+  },
+  {
+    "key": "entityResolution.labels.txt_116ee2",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تطبيق المعالجة واعتماد السجل",
+    "oldEn": "Apply المعالجة وApproval السجل",
+    "oldUr": "لاگو کریں المعالجة ومنظوری السجل"
+  },
+  {
+    "key": "entityResolution.labels.txt_148e7c",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "مطابقة وآمنة (LOW)",
+    "oldEn": "مطابقة وآمنة (LOW)",
+    "oldUr": "مطابقة وآمنة (LOW)"
+  },
+  {
+    "key": "entityResolution.labels.txt_189ba3",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "محظور / مستبعد",
+    "oldEn": "محظور / مستبعد",
+    "oldUr": "محظور / مستبعد"
+  },
+  {
+    "key": "entityResolution.labels.txt_24239d",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "ناقل (Carrier)",
+    "oldEn": "ناقل (Carrier)",
+    "oldUr": "ناقل (Carrier)"
+  },
+  {
+    "key": "entityResolution.labels.txt_257cc7",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "8 مراحل منفذة",
+    "oldEn": "8 مراحل منفذة",
+    "oldUr": "8 مراحل منفذة"
+  },
+  {
+    "key": "entityResolution.labels.txt_273452",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "مخاطر عالية (HIGH)",
+    "oldEn": "مخاطر عالية (HIGH)",
+    "oldUr": "مخاطر عالية (HIGH)"
+  },
+  {
+    "key": "entityResolution.labels.txt_2a7413",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تتطلب تأكيداً يدوياً",
+    "oldEn": "تتطلب Confirmاً يدوياً",
+    "oldUr": "تتطلب تصدیق کریںاً يدوياً"
+  },
+  {
+    "key": "entityResolution.labels.txt_2c7a04",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "المرشح في قاعدة البيانات (Candidate)",
+    "oldEn": "المرشح في قاعدة Data (Candidate)",
+    "oldUr": "المرشح في قاعدة ڈیٹا (Candidate)"
+  },
+  {
+    "key": "entityResolution.labels.txt_2fc03e",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تمت المعالجة اليدوية",
+    "oldEn": "تمت المعالجة اليدوية",
+    "oldUr": "تمت المعالجة اليدوية"
+  },
+  {
+    "key": "entityResolution.labels.txt_30daee",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "تم الاعتماد بعد اجتياز التحقق والمطابقة.",
+    "oldEn": "تم الApproval بعد اجتياز Verification والمطابقة.",
+    "oldUr": "تم المنظوری بعد اجتياز تصدیق والمطابقة."
+  },
+  {
+    "key": "entityResolution.labels.txt_30e91e",
+    "domain": "entityResolution",
+    "category": "B",
+    "priority": "P3",
+    "ar": "استلام القيمة النصية الأولية من الملف أو واجهة الإدخال بدون أي تعديل.",
+    "oldEn": "استلام القيمة النصية الأولية من الملف أو واجهة الإدخال بدون أي Edit.",
+    "oldUr": "استلام القيمة النصية الأولية من الملف أو واجهة الإدخال بدون أي ترمیم کریں."
+  },
+  {
+    "key": "projects.labels.txt_ee3f70",
+    "domain": "projects",
+    "category": "C",
+    "priority": "P3",
+    "ar": "نصف قطر السياج الجغرافي للموقع (GeoFence بالمتر)",
+    "oldEn": "نصف قطر السياج الجغرافي للموقع (GeoFence بالمتر)",
+    "oldUr": "نصف قطر السياج الجغرافي للموقع (GeoFence بالمتر)"
+  },
+  {
+    "key": "offline.labels.txt_3d5113",
+    "domain": "offline",
+    "category": "C",
+    "priority": "P3",
+    "ar": "مبرر القرار التدقيقي (Audit Justification):",
+    "oldEn": "مبرر القرار التدقيقي (Audit Justification):",
+    "oldUr": "مبرر القرار التدقيقي (Audit Justification):"
+  },
+  {
+    "key": "offline.labels.txt_41c156",
+    "domain": "offline",
+    "category": "C",
+    "priority": "P3",
+    "ar": "ضمانة ثبات تسعير الـ Offline (Pricing Snapshot Invariance)",
+    "oldEn": "ضمانة ثبات تسعير الـ Offline (Pricing Snapshot Invariance)",
+    "oldUr": "ضمانة ثبات تسعير الـ Offline (Pricing Snapshot Invariance)"
+  },
+  {
+    "key": "offline.labels.txt_47cf18",
+    "domain": "offline",
+    "category": "C",
+    "priority": "P3",
+    "ar": "القرار الإلزامي الصريح (Explicit Resolution Strategy)",
+    "oldEn": "القرار الإلزامي الصريح (Explicit Resolution Strategy)",
+    "oldUr": "القرار الإلزامي الصريح (Explicit Resolution Strategy)"
+  },
+  {
+    "key": "offline.labels.txt_4d4137",
+    "domain": "offline",
+    "category": "C",
+    "priority": "P3",
+    "ar": "رفض ترحيل الشحنة لمخالفتها شروط التفويض في السجل المركزي.",
+    "oldEn": "رفض ترحيل الشحنة لمخالفتها شروط التفويض في السجل المركزي.",
+    "oldUr": "رفض ترحيل الشحنة لمخالفتها شروط التفويض في السجل المركزي."
+  },
+  {
+    "key": "offline.labels.txt_5b9d20",
+    "domain": "offline",
+    "category": "C",
+    "priority": "P3",
+    "ar": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
+    "oldEn": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
+    "oldUr": "تم تسجيل رفض أو إرجاع الشحنة على الخادم."
+  },
+  {
+    "key": "offline.labels.txt_604d7b",
+    "domain": "offline",
+    "category": "C",
+    "priority": "P3",
+    "ar": "استبعاد العملية المكررة (Discard Duplicate)",
+    "oldEn": "استبعاد العملية المكررة (Discard Duplicate)",
+    "oldUr": "استبعاد العملية المكررة (Discard Duplicate)"
+  },
+  {
+    "key": "offline.labels.txt_60c85c",
+    "domain": "offline",
+    "category": "C",
+    "priority": "P3",
+    "ar": "فرض الأمر المحلي بالإصدار الجديد (Force Local With Audit)",
+    "oldEn": "فرض الأمر المحلي بالإصدار الجديد (Force Local With Audit)",
+    "oldUr": "فرض الأمر المحلي بالإصدار الجديد (Force Local With Audit)"
+  },
+  {
+    "key": "offline.labels.txt_69531e",
+    "domain": "offline",
+    "category": "C",
+    "priority": "P3",
+    "ar": "حالة الخادم (Server State)",
+    "oldEn": "حالة الخادم (Server State)",
+    "oldUr": "حالة الخادم (Server State)"
+  },
+  {
+    "key": "offline.labels.txt_78ff43",
+    "domain": "offline",
+    "category": "C",
+    "priority": "P3",
+    "ar": "تثبيت على أجهزة آيفون / آيباد",
+    "oldEn": "تثبيت على أجهزة آيفون / آيباد",
+    "oldUr": "تثبيت على أجهزة آيفون / آيباد"
+  },
+  {
+    "key": "entityResolution.labels.txt_14919c",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "الأسباب والتعليقات النظامية:",
+    "oldEn": "الأسباب والتعليقات النظامية:",
+    "oldUr": "الأسباب والتعليقات النظامية:"
+  },
+  {
+    "key": "entityResolution.labels.txt_15728b",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "حرج (CRITICAL) - يمنع الإدخال",
+    "oldEn": "حرج (CRITICAL) - يمنع الإدخال",
+    "oldUr": "حرج (CRITICAL) - يمنع الإدخال"
+  },
+  {
+    "key": "entityResolution.labels.txt_16c00c",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "معايرة قياسية ذكية تحافظ على المعنى (إزالة التشكيل والتطويل، توحيد الأرقام، الإبقاء على الفروق الجوهرية).",
+    "oldEn": "معايرة قياسية ذكية تحافظ على المعنى (إزالة التشكيل والتطويل، توحيد الأرقام، الإبقاء على الفروق الجوهرية).",
+    "oldUr": "معايرة قياسية ذكية تحافظ على المعنى (إزالة التشكيل والتطويل، توحيد الأرقام، الإبقاء على الفروق الجوهرية)."
+  },
+  {
+    "key": "entityResolution.labels.txt_17f8ed",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "الفازي vs الفزي (Possible Match)",
+    "oldEn": "الفازي vs الفزي (Possible Match)",
+    "oldUr": "الفازي vs الفزي (Possible Match)"
+  },
+  {
+    "key": "entityResolution.labels.txt_1c98fc",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "عالي (HIGH) - لا تعتمد تلقائياً",
+    "oldEn": "عالي (HIGH) - لا تعتمد تلقائياً",
+    "oldUr": "عالي (HIGH) - لا تعتمد تلقائياً"
+  },
+  {
+    "key": "entityResolution.labels.txt_1ccbcc",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "⚠️ يتطلب تدخلاً صريحاً لعدم التطابق الكافي.",
+    "oldEn": "⚠️ يتطلب تدخلاً صريحاً لعدم التطابق الكافي.",
+    "oldUr": "⚠️ يتطلب تدخلاً صريحاً لعدم التطابق الكافي."
+  },
+  {
+    "key": "entityResolution.labels.txt_2acaf8",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "تعارض علاقات (RELATIONSHIP)",
+    "oldEn": "تعارض علاقات (RELATIONSHIP)",
+    "oldUr": "تعارض علاقات (RELATIONSHIP)"
+  },
+  {
+    "key": "entityResolution.labels.txt_2e1ff5",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "معالجة التعارض التنظيمي (Conflict Resolution)",
+    "oldEn": "معالجة التعارض التنظيمي (Conflict Resolution)",
+    "oldUr": "معالجة التعارض التنظيمي (Conflict Resolution)"
+  },
+  {
+    "key": "entityResolution.labels.txt_2e6c0e",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "درجة التطابق (Match Score):",
+    "oldEn": "درجة التطابق (Match Score):",
+    "oldUr": "درجة التطابق (Match Score):"
+  },
+  {
+    "key": "entityResolution.labels.txt_392bf7",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "مطابقة لوائح النقل السعودية (صيغ اللوحات، أرقام الهويات، حدود الأوزان والحمولات).",
+    "oldEn": "مطابقة لوائح النقل السعودية (صيغ اللوحات، أرقام الهويات، حدود الأوزان والحمولات).",
+    "oldUr": "مطابقة لوائح النقل السعودية (صيغ اللوحات، أرقام الهويات، حدود الأوزان والحمولات)."
+  },
+  {
+    "key": "entityResolution.labels.txt_39b3f8",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "بوابة رقابة إلزامية (Pre-Import Gate)",
+    "oldEn": "بوابة رقابة إلزامية (Pre-Import Gate)",
+    "oldUr": "بوابة رقابة إلزامية (Pre-Import Gate)"
+  },
+  {
+    "key": "entityResolution.labels.txt_3a8654",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "القيمة المدخلة الأصلية (Source)",
+    "oldEn": "القيمة المدخلة الأصلية (Source)",
+    "oldUr": "القيمة المدخلة الأصلية (Source)"
+  },
+  {
+    "key": "entityResolution.labels.txt_42e7b2",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "تتبع تنفيذ خط الأنابيب (Pipeline Execution Trace)",
+    "oldEn": "تتبع تنفيذ خط الأنابيب (Pipeline Execution Trace)",
+    "oldUr": "تتبع تنفيذ خط الأنابيب (Pipeline Execution Trace)"
+  },
+  {
+    "key": "entityResolution.labels.txt_42f259",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "مشروع نيوم - قطاع الشمال (PRJ-NEOM-001)",
+    "oldEn": "مشروع نيوم - قطاع الشمال (PRJ-NEOM-001)",
+    "oldUr": "مشروع نيوم - قطاع الشمال (PRJ-NEOM-001)"
+  },
+  {
+    "key": "entityResolution.labels.txt_446084",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "خط الأنابيب المعماري الإلزامي (The 8-Stage Quality Pipeline)",
+    "oldEn": "خط الأنابيب المعماري الإلزامي (The 8-Stage Quality Pipeline)",
+    "oldUr": "خط الأنابيب المعماري الإلزامي (The 8-Stage Quality Pipeline)"
+  },
+  {
+    "key": "entityResolution.labels.txt_4b1baa",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "تطابق تام (Exact Match)",
+    "oldEn": "تطابق تام (Exact Match)",
+    "oldUr": "تطابق تام (Exact Match)"
+  },
+  {
+    "key": "entityResolution.labels.txt_4be3c3",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "القيمة الأولية المدخلة (Raw Value)",
+    "oldEn": "القيمة الأولية المدخلة (Raw Value)",
+    "oldUr": "القيمة الأولية المدخلة (Raw Value)"
+  },
+  {
+    "key": "entityResolution.labels.txt_4d8e7a",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "مادة غير مسموحة (MATERIAL_NOT_ALLOWED)",
+    "oldEn": "مادة غير مسموحة (MATERIAL_NOT_ALLOWED)",
+    "oldUr": "مادة غير مسموحة (MATERIAL_NOT_ALLOWED)"
+  },
+  {
+    "key": "entityResolution.labels.txt_5182e1",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "ناقل غير مصرح (CARRIER_NOT_ALLOWED)",
+    "oldEn": "ناقل غير مصرح (CARRIER_NOT_ALLOWED)",
+    "oldUr": "ناقل غير مصرح (CARRIER_NOT_ALLOWED)"
+  },
+  {
+    "key": "entityResolution.labels.txt_5604bd",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "⛔ لا يمكن الإدخال حتى تتم معالجة التعارض يدوياً.",
+    "oldEn": "⛔ لا يمكن الإدخال حتى تتم معالجة التعارض يدوياً.",
+    "oldUr": "⛔ لا يمكن الإدخال حتى تتم معالجة التعارض يدوياً."
+  },
+  {
+    "key": "entityResolution.labels.txt_5786fc",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "نوع الكيان المراد مطابقته",
+    "oldEn": "نوع الكيان المراد مطابقته",
+    "oldUr": "نوع الكيان المراد مطابقته"
+  },
+  {
+    "key": "entityResolution.labels.txt_63d60e",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "احتساب درجة المخاطرة الحتمية (CRITICAL / HIGH / MEDIUM / LOW).",
+    "oldEn": "احتساب درجة المخاطرة الحتمية (CRITICAL / HIGH / MEDIUM / LOW).",
+    "oldUr": "احتساب درجة المخاطرة الحتمية (CRITICAL / HIGH / MEDIUM / LOW)."
+  },
+  {
+    "key": "entityResolution.labels.txt_63e83a",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "إجمالي السجلات المفحوصة",
+    "oldEn": "إجمالي السجلات المفحوصة",
+    "oldUr": "إجمالي السجلات المفحوصة"
+  },
+  {
+    "key": "entityResolution.labels.txt_6608f0",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "تسلسل حتمي يضمن معالجة كل قيمة مدخلة عبر 8 محطات تدقيق متتالية قبل أي كتابة في Firestore",
+    "oldEn": "تسلسل حتمي يضمن معالجة كل قيمة مدخلة عبر 8 محطات تدقيق متتالية قبل أي كتابة في Firestore",
+    "oldUr": "تسلسل حتمي يضمن معالجة كل قيمة مدخلة عبر 8 محطات تدقيق متتالية قبل أي كتابة في Firestore"
+  },
+  {
+    "key": "entityResolution.labels.txt_795a77",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "✓ جميع الحقول مطابقة ومجازة نظامياً.",
+    "oldEn": "✓ جميع الحقول مطابقة ومجازة نظامياً.",
+    "oldUr": "✓ جميع الحقول مطابقة ومجازة نظامياً."
+  },
+  {
+    "key": "entityResolution.labels.txt_7e9185",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "لا يوجد تطابق (NO_MATCH)",
+    "oldEn": "لا يوجد تطابق (NO_MATCH)",
+    "oldUr": "لا يوجد تطابق (NO_MATCH)"
+  },
+  {
+    "key": "entityResolution.labels.txt_a74c7a",
+    "domain": "entityResolution",
+    "category": "C",
+    "priority": "P3",
+    "ar": "خوارزميات التشابه (Levenshtein & Jaro-Winkler) لحساب نسبة التطابق واكتشاف Possible Matches.",
+    "oldEn": "خوارزميات التشابه (Levenshtein & Jaro-Winkler) لحساب نسبة التطابق واكتشاف Possible Matches.",
+    "oldUr": "خوارزميات التشابه (Levenshtein & Jaro-Winkler) لحساب نسبة التطابق واكتشاف Possible Matches."
+  },
+  {
+    "key": "exceptions.labels.txt_268748",
+    "domain": "exceptions",
+    "category": "C",
+    "priority": "P3",
+    "ar": "معتمدة ومحلولة (RESOLVED)",
+    "oldEn": "معتمدة ومحلولة (RESOLVED)",
+    "oldUr": "معتمدة ومحلولة (RESOLVED)"
+  },
+  {
+    "key": "exceptions.labels.txt_2fee62",
+    "domain": "exceptions",
+    "category": "C",
+    "priority": "P3",
+    "ar": "فتح استثناء تشغيلي جديد (Raise Exception)",
+    "oldEn": "فتح استثناء تشغيلي جديد (Raise Exception)",
+    "oldUr": "فتح استثناء تشغيلي جديد (Raise Exception)"
+  },
+  {
+    "key": "exceptions.labels.txt_391836",
+    "domain": "exceptions",
+    "category": "C",
+    "priority": "P3",
+    "ar": "فتح استثناء جديد (Raise Exception)",
+    "oldEn": "فتح استثناء جديد (Raise Exception)",
+    "oldUr": "فتح استثناء جديد (Raise Exception)"
+  },
+  {
+    "key": "exceptions.labels.txt_482fcf",
+    "domain": "exceptions",
+    "category": "C",
+    "priority": "P3",
+    "ar": "محلولة ومعتمدة (RESOLVED)",
+    "oldEn": "محلولة ومعتمدة (RESOLVED)",
+    "oldUr": "محلولة ومعتمدة (RESOLVED)"
+  },
+  {
+    "key": "exceptions.labels.txt_4eb7b8",
+    "domain": "exceptions",
+    "category": "C",
+    "priority": "P3",
+    "ar": "سجل تدقيق إلزامي (Audit Trail)",
+    "oldEn": "سجل تدقيق إلزامي (Audit Trail)",
+    "oldUr": "سجل تدقيق إلزامي (Audit Trail)"
+  },
+  {
+    "key": "exceptions.labels.txt_5675c9",
+    "domain": "exceptions",
+    "category": "C",
+    "priority": "P3",
+    "ar": "بدء المراجعة (UNDER_REVIEW)",
+    "oldEn": "بدء المراجعة (UNDER_REVIEW)",
+    "oldUr": "بدء المراجعة (UNDER_REVIEW)"
+  },
+  {
+    "key": "exceptions.labels.txt_5b7754",
+    "domain": "exceptions",
+    "category": "C",
+    "priority": "P3",
+    "ar": "المُبلّغ / النظام (openedBy)",
+    "oldEn": "المُبلّغ / النظام (openedBy)",
+    "oldUr": "المُبلّغ / النظام (openedBy)"
+  },
+  {
+    "key": "exceptions.labels.txt_60d9c1",
+    "domain": "exceptions",
+    "category": "C",
+    "priority": "P3",
+    "ar": "النظام التشغيلي متوافق ومستقر",
+    "oldEn": "النظام التشغيلي متوافق ومستقر",
+    "oldUr": "النظام التشغيلي متوافق ومستقر"
+  },
+  {
+    "key": "exceptions.labels.txt_69c1d3",
+    "domain": "exceptions",
+    "category": "C",
+    "priority": "P3",
+    "ar": "نوع الاستثناء (12 Types)",
+    "oldEn": "نوع الاستثناء (12 Types)",
+    "oldUr": "نوع الاستثناء (12 Types)"
+  },
+  {
+    "key": "exceptions.labels.txt_6abe88",
+    "domain": "exceptions",
+    "category": "C",
+    "priority": "P3",
+    "ar": "قيد المراجعة (UNDER_REVIEW)",
+    "oldEn": "قيد المراجعة (UNDER_REVIEW)",
+    "oldUr": "قيد المراجعة (UNDER_REVIEW)"
+  },
+  {
+    "key": "navigation.labels.txt_15ec91",
+    "domain": "shared",
+    "category": "C",
+    "priority": "P3",
+    "ar": "التمدد غير الإتلافي (Additive Only):",
+    "oldEn": "التمدد غير الإتلافي (Additive Only):",
+    "oldUr": "التمدد غير الإتلافي (Additive Only):"
+  },
+  {
+    "key": "navigation.labels.txt_19c7ca",
+    "domain": "shared",
+    "category": "C",
+    "priority": "P3",
+    "ar": "تكامل Google Sheets و Google Drive من جانب الخادم",
+    "oldEn": "تكامل Google Sheets و Google Drive من جانب الخادم",
+    "oldUr": "تكامل Google Sheets و Google Drive من جانب الخادم"
+  },
+  {
+    "key": "navigation.labels.txt_19e865",
+    "domain": "shared",
+    "category": "C",
+    "priority": "P3",
+    "ar": "1. أعمدة التشغيل الـ 20 الحالية (Legacy Operational Columns)",
+    "oldEn": "1. أعمدة التشغيل الـ 20 الحالية (Legacy Operational Columns)",
+    "oldUr": "1. أعمدة التشغيل الـ 20 الحالية (Legacy Operational Columns)"
+  }
+]

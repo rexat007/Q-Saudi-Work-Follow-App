@@ -191,9 +191,9 @@ export async function runBlock56TestSuite(): Promise<{ passed: number; failed: n
     if (fallbackKeys.length === 0) {
       throw new Error('Expected fallback-identical entries to be detected');
     }
-    // High quantity of architectural description keys remain identical fallback
-    if (fallbackKeys.length < 100) {
-      throw new Error(`Expected >= 100 fallback keys, found ${fallbackKeys.length}`);
+    // Architectural description keys remaining identical fallback as quality expansion progresses
+    if (fallbackKeys.length < 20) {
+      throw new Error(`Expected >= 20 fallback keys, found ${fallbackKeys.length}`);
     }
   });
 
