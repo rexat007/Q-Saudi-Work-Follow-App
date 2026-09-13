@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-13T13:26:44.339Z
+**Generated At:** 2026-09-13T14:11:49.350Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,23 +9,23 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **11004** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **11017** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **7742** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **7742** | Domain terminology requiring semantic verification |
-| **Ambiguous Keys Isolated** | **3255** | Short tokens or codes quarantined from auto-translation |
+| **Untranslated Slots (Pending Review)** | **7746** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **7746** | Domain terminology requiring semantic verification |
+| **Ambiguous Keys Isolated** | **3264** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
 | **Interpolation Placeholders** | **212** | Dynamic parameters (e.g. `{count}`) strictly preserved |
 | **Pluralization Requirements** | **150** | Expressions requiring 6 Arabic plural forms |
 | **Semantic Conflicts Isolated** | **525** | Identical texts split into separate contextual keys |
-| **Duplicate Groups (Type A Sharing)** | **1476** | Safe identical-context key reuse candidates |
+| **Duplicate Groups (Type A Sharing)** | **1479** | Safe identical-context key reuse candidates |
 | **Directional Migration Queue** | **229** | Physical Tailwind classes flagged for RTL/LTR migration |
 
 ## 2. Category Distribution & Translation Readiness
 
 | Category | Total Keys | Translated | Untranslated | Review Required | Ambiguous |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `other` | 4723 | 4 | 3585 | 3585 | 1134 |
+| `other` | 4736 | 4 | 3589 | 3589 | 1143 |
 | `imports` | 1574 | 0 | 1086 | 1086 | 488 |
 | `reports` | 567 | 0 | 375 | 375 | 191 |
 | `security` | 535 | 1 | 399 | 399 | 135 |
