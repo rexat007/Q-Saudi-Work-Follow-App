@@ -1,38 +1,38 @@
 {
-  "generatedAt": "2026-09-13T12:06:46.173Z",
+  "generatedAt": "2026-09-13T12:14:15.106Z",
   "version": "1.0.0-block54b",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 11868,
-    "generatedEnCount": 11868,
-    "generatedUrCount": 11868,
-    "reviewRequiredCount": 11460,
+    "totalEntries": 11895,
+    "generatedEnCount": 11895,
+    "generatedUrCount": 11895,
+    "reviewRequiredCount": 11487,
     "skippedCount": 0,
     "protectedCount": 1,
     "interpolationCount": 209,
-    "pluralizationCount": 149,
-    "highRiskCount": 10945,
-    "semanticConflictCount": 1279,
+    "pluralizationCount": 150,
+    "highRiskCount": 10972,
+    "semanticConflictCount": 1292,
     "domainTerminologyCount": 369,
     "confidenceBreakdown": {
       "HIGH": 140,
-      "MEDIUM": 3627,
-      "LOW": 8101
+      "MEDIUM": 3629,
+      "LOW": 8126
     },
     "tierBreakdown": {
       "1": 6,
       "2": 548,
       "3": 369,
-      "4": 10945
+      "4": 10972
     },
     "reviewReasonsBreakdown": {
-      "SEMANTIC_CONFLICT": 1279,
+      "SEMANTIC_CONFLICT": 1292,
       "DOMAIN_TERM": 369,
       "INTERPOLATION_RISK": 8,
-      "PLURALIZATION_RISK": 149,
-      "REPORT_EXPORT_RISK": 3755,
+      "PLURALIZATION_RISK": 150,
+      "REPORT_EXPORT_RISK": 3757,
       "BUSINESS_DATA_RISK": 1555,
-      "LOW_CONFIDENCE": 11460,
+      "LOW_CONFIDENCE": 11487,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
@@ -215,12 +215,12 @@
         "low": 0
       },
       "other": {
-        "total": 4753,
-        "generated": 4753,
-        "reviewRequired": 4716,
+        "total": 4780,
+        "generated": 4780,
+        "reviewRequired": 4743,
         "high": 82,
-        "medium": 1137,
-        "low": 3534
+        "medium": 1139,
+        "low": 3559
       }
     }
   },
@@ -39336,7 +39336,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_فاشلة",
-      "duplicateGroupId": "dup_فاشلة_3",
+      "duplicateGroupId": "dup_فاشلة_4",
       "notes": [
         "Semantic conflict group conflict_فاشلة: Retained distinct key \"exceptions.labels.txt_5b0503\" to avoid accidental merge."
       ],
@@ -70583,7 +70583,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_26",
+      "duplicateGroupId": "dup_path_27",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -74874,7 +74874,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_string_57",
+      "duplicateGroupId": "dup_string_59",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -217757,6 +217757,56 @@
       "internalDataKey": "txt_1309b3",
       "presentationLabel": "إجراءات"
     },
+    "other.fields.txt_132e16": {
+      "key": "other.fields.txt_132e16",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_686b44\"",
+      "sourceTextAr": "غیر منظور شدہ",
+      "proposedTextEn": "غیر منظور شدہ",
+      "proposedTextUr": "غیر منظور شدہ",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 333,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_686b44\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_132e16",
+      "presentationLabel": "غیر منظور شدہ"
+    },
     "other.fields.txt_132f08": {
       "key": "other.fields.txt_132f08",
       "category": "other",
@@ -219112,6 +219162,56 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_150b4b",
       "presentationLabel": "لوڈنگ مکمل ہونے کے بعد ماخذ کے اخراج کے اسکیل کی ریڈنگ (Scale Out) کلوگرام میں"
+    },
+    "other.fields.txt_1513ca": {
+      "key": "other.fields.txt_1513ca",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_5c2cd4\"",
+      "sourceTextAr": "ایڈمن سے منظور شدہ (Admin)",
+      "proposedTextEn": "ایڈمن سے منظور شدہ (Admin)",
+      "proposedTextUr": "ایڈمن سے منظور شدہ (Admin)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 330,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_5c2cd4\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_1513ca",
+      "presentationLabel": "ایڈمن سے منظور شدہ (Admin)"
     },
     "other.fields.txt_152452": {
       "key": "other.fields.txt_152452",
@@ -223225,56 +223325,6 @@
       "internalDataKey": "txt_1a2ee2",
       "presentationLabel": "PRJ - پروجیکٹ لاجسٹکس دستاویزات اور آرکائیو"
     },
-    "other.fields.txt_1a4081": {
-      "key": "other.fields.txt_1a4081",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.labels.txt_7c3a05\"",
-      "sourceTextAr": "الكيانات المقترحة من سجل ڈیٹا المعتمدة:",
-      "proposedTextEn": "الكيانات المقترحة من سجل ڈیٹا المعتمدة:",
-      "proposedTextUr": "الكيانات المقترحة من سجل ڈیٹا المعتمدة:",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 336,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_7c3a05\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_1a4081",
-      "presentationLabel": "الكيانات المقترحة من سجل ڈیٹا المعتمدة:"
-    },
     "other.fields.txt_1a4fae": {
       "key": "other.fields.txt_1a4fae",
       "category": "other",
@@ -224589,6 +224639,56 @@
       "internalDataKey": "txt_1c0820",
       "presentationLabel": "سرور سائیڈ جانچ کی تفصیلات:"
     },
+    "other.fields.txt_1c2918": {
+      "key": "other.fields.txt_1c2918",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_42479d\"",
+      "sourceTextAr": "سسٹم اور ڈیٹا بیس میں، آڈٹ لاگ کے اندراج کے ساتھ",
+      "proposedTextEn": "سسٹم اور ڈیٹا بیس میں، آڈٹ لاگ کے اندراج کے ساتھ",
+      "proposedTextUr": "سسٹم اور ڈیٹا بیس میں، آڈٹ لاگ کے اندراج کے ساتھ",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 322,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_42479d\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_1c2918",
+      "presentationLabel": "سسٹم اور ڈیٹا بیس میں، آڈٹ لاگ کے اندراج کے ساتھ"
+    },
     "other.fields.txt_1c3239": {
       "key": "other.fields.txt_1c3239",
       "category": "other",
@@ -225038,6 +225138,56 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_1cfd3c",
       "presentationLabel": "اعتماد الاستثناء والسماح بالتسوية (Waive Exception)"
+    },
+    "other.fields.txt_1d4dab": {
+      "key": "other.fields.txt_1d4dab",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_55a807\"",
+      "sourceTextAr": "ناکام (Failed)",
+      "proposedTextEn": "ناکام (Failed)",
+      "proposedTextUr": "ناکام (Failed)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 327,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_55a807\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_1d4dab",
+      "presentationLabel": "ناکام (Failed)"
     },
     "other.fields.txt_1d573a": {
       "key": "other.fields.txt_1d573a",
@@ -232579,8 +232729,15 @@
           "line": 323,
           "column": 40,
           "element": "prop_\"legacyMigration.labels.txt_505cc5\""
+        },
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 339,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_a00b26\""
         }
       ],
+      "duplicateGroupId": "dup_منتقلی_کے_لیے_تیار_2",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -234013,56 +234170,6 @@
       "internalDataKey": "txt_2b1ad1",
       "presentationLabel": "يتم تصدیق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً."
     },
-    "other.fields.txt_2b6df4": {
-      "key": "other.fields.txt_2b6df4",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.labels.txt_a00b26\"",
-      "sourceTextAr": "تیار للترحيل",
-      "proposedTextEn": "تیار للترحيل",
-      "proposedTextUr": "تیار للترحيل",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 339,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_a00b26\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_2b6df4",
-      "presentationLabel": "تیار للترحيل"
-    },
     "other.fields.txt_2b7e09": {
       "key": "other.fields.txt_2b7e09",
       "category": "other",
@@ -234325,56 +234432,6 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_2ba734",
       "presentationLabel": "پروجیکٹ کا Google Drive ڈھانچہ"
-    },
-    "other.fields.txt_2badcc": {
-      "key": "other.fields.txt_2badcc",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.labels.txt_a00b26\"",
-      "sourceTextAr": "Ready للترحيل",
-      "proposedTextEn": "Ready للترحيل",
-      "proposedTextUr": "Ready للترحيل",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 339,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_a00b26\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_2badcc",
-      "presentationLabel": "Ready للترحيل"
     },
     "other.fields.txt_2bed60": {
       "key": "other.fields.txt_2bed60",
@@ -240175,56 +240232,6 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_329fdc",
       "presentationLabel": "اداروں کا باہمی نیٹ ورک (11 ادارے)"
-    },
-    "other.fields.txt_32c37d": {
-      "key": "other.fields.txt_32c37d",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.labels.txt_42479d\"",
-      "sourceTextAr": "إلى النظام وقاعدة ڈیٹا، مع تسجيل قيد التدقيق",
-      "proposedTextEn": "إلى النظام وقاعدة ڈیٹا، مع تسجيل قيد التدقيق",
-      "proposedTextUr": "إلى النظام وقاعدة ڈیٹا، مع تسجيل قيد التدقيق",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 322,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_42479d\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_32c37d",
-      "presentationLabel": "إلى النظام وقاعدة ڈیٹا، مع تسجيل قيد التدقيق"
     },
     "other.fields.txt_32c3e1": {
       "key": "other.fields.txt_32c3e1",
@@ -246927,56 +246934,6 @@
       "internalDataKey": "txt_3d5d9c",
       "presentationLabel": "سرور پر اصل کیریئر: ${serverTruckConflict.serverCarrierName}"
     },
-    "other.fields.txt_3d69f4": {
-      "key": "other.fields.txt_3d69f4",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.labels.txt_57c825\"",
-      "sourceTextAr": "لا توجد سجلات مطابقة لهذا الفلتر أو الSearch.",
-      "proposedTextEn": "لا توجد سجلات مطابقة لهذا الفلتر أو الSearch.",
-      "proposedTextUr": "لا توجد سجلات مطابقة لهذا الفلتر أو الSearch.",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 328,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_57c825\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_3d69f4",
-      "presentationLabel": "لا توجد سجلات مطابقة لهذا الفلتر أو الSearch."
-    },
     "other.fields.txt_3d6e68": {
       "key": "other.fields.txt_3d6e68",
       "category": "other",
@@ -250855,6 +250812,56 @@
       "internalDataKey": "txt_43f598",
       "presentationLabel": ": LOADED حالت کے ساتھ ابتدائی ٹرپ ریکارڈ بنائیں اور Pricing Snapshot محفوظ کریں"
     },
+    "other.fields.txt_4450d2": {
+      "key": "other.fields.txt_4450d2",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_51f3d3\"",
+      "sourceTextAr": "ڈپلیکیٹ ٹکٹ",
+      "proposedTextEn": "ڈپلیکیٹ ٹکٹ",
+      "proposedTextUr": "ڈپلیکیٹ ٹکٹ",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 325,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_51f3d3\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_4450d2",
+      "presentationLabel": "ڈپلیکیٹ ٹکٹ"
+    },
     "other.fields.txt_4452c7": {
       "key": "other.fields.txt_4452c7",
       "category": "other",
@@ -252688,56 +252695,6 @@
       "internalDataKey": "txt_463bbf",
       "presentationLabel": "ان لوڈنگ شروع کریں (ARRIVED ➔ UNLOADING)"
     },
-    "other.fields.txt_46890b": {
-      "key": "other.fields.txt_46890b",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.labels.txt_7da94c\"",
-      "sourceTextAr": "منظوری المطابقة",
-      "proposedTextEn": "منظوری المطابقة",
-      "proposedTextUr": "منظوری المطابقة",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 338,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_7da94c\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_46890b",
-      "presentationLabel": "منظوری المطابقة"
-    },
     "other.fields.txt_46a3cb": {
       "key": "other.fields.txt_46a3cb",
       "category": "other",
@@ -253047,6 +253004,56 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_46d801",
       "presentationLabel": "القائم (كجم)"
+    },
+    "other.fields.txt_46eb34": {
+      "key": "other.fields.txt_46eb34",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_57c825\"",
+      "sourceTextAr": "اس فلٹر یا تلاش کے مطابق کوئی ریکارڈ نہیں ملا۔",
+      "proposedTextEn": "اس فلٹر یا تلاش کے مطابق کوئی ریکارڈ نہیں ملا۔",
+      "proposedTextUr": "اس فلٹر یا تلاش کے مطابق کوئی ریکارڈ نہیں ملا۔",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 328,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_57c825\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_46eb34",
+      "presentationLabel": "اس فلٹر یا تلاش کے مطابق کوئی ریکارڈ نہیں ملا۔"
     },
     "other.fields.txt_46f3ac": {
       "key": "other.fields.txt_46f3ac",
@@ -260193,6 +260200,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "PLURALIZATION_RISK",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
@@ -260226,23 +260234,13 @@
           "line": 324,
           "column": 40,
           "element": "prop_\"legacyMigration.labels.txt_50fd44\""
-        },
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 324,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_50fd44\""
-        },
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 324,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_50fd44\""
         }
       ],
-      "duplicateGroupId": "dup_إجمالي_الاختبارات_3",
+      "semanticConflictGroupId": "conflict_إجمالي_الاختبارات",
+      "duplicateGroupId": "dup_إجمالي_الاختبارات_2",
       "notes": [
-        "Quantity detected: Requires 6 Arabic plural forms (zero, one, two, few, many, other)"
+        "Quantity detected: Requires 6 Arabic plural forms (zero, one, two, few, many, other)",
+        "Semantic conflict group conflict_إجمالي_الاختبارات: Retained distinct key \"other.fields.txt_50fd44\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -260723,6 +260721,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -260747,22 +260746,13 @@
           "line": 325,
           "column": 40,
           "element": "prop_\"legacyMigration.labels.txt_51f3d3\""
-        },
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 325,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_51f3d3\""
-        },
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 325,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_51f3d3\""
         }
       ],
-      "duplicateGroupId": "dup_تذكرة_مكررة_3",
-      "notes": [],
+      "semanticConflictGroupId": "conflict_تذكرة_مكررة",
+      "duplicateGroupId": "dup_تذكرة_مكررة_2",
+      "notes": [
+        "Semantic conflict group conflict_تذكرة_مكررة: Retained distinct key \"other.fields.txt_51f3d3\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -263541,21 +263531,8 @@
           "line": 327,
           "column": 40,
           "element": "prop_\"legacyMigration.labels.txt_55a807\""
-        },
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 327,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_55a807\""
-        },
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 327,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_55a807\""
         }
       ],
-      "duplicateGroupId": "dup_فاشلة__Failed__3",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -266165,21 +266142,8 @@
           "line": 329,
           "column": 40,
           "element": "prop_\"legacyMigration.labels.txt_59cfca\""
-        },
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 329,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_59cfca\""
-        },
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 329,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_59cfca\""
         }
       ],
-      "duplicateGroupId": "dup_توجيه_3",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -267855,21 +267819,8 @@
           "line": 330,
           "column": 40,
           "element": "prop_\"legacyMigration.labels.txt_5c2cd4\""
-        },
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 330,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_5c2cd4\""
-        },
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 330,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_5c2cd4\""
         }
       ],
-      "duplicateGroupId": "dup_معتمد_من_Admin_3",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -268382,56 +268333,6 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_5d1540",
       "presentationLabel": "سبب أو ملاحظة التحول (يُحفظ في سجل الأحداث والتدقيق):"
-    },
-    "other.fields.txt_5d378f": {
-      "key": "other.fields.txt_5d378f",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.labels.txt_7da94c\"",
-      "sourceTextAr": "Approval المطابقة",
-      "proposedTextEn": "Approval المطابقة",
-      "proposedTextUr": "Approval المطابقة",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 338,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_7da94c\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_5d378f",
-      "presentationLabel": "Approval المطابقة"
     },
     "other.fields.txt_5d5fd0": {
       "key": "other.fields.txt_5d5fd0",
@@ -271772,6 +271673,56 @@
       "internalDataKey": "txt_620882",
       "presentationLabel": "RETURNED (ماخذ پر واپس کر دیا گیا)"
     },
+    "other.fields.txt_621446": {
+      "key": "other.fields.txt_621446",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_59cfca\"",
+      "sourceTextAr": "ہدایت:",
+      "proposedTextEn": "ہدایت:",
+      "proposedTextUr": "ہدایت:",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 329,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_59cfca\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_621446",
+      "presentationLabel": "ہدایت:"
+    },
     "other.fields.txt_622420": {
       "key": "other.fields.txt_622420",
       "category": "other",
@@ -272174,6 +272125,56 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_62be55",
       "presentationLabel": "پہلا مٹیریل ابھی شامل کریں"
+    },
+    "other.fields.txt_62da2d": {
+      "key": "other.fields.txt_62da2d",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_7c3a05\"",
+      "sourceTextAr": "منظور شدہ ڈیٹا رجسٹر سے تجویز کردہ ادارے:",
+      "proposedTextEn": "منظور شدہ ڈیٹا رجسٹر سے تجویز کردہ ادارے:",
+      "proposedTextUr": "منظور شدہ ڈیٹا رجسٹر سے تجویز کردہ ادارے:",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 336,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_7c3a05\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_62da2d",
+      "presentationLabel": "منظور شدہ ڈیٹا رجسٹر سے تجویز کردہ ادارے:"
     },
     "other.fields.txt_62ff83": {
       "key": "other.fields.txt_62ff83",
@@ -275661,6 +275662,56 @@
       "internalDataKey": "txt_673cb8",
       "presentationLabel": "نئے صارف کو مدعو کریں اور پروجیکٹ میں اختیارات تفویض کریں"
     },
+    "other.fields.txt_67560b": {
+      "key": "other.fields.txt_67560b",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_7da94c\"",
+      "sourceTextAr": "مطابقت کی منظوری دیں",
+      "proposedTextEn": "مطابقت کی منظوری دیں",
+      "proposedTextUr": "مطابقت کی منظوری دیں",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 338,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_7da94c\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_67560b",
+      "presentationLabel": "مطابقت کی منظوری دیں"
+    },
     "other.fields.txt_6757e5": {
       "key": "other.fields.txt_6757e5",
       "category": "other",
@@ -276236,6 +276287,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -276260,22 +276312,13 @@
           "line": 333,
           "column": 40,
           "element": "prop_\"legacyMigration.labels.txt_686b44\""
-        },
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 333,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_686b44\""
-        },
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 333,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_686b44\""
         }
       ],
-      "duplicateGroupId": "dup_غير_معتمد_3",
-      "notes": [],
+      "semanticConflictGroupId": "conflict_غير_معتمد",
+      "duplicateGroupId": "dup_غير_معتمد_2",
+      "notes": [
+        "Semantic conflict group conflict_غير_معتمد: Retained distinct key \"other.fields.txt_686b44\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -283490,56 +283533,6 @@
       "internalDataKey": "txt_72ea36",
       "presentationLabel": "ابہام کا انتباہ: ٹرک کے لیے ایک سے زیادہ ٹرپس پائے گئے"
     },
-    "other.fields.txt_72ff49": {
-      "key": "other.fields.txt_72ff49",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.labels.txt_7c3a05\"",
-      "sourceTextAr": "الكيانات المقترحة من سجل Data المعتمدة:",
-      "proposedTextEn": "الكيانات المقترحة من سجل Data المعتمدة:",
-      "proposedTextUr": "الكيانات المقترحة من سجل Data المعتمدة:",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 336,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_7c3a05\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_72ff49",
-      "presentationLabel": "الكيانات المقترحة من سجل Data المعتمدة:"
-    },
     "other.fields.txt_731fc0": {
       "key": "other.fields.txt_731fc0",
       "category": "other",
@@ -283739,6 +283732,56 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_734917",
       "presentationLabel": "آپریشنل ڈومینز کے درمیان تعلقات کا انٹرایکٹو خاکہ"
+    },
+    "other.fields.txt_7365cd": {
+      "key": "other.fields.txt_7365cd",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_f7eb0f\"",
+      "sourceTextAr": "ڈپلیکیٹ ٹکٹیں",
+      "proposedTextEn": "ڈپلیکیٹ ٹکٹیں",
+      "proposedTextUr": "ڈپلیکیٹ ٹکٹیں",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 340,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_f7eb0f\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_7365cd",
+      "presentationLabel": "ڈپلیکیٹ ٹکٹیں"
     },
     "other.fields.txt_73756a": {
       "key": "other.fields.txt_73756a",
@@ -284474,6 +284517,56 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_74b183",
       "presentationLabel": "معرف وحيد للمشروع في Firestore يمنع تعديله بعد الإنشاء."
+    },
+    "other.fields.txt_74c5d9": {
+      "key": "other.fields.txt_74c5d9",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_50fd44\"",
+      "sourceTextAr": "کل ٹیسٹ",
+      "proposedTextEn": "کل ٹیسٹ",
+      "proposedTextUr": "کل ٹیسٹ",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 324,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_50fd44\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_74c5d9",
+      "presentationLabel": "کل ٹیسٹ"
     },
     "other.fields.txt_74ca11": {
       "key": "other.fields.txt_74ca11",
@@ -287948,106 +288041,6 @@
       "internalDataKey": "txt_7a0944",
       "presentationLabel": "net = 0 (مرفوض ➔ null)"
     },
-    "other.fields.txt_7a2a52": {
-      "key": "other.fields.txt_7a2a52",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.labels.txt_42479d\"",
-      "sourceTextAr": "إلى النظام وقاعدة Data، مع تسجيل قيد التدقيق",
-      "proposedTextEn": "إلى النظام وقاعدة Data، مع تسجيل قيد التدقيق",
-      "proposedTextUr": "إلى النظام وقاعدة Data، مع تسجيل قيد التدقيق",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 322,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_42479d\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_7a2a52",
-      "presentationLabel": "إلى النظام وقاعدة Data، مع تسجيل قيد التدقيق"
-    },
-    "other.fields.txt_7a3869": {
-      "key": "other.fields.txt_7a3869",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.labels.txt_57c825\"",
-      "sourceTextAr": "لا توجد سجلات مطابقة لهذا الفلتر أو التلاش کریں.",
-      "proposedTextEn": "لا توجد سجلات مطابقة لهذا الفلتر أو التلاش کریں.",
-      "proposedTextUr": "لا توجد سجلات مطابقة لهذا الفلتر أو التلاش کریں.",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 328,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_57c825\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_7a3869",
-      "presentationLabel": "لا توجد سجلات مطابقة لهذا الفلتر أو التلاش کریں."
-    },
     "other.fields.txt_7a519f": {
       "key": "other.fields.txt_7a519f",
       "category": "other",
@@ -290827,6 +290820,7 @@
       "confidence": "MEDIUM",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -290853,7 +290847,11 @@
           "element": "prop_\"legacyMigration.labels.txt_7da94c\""
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_اعتماد_المطابقة",
+      "duplicateGroupId": "dup_اعتماد_المطابقة_2",
+      "notes": [
+        "Semantic conflict group conflict_اعتماد_المطابقة: Retained distinct key \"other.fields.txt_7da94c\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -293759,6 +293757,7 @@
       "confidence": "MEDIUM",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -293785,7 +293784,11 @@
           "element": "prop_\"legacyMigration.labels.txt_a00b26\""
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_جاهز_للترحيل",
+      "duplicateGroupId": "dup_جاهز_للترحيل_2",
+      "notes": [
+        "Semantic conflict group conflict_جاهز_للترحيل: Retained distinct key \"other.fields.txt_a00b26\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -298345,6 +298348,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -298369,22 +298373,13 @@
           "line": 340,
           "column": 40,
           "element": "prop_\"legacyMigration.labels.txt_f7eb0f\""
-        },
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 340,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_f7eb0f\""
-        },
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 340,
-          "column": 40,
-          "element": "prop_\"legacyMigration.labels.txt_f7eb0f\""
         }
       ],
-      "duplicateGroupId": "dup_تذاكر_مكررة_3",
-      "notes": [],
+      "semanticConflictGroupId": "conflict_تذاكر_مكررة",
+      "duplicateGroupId": "dup_تذاكر_مكررة_2",
+      "notes": [
+        "Semantic conflict group conflict_تذاكر_مكررة: Retained distinct key \"other.fields.txt_f7eb0f\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -298650,6 +298645,58 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_fee891",
       "presentationLabel": "1. شناخت کنندگان اور آپریشنل ڈیٹا"
+    },
+    "other.fields.unapproved": {
+      "key": "other.fields.unapproved",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.labels.txt_686b44\"",
+      "sourceTextAr": "Unapproved",
+      "proposedTextEn": "Unapproved",
+      "proposedTextUr": "Unapproved",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/en/index.ts",
+          "line": 333,
+          "column": 40,
+          "element": "prop_\"legacyMigration.labels.txt_686b44\""
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "unapproved",
+      "presentationLabel": "Unapproved"
     },
     "other.fields.understood": {
       "key": "other.fields.understood",
@@ -300568,6 +300615,412 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.57": {
+      "key": "other.labels.57",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "57",
+      "proposedTextEn": "57",
+      "proposedTextUr": "57",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 202,
+          "column": 29,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 205,
+          "column": 17,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_57_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.58": {
+      "key": "other.labels.58",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "58",
+      "proposedTextEn": "58",
+      "proposedTextUr": "58",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 202,
+          "column": 35,
+          "element": "literal"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.59": {
+      "key": "other.labels.59",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "59",
+      "proposedTextEn": "59",
+      "proposedTextUr": "59",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 202,
+          "column": 41,
+          "element": "literal"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.61": {
+      "key": "other.labels.61",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "61",
+      "proposedTextEn": "61",
+      "proposedTextUr": "61",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 202,
+          "column": 47,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 206,
+          "column": 17,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_61_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.62": {
+      "key": "other.labels.62",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "62",
+      "proposedTextEn": "62",
+      "proposedTextUr": "62",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 202,
+          "column": 53,
+          "element": "literal"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.63": {
+      "key": "other.labels.63",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "63",
+      "proposedTextEn": "63",
+      "proposedTextUr": "63",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 202,
+          "column": 59,
+          "element": "literal"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.64": {
+      "key": "other.labels.64",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "64",
+      "proposedTextEn": "64",
+      "proposedTextUr": "64",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 202,
+          "column": 65,
+          "element": "literal"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.65": {
+      "key": "other.labels.65",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "65",
+      "proposedTextEn": "65",
+      "proposedTextUr": "65",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 202,
+          "column": 71,
+          "element": "literal"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.a": {
       "key": "other.labels.a",
       "category": "other",
@@ -301236,6 +301689,55 @@
         }
       ],
       "duplicateGroupId": "dup_admin_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.admin_2": {
+      "key": "other.labels.admin_2",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "Admin",
+      "proposedTextEn": "Admin",
+      "proposedTextUr": "Admin",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 143,
+          "column": 30,
+          "element": "literal"
+        }
+      ],
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -322102,9 +322604,15 @@
           "line": 162,
           "column": 45,
           "element": "call_includes"
+        },
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 143,
+          "column": 39,
+          "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_Failed_2",
+      "duplicateGroupId": "dup_Failed_3",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -322942,6 +323450,12 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 1,
+          "column": 16,
+          "element": "literal"
+        },
+        {
           "file": "src/tests/qualityTranslationBlock61.test.ts",
           "line": 1,
           "column": 16,
@@ -322960,7 +323474,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_24",
+      "duplicateGroupId": "dup_fs_25",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -330762,6 +331276,398 @@
         {
           "file": "src/tests/qualityExpansionBlock65.test.ts",
           "line": 190,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality66": {
+      "key": "other.labels.i18nQuality66",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-66",
+      "proposedTextEn": "I18N-QUALITY-66",
+      "proposedTextUr": "I18N-QUALITY-66",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 41,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality67": {
+      "key": "other.labels.i18nQuality67",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-67",
+      "proposedTextEn": "I18N-QUALITY-67",
+      "proposedTextUr": "I18N-QUALITY-67",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 63,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality68": {
+      "key": "other.labels.i18nQuality68",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-68",
+      "proposedTextEn": "I18N-QUALITY-68",
+      "proposedTextUr": "I18N-QUALITY-68",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 85,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality69": {
+      "key": "other.labels.i18nQuality69",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-69",
+      "proposedTextEn": "I18N-QUALITY-69",
+      "proposedTextUr": "I18N-QUALITY-69",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 95,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality70": {
+      "key": "other.labels.i18nQuality70",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-70",
+      "proposedTextEn": "I18N-QUALITY-70",
+      "proposedTextUr": "I18N-QUALITY-70",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 128,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality71": {
+      "key": "other.labels.i18nQuality71",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-71",
+      "proposedTextEn": "I18N-QUALITY-71",
+      "proposedTextUr": "I18N-QUALITY-71",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 142,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality72": {
+      "key": "other.labels.i18nQuality72",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-72",
+      "proposedTextEn": "I18N-QUALITY-72",
+      "proposedTextUr": "I18N-QUALITY-72",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 165,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.i18nQuality73": {
+      "key": "other.labels.i18nQuality73",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "I18N-QUALITY-73",
+      "proposedTextEn": "I18N-QUALITY-73",
+      "proposedTextUr": "I18N-QUALITY-73",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 185,
           "column": 8,
           "element": "call_test"
         }
@@ -345460,6 +346366,12 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 2,
+          "column": 18,
+          "element": "literal"
+        },
+        {
           "file": "src/tests/qualityTranslationBlock61.test.ts",
           "line": 2,
           "column": 18,
@@ -345478,7 +346390,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_26",
+      "duplicateGroupId": "dup_path_27",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -352425,6 +353337,55 @@
         {
           "file": "src/tests/qualityExpansionBlock65.test.ts",
           "line": 266,
+          "column": 76,
+          "element": "call_includes"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.qualityexpansionblock66": {
+      "key": "other.labels.qualityexpansionblock66",
+      "category": "other",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "qualityExpansionBlock66",
+      "proposedTextEn": "qualityExpansionBlock66",
+      "proposedTextUr": "qualityExpansionBlock66",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 225,
           "column": 76,
           "element": "call_includes"
         }
@@ -359566,6 +360527,18 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 44,
+          "column": 38,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 66,
+          "column": 38,
+          "element": "literal"
+        },
+        {
           "file": "src/tests/qualityTranslationBlock61.test.ts",
           "line": 44,
           "column": 38,
@@ -359596,7 +360569,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_string_57",
+      "duplicateGroupId": "dup_string_59",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -383432,6 +384405,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_352b94": {
+      "key": "other.labels.txt_352b94",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "لا توجد سجلات مطابقة",
+      "proposedTextEn": "لا توجد سجلات مطابقة",
+      "proposedTextUr": "لا توجد سجلات مطابقة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 101,
+          "column": 7,
+          "element": "literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_353aeb": {
       "key": "other.labels.txt_353aeb",
       "category": "other",
@@ -392004,6 +393024,68 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_50fd44": {
+      "key": "other.labels.txt_50fd44",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "إجمالي الاختبارات",
+      "proposedTextEn": "إجمالي الاختبارات",
+      "proposedTextUr": "إجمالي الاختبارات",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "PLURALIZATION_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": true,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ],
+        "formsEn": [
+          "one",
+          "other"
+        ],
+        "formsUr": [
+          "one",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 98,
+          "column": 7,
+          "element": "literal"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_إجمالي_الاختبارات",
+      "duplicateGroupId": "dup_إجمالي_الاختبارات_2",
+      "notes": [
+        "Quantity detected: Requires 6 Arabic plural forms (zero, one, two, few, many, other)",
+        "Semantic conflict group conflict_إجمالي_الاختبارات: Retained distinct key \"other.labels.txt_50fd44\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_510339": {
       "key": "other.labels.txt_510339",
       "category": "other",
@@ -392404,6 +393486,58 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_51f3d3": {
+      "key": "other.labels.txt_51f3d3",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "تذكرة مكررة",
+      "proposedTextEn": "تذكرة مكررة",
+      "proposedTextUr": "تذكرة مكررة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 99,
+          "column": 7,
+          "element": "literal"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_تذكرة_مكررة",
+      "duplicateGroupId": "dup_تذكرة_مكررة_2",
+      "notes": [
+        "Semantic conflict group conflict_تذكرة_مكررة: Retained distinct key \"other.labels.txt_51f3d3\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_523977": {
       "key": "other.labels.txt_523977",
       "category": "other",
@@ -392689,6 +393823,53 @@
           "line": 536,
           "column": 3,
           "element": "prop_'محرك الحالات المركزي'"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_534e81": {
+      "key": "other.labels.txt_534e81",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "معتمد من",
+      "proposedTextEn": "معتمد من",
+      "proposedTextUr": "معتمد من",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 102,
+          "column": 7,
+          "element": "literal"
         }
       ],
       "notes": [],
@@ -395706,6 +396887,58 @@
         }
       ],
       "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_5b0503": {
+      "key": "other.labels.txt_5b0503",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "فاشلة",
+      "proposedTextEn": "فاشلة",
+      "proposedTextUr": "فاشلة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 100,
+          "column": 7,
+          "element": "literal"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_فاشلة",
+      "duplicateGroupId": "dup_فاشلة_4",
+      "notes": [
+        "Semantic conflict group conflict_فاشلة: Retained distinct key \"other.labels.txt_5b0503\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -399743,6 +400976,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_6562e1": {
+      "key": "other.labels.txt_6562e1",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "إلى النظام وقاعدة",
+      "proposedTextEn": "إلى النظام وقاعدة",
+      "proposedTextUr": "إلى النظام وقاعدة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 97,
+          "column": 7,
+          "element": "literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_65ecd8": {
       "key": "other.labels.txt_65ecd8",
       "category": "other",
@@ -400488,6 +401768,105 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_686b44": {
+      "key": "other.labels.txt_686b44",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "غير معتمد",
+      "proposedTextEn": "غير معتمد",
+      "proposedTextUr": "غير معتمد",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 103,
+          "column": 7,
+          "element": "literal"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_غير_معتمد",
+      "duplicateGroupId": "dup_غير_معتمد_2",
+      "notes": [
+        "Semantic conflict group conflict_غير_معتمد: Retained distinct key \"other.labels.txt_686b44\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_686d93": {
+      "key": "other.labels.txt_686d93",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "الكيانات المقترحة",
+      "proposedTextEn": "الكيانات المقترحة",
+      "proposedTextUr": "الكيانات المقترحة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 104,
+          "column": 7,
+          "element": "literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },
@@ -406905,6 +408284,58 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_7da94c": {
+      "key": "other.labels.txt_7da94c",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "اعتماد المطابقة",
+      "proposedTextEn": "Approval المطابقة",
+      "proposedTextUr": "منظوری المطابقة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 105,
+          "column": 7,
+          "element": "literal"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_اعتماد_المطابقة",
+      "duplicateGroupId": "dup_اعتماد_المطابقة_2",
+      "notes": [
+        "Semantic conflict group conflict_اعتماد_المطابقة: Retained distinct key \"other.labels.txt_7da94c\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_7de3c2": {
       "key": "other.labels.txt_7de3c2",
       "category": "other",
@@ -408462,6 +409893,58 @@
         }
       ],
       "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_a00b26": {
+      "key": "other.labels.txt_a00b26",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "جاهز للترحيل",
+      "proposedTextEn": "Ready للترحيل",
+      "proposedTextUr": "تیار للترحيل",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 106,
+          "column": 7,
+          "element": "literal"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_جاهز_للترحيل",
+      "duplicateGroupId": "dup_جاهز_للترحيل_2",
+      "notes": [
+        "Semantic conflict group conflict_جاهز_للترحيل: Retained distinct key \"other.labels.txt_a00b26\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -410620,6 +412103,58 @@
         }
       ],
       "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_f7eb0f": {
+      "key": "other.labels.txt_f7eb0f",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "تذاكر مكررة",
+      "proposedTextEn": "تذاكر مكررة",
+      "proposedTextUr": "تذاكر مكررة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 107,
+          "column": 7,
+          "element": "literal"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_تذاكر_مكررة",
+      "duplicateGroupId": "dup_تذاكر_مكررة_2",
+      "notes": [
+        "Semantic conflict group conflict_تذاكر_مكررة: Retained distinct key \"other.labels.txt_f7eb0f\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -414582,6 +416117,24 @@
           "element": "call_readFileSync"
         },
         {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 21,
+          "column": 57,
+          "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 192,
+          "column": 55,
+          "element": "call_readFileSync"
+        },
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 207,
+          "column": 83,
+          "element": "call_readFileSync"
+        },
+        {
           "file": "src/tests/qualityTranslationBlock61.test.ts",
           "line": 21,
           "column": 57,
@@ -414642,7 +416195,7 @@
           "element": "call_readFileSync"
         }
       ],
-      "duplicateGroupId": "dup_utf8_53",
+      "duplicateGroupId": "dup_utf8_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -419829,8 +421382,15 @@
           "line": 341,
           "column": 38,
           "element": "prop_\"legacyMigration.status.failed_2\""
+        },
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 108,
+          "column": 7,
+          "element": "literal"
         }
       ],
+      "duplicateGroupId": "dup_فشل_الاختبار_2",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -421178,8 +422738,15 @@
           "line": 342,
           "column": 37,
           "element": "prop_\"legacyMigration.status.success\""
+        },
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 109,
+          "column": 7,
+          "element": "literal"
         }
       ],
+      "duplicateGroupId": "dup_بنجاح_وترحيل_2",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -421225,8 +422792,15 @@
           "line": 343,
           "column": 39,
           "element": "prop_\"legacyMigration.status.success_2\""
+        },
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 110,
+          "column": 7,
+          "element": "literal"
         }
       ],
+      "duplicateGroupId": "dup_نسبة_النجاح_2",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -421272,8 +422846,15 @@
           "line": 344,
           "column": 39,
           "element": "prop_\"legacyMigration.status.success_3\""
+        },
+        {
+          "file": "src/tests/qualityExpansionBlock66.test.ts",
+          "line": 111,
+          "column": 7,
+          "element": "literal"
         }
       ],
+      "duplicateGroupId": "dup_اجتاز_بنجاح_2",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -421922,6 +423503,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.status.txt_133d6a": {
+      "key": "other.status.txt_133d6a",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.status.success_2\"",
+      "sourceTextAr": "کامیابی کی شرح",
+      "proposedTextEn": "کامیابی کی شرح",
+      "proposedTextUr": "کامیابی کی شرح",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 343,
+          "column": 39,
+          "element": "prop_\"legacyMigration.status.success_2\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.status.txt_14a0ee": {
       "key": "other.status.txt_14a0ee",
       "category": "other",
@@ -422455,13 +424083,13 @@
       },
       "isReportOrExportField": false
     },
-    "other.status.txt_262b9d": {
-      "key": "other.status.txt_262b9d",
+    "other.status.txt_25b8a8": {
+      "key": "other.status.txt_25b8a8",
       "category": "other",
-      "semanticContext": "prop_\"legacyMigration.status.failed_2\"",
-      "sourceTextAr": "ناکام الاختبار",
-      "proposedTextEn": "ناکام الاختبار",
-      "proposedTextUr": "ناکام الاختبار",
+      "semanticContext": "prop_\"legacyMigration.status.success_3\"",
+      "sourceTextAr": "کامیابی سے پاس ہوا",
+      "proposedTextEn": "کامیابی سے پاس ہوا",
+      "proposedTextUr": "کامیابی سے پاس ہوا",
       "statusEn": "REVIEW_REQUIRED",
       "statusUr": "REVIEW_REQUIRED",
       "confidence": "LOW",
@@ -422487,9 +424115,9 @@
       "sourceReferences": [
         {
           "file": "src/locales/ur/index.ts",
-          "line": 341,
-          "column": 38,
-          "element": "prop_\"legacyMigration.status.failed_2\""
+          "line": 344,
+          "column": 39,
+          "element": "prop_\"legacyMigration.status.success_3\""
         }
       ],
       "notes": [],
@@ -423025,53 +424653,6 @@
       },
       "isReportOrExportField": false
     },
-    "other.status.txt_4126ae": {
-      "key": "other.status.txt_4126ae",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.status.success_2\"",
-      "sourceTextAr": "نسبة الکامیاب",
-      "proposedTextEn": "نسبة الکامیاب",
-      "proposedTextUr": "نسبة الکامیاب",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 343,
-          "column": 39,
-          "element": "prop_\"legacyMigration.status.success_2\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": false
-    },
     "other.status.txt_43ebbd": {
       "key": "other.status.txt_43ebbd",
       "category": "other",
@@ -423271,53 +424852,6 @@
       },
       "isReportOrExportField": false
     },
-    "other.status.txt_4e109b": {
-      "key": "other.status.txt_4e109b",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.status.success\"",
-      "sourceTextAr": "بSuccess وترحيل",
-      "proposedTextEn": "بSuccess وترحيل",
-      "proposedTextUr": "بSuccess وترحيل",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 342,
-          "column": 37,
-          "element": "prop_\"legacyMigration.status.success\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": false
-    },
     "other.status.txt_4f5139": {
       "key": "other.status.txt_4f5139",
       "category": "other",
@@ -423412,13 +424946,13 @@
       },
       "isReportOrExportField": false
     },
-    "other.status.txt_53b1f7": {
-      "key": "other.status.txt_53b1f7",
+    "other.status.txt_54684d": {
+      "key": "other.status.txt_54684d",
       "category": "other",
-      "semanticContext": "prop_\"legacyMigration.status.failed_2\"",
-      "sourceTextAr": "Failed الاختبار",
-      "proposedTextEn": "Failed الاختبار",
-      "proposedTextUr": "Failed الاختبار",
+      "semanticContext": "prop_\"legacyMigration.status.success\"",
+      "sourceTextAr": "کامیابی سے منتقل ہو گیا",
+      "proposedTextEn": "کامیابی سے منتقل ہو گیا",
+      "proposedTextUr": "کامیابی سے منتقل ہو گیا",
       "statusEn": "REVIEW_REQUIRED",
       "statusUr": "REVIEW_REQUIRED",
       "confidence": "LOW",
@@ -423443,10 +424977,10 @@
       "protectedTokens": [],
       "sourceReferences": [
         {
-          "file": "src/locales/en/index.ts",
-          "line": 341,
-          "column": 38,
-          "element": "prop_\"legacyMigration.status.failed_2\""
+          "file": "src/locales/ur/index.ts",
+          "line": 342,
+          "column": 37,
+          "element": "prop_\"legacyMigration.status.success\""
         }
       ],
       "notes": [],
@@ -423455,54 +424989,7 @@
         "ar": "rtl",
         "en": "ltr",
         "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": false
-    },
-    "other.status.txt_54ec8a": {
-      "key": "other.status.txt_54ec8a",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.status.success_2\"",
-      "sourceTextAr": "نسبة الSuccess",
-      "proposedTextEn": "نسبة الSuccess",
-      "proposedTextUr": "نسبة الSuccess",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 343,
-          "column": 39,
-          "element": "prop_\"legacyMigration.status.success_2\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },
@@ -423788,53 +425275,6 @@
       },
       "isReportOrExportField": false
     },
-    "other.status.txt_6345e1": {
-      "key": "other.status.txt_6345e1",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.status.success\"",
-      "sourceTextAr": "بکامیاب وترحيل",
-      "proposedTextEn": "بکامیاب وترحيل",
-      "proposedTextUr": "بکامیاب وترحيل",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 342,
-          "column": 37,
-          "element": "prop_\"legacyMigration.status.success\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": false
-    },
     "other.status.txt_683ea9": {
       "key": "other.status.txt_683ea9",
       "category": "other",
@@ -423978,53 +425418,6 @@
       },
       "isReportOrExportField": false
     },
-    "other.status.txt_6e0c86": {
-      "key": "other.status.txt_6e0c86",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.status.success_3\"",
-      "sourceTextAr": "اجتاز بSuccess",
-      "proposedTextEn": "اجتاز بSuccess",
-      "proposedTextUr": "اجتاز بSuccess",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/en/index.ts",
-          "line": 344,
-          "column": 39,
-          "element": "prop_\"legacyMigration.status.success_3\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": false
-    },
     "other.status.txt_6e12f5": {
       "key": "other.status.txt_6e12f5",
       "category": "other",
@@ -424119,53 +425512,6 @@
       },
       "isReportOrExportField": false
     },
-    "other.status.txt_755638": {
-      "key": "other.status.txt_755638",
-      "category": "other",
-      "semanticContext": "prop_\"legacyMigration.status.success_3\"",
-      "sourceTextAr": "اجتاز بکامیاب",
-      "proposedTextEn": "اجتاز بکامیاب",
-      "proposedTextUr": "اجتاز بکامیاب",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ur/index.ts",
-          "line": 344,
-          "column": 39,
-          "element": "prop_\"legacyMigration.status.success_3\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": false
-    },
     "other.status.txt_7568b1": {
       "key": "other.status.txt_7568b1",
       "category": "other",
@@ -424210,6 +425556,53 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "other.status.txt_780867": {
+      "key": "other.status.txt_780867",
+      "category": "other",
+      "semanticContext": "prop_\"legacyMigration.status.failed_2\"",
+      "sourceTextAr": "ٹیسٹ ناکام ہوا",
+      "proposedTextEn": "ٹیسٹ ناکام ہوا",
+      "proposedTextUr": "ٹیسٹ ناکام ہوا",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ur/index.ts",
+          "line": 341,
+          "column": 38,
+          "element": "prop_\"legacyMigration.status.failed_2\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },
@@ -442255,7 +443648,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_string_57",
+      "duplicateGroupId": "dup_string_59",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -475866,7 +477259,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_24",
+      "duplicateGroupId": "dup_fs_25",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -478272,7 +479665,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_26",
+      "duplicateGroupId": "dup_path_27",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -500720,7 +502113,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_24",
+      "duplicateGroupId": "dup_fs_25",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -502763,7 +504156,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_26",
+      "duplicateGroupId": "dup_path_27",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -506243,7 +507636,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_string_57",
+      "duplicateGroupId": "dup_string_59",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -519161,7 +520554,7 @@
           "element": "call_readFileSync"
         }
       ],
-      "duplicateGroupId": "dup_utf8_53",
+      "duplicateGroupId": "dup_utf8_56",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -556614,7 +558007,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_فاشلة",
-      "duplicateGroupId": "dup_فاشلة_3",
+      "duplicateGroupId": "dup_فاشلة_4",
       "notes": [
         "Semantic conflict group conflict_فاشلة: Retained distinct key \"unloading.labels.txt_5b0503\" to avoid accidental merge."
       ],
@@ -559772,7 +561165,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_string_57",
+      "duplicateGroupId": "dup_string_59",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -571965,7 +573358,7 @@
           "element": "prop_type"
         }
       ],
-      "duplicateGroupId": "dup_string_57",
+      "duplicateGroupId": "dup_string_59",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -577259,7 +578652,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_فاشلة",
-      "duplicateGroupId": "dup_فاشلة_3",
+      "duplicateGroupId": "dup_فاشلة_4",
       "notes": [
         "Semantic conflict group conflict_فاشلة: Retained distinct key \"weighbridge.labels.txt_5b0503\" to avoid accidental merge."
       ],

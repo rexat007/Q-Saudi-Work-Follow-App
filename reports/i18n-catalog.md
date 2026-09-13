@@ -1,30 +1,30 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-13T12:06:29.573Z
+**Generated At:** 2026-09-13T12:13:58.320Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 251 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 32499 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 8742 | Confirmed visible Arabic and UI texts |
+| **Total Files Scanned** | 252 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 32558 | Total strings and text nodes parsed |
+| **Real User-Facing Texts** | 8741 | Confirmed visible Arabic and UI texts |
 | **Likely User-Facing Texts** | 353 | English UI text in visible elements |
-| **Ambiguous Texts** | 7611 | Short or context-isolated tokens for manual review |
+| **Ambiguous Texts** | 7640 | Short or context-isolated tokens for manual review |
 | **Technical Strings** | 6868 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 8925 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 7738 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 3885 | Sets of identical/normalized recurring texts |
-| **Semantic Conflict Groups** | 511 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 9497 | Entries flagged with special cases or ambiguity |
+| **Non-User-Facing Strings** | 8956 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 7746 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Duplicate Groups** | 3892 | Sets of identical/normalized recurring texts |
+| **Semantic Conflict Groups** | 517 | Identical texts requiring distinct contextual keys |
+| **Keys Requiring Review** | 9526 | Entries flagged with special cases or ambiguity |
 | **High / Critical Risk Hotspots** | 2197 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
 
 | Semantic Category | User-Facing Strings | Description |
 | :--- | :--- | :--- |
-| `other` | 4110 | Classified operational domain |
+| `other` | 4109 | Classified operational domain |
 | `imports` | 1430 | Classified operational domain |
 | `security` | 456 | Classified operational domain |
 | `trips` | 455 | Classified operational domain |
