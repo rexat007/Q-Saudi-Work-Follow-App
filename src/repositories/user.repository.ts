@@ -8,7 +8,7 @@ import {
   serverTimestamp, 
   onSnapshot 
 } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { UserEntity } from '../types/entities';
 
@@ -17,6 +17,9 @@ export class UserRepository {
 
   async findById(userId: string): Promise<UserEntity | null> {
     const path = `${this.collectionName}/${userId}`;
+    if (!auth.currentUser) {
+      return null;
+    }
     try {
       const snap = await getDoc(doc(db, this.collectionName, userId));
       if (!snap.exists()) return null;
@@ -27,6 +30,9 @@ export class UserRepository {
   }
 
   async listAll(): Promise<UserEntity[]> {
+    if (!auth.currentUser) {
+      return [];
+    }
     try {
       const snap = await getDocs(collection(db, this.collectionName));
       return snap.docs.map(d => d.data() as UserEntity);
@@ -37,6 +43,10 @@ export class UserRepository {
 
   async create(user: Omit<UserEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
     const path = `${this.collectionName}/${user.userId}`;
+    if (!auth.currentUser) {
+      console.warn(`[UserRepository] User unauthenticated. Skipping live Firestore create for ${path}`);
+      return;
+    }
     try {
       const payload = {
         ...user,
@@ -51,6 +61,10 @@ export class UserRepository {
 
   async update(userId: string, updates: Partial<UserEntity>, updatedBy: string): Promise<void> {
     const path = `${this.collectionName}/${userId}`;
+    if (!auth.currentUser) {
+      console.warn(`[UserRepository] User unauthenticated. Skipping live Firestore update for ${path}`);
+      return;
+    }
     try {
       const payload = {
         ...updates,
@@ -65,6 +79,9 @@ export class UserRepository {
   }
 
   subscribeToUsers(onData: (users: UserEntity[]) => void) {
+    if (!auth.currentUser) {
+      return () => {};
+    }
     return onSnapshot(
       collection(db, this.collectionName),
       (snapshot) => {

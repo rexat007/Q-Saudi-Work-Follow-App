@@ -6,7 +6,7 @@ import {
   setDoc, 
   serverTimestamp 
 } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { SyncOperationEntity } from '../types/entities';
 
@@ -19,6 +19,9 @@ export class SyncOperationRepository {
 
   async findById(projectId: string, operationId: string): Promise<SyncOperationEntity | null> {
     const path = this.getPath(projectId, operationId);
+    if (!auth.currentUser) {
+      return null;
+    }
     try {
       const snap = await getDoc(doc(db, 'projects', projectId, 'sync_operations', operationId));
       if (!snap.exists()) return null;
@@ -30,6 +33,10 @@ export class SyncOperationRepository {
 
   async create(op: Omit<SyncOperationEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
     const path = this.getPath(op.projectId, op.operationId);
+    if (!auth.currentUser) {
+      console.warn(`[SyncOperationRepository] User unauthenticated. Skipping live Firestore create for ${path}`);
+      return;
+    }
     try {
       const payload = {
         ...op,
@@ -44,6 +51,9 @@ export class SyncOperationRepository {
 
   async listByProject(projectId: string): Promise<SyncOperationEntity[]> {
     const path = this.getPath(projectId);
+    if (!auth.currentUser) {
+      return [];
+    }
     try {
       const snap = await getDocs(collection(db, 'projects', projectId, 'sync_operations'));
       return snap.docs.map(d => d.data() as SyncOperationEntity);

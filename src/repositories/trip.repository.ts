@@ -23,6 +23,9 @@ export class TripRepository {
 
   async findById(projectId: string, tripId: string): Promise<TripEntity | null> {
     const path = this.getPath(projectId, tripId);
+    if (!auth.currentUser) {
+      return null;
+    }
     try {
       const snap = await getDoc(doc(db, 'projects', projectId, 'trips', tripId));
       if (!snap.exists()) return null;
@@ -34,6 +37,9 @@ export class TripRepository {
 
   async listByProject(projectId: string, maxLimit = 100): Promise<TripEntity[]> {
     const path = this.getPath(projectId);
+    if (!auth.currentUser) {
+      return [];
+    }
     try {
       const q = query(
         collection(db, 'projects', projectId, 'trips'),
@@ -49,6 +55,9 @@ export class TripRepository {
 
   async listByStatus(projectId: string, status: TripStatus): Promise<TripEntity[]> {
     const path = this.getPath(projectId);
+    if (!auth.currentUser) {
+      return [];
+    }
     try {
       const q = query(
         collection(db, 'projects', projectId, 'trips'),

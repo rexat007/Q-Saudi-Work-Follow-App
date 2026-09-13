@@ -1,0 +1,6102 @@
+{
+  "eligibleC": [
+    {
+      "key": "authentication.labels.txt_3548e6",
+      "domain": "shared",
+      "ar": "متصل بـ Firestore",
+      "en": "متصل بـ Firestore",
+      "ur": "متصل بـ Firestore",
+      "fixed": false
+    },
+    {
+      "key": "authentication.labels.txt_413ffd",
+      "domain": "shared",
+      "ar": "تسجيل الدخول (Google)",
+      "en": "تسجيل الدخول (Google)",
+      "ur": "تسجيل الدخول (Google)",
+      "fixed": false
+    },
+    {
+      "key": "authentication.labels.txt_b1a849",
+      "domain": "shared",
+      "ar": "تسجيل الخروج",
+      "en": "تسجيل الخروج",
+      "ur": "تسجيل الخروج",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_18b638",
+      "domain": "dashboard",
+      "ar": "الصافي المعتمد في نقطة التفريغ",
+      "en": "الصافي المعتمد في نقطة التفريغ",
+      "ur": "الصافي المعتمد في نقطة التفريغ",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_196321",
+      "domain": "dashboard",
+      "ar": "الخاضعة للتحميل والترحيل",
+      "en": "الخاضعة للتحميل والترحيل",
+      "ur": "الخاضعة للتحميل والترحيل",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_19e345",
+      "domain": "dashboard",
+      "ar": "فلاتر الودجت المخصصة (Widget Filter Controls)",
+      "en": "فلاتر الودجت المخصصة (Widget Filter Controls)",
+      "ur": "فلاتر الودجت المخصصة (Widget Filter Controls)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_1b110d",
+      "domain": "dashboard",
+      "ar": "صافي فارق الموازين (Total Variance)",
+      "en": "صافي فارق الموازين (Total Variance)",
+      "ur": "صافي فارق الموازين (Total Variance)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_2530ed",
+      "domain": "dashboard",
+      "ar": "لوحة البوابات والموازين الحية (Live Terminal Board)",
+      "en": "لوحة البوابات والموازين الحية (Live Terminal Board)",
+      "ur": "لوحة البوابات والموازين الحية (Live Terminal Board)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_2ca1cc",
+      "domain": "dashboard",
+      "ar": "مرتجعة (Returned)",
+      "en": "مرتجعة (Returned)",
+      "ur": "مرتجعة (Returned)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_2f010a",
+      "domain": "dashboard",
+      "ar": "فلتر",
+      "en": "فلتر",
+      "ur": "فلتر",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_3318a9",
+      "domain": "dashboard",
+      "ar": "كافة الحالات",
+      "en": "كافة الحالات",
+      "ur": "كافة الحالات",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_356679",
+      "domain": "dashboard",
+      "ar": "إجمالي مستحق النموذج:",
+      "en": "إجمالي مستحق النموذج:",
+      "ur": "إجمالي مستحق النموذج:",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_36b0b2",
+      "domain": "dashboard",
+      "ar": "- تُطبَّق تلقائياً على كافة الودجات ما لم يتم تخصيص ودجت محدد",
+      "en": "- تُطبَّق تلقائياً على كافة الودجات ما لم يتم تخصيص ودجت محدد",
+      "ur": "- تُطبَّق تلقائياً على كافة الودجات ما لم يتم تخصيص ودجت محدد",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_42b243",
+      "domain": "dashboard",
+      "ar": "تسويات المقطوعية بالرد (Trip-based Settlement)",
+      "en": "تسويات المقطوعية بالرد (Trip-based Settlement)",
+      "ur": "تسويات المقطوعية بالرد (Trip-based Settlement)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_44dad6",
+      "domain": "dashboard",
+      "ar": "قيد النقل (In Transit)",
+      "en": "قيد النقل (In Transit)",
+      "ur": "قيد النقل (In Transit)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_4ab700",
+      "domain": "dashboard",
+      "ar": "فلتر البطاقة",
+      "en": "فلتر البطاقة",
+      "ur": "فلتر البطاقة",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_52e654",
+      "domain": "dashboard",
+      "ar": "الفلاتر العامة للوحة القيادة (Global Dashboard Filters)",
+      "en": "الفلاتر العامة للوحة القيادة (Global Dashboard Filters)",
+      "ur": "الفلاتر العامة للوحة القيادة (Global Dashboard Filters)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_550c13",
+      "domain": "dashboard",
+      "ar": "فلتر الودجت",
+      "en": "فلتر الودجت",
+      "ur": "فلتر الودجت",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_588cfc",
+      "domain": "dashboard",
+      "ar": "إجمالي التسويات المعتمدة (Total Settlement)",
+      "en": "إجمالي التسويات المعتمدة (Total Settlement)",
+      "ur": "إجمالي التسويات المعتمدة (Total Settlement)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_5ac4f2",
+      "domain": "dashboard",
+      "ar": "تجاوز فارق أو أعطال مسار",
+      "en": "تجاوز فارق أو أعطال مسار",
+      "ur": "تجاوز فارق أو أعطال مسار",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_5b4092",
+      "domain": "dashboard",
+      "ar": "مخصصة",
+      "en": "مخصصة",
+      "ur": "مخصصة",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_5fc7c1",
+      "domain": "dashboard",
+      "ar": "لا توجد شحنات مواد مطابقة للفلاتر.",
+      "en": "لا توجد شحنات مواد مطابقة للفلاتر.",
+      "ur": "لا توجد شحنات مواد مطابقة للفلاتر.",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_6c69a9",
+      "domain": "dashboard",
+      "ar": "مباشر (Live)",
+      "en": "مباشر (Live)",
+      "ur": "مباشر (Live)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_77aa19",
+      "domain": "dashboard",
+      "ar": "على الطريق",
+      "en": "على الطريق",
+      "ur": "على الطريق",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_7a5a12",
+      "domain": "dashboard",
+      "ar": "تم تفريغها ومطابقة أوزانها",
+      "en": "تم تفريغها ومطابقة أوزانها",
+      "ur": "تم تفريغها ومطابقة أوزانها",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_7caf8b",
+      "domain": "dashboard",
+      "ar": "محسوبة عند ميزان الانطلاق (القائم - الفارغ)",
+      "en": "محسوبة عند ميزان الانطلاق (القائم - الفارغ)",
+      "ur": "محسوبة عند ميزان الانطلاق (القائم - الفارغ)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_7f63ed",
+      "domain": "dashboard",
+      "ar": "التوقيت",
+      "en": "التوقيت",
+      "ur": "التوقيت",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_8d4f12",
+      "domain": "dashboard",
+      "ar": "فلتر الودجت المخصص",
+      "en": "فلتر الودجت المخصص",
+      "ur": "فلتر الودجت المخصص",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.weighbridge",
+      "domain": "dashboard",
+      "ar": "فارق الميزان",
+      "en": "فارق الميزان",
+      "ur": "فارق الميزان",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.pricing_2",
+      "domain": "loading",
+      "ar": "نوع التسعير (Pricing Type)",
+      "en": "نوع التسعير (Pricing Type)",
+      "ur": "نوع التسعير (Pricing Type)",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.pricing_4",
+      "domain": "loading",
+      "ar": "تبديل قاعدة التسعير للمقارنة:",
+      "en": "تبديل قاعدة التسعير للمقارنة:",
+      "ur": "تبديل قاعدة التسعير للمقارنة:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_19142a",
+      "domain": "loading",
+      "ar": "تسلسل ذري (Atomic)",
+      "en": "تسلسل ذري (Atomic)",
+      "ur": "تسلسل ذري (Atomic)",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_195be1",
+      "domain": "loading",
+      "ar": "تسلسل المحرك المنجز:",
+      "en": "تسلسل المحرك المنجز:",
+      "ur": "تسلسل المحرك المنجز:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_20c9dd",
+      "domain": "loading",
+      "ar": "دقة حسابية 100%",
+      "en": "دقة حسابية 100%",
+      "ur": "دقة حسابية 100%",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_212255",
+      "domain": "loading",
+      "ar": "حماية التسوية الآلية",
+      "en": "حماية التسوية الآلية",
+      "ur": "حماية التسوية الآلية",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_2b7e09",
+      "domain": "loading",
+      "ar": "التسلسل الإجرائي الصارم بعد Confirm:",
+      "en": "التسلسل الإجرائي الصارم بعد Confirm:",
+      "ur": "التسلسل الإجرائي الصارم بعد Confirm:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_2dfd1b",
+      "domain": "loading",
+      "ar": "الهوية/الإقامة:",
+      "en": "الهوية/الإقامة:",
+      "ur": "الهوية/الإقامة:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_31e3da",
+      "domain": "loading",
+      "ar": "محسوبة خادومياً بالكامل",
+      "en": "محسوبة خادومياً بالكامل",
+      "ur": "محسوبة خادومياً بالكامل",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_31e684",
+      "domain": "loading",
+      "ar": "مفعّل بوضوح",
+      "en": "مفعّل بوضوح",
+      "ur": "مفعّل بوضوح",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_37e310",
+      "domain": "loading",
+      "ar": "التسوية محمية رقابياً",
+      "en": "التسوية محمية رقابياً",
+      "ur": "التسوية محمية رقابياً",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_3c2d03",
+      "domain": "loading",
+      "ar": "محمي ومحصن",
+      "en": "محمي ومحصن",
+      "ur": "محمي ومحصن",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_49a8b5",
+      "domain": "loading",
+      "ar": "مثال PER_TRIP:",
+      "en": "مثال PER_TRIP:",
+      "ur": "مثال PER_TRIP:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_545437",
+      "domain": "loading",
+      "ar": "شركات النقل المصرحة",
+      "en": "شركات النقل المصرحة",
+      "ur": "شركات النقل المصرحة",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_56bb7e",
+      "domain": "loading",
+      "ar": "المعادلة الحسابية المطبقة:",
+      "en": "المعادلة الحسابية المطبقة:",
+      "ur": "المعادلة الحسابية المطبقة:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_57f8de",
+      "domain": "loading",
+      "ar": "التسوية المعتمدة:",
+      "en": "التسوية المعتمدة:",
+      "ur": "التسوية المعتمدة:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_604b70",
+      "domain": "loading",
+      "ar": "أوزان فارغة نموذجية (محاكاة الميزان):",
+      "en": "أوزان فارغة نموذجية (محاكاة الميزان):",
+      "ur": "أوزان فارغة نموذجية (محاكاة الميزان):",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_6555e1",
+      "domain": "loading",
+      "ar": "مشروع العمل المعتمد",
+      "en": "مشروع العمل المعتمد",
+      "ur": "مشروع العمل المعتمد",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_6765dc",
+      "domain": "loading",
+      "ar": "صافي الحمولة (Net):",
+      "en": "صافي الحمولة (Net):",
+      "ur": "صافي الحمولة (Net):",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_67b2a1",
+      "domain": "loading",
+      "ar": "سارٍ وموثق بالعقد",
+      "en": "سارٍ وموثق بالعقد",
+      "ur": "سارٍ وموثق بالعقد",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_68840f",
+      "domain": "loading",
+      "ar": "مسار خطوات العمل (Workflow):",
+      "en": "مسار خطوات العمل (Workflow):",
+      "ur": "مسار خطوات العمل (Workflow):",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_6d4e47",
+      "domain": "loading",
+      "ar": "الأمثلة المباشرة:",
+      "en": "الأمثلة المباشرة:",
+      "ur": "الأمثلة المباشرة:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_6e3072",
+      "domain": "loading",
+      "ar": "صافي الحمولة المحسوب فورياً (Net Weight):",
+      "en": "صافي الحمولة المحسوب فورياً (Net Weight):",
+      "ur": "صافي الحمولة المحسوب فورياً (Net Weight):",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_72a483",
+      "domain": "loading",
+      "ar": "قراءة ميزان الخروج بعد اكتمال تعبئة الحمولة (Scale Out) بالكيلوجرام",
+      "en": "قراءة ميزان الخروج بعد اكتمال تعبئة الحمولة (Scale Out) بالكيلوجرام",
+      "ur": "قراءة ميزان الخروج بعد اكتمال تعبئة الحمولة (Scale Out) بالكيلوجرام",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_73aefc",
+      "domain": "loading",
+      "ar": "العودة للواجهة",
+      "en": "العودة للواجهة",
+      "ur": "العودة للواجهة",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_73e4a3",
+      "domain": "loading",
+      "ar": "التسوية التقديرية (Settlement)",
+      "en": "التسوية التقديرية (Settlement)",
+      "ur": "التسوية التقديرية (Settlement)",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_74acad",
+      "domain": "loading",
+      "ar": "أوزان قائمة نموذجية:",
+      "en": "أوزان قائمة نموذجية:",
+      "ur": "أوزان قائمة نموذجية:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_797eb0",
+      "domain": "loading",
+      "ar": "مثال PER_TON:",
+      "en": "مثال PER_TON:",
+      "ur": "مثال PER_TON:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_79f87c",
+      "domain": "loading",
+      "ar": ": تسجيل حدث توثيق الأوزان بالميزان.",
+      "en": ": تسجيل حدث توثيق الأوزان بالميزان.",
+      "ur": ": تسجيل حدث توثيق الأوزان بالميزان.",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_a9fcb1",
+      "domain": "loading",
+      "ar": "120 SAR (مقطوعية ثابتة للرد)",
+      "en": "120 SAR (مقطوعية ثابتة للرد)",
+      "ur": "120 SAR (مقطوعية ثابتة للرد)",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.materials_2",
+      "domain": "projects",
+      "ar": "materials",
+      "en": "materials",
+      "ur": "materials",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.txt_112afc",
+      "domain": "projects",
+      "ar": "اضغط للتبديل بين التفعيل والتعطيل",
+      "en": "اضغط للتبديل بين التفعيل والتعطيل",
+      "ur": "اضغط للتبديل بين التفعيل والتعطيل",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.txt_1a4fae",
+      "domain": "projects",
+      "ar": "يمكنك استخدام الأسهم ⬆️⬇️ لتغيير الترتيب المعتمد في السندات",
+      "en": "يمكنك استخدام الأسهم ⬆️⬇️ لتغيير الترتيب المعتمد في السندات",
+      "ur": "يمكنك استخدام الأسهم ⬆️⬇️ لتغيير الترتيب المعتمد في السندات",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.txt_252118",
+      "domain": "projects",
+      "ar": "الوحدة",
+      "en": "الوحدة",
+      "ur": "الوحدة",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.txt_3b64b7",
+      "domain": "projects",
+      "ar": "وحدة القياس المعتمدة",
+      "en": "وحدة القياس المعتمدة",
+      "ur": "وحدة القياس المعتمدة",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.txt_60028f",
+      "domain": "projects",
+      "ar": "رد كامل (TRIP) - مقطوع",
+      "en": "رد كامل (TRIP) - مقطوع",
+      "ur": "رد كامل (TRIP) - مقطوع",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.txt_6688ac",
+      "domain": "projects",
+      "ar": "متر مكعب (M3) - حجمي",
+      "en": "متر مكعب (M3) - حجمي",
+      "ur": "متر مكعب (M3) - حجمي",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.txt_73756a",
+      "domain": "projects",
+      "ar": "تحريك لأعلى",
+      "en": "تحريك لأعلى",
+      "ur": "تحريك لأعلى",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.txt_737581",
+      "domain": "projects",
+      "ar": "تحريك لأسفل",
+      "en": "تحريك لأسفل",
+      "ur": "تحريك لأسفل",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.txt_7f591f",
+      "domain": "projects",
+      "ar": "الترتيب",
+      "en": "الترتيب",
+      "ur": "الترتيب",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.txt_9e7170",
+      "domain": "projects",
+      "ar": "أضف أول مادة الآن",
+      "en": "أضف أول مادة الآن",
+      "ur": "أضف أول مادة الآن",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_102b03",
+      "domain": "shared",
+      "ar": "4 مجلدات فرعية",
+      "en": "4 مجلدات فرعية",
+      "ur": "4 مجلدات فرعية",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_10324c",
+      "domain": "shared",
+      "ar": "تنبيه: يوجد تعارضات تشغيلية تتطلب حلاً صريحاً (Anti-LWW)",
+      "en": "تنبيه: يوجد تعارضات تشغيلية تتطلب حلاً صريحاً (Anti-LWW)",
+      "ur": "تنبيه: يوجد تعارضات تشغيلية تتطلب حلاً صريحاً (Anti-LWW)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_114bd2",
+      "domain": "shared",
+      "ar": "reports (التقارير)",
+      "en": "reports (التقارير)",
+      "ur": "reports (التقارير)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_116753",
+      "domain": "shared",
+      "ar": "جداول الإسقاط الستة في Google Sheets (Projection Tabs)",
+      "en": "جداول الإسقاط الستة في Google Sheets (Projection Tabs)",
+      "ur": "جداول الإسقاط الستة في Google Sheets (Projection Tabs)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_11ed5e",
+      "domain": "shared",
+      "ar": "7 خطوات",
+      "en": "7 خطوات",
+      "ur": "7 خطوات",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_12e46c",
+      "domain": "shared",
+      "ar": "Upsert وليس Blind Append",
+      "en": "Upsert وليس Blind Append",
+      "ur": "Upsert وليس Blind Append",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_136877",
+      "domain": "shared",
+      "ar": "هيكل Google Drive للمشروع",
+      "en": "هيكل Google Drive للمشروع",
+      "ur": "هيكل Google Drive للمشروع",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_13cd84",
+      "domain": "shared",
+      "ar": "المستندات المعمارية (7 ملفات)",
+      "en": "المستندات المعمارية (7 ملفات)",
+      "ur": "المستندات المعمارية (7 ملفات)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_152452",
+      "domain": "shared",
+      "ar": "لوحة الإدارة (Admin Console)",
+      "en": "لوحة الإدارة (Admin Console)",
+      "ur": "لوحة الإدارة (Admin Console)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_15ec91",
+      "domain": "shared",
+      "ar": "التمدد غير الإتلافي (Additive Only):",
+      "en": "التمدد غير الإتلافي (Additive Only):",
+      "ur": "التمدد غير الإتلافي (Additive Only):",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_177b34",
+      "domain": "shared",
+      "ar": "حماية الأعمدة الـ 20:",
+      "en": "حماية الأعمدة الـ 20:",
+      "ur": "حماية الأعمدة الـ 20:",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_185076",
+      "domain": "shared",
+      "ar": "15 تقريراً و PDF",
+      "en": "15 تقريراً و PDF",
+      "ur": "15 تقريراً و PDF",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_198d0f",
+      "domain": "shared",
+      "ar": "شبكة العلاقات (11 كياناً)",
+      "en": "شبكة العلاقات (11 كياناً)",
+      "ur": "شبكة العلاقات (11 كياناً)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_19c7ca",
+      "domain": "shared",
+      "ar": "تكامل Google Sheets و Google Drive من جانب الخادم",
+      "en": "تكامل Google Sheets و Google Drive من جانب الخادم",
+      "ur": "تكامل Google Sheets و Google Drive من جانب الخادم",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_19e865",
+      "domain": "shared",
+      "ar": "1. أعمدة التشغيل الـ 20 الحالية (Legacy Operational Columns)",
+      "en": "1. أعمدة التشغيل الـ 20 الحالية (Legacy Operational Columns)",
+      "ur": "1. أعمدة التشغيل الـ 20 الحالية (Legacy Operational Columns)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_1a75fa",
+      "domain": "shared",
+      "ar": "محرك جودة البيانات (Quality Engine)",
+      "en": "محرك جودة البيانات (Quality Engine)",
+      "ur": "محرك جودة البيانات (Quality Engine)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_1b8b59",
+      "domain": "shared",
+      "ar": "معمارية Firestore (الـ 13 نطاقاً)",
+      "en": "معمارية Firestore (الـ 13 نطاقاً)",
+      "ur": "معمارية Firestore (الـ 13 نطاقاً)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_1f48b9",
+      "domain": "shared",
+      "ar": "واستخدام",
+      "en": "واستخدام",
+      "ur": "واستخدام",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_202ca4",
+      "domain": "shared",
+      "ar": "المفتاح التقني للعمليات: tripId",
+      "en": "المفتاح التقني للعمليات: tripId",
+      "ur": "المفتاح التقني للعمليات: tripId",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_22bd57",
+      "domain": "shared",
+      "ar": "مزامنة الإسقاط (Upsert Sync)",
+      "en": "مزامنة الإسقاط (Upsert Sync)",
+      "ur": "مزامنة الإسقاط (Upsert Sync)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_230d9e",
+      "domain": "shared",
+      "ar": "ترحيل الشيت القديم (Legacy Migration)",
+      "en": "ترحيل الشيت القديم (Legacy Migration)",
+      "ur": "ترحيل الشيت القديم (Legacy Migration)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_23bdd6",
+      "domain": "shared",
+      "ar": "اختر أي كيان لاستعراض ارتباطاته الدقيقة، درجة التعددية (Cardinality)، وواجبات التحقق الخادومية الصارمة.",
+      "en": "اختر أي كيان لاستعراض ارتباطاته الدقيقة، درجة التعددية (Cardinality)، وواجبات التحقق الخادومية الصارمة.",
+      "ur": "اختر أي كيان لاستعراض ارتباطاته الدقيقة، درجة التعددية (Cardinality)، وواجبات التحقق الخادومية الصارمة.",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_2439c4",
+      "domain": "shared",
+      "ar": "8 مراحل",
+      "en": "8 مراحل",
+      "ur": "8 مراحل",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_257f0d",
+      "domain": "shared",
+      "ar": "المجلد الجذري للمشروع",
+      "en": "المجلد الجذري للمشروع",
+      "ur": "المجلد الجذري للمشروع",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_276201",
+      "domain": "shared",
+      "ar": "هندسة معمارية للمشاريع الكبرى وسلاسل الإمداد الميدانية بالمملكة",
+      "en": "هندسة معمارية للمشاريع الكبرى وسلاسل الإمداد الميدانية بالمملكة",
+      "ur": "هندسة معمارية للمشاريع الكبرى وسلاسل الإمداد الميدانية بالمملكة",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_2a462a",
+      "domain": "shared",
+      "ar": "تحديد معرفات Google Drive و Google Sheets المرتبطة بكل مشروع في Firestore",
+      "en": "تحديد معرفات Google Drive و Google Sheets المرتبطة بكل مشروع في Firestore",
+      "ur": "تحديد معرفات Google Drive و Google Sheets المرتبطة بكل مشروع في Firestore",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_2c9a36",
+      "domain": "shared",
+      "ar": "مفتاح الربط المباشر من Project Registry",
+      "en": "مفتاح الربط المباشر من Project Registry",
+      "ur": "مفتاح الربط المباشر من Project Registry",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_2d0c08",
+      "domain": "shared",
+      "ar": "3. أعمدة التدقيق والمطابقة (Audit Metadata Columns)",
+      "en": "3. أعمدة التدقيق والمطابقة (Audit Metadata Columns)",
+      "ur": "3. أعمدة التدقيق والمطابقة (Audit Metadata Columns)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_2f3fde",
+      "domain": "shared",
+      "ar": "مستحق التسوية",
+      "en": "مستحق التسوية",
+      "ur": "مستحق التسوية",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_310722",
+      "domain": "shared",
+      "ar": "فتح الملف المرفوع في Google Drive",
+      "en": "فتح الملف المرفوع في Google Drive",
+      "ur": "فتح الملف المرفوع في Google Drive",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_3a0110",
+      "domain": "shared",
+      "ar": "لا يحتوي على بيانات وهمية (Mock Data) أو واجهات مؤقتة",
+      "en": "لا يحتوي على بيانات وهمية (Mock Data) أو واجهات مؤقتة",
+      "ur": "لا يحتوي على بيانات وهمية (Mock Data) أو واجهات مؤقتة",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_3c3f5c",
+      "domain": "shared",
+      "ar": "مطابقة المفتاح التقني tripId:",
+      "en": "مطابقة المفتاح التقني tripId:",
+      "ur": "مطابقة المفتاح التقني tripId:",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_409d13",
+      "domain": "shared",
+      "ar": "Google Sheets كإسقاط تشغيلي (Projection)",
+      "en": "Google Sheets كإسقاط تشغيلي (Projection)",
+      "ur": "Google Sheets كإسقاط تشغيلي (Projection)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_41e146",
+      "domain": "shared",
+      "ar": "الخصائص والحقول الأساسية (Key Attributes):",
+      "en": "الخصائص والحقول الأساسية (Key Attributes):",
+      "ur": "الخصائص والحقول الأساسية (Key Attributes):",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_42845c",
+      "domain": "shared",
+      "ar": "تمثيل متزامن ومحدث تلقائياً عبر Upsert بالمعرف التقني",
+      "en": "تمثيل متزامن ومحدث تلقائياً عبر Upsert بالمعرف التقني",
+      "ur": "تمثيل متزامن ومحدث تلقائياً عبر Upsert بالمعرف التقني",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_4452c7",
+      "domain": "shared",
+      "ar": "المبادئ الـ 12 الإلزامية",
+      "en": "المبادئ الـ 12 الإلزامية",
+      "ur": "المبادئ الـ 12 الإلزامية",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_454be9",
+      "domain": "shared",
+      "ar": "Google Drive Folder ID (المسجل)",
+      "en": "Google Drive Folder ID (المسجل)",
+      "ur": "Google Drive Folder ID (المسجل)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_45b282",
+      "domain": "shared",
+      "ar": "6 قواعد",
+      "en": "6 قواعد",
+      "ur": "6 قواعد",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_46b695",
+      "domain": "shared",
+      "ar": "النظام التشغيلي:",
+      "en": "النظام التشغيلي:",
+      "ur": "النظام التشغيلي:",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_48ae1b",
+      "domain": "shared",
+      "ar": "Google Spreadsheet ID (المسجل)",
+      "en": "Google Spreadsheet ID (المسجل)",
+      "ur": "Google Spreadsheet ID (المسجل)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_4ada99",
+      "domain": "shared",
+      "ar": "الضوابط والمبادئ المرتبطة:",
+      "en": "الضوابط والمبادئ المرتبطة:",
+      "ur": "الضوابط والمبادئ المرتبطة:",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_4c8195",
+      "domain": "shared",
+      "ar": "المبادئ المعمارية الإلزامية الصارمة (The 12 Invariants)",
+      "en": "المبادئ المعمارية الإلزامية الصارمة (The 12 Invariants)",
+      "ur": "المبادئ المعمارية الإلزامية الصارمة (The 12 Invariants)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_4d5df6",
+      "domain": "shared",
+      "ar": "خطة الترحيل وعدم كسر الأعمدة القديمة",
+      "en": "خطة الترحيل وعدم كسر الأعمدة القديمة",
+      "ur": "خطة الترحيل وعدم كسر الأعمدة القديمة",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_4df8c5",
+      "domain": "shared",
+      "ar": "مخطط العلاقات التفاعلي بين كيانات النطاق التشغيلي",
+      "en": "مخطط العلاقات التفاعلي بين كيانات النطاق التشغيلي",
+      "ur": "مخطط العلاقات التفاعلي بين كيانات النطاق التشغيلي",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_50c969",
+      "domain": "shared",
+      "ar": "4 وحدات",
+      "en": "4 وحدات",
+      "ur": "4 وحدات",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_55b425",
+      "domain": "shared",
+      "ar": "Firestore هو Source of Truth",
+      "en": "Firestore هو Source of Truth",
+      "ur": "Firestore هو Source of Truth",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_58e08d",
+      "domain": "shared",
+      "ar": "معمارية الخادم المتكاملة • Google Workspace Server-Side Integration",
+      "en": "معمارية الخادم المتكاملة • Google Workspace Server-Side Integration",
+      "ur": "معمارية الخادم المتكاملة • Google Workspace Server-Side Integration",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_5c0d92",
+      "domain": "shared",
+      "ar": "Google Sheets هو Projection",
+      "en": "Google Sheets هو Projection",
+      "ur": "Google Sheets هو Projection",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_5dc573",
+      "domain": "shared",
+      "ar": "انقر على أي كيان مرتبط للانتقال إليه",
+      "en": "انقر على أي كيان مرتبط للانتقال إليه",
+      "ur": "انقر على أي كيان مرتبط للانتقال إليه",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_601c17",
+      "domain": "shared",
+      "ar": "20 عموداً",
+      "en": "20 عموداً",
+      "ur": "20 عموداً",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_681fb6",
+      "domain": "shared",
+      "ar": "ربط تصاريح Google Workspace",
+      "en": "ربط تصاريح Google Workspace",
+      "ur": "ربط تصاريح Google Workspace",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_684973",
+      "domain": "shared",
+      "ar": "غير مسجل بعد",
+      "en": "غير مسجل بعد",
+      "ur": "غير مسجل بعد",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_6c2131",
+      "domain": "shared",
+      "ar": "11 قسماً",
+      "en": "11 قسماً",
+      "ur": "11 قسماً",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_6dd618",
+      "domain": "shared",
+      "ar": "ضمانة مصدر الحقيقة وسيادة الخادم",
+      "en": "ضمانة مصدر الحقيقة وسيادة الخادم",
+      "ur": "ضمانة مصدر الحقيقة وسيادة الخادم",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_6f6242",
+      "domain": "shared",
+      "ar": "، مع منع استخدام",
+      "en": "، مع منع استخدام",
+      "ur": "، مع منع استخدام",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_70f585",
+      "domain": "shared",
+      "ar": "البيانات الرئيسية (Master Data)",
+      "en": "البيانات الرئيسية (Master Data)",
+      "ur": "البيانات الرئيسية (Master Data)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_7265aa",
+      "domain": "shared",
+      "ar": "12 نوعاً و Audit",
+      "en": "12 نوعاً و Audit",
+      "ur": "12 نوعاً و Audit",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_72b405",
+      "domain": "shared",
+      "ar": "ملخص المستند:",
+      "en": "ملخص المستند:",
+      "ur": "ملخص المستند:",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_75522f",
+      "domain": "shared",
+      "ar": "فتح الشيت في Google Docs",
+      "en": "فتح الشيت في Google Docs",
+      "ur": "فتح الشيت في Google Docs",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_777008",
+      "domain": "shared",
+      "ar": "الدور والمسؤولية في النظام:",
+      "en": "الدور والمسؤولية في النظام:",
+      "ur": "الدور والمسؤولية في النظام:",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_791f1b",
+      "domain": "shared",
+      "ar": "كل ارتباط بين كيانين يتم التحقق منه خادومياً داخل الـ Transactions في Firestore ولا يُترك القرار للواجهة الأمامية مطلقاً.",
+      "en": "كل ارتباط بين كيانين يتم التحقق منه خادومياً داخل الـ Transactions في Firestore ولا يُترك القرار للواجهة الأمامية مطلقاً.",
+      "ur": "كل ارتباط بين كيانين يتم التحقق منه خادومياً داخل الـ Transactions في Firestore ولا يُترك القرار للواجهة الأمامية مطلقاً.",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_7f13e8",
+      "domain": "shared",
+      "ar": "الإسقاط",
+      "en": "الإسقاط",
+      "ur": "الإسقاط",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_7f525d",
+      "domain": "shared",
+      "ar": "نتائج آخر عملية مزامنة وإسقاط ذكية (Upsert Summary)",
+      "en": "نتائج آخر عملية مزامنة وإسقاط ذكية (Upsert Summary)",
+      "ur": "نتائج آخر عملية مزامنة وإسقاط ذكية (Upsert Summary)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_8cf69f",
+      "domain": "shared",
+      "ar": "المستندات المعمارية المعتمدة (docs/)",
+      "en": "المستندات المعمارية المعتمدة (docs/)",
+      "ur": "المستندات المعمارية المعتمدة (docs/)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_9a0a23",
+      "domain": "shared",
+      "ar": "16 نطاقاً",
+      "en": "16 نطاقاً",
+      "ur": "16 نطاقاً",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_a4ab42",
+      "domain": "shared",
+      "ar": "جاري طلب تصاريح Google Drive و Google Sheets...",
+      "en": "جاري طلب تصاريح Google Drive و Google Sheets...",
+      "ur": "جاري طلب تصاريح Google Drive و Google Sheets...",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_b4b841",
+      "domain": "shared",
+      "ar": "مباشر ومحمي",
+      "en": "مباشر ومحمي",
+      "ur": "مباشر ومحمي",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_c37ba7",
+      "domain": "shared",
+      "ar": "مطبق ومحمي في الكود المعماري",
+      "en": "مطبق ومحمي في الكود المعماري",
+      "ur": "مطبق ومحمي في الكود المعماري",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.projects",
+      "domain": "offline",
+      "ar": "projects",
+      "en": "projects",
+      "ur": "projects",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.trips",
+      "domain": "offline",
+      "ar": "trips",
+      "en": "trips",
+      "ur": "trips",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_15265b",
+      "domain": "offline",
+      "ar": "DUPLICATE_OPERATION تكرار القيد",
+      "en": "DUPLICATE_OPERATION تكرار القيد",
+      "ur": "DUPLICATE_OPERATION تكرار القيد",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_18aa37",
+      "domain": "offline",
+      "ar": "مركز معالجة التعارضات التشغيلية (Conflict Resolution)",
+      "en": "مركز معالجة التعارضات التشغيلية (Conflict Resolution)",
+      "ur": "مركز معالجة التعارضات التشغيلية (Conflict Resolution)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_197045",
+      "domain": "offline",
+      "ar": "ثبات تسعير الـ Offline:",
+      "en": "ثبات تسعير الـ Offline:",
+      "ur": "ثبات تسعير الـ Offline:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_1bc609",
+      "domain": "offline",
+      "ar": "في شريط متصفح سفاري.",
+      "en": "في شريط متصفح سفاري.",
+      "ur": "في شريط متصفح سفاري.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_21781d",
+      "domain": "offline",
+      "ar": "محددات حوكمة التعارضات (Conflict Resolution Mandates)",
+      "en": "محددات حوكمة التعارضات (Conflict Resolution Mandates)",
+      "ur": "محددات حوكمة التعارضات (Conflict Resolution Mandates)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_231b48",
+      "domain": "offline",
+      "ar": "الفروقات الميدانية المرصودة:",
+      "en": "الفروقات الميدانية المرصودة:",
+      "ur": "الفروقات الميدانية المرصودة:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_24195a",
+      "domain": "offline",
+      "ar": "الأمر الميداني المحلي (Local Command)",
+      "en": "الأمر الميداني المحلي (Local Command)",
+      "ur": "الأمر الميداني المحلي (Local Command)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_25bbf9",
+      "domain": "offline",
+      "ar": "مرر للأسفل واختر",
+      "en": "مرر للأسفل واختر",
+      "ur": "مرر للأسفل واختر",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_292ade",
+      "domain": "offline",
+      "ar": "استجابة المصادقة الخادومية (Server ACK):",
+      "en": "استجابة المصادقة الخادومية (Server ACK):",
+      "ur": "استجابة المصادقة الخادومية (Server ACK):",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_2a087d",
+      "domain": "offline",
+      "ar": "TRIP_ALREADY_COMPLETED مغلقة",
+      "en": "TRIP_ALREADY_COMPLETED مغلقة",
+      "ur": "TRIP_ALREADY_COMPLETED مغلقة",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_2eef0a",
+      "domain": "offline",
+      "ar": "PRICING_CHANGED وحماية Snapshot",
+      "en": "PRICING_CHANGED وحماية Snapshot",
+      "ur": "PRICING_CHANGED وحماية Snapshot",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_31f297",
+      "domain": "offline",
+      "ar": "محاكاة انقطاع الإنترنت:",
+      "en": "محاكاة انقطاع الإنترنت:",
+      "ur": "محاكاة انقطاع الإنترنت:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_32233e",
+      "domain": "offline",
+      "ar": "5. تكرار تذكرة",
+      "en": "5. تكرار تذكرة",
+      "ur": "5. تكرار تذكرة",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_3bb240",
+      "domain": "offline",
+      "ar": "جاري الإرسال SENDING",
+      "en": "جاري الإرسال SENDING",
+      "ur": "جاري الإرسال SENDING",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_3d5113",
+      "domain": "offline",
+      "ar": "مبرر القرار التدقيقي (Audit Justification):",
+      "en": "مبرر القرار التدقيقي (Audit Justification):",
+      "ur": "مبرر القرار التدقيقي (Audit Justification):",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_3db2df",
+      "domain": "offline",
+      "ar": "فهمت ذلك",
+      "en": "فهمت ذلك",
+      "ur": "فهمت ذلك",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_3e2425",
+      "domain": "offline",
+      "ar": "ملاحظات التحكيم",
+      "en": "ملاحظات التحكيم",
+      "ur": "ملاحظات التحكيم",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_3f37a7",
+      "domain": "offline",
+      "ar": "حالة الشبكة: متصل بالإنترنت (Online)",
+      "en": "حالة الشبكة: متصل بالإنترنت (Online)",
+      "ur": "حالة الشبكة: متصل بالإنترنت (Online)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_402c63",
+      "domain": "offline",
+      "ar": "المبلغ والتسوية:",
+      "en": "المبلغ والتسوية:",
+      "ur": "المبلغ والتسوية:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_41c156",
+      "domain": "offline",
+      "ar": "ضمانة ثبات تسعير الـ Offline (Pricing Snapshot Invariance)",
+      "en": "ضمانة ثبات تسعير الـ Offline (Pricing Snapshot Invariance)",
+      "ur": "ضمانة ثبات تسعير الـ Offline (Pricing Snapshot Invariance)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_44754a",
+      "domain": "offline",
+      "ar": "منع \"آخر كتابة تفوز\" (No LWW):",
+      "en": "منع \"آخر كتابة تفوز\" (No LWW):",
+      "ur": "منع \"آخر كتابة تفوز\" (No LWW):",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_46be08",
+      "domain": "offline",
+      "ar": "حل التعارض الصريح",
+      "en": "حل التعارض الصريح",
+      "ur": "حل التعارض الصريح",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_47ad3c",
+      "domain": "offline",
+      "ar": "معالجة التعارضات (Conflicts)",
+      "en": "معالجة التعارضات (Conflicts)",
+      "ur": "معالجة التعارضات (Conflicts)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_47cf18",
+      "domain": "offline",
+      "ar": "القرار الإلزامي الصريح (Explicit Resolution Strategy)",
+      "en": "القرار الإلزامي الصريح (Explicit Resolution Strategy)",
+      "ur": "القرار الإلزامي الصريح (Explicit Resolution Strategy)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_4c59dc",
+      "domain": "offline",
+      "ar": "محمي باللقطة",
+      "en": "محمي باللقطة",
+      "ur": "محمي باللقطة",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_4d3e1f",
+      "domain": "offline",
+      "ar": "جدول الفروقات (Diff)",
+      "en": "جدول الفروقات (Diff)",
+      "ur": "جدول الفروقات (Diff)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_4d4137",
+      "domain": "offline",
+      "ar": "رفض ترحيل الشحنة لمخالفتها شروط التفويض في السجل المركزي.",
+      "en": "رفض ترحيل الشحنة لمخالفتها شروط التفويض في السجل المركزي.",
+      "ur": "رفض ترحيل الشحنة لمخالفتها شروط التفويض في السجل المركزي.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_4e058d",
+      "domain": "offline",
+      "ar": "2. تعارض إصدار",
+      "en": "2. تعارض إصدار",
+      "ur": "2. تعارض إصدار",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_519208",
+      "domain": "offline",
+      "ar": "الذاكرة المحلية IndexedDB (Master Data)",
+      "en": "الذاكرة المحلية IndexedDB (Master Data)",
+      "ur": "الذاكرة المحلية IndexedDB (Master Data)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_532950",
+      "domain": "offline",
+      "ar": "جاري المحاكاة...",
+      "en": "جاري المحاكاة...",
+      "ur": "جاري المحاكاة...",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_540354",
+      "domain": "offline",
+      "ar": "اضغط على زر",
+      "en": "اضغط على زر",
+      "ur": "اضغط على زر",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_55319d",
+      "domain": "offline",
+      "ar": "محاكي التعارضات التشغيلية (Interactive Conflict Simulator)",
+      "en": "محاكي التعارضات التشغيلية (Interactive Conflict Simulator)",
+      "ur": "محاكي التعارضات التشغيلية (Interactive Conflict Simulator)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_59a3b5",
+      "domain": "offline",
+      "ar": "الحقل",
+      "en": "الحقل",
+      "ur": "الحقل",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_5b9d20",
+      "domain": "offline",
+      "ar": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
+      "en": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
+      "ur": "تم تسجيل رفض أو إرجاع الشحنة على الخادم.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_5cde42",
+      "domain": "offline",
+      "ar": "تتم الحسابات المالية وصافي الأوزان محلياً وتُدرج في Outbox بحالة PENDING حتى عودة الاتصال.",
+      "en": "تتم الحسابات المالية وصافي الأوزان محلياً وتُدرج في Outbox بحالة PENDING حتى عودة الاتصال.",
+      "ur": "تتم الحسابات المالية وصافي الأوزان محلياً وتُدرج في Outbox بحالة PENDING حتى عودة الاتصال.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_5fc250",
+      "domain": "offline",
+      "ar": "TRIP_ALREADY_RETURNED مرفوضة",
+      "en": "TRIP_ALREADY_RETURNED مرفوضة",
+      "ur": "TRIP_ALREADY_RETURNED مرفوضة",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_604d7b",
+      "domain": "offline",
+      "ar": "استبعاد العملية المكررة (Discard Duplicate)",
+      "en": "استبعاد العملية المكررة (Discard Duplicate)",
+      "ur": "استبعاد العملية المكررة (Discard Duplicate)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_60c85c",
+      "domain": "offline",
+      "ar": "فرض الأمر المحلي بالإصدار الجديد (Force Local With Audit)",
+      "en": "فرض الأمر المحلي بالإصدار الجديد (Force Local With Audit)",
+      "ur": "فرض الأمر المحلي بالإصدار الجديد (Force Local With Audit)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_6357c3",
+      "domain": "offline",
+      "ar": "تثبيت PWA",
+      "en": "تثبيت PWA",
+      "ur": "تثبيت PWA",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_6464df",
+      "domain": "offline",
+      "ar": "عدد السجلات:",
+      "en": "عدد السجلات:",
+      "ur": "عدد السجلات:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_6526c5",
+      "domain": "offline",
+      "ar": "المحاولات:",
+      "en": "المحاولات:",
+      "ur": "المحاولات:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_66c55e",
+      "domain": "offline",
+      "ar": "طابور الصادر (Outbox Queue)",
+      "en": "طابور الصادر (Outbox Queue)",
+      "ur": "طابور الصادر (Outbox Queue)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_66cc97",
+      "domain": "offline",
+      "ar": "قاعدة إلزامية:",
+      "en": "قاعدة إلزامية:",
+      "ur": "قاعدة إلزامية:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_69531e",
+      "domain": "offline",
+      "ar": "حالة الخادم (Server State)",
+      "en": "حالة الخادم (Server State)",
+      "ur": "حالة الخادم (Server State)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_6aae4c",
+      "domain": "offline",
+      "ar": "سريان الأسعار الجديدة:",
+      "en": "سريان الأسعار الجديدة:",
+      "ur": "سريان الأسعار الجديدة:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_6aaee2",
+      "domain": "offline",
+      "ar": "حماية تسعير الـ Offline:",
+      "en": "حماية تسعير الـ Offline:",
+      "ur": "حماية تسعير الـ Offline:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_6fc0d8",
+      "domain": "offline",
+      "ar": "سجل تخزين Master Data في IndexedDB",
+      "en": "سجل تخزين Master Data في IndexedDB",
+      "ur": "سجل تخزين Master Data في IndexedDB",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_7490af",
+      "domain": "offline",
+      "ar": "الطابع الزمني:",
+      "en": "الطابع الزمني:",
+      "ur": "الطابع الزمني:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_74ecba",
+      "domain": "offline",
+      "ar": "حالة الشبكة: غير متصل (Offline Mode)",
+      "en": "حالة الشبكة: غير متصل (Offline Mode)",
+      "ur": "حالة الشبكة: غير متصل (Offline Mode)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_751d01",
+      "domain": "offline",
+      "ar": "تعارض CONFLICT",
+      "en": "تعارض CONFLICT",
+      "ur": "تعارض CONFLICT",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_759c62",
+      "domain": "offline",
+      "ar": "7. تغيير بيانات أساسية",
+      "en": "7. تغيير بيانات أساسية",
+      "ur": "7. تغيير بيانات أساسية",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_78ff43",
+      "domain": "offline",
+      "ar": "تثبيت على أجهزة آيفون / آيباد",
+      "en": "تثبيت على أجهزة آيفون / آيباد",
+      "ur": "تثبيت على أجهزة آيفون / آيباد",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_7eb4ca",
+      "domain": "offline",
+      "ar": "TRUCK_CARRIER_CONFLICT تبعية",
+      "en": "TRUCK_CARRIER_CONFLICT تبعية",
+      "ur": "TRUCK_CARRIER_CONFLICT تبعية",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_9a78d6",
+      "domain": "offline",
+      "ar": "معايير التشغيل بدون اتصال (Offline Rules):",
+      "en": "معايير التشغيل بدون اتصال (Offline Rules):",
+      "ur": "معايير التشغيل بدون اتصال (Offline Rules):",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_9b46da",
+      "domain": "offline",
+      "ar": "لا توجد عمليات في هذا التصنيف",
+      "en": "لا توجد عمليات في هذا التصنيف",
+      "ur": "لا توجد عمليات في هذا التصنيف",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_a9b605",
+      "domain": "offline",
+      "ar": "المبرر التدقيقي:",
+      "en": "المبرر التدقيقي:",
+      "ur": "المبرر التدقيقي:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.carrier_10",
+      "domain": "projects",
+      "ar": "carrier",
+      "en": "carrier",
+      "ur": "carrier",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.carrier_8",
+      "domain": "projects",
+      "ar": "Carrier",
+      "en": "Carrier",
+      "ur": "Carrier",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.enterprise",
+      "domain": "projects",
+      "ar": "Enterprise",
+      "en": "Enterprise",
+      "ur": "Enterprise",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_109310",
+      "domain": "shared",
+      "ar": "طابع زمني وهوية منشئ السجل",
+      "en": "طابع زمني وهوية منشئ السجل",
+      "ur": "طابع زمني وهوية منشئ السجل",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_109c7a",
+      "domain": "projects",
+      "ar": "وحدة القياس الأساسية:",
+      "en": "وحدة القياس الأساسية:",
+      "ur": "وحدة القياس الأساسية:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_1118c2",
+      "domain": "projects",
+      "ar": "الخطوة 6: تهيئة مساحة العمل السحابية (Google Drive & Sheets Provisioning)",
+      "en": "الخطوة 6: تهيئة مساحة العمل السحابية (Google Drive & Sheets Provisioning)",
+      "ur": "الخطوة 6: تهيئة مساحة العمل السحابية (Google Drive & Sheets Provisioning)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_139e03",
+      "domain": "shared",
+      "ar": "تحقق عملي يثبت أن الواجهة لا تكتب في Firestore إلا بعد المرور عبر Service ➔ Validator ➔ Repository.",
+      "en": "تحقق عملي يثبت أن الواجهة لا تكتب في Firestore إلا بعد المرور عبر Service ➔ Validator ➔ Repository.",
+      "ur": "تحقق عملي يثبت أن الواجهة لا تكتب في Firestore إلا بعد المرور عبر Service ➔ Validator ➔ Repository.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_13cd13",
+      "domain": "projects",
+      "ar": "📊 أوراق عمل Google Sheets (Tabs):",
+      "en": "📊 أوراق عمل Google Sheets (Tabs):",
+      "ur": "📊 أوراق عمل Google Sheets (Tabs):",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_158f99",
+      "domain": "shared",
+      "ar": "PROJECT_ADMIN (مدير مشروع)",
+      "en": "PROJECT_ADMIN (مدير مشروع)",
+      "ur": "PROJECT_ADMIN (مدير مشروع)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_16e97e",
+      "domain": "shared",
+      "ar": "DRIVER (سائق ميداني)",
+      "en": "DRIVER (سائق ميداني)",
+      "ur": "DRIVER (سائق ميداني)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_1b9b40",
+      "domain": "shared",
+      "ar": "حظر الكتابة المباشرة من المتصفح",
+      "en": "حظر الكتابة المباشرة من المتصفح",
+      "ur": "حظر الكتابة المباشرة من المتصفح",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_1e1bdf",
+      "domain": "projects",
+      "ar": "تسجيل الدخول عبر Google",
+      "en": "تسجيل الدخول عبر Google",
+      "ur": "تسجيل الدخول عبر Google",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_1fe296",
+      "domain": "shared",
+      "ar": "الاستثناءات التشغيلية",
+      "en": "الاستثناءات التشغيلية",
+      "ur": "الاستثناءات التشغيلية",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_207857",
+      "domain": "projects",
+      "ar": "نظام ACTIVE / INACTIVE:",
+      "en": "نظام ACTIVE / INACTIVE:",
+      "ur": "نظام ACTIVE / INACTIVE:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_20e3e1",
+      "domain": "shared",
+      "ar": "محاكي التدفق المعماري التفاعلي (Pipeline Verification)",
+      "en": "محاكي التدفق المعماري التفاعلي (Pipeline Verification)",
+      "ur": "محاكي التدفق المعماري التفاعلي (Pipeline Verification)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_24cc60",
+      "domain": "projects",
+      "ar": "هيكل المجلدات والأوراق السحابية التي سيتم إنشاؤها تلقائياً:",
+      "en": "هيكل المجلدات والأوراق السحابية التي سيتم إنشاؤها تلقائياً:",
+      "ur": "هيكل المجلدات والأوراق السحابية التي سيتم إنشاؤها تلقائياً:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_259961",
+      "domain": "shared",
+      "ar": "حالة اتصال وتكامل Firestore & Firebase",
+      "en": "حالة اتصال وتكامل Firestore & Firebase",
+      "ur": "حالة اتصال وتكامل Firestore & Firebase",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_265a70",
+      "domain": "shared",
+      "ar": "DISPATCHER (مأمور حركة)",
+      "en": "DISPATCHER (مأمور حركة)",
+      "ur": "DISPATCHER (مأمور حركة)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_2670a3",
+      "domain": "shared",
+      "ar": "سجل حماية عدم التكرار (Idempotency) للمزامنة الميدانية من IndexedDB.",
+      "en": "سجل حماية عدم التكرار (Idempotency) للمزامنة الميدانية من IndexedDB.",
+      "ur": "سجل حماية عدم التكرار (Idempotency) للمزامنة الميدانية من IndexedDB.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_2bbe99",
+      "domain": "shared",
+      "ar": "بوابة الأعمال الوحيدة المسموح لـ React باستدعائها. يمنع الكتابات المباشرة.",
+      "en": "بوابة الأعمال الوحيدة المسموح لـ React باستدعائها. يمنع الكتابات المباشرة.",
+      "ur": "بوابة الأعمال الوحيدة المسموح لـ React باستدعائها. يمنع الكتابات المباشرة.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_2d6b3b",
+      "domain": "shared",
+      "ar": "كيان العزل التام للمشاريع (Multi-Tenant Root)، يضبط النطاق الجغرافي والضريبي.",
+      "en": "كيان العزل التام للمشاريع (Multi-Tenant Root)، يضبط النطاق الجغرافي والضريبي.",
+      "ur": "كيان العزل التام للمشاريع (Multi-Tenant Root)، يضبط النطاق الجغرافي والضريبي.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_330dcc",
+      "domain": "projects",
+      "ar": "📂 مجلدات Google Drive:",
+      "en": "📂 مجلدات Google Drive:",
+      "ur": "📂 مجلدات Google Drive:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_34897c",
+      "domain": "projects",
+      "ar": "تعطيل السجل (تحويل إلى INACTIVE)",
+      "en": "تعطيل السجل (تحويل إلى INACTIVE)",
+      "ur": "تعطيل السجل (تحويل إلى INACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_36b6da",
+      "domain": "projects",
+      "ar": "ناقل معتمد",
+      "en": "ناقل معتمد",
+      "ur": "ناقل معتمد",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_38f4aa",
+      "domain": "shared",
+      "ar": "بنية مجزأة لكل نطاق بشكل مستقل",
+      "en": "بنية مجزأة لكل نطاق بشكل مستقل",
+      "ur": "بنية مجزأة لكل نطاق بشكل مستقل",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_3fb9ae",
+      "domain": "projects",
+      "ar": "بالرد (TRIP)",
+      "en": "بالرد (TRIP)",
+      "ur": "بالرد (TRIP)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_412551",
+      "domain": "projects",
+      "ar": "توليد التسميات الآلية للمشروع",
+      "en": "توليد التسميات الآلية للمشروع",
+      "ur": "توليد التسميات الآلية للمشروع",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_4648ec",
+      "domain": "shared",
+      "ar": "FINANCE_AUDITOR (مدقق مالي)",
+      "en": "FINANCE_AUDITOR (مدقق مالي)",
+      "ur": "FINANCE_AUDITOR (مدقق مالي)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_4755d8",
+      "domain": "projects",
+      "ar": "الإجراء النظامي المتاح:",
+      "en": "الإجراء النظامي المتاح:",
+      "ur": "الإجراء النظامي المتاح:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_486bf8",
+      "domain": "projects",
+      "ar": "وضع الاستعراض والتجربة (Preview Mode)",
+      "en": "وضع الاستعراض والتجربة (Preview Mode)",
+      "ur": "وضع الاستعراض والتجربة (Preview Mode)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_54bf89",
+      "domain": "shared",
+      "ar": "مسار المجموعة الهيكلي في Firestore:",
+      "en": "مسار المجموعة الهيكلي في Firestore:",
+      "ur": "مسار المجموعة الهيكلي في Firestore:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_558322",
+      "domain": "projects",
+      "ar": "تفعيل التهيئة الآلية لمساحة عمل Google Drive و Sheets",
+      "en": "تفعيل التهيئة الآلية لمساحة عمل Google Drive و Sheets",
+      "ur": "تفعيل التهيئة الآلية لمساحة عمل Google Drive و Sheets",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_5860fa",
+      "domain": "projects",
+      "ar": "المصنف المالي والتشغيلي المتزامن لحظياً مع Firestore.",
+      "en": "المصنف المالي والتشغيلي المتزامن لحظياً مع Firestore.",
+      "ur": "المصنف المالي والتشغيلي المتزامن لحظياً مع Firestore.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_592f64",
+      "domain": "projects",
+      "ar": "راسب (FAILED)",
+      "en": "راسب (FAILED)",
+      "ur": "راسب (FAILED)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_5c9a61",
+      "domain": "projects",
+      "ar": "فحوصات ناجحة (100%)",
+      "en": "فحوصات ناجحة (100%)",
+      "ur": "فحوصات ناجحة (100%)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_618712",
+      "domain": "projects",
+      "ar": "الهوية / الإقامة",
+      "en": "الهوية / الإقامة",
+      "ur": "الهوية / الإقامة",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_633e2d",
+      "domain": "shared",
+      "ar": "الوثيقة المحتسبة والمختومة بالطوابع الإلزامية (Ready for Firestore SSOT):",
+      "en": "الوثيقة المحتسبة والمختومة بالطوابع الإلزامية (Ready for Firestore SSOT):",
+      "ur": "الوثيقة المحتسبة والمختومة بالطوابع الإلزامية (Ready for Firestore SSOT):",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_63748e",
+      "domain": "projects",
+      "ar": "يمكنك تحويل حالة السجل إلى",
+      "en": "يمكنك تحويل حالة السجل إلى",
+      "ur": "يمكنك تحويل حالة السجل إلى",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_66cfae",
+      "domain": "projects",
+      "ar": "ناقل غير مصرح",
+      "en": "ناقل غير مصرح",
+      "ur": "ناقل غير مصرح",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_674f3e",
+      "domain": "projects",
+      "ar": "اضغط على زر «إعادة تشغيل الاختبارات» لتشغيل الحزمة فورياً.",
+      "en": "اضغط على زر «إعادة تشغيل الاختبارات» لتشغيل الحزمة فورياً.",
+      "ur": "اضغط على زر «إعادة تشغيل الاختبارات» لتشغيل الحزمة فورياً.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_67f664",
+      "domain": "projects",
+      "ar": "مسجلة في النظام:",
+      "en": "مسجلة في النظام:",
+      "ur": "مسجلة في النظام:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_68176b",
+      "domain": "shared",
+      "ar": "طابع زمني وهوية آخر مُعدّل",
+      "en": "طابع زمني وهوية آخر مُعدّل",
+      "ur": "طابع زمني وهوية آخر مُعدّل",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_68f9e8",
+      "domain": "projects",
+      "ar": "السجل التجاري (10 أرقام):",
+      "en": "السجل التجاري (10 أرقام):",
+      "ur": "السجل التجاري (10 أرقام):",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_6aaf22",
+      "domain": "shared",
+      "ar": "النطاقات الـ 13 (Domain Modules)",
+      "en": "النطاقات الـ 13 (Domain Modules)",
+      "ur": "النطاقات الـ 13 (Domain Modules)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_6b093a",
+      "domain": "projects",
+      "ar": "جميع النواقل",
+      "en": "جميع النواقل",
+      "ur": "جميع النواقل",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_71317d",
+      "domain": "projects",
+      "ar": "جارٍ تنفيذ السيناريوهات الاختبارية في الذاكرة ومستودع Firestore...",
+      "en": "جارٍ تنفيذ السيناريوهات الاختبارية في الذاكرة ومستودع Firestore...",
+      "ur": "جارٍ تنفيذ السيناريوهات الاختبارية في الذاكرة ومستودع Firestore...",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_72168c",
+      "domain": "shared",
+      "ar": "اختبار رفض هوية سائق غير صحيحة (Driver Validator Test)",
+      "en": "اختبار رفض هوية سائق غير صحيحة (Driver Validator Test)",
+      "ur": "اختبار رفض هوية سائق غير صحيحة (Driver Validator Test)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_73dcb9",
+      "domain": "projects",
+      "ar": "هذا السجل مرتبط بـ",
+      "en": "هذا السجل مرتبط بـ",
+      "ur": "هذا السجل مرتبط بـ",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_792227",
+      "domain": "shared",
+      "ar": "التعريفات المالية المعتمدة لاحتساب قيمة النقل وغرامات التأخير وضريبة 15%.",
+      "en": "التعريفات المالية المعتمدة لاحتساب قيمة النقل وغرامات التأخير وضريبة 15%.",
+      "ur": "التعريفات المالية المعتمدة لاحتساب قيمة النقل وغرامات التأخير وضريبة 15%.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_9d8db2",
+      "domain": "shared",
+      "ar": "طبقة المنطق (Service)",
+      "en": "طبقة المنطق (Service)",
+      "ur": "طبقة المنطق (Service)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_ebe0e2",
+      "domain": "projects",
+      "ar": "إخفاقات",
+      "en": "إخفاقات",
+      "ur": "إخفاقات",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_f4c520",
+      "domain": "projects",
+      "ar": "المعطلة فقط (INACTIVE)",
+      "en": "المعطلة فقط (INACTIVE)",
+      "ur": "المعطلة فقط (INACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_f87929",
+      "domain": "projects",
+      "ar": "لم يتم استخدام هذا السجل في أي رحلات سابقة",
+      "en": "لم يتم استخدام هذا السجل في أي رحلات سابقة",
+      "ur": "لم يتم استخدام هذا السجل في أي رحلات سابقة",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_f8afcf",
+      "domain": "projects",
+      "ar": "تنبيهات تهيئة Google Workspace:",
+      "en": "تنبيهات تهيئة Google Workspace:",
+      "ur": "تنبيهات تهيئة Google Workspace:",
+      "fixed": false
+    },
+    {
+      "key": "other.messages.txt_197fc5",
+      "domain": "projects",
+      "ar": "يتطلب تشغيل الفحوصات الآلية على Firestore تسجيل الدخول بحساب Google أولاً.",
+      "en": "يتطلب تشغيل الفحوصات الآلية على Firestore تسجيل الدخول بحساب Google أولاً.",
+      "ur": "يتطلب تشغيل الفحوصات الآلية على Firestore تسجيل الدخول بحساب Google أولاً.",
+      "fixed": false
+    },
+    {
+      "key": "other.messages.txt_731859",
+      "domain": "projects",
+      "ar": "تعذر الاتصال ببيانات Firestore المباشرة، تم تفعيل وضع المعاينة المحلي.",
+      "en": "تعذر الاتصال ببيانات Firestore المباشرة، تم تفعيل وضع المعاينة المحلي.",
+      "ur": "تعذر الاتصال ببيانات Firestore المباشرة، تم تفعيل وضع المعاينة المحلي.",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.materials",
+      "domain": "projects",
+      "ar": "Materials",
+      "en": "Materials",
+      "ur": "Materials",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.projects",
+      "domain": "projects",
+      "ar": "projects",
+      "en": "projects",
+      "ur": "projects",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_126e48",
+      "domain": "projects",
+      "ar": "السماح بالتسجيل الذاتي للسائقين",
+      "en": "السماح بالتسجيل الذاتي للسائقين",
+      "ur": "السماح بالتسجيل الذاتي للسائقين",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_17e9e8",
+      "domain": "projects",
+      "ar": "الجهة المالكة / العميل الرئيسي (Client Name)",
+      "en": "الجهة المالكة / العميل الرئيسي (Client Name)",
+      "ur": "الجهة المالكة / العميل الرئيسي (Client Name)",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_2d2a83",
+      "domain": "projects",
+      "ar": "استعادة نموذج نيوم التجريبي",
+      "en": "استعادة نموذج نيوم التجريبي",
+      "ur": "استعادة نموذج نيوم التجريبي",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_36fea4",
+      "domain": "projects",
+      "ar": "العملة التشغيلية (currency)",
+      "en": "العملة التشغيلية (currency)",
+      "ur": "العملة التشغيلية (currency)",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_38ae35",
+      "domain": "projects",
+      "ar": "إعادة تعيين المعالج",
+      "en": "إعادة تعيين المعالج",
+      "ur": "إعادة تعيين المعالج",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_3ba0be",
+      "domain": "projects",
+      "ar": "شركات النقل",
+      "en": "شركات النقل",
+      "ur": "شركات النقل",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_3d1068",
+      "domain": "projects",
+      "ar": "تكامل Google",
+      "en": "تكامل Google",
+      "ur": "تكامل Google",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_42e94e",
+      "domain": "projects",
+      "ar": "مراقب عام (VIEWER)",
+      "en": "مراقب عام (VIEWER)",
+      "ur": "مراقب عام (VIEWER)",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_4a32a9",
+      "domain": "projects",
+      "ar": "مأمور حركة وميزان (DISPATCHER)",
+      "en": "مأمور حركة وميزان (DISPATCHER)",
+      "ur": "مأمور حركة وميزان (DISPATCHER)",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_50bf83",
+      "domain": "projects",
+      "ar": "تنبيهات الصلاحيات:",
+      "en": "تنبيهات الصلاحيات:",
+      "ur": "تنبيهات الصلاحيات:",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_606611",
+      "domain": "projects",
+      "ar": "مدقق مالي (FINANCE_AUDITOR)",
+      "en": "مدقق مالي (FINANCE_AUDITOR)",
+      "ur": "مدقق مالي (FINANCE_AUDITOR)",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_6757e5",
+      "domain": "projects",
+      "ar": "نسبة ضريبة القيمة المضافة % (VAT)",
+      "en": "نسبة ضريبة القيمة المضافة % (VAT)",
+      "ur": "نسبة ضريبة القيمة المضافة % (VAT)",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_6e8506",
+      "domain": "projects",
+      "ar": "صلاحيات الوصول",
+      "en": "صلاحيات الوصول",
+      "ur": "صلاحيات الوصول",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_78a490",
+      "domain": "projects",
+      "ar": "الدور التشغيلي (Role)",
+      "en": "الدور التشغيلي (Role)",
+      "ur": "الدور التشغيلي (Role)",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_ee3f70",
+      "domain": "projects",
+      "ar": "نصف قطر السياج الجغرافي للموقع (GeoFence بالمتر)",
+      "en": "نصف قطر السياج الجغرافي للموقع (GeoFence بالمتر)",
+      "ur": "نصف قطر السياج الجغرافي للموقع (GeoFence بالمتر)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.pricing",
+      "domain": "trips",
+      "ar": "حل التسعير (Pricing Resolution):",
+      "en": "حل التسعير (Pricing Resolution):",
+      "ur": "حل التسعير (Pricing Resolution):",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.pricing_2",
+      "domain": "trips",
+      "ar": "قاعدة التسعير (${params.pricingRuleId}) غير موجودة بالنظام",
+      "en": "قاعدة التسعير (${params.pricingRuleId}) غير موجودة بالنظام",
+      "ur": "قاعدة التسعير (${params.pricingRuleId}) غير موجودة بالنظام",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.pricing_3",
+      "domain": "trips",
+      "ar": "قاعدة التسعير (${pricingRule.name}) معطلة (INACTIVE)",
+      "en": "قاعدة التسعير (${pricingRule.name}) معطلة (INACTIVE)",
+      "ur": "قاعدة التسعير (${pricingRule.name}) معطلة (INACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trips_3",
+      "domain": "trips",
+      "ar": "trips",
+      "en": "trips",
+      "ur": "trips",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_10cba9",
+      "domain": "trips",
+      "ar": "صالح ومحلول ✓",
+      "en": "صالح ومحلول ✓",
+      "ur": "صالح ومحلول ✓",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_124138",
+      "domain": "trips",
+      "ar": "السبب/الملاحظة:",
+      "en": "السبب/الملاحظة:",
+      "ur": "السبب/الملاحظة:",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_1309b3",
+      "domain": "trips",
+      "ar": "إجراءات",
+      "en": "إجراءات",
+      "ur": "إجراءات",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_135d7e",
+      "domain": "trips",
+      "ar": "مرتجعة للمصدر (RETURNED)",
+      "en": "مرتجعة للمصدر (RETURNED)",
+      "ur": "مرتجعة للمصدر (RETURNED)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_15d5c6",
+      "domain": "trips",
+      "ar": "أساس التسوية (settlementBase):",
+      "en": "أساس التسوية (settlementBase):",
+      "ur": "أساس التسوية (settlementBase):",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_16825e",
+      "domain": "trips",
+      "ar": "سيناريو 6: تسعيرة منتهية الصلاحية",
+      "en": "سيناريو 6: تسعيرة منتهية الصلاحية",
+      "ur": "سيناريو 6: تسعيرة منتهية الصلاحية",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_1a8cbe",
+      "domain": "trips",
+      "ar": "6. قفز غير قانوني (DRAFT ➔ COMPLETED)",
+      "en": "6. قفز غير قانوني (DRAFT ➔ COMPLETED)",
+      "ur": "6. قفز غير قانوني (DRAFT ➔ COMPLETED)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_1af9f4",
+      "domain": "trips",
+      "ar": "سجلات نظامية موثقة",
+      "en": "سجلات نظامية موثقة",
+      "ur": "سجلات نظامية موثقة",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_1b87fb",
+      "domain": "trips",
+      "ar": "RETURN_REQUESTED (طلب إرجاع)",
+      "en": "RETURN_REQUESTED (طلب إرجاع)",
+      "ur": "RETURN_REQUESTED (طلب إرجاع)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_1e7d43",
+      "domain": "trips",
+      "ar": "RETURNED (تم الإرجاع للمصدر)",
+      "en": "RETURNED (تم الإرجاع للمصدر)",
+      "ur": "RETURNED (تم الإرجاع للمصدر)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_22b00b",
+      "domain": "trips",
+      "ar": "[قاعدة 3: مصرح للمشروع]",
+      "en": "[قاعدة 3: مصرح للمشروع]",
+      "ur": "[قاعدة 3: مصرح للمشروع]",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_233016",
+      "domain": "trips",
+      "ar": "PRJ-NEOM-001 (مشروع نيوم - مطابق)",
+      "en": "PRJ-NEOM-001 (مشروع نيوم - مطابق)",
+      "ur": "PRJ-NEOM-001 (مشروع نيوم - مطابق)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_23fa6b",
+      "domain": "trips",
+      "ar": "المسار الذهبي القياسي (Happy Path):",
+      "en": "المسار الذهبي القياسي (Happy Path):",
+      "ur": "المسار الذهبي القياسي (Happy Path):",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_268208",
+      "domain": "trips",
+      "ar": "مصفوفة سيناريوهات الاختبار (7 حالات)",
+      "en": "مصفوفة سيناريوهات الاختبار (7 حالات)",
+      "ur": "مصفوفة سيناريوهات الاختبار (7 حالات)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_2c17d4",
+      "domain": "trips",
+      "ar": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+      "en": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+      "ur": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_2cd3f8",
+      "domain": "trips",
+      "ar": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+      "en": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+      "ur": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_2e7926",
+      "domain": "trips",
+      "ar": "CANCELLED (ملغاة)",
+      "en": "CANCELLED (ملغاة)",
+      "ur": "CANCELLED (ملغاة)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_2ed89d",
+      "domain": "trips",
+      "ar": "2. حوكمة الأوزان (Weights)",
+      "en": "2. حوكمة الأوزان (Weights)",
+      "ur": "2. حوكمة الأوزان (Weights)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_2f47a4",
+      "domain": "trips",
+      "ar": "فارغ + قائم",
+      "en": "فارغ + قائم",
+      "ur": "فارغ + قائم",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_34781c",
+      "domain": "trips",
+      "ar": "حساب خادومي صارم",
+      "en": "حساب خادومي صارم",
+      "ur": "حساب خادومي صارم",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_371dfc",
+      "domain": "trips",
+      "ar": "التحكم في دورة الحياة بالمحرك المركزي",
+      "en": "التحكم في دورة الحياة بالمحرك المركزي",
+      "ur": "التحكم في دورة الحياة بالمحرك المركزي",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_3740a7",
+      "domain": "trips",
+      "ar": "ملغاة (CANCELLED)",
+      "en": "ملغاة (CANCELLED)",
+      "ur": "ملغاة (CANCELLED)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_37b15d",
+      "domain": "trips",
+      "ar": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+      "en": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+      "ur": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_3a0ff7",
+      "domain": "trips",
+      "ar": "مبلغ التسوية المستحق:",
+      "en": "مبلغ التسوية المستحق:",
+      "ur": "مبلغ التسوية المستحق:",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_3cbe5a",
+      "domain": "trips",
+      "ar": "مستلمة ومفرغة بالكامل",
+      "en": "مستلمة ومفرغة بالكامل",
+      "ur": "مستلمة ومفرغة بالكامل",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_3da066",
+      "domain": "trips",
+      "ar": "سيناريو 3: ناقل غير مصرح",
+      "en": "سيناريو 3: ناقل غير مصرح",
+      "ur": "سيناريو 3: ناقل غير مصرح",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_40f0a8",
+      "domain": "trips",
+      "ar": "تم احتساب varianceWeight",
+      "en": "تم احتساب varianceWeight",
+      "ur": "تم احتساب varianceWeight",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_411e2d",
+      "domain": "trips",
+      "ar": "[قاعدة 4: مصرح للمشروع]",
+      "en": "[قاعدة 4: مصرح للمشروع]",
+      "ur": "[قاعدة 4: مصرح للمشروع]",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_41dcd5",
+      "domain": "trips",
+      "ar": "محاكاة إرسال netWeight غير موثوق من العميل لاختبار الحماية الرقابية: \"لا تقبل netWeight من client\"",
+      "en": "محاكاة إرسال netWeight غير موثوق من العميل لاختبار الحماية الرقابية: \"لا تقبل netWeight من client\"",
+      "ur": "محاكاة إرسال netWeight غير موثوق من العميل لاختبار الحماية الرقابية: \"لا تقبل netWeight من client\"",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_429ecc",
+      "domain": "trips",
+      "ar": "قيد النقل (In-Transit)",
+      "en": "قيد النقل (In-Transit)",
+      "ur": "قيد النقل (In-Transit)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_45a060",
+      "domain": "trips",
+      "ar": "طلب إرجاع (RETURN_REQUESTED)",
+      "en": "طلب إرجاع (RETURN_REQUESTED)",
+      "ur": "طلب إرجاع (RETURN_REQUESTED)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_499473",
+      "domain": "trips",
+      "ar": "في الطريق (IN_TRANSIT)",
+      "en": "في الطريق (IN_TRANSIT)",
+      "ur": "في الطريق (IN_TRANSIT)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_4c39d7",
+      "domain": "trips",
+      "ar": "توثيق التغييرات والمقارنة التفاضلية (Diff) وتتبع تزايد الإصدارات (Optimistic Versioning):",
+      "en": "توثيق التغييرات والمقارنة التفاضلية (Diff) وتتبع تزايد الإصدارات (Optimistic Versioning):",
+      "ur": "توثيق التغييرات والمقارنة التفاضلية (Diff) وتتبع تزايد الإصدارات (Optimistic Versioning):",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_4cc4c6",
+      "domain": "trips",
+      "ar": "PRJ-REDSEA-002 (مشروع البحر الأحمر - لاختبار التعارض ✗)",
+      "en": "PRJ-REDSEA-002 (مشروع البحر الأحمر - لاختبار التعارض ✗)",
+      "ur": "PRJ-REDSEA-002 (مشروع البحر الأحمر - لاختبار التعارض ✗)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_4e4194",
+      "domain": "trips",
+      "ar": "EXCEPTION (استثناء / عطل)",
+      "en": "EXCEPTION (استثناء / عطل)",
+      "ur": "EXCEPTION (استثناء / عطل)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_4fb822",
+      "domain": "trips",
+      "ar": "استثناء مسجل (EXCEPTION)",
+      "en": "استثناء مسجل (EXCEPTION)",
+      "ur": "استثناء مسجل (EXCEPTION)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_54360d",
+      "domain": "trips",
+      "ar": "رتبة المشغل الحالي:",
+      "en": "رتبة المشغل الحالي:",
+      "ur": "رتبة المشغل الحالي:",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_566fcf",
+      "domain": "trips",
+      "ar": "صافي الوصول (destNetWeight)",
+      "en": "صافي الوصول (destNetWeight)",
+      "ur": "صافي الوصول (destNetWeight)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_5980b8",
+      "domain": "trips",
+      "ar": "إصدار:",
+      "en": "إصدار:",
+      "ur": "إصدار:",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_5bcf4e",
+      "domain": "trips",
+      "ar": "مصفوفة سيناريوهات الاختبار العملي للقواعد المعمارية",
+      "en": "مصفوفة سيناريوهات الاختبار العملي للقواعد المعمارية",
+      "ur": "مصفوفة سيناريوهات الاختبار العملي للقواعد المعمارية",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_5eb20e",
+      "domain": "trips",
+      "ar": "مطابق للقواعد الـ 6",
+      "en": "مطابق للقواعد الـ 6",
+      "ur": "مطابق للقواعد الـ 6",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_61ff0a",
+      "domain": "trips",
+      "ar": "بوابة الاستلام",
+      "en": "بوابة الاستلام",
+      "ur": "بوابة الاستلام",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_625185",
+      "domain": "trips",
+      "ar": "الفروقات الموثقة (Field-level Diff):",
+      "en": "الفروقات الموثقة (Field-level Diff):",
+      "ur": "الفروقات الموثقة (Field-level Diff):",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_66dfa3",
+      "domain": "trips",
+      "ar": "طلب إرجاع (RETURN_REQ)",
+      "en": "طلب إرجاع (RETURN_REQ)",
+      "ur": "طلب إرجاع (RETURN_REQ)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_68729b",
+      "domain": "trips",
+      "ar": "مخطط الحالات العشر (Diagram)",
+      "en": "مخطط الحالات العشر (Diagram)",
+      "ur": "مخطط الحالات العشر (Diagram)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_6ae7c3",
+      "domain": "trips",
+      "ar": "احتساب خادومي Server-Side",
+      "en": "احتساب خادومي Server-Side",
+      "ur": "احتساب خادومي Server-Side",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_6ff1cd",
+      "domain": "trips",
+      "ar": "سيناريو 4: مادة غير مسموحة",
+      "en": "سيناريو 4: مادة غير مسموحة",
+      "ur": "سيناريو 4: مادة غير مسموحة",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_701a0c",
+      "domain": "trips",
+      "ar": "يحظر تخطي المراحل التشغيلية الإلزامية",
+      "en": "يحظر تخطي المراحل التشغيلية الإلزامية",
+      "ur": "يحظر تخطي المراحل التشغيلية الإلزامية",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_72e74a",
+      "domain": "trips",
+      "ar": "جميع الحالات (10 حالات)",
+      "en": "جميع الحالات (10 حالات)",
+      "ur": "جميع الحالات (10 حالات)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_74ca11",
+      "domain": "trips",
+      "ar": "ملاحظات الاستلام",
+      "en": "ملاحظات الاستلام",
+      "ur": "ملاحظات الاستلام",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_761b23",
+      "domain": "trips",
+      "ar": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+      "en": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+      "ur": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_77937d",
+      "domain": "trips",
+      "ar": "نيوم - القطاع 4 اللوجستي",
+      "en": "نيوم - القطاع 4 اللوجستي",
+      "ur": "نيوم - القطاع 4 اللوجستي",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_7a972e",
+      "domain": "trips",
+      "ar": "المخطط الهيكلي للحالات العشر (10-State Lifecycle Topology)",
+      "en": "المخطط الهيكلي للحالات العشر (10-State Lifecycle Topology)",
+      "ur": "المخطط الهيكلي للحالات العشر (10-State Lifecycle Topology)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_7b64c0",
+      "domain": "trips",
+      "ar": "null (لم تُستلم)",
+      "en": "null (لم تُستلم)",
+      "ur": "null (لم تُستلم)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_7ccbe0",
+      "domain": "trips",
+      "ar": "AUDITOR (المدقق المالي ومفتش الجودة)",
+      "en": "AUDITOR (المدقق المالي ومفتش الجودة)",
+      "ur": "AUDITOR (المدقق المالي ومفتش الجودة)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_7d5bc8",
+      "domain": "trips",
+      "ar": "إجمالي التسوية المحسوبة",
+      "en": "إجمالي التسوية المحسوبة",
+      "ur": "إجمالي التسوية المحسوبة",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_7d6134",
+      "domain": "trips",
+      "ar": "التسوية (SAR)",
+      "en": "التسوية (SAR)",
+      "ur": "التسوية (SAR)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_7f5953",
+      "domain": "trips",
+      "ar": "null (في انتظار الاستلام)",
+      "en": "null (في انتظار الاستلام)",
+      "ur": "null (في انتظار الاستلام)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_99c9e5",
+      "domain": "trips",
+      "ar": "قاعدة 6 ✗",
+      "en": "قاعدة 6 ✗",
+      "ur": "قاعدة 6 ✗",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_99cda6",
+      "domain": "trips",
+      "ar": "قاعدة 5 ✗",
+      "en": "قاعدة 5 ✗",
+      "ur": "قاعدة 5 ✗",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_99d167",
+      "domain": "trips",
+      "ar": "قاعدة 4 ✗",
+      "en": "قاعدة 4 ✗",
+      "ur": "قاعدة 4 ✗",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_99d528",
+      "domain": "trips",
+      "ar": "قاعدة 3 ✗",
+      "en": "قاعدة 3 ✗",
+      "ur": "قاعدة 3 ✗",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_e1f245",
+      "domain": "trips",
+      "ar": "ناجح ✓",
+      "en": "ناجح ✓",
+      "ur": "ناجح ✓",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_f45a43",
+      "domain": "trips",
+      "ar": "وقت التفريغ الفعلي (unloadTime)",
+      "en": "وقت التفريغ الفعلي (unloadTime)",
+      "ur": "وقت التفريغ الفعلي (unloadTime)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_11fefd",
+      "domain": "unloading",
+      "ar": "➔ ثم:",
+      "en": "➔ ثم:",
+      "ur": "➔ ثم:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_12f468",
+      "domain": "unloading",
+      "ar": "وقت الوصول الفعلي (arrivalTime)",
+      "en": "وقت الوصول الفعلي (arrivalTime)",
+      "ur": "وقت الوصول الفعلي (arrivalTime)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_13d6c6",
+      "domain": "unloading",
+      "ar": "سيناريوهات تجربة فورية:",
+      "en": "سيناريوهات تجربة فورية:",
+      "ur": "سيناريوهات تجربة فورية:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_17be32",
+      "domain": "unloading",
+      "ar": "تمت المطابقة عبر:",
+      "en": "تمت المطابقة عبر:",
+      "ur": "تمت المطابقة عبر:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_1efd8d",
+      "domain": "unloading",
+      "ar": "تفاوت طبيعي مبرر للشحنة",
+      "en": "تفاوت طبيعي مبرر للشحنة",
+      "ur": "تفاوت طبيعي مبرر للشحنة",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_280c6b",
+      "domain": "unloading",
+      "ar": "عند بدء التفريغ (Start Unloading)",
+      "en": "عند بدء التفريغ (Start Unloading)",
+      "ur": "عند بدء التفريغ (Start Unloading)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_2af283",
+      "domain": "unloading",
+      "ar": "\"ولا تعتبر الفرق مجرد لون في الواجهة\"",
+      "en": "\"ولا تعتبر الفرق مجرد لون في الواجهة\"",
+      "ur": "\"ولا تعتبر الفرق مجرد لون في الواجهة\"",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_2e57eb",
+      "domain": "unloading",
+      "ar": "يحسب الخادم varianceWeight ويحدّث: unloaderId, arrivalTime, unloadTime, destNetWeight, varianceWeight.",
+      "en": "يحسب الخادم varianceWeight ويحدّث: unloaderId, arrivalTime, unloadTime, destNetWeight, varianceWeight.",
+      "ur": "يحسب الخادم varianceWeight ويحدّث: unloaderId, arrivalTime, unloadTime, destNetWeight, varianceWeight.",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_2f5c04",
+      "domain": "unloading",
+      "ar": "حالة دورة الحياة",
+      "en": "حالة دورة الحياة",
+      "ur": "حالة دورة الحياة",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_304aff",
+      "domain": "unloading",
+      "ar": "عند الوصول (Arrival)",
+      "en": "عند الوصول (Arrival)",
+      "ur": "عند الوصول (Arrival)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_30adf1",
+      "domain": "unloading",
+      "ar": "خارج التسامح (Exception)",
+      "en": "خارج التسامح (Exception)",
+      "ur": "خارج التسامح (Exception)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_424fcb",
+      "domain": "unloading",
+      "ar": ". (يُمنع استخدام truckPlate وحده).",
+      "en": ". (يُمنع استخدام truckPlate وحده).",
+      "ur": ". (يُمنع استخدام truckPlate وحده).",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_48bcec",
+      "domain": "unloading",
+      "ar": "جميع الاختبارات الخادومية مطابقة للمواصفات القياسية.",
+      "en": "جميع الاختبارات الخادومية مطابقة للمواصفات القياسية.",
+      "ur": "جميع الاختبارات الخادومية مطابقة للمواصفات القياسية.",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_4db372",
+      "domain": "unloading",
+      "ar": "ضمن التسامح المسموح",
+      "en": "ضمن التسامح المسموح",
+      "ur": "ضمن التسامح المسموح",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_4f7379",
+      "domain": "unloading",
+      "ar": "المسؤول المُبلّغ:",
+      "en": "المسؤول المُبلّغ:",
+      "ur": "المسؤول المُبلّغ:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_540518",
+      "domain": "unloading",
+      "ar": "أمثلة أوزان سريعة للاختبار:",
+      "en": "أمثلة أوزان سريعة للاختبار:",
+      "ur": "أمثلة أوزان سريعة للاختبار:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_57f705",
+      "domain": "unloading",
+      "ar": "تنفيذاً للاشتراط:",
+      "en": "تنفيذاً للاشتراط:",
+      "ur": "تنفيذاً للاشتراط:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_58bc1a",
+      "domain": "unloading",
+      "ar": "حساب الفارق الخادومي الصارم",
+      "en": "حساب الفارق الخادومي الصارم",
+      "ur": "حساب الفارق الخادومي الصارم",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_5adc67",
+      "domain": "unloading",
+      "ar": "حد التسامح المعتمد:",
+      "en": "حد التسامح المعتمد:",
+      "ur": "حد التسامح المعتمد:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_5bfe91",
+      "domain": "unloading",
+      "ar": "قواعد النتائج:",
+      "en": "قواعد النتائج:",
+      "ur": "قواعد النتائج:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_5f0c9f",
+      "domain": "unloading",
+      "ar": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+      "en": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+      "ur": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_714754",
+      "domain": "unloading",
+      "ar": "2️⃣ التذكرة ticketId (1 ➔ CONTINUE)",
+      "en": "2️⃣ التذكرة ticketId (1 ➔ CONTINUE)",
+      "ur": "2️⃣ التذكرة ticketId (1 ➔ CONTINUE)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_753b7a",
+      "domain": "unloading",
+      "ar": "بدء التفريغ (ARRIVED ➔ UNLOADING)",
+      "en": "بدء التفريغ (ARRIVED ➔ UNLOADING)",
+      "ur": "بدء التفريغ (ARRIVED ➔ UNLOADING)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_7dbd48",
+      "domain": "unloading",
+      "ar": "سجل الاستثناءات الرسمية المنشأة (Created Official Exception Entity)",
+      "en": "سجل الاستثناءات الرسمية المنشأة (Created Official Exception Entity)",
+      "ur": "سجل الاستثناءات الرسمية المنشأة (Created Official Exception Entity)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_ab913c",
+      "domain": "unloading",
+      "ar": "1️⃣ الأساسي tripSerial (1 ➔ CONTINUE)",
+      "en": "1️⃣ الأساسي tripSerial (1 ➔ CONTINUE)",
+      "ur": "1️⃣ الأساسي tripSerial (1 ➔ CONTINUE)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_e24ccf",
+      "domain": "unloading",
+      "ar": "5️⃣ غير موجود (0 ➔ NOT_FOUND)",
+      "en": "5️⃣ غير موجود (0 ➔ NOT_FOUND)",
+      "ur": "5️⃣ غير موجود (0 ➔ NOT_FOUND)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_e43d44",
+      "domain": "unloading",
+      "ar": "ناجحة 100%",
+      "en": "ناجحة 100%",
+      "ur": "ناجحة 100%",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_119698",
+      "domain": "weighbridge",
+      "ar": "مفقود (Missing)",
+      "en": "مفقود (Missing)",
+      "ur": "مفقود (Missing)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_14234f",
+      "domain": "weighbridge",
+      "ar": "نوع التفاوت (Tolerance Mode)",
+      "en": "نوع التفاوت (Tolerance Mode)",
+      "ur": "نوع التفاوت (Tolerance Mode)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_150ad3",
+      "domain": "weighbridge",
+      "ar": "إعادة ضبط Idempotency",
+      "en": "إعادة ضبط Idempotency",
+      "ur": "إعادة ضبط Idempotency",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_1644f0",
+      "domain": "weighbridge",
+      "ar": "تفاوت مطلق (absoluteTolerance)",
+      "en": "تفاوت مطلق (absoluteTolerance)",
+      "ur": "تفاوت مطلق (absoluteTolerance)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_17aab5",
+      "domain": "weighbridge",
+      "ar": "لا تستخدم 0 كبديل عن missing data ➔ النتيجة null",
+      "en": "لا تستخدم 0 كبديل عن missing data ➔ النتيجة null",
+      "ur": "لا تستخدم 0 كبديل عن missing data ➔ النتيجة null",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_17ffad",
+      "domain": "weighbridge",
+      "ar": "أمثلة سريعة:",
+      "en": "أمثلة سريعة:",
+      "ur": "أمثلة سريعة:",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_2161ff",
+      "domain": "weighbridge",
+      "ar": "both (مطلق ونسبة معاً)",
+      "en": "both (مطلق ونسبة معاً)",
+      "ur": "both (مطلق ونسبة معاً)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_241697",
+      "domain": "weighbridge",
+      "ar": "tare مفقود (➔ null)",
+      "en": "tare مفقود (➔ null)",
+      "ur": "tare مفقود (➔ null)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_2456f5",
+      "domain": "weighbridge",
+      "ar": "حالة القاعدة (status)",
+      "en": "حالة القاعدة (status)",
+      "ur": "حالة القاعدة (status)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_24fc12",
+      "domain": "weighbridge",
+      "ar": "معرف العملية (Operation ID):",
+      "en": "معرف العملية (Operation ID):",
+      "ur": "معرف العملية (Operation ID):",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_265f32",
+      "domain": "weighbridge",
+      "ar": "استلام مفقود (➔ null)",
+      "en": "استلام مفقود (➔ null)",
+      "ur": "استلام مفقود (➔ null)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_2eacb2",
+      "domain": "weighbridge",
+      "ar": "صفوف صالحة (Valid)",
+      "en": "صفوف صالحة (Valid)",
+      "ur": "صفوف صالحة (Valid)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_30b047",
+      "domain": "weighbridge",
+      "ar": "إجراء رقابي (Decision)",
+      "en": "إجراء رقابي (Decision)",
+      "ur": "إجراء رقابي (Decision)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_32f0a0",
+      "domain": "weighbridge",
+      "ar": "حظر الصفر البديل (null قطعي)",
+      "en": "حظر الصفر البديل (null قطعي)",
+      "ur": "حظر الصفر البديل (null قطعي)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_3524f5",
+      "domain": "weighbridge",
+      "ar": "غياب بيانات التفريغ (Non-blocking):",
+      "en": "غياب بيانات التفريغ (Non-blocking):",
+      "ur": "غياب بيانات التفريغ (Non-blocking):",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_405131",
+      "domain": "weighbridge",
+      "ar": "تفاوت نسبة (%)",
+      "en": "تفاوت نسبة (%)",
+      "ur": "تفاوت نسبة (%)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_446bca",
+      "domain": "weighbridge",
+      "ar": "حساب الفارق واشتراط net &gt; 0 و received &gt; 0",
+      "en": "حساب الفارق واشتراط net &gt; 0 و received &gt; 0",
+      "ur": "حساب الفارق واشتراط net &gt; 0 و received &gt; 0",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_47e373",
+      "domain": "weighbridge",
+      "ar": "معادلة الاحتساب المالية:",
+      "en": "معادلة الاحتساب المالية:",
+      "ur": "معادلة الاحتساب المالية:",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_4851db",
+      "domain": "weighbridge",
+      "ar": "net مفقود (➔ null قطعي دون استبداله بـ 0)",
+      "en": "net مفقود (➔ null قطعي دون استبداله بـ 0)",
+      "ur": "net مفقود (➔ null قطعي دون استبداله بـ 0)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_487f8f",
+      "domain": "weighbridge",
+      "ar": "tare = 0 (مرفوض)",
+      "en": "tare = 0 (مرفوض)",
+      "ur": "tare = 0 (مرفوض)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_4dce1b",
+      "domain": "weighbridge",
+      "ar": "نوع التفاوت المسموح",
+      "en": "نوع التفاوت المسموح",
+      "ur": "نوع التفاوت المسموح",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_518cd3",
+      "domain": "weighbridge",
+      "ar": "محرك حسابي خادومي",
+      "en": "محرك حسابي خادومي",
+      "ur": "محرك حسابي خادومي",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_53ce46",
+      "domain": "weighbridge",
+      "ar": "قواعد التفاوت (Tolerance Rules)",
+      "en": "قواعد التفاوت (Tolerance Rules)",
+      "ur": "قواعد التفاوت (Tolerance Rules)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_574ba6",
+      "domain": "weighbridge",
+      "ar": "نموذج تذاكر ميزان صالحة (4 صفوف)",
+      "en": "نموذج تذاكر ميزان صالحة (4 صفوف)",
+      "ur": "نموذج تذاكر ميزان صالحة (4 صفوف)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_57ac4b",
+      "domain": "weighbridge",
+      "ar": "اختبار المخرجات الثلاثة مباشرة:",
+      "en": "اختبار المخرجات الثلاثة مباشرة:",
+      "ur": "اختبار المخرجات الثلاثة مباشرة:",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_58cd17",
+      "domain": "weighbridge",
+      "ar": "حالة التدقيق",
+      "en": "حالة التدقيق",
+      "ur": "حالة التدقيق",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_5ace0a",
+      "domain": "weighbridge",
+      "ar": "جاري معالجة المسار الموحد (10 مراحل)...",
+      "en": "جاري معالجة المسار الموحد (10 مراحل)...",
+      "ur": "جاري معالجة المسار الموحد (10 مراحل)...",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_5b4968",
+      "domain": "weighbridge",
+      "ar": "مفقود",
+      "en": "مفقود",
+      "ur": "مفقود",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_5c97fe",
+      "domain": "weighbridge",
+      "ar": "percentage (نسبة فقط)",
+      "en": "percentage (نسبة فقط)",
+      "ur": "percentage (نسبة فقط)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_5e145b",
+      "domain": "weighbridge",
+      "ar": "تم القبول الرقابي",
+      "en": "تم القبول الرقابي",
+      "ur": "تم القبول الرقابي",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_614e8f",
+      "domain": "weighbridge",
+      "ar": "تتطلب إقراراً ولا تمنع",
+      "en": "تتطلب إقراراً ولا تمنع",
+      "ur": "تتطلب إقراراً ولا تمنع",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_63b3fb",
+      "domain": "weighbridge",
+      "ar": "نموذج يتضمن مخالفات وأخطاء ميزان",
+      "en": "نموذج يتضمن مخالفات وأخطاء ميزان",
+      "ur": "نموذج يتضمن مخالفات وأخطاء ميزان",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_641620",
+      "domain": "weighbridge",
+      "ar": "المخرج (Output):",
+      "en": "المخرج (Output):",
+      "ur": "المخرج (Output):",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_65ecd8",
+      "domain": "weighbridge",
+      "ar": "صافي معتمد",
+      "en": "صافي معتمد",
+      "ur": "صافي معتمد",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_69b595",
+      "domain": "weighbridge",
+      "ar": "المبلغ النهائي المستحق:",
+      "en": "المبلغ النهائي المستحق:",
+      "ur": "المبلغ النهائي المستحق:",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_69dab8",
+      "domain": "weighbridge",
+      "ar": "صحيح (44,700 - 14,200)",
+      "en": "صحيح (44,700 - 14,200)",
+      "ur": "صحيح (44,700 - 14,200)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_6e04d1",
+      "domain": "weighbridge",
+      "ar": "محسوب (gross-tare)",
+      "en": "محسوب (gross-tare)",
+      "ur": "محسوب (gross-tare)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_6ff41d",
+      "domain": "weighbridge",
+      "ar": "gross &lt; tare (مرفوض)",
+      "en": "gross &lt; tare (مرفوض)",
+      "ur": "gross &lt; tare (مرفوض)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_722bae",
+      "domain": "weighbridge",
+      "ar": "absolute (مطلق فقط)",
+      "en": "absolute (مطلق فقط)",
+      "ur": "absolute (مطلق فقط)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_780026",
+      "domain": "weighbridge",
+      "ar": "النتيجة المُرجعة (netWeight):",
+      "en": "النتيجة المُرجعة (netWeight):",
+      "ur": "النتيجة المُرجعة (netWeight):",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_7a0944",
+      "domain": "weighbridge",
+      "ar": "net = 0 (مرفوض ➔ null)",
+      "en": "net = 0 (مرفوض ➔ null)",
+      "ur": "net = 0 (مرفوض ➔ null)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_7fffbf",
+      "domain": "weighbridge",
+      "ar": "دوال المحرك الـ 4 (Functions Sandbox)",
+      "en": "دوال المحرك الـ 4 (Functions Sandbox)",
+      "ur": "دوال المحرك الـ 4 (Functions Sandbox)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_aced6f",
+      "domain": "weighbridge",
+      "ar": "loadedNet = 0 (مرفوض)",
+      "en": "loadedNet = 0 (مرفوض)",
+      "ur": "loadedNet = 0 (مرفوض)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_cd2e11",
+      "domain": "weighbridge",
+      "ar": "دعم أنواع التفاوت: absolute \\",
+      "en": "دعم أنواع التفاوت: absolute \\",
+      "ur": "دعم أنواع التفاوت: absolute \\",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_d894c3",
+      "domain": "weighbridge",
+      "ar": "تفاوت نسبة (percentageTolerance)",
+      "en": "تفاوت نسبة (percentageTolerance)",
+      "ur": "تفاوت نسبة (percentageTolerance)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.weighbridge",
+      "domain": "weighbridge",
+      "ar": "موقع أو كبينة الميزان",
+      "en": "موقع أو كبينة الميزان",
+      "ur": "موقع أو كبينة الميزان",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.weighbridge_2",
+      "domain": "weighbridge",
+      "ar": "ملاحظات إضافية على تذكرة الميزان",
+      "en": "ملاحظات إضافية على تذكرة الميزان",
+      "ur": "ملاحظات إضافية على تذكرة الميزان",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.weighbridge_3",
+      "domain": "weighbridge",
+      "ar": "محتوى ملف الميزان (CSV Text / Raw Input):",
+      "en": "محتوى ملف الميزان (CSV Text / Raw Input):",
+      "ur": "محتوى ملف الميزان (CSV Text / Raw Input):",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.weighbridge_7",
+      "domain": "weighbridge",
+      "ar": "جدول مراجعة تذاكر الميزان والأوزان (Weighbridge Review Table)",
+      "en": "جدول مراجعة تذاكر الميزان والأوزان (Weighbridge Review Table)",
+      "ur": "جدول مراجعة تذاكر الميزان والأوزان (Weighbridge Review Table)",
+      "fixed": false
+    }
+  ],
+  "eligibleB": [
+    {
+      "key": "authentication.labels.txt_49cb21",
+      "domain": "shared",
+      "ar": "جاري تهيئة التحقق...",
+      "en": "جاري تهيئة Verification...",
+      "ur": "جاري تهيئة تصدیق...",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.location",
+      "domain": "dashboard",
+      "ar": "الموقع:",
+      "en": "Location:",
+      "ur": "مقام:",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.project",
+      "domain": "dashboard",
+      "ar": "المشروع",
+      "en": "Project",
+      "ur": "پروجیکٹ",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.trip",
+      "domain": "dashboard",
+      "ar": "رحلة",
+      "en": "Trip",
+      "ur": "ٹرپ",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.trips",
+      "domain": "dashboard",
+      "ar": "الرحلات",
+      "en": "Trips",
+      "ur": "ٹرپس",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_3563c6",
+      "domain": "dashboard",
+      "ar": "إعادة المزامنة مع الفلاتر العامة",
+      "en": "إعادة Synchronization مع الفلاتر العامة",
+      "ur": "إعادة مطابقت پذیری مع الفلاتر العامة",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_38efc7",
+      "domain": "dashboard",
+      "ar": "إعادة تعيين الكل",
+      "en": "إعادة تعيين All",
+      "ur": "إعادة تعيين تمام",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_3b0cf8",
+      "domain": "dashboard",
+      "ar": "المستحقات (ر.س)",
+      "en": "المستحقات (SAR)",
+      "ur": "المستحقات (سعودی ریال)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_5049eb",
+      "domain": "dashboard",
+      "ar": "0.00 ر.س",
+      "en": "0.00 SAR",
+      "ur": "0.00 سعودی ریال",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_6f8552",
+      "domain": "dashboard",
+      "ar": "الكل (PER_TRIP + PER_TON)",
+      "en": "All (PER_TRIP + PER_TON)",
+      "ur": "تمام (PER_TRIP + PER_TON)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_7d6fcd",
+      "domain": "dashboard",
+      "ar": "لوحة العمليات والتحكم اللوجستي (Operations Dashboard)",
+      "en": "لوحة Operations والتحكم اللوجستي (Operations Dashboard)",
+      "ur": "لوحة آپریشنز والتحكم اللوجستي (Operations Dashboard)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_7ef999",
+      "domain": "dashboard",
+      "ar": "الأطنان",
+      "en": "الtons",
+      "ur": "الٹن",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.txt_b1749a",
+      "domain": "dashboard",
+      "ar": "تسويات الأطنان (Ton-based Settlement)",
+      "en": "تسويات الtons (Ton-based Settlement)",
+      "ur": "تسويات الٹن (Ton-based Settlement)",
+      "fixed": false
+    },
+    {
+      "key": "dashboard.labels.userProjects",
+      "domain": "dashboard",
+      "ar": "صلاحية المستخدم والمشاريع:",
+      "en": "صلاحية User وProjects:",
+      "ur": "صلاحية صارف وپروجیکٹس:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.driver",
+      "domain": "loading",
+      "ar": "السائق:",
+      "en": "Driver:",
+      "ur": "ڈرائیور:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.material_2",
+      "domain": "loading",
+      "ar": "المادة:",
+      "en": "Material:",
+      "ur": "مٹیریل:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.materialsProject",
+      "domain": "loading",
+      "ar": "المواد المعتمدة للتوريد في موقع المشروع",
+      "en": "Materials المعتمدة للتوريد في موقع Project",
+      "ur": "مٹیریلز المعتمدة للتوريد في موقع پروجیکٹ",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.materialsProject_2",
+      "domain": "loading",
+      "ar": "المواد المصرحة بالمشروع",
+      "en": "Materials المصرحة بProject",
+      "ur": "مٹیریلز المصرحة بپروجیکٹ",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.pricingConfirm",
+      "domain": "loading",
+      "ar": "إظهار طريقة التسعير للمستخدم قبل التأكيد:",
+      "en": "إظهار طريقة التسعير للمستخدم قبل الConfirm:",
+      "ur": "إظهار طريقة التسعير للمستخدم قبل التصدیق کریں:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.project",
+      "domain": "loading",
+      "ar": "معرّف المشروع:",
+      "en": "معرّف Project:",
+      "ur": "معرّف پروجیکٹ:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.projectDownloadPricing",
+      "domain": "loading",
+      "ar": "تحديد المشروع التابع له أمر التحميل لتطبيق لوائح العزل والتسعير",
+      "en": "تحديد Project التابع له أمر التحميل لApply لوائح العزل والتسعير",
+      "ur": "تحديد پروجیکٹ التابع له أمر التحميل للاگو کریں لوائح العزل والتسعير",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.project_3",
+      "domain": "loading",
+      "ar": "يقتصر الاختيار على شركات النقل المصرح لها بالعمل في المشروع",
+      "en": "يقتصر الاختيار على شركات النقل المصرح لها بالعمل في Project",
+      "ur": "يقتصر الاختيار على شركات النقل المصرح لها بالعمل في پروجیکٹ",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.truck",
+      "domain": "loading",
+      "ar": "الشاحنة:",
+      "en": "Truck:",
+      "ur": "ٹرک:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.trucks",
+      "domain": "loading",
+      "ar": "الشاحنات المتاحة للناقل المختار",
+      "en": "Trucks المتاحة للناقل المختار",
+      "ur": "ٹرکس المتاحة للناقل المختار",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_177f70",
+      "domain": "loading",
+      "ar": "قراءة ميزان الدخول بالمصدر (Scale In) بالكيلوجرام",
+      "en": "قراءة ميزان الدخول بSource (Scale In) بالكيلوجرام",
+      "ur": "قراءة ميزان الدخول بماخذ (Scale In) بالكيلوجرام",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_17a514",
+      "domain": "loading",
+      "ar": "بالطن: 37.4 × 8.5 = 317.90 ر.س",
+      "en": "بالton: 37.4 × 8.5 = 317.90 SAR",
+      "ur": "بالٹن: 37.4 × 8.5 = 317.90 سعودی ریال",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_1a9224",
+      "domain": "loading",
+      "ar": ": تسجيل حدث SCALE_WEIGHT_CONFIRMED وسجل التدقيق",
+      "en": ": تسجيل حدث SCALE_WEIGHT_CONFIRMED وAudit Log",
+      "ur": ": تسجيل حدث SCALE_WEIGHT_CONFIRMED وآڈٹ لاگ",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_1f364f",
+      "domain": "loading",
+      "ar": "49,800 كجم (صافي 35.6 طن)",
+      "en": "49,800 kg (صافي 35.6 ton)",
+      "ur": "49,800 کلوگرام (صافي 35.6 ٹن)",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_258b75",
+      "domain": "loading",
+      "ar": "مصفوفة التحقق التفصيلية من بنود البرومبت:",
+      "en": "مصفوفة Verification التفصيلية من بنود البرومبت:",
+      "ur": "مصفوفة تصدیق التفصيلية من بنود البرومبت:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_285ec5",
+      "domain": "loading",
+      "ar": "عناصر شاشة المعاينة (Preview يعرض):",
+      "en": "عناصر شاشة المعاينة (Preview يView):",
+      "ur": "عناصر شاشة المعاينة (Preview يدیکھیں):",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_2dbe14",
+      "domain": "loading",
+      "ar": "15,000 كجم (رأس وتيدر)",
+      "en": "15,000 kg (رأس وتيدر)",
+      "ur": "15,000 کلوگرام (رأس وتيدر)",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_2f5b25",
+      "domain": "loading",
+      "ar": "تم تنفيذ الشريط التتابعي بالكامل (Workflow Stepper) مع التحقق من صلاحيات الكيانات وعزل المشاريع.",
+      "en": "تم تنفيذ الشريط التتابعي بالكامل (Workflow Stepper) مع Verify صلاحيات الكيانات وعزل Projects.",
+      "ur": "تم تنفيذ الشريط التتابعي بالكامل (Workflow Stepper) مع تصدیق کریں صلاحيات الكيانات وعزل پروجیکٹس.",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_3400c3",
+      "domain": "loading",
+      "ar": "تقرير التحقق والمطابقة الصارمة لمتطلبات البرومبت",
+      "en": "تقرير Verification والمطابقة Strict لمتطلبات البرومبت",
+      "ur": "تقرير تصدیق والمطابقة سخت لمتطلبات البرومبت",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_3668a3",
+      "domain": "loading",
+      "ar": "42,000 كجم (صافي 28 طن)",
+      "en": "42,000 kg (صافي 28 ton)",
+      "ur": "42,000 کلوگرام (صافي 28 ٹن)",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_4116bc",
+      "domain": "loading",
+      "ar": "14,200 كجم (قلاب ثقيل)",
+      "en": "14,200 kg (قلاب ثقيل)",
+      "ur": "14,200 کلوگرام (قلاب ثقيل)",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_419290",
+      "domain": "loading",
+      "ar": "8,200 كجم (تريلا خفيفة)",
+      "en": "8,200 kg (تريلا خفيفة)",
+      "ur": "8,200 کلوگرام (تريلا خفيفة)",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_458dbb",
+      "domain": "loading",
+      "ar": "التنبيهات الرقابية والفحص المسبق (Warnings):",
+      "en": "التنبيهات الرقابية والCheck المسبق (Warnings):",
+      "ur": "التنبيهات الرقابية والجانچ المسبق (Warnings):",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_4c9019",
+      "domain": "loading",
+      "ar": "البيانات الأساسية:",
+      "en": "Data الأساسية:",
+      "ur": "ڈیٹا الأساسية:",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_4d6846",
+      "domain": "loading",
+      "ar": "45,600 كجم (صافي 37.4 طن)",
+      "en": "45,600 kg (صافي 37.4 ton)",
+      "ur": "45,600 کلوگرام (صافي 37.4 ٹن)",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_732b41",
+      "domain": "loading",
+      "ar": "نتائج الفحص البرمجي الآلي المباشر (Automated Suite):",
+      "en": "نتائج الCheck البرمجي الآلي المباشر (Automated Suite):",
+      "ur": "نتائج الجانچ البرمجي الآلي المباشر (Automated Suite):",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_7339fe",
+      "domain": "loading",
+      "ar": "فحص ومطابقة جميع متطلبات البرومبت برمجياً",
+      "en": "Check ومطابقة جميع متطلبات البرومبت برمجياً",
+      "ur": "جانچ ومطابقة جميع متطلبات البرومبت برمجياً",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_754551",
+      "domain": "loading",
+      "ar": "فحص دوري سارٍ",
+      "en": "Check دوري سارٍ",
+      "ur": "جانچ دوري سارٍ",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_78af8a",
+      "domain": "loading",
+      "ar": "بالمقطوعية: 120 ر.س",
+      "en": "بالمقطوعية: 120 SAR",
+      "ur": "بالمقطوعية: 120 سعودی ریال",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.txt_a2ced3",
+      "domain": "loading",
+      "ar": "صافي: 45,600 كجم (Gross) - 8,200 كجم (Tare) = 37,400 كجم = 37.4 طن",
+      "en": "صافي: 45,600 kg (Gross) - 8,200 kg (Tare) = 37,400 kg = 37.4 ton",
+      "ur": "صافي: 45,600 کلوگرام (Gross) - 8,200 کلوگرام (Tare) = 37,400 کلوگرام = 37.4 ٹن",
+      "fixed": false
+    },
+    {
+      "key": "loading.labels.viewDetailsTrip",
+      "domain": "loading",
+      "ar": "عرض تفاصيل الرحلة",
+      "en": "View Details الTrip",
+      "ur": "دیکھیں تفصیلات الٹرپ",
+      "fixed": false
+    },
+    {
+      "key": "loading.status.active",
+      "domain": "loading",
+      "ar": "نشط ومعتمد",
+      "en": "Active ومعتمد",
+      "ur": "فعال ومعتمد",
+      "fixed": false
+    },
+    {
+      "key": "loading.status.completed",
+      "domain": "loading",
+      "ar": "مكتمل 8 خطوات",
+      "en": "Completed 8 خطوات",
+      "ur": "مکمل 8 خطوات",
+      "fixed": false
+    },
+    {
+      "key": "loading.status.completed_2",
+      "domain": "loading",
+      "ar": "مكتمل 5 عناصر",
+      "en": "Completed 5 عناصر",
+      "ur": "مکمل 5 عناصر",
+      "fixed": false
+    },
+    {
+      "key": "loading.status.createConfirmTripDownload",
+      "domain": "loading",
+      "ar": "تم إنشاء وتأكيد أمر الرحلة بمحطة التحميل بنجاح!",
+      "en": "تم Create وConfirm أمر الTrip بLoading Station بSuccess!",
+      "ur": "تم تخلیق کریں وتصدیق کریں أمر الٹرپ بلوڈنگ اسٹیشن بکامیاب!",
+      "fixed": false
+    },
+    {
+      "key": "loading.status.pricingSuccess",
+      "domain": "loading",
+      "ar": "تم اجتياز جميع الفحوصات الرقابية، الأوزان، وقواعد التسعير بنجاح تام!",
+      "en": "تم اجتياز جميع الفحوصات الرقابية، الأوزان، وقواعد التسعير بSuccess تام!",
+      "ur": "تم اجتياز جميع الفحوصات الرقابية، الأوزان، وقواعد التسعير بکامیاب تام!",
+      "fixed": false
+    },
+    {
+      "key": "loading.status.success",
+      "domain": "loading",
+      "ar": "تم تنفيذ واختبار جميع متطلبات البرومبت بنجاح (100%)",
+      "en": "تم تنفيذ واختبار جميع متطلبات البرومبت بSuccess (100%)",
+      "ur": "تم تنفيذ واختبار جميع متطلبات البرومبت بکامیاب (100%)",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.add_2",
+      "domain": "projects",
+      "ar": "لم تتم إضافة أي مواد للمشروع بعد.",
+      "en": "لم تتم Add أي مواد للمشروع بعد.",
+      "ur": "لم تتم شامل کریں أي مواد للمشروع بعد.",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.deleteMaterial",
+      "domain": "projects",
+      "ar": "حذف المادة",
+      "en": "Delete Material",
+      "ur": "حذف کریں مٹیریل",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.editMaterial",
+      "domain": "projects",
+      "ar": "تعديل بيانات المادة",
+      "en": "Edit بيانات Material",
+      "ur": "ترمیم کریں بيانات مٹیریل",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.material_2",
+      "domain": "projects",
+      "ar": "رمز المادة (Code)",
+      "en": "رمز Material (Code)",
+      "ur": "رمز مٹیریل (Code)",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.materials",
+      "domain": "projects",
+      "ar": "قائمة المواد المعتمدة (",
+      "en": "قائمة Materials المعتمدة (",
+      "ur": "قائمة مٹیریلز المعتمدة (",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.materials_3",
+      "domain": "projects",
+      "ar": "تنبيهات إدارة المواد:",
+      "en": "تنبيهات Material Management:",
+      "ur": "تنبيهات مٹیریل مینجمنٹ:",
+      "fixed": false
+    },
+    {
+      "key": "materials.labels.status_2",
+      "domain": "projects",
+      "ar": "الحالة (Status)",
+      "en": "Status (Status)",
+      "ur": "حالت (Status)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.import",
+      "domain": "shared",
+      "ar": "مركز الاستيراد (Import Center)",
+      "en": "مركز الImport (Import Center)",
+      "ur": "مركز الامپورٹ کریں (Import Center)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.projectUpload",
+      "domain": "projects",
+      "ar": "يرجى تهيئة مجلدات المشروع في Google Drive أولاً قبل رفع الملفات.",
+      "en": "يرجى تهيئة مجلدات Project في Google Drive أولاً قبل Upload الملفات.",
+      "ur": "يرجى تهيئة مجلدات پروجیکٹ في Google Drive أولاً قبل اپ لوڈ کریں الملفات.",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.project_2",
+      "domain": "projects",
+      "ar": "تهيئة هيكل المشروع في Drive & Sheets",
+      "en": "تهيئة هيكل Project في Drive & Sheets",
+      "ur": "تهيئة هيكل پروجیکٹ في Drive & Sheets",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.project_3",
+      "domain": "projects",
+      "ar": "المشروع المحدد",
+      "en": "Project المحدد",
+      "ur": "پروجیکٹ المحدد",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.project_7",
+      "domain": "projects",
+      "ar": "سجل المشروع (Google Sheets)",
+      "en": "سجل Project (Google Sheets)",
+      "ur": "سجل پروجیکٹ (Google Sheets)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.projects_2",
+      "domain": "projects",
+      "ar": "معالج تهيئة المشاريع (Project Wizard)",
+      "en": "معالج تهيئة Projects (Project Wizard)",
+      "ur": "معالج تهيئة پروجیکٹس (Project Wizard)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.refresh",
+      "domain": "shared",
+      "ar": "يتم سحب السجلات من مستودعات البيانات الرئيسية في Firestore وتحديث جدول",
+      "en": "يتم سحب السجلات من مستودعات Data الرئيسية في Firestore وRefresh جدول",
+      "ur": "يتم سحب السجلات من مستودعات ڈیٹا الرئيسية في Firestore وتازہ کریں جدول",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.refresh_4",
+      "domain": "shared",
+      "ar": "التحديث يتم عبر فحص عمود tripId بدقة ومطابقة الصف المحدد حصراً.",
+      "en": "الRefresh يتم عبر Check عمود tripId بدقة ومطابقة الصف المحدد حصراً.",
+      "ur": "التازہ کریں يتم عبر جانچ عمود tripId بدقة ومطابقة الصف المحدد حصراً.",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.trips",
+      "domain": "trips",
+      "ar": "محرك الرحلات (Trip Engine)",
+      "en": "محرك Trips (Trip Engine)",
+      "ur": "محرك ٹرپس (Trip Engine)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_132f08",
+      "domain": "shared",
+      "ar": "غير مسجل بعد (اضغط تهيئة المشروع)",
+      "en": "غير مسجل بعد (اضغط تهيئة Project)",
+      "ur": "غير مسجل بعد (اضغط تهيئة پروجیکٹ)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_17c5e1",
+      "domain": "shared",
+      "ar": "هذه المبادئ الـ 12 هي السقف الهندسي الحاكم لكامل المنظومة. لا يُسمح بأي استثناء أو خرق لأي مبدأ في أي مرحلة تطويرية أو كود تنفيذي.",
+      "en": "هذه المبادئ الـ 12 هي السقف الهندسي الحاكم لكامل المنظومة. لا يُسمح بأي استثناء أو خرق لأي مبدأ في أي مTrip تطويرية أو كود تنفيذي.",
+      "ur": "هذه المبادئ الـ 12 هي السقف الهندسي الحاكم لكامل المنظومة. لا يُسمح بأي استثناء أو خرق لأي مبدأ في أي مٹرپ تطويرية أو كود تنفيذي.",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_1a928c",
+      "domain": "shared",
+      "ar": "imported files (ملفات الاستيراد)",
+      "en": "imported files (ملفات الImport)",
+      "ur": "imported files (ملفات الامپورٹ کریں)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_269608",
+      "domain": "shared",
+      "ar": "تطبيق مبدأ",
+      "en": "Apply مبدأ",
+      "ur": "لاگو کریں مبدأ",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_3711ef",
+      "domain": "shared",
+      "ar": "12 مرحلة",
+      "en": "12 مTrip",
+      "ur": "12 مٹرپ",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_3f72a1",
+      "domain": "shared",
+      "ar": "printable documents (الوثائق القابلة للطباعة)",
+      "en": "printable documents (الوثائق القابلة للPrint)",
+      "ur": "printable documents (الوثائق القابلة للپرنٹ کریں)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_4eac23",
+      "domain": "shared",
+      "ar": "الصافي (كجم)",
+      "en": "الصافي (kg)",
+      "ur": "الصافي (کلوگرام)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_61c13d",
+      "domain": "shared",
+      "ar": "لوحة العمليات (Dashboard)",
+      "en": "لوحة Operations (Dashboard)",
+      "ur": "لوحة آپریشنز (Dashboard)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_6b7707",
+      "domain": "shared",
+      "ar": "إسقاط متزامن للعرض والمراجعة",
+      "en": "إسقاط متزامن للView والمراجعة",
+      "ur": "إسقاط متزامن للدیکھیں والمراجعة",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_706091",
+      "domain": "shared",
+      "ar": "Firestore المصدر الوحيد للحقيقة (Source of Truth)",
+      "en": "Firestore Source الوحيد للحقيقة (Source of Truth)",
+      "ur": "Firestore ماخذ الوحيد للحقيقة (Source of Truth)",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.txt_acdcf5",
+      "domain": "shared",
+      "ar": "الوثائق القابلة للطباعة",
+      "en": "الوثائق القابلة للPrint",
+      "ur": "الوثائق القابلة للپرنٹ کریں",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.upload",
+      "domain": "shared",
+      "ar": "رفع وثيقة تشغيلية إلى مجلد Drive للمشروع",
+      "en": "Upload وثيقة تشغيلية إلى مجلد Drive للمشروع",
+      "ur": "اپ لوڈ کریں وثيقة تشغيلية إلى مجلد Drive للمشروع",
+      "fixed": false
+    },
+    {
+      "key": "navigation.labels.view",
+      "domain": "shared",
+      "ar": "عرض كود المعمارية",
+      "en": "View كود المعمارية",
+      "ur": "دیکھیں كود المعمارية",
+      "fixed": false
+    },
+    {
+      "key": "navigation.language",
+      "domain": "shared",
+      "ar": "اللغة",
+      "en": "Language",
+      "ur": "زبان",
+      "fixed": false
+    },
+    {
+      "key": "navigation.status.txt_7568b1",
+      "domain": "shared",
+      "ar": "تم تسجيل الدخول وتفعيل تصاريح Google Workspace بنجاح!",
+      "en": "تم تسجيل الدخول وتفعيل تصاريح Google Workspace بSuccess!",
+      "ur": "تم تسجيل الدخول وتفعيل تصاريح Google Workspace بکامیاب!",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.createTrip",
+      "domain": "offline",
+      "ar": "ساري وقت إنشاء الرحلة بدون اتصال",
+      "en": "ساري وقت Create الTrip بدون اتصال",
+      "ur": "ساري وقت تخلیق کریں الٹرپ بدون اتصال",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.createTrip_2",
+      "domain": "offline",
+      "ar": "عند العمل في وضع عدم الاتصال (Offline) وإنشاء رحلة من محطة التحميل، ستظهر العمليات هنا تلقائياً لتتم مزامنتها.",
+      "en": "عند العمل في وضع عدم الاتصال (Offline) وCreate Trip من Loading Station، ستظهر Operations هنا تلقائياً لتتم مزامنتها.",
+      "ur": "عند العمل في وضع عدم الاتصال (Offline) وتخلیق کریں ٹرپ من لوڈنگ اسٹیشن، ستظهر آپریشنز هنا تلقائياً لتتم مزامنتها.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.deleteSave",
+      "domain": "offline",
+      "ar": "حذف العملية من طابور الصادر وحفظ ملف التدقيق للمراجعة اللوجستية.",
+      "en": "Delete العملية من طابور الصادر وSave ملف التدقيق للمراجعة اللوجستية.",
+      "ur": "حذف کریں العملية من طابور الصادر ومحفوظ کریں ملف التدقيق للمراجعة اللوجستية.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.details",
+      "domain": "offline",
+      "ar": "تفاصيل التعارض (Conflict Detected):",
+      "en": "Details التعارض (Conflict Detected):",
+      "ur": "تفصیلات التعارض (Conflict Detected):",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.edit",
+      "domain": "offline",
+      "ar": "تم تعليق أو تعديل الكيان خادومياً أثناء عمل الـ Offline",
+      "en": "تم تعليق أو Edit الكيان خادومياً أثناء عمل الـ Offline",
+      "ur": "تم تعليق أو ترمیم کریں الكيان خادومياً أثناء عمل الـ Offline",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.editMaterial",
+      "domain": "offline",
+      "ar": "MASTER_DATA_CHANGED إيقاف أو تعديل المادة",
+      "en": "MASTER_DATA_CHANGED إيقاف أو Edit Material",
+      "ur": "MASTER_DATA_CHANGED إيقاف أو ترمیم کریں مٹیریل",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.edit_2",
+      "domain": "offline",
+      "ar": "VERSION_CONFLICT توازي التعديل",
+      "en": "VERSION_CONFLICT توازي الEdit",
+      "ur": "VERSION_CONFLICT توازي الترمیم کریں",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.filter",
+      "domain": "offline",
+      "ar": "التصفية:",
+      "en": "الFilter:",
+      "ur": "الفلٹر کریں:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.save",
+      "domain": "offline",
+      "ar": "حفظ الأمرين:",
+      "en": "Save الأمرين:",
+      "ur": "محفوظ کریں الأمرين:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.save_2",
+      "domain": "offline",
+      "ar": "يتم تجميد الأمر المحلي وحفظ حالة الخادم وإصدار سجل تعارض موثق في IndexedDB.",
+      "en": "يتم تجميد الأمر المحلي وSave حالة الخادم وإصدار سجل تعارض موثق في IndexedDB.",
+      "ur": "يتم تجميد الأمر المحلي ومحفوظ کریں حالة الخادم وإصدار سجل تعارض موثق في IndexedDB.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.save_3",
+      "domain": "offline",
+      "ar": "برنامج فحص برمجي للتحقق من كافة القواعد والمحددات الإلزامية: الأنواع الـ 7، Anti-LWW، حفظ الأمرين، إشعار المستخدم، ثبات تسعير الـ Offline، والحل الصريح.",
+      "en": "برنامج Check برمجي للتحقق من كافة القواعد والمحددات الإلزامية: الأنواع الـ 7، Anti-LWW، Save الأمرين، إشعار User، ثبات تسعير الـ Offline، والحل الصريح.",
+      "ur": "برنامج جانچ برمجي للتحقق من كافة القواعد والمحددات الإلزامية: الأنواع الـ 7، Anti-LWW، محفوظ کریں الأمرين، إشعار صارف، ثبات تسعير الـ Offline، والحل الصريح.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.status",
+      "domain": "offline",
+      "ar": "مقارنة الحالة المحفوظة (Preserved Local Command vs Server State)",
+      "en": "مقارنة Status المحفوظة (Preserved Local Command vs Server State)",
+      "ur": "مقارنة حالت المحفوظة (Preserved Local Command vs Server State)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.trip",
+      "domain": "offline",
+      "ar": "تعارض: الرحلة مصنفة كمرتجعة (RETURNED) على الخادم",
+      "en": "تعارض: الTrip مصنفة كمرتجعة (RETURNED) على الخادم",
+      "ur": "تعارض: الٹرپ مصنفة كمرتجعة (RETURNED) على الخادم",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.trip_2",
+      "domain": "offline",
+      "ar": "التذكرة محجوزة لرحلة سابقة",
+      "en": "التذكرة محجوزة لTrip سابقة",
+      "ur": "التذكرة محجوزة لٹرپ سابقة",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.truck",
+      "domain": "offline",
+      "ar": "تعارض تبعية الشاحنة للناقل (Truck-Carrier Conflict)",
+      "en": "تعارض تبعية Truck للناقل (Truck-Carrier Conflict)",
+      "ur": "تعارض تبعية ٹرک للناقل (Truck-Carrier Conflict)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_10b6c4",
+      "domain": "offline",
+      "ar": "جميع العمليات متوافقة مع الخادم. يمكنك الضغط على أي زر في المحاكي أعلاه لاختبار منظومة معالجة التعارضات وحماية لقطات التسعير.",
+      "en": "جميع Operations متوافقة مع الخادم. يمكنك الضغط على أي زر في المحاكي أعلاه لاختبار منظومة معالجة التعارضات وحماية لقطات التسعير.",
+      "ur": "جميع آپریشنز متوافقة مع الخادم. يمكنك الضغط على أي زر في المحاكي أعلاه لاختبار منظومة معالجة التعارضات وحماية لقطات التسعير.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_10f795",
+      "domain": "offline",
+      "ar": "السجل على الخادم تم تعديله بالتوازي بإصدار أحدث.",
+      "en": "السجل على الخادم تم Editه بالتوازي بإصدار أحدث.",
+      "ur": "السجل على الخادم تم ترمیم کریںه بالتوازي بإصدار أحدث.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_140117",
+      "domain": "offline",
+      "ar": "حالة IndexedDB المحلية، طابور الصادر Outbox، وخطوات المزامنة الخادومية",
+      "en": "حالة IndexedDB المحلية، طابور الصادر Outbox، وخطوات Synchronization الخادومية",
+      "ur": "حالة IndexedDB المحلية، طابور الصادر Outbox، وخطوات مطابقت پذیری الخادومية",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_1f39b6",
+      "domain": "offline",
+      "ar": "إدارة المزامنة",
+      "en": "إدارة Synchronization",
+      "ur": "إدارة مطابقت پذیری",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_2a088a",
+      "domain": "offline",
+      "ar": "سيعمل التطبيق كبرنامج مستقل بالكامل بدون إنترنت عبر تقنية Offline PWA.",
+      "en": "سيعمل الApply كبرنامج مستقل بالكامل بدون إنترنت عبر تقنية Offline PWA.",
+      "ur": "سيعمل اللاگو کریں كبرنامج مستقل بالكامل بدون إنترنت عبر تقنية Offline PWA.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_305c29",
+      "domain": "offline",
+      "ar": "تسوية ومطابقة التبعية مع البيانات الأساسية للخادم",
+      "en": "تسوية ومطابقة التبعية مع Data الأساسية للخادم",
+      "ur": "تسوية ومطابقة التبعية مع ڈیٹا الأساسية للخادم",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_35c87e",
+      "domain": "offline",
+      "ar": "تثبيت التطبيق على أجهزة iOS",
+      "en": "تثبيت الApply على أجهزة iOS",
+      "ur": "تثبيت اللاگو کریں على أجهزة iOS",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_3ba53d",
+      "domain": "offline",
+      "ar": "اعتماد الحل الصريح والترحيل",
+      "en": "Approve Explicit Resolution والترحيل",
+      "ur": "واضح حل کی منظوری والترحيل",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_3d9611",
+      "domain": "offline",
+      "ar": "اعتماد حالة الخادم (Accept Server State)",
+      "en": "Approval حالة الخادم (Accept Server State)",
+      "ur": "منظوری حالة الخادم (Accept Server State)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_4043c4",
+      "domain": "offline",
+      "ar": "تنظيف العمليات المزامنة",
+      "en": "تنظيف Operations Synchronization",
+      "ur": "تنظيف آپریشنز مطابقت پذیری",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_41cc14",
+      "domain": "offline",
+      "ar": "جاهز للاستخدام Offline",
+      "en": "Ready للاستخدام Offline",
+      "ur": "تیار للاستخدام Offline",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_4e1b80",
+      "domain": "offline",
+      "ar": "سيتم تسجيل القرار في سجل التدقيق ومزامنة حالة Outbox تلقائياً",
+      "en": "سيتم تسجيل القرار في Audit Log ومزامنة حالة Outbox تلقائياً",
+      "ur": "سيتم تسجيل القرار في آڈٹ لاگ ومزامنة حالة Outbox تلقائياً",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_5037be",
+      "domain": "offline",
+      "ar": "البيانات الخام (JSON)",
+      "en": "Data الخام (JSON)",
+      "ur": "ڈیٹا الخام (JSON)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_539bb6",
+      "domain": "offline",
+      "ar": "يتم التحقق من وجود جميع Master Data (المشروع، الناقل، الشاحنة، السائق، المادة) في IndexedDB.",
+      "en": "يتم Verify وجود جميع Master Data (Project، Carrier، Truck، Driver، Material) في IndexedDB.",
+      "ur": "يتم تصدیق کریں وجود جميع Master Data (پروجیکٹ، کیریئر، ٹرک، ڈرائیور، مٹیریل) في IndexedDB.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_5542eb",
+      "domain": "offline",
+      "ar": "إدارة عدم الاتصال والمزامنة (Offline-First PWA)",
+      "en": "إدارة عدم الاتصال وSynchronization (Offline-First PWA)",
+      "ur": "إدارة عدم الاتصال ومطابقت پذیری (Offline-First PWA)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_5753f6",
+      "domain": "offline",
+      "ar": "لا يتم استبدال البيانات التشغيلية للرحلات تلقائياً، بل يُلزم المشرف بالحل الصريح.",
+      "en": "لا يتم استبدال Data التشغيلية للرحلات تلقائياً، بل يُلزم المشرف بالحل الصريح.",
+      "ur": "لا يتم استبدال ڈیٹا التشغيلية للرحلات تلقائياً، بل يُلزم المشرف بالحل الصريح.",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_6a75f1",
+      "domain": "offline",
+      "ar": "المشاركة (Share)",
+      "en": "الShare (Share)",
+      "ur": "الشیئر کریں (Share)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_6fd255",
+      "domain": "offline",
+      "ar": "تثبيت التطبيق (PWA)",
+      "en": "تثبيت الApply (PWA)",
+      "ur": "تثبيت اللاگو کریں (PWA)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_712649",
+      "domain": "offline",
+      "ar": "فحص التحقق الآلي للتعارضات (Automated Conflict Test Suite)",
+      "en": "Check Verification الآلي للتعارضات (Automated Conflict Test Suite)",
+      "ur": "جانچ تصدیق الآلي للتعارضات (Automated Conflict Test Suite)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_71eceb",
+      "domain": "offline",
+      "ar": "القاعدة المعمارية الصارمة:",
+      "en": "القاعدة المعمارية Strict:",
+      "ur": "القاعدة المعمارية سخت:",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_731fc0",
+      "domain": "offline",
+      "ar": "تمت المزامنة SYNCED",
+      "en": "تمت Synchronization SYNCED",
+      "ur": "تمت مطابقت پذیری SYNCED",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_7c7b96",
+      "domain": "offline",
+      "ar": "تثبيت التطبيق على جهازك للعمل بدون إنترنت PWA",
+      "en": "تثبيت الApply على جهازك للعمل بدون إنترنت PWA",
+      "ur": "تثبيت اللاگو کریں على جهازك للعمل بدون إنترنت PWA",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_7e9398",
+      "domain": "offline",
+      "ar": "مشرف العمليات الميدانية (Scale Supervisor)",
+      "en": "مشرف Operations الميدانية (Scale Supervisor)",
+      "ur": "مشرف آپریشنز الميدانية (Scale Supervisor)",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_7eabcf",
+      "domain": "offline",
+      "ar": "قيد الانتظار PENDING",
+      "en": "Pending PENDING",
+      "ur": "زیر التواء PENDING",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_8b427e",
+      "domain": "offline",
+      "ar": "مسح المؤكدة",
+      "en": "Clear المؤكدة",
+      "ur": "صاف کریں المؤكدة",
+      "fixed": false
+    },
+    {
+      "key": "offline.labels.txt_a748f4",
+      "domain": "offline",
+      "ar": "إعادة فحص (Retry)",
+      "en": "إعادة Check (Retry)",
+      "ur": "إعادة جانچ (Retry)",
+      "fixed": false
+    },
+    {
+      "key": "offline.messages.txt_2165a5",
+      "domain": "offline",
+      "ar": "تمت إعادة تعيين العملية إلى حالة الانتظار (PENDING). ستتم المزامنة عند الاتصال.",
+      "en": "تمت إعادة تعيين العملية إلى حالة الانتظار (PENDING). ستتم Synchronization عند الاتصال.",
+      "ur": "تمت إعادة تعيين العملية إلى حالة الانتظار (PENDING). ستتم مطابقت پذیری عند الاتصال.",
+      "fixed": false
+    },
+    {
+      "key": "offline.messages.txt_36ec7e",
+      "domain": "offline",
+      "ar": "لا يمكن بدء المزامنة: التطبيق في وضع عدم الاتصال (Offline).",
+      "en": "لا يمكن بدء Synchronization: الApply في وضع عدم الاتصال (Offline).",
+      "ur": "لا يمكن بدء مطابقت پذیری: اللاگو کریں في وضع عدم الاتصال (Offline).",
+      "fixed": false
+    },
+    {
+      "key": "offline.status.cancelSuccess",
+      "domain": "offline",
+      "ar": "إلغاء التذكرة المكررة محلياً حيث تم ترحيلها بنجاح مسبقاً.",
+      "en": "Cancel التذكرة المكررة محلياً حيث تم ترحيلها بSuccess مسبقاً.",
+      "ur": "منسوخ کریں التذكرة المكررة محلياً حيث تم ترحيلها بکامیاب مسبقاً.",
+      "fixed": false
+    },
+    {
+      "key": "offline.status.failed_2",
+      "domain": "offline",
+      "ar": "فشل الفحص: اجتاز ${testSuiteResult.passedTests} وفشل ${testSuiteResult.failedTests}",
+      "en": "Failed الCheck: اجتاز ${testSuiteResult.passedTests} وFailed ${testSuiteResult.failedTests}",
+      "ur": "ناکام الجانچ: اجتاز ${testSuiteResult.passedTests} وناکام ${testSuiteResult.failedTests}",
+      "fixed": false
+    },
+    {
+      "key": "offline.status.pending_2",
+      "domain": "offline",
+      "ar": "تنبيه تسعير معلق (Pending Pricing Resolution):",
+      "en": "تنبيه تسعير Pending (Pending Pricing Resolution):",
+      "ur": "تنبيه تسعير زیر التواء (Pending Pricing Resolution):",
+      "fixed": false
+    },
+    {
+      "key": "offline.status.success",
+      "domain": "offline",
+      "ar": "اجتازت جميع اختبارات التعارضات (${res.passedTests}/${res.totalTests}) بنجاح تام وفق المحددات الإلزامية.",
+      "en": "اجتازت جميع اختبارات التعارضات (${res.passedTests}/${res.totalTests}) بSuccess تام وفق المحددات الإلزامية.",
+      "ur": "اجتازت جميع اختبارات التعارضات (${res.passedTests}/${res.totalTests}) بکامیاب تام وفق المحددات الإلزامية.",
+      "fixed": false
+    },
+    {
+      "key": "offline.status.txt_177559",
+      "domain": "offline",
+      "ar": "فشلت FAILED",
+      "en": "Failedت FAILED",
+      "ur": "ناکامت FAILED",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.carrierProject_2",
+      "domain": "projects",
+      "ar": "تبديل تصريح الناقل لهذا المشروع",
+      "en": "تبديل تصريح Carrier لهذا Project",
+      "ur": "تبديل تصريح کیریئر لهذا پروجیکٹ",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.carrier_3",
+      "domain": "projects",
+      "ar": "تعطيل الناقل (تحويل إلى INACTIVE)",
+      "en": "تعطيل Carrier (تحويل إلى INACTIVE)",
+      "ur": "تعطيل کیریئر (تحويل إلى INACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.carrier_4",
+      "domain": "projects",
+      "ar": "تفعيل الناقل (تحويل إلى ACTIVE)",
+      "en": "تفعيل Carrier (تحويل إلى ACTIVE)",
+      "ur": "تفعيل کیریئر (تحويل إلى ACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.carrier_7",
+      "domain": "projects",
+      "ar": "الناقل التابع له (Driver → Carrier):",
+      "en": "Carrier التابع له (Driver → Carrier):",
+      "ur": "کیریئر التابع له (Driver → Carrier):",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.carriers_2",
+      "domain": "projects",
+      "ar": "الناقلون",
+      "en": "Carriers",
+      "ur": "کیریئرز",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.carriers_4",
+      "domain": "projects",
+      "ar": "الناقلون المسجلون",
+      "en": "Carriers المسجلون",
+      "ur": "کیریئرز المسجلون",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.close",
+      "domain": "shared",
+      "ar": "سجلات الانحرافات (تجاوز حمولة، فرق ميزان، أعطال) وتجميد الإغلاق الآلي.",
+      "en": "سجلات الانحرافات (تجاوز حمولة، فرق ميزان، أعطال) وتجميد الClose الآلي.",
+      "ur": "سجلات الانحرافات (تجاوز حمولة، فرق ميزان، أعطال) وتجميد البند کریں الآلي.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.createProject",
+      "domain": "projects",
+      "ar": "إنشاء وثيقة المشروع الرئيسية في /projects/{projectId}",
+      "en": "Create وثيقة Project الرئيسية في /projects/{projectId}",
+      "ur": "تخلیق کریں وثيقة پروجیکٹ الرئيسية في /projects/{projectId}",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.delete",
+      "domain": "projects",
+      "ar": "أنت تحاول حذف السجل:",
+      "en": "أنت تحاول Delete السجل:",
+      "ur": "أنت تحاول حذف کریں السجل:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.deleteCarrierTrips",
+      "domain": "trips",
+      "ar": "حذف الناقل (فحص الرحلات والنزاهة)",
+      "en": "Delete Carrier (Check Trips والنزاهة)",
+      "ur": "حذف کریں کیریئر (جانچ ٹرپس والنزاهة)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.deleteDriverTrips",
+      "domain": "trips",
+      "ar": "حذف السائق (فحص الرحلات والنزاهة)",
+      "en": "Delete Driver (Check Trips والنزاهة)",
+      "ur": "حذف کریں ڈرائیور (جانچ ٹرپس والنزاهة)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.deleteMaterialTrips",
+      "domain": "trips",
+      "ar": "حذف المادة (فحص الرحلات والنزاهة)",
+      "en": "Delete Material (Check Trips والنزاهة)",
+      "ur": "حذف کریں مٹیریل (جانچ ٹرپس والنزاهة)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.deleteTruckTrips",
+      "domain": "trips",
+      "ar": "حذف الشاحنة (فحص الرحلات والنزاهة)",
+      "en": "Delete Truck (Check Trips والنزاهة)",
+      "ur": "حذف کریں ٹرک (جانچ ٹرپس والنزاهة)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.delete_2",
+      "domain": "projects",
+      "ar": "حذف کریں",
+      "en": "Delete کریں",
+      "ur": "حذف کریں کریں",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.delete_3",
+      "domain": "projects",
+      "ar": "تم الحذف",
+      "en": "Deleted",
+      "ur": "حذف ہو گیا",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.delete_5",
+      "domain": "projects",
+      "ar": "ممنوع الحذف الفعلي (Hard Delete) في النظام المعماري. استخدم ACTIVE/INACTIVE بدلاً من hard delete.",
+      "en": "ممنوع الDelete الفعلي (Hard Delete) في النظام المعماري. استخدم ACTIVE/INACTIVE بدلاً من hard delete.",
+      "ur": "ممنوع الحذف کریں الفعلي (Hard Delete) في النظام المعماري. استخدم ACTIVE/INACTIVE بدلاً من hard delete.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.delete_6",
+      "domain": "projects",
+      "ar": "ممنوع حذف",
+      "en": "ممنوع Delete",
+      "ur": "ممنوع حذف کریں",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.driver_2",
+      "domain": "projects",
+      "ar": "تعطيل السائق (تحويل إلى INACTIVE)",
+      "en": "تعطيل Driver (تحويل إلى INACTIVE)",
+      "ur": "تعطيل ڈرائیور (تحويل إلى INACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.driver_3",
+      "domain": "projects",
+      "ar": "تفعيل السائق (تحويل إلى ACTIVE)",
+      "en": "تفعيل Driver (تحويل إلى ACTIVE)",
+      "ur": "تفعيل ڈرائیور (تحويل إلى ACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.driver_6",
+      "domain": "projects",
+      "ar": "السائق",
+      "en": "Driver",
+      "ur": "ڈرائیور",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.drivers_2",
+      "domain": "projects",
+      "ar": "السائقون",
+      "en": "Drivers",
+      "ur": "ڈرائیورز",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.drivers_5",
+      "domain": "projects",
+      "ar": "السائقون (Drivers)",
+      "en": "Drivers (Drivers)",
+      "ur": "ڈرائیورز (Drivers)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.import",
+      "domain": "shared",
+      "ar": "دفعات الاستيراد",
+      "en": "دفعات الImport",
+      "ur": "دفعات الامپورٹ کریں",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.materialProject_3",
+      "domain": "projects",
+      "ar": "تبديل تصريح المادة لهذا المشروع",
+      "en": "تبديل تصريح Material لهذا Project",
+      "ur": "تبديل تصريح مٹیریل لهذا پروجیکٹ",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.material_4",
+      "domain": "projects",
+      "ar": "رمز المادة (Code)",
+      "en": "رمز Material (Code)",
+      "ur": "رمز مٹیریل (Code)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.material_6",
+      "domain": "projects",
+      "ar": "تفعيل المادة (تحويل إلى ACTIVE)",
+      "en": "تفعيل Material (تحويل إلى ACTIVE)",
+      "ur": "تفعيل مٹیریل (تحويل إلى ACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.material_9",
+      "domain": "projects",
+      "ar": "المادة الإنشائية أو الخام المنقولة ومواصفاتها الفيزيائية والتوريدية.",
+      "en": "Material الإنشائية أو الخام المنقولة ومواصفاتها الفيزيائية والتوريدية.",
+      "ur": "مٹیریل الإنشائية أو الخام المنقولة ومواصفاتها الفيزيائية والتوريدية.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.materials_4",
+      "domain": "projects",
+      "ar": "المواد الإنشائية أو الركام المنقول مع مواصفات الكثافة والرطوبة.",
+      "en": "Materials الإنشائية أو الركام المنقول مع مواصفات الكثافة والرطوبة.",
+      "ur": "مٹیریلز الإنشائية أو الركام المنقول مع مواصفات الكثافة والرطوبة.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.materials_5",
+      "domain": "projects",
+      "ar": "المواد (Materials)",
+      "en": "Materials (Materials)",
+      "ur": "مٹیریلز (Materials)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.materials_7",
+      "domain": "projects",
+      "ar": "المواد المعتمدة (Step 2)",
+      "en": "Materials المعتمدة (Step 2)",
+      "ur": "مٹیریلز المعتمدة (Step 2)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.project_4",
+      "domain": "projects",
+      "ar": "${code} - أرشيف ومستندات المشروع اللوجستية",
+      "en": "${code} - أرشيف ومستندات Project اللوجستية",
+      "ur": "${code} - أرشيف ومستندات پروجیکٹ اللوجستية",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.project_5",
+      "domain": "projects",
+      "ar": "معرف المشروع في Firestore:",
+      "en": "معرف Project في Firestore:",
+      "ur": "معرف پروجیکٹ في Firestore:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.project_6",
+      "domain": "projects",
+      "ar": "نسخ رمز المشروع",
+      "en": "Copy رمز Project",
+      "ur": "کاپی کریں رمز پروجیکٹ",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.projects_2",
+      "domain": "projects",
+      "ar": "المشاريع",
+      "en": "Projects",
+      "ur": "پروجیکٹس",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.projects_5",
+      "domain": "projects",
+      "ar": "الكيان الجذري التشغيلي والحدود المالية وحاجز عزل المشاريع (Tenant Boundary).",
+      "en": "الكيان الجذري التشغيلي والحدود المالية وحاجز عزل Projects (Tenant Boundary).",
+      "ur": "الكيان الجذري التشغيلي والحدود المالية وحاجز عزل پروجیکٹس (Tenant Boundary).",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.refresh",
+      "domain": "shared",
+      "ar": "تحديث صلاحيات ${assignedUsers.length} مستخدمين في /users",
+      "en": "Refresh صلاحيات ${assignedUsers.length} مستخدمين في /users",
+      "ur": "تازہ کریں صلاحيات ${assignedUsers.length} مستخدمين في /users",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.refresh_2",
+      "domain": "projects",
+      "ar": "العميل يرسل مقترحات أحداث، بينما الخادم هو الكيان الوحيد المخول باعتماد التغيير وتحديث حالة الرحلة.",
+      "en": "العميل يرسل مقترحات أحداث، بينما الخادم هو الكيان الوحيد المخول بApproval التغيير وRefresh حالة الTrip.",
+      "ur": "العميل يرسل مقترحات أحداث، بينما الخادم هو الكيان الوحيد المخول بمنظوری التغيير وتازہ کریں حالة الٹرپ.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.save",
+      "domain": "shared",
+      "ar": "تسجيل وحفظ ${data.materials.length} مواد في المجموعة الفرعية /materials",
+      "en": "تسجيل وSave ${data.materials.length} مواد في المجموعة الفرعية /materials",
+      "ur": "تسجيل ومحفوظ کریں ${data.materials.length} مواد في المجموعة الفرعية /materials",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.saveCarrier",
+      "domain": "projects",
+      "ar": "حفظ وتطبيع الناقل",
+      "en": "Save وتطبيع Carrier",
+      "ur": "محفوظ کریں وتطبيع کیریئر",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.saveDriver",
+      "domain": "projects",
+      "ar": "حفظ وتطبيع السائق",
+      "en": "Save وتطبيع Driver",
+      "ur": "محفوظ کریں وتطبيع ڈرائیور",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.saveMaterial",
+      "domain": "projects",
+      "ar": "حفظ وتطبيع المادة",
+      "en": "Save وتطبيع Material",
+      "ur": "محفوظ کریں وتطبيع مٹیریل",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.saveTruck",
+      "domain": "projects",
+      "ar": "حفظ وتطبيع الشاحنة",
+      "en": "Save وتطبيع Truck",
+      "ur": "محفوظ کریں وتطبيع ٹرک",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.trip",
+      "domain": "trips",
+      "ar": "أحداث الرحلة",
+      "en": "أحداث الTrip",
+      "ur": "أحداث الٹرپ",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.trips_4",
+      "domain": "trips",
+      "ar": "أرقام الرحلات:",
+      "en": "أرقام Trips:",
+      "ur": "أرقام ٹرپس:",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.trips_6",
+      "domain": "trips",
+      "ar": "تُنسب له الرحلات المنفذة بواسطة أسطوله وسائقيه.",
+      "en": "تُنسب له Trips المنفذة بواسطة أسطوله وسائقيه.",
+      "ur": "تُنسب له ٹرپس المنفذة بواسطة أسطوله وسائقيه.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.trips_7",
+      "domain": "trips",
+      "ar": "يقوم بتنفيذ الرحلات الميدانية المسندة له.",
+      "en": "يقوم بتنفيذ Trips الميدانية المسندة له.",
+      "ur": "يقوم بتنفيذ ٹرپس الميدانية المسندة له.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.truck",
+      "domain": "projects",
+      "ar": "تعطيل الشاحنة (تحويل إلى INACTIVE)",
+      "en": "تعطيل Truck (تحويل إلى INACTIVE)",
+      "ur": "تعطيل ٹرک (تحويل إلى INACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.truck_2",
+      "domain": "projects",
+      "ar": "تفعيل الشاحنة (تحويل إلى ACTIVE)",
+      "en": "تفعيل Truck (تحويل إلى ACTIVE)",
+      "ur": "تفعيل ٹرک (تحويل إلى ACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.truck_5",
+      "domain": "projects",
+      "ar": "الشاحنة (Truck)",
+      "en": "Truck (Truck)",
+      "ur": "ٹرک (Truck)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_14af6c",
+      "domain": "projects",
+      "ar": "المجلد الحاوي لكافة تذاكر الميزان، إشعارات التوريد وسجلات الشاحنات.",
+      "en": "المجلد الحاوي لكافة تذاكر الميزان، إشعارات التوريد وسجلات Trucks.",
+      "ur": "المجلد الحاوي لكافة تذاكر الميزان، إشعارات التوريد وسجلات ٹرکس.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_15a8ac",
+      "domain": "shared",
+      "ar": "المستخدمون",
+      "en": "Userون",
+      "ur": "صارفون",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_1a0a87",
+      "domain": "projects",
+      "ar": "عنوان جدول العمليات Google Sheets (spreadsheetTitle)",
+      "en": "عنوان جدول Operations Google Sheets (spreadsheetTitle)",
+      "ur": "عنوان جدول آپریشنز Google Sheets (spreadsheetTitle)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_2168d6",
+      "domain": "shared",
+      "ar": "محرك التحقق (Validator)",
+      "en": "محرك Verification (Validator)",
+      "ur": "محرك تصدیق (Validator)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_2ed1b5",
+      "domain": "projects",
+      "ar": "الكل (ACTIVE + INACTIVE)",
+      "en": "All (ACTIVE + INACTIVE)",
+      "ur": "تمام (ACTIVE + INACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_334bfc",
+      "domain": "shared",
+      "ar": "سجل التدقيق",
+      "en": "Audit Log",
+      "ur": "آڈٹ لاگ",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_35c4cc",
+      "domain": "projects",
+      "ar": "فحص النزاهة والاختبارات الآلية",
+      "en": "Check النزاهة والاختبارات الآلية",
+      "ur": "جانچ النزاهة والاختبارات الآلية",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_394b13",
+      "domain": "projects",
+      "ar": "حالة الاعتماد المعماري",
+      "en": "حالة الApproval المعماري",
+      "ur": "حالة المنظوری المعماري",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_3c30da",
+      "domain": "shared",
+      "ar": "مستودع البيانات (Repository)",
+      "en": "مستودع Data (Repository)",
+      "ur": "مستودع ڈیٹا (Repository)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_43b461",
+      "domain": "shared",
+      "ar": "عمليات المزامنة",
+      "en": "عمليات Synchronization",
+      "ur": "عمليات مطابقت پذیری",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_47f763",
+      "domain": "projects",
+      "ar": "نتائج الفحص الهندسي الصارم لوحدات Master Data (9 فئات اختبار)",
+      "en": "نتائج الCheck الهندسي الصارم لوحدات Master Data (9 فئات اختبار)",
+      "ur": "نتائج الجانچ الهندسي الصارم لوحدات Master Data (9 فئات اختبار)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_4a13ec",
+      "domain": "shared",
+      "ar": "سجل زمني تسلسلي غير قابل للتعديل (Append-Only) لتوثيق مراحل الحركة والموازين.",
+      "en": "سجل زمني تسلسلي غير قابل للEdit (Append-Only) لتوثيق مراحل الحركة والموازين.",
+      "ur": "سجل زمني تسلسلي غير قابل للترمیم کریں (Append-Only) لتوثيق مراحل الحركة والموازين.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_4c37e4",
+      "domain": "shared",
+      "ar": "فحص الاتصال (Server Ping)",
+      "en": "Check الاتصال (Server Ping)",
+      "ur": "جانچ الاتصال (Server Ping)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_4e4d76",
+      "domain": "projects",
+      "ar": "يعمل التطبيق حالياً بالبيانات المرجعية الكاملة للمشاريع السعودية. لتفعيل المزامنة المباشرة لقواعد بيانات Firestore وتخزين التعديلات سحابياً، يمكنك تسجيل الدخول بحساب Google.",
+      "en": "يعمل الApply حالياً بData Reference الكاملة للمشاريع السعودية. لتفعيل Synchronization المباشرة لقواعد بيانات Firestore وتخزين الEditات سحابياً، يمكنك تسجيل الدخول بحساب Google.",
+      "ur": "يعمل اللاگو کریں حالياً بڈیٹا حوالہ جاتی الكاملة للمشاريع السعودية. لتفعيل مطابقت پذیری المباشرة لقواعد بيانات Firestore وتخزين الترمیم کریںات سحابياً، يمكنك تسجيل الدخول بحساب Google.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_6be985",
+      "domain": "shared",
+      "ar": "شركات النقل المعتمدة والمتعاقدة لتنفيذ توريد وتفريغ المواد.",
+      "en": "شركات النقل المعتمدة والمتعاقدة لتنفيذ توريد وتفريغ Materials.",
+      "ur": "شركات النقل المعتمدة والمتعاقدة لتنفيذ توريد وتفريغ مٹیریلز.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_714016",
+      "domain": "projects",
+      "ar": "أي ناقل أو مادة أو شاحنة أو سائق ورد في رحلات سابقة لا يُحذف مطلقاً لحماية الحسابات.",
+      "en": "أي ناقل أو مادة أو شاحنة أو سائق ورد في رحلات سابقة لا يُDelete مطلقاً لحماية الحسابات.",
+      "ur": "أي ناقل أو مادة أو شاحنة أو سائق ورد في رحلات سابقة لا يُحذف کریں مطلقاً لحماية الحسابات.",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_7bb941",
+      "domain": "projects",
+      "ar": "مع ذلك، وتطبيقاً لقاعدة «استخدم ACTIVE/INACTIVE بدلاً من hard delete»، سيتم تعطيل السجل بتحويل حالته إلى (INACTIVE).",
+      "en": "مع ذلك، وApplyاً لقاعدة «استخدم ACTIVE/INACTIVE بدلاً من hard delete»، سيتم تعطيل السجل بتحويل حالته إلى (INACTIVE).",
+      "ur": "مع ذلك، ولاگو کریںاً لقاعدة «استخدم ACTIVE/INACTIVE بدلاً من hard delete»، سيتم تعطيل السجل بتحويل حالته إلى (INACTIVE).",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.txt_7f7eb1",
+      "domain": "projects",
+      "ar": "إدارة البيانات الرئيسية (Master Data Modules)",
+      "en": "إدارة Data الرئيسية (Master Data Modules)",
+      "ur": "إدارة ڈیٹا الرئيسية (Master Data Modules)",
+      "fixed": false
+    },
+    {
+      "key": "other.labels.user_4",
+      "domain": "shared",
+      "ar": "المستخدم",
+      "en": "User",
+      "ur": "صارف",
+      "fixed": false
+    },
+    {
+      "key": "other.messages.driverCarrier",
+      "domain": "projects",
+      "ar": "تم تسجيل السائق وربطه بالناقل (Driver → Carrier) محلياً.",
+      "en": "تم تسجيل Driver وربطه بCarrier (Driver → Carrier) محلياً.",
+      "ur": "تم تسجيل ڈرائیور وربطه بکیریئر (Driver → Carrier) محلياً.",
+      "fixed": false
+    },
+    {
+      "key": "other.messages.driverCarrier_2",
+      "domain": "projects",
+      "ar": "تم تسجيل السائق وربطه بالناقل (Driver → Carrier) مع تطبيع الهوية والجوال.",
+      "en": "تم تسجيل Driver وربطه بCarrier (Driver → Carrier) مع تطبيع الهوية والجوال.",
+      "ur": "تم تسجيل ڈرائیور وربطه بکیریئر (Driver → Carrier) مع تطبيع الهوية والجوال.",
+      "fixed": false
+    },
+    {
+      "key": "other.messages.truckCarrier",
+      "domain": "projects",
+      "ar": "تم تسجيل الشاحنة وربطها بالناقل (Truck → Carrier) محلياً.",
+      "en": "تم تسجيل Truck وربطها بCarrier (Truck → Carrier) محلياً.",
+      "ur": "تم تسجيل ٹرک وربطها بکیریئر (Truck → Carrier) محلياً.",
+      "fixed": false
+    },
+    {
+      "key": "other.messages.truckCarrier_2",
+      "domain": "projects",
+      "ar": "تم تسجيل الشاحنة وربطها بالناقل (Truck → Carrier) مع تطبيع اللوحة.",
+      "en": "تم تسجيل Truck وربطها بCarrier (Truck → Carrier) مع تطبيع اللوحة.",
+      "ur": "تم تسجيل ٹرک وربطها بکیریئر (Truck → Carrier) مع تطبيع اللوحة.",
+      "fixed": false
+    },
+    {
+      "key": "other.status.projectActive",
+      "domain": "projects",
+      "ar": "المشروع النشط:",
+      "en": "Project الActive:",
+      "ur": "پروجیکٹ الفعال:",
+      "fixed": false
+    },
+    {
+      "key": "other.status.success_2",
+      "domain": "projects",
+      "ar": "تمت التهيئة والأرشفة بنجاح",
+      "en": "تمت التهيئة والأرشفة بSuccess",
+      "ur": "تمت التهيئة والأرشفة بکامیاب",
+      "fixed": false
+    },
+    {
+      "key": "other.status.success_3",
+      "domain": "projects",
+      "ar": "نجاح",
+      "en": "Success",
+      "ur": "کامیاب",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.add",
+      "domain": "projects",
+      "ar": "يجب إضافة مادة واحدة على الأقل للمشروع",
+      "en": "يجب Add مادة واحدة على الأقل للمشروع",
+      "ur": "يجب شامل کریں مادة واحدة على الأقل للمشروع",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.add_2",
+      "domain": "projects",
+      "ar": "يجب إضافة ناقل واحد على الأقل للمشروع",
+      "en": "يجب Add ناقل واحد على الأقل للمشروع",
+      "ur": "يجب شامل کریں ناقل واحد على الأقل للمشروع",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.add_3",
+      "domain": "projects",
+      "ar": "إضافة وتعيين الصلاحية",
+      "en": "Add وتعيين الصلاحية",
+      "ur": "شامل کریں وتعيين الصلاحية",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.location",
+      "domain": "projects",
+      "ar": "الموقع الجغرافي للمشروع",
+      "en": "Location الجغرافي للمشروع",
+      "ur": "مقام الجغرافي للمشروع",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.pricing_2",
+      "domain": "projects",
+      "ar": "${ruleLabel}: نوع التسعير يجب أن يكون بالرد (PER_TRIP) أو بالطن (PER_TON)",
+      "en": "${ruleLabel}: نوع التسعير يجب أن يكون بالرد (PER_TRIP) أو بالton (PER_TON)",
+      "ur": "${ruleLabel}: نوع التسعير يجب أن يكون بالرد (PER_TRIP) أو بالٹن (PER_TON)",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.project",
+      "domain": "projects",
+      "ar": "PRJ - أرشيف ومستندات المشروع اللوجستية",
+      "en": "PRJ - أرشيف ومستندات Project اللوجستية",
+      "ur": "PRJ - أرشيف ومستندات پروجیکٹ اللوجستية",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.project_10",
+      "domain": "projects",
+      "ar": "دعوة مستخدم جديد وتعيين صلاحياته في المشروع",
+      "en": "دعوة مستخدم جديد وتعيين صلاحياته في Project",
+      "ur": "دعوة مستخدم جديد وتعيين صلاحياته في پروجیکٹ",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.project_11",
+      "domain": "projects",
+      "ar": "مدير المشروع (PROJECT_ADMIN)",
+      "en": "مدير Project (PROJECT_ADMIN)",
+      "ur": "مدير پروجیکٹ (PROJECT_ADMIN)",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.project_4",
+      "domain": "projects",
+      "ar": "مديرو المشروع (Admin):",
+      "en": "مديرو Project (Admin):",
+      "ur": "مديرو پروجیکٹ (Admin):",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.project_6",
+      "domain": "projects",
+      "ar": "رمز المشروع (projectCode) مطلوب",
+      "en": "رمز Project (projectCode) Required",
+      "ur": "رمز پروجیکٹ (projectCode) لازمی",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.project_7",
+      "domain": "projects",
+      "ar": "رمز المشروع يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات",
+      "en": "رمز Project يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات",
+      "ur": "رمز پروجیکٹ يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.trucks",
+      "domain": "projects",
+      "ar": "التفاوت المسموح في أوزان الشاحنات (كجم)",
+      "en": "التفاوت المسموح في أوزان Trucks (kg)",
+      "ur": "التفاوت المسموح في أوزان ٹرکس (کلوگرام)",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_2bed60",
+      "domain": "projects",
+      "ar": "المراجعة والإنشاء",
+      "en": "المراجعة والCreate",
+      "ur": "المراجعة والتخلیق کریں",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_4b1fb1",
+      "domain": "projects",
+      "ar": "تجربة فحص التضارب الزمني",
+      "en": "تجربة Temporal Conflict Check",
+      "ur": "تجربة وقتی تنازعہ کی جانچ",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.txt_74b183",
+      "domain": "projects",
+      "ar": "معرف وحيد للمشروع في Firestore يمنع تعديله بعد الإنشاء.",
+      "en": "معرف وحيد للمشروع في Firestore يمنع Editه بعد الCreate.",
+      "ur": "معرف وحيد للمشروع في Firestore يمنع ترمیم کریںه بعد التخلیق کریں.",
+      "fixed": false
+    },
+    {
+      "key": "projects.labels.userProject",
+      "domain": "projects",
+      "ar": "حدد مربع الاختيار لضم المستخدم إلى هذا المشروع وتحديد دوره",
+      "en": "حدد مربع الاختيار لضم User إلى هذا Project وتحديد دوره",
+      "ur": "حدد مربع الاختيار لضم صارف إلى هذا پروجیکٹ وتحديد دوره",
+      "fixed": false
+    },
+    {
+      "key": "shared.actions.cancel",
+      "domain": "shared",
+      "ar": "إلغاء",
+      "en": "Cancel",
+      "ur": "منسوخ کریں",
+      "fixed": false
+    },
+    {
+      "key": "shared.actions.delete",
+      "domain": "shared",
+      "ar": "حذف",
+      "en": "Delete",
+      "ur": "حذف کریں",
+      "fixed": false
+    },
+    {
+      "key": "shared.actions.edit",
+      "domain": "shared",
+      "ar": "تعديل",
+      "en": "Edit",
+      "ur": "ترمیم کریں",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.location",
+      "domain": "trips",
+      "ar": "وصلت الموقع",
+      "en": "وصلت Location",
+      "ur": "وصلت مقام",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.location_4",
+      "domain": "trips",
+      "ar": "مستلم ومفتش الموقع",
+      "en": "مستلم ومفتش Location",
+      "ur": "مستلم ومفتش مقام",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.location_5",
+      "domain": "trips",
+      "ar": "استلام الموقع",
+      "en": "استلام Location",
+      "ur": "استلام مقام",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.location_6",
+      "domain": "trips",
+      "ar": "تسجيل استلام الموقع وميزان الوصول",
+      "en": "تسجيل استلام Location وميزان الوصول",
+      "ur": "تسجيل استلام مقام وميزان الوصول",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.location_7",
+      "domain": "trips",
+      "ar": "مستلم الموقع / المفتش (unloaderId)",
+      "en": "مستلم Location / المفتش (unloaderId)",
+      "ur": "مستلم مقام / المفتش (unloaderId)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.location_9",
+      "domain": "trips",
+      "ar": "رفض الشحنة بالموقع أو تلف العينات مع اشتراط كتابة السبب.",
+      "en": "رفض الشحنة بLocation أو تلف العينات مع اشتراط كتابة السبب.",
+      "ur": "رفض الشحنة بمقام أو تلف العينات مع اشتراط كتابة السبب.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.material",
+      "domain": "trips",
+      "ar": "المادة (${params.materialId}) غير مسجلة في النظام",
+      "en": "Material (${params.materialId}) غير مسجلة في النظام",
+      "ur": "مٹیریل (${params.materialId}) غير مسجلة في النظام",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.notes",
+      "domain": "trips",
+      "ar": "4. المشغلون والتوقيت والملاحظات",
+      "en": "4. المشغلون والتوقيت وNotes",
+      "ur": "4. المشغلون والتوقيت ونوٹس",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.project_2",
+      "domain": "trips",
+      "ar": "| المشروع:",
+      "en": "| Project:",
+      "ur": "| پروجیکٹ:",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.project_4",
+      "domain": "trips",
+      "ar": "material يجب أن تكون مسموحة ومصرحة في المشروع",
+      "en": "material يجب أن تكون مسموحة ومصرحة في Project",
+      "ur": "material يجب أن تكون مسموحة ومصرحة في پروجیکٹ",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.savePricingTrip",
+      "domain": "trips",
+      "ar": "يتم حفظ لقطة التسعير (Pricing Snapshot) داخل سجل الرحلة لضمان عدم التلاعب المستقبلي.",
+      "en": "يتم Save لقطة التسعير (Pricing Snapshot) داخل سجل الTrip لضمان عدم التلاعب المستقبلي.",
+      "ur": "يتم محفوظ کریں لقطة التسعير (Pricing Snapshot) داخل سجل الٹرپ لضمان عدم التلاعب المستقبلي.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.search",
+      "domain": "trips",
+      "ar": "لا توجد رحلات مطابقة لمعايير البحث",
+      "en": "لا توجد رحلات مطابقة لمعايير الSearch",
+      "ur": "لا توجد رحلات مطابقة لمعايير التلاش کریں",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.status",
+      "domain": "trips",
+      "ar": "محاولة تغيير الحالة برتبة سائق",
+      "en": "محاولة تغيير Status برتبة سائق",
+      "ur": "محاولة تغيير حالت برتبة سائق",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.status_2",
+      "domain": "trips",
+      "ar": "الحالة الحالية:",
+      "en": "Status الحالية:",
+      "ur": "حالت الحالية:",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.status_6",
+      "domain": "trips",
+      "ar": "الانتقال من الحالة الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "en": "الانتقال من Status الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "ur": "الانتقال من حالت الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.timeProject",
+      "domain": "trips",
+      "ar": "كل تحول ينشئ حدثاً مستقلاً موثقاً بالوقت والرتبة والمشروع والبيانات المرفقة:",
+      "en": "كل تحول ينشئ حدثاً مستقلاً موثقاً بالوقت والرتبة وProject وData المرفقة:",
+      "ur": "كل تحول ينشئ حدثاً مستقلاً موثقاً بالوقت والرتبة وپروجیکٹ وڈیٹا المرفقة:",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trip",
+      "domain": "trips",
+      "ar": "رحلة",
+      "en": "Trip",
+      "ur": "ٹرپ",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trip_16",
+      "domain": "trips",
+      "ar": "الرحلة غير موجودة",
+      "en": "الTrip غير موجودة",
+      "ur": "الٹرپ غير موجودة",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trip_19",
+      "domain": "trips",
+      "ar": "الرحلة (${params.tripId}) غير موجودة في النظام",
+      "en": "الTrip (${params.tripId}) غير موجودة في النظام",
+      "ur": "الٹرپ (${params.tripId}) غير موجودة في النظام",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trip_2",
+      "domain": "trips",
+      "ar": "الرحلة:",
+      "en": "الTrip:",
+      "ur": "الٹرپ:",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trip_20",
+      "domain": "trips",
+      "ar": "الرحلة (${tripId}) غير موجودة في النظام.",
+      "en": "الTrip (${tripId}) غير موجودة في النظام.",
+      "ur": "الٹرپ (${tripId}) غير موجودة في النظام.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trip_21",
+      "domain": "trips",
+      "ar": "الرحلة (${tripId}) غير موجودة",
+      "en": "الTrip (${tripId}) غير موجودة",
+      "ur": "الٹرپ (${tripId}) غير موجودة",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trip_25",
+      "domain": "trips",
+      "ar": "الرحلة (${params.tripId}) غير موجودة.",
+      "en": "الTrip (${params.tripId}) غير موجودة.",
+      "ur": "الٹرپ (${params.tripId}) غير موجودة.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trip_3",
+      "domain": "trips",
+      "ar": "إكمال الرحلة بدون destNetWeight",
+      "en": "إكمال الTrip بدون destNetWeight",
+      "ur": "إكمال الٹرپ بدون destNetWeight",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trip_4",
+      "domain": "trips",
+      "ar": "حظر إكمال الرحلة بدون destNetWeight",
+      "en": "حظر إكمال الTrip بدون destNetWeight",
+      "ur": "حظر إكمال الٹرپ بدون destNetWeight",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trip_7",
+      "domain": "trips",
+      "ar": "[قاعدة رقابية]: تم حظر إكمال الرحلة بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+      "en": "[قاعدة رقابية]: تم حظر إكمال الTrip بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+      "ur": "[قاعدة رقابية]: تم حظر إكمال الٹرپ بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.trips",
+      "domain": "trips",
+      "ar": "سجل الرحلات (",
+      "en": "سجل Trips (",
+      "ur": "سجل ٹرپس (",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.truckCarrier",
+      "domain": "trips",
+      "ar": "تعارض علاقة: الشاحنة (${truck.plate}) تتبع الناقل (${actualCarrier}) وليس الناقل المختار (${params.carrierId})",
+      "en": "تعارض علاقة: Truck (${truck.plate}) تتبع Carrier (${actualCarrier}) وليس Carrier المختار (${params.carrierId})",
+      "ur": "تعارض علاقة: ٹرک (${truck.plate}) تتبع کیریئر (${actualCarrier}) وليس کیریئر المختار (${params.carrierId})",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.truck_2",
+      "domain": "trips",
+      "ar": "الشاحنة المحددة غير موجودة أو غير مصرح لها بالعمل (INACTIVE)",
+      "en": "Truck المحددة غير موجودة أو غير مصرح لها بالعمل (INACTIVE)",
+      "ur": "ٹرک المحددة غير موجودة أو غير مصرح لها بالعمل (INACTIVE)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_13cdfe",
+      "domain": "trips",
+      "ar": "مسارات الاستثناء والإرجاع والإلغاء (Branches & Terminals):",
+      "en": "مسارات الاستثناء والإرجاع والCancel (Branches & Terminals):",
+      "ur": "مسارات الاستثناء والإرجاع والمنسوخ کریں (Branches & Terminals):",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_14036c",
+      "domain": "trips",
+      "ar": "محرك الأوزان والتفاوت (Weight Engine)",
+      "en": "Weight and Tolerance Engine (Weight Engine)",
+      "ur": "وزن اور رواداری انجن (Weight Engine)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_178295",
+      "domain": "trips",
+      "ar": "اعتماد الانتقال وزيادة الـ Version",
+      "en": "Approval الانتقال وزيادة الـ Version",
+      "ur": "منظوری الانتقال وزيادة الـ Version",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_1b13ad",
+      "domain": "trips",
+      "ar": "[قاعدة 2 و 5: صالح وكفالة الناقل]",
+      "en": "[قاعدة 2 و 5: صالح وكفالة Carrier]",
+      "ur": "[قاعدة 2 و 5: صالح وكفالة کیریئر]",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_226b89",
+      "domain": "trips",
+      "ar": "destNet + فرق",
+      "en": "destNet + Variance",
+      "ur": "destNet + فرق",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_240ccf",
+      "domain": "trips",
+      "ar": "التحقق من القاعدة: يتم تحويل destNetWeight و varianceWeight من null إلى أرقام محققة.",
+      "en": "Verify القاعدة: يتم تحويل destNetWeight و varianceWeight من null إلى أرقام محققة.",
+      "ur": "تصدیق کریں القاعدة: يتم تحويل destNetWeight و varianceWeight من null إلى أرقام محققة.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_2750ef",
+      "domain": "trips",
+      "ar": "OPERATIONS_MANAGER (مدير العمليات)",
+      "en": "OPERATIONS_MANAGER (مدير Operations)",
+      "ur": "OPERATIONS_MANAGER (مدير آپریشنز)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_29b5f9",
+      "domain": "trips",
+      "ar": "SITE_RECEIVER (مستلم ومفتش الموقع)",
+      "en": "SITE_RECEIVER (مستلم ومفتش Location)",
+      "ur": "SITE_RECEIVER (مستلم ومفتش مقام)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_2ae109",
+      "domain": "trips",
+      "ar": "محرك الحالات المركزي (Centralized Trip State Machine)",
+      "en": "Central State Machine (Centralized Trip State Machine)",
+      "ur": "مرکزی اسٹیٹ مشین (Centralized Trip State Machine)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_2e23b2",
+      "domain": "trips",
+      "ar": "SCALE_OPERATOR (كاتب ميزان المصدر)",
+      "en": "SCALE_OPERATOR (كاتب ميزان Source)",
+      "ur": "SCALE_OPERATOR (كاتب ميزان ماخذ)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_304e68",
+      "domain": "trips",
+      "ar": "تسعير معتمد",
+      "en": "Approved Pricing",
+      "ur": "منظور شدہ قیمت",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_333d61",
+      "domain": "trips",
+      "ar": "ناقل مصرح (المجدوعي)، شاحنة وسائق مطابقان، مادة ركام معتمدة، وتسعيرة سارية بالطن.",
+      "en": "ناقل مصرح (المجدوعي)، شاحنة وسائق مطابقان، مادة ركام معتمدة، وتسعيرة سارية بالton.",
+      "ur": "ناقل مصرح (المجدوعي)، شاحنة وسائق مطابقان، مادة ركام معتمدة، وتسعيرة سارية بالٹن.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_3969ce",
+      "domain": "trips",
+      "ar": "[قاعدة 1 و 5: تبعية الناقل]",
+      "en": "[قاعدة 1 و 5: تبعية Carrier]",
+      "ur": "[قاعدة 1 و 5: تبعية کیریئر]",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_3ac325",
+      "domain": "trips",
+      "ar": "تسلسل الحالات التشغيلية، بوابات الحوكمة، ومسارات الاستثناء والإرجاع والإلغاء:",
+      "en": "تسلسل الحالات التشغيلية، بوابات الحوكمة، ومسارات الاستثناء والإرجاع والCancel:",
+      "ur": "تسلسل الحالات التشغيلية، بوابات الحوكمة، ومسارات الاستثناء والإرجاع والمنسوخ کریں:",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_3da9ae",
+      "domain": "trips",
+      "ar": "أوزان ميزان البسكول في موقع المصدر (Origin Scale)",
+      "en": "أوزان ميزان البسكول في موقع Source (Origin Scale)",
+      "ur": "أوزان ميزان البسكول في موقع ماخذ (Origin Scale)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_414461",
+      "domain": "trips",
+      "ar": "أوزان المصدر (كجم)",
+      "en": "أوزان Source (kg)",
+      "ur": "أوزان ماخذ (کلوگرام)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_46a3cb",
+      "domain": "trips",
+      "ar": "سجل التدقيق الرقابي غير القابل للتعديل (Immutable Audit Trail)",
+      "en": "Audit Log الرقابي غير القابل للEdit (Immutable Audit Trail)",
+      "ur": "آڈٹ لاگ الرقابي غير القابل للترمیم کریں (Immutable Audit Trail)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_4d1719",
+      "domain": "trips",
+      "ar": "فحص الحوض",
+      "en": "Check الحوض",
+      "ur": "جانچ الحوض",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_4fd2e9",
+      "domain": "trips",
+      "ar": "محرك الحالات المركزي (State Machine)",
+      "en": "Central State Machine (State Machine)",
+      "ur": "مرکزی اسٹیٹ مشین (State Machine)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_50e5d7",
+      "domain": "trips",
+      "ar": "1. المعرفات والبيانات التشغيلية",
+      "en": "1. المعرفات وData التشغيلية",
+      "ur": "1. المعرفات وڈیٹا التشغيلية",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_584eb0",
+      "domain": "trips",
+      "ar": "لا يوجد سجل تدقيق متاح حالياً لهذه الرحلة.",
+      "en": "لا يوجد سجل تدقيق متاح حالياً لهذه الTrip.",
+      "ur": "لا يوجد سجل تدقيق متاح حالياً لهذه الٹرپ.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_58f744",
+      "domain": "trips",
+      "ar": "انقر على أي تجربة أدناه لإثبات أن محرك الحالات يرفض أي اختراق أو انتهاك لقواعد الحوكمة الصارمة:",
+      "en": "انقر على أي تجربة أدناه لإثبات أن State Machine يرفض أي اختراق أو انتهاك لقواعد الحوكمة Strict:",
+      "ur": "انقر على أي تجربة أدناه لإثبات أن اسٹیٹ مشین يرفض أي اختراق أو انتهاك لقواعد الحوكمة سخت:",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_599f05",
+      "domain": "trips",
+      "ar": "الحسابات الخادومية الصارمة (Server-Side)",
+      "en": "الحسابات الخادومية Strict (Server-Side)",
+      "ur": "الحسابات الخادومية سخت (Server-Side)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_5d1540",
+      "domain": "trips",
+      "ar": "سبب أو ملاحظة التحول (يُحفظ في سجل الأحداث والتدقيق):",
+      "en": "سبب أو ملاحظة التحول (يُSave في سجل الأحداث والتدقيق):",
+      "ur": "سبب أو ملاحظة التحول (يُمحفوظ کریں في سجل الأحداث والتدقيق):",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_5ed1a7",
+      "domain": "trips",
+      "ar": "حالة فحص القواعد الستة اللحظي",
+      "en": "حالة Check القواعد الستة اللحظي",
+      "ur": "حالة جانچ القواعد الستة اللحظي",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_5f22c5",
+      "domain": "trips",
+      "ar": "حوكمة كاملة لجميع تحولات دورة الحياة، التحقق من الرتبة والمشروع، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+      "en": "حوكمة كاملة لجميع تحولات دورة الحياة، Verify الرتبة وProject، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+      "ur": "حوكمة كاملة لجميع تحولات دورة الحياة، تصدیق کریں الرتبة وپروجیکٹ، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_622420",
+      "domain": "trips",
+      "ar": "يتم التحقق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+      "en": "يتم Verification خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+      "ur": "يتم تصدیق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_6615b4",
+      "domain": "trips",
+      "ar": "انتهاك قواعد التحقق",
+      "en": "انتهاك قواعد Verification",
+      "ur": "انتهاك قواعد تصدیق",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_7064be",
+      "domain": "trips",
+      "ar": "قواعد البيانات المرجعية الستة",
+      "en": "Databases Reference الستة",
+      "ur": "ڈیٹا بیسز حوالہ جاتی الستة",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_7517d4",
+      "domain": "trips",
+      "ar": "DRIVER (السائق)",
+      "en": "DRIVER (Driver)",
+      "ur": "DRIVER (ڈرائیور)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_762e97",
+      "domain": "trips",
+      "ar": "ناقل بن لادن، شاحنة وسائق مطابقان، مادة رمل، تسعيرة مقطوعية ثابتة 1400 ر.س للرد الواحد.",
+      "en": "ناقل بن لادن، شاحنة وسائق مطابقان، مادة رمل، تسعيرة مقطوعية ثابتة 1400 SAR للرد الواحد.",
+      "ur": "ناقل بن لادن، شاحنة وسائق مطابقان، مادة رمل، تسعيرة مقطوعية ثابتة 1400 سعودی ریال للرد الواحد.",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_934de7",
+      "domain": "trips",
+      "ar": "محطة التفريغ (Unloading)",
+      "en": "Unloading Station (Unloading)",
+      "ur": "ان لوڈنگ اسٹیشن (Unloading)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_a636ce",
+      "domain": "trips",
+      "ar": "لوحة التحكم والانتقال",
+      "en": "Dashboard والانتقال",
+      "ur": "ڈیش بورڈ والانتقال",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_ca71d3",
+      "domain": "trips",
+      "ar": "صافي المصدر (netWeight)",
+      "en": "صافي Source (netWeight)",
+      "ur": "صافي ماخذ (netWeight)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.txt_f4327d",
+      "domain": "trips",
+      "ar": "DISPATCHER (مرحل العمليات)",
+      "en": "DISPATCHER (مرحل Operations)",
+      "ur": "DISPATCHER (مرحل آپریشنز)",
+      "fixed": false
+    },
+    {
+      "key": "trips.labels.viewDetailsTrip",
+      "domain": "trips",
+      "ar": "عرض تفاصيل الرحلة والـ Snapshot",
+      "en": "View Details الTrip والـ Snapshot",
+      "ur": "دیکھیں تفصیلات الٹرپ والـ Snapshot",
+      "fixed": false
+    },
+    {
+      "key": "trips.messages.trips",
+      "domain": "trips",
+      "ar": "تمت استعادة الرحلات التوضيحية الافتراضية",
+      "en": "تمت استعادة Trips التوضيحية الافتراضية",
+      "ur": "تمت استعادة ٹرپس التوضيحية الافتراضية",
+      "fixed": false
+    },
+    {
+      "key": "trips.status.failedPricing",
+      "domain": "trips",
+      "ar": "[حظر بدء الرحلة]: فشل حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "en": "[حظر بدء الTrip]: Failed حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "ur": "[حظر بدء الٹرپ]: ناکام حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "fixed": false
+    },
+    {
+      "key": "trips.status.projectActive",
+      "domain": "trips",
+      "ar": "المشروع النشط للمستخدم:",
+      "en": "Project الActive للمستخدم:",
+      "ur": "پروجیکٹ الفعال للمستخدم:",
+      "fixed": false
+    },
+    {
+      "key": "trips.status.tripFailed_4",
+      "domain": "trips",
+      "ar": "5. بدء رحلة إذا فشل Pricing Resolution",
+      "en": "5. بدء Trip إذا Failed Pricing Resolution",
+      "ur": "5. بدء ٹرپ إذا ناکام Pricing Resolution",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.trip_3",
+      "domain": "unloading",
+      "ar": "تنبيه غامض: تم العثور على أكثر من رحلة للشاحنة",
+      "en": "تنبيه غامض: تم العثور على أكثر من Trip للشاحنة",
+      "ur": "تنبيه غامض: تم العثور على أكثر من ٹرپ للشاحنة",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.tripsTrip",
+      "domain": "unloading",
+      "ar": "يُحظر المضي التلقائي لمنع الخلط بين الرحلات أو الورديات المختلفة. الرجاء اختيار الرحلة المستهدفة أدناه:",
+      "en": "يُحظر المضي التلقائي لمنع الخلط بين Trips أو الورديات المختلفة. الرجاء اختيار الTrip المستهدفة أدناه:",
+      "ur": "يُحظر المضي التلقائي لمنع الخلط بين ٹرپس أو الورديات المختلفة. الرجاء اختيار الٹرپ المستهدفة أدناه:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.truck",
+      "domain": "unloading",
+      "ar": "نجح التدرج لمعرف الشاحنة truckId (الحالة: ${searchResult.status}, العدد: ${searchResult.count})",
+      "en": "نجح التدرج لمعرف Truck truckId (Status: ${searchResult.status}, العدد: ${searchResult.count})",
+      "ur": "نجح التدرج لمعرف ٹرک truckId (حالت: ${searchResult.status}, العدد: ${searchResult.count})",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.truckTime",
+      "domain": "unloading",
+      "ar": "تسجيل وصول الشاحنة عند البوابة الرئيسية وتوثيق طابع الوقت الزمني.",
+      "en": "تسجيل وصول Truck عند البوابة الرئيسية وتوثيق طابع الوقت الزمني.",
+      "ur": "تسجيل وصول ٹرک عند البوابة الرئيسية وتوثيق طابع الوقت الزمني.",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.truck_2",
+      "domain": "unloading",
+      "ar": "معرف ولـوحة الشاحنة",
+      "en": "معرف ولـوحة Truck",
+      "ur": "معرف ولـوحة ٹرک",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_173722",
+      "domain": "unloading",
+      "ar": "التسعيرة المعتمدة",
+      "en": "Approved Pricing",
+      "ur": "منظور شدہ قیمت",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_1cfd3c",
+      "domain": "unloading",
+      "ar": "اعتماد الاستثناء والسماح بالتسوية (Waive Exception)",
+      "en": "Approval الاستثناء والسماح بالتسوية (Waive Exception)",
+      "ur": "منظوری الاستثناء والسماح بالتسوية (Waive Exception)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_23937a",
+      "domain": "unloading",
+      "ar": "نتيجة فحص المطابقة",
+      "en": "نتيجة Check المطابقة",
+      "ur": "نتيجة جانچ المطابقة",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_23ed64",
+      "domain": "unloading",
+      "ar": "تم فحص جميع القواعد الصارمة الواردة في البرومبت برمجياً",
+      "en": "تم Check جميع القواعد Strict الواردة في البرومبت برمجياً",
+      "ur": "تم جانچ جميع القواعد سخت الواردة في البرومبت برمجياً",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_34f055",
+      "domain": "unloading",
+      "ar": "مطابق طبيعي (-150 كجم)",
+      "en": "مطابق طبيعي (-150 kg)",
+      "ur": "مطابق طبيعي (-150 کلوگرام)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_3aa019",
+      "domain": "unloading",
+      "ar": "تسلسل البحث: الأساسي",
+      "en": "تسلسل الSearch: الأساسي",
+      "ur": "تسلسل التلاش کریں: الأساسي",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_3af241",
+      "domain": "unloading",
+      "ar": "محسوب مسبقاً بالمصدر",
+      "en": "محسوب مسبقاً بSource",
+      "ur": "محسوب مسبقاً بماخذ",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_53c5e6",
+      "domain": "unloading",
+      "ar": ". تم تفعيل مسار محطة التفريغ أدناه.",
+      "en": ". تم تفعيل مسار Unloading Station أدناه.",
+      "ur": ". تم تفعيل مسار ان لوڈنگ اسٹیشن أدناه.",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_576fc8",
+      "domain": "unloading",
+      "ar": "مدخل محطة التفريغ",
+      "en": "مدخل Unloading Station",
+      "ur": "مدخل ان لوڈنگ اسٹیشن",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_67076e",
+      "domain": "unloading",
+      "ar": "✓ تم اعتماد الاستثناء إدارياً",
+      "en": "✓ تم Approval الاستثناء إدارياً",
+      "ur": "✓ تم منظوری الاستثناء إدارياً",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_70c619",
+      "domain": "unloading",
+      "ar": "عجز كبير (-2500 كجم ➔ Exception)",
+      "en": "عجز كبير (-2500 kg ➔ Exception)",
+      "ur": "عجز كبير (-2500 کلوگرام ➔ Exception)",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.txt_9a2a40",
+      "domain": "unloading",
+      "ar": "المعادلة الخادومية الصارمة:",
+      "en": "المعادلة الخادومية Strict:",
+      "ur": "المعادلة الخادومية سخت:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.labels.user",
+      "domain": "unloading",
+      "ar": "معرف المستخدم:",
+      "en": "معرف User:",
+      "ur": "معرف صارف:",
+      "fixed": false
+    },
+    {
+      "key": "unloading.status.truck",
+      "domain": "unloading",
+      "ar": "تم توثيق وصول الشاحنة للموقع بنجاح: تم الانتقال إلى [ARRIVED] وتسجيل وقت الوصول.",
+      "en": "تم توثيق وصول Truck للموقع بSuccess: تم الانتقال إلى [ARRIVED] وتسجيل وقت الوصول.",
+      "ur": "تم توثيق وصول ٹرک للموقع بکامیاب: تم الانتقال إلى [ARRIVED] وتسجيل وقت الوصول.",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.material",
+      "domain": "weighbridge",
+      "ar": "المادة:",
+      "en": "Material:",
+      "ur": "مٹیریل:",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.trips_2",
+      "domain": "weighbridge",
+      "ar": "أرقام الرحلات المنشأة:",
+      "en": "أرقام Trips المنشأة:",
+      "ur": "أرقام ٹرپس المنشأة:",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_1247cf",
+      "domain": "weighbridge",
+      "ar": "تجربة مخرج: WARNING (-380 كجم / &gt;75%)",
+      "en": "تجربة مخرج: WARNING (-380 kg / &gt;75%)",
+      "ur": "تجربة مخرج: WARNING (-380 کلوگرام / &gt;75%)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_18b9e9",
+      "domain": "weighbridge",
+      "ar": "قواعد التحقق الصارمة (Strict Validation):",
+      "en": "قواعد Verification Strict (Strict Validation):",
+      "ur": "قواعد تصدیق سخت (Strict Validation):",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_1e62d1",
+      "domain": "weighbridge",
+      "ar": "ملاحظات أو مبرر الاعتماد (اختياري):",
+      "en": "ملاحظات أو مبرر الApproval (Optional):",
+      "ur": "ملاحظات أو مبرر المنظوری (اختیاری):",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_222b14",
+      "domain": "weighbridge",
+      "ar": "طبيعي (-150 كجم)",
+      "en": "طبيعي (-150 kg)",
+      "ur": "طبيعي (-150 کلوگرام)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_2523f6",
+      "domain": "weighbridge",
+      "ar": "صافي المصدر",
+      "en": "صافي Source",
+      "ur": "صافي ماخذ",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_26b92a",
+      "domain": "weighbridge",
+      "ar": "تجربة مخرج: EXCEPTION (-750 كجم / تجاوز الحد)",
+      "en": "تجربة مخرج: EXCEPTION (-750 kg / تجاوز الحد)",
+      "ur": "تجربة مخرج: EXCEPTION (-750 کلوگرام / تجاوز الحد)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_2837b3",
+      "domain": "weighbridge",
+      "ar": "محرك الأوزان المستقل (Standalone Weight Engine)",
+      "en": "Weight Engine المستقل (Standalone Weight Engine)",
+      "ur": "وزن کا انجن المستقل (Standalone Weight Engine)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_2fc5ef",
+      "domain": "weighbridge",
+      "ar": "قبول صافي المصدر",
+      "en": "قبول صافي Source",
+      "ur": "قبول صافي ماخذ",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_3142f6",
+      "domain": "weighbridge",
+      "ar": "تقرير التحقق البرمجي لاشتراطات Weight Engine (13 فحصاً آلياً)",
+      "en": "تقرير Verification البرمجي لاشتراطات Weight Engine (13 Checkاً آلياً)",
+      "ur": "تقرير تصدیق البرمجي لاشتراطات Weight Engine (13 جانچاً آلياً)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_355854",
+      "domain": "weighbridge",
+      "ar": "اعتماد صافي المصدر كصافي وصول:",
+      "en": "Approval صافي Source كصافي وصول:",
+      "ur": "منظوری صافي ماخذ كصافي وصول:",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_35a0be",
+      "domain": "weighbridge",
+      "ar": "احتساب التسوية المالية بدقة بالطن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان البيانات",
+      "en": "احتساب التسوية المالية بدقة بالton أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان Data",
+      "ur": "احتساب التسوية المالية بدقة بالٹن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان ڈیٹا",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_3b5d97",
+      "domain": "weighbridge",
+      "ar": "تمنع الاعتماد حتمياً",
+      "en": "تمنع الApproval حتمياً",
+      "ur": "تمنع المنظوری حتمياً",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_407887",
+      "domain": "weighbridge",
+      "ar": "فحص دوال الحساب، معايير التحقق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+      "en": "Check دوال الحساب، معايير Verification، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+      "ur": "جانچ دوال الحساب، معايير تصدیق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_44da4c",
+      "domain": "weighbridge",
+      "ar": "وحدة مستقلة تتولى حصرياً العمليات الحسابية للأوزان، فروقات التحميل، تقييم التفاوت (مطلق / نسبة / كلاهما) مع مخرجات الحالات (NORMAL / WARNING / EXCEPTION)، واحتساب التسويات المالية وفق قواعد التحقق الصارمة.",
+      "en": "وحدة مستقلة تتولى حصرياً Operations الحسابية للأوزان، فروقات التحميل، تقييم التفاوت (مطلق / نسبة / كلاهما) مع مخرجات الحالات (NORMAL / WARNING / EXCEPTION)، واحتساب التسويات المالية وفق قواعد Verification Strict.",
+      "ur": "وحدة مستقلة تتولى حصرياً آپریشنز الحسابية للأوزان، فروقات التحميل، تقييم التفاوت (مطلق / نسبة / كلاهما) مع مخرجات الحالات (NORMAL / WARNING / EXCEPTION)، واحتساب التسويات المالية وفق قواعد تصدیق سخت.",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_46d801",
+      "domain": "weighbridge",
+      "ar": "القائم (كجم)",
+      "en": "القائم (kg)",
+      "ur": "القائم (کلوگرام)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_4c9996",
+      "domain": "weighbridge",
+      "ar": "جاري الاعتماد وتوليد الرحلات...",
+      "en": "جاري الApproval وتوليد Trips...",
+      "ur": "جاري المنظوری وتوليد ٹرپس...",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_4ee2df",
+      "domain": "weighbridge",
+      "ar": "أقر بالموافقة على اعتماد الصفوف المتضمنة تحذيرات (مثل شحنات بدون بيانات تفريغ).",
+      "en": "أقر بالموافقة على Approval الصفوف المتضمنة Warningات (مثل شحنات بدون بيانات تفريغ).",
+      "ur": "أقر بالموافقة على منظوری الصفوف المتضمنة انتباہات (مثل شحنات بدون بيانات تفريغ).",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_504ae8",
+      "domain": "weighbridge",
+      "ar": "0.00 كجم",
+      "en": "0.00 kg",
+      "ur": "0.00 کلوگرام",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_577d5a",
+      "domain": "weighbridge",
+      "ar": "عجز كبير (-2500 كجم)",
+      "en": "عجز كبير (-2500 kg)",
+      "ur": "عجز كبير (-2500 کلوگرام)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_579085",
+      "domain": "weighbridge",
+      "ar": "تفاوت مطلق (كجم)",
+      "en": "تفاوت مطلق (kg)",
+      "ur": "تفاوت مطلق (کلوگرام)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_600341",
+      "domain": "weighbridge",
+      "ar": "المصدر التشغيلي المسجل:",
+      "en": "Source التشغيلي المسجل:",
+      "ur": "ماخذ التشغيلي المسجل:",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_609ec2",
+      "domain": "weighbridge",
+      "ar": "فحص تطابق الأوزان، احتساب الصافي، التحقق من الحقول الإلزامية، وتطبيق قرار قبول صافي المصدر كصافي وصول.",
+      "en": "Check تطابق الأوزان، احتساب الصافي، Verify الحقول الإلزامية، وApply قرار قبول صافي Source كصافي وصول.",
+      "ur": "جانچ تطابق الأوزان، احتساب الصافي، تصدیق کریں الحقول الإلزامية، ولاگو کریں قرار قبول صافي ماخذ كصافي وصول.",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_60b8a5",
+      "domain": "weighbridge",
+      "ar": "تجربة مخرج: NORMAL (-120 كجم)",
+      "en": "تجربة مخرج: NORMAL (-120 kg)",
+      "ur": "تجربة مخرج: NORMAL (-120 کلوگرام)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_68c5e6",
+      "domain": "weighbridge",
+      "ar": "— (غير متوفر)",
+      "en": "— (Not available)",
+      "ur": "— (دستیاب نہیں)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_6e06f6",
+      "domain": "weighbridge",
+      "ar": "37,400 كجم (37.4 طن)",
+      "en": "37,400 kg (37.4 ton)",
+      "ur": "37,400 کلوگرام (37.4 ٹن)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_70030c",
+      "domain": "weighbridge",
+      "ar": "المصدر التشغيلي: WEIGHBRIDGE",
+      "en": "Source التشغيلي: WEIGHBRIDGE",
+      "ur": "ماخذ التشغيلي: WEIGHBRIDGE",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_709573",
+      "domain": "weighbridge",
+      "ar": "الفارق المراد فحصه (variance)",
+      "en": "الفارق المراد Checkه (variance)",
+      "ur": "الفارق المراد جانچه (variance)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_70b26a",
+      "domain": "weighbridge",
+      "ar": "بدون تفريغ (تحذير)",
+      "en": "بدون تفريغ (Warning)",
+      "ur": "بدون تفريغ (انتباہ)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_72ad0e",
+      "domain": "weighbridge",
+      "ar": "المعالجة تتوقف إلزامياً عند مرحلة المراجعة (REVIEW) ولا تُنشئ رحلات أو تكتب في قاعدة البيانات إلا بعد الاعتماد الصريح (COMMIT).",
+      "en": "المعالجة تتوقف إلزامياً عند مTrip المراجعة (REVIEW) ولا تُنشئ رحلات أو تكتب في قاعدة Data إلا بعد الApproval الصريح (COMMIT).",
+      "ur": "المعالجة تتوقف إلزامياً عند مٹرپ المراجعة (REVIEW) ولا تُنشئ رحلات أو تكتب في قاعدة ڈیٹا إلا بعد المنظوری الصريح (COMMIT).",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_78dd06",
+      "domain": "weighbridge",
+      "ar": "إعادة الفحص الآن",
+      "en": "إعادة الCheck الآن",
+      "ur": "إعادة الجانچ الآن",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.txt_a59113",
+      "domain": "weighbridge",
+      "ar": "الفارغ (كجم)",
+      "en": "الفارغ (kg)",
+      "ur": "الفارغ (کلوگرام)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.weighbridge_4",
+      "domain": "weighbridge",
+      "ar": "دفعة الميزان في مرحلة المراجعة (Review Stage - Human Gate)",
+      "en": "دفعة الميزان في مTrip المراجعة (Review Stage - Human Gate)",
+      "ur": "دفعة الميزان في مٹرپ المراجعة (Review Stage - Human Gate)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.labels.weighbridge_6",
+      "domain": "weighbridge",
+      "ar": "اعتماد دفعة الميزان نهائياً (COMMIT)",
+      "en": "Approval دفعة الميزان نهائياً (COMMIT)",
+      "ur": "منظوری دفعة الميزان نهائياً (COMMIT)",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.messages.txt_5d74e2",
+      "domain": "weighbridge",
+      "ar": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
+      "en": "Idempotency cache has been reset for testing.",
+      "ur": "جانچ کے لیے ادیمپوٹینسی کیش کو دوبارہ ترتیب دیا گیا ہے۔",
+      "fixed": false
+    },
+    {
+      "key": "weighbridge.status.success_2",
+      "domain": "weighbridge",
+      "ar": "تم بنجاح رفض loadedNet <= 0",
+      "en": "Completed successfully رفض loadedNet <= 0",
+      "ur": "کامیابی سے مکمل ہوا رفض loadedNet <= 0",
+      "fixed": false
+    }
+  ]
+}

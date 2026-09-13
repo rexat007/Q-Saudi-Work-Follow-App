@@ -8,7 +8,7 @@ import {
   query,
   orderBy 
 } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { TripEventEntity } from '../types/entities';
 
@@ -21,6 +21,9 @@ export class TripEventRepository {
 
   async listByTrip(projectId: string, tripId: string): Promise<TripEventEntity[]> {
     const path = this.getPath(projectId, tripId);
+    if (!auth.currentUser) {
+      return [];
+    }
     try {
       const q = query(
         collection(db, 'projects', projectId, 'trips', tripId, 'events'),
@@ -35,6 +38,10 @@ export class TripEventRepository {
 
   async create(event: Omit<TripEventEntity, 'createdAt' | 'updatedAt' | 'serverTimestamp'> & { createdBy: string; updatedBy: string }): Promise<void> {
     const path = this.getPath(event.projectId, event.tripId, event.eventId);
+    if (!auth.currentUser) {
+      console.warn(`[TripEventRepository] User unauthenticated. Skipping live Firestore create for ${path}`);
+      return;
+    }
     try {
       const payload = {
         ...event,
@@ -49,6 +56,9 @@ export class TripEventRepository {
   }
 
   subscribeByTrip(projectId: string, tripId: string, onData: (events: TripEventEntity[]) => void) {
+    if (!auth.currentUser) {
+      return () => {};
+    }
     const path = this.getPath(projectId, tripId);
     const q = query(
       collection(db, 'projects', projectId, 'trips', tripId, 'events'),

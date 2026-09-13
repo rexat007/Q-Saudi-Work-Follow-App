@@ -8,7 +8,7 @@ import {
   serverTimestamp, 
   onSnapshot 
 } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { ImportBatchEntity } from '../types/entities';
 
@@ -21,6 +21,9 @@ export class ImportBatchRepository {
 
   async findById(projectId: string, batchId: string): Promise<ImportBatchEntity | null> {
     const path = this.getPath(projectId, batchId);
+    if (!auth.currentUser) {
+      return null;
+    }
     try {
       const snap = await getDoc(doc(db, 'projects', projectId, 'import_batches', batchId));
       if (!snap.exists()) return null;
@@ -32,6 +35,9 @@ export class ImportBatchRepository {
 
   async listByProject(projectId: string): Promise<ImportBatchEntity[]> {
     const path = this.getPath(projectId);
+    if (!auth.currentUser) {
+      return [];
+    }
     try {
       const snap = await getDocs(collection(db, 'projects', projectId, 'import_batches'));
       return snap.docs.map(d => d.data() as ImportBatchEntity);
@@ -42,6 +48,10 @@ export class ImportBatchRepository {
 
   async create(batch: Omit<ImportBatchEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
     const path = this.getPath(batch.projectId, batch.batchId);
+    if (!auth.currentUser) {
+      console.warn(`[ImportBatchRepository] User unauthenticated. Skipping live Firestore create for ${path}`);
+      return;
+    }
     try {
       const payload = {
         ...batch,
@@ -56,6 +66,10 @@ export class ImportBatchRepository {
 
   async update(projectId: string, batchId: string, updates: Partial<ImportBatchEntity>, updatedBy: string): Promise<void> {
     const path = this.getPath(projectId, batchId);
+    if (!auth.currentUser) {
+      console.warn(`[ImportBatchRepository] User unauthenticated. Skipping live Firestore update for ${path}`);
+      return;
+    }
     try {
       const payload = {
         ...updates,
@@ -71,6 +85,9 @@ export class ImportBatchRepository {
   }
 
   subscribeByProject(projectId: string, onData: (batches: ImportBatchEntity[]) => void) {
+    if (!auth.currentUser) {
+      return () => {};
+    }
     const path = this.getPath(projectId);
     return onSnapshot(
       collection(db, 'projects', projectId, 'import_batches'),

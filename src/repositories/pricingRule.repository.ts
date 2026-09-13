@@ -41,6 +41,10 @@ export class PricingRuleRepository {
 
   async findById(projectId: string, pricingRuleId: string): Promise<PricingRuleEntity | null> {
     const path = this.getPath(projectId, pricingRuleId);
+    if (!auth.currentUser) {
+      const local = this.getLocalCache(projectId).find(r => r.pricingRuleId === pricingRuleId);
+      return local || null;
+    }
     try {
       const snap = await getDoc(doc(db, 'projects', projectId, 'pricing_rules', pricingRuleId));
       if (!snap.exists()) {

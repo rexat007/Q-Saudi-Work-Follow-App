@@ -9,7 +9,7 @@ import {
   orderBy,
   limit 
 } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { AuditLogEntity } from '../types/entities';
 
@@ -17,6 +17,9 @@ export class AuditLogRepository {
   private readonly collectionName = 'audit_logs';
 
   async listRecent(maxLimit = 50): Promise<AuditLogEntity[]> {
+    if (!auth.currentUser) {
+      return [];
+    }
     try {
       const q = query(
         collection(db, this.collectionName),
@@ -32,6 +35,10 @@ export class AuditLogRepository {
 
   async create(log: Omit<AuditLogEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
     const path = `${this.collectionName}/${log.auditLogId}`;
+    if (!auth.currentUser) {
+      console.warn(`[AuditLogRepository] User unauthenticated. Skipping live Firestore create for ${path}`);
+      return;
+    }
     try {
       const payload = {
         ...log,
@@ -45,6 +52,9 @@ export class AuditLogRepository {
   }
 
   subscribeRecent(maxLimit = 50, onData: (logs: AuditLogEntity[]) => void) {
+    if (!auth.currentUser) {
+      return () => {};
+    }
     const q = query(
       collection(db, this.collectionName),
       orderBy('createdAt', 'desc'),
