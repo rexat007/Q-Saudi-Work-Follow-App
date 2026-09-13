@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "block": "BLOCK-67",
+    "title": "i18n Quality Governance & Human Review Audit Manifest",
+    "generatedAt": "2026-09-13T13:04:19.413Z",
+    "governanceStatus": "AUDIT_COMPLETE_ZERO_DEFECT_RESIDUE",
+    "policiesEnforced": [
+      "ZERO_UNTRUSTED_MODIFICATIONS",
+      "CANONICAL_ARABIC_PRESERVATION",
+      "HUMAN_REVIEW_ISOLATION",
+      "PROTECTED_TOKEN_INVARIANCE",
+      "INTERPOLATION_VARIABLE_PARITY"
+    ]
+  },
+  "metrics": {
+    "totalAuthoritativeCatalogKeys": 1128,
+    "humanReviewQueueSize": 33,
+    "remainingEligibleDefects": 0,
+    "bilingualSourcesIdentified": 17,
+    "monolingualSourcesIdentified": 16,
+    "interpolationRiskItems": 1,
+    "protectedTokenItems": 20,
+    "classifications": {
+      "TOKEN_INTERPOLATION_RISK": 1,
+      "TECHNICAL_TERM": 7,
+      "REAL_TRANSLATION_DEFECT": 7,
+      "BILINGUAL_SOURCE": 5,
+      "FINANCIAL_OPERATIONAL_RISK": 12,
+      "KEEP_EXCEPTION": 1
+    },
+    "decisions": {
+      "REVISE": 29,
+      "KEEP_EXCEPTION": 1,
+      "APPROVE": 1,
+      "FIX_SOURCE": 2
+    },
+    "risks": {
+      "CRITICAL": 4,
+      "HIGH": 17,
+      "MEDIUM": 7,
+      "LOW": 5
+    },
+    "domains": {
+      "trips": 13,
+      "loading": 2,
+      "unloading": 2,
+      "weighbridge": 2,
+      "offline": 2,
+      "security": 5,
+      "pricing": 2,
+      "shared": 1,
+      "entityResolution": 2,
+      "projects": 1,
+      "exceptions": 1
+    }
+  },
+  "verification": {
+    "arabicSourceStatus": "UNTOUCHED_100_PERCENT",
+    "englishTranslationsStatus": "ZERO_MODIFICATIONS_IN_BLOCK_67",
+    "urduTranslationsStatus": "ZERO_MODIFICATIONS_IN_BLOCK_67",
+    "fixturePreservation": "3_OF_3_FIXTURES_PRESERVED",
+    "regressionTestResult": "PASSING"
+  }
+}

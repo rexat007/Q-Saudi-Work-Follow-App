@@ -1,0 +1,808 @@
+{
+  "metadata": {
+    "block": "BLOCK-67",
+    "title": "Authoritative Human Review Queue & Item Profiles",
+    "generatedAt": "2026-09-13T13:04:19.412Z",
+    "status": "GOVERNED_REVIEW_REQUIRED",
+    "compliancePolicy": "ZERO_UNTRUSTED_MODIFICATION",
+    "totalItems": 33
+  },
+  "summary": {
+    "totalItems": 33,
+    "bilingualSourceCount": 17,
+    "monolingualSourceCount": 16,
+    "interpolationCount": 1,
+    "protectedTokenCount": 20,
+    "remainingEligibleDefects": 0,
+    "classificationCounts": {
+      "TOKEN_INTERPOLATION_RISK": 1,
+      "TECHNICAL_TERM": 7,
+      "REAL_TRANSLATION_DEFECT": 7,
+      "BILINGUAL_SOURCE": 5,
+      "FINANCIAL_OPERATIONAL_RISK": 12,
+      "KEEP_EXCEPTION": 1
+    },
+    "decisionCounts": {
+      "REVISE": 29,
+      "KEEP_EXCEPTION": 1,
+      "APPROVE": 1,
+      "FIX_SOURCE": 2
+    },
+    "riskCounts": {
+      "CRITICAL": 4,
+      "HIGH": 17,
+      "MEDIUM": 7,
+      "LOW": 5
+    },
+    "domainCounts": {
+      "trips": 13,
+      "loading": 2,
+      "unloading": 2,
+      "weighbridge": 2,
+      "offline": 2,
+      "security": 5,
+      "pricing": 2,
+      "shared": 1,
+      "entityResolution": 2,
+      "projects": 1,
+      "exceptions": 1
+    },
+    "priorityCounts": {
+      "P1": 1,
+      "P2": 24,
+      "P3": 8
+    }
+  },
+  "items": [
+    {
+      "index": 1,
+      "key": "trips.status.failedPricing",
+      "domain": "trips",
+      "priority": "P1",
+      "ar": "[حظر بدء الرحلة]: فشل حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "en": "[حظر بدء الTrip]: Failed حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "ur": "[حظر بدء الٹرپ]: ناکام حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "Pricing Resolution Failed"
+      ],
+      "protectedTokens": [
+        "${pricingResolutionResult.message}",
+        "Pricing Resolution Failed"
+      ],
+      "hasInterpolation": true,
+      "interpolationVariables": [
+        "${pricingResolutionResult.message}"
+      ],
+      "issueClassification": "TOKEN_INTERPOLATION_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "CRITICAL",
+      "rationale": "Contains critical runtime template variable ${pricingResolutionResult.message}. Source has bilingual parenthetical. Recommended to preserve runtime variable and parenthetical while ensuring full professional phrasing.",
+      "suggestedEn": "[Trip Dispatch Prohibited]: Pricing resolution and settlement calculation failed (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+      "suggestedUr": "[ٹرپ روانگی ممنوع]: قیمت کا تعین اور تصفیہ کا حساب ناکام (Pricing Resolution Failed) - ${pricingResolutionResult.message}"
+    },
+    {
+      "index": 2,
+      "key": "trips.labels.trip_4",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "حظر إكمال الرحلة بدون destNetWeight",
+      "en": "حظر إكمال الTrip بدون destNetWeight",
+      "ur": "حظر إكمال الٹرپ بدون destNetWeight",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "destNetWeight"
+      ],
+      "protectedTokens": [
+        "destNetWeight"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "TECHNICAL_TERM",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "destNetWeight is an immutable technical schema property. Current EN and UR have mixed-language fragments. Recommended to professionally translate surrounding text while preserving destNetWeight.",
+      "suggestedEn": "Trip completion blocked without destNetWeight",
+      "suggestedUr": "destNetWeight کے بغیر ٹرپ کی تکمیل ممنوع ہے"
+    },
+    {
+      "index": 3,
+      "key": "trips.labels.trip_7",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "[قاعدة رقابية]: تم حظر إكمال الرحلة بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+      "en": "[قاعدة رقابية]: تم حظر إكمال الTrip بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+      "ur": "[قاعدة رقابية]: تم حظر إكمال الٹرپ بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "unloaderId",
+        "unloadTime"
+      ],
+      "protectedTokens": [
+        "unloaderId",
+        "unloadTime"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "TECHNICAL_TERM",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Regulatory audit rule referencing schema keys unloaderId and unloadTime. Current EN and UR contain mixed language. Recommended to translate audit envelope while strictly keeping parameter names.",
+      "suggestedEn": "[Regulatory Rule]: Trip completion blocked without an authorized unloader (unloaderId) and unloading timestamp (unloadTime).",
+      "suggestedUr": "[نگرانی کا ضابطہ]: مجاز وصول کنندہ (unloaderId) اور ان لوڈنگ وقت (unloadTime) کے بغیر ٹرپ مکمل کرنا ممنوع ہے۔"
+    },
+    {
+      "index": 4,
+      "key": "trips.labels.txt_2c17d4",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+      "en": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+      "ur": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "REAL_TRANSLATION_DEFECT",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "MEDIUM",
+      "rationale": "Compliance check on unloading credentials. Currently has complete Arabic fallback in EN and UR.",
+      "suggestedEn": "Completion prohibited without recipient identity and unloading timestamp",
+      "suggestedUr": "وصول کنندہ کی شناخت اور ان لوڈنگ وقت کے بغیر تکمیل ممنوع ہے"
+    },
+    {
+      "index": 5,
+      "key": "trips.labels.txt_2cd3f8",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+      "en": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+      "ur": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "Negative Stress Tests"
+      ],
+      "protectedTokens": [
+        "Negative Stress Tests"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "BILINGUAL_SOURCE",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "LOW",
+      "rationale": "QA automation suite header. Source intentionally contains English technical parenthetical. In EN, redundant Arabic should be replaced. In UR, Urdu technical phrasing should precede the English parenthetical.",
+      "suggestedEn": "Negative Stress Tests Regulatory Enforcement Matrix",
+      "suggestedUr": "ریگولیٹری نفاذ کا میٹرکس (Negative Stress Tests)"
+    },
+    {
+      "index": 6,
+      "key": "trips.labels.txt_37b15d",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+      "en": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+      "ur": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Settlement variance calculation rule. High financial impact. Arabic fallback in EN/UR.",
+      "suggestedEn": "Completion prohibited if discrepancy cannot be accurately calculated",
+      "suggestedUr": "اگر فرق کا درست حساب کتاب نہ ہو سکے تو تکمیل ممنوع ہے"
+    },
+    {
+      "index": 7,
+      "key": "trips.labels.txt_3a0ff7",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "مبلغ التسوية المستحق:",
+      "en": "مبلغ التسوية المستحق:",
+      "ur": "مبلغ التسوية المستحق:",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Settlement amount parameter. High financial impact. Pure Arabic fallback in EN/UR.",
+      "suggestedEn": "Settlement Amount Due:",
+      "suggestedUr": "واجب الادا تصفیہ کی رقم:"
+    },
+    {
+      "index": 8,
+      "key": "trips.labels.txt_5f22c5",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "حوكمة كاملة لجميع تحولات دورة الحياة، التحقق من الرتبة والمشروع، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+      "en": "حوكمة كاملة لجميع تحولات دورة الحياة، Verify الرتبة وProject، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+      "ur": "حوكمة كاملة لجميع تحولات دورة الحياة، تصدیق کریں الرتبة وپروجیکٹ، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "REAL_TRANSLATION_DEFECT",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "MEDIUM",
+      "rationale": "Lifecycle transition rule description. Contains hybrid machine translation fragments in EN/UR.",
+      "suggestedEn": "Full lifecycle transition governance: verifying rank and project, mandatory weights, recipient, and arrival time, with server-side calculation of variance and settlement.",
+      "suggestedUr": "لائف سائیکل کے تمام مراحل کی مکمل نگرانی: رینک اور پروجیکٹ کی تصدیق، لازمی وزن، وصول کنندہ اور آمد کا وقت، اور سرور پر فرق اور تصفیہ کا خودکار حساب۔"
+    },
+    {
+      "index": 9,
+      "key": "trips.labels.txt_622420",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "يتم التحقق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+      "en": "يتم Verification خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+      "ur": "يتم تصدیق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "REAL_TRANSLATION_DEFECT",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "MEDIUM",
+      "rationale": "Six-rule verification description. Mixed fragments in EN/UR.",
+      "suggestedEn": "Server-side verification of the six rules, with automated weight calculation and settlement.",
+      "suggestedUr": "چھ قواعد کی سرور پر تصدیق، اور وزن و تصفیہ کا خودکار حساب کتاب۔"
+    },
+    {
+      "index": 10,
+      "key": "trips.labels.txt_701a0c",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "يحظر تخطي المراحل التشغيلية الإلزامية",
+      "en": "يحظر تخطي المراحل التشغيلية الإلزامية",
+      "ur": "يحظر تخطي المراحل التشغيلية الإلزامية",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Workflow state-machine constraint. Prevents bypassing weighbridge or unloading. Arabic fallback in EN/UR.",
+      "suggestedEn": "Skipping mandatory operational stages is prohibited",
+      "suggestedUr": "لازمی آپریشنل مراحل کو چھوڑنا ممنوع ہے"
+    },
+    {
+      "index": 11,
+      "key": "trips.labels.txt_761b23",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+      "en": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+      "ur": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [
+        "\"خلطة أسفلتية ساخنة\""
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "KEEP_EXCEPTION",
+      "recommendedDecision": "KEEP_EXCEPTION",
+      "riskLevel": "LOW",
+      "rationale": "Negative test simulation fixture testing contract material rejection. Contains literal material name matching test assertions. Keep as exception or revise carefully without breaking contract tests.",
+      "suggestedEn": "Attempting to deliver \"hot asphalt mix\" in a project dedicated to backfill and aggregate transport. Immediate prohibition.",
+      "suggestedUr": "بھرائی اور ملبے کی نقل و حمل کے لیے مختص منصوبے میں \"خلطة أسفلتية ساخنة\" سپلائی کرنے کی کوشش۔ فوری پابندی۔"
+    },
+    {
+      "index": 12,
+      "key": "trips.labels.txt_7d5bc8",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "إجمالي التسوية المحسوبة",
+      "en": "إجمالي التسوية المحسوبة",
+      "ur": "إجمالي التسوية المحسوبة",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Financial settlement calculation summary. High financial visibility. Arabic fallback in EN/UR.",
+      "suggestedEn": "Total Calculated Settlement",
+      "suggestedUr": "کل حسابی تصفیہ"
+    },
+    {
+      "index": 13,
+      "key": "trips.labels.txt_7d6134",
+      "domain": "trips",
+      "priority": "P2",
+      "ar": "التسوية (SAR)",
+      "en": "التسوية (SAR)",
+      "ur": "التسوية (SAR)",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "SAR"
+      ],
+      "protectedTokens": [
+        "SAR"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "APPROVE",
+      "riskLevel": "HIGH",
+      "rationale": "ISO-4217 Currency representation. Source has Arabic text with SAR. EN and UR correctly use international standard SAR.",
+      "suggestedEn": "Settlement (SAR)",
+      "suggestedUr": "تصفیہ (SAR)"
+    },
+    {
+      "index": 14,
+      "key": "loading.labels.txt_57f8de",
+      "domain": "loading",
+      "priority": "P2",
+      "ar": "التسوية المعتمدة:",
+      "en": "التسوية المعتمدة:",
+      "ur": "التسوية المعتمدة:",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Approved settlement parameter in loading dispatch. Arabic fallback in EN/UR.",
+      "suggestedEn": "Approved Settlement:",
+      "suggestedUr": "منظور شدہ تصفیہ:"
+    },
+    {
+      "index": 15,
+      "key": "loading.labels.txt_73e4a3",
+      "domain": "loading",
+      "priority": "P2",
+      "ar": "التسوية التقديرية (Settlement)",
+      "en": "التسوية التقديرية (Settlement)",
+      "ur": "التسوية التقديرية (Settlement)",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "Settlement"
+      ],
+      "protectedTokens": [
+        "Settlement"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "BILINGUAL_SOURCE",
+      "recommendedDecision": "FIX_SOURCE",
+      "riskLevel": "HIGH",
+      "rationale": "Supply and settlement dues tab. Canonical Arabic text has English parenthetical (Settlement). Recommended to remove English parenthetical in Arabic or revise EN to eliminate tautology.",
+      "suggestedEn": "Estimated Settlement",
+      "suggestedUr": "تخمینی تصفیہ (Settlement)"
+    },
+    {
+      "index": 16,
+      "key": "unloading.labels.txt_1cfd3c",
+      "domain": "unloading",
+      "priority": "P2",
+      "ar": "اعتماد الاستثناء والسماح بالتسوية (Waive Exception)",
+      "en": "Approval الاستثناء والسماح بالتسوية (Waive Exception)",
+      "ur": "منظوری الاستثناء والسماح بالتسوية (Waive Exception)",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "Waive Exception"
+      ],
+      "protectedTokens": [
+        "Waive Exception"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "CRITICAL",
+      "rationale": "High-risk security audit action allowing exception waiver and triggering financial settlement. Hybrid translation in EN/UR. Must preserve operational rigor.",
+      "suggestedEn": "Approve Exception & Authorize Settlement (Waive Exception)",
+      "suggestedUr": "استثناء کی منظوری اور تصفیہ کی اجازت (Waive Exception)"
+    },
+    {
+      "index": 17,
+      "key": "unloading.labels.txt_5f0c9f",
+      "domain": "unloading",
+      "priority": "P2",
+      "ar": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+      "en": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+      "ur": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "PROHIBITED"
+      ],
+      "protectedTokens": [
+        "PROHIBITED"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "TECHNICAL_TERM",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "MEDIUM",
+      "rationale": "Strict compliance blocking status. Canonical source has PROHIBITED token. Current EN/UR have Arabic fallback. Must preserve PROHIBITED token.",
+      "suggestedEn": "4️⃣ Single License Plate Block (PROHIBITED)",
+      "suggestedUr": "4️⃣ سنگل لائسنس پلیٹ بلاک (PROHIBITED)"
+    },
+    {
+      "index": 18,
+      "key": "weighbridge.labels.txt_35a0be",
+      "domain": "weighbridge",
+      "priority": "P2",
+      "ar": "احتساب التسوية المالية بدقة بالطن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان البيانات",
+      "en": "احتساب التسوية المالية بدقة بالton أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان Data",
+      "ur": "احتساب التسوية المالية بدقة بالٹن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان ڈیٹا",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "net &gt; 0",
+        "null"
+      ],
+      "protectedTokens": [
+        "net &gt; 0",
+        "null"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "TECHNICAL_TERM",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Weighbridge validation constraint. Contains code logic expressions (net > 0) and (null). Mixed fragments in EN/UR.",
+      "suggestedEn": "Precise calculation of financial settlement by ton or trip requiring net &gt; 0, returning null on missing data",
+      "suggestedUr": "ٹن یا ٹرپ کے حساب سے مالی تصفیہ کا درست حساب جس میں net &gt; 0 درکار ہے، اور ڈیٹا غائب ہونے پر null واپس کیا جائے گا"
+    },
+    {
+      "index": 19,
+      "key": "weighbridge.labels.txt_407887",
+      "domain": "weighbridge",
+      "priority": "P2",
+      "ar": "فحص دوال الحساب، معايير التحقق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+      "en": "Check دوال الحساب، معايير Verification، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+      "ur": "جانچ دوال الحساب، معايير تصدیق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "NORMAL / WARNING / EXCEPTION"
+      ],
+      "protectedTokens": [
+        "NORMAL",
+        "WARNING",
+        "EXCEPTION"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "TECHNICAL_TERM",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "MEDIUM",
+      "rationale": "Weighbridge accuracy evaluation indicator referencing system enum states. Enum tokens must be strictly preserved.",
+      "suggestedEn": "Audit calculation functions, validation criteria, prohibit replacing missing values with zero, and evaluate variance (NORMAL / WARNING / EXCEPTION)",
+      "suggestedUr": "حساب کے فنکشنز، تصدیقی معیارات کی جانچ، گمشدہ ڈیٹا کو صفر سے بدلنے کی ممانعت، اور فرق کی جانچ (NORMAL / WARNING / EXCEPTION)"
+    },
+    {
+      "index": 20,
+      "key": "offline.labels.txt_402c63",
+      "domain": "offline",
+      "priority": "P2",
+      "ar": "المبلغ والتسوية:",
+      "en": "المبلغ والتسوية:",
+      "ur": "المبلغ والتسوية:",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Offline queue settlement summary label. Arabic fallback in EN/UR.",
+      "suggestedEn": "Amount & Settlement:",
+      "suggestedUr": "رقم اور تصفیہ:"
+    },
+    {
+      "index": 21,
+      "key": "loading.labels.save_3",
+      "domain": "security",
+      "priority": "P2",
+      "ar": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها وحفظ السجل الأمني في سجلات الرقابة.",
+      "en": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها وSave السجل الأمني في سجلات الرقابة.",
+      "ur": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها ومحفوظ کریں السجل الأمني في سجلات الرقابة.",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "settlementAmount",
+        "Server-Side Calculation"
+      ],
+      "protectedTokens": [
+        "settlementAmount",
+        "Server-Side Calculation"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "TECHNICAL_TERM",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "CRITICAL",
+      "rationale": "Crucial security specification preventing client tampering of settlementAmount. Preserves audit trail. EN and UR currently contain hybrid machine-translated words.",
+      "suggestedEn": "The settlement amount (settlementAmount) has no input field in the interface and is calculated exclusively server-side (Server-Side Calculation). Any client-submitted value is ignored and logged in regulatory audit trails.",
+      "suggestedUr": "تصفیہ کی رقم (settlementAmount) کے لیے انٹرفیس میں کوئی ان پٹ فیلڈ نہیں ہے، اور یہ مکمل طور پر سرور کی طرف (Server-Side Calculation) شمار ہوتی ہے۔ کلائنٹ سے بھیجی گئی کسی بھی قیمت کو نظر انداز کر کے سیکیورٹی لاگ میں محفوظ کیا جاتا ہے۔"
+    },
+    {
+      "index": 22,
+      "key": "unloading.labels.txt_186f77",
+      "domain": "security",
+      "priority": "P2",
+      "ar": "تقرير الامتثال الآلي لاشتراطات محطة التفريغ (Unloading Station Tests)",
+      "en": "تقرير الامتثال الآلي لاشتراطات Unloading Station (Unloading Station Tests)",
+      "ur": "تقرير الامتثال الآلي لاشتراطات ان لوڈنگ اسٹیشن (Unloading Station Tests)",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "Unloading Station Tests"
+      ],
+      "protectedTokens": [
+        "Unloading Station Tests"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "BILINGUAL_SOURCE",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "LOW",
+      "rationale": "Station compliance QA report header. Bilingual English tag in Arabic source. Mixed morphology in EN/UR.",
+      "suggestedEn": "Automated Compliance Report for Unloading Station Requirements (Unloading Station Tests)",
+      "suggestedUr": "ان لوڈنگ اسٹیشن کے تقاضوں کی خودکار تعمیلی رپورٹ (Unloading Station Tests)"
+    },
+    {
+      "index": 23,
+      "key": "unloading.labels.txt_1bec3a",
+      "domain": "security",
+      "priority": "P2",
+      "ar": "فحص الامتثال الآلي (7 متطلبات)",
+      "en": "Check الامتثال الآلي (7 متطلبات)",
+      "ur": "جانچ الامتثال الآلي (7 متطلبات)",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [
+        "7"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "REAL_TRANSLATION_DEFECT",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "LOW",
+      "rationale": "Automated compliance checklist item. Hybrid machine artifact (Check الامتثال الآلي).",
+      "suggestedEn": "Automated Compliance Check (7 Requirements)",
+      "suggestedUr": "خودکار تعمیلی جانچ (7 شرائط)"
+    },
+    {
+      "index": 24,
+      "key": "unloading.labels.txt_68980a",
+      "domain": "security",
+      "priority": "P2",
+      "ar": "حظر أمني رقابي (BLOCKED)",
+      "en": "حظر أمني رقابي (BLOCKED)",
+      "ur": "حظر أمني رقابي (BLOCKED)",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "BLOCKED"
+      ],
+      "protectedTokens": [
+        "BLOCKED"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "TECHNICAL_TERM",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Security regulatory block status. Contains BLOCKED status code. Arabic fallback in EN/UR.",
+      "suggestedEn": "Regulatory Security Block (BLOCKED)",
+      "suggestedUr": "نگرانی کا سیکیورٹی بلاک (BLOCKED)"
+    },
+    {
+      "index": 25,
+      "key": "offline.labels.createTripPricing",
+      "domain": "pricing",
+      "priority": "P2",
+      "ar": "حظر إنشاء الرحلة بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بإنشاء أي رحلة بدون احتساب تسعيري معتمد.",
+      "en": "حظر Create الTrip بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بCreate أي Trip بدون احتساب تسعيري معتمد.",
+      "ur": "حظر تخلیق کریں الٹرپ بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بتخلیق کریں أي ٹرپ بدون احتساب تسعيري معتمد.",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "IndexedDB"
+      ],
+      "protectedTokens": [
+        "IndexedDB"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "CRITICAL",
+      "rationale": "Statutory trip creation block when offline pricing cache is missing. Contains IndexedDB. EN and UR contain hybrid fragments.",
+      "suggestedEn": "Offline Trip Creation Prohibited: Pricing data is not available locally in browser storage (IndexedDB). Legally, no trip may be created without an approved price calculation.",
+      "suggestedUr": "آف لائن ٹرپ کی تخلیق ممنوع: قیمتوں کا ڈیٹا براؤزر میموری (IndexedDB) میں مقامی طور پر دستیاب نہیں ہے۔ باضابطہ طور پر منظور شدہ قیمت کے حساب کتاب کے بغیر کوئی ٹرپ بنانے کی اجازت نہیں ہے۔"
+    },
+    {
+      "index": 26,
+      "key": "navigation.labels.txt_2f3fde",
+      "domain": "shared",
+      "priority": "P3",
+      "ar": "مستحق التسوية",
+      "en": "مستحق التسوية",
+      "ur": "مستحق التسوية",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Financial status filter pill. Arabic fallback in EN/UR.",
+      "suggestedEn": "Settlement Due",
+      "suggestedUr": "تصفیہ کے واجب الادا"
+    },
+    {
+      "index": 27,
+      "key": "entityResolution.labels.importEdit",
+      "domain": "entityResolution",
+      "priority": "P3",
+      "ar": "يعمل قبل اعتماد أي ملف استيراد (Import) أو تعديل على البيانات المرجعية (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية.",
+      "en": "يعمل قبل Approval أي ملف Import (Import) أو Edit على Data Reference (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية.",
+      "ur": "يعمل قبل منظوری أي ملف امپورٹ کریں (Import) أو ترمیم کریں على ڈیٹا حوالہ جاتی (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية.",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "Import",
+        "Master Data",
+        "Auto-Merge"
+      ],
+      "protectedTokens": [
+        "Import",
+        "Master Data",
+        "Auto-Merge"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "BILINGUAL_SOURCE",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Data governance constraint preventing regulatory collisions. Source has multiple English technical parentheticals (Import, Master Data, Auto-Merge). Current EN/UR have severe hybrid word salad.",
+      "suggestedEn": "Executes prior to approving any import file (Import) or modifying reference data (Master Data). Prevents erroneous automatic merges (Auto-Merge) and prohibits regulatory conflicts.",
+      "suggestedUr": "کسی بھی امپورٹ فائل (Import) کی منظوری یا ماسٹر ڈیٹا (Master Data) میں ترمیم سے پہلے چلتا ہے۔ غلط خودکار انضمام (Auto-Merge) کو روکتا ہے اور تنظیمی تنازعات کو ممنوع قرار دیتا ہے۔"
+    },
+    {
+      "index": 28,
+      "key": "entityResolution.labels.txt_2b8f60",
+      "domain": "entityResolution",
+      "priority": "P3",
+      "ar": "تم استبعاد وحظر السجل من الإدخال.",
+      "en": "تم استبعاد وحظر السجل من الإدخال.",
+      "ur": "تم استبعاد وحظر السجل من الإدخال.",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "REAL_TRANSLATION_DEFECT",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "MEDIUM",
+      "rationale": "Data validation exclusion message. Arabic fallback in EN/UR.",
+      "suggestedEn": "Record excluded and blocked from entry.",
+      "suggestedUr": "ریکارڈ کو اندراج سے خارج اور بلاک کر دیا گیا ہے۔"
+    },
+    {
+      "index": 29,
+      "key": "projects.labels.txt_6757e5",
+      "domain": "projects",
+      "priority": "P3",
+      "ar": "نسبة ضريبة القيمة المضافة % (VAT)",
+      "en": "نسبة ضريبة القيمة المضافة % (VAT)",
+      "ur": "نسبة ضريبة القيمة المضافة % (VAT)",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "VAT"
+      ],
+      "protectedTokens": [
+        "VAT",
+        "%"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Tax rate configuration field. Contains VAT and % symbols. Arabic fallback in EN/UR.",
+      "suggestedEn": "Value Added Tax Rate % (VAT)",
+      "suggestedUr": "ویلیو ایڈڈ ٹیکس کی شرح % (VAT)"
+    },
+    {
+      "index": 30,
+      "key": "offline.labels.txt_305c29",
+      "domain": "offline",
+      "priority": "P3",
+      "ar": "تسوية ومطابقة التبعية مع البيانات الأساسية للخادم",
+      "en": "تسوية ومطابقة التبعية مع Data الأساسية للخادم",
+      "ur": "تسوية ومطابقة التبعية مع ڈیٹا الأساسية للخادم",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "REAL_TRANSLATION_DEFECT",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "MEDIUM",
+      "rationale": "Offline synchronization status description. Hybrid machine translation in EN/UR.",
+      "suggestedEn": "Dependency reconciliation and synchronization with server master data",
+      "suggestedUr": "سرور کے بنیادی ڈیٹا کے ساتھ وابستگی کی مطابقت پذیری اور تصفیہ"
+    },
+    {
+      "index": 31,
+      "key": "exceptions.labels.driver",
+      "domain": "exceptions",
+      "priority": "P3",
+      "ar": "كفالة السائق غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+      "en": "كفالة Driver غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+      "ur": "كفالة ڈرائیور غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [
+        "Ajeer"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "REAL_TRANSLATION_DEFECT",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Saudi Ministry of Human Resources (Ajeer) regulatory compliance rule. Requires specific legal term \"Ajeer permit\". Current EN and UR have hybrid fragments.",
+      "suggestedEn": "Driver sponsorship does not match the contracted carrier, with no valid Ajeer permit",
+      "suggestedUr": "ڈرائیور کی کفالت معاہدہ شدہ کیریئر سے مماثل نہیں ہے اور کوئی درست اجیر اجازت نامہ موجود نہیں ہے"
+    },
+    {
+      "index": 32,
+      "key": "projects.labels.settings",
+      "domain": "security",
+      "priority": "P3",
+      "ar": "الإعدادات الافتراضية والامتثال النظامي (Default Settings & Compliance)",
+      "en": "Settings الافتراضية والامتثال النظامي (Default Settings & Compliance)",
+      "ur": "ترتیبات الافتراضية والامتثال النظامي (Default Settings & Compliance)",
+      "isBilingualSource": true,
+      "bilingualTokens": [
+        "Default Settings & Compliance"
+      ],
+      "protectedTokens": [
+        "Default Settings & Compliance"
+      ],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "BILINGUAL_SOURCE",
+      "recommendedDecision": "FIX_SOURCE",
+      "riskLevel": "LOW",
+      "rationale": "Project governance settings header. Source includes full English title in parentheses, creating tautological repetition if translated directly. Recommend fixing canonical source to remove redundant English or providing concise translation.",
+      "suggestedEn": "Default Settings & Regulatory Compliance",
+      "suggestedUr": "طے شدہ ترتیبات اور تنظیمی تعمیل (Default Settings & Compliance)"
+    },
+    {
+      "index": 33,
+      "key": "navigation.labels.pricing_2",
+      "domain": "pricing",
+      "priority": "P3",
+      "ar": "بناءً على لقطات التسعير التعاقدية للرحلات",
+      "en": "بناءً على لقطات التسعير التعاقدية للرحلات",
+      "ur": "بناءً على لقطات التسعير التعاقدية للرحلات",
+      "isBilingualSource": false,
+      "bilingualTokens": [],
+      "protectedTokens": [],
+      "hasInterpolation": false,
+      "interpolationVariables": [],
+      "issueClassification": "FINANCIAL_OPERATIONAL_RISK",
+      "recommendedDecision": "REVISE",
+      "riskLevel": "HIGH",
+      "rationale": "Pricing audit methodology disclaimer. Explains calculation baseline from contractual rate snapshots. Arabic fallback in EN/UR.",
+      "suggestedEn": "Based on trip contractual pricing snapshots",
+      "suggestedUr": "ٹرپس کی معاہداتی قیمتوں کے اسنیپ شاٹس پر مبنی"
+    }
+  ]
+}

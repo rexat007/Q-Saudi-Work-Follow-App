@@ -1,38 +1,38 @@
 {
-  "generatedAt": "2026-09-13T12:14:15.106Z",
+  "generatedAt": "2026-09-13T13:04:57.127Z",
   "version": "1.0.0-block54b",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 11895,
-    "generatedEnCount": 11895,
-    "generatedUrCount": 11895,
-    "reviewRequiredCount": 11487,
+    "totalEntries": 11912,
+    "generatedEnCount": 11912,
+    "generatedUrCount": 11912,
+    "reviewRequiredCount": 11504,
     "skippedCount": 0,
     "protectedCount": 1,
-    "interpolationCount": 209,
+    "interpolationCount": 212,
     "pluralizationCount": 150,
-    "highRiskCount": 10972,
-    "semanticConflictCount": 1292,
+    "highRiskCount": 10989,
+    "semanticConflictCount": 1309,
     "domainTerminologyCount": 369,
     "confidenceBreakdown": {
       "HIGH": 140,
-      "MEDIUM": 3629,
-      "LOW": 8126
+      "MEDIUM": 3634,
+      "LOW": 8138
     },
     "tierBreakdown": {
       "1": 6,
       "2": 548,
       "3": 369,
-      "4": 10972
+      "4": 10989
     },
     "reviewReasonsBreakdown": {
-      "SEMANTIC_CONFLICT": 1292,
+      "SEMANTIC_CONFLICT": 1309,
       "DOMAIN_TERM": 369,
       "INTERPOLATION_RISK": 8,
       "PLURALIZATION_RISK": 150,
       "REPORT_EXPORT_RISK": 3757,
-      "BUSINESS_DATA_RISK": 1555,
-      "LOW_CONFIDENCE": 11487,
+      "BUSINESS_DATA_RISK": 1558,
+      "LOW_CONFIDENCE": 11504,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
@@ -215,12 +215,12 @@
         "low": 0
       },
       "other": {
-        "total": 4780,
-        "generated": 4780,
-        "reviewRequired": 4743,
+        "total": 4797,
+        "generated": 4797,
+        "reviewRequired": 4760,
         "high": 82,
-        "medium": 1139,
-        "low": 3559
+        "medium": 1144,
+        "low": 3571
       }
     }
   },
@@ -16813,7 +16813,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_137",
+      "duplicateGroupId": "dup_HIGH_138",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -17081,7 +17081,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_LOW_88",
+      "duplicateGroupId": "dup_LOW_89",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -32696,7 +32696,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_137",
+      "duplicateGroupId": "dup_HIGH_138",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -32805,7 +32805,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_LOW_88",
+      "duplicateGroupId": "dup_LOW_89",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -42259,7 +42259,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_137",
+      "duplicateGroupId": "dup_HIGH_138",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -64113,7 +64113,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_137",
+      "duplicateGroupId": "dup_HIGH_138",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -67168,7 +67168,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_LOW_88",
+      "duplicateGroupId": "dup_LOW_89",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -70583,7 +70583,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_27",
+      "duplicateGroupId": "dup_path_28",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -116864,7 +116864,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_utf_8_44",
+      "duplicateGroupId": "dup_utf_8_45",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -128497,7 +128497,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_137",
+      "duplicateGroupId": "dup_HIGH_138",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -156784,7 +156784,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_reports_23",
+      "duplicateGroupId": "dup_reports_24",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -179840,7 +179840,7 @@
           "element": "prop_extractionConfidence"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_137",
+      "duplicateGroupId": "dup_HIGH_138",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -203913,6 +203913,7 @@
       "confidence": "MEDIUM",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -203939,7 +203940,11 @@
           "element": "prop_\"navigation.labels.import\""
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_مركز_الاستيراد__Import_Center_",
+      "duplicateGroupId": "dup_مركز_الاستيراد__Import_Center__2",
+      "notes": [
+        "Semantic conflict group conflict_مركز_الاستيراد__Import_Center_: Retained distinct key \"other.fields.import_3\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -210257,8 +210262,15 @@
           "line": 373,
           "column": 28,
           "element": "prop_\"loading.labels.save_3\""
+        },
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 154,
+          "column": 30,
+          "element": "prop_'loading.labels.save_3'"
         }
       ],
+      "duplicateGroupId": "dup_قيمة_التسوية__settlementAmount_2",
       "notes": [
         "Protected business/currency tokens: [settlementAmount] must not be altered"
       ],
@@ -211619,7 +211631,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_الانتقال_من_الحالة_الحالية____",
-      "duplicateGroupId": "dup_الانتقال_من_الحالة_الحالية_____2",
+      "duplicateGroupId": "dup_الانتقال_من_الحالة_الحالية_____3",
       "notes": [
         "Preserve dynamic parameters: {targetStatus}",
         "Protected business/currency tokens: [status] must not be altered",
@@ -212911,10 +212923,16 @@
           "line": 858,
           "column": 26,
           "element": "prop_\"trips.labels.trip_4\""
+        },
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 150,
+          "column": 28,
+          "element": "prop_'trips.labels.trip_4'"
         }
       ],
       "semanticConflictGroupId": "conflict_حظر_إكمال_الرحلة_بدون_destNetW",
-      "duplicateGroupId": "dup_حظر_إكمال_الرحلة_بدون_destNetW_2",
+      "duplicateGroupId": "dup_حظر_إكمال_الرحلة_بدون_destNetW_3",
       "notes": [
         "Semantic conflict group conflict_حظر_إكمال_الرحلة_بدون_destNetW: Retained distinct key \"other.fields.trip_22\" to avoid accidental merge."
       ],
@@ -212966,10 +212984,16 @@
           "line": 859,
           "column": 26,
           "element": "prop_\"trips.labels.trip_7\""
+        },
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 151,
+          "column": 28,
+          "element": "prop_'trips.labels.trip_7'"
         }
       ],
       "semanticConflictGroupId": "conflict__قاعدة_رقابية___تم_حظر_إكمال_ا",
-      "duplicateGroupId": "dup__قاعدة_رقابية___تم_حظر_إكمال_ا_2",
+      "duplicateGroupId": "dup__قاعدة_رقابية___تم_حظر_إكمال_ا_3",
       "notes": [
         "Semantic conflict group conflict__قاعدة_رقابية___تم_حظر_إكمال_ا: Retained distinct key \"other.fields.trip_23\" to avoid accidental merge."
       ],
@@ -213644,6 +213668,7 @@
       "confidence": "MEDIUM",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -213668,9 +213693,19 @@
           "line": 29,
           "column": 30,
           "element": "prop_\"navigation.labels.trips\""
+        },
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 152,
+          "column": 32,
+          "element": "prop_'navigation.labels.trips'"
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_محرك_الرحلات__Trip_Engine_",
+      "duplicateGroupId": "dup_محرك_الرحلات__Trip_Engine__3",
+      "notes": [
+        "Semantic conflict group conflict_محرك_الرحلات__Trip_Engine_: Retained distinct key \"other.fields.trips\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -224801,6 +224836,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -224827,7 +224863,11 @@
           "element": "prop_\"navigation.labels.import\""
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_مركز_الامپورٹ_کریں__Import_Cen",
+      "duplicateGroupId": "dup_مركز_الامپورٹ_کریں__Import_Cen_2",
+      "notes": [
+        "Semantic conflict group conflict_مركز_الامپورٹ_کریں__Import_Cen: Retained distinct key \"other.fields.txt_1c77f5\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -225125,8 +225165,15 @@
           "line": 997,
           "column": 34,
           "element": "prop_\"unloading.labels.txt_1cfd3c\""
+        },
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 153,
+          "column": 36,
+          "element": "prop_'unloading.labels.txt_1cfd3c'"
         }
       ],
+      "duplicateGroupId": "dup_اعتماد_الاستثناء_والسماح_بالتس_2",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -225814,6 +225861,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -225840,7 +225888,11 @@
           "element": "prop_\"navigation.labels.import\""
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_مركز_الImport__Import_Center_",
+      "duplicateGroupId": "dup_مركز_الImport__Import_Center__2",
+      "notes": [
+        "Semantic conflict group conflict_مركز_الImport__Import_Center_: Retained distinct key \"other.fields.txt_1e8140\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -238347,6 +238399,7 @@
       "confidence": "MEDIUM",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "BUSINESS_DATA_RISK",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
@@ -238379,9 +238432,12 @@
           "element": "prop_\"trips.labels.status_6\""
         }
       ],
+      "semanticConflictGroupId": "conflict_الانتقال_من_Status_الحالية____",
+      "duplicateGroupId": "dup_الانتقال_من_Status_الحالية_____2",
       "notes": [
         "Preserve dynamic parameters: {targetStatus}",
         "Protected business/currency tokens: [status] must not be altered",
+        "Semantic conflict group conflict_الانتقال_من_Status_الحالية____: Retained distinct key \"other.fields.txt_301a96\" to avoid accidental merge.",
         "Preserved dynamic interpolation parameters"
       ],
       "validationErrors": [],
@@ -259483,6 +259539,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -259509,7 +259566,11 @@
           "element": "prop_\"navigation.labels.trips\""
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_محرك_ٹرپس__Trip_Engine_",
+      "duplicateGroupId": "dup_محرك_ٹرپس__Trip_Engine__2",
+      "notes": [
+        "Semantic conflict group conflict_محرك_ٹرپس__Trip_Engine_: Retained distinct key \"other.fields.txt_501f48\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -272538,6 +272599,7 @@
       "confidence": "MEDIUM",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "BUSINESS_DATA_RISK",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
@@ -272570,9 +272632,12 @@
           "element": "prop_\"trips.labels.status_6\""
         }
       ],
+      "semanticConflictGroupId": "conflict_الانتقال_من_حالت_الحالية____tr",
+      "duplicateGroupId": "dup_الانتقال_من_حالت_الحالية____tr_2",
       "notes": [
         "Preserve dynamic parameters: {targetStatus}",
         "Protected business/currency tokens: [status] must not be altered",
+        "Semantic conflict group conflict_الانتقال_من_حالت_الحالية____tr: Retained distinct key \"other.fields.txt_638d2f\" to avoid accidental merge.",
         "Preserved dynamic interpolation parameters"
       ],
       "validationErrors": [],
@@ -279669,6 +279734,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -279695,7 +279761,11 @@
           "element": "prop_\"navigation.labels.trips\""
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_محرك_Trips__Trip_Engine_",
+      "duplicateGroupId": "dup_محرك_Trips__Trip_Engine__2",
+      "notes": [
+        "Semantic conflict group conflict_محرك_Trips__Trip_Engine_: Retained distinct key \"other.fields.txt_6e26e5\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -305921,6 +305991,398 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.block67Test01": {
+      "key": "other.labels.block67Test01",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK67-TEST-01",
+      "proposedTextEn": "BLOCK67-TEST-01",
+      "proposedTextUr": "BLOCK67-TEST-01",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 35,
+          "column": 6,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.block67Test02": {
+      "key": "other.labels.block67Test02",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK67-TEST-02",
+      "proposedTextEn": "BLOCK67-TEST-02",
+      "proposedTextUr": "BLOCK67-TEST-02",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 55,
+          "column": 6,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.block67Test03": {
+      "key": "other.labels.block67Test03",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK67-TEST-03",
+      "proposedTextEn": "BLOCK67-TEST-03",
+      "proposedTextUr": "BLOCK67-TEST-03",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 88,
+          "column": 6,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.block67Test04": {
+      "key": "other.labels.block67Test04",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK67-TEST-04",
+      "proposedTextEn": "BLOCK67-TEST-04",
+      "proposedTextUr": "BLOCK67-TEST-04",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 107,
+          "column": 6,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.block67Test05": {
+      "key": "other.labels.block67Test05",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK67-TEST-05",
+      "proposedTextEn": "BLOCK67-TEST-05",
+      "proposedTextUr": "BLOCK67-TEST-05",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 141,
+          "column": 6,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.block67Test06": {
+      "key": "other.labels.block67Test06",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK67-TEST-06",
+      "proposedTextEn": "BLOCK67-TEST-06",
+      "proposedTextUr": "BLOCK67-TEST-06",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 165,
+          "column": 6,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.block67Test07": {
+      "key": "other.labels.block67Test07",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK67-TEST-07",
+      "proposedTextEn": "BLOCK67-TEST-07",
+      "proposedTextUr": "BLOCK67-TEST-07",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 201,
+          "column": 6,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.block67Test08": {
+      "key": "other.labels.block67Test08",
+      "category": "other",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK67-TEST-08",
+      "proposedTextEn": "BLOCK67-TEST-08",
+      "proposedTextUr": "BLOCK67-TEST-08",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 214,
+          "column": 6,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.border": {
       "key": "other.labels.border",
       "category": "other",
@@ -323372,6 +323834,12 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 1,
+          "column": 16,
+          "element": "literal"
+        },
+        {
           "file": "src/tests/i18nCatalog.test.ts",
           "line": 22,
           "column": 16,
@@ -323474,7 +323942,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_25",
+      "duplicateGroupId": "dup_fs_26",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -325138,6 +325606,12 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 66,
+          "column": 40,
+          "element": "literal"
+        },
+        {
           "file": "src/tests/i18nCatalog.test.ts",
           "line": 100,
           "column": 38,
@@ -325240,7 +325714,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_137",
+      "duplicateGroupId": "dup_HIGH_138",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -334073,6 +334547,58 @@
     "other.labels.import_4": {
       "key": "other.labels.import_4",
       "category": "other",
+      "semanticContext": "prop_ar",
+      "sourceTextAr": "مركز الاستيراد (Import Center)",
+      "proposedTextEn": "مركز الImport (Import Center)",
+      "proposedTextUr": "مركز الامپورٹ کریں (Import Center)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 175,
+          "column": 11,
+          "element": "prop_ar"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_مركز_الاستيراد__Import_Center_",
+      "duplicateGroupId": "dup_مركز_الاستيراد__Import_Center__2",
+      "notes": [
+        "Semantic conflict group conflict_مركز_الاستيراد__Import_Center_: Retained distinct key \"other.labels.import_4\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.import_5": {
+      "key": "other.labels.import_5",
+      "category": "other",
       "semanticContext": "prop_notes",
       "sourceTextAr": "تم التحقق من دعم استيراد إكسل وتخزين البيانات الوصفية للملف والصف دون أخطاء",
       "proposedTextEn": "تم Verify دعم Import إكسل وتخزين Data Descriptionية للملف والصف دون أخطاء",
@@ -338146,6 +338672,12 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 66,
+          "column": 23,
+          "element": "literal"
+        },
+        {
           "file": "src/tests/i18nCatalog.test.ts",
           "line": 231,
           "column": 22,
@@ -338212,7 +338744,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_LOW_88",
+      "duplicateGroupId": "dup_LOW_89",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -346288,6 +346820,12 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 2,
+          "column": 18,
+          "element": "literal"
+        },
+        {
           "file": "src/tests/i18nCatalog.test.ts",
           "line": 23,
           "column": 18,
@@ -346390,7 +346928,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_27",
+      "duplicateGroupId": "dup_path_28",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -355103,6 +355641,12 @@
           "element": "call_resolve"
         },
         {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 215,
+          "column": 50,
+          "element": "call_resolve"
+        },
+        {
           "file": "src/tests/i18nCatalog.test.ts",
           "line": 350,
           "column": 35,
@@ -355121,7 +355665,7 @@
           "element": "call_resolve"
         }
       ],
-      "duplicateGroupId": "dup_reports_23",
+      "duplicateGroupId": "dup_reports_24",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -360164,6 +360708,67 @@
     "other.labels.status_5": {
       "key": "other.labels.status_5",
       "category": "other",
+      "semanticContext": "prop_ar",
+      "sourceTextAr": "الانتقال من الحالة الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "proposedTextEn": "الانتقال من Status الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "proposedTextUr": "الانتقال من حالت الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [
+        "targetStatus"
+      ],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [
+        "status",
+        "targetStatus"
+      ],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 181,
+          "column": 11,
+          "element": "prop_ar"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_الانتقال_من_الحالة_الحالية____",
+      "duplicateGroupId": "dup_الانتقال_من_الحالة_الحالية_____3",
+      "notes": [
+        "Preserve dynamic parameters: {targetStatus}",
+        "Protected business/currency tokens: [status] must not be altered",
+        "Semantic conflict group conflict_الانتقال_من_الحالة_الحالية____: Retained distinct key \"other.labels.status_5\" to avoid accidental merge.",
+        "Preserved dynamic interpolation parameters"
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.status_6": {
+      "key": "other.labels.status_6",
+      "category": "other",
       "semanticContext": "prop_category",
       "sourceTextAr": "إدارة الحالة (Lifecycle Management)",
       "proposedTextEn": "إدارة Status (Lifecycle Management)",
@@ -360208,8 +360813,8 @@
       },
       "isReportOrExportField": false
     },
-    "other.labels.status_6": {
-      "key": "other.labels.status_6",
+    "other.labels.status_7": {
+      "key": "other.labels.status_7",
       "category": "other",
       "semanticContext": "prop_notes",
       "sourceTextAr": "تم التحقق من مطابقة متطلبات الميزان: sourceType=WEIGHBRIDGE، loadingActorType=IMPORT، والحالة IN_TRANSIT مع null لأوزان ومواعيد التفريغ",
@@ -366960,6 +367565,58 @@
     },
     "other.labels.trips_8": {
       "key": "other.labels.trips_8",
+      "category": "other",
+      "semanticContext": "prop_ar",
+      "sourceTextAr": "محرك الرحلات (Trip Engine)",
+      "proposedTextEn": "محرك Trips (Trip Engine)",
+      "proposedTextUr": "محرك ٹرپس (Trip Engine)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 169,
+          "column": 11,
+          "element": "prop_ar"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_محرك_الرحلات__Trip_Engine_",
+      "duplicateGroupId": "dup_محرك_الرحلات__Trip_Engine__3",
+      "notes": [
+        "Semantic conflict group conflict_محرك_الرحلات__Trip_Engine_: Retained distinct key \"other.labels.trips_8\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.trips_9": {
+      "key": "other.labels.trips_9",
       "category": "other",
       "semanticContext": "prop_name",
       "sourceTextAr": "التوافق مع الرحلات القديمة (Legacy Trips) وتعيين القيم الافتراضية MANUAL بدون كسر السجلات",
@@ -374998,6 +375655,58 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_1c77f5": {
+      "key": "other.labels.txt_1c77f5",
+      "category": "other",
+      "semanticContext": "prop_ur",
+      "sourceTextAr": "مركز الامپورٹ کریں (Import Center)",
+      "proposedTextEn": "مركز الامپورٹ کریں (Import Center)",
+      "proposedTextUr": "مركز الامپورٹ کریں (Import Center)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 177,
+          "column": 11,
+          "element": "prop_ur"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_مركز_الامپورٹ_کریں__Import_Cen",
+      "duplicateGroupId": "dup_مركز_الامپورٹ_کریں__Import_Cen_2",
+      "notes": [
+        "Semantic conflict group conflict_مركز_الامپورٹ_کریں__Import_Cen: Retained distinct key \"other.labels.txt_1c77f5\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_1caa0f": {
       "key": "other.labels.txt_1caa0f",
       "category": "other",
@@ -375697,6 +376406,58 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_1e8140": {
+      "key": "other.labels.txt_1e8140",
+      "category": "other",
+      "semanticContext": "prop_en",
+      "sourceTextAr": "مركز الImport (Import Center)",
+      "proposedTextEn": "مركز الImport (Import Center)",
+      "proposedTextUr": "مركز الImport (Import Center)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 176,
+          "column": 11,
+          "element": "prop_en"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_مركز_الImport__Import_Center_",
+      "duplicateGroupId": "dup_مركز_الImport__Import_Center__2",
+      "notes": [
+        "Semantic conflict group conflict_مركز_الImport__Import_Center_: Retained distinct key \"other.labels.txt_1e8140\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
       },
       "isReportOrExportField": false
     },
@@ -382476,6 +383237,67 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_301a96": {
+      "key": "other.labels.txt_301a96",
+      "category": "other",
+      "semanticContext": "prop_en",
+      "sourceTextAr": "الانتقال من Status الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "proposedTextEn": "الانتقال من Status الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "proposedTextUr": "الانتقال من Status الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [
+        "targetStatus"
+      ],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [
+        "status",
+        "targetStatus"
+      ],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 182,
+          "column": 11,
+          "element": "prop_en"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_الانتقال_من_Status_الحالية____",
+      "duplicateGroupId": "dup_الانتقال_من_Status_الحالية_____2",
+      "notes": [
+        "Preserve dynamic parameters: {targetStatus}",
+        "Protected business/currency tokens: [status] must not be altered",
+        "Semantic conflict group conflict_الانتقال_من_Status_الحالية____: Retained distinct key \"other.labels.txt_301a96\" to avoid accidental merge.",
+        "Preserved dynamic interpolation parameters"
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
       },
       "isReportOrExportField": false
     },
@@ -392577,6 +393399,58 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_501f48": {
+      "key": "other.labels.txt_501f48",
+      "category": "other",
+      "semanticContext": "prop_ur",
+      "sourceTextAr": "محرك ٹرپس (Trip Engine)",
+      "proposedTextEn": "محرك ٹرپس (Trip Engine)",
+      "proposedTextUr": "محرك ٹرپس (Trip Engine)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 171,
+          "column": 11,
+          "element": "prop_ur"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_محرك_ٹرپس__Trip_Engine_",
+      "duplicateGroupId": "dup_محرك_ٹرپس__Trip_Engine__2",
+      "notes": [
+        "Semantic conflict group conflict_محرك_ٹرپس__Trip_Engine_: Retained distinct key \"other.labels.txt_501f48\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_50436f": {
       "key": "other.labels.txt_50436f",
       "category": "other",
@@ -400170,6 +401044,67 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_638d2f": {
+      "key": "other.labels.txt_638d2f",
+      "category": "other",
+      "semanticContext": "prop_ur",
+      "sourceTextAr": "الانتقال من حالت الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "proposedTextEn": "الانتقال من حالت الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "proposedTextUr": "الانتقال من حالت الحالية [${trip.status}] إلى [${targetStatus}] غير مسموح به. الحالات المسموح بها للانطلاق: [${rule.allowedFrom.join(', ') || 'لا يوجد'}].",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [
+        "targetStatus"
+      ],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [
+        "status",
+        "targetStatus"
+      ],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 183,
+          "column": 11,
+          "element": "prop_ur"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_الانتقال_من_حالت_الحالية____tr",
+      "duplicateGroupId": "dup_الانتقال_من_حالت_الحالية____tr_2",
+      "notes": [
+        "Preserve dynamic parameters: {targetStatus}",
+        "Protected business/currency tokens: [status] must not be altered",
+        "Semantic conflict group conflict_الانتقال_من_حالت_الحالية____tr: Retained distinct key \"other.labels.txt_638d2f\" to avoid accidental merge.",
+        "Preserved dynamic interpolation parameters"
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_63bb0d": {
       "key": "other.labels.txt_63bb0d",
       "category": "other",
@@ -403608,6 +404543,58 @@
         }
       ],
       "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_6e26e5": {
+      "key": "other.labels.txt_6e26e5",
+      "category": "other",
+      "semanticContext": "prop_en",
+      "sourceTextAr": "محرك Trips (Trip Engine)",
+      "proposedTextEn": "محرك Trips (Trip Engine)",
+      "proposedTextUr": "محرك Trips (Trip Engine)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 170,
+          "column": 11,
+          "element": "prop_en"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_محرك_Trips__Trip_Engine_",
+      "duplicateGroupId": "dup_محرك_Trips__Trip_Engine__2",
+      "notes": [
+        "Semantic conflict group conflict_محرك_Trips__Trip_Engine_: Retained distinct key \"other.labels.txt_6e26e5\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -415749,6 +416736,12 @@
           "element": "call_writeFileSync"
         },
         {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 235,
+          "column": 92,
+          "element": "call_readFileSync"
+        },
+        {
           "file": "src/tests/i18nCatalog.test.ts",
           "line": 494,
           "column": 79,
@@ -415839,7 +416832,7 @@
           "element": "call_readFileSync"
         }
       ],
-      "duplicateGroupId": "dup_utf_8_44",
+      "duplicateGroupId": "dup_utf_8_45",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -421226,10 +422219,16 @@
           "line": 964,
           "column": 33,
           "element": "prop_\"trips.status.failedPricing\""
+        },
+        {
+          "file": "src/tests/humanReviewGovernanceBlock67.test.ts",
+          "line": 149,
+          "column": 35,
+          "element": "prop_'trips.status.failedPricing'"
         }
       ],
       "semanticConflictGroupId": "conflict__حظر_بدء_الرحلة___فشل_حل_التسع",
-      "duplicateGroupId": "dup__حظر_بدء_الرحلة___فشل_حل_التسع_2",
+      "duplicateGroupId": "dup__حظر_بدء_الرحلة___فشل_حل_التسع_3",
       "notes": [
         "Semantic conflict group conflict__حظر_بدء_الرحلة___فشل_حل_التسع: Retained distinct key \"other.status.failedPricing\" to avoid accidental merge."
       ],
@@ -477259,7 +478258,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_25",
+      "duplicateGroupId": "dup_fs_26",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -477589,7 +478588,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_137",
+      "duplicateGroupId": "dup_HIGH_138",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -479665,7 +480664,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_27",
+      "duplicateGroupId": "dup_path_28",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -482539,7 +483538,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_reports_23",
+      "duplicateGroupId": "dup_reports_24",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -493941,7 +494940,7 @@
           "element": "call_writeFileSync"
         }
       ],
-      "duplicateGroupId": "dup_utf_8_44",
+      "duplicateGroupId": "dup_utf_8_45",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -502113,7 +503112,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_fs_25",
+      "duplicateGroupId": "dup_fs_26",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -502219,7 +503218,7 @@
           "element": "prop_severity"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_137",
+      "duplicateGroupId": "dup_HIGH_138",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -504156,7 +505155,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_path_27",
+      "duplicateGroupId": "dup_path_28",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -533798,7 +534797,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_HIGH_137",
+      "duplicateGroupId": "dup_HIGH_138",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -537478,7 +538477,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_الانتقال_من_الحالة_الحالية____",
-      "duplicateGroupId": "dup_الانتقال_من_الحالة_الحالية_____2",
+      "duplicateGroupId": "dup_الانتقال_من_الحالة_الحالية_____3",
       "notes": [
         "Preserve dynamic parameters: {targetStatus}",
         "Protected business/currency tokens: [status] must not be altered",
@@ -539113,7 +540112,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_حظر_إكمال_الرحلة_بدون_destNetW",
-      "duplicateGroupId": "dup_حظر_إكمال_الرحلة_بدون_destNetW_2",
+      "duplicateGroupId": "dup_حظر_إكمال_الرحلة_بدون_destNetW_3",
       "notes": [
         "Semantic conflict group conflict_حظر_إكمال_الرحلة_بدون_destNetW: Retained distinct key \"trips.labels.trip_4\" to avoid accidental merge."
       ],
@@ -539260,7 +540259,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict__قاعدة_رقابية___تم_حظر_إكمال_ا",
-      "duplicateGroupId": "dup__قاعدة_رقابية___تم_حظر_إكمال_ا_2",
+      "duplicateGroupId": "dup__قاعدة_رقابية___تم_حظر_إكمال_ا_3",
       "notes": [
         "Semantic conflict group conflict__قاعدة_رقابية___تم_حظر_إكمال_ا: Retained distinct key \"trips.labels.trip_7\" to avoid accidental merge."
       ],
@@ -550623,7 +551622,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict__حظر_بدء_الرحلة___فشل_حل_التسع",
-      "duplicateGroupId": "dup__حظر_بدء_الرحلة___فشل_حل_التسع_2",
+      "duplicateGroupId": "dup__حظر_بدء_الرحلة___فشل_حل_التسع_3",
       "notes": [
         "Semantic conflict group conflict__حظر_بدء_الرحلة___فشل_حل_التسع: Retained distinct key \"trips.status.failedPricing\" to avoid accidental merge."
       ],

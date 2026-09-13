@@ -1,0 +1,266 @@
+[
+  {
+    "key": "trips.status.failedPricing",
+    "domain": "trips",
+    "priority": "P1",
+    "ar": "[حظر بدء الرحلة]: فشل حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+    "en": "[حظر بدء الTrip]: Failed حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+    "ur": "[حظر بدء الٹرپ]: ناکام حل التسعير واحتساب التسوية (Pricing Resolution Failed) - ${pricingResolutionResult.message}"
+  },
+  {
+    "key": "trips.labels.trip_4",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "حظر إكمال الرحلة بدون destNetWeight",
+    "en": "حظر إكمال الTrip بدون destNetWeight",
+    "ur": "حظر إكمال الٹرپ بدون destNetWeight"
+  },
+  {
+    "key": "trips.labels.trip_7",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "[قاعدة رقابية]: تم حظر إكمال الرحلة بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+    "en": "[قاعدة رقابية]: تم حظر إكمال الTrip بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).",
+    "ur": "[قاعدة رقابية]: تم حظر إكمال الٹرپ بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime)."
+  },
+  {
+    "key": "trips.labels.txt_2c17d4",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+    "en": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ",
+    "ur": "يحظر الإكمال بدون هوية المستلم ووقت التفريغ"
+  },
+  {
+    "key": "trips.labels.txt_2cd3f8",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+    "en": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)",
+    "ur": "مصفوفة إثبات الحظر الرقابي (Negative Stress Tests)"
+  },
+  {
+    "key": "trips.labels.txt_37b15d",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+    "en": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة",
+    "ur": "يحظر الإتمام إذا تعذر احتساب الفارق بدقة"
+  },
+  {
+    "key": "trips.labels.txt_3a0ff7",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "مبلغ التسوية المستحق:",
+    "en": "مبلغ التسوية المستحق:",
+    "ur": "مبلغ التسوية المستحق:"
+  },
+  {
+    "key": "trips.labels.txt_5f22c5",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "حوكمة كاملة لجميع تحولات دورة الحياة، التحقق من الرتبة والمشروع، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+    "en": "حوكمة كاملة لجميع تحولات دورة الحياة، Verify الرتبة وProject، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً.",
+    "ur": "حوكمة كاملة لجميع تحولات دورة الحياة، تصدیق کریں الرتبة وپروجیکٹ، إلزامية أوزان ومستلم وميقات الوصول، واحتساب التفاوت والتسوية خادومياً."
+  },
+  {
+    "key": "trips.labels.txt_622420",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "يتم التحقق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+    "en": "يتم Verification خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً.",
+    "ur": "يتم تصدیق خادومياً من القواعد الستة واحتساب الأوزان والتسوية تلقائياً."
+  },
+  {
+    "key": "trips.labels.txt_701a0c",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "يحظر تخطي المراحل التشغيلية الإلزامية",
+    "en": "يحظر تخطي المراحل التشغيلية الإلزامية",
+    "ur": "يحظر تخطي المراحل التشغيلية الإلزامية"
+  },
+  {
+    "key": "trips.labels.txt_761b23",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+    "en": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري.",
+    "ur": "محاولة توريد \"خلطة أسفلتية ساخنة\" في مشروع مخصص لنقل الردميات والركام. حظر فوري."
+  },
+  {
+    "key": "trips.labels.txt_7d5bc8",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "إجمالي التسوية المحسوبة",
+    "en": "إجمالي التسوية المحسوبة",
+    "ur": "إجمالي التسوية المحسوبة"
+  },
+  {
+    "key": "trips.labels.txt_7d6134",
+    "domain": "trips",
+    "priority": "P2",
+    "ar": "التسوية (SAR)",
+    "en": "التسوية (SAR)",
+    "ur": "التسوية (SAR)"
+  },
+  {
+    "key": "loading.labels.txt_57f8de",
+    "domain": "loading",
+    "priority": "P2",
+    "ar": "التسوية المعتمدة:",
+    "en": "التسوية المعتمدة:",
+    "ur": "التسوية المعتمدة:"
+  },
+  {
+    "key": "loading.labels.txt_73e4a3",
+    "domain": "loading",
+    "priority": "P2",
+    "ar": "التسوية التقديرية (Settlement)",
+    "en": "التسوية التقديرية (Settlement)",
+    "ur": "التسوية التقديرية (Settlement)"
+  },
+  {
+    "key": "unloading.labels.txt_1cfd3c",
+    "domain": "unloading",
+    "priority": "P2",
+    "ar": "اعتماد الاستثناء والسماح بالتسوية (Waive Exception)",
+    "en": "Approval الاستثناء والسماح بالتسوية (Waive Exception)",
+    "ur": "منظوری الاستثناء والسماح بالتسوية (Waive Exception)"
+  },
+  {
+    "key": "unloading.labels.txt_5f0c9f",
+    "domain": "unloading",
+    "priority": "P2",
+    "ar": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+    "en": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)",
+    "ur": "4️⃣ حظر اللوحة المنفردة (PROHIBITED)"
+  },
+  {
+    "key": "weighbridge.labels.txt_35a0be",
+    "domain": "weighbridge",
+    "priority": "P2",
+    "ar": "احتساب التسوية المالية بدقة بالطن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان البيانات",
+    "en": "احتساب التسوية المالية بدقة بالton أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان Data",
+    "ur": "احتساب التسوية المالية بدقة بالٹن أو المشوار مع اشتراط net &gt; 0، وإرجاع null عند فقدان ڈیٹا"
+  },
+  {
+    "key": "weighbridge.labels.txt_407887",
+    "domain": "weighbridge",
+    "priority": "P2",
+    "ar": "فحص دوال الحساب، معايير التحقق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+    "en": "Check دوال الحساب، معايير Verification، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)",
+    "ur": "جانچ دوال الحساب، معايير تصدیق، حظر استبدال المفقود بالصفر، وتقييم التفاوت (NORMAL / WARNING / EXCEPTION)"
+  },
+  {
+    "key": "offline.labels.txt_402c63",
+    "domain": "offline",
+    "priority": "P2",
+    "ar": "المبلغ والتسوية:",
+    "en": "المبلغ والتسوية:",
+    "ur": "المبلغ والتسوية:"
+  },
+  {
+    "key": "loading.labels.save_3",
+    "domain": "security",
+    "priority": "P2",
+    "ar": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها وحفظ السجل الأمني في سجلات الرقابة.",
+    "en": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها وSave السجل الأمني في سجلات الرقابة.",
+    "ur": "قيمة التسوية (settlementAmount) لا يوجد لها أي حقل إدخال في الواجهة، ويتم احتسابها حصراً في جانب الخدمة (Server-Side Calculation). في حال إرسال أي قيمة من العميل يتم تجاهلها ومحفوظ کریں السجل الأمني في سجلات الرقابة."
+  },
+  {
+    "key": "unloading.labels.txt_186f77",
+    "domain": "security",
+    "priority": "P2",
+    "ar": "تقرير الامتثال الآلي لاشتراطات محطة التفريغ (Unloading Station Tests)",
+    "en": "تقرير الامتثال الآلي لاشتراطات Unloading Station (Unloading Station Tests)",
+    "ur": "تقرير الامتثال الآلي لاشتراطات ان لوڈنگ اسٹیشن (Unloading Station Tests)"
+  },
+  {
+    "key": "unloading.labels.txt_1bec3a",
+    "domain": "security",
+    "priority": "P2",
+    "ar": "فحص الامتثال الآلي (7 متطلبات)",
+    "en": "Check الامتثال الآلي (7 متطلبات)",
+    "ur": "جانچ الامتثال الآلي (7 متطلبات)"
+  },
+  {
+    "key": "unloading.labels.txt_68980a",
+    "domain": "security",
+    "priority": "P2",
+    "ar": "حظر أمني رقابي (BLOCKED)",
+    "en": "حظر أمني رقابي (BLOCKED)",
+    "ur": "حظر أمني رقابي (BLOCKED)"
+  },
+  {
+    "key": "offline.labels.createTripPricing",
+    "domain": "pricing",
+    "priority": "P2",
+    "ar": "حظر إنشاء الرحلة بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بإنشاء أي رحلة بدون احتساب تسعيري معتمد.",
+    "en": "حظر Create الTrip بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بCreate أي Trip بدون احتساب تسعيري معتمد.",
+    "ur": "حظر تخلیق کریں الٹرپ بدون اتصال: بيانات التسعير غير متاحة محلياً في ذاكرة المتصفح (IndexedDB). لا يُسمح نظامياً بتخلیق کریں أي ٹرپ بدون احتساب تسعيري معتمد."
+  },
+  {
+    "key": "navigation.labels.txt_2f3fde",
+    "domain": "shared",
+    "priority": "P3",
+    "ar": "مستحق التسوية",
+    "en": "مستحق التسوية",
+    "ur": "مستحق التسوية"
+  },
+  {
+    "key": "entityResolution.labels.importEdit",
+    "domain": "entityResolution",
+    "priority": "P3",
+    "ar": "يعمل قبل اعتماد أي ملف استيراد (Import) أو تعديل على البيانات المرجعية (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية.",
+    "en": "يعمل قبل Approval أي ملف Import (Import) أو Edit على Data Reference (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية.",
+    "ur": "يعمل قبل منظوری أي ملف امپورٹ کریں (Import) أو ترمیم کریں على ڈیٹا حوالہ جاتی (Master Data). يمنع الدمج التلقائي الخاطئ (Auto-Merge) ويحظر التعارضات التنظيمية."
+  },
+  {
+    "key": "entityResolution.labels.txt_2b8f60",
+    "domain": "entityResolution",
+    "priority": "P3",
+    "ar": "تم استبعاد وحظر السجل من الإدخال.",
+    "en": "تم استبعاد وحظر السجل من الإدخال.",
+    "ur": "تم استبعاد وحظر السجل من الإدخال."
+  },
+  {
+    "key": "projects.labels.txt_6757e5",
+    "domain": "projects",
+    "priority": "P3",
+    "ar": "نسبة ضريبة القيمة المضافة % (VAT)",
+    "en": "نسبة ضريبة القيمة المضافة % (VAT)",
+    "ur": "نسبة ضريبة القيمة المضافة % (VAT)"
+  },
+  {
+    "key": "offline.labels.txt_305c29",
+    "domain": "offline",
+    "priority": "P3",
+    "ar": "تسوية ومطابقة التبعية مع البيانات الأساسية للخادم",
+    "en": "تسوية ومطابقة التبعية مع Data الأساسية للخادم",
+    "ur": "تسوية ومطابقة التبعية مع ڈیٹا الأساسية للخادم"
+  },
+  {
+    "key": "exceptions.labels.driver",
+    "domain": "exceptions",
+    "priority": "P3",
+    "ar": "كفالة السائق غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+    "en": "كفالة Driver غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ",
+    "ur": "كفالة ڈرائیور غير مطابقة للناقل المتعاقد مع عدم وجود تصريح أجير سارٍ"
+  },
+  {
+    "key": "projects.labels.settings",
+    "domain": "security",
+    "priority": "P3",
+    "ar": "الإعدادات الافتراضية والامتثال النظامي (Default Settings & Compliance)",
+    "en": "Settings الافتراضية والامتثال النظامي (Default Settings & Compliance)",
+    "ur": "ترتیبات الافتراضية والامتثال النظامي (Default Settings & Compliance)"
+  },
+  {
+    "key": "navigation.labels.pricing_2",
+    "domain": "pricing",
+    "priority": "P3",
+    "ar": "بناءً على لقطات التسعير التعاقدية للرحلات",
+    "en": "بناءً على لقطات التسعير التعاقدية للرحلات",
+    "ur": "بناءً على لقطات التسعير التعاقدية للرحلات"
+  }
+]
