@@ -48,7 +48,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
   onClose,
   onNotification
 }) => {
-  const { t } = useI18n();
+  const { t, direction } = useI18n();
   const { isOnline, isSimulatedOffline, toggleSimulatedOffline } = useOnlineStatus();
 
   const [activeTab, setActiveTab] = useState<'OUTBOX' | 'CONFLICTS' | 'CACHE'>('OUTBOX');
@@ -292,8 +292,8 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/50 backdrop-blur-xs transition-opacity" dir="rtl">
-      <div className="w-full max-w-2xl h-full bg-stone-50 border-r border-stone-200 shadow-2xl flex flex-col overflow-hidden text-right">
+    <div className="fixed inset-0 z-50 flex items-center justify-start bg-black/50 backdrop-blur-xs transition-opacity" dir={direction}>
+      <div className="w-full max-w-2xl h-full bg-stone-50 border-r rtl:border-l ltr:border-r border-stone-200 shadow-2xl flex flex-col overflow-hidden text-right rtl:text-right ltr:text-left">
         
         {/* Header */}
         <div className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
@@ -654,7 +654,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   <button
                     onClick={() => handleSimulateConflict('PRICING_CHANGED')}
                     disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-amber-200 bg-amber-50/70 hover:bg-amber-100/90 text-right transition-colors disabled:opacity-50"
+                    className="p-2.5 rounded-lg border border-amber-200 bg-amber-50/70 hover:bg-amber-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
                   >
                     <div className="flex items-center gap-1 text-amber-900 font-bold text-xs">
                       <Lock className="w-3.5 h-3.5 text-amber-700" />
@@ -666,7 +666,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   <button
                     onClick={() => handleSimulateConflict('VERSION_CONFLICT')}
                     disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100/90 text-right transition-colors disabled:opacity-50"
+                    className="p-2.5 rounded-lg border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
                   >
                     <div className="flex items-center gap-1 text-indigo-900 font-bold text-xs">
                       <Scale className="w-3.5 h-3.5 text-indigo-700" />
@@ -678,7 +678,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   <button
                     onClick={() => handleSimulateConflict('TRIP_ALREADY_COMPLETED')}
                     disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/90 text-right transition-colors disabled:opacity-50"
+                    className="p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
                   >
                     <div className="flex items-center gap-1 text-emerald-900 font-bold text-xs">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
@@ -690,7 +690,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   <button
                     onClick={() => handleSimulateConflict('TRIP_ALREADY_RETURNED')}
                     disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-rose-200 bg-rose-50/70 hover:bg-rose-100/90 text-right transition-colors disabled:opacity-50"
+                    className="p-2.5 rounded-lg border border-rose-200 bg-rose-50/70 hover:bg-rose-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
                   >
                     <div className="flex items-center gap-1 text-rose-900 font-bold text-xs">
                       <XCircle className="w-3.5 h-3.5 text-rose-700" />
@@ -702,7 +702,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   <button
                     onClick={() => handleSimulateConflict('DUPLICATE_OPERATION')}
                     disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-orange-200 bg-orange-50/70 hover:bg-orange-100/90 text-right transition-colors disabled:opacity-50"
+                    className="p-2.5 rounded-lg border border-orange-200 bg-orange-50/70 hover:bg-orange-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
                   >
                     <div className="flex items-center gap-1 text-orange-900 font-bold text-xs">
                       <Layers className="w-3.5 h-3.5 text-orange-700" />
@@ -714,7 +714,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   <button
                     onClick={() => handleSimulateConflict('TRUCK_CARRIER_CONFLICT')}
                     disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-purple-200 bg-purple-50/70 hover:bg-purple-100/90 text-right transition-colors disabled:opacity-50"
+                    className="p-2.5 rounded-lg border border-purple-200 bg-purple-50/70 hover:bg-purple-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
                   >
                     <div className="flex items-center gap-1 text-purple-900 font-bold text-xs">
                       <HardDrive className="w-3.5 h-3.5 text-purple-700" />
@@ -726,7 +726,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   <button
                     onClick={() => handleSimulateConflict('MASTER_DATA_CHANGED')}
                     disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-cyan-200 bg-cyan-50/70 hover:bg-cyan-100/90 text-right transition-colors disabled:opacity-50 col-span-2 sm:col-span-2"
+                    className="p-2.5 rounded-lg border border-cyan-200 bg-cyan-50/70 hover:bg-cyan-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50 col-span-2 sm:col-span-2"
                   >
                     <div className="flex items-center gap-1 text-cyan-900 font-bold text-xs">
                       <Database className="w-3.5 h-3.5 text-cyan-700" />

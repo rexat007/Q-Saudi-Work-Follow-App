@@ -73,7 +73,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
   onViewTripDetails,
   onNotification
 }) => {
-  const { t, t: translate } = useI18n();
+  const { t, t: translate, isRTL } = useI18n();
   // Current Workflow Step
   const [currentStep, setCurrentStep] = useState<WorkflowStep>('PROJECT');
 
@@ -1281,7 +1281,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                     onClick={goToPrevStep}
                     className="px-4 py-2 rounded-lg border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs font-bold transition-colors flex items-center gap-1.5"
                   >
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
                     <span>السابق</span>
                   </button>
                 ) : (
@@ -1306,7 +1306,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                     className="px-5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs"
                   >
                     <span>التالي ({STEPS[stepIndex + 1].label})</span>
-                    <ArrowLeft className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                   </button>
                 ) : (
                   <button

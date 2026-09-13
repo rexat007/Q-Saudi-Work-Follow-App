@@ -1,0 +1,99 @@
+{
+  "metadata": {
+    "block": 73,
+    "phase": "P1_DIRECTIONAL_UX_FIXES",
+    "timestamp": "2026-09-13T20:55:00.000Z",
+    "baseRecoveryPoint": "BLOCK 72 (reports/uiux-rtl-audit-block72.json)",
+    "translationPhaseStatus": "FROZEN_LOCKED",
+    "p1FindingsFixedCount": 2,
+    "unrelatedFindingsFixedCount": 0
+  },
+  "summary": {
+    "status": "COMPLETED",
+    "allAuthorizedP1Fixed": true,
+    "i18nRemainsFrozen": true,
+    "noP2OrP3WorkPerformed": true,
+    "filesChanged": [
+      "src/components/offline/OutboxDrawer.tsx",
+      "src/components/tripEngine/LoadingStation.tsx",
+      "src/components/wizard/ProjectSetupWizard.tsx"
+    ]
+  },
+  "fixes": [
+    {
+      "id": "AUDIT-72-01",
+      "category": "RTL_LTR",
+      "severity": "P1",
+      "title": "Outbox Drawer Direction and Placement Alignment",
+      "affectedLocales": ["en"],
+      "files": ["src/components/offline/OutboxDrawer.tsx"],
+      "before": {
+        "outerContainerDir": "dir=\"rtl\"",
+        "outerContainerJustify": "justify-end",
+        "innerContainerBorder": "border-r border-stone-200",
+        "innerContainerText": "text-right",
+        "simulationButtonsText": "text-right",
+        "ltrExperience": "Enforced RTL overlay anchored to the left with right border and right-aligned text in English mode."
+      },
+      "after": {
+        "outerContainerDir": "dir={direction}",
+        "outerContainerJustify": "justify-start",
+        "innerContainerBorder": "border-e rtl:border-l ltr:border-r border-stone-200",
+        "innerContainerText": "text-start",
+        "simulationButtonsText": "text-start",
+        "rtlExperience": "Drawer opens on the right (RTL start) with left border divider facing content and right-aligned text.",
+        "ltrExperience": "Drawer opens on the left (LTR start) with right border divider facing content and left-aligned text."
+      },
+      "preservation": {
+        "dimensionsPreserved": true,
+        "contentPreserved": true,
+        "closeHandlerPreserved": true,
+        "syncAndFilterLogicPreserved": true,
+        "noEnglishSpecificBusinessLogic": true
+      }
+    },
+    {
+      "id": "AUDIT-72-02",
+      "category": "RTL_LTR",
+      "severity": "P1",
+      "title": "Directional Arrow Navigation Indicator Correction",
+      "affectedLocales": ["en"],
+      "files": [
+        "src/components/tripEngine/LoadingStation.tsx",
+        "src/components/wizard/ProjectSetupWizard.tsx"
+      ],
+      "before": {
+        "previousIcon": "Hardcoded <ArrowRight /> unconditionally",
+        "nextIcon": "Hardcoded <ArrowLeft /> unconditionally",
+        "ltrExperience": "Previous button showed right-arrow (pointing forward), Next button showed left-arrow (pointing backward)."
+      },
+      "after": {
+        "previousIcon": "{isRTL ? <ArrowRight className=\"w-4 h-4\" /> : <ArrowLeft className=\"w-4 h-4\" />}",
+        "nextIcon": "{isRTL ? <ArrowLeft className=\"w-4 h-4\" /> : <ArrowRight className=\"w-4 h-4\" />}",
+        "rtlExperience": "Previous points right (→, back in RTL), Next points left (←, forward in RTL).",
+        "ltrExperience": "Previous points left (←, back in LTR), Next points right (→, forward in LTR)."
+      },
+      "preservation": {
+        "buttonLabelsUnchanged": true,
+        "loadingStationPrevLabel": "السابق",
+        "loadingStationNextLabel": "التالي ({STEPS[stepIndex + 1].label})",
+        "wizardPrevLabel": "السابق",
+        "wizardNextLabel": "التالي: {stepsMeta[currentStep]?.title || 'المراجعة'}",
+        "navigationHandlersUnchanged": true,
+        "stepStateUnchanged": true,
+        "workflowLogicUnchanged": true
+      }
+    }
+  ],
+  "verification": {
+    "rtlDrawerPlacement": "VERIFIED (Right-aligned, border-l, text-right in RTL)",
+    "ltrDrawerPlacement": "VERIFIED (Left-aligned, border-r, text-left in LTR)",
+    "rtlPreviousNextArrows": "VERIFIED (Previous=ArrowRight, Next=ArrowLeft in RTL)",
+    "ltrPreviousNextArrows": "VERIFIED (Previous=ArrowLeft, Next=ArrowRight in LTR)",
+    "labelsUnchanged": "VERIFIED (All navigation labels identical to BLOCK 72)",
+    "handlersUnchanged": "VERIFIED (goToPrevStep / goToNextStep preserved)",
+    "localeChanges": "NONE (All 3 locales retain exactly 1,128 keys with 0 drift)",
+    "unrelatedSourceChanges": "NONE (Only 3 authorized component files modified)",
+    "p2P3Deferred": "CONFIRMED (AUDIT-72-03 through AUDIT-72-10 intact and unchanged)"
+  }
+}

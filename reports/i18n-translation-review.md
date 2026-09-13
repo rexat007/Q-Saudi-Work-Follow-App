@@ -211,7 +211,7 @@ This document contains domain-specific terminology requiring human verification 
 | `reports.fields.formula` | "Formula" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
 | ... | *and 546 more items in this domain queue* | | | |
 
-## Domain: `security` (534 items requiring review)
+## Domain: `security` (556 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -235,7 +235,7 @@ This document contains domain-specific terminology requiring human verification 
 | `security.fields.edit_4` | "حظر تعديل فارق الوزن (varianceWeight) مباشرة" | prop_titleAr | `MEDIUM` | Domain-specific terminology translation (Protected: [varianceWeight]) |
 | `security.fields.entity` | "entity" | prop_field | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.location` | "فارق وزني بين ميزان المقلع وميزان الموقع (-1,450 كجم، بنسبة تفاوت -4.62% بينما الحد الأقصى 1.5%)" | prop_description | `HIGH` | Domain-specific terminology translation (Protected: [KG]) |
-| ... | *and 514 more items in this domain queue* | | | |
+| ... | *and 536 more items in this domain queue* | | | |
 
 ## Domain: `offline` (271 items requiring review)
 

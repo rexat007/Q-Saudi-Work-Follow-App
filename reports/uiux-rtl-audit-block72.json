@@ -1,0 +1,146 @@
+{
+  "auditMetadata": {
+    "block": 72,
+    "auditPhase": "UI_UX_AND_RTL_LTR_VISUAL_AUDIT",
+    "timestamp": "2026-09-13T20:00:00.000Z",
+    "auditMode": "READ_ONLY_AUDIT_FIRST",
+    "translationPhaseStatus": "FROZEN_LOCKED",
+    "localesAudited": ["ar", "en", "ur"],
+    "totalFindings": 10,
+    "severityCounts": {
+      "P0": 0,
+      "P1": 2,
+      "P2": 5,
+      "P3": 3
+    }
+  },
+  "executiveSummary": {
+    "status": "COMPLETED",
+    "criticalBlockers": 0,
+    "overallHealth": "GOOD",
+    "i18nFreezePreserved": true,
+    "recommendation": "Documented 10 actionable UI/UX and RTL/LTR findings across physical styling, responsive constraints, and accessibility. Translation layer remains 100% frozen."
+  },
+  "findings": [
+    {
+      "id": "AUDIT-72-01",
+      "screen": "OutboxDrawer",
+      "componentPath": "src/components/offline/OutboxDrawer.tsx",
+      "category": "RTL_LTR",
+      "severity": "P1",
+      "title": "Hardcoded dir='rtl' and physical positioning in Outbox drawer overlay",
+      "issueDescription": "The drawer container enforces dir='rtl', justify-end, border-r, and text-right unconditionally. When switching to English (en, LTR), the entire drawer remains in RTL layout anchored to the left with reversed typography flow.",
+      "affectedLocales": ["en"],
+      "reproduction": "Set language to English. Click the top header offline/outbox pill. Observe drawer opens with dir='rtl' on the left side with text-right.",
+      "recommendedFix": "Remove hardcoded dir='rtl' so it inherits document direction; replace justify-end with direction-aware placement; replace border-r with border-l rtl:border-r ltr:border-l; remove hardcoded text-right."
+    },
+    {
+      "id": "AUDIT-72-02",
+      "screen": "WorkflowSteppers",
+      "componentPath": "src/components/tripEngine/LoadingStation.tsx, src/components/wizard/ProjectSetupWizard.tsx",
+      "category": "RTL_LTR",
+      "severity": "P1",
+      "title": "Directional icon inversion on Previous/Next navigation buttons",
+      "issueDescription": "Step navigation buttons hardcode ArrowRight for 'Previous' and ArrowLeft for 'Next'. While visually intuitive in RTL, in LTR (English) the arrow directions point oppositely to the reading direction (ArrowRight points forward, ArrowLeft points backward).",
+      "affectedLocales": ["en"],
+      "reproduction": "Switch to English locale. Navigate to Loading Station or Project Setup Wizard. Observe 'Previous' has ArrowRight and 'Next' has ArrowLeft.",
+      "recommendedFix": "Apply rtl:rotate-180 to directional chevron/arrow icons or swap icon components conditionally based on isRTL / direction."
+    },
+    {
+      "id": "AUDIT-72-03",
+      "screen": "LanguageSwitcher",
+      "componentPath": "src/components/i18n/LanguageSwitcher.tsx",
+      "category": "RTL_LTR",
+      "severity": "P2",
+      "title": "Hardcoded text-left and physical right-0 dropdown alignment",
+      "issueDescription": "The container has hardcoded text-left and dropdown positioning has right-0. In RTL mode (ar, ur), text-left inside the container conflicts with natural RTL reading flow, and right-0 pins the dropdown to the physical right edge.",
+      "affectedLocales": ["ar", "ur"],
+      "reproduction": "Set language to Arabic or Urdu. Open the LanguageSwitcher dropdown. Container specifies text-left and dropdown is pinned with right-0.",
+      "recommendedFix": "Replace text-left with text-start; replace right-0 with Tailwind logical end-0 or rtl:left-0 ltr:right-0."
+    },
+    {
+      "id": "AUDIT-72-04",
+      "screen": "SearchInputs",
+      "componentPath": "src/components/masterData/MasterDataView.tsx, src/components/importCenter/ImportCenterView.tsx, src/components/reports/ReportsEngineView.tsx, src/components/pricing/PricingEngineView.tsx",
+      "category": "RTL_LTR",
+      "severity": "P2",
+      "title": "Hardcoded search icon right-3 and physical padding pr-9 pl-3",
+      "issueDescription": "Search input fields fix the search icon with absolute right-3 and pr-9 pl-3. In LTR (English), this leaves the search icon on the trailing side while text entry begins on the left with small padding, creating asymmetrical spacing.",
+      "affectedLocales": ["en"],
+      "reproduction": "In English locale, inspect search fields in Master Data or Reports Engine. Search icon remains fixed on the right side.",
+      "recommendedFix": "Use Tailwind logical properties ps-9 pe-3 and start-3, or conditional rtl:right-3 ltr:left-3 and rtl:pr-9 ltr:pl-9."
+    },
+    {
+      "id": "AUDIT-72-05",
+      "screen": "TablesAndDividers",
+      "componentPath": "src/components/masterData/MasterDataView.tsx, src/components/reports/ReportsEngineView.tsx, src/components/pricing/PricingEngineView.tsx",
+      "category": "RTL_LTR",
+      "severity": "P2",
+      "title": "Hardcoded text-right and physical border-l in table columns",
+      "issueDescription": "Tables specify text-right at the table/thead level and apply border-l on table cell separators. In LTR, this causes text to remain right-aligned and produces asymmetrical vertical dividers.",
+      "affectedLocales": ["en"],
+      "reproduction": "Switch to English. Inspect Master Data or Pricing Rules tables. Content is forced to the right side of cells with physical border-l.",
+      "recommendedFix": "Replace text-right with text-start or logical alignment classes; use border-e or consistent table border collapsing."
+    },
+    {
+      "id": "AUDIT-72-06",
+      "screen": "HeaderNavigation",
+      "componentPath": "src/App.tsx",
+      "category": "RESPONSIVE_UI",
+      "severity": "P2",
+      "title": "Top navigation bar density on tablet and mobile viewports",
+      "issueDescription": "Top header contains 17 tab buttons in a single flex container. On viewports between 640px and 1280px, tabs require horizontal scrolling without visible overflow gradients or scroll affordance.",
+      "affectedLocales": ["ar", "en", "ur"],
+      "reproduction": "Resize browser to 768px (tablet). Notice navigation bar requires horizontal scroll without explicit scroll indicators.",
+      "recommendedFix": "Implement fade indicators on scroll container edges or provide a responsive category/group dropdown for tablet/mobile."
+    },
+    {
+      "id": "AUDIT-72-07",
+      "screen": "PricingAndWeightControls",
+      "componentPath": "src/components/pricing/PricingEngineView.tsx, src/components/tripEngine/WeightEngineView.tsx",
+      "category": "ACCESSIBILITY",
+      "severity": "P2",
+      "title": "Compact button hitboxes below 44px mobile touch target standard",
+      "issueDescription": "Quick preset buttons and category filter chips have compact padding (py-0.5 px-2, ~24px height), failing the 44x44px touch target guideline on touchscreens.",
+      "affectedLocales": ["ar", "en", "ur"],
+      "reproduction": "On mobile touch viewport, inspect quick weight preset buttons in Weight Engine. Hitbox is approximately 24px high.",
+      "recommendedFix": "Increase mobile touch targets using sm:py-0.5 py-2 and min-h-[44px] responsive rules."
+    },
+    {
+      "id": "AUDIT-72-08",
+      "screen": "ImportCenterReviewTable",
+      "componentPath": "src/components/importCenter/ImportCenterView.tsx",
+      "category": "VISUAL_CONSISTENCY",
+      "severity": "P3",
+      "title": "English column headers ('Row', 'Field', 'Original Value', 'Suggested Value') in RTL view",
+      "issueDescription": "Import review table headers contain hardcoded English strings in an otherwise localized view. Under BLOCK 71 freeze rules, these strings cannot be modified in translation files now, but are logged for post-freeze enhancement.",
+      "affectedLocales": ["ar", "ur"],
+      "reproduction": "Navigate to Import Center -> Active Batch. Table headers are displayed in English.",
+      "recommendedFix": "Schedule for localized keys when translation phase is formally reopened in future roadmap."
+    },
+    {
+      "id": "AUDIT-72-09",
+      "screen": "GlobalIconMargins",
+      "componentPath": "src/App.tsx, src/components/reports/ReportsEngineView.tsx",
+      "category": "RTL_LTR",
+      "severity": "P3",
+      "title": "Hardcoded physical margins (mr-0.5, mr-1) on icon containers",
+      "issueDescription": "Physical margins like mr-0.5 are used between icons and text. In RTL mode, mr pushes spacing towards the inline start rather than trailing margin.",
+      "affectedLocales": ["ar", "ur"],
+      "reproduction": "Inspect the header Outbox indicator icon; it utilizes physical mr-0.5.",
+      "recommendedFix": "Replace physical mr-* and ml-* margins with flex gap or Tailwind logical me-* and ms-* properties."
+    },
+    {
+      "id": "AUDIT-72-10",
+      "screen": "StationSteppers",
+      "componentPath": "src/components/tripEngine/LoadingStation.tsx, src/components/tripEngine/UnloadingStation.tsx",
+      "category": "RESPONSIVE_UI",
+      "severity": "P3",
+      "title": "Fixed min-w-[700px] on step workflow container forces horizontal scroll on mobile",
+      "issueDescription": "Loading and Unloading station steppers define min-w-[700px] with overflow-x-auto. On viewports < 640px, the user must scroll horizontally to view remaining steps.",
+      "affectedLocales": ["ar", "en", "ur"],
+      "reproduction": "Open Loading Station on a 375px mobile viewport. Observe the stepper requires horizontal scroll.",
+      "recommendedFix": "Add a mobile-optimized compact/vertical step view (e.g., 'Step 3 of 8') for screens below 640px."
+    }
+  ]
+}
