@@ -1,0 +1,902 @@
+[
+  {
+    "key": "dashboard.labels.downloadLocation",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "أوزان التحميل / الموقع",
+    "oldEn": "أوزان التحميل / Location",
+    "oldUr": "أوزان التحميل / مقام"
+  },
+  {
+    "key": "dashboard.labels.download_2",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "C",
+    "ar": "تم التحميل",
+    "oldEn": "تم التحميل",
+    "oldUr": "تم التحميل"
+  },
+  {
+    "key": "dashboard.labels.download_3",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "C",
+    "ar": "دقة حساب إجمالي أوزان التحميل والاستلام وفارق الموازين",
+    "oldEn": "دقة حساب إجمالي أوزان التحميل والاستلام وفارق الموازين",
+    "oldUr": "دقة حساب إجمالي أوزان التحميل والاستلام وفارق الموازين"
+  },
+  {
+    "key": "dashboard.labels.location_2",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "إجمالي أوزان الاستلام بالموقع (Total Received Tons)",
+    "oldEn": "إجمالي أوزان الاستلام بLocation (Total Received Tons)",
+    "oldUr": "إجمالي أوزان الاستلام بمقام (Total Received Tons)"
+  },
+  {
+    "key": "dashboard.labels.materials_2",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "كافة المواد",
+    "oldEn": "كافة Materials",
+    "oldUr": "كافة مٹیریلز"
+  },
+  {
+    "key": "dashboard.labels.pricing_3",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "C",
+    "ar": "تم توزيع ${matDist.length} مواد، ونموذجي التسعير (PER_TRIP و PER_TON) بنسبة 100%.",
+    "oldEn": "تم توزيع ${matDist.length} مواد، ونموذجي التسعير (PER_TRIP و PER_TON) بنسبة 100%.",
+    "oldUr": "تم توزيع ${matDist.length} مواد، ونموذجي التسعير (PER_TRIP و PER_TON) بنسبة 100%."
+  },
+  {
+    "key": "dashboard.labels.projects",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "اختباراً لعزل المشاريع وحسابات الأوزان والتسويات.",
+    "oldEn": "اختباراً لعزل Projects وحسابات الأوزان والتسويات.",
+    "oldUr": "اختباراً لعزل پروجیکٹس وحسابات الأوزان والتسويات."
+  },
+  {
+    "key": "dashboard.labels.projects_2",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "إدارة العمليات المركزية - كافة المشاريع",
+    "oldEn": "إدارة Operations المركزية - كافة Projects",
+    "oldUr": "إدارة آپریشنز المركزية - كافة پروجیکٹس"
+  },
+  {
+    "key": "dashboard.labels.projects_3",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "صلاحية مدير العمليات العام لكافة المشاريع",
+    "oldEn": "صلاحية مدير Operations العام لكافة Projects",
+    "oldUr": "صلاحية مدير آپریشنز العام لكافة پروجیکٹس"
+  },
+  {
+    "key": "dashboard.labels.projects_4",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "تم السماح لمدير العمليات العام بالوصول لـ ${superRes.trips.length} رحلات من مختلف المشاريع بدون حجب.",
+    "oldEn": "تم السماح لمدير Operations العام بالوصول لـ ${superRes.trips.length} رحلات من مختلف Projects بدون حجب.",
+    "oldUr": "تم السماح لمدير آپریشنز العام بالوصول لـ ${superRes.trips.length} رحلات من مختلف پروجیکٹس بدون حجب."
+  },
+  {
+    "key": "dashboard.labels.projects_5",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "نتائج فحص أمان المشاريع وصحة مؤشرات العمليات (Compliance Suite)",
+    "oldEn": "نتائج Check أمان Projects وصحة مؤشرات Operations (Compliance Suite)",
+    "oldUr": "نتائج جانچ أمان پروجیکٹس وصحة مؤشرات آپریشنز (Compliance Suite)"
+  },
+  {
+    "key": "dashboard.labels.projects_7",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/WidgetFilterBar.tsx",
+    "category": "B",
+    "ar": "كافة المشاريع المصرحة",
+    "oldEn": "كافة Projects المصرحة",
+    "oldUr": "كافة پروجیکٹس المصرحة"
+  },
+  {
+    "key": "dashboard.labels.search",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "لا توجد حركات مسجلة تطابق معايير الفلترة أو البحث الحالية.",
+    "oldEn": "لا توجد حركات مسجلة تطابق معايير الفلترة أو الSearch الحالية.",
+    "oldUr": "لا توجد حركات مسجلة تطابق معايير الفلترة أو التلاش کریں الحالية."
+  },
+  {
+    "key": "dashboard.labels.trips_2",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "دقة حساب بطاقات حالات وأعداد الرحلات",
+    "oldEn": "دقة حساب بطاقات حالات وأعداد Trips",
+    "oldUr": "دقة حساب بطاقات حالات وأعداد ٹرپس"
+  },
+  {
+    "key": "dashboard.labels.txt_1137e3",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "C",
+    "ar": "استثناءات (Exceptions)",
+    "oldEn": "استثناءات (Exceptions)",
+    "oldUr": "استثناءات (Exceptions)"
+  },
+  {
+    "key": "dashboard.labels.txt_11a6ad",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "C",
+    "ar": "مستوى صلاحيات المدير العام للمنظومة",
+    "oldEn": "مستوى صلاحيات المدير العام للمنظومة",
+    "oldUr": "مستوى صلاحيات المدير العام للمنظومة"
+  },
+  {
+    "key": "dashboard.labels.txt_125b36",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "C",
+    "ar": "بطاقات الأوزان وتفاوت الموازين (Tonnage & Weighbridge Variance)",
+    "oldEn": "بطاقات الأوزان وتفاوت الموازين (Tonnage & Weighbridge Variance)",
+    "oldUr": "بطاقات الأوزان وتفاوت الموازين (Tonnage & Weighbridge Variance)"
+  },
+  {
+    "key": "dashboard.labels.txt_15b1d1",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "B",
+    "ar": "لا توجد بيانات ناقلين مطابقة لمعايير الفلترة الحالية.",
+    "oldEn": "No data available ناقلين مطابقة لمعايير الفلترة الحالية.",
+    "oldUr": "کوئی ڈیٹا موجود نہیں ناقلين مطابقة لمعايير الفلترة الحالية."
+  },
+  {
+    "key": "dashboard.labels.txt_176fe6",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "C",
+    "ar": "مقطوعية بالرد (PER_TRIP)",
+    "oldEn": "مقطوعية بالرد (PER_TRIP)",
+    "oldUr": "مقطوعية بالرد (PER_TRIP)"
+  },
+  {
+    "key": "dashboard.labels.txt_18193c",
+    "domain": "dashboard",
+    "file": "src/components/dashboard/OperationsDashboardView.tsx",
+    "category": "C",
+    "ar": "بطاقات التسويات والمستحقات المالية (Financial Settlement - Snapshot Invariance)",
+    "oldEn": "بطاقات التسويات والمستحقات المالية (Financial Settlement - Snapshot Invariance)",
+    "oldUr": "بطاقات التسويات والمستحقات المالية (Financial Settlement - Snapshot Invariance)"
+  },
+  {
+    "key": "trips.labels.cancelTrip",
+    "domain": "trips",
+    "file": "src/components/tripEngine/StateMachineController.tsx",
+    "category": "B",
+    "ar": "إلغاء أمر الرحلة كلياً قبل الانطلاق أو بقرار تشغيلي معتمد",
+    "oldEn": "Cancel أمر الTrip كلياً قبل الانطلاق أو بقرار تشغيلي معتمد",
+    "oldUr": "منسوخ کریں أمر الٹرپ كلياً قبل الانطلاق أو بقرار تشغيلي معتمد"
+  },
+  {
+    "key": "trips.labels.carrier",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "B",
+    "ar": "الناقل (${params.carrierId}) غير مسجل في النظام",
+    "oldEn": "Carrier (${params.carrierId}) غير مسجل في النظام",
+    "oldUr": "کیریئر (${params.carrierId}) غير مسجل في النظام"
+  },
+  {
+    "key": "trips.labels.carrierTruck",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "B",
+    "ar": "الناقل والشاحنة:",
+    "oldEn": "Carrier وTruck:",
+    "oldUr": "کیریئر وٹرک:"
+  },
+  {
+    "key": "trips.labels.carrier_2",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "B",
+    "ar": "الناقل (${carrier.name}) حالته معطلة (INACTIVE)",
+    "oldEn": "Carrier (${carrier.name}) حالته معطلة (INACTIVE)",
+    "oldUr": "کیریئر (${carrier.name}) حالته معطلة (INACTIVE)"
+  },
+  {
+    "key": "trips.labels.confirm",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "B",
+    "ar": "تأكيد التحول إلى [",
+    "oldEn": "Confirm التحول إلى [",
+    "oldUr": "تصدیق کریں التحول إلى ["
+  },
+  {
+    "key": "trips.labels.confirmBackTruck",
+    "domain": "trips",
+    "file": "src/components/tripEngine/StateMachineController.tsx",
+    "category": "B",
+    "ar": "تأكيد رجوع الشاحنة إلى الكسارة أو المحجر المصدر.",
+    "oldEn": "Confirm Back Truck إلى الكسارة أو المحجر Source.",
+    "oldUr": "تصدیق کریں واپس ٹرک إلى الكسارة أو المحجر ماخذ."
+  },
+  {
+    "key": "trips.labels.create",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "B",
+    "ar": "تم الإنشاء:",
+    "oldEn": "تم الCreate:",
+    "oldUr": "تم التخلیق کریں:"
+  },
+  {
+    "key": "trips.labels.createTrip",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "B",
+    "ar": "تعذر إنشاء الرحلة لانتهاك قواعد التحقق المعمارية: ${validation.blockingError}",
+    "oldEn": "تعذر Create الTrip لانتهاك قواعد Verification المعمارية: ${validation.blockingError}",
+    "oldUr": "تعذر تخلیق کریں الٹرپ لانتهاك قواعد تصدیق المعمارية: ${validation.blockingError}"
+  },
+  {
+    "key": "trips.labels.createTrip_2",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "B",
+    "ar": "تم إنشاء أمر الرحلة واعتماد تسعير الرد والقواعد الستة",
+    "oldEn": "تم Create أمر الTrip وApproval تسعير الرد والقواعد الستة",
+    "oldUr": "تم تخلیق کریں أمر الٹرپ ومنظوری تسعير الرد والقواعد الستة"
+  },
+  {
+    "key": "trips.labels.create_2",
+    "domain": "trips",
+    "file": "src/components/tripEngine/StateMachineController.tsx",
+    "category": "B",
+    "ar": "تعذر إنشاء واعتماد الشحنة بمحطة التحميل: ${validation.blockingError}",
+    "oldEn": "تعذر Create وApproval الشحنة بLoading Station: ${validation.blockingError}",
+    "oldUr": "تعذر تخلیق کریں ومنظوری الشحنة بلوڈنگ اسٹیشن: ${validation.blockingError}"
+  },
+  {
+    "key": "trips.labels.download",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "C",
+    "ar": "تم التحميل (LOADED)",
+    "oldEn": "تم التحميل (LOADED)",
+    "oldUr": "تم التحميل (LOADED)"
+  },
+  {
+    "key": "trips.labels.downloadTrips",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "B",
+    "ar": "انقر على أي سيناريو أدناه لتحميل بياناته فوراً وملاحظة سلوك محرك الرحلات في القبول أو الحظر:",
+    "oldEn": "انقر على أي سيناريو أدناه لتحميل بياناته فوراً وملاحظة سلوك محرك Trips في القبول أو الحظر:",
+    "oldUr": "انقر على أي سيناريو أدناه لتحميل بياناته فوراً وملاحظة سلوك محرك ٹرپس في القبول أو الحظر:"
+  },
+  {
+    "key": "trips.labels.downloadWeighbridge",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "B",
+    "ar": "مشغل محطة التحميل والميزان",
+    "oldEn": "مشغل Loading Station والميزان",
+    "oldUr": "مشغل لوڈنگ اسٹیشن والميزان"
+  },
+  {
+    "key": "trips.labels.download_2",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "C",
+    "ar": "تحميل واختبار السيناريو",
+    "oldEn": "تحميل واختبار السيناريو",
+    "oldUr": "تحميل واختبار السيناريو"
+  },
+  {
+    "key": "trips.labels.download_3",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "C",
+    "ar": "تحميل واختبار سيناريو الأمان الرقابي",
+    "oldEn": "تحميل واختبار سيناريو الأمان الرقابي",
+    "oldUr": "تحميل واختبار سيناريو الأمان الرقابي"
+  },
+  {
+    "key": "trips.labels.driverDownload",
+    "domain": "trips",
+    "file": "src/components/tripEngine/StateMachineController.tsx",
+    "category": "B",
+    "ar": "مثال: محاولة السائق اعتماد التحميل أو الاستلام",
+    "oldEn": "مثال: محاولة Driver Approval التحميل أو الاستلام",
+    "oldUr": "مثال: محاولة ڈرائیور منظوری التحميل أو الاستلام"
+  },
+  {
+    "key": "trips.labels.driverMaterial",
+    "domain": "trips",
+    "file": "src/components/TripEngineView.tsx",
+    "category": "B",
+    "ar": "السائق والمادة",
+    "oldEn": "Driver وMaterial",
+    "oldUr": "ڈرائیور ومٹیریل"
+  },
+  {
+    "key": "trips.labels.editTrip_2",
+    "domain": "trips",
+    "file": "src/components/tripEngine/StateMachineController.tsx",
+    "category": "B",
+    "ar": "لا يمكن تعديل حالة الرحلة لأنها مقفلة ومفوترة نهائياً",
+    "oldEn": "لا يمكن Edit حالة الTrip لأنها مقفلة ومفوترة نهائياً",
+    "oldUr": "لا يمكن ترمیم کریں حالة الٹرپ لأنها مقفلة ومفوترة نهائياً"
+  },
+  {
+    "key": "trips.labels.edit_3",
+    "domain": "trips",
+    "file": "src/components/tripEngine/StateMachineController.tsx",
+    "category": "B",
+    "ar": "رفض أمني (RBAC): غير مصرح للمشرف بتعديل البيانات المالية (financials) مباشرة",
+    "oldEn": "رفض أمني (RBAC): غير مصرح للمشرف بEdit Data المالية (financials) مباشرة",
+    "oldUr": "رفض أمني (RBAC): غير مصرح للمشرف بترمیم کریں ڈیٹا المالية (financials) مباشرة"
+  },
+  {
+    "key": "trips.labels.edit_4",
+    "domain": "trips",
+    "file": "src/components/tripEngine/StateMachineController.tsx",
+    "category": "B",
+    "ar": "رفض أمني (Workflow Bypass): لا يمكن تعديل وقت التفريغ (unloadTime) مباشرة خارج دورة حياة التفريغ.",
+    "oldEn": "رفض أمني (Workflow Bypass): لا يمكن Edit وقت التفريغ (unloadTime) مباشرة خارج دورة حياة التفريغ.",
+    "oldUr": "رفض أمني (Workflow Bypass): لا يمكن ترمیم کریں وقت التفريغ (unloadTime) مباشرة خارج دورة حياة التفريغ."
+  },
+  {
+    "key": "loading.labels.carrier_4",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "شاحنات أسطول الناقل التابعة للمشروع",
+    "oldEn": "شاحنات أسطول Carrier التابعة للمشروع",
+    "oldUr": "شاحنات أسطول کیریئر التابعة للمشروع"
+  },
+  {
+    "key": "loading.labels.confirm",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "تأكيد وترحيل الشحنة مع التحقق الخادومي المباشر",
+    "oldEn": "Confirm وترحيل الشحنة مع Verification الخادومي المباشر",
+    "oldUr": "تصدیق کریں وترحيل الشحنة مع تصدیق الخادومي المباشر"
+  },
+  {
+    "key": "loading.labels.confirm_4",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "تسلسل المحرك بعد التأكيد:",
+    "oldEn": "تسلسل المحرك بعد الConfirm:",
+    "oldUr": "تسلسل المحرك بعد التصدیق کریں:"
+  },
+  {
+    "key": "loading.labels.createTripDownload",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": ": إنشاء سجل الرحلة بحالة التحميل المبدئية.",
+    "oldEn": ": Create سجل الTrip بحالة التحميل المبدئية.",
+    "oldUr": ": تخلیق کریں سجل الٹرپ بحالة التحميل المبدئية."
+  },
+  {
+    "key": "loading.labels.createTripStatusSave",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": ": إنشاء سجل الرحلة المبدئي بالحالة LOADED وحفظ Pricing Snapshot",
+    "oldEn": ": Create سجل الTrip المبدئي بStatus LOADED وSave Pricing Snapshot",
+    "oldUr": ": تخلیق کریں سجل الٹرپ المبدئي بحالت LOADED ومحفوظ کریں Pricing Snapshot"
+  },
+  {
+    "key": "loading.labels.createTrip_2",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "محظور نظامياً: لا يمكن إنشاء رحلة Offline بدون بيانات تسعير معتمدة مسبقاً",
+    "oldEn": "محظور نظامياً: لا يمكن Create Trip Offline بدون بيانات تسعير معتمدة مسبقاً",
+    "oldUr": "محظور نظامياً: لا يمكن تخلیق کریں ٹرپ Offline بدون بيانات تسعير معتمدة مسبقاً"
+  },
+  {
+    "key": "loading.labels.downloadPricing",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "يعمل التحميل بدون اتصال: تتوفر Master Data وقاعدة التسعير محلياً. يتم الاحتساب والحفظ محلياً ثم الإدراج في Outbox.",
+    "oldEn": "يعمل التحميل بدون اتصال: تتوفر Master Data وقاعدة التسعير محلياً. يتم الاحتساب والSave محلياً ثم الإدراج في Outbox.",
+    "oldUr": "يعمل التحميل بدون اتصال: تتوفر Master Data وقاعدة التسعير محلياً. يتم الاحتساب والمحفوظ کریں محلياً ثم الإدراج في Outbox."
+  },
+  {
+    "key": "loading.labels.downloadPricing_2",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "C",
+    "ar": "تحميل مثال التسعير بالمقطوعية (120 SAR)",
+    "oldEn": "تحميل مثال التسعير بالمقطوعية (120 SAR)",
+    "oldUr": "تحميل مثال التسعير بالمقطوعية (120 SAR)"
+  },
+  {
+    "key": "loading.labels.downloadPricing_4",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "C",
+    "ar": "الخطوة 8: معاينة بطاقة التحميل والتسعير (Preview)",
+    "oldEn": "الخطوة 8: معاينة بطاقة التحميل والتسعير (Preview)",
+    "oldUr": "الخطوة 8: معاينة بطاقة التحميل والتسعير (Preview)"
+  },
+  {
+    "key": "loading.labels.downloadWeighbridge_2",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "محطة التحميل والميزان (Loading Station)",
+    "oldEn": "Loading Station والميزان (Loading Station)",
+    "oldUr": "لوڈنگ اسٹیشن والميزان (Loading Station)"
+  },
+  {
+    "key": "loading.labels.drivers",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "السائقون المصرحون",
+    "oldEn": "Drivers المصرحون",
+    "oldUr": "ڈرائیورز المصرحون"
+  },
+  {
+    "key": "loading.labels.driversCarrierTruck",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "السائقون المصرحون والمسجلون تحت الناقل والشاحنة",
+    "oldEn": "Drivers المصرحون والمسجلون تحت Carrier وTruck",
+    "oldUr": "ڈرائیورز المصرحون والمسجلون تحت کیریئر وٹرک"
+  },
+  {
+    "key": "loading.labels.edit",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "ممنوع تعديل قيمة التسوية من الواجهة",
+    "oldEn": "ممنوع Edit قيمة التسوية من الواجهة",
+    "oldUr": "ممنوع ترمیم کریں قيمة التسوية من الواجهة"
+  },
+  {
+    "key": "loading.labels.edit_2",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "حظر تعديل settlementAmount من الواجهة:",
+    "oldEn": "حظر Edit settlementAmount من الواجهة:",
+    "oldUr": "حظر ترمیم کریں settlementAmount من الواجهة:"
+  },
+  {
+    "key": "loading.labels.material_3",
+    "domain": "loading",
+    "file": "src/components/tripEngine/LoadingStation.tsx",
+    "category": "B",
+    "ar": "كود المادة:",
+    "oldEn": "كود Material:",
+    "oldUr": "كود مٹیریل:"
+  },
+  {
+    "key": "unloading.labels.create",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "إنشاء كائن استثناء رسمي (TripExceptionEntity) حقيقي وليس مجرد لون واجهة",
+    "oldEn": "Create كائن استثناء رسمي (TripExceptionEntity) حقيقي وليس مجرد لون واجهة",
+    "oldUr": "تخلیق کریں كائن استثناء رسمي (TripExceptionEntity) حقيقي وليس مجرد لون واجهة"
+  },
+  {
+    "key": "unloading.labels.location",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "هوية مستلم الموقع (unloaderId)",
+    "oldEn": "هوية مستلم Location (unloaderId)",
+    "oldUr": "هوية مستلم مقام (unloaderId)"
+  },
+  {
+    "key": "unloading.labels.location_2",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "تمت مراجعة الفارق واحتساب نسبة رطوبة وتبخر طبيعية معتمدة من مدير الموقع",
+    "oldEn": "تمت مراجعة الفارق واحتساب نسبة رطوبة وتبخر طبيعية معتمدة من مدير Location",
+    "oldUr": "تمت مراجعة الفارق واحتساب نسبة رطوبة وتبخر طبيعية معتمدة من مدير مقام"
+  },
+  {
+    "key": "unloading.labels.location_4",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "القائم بالموقع",
+    "oldEn": "القائم بLocation",
+    "oldUr": "القائم بمقام"
+  },
+  {
+    "key": "unloading.labels.location_5",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "الفارغ بالموقع",
+    "oldEn": "الفارغ بLocation",
+    "oldUr": "الفارغ بمقام"
+  },
+  {
+    "key": "unloading.labels.project",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "محطة التفريغ والاستلام بموقع المشروع (Unloading Station)",
+    "oldEn": "Unloading Station والاستلام بموقع Project (Unloading Station)",
+    "oldUr": "ان لوڈنگ اسٹیشن والاستلام بموقع پروجیکٹ (Unloading Station)"
+  },
+  {
+    "key": "unloading.labels.project_2",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "مطلوب اعتماد مدير المشروع",
+    "oldEn": "Required Approval مدير Project",
+    "oldUr": "لازمی منظوری مدير پروجیکٹ"
+  },
+  {
+    "key": "unloading.labels.refresh",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "سيتم التحديث",
+    "oldEn": "سيUpdated",
+    "oldUr": "سيتازہ ہو گیا"
+  },
+  {
+    "key": "unloading.labels.refresh_2",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "✓ حزم التحديث الذري الإلزامي للحقول الخمسة على السيرفر (Atomic Server Updates):",
+    "oldEn": "✓ حزم الRefresh الذري الإلزامي للحقول الخمسة على السيرفر (Atomic Server Updates):",
+    "oldUr": "✓ حزم التازہ کریں الذري الإلزامي للحقول الخمسة على السيرفر (Atomic Server Updates):"
+  },
+  {
+    "key": "unloading.labels.search",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "بحث وتحقق",
+    "oldEn": "Search وتحقق",
+    "oldUr": "تلاش کریں وتحقق"
+  },
+  {
+    "key": "unloading.labels.searchCreate",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "فحص الامتثال لقواعد البحث الخادومي، حظر اللوحة، التدرج، وإنشاء كائنات الاستثناء",
+    "oldEn": "Check الامتثال لقواعد الSearch الخادومي، حظر اللوحة، التدرج، وCreate كائنات الاستثناء",
+    "oldUr": "جانچ الامتثال لقواعد التلاش کریں الخادومي، حظر اللوحة، التدرج، وتخلیق کریں كائنات الاستثناء"
+  },
+  {
+    "key": "unloading.labels.searchTrip",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "البحث والتعرف على الرحلة (Search & Identification)",
+    "oldEn": "الSearch والتعرف على الTrip (Search & Identification)",
+    "oldUr": "التلاش کریں والتعرف على الٹرپ (Search & Identification)"
+  },
+  {
+    "key": "unloading.labels.searchTrip_2",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "بانتظار البحث عن رحلة",
+    "oldEn": "بانتظار الSearch عن Trip",
+    "oldUr": "بانتظار التلاش کریں عن ٹرپ"
+  },
+  {
+    "key": "unloading.labels.trip",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "تم اختيار الرحلة المحددة: ${cand.tripSerial}",
+    "oldEn": "تم اختيار الTrip المحددة: ${cand.tripSerial}",
+    "oldUr": "تم اختيار الٹرپ المحددة: ${cand.tripSerial}"
+  },
+  {
+    "key": "unloading.labels.trip_2",
+    "domain": "unloading",
+    "file": "src/components/tripEngine/UnloadingStation.tsx",
+    "category": "B",
+    "ar": "اشتراط صارم: لا تستخدم truckPlate وحده لتحديد الرحلة",
+    "oldEn": "اشتراط صارم: لا تستخدم truckPlate وحده لتحديد الTrip",
+    "oldUr": "اشتراط صارم: لا تستخدم truckPlate وحده لتحديد الٹرپ"
+  },
+  {
+    "key": "weighbridge.labels.addRefresh",
+    "domain": "weighbridge",
+    "file": "src/components/tripEngine/WeightEngineView.tsx",
+    "category": "B",
+    "ar": "إضافة أو تحديث قاعدة تفاوت (Tolerance Rule)",
+    "oldEn": "Add أو Refresh قاعدة تفاوت (Tolerance Rule)",
+    "oldUr": "شامل کریں أو تازہ کریں قاعدة تفاوت (Tolerance Rule)"
+  },
+  {
+    "key": "weighbridge.labels.cancel",
+    "domain": "weighbridge",
+    "file": "src/components/importCenter/WeighbridgeImportSection.tsx",
+    "category": "B",
+    "ar": "إلغاء وتراجع (Cancel)",
+    "oldEn": "Cancel وتراجع (Cancel)",
+    "oldUr": "منسوخ کریں وتراجع (Cancel)"
+  },
+  {
+    "key": "weighbridge.labels.confirm",
+    "domain": "weighbridge",
+    "file": "src/components/importCenter/WeighbridgeImportSection.tsx",
+    "category": "B",
+    "ar": "بانتظار تأكيد التحذيرات (WARNINGS_PENDING)",
+    "oldEn": "بانتظار Confirm الWarningات (WARNINGS_PENDING)",
+    "oldUr": "بانتظار تصدیق کریں الانتباہات (WARNINGS_PENDING)"
+  },
+  {
+    "key": "weighbridge.labels.confirm_3",
+    "domain": "weighbridge",
+    "file": "src/components/importCenter/WeighbridgeImportSection.tsx",
+    "category": "B",
+    "ar": "تأكيد اعتماد صافي المصدر كصافي وصول (Audit Confirmation)",
+    "oldEn": "Confirm Approval صافي Source كصافي وصول (Audit Confirmation)",
+    "oldUr": "تصدیق کریں منظوری صافي ماخذ كصافي وصول (Audit Confirmation)"
+  },
+  {
+    "key": "weighbridge.labels.confirm_4",
+    "domain": "weighbridge",
+    "file": "src/components/importCenter/WeighbridgeImportSection.tsx",
+    "category": "B",
+    "ar": "تأكيد واعتماد القرار الرقابي",
+    "oldEn": "Confirm وApproval القرار الرقابي",
+    "oldUr": "تصدیق کریں ومنظوری القرار الرقابي"
+  },
+  {
+    "key": "weighbridge.labels.details",
+    "domain": "weighbridge",
+    "file": "src/components/tripEngine/WeightEngineView.tsx",
+    "category": "B",
+    "ar": "تفاصيل التقييم الخادومي:",
+    "oldEn": "Details التقييم الخادومي:",
+    "oldUr": "تفصیلات التقييم الخادومي:"
+  },
+  {
+    "key": "weighbridge.labels.download",
+    "domain": "weighbridge",
+    "file": "src/components/tripEngine/WeightEngineView.tsx",
+    "category": "B",
+    "ar": "calculateVariance: التحقق الإلزامي من (net > 0) لصافي التحميل",
+    "oldEn": "calculateVariance: Verification الإلزامي من (net > 0) لصافي التحميل",
+    "oldUr": "calculateVariance: تصدیق الإلزامي من (net > 0) لصافي التحميل"
+  },
+  {
+    "key": "weighbridge.labels.download_2",
+    "domain": "weighbridge",
+    "file": "src/components/tripEngine/WeightEngineView.tsx",
+    "category": "C",
+    "ar": "صافي التحميل (loadedNet)",
+    "oldEn": "صافي التحميل (loadedNet)",
+    "oldUr": "صافي التحميل (loadedNet)"
+  },
+  {
+    "key": "weighbridge.labels.import",
+    "domain": "weighbridge",
+    "file": "src/components/importCenter/WeighbridgeImportSection.tsx",
+    "category": "B",
+    "ar": "بروفايل متخصص لاستيراد تذاكر وسجلات ميزان البسكول عبر مسار الاستيراد الموحد (Unified Pipeline). يفصل بين المصدر التشغيلي (WEIGHBRIDGE) ومصدر الإدخال (Excel/CSV/Sheets/Drive).",
+    "oldEn": "بروفايل متخصص لImport تذاكر وسجلات ميزان البسكول عبر مسار الImport الموحد (Unified Pipeline). يفصل بين Source التشغيلي (WEIGHBRIDGE) ومصدر الإدخال (Excel/CSV/Sheets/Drive).",
+    "oldUr": "بروفايل متخصص لامپورٹ کریں تذاكر وسجلات ميزان البسكول عبر مسار الامپورٹ کریں الموحد (Unified Pipeline). يفصل بين ماخذ التشغيلي (WEIGHBRIDGE) ومصدر الإدخال (Excel/CSV/Sheets/Drive)."
+  },
+  {
+    "key": "weighbridge.labels.importWeighbridge_2",
+    "domain": "weighbridge",
+    "file": "src/components/importCenter/WeighbridgeImportSection.tsx",
+    "category": "B",
+    "ar": "يدعم مسار الاستيراد الموحد قراءة بيانات الميزان من ملفات CSV وExcel وتكامل Google Drive وSheets.",
+    "oldEn": "يدعم مسار الImport الموحد قراءة بيانات الميزان من ملفات CSV وExcel وتكامل Google Drive وSheets.",
+    "oldUr": "يدعم مسار الامپورٹ کریں الموحد قراءة بيانات الميزان من ملفات CSV وExcel وتكامل Google Drive وSheets."
+  },
+  {
+    "key": "weighbridge.labels.importWeighbridge_3",
+    "domain": "weighbridge",
+    "file": "src/components/importCenter/WeighbridgeImportSection.tsx",
+    "category": "B",
+    "ar": "تنفيذ مسار استيراد الميزان وصولاً للمراجعة",
+    "oldEn": "تنفيذ مسار Import الميزان وصولاً للمراجعة",
+    "oldUr": "تنفيذ مسار امپورٹ کریں الميزان وصولاً للمراجعة"
+  },
+  {
+    "key": "weighbridge.labels.location",
+    "domain": "weighbridge",
+    "file": "src/components/tripEngine/WeightEngineView.tsx",
+    "category": "B",
+    "ar": "صافي الاستلام بالموقع (receivedNet) كجم",
+    "oldEn": "صافي الاستلام بLocation (receivedNet) kg",
+    "oldUr": "صافي الاستلام بمقام (receivedNet) کلوگرام"
+  },
+  {
+    "key": "weighbridge.labels.pricing",
+    "domain": "weighbridge",
+    "file": "src/components/tripEngine/WeightEngineView.tsx",
+    "category": "C",
+    "ar": "قاعدة التسعير (pricingRule) مفقودة أو غير محددة.",
+    "oldEn": "قاعدة التسعير (pricingRule) مفقودة أو غير محددة.",
+    "oldUr": "قاعدة التسعير (pricingRule) مفقودة أو غير محددة."
+  },
+  {
+    "key": "weighbridge.labels.save",
+    "domain": "weighbridge",
+    "file": "src/components/tripEngine/WeightEngineView.tsx",
+    "category": "B",
+    "ar": "حفظ القاعدة في محرك الأوزان",
+    "oldEn": "Save القاعدة في Weight Engine",
+    "oldUr": "محفوظ کریں القاعدة في وزن کا انجن"
+  },
+  {
+    "key": "weighbridge.labels.trips",
+    "domain": "weighbridge",
+    "file": "src/components/importCenter/WeighbridgeImportSection.tsx",
+    "category": "B",
+    "ar": "عدد الرحلات المعتمدة:",
+    "oldEn": "عدد Trips المعتمدة:",
+    "oldUr": "عدد ٹرپس المعتمدة:"
+  },
+  {
+    "key": "carriers.labels.carrier_2",
+    "domain": "projects",
+    "file": "src/components/wizard/Step3Carriers.tsx",
+    "category": "B",
+    "ar": "تسجيل الناقل",
+    "oldEn": "تسجيل Carrier",
+    "oldUr": "تسجيل کیریئر"
+  },
+  {
+    "key": "carriers.labels.project_2",
+    "domain": "projects",
+    "file": "src/components/wizard/Step3Carriers.tsx",
+    "category": "B",
+    "ar": "لا يوجد ناقلون مسجلون في المشروع حتى الآن.",
+    "oldEn": "لا يوجد ناقلون مسجلون في Project حتى الآن.",
+    "oldUr": "لا يوجد ناقلون مسجلون في پروجیکٹ حتى الآن."
+  },
+  {
+    "key": "carriers.labels.trucksPricing",
+    "domain": "projects",
+    "file": "src/components/wizard/Step3Carriers.tsx",
+    "category": "B",
+    "ar": "معرف وحيد للربط مع الشاحنات وقواعد التسعير",
+    "oldEn": "معرف وحيد للربط مع Trucks وقواعد التسعير",
+    "oldUr": "معرف وحيد للربط مع ٹرکس وقواعد التسعير"
+  },
+  {
+    "key": "carriers.labels.txt_5a7969",
+    "domain": "projects",
+    "file": "src/components/wizard/Step3Carriers.tsx",
+    "category": "C",
+    "ar": "أضف أول ناقل الآن",
+    "oldEn": "أضف أول ناقل الآن",
+    "oldUr": "أضف أول ناقل الآن"
+  },
+  {
+    "key": "carriers.labels.txt_6354e4",
+    "domain": "projects",
+    "file": "src/components/wizard/Step3Carriers.tsx",
+    "category": "C",
+    "ar": "ترخيص هيئة النقل العامة (TGA)",
+    "oldEn": "ترخيص هيئة النقل العامة (TGA)",
+    "oldUr": "ترخيص هيئة النقل العامة (TGA)"
+  },
+  {
+    "key": "carriers.status.status",
+    "domain": "projects",
+    "file": "src/components/wizard/Step3Carriers.tsx",
+    "category": "B",
+    "ar": "تغيير الحالة (نشط / معطّل)",
+    "oldEn": "تغيير Status (Active / معطّل)",
+    "oldUr": "تغيير حالت (فعال / معطّل)"
+  },
+  {
+    "key": "entityResolution.labels.carrier_5",
+    "domain": "projects",
+    "file": "src/components/dataQuality/DataQualityView.tsx",
+    "category": "B",
+    "ar": "الناقل غير مسجل في قائمة المقاولين المعتمدين للمشروع. هل ترغب في ترخيص هذا الناقل وإضافته للمشروع رسمياً؟",
+    "oldEn": "Carrier غير مسجل في قائمة المقاولين المعتمدين للمشروع. هل ترغب في ترخيص هذا Carrier وإضافته للمشروع رسمياً؟",
+    "oldUr": "کیریئر غير مسجل في قائمة المقاولين المعتمدين للمشروع. هل ترغب في ترخيص هذا کیریئر وإضافته للمشروع رسمياً؟"
+  },
+  {
+    "key": "entityResolution.labels.confirm",
+    "domain": "projects",
+    "file": "src/components/dataQuality/DataQualityView.tsx",
+    "category": "B",
+    "ar": "ℹ️ يوجد مرشح تقريبي (Possible Match)، يرجى التأكيد قبل الدمج.",
+    "oldEn": "ℹ️ يوجد مرشح تقريبي (Possible Match)، يرجى الConfirm قبل الدمج.",
+    "oldUr": "ℹ️ يوجد مرشح تقريبي (Possible Match)، يرجى التصدیق کریں قبل الدمج."
+  },
+  {
+    "key": "entityResolution.labels.details",
+    "domain": "projects",
+    "file": "src/components/dataQuality/DataQualityView.tsx",
+    "category": "B",
+    "ar": "تفاصيل المطابقة وتفسير الخوارزمية",
+    "oldEn": "Details المطابقة وتفسير الخوارزمية",
+    "oldUr": "تفصیلات المطابقة وتفسير الخوارزمية"
+  },
+  {
+    "key": "entityResolution.labels.driver",
+    "domain": "projects",
+    "file": "src/components/dataQuality/DataQualityView.tsx",
+    "category": "B",
+    "ar": "التحقق الصارم من التبعيات (الشاحنة للناقل، السائق للناقل، والترخيص في المشروع).",
+    "oldEn": "Verification الصارم من التبعيات (Truck للناقل، Driver للناقل، والترخيص في Project).",
+    "oldUr": "تصدیق الصارم من التبعيات (ٹرک للناقل، ڈرائیور للناقل، والترخيص في پروجیکٹ)."
+  },
+  {
+    "key": "offline.labels.add",
+    "domain": "offline",
+    "file": "src/components/offline/PWAInstallButton.tsx",
+    "category": "B",
+    "ar": "إضافة إلى الصفحة الرئيسية (Add to Home Screen)",
+    "oldEn": "Add إلى الصفحة الرئيسية (Add to Home Screen)",
+    "oldUr": "شامل کریں إلى الصفحة الرئيسية (Add to Home Screen)"
+  },
+  {
+    "key": "offline.labels.cancel",
+    "domain": "offline",
+    "file": "src/components/offline/ConflictResolutionModal.tsx",
+    "category": "B",
+    "ar": "إلغاء العملية المحلية مع تسجيل تقرير تباين تشغيلي (Exception Report)",
+    "oldEn": "Cancel العملية المحلية مع تسجيل تقرير تباين تشغيلي (Exception Report)",
+    "oldUr": "منسوخ کریں العملية المحلية مع تسجيل تقرير تباين تشغيلي (Exception Report)"
+  },
+  {
+    "key": "offline.labels.cancelTrip",
+    "domain": "offline",
+    "file": "src/components/offline/ConflictResolutionModal.tsx",
+    "category": "B",
+    "ar": "إلغاء أمر الرحلة لعدم صلاحية الكيان (Cancel Dispatch)",
+    "oldEn": "Cancel أمر الTrip لعدم صلاحية الكيان (Cancel Dispatch)",
+    "oldUr": "منسوخ کریں أمر الٹرپ لعدم صلاحية الكيان (Cancel Dispatch)"
+  },
+  {
+    "key": "offline.labels.cancel_2",
+    "domain": "offline",
+    "file": "src/components/offline/ConflictResolutionModal.tsx",
+    "category": "B",
+    "ar": "إلغاء ومراجعة لاحقاً",
+    "oldEn": "Cancel ومراجعة لاحقاً",
+    "oldUr": "منسوخ کریں ومراجعة لاحقاً"
+  },
+  {
+    "key": "offline.labels.carrier",
+    "domain": "offline",
+    "file": "src/components/offline/OutboxDrawer.tsx",
+    "category": "B",
+    "ar": "الناقل الفعلي بالخادم: ${serverTruckConflict.serverCarrierName}",
+    "oldEn": "Carrier الفعلي بالخادم: ${serverTruckConflict.serverCarrierName}",
+    "oldUr": "کیریئر الفعلي بالخادم: ${serverTruckConflict.serverCarrierName}"
+  }
+]
