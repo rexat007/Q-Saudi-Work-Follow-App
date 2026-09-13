@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-13T07:55:11.227Z
+**Generated At:** 2026-09-13T08:15:13.893Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,26 +9,26 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **8614** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **10734** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **5542** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **5542** | Domain terminology requiring semantic verification |
-| **Ambiguous Keys Isolated** | **3065** | Short tokens or codes quarantined from auto-translation |
+| **Untranslated Slots (Pending Review)** | **7626** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **7626** | Domain terminology requiring semantic verification |
+| **Ambiguous Keys Isolated** | **3101** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
-| **Interpolation Placeholders** | **194** | Dynamic parameters (e.g. `{count}`) strictly preserved |
-| **Pluralization Requirements** | **120** | Expressions requiring 6 Arabic plural forms |
-| **Semantic Conflicts Isolated** | **313** | Identical texts split into separate contextual keys |
-| **Duplicate Groups (Type A Sharing)** | **1425** | Safe identical-context key reuse candidates |
+| **Interpolation Placeholders** | **215** | Dynamic parameters (e.g. `{count}`) strictly preserved |
+| **Pluralization Requirements** | **155** | Expressions requiring 6 Arabic plural forms |
+| **Semantic Conflicts Isolated** | **485** | Identical texts split into separate contextual keys |
+| **Duplicate Groups (Type A Sharing)** | **1907** | Safe identical-context key reuse candidates |
 | **Directional Migration Queue** | **229** | Physical Tailwind classes flagged for RTL/LTR migration |
 
 ## 2. Category Distribution & Translation Readiness
 
 | Category | Total Keys | Translated | Untranslated | Review Required | Ambiguous |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `other` | 2347 | 4 | 1385 | 1385 | 958 |
+| `other` | 4453 | 4 | 3469 | 3469 | 980 |
 | `imports` | 1574 | 0 | 1086 | 1086 | 488 |
 | `reports` | 567 | 0 | 375 | 375 | 191 |
-| `security` | 521 | 1 | 399 | 399 | 121 |
+| `security` | 535 | 1 | 399 | 399 | 135 |
 | `trips` | 521 | 0 | 401 | 401 | 120 |
 | `pricing` | 491 | 0 | 321 | 321 | 170 |
 | `weighbridge` | 418 | 0 | 229 | 229 | 189 |
@@ -57,6 +57,7 @@ Identical Arabic terms separated into distinct keys based on operational context
 | :--- | :--- | :--- | :--- | :--- |
 | `carriers.actions.cancel` | "إلغاء" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
 | `carriers.labels.add` | "إضافة ناقل جديد" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
+| `carriers.labels.carrier_2` | "تسجيل الناقل" | `carriers` | literal | `REVIEW_REQUIRED` |
 | `carriers.labels.carrier_3` | "الناقل غير موجود" | `carriers` | literal | `REVIEW_REQUIRED` |
 | `carriers.labels.save` | "حفظ التعديلات" | `carriers` | literal | `REVIEW_REQUIRED` |
 | `carriers.labels.status` | "الحالة التشغيلية (status)" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
@@ -69,7 +70,6 @@ Identical Arabic terms separated into distinct keys based on operational context
 | `carriers.labels.txt_7f2994` | "المسؤول:" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
 | `carriers.status.active` | "نشط (ACTIVE)" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
 | `carriers.status.active_2` | "نشط" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
-| `dashboard.fields.trip` | "رقم الرحلة / التذكرة" | `dashboard` | jsx_text | `REVIEW_REQUIRED` |
 
 ## 4. Directional Migration Queue (First 15 Items)
 

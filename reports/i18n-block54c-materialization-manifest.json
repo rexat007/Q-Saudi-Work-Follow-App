@@ -1,0 +1,76 @@
+{
+  "manifestName": "BLOCK 54C — Runtime Dictionary Materialization Manifest",
+  "timestamp": "2026-09-13T08:14:00.000Z",
+  "status": "COMPLETE",
+  "sourceOfTruth": [
+    "reports/i18n-translation-catalog.json",
+    "reports/i18n-generated-translations.json",
+    "reports/i18n-block54a-recovery.json",
+    "reports/i18n-block54b-translation-generation.json",
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts"
+  ],
+  "metrics": {
+    "authoritativeReferencedKeys": 1115,
+    "previouslyResolvableReferencedKeys": 54,
+    "previouslyUnresolvedReferencedKeys": 1061,
+    "materializedReferencedKeys": 1061,
+    "foundationAndPreExistingKeys": 67,
+    "totalRuntimeDictionaryKeys": 1128,
+    "finalResolvableReferencedKeys": 1115,
+    "finalUnresolvedReferencedKeys": 0,
+    "finalKeyAsValueKeys": 0,
+    "missingInAr": 0,
+    "missingInEn": 0,
+    "missingInUr": 0,
+    "resolutionRate": 100.0,
+    "duplicateKeys": 0,
+    "interpolationMismatches": 0,
+    "protectedTokenMismatches": 0,
+    "languageParityPercentage": 100.0
+  },
+  "txtKeyBreakdown": {
+    "totalReferencedTxtKeys": 736,
+    "previouslyResolvable": 42,
+    "previouslyUnresolved": 694,
+    "finalResolvable": 736,
+    "finalUnresolved": 0,
+    "resolutionRate": 100.0
+  },
+  "metadataHooks": {
+    "hooksAudited": [
+      "src/hooks/useExceptionTypeMeta.ts",
+      "src/hooks/useDomainMeta.ts"
+    ],
+    "uniqueKeysCovered": 33,
+    "callSitesCovered": 50,
+    "resolvedInAr": 33,
+    "resolvedInEn": 33,
+    "resolvedInUr": 33,
+    "resolutionRate": 100.0
+  },
+  "runtimeLocaleFiles": [
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts"
+  ],
+  "tests": [
+    "I18N-RUNTIME-01",
+    "I18N-RUNTIME-02",
+    "I18N-RUNTIME-03",
+    "I18N-RUNTIME-04",
+    "I18N-RUNTIME-05",
+    "I18N-RUNTIME-06",
+    "I18N-RUNTIME-07",
+    "I18N-RUNTIME-08",
+    "I18N-RUNTIME-09",
+    "I18N-RUNTIME-10",
+    "I18N-RUNTIME-11",
+    "I18N-RUNTIME-12",
+    "I18N-RUNTIME-13",
+    "I18N-RUNTIME-14",
+    "I18N-RUNTIME-15",
+    "I18N-RUNTIME-16"
+  ]
+}

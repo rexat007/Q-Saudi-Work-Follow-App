@@ -1,5 +1,5 @@
 /**
- * BLOCK 53 — Runtime Translation Path Audit & Unresolved-Key Verification
+ * BLOCK 53 / BLOCK 54C — Runtime Translation Path Audit & Unresolved-Key Verification
  *
  * Test cases:
  * - I18N-RUNTIME-01: Referenced key resolves in ar
@@ -9,8 +9,19 @@
  * - I18N-RUNTIME-05: txt_* keys do not render literally when valid
  * - I18N-RUNTIME-06: Foundation fallback remains intact
  * - I18N-RUNTIME-07: Interpolation keys remain resolvable
+ * - I18N-RUNTIME-08: All referenced keys resolve in AR
+ * - I18N-RUNTIME-09: All referenced keys resolve in EN
+ * - I18N-RUNTIME-10: All referenced keys resolve in UR
+ * - I18N-RUNTIME-11: No referenced key resolves to itself
+ * - I18N-RUNTIME-12: All metadata-hook keys resolve
+ * - I18N-RUNTIME-13: Referenced language key sets are identical
+ * - I18N-RUNTIME-14: Interpolation parity remains valid
+ * - I18N-RUNTIME-15: Protected tokens remain valid
+ * - I18N-RUNTIME-16: No duplicate locale keys
  */
 
+import fs from 'fs';
+import path from 'path';
 import { resolveTranslation } from '../i18n/utils';
 import { dictionaries } from '../locales';
 
@@ -19,6 +30,25 @@ export interface TestCaseResult {
   name: string;
   passed: boolean;
   message?: string;
+}
+
+function getReferencedKeys(): string[] {
+  const auditPath = path.resolve(process.cwd(), 'reports/i18n-block53-runtime-audit.json');
+  const audit = JSON.parse(fs.readFileSync(auditPath, 'utf8'));
+  const auditFiles: string[] = audit.componentCoverage.files.map((f: any) => f.file);
+
+  const referencedKeySet = new Set<string>();
+  const keyRegex = /\b(?:t|translate)\(\s*['"]([^'"\s)]+)['"]/g;
+
+  for (const file of auditFiles) {
+    const filePath = path.resolve(process.cwd(), file);
+    const content = fs.readFileSync(filePath, 'utf8');
+    let match;
+    while ((match = keyRegex.exec(content)) !== null) {
+      referencedKeySet.add(match[1]);
+    }
+  }
+  return Array.from(referencedKeySet).sort();
 }
 
 export async function runRuntimeKeyAuditTests(): Promise<{ passed: number; failed: number; total: number }> {
@@ -178,14 +208,198 @@ export async function runRuntimeKeyAuditTests(): Promise<{ passed: number; faile
     }
   });
 
+  // I18N-RUNTIME-08: All referenced keys resolve in AR
+  test('I18N-RUNTIME-08', 'All referenced keys resolve in AR', () => {
+    const refKeys = getReferencedKeys();
+    if (refKeys.length !== 1115) {
+      throw new Error(`Expected 1115 referenced keys, found ${refKeys.length}`);
+    }
+    for (const key of refKeys) {
+      const res = resolveTranslation(key, 'ar');
+      if (!res || typeof res !== 'string' || res.trim() === '') {
+        throw new Error(`Key "${key}" failed to resolve or is empty in AR`);
+      }
+      if (res === key) {
+        throw new Error(`Key "${key}" unresolved in AR (returned literal key)`);
+      }
+    }
+  });
+
+  // I18N-RUNTIME-09: All referenced keys resolve in EN
+  test('I18N-RUNTIME-09', 'All referenced keys resolve in EN', () => {
+    const refKeys = getReferencedKeys();
+    for (const key of refKeys) {
+      const res = resolveTranslation(key, 'en');
+      if (!res || typeof res !== 'string' || res.trim() === '') {
+        throw new Error(`Key "${key}" failed to resolve or is empty in EN`);
+      }
+      if (res === key) {
+        throw new Error(`Key "${key}" unresolved in EN (returned literal key)`);
+      }
+    }
+  });
+
+  // I18N-RUNTIME-10: All referenced keys resolve in UR
+  test('I18N-RUNTIME-10', 'All referenced keys resolve in UR', () => {
+    const refKeys = getReferencedKeys();
+    for (const key of refKeys) {
+      const res = resolveTranslation(key, 'ur');
+      if (!res || typeof res !== 'string' || res.trim() === '') {
+        throw new Error(`Key "${key}" failed to resolve or is empty in UR`);
+      }
+      if (res === key) {
+        throw new Error(`Key "${key}" unresolved in UR (returned literal key)`);
+      }
+    }
+  });
+
+  // I18N-RUNTIME-11: No referenced key resolves to itself
+  test('I18N-RUNTIME-11', 'No referenced key resolves to itself', () => {
+    const refKeys = getReferencedKeys();
+    const selfResolving: Array<{ key: string; locale: string }> = [];
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      for (const key of refKeys) {
+        const res = resolveTranslation(key, locale);
+        if (res === key) {
+          selfResolving.push({ key, locale });
+        }
+      }
+    }
+    if (selfResolving.length > 0) {
+      throw new Error(`Found ${selfResolving.length} self-resolving keys: ${JSON.stringify(selfResolving.slice(0, 5))}`);
+    }
+  });
+
+  // I18N-RUNTIME-12: All metadata-hook keys resolve
+  test('I18N-RUNTIME-12', 'All metadata-hook keys resolve', () => {
+    const hookFiles = [
+      'src/hooks/useExceptionTypeMeta.ts',
+      'src/hooks/useDomainMeta.ts',
+    ];
+    const hookKeys = new Set<string>();
+    const r = /\b(?:t|translate)\(\s*['"]([^'"\s)]+)['"]/g;
+    for (const hf of hookFiles) {
+      const c = fs.readFileSync(path.resolve(process.cwd(), hf), 'utf8');
+      let m;
+      while ((m = r.exec(c)) !== null) {
+        hookKeys.add(m[1]);
+      }
+    }
+    if (hookKeys.size === 0) {
+      throw new Error('No metadata hook keys found');
+    }
+    for (const hk of hookKeys) {
+      for (const loc of ['ar', 'en', 'ur'] as const) {
+        const res = resolveTranslation(hk, loc);
+        if (!res || res.trim() === '' || res === hk) {
+          throw new Error(`Metadata hook key "${hk}" failed to resolve in ${loc} (got: "${res}")`);
+        }
+      }
+    }
+  });
+
+  // I18N-RUNTIME-13: Referenced language key sets are identical
+  test('I18N-RUNTIME-13', 'Referenced language key sets are identical', () => {
+    const refKeys = getReferencedKeys();
+    for (const key of refKeys) {
+      const inAr = key in dictionaries.ar;
+      const inEn = key in dictionaries.en;
+      const inUr = key in dictionaries.ur;
+      if (!inAr || !inEn || !inUr) {
+        throw new Error(`Key "${key}" parity mismatch: AR=${inAr}, EN=${inEn}, UR=${inUr}`);
+      }
+    }
+    // Also verify overall dictionary key parity
+    const arKeys = Object.keys(dictionaries.ar).sort();
+    const enKeys = Object.keys(dictionaries.en).sort();
+    const urKeys = Object.keys(dictionaries.ur).sort();
+    if (arKeys.join(',') !== enKeys.join(',') || arKeys.join(',') !== urKeys.join(',')) {
+      throw new Error(`Dictionary key set parity mismatch between locales: AR count=${arKeys.length}, EN count=${enKeys.length}, UR count=${urKeys.length}`);
+    }
+  });
+
+  // I18N-RUNTIME-14: Interpolation parity remains valid
+  test('I18N-RUNTIME-14', 'Interpolation parity remains valid', () => {
+    const refKeys = getReferencedKeys();
+    const extractParams = (str: string): string[] => {
+      if (!str) return [];
+      const matches = str.match(/\{([a-zA-Z0-9_]+)\}/g) || [];
+      return matches.map(m => m.slice(1, -1)).sort();
+    };
+
+    for (const key of refKeys) {
+      const arVal = resolveTranslation(key, 'ar');
+      const enVal = resolveTranslation(key, 'en');
+      const urVal = resolveTranslation(key, 'ur');
+
+      const arP = extractParams(arVal);
+      const enP = extractParams(enVal);
+      const urP = extractParams(urVal);
+
+      if (arP.join(',') !== enP.join(',') || arP.join(',') !== urP.join(',')) {
+        throw new Error(`Interpolation mismatch on key "${key}": AR=[${arP}], EN=[${enP}], UR=[${urP}]`);
+      }
+    }
+  });
+
+  // I18N-RUNTIME-15: Protected tokens remain valid
+  test('I18N-RUNTIME-15', 'Protected tokens remain valid', () => {
+    const refKeys = getReferencedKeys();
+    const protectedTokens = [
+      'ticketId', 'truckNo', 'projectId', 'carrierId', 'driverId', 'materialId',
+      'operationId', 'pricingType', 'settlementBase', 'sourceType', 'status',
+      'SAR', 'KG', 'TON'
+    ];
+
+    for (const key of refKeys) {
+      const arVal = resolveTranslation(key, 'ar');
+      const enVal = resolveTranslation(key, 'en');
+      const urVal = resolveTranslation(key, 'ur');
+
+      for (const token of protectedTokens) {
+        const inAr = arVal.includes(token);
+        const inEn = enVal.includes(token);
+        const inUr = urVal.includes(token);
+
+        if (inAr && (!inEn || !inUr)) {
+          throw new Error(`Protected token "${token}" in AR missing in EN/UR for key "${key}": AR="${arVal}", EN="${enVal}", UR="${urVal}"`);
+        }
+      }
+    }
+  });
+
+  // I18N-RUNTIME-16: No duplicate locale keys
+  test('I18N-RUNTIME-16', 'No duplicate locale keys', () => {
+    const localeFiles = ['src/locales/ar/index.ts', 'src/locales/en/index.ts', 'src/locales/ur/index.ts'];
+    for (const file of localeFiles) {
+      const content = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+      const lines = content.split('\n');
+      const seen = new Set<string>();
+      const dups: string[] = [];
+      for (const line of lines) {
+        const m = line.match(/^\s*['"]([^'"]+)['"]\s*:/);
+        if (m) {
+          const k = m[1];
+          if (seen.has(k)) {
+            dups.push(k);
+          }
+          seen.add(k);
+        }
+      }
+      if (dups.length > 0) {
+        throw new Error(`Duplicate keys found in ${file}: ${dups.join(', ')}`);
+      }
+    }
+  });
+
   console.log('======================================================');
   const passed = results.filter(r => r.passed).length;
   const failed = results.filter(r => !r.passed).length;
-  console.log(`BLOCK 53 Test Results: ${passed}/${results.length} PASSED`);
+  console.log(`BLOCK 53/54C Test Results: ${passed}/${results.length} PASSED`);
   console.log('======================================================');
 
   if (failed > 0) {
-    throw new Error(`${failed} tests failed in BLOCK 53 test suite`);
+    throw new Error(`${failed} tests failed in BLOCK 53/54C test suite`);
   }
 
   return { passed, failed, total: results.length };

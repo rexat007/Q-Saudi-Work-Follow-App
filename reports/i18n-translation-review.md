@@ -211,7 +211,7 @@ This document contains domain-specific terminology requiring human verification 
 | `reports.fields.formula` | "Formula" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
 | ... | *and 546 more items in this domain queue* | | | |
 
-## Domain: `security` (520 items requiring review)
+## Domain: `security` (534 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -235,7 +235,7 @@ This document contains domain-specific terminology requiring human verification 
 | `security.fields.edit_4` | "حظر تعديل فارق الوزن (varianceWeight) مباشرة" | prop_titleAr | `MEDIUM` | Domain-specific terminology translation (Protected: [varianceWeight]) |
 | `security.fields.entity` | "entity" | prop_field | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.location` | "فارق وزني بين ميزان المقلع وميزان الموقع (-1,450 كجم، بنسبة تفاوت -4.62% بينما الحد الأقصى 1.5%)" | prop_description | `HIGH` | Domain-specific terminology translation (Protected: [KG]) |
-| ... | *and 500 more items in this domain queue* | | | |
+| ... | *and 514 more items in this domain queue* | | | |
 
 ## Domain: `offline` (271 items requiring review)
 
@@ -283,9 +283,9 @@ This document contains domain-specific terminology requiring human verification 
 | `exceptions.fields.refresh` | "تعارض النسخ المتفائلة (Optimistic Concurrency Clash): محاولة تحديث تذكرة الوصول بالنسخة رقم (1) بينما خادم قاعدة البيانات يحتوي النسخة رقم (2)" | prop_description | `HIGH` | Domain-specific terminology translation |
 | `exceptions.fields.search` | "بحث برقم الاستثناء، معرف الرحلة، الوصف، أو اسم المراجع..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
 | `exceptions.fields.severity` | "severity" | prop_field | `MEDIUM` | Domain-specific terminology translation |
-| `exceptions.fields.trip` | "رحلة غامضة أو غير محددة" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.fields.trip` | "رحلة غامضة أو غير محددة" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
 | `exceptions.fields.tripWeighbridge` | "محاولة إدخال رحلة مكررة بنفس الرقم التسلسلي لتذكرة الميزان المحررة (WB-TKT-88091)" | prop_description | `HIGH` | Domain-specific terminology translation |
-| `exceptions.fields.trip_2` | "رحلة مكررة (Duplicate)" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.fields.trip_2` | "رحلة مكررة (Duplicate)" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
 | `exceptions.fields.trip_3` | "محاولة إدخال رحلة برقم تذكرة ميزان أو مرجع تشغيلي مسجل مسبقاً" | prop_descAr | `MEDIUM` | Domain-specific terminology translation |
 | ... | *and 275 more items in this domain queue* | | | |
 
