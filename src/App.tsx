@@ -148,8 +148,16 @@ export default function App() {
           </div>
 
           {/* Navigation Mode Switcher & Auth Button */}
-          <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
-            <nav className="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200/80 gap-1 overflow-x-auto min-w-0 shrink">
+          <div className="flex items-center gap-2 min-w-0 flex-1 justify-end" id="header-nav-container">
+            <div className="relative min-w-0 flex-1 max-w-full flex items-center group overflow-hidden">
+              <div 
+                aria-hidden="true" 
+                className="pointer-events-none absolute inset-y-0 start-0 w-4 bg-gradient-to-r rtl:bg-gradient-to-l from-stone-100 to-transparent z-10" 
+              />
+              <nav 
+                id="main-nav-tabs"
+                className="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200/80 gap-1 overflow-x-auto min-w-0 shrink w-full scroll-smooth [scrollbar-width:thin]"
+              >
               <button
                 id="tab-security-audit"
                 onClick={() => setActiveTab('SECURITY_AUDIT')}
@@ -425,6 +433,11 @@ export default function App() {
                 <span>{t("navigation.labels.txt_13cd84")}</span>
               </button>
             </nav>
+            <div 
+              aria-hidden="true" 
+              className="pointer-events-none absolute inset-y-0 end-0 w-4 bg-gradient-to-l rtl:bg-gradient-to-r from-stone-100 to-transparent z-10" 
+            />
+          </div>
 
             {/* Header Utility Controls */}
             <div className="flex items-center gap-2 shrink-0">

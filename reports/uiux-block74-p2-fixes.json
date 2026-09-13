@@ -1,0 +1,189 @@
+{
+  "metadata": {
+    "block": 74,
+    "phase": "P2_UI_UX_FIXES",
+    "timestamp": "2026-09-13T21:15:00.000Z",
+    "baseRecoveryPoint": "BLOCK 73 (reports/uiux-block73-p1-fixes.json)",
+    "translationPhaseStatus": "FROZEN_LOCKED",
+    "p2FindingsFixedCount": 5,
+    "unrelatedFindingsFixedCount": 0
+  },
+  "summary": {
+    "status": "COMPLETED",
+    "allAuthorizedP2Fixed": true,
+    "i18nRemainsFrozen": true,
+    "p3FindingsDeferred": true,
+    "filesChanged": [
+      "src/components/i18n/LanguageSwitcher.tsx",
+      "src/components/masterData/MasterDataView.tsx",
+      "src/components/importCenter/ImportCenterView.tsx",
+      "src/components/reports/ReportsEngineView.tsx",
+      "src/components/pricing/PricingEngineView.tsx",
+      "src/components/tripEngine/WeightEngineView.tsx",
+      "src/App.tsx"
+    ]
+  },
+  "fixes": [
+    {
+      "id": "AUDIT-72-03",
+      "category": "RTL_LTR",
+      "severity": "P2",
+      "title": "LanguageSwitcher Physical Alignment and Dropdown Anchoring",
+      "affectedLocales": ["ar", "ur", "en"],
+      "files": ["src/components/i18n/LanguageSwitcher.tsx"],
+      "before": {
+        "textAlignment": "text-left unconditionally",
+        "dropdownAnchoring": "right-0 unconditionally",
+        "ltrRtlIssue": "Dropdown anchored to right even in RTL, and text-left forced LTR reading style inside language selector."
+      },
+      "after": {
+        "textAlignment": "rtl:text-right ltr:text-left (logical text-start)",
+        "dropdownAnchoring": "rtl:right-auto rtl:left-0 ltr:right-0 ltr:left-auto",
+        "rtlExperience": "Dropdown aligns to the left (logical end) of the switcher, options align to the right.",
+        "ltrExperience": "Dropdown aligns to the right (logical end) of the switcher, options align to the left."
+      },
+      "preservation": {
+        "switchingBehaviorPreserved": true,
+        "availableLocalesPreserved": ["ar", "en", "ur"],
+        "labelsPreserved": true
+      }
+    },
+    {
+      "id": "AUDIT-72-04",
+      "category": "RTL_LTR",
+      "severity": "P2",
+      "title": "Search Inputs Physical Padding and Icon Anchoring",
+      "affectedLocales": ["en"],
+      "files": [
+        "src/components/masterData/MasterDataView.tsx",
+        "src/components/importCenter/ImportCenterView.tsx",
+        "src/components/reports/ReportsEngineView.tsx",
+        "src/components/pricing/PricingEngineView.tsx"
+      ],
+      "before": {
+        "iconPosition": "absolute right-3 (or right-2.5) unconditionally",
+        "inputPadding": "pr-9 pl-3 (or pr-8 pl-3) unconditionally",
+        "ltrIssue": "In English, text entered under the magnifying glass icon at the right edge, while left edge had empty space."
+      },
+      "after": {
+        "iconPosition": "rtl:right-3 ltr:left-3 (rtl:right-2.5 ltr:left-2.5)",
+        "inputPadding": "rtl:pr-9 rtl:pl-3 ltr:pl-9 ltr:pr-3 (and equivalent in reports/pricing)",
+        "rtlExperience": "Search icon anchored on the right, text starts with right padding.",
+        "ltrExperience": "Search icon anchored on the left, text starts with left padding."
+      },
+      "preservation": {
+        "searchHandlersPreserved": true,
+        "filterValuesPreserved": true,
+        "searchStatesPreserved": true
+      }
+    },
+    {
+      "id": "AUDIT-72-05",
+      "category": "RTL_LTR",
+      "severity": "P2",
+      "title": "Tables Physical Alignment and Dividers",
+      "affectedLocales": ["en"],
+      "files": [
+        "src/components/masterData/MasterDataView.tsx",
+        "src/components/reports/ReportsEngineView.tsx",
+        "src/components/pricing/PricingEngineView.tsx"
+      ],
+      "before": {
+        "tableAlignment": "text-right unconditionally",
+        "tableDividers": "border-l border-stone-200 unconditionally",
+        "ltrIssue": "In English, headers and cells were aligned to the opposite side of reading flow, and vertical divider borders were attached to the wrong side of columns."
+      },
+      "after": {
+        "tableAlignment": "rtl:text-right ltr:text-left",
+        "tableDividers": "rtl:border-l ltr:border-r border-stone-200",
+        "rtlExperience": "Headers and cell contents right-aligned, vertical dividing borders on the left edge.",
+        "ltrExperience": "Headers and cell contents left-aligned, vertical dividing borders on the right edge."
+      },
+      "preservation": {
+        "columnOrderPreserved": true,
+        "sortingLogicPreserved": true,
+        "filteringLogicPreserved": true,
+        "tableDataPreserved": true
+      }
+    },
+    {
+      "id": "AUDIT-72-06",
+      "category": "RESPONSIVE",
+      "severity": "P2",
+      "title": "Tablet Navigation Overflow Affordance (768–1024px)",
+      "affectedLocales": ["ar", "ur", "en"],
+      "files": ["src/App.tsx"],
+      "before": {
+        "navigationContainer": "Simple overflow-x-auto without edge affordance",
+        "tabletIssue": "On 768–1024px viewport widths, 17 tabs overflowed abruptly at the edges without clear visual cues indicating horizontal scrollability."
+      },
+      "after": {
+        "navigationContainer": "Enclosed in header-nav-container with bidirectional edge fade gradient affordances (start-0 / end-0)",
+        "tabletExperience": "Subtle edge gradient cues naturally communicate scrollability while smooth scrolling maintains frictionless navigation across all 17 tabs."
+      },
+      "preservation": {
+        "all17TabsPreserved": true,
+        "tabIdsPreserved": [
+          "tab-security-audit",
+          "tab-legacy-migration",
+          "tab-admin-console",
+          "tab-operations-dashboard",
+          "tab-reports-engine",
+          "tab-trip-engine",
+          "tab-workspace-integration",
+          "tab-exception-engine",
+          "tab-import-center",
+          "tab-data-quality",
+          "tab-master-data",
+          "tab-pricing-engine",
+          "tab-wizard",
+          "tab-firestore",
+          "tab-relations",
+          "tab-principles",
+          "tab-docs"
+        ],
+        "activeTabSwitchingPreserved": true,
+        "noRedesignPerformed": true
+      }
+    },
+    {
+      "id": "AUDIT-72-07",
+      "category": "ACCESSIBILITY",
+      "severity": "P2",
+      "title": "Mobile Touch Targets on Weight & Pricing Presets",
+      "affectedLocales": ["ar", "ur", "en"],
+      "files": [
+        "src/components/tripEngine/WeightEngineView.tsx",
+        "src/components/pricing/PricingEngineView.tsx"
+      ],
+      "before": {
+        "buttonHeights": "py-0.5 and py-1 resulting in ~20-28px hit targets",
+        "accessibilityIssue": "On mobile devices, preset chips and filter pills were difficult to tap reliably, violating the ~44x44px touch target guideline."
+      },
+      "after": {
+        "buttonHeights": "min-h-[44px] on mobile (responsive min-h-[44px] sm:min-h-0) with increased padding (px-3 py-2 sm:px-2.5 sm:py-1)",
+        "touchExperience": "Fingertip-friendly ~44px tap targets on touch devices, collapsing neatly on desktop."
+      },
+      "preservation": {
+        "presetValuesPreserved": true,
+        "calculationLogicPreserved": true,
+        "filterStatePreserved": true
+      }
+    }
+  ],
+  "verification": {
+    "audit72_03_languageSwitcher": "VERIFIED (rtl:text-right ltr:text-left, rtl:left-0 ltr:right-0)",
+    "audit72_04_searchInputs": "VERIFIED (Direction-aware padding and icon positioning across 4 views)",
+    "audit72_05_tables": "VERIFIED (rtl:text-right ltr:text-left, rtl:border-l ltr:border-r across 3 views)",
+    "audit72_06_tabletNavigation": "VERIFIED (Overflow edge gradient affordance added, all 17 tabs intact)",
+    "audit72_07_mobileTouchTargets": "VERIFIED (min-h-[44px] on mobile for weight presets and pricing filter chips)",
+    "localeKeysCount": {
+      "ar": 1128,
+      "en": 1128,
+      "ur": 1128
+    },
+    "i18nFrozen": true,
+    "p3FindingsDeferred": true,
+    "businessLogicUntouched": true
+  }
+}

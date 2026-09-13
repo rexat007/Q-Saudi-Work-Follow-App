@@ -1,23 +1,23 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-13T20:00:29.274Z
+**Generated At:** 2026-09-13T20:11:02.170Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 260 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 33344 | Total strings and text nodes parsed |
+| **Total Files Scanned** | 261 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 33480 | Total strings and text nodes parsed |
 | **Real User-Facing Texts** | 8806 | Confirmed visible Arabic and UI texts |
 | **Likely User-Facing Texts** | 353 | English UI text in visible elements |
-| **Ambiguous Texts** | 7896 | Short or context-isolated tokens for manual review |
-| **Technical Strings** | 6867 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 9422 | Internal IDs, collection names, database keys |
+| **Ambiguous Texts** | 7944 | Short or context-isolated tokens for manual review |
+| **Technical Strings** | 6871 | CSS classes, paths, enums, regexes, operators |
+| **Non-User-Facing Strings** | 9506 | Internal IDs, collection names, database keys |
 | **Distinct Proposed Keys** | 7795 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 3990 | Sets of identical/normalized recurring texts |
+| **Duplicate Groups** | 4017 | Sets of identical/normalized recurring texts |
 | **Semantic Conflict Groups** | 556 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 9797 | Entries flagged with special cases or ambiguity |
+| **Keys Requiring Review** | 9845 | Entries flagged with special cases or ambiguity |
 | **High / Critical Risk Hotspots** | 2212 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
@@ -58,9 +58,9 @@
 
 | File | Line | Class / Icon | Type | Risk | Suggested Replacement |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `src/App.tsx` | 447 | `mr-0.5` | margin | `MUST_MIGRATE` | `me-0.5` |
-| `src/App.tsx` | 706 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
-| `src/App.tsx` | 729 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
+| `src/App.tsx` | 460 | `mr-0.5` | margin | `MUST_MIGRATE` | `me-0.5` |
+| `src/App.tsx` | 719 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
+| `src/App.tsx` | 742 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
 | `src/components/FirestoreArchitectureView.tsx` | 471 | `text-left` | text-alignment | `MUST_MIGRATE` | `text-start` |
 | `src/components/FirestoreArchitectureView.tsx` | 529 | `pr-1` | padding | `MUST_MIGRATE` | `pe-1` |
 | `src/components/FirestoreArchitectureView.tsx` | 716 | `border-rose-200` | border | `PROBABLY_SAFE` | `border-rose-200` |
@@ -95,7 +95,7 @@ Identical visible text appearing across different operational domains with disti
 
 - **Concatenated Strings (`+`):** 9
 - **Template Literals (`${...}`):** 627
-- **Interpolation Placeholders (`{...}`):** 248
+- **Interpolation Placeholders (`{...}`):** 250
 - **Mixed Numbers & Units:** 868
 - **Currency String Usages:** 400
 - **Unit String Usages:** 787

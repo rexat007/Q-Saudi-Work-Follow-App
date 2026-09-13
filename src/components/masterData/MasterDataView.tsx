@@ -853,13 +853,13 @@ export const MasterDataView: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center gap-3">
           {/* Search Box with Arabic Normalization Support */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-stone-400 absolute right-3 top-2.5" />
+            <Search className="w-4 h-4 text-stone-400 absolute right-3 rtl:right-3 ltr:left-3 ltr:right-auto top-2.5" />
             <input
               type="text"
               placeholder="البحث الذكي بالتطبيع العربي (الهمزات، التاء المربوطة، الأرقام، اللوحات)..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-3 pr-9 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-hidden focus:border-amber-500 transition-colors"
+              className="w-full pl-3 pr-9 rtl:pr-9 rtl:pl-3 ltr:pl-9 ltr:pr-3 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-hidden focus:border-amber-500 transition-colors"
             />
           </div>
 
@@ -903,7 +903,7 @@ export const MasterDataView: React.FC = () => {
         {/* CARRIERS TABLE */}
         {activeModule === 'CARRIERS' && (
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
+            <table className="w-full text-right rtl:text-right ltr:text-left text-xs">
               <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
                   <th className="py-3 px-4">{t("other.labels.carrier_3")}</th>
@@ -999,7 +999,7 @@ export const MasterDataView: React.FC = () => {
         {/* MATERIALS TABLE */}
         {activeModule === 'MATERIALS' && (
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
+            <table className="w-full text-right rtl:text-right ltr:text-left text-xs">
               <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
                   <th className="py-3 px-4">{t("other.labels.material_4")}</th>
@@ -1099,7 +1099,7 @@ export const MasterDataView: React.FC = () => {
         {/* TRUCKS TABLE (Truck -> Carrier) */}
         {activeModule === 'TRUCKS' && (
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
+            <table className="w-full text-right rtl:text-right ltr:text-left text-xs">
               <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
                   <th className="py-3 px-4">{t("other.labels.truck")}</th>
@@ -1186,7 +1186,7 @@ export const MasterDataView: React.FC = () => {
         {/* DRIVERS TABLE (Driver -> Carrier) */}
         {activeModule === 'DRIVERS' && (
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
+            <table className="w-full text-right rtl:text-right ltr:text-left text-xs">
               <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
                   <th className="py-3 px-4">{t("other.labels.driver_2")}</th>

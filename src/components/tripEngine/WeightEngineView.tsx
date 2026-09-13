@@ -305,25 +305,25 @@ export const WeightEngineView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => { setTareInput('14200'); setGrossInput('44700'); }}
-                className="text-[10px] bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded text-stone-700 font-semibold"
+                className="text-xs sm:text-[10px] bg-stone-100 hover:bg-stone-200 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-stone-700 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_69dab8")}</button>
               <button
                 type="button"
                 onClick={() => { setTareInput('0'); setGrossInput('30000'); }}
-                className="text-[10px] bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-semibold"
+                className="text-xs sm:text-[10px] bg-rose-50 hover:bg-rose-100 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-rose-700 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_487f8f")}</button>
               <button
                 type="button"
                 onClick={() => { setTareInput('20000'); setGrossInput('18000'); }}
-                className="text-[10px] bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-semibold"
+                className="text-xs sm:text-[10px] bg-rose-50 hover:bg-rose-100 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-rose-700 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_6ff41d")}</button>
               <button
                 type="button"
                 onClick={() => { setTareInput(''); setGrossInput('44700'); }}
-                className="text-[10px] bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded text-amber-800 font-semibold"
+                className="text-xs sm:text-[10px] bg-amber-50 hover:bg-amber-100 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-amber-800 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_241697")}</button>
             </div>
@@ -404,25 +404,25 @@ export const WeightEngineView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => { setLoadedNetInput('30500'); setReceivedNetInput('30350'); }}
-                className="text-[10px] bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded text-stone-700 font-semibold"
+                className="text-xs sm:text-[10px] bg-stone-100 hover:bg-stone-200 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-stone-700 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_222b14")}</button>
               <button
                 type="button"
                 onClick={() => { setLoadedNetInput('30500'); setReceivedNetInput('28000'); }}
-                className="text-[10px] bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-semibold"
+                className="text-xs sm:text-[10px] bg-rose-50 hover:bg-rose-100 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-rose-700 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_577d5a")}</button>
               <button
                 type="button"
                 onClick={() => { setLoadedNetInput('0'); setReceivedNetInput('30000'); }}
-                className="text-[10px] bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-semibold"
+                className="text-xs sm:text-[10px] bg-rose-50 hover:bg-rose-100 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-rose-700 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_aced6f")}</button>
               <button
                 type="button"
                 onClick={() => { setLoadedNetInput('30500'); setReceivedNetInput(''); }}
-                className="text-[10px] bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded text-amber-800 font-semibold"
+                className="text-xs sm:text-[10px] bg-amber-50 hover:bg-amber-100 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-amber-800 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_265f32")}</button>
             </div>
@@ -561,7 +561,7 @@ export const WeightEngineView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setEvalVarianceInput('-120')}
-                className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold flex items-center gap-1"
+                className="px-3 py-2 sm:px-2.5 sm:py-1 min-h-[44px] sm:min-h-0 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-xs sm:text-[11px] font-bold flex items-center gap-1 cursor-pointer"
               >
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 <span>{t("weighbridge.labels.txt_60b8a5")}</span>
@@ -570,7 +570,7 @@ export const WeightEngineView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setEvalVarianceInput('-380')}
-                className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-bold flex items-center gap-1"
+                className="px-3 py-2 sm:px-2.5 sm:py-1 min-h-[44px] sm:min-h-0 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs sm:text-[11px] font-bold flex items-center gap-1 cursor-pointer"
               >
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
                 <span>{t("weighbridge.labels.txt_1247cf")}</span>
@@ -579,7 +579,7 @@ export const WeightEngineView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setEvalVarianceInput('-750')}
-                className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 rounded-lg text-[11px] font-bold flex items-center gap-1"
+                className="px-3 py-2 sm:px-2.5 sm:py-1 min-h-[44px] sm:min-h-0 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 rounded-lg text-xs sm:text-[11px] font-bold flex items-center gap-1 cursor-pointer"
               >
                 <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
                 <span>{t("weighbridge.labels.txt_26b92a")}</span>
@@ -677,19 +677,19 @@ export const WeightEngineView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSettlementNetInput('37400')}
-                className="text-[10px] bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded text-stone-700 font-semibold"
+                className="text-xs sm:text-[10px] bg-stone-100 hover:bg-stone-200 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-stone-700 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_6e06f6")}</button>
               <button
                 type="button"
                 onClick={() => setSettlementNetInput('0')}
-                className="text-[10px] bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-semibold"
+                className="text-xs sm:text-[10px] bg-rose-50 hover:bg-rose-100 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-rose-700 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_7a0944")}</button>
               <button
                 type="button"
                 onClick={() => setSettlementNetInput('')}
-                className="text-[10px] bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded text-amber-800 font-semibold"
+                className="text-xs sm:text-[10px] bg-amber-50 hover:bg-amber-100 px-3 py-2 sm:px-2 sm:py-0.5 rounded-lg sm:rounded min-h-[44px] sm:min-h-0 text-amber-800 font-semibold flex items-center justify-center cursor-pointer"
               >
                 {t("weighbridge.labels.txt_4851db")}</button>
             </div>

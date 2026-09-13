@@ -25,7 +25,7 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <div className="relative inline-block text-left shrink-0 z-40" ref={containerRef} id="language-switcher-container">
+    <div className="relative inline-block text-left rtl:text-right ltr:text-left shrink-0 z-40" ref={containerRef} id="language-switcher-container">
       <button
         id="language-switcher-btn"
         type="button"
@@ -42,7 +42,7 @@ export function LanguageSwitcher() {
       {isOpen && (
         <div 
           id="language-switcher-dropdown"
-          className="absolute right-0 mt-1 w-32 rounded-xl bg-white border border-stone-200 shadow-lg py-1 z-50 animate-in fade-in zoom-in-95 duration-100"
+          className="absolute right-0 rtl:right-auto rtl:left-0 ltr:right-0 ltr:left-auto mt-1 w-32 rounded-xl bg-white border border-stone-200 shadow-lg py-1 z-50 animate-in fade-in zoom-in-95 duration-100"
         >
           {AVAILABLE_LOCALES.map((loc) => {
             const isSelected = loc === locale;

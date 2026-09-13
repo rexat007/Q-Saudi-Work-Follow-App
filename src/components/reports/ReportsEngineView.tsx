@@ -699,13 +699,13 @@ export const ReportsEngineView: React.FC = () => {
         {/* Quick Search Within Current Table */}
         <div className="flex items-center justify-between gap-3 border-t border-stone-100 pt-3">
           <div className="relative w-full max-w-xs">
-            <Search className="w-3.5 h-3.5 absolute right-3 top-2.5 text-stone-400" />
+            <Search className="w-3.5 h-3.5 absolute right-3 rtl:right-3 ltr:left-3 ltr:right-auto top-2.5 text-stone-400" />
             <input
               type="text"
               placeholder="بحث في نتائج التقرير الحالية..."
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
-              className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg pr-8 pl-3 py-1.5 focus:ring-1 focus:ring-amber-500 text-stone-800"
+              className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg pr-8 pl-3 rtl:pr-8 rtl:pl-3 ltr:pl-8 ltr:pr-3 py-1.5 focus:ring-1 focus:ring-amber-500 text-stone-800"
             />
           </div>
 
@@ -716,15 +716,15 @@ export const ReportsEngineView: React.FC = () => {
 
         {/* Table Rendering */}
         <div className="overflow-x-auto border border-stone-200 rounded-xl">
-          <table className="w-full text-right border-collapse text-xs">
+          <table className="w-full text-right rtl:text-right ltr:text-left border-collapse text-xs">
             <thead>
               <tr className="bg-stone-50 text-stone-700 font-bold border-b border-stone-200">
                 <th className="p-3 text-center w-12 text-stone-500">#</th>
                 {currentDataset.columns.map((c) => (
                   <th 
                     key={c.key} 
-                    className={`p-3 border-l border-stone-200/60 ${
-                      c.align === 'center' ? 'text-center' : c.align === 'left' ? 'text-left' : 'text-right'
+                    className={`p-3 border-l rtl:border-l ltr:border-r border-stone-200/60 ${
+                      c.align === 'center' ? 'text-center' : c.align === 'left' ? 'text-left' : 'text-right rtl:text-right ltr:text-left'
                     }`}
                   >
                     {c.labelAr}
@@ -744,7 +744,7 @@ export const ReportsEngineView: React.FC = () => {
               ) : (
                 filteredRows.map((row, idx) => (
                   <tr key={idx} className="hover:bg-stone-50/80 transition-colors">
-                    <td className="p-3 text-center text-stone-400 font-mono text-[11px] border-l border-stone-100">
+                    <td className="p-3 text-center text-stone-400 font-mono text-[11px] border-l rtl:border-l ltr:border-r border-stone-100">
                       {idx + 1}
                     </td>
                     {currentDataset.columns.map((col) => {
@@ -752,8 +752,8 @@ export const ReportsEngineView: React.FC = () => {
                       return (
                         <td 
                           key={col.key} 
-                          className={`p-3 border-l border-stone-100 ${
-                            col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left font-mono font-semibold' : 'text-right'
+                          className={`p-3 border-l rtl:border-l ltr:border-r border-stone-100 ${
+                            col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left font-mono font-semibold' : 'text-right rtl:text-right ltr:text-left'
                           }`}
                         >
                           {col.format === 'currency' && typeof val === 'number' ? (

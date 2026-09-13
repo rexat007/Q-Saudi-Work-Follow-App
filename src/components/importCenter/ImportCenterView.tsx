@@ -778,13 +778,13 @@ export function ImportCenterView() {
         {/* Search input */}
         <div className="mb-4">
           <div className="relative">
-            <Search className="w-4 h-4 text-stone-400 absolute right-3 top-2.5" />
+            <Search className="w-4 h-4 text-stone-400 absolute right-3 rtl:right-3 ltr:left-3 ltr:right-auto top-2.5" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="البحث برقم الصف، أو اسم الحقل، أو القيمة، أو المشكلة..."
-              className="w-full text-xs pr-9 pl-4 py-2 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500 font-medium"
+              className="w-full text-xs pr-9 pl-4 rtl:pr-9 rtl:pl-4 ltr:pl-9 ltr:pr-4 py-2 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500 font-medium"
             />
           </div>
         </div>

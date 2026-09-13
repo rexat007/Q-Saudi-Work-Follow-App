@@ -31,7 +31,7 @@ import { useI18n } from '../../i18n';
 
 
 export const PricingEngineView: React.FC = () => {
-  const { t } = useI18n();
+  const { t, direction } = useI18n();
   // --- Active Tab ---
   const [activeTab, setActiveTab] = useState<'SIMULATOR' | 'RULES' | 'TESTS'>('SIMULATOR');
 
@@ -293,7 +293,7 @@ export const PricingEngineView: React.FC = () => {
   const passedCount = testResults.filter(t => t.passed).length;
 
   return (
-    <div className="space-y-6 pb-16" dir="rtl" id="pricing-engine-container">
+    <div className="space-y-6 pb-16" dir={direction} id="pricing-engine-container">
       {/* Top Banner Header */}
       <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs" id="pricing-header-card">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -677,7 +677,7 @@ export const PricingEngineView: React.FC = () => {
           {/* Rules Table */}
           <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-right text-xs">
+              <table className="w-full text-right rtl:text-right ltr:text-left text-xs">
                 <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold">
                   <tr>
                     <th className="p-3">معرّف القاعدة والإصدار</th>
@@ -779,9 +779,9 @@ export const PricingEngineView: React.FC = () => {
                   placeholder="بحث في الاختبارات..."
                   value={testSearch}
                   onChange={(e) => setTestSearch(e.target.value)}
-                  className="text-xs bg-stone-50 border border-stone-200 rounded-lg pr-8 pl-3 py-1.5 focus:bg-white focus:outline-none"
+                  className="text-xs bg-stone-50 border border-stone-200 rounded-lg pr-8 pl-3 rtl:pr-8 rtl:pl-3 ltr:pl-8 ltr:pr-3 py-1.5 focus:bg-white focus:outline-none"
                 />
-                <Search className="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-2.5" />
+                <Search className="w-3.5 h-3.5 text-stone-400 absolute right-2.5 rtl:right-2.5 ltr:left-2.5 ltr:right-auto top-2.5" />
               </div>
               <button
                 onClick={handleRunTests}
@@ -816,7 +816,7 @@ export const PricingEngineView: React.FC = () => {
               <button
                 key={f.key}
                 onClick={() => setFilterCategory(f.key)}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3 py-2 sm:px-2.5 sm:py-1 min-h-[44px] sm:min-h-0 rounded-lg text-xs sm:text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center justify-center ${
                   filterCategory === f.key 
                     ? 'bg-amber-600 text-white font-bold' 
                     : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
