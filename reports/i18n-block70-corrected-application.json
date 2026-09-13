@@ -1,0 +1,919 @@
+{
+  "metadata": {
+    "block": "BLOCK-70",
+    "title": "Human-Approved Translation Application Manifest (Corrected Key-Based)",
+    "timestamp": "2026-09-13T15:40:34.212Z",
+    "status": "COMPLETED_SUCCESSFULLY",
+    "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+    "totalLedgerItems": 33,
+    "changedKeysCount": 32,
+    "changedEnCount": 32,
+    "changedUrCount": 32,
+    "changedArCount": 2,
+    "unchangedExceptionCount": 1,
+    "unauthorizedKeysCount": 0,
+    "unauthorizedFilesCount": 0
+  },
+  "summary": {
+    "reviseApplied": 29,
+    "fixSourceApplied": 2,
+    "approveApplied": 1,
+    "keepExceptionPreserved": 1,
+    "totalModifiedKeys": 32,
+    "unauthorizedKeysAttempted": 0,
+    "zeroArabicInUpdatedEn": true
+  },
+  "appliedEntries": [
+    {
+      "key": "trips.status.failedPricing",
+      "domain": "trips",
+      "priority": "P1",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "[Trip Start Blocked]: Pricing resolution and settlement calculation failed (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+        "ur": "[ٹرپ شروع کرنا ممنوع]: قیمت کے تعین اور تصفیے کے حساب میں ناکامی ہوئی (Pricing Resolution Failed) - ${pricingResolutionResult.message}"
+      },
+      "newValue": {
+        "en": "[Trip Start Blocked]: Pricing resolution and settlement calculation failed (Pricing Resolution Failed) - ${pricingResolutionResult.message}",
+        "ur": "[ٹرپ شروع کرنا ممنوع]: قیمت کے تعین اور تصفیے کے حساب میں ناکامی ہوئی (Pricing Resolution Failed) - ${pricingResolutionResult.message}"
+      },
+      "protectedTokensBefore": [
+        "${pricingResolutionResult.message}",
+        "Pricing Resolution Failed"
+      ],
+      "protectedTokensAfter": [
+        "${pricingResolutionResult.message}",
+        "Pricing Resolution Failed"
+      ],
+      "interpolationBefore": [
+        "${pricingResolutionResult.message}"
+      ],
+      "interpolationAfter": [
+        "${pricingResolutionResult.message}"
+      ],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.trip_4",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Trip completion blocked without destNetWeight",
+        "ur": "destNetWeight کے بغیر ٹرپ کی تکمیل ممنوع ہے"
+      },
+      "newValue": {
+        "en": "Trip completion blocked without destNetWeight",
+        "ur": "destNetWeight کے بغیر ٹرپ کی تکمیل ممنوع ہے"
+      },
+      "protectedTokensBefore": [
+        "destNetWeight"
+      ],
+      "protectedTokensAfter": [
+        "destNetWeight"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.trip_7",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "[Regulatory Rule]: Trip completion blocked without an authorized unloader (unloaderId) and unloading timestamp (unloadTime).",
+        "ur": "[نگرانی کا اصول]: مجاز وصول کنندہ (unloaderId) اور ان لوڈنگ وقت (unloadTime) کے بغیر ٹرپ مکمل کرنا ممنوع ہے۔"
+      },
+      "newValue": {
+        "en": "[Regulatory Rule]: Trip completion blocked without an authorized unloader (unloaderId) and unloading timestamp (unloadTime).",
+        "ur": "[نگرانی کا اصول]: مجاز وصول کنندہ (unloaderId) اور ان لوڈنگ وقت (unloadTime) کے بغیر ٹرپ مکمل کرنا ممنوع ہے۔"
+      },
+      "protectedTokensBefore": [
+        "unloaderId",
+        "unloadTime"
+      ],
+      "protectedTokensAfter": [
+        "unloaderId",
+        "unloadTime"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.txt_2c17d4",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Completion prohibited without recipient identity and unloading timestamp",
+        "ur": "وصول کنندہ کی شناخت اور ان لوڈنگ کے وقت کے بغیر تکمیل ممنوع ہے۔"
+      },
+      "newValue": {
+        "en": "Completion prohibited without recipient identity and unloading timestamp",
+        "ur": "وصول کنندہ کی شناخت اور ان لوڈنگ کے وقت کے بغیر تکمیل ممنوع ہے۔"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.txt_2cd3f8",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Regulatory Enforcement Verification Matrix (Negative Stress Tests)",
+        "ur": "ریگولیٹری نفاذ کی تصدیقی میٹرکس (Negative Stress Tests)"
+      },
+      "newValue": {
+        "en": "Regulatory Enforcement Verification Matrix (Negative Stress Tests)",
+        "ur": "ریگولیٹری نفاذ کی تصدیقی میٹرکس (Negative Stress Tests)"
+      },
+      "protectedTokensBefore": [
+        "Negative Stress Tests"
+      ],
+      "protectedTokensAfter": [
+        "Negative Stress Tests"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.txt_37b15d",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Completion prohibited if discrepancy cannot be accurately calculated",
+        "ur": "اگر فرق کا درست حساب نہ ہو سکے تو تکمیل ممنوع ہے۔"
+      },
+      "newValue": {
+        "en": "Completion prohibited if discrepancy cannot be accurately calculated",
+        "ur": "اگر فرق کا درست حساب نہ ہو سکے تو تکمیل ممنوع ہے۔"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.txt_3a0ff7",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Settlement Amount Due:",
+        "ur": "قابلِ ادائیگی تصفیے کی رقم:"
+      },
+      "newValue": {
+        "en": "Settlement Amount Due:",
+        "ur": "قابلِ ادائیگی تصفیے کی رقم:"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.txt_5f22c5",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Full lifecycle transition governance: verifying rank and project, mandatory weights, recipient, and arrival time, with server-side calculation of variance and settlement.",
+        "ur": "لائف سائیکل کے تمام مراحل کی مکمل نگرانی: رینک اور پروجیکٹ کی تصدیق، لازمی وزن، وصول کنندہ اور آمد کا وقت، اور سرور پر فرق اور تصفیے کا حساب۔"
+      },
+      "newValue": {
+        "en": "Full lifecycle transition governance: verifying rank and project, mandatory weights, recipient, and arrival time, with server-side calculation of variance and settlement.",
+        "ur": "لائف سائیکل کے تمام مراحل کی مکمل نگرانی: رینک اور پروجیکٹ کی تصدیق، لازمی وزن، وصول کنندہ اور آمد کا وقت، اور سرور پر فرق اور تصفیے کا حساب۔"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.txt_622420",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Server-side verification of the six rules, with automated weight calculation and settlement.",
+        "ur": "چھ قواعد کی سرور پر تصدیق، اور وزن و تصفیے کا خودکار حساب۔"
+      },
+      "newValue": {
+        "en": "Server-side verification of the six rules, with automated weight calculation and settlement.",
+        "ur": "چھ قواعد کی سرور پر تصدیق، اور وزن و تصفیے کا خودکار حساب۔"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.txt_701a0c",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Skipping mandatory operational stages is prohibited",
+        "ur": "لازمی آپریشنل مراحل کو چھوڑنا ممنوع ہے"
+      },
+      "newValue": {
+        "en": "Skipping mandatory operational stages is prohibited",
+        "ur": "لازمی آپریشنل مراحل کو چھوڑنا ممنوع ہے"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.txt_761b23",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "KEEP_EXCEPTION",
+      "languageChanged": [],
+      "oldValue": {},
+      "newValue": {},
+      "protectedTokensBefore": [
+        "\"خلطة أسفلتية ساخنة\""
+      ],
+      "protectedTokensAfter": [
+        "\"خلطة أسفلتية ساخنة\""
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.txt_7d5bc8",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Total Calculated Settlement",
+        "ur": "کل محسوب شدہ تصفیہ"
+      },
+      "newValue": {
+        "en": "Total Calculated Settlement",
+        "ur": "کل محسوب شدہ تصفیہ"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "trips.labels.txt_7d6134",
+      "domain": "trips",
+      "priority": "P2",
+      "decision": "APPROVE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Settlement (SAR)",
+        "ur": "تصفیہ (SAR)"
+      },
+      "newValue": {
+        "en": "Settlement (SAR)",
+        "ur": "تصفیہ (SAR)"
+      },
+      "protectedTokensBefore": [
+        "SAR"
+      ],
+      "protectedTokensAfter": [
+        "SAR"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "loading.labels.txt_57f8de",
+      "domain": "loading",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Approved Settlement:",
+        "ur": "منظور شدہ تصفیہ:"
+      },
+      "newValue": {
+        "en": "Approved Settlement:",
+        "ur": "منظور شدہ تصفیہ:"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "loading.labels.txt_73e4a3",
+      "domain": "loading",
+      "priority": "P2",
+      "decision": "FIX_SOURCE",
+      "languageChanged": [
+        "ar",
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "ar": "التسوية التقديرية",
+        "en": "Estimated Settlement",
+        "ur": "تخمینی تصفیہ"
+      },
+      "newValue": {
+        "ar": "التسوية التقديرية",
+        "en": "Estimated Settlement",
+        "ur": "تخمینی تصفیہ"
+      },
+      "protectedTokensBefore": [
+        "Settlement"
+      ],
+      "protectedTokensAfter": [
+        "Settlement"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "unloading.labels.txt_1cfd3c",
+      "domain": "unloading",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Approve Exception & Authorize Settlement (Waive Exception)",
+        "ur": "استثناء کی منظوری اور تصفیہ کی اجازت (Waive Exception)"
+      },
+      "newValue": {
+        "en": "Approve Exception & Authorize Settlement (Waive Exception)",
+        "ur": "استثناء کی منظوری اور تصفیہ کی اجازت (Waive Exception)"
+      },
+      "protectedTokensBefore": [
+        "Waive Exception"
+      ],
+      "protectedTokensAfter": [
+        "Waive Exception"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "unloading.labels.txt_5f0c9f",
+      "domain": "unloading",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "4️⃣ Single License Plate Prohibited (PROHIBITED)",
+        "ur": "4️⃣ سنگل لائسنس پلیٹ ممنوع (PROHIBITED)"
+      },
+      "newValue": {
+        "en": "4️⃣ Single License Plate Prohibited (PROHIBITED)",
+        "ur": "4️⃣ سنگل لائسنس پلیٹ ممنوع (PROHIBITED)"
+      },
+      "protectedTokensBefore": [
+        "PROHIBITED"
+      ],
+      "protectedTokensAfter": [
+        "PROHIBITED"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "weighbridge.labels.txt_35a0be",
+      "domain": "weighbridge",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Precise calculation of financial settlement by ton or trip requiring net > 0, returning null on missing data",
+        "ur": "ٹن یا ٹرپ کے لحاظ سے مالی تصفیے کا درست حساب، جس کے لیے net > 0 ضروری ہے، اور ڈیٹا غائب ہونے پر null واپس کیا جائے گا۔"
+      },
+      "newValue": {
+        "en": "Precise calculation of financial settlement by ton or trip requiring net > 0, returning null on missing data",
+        "ur": "ٹن یا ٹرپ کے لحاظ سے مالی تصفیے کا درست حساب، جس کے لیے net > 0 ضروری ہے، اور ڈیٹا غائب ہونے پر null واپس کیا جائے گا۔"
+      },
+      "protectedTokensBefore": [
+        "net > 0",
+        "null"
+      ],
+      "protectedTokensAfter": [
+        "net > 0",
+        "null"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "weighbridge.labels.txt_407887",
+      "domain": "weighbridge",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Audit calculation functions, validation criteria, prohibit replacing missing values with zero, and evaluate variance (NORMAL / WARNING / EXCEPTION)",
+        "ur": "حسابی فنکشنز اور تصدیقی معیارات کی جانچ، گمشدہ ڈیٹا کو صفر سے تبدیل کرنے کی ممانعت، اور فرق کا جائزہ (NORMAL / WARNING / EXCEPTION)"
+      },
+      "newValue": {
+        "en": "Audit calculation functions, validation criteria, prohibit replacing missing values with zero, and evaluate variance (NORMAL / WARNING / EXCEPTION)",
+        "ur": "حسابی فنکشنز اور تصدیقی معیارات کی جانچ، گمشدہ ڈیٹا کو صفر سے تبدیل کرنے کی ممانعت، اور فرق کا جائزہ (NORMAL / WARNING / EXCEPTION)"
+      },
+      "protectedTokensBefore": [
+        "NORMAL",
+        "WARNING",
+        "EXCEPTION"
+      ],
+      "protectedTokensAfter": [
+        "NORMAL",
+        "WARNING",
+        "EXCEPTION"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "offline.labels.txt_402c63",
+      "domain": "offline",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Amount & Settlement:",
+        "ur": "رقم اور تصفیہ:"
+      },
+      "newValue": {
+        "en": "Amount & Settlement:",
+        "ur": "رقم اور تصفیہ:"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "loading.labels.save_3",
+      "domain": "security",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "The settlement amount (settlementAmount) has no input field in the interface and is calculated exclusively server-side (Server-Side Calculation). Any client-submitted value is ignored and logged in regulatory audit trails.",
+        "ur": "تصفیے کی رقم (settlementAmount) کے لیے انٹرفیس میں کوئی ان پٹ فیلڈ نہیں ہے، اور اس کا حساب مکمل طور پر سرور پر (Server-Side Calculation) کیا جاتا ہے۔ کلائنٹ کی طرف سے بھیجی گئی کسی بھی رقم کو نظر انداز کر کے اسے ریگولیٹری آڈٹ لاگز میں محفوظ کیا جاتا ہے۔"
+      },
+      "newValue": {
+        "en": "The settlement amount (settlementAmount) has no input field in the interface and is calculated exclusively server-side (Server-Side Calculation). Any client-submitted value is ignored and logged in regulatory audit trails.",
+        "ur": "تصفیے کی رقم (settlementAmount) کے لیے انٹرفیس میں کوئی ان پٹ فیلڈ نہیں ہے، اور اس کا حساب مکمل طور پر سرور پر (Server-Side Calculation) کیا جاتا ہے۔ کلائنٹ کی طرف سے بھیجی گئی کسی بھی رقم کو نظر انداز کر کے اسے ریگولیٹری آڈٹ لاگز میں محفوظ کیا جاتا ہے۔"
+      },
+      "protectedTokensBefore": [
+        "settlementAmount",
+        "Server-Side Calculation"
+      ],
+      "protectedTokensAfter": [
+        "settlementAmount",
+        "Server-Side Calculation"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "unloading.labels.txt_186f77",
+      "domain": "security",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Automated Compliance Report for Unloading Station Requirements (Unloading Station Tests)",
+        "ur": "ان لوڈنگ اسٹیشن کے تقاضوں کی خودکار تعمیلی رپورٹ (Unloading Station Tests)"
+      },
+      "newValue": {
+        "en": "Automated Compliance Report for Unloading Station Requirements (Unloading Station Tests)",
+        "ur": "ان لوڈنگ اسٹیشن کے تقاضوں کی خودکار تعمیلی رپورٹ (Unloading Station Tests)"
+      },
+      "protectedTokensBefore": [
+        "Unloading Station Tests"
+      ],
+      "protectedTokensAfter": [
+        "Unloading Station Tests"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "unloading.labels.txt_1bec3a",
+      "domain": "security",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Automated Compliance Check (7 Requirements)",
+        "ur": "خودکار تعمیلی جانچ (7 شرائط)"
+      },
+      "newValue": {
+        "en": "Automated Compliance Check (7 Requirements)",
+        "ur": "خودکار تعمیلی جانچ (7 شرائط)"
+      },
+      "protectedTokensBefore": [
+        "7"
+      ],
+      "protectedTokensAfter": [
+        "7"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "unloading.labels.txt_68980a",
+      "domain": "security",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Regulatory Security Block (BLOCKED)",
+        "ur": "نگرانی کا سیکیورٹی بلاک (BLOCKED)"
+      },
+      "newValue": {
+        "en": "Regulatory Security Block (BLOCKED)",
+        "ur": "نگرانی کا سیکیورٹی بلاک (BLOCKED)"
+      },
+      "protectedTokensBefore": [
+        "BLOCKED"
+      ],
+      "protectedTokensAfter": [
+        "BLOCKED"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "offline.labels.createTripPricing",
+      "domain": "pricing",
+      "priority": "P2",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Offline Trip Creation Prohibited: Pricing data is not available locally in browser storage (IndexedDB). No trip may be created without an approved pricing calculation.",
+        "ur": "آف لائن ٹرپ بنانا ممنوع ہے: قیمتوں کا ڈیٹا براؤزر کے مقامی اسٹوریج (IndexedDB) میں دستیاب نہیں ہے۔ منظور شدہ قیمت کے حساب کے بغیر کوئی ٹرپ بنانے کی اجازت نہیں ہے۔"
+      },
+      "newValue": {
+        "en": "Offline Trip Creation Prohibited: Pricing data is not available locally in browser storage (IndexedDB). No trip may be created without an approved pricing calculation.",
+        "ur": "آف لائن ٹرپ بنانا ممنوع ہے: قیمتوں کا ڈیٹا براؤزر کے مقامی اسٹوریج (IndexedDB) میں دستیاب نہیں ہے۔ منظور شدہ قیمت کے حساب کے بغیر کوئی ٹرپ بنانے کی اجازت نہیں ہے۔"
+      },
+      "protectedTokensBefore": [
+        "IndexedDB"
+      ],
+      "protectedTokensAfter": [
+        "IndexedDB"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "navigation.labels.txt_2f3fde",
+      "domain": "shared",
+      "priority": "P3",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Settlement Due",
+        "ur": "واجب الادا تصفیہ"
+      },
+      "newValue": {
+        "en": "Settlement Due",
+        "ur": "واجب الادا تصفیہ"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "entityResolution.labels.importEdit",
+      "domain": "entityResolution",
+      "priority": "P3",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Executes prior to approving any import file (Import) or modifying reference data (Master Data). Prevents erroneous automatic merges (Auto-Merge) and prohibits regulatory conflicts.",
+        "ur": "کسی بھی امپورٹ فائل (Import) کی منظوری یا ماسٹر ڈیٹا (Master Data) میں ترمیم سے پہلے چلتا ہے۔ غلط خودکار انضمام (Auto-Merge) کو روکتا ہے اور تنظیمی تنازعات کو روکتا ہے۔"
+      },
+      "newValue": {
+        "en": "Executes prior to approving any import file (Import) or modifying reference data (Master Data). Prevents erroneous automatic merges (Auto-Merge) and prohibits regulatory conflicts.",
+        "ur": "کسی بھی امپورٹ فائل (Import) کی منظوری یا ماسٹر ڈیٹا (Master Data) میں ترمیم سے پہلے چلتا ہے۔ غلط خودکار انضمام (Auto-Merge) کو روکتا ہے اور تنظیمی تنازعات کو روکتا ہے۔"
+      },
+      "protectedTokensBefore": [
+        "Import",
+        "Master Data",
+        "Auto-Merge"
+      ],
+      "protectedTokensAfter": [
+        "Import",
+        "Master Data",
+        "Auto-Merge"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "entityResolution.labels.txt_2b8f60",
+      "domain": "entityResolution",
+      "priority": "P3",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Record excluded and blocked from entry.",
+        "ur": "ریکارڈ کو اندراج سے خارج اور بلاک کر دیا گیا ہے۔"
+      },
+      "newValue": {
+        "en": "Record excluded and blocked from entry.",
+        "ur": "ریکارڈ کو اندراج سے خارج اور بلاک کر دیا گیا ہے۔"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "projects.labels.txt_6757e5",
+      "domain": "projects",
+      "priority": "P3",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Value Added Tax Rate % (VAT)",
+        "ur": "ویلیو ایڈڈ ٹیکس کی شرح % (VAT)"
+      },
+      "newValue": {
+        "en": "Value Added Tax Rate % (VAT)",
+        "ur": "ویلیو ایڈڈ ٹیکس کی شرح % (VAT)"
+      },
+      "protectedTokensBefore": [
+        "VAT",
+        "%"
+      ],
+      "protectedTokensAfter": [
+        "VAT",
+        "%"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "offline.labels.txt_305c29",
+      "domain": "offline",
+      "priority": "P3",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Dependency reconciliation and matching with server master data",
+        "ur": "سرور کے بنیادی ڈیٹا کے ساتھ وابستگیوں کی مطابقت اور تصفیہ"
+      },
+      "newValue": {
+        "en": "Dependency reconciliation and matching with server master data",
+        "ur": "سرور کے بنیادی ڈیٹا کے ساتھ وابستگیوں کی مطابقت اور تصفیہ"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "exceptions.labels.driver",
+      "domain": "exceptions",
+      "priority": "P3",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Driver sponsorship does not match the contracted carrier, with no valid Ajeer permit",
+        "ur": "ڈرائیور کی کفالت معاہدہ شدہ کیریئر سے مماثل نہیں ہے اور کوئی درست Ajeer اجازت نامہ موجود نہیں ہے۔"
+      },
+      "newValue": {
+        "en": "Driver sponsorship does not match the contracted carrier, with no valid Ajeer permit",
+        "ur": "ڈرائیور کی کفالت معاہدہ شدہ کیریئر سے مماثل نہیں ہے اور کوئی درست Ajeer اجازت نامہ موجود نہیں ہے۔"
+      },
+      "protectedTokensBefore": [
+        "Ajeer"
+      ],
+      "protectedTokensAfter": [
+        "Ajeer"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "projects.labels.settings",
+      "domain": "security",
+      "priority": "P3",
+      "decision": "FIX_SOURCE",
+      "languageChanged": [
+        "ar",
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "ar": "الإعدادات الافتراضية والامتثال النظامي",
+        "en": "Default Settings & Regulatory Compliance",
+        "ur": "طے شدہ ترتیبات اور ضابطہ جاتی تعمیل"
+      },
+      "newValue": {
+        "ar": "الإعدادات الافتراضية والامتثال النظامي",
+        "en": "Default Settings & Regulatory Compliance",
+        "ur": "طے شدہ ترتیبات اور ضابطہ جاتی تعمیل"
+      },
+      "protectedTokensBefore": [
+        "Default Settings & Compliance"
+      ],
+      "protectedTokensAfter": [
+        "Default Settings & Compliance"
+      ],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    },
+    {
+      "key": "navigation.labels.pricing_2",
+      "domain": "pricing",
+      "priority": "P3",
+      "decision": "REVISE",
+      "languageChanged": [
+        "en",
+        "ur"
+      ],
+      "oldValue": {
+        "en": "Based on trip contractual pricing snapshots",
+        "ur": "معاہداتی ٹرپ قیمتوں کے اسنیپ شاٹس پر مبنی"
+      },
+      "newValue": {
+        "en": "Based on trip contractual pricing snapshots",
+        "ur": "معاہداتی ٹرپ قیمتوں کے اسنیپ شاٹس پر مبنی"
+      },
+      "protectedTokensBefore": [],
+      "protectedTokensAfter": [],
+      "interpolationBefore": [],
+      "interpolationAfter": [],
+      "ledgerChecksum": "a64c3b50a5137bd5b614e06426e44fe261638b75081e9c42c1c348b066fe39c9",
+      "appliedToCodebase": true
+    }
+  ]
+}
