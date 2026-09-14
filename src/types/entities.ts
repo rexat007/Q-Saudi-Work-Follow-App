@@ -35,6 +35,7 @@ export interface ProjectEntity extends BaseAuditedEntity {
   };
   authorizedCarrierIds?: string[];
   authorizedMaterialIds?: string[];
+  projectNumber?: number;
   status: 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED' | 'PLANNING';
 }
 

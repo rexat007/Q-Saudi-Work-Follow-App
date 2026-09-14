@@ -1,0 +1,192 @@
+{
+  "timestamp": "2026-09-14T14:48:36.928Z",
+  "totalTests": 17,
+  "passedTests": 17,
+  "failedTests": 0,
+  "allPassed": true,
+  "results": [
+    {
+      "id": 1,
+      "name": "authenticated active user loads projects from firestore",
+      "category": "AUTHENTICATED_FIRESTORE",
+      "passed": true,
+      "message": "المستخدم النشط والمستوفي للشروط يتلقى قوائم المشاريع الحية من Firestore",
+      "details": {
+        "projectCount": 0
+      }
+    },
+    {
+      "id": 2,
+      "name": "master data comes from firestore collections",
+      "category": "MASTER_DATA_FIRESTORE",
+      "passed": true,
+      "message": "تم جلب Master Data (الناقلون، المواد، الشاحنات، السائقون) من مستودعات Firestore مباشرة",
+      "details": {
+        "carriersCount": 0,
+        "materialsCount": 0
+      }
+    },
+    {
+      "id": 3,
+      "name": "pricing rules loaded per project from firestore",
+      "category": "PRICING_FIRESTORE",
+      "passed": true,
+      "message": "تم جلب قواعد التسعير الخاصة بالمشروع من مسار Firestore المخصص projects/{projectId}/pricing_rules",
+      "details": {
+        "rulesCount": 0
+      }
+    },
+    {
+      "id": 4,
+      "name": "default projects fallback removed from runtime",
+      "category": "RUNTIME_ISOLATION",
+      "passed": true,
+      "message": "تم إيقاف التراجع التلقائي إلى DEFAULT_PROJECTS في بيئة التشغيل الحية",
+      "details": {
+        "projectsLength": 0
+      }
+    },
+    {
+      "id": 5,
+      "name": "default master data fallback removed from runtime",
+      "category": "RUNTIME_ISOLATION",
+      "passed": true,
+      "message": "مشروع جديد بدون بيانات إسناد يعيد مصفوفات فارغة بدلاً من التحميل التلقائي للملفات الافتراضية",
+      "details": {
+        "carriersCount": 0,
+        "materialsCount": 0
+      }
+    },
+    {
+      "id": 6,
+      "name": "empty state rendered when firestore has zero projects",
+      "category": "EMPTY_STATES",
+      "passed": true,
+      "message": "يعرض النظام حالة خالية نظيفة عند عدم وجود بيانات في Firestore",
+      "details": {
+        "isEmpty": true
+      }
+    },
+    {
+      "id": 7,
+      "name": "empty state rendered when project has zero carriers/materials",
+      "category": "EMPTY_STATES",
+      "passed": true,
+      "message": "يعيد مشروع بدون تصاريح قائمة مصرحين فارغة بشكل سليم",
+      "details": {
+        "authorizedCarriersCount": 0
+      }
+    },
+    {
+      "id": 8,
+      "name": "newly created project starts with empty master data lists",
+      "category": "PROJECT_CREATION",
+      "passed": true,
+      "message": "المشروع الجديد الذي أنشئ حديثاً يبدأ بقوائم مصرح بها فارغة بدون ربط عشوائي",
+      "details": {
+        "carrierIds": [],
+        "materialIds": []
+      }
+    },
+    {
+      "id": 9,
+      "name": "field operations project list dynamically sourced from firestore",
+      "category": "FIELD_OPERATIONS",
+      "passed": true,
+      "message": "قائمة مشاريع العمليات الميدانية مسحوبة ديناميكياً من Firestore",
+      "details": {
+        "projectCount": 0
+      }
+    },
+    {
+      "id": 10,
+      "name": "field operations master data correctly scoped to selected project",
+      "category": "FIELD_OPERATIONS",
+      "passed": true,
+      "message": "بيانات العمليات الميدانية معزولة ومحاطة بالمشروع المSelected فقط",
+      "details": {
+        "scopedCarriers": 0
+      }
+    },
+    {
+      "id": 11,
+      "name": "trip creation uses firestore master data entity IDs",
+      "category": "TRIP_CREATION",
+      "passed": true,
+      "message": "أنشئت الرحلة باستخدام معرّفات حقيقية ومطابقة لبيانات السجل الرئيسي",
+      "details": {
+        "pId": "PRJ-86C-001",
+        "cId": "CAR-ALMAJDOUIE",
+        "mId": "MAT-AGG-01"
+      }
+    },
+    {
+      "id": 12,
+      "name": "project number generated automatically",
+      "category": "PROJECT_NUMBERING",
+      "passed": true,
+      "message": "تم توليد رقم المشروع آلياً وحجزه عبر المعاملة التسلسلية",
+      "details": {
+        "generatedProjectNumber": 102
+      }
+    },
+    {
+      "id": 13,
+      "name": "project number is unique",
+      "category": "PROJECT_NUMBERING",
+      "passed": true,
+      "message": "أرقام المشاريع المولدة فريدة تماماً وتمنع التكرار",
+      "details": {
+        "num1": 103,
+        "num2": 104
+      }
+    },
+    {
+      "id": 14,
+      "name": "sequential numbering",
+      "category": "PROJECT_NUMBERING",
+      "passed": true,
+      "message": "الأرقام تتبع تسلسلاً عدادياً متتابئاً بدون فجوات أو قفزات عشوائية",
+      "details": {
+        "startNum": 105,
+        "nextNum": 106
+      }
+    },
+    {
+      "id": 15,
+      "name": "concurrent creation cannot duplicate number",
+      "category": "PROJECT_NUMBERING",
+      "passed": true,
+      "message": "حماية الذروة والتزامن: إنشاء مشاريع متزامنة في نفس اللحظة لم ينتج أي تكرار بالأرقام",
+      "details": {
+        "generatedNumbers": [
+          107,
+          108,
+          109,
+          110
+        ]
+      }
+    },
+    {
+      "id": 16,
+      "name": "client cannot supply/override project number",
+      "category": "PROJECT_NUMBERING",
+      "passed": true,
+      "message": "رفض سيرفر التطبيق لقيمة projectNumber الممررة من العميل واستبدلها برقم التسلسل السلطوي",
+      "details": {
+        "assignedProjectNumber": 111
+      }
+    },
+    {
+      "id": 17,
+      "name": "offline project creation syncs safely upon reconnect",
+      "category": "OFFLINE_SYNC",
+      "passed": true,
+      "message": "مشروع المنشأ أوفلاين يتم تسجيل رقمه بأمان ويتكامل بسلاسة عند المزامنة",
+      "details": {
+        "offlineProjId": "PRJ-OFFLINE-SYNC-mu1cym9s",
+        "projectNumber": 112
+      }
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import { ProjectValidator } from '../validators/project.validator';
 import { ProjectEntity } from '../types/entities';
 import { AuthUserContext } from '../types/common';
 import { auditLogService } from './auditLog.service';
+import { ProjectNumberGenerator } from './projectNumberGenerator';
 
 export class ProjectService {
   async getProject(projectId: string): Promise<ProjectEntity | null> {
@@ -25,20 +26,26 @@ export class ProjectService {
     }
 
     // 2. Authorization check
-    if (context.role !== 'PROJECT_ADMIN') {
+    if (context.role !== 'PROJECT_ADMIN' && context.role !== 'SUPER_ADMIN') {
       throw new Error('غير مصرح لك: إنشاء المشاريع مقتصر فقط على مديري المشاريع (PROJECT_ADMIN)');
     }
 
-    // 3. Stamping & Repositories
+    // 3. Server-Authoritative Project Number Generation
+    const serverProjectNumber = await ProjectNumberGenerator.getNextProjectNumber();
+
+    // 4. Stamping & Repositories (Server overrides any client-supplied projectNumber)
     const newProject: Omit<ProjectEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string } = {
       ...payload,
+      projectNumber: serverProjectNumber,
+      authorizedCarrierIds: payload.authorizedCarrierIds || [],
+      authorizedMaterialIds: payload.authorizedMaterialIds || [],
       createdBy: context.userId,
       updatedBy: context.userId,
     };
 
     await projectRepository.create(newProject);
 
-    // 4. Audit Log
+    // 5. Audit Log
     await auditLogService.recordLog({
       projectId: payload.projectId,
       entityType: 'PROJECT',
