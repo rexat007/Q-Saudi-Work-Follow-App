@@ -34,6 +34,7 @@ import { ARCHITECTURE_DOCS, DocItem } from './docsData';
 import FirestoreArchitectureView from './components/FirestoreArchitectureView';
 import { ProjectSetupWizard } from './components/wizard/ProjectSetupWizard';
 import { PricingEngineView } from './components/pricing/PricingEngineView';
+import { ProjectManagementWorkspaceView } from './components/projectManagement/ProjectManagementWorkspaceView';
 import { MasterDataView } from './components/masterData/MasterDataView';
 import { DataQualityView } from './components/dataQuality/DataQualityView';
 import { ImportCenterView } from './components/importCenter/ImportCenterView';
@@ -59,7 +60,7 @@ import { LanguageSwitcher } from './components/i18n/LanguageSwitcher';
 
 export default function App() {
   const { direction, t } = useI18n();
-  const [activeTab, setActiveTab] = useState<'OPERATIONS_DASHBOARD' | 'FIELD_OPERATIONS' | 'LEGACY_MIGRATION' | 'ADMIN_CONSOLE' | 'SECURITY_AUDIT' | 'REPORTS_ENGINE' | 'TRIP_ENGINE' | 'WORKSPACE_INTEGRATION' | 'EXCEPTION_ENGINE' | 'IMPORT_CENTER' | 'DATA_QUALITY' | 'MASTER_DATA' | 'PRICING_ENGINE' | 'WIZARD' | 'FIRESTORE_ARCH' | 'RELATIONS' | 'PRINCIPLES' | 'DOCS'>('OPERATIONS_DASHBOARD');
+  const [activeTab, setActiveTab] = useState<'OPERATIONS_DASHBOARD' | 'FIELD_OPERATIONS' | 'LEGACY_MIGRATION' | 'ADMIN_CONSOLE' | 'SECURITY_AUDIT' | 'REPORTS_ENGINE' | 'TRIP_ENGINE' | 'WORKSPACE_INTEGRATION' | 'EXCEPTION_ENGINE' | 'IMPORT_CENTER' | 'DATA_QUALITY' | 'MASTER_DATA' | 'PRICING_ENGINE' | 'WIZARD' | 'PROJECT_MANAGEMENT' | 'FIRESTORE_ARCH' | 'RELATIONS' | 'PRINCIPLES' | 'DOCS'>('OPERATIONS_DASHBOARD');
   const [selectedEntityId, setSelectedEntityId] = useState<string>('Trip');
   const [selectedDocId, setSelectedDocId] = useState<string>('architecture');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -350,20 +351,21 @@ export default function App() {
               </button>
 
               <button
-                id="tab-master-data"
-                onClick={() => setActiveTab('MASTER_DATA')}
+                id="tab-project-management"
+                onClick={() => setActiveTab('PROJECT_MANAGEMENT')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
-                  activeTab === 'MASTER_DATA' 
+                  activeTab === 'PROJECT_MANAGEMENT' 
                     ? 'bg-amber-600 text-white shadow-xs' 
                     : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/50'
                 }`}
               >
-                <Boxes className="w-3.5 h-3.5" />
-                <span>{t("navigation.labels.txt_70f585")}</span>
+                <Building2 className="w-3.5 h-3.5" />
+                <span>{t("navigation.labels.projects_2")} / {t("navigation.labels.txt_70f585")}</span>
                 <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                  activeTab === 'MASTER_DATA' ? 'bg-white/20 text-white' : 'bg-amber-200 text-amber-900'
+                  activeTab === 'PROJECT_MANAGEMENT' ? 'bg-white/20 text-white' : 'bg-amber-200 text-amber-900'
                 }`}>
-                  {t("navigation.labels.txt_50c969")}</span>
+                  الإدارة
+                </span>
               </button>
 
               <button
@@ -384,22 +386,7 @@ export default function App() {
                 </span>
               </button>
 
-              <button
-                id="tab-wizard"
-                onClick={() => setActiveTab('WIZARD')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
-                  activeTab === 'WIZARD' 
-                    ? 'bg-amber-600 text-white shadow-xs' 
-                    : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/50'
-                }`}
-              >
-                <Building2 className="w-3.5 h-3.5" />
-                <span>{t("navigation.labels.projects_2")}</span>
-                <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                  activeTab === 'WIZARD' ? 'bg-white/20 text-white' : 'bg-amber-200 text-amber-900'
-                }`}>
-                  {t("navigation.labels.txt_11ed5e")}</span>
-              </button>
+
 
               <button
                 id="tab-firestore"
@@ -565,19 +552,14 @@ export default function App() {
           <DataQualityView />
         )}
 
-        {/* ================= TAB: MASTER DATA MODULES ================= */}
-        {activeTab === 'MASTER_DATA' && (
-          <MasterDataView />
+        {/* ================= TAB: PROJECT MANAGEMENT ================= */}
+        {activeTab === 'PROJECT_MANAGEMENT' && (
+          <ProjectManagementWorkspaceView authContext={currentUser} />
         )}
 
         {/* ================= TAB: PRICING ENGINE & AUTOMATED TESTS ================= */}
         {activeTab === 'PRICING_ENGINE' && (
           <PricingEngineView />
-        )}
-
-        {/* ================= TAB: PROJECT SETUP WIZARD (7 STEPS) ================= */}
-        {activeTab === 'WIZARD' && (
-          <ProjectSetupWizard />
         )}
 
         {/* ================= TAB 0: FIRESTORE ARCHITECTURE & DOMAIN LAYERS ================= */}
