@@ -496,7 +496,8 @@ async function runTests() {
     },
     pricingSnapshot: {
       pricingRuleId: 'PR-AGG-01',
-      pricingModel: 'PER_TON',
+      pricingType: 'PER_TON',
+      pricingSnapshotAt: new Date().toISOString(),
       agreedRate: 100, // 100 SAR/ton
       baseRateSAR: 100,
       currency: 'SAR',
@@ -504,7 +505,7 @@ async function runTests() {
       vatRatePercent: 15,
       settlementBase: 29.000,
       settlementAmount: 2900, // 29 * 100
-    },
+    } as any,
     financials: {
       baseAmountSAR: 2900,
       demurrageAmountSAR: 0,
@@ -519,7 +520,7 @@ async function runTests() {
     createdBy: 'USR-ADMIN-87',
     updatedAt: new Date(),
     updatedBy: 'USR-ADMIN-87',
-  };
+  } as any;
 
   // Seed the trip in mock repository for testing
   await tripRepository.create(mockTrip);
@@ -621,7 +622,7 @@ async function runTests() {
     console.log('--- VERIFYING LOGS ---', JSON.stringify(logs, null, 2));
     // Check if there is an audit log for our newly approved adjustment
     const hasAdjustmentLog = logs.some(
-      log => log.entityType === 'TRIP_ADJUSTMENT' && log.action === 'APPROVE' && log.createdBy === 'USR-FINANCE-87'
+      log => log.entityType === 'FINANCIAL_ADJUSTMENT' && log.action === 'UPDATE' && log.createdBy === 'USR-FINANCE-87'
     );
 
     record(

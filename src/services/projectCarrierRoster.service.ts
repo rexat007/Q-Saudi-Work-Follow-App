@@ -123,7 +123,7 @@ export class ProjectCarrierRosterService {
 
     await auditLogService.recordLog({
       projectId: entry.projectId,
-      entityType: 'PROJECT_ROSTER',
+      entityType: 'PROJECT',
       entityId: entry.rosterId,
       action: 'CREATE',
       after: newEntry,
@@ -150,7 +150,7 @@ export class ProjectCarrierRosterService {
 
     await auditLogService.recordLog({
       projectId,
-      entityType: 'PROJECT_ROSTER',
+      entityType: 'PROJECT',
       entityId: rosterId,
       action: 'UPDATE',
       before: existing,
@@ -172,7 +172,7 @@ export class ProjectCarrierRosterService {
 
     await auditLogService.recordLog({
       projectId,
-      entityType: 'PROJECT_ROSTER',
+      entityType: 'PROJECT',
       entityId: rosterId,
       action: 'DELETE',
       before: existing,

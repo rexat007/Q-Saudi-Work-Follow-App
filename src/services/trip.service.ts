@@ -107,6 +107,12 @@ export class TripService {
       pricingRuleId: params.pricingRuleId,
 
       // Immutable snapshots
+      projectSnapshot: {
+        projectId: params.projectId,
+        projectNumber: project?.projectNumber || 1,
+        nameAr: project?.nameAr || '',
+        nameEn: project?.nameEn || '',
+      },
       carrierSnapshot: {
         carrierId: carrier.carrierId,
         companyNameAr: carrier.companyNameAr,

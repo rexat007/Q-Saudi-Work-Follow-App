@@ -284,6 +284,19 @@ export interface TripEntity extends BaseAuditedEntity {
     currency: 'SAR';
     isFinalized: boolean;
     finalizedAt?: Timestamp | Date;
+    // BLOCK 89: Controlled Financial Adjustment fields
+    adjustmentsTotalAmountSAR?: number;
+    finalBaseAmountSAR?: number;
+    finalSubtotalSAR?: number;
+    finalVatAmountSAR?: number;
+    finalTotalAmountSAR?: number;
+  };
+
+  projectSnapshot?: {
+    projectId: string;
+    projectNumber: number;
+    nameAr: string;
+    nameEn: string;
   };
 
   clientUUID: string;
@@ -441,6 +454,7 @@ export type SettlementAdjustmentType = 'RATE' | 'AMOUNT' | 'DEDUCTION' | 'OTHER'
 export interface SettlementAdjustmentEntity extends BaseAuditedEntity {
   adjustmentId: string;
   tripId: string;
+  tripNumber: string;
   projectId: string;
   adjustmentType: SettlementAdjustmentType;
   amountOrRateAdjustment: number;

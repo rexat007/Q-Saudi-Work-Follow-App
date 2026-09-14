@@ -108,6 +108,23 @@ export class TripRepository {
     }
   }
 
+  async findByTripNumber(projectId: string, tripNumber: string): Promise<TripEntity | null> {
+    const path = this.getPath(projectId);
+    if (!auth.currentUser) return null;
+    try {
+      const q = query(
+        collection(db, 'projects', projectId, 'trips'),
+        where('tripNumber', '==', tripNumber),
+        limit(1)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return null;
+      return snap.docs[0].data() as TripEntity;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.GET, path);
+    }
+  }
+
   subscribeByProject(projectId: string, onData: (trips: TripEntity[]) => void) {
     if (!auth.currentUser) {
       return () => {};

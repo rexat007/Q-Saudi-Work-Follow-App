@@ -1,0 +1,201 @@
+{
+  "timestamp": "2026-09-14T20:10:27.463Z",
+  "block": "BLOCK_89",
+  "summary": {
+    "total": 21,
+    "passed": 21,
+    "failed": 0,
+    "successRate": "100%"
+  },
+  "results": [
+    {
+      "id": "[TRIP-ID-01]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify trip sequence counter is concurrency-safe and generates unique sequential sequences",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ID-02]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify correct sequence string format Q-PRJ-{PROJECT_SEQUENCE}-TRP-{TRIP_SEQUENCE}",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ID-03]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify padding works with project sequence (4 digits) and trip sequence (5 digits)",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ID-04]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify default fallback to Q-PRJ-0001 prefix is correctly handled if project number is undefined",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-SNAPSHOT-01]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify immutable carrierSnapshot stores carrierId, companyNameAr, commercialRegistrationNo at creation",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-SNAPSHOT-02]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify immutable driverSnapshot stores driverId, fullNameAr, nationalOrIqamaId, phone",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-SNAPSHOT-03]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify immutable truckSnapshot stores truckId, plateNumberAr, tareWeightKg, legalPayloadLimitKg",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-SNAPSHOT-04]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify immutable materialSnapshot stores materialId, code, nameAr, unitOfMeasure",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-SNAPSHOT-05]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify projectSnapshot stores projectId, projectNumber, nameAr, nameEn on trip record",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-SNAPSHOT-06]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify subsequent updates to driver master data do not silently mutate historical trip records",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-SNAPSHOT-07]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify subsequent updates to vehicle master data do not silently mutate historical trip records",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-LOOKUP-01]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify findByTripNumber correctly retrieves trip record by sequential tripNumber",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-LOOKUP-02]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify project isolation is enforced during sequential tripNumber query lookups",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ADJUST-01]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify supervisors can submit financial adjustment request",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ADJUST-02]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify RBAC restricts adjustment approvals only to PROJECT_ADMIN, FINANCE_AUDITOR, SUPER_ADMIN",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ADJUST-03]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify RATE adjustment adjusts calculations of settlement totals based on the weight metric",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ADJUST-04]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify AMOUNT adjustment adds/subtracts flat amounts to settlement base amount",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ADJUST-05]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify DEDUCTION adjustment reduces subtotals correctly without overwriting base rates",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ADJUST-06]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify original fields (baseAmountSAR / settlementAmount) are preserved completely untouched",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ADJUST-07]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify VAT is correctly recalculated using 15% on the finalized adjusted settlement amount",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[TRIP-ADJUST-08]",
+      "category": "TRIP_IDENTITY_ADJUSTMENT_BLOCK89",
+      "titleEn": "Verify all adjustment transactions are logged to audit trail with proper audit reference and credentials",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    }
+  ]
+}
