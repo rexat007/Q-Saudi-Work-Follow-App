@@ -1,29 +1,29 @@
 {
-  "generatedAt": "2026-09-14T10:17:33.739Z",
+  "generatedAt": "2026-09-14T11:06:21.577Z",
   "version": "1.0.0-block43",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 11955,
-    "generatedEnCount": 11955,
-    "generatedUrCount": 11955,
-    "reviewRequiredCount": 11949,
+    "totalEntries": 11965,
+    "generatedEnCount": 11965,
+    "generatedUrCount": 11965,
+    "reviewRequiredCount": 11959,
     "skippedCount": 0,
     "protectedCount": 1,
     "interpolationCount": 216,
     "pluralizationCount": 154,
-    "highRiskCount": 11949,
+    "highRiskCount": 11959,
     "semanticConflictCount": 1526,
     "domainTerminologyCount": 0,
     "confidenceBreakdown": {
       "HIGH": 143,
       "MEDIUM": 3406,
-      "LOW": 8406
+      "LOW": 8416
     },
     "tierBreakdown": {
       "1": 6,
       "2": 0,
       "3": 0,
-      "4": 11949
+      "4": 11959
     },
     "reviewReasonsBreakdown": {
       "SEMANTIC_CONFLICT": 1526,
@@ -32,7 +32,7 @@
       "PLURALIZATION_RISK": 154,
       "REPORT_EXPORT_RISK": 3871,
       "BUSINESS_DATA_RISK": 1630,
-      "LOW_CONFIDENCE": 11949,
+      "LOW_CONFIDENCE": 11959,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
@@ -63,12 +63,12 @@
         "low": 15
       },
       "projects": {
-        "total": 187,
-        "generated": 187,
-        "reviewRequired": 187,
+        "total": 197,
+        "generated": 197,
+        "reviewRequired": 197,
         "high": 3,
         "medium": 62,
-        "low": 122
+        "low": 132
       },
       "carriers": {
         "total": 52,
@@ -5122,7 +5122,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -12021,7 +12021,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -18001,7 +18001,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -30233,7 +30233,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -33663,7 +33663,7 @@
           "element": "call_setTypeFilter"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -45337,7 +45337,7 @@
           "element": "call_setStatusFilter"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -46596,7 +46596,7 @@
           "element": "call_setFormatFilter"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -57041,7 +57041,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -124349,7 +124349,7 @@
           "element": "call_setFilterTab"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -124541,7 +124541,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -129807,7 +129807,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -143721,7 +143721,7 @@
           "element": "call_setActiveFilterTab"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -143955,7 +143955,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -160574,7 +160574,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -184529,7 +184529,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -193938,7 +193938,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -320750,7 +320750,7 @@
           "element": "prop_pricingType"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -460884,8 +460884,8 @@
       "sourceReferences": [
         {
           "file": "src/firebase/config.ts",
-          "line": 9,
-          "column": 76,
+          "line": 30,
+          "column": 60,
           "element": "call_includes"
         },
         {
@@ -461221,7 +461221,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -473984,7 +473984,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -492155,7 +492155,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -496503,6 +496503,56 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.aiStudioQsaudiworkfollowAb1cba1eAc084099Bc72193202e518f1": {
+      "key": "projects.labels.aiStudioQsaudiworkfollowAb1cba1eAc084099Bc72193202e518f1",
+      "category": "projects",
+      "semanticContext": "literal",
+      "sourceTextAr": "ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1",
+      "proposedTextEn": "ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1",
+      "proposedTextUr": "ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 94,
+          "column": 58,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_ai_studio_qsaudiworkfollow_ab1_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.all": {
       "key": "projects.labels.all",
       "category": "projects",
@@ -496546,6 +496596,12 @@
           "element": "literal"
         },
         {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 129,
+          "column": 69,
+          "element": "prop_projectId"
+        },
+        {
           "file": "src/tests/runtimeProjectMasterDataEmptyStateBlock82D.test.ts",
           "line": 193,
           "column": 95,
@@ -496582,7 +496638,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -496682,6 +496738,349 @@
         }
       ],
       "duplicateGroupId": "dup_bg_white_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.block85a01": {
+      "key": "projects.labels.block85a01",
+      "category": "projects",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK-85A-01",
+      "proposedTextEn": "BLOCK-85A-01",
+      "proposedTextUr": "BLOCK-85A-01",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 61,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.block85a02": {
+      "key": "projects.labels.block85a02",
+      "category": "projects",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK-85A-02",
+      "proposedTextEn": "BLOCK-85A-02",
+      "proposedTextUr": "BLOCK-85A-02",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 71,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.block85a03": {
+      "key": "projects.labels.block85a03",
+      "category": "projects",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK-85A-03",
+      "proposedTextEn": "BLOCK-85A-03",
+      "proposedTextUr": "BLOCK-85A-03",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 80,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.block85a04": {
+      "key": "projects.labels.block85a04",
+      "category": "projects",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK-85A-04",
+      "proposedTextEn": "BLOCK-85A-04",
+      "proposedTextUr": "BLOCK-85A-04",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 87,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.block85a05": {
+      "key": "projects.labels.block85a05",
+      "category": "projects",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK-85A-05",
+      "proposedTextEn": "BLOCK-85A-05",
+      "proposedTextUr": "BLOCK-85A-05",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 100,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.block85a06": {
+      "key": "projects.labels.block85a06",
+      "category": "projects",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK-85A-06",
+      "proposedTextEn": "BLOCK-85A-06",
+      "proposedTextUr": "BLOCK-85A-06",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 136,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.block85a07": {
+      "key": "projects.labels.block85a07",
+      "category": "projects",
+      "semanticContext": "call_test",
+      "sourceTextAr": "BLOCK-85A-07",
+      "proposedTextEn": "BLOCK-85A-07",
+      "proposedTextUr": "BLOCK-85A-07",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 147,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -497793,6 +498192,74 @@
         }
       ],
       "duplicateGroupId": "dup_font_semibold_14",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.genLangClient0774589047": {
+      "key": "projects.labels.genLangClient0774589047",
+      "category": "projects",
+      "semanticContext": "literal",
+      "sourceTextAr": "gen-lang-client-0774589047",
+      "proposedTextEn": "gen-lang-client-0774589047",
+      "proposedTextUr": "gen-lang-client-0774589047",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 62,
+          "column": 41,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 65,
+          "column": 48,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 88,
+          "column": 55,
+          "element": "call_includes"
+        },
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 91,
+          "column": 58,
+          "element": "call_includes"
+        }
+      ],
+      "duplicateGroupId": "dup_gen_lang_client_0774589047_4",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -499650,6 +500117,62 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.promiseOfPlanetYoutubeApi": {
+      "key": "projects.labels.promiseOfPlanetYoutubeApi",
+      "category": "projects",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "promise-of-planet-youtube-api",
+      "proposedTextEn": "promise-of-planet-youtube-api",
+      "proposedTextUr": "promise-of-planet-youtube-api",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 74,
+          "column": 28,
+          "element": "call_includes"
+        },
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 74,
+          "column": 84,
+          "element": "call_includes"
+        }
+      ],
+      "duplicateGroupId": "dup_promise_of_planet_youtube_api_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },
@@ -515332,7 +515855,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -538631,7 +539154,7 @@
           "element": "prop_status"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -543381,7 +543904,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -566397,6 +566920,7 @@
           "element": "prop_databaseId"
         }
       ],
+      "duplicateGroupId": "dup_ai_studio_qsaudiworkfollow_ab1_2",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -566676,7 +567200,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -575922,7 +576446,7 @@
           "element": "attr_value"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -595405,7 +595929,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -620936,7 +621460,7 @@
           "element": "attr_value"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -635188,7 +635712,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_253",
+      "duplicateGroupId": "dup_ALL_254",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],

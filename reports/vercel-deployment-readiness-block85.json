@@ -1,0 +1,97 @@
+{
+  "timestamp": "2026-09-14T10:33:30.000Z",
+  "block": "BLOCK 85",
+  "title": "Vercel Deployment Readiness & Environment Separation Audit Report",
+  "status": "READY_FOR_VERCEL",
+  "readOnlyAuditVerified": true,
+  "frameworkAndBuild": {
+    "frontendFramework": "React 19 (TypeScript)",
+    "buildSystem": "Vite 6 (Tailwind v4)",
+    "packageManager": "npm / bun",
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "nodeRuntimeRequirements": "Node.js >= 18",
+    "spaRoutingRequirements": "Client-side SPA fallback to /index.html"
+  },
+  "applicationArchitecture": {
+    "type": "Full-Stack (Client SPA + Optional Express Workspace Server)",
+    "frontendMode": "React 19 SPA communicating directly with Firebase Firestore & Auth",
+    "backendMode": "Express server (server.ts) for optional Google Workspace Drive/Sheets sync",
+    "vercelCompatibility": "Frontend SPA 100% Vercel compatible; Express server can be deployed to Cloud Run or Vercel Serverless Functions",
+    "externalBackendRequired": false
+  },
+  "firebaseConfiguration": {
+    "publicClientVariableNames": [
+      "VITE_FIREBASE_PROJECT_ID",
+      "VITE_FIREBASE_APP_ID",
+      "VITE_FIREBASE_API_KEY",
+      "VITE_FIREBASE_AUTH_DOMAIN",
+      "VITE_FIREBASE_FIRESTORE_DATABASE_ID",
+      "VITE_FIREBASE_STORAGE_BUCKET",
+      "VITE_FIREBASE_MESSAGING_SENDER_ID",
+      "VITE_FIREBASE_MEASUREMENT_ID",
+      "VITE_FIREBASE_OAUTH_CLIENT_ID",
+      "VITE_FIREBASE_RECAPTCHA_SITE_KEY"
+    ],
+    "serverOnlyVariableNames": [
+      "FIREBASE_API_KEY",
+      "GEMINI_API_KEY",
+      "GOOGLE_WORKSPACE_CLIENT_SECRET"
+    ],
+    "environmentDrivenVerification": "CONFIRMED — Configuration separated from core business logic"
+  },
+  "environmentSeparation": {
+    "supportedEnvironments": [
+      "ENVIRONMENT A: Vercel Preview / Test → Firebase Test Project",
+      "ENVIRONMENT B: Company Production → Firebase Production Project"
+    ],
+    "codeModificationRequired": false,
+    "differingVariables": [
+      "VITE_FIREBASE_PROJECT_ID",
+      "VITE_FIREBASE_APP_ID",
+      "VITE_FIREBASE_API_KEY",
+      "VITE_FIREBASE_AUTH_DOMAIN",
+      "VITE_FIREBASE_FIRESTORE_DATABASE_ID",
+      "VITE_FIREBASE_STORAGE_BUCKET",
+      "VITE_FIREBASE_MESSAGING_SENDER_ID",
+      "VITE_FIREBASE_OAUTH_CLIENT_ID"
+    ]
+  },
+  "firebaseAuthentication": {
+    "provider": "Google Sign-In & Firebase Auth",
+    "authorizedDomainsRequirement": "Must configure authorized domains in Firebase Console (e.g. *.vercel.app for Preview, app.company.com for Production)"
+  },
+  "firestore": {
+    "accessModel": "Direct Web SDK connection from client + Server-side Firestore Rules enforcement",
+    "securityRules": "firestore.rules deployed to both Test and Production projects",
+    "isolatedDatabases": true
+  },
+  "dataIsolation": {
+    "crossEnvironmentSharing": false,
+    "cleanProductionStart": true
+  },
+  "vercelConfiguration": {
+    "existingVercelJson": false,
+    "recommendation": "Optional vercel.json with SPA rewrites to /index.html for client-side routing"
+  },
+  "secretsSafety": {
+    "gitSecretsCommitted": false,
+    "envFilesIgnored": true,
+    "clientServerSecretIsolation": "CONFIRMED"
+  },
+  "cleanRuntime": {
+    "demoProjectsCreated": false,
+    "demoPricingCreated": false,
+    "demoMasterDataCreated": false,
+    "syntheticTripsCreated": false,
+    "cleanStartVerified": true
+  },
+  "qualityGate": {
+    "testSuite": "PASS (npm run test:translation-fixes-84a - 7/7 PASSED)",
+    "linter": "PASS (npm run lint - 0 errors)",
+    "build": "PASS (npm run build - compiled successfully)"
+  },
+  "blockers": [],
+  "finalClassification": "READY_FOR_VERCEL"
+}

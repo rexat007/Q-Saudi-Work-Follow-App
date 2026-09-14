@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-09-14T10:50:00.000Z",
+  "auditType": "READ_ONLY_FIREBASE_PROJECT_VERIFICATION",
+  "targetApplication": "Q-Saudi-Work-Follow",
+  "firebaseProjectId": {
+    "viteClientExpected": "promise-of-planet-youtube-api",
+    "serverSideExpected": null,
+    "sourceFile": "firebase-applet-config.json",
+    "configImportLocation": "src/firebase/config.ts"
+  },
+  "authDomain": "promise-of-planet-youtube-api.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1",
+  "storageBucket": "promise-of-planet-youtube-api.firebasestorage.app",
+  "messagingSenderId": "98229909734",
+  "configurationMode": {
+    "isEnvironmentDriven": true,
+    "defaultConfigLocation": "firebase-applet-config.json",
+    "runtimeOverrideCapable": true,
+    "codeModificationRequiredToSwitchEnv": false
+  },
+  "projectIDReferences": {
+    "promiseOfPlanetYoutubeApiReferenced": true,
+    "locations": [
+      "firebase-applet-config.json",
+      "reports/vercel-deployment-readiness-block85.md"
+    ]
+  },
+  "exactDesignedProject": {
+    "gcpProjectId": "promise-of-planet-youtube-api",
+    "firestoreDatabaseInstance": "ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1",
+    "authDomain": "promise-of-planet-youtube-api.firebaseapp.com"
+  },
+  "securityAudit": {
+    "apiKeysExposedInReport": false,
+    "secretsCommittedToGit": false,
+    "modificationsMade": false
+  }
+}

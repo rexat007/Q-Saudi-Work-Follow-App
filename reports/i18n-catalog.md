@@ -1,23 +1,23 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-14T10:17:28.518Z
+**Generated At:** 2026-09-14T11:06:14.553Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 283 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 36017 | Total strings and text nodes parsed |
+| **Total Files Scanned** | 284 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 36049 | Total strings and text nodes parsed |
 | **Real User-Facing Texts** | 9288 | Confirmed visible Arabic and UI texts |
 | **Likely User-Facing Texts** | 371 | English UI text in visible elements |
-| **Ambiguous Texts** | 8626 | Short or context-isolated tokens for manual review |
+| **Ambiguous Texts** | 8641 | Short or context-isolated tokens for manual review |
 | **Technical Strings** | 7587 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 10145 | Internal IDs, collection names, database keys |
+| **Non-User-Facing Strings** | 10162 | Internal IDs, collection names, database keys |
 | **Distinct Proposed Keys** | 8231 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 4231 | Sets of identical/normalized recurring texts |
+| **Duplicate Groups** | 4234 | Sets of identical/normalized recurring texts |
 | **Semantic Conflict Groups** | 612 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 10586 | Entries flagged with special cases or ambiguity |
+| **Keys Requiring Review** | 10601 | Entries flagged with special cases or ambiguity |
 | **High / Critical Risk Hotspots** | 2300 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
