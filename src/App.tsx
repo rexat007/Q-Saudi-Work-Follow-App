@@ -255,11 +255,21 @@ export default function App() {
     }
   };
 
+  // Separate authentication and account verification from main application shell
+  if (!user) {
+    return (
+      <AccountStatusGate
+        status="UNAUTHENTICATED"
+        onRefresh={refreshUserProfile}
+      />
+    );
+  }
+
   // Gate authenticated users if account status is not ACTIVE
   if (user && (!userProfile || userProfile.status !== 'ACTIVE')) {
     return (
       <AccountStatusGate
-        status={userProfile?.status || 'PENDING_APPROVAL'}
+        status={userProfile?.status || 'NO_PROFILE'}
         userEmail={user.email || ''}
         userName={userProfile?.fullName || user.displayName || ''}
         onRefresh={refreshUserProfile}

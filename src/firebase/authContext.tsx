@@ -43,23 +43,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       let profile = await userRepository.findById(currentUser.uid);
       if (!profile) {
-        // First-time sign-in: create PENDING_APPROVAL request
-        const pendingProfile: UserEntity = {
-          userId: currentUser.uid,
-          email: currentUser.email || '',
-          fullName: currentUser.displayName || 'مستخدم جديد',
-          role: 'VIEWER',
-          requestedRole: 'DISPATCHER',
-          assignedProjectIds: [],
-          status: 'PENDING_APPROVAL',
-          isActive: false,
-          createdAt: new Date().toISOString() as any,
-          createdBy: currentUser.uid,
-          updatedAt: new Date().toISOString() as any,
-          updatedBy: currentUser.uid,
-        };
-        await userRepository.create(pendingProfile);
-        setUserProfile(pendingProfile);
+        // First-time sign-in: Do NOT auto-create profile here.
+        // The front-end AccountStatusGate will render the Account Request page.
+        setUserProfile(null);
       } else {
         // If status is missing on legacy record, default to PENDING_APPROVAL unless active
         if (!profile.status) {

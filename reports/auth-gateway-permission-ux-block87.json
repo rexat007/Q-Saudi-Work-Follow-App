@@ -1,0 +1,28 @@
+{
+  "block": "87",
+  "feature": "Authentication Gateway, Permission UX & Interactive Navigation",
+  "status": "VERIFIED",
+  "timestamp": "2026-09-14T10:15:00Z",
+  "components": {
+    "auth_gateway": "SEPARATED",
+    "account_request_experience": "IMPLEMENTED",
+    "admin_approval_ux": "ENHANCED",
+    "role_permission_reference": "IN_CONSOLE",
+    "interactive_navigation": "APPLIED",
+    "responsive_safety": "VERIFIED",
+    "rtl_ltr_support": "VERIFIED"
+  },
+  "i18n_freeze": {
+    "arabic_keys": 1128,
+    "english_keys": 1128,
+    "urdu_keys": 1128,
+    "status": "FROZEN_UNCHANGED"
+  },
+  "test_execution": {
+    "suite": "src/tests/authGatewayPermissionUxBlock87.test.ts",
+    "total_tests": 10,
+    "passed_tests": 10,
+    "failed_tests": 0,
+    "result": "SUCCESS"
+  }
+}
