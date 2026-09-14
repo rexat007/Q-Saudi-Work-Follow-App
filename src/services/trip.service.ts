@@ -10,6 +10,7 @@ import { driverRepository } from '../repositories/driver.repository';
 import { materialRepository } from '../repositories/material.repository';
 import { pricingRuleRepository } from '../repositories/pricingRule.repository';
 import { projectRepository } from '../repositories/project.repository';
+import { TripNumberGenerator } from './tripNumberGenerator';
 
 export interface DispatchTripParams {
   projectId: string;
@@ -93,7 +94,7 @@ export class TripService {
     }
 
     const tripId = `TRP-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const tripNumber = `TRP-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const tripNumber = await TripNumberGenerator.getNextTripNumber(params.projectId, project?.projectNumber);
 
     const newTrip: Omit<TripEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string } = {
       tripId,

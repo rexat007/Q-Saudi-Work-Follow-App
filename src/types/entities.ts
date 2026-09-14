@@ -420,3 +420,36 @@ export interface ImportBatchEntity extends BaseAuditedEntity {
   status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
   errorSummary?: string[];
 }
+
+// 14. Project Carrier Roster Entity (BLOCK 87)
+export interface ProjectCarrierRosterEntity extends BaseAuditedEntity {
+  rosterId: string;
+  projectId: string;
+  carrierId: string;
+  driverName: string;
+  plateNumber: string;
+  phone: string;
+  residencyId?: string;
+  materialId: string;
+  status: 'ACTIVE' | 'INACTIVE';
+}
+
+// 15. Settlement Adjustment Entity (BLOCK 87)
+export type SettlementAdjustmentStatus = 'REQUEST' | 'REVIEW' | 'APPROVED' | 'REJECTED' | 'APPLIED';
+export type SettlementAdjustmentType = 'RATE' | 'AMOUNT' | 'DEDUCTION' | 'OTHER';
+
+export interface SettlementAdjustmentEntity extends BaseAuditedEntity {
+  adjustmentId: string;
+  tripId: string;
+  projectId: string;
+  adjustmentType: SettlementAdjustmentType;
+  amountOrRateAdjustment: number;
+  reason: string;
+  requestedBy: string;
+  requestedAt: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  status: SettlementAdjustmentStatus;
+  notes?: string;
+  auditReference?: string;
+}

@@ -6,6 +6,7 @@ import { userRepository } from '../repositories/user.repository';
 import { syncOperationRepository } from '../repositories/syncOperation.repository';
 import { auditLogService } from './auditLog.service';
 import { ProjectProvisioningValidator } from '../validators/projectProvisioning.validator';
+import { ProjectNumberGenerator } from './projectNumberGenerator';
 import {
   ProjectSetupWizardData,
   ProjectProvisioningResult,
@@ -69,6 +70,8 @@ export class ProjectProvisioningService {
         ? data.googleDrive.generatedSpreadsheetId || `gsheet-${projectId.toLowerCase()}-${Date.now().toString(36)}`
         : undefined;
 
+    const serverProjectNumber = await ProjectNumberGenerator.getNextProjectNumber();
+
     // 4. STEP 1: CREATE PROJECT DOCUMENT
     const projectPayload: Omit<ProjectEntity, 'createdAt' | 'updatedAt'> & {
       createdBy: string;
@@ -76,6 +79,7 @@ export class ProjectProvisioningService {
     } = {
       projectId,
       projectCode: projectId,
+      projectNumber: serverProjectNumber,
       nameAr: data.projectInfo.projectName.trim(),
       nameEn: data.projectInfo.projectCode.trim(),
       clientName: data.projectInfo.clientName?.trim() || 'العميل الرئيسي للمشروع',

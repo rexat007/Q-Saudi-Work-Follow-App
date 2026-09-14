@@ -126,6 +126,22 @@ service cloud.firestore {
         allow delete: if false;
       }
 
+      // Project Carrier Roster subcollection (BLOCK 87)
+      match /roster/{rosterId} {
+        allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
+        allow create: if isSignedIn() && isValidId(rosterId) &&
+                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
+                         isAuditStampedCreate(incoming()) &&
+                         incoming().rosterId == rosterId &&
+                         incoming().projectId == projectId;
+        allow update: if isSignedIn() && isValidId(rosterId) &&
+                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
+                         isAuditStampedUpdate(incoming()) &&
+                         incoming().rosterId == existing().rosterId &&
+                         incoming().projectId == existing().projectId;
+        allow delete: if false;
+      }
+
       // Pricing Rules subcollection
       match /pricing_rules/{pricingRuleId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
@@ -263,6 +279,24 @@ service cloud.firestore {
                            hasProjectRole(projectId, ['PROJECT_ADMIN', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
                            isAuditStampedUpdate(incoming()) &&
                            incoming().exceptionId == existing().exceptionId &&
+                           incoming().tripId == existing().tripId &&
+                           incoming().projectId == existing().projectId;
+          allow delete: if false;
+        }
+
+        // Settlement Adjustments subcollection (BLOCK 87)
+        match /adjustments/{adjustmentId} {
+          allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
+          allow create: if isSignedIn() && isValidId(adjustmentId) &&
+                           hasProjectRole(projectId, ['PROJECT_ADMIN', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
+                           isAuditStampedCreate(incoming()) &&
+                           incoming().adjustmentId == adjustmentId &&
+                           incoming().tripId == tripId &&
+                           incoming().projectId == projectId;
+          allow update: if isSignedIn() && isValidId(adjustmentId) &&
+                           hasProjectRole(projectId, ['PROJECT_ADMIN', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
+                           isAuditStampedUpdate(incoming()) &&
+                           incoming().adjustmentId == existing().adjustmentId &&
                            incoming().tripId == existing().tripId &&
                            incoming().projectId == existing().projectId;
           allow delete: if false;

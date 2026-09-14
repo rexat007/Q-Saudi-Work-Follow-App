@@ -168,13 +168,13 @@ export async function runTests() {
   });
 
   test('[AUTH-03]', 'Pending approval status blocks operational workspace access', () => {
-    const status = 'PENDING_APPROVAL';
+    const status: string = 'PENDING_APPROVAL';
     const canAccessApp = status === 'ACTIVE';
     expect(canAccessApp).toBeFalse();
   });
 
   test('[AUTH-04]', 'Rejected status blocks access and preserves rejection reason', () => {
-    const status = 'REJECTED';
+    const status: string = 'REJECTED';
     const reason = 'Invalid credentials provided';
     const canAccessApp = status === 'ACTIVE';
     expect(canAccessApp).toBeFalse();
@@ -182,7 +182,7 @@ export async function runTests() {
   });
 
   test('[AUTH-05]', 'Suspended status blocks operational access', () => {
-    const status = 'SUSPENDED';
+    const status: string = 'SUSPENDED';
     const canAccessApp = status === 'ACTIVE';
     expect(canAccessApp).toBeFalse();
   });

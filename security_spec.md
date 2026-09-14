@@ -1,231 +1,132 @@
-# Q Saudi Work Follow — مواصفة الأمان وهندسة الحماية المتعددة (Defense in Depth Security Specification)
-## BLOCK 38 — Security Hardening, Project Membership & Production Firestore Rules
+# SECURITY SPECIFICATION: PHASE 0 SECURITY TDD
+## PROJECT-CENTRIC OPERATIONS ARCHITECTURE
 
 ---
 
-## 1. فلسفة الأمان: الحماية المتعددة الطبقات (Defense in Depth)
+## 1. Executive Security & Authorization Philosophy
 
-لا يعتمد النظام على حماية واجهة المستخدم (UI Layer) أو طبقة الخدمات (Service Layer) فقط.
-يتم فرض الأمان عبر مسار هرمي صارم من أربع طبقات:
-1. **الطبقة 1: التوثيق والهوية (Authentication & Token Verification):** التحقق من الرمز المميز `request.auth` وتطابق هوية المستخدم.
-2. **الطبقة 2: عزل المستأجرين والمشاريع (Project Membership & Tenant Isolation):** التحقق الحتمي من عضوية المستخدم في المشروع المستهدف `isProjectMember(projectId)` لمنع هجمات IDOR و BOLA.
-3. **الطبقة 3: التحكم بالوصول المبني على الأدوار (Role-Based Access Control - RBAC):** التحقق من دور المستخدم وصلاحياته المحددة (مثل `PROJECT_ADMIN`, `FINANCE_AUDITOR`, `DISPATCHER`, `SUPERVISOR`, `VIEWER`).
-4. **الطبقة 4: قواعد سلامة البيانات وعدم القابلية للتعديل (Data Invariants & Historical Immutability):** قفل السجلات التاريخية، اللقطات السعرية (Pricing Snapshots)، سجلات التدقيق (Audit Logs)، وعدم التلاعب بالعلاقات التشغيلية.
+This system serves as the operational and financial core of a heavy material transportation tracking ecosystem in Saudi Arabia. Because trip records determine payouts to carriers, billing to clients, and compliance with the **ZATCA (Zakat, Tax and Customs Authority)** regulations, security is a non-negotiable architectural foundation.
 
----
-
-## 2. الثوابت الأمنية للنظام (12 System Data Invariants)
-
-| # | الثابت الأمني (Data Invariant) | الوصف وقاعدة الإنفاذ |
-|---|---|---|
-| **INV-01** | **Multi-Tenant Project Isolation** | لا يمكن لمستخدم مصرح له في مشروع A استعلام أو قراءة أو تعديل أو إضافة أي سجل تابع لمشروع B تحت أي ظرف. |
-| **INV-02** | **Pricing Snapshot Immutability** | الحقول المالية واللقطة السعرية للرحلة (`pricingSnapshot`, `agreedRate`, `settlementAmount`, `financials`) غير قابلة للتعديل إطلاقاً بعد إنشائها، وتُحسب آلياً بالخادم. |
-| **INV-03** | **Truck-Carrier Strict Association** | الشاحنة ترتبط حصراً بناقل معتمد واحد؛ يُحظر تغيير `carrierId` للشاحنة بعد تسجيلها، ويُرفض استيراد أي شاحنة لناقل مختلف. |
-| **INV-04** | **Pricing Rule Copy-on-Write Versioning** | يُحظر تعديل `baseRateSAR` أو نوع التعرفة في نفس السجل لقاعدة تسعير مرتبطة برحلات تاريخية؛ التعديل يتطلب إنشاء نسخة جديدة `v2` مع إغلاق القديمة. |
-| **INV-05** | **Append-Only Audit Stream** | سجلات التدقيق `/audit_logs` ومجموعات `/events` هي سجلات تراكمية للإضافة فقط (Append-Only)؛ يُحظر التعديل (`update`) أو الحذف (`delete`). |
-| **INV-06** | **Audit Actor Attribution** | حقل `createdBy` وحقل الفاعل `actor.userId` في سجلات التدقيق والعمليات يجب أن يطابق تماماً `request.auth.uid`. |
-| **INV-07** | **Trip Core Binding Immutability** | بمجرد إصدار الرحلة، تصبح الحقول التالية ثابتة نهائياً: `projectId`, `tripId`, `carrierId`, `truckId`, `pricingRuleId`. |
-| **INV-08** | **Weighbridge Unloading Integrity** | يُحظر على العميل كتابة أو اصطناع أوزان تفريغ متطابقة صامتة (`destNetWeight = netWeight`) أو تصفير الفارق (`variance = 0`) بدون حدث تفريغ فعلي. |
-| **INV-09** | **Operation Source Model Protection** | حقول المصدر (`sourceType`, `sourceMetadata`, `loadingActorType`) موثقة وغير قابلة للتزييف من قبل المشرف الميداني. |
-| **INV-10** | **Admin-Enforced Mutations** | العمليات الإدارية الحساسة (اعتماد الهجرة، تحديث التعرفة، فض النزاعات، حذف الاستثناءات) تتطلب حصراً دور `PROJECT_ADMIN` أو `SUPER_ADMIN`. |
-| **INV-11** | **Operation Idempotency Defense** | منع هجمات إعادة الإرسال (Replay Attacks)؛ معالجة نفس `operationId` تعيد النتيجة المسبقة ولا تكرر إنشاء السجلات أو الحسابات. |
-| **INV-12** | **File Intake Sanitization & Sandboxing** | فحص المسارات ضد Path Traversal (`..`, `/`)، تقييد الامتدادات التنفيذية (`.exe`, `.sh`, `.php`)، وتقييد الحجم بـ 10MB كحد أقصى. |
+Our security model follows the **Zero Trust Principle** and is implemented through **Test-Driven Development (TDD)**:
+1. **Tenant Isolation by Default**: No user may read or modify any resource outside of their assigned projects.
+2. **Immutable Audit Trails**: Every operation involving carrier roster changes, trip creations, or settlement adjustments must be permanently recorded in an append-only audit subcollection.
+3. **Role-Based Access Control (RBAC)**: Least privilege access is strictly enforced. Operational field agents may request adjustments, but only authorized, high-privilege roles can approve financial modifications.
+4. **Deterministic Calculation**: All financial calculations (VAT, Subtotal, Adjustments) are performed in a server-authoritative context to prevent client-side manipulation.
 
 ---
 
-## 3. حمولات الاختبار الهجومية: "The Dirty Dozen" (12 Exploits / Tampering Payloads)
+## 2. Multi-Tenant Project Isolation Boundary
 
-### Payload 1: Cross-Project IDOR Attack (BOLA)
-* **المسار المستهدف:** `POST /api/projects/PRJ-REDSEA-SOUTH-02/trips`
-* **المهاجم:** مستخدم موثق ومرخص في `PRJ-NEOM-NORTH-01` فقط.
-* **الحمولة:**
-```json
-{
-  "projectId": "PRJ-REDSEA-SOUTH-02",
-  "tripId": "TRP-IDOR-INJECT-01",
-  "carrierId": "CAR-FOREIGN",
-  "truckId": "TRK-FOREIGN-99"
-}
+The entire application state is partitioned hierarchically under project nodes.
+
 ```
-* **النتيجة المتوقعة:** `HTTP 403 Forbidden` (`FORBIDDEN_PROJECT_ACCESS`).
-
----
-
-### Payload 2: Supervisor Financial & Pricing Snapshot Tampering
-* **المسار المستهدف:** `PATCH /api/projects/PRJ-NEOM-NORTH-01/trips/TRIP-SEC-001`
-* **المهاجم:** مستخدم برتبة `SUPERVISOR` أو `DISPATCHER`.
-* **الحمولة:**
-```json
-{
-  "pricingRuleId": "PRC-DISCOUNTED-HACK",
-  "settlementAmount": 500,
-  "pricingSnapshot": {
-    "agreedRate": 15,
-    "settlementAmount": 500
-  },
-  "financials": {
-    "totalAmountSAR": 500,
-    "isFinalized": true
-  }
-}
+/projects/{projectId}/
+  ├── roster/{rosterEntryId}         <-- Carrier roster entries
+  ├── trips/{tripId}                 <-- Trip records
+  └── adjustments/{adjustmentId}     <-- Financial adjustments
 ```
-* **النتيجة المتوقعة:** `HTTP 403 Forbidden` (`SUPERVISOR_MUTATION_FORBIDDEN_SETTLEMENT`).
+
+### Access Gating Rule:
+For any operation on project-scoped resources, the system must verify that:
+* The user's role is `SUPER_ADMIN` (granted global system-wide access).
+* **OR** the requested `projectId` is explicitly listed in the user's `assignedProjectIds` array.
+
+If neither condition is met, the system must throw a `PERMISSION_DENIED` security error immediately before executing any database or service operation.
 
 ---
 
-### Payload 3: Supervisor Carrier / Truck Mutation on Active Trip
-* **المسار المستهدف:** `PATCH /api/projects/PRJ-NEOM-NORTH-01/trips/TRIP-SEC-001`
-* **المهاجم:** مستخدم برتبة `SUPERVISOR`.
-* **الحمولة:**
-```json
-{
-  "carrierId": "CAR-UNAUTHORIZED-HIJACK",
-  "truckId": "TRK-ROGUE-77"
-}
+## 3. Role-Based Access Control (RBAC) Matrix
+
+The system supports 6 distinct roles. The operational matrix below defines exactly which role can execute which action under project-centric scopes:
+
+| Role | Project Master CRUD | Project Roster CRUD | View Project Data | Request Adjustment | Approve/Reject Adjustment |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **SUPER_ADMIN** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
+| **PROJECT_ADMIN** | ❌ No | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
+| **FINANCE_AUDITOR** | ❌ No | ❌ No | ✅ Yes | ❌ No | ✅ Yes |
+| **SITE_SUPERVISOR** | ❌ No | ❌ No | ✅ Yes | ✅ Yes | ❌ No |
+| **DRIVER** | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
+| **VIEWER** | ❌ No | ❌ No | ✅ Yes | ❌ No | ❌ No |
+
+### Key Constraints:
+1. **Project Master CRUD**: Creating, editing, or deleting project nodes is strictly limited to `SUPER_ADMIN` to prevent project-level directory pollution.
+2. **Roster CRUD**: Only `SUPER_ADMIN` and `PROJECT_ADMIN` assigned to the project may insert, update, or remove drivers and trucks from the Project Carrier Roster.
+3. **Financial Adjustment Approvals**: Only `PROJECT_ADMIN`, `FINANCE_AUDITOR`, or `SUPER_ADMIN` are permitted to approve adjustments. `SITE_SUPERVISOR` can only *request* them. `DRIVER` role cannot interact with adjustments in any way.
+
+---
+
+## 4. Settlement Recalculation & Financial Math Engine
+
+Financial adjustments modify base pricing snapshots on individual trips. To comply with auditing, the original agreed pricing remains as an immutable historical record; the final billing amount is dynamically recalculable upon adjustment approval.
+
+### ZATCA VAT & Total Math Formulas:
+Upon approval of any `SettlementAdjustment`:
+1. **Apply Rate Adjustments**:
+   $$\text{Agreed Rate} = \text{Original Agreed Rate} \pm \text{Rate Adjustment}$$
+2. **Apply Base Amount Recalculation**:
+   $$\text{Base Amount} = \text{Billable Weight (Tons)} \times \text{Agreed Rate}$$
+3. **Apply Subtotal Math**:
+   $$\text{Subtotal} = \text{Base Amount} + \text{Demurrage} - \text{Deductions}$$
+4. **ZATCA Standard VAT Application (15%)**:
+   $$\text{VAT Amount} = \text{Subtotal} \times 0.15$$
+5. **Total Settlement Math**:
+   $$\text{Total Amount} = \text{Subtotal} + \text{VAT Amount}$$
+
+*Note:* Floating point numbers must be rounded to exactly **two decimal places** (`.toFixed(2)` or equivalent rounding utilities) to prevent rounding leakage in ledger statements.
+
+---
+
+## 5. Security Audit Logging Protocol
+
+An immutable, append-only security log is required to capture all lifecycle mutations. The structure is validated by `AuditLogValidator` before persistence.
+
+### Required Fields for Every Audit Log:
+* `auditLogId`: Unique string prefix `AUD-...`
+* `projectId`: The project identifier under which the mutated resource resides.
+* `entityType`: The type of entity mutated (`PROJECT`, `PROJECT_ROSTER`, `TRIP`, `TRIP_ADJUSTMENT`).
+* `entityId`: The unique identifier of the modified resource.
+* `action`: The action taken (`CREATE`, `UPDATE`, `DELETE`, `APPROVE`, `REJECT`).
+* `actor`: Object containing the logged-in user's metadata (`userId`, `email`, `role`, `ipAddress`, `userAgent`).
+* `changes`: Object containing the delta snapshot:
+  * `before`: The state of the record before the mutation (or `null` on creation).
+  * `after`: The state of the record after the mutation (or `{}` on deletion).
+  * `deltaFields`: An array of strings representing names of fields that were updated.
+* `correlationId`: For grouping related operations across microservices or transactions.
+
+---
+
+## 6. Phase 0 Security TDD Test Specifications
+
+To guarantee the enforcement of these parameters, the test suite in `src/tests/projectCentricOperationsBlock87.test.ts` validates 13 crucial, automated test cases:
+
+```typescript
+// Test Cases Specification
+1.  "Project numbers are sequential and start from 1"
+    -> Validates that when projects are created concurrently, their integer identifiers form a dense, gapless sequence.
+2.  "Project numbers are formatted as Q-PRJ-0001 correctly"
+    -> Confirms the ZATCA-compliant zero-padded display strings.
+3.  "Project number generation is concurrency safe and unique"
+    -> Runs multiple simultaneous creations through transactional sequence gates to ensure zero duplicate numbers.
+4.  "Trip numbers embed project number and are sequential per project"
+    -> Verifies project-scoped trip sequence boundaries (e.g. Q-PRJ-0001-TRP-00001).
+5.  "Project Carrier Roster entry can be created with authorized fields and audit metadata"
+    -> Asserts correct validation of driverName, plateNumber, residencyId, and materialId.
+6.  "Project Carrier Roster entries can be listed per project"
+    -> Verifies that listing rosters of a specific project succeeds.
+7.  "Project Carrier Roster entry can be modified with active auditing"
+    -> Confirms field updating and validation behavior.
+8.  "Project Carrier Roster entry can be deleted cleanly"
+    -> Ensures roster deletion behaves correctly and does not leave orphaned references.
+9.  "Project Carrier Roster enforces cross-project security isolation strictly"
+    -> Tests multi-tenant isolation by verifying that a supervisor assigned only to Project A receives a permission denied exception when attempting to read the roster of Project B.
+10. "Settlement adjustments can be requested by site supervisors"
+    -> Confirms that a SITE_SUPERVISOR can successfully create a REQUEST status adjustment.
+11. "Rejects settlement adjustment approval requests from unauthorized roles (DRIVER)"
+    -> Validates that DRIVER role attempts to approve are blocked by RBAC controls.
+12. "Recalculates trip baseAmount, demurrage, deductions, ZATCA VAT, and totalAmount correctly upon adjustment approval"
+    -> Checks the financial math engine output against expected results.
+13. "All roster mutations and adjustment approvals are fully logged to the immutable audit trail"
+    -> Scans the audit ledger to prove a complete, compliant audit trail exists for every state transition.
 ```
-* **النتيجة المتوقعة:** `HTTP 403 Forbidden` (`SUPERVISOR_MUTATION_FORBIDDEN_CARRIER` / `SUPERVISOR_MUTATION_FORBIDDEN_TRUCK`).
 
----
-
-### Payload 4: Project ID Tampering on Existing Trip (Tenant Escaping)
-* **المسار المستهدف:** `PATCH /api/projects/PRJ-NEOM-NORTH-01/trips/TRIP-SEC-001`
-* **المهاجم:** أي مستخدم.
-* **الحمولة:**
-```json
-{
-  "projectId": "PRJ-TRANSFER-TAMPERED-99"
-}
-```
-* **النتيجة المتوقعة:** `HTTP 403 Forbidden` (`IMMUTABLE_FIELD_PROJECT_ID`).
-
----
-
-### Payload 5: Truck-Carrier Integrity Hijack (Foreign Truck Import)
-* **المسار المستهدف:** `POST /api/projects/PRJ-NEOM-NORTH-01/trucks/import`
-* **المهاجم:** مدخل بيانات أو ناقل يحاول تسجيل شاحنة مسجلة مسبقاً لناقل آخر.
-* **الحمولة:**
-```json
-{
-  "targetCarrierId": "CAR-BINLADIN",
-  "truck": {
-    "truckId": "TRK-ALM-101",
-    "carrierId": "CAR-BINLADIN",
-    "plate": "أ ب ج 1010"
-  }
-}
-```
-* **النتيجة المتوقعة:** `HTTP 400 Bad Request` (`EXISTING_TRUCK_DIFFERENT_CARRIER`).
-
----
-
-### Payload 6: Historical Pricing Rule Direct Rate Mutation
-* **المسار المستهدف:** `POST /api/projects/PRJ-NEOM-NORTH-01/pricing-rules/PRC-CONTRACT-2026-v1/update`
-* **المهاجم:** مشرف أو مدقق يحاول تعديل سعر قاعدة مرتبطة برحلات تاريخية سابقة دون تفريع نسخي.
-* **الحمولة:**
-```json
-{
-  "pricingRuleId": "PRC-CONTRACT-2026-v1",
-  "baseRateSAR": 95.0
-}
-```
-* **النتيجة المتوقعة:** `HTTP 409 Conflict` (`PRICING_RULE_HISTORICAL_MUTATION_BLOCKED`).
-
----
-
-### Payload 7: Direct Audit Log Mutation or Deletion
-* **الهدف:** استدعاء Firestore Rules لتعديل أو حذف وثيقة في `/audit_logs/{logId}`.
-* **الحمولة:**
-```json
-{
-  "action": "DELETED",
-  "actor": { "userId": "ATTACKER" }
-}
-```
-* **النتيجة المتوقعة:** رفض أمني حتمي من Firestore Rules (`PERMISSION_DENIED`).
-
----
-
-### Payload 8: Path Traversal Attack in Workspace Document Upload
-* **المسار المستهدف:** `POST /api/workspace/upload`
-* **المهاجم:** مستخدم يحاول الخروج من مجلد المشروع إلى ملفات النظام.
-* **الحمولة:**
-```json
-{
-  "subfolderId": "FOLDER-123",
-  "fileName": "../../../../etc/passwd",
-  "mimeType": "text/plain",
-  "fileContentBase64": "cm9vdDpwYXNzd2Q="
-}
-```
-* **النتيجة المتوقعة:** `HTTP 400 Bad Request` (`SECURITY_PATH_TRAVERSAL`).
-
----
-
-### Payload 9: Dangerous Executable File Upload
-* **المسار المستهدف:** `POST /api/workspace/upload`
-* **المهاجم:** مستخدم يرفع برنامج نصي تنفيذي كبوليصة شحن.
-* **الحمولة:**
-```json
-{
-  "subfolderId": "FOLDER-123",
-  "fileName": "malicious_script.sh",
-  "mimeType": "application/x-sh",
-  "fileContentBase64": "ZWNobyAnaGFja2VkJw=="
-}
-```
-* **النتيجة المتوقعة:** `HTTP 400 Bad Request` (`FORBIDDEN_FILE_EXTENSION` / `FORBIDDEN_MIME_TYPE`).
-
----
-
-### Payload 10: Idempotency Replay Attack (Duplicate Operation Submission)
-* **المسار المستهدف:** `POST /api/projects/PRJ-NEOM-NORTH-01/operations/sync`
-* **المهاجم:** إرسال متكرر لنفس مفتاح العملية `operationId` لمحاولة مضاعفة التسجيل.
-* **الحمولة:**
-```json
-{
-  "operationId": "OP-REPLAY-ATTACK-001",
-  "projectId": "PRJ-NEOM-NORTH-01",
-  "tripData": { "ticket": "TKT-REPLAY" }
-}
-```
-* **النتيجة المتوقعة:** الرد بنجاح مع الوسم `isDuplicate: true` دون تكرار أي إدراج أو تنفيذ.
-
----
-
-### Payload 11: Direct Weighbridge Unload Tampering (Fabricating Zero Variance)
-* **المسار المستهدف:** `PATCH /api/projects/PRJ-NEOM-NORTH-01/trips/TRIP-SEC-001`
-* **المهاجم:** عميل يحاول حقن `destNetWeight` يطابق `netWeight` وتصفير `variance` مباشرة دون تفريغ فعلي.
-* **الحمولة:**
-```json
-{
-  "weights": {
-    "destinationNetKg": 27000,
-    "varianceKg": 0
-  },
-  "unloadingDataSource": "MANUAL",
-  "status": "COMPLETED"
-}
-```
-* **النتيجة المتوقعة:** `HTTP 400 Bad Request` (`INVALID_FSM_TRANSITION` / رفض قواعد الأمان).
-
----
-
-### Payload 12: Unauthenticated / Forged Token Access
-* **المسار المستهدف:** أي مسار محمي بدون هيدر `Authorization` أو مع رمز مزيف.
-* **النتيجة المتوقعة:** `HTTP 401 Unauthorized` (`UNAUTHORIZED_ACCESS`).
-
----
-
-## 4. مصفوفة الصلاحيات والأدوار (Role Matrix)
-
-| الوظيفة / العملية | SUPER_ADMIN | PROJECT_ADMIN | FINANCE_AUDITOR | SUPERVISOR | DISPATCHER | VIEWER |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| إنشاء وإدارة المشاريع | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| إدارة الناقلين والمواد | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| ضبط واعتماد قواعد التسعير | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| تسجيل واستيراد الشاحنات والسائقين | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| إطلاق الرحلات وتسجيل أوزان الميزان | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| اعتماد الاستثناءات الحرجة | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| اعتماد وتثبيت هجرة البيانات القديمة | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| استعراض سجلات التدقيق والمطابقة | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| استعراض الشاشات والتقارير العامة | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+By enforcing a passing status on these test parameters before release, we establish mathematical confidence in the security of the operations platform.

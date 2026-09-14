@@ -276,6 +276,52 @@
         "updatedBy": { "type": "string", "maxLength": 128 }
       },
       "required": ["batchId", "projectId", "batchType", "totalRecords", "status", "createdAt", "createdBy", "updatedAt", "updatedBy"]
+    },
+    "ProjectCarrierRoster": {
+      "title": "ProjectCarrierRoster",
+      "description": "Project-scoped roster row linking driver, truck, phone, residency ID, and material.",
+      "type": "object",
+      "properties": {
+        "rosterId": { "type": "string", "maxLength": 128 },
+        "projectId": { "type": "string", "maxLength": 128 },
+        "carrierId": { "type": "string", "maxLength": 128 },
+        "driverName": { "type": "string", "maxLength": 150 },
+        "plateNumber": { "type": "string", "maxLength": 50 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "residencyId": { "type": "string", "maxLength": 30 },
+        "materialId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "updatedBy": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["rosterId", "projectId", "carrierId", "driverName", "plateNumber", "phone", "materialId", "status", "createdAt", "createdBy", "updatedAt", "updatedBy"]
+    },
+    "SettlementAdjustment": {
+      "title": "SettlementAdjustment",
+      "description": "Authorized audit-controlled financial adjustment made to a trip's final figures.",
+      "type": "object",
+      "properties": {
+        "adjustmentId": { "type": "string", "maxLength": 128 },
+        "tripId": { "type": "string", "maxLength": 128 },
+        "projectId": { "type": "string", "maxLength": 128 },
+        "adjustmentType": { "type": "string", "enum": ["RATE", "AMOUNT", "DEDUCTION", "OTHER"] },
+        "amountOrRateAdjustment": { "type": "number" },
+        "reason": { "type": "string", "maxLength": 500 },
+        "requestedBy": { "type": "string", "maxLength": 128 },
+        "requestedAt": { "type": "string", "format": "date-time" },
+        "approvedBy": { "type": "string", "maxLength": 128 },
+        "approvedAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["REQUEST", "REVIEW", "APPROVED", "REJECTED", "APPLIED"] },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "auditReference": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "updatedBy": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["adjustmentId", "tripId", "projectId", "adjustmentType", "amountOrRateAdjustment", "reason", "requestedBy", "requestedAt", "status", "createdAt", "createdBy", "updatedAt", "updatedBy"]
     }
   },
   "firestore": {
@@ -330,6 +376,14 @@
     "/projects/{projectId}/import_batches/{batchId}": {
       "schema": "ImportBatch",
       "description": "Batch processing metadata for bulk logistical ingestion."
+    },
+    "/projects/{projectId}/roster/{rosterId}": {
+      "schema": "ProjectCarrierRoster",
+      "description": "Project-scoped roster link mapping carrier, driver, truck, phone, residency ID, and material."
+    },
+    "/projects/{projectId}/trips/{tripId}/adjustments/{adjustmentId}": {
+      "schema": "SettlementAdjustment",
+      "description": "Authorized audit-controlled financial adjustments on trips."
     }
   }
 }
