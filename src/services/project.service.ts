@@ -89,6 +89,25 @@ export class ProjectService {
     }, context);
   }
 
+  async deleteProject(projectId: string, context: AuthUserContext): Promise<void> {
+    if (context.role !== 'SUPER_ADMIN' && context.role !== 'PROJECT_ADMIN') {
+      throw new Error('غير مصرح لك بحذف المشروع');
+    }
+    const existing = await projectRepository.findById(projectId);
+    if (!existing) {
+      throw new Error('المشروع غير موجود');
+    }
+    await projectRepository.delete(projectId);
+    await auditLogService.recordLog({
+      projectId,
+      entityType: 'PROJECT',
+      entityId: projectId,
+      action: 'DELETE',
+      before: existing,
+      after: null,
+    }, context);
+  }
+
   subscribeToProjects(onData: (projects: ProjectEntity[]) => void) {
     return projectRepository.subscribeToProjects(onData);
   }

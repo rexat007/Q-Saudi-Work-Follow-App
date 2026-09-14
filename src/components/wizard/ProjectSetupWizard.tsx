@@ -12,6 +12,9 @@ import {
 import { mockTemplateData } from './mockTemplateData';
 import { ProjectProvisioningValidator } from '../../validators/projectProvisioning.validator';
 import { projectProvisioningService } from '../../services/projectProvisioning.service';
+import { ProjectsDashboard } from './ProjectsDashboard';
+import { ProjectEntity } from '../../types/entities';
+import { AuthUserContext } from '../../types/common';
 
 import { Step1ProjectInfo } from './Step1ProjectInfo';
 import { Step2Materials } from './Step2Materials';
@@ -40,8 +43,17 @@ import {
 import { useI18n } from '../../i18n';
 
 
-export const ProjectSetupWizard: React.FC = () => {
+export interface ProjectSetupWizardProps {
+  projects: ProjectEntity[];
+  authContext: AuthUserContext;
+}
+
+export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
+  projects,
+  authContext
+}) => {
   const { t, isRTL } = useI18n();
+  const [isCreatingProject, setIsCreatingProject] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [wizardData, setWizardData] = useState<ProjectSetupWizardData>(mockTemplateData);
   const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
@@ -239,9 +251,9 @@ export const ProjectSetupWizard: React.FC = () => {
       }
 
       const result = await projectProvisioningService.provisionProject(wizardData, {
-        userId: 'USR-ADMIN-01',
-        displayName: 'م. أحمد الحربي (المدير الإقليمي)',
-        email: 'admin.operations@q-saudi.sa',
+        userId: authContext.userId || 'USR-ADMIN-01',
+        displayName: authContext.displayName || 'م. أحمد الحربي (المدير الإقليمي)',
+        email: authContext.email || 'admin.operations@q-saudi.sa',
         role: 'PROJECT_ADMIN',
       });
 
@@ -256,6 +268,16 @@ export const ProjectSetupWizard: React.FC = () => {
       setIsProvisioning(false);
     }
   };
+
+  if (!isCreatingProject) {
+    return (
+      <ProjectsDashboard 
+        projects={projects} 
+        authContext={authContext} 
+        onStartCreate={() => setIsCreatingProject(true)} 
+      />
+    );
+  }
 
   return (
     <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-6 space-y-6">
@@ -278,6 +300,20 @@ export const ProjectSetupWizard: React.FC = () => {
 
         {/* Action Pills */}
         <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+          <button
+            type="button"
+            id="btn-wizard-back-to-dashboard"
+            onClick={() => {
+              setIsCreatingProject(false);
+              setProvisionResult(null);
+              setProvisionError(null);
+            }}
+            className="px-3 py-1.5 bg-stone-850 hover:bg-stone-800 text-amber-400 border border-stone-700 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 text-amber-400" />
+            <span>{isRTL ? 'الرجوع للوحة المشاريع' : 'Back to Projects'}</span>
+          </button>
+
           <button
             type="button"
             onClick={() => {
@@ -450,7 +486,10 @@ export const ProjectSetupWizard: React.FC = () => {
             provisionResult={provisionResult}
             onJumpToStep={jumpToStep}
             onProvision={handleProvision}
-            onReset={handleReset}
+            onReset={() => {
+              handleReset();
+              setIsCreatingProject(false);
+            }}
           />
         )}
 

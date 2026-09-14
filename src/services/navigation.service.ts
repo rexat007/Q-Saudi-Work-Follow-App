@@ -119,22 +119,7 @@ export const PRIMARY_AREAS: PrimaryAreaDef[] = [
 
 // Comprehensive Navigation Items Registry
 export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
-  // 1. FIELD OPERATIONS
-  {
-    id: 'FIELD_OPERATIONS',
-    area: 'FIELD_OPERATIONS',
-    titleAr: 'المحطات الميدانية والموازين',
-    titleEn: 'Field Workstations',
-    badgeAr: 'ميداني',
-    badgeEn: 'Field',
-    badgeVariant: 'emerald',
-    icon: 'Scale',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'SITE_SUPERVISOR', 'DISPATCHER', 'SCALE_OPERATOR', 'DRIVER'],
-    descriptionAr: 'واجهات مشغلي الموازين والاستلام والإشراف الميداني والسائقين',
-    isPrimary: true,
-  },
-
-  // 2. PROJECTS & MASTER DATA
+  // 1. PROJECTS & MASTER DATA (SETUP)
   {
     id: 'WIZARD',
     area: 'PROJECTS',
@@ -162,20 +147,22 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     isPrimary: true,
   },
 
-  // 3. REPORTS & DASHBOARD
+  // 2. FIELD OPERATIONS (OPERATE)
   {
-    id: 'OPERATIONS_DASHBOARD',
-    area: 'REPORTS',
-    titleAr: 'لوحة القيادة التنفيذية (Dashboard)',
-    titleEn: 'Executive Dashboard',
-    badgeAr: '7 طبقات',
-    badgeEn: '7 Layers',
+    id: 'FIELD_OPERATIONS',
+    area: 'FIELD_OPERATIONS',
+    titleAr: 'المحطات الميدانية والموازين',
+    titleEn: 'Field Workstations',
+    badgeAr: 'ميداني',
+    badgeEn: 'Field',
     badgeVariant: 'emerald',
-    icon: 'LayoutDashboard',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'FINANCE_AUDITOR', 'VIEWER'],
-    descriptionAr: 'المؤشرات التنفيذية، تدفق الرحلات، مصفوفة المخاطر، وشاشة الحركة المباشرة',
+    icon: 'Scale',
+    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'SITE_SUPERVISOR', 'DISPATCHER', 'SCALE_OPERATOR', 'DRIVER'],
+    descriptionAr: 'واجهات مشغلي الموازين والاستلام والإشراف الميداني والسائقين',
     isPrimary: true,
   },
+
+  // 3. REPORTS & DASHBOARD (ANALYZE)
   {
     id: 'REPORTS_ENGINE',
     area: 'REPORTS',
@@ -187,6 +174,19 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     icon: 'FileText',
     allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'SITE_SUPERVISOR', 'DISPATCHER', 'FINANCE_AUDITOR', 'VIEWER'],
     descriptionAr: 'التقارير التشغيلية، تقارير الموازين والفروقات، والتسويات المالية',
+    isPrimary: true,
+  },
+  {
+    id: 'OPERATIONS_DASHBOARD',
+    area: 'REPORTS',
+    titleAr: 'لوحة القيادة التنفيذية (Dashboard)',
+    titleEn: 'Executive Dashboard',
+    badgeAr: '7 طبقات',
+    badgeEn: '7 Layers',
+    badgeVariant: 'emerald',
+    icon: 'LayoutDashboard',
+    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'FINANCE_AUDITOR', 'VIEWER'],
+    descriptionAr: 'المؤشرات التنفيذية، تدفق الرحلات، مصفوفة المخاطر، وشاشة الحركة المباشرة',
     isPrimary: true,
   },
 
@@ -372,7 +372,7 @@ export const ROLE_PROFILES: Record<UserRole, RoleProfileDef> = {
     userNameEn: 'Eng. Abdulrahman Al-Saadoun (Global Ops Director)',
     assignedProjectIds: ['ALL'],
     isRestricted: false,
-    defaultTab: 'OPERATIONS_DASHBOARD',
+    defaultTab: 'WIZARD',
     badgeColor: 'bg-stone-900 text-amber-400',
   },
   PROJECT_ADMIN: {
@@ -383,7 +383,7 @@ export const ROLE_PROFILES: Record<UserRole, RoleProfileDef> = {
     userNameEn: 'Eng. Fahad Al-Shammari (NEOM Project Admin)',
     assignedProjectIds: ['PRJ-NEOM-NORTH-01', 'PRJ-NEOM-001'],
     isRestricted: true,
-    defaultTab: 'OPERATIONS_DASHBOARD',
+    defaultTab: 'WIZARD',
     badgeColor: 'bg-indigo-900 text-indigo-200',
   },
   SUPERVISOR: {

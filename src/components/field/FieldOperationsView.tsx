@@ -16,17 +16,26 @@ import { FieldSupervisionView } from './FieldSupervisionView';
 import { DriverView } from './DriverView';
 import { AuthUserContext, UserRole } from '../../types/common';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
+import { ProjectEntity } from '../../types/entities';
 
 export type FieldTab = 'LOADING_STATION' | 'UNLOADING_STATION' | 'SUPERVISION' | 'DRIVER_VIEW';
 
 export interface FieldOperationsViewProps {
   initialTab?: FieldTab;
   initialRole?: UserRole;
+  projects?: ProjectEntity[];
+  selectedProjectId?: string;
+  setSelectedProjectId?: (id: string) => void;
+  onNavigateToWizard?: () => void;
 }
 
 export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
   initialTab = 'LOADING_STATION',
-  initialRole = 'SCALE_OPERATOR'
+  initialRole = 'SCALE_OPERATOR',
+  projects = [],
+  selectedProjectId = '',
+  setSelectedProjectId = () => {},
+  onNavigateToWizard
 }) => {
   const [activeTab, setActiveTab] = useState<FieldTab>(initialTab);
   const [activeRole, setActiveRole] = useState<UserRole>(initialRole);
@@ -43,8 +52,34 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
     email: `${activeRole.toLowerCase()}@qsaudi.com`,
     displayName: getRoleDisplayName(activeRole),
     role: activeRole,
-    assignedProjectIds: ['PRJ-NEOM-001']
+    assignedProjectIds: selectedProjectId ? [selectedProjectId] : []
   };
+
+  if (!projects || projects.length === 0) {
+    return (
+      <div className="border border-stone-800 bg-stone-950 rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl" dir="rtl">
+        <div className="w-16 h-16 bg-stone-900 border border-stone-800 text-stone-500 rounded-full flex items-center justify-center mx-auto">
+          <Scale className="w-8 h-8 text-amber-500" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-bold text-white uppercase tracking-wider">لا يوجد مشاريع مفعلة</h3>
+          <p className="text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">
+            منظومة العمليات الميدانية تتطلب وجود مشروع نشط ومستندات معتمدة في قاعدة البيانات للبدء في تسجيل الشاحنات وموازين التحميل والاستلام.
+          </p>
+        </div>
+        {onNavigateToWizard && (
+          <button
+            type="button"
+            id="btn-field-empty-create"
+            onClick={onNavigateToWizard}
+            className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-black rounded-xl transition-all shadow-md inline-flex items-center gap-2"
+          >
+            <span>تهيئة مشروع في معالج التأسيس</span>
+          </button>
+        )}
+      </div>
+    );
+  }
 
   const handleNotification = (notif: { type: 'SUCCESS' | 'ERROR' | 'SECURITY'; message: string }) => {
     setNotification(notif);
@@ -150,6 +185,23 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
                 <option value="FINANCE_AUDITOR" className="bg-stone-800">FINANCE_AUDITOR (مدقق مالي - غير مصرح)</option>
                 <option value="DRIVER" className="bg-stone-800">DRIVER (سائق - غير مصرح)</option>
                 <option value="SUPER_ADMIN" className="bg-stone-800">SUPER_ADMIN (مشرف عام)</option>
+              </select>
+            </div>
+
+            {/* Project Context Selector */}
+            <div className="flex items-center gap-1.5 bg-stone-800 px-3 py-1.5 rounded-xl border border-stone-700/60 text-xs">
+              <span className="text-stone-400 text-[11px]">المشروع النشط:</span>
+              <select
+                id="select-field-active-project"
+                value={selectedProjectId}
+                onChange={(e) => setSelectedProjectId(e.target.value)}
+                className="bg-transparent text-white font-bold font-mono focus:outline-hidden text-xs cursor-pointer max-w-[160px]"
+              >
+                {projects.map((p) => (
+                  <option key={p.projectId} value={p.projectId} className="bg-stone-800">
+                    {p.nameAr}
+                  </option>
+                ))}
               </select>
             </div>
 

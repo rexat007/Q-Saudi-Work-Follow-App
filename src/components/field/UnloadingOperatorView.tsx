@@ -27,6 +27,8 @@ import { TripRecord, TripActorRole } from '../../types/tripEngine';
 import { tripEngineService } from '../../services/tripEngine.service';
 import { SAMPLE_QUALITY_CONTEXT } from '../../data/sampleQualityData';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
+import { projectRepository } from '../../repositories/project.repository';
+import { ProjectEntity } from '../../types/entities';
 import { AuthUserContext, UserRole } from '../../types/common';
 import { useI18n } from '../../i18n';
 
@@ -51,7 +53,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
     email: 'dest.scale@qsaudi.com',
     displayName: 'مشغل ميزان الموقع والتفريغ (Site Receiver)',
     role: 'SCALE_OPERATOR',
-    assignedProjectIds: ['PRJ-NEOM-001']
+    assignedProjectIds: []
   },
   onTripUpdated,
   onNotification

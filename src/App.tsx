@@ -72,6 +72,8 @@ import {
 import { UserRole } from './types/common';
 import { useAuth } from './firebase/authContext';
 import { AccountStatusGate } from './components/auth/AccountStatusGate';
+import { projectRepository } from './repositories/project.repository';
+import { ProjectEntity } from './types/entities';
 
 export default function App() {
   const { direction, t } = useI18n();
@@ -80,9 +82,45 @@ export default function App() {
 
   // Role and Navigation state
   const [currentRole, setCurrentRole] = useState<UserRole>('SUPER_ADMIN');
-  const [activeTab, setActiveTab] = useState<NavTabId>('OPERATIONS_DASHBOARD');
+  const [activeTab, setActiveTab] = useState<NavTabId>('WIZARD');
   const [isSystemToolsOpen, setIsSystemToolsOpen] = useState<boolean>(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
+
+  const [projects, setProjects] = useState<ProjectEntity[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [loadingProjects, setLoadingProjects] = useState<boolean>(true);
+
+  const activeAuthContext = {
+    userId: user?.uid || 'USR-ADMIN-01',
+    displayName: userProfile?.fullName || user?.displayName || 'مدير النظام',
+    email: user?.email || 'admin@q-saudi.sa',
+    role: currentRole,
+    assignedProjectIds: userProfile?.assignedProjectIds || [],
+  };
+
+  useEffect(() => {
+    setLoadingProjects(true);
+    // Real-time Firestore subscription
+    const unsubscribe = projectRepository.subscribeToProjects(
+      (list) => {
+        setProjects(list || []);
+        setLoadingProjects(false);
+        if (list && list.length > 0) {
+          setSelectedProjectId((prev) => {
+            const stillExists = list.some(p => p.projectId === prev);
+            return stillExists ? prev : list[0].projectId;
+          });
+        } else {
+          setSelectedProjectId('');
+        }
+      },
+      (err) => {
+        console.error('Error in project subscription:', err);
+        setLoadingProjects(false);
+      }
+    );
+    return () => unsubscribe();
+  }, [user]);
 
   // Runtime referenced navigation labels to ensure 100% translation coverage
   const _navigationLabels = [
@@ -456,17 +494,30 @@ export default function App() {
               <FieldOperationsView 
                 initialTab={getFieldInitialTab(currentRole)}
                 initialRole={currentRole}
+                projects={projects}
+                selectedProjectId={selectedProjectId}
+                setSelectedProjectId={setSelectedProjectId}
+                onNavigateToWizard={() => setActiveTab('WIZARD')}
               />
             )}
 
             {/* ================= TAB: PROJECT SETUP WIZARD (7 STEPS) ================= */}
             {activeTab === 'WIZARD' && (
-              <ProjectSetupWizard />
+              <ProjectSetupWizard 
+                projects={projects}
+                authContext={activeAuthContext}
+              />
             )}
 
             {/* ================= TAB: MASTER DATA MODULES (CARRIERS, TRUCKS, DRIVERS, MATERIALS) ================= */}
             {activeTab === 'MASTER_DATA' && (
-              <MasterDataView />
+              <MasterDataView 
+                projects={projects}
+                selectedProjectId={selectedProjectId}
+                setSelectedProjectId={setSelectedProjectId}
+                authContext={activeAuthContext}
+                onNavigateToWizard={() => setActiveTab('WIZARD')}
+              />
             )}
 
             {/* ================= TAB: SECURITY AUDIT & COMPLIANCE (16 DOMAINS & EXHAUSTIVE RBAC) ================= */}

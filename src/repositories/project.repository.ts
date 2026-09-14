@@ -5,6 +5,7 @@ import {
   getDocs, 
   setDoc, 
   updateDoc, 
+  deleteDoc,
   serverTimestamp, 
   onSnapshot,
   query,
@@ -90,6 +91,18 @@ export class ProjectRepository {
       await updateDoc(doc(db, this.collectionName, projectId), payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, path);
+    }
+  }
+
+  async delete(projectId: string): Promise<void> {
+    const path = `${this.collectionName}/${projectId}`;
+    if (!auth.currentUser) {
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, this.collectionName, projectId));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, path);
     }
   }
 

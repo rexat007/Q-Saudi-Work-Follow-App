@@ -35,10 +35,12 @@ import { tripRepository } from '../../repositories/trip.repository';
 import { CarrierEntity, MaterialEntity, TruckEntity, DriverEntity, ProjectEntity } from '../../types/entities';
 import { normalizeName, normalizePlate, normalizePhone, normalizeIdNumber, normalizeCode, normalizeArabicText } from '../../utils/normalization';
 import { runMasterDataTests, MasterDataTestCaseResult } from '../../tests/masterData.test';
+import { runBlock86ETests } from '../../tests/projectWorkflowNavigation86E.test';
 import { useAuth } from '../../firebase/authContext';
 import { adminConsoleService } from '../../services/adminConsole.service';
 import { DEFAULT_PROJECTS, DEFAULT_CARRIERS, DEFAULT_MATERIALS, DEFAULT_TRUCKS, DEFAULT_DRIVERS, buildDefaultOverview } from '../../data/defaultMasterData';
 import { useI18n } from '../../i18n';
+import { ProjectsDashboard } from '../wizard/ProjectsDashboard';
 
 
 const MOCK_AUTH_CONTEXT = {
@@ -48,12 +50,40 @@ const MOCK_AUTH_CONTEXT = {
   displayName: 'مدير العمليات اللوجستية',
 };
 
-export const MasterDataView: React.FC = () => {
+export const MasterDataView: React.FC<{
+  projects?: ProjectEntity[];
+  selectedProjectId?: string;
+  setSelectedProjectId?: (id: string) => void;
+  authContext?: any;
+  onNavigateToWizard?: () => void;
+}> = ({
+  projects: propProjects,
+  selectedProjectId: propSelectedProjectId,
+  setSelectedProjectId: propSetSelectedProjectId,
+  authContext,
+  onNavigateToWizard
+}) => {
   const { t } = useI18n();
   const { user, isAuthReady, signInWithGoogle } = useAuth();
-  const [projects, setProjects] = useState<ProjectEntity[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
-  const [activeModule, setActiveModule] = useState<'CARRIERS' | 'MATERIALS' | 'TRUCKS' | 'DRIVERS' | 'TESTS' | 'IMPORT_DT'>('CARRIERS');
+  const [internalProjects, setInternalProjects] = useState<ProjectEntity[]>([]);
+  const [internalSelectedProjectId, setInternalSelectedProjectId] = useState<string>('');
+
+  const projects = propProjects !== undefined ? propProjects : internalProjects;
+  const selectedProjectId = propSelectedProjectId !== undefined ? propSelectedProjectId : internalSelectedProjectId;
+
+  const setSelectedProjectId = (id: string) => {
+    if (propSetSelectedProjectId) {
+      propSetSelectedProjectId(id);
+    } else {
+      setInternalSelectedProjectId(id);
+    }
+  };
+
+  const setProjects = (updater: ProjectEntity[] | ((prev: ProjectEntity[]) => ProjectEntity[])) => {
+    setInternalProjects(typeof updater === 'function' ? updater(projects) : updater);
+  };
+
+  const [activeModule, setActiveModule] = useState<'PROJECTS' | 'CARRIERS' | 'MATERIALS' | 'TRUCKS' | 'DRIVERS' | 'TESTS' | 'IMPORT_DT'>('PROJECTS');
   const [overview, setOverview] = useState<ProjectMasterDataOverview | null>(null);
   
   // --- Drivers & Trucks Import state ---
@@ -96,8 +126,15 @@ export const MasterDataView: React.FC = () => {
     }
     setTestingRunning(true);
     try {
-      const res = await runMasterDataTests();
-      setTestResults(res);
+      const res1 = await runMasterDataTests();
+      const res2 = await runBlock86ETests();
+      setTestResults({
+        allPassed: res1.allPassed && res2.allPassed,
+        totalTests: res1.totalTests + res2.totalTests,
+        passedTests: res1.passedTests + res2.passedTests,
+        failedTests: res1.failedTests + res2.failedTests,
+        results: [...res1.results, ...res2.results]
+      });
     } catch (err: any) {
       console.error(err);
       setActionNotice({
@@ -149,19 +186,23 @@ export const MasterDataView: React.FC = () => {
   // Initialize sample data: Firestore if authenticated, local demo state if unauthenticated
   useEffect(() => {
     async function initData() {
+      if (propProjects !== undefined) {
+        setLoading(false);
+        return;
+      }
       if (!isAuthReady) return;
       setLoading(true);
 
       // Safe demo mode when unauthenticated (avoids permission errors)
       if (!user) {
         const liveProjects = adminConsoleService.getProjects();
-        setProjects(liveProjects);
+        setInternalProjects(liveProjects);
         if (liveProjects.length > 0) {
           const defaultProjId = liveProjects[0].projectId;
-          setSelectedProjectId(defaultProjId);
+          setInternalSelectedProjectId(defaultProjId);
           setOverview(buildDefaultOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
         } else {
-          setSelectedProjectId('');
+          setInternalSelectedProjectId('');
           setOverview(null);
         }
         setLoading(false);
@@ -172,23 +213,23 @@ export const MasterDataView: React.FC = () => {
       try {
         const pList = await projectRepository.listAll();
         // BLOCK 82D: In clean normal runtime, do not automatically seed synthetic projects/data into Firestore.
-        setProjects(pList || []);
+        setInternalProjects(pList || []);
         if (pList && pList.length > 0) {
-          setSelectedProjectId(pList[0].projectId);
+          setInternalSelectedProjectId(pList[0].projectId);
         } else {
-          setSelectedProjectId('');
+          setInternalSelectedProjectId('');
           setOverview(null);
         }
       } catch (err: any) {
         console.warn('Live Firestore synchronization issue, using runtime fallback:', err);
         const liveProjects = adminConsoleService.getProjects();
-        setProjects(liveProjects);
+        setInternalProjects(liveProjects);
         if (liveProjects.length > 0) {
           const defaultProjId = liveProjects[0].projectId;
-          setSelectedProjectId(defaultProjId);
+          setInternalSelectedProjectId(defaultProjId);
           setOverview(buildDefaultOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
         } else {
-          setSelectedProjectId('');
+          setInternalSelectedProjectId('');
           setOverview(null);
         }
       } finally {
@@ -196,7 +237,7 @@ export const MasterDataView: React.FC = () => {
       }
     }
     initData();
-  }, [user, isAuthReady]);
+  }, [user, isAuthReady, propProjects]);
 
   // Refresh current project overview
   const refreshOverview = async (pId: string) => {
@@ -885,6 +926,24 @@ export const MasterDataView: React.FC = () => {
           {/* Module Navigation Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto">
             <button
+              id="module-projects-btn"
+              onClick={() => setActiveModule('PROJECTS')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-colors ${
+                activeModule === 'PROJECTS'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-stone-100 text-stone-700 hover:bg-stone-200/70'
+              }`}
+            >
+              <Building2 className="w-4 h-4 text-amber-500" />
+              <span>المشاريع (Projects)</span>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] ${
+                activeModule === 'PROJECTS' ? 'bg-amber-700 text-white' : 'bg-stone-200 text-stone-700'
+              }`}>
+                {projects.length}
+              </span>
+            </button>
+
+            <button
               id="module-carriers-btn"
               onClick={() => setActiveModule('CARRIERS')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-colors ${
@@ -1078,6 +1137,17 @@ export const MasterDataView: React.FC = () => {
 
       {/* Module Content Table */}
       <div className="bg-white border border-stone-200/80 rounded-xl overflow-hidden shadow-xs">
+        {/* PROJECTS DASHBOARD */}
+        {activeModule === 'PROJECTS' && (
+          <div className="p-6">
+            <ProjectsDashboard
+              projects={projects}
+              authContext={authContext || MOCK_AUTH_CONTEXT}
+              onStartCreate={onNavigateToWizard || (() => {})}
+            />
+          </div>
+        )}
+
         {/* CARRIERS TABLE */}
         {activeModule === 'CARRIERS' && (
           <div className="overflow-x-auto">

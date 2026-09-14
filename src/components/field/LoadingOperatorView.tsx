@@ -24,6 +24,8 @@ import { TripRecord, TripActorRole } from '../../types/tripEngine';
 import { tripEngineService, MasterPricingRule, MASTER_PRICING_RULES } from '../../services/tripEngine.service';
 import { SAMPLE_QUALITY_CONTEXT } from '../../data/sampleQualityData';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
+import { projectRepository } from '../../repositories/project.repository';
+import { ProjectEntity } from '../../types/entities';
 import { offlineCacheService } from '../../services/offline/offlineCache.service';
 import { outboxService } from '../../services/offline/outbox.service';
 import { indexedDBService } from '../../services/offline/indexedDB.service';
@@ -53,7 +55,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     email: 'scale.op@qsaudi.com',
     displayName: 'مشغل ميزان التحميل (Scale Operator)',
     role: 'SCALE_OPERATOR',
-    assignedProjectIds: ['PRJ-NEOM-001']
+    assignedProjectIds: []
   },
   onTripCreated,
   onNotification
@@ -69,21 +71,39 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   // Reference Context
   const context = SAMPLE_QUALITY_CONTEXT;
 
+  const [projectsList, setProjectsList] = useState<ProjectEntity[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = projectRepository.subscribeToProjects(
+      (list) => {
+        setProjectsList(list || []);
+      },
+      (err) => console.error(err)
+    );
+    return () => unsubscribe();
+  }, []);
+
   // Available Projects (scoped by assignedProjectIds if set, unless SUPER_ADMIN)
   const availableProjects = useMemo(() => {
-    const all = [
-      { id: 'PRJ-NEOM-001', name: 'مشروع نيوم - البنية التحتية والمحاجر (PRJ-NEOM-001)' },
-      { id: 'PRJ-REDSEA-002', name: 'مشروع البحر الأحمر - الوجهة السياحية (PRJ-REDSEA-002)' },
-      { id: 'PRJ-QIDDIYA-003', name: 'مشروع القدية الترفيهي (PRJ-QIDDIYA-003)' }
-    ];
+    const all = projectsList.map(p => ({
+      id: p.projectId,
+      name: `${p.nameAr} (${p.projectId})`
+    }));
     if (authContext.role === 'SUPER_ADMIN' || !authContext.assignedProjectIds || authContext.assignedProjectIds.length === 0) {
       return all;
     }
     return all.filter(p => authContext.assignedProjectIds!.includes(p.id));
-  }, [authContext]);
+  }, [projectsList, authContext]);
 
   // Form State: Minimal typing, click-to-select defaults
-  const [projectId, setProjectId] = useState<string>(() => availableProjects[0]?.id || 'PRJ-NEOM-001');
+  const [projectId, setProjectId] = useState<string>('');
+
+  useEffect(() => {
+    if (availableProjects.length > 0 && !projectId) {
+      setProjectId(availableProjects[0].id);
+    }
+  }, [availableProjects, projectId]);
+
   const [carrierId, setCarrierId] = useState<string>('CAR-ALMAJDOUIE');
   const [truckId, setTruckId] = useState<string>('TRK-9901');
   const [driverId, setDriverId] = useState<string>('DRV-101');
@@ -477,7 +497,9 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               </div>
               <span className="text-xs text-stone-500 font-mono">{createdTrip.loadTime?.slice(0, 19).replace('T', ' ')}</span>
             </div>
-            <p className="text-xs text-stone-500 mt-1">مشروع نيوم - البنية التحتية والمحاجر (PRJ-NEOM-001)</p>
+            <p className="text-xs text-stone-500 mt-1">
+              {projectsList.find(p => p.projectId === createdTrip.projectId)?.nameAr || createdTrip.projectId}
+            </p>
           </div>
 
           {/* Vehicle & Trip Info Grid */}
