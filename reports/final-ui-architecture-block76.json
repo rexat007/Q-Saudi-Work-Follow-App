@@ -1,0 +1,622 @@
+{
+  "metadata": {
+    "block": 76,
+    "phase": "FINAL_UI_ARCHITECTURE_AND_ROLE_BASED_EXPERIENCE",
+    "timestamp": "2026-09-13T22:00:00.000Z",
+    "baseRecoveryPoint": "BLOCK 75 (reports/uiux-block75-p3-fixes.json)",
+    "translationPhaseStatus": "FROZEN_LOCKED",
+    "totalCatalogKeysPerLocale": 1128,
+    "architectureStatus": "APPROVED_SPECIFICATION_ONLY",
+    "redesignedInterfacesImplemented": false
+  },
+  "executiveSummary": {
+    "purpose": "Define the final product-facing UI architecture and role-based operational experience before implementing new field and management interfaces in subsequent blocks.",
+    "coreMandates": [
+      "Architecture and UX definition only; no redesigned interfaces implemented in BLOCK 76",
+      "I18N remains strictly FROZEN with exactly 1,128 keys per locale and zero drift",
+      "Strict preservation of business logic, pricing logic, trip state machine, security rules, schemas, and fixtures",
+      "Four major interface areas cleanly isolated: Field Operations, Projects, Field Reports, and Central Dashboard",
+      "Zero invented roles; 100% adherence to existing RBAC (SUPER_ADMIN, PROJECT_ADMIN, SUPERVISOR, SITE_SUPERVISOR, DISPATCHER, SCALE_OPERATOR, FINANCE_AUDITOR, DRIVER, VIEWER)"
+    ]
+  },
+  "interfaceAreas": {
+    "area1_fieldOperations": {
+      "id": "FIELD_OPERATIONS",
+      "titleAr": "العمليات والمدخلات الميدانية",
+      "titleEn": "Field Input / Field Operations",
+      "description": "High-velocity, touch-optimized field interfaces for scale operators, field receivers, supervisors, and drivers operating at desert, highway, and project site weighbridges.",
+      "subInterfaces": [
+        {
+          "id": "LOADING_INTERFACE",
+          "titleAr": "واجهة محطة التحميل والوزن الأول",
+          "titleEn": "Loading Station & Outbound Weighing Interface",
+          "primaryUserRole": "SCALE_OPERATOR",
+          "secondaryUserRoles": ["DISPATCHER", "SUPERVISOR", "PROJECT_ADMIN", "SUPER_ADMIN"],
+          "purpose": "Rapid outbound vehicle identification, tare/gross weight recording, validation checks, electronic weigh ticket generation, and trip dispatch.",
+          "entryPoint": "/field/loading",
+          "navigationPlacement": "Field Operations -> Loading Station",
+          "mainScreen": "Loading Weighbridge Active Console",
+          "secondaryScreens": ["Truck Tare Search / Preset", "Driver Assignment Inspector", "Printed Weigh Ticket Preview", "Recent Outbound Trips Queue"],
+          "primaryActions": ["Capture Tare Weight", "Capture Gross Weight", "Validate Tolerance & Axle Capacity", "Generate Trip & Waybill Ticket", "Dispatch Trip"],
+          "criticalInformation": ["Truck Plate & Axle Limit", "Driver Iqama/National ID", "Tare Weight (kg)", "Gross Weight (kg)", "Net Weight (kg)", "Assigned Project & Material", "Tamper Flag"],
+          "blockingStates": ["Overloaded Vehicle (Gross > Max Axle Limit)", "Zero/Negative Net Weight", "Unassigned Driver/Truck Conflict", "Inactive Material or Carrier"],
+          "warningStates": ["Unverified Carrier License Expiry", "Manual Weight Override Flagged", "Network Disconnected (Buffered Offline)"],
+          "emptyStates": ["No pending trucks in scale queue; prompt operator to enter license plate or scan barcode."],
+          "successStates": ["Trip dispatched successfully with unique Ticket ID, synchronized to cloud or buffered in Mutation Queue."],
+          "offlineBehavior": "100% functional offline using IndexedDB activeTrips and mutationQueue with local ticket sequence generation.",
+          "responsiveBehavior": {
+            "mobile": "Single-step wizard with 44px+ touch presets, large numeric keypad for weights, camera barcode scanner.",
+            "tablet": "Split view: vehicle & material picker on left, live weight scale & ticket preview on right.",
+            "desktop": "Comprehensive high-density weighbridge console with live scale COM-port feed and recent dispatch log."
+          },
+          "shortestSafeWorkflow": [
+            "1. Identify Truck by Plate Number (or barcode scan) -> Auto-fill default Tare & Carrier",
+            "2. Select Active Project & Destination Site",
+            "3. Select Carrier & Assign Driver (with license validity verification)",
+            "4. Select Material Type & Applicable Pricing Rule Snapshot",
+            "5. Record Tare Weight (from weighbridge scale or verified preset)",
+            "6. Record Gross Weight (from weighbridge scale)",
+            "7. System calculates Net Weight = Gross - Tare & performs axle limit validation",
+            "8. Verify Ticket Preview and click 'Issue Ticket & Dispatch' (Creates Trip in LOADED status)"
+          ]
+        },
+        {
+          "id": "UNLOADING_INTERFACE",
+          "titleAr": "واجهة محطة التفريغ والاستلام",
+          "titleEn": "Unloading Station & Inbound Receiving Interface",
+          "primaryUserRole": "SCALE_OPERATOR",
+          "secondaryUserRoles": ["SITE_SUPERVISOR", "SUPERVISOR", "PROJECT_ADMIN", "SUPER_ADMIN"],
+          "purpose": "Inbound truck reception, destination weighbridge recording, origin vs destination weight variance verification, automated exception flagging, and receipt sign-off.",
+          "entryPoint": "/field/unloading",
+          "navigationPlacement": "Field Operations -> Unloading Station",
+          "mainScreen": "Destination Inbound Receiving Console",
+          "secondaryScreens": ["Trip Search by Ticket/Truck", "Variance & Tolerance Inspector", "Exception Filing Drawer", "Unloading Completion Slip"],
+          "primaryActions": ["Search In-Transit Trip", "Record Destination Gross & Tare (or Direct Net)", "Calculate Weight Variance", "Flag Tolerance Exception", "Confirm Unloading & Close Trip"],
+          "criticalInformation": ["Origin Net Weight (kg)", "Destination Net Weight (kg)", "Variance (kg & %)", "Tolerance Threshold", "Arrival & Discharge Timestamps", "Inspector Signature"],
+          "blockingStates": ["Trip Not Found or Not in IN_TRANSIT/ARRIVED status", "Severe Weight Deficit > 5% without supervisor reason", "Truck Plate Mismatch"],
+          "warningStates": ["Variance exceeds tolerance (e.g. > 1.5% or > 500kg) requiring mandatory discrepancy note", "Delayed arrival (> SLA transit time)"],
+          "emptyStates": ["No inbound trip selected. Search by Waybill #, Ticket ID, or Truck Plate."],
+          "successStates": ["Trip marked COMPLETED, variance snapshot stored, settlement base locked."],
+          "offlineBehavior": "Search cached active trips in IndexedDB; buffer destination weigh receipt in mutationQueue with cryptographic hash.",
+          "responsiveBehavior": {
+            "mobile": "Single-hand mobile reception flow: big camera scan button, instant match summary, 2 large weight inputs, 1 green 'Accept' button.",
+            "tablet": "Trip manifest on top half, dual-scale weight calculator and variance gauge on bottom half.",
+            "desktop": "Dense multi-lane inbound terminal dashboard with automatic weighbridge indicator."
+          },
+          "shortestSafeWorkflow": [
+            "1. Enter Waybill/Ticket ID or search Truck Plate Number",
+            "2. System matches active Trip in IN_TRANSIT or ARRIVED status",
+            "3. Record Destination Arrival Timestamp and Unloader ID",
+            "4. Record Destination Gross & Tare Weights (or Direct Net Weight)",
+            "5. System evaluates Variance: Dest Net vs Origin Net against Project Tolerance Rules",
+            "6. If Variance > Tolerance: Trigger automated EXCEPTION flag and require supervisor justification note",
+            "7. Confirm Unloading -> Transition Trip to COMPLETED status"
+          ]
+        },
+        {
+          "id": "FIELD_SUPERVISION_INTERFACE",
+          "titleAr": "واجهة الإشراف الميداني والقرارات التشغيلية",
+          "titleEn": "Field Supervision & Live Operations Interface",
+          "primaryUserRole": "SUPERVISOR",
+          "secondaryUserRoles": ["SITE_SUPERVISOR", "PROJECT_ADMIN", "SUPER_ADMIN"],
+          "purpose": "Holistic on-site supervision: monitoring active trips in real time, resolving operational exceptions, importing daily weighbridge batch files, mapping unresolved entities, and intervening in stalled dispatches.",
+          "entryPoint": "/field/supervision",
+          "navigationPlacement": "Field Operations -> Field Supervision",
+          "mainScreen": "Supervisor Operational Command Hub",
+          "secondaryScreens": ["Active Trips Live Grid", "Pending Decisions Queue", "Weighbridge Batch Import Station", "Entity Resolution Sandbox", "Daily Shift Performance Summary"],
+          "primaryActions": ["Approve/Reject Weight Exceptions", "Resolve Unmatched Carriers/Trucks", "Upload Daily Weighbridge CSV/XLSX", "Commit Verified Import Batches", "Force Trip Re-route/Cancellation"],
+          "criticalInformation": ["Active In-Transit Trip Count", "Open Exceptions Count & Severities", "Import Pipeline Errors", "Shift Tonnage Total", "Delayed Deliveries Count"],
+          "blockingStates": ["Unresolved High-Risk Exceptions blocking project invoicing", "Pending human review on import batch containing ambiguous records"],
+          "warningStates": ["Truck idle time exceeding threshold", "Pending settlement buffer nearing daily cap"],
+          "emptyStates": ["All clear: zero pending exceptions and no uncommitted import batches."],
+          "successStates": ["Exception approved with immutable audit log; batch successfully committed into trip repository."],
+          "offlineBehavior": "Read-only access to cached trips; supervisor decisions queued in local outbox until connectivity restored.",
+          "responsiveBehavior": {
+            "mobile": "Tabbed cards view: 'Alerts', 'Trips', 'Imports' with swipe actions for quick approval/rejection.",
+            "tablet": "Master-detail layout: exception/batch list on left, decision payload and audit history on right.",
+            "desktop": "Full command center: live KPI metrics, active map/grid, exception triage table, and batch upload drop-zone."
+          },
+          "supervisionCapabilities": [
+            "Active Trips Monitoring: Real-time tracking of trips across LOADED, IN_TRANSIT, ARRIVED, UNLOADING states",
+            "Pending Decisions: Direct resolution of WEIGHT_DISCREPANCY, UNAPPROVED_ROUTE, DRIVER_CARRIER_CONFLICT",
+            "Weighbridge Imports: 12-stage validation pipeline for Excel/CSV files directly from site bridge scales",
+            "Entity Resolution: Interactive fuzzy matching for raw bridge strings to master carrier/truck/driver IDs",
+            "Daily Performance Review: Shift-level tonnage, total trips, variance percentages, and carrier adherence"
+          ]
+        },
+        {
+          "id": "DRIVER_INTERFACE",
+          "titleAr": "واجهة السائق الميدانية",
+          "titleEn": "Driver Dedicated Mobile View",
+          "primaryUserRole": "DRIVER",
+          "secondaryUserRoles": [],
+          "purpose": "Simple, focused driver interface to view currently assigned active trips, verify cargo details, mark site arrival (ARRIVED), and present digital electronic ticket QR/barcode.",
+          "entryPoint": "/field/driver",
+          "navigationPlacement": "Field Operations -> Driver Console",
+          "mainScreen": "Active Trip Card & Digital Ticket",
+          "secondaryScreens": ["Trip Route Details", "Digital Waybill Barcode/QR", "Trip History (Completed Today)"],
+          "primaryActions": ["View Assigned Trip Details", "Click 'Mark Arrived at Site' (ARRIVED status)", "Present Digital Ticket to Weighbridge Operator"],
+          "criticalInformation": ["Assigned Truck Plate", "Material Name", "Loading Site & Destination Site", "Net Weight (kg)", "Waybill/Ticket Number", "Dispatch Timestamp"],
+          "blockingStates": ["No active trip assigned to driver's Iqama/ID", "Account deactivated by project admin"],
+          "warningStates": ["Poor network connectivity (arrival timestamp buffered locally)"],
+          "emptyStates": ["لا توجد رحلات مسندة حالياً (No active trips currently assigned. Contact Dispatcher.)"],
+          "successStates": ["Arrival timestamp registered; trip transitioned to ARRIVED; ready for weighbridge entry."],
+          "offlineBehavior": "Full offline viewing of active trip details; 'Arrive' button stores action in local Mutation Queue.",
+          "responsiveBehavior": {
+            "mobile": "Single column card-first design: large text, high contrast for outdoor sunlight, 56px large touch action button.",
+            "tablet": "Centered card with large digital barcode.",
+            "desktop": "Emulated mobile card container."
+          },
+          "strictlySupportedCapabilities": [
+            "View assigned active trip(s) matching Driver ID",
+            "Trigger ARRIVED state transition via State Machine",
+            "Display electronic ticket number and QR code for destination scan",
+            "View route origin and destination site information",
+            "NO unauthorized capabilities: Driver CANNOT create trips, edit weights, or approve exceptions"
+          ]
+        }
+      ]
+    },
+    "area2_projectsInterface": {
+      "id": "PROJECTS",
+      "titleAr": "واجهة إدارة المشاريع",
+      "titleEn": "Projects Interface",
+      "description": "Comprehensive project lifecycle management, configuration of operational parameters, master data governance, and role-based project user assignments.",
+      "primaryUserRole": "PROJECT_ADMIN",
+      "secondaryUserRoles": ["SUPER_ADMIN", "VIEWER"],
+      "subInterfaces": [
+        {
+          "id": "PROJECT_LISTING",
+          "titleAr": "قائمة المشاريع المصرح بها",
+          "titleEn": "Authorized Projects Directory",
+          "purpose": "Display all projects accessible by the authenticated user with status, active fleet count, daily tonnage, and configuration health.",
+          "accessControl": "Filtered strictly by authContext.assignedProjectIds (or all for SUPER_ADMIN)"
+        },
+        {
+          "id": "PROJECT_CREATE",
+          "titleAr": "معالج إنشاء مشروع جديد",
+          "titleEn": "Project Provisioning Wizard",
+          "purpose": "Step-by-step creation of new project entities: metadata, site geofences, weight tolerances, carrier associations, initial pricing rules, and user role assignments.",
+          "accessControl": "SUPER_ADMIN or authorized PROJECT_ADMIN"
+        },
+        {
+          "id": "PROJECT_CONFIG",
+          "titleAr": "إعدادات وتكوين المشروع",
+          "titleEn": "Project Configuration & Operational Parameters",
+          "purpose": "Manage project operational rules: default weight tolerance thresholds (percentage and kg), shift schedules, operating zones, and settlement terms.",
+          "accessControl": "PROJECT_ADMIN of specific project, or SUPER_ADMIN"
+        },
+        {
+          "id": "PROJECT_MASTER_DATA",
+          "titleAr": "البيانات الأساسية للمشروع",
+          "titleEn": "Project Master Data Workspace",
+          "purpose": "Manage master entities associated with the project: Authorized Carriers, Registered Trucks (with tare calibration), Drivers (with license check), and Materials (with pricing mapping).",
+          "accessControl": "PROJECT_ADMIN of specific project, or SUPER_ADMIN"
+        },
+        {
+          "id": "PROJECT_ACCESS_CONTROL",
+          "titleAr": "إدارة مستخدمي وصلاحيات المشروع",
+          "titleEn": "Project User Access & RBAC Governance",
+          "purpose": "Assign users to project, designate roles (DISPATCHER, SCALE_OPERATOR, SUPERVISOR, FINANCE_AUDITOR), and enforce least-privilege principles.",
+          "accessControl": "PROJECT_ADMIN of specific project, or SUPER_ADMIN"
+        }
+      ],
+      "managementDistinction": {
+        "projectManagement": "Scoped strictly to specific project: configuration, master data, local users, and pricing rules within assignedProjectIds.",
+        "fieldOperation": "Execution-only: creating and receiving trips without ability to modify project parameters, master contracts, or pricing.",
+        "centralAdministration": "System-wide: global user directory, cross-project tenant provisioning, system audits, and global security policies."
+      }
+    },
+    "area3_fieldReportsInterface": {
+      "id": "FIELD_REPORTS",
+      "titleAr": "واجهة التقارير الميدانية والمحاسبية",
+      "titleEn": "Field Reports Interface",
+      "description": "Enterprise-grade operational and financial reporting engine providing analytics, multi-criteria filtering, and compliant exports.",
+      "primaryUserRole": "FINANCE_AUDITOR",
+      "secondaryUserRoles": ["PROJECT_ADMIN", "SUPERVISOR", "SUPER_ADMIN", "VIEWER"],
+      "reportCategories": [
+        {
+          "id": "OPERATIONAL_REPORTS",
+          "titleAr": "تقارير العمليات الميدانية",
+          "titleEn": "Operational Field Reports",
+          "subReports": [
+            "Daily Tonnage & Shift Throughput",
+            "Fleet & Carrier Utilization Breakdown",
+            "Hourly Dispatch Rhythm & Bottlenecks",
+            "Driver Performance & Turnaround Time"
+          ],
+          "intendedUsers": ["SUPERVISOR", "PROJECT_ADMIN", "DISPATCHER"]
+        },
+        {
+          "id": "WEIGHT_AND_VARIANCE_REPORTS",
+          "titleAr": "تقارير الموازين وفروقات الأوزان",
+          "titleEn": "Weighbridge & Weight Variance Reports",
+          "subReports": [
+            "Origin vs Destination Weight Variance Analysis",
+            "Tare Weight Drift & Calibration Audit",
+            "Overweight & Axle Violation Log",
+            "Tolerance Threshold Breach History"
+          ],
+          "intendedUsers": ["SCALE_OPERATOR", "SUPERVISOR", "PROJECT_ADMIN", "FINANCE_AUDITOR"]
+        },
+        {
+          "id": "SETTLEMENT_AND_FINANCIAL_REPORTS",
+          "titleAr": "تقارير التسوية والمحاسبة الخادومية",
+          "titleEn": "Server Settlement & Financial Reports",
+          "subReports": [
+            "Carrier Freight Accrual & Billing Statements",
+            "ZATCA 15% VAT Reconciliation Report",
+            "Priced vs Pending Settlement Audit Log",
+            "Historical Pricing Snapshot Integrity Log"
+          ],
+          "intendedUsers": ["FINANCE_AUDITOR", "PROJECT_ADMIN", "SUPER_ADMIN"]
+        },
+        {
+          "id": "IMPORT_AND_EXCEPTIONS_REPORTS",
+          "titleAr": "تقارير الاستيراد والاستثناءات التشغيلية",
+          "titleEn": "Weighbridge Ingestion & Exceptions Reports",
+          "subReports": [
+            "Weighbridge File Ingestion Audit (Excel/CSV/Sheets)",
+            "Unresolved Entity Resolution Rate & Manual Overrides",
+            "Operational Exceptions Severity & SLA Resolution Report",
+            "Tamper Attempt & Audit Log Analysis"
+          ],
+          "intendedUsers": ["SUPERVISOR", "PROJECT_ADMIN", "FINANCE_AUDITOR", "SUPER_ADMIN"]
+        }
+      ],
+      "preservedBusinessRules": [
+        "Operation Source Type isolation: clearly distinguish MANUAL, WEIGHBRIDGE, EXCEL, CSV, GOOGLE_SHEETS, API imports",
+        "Pending Settlement separation: trips with incomplete weights or missing pricing rules quarantined as 'pending settlement' without blocking operational metrics",
+        "Pricing Snapshot preservation: billing strictly calculated using frozen pricingRuleSnapshot captured at dispatch time",
+        "Finalized Settlement calculations: strictly server-side evaluated using locked formulas (rate * base + VAT)",
+        "Weight Variance governance: variance strictly evaluated as (destNetWeight - originNetWeight) / originNetWeight * 100",
+        "Export governance: multi-format export (PDF, XLSX, CSV) respects project scoping and sensitive data masking"
+      ]
+    },
+    "area4_centralDashboard": {
+      "id": "CENTRAL_DASHBOARD",
+      "titleAr": "لوحة القيادة المركزية",
+      "titleEn": "Central Executive Dashboard",
+      "description": "Executive and management overview providing real-time strategic intelligence, cross-project KPIs, settlement health, and exception alerts.",
+      "primaryUserRole": "SUPER_ADMIN",
+      "secondaryUserRoles": ["PROJECT_ADMIN", "FINANCE_AUDITOR", "SUPERVISOR", "VIEWER"],
+      "informationHierarchy": [
+        {
+          "level": 1,
+          "title": "Most Important Operational KPIs",
+          "components": ["Total Shift Tonnage (MT)", "Active In-Transit Trips Count", "Active Carrier Fleet Count", "Overall Tonnage Fulfillment %"]
+        },
+        {
+          "level": 2,
+          "title": "Active & Pending Trips Overview",
+          "components": ["Trip Status Funnel (DRAFT -> LOADED -> IN_TRANSIT -> ARRIVED -> UNLOADING -> COMPLETED)", "Average In-Transit Cycle Time", "Station Scale Queues"]
+        },
+        {
+          "level": 3,
+          "title": "Exceptions & Blocking Issues",
+          "components": ["High-Severity Exception Banner", "Unresolved Weight Discrepancies", "Carrier/Driver Conflicts", "Overloaded Trucks Warning"]
+        },
+        {
+          "level": 4,
+          "title": "Financial & Settlement Overview",
+          "components": ["Gross Freight Value (SAR)", "ZATCA 15% VAT Liability (SAR)", "Pending Settlement Value (SAR)", "Average Cost per Ton (SAR/MT)"]
+        },
+        {
+          "level": 5,
+          "title": "Cross-Project Health & Comparison",
+          "components": ["Project Tonnage Comparison Bar Chart", "Project Variance Benchmarking", "SLA Adherence Rates by Project"]
+        },
+        {
+          "level": 6,
+          "title": "Daily Performance Trends",
+          "components": ["24-Hour Dispatch & Delivery Throughput Graph", "Peak Weighbridge Utilization Windows", "Carrier On-Time Delivery Rates"]
+        },
+        {
+          "level": 7,
+          "title": "System & Operational Health Alerts",
+          "components": ["Offline Mutation Queue Buffer Depth", "Weighbridge Ingestion Stream Status", "Google Sheets Sync Connectivity", "Data Integrity Score"]
+        }
+      ],
+      "managementDiscipline": "The Central Dashboard is strictly designed for strategic executive visibility, trend analysis, and intervention dispatch. It must NEVER serve as an operational data entry console or replace field weighbridge stations."
+    }
+  },
+  "authorityAndRoleMatrix": {
+    "existingRoles": [
+      {
+        "role": "SUPER_ADMIN",
+        "description": "Global enterprise administrator with unrestricted cross-project access.",
+        "projectScope": "GLOBAL_ALL",
+        "permissions": {
+          "fieldOperations": {"read": true, "create": true, "edit": true, "delete": true, "approve": true, "import": true, "export": true},
+          "projects": {"read": true, "create": true, "edit": true, "delete": true, "configure": true, "manageUsers": true},
+          "fieldReports": {"read": true, "export": true, "auditFinancials": true},
+          "centralDashboard": {"read": true, "viewAllProjects": true, "viewFinancials": true, "systemHealth": true}
+        }
+      },
+      {
+        "role": "PROJECT_ADMIN",
+        "description": "Project-level manager responsible for project setup, master data, local users, and operational compliance.",
+        "projectScope": "ASSIGNED_PROJECTS_ONLY",
+        "permissions": {
+          "fieldOperations": {"read": true, "create": true, "edit": true, "delete": false, "approve": true, "import": true, "export": true},
+          "projects": {"read": true, "create": false, "edit": true, "delete": false, "configure": true, "manageUsers": true},
+          "fieldReports": {"read": true, "export": true, "auditFinancials": true},
+          "centralDashboard": {"read": true, "viewAllProjects": false, "viewFinancials": true, "systemHealth": false}
+        }
+      },
+      {
+        "role": "SUPERVISOR",
+        "aliases": ["SITE_SUPERVISOR"],
+        "description": "Field supervisor overseeing weighbridge stations, exception decisions, and daily operational flow.",
+        "projectScope": "ASSIGNED_PROJECTS_ONLY",
+        "permissions": {
+          "fieldOperations": {"read": true, "create": true, "edit": true, "delete": false, "approve": true, "import": true, "export": true},
+          "projects": {"read": true, "create": false, "edit": false, "delete": false, "configure": false, "manageUsers": false},
+          "fieldReports": {"read": true, "export": true, "auditFinancials": false},
+          "centralDashboard": {"read": true, "viewAllProjects": false, "viewFinancials": false, "systemHealth": false}
+        }
+      },
+      {
+        "role": "DISPATCHER",
+        "description": "Origin weighbridge and logistics dispatcher managing outbound trips and vehicle assignments.",
+        "projectScope": "ASSIGNED_PROJECTS_ONLY",
+        "permissions": {
+          "fieldOperations": {"read": true, "create": true, "edit": true, "delete": false, "approve": false, "import": false, "export": true},
+          "projects": {"read": true, "create": false, "edit": false, "delete": false, "configure": false, "manageUsers": false},
+          "fieldReports": {"read": true, "export": false, "auditFinancials": false},
+          "centralDashboard": {"read": false, "viewAllProjects": false, "viewFinancials": false, "systemHealth": false}
+        }
+      },
+      {
+        "role": "SCALE_OPERATOR",
+        "description": "Weighbridge scale operator capturing tare and gross weights at loading or unloading scales.",
+        "projectScope": "ASSIGNED_PROJECTS_ONLY",
+        "permissions": {
+          "fieldOperations": {"read": true, "create": true, "edit": true, "delete": false, "approve": false, "import": false, "export": false},
+          "projects": {"read": false, "create": false, "edit": false, "delete": false, "configure": false, "manageUsers": false},
+          "fieldReports": {"read": true, "export": false, "auditFinancials": false},
+          "centralDashboard": {"read": false, "viewAllProjects": false, "viewFinancials": false, "systemHealth": false}
+        }
+      },
+      {
+        "role": "FINANCE_AUDITOR",
+        "description": "Financial and settlement auditor verifying freight billing, VAT compliance, and pricing snapshots.",
+        "projectScope": "ASSIGNED_PROJECTS_OR_GLOBAL",
+        "permissions": {
+          "fieldOperations": {"read": true, "create": false, "edit": false, "delete": false, "approve": true, "import": false, "export": true},
+          "projects": {"read": true, "create": false, "edit": false, "delete": false, "configure": false, "manageUsers": false},
+          "fieldReports": {"read": true, "export": true, "auditFinancials": true},
+          "centralDashboard": {"read": true, "viewAllProjects": true, "viewFinancials": true, "systemHealth": false}
+        }
+      },
+      {
+        "role": "DRIVER",
+        "description": "Truck driver executing physical transport with access restricted to assigned trip and arrival check-in.",
+        "projectScope": "SELF_ASSIGNED_TRIP_ONLY",
+        "permissions": {
+          "fieldOperations": {"read": true, "create": false, "edit": false, "delete": false, "approve": false, "import": false, "export": false},
+          "projects": {"read": false, "create": false, "edit": false, "delete": false, "configure": false, "manageUsers": false},
+          "fieldReports": {"read": false, "export": false, "auditFinancials": false},
+          "centralDashboard": {"read": false, "viewAllProjects": false, "viewFinancials": false, "systemHealth": false}
+        }
+      },
+      {
+        "role": "VIEWER",
+        "description": "Read-only stakeholder with observational access to reports and project statistics.",
+        "projectScope": "ASSIGNED_PROJECTS_ONLY",
+        "permissions": {
+          "fieldOperations": {"read": true, "create": false, "edit": false, "delete": false, "approve": false, "import": false, "export": true},
+          "projects": {"read": true, "create": false, "edit": false, "delete": false, "configure": false, "manageUsers": false},
+          "fieldReports": {"read": true, "export": true, "auditFinancials": false},
+          "centralDashboard": {"read": true, "viewAllProjects": false, "viewFinancials": false, "systemHealth": false}
+        }
+      }
+    ]
+  },
+  "navigationModel": {
+    "topLevelStructure": [
+      {
+        "id": "NAV_DASHBOARD",
+        "labelAr": "لوحة القيادة",
+        "labelEn": "Dashboard",
+        "interfaceArea": "CENTRAL_DASHBOARD",
+        "icon": "LayoutDashboard",
+        "visibleToRoles": ["SUPER_ADMIN", "PROJECT_ADMIN", "SUPERVISOR", "FINANCE_AUDITOR", "VIEWER"]
+      },
+      {
+        "id": "NAV_FIELD_OPS",
+        "labelAr": "العمليات الميدانية",
+        "labelEn": "Field Operations",
+        "interfaceArea": "FIELD_OPERATIONS",
+        "icon": "Truck",
+        "visibleToRoles": ["SUPER_ADMIN", "PROJECT_ADMIN", "SUPERVISOR", "SITE_SUPERVISOR", "DISPATCHER", "SCALE_OPERATOR", "DRIVER"],
+        "subItems": [
+          {"id": "NAV_FIELD_LOADING", "labelAr": "محطة التحميل (Loading)", "roles": ["SUPER_ADMIN", "PROJECT_ADMIN", "SUPERVISOR", "DISPATCHER", "SCALE_OPERATOR"]},
+          {"id": "NAV_FIELD_UNLOADING", "labelAr": "محطة التفريغ (Unloading)", "roles": ["SUPER_ADMIN", "PROJECT_ADMIN", "SUPERVISOR", "SITE_SUPERVISOR", "SCALE_OPERATOR"]},
+          {"id": "NAV_FIELD_SUPERVISION", "labelAr": "الإشراف الميداني (Supervision)", "roles": ["SUPER_ADMIN", "PROJECT_ADMIN", "SUPERVISOR", "SITE_SUPERVISOR"]},
+          {"id": "NAV_FIELD_DRIVER", "labelAr": "شاشة السائق (Driver)", "roles": ["DRIVER"]}
+        ]
+      },
+      {
+        "id": "NAV_PROJECTS",
+        "labelAr": "المشاريع",
+        "labelEn": "Projects",
+        "interfaceArea": "PROJECTS",
+        "icon": "Building2",
+        "visibleToRoles": ["SUPER_ADMIN", "PROJECT_ADMIN", "FINANCE_AUDITOR", "VIEWER"],
+        "subItems": [
+          {"id": "NAV_PROJECTS_LIST", "labelAr": "دليل المشاريع", "roles": ["SUPER_ADMIN", "PROJECT_ADMIN", "FINANCE_AUDITOR", "VIEWER"]},
+          {"id": "NAV_PROJECTS_CREATE", "labelAr": "مشروع جديد (Wizard)", "roles": ["SUPER_ADMIN", "PROJECT_ADMIN"]},
+          {"id": "NAV_PROJECTS_MASTER", "labelAr": "البيانات الأساسية (Master Data)", "roles": ["SUPER_ADMIN", "PROJECT_ADMIN"]}
+        ]
+      },
+      {
+        "id": "NAV_REPORTS",
+        "labelAr": "التقارير الميدانية",
+        "labelEn": "Field Reports",
+        "interfaceArea": "FIELD_REPORTS",
+        "icon": "FileText",
+        "visibleToRoles": ["SUPER_ADMIN", "PROJECT_ADMIN", "SUPERVISOR", "FINANCE_AUDITOR", "VIEWER"]
+      }
+    ],
+    "systemAndAdminDrawer": {
+      "id": "NAV_SYSTEM_TOOLS",
+      "labelAr": "أدوات النظام والمطورين",
+      "labelEn": "System & Developer Tools",
+      "description": "Preserves all existing 17 tabs, diagnostic engines, security audits, migration tools, and test suites under an organized secondary drawer to prevent functional loss.",
+      "tools": [
+        "SECURITY_AUDIT (Security Audit & Compliance)",
+        "LEGACY_MIGRATION (Legacy Migration Engine)",
+        "ADMIN_CONSOLE (Enterprise Admin Console)",
+        "WORKSPACE_INTEGRATION (Google Sheets/Drive Integration)",
+        "EXCEPTION_ENGINE (12-Type Exception Sandbox)",
+        "IMPORT_CENTER (12-Stage Ingestion Pipeline)",
+        "DATA_QUALITY (Data Quality & Entity Resolution)",
+        "PRICING_ENGINE (Pricing Formula Verifier)",
+        "FIRESTORE_ARCH (Firestore Architecture Inspector)",
+        "RELATIONS (Domain Relationships Explorer)",
+        "PRINCIPLES (Architecture Governance Principles)",
+        "DOCS (System Markdown Documentation)"
+      ]
+    }
+  },
+  "responsiveStrategy": {
+    "breakPoints": {
+      "phone": "< 640px (sm:)",
+      "tablet": "640px – 1024px (md: / lg:)",
+      "desktop": "> 1024px (xl:)"
+    },
+    "principlesByInterface": {
+      "fieldOperations": {
+        "priority": "Touch, Speed, Sunlight Contrast, Zero Horizontal Scroll",
+        "phone": "Full-width single-column cards, 44px–56px touch target buttons, large numeric inputs, big visual icons, camera scanning integration.",
+        "tablet": "Two-column split view (Selector / Action), persistent status pill bar, floating primary action button.",
+        "desktop": "Comprehensive weighbridge console with auxiliary hardware status and queue monitor."
+      },
+      "projects": {
+        "priority": "Structure, Clarity, Data Integrity",
+        "phone": "Card stack view with modal wizard steps, collapsible filters.",
+        "tablet": "Table with responsive column hiding, stepped wizard progress bar.",
+        "desktop": "Full multi-column data grid, master-detail side drawer for carrier/truck entity management."
+      },
+      "fieldReports": {
+        "priority": "Density, Analytics, Export Affordance",
+        "phone": "Summary metrics cards with expandable report sections, direct PDF/CSV export buttons.",
+        "tablet": "Responsive analytics charts, compact data tables with horizontal scroll indicators.",
+        "desktop": "Multi-filter sidebar, rich data visualization panels, dense financial data grid with sticky headers."
+      },
+      "centralDashboard": {
+        "priority": "Executive Visibility, High Information Density",
+        "phone": "Vertical KPI metric cards stack, high-priority exception alerts carousel.",
+        "tablet": "2x2 KPI grid, project comparison cards, interactive donut charts.",
+        "desktop": "Comprehensive executive bento-grid with real-time refresh, multi-project radar charts, and system status widgets."
+      }
+    }
+  },
+  "componentReuseAndRedesignMap": {
+    "reusableComponents": [
+      {
+        "component": "src/components/tripEngine/LoadingStation.tsx",
+        "targetInterface": "Field Operations -> Loading Station",
+        "reusabilityStatus": "HIGH_REUSE (8-step validated workflow, weight calculations, tamper detection)",
+        "futureEnhancements": "Decouple from sub-tab switcher, wrap in dedicated Loading Operator shell"
+      },
+      {
+        "component": "src/components/tripEngine/UnloadingStation.tsx",
+        "targetInterface": "Field Operations -> Unloading Station",
+        "reusabilityStatus": "HIGH_REUSE (In-transit search, variance engine, exception triggers)",
+        "futureEnhancements": "Streamline search input for rapid mobile barcode scan, direct unloader sign-off"
+      },
+      {
+        "component": "src/components/tripEngine/StateMachineController.tsx",
+        "targetInterface": "Field Operations -> Field Supervision",
+        "reusabilityStatus": "HIGH_REUSE (FSM state machine transitions, actor enforcement, audit log)",
+        "futureEnhancements": "Embed as supervision transition drawer rather than developer test view"
+      },
+      {
+        "component": "src/components/reports/ReportsEngineView.tsx",
+        "targetInterface": "Field Reports",
+        "reusabilityStatus": "HIGH_REUSE (15 reports, pending settlement separation, PDF/XLSX export)",
+        "futureEnhancements": "Integrate role-based report categorization and date-range presets"
+      },
+      {
+        "component": "src/components/wizard/ProjectSetupWizard.tsx",
+        "targetInterface": "Projects -> Project Provisioning Wizard",
+        "reusabilityStatus": "HIGH_REUSE (7-step provisioning, user assignment, pricing rules)",
+        "futureEnhancements": "Support direct edit mode for existing project entities"
+      },
+      {
+        "component": "src/components/masterData/MasterDataView.tsx",
+        "targetInterface": "Projects -> Project Master Data",
+        "reusabilityStatus": "HIGH_REUSE (Carriers, Trucks, Drivers, Materials CRUD and soft-delete)",
+        "futureEnhancements": "Bind active project selector dynamically to authContext.assignedProjectIds"
+      },
+      {
+        "component": "src/components/dashboard/OperationsDashboardView.tsx",
+        "targetInterface": "Central Dashboard",
+        "reusabilityStatus": "HIGH_REUSE (11 KPI cards, active trips table, carrier breakdown)",
+        "futureEnhancements": "Promote to root executive view, add cross-project comparison widgets"
+      },
+      {
+        "component": "src/components/importCenter/ImportCenterView.tsx",
+        "targetInterface": "Field Supervision -> Weighbridge Batch Import",
+        "reusabilityStatus": "HIGH_REUSE (12-stage pipeline, fuzzy entity matching, human review)",
+        "futureEnhancements": "Surface as a supervisor sub-module for daily site scale files"
+      }
+    ],
+    "componentsToRedesign": [
+      {
+        "targetInterface": "Field Operations -> Driver Console",
+        "recommendation": "Create dedicated lightweight DriverView (< 250 LOC) rendering only active trip card, arrival button, and digital QR ticket."
+      },
+      {
+        "targetInterface": "Top-Level Navigation Shell (App.tsx)",
+        "recommendation": "Redesign root navigation from 17 horizontal tabs into 4 primary role-aware areas (Field Ops, Projects, Reports, Dashboard) with secondary Developer Drawer."
+      },
+      {
+        "targetInterface": "Field Operations -> Field Supervision Hub",
+        "recommendation": "Combine active trip triage, open exceptions, and batch import status into a unified supervisor command board."
+      }
+    ]
+  },
+  "implementationRoadmap": [
+    {
+      "block": 77,
+      "name": "Field Operations — Loading & Unloading Operator Dedicated Interfaces",
+      "scope": "Build dedicated, zero-distraction Loading Station and Unloading Station views tailored for Scale Operators with offline persistence."
+    },
+    {
+      "block": 78,
+      "name": "Field Supervision & Driver Dedicated Interfaces",
+      "scope": "Build the Field Supervision command center (live trips, exceptions, batch import triage) and the dedicated Driver mobile view (active trip, arrival trigger, digital ticket)."
+    },
+    {
+      "block": 79,
+      "name": "Project Management & Master Data Workspace",
+      "scope": "Build the multi-project directory, edit/configuration drawers, and integrate project-scoped master data and access control governance."
+    },
+    {
+      "block": 80,
+      "name": "Field Reports & Central Executive Dashboard",
+      "scope": "Refactor Field Reports into 4 categorized domains and enhance Central Executive Dashboard with cross-project comparison and financial indicators."
+    },
+    {
+      "block": 81,
+      "name": "Role-Based Navigation & System Assembly",
+      "scope": "Unify the 4 major areas under dynamic role-based navigation with full backward-compatibility developer drawer, completing product readiness."
+    }
+  ],
+  "verification": {
+    "i18nRemainsFrozen": true,
+    "localeCatalogSize": 1128,
+    "unauthorizedRolesInvented": false,
+    "businessLogicUntouched": true,
+    "pricingLogicUntouched": true,
+    "tripStateMachineUntouched": true,
+    "securityRulesUntouched": true,
+    "databaseSchemasUntouched": true,
+    "importPipelineUntouched": true,
+    "fixturesUntouched": true,
+    "noRedesignedInterfaceImplementedInBlock76": true
+  }
+}

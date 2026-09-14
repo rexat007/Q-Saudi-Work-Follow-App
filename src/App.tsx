@@ -25,7 +25,8 @@ import {
   Lock,
   ShieldAlert,
   FileSpreadsheet,
-  LayoutDashboard
+  LayoutDashboard,
+  Scale
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { ENTITY_RELATIONS, MANDATORY_PRINCIPLES, EntityRelationInfo } from './entityRelations';
@@ -37,6 +38,7 @@ import { MasterDataView } from './components/masterData/MasterDataView';
 import { DataQualityView } from './components/dataQuality/DataQualityView';
 import { ImportCenterView } from './components/importCenter/ImportCenterView';
 import { TripEngineView } from './components/TripEngineView';
+import { FieldOperationsView } from './components/field/FieldOperationsView';
 import { ReportsEngineView } from './components/reports/ReportsEngineView';
 import { OperationsDashboardView } from './components/dashboard/OperationsDashboardView';
 import { ExceptionEngineView } from './components/exceptionEngine/ExceptionEngineView';
@@ -57,7 +59,7 @@ import { LanguageSwitcher } from './components/i18n/LanguageSwitcher';
 
 export default function App() {
   const { direction, t } = useI18n();
-  const [activeTab, setActiveTab] = useState<'OPERATIONS_DASHBOARD' | 'LEGACY_MIGRATION' | 'ADMIN_CONSOLE' | 'SECURITY_AUDIT' | 'REPORTS_ENGINE' | 'TRIP_ENGINE' | 'WORKSPACE_INTEGRATION' | 'EXCEPTION_ENGINE' | 'IMPORT_CENTER' | 'DATA_QUALITY' | 'MASTER_DATA' | 'PRICING_ENGINE' | 'WIZARD' | 'FIRESTORE_ARCH' | 'RELATIONS' | 'PRINCIPLES' | 'DOCS'>('OPERATIONS_DASHBOARD');
+  const [activeTab, setActiveTab] = useState<'OPERATIONS_DASHBOARD' | 'FIELD_OPERATIONS' | 'LEGACY_MIGRATION' | 'ADMIN_CONSOLE' | 'SECURITY_AUDIT' | 'REPORTS_ENGINE' | 'TRIP_ENGINE' | 'WORKSPACE_INTEGRATION' | 'EXCEPTION_ENGINE' | 'IMPORT_CENTER' | 'DATA_QUALITY' | 'MASTER_DATA' | 'PRICING_ENGINE' | 'WIZARD' | 'FIRESTORE_ARCH' | 'RELATIONS' | 'PRINCIPLES' | 'DOCS'>('OPERATIONS_DASHBOARD');
   const [selectedEntityId, setSelectedEntityId] = useState<string>('Trip');
   const [selectedDocId, setSelectedDocId] = useState<string>('architecture');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -241,6 +243,24 @@ export default function App() {
                   activeTab === 'REPORTS_ENGINE' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
                 }`}>
                   {t("navigation.labels.txt_185076")}</span>
+              </button>
+
+              <button
+                id="tab-field-operations"
+                onClick={() => setActiveTab('FIELD_OPERATIONS')}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
+                  activeTab === 'FIELD_OPERATIONS' 
+                    ? 'bg-amber-600 text-white shadow-xs' 
+                    : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/50'
+                }`}
+              >
+                <Scale className="w-3.5 h-3.5" />
+                <span>{t("loading.labels.downloadWeighbridge_2")}</span>
+                <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
+                  activeTab === 'FIELD_OPERATIONS' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
+                }`}>
+                  ميداني
+                </span>
               </button>
 
               <button
@@ -513,6 +533,11 @@ export default function App() {
         {/* ================= TAB: REPORTS ENGINE (15 REPORTS, 9 FILTERS, PDF/XLSX/CSV) ================= */}
         {activeTab === 'REPORTS_ENGINE' && (
           <ReportsEngineView />
+        )}
+
+        {/* ================= TAB: FIELD OPERATIONS (LOADING & UNLOADING WORKSTATIONS) ================= */}
+        {activeTab === 'FIELD_OPERATIONS' && (
+          <FieldOperationsView />
         )}
 
         {/* ================= TAB: TRIP ENGINE (6 RULES & SERVER SETTLEMENT) ================= */}

@@ -107,7 +107,7 @@ This document contains domain-specific terminology requiring human verification 
 | `weighbridge.fields.null` | "null" | attr_placeholder | `MEDIUM` | Semantic conflict isolation |
 | ... | *and 398 more items in this domain queue* | | | |
 
-## Domain: `imports` (1574 items requiring review)
+## Domain: `imports` (1572 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -131,7 +131,7 @@ This document contains domain-specific terminology requiring human verification 
 | `imports.fields.destnetweight` | "destNetWeight" | prop_canonicalField | `MEDIUM` | Domain-specific terminology translation |
 | `imports.fields.driver` | "اكتب سبب قبول هذه التحذيرات (مثال: تم التأكد من هوية السائق ورقياً، أو تم التنسيق مع مقاول النقل)..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
 | `imports.fields.driverName` | "اسم السائق" | literal | `MEDIUM` | Semantic conflict isolation |
-| ... | *and 1554 more items in this domain queue* | | | |
+| ... | *and 1552 more items in this domain queue* | | | |
 
 ## Domain: `entityResolution` (267 items requiring review)
 

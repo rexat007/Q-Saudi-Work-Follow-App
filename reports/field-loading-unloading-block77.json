@@ -1,0 +1,176 @@
+{
+  "metadata": {
+    "block": 77,
+    "title": "Field Operations: Loading & Unloading Dedicated Interfaces",
+    "timestamp": "2026-09-13T20:55:00Z",
+    "status": "IMPLEMENTED_PRODUCTION_FIELD_INTERFACES",
+    "i18nStatus": "STRICTLY_FROZEN",
+    "i18nKeysPerLocale": 1128,
+    "architectureBaseline": "BLOCK_76_GITHUB_RECOVERY_POINT"
+  },
+  "interfaces": {
+    "loadingOperator": {
+      "id": "LOADING_INTERFACE",
+      "component": "src/components/field/LoadingOperatorView.tsx",
+      "primaryRoles": [
+        "SCALE_OPERATOR",
+        "DISPATCHER",
+        "SUPERVISOR",
+        "SITE_SUPERVISOR",
+        "PROJECT_ADMIN",
+        "SUPER_ADMIN"
+      ],
+      "forbiddenRoles": [
+        "FINANCE_AUDITOR",
+        "DRIVER",
+        "VIEWER"
+      ],
+      "workflow": {
+        "paradigm": "IDENTIFY → CAPTURE → VALIDATE → ACT → CONFIRM",
+        "steps": [
+          {
+            "phase": "IDENTIFY",
+            "actions": [
+              "Project selection scoped to operator project assignments",
+              "Authorized carrier quick-selection card (filtered by project)",
+              "Active truck card selection (filtered by carrier relationship)",
+              "Active driver card selection (filtered by carrier relationship)",
+              "Authorized material selection (filtered by project)"
+            ]
+          },
+          {
+            "phase": "CAPTURE",
+            "actions": [
+              "Tare weight capture via large digital input, presets (8.2t, 13.8t, 14.2t, 15t), and scale-in simulation button",
+              "Gross weight capture via large digital input, presets (42t, 45.6t, 49.8t), and scale-out simulation button",
+              "Step micro-adjusters (+/- 100 kg, +/- 500 kg) for touch screens"
+            ]
+          },
+          {
+            "phase": "VALIDATE",
+            "actions": [
+              "Real-time client net display (Gross - Tare) in kg and metric tons",
+              "Axle & regulatory limits check (General Transport Authority 35t net / 50t gross thresholds)",
+              "Blocking validation on gross <= tare, missing entities, or expired pricing rules",
+              "Read-only settlement preview enforcing server pricing calculation authority"
+            ]
+          },
+          {
+            "phase": "ACT",
+            "actions": [
+              "Dominant 52px touch CTA: 'Confirm & Dispatch Trip Ticket'",
+              "Creation of trip in LOADED status with immediate transition to IN_TRANSIT",
+              "Offline fallback to IndexedDB and Outbox queue when offline"
+            ]
+          },
+          {
+            "phase": "CONFIRM",
+            "actions": [
+              "Thermal weighbridge ticket presentation with QR/barcode placeholder",
+              "Print and copy actions",
+              "One-touch 'Next Truck' reset preserving station context"
+            ]
+          }
+        ]
+      },
+      "securityEnforcement": {
+        "clientNetWeightPolicy": "STRICTLY_REJECTED_SERVER_RECALCULATED",
+        "pricingAuthority": "SERVER_IMMUTABLE_SNAPSHOT",
+        "offlinePricingPrerequisite": "MANDATORY_IN_INDEXED_DB"
+      }
+    },
+    "unloadingOperator": {
+      "id": "UNLOADING_INTERFACE",
+      "component": "src/components/field/UnloadingOperatorView.tsx",
+      "primaryRoles": [
+        "SCALE_OPERATOR",
+        "SITE_RECEIVER",
+        "SITE_SUPERVISOR",
+        "SUPERVISOR",
+        "PROJECT_ADMIN",
+        "SUPER_ADMIN"
+      ],
+      "forbiddenRoles": [
+        "DISPATCHER",
+        "FINANCE_AUDITOR",
+        "DRIVER",
+        "VIEWER"
+      ],
+      "workflow": {
+        "paradigm": "IDENTIFY → CAPTURE → VALIDATE → ACT → CONFIRM",
+        "steps": [
+          {
+            "phase": "IDENTIFY",
+            "actions": [
+              "Rapid search by Trip Serial or Ticket ID",
+              "Prohibition of ambiguous bare-plate search",
+              "Inbound In-Transit queue selector allowing one-touch truck acquisition with zero typing"
+            ]
+          },
+          {
+            "phase": "CAPTURE",
+            "actions": [
+              "Dual-scale mode (Destination Gross - Destination Tare)",
+              "Direct Net mode with quick adjustment touch controls (+/- 100 kg, +/- 500 kg)",
+              "Simulation presets for acceptable shrinkage (-150 kg) and out-of-tolerance (-2,500 kg)"
+            ]
+          },
+          {
+            "phase": "VALIDATE",
+            "actions": [
+              "Server-side calculation of varianceWeight = destNetWeight - originNetWeight",
+              "Tolerance threshold calculation: max(toleranceKg, originNet * tolerancePercent / 100)",
+              "High-visibility status gauge (Green: Within Tolerance, Red: Out of Tolerance)"
+            ]
+          },
+          {
+            "phase": "ACT",
+            "actions": [
+              "State progression: IN_TRANSIT -> ARRIVED -> UNLOADING -> COMPLETED",
+              "Explicit 'Accept origin net as destination' button with documented audit reason",
+              "Completion triggers automatic TripExceptionEntity if variance exceeds tolerance threshold"
+            ]
+          },
+          {
+            "phase": "CONFIRM",
+            "actions": [
+              "Digital destination receipt with verified variance stamp",
+              "Detailed exception advisory banner when variance is flagged",
+              "Immediate queue refresh for the next arriving vehicle"
+            ]
+          }
+        ]
+      },
+      "explicitOriginNetAcceptance": {
+        "supported": true,
+        "mechanism": "User-triggered action setting destNetWeight = originNetWeight with variance 0 kg and audited reason string"
+      }
+    }
+  },
+  "responsiveStrategy": {
+    "phone": {
+      "breakpoint": "< 640px",
+      "layout": "Single-column vertical stack, 48px+ touch targets, dominant primary action button"
+    },
+    "tablet": {
+      "breakpoint": "640px - 1024px",
+      "layout": "Optimized 2-column workstation (Entity identification on left, Scale capture & actions on right)"
+    },
+    "desktop": {
+      "breakpoint": "> 1024px",
+      "layout": "Full operational workstation with expanded manifest queue, live scale readouts, and ticket inspection"
+    }
+  },
+  "invariantsPreserved": {
+    "i18nCatalogFrozen": true,
+    "arKeyCount": 1128,
+    "enKeyCount": 1128,
+    "urKeyCount": 1128,
+    "businessLogicUnchanged": true,
+    "pricingLogicUnchanged": true,
+    "stateMachineTransitionsUnchanged": true,
+    "securityRulesUnchanged": true,
+    "databaseSchemasUnchanged": true,
+    "offlineOutboxArchitecturePreserved": true
+  }
+}
