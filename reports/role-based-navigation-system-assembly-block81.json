@@ -1,0 +1,183 @@
+{
+  "blockNumber": 81,
+  "blockName": "ROLE-BASED NAVIGATION & SYSTEM ASSEMBLY",
+  "status": "COMPLETED",
+  "timestamp": "2026-09-14T07:12:00.000Z",
+  "authoritativeRoles": [
+    "SUPER_ADMIN",
+    "PROJECT_ADMIN",
+    "SUPERVISOR",
+    "SITE_SUPERVISOR",
+    "DISPATCHER",
+    "SCALE_OPERATOR",
+    "FINANCE_AUDITOR",
+    "DRIVER",
+    "VIEWER"
+  ],
+  "primaryApplicationAreas": [
+    {
+      "id": "FIELD_OPERATIONS",
+      "titleAr": "العمليات الميدانية",
+      "titleEn": "Field Operations",
+      "authorizedRoles": [
+        "SUPER_ADMIN",
+        "PROJECT_ADMIN",
+        "SUPERVISOR",
+        "SITE_SUPERVISOR",
+        "DISPATCHER",
+        "SCALE_OPERATOR",
+        "DRIVER"
+      ],
+      "workstations": [
+        "LOADING_STATION",
+        "UNLOADING_STATION",
+        "SUPERVISION",
+        "DRIVER_VIEW"
+      ]
+    },
+    {
+      "id": "PROJECTS",
+      "titleAr": "المشاريع والبيانات الأساسية",
+      "titleEn": "Projects & Master Data",
+      "authorizedRoles": [
+        "SUPER_ADMIN",
+        "PROJECT_ADMIN"
+      ],
+      "tabs": [
+        "WIZARD",
+        "MASTER_DATA"
+      ]
+    },
+    {
+      "id": "REPORTS",
+      "titleAr": "التقارير ولوحات التحكم",
+      "titleEn": "Reports & Analytics",
+      "authorizedRoles": [
+        "SUPER_ADMIN",
+        "PROJECT_ADMIN",
+        "SUPERVISOR",
+        "SITE_SUPERVISOR",
+        "DISPATCHER",
+        "FINANCE_AUDITOR",
+        "VIEWER"
+      ],
+      "tabs": [
+        "OPERATIONS_DASHBOARD",
+        "REPORTS_ENGINE"
+      ]
+    },
+    {
+      "id": "SYSTEM_TOOLS",
+      "titleAr": "أدوات النظام والمطورين",
+      "titleEn": "System & Developer Tools",
+      "authorizedRoles": [
+        "SUPER_ADMIN",
+        "PROJECT_ADMIN",
+        "SUPERVISOR",
+        "DISPATCHER",
+        "FINANCE_AUDITOR",
+        "VIEWER",
+        "SCALE_OPERATOR"
+      ],
+      "toolsCount": 11
+    }
+  ],
+  "navigationSystem": {
+    "architecture": "Role-Aware Dynamic Navigation & Server-Authoritative Route Guards",
+    "components": {
+      "service": "src/services/navigation.service.ts",
+      "appShell": "src/App.tsx",
+      "mobileDrawer": "src/components/navigation/MobileNavDrawer.tsx",
+      "systemToolsDrawer": "src/components/navigation/SystemToolsDrawer.tsx",
+      "unauthorizedBanner": "src/components/navigation/UnauthorizedBanner.tsx"
+    },
+    "features": [
+      "Dynamic primary and secondary navigation generation based on active role",
+      "Strict route guard validation (UI hiding + Execution prevention)",
+      "Multi-tenant project isolation boundaries with scoped role simulation",
+      "Full bidirectional layout support (RTL for Arabic/Urdu, LTR for English)",
+      "Responsive adaptation across Desktop, Tablet, and Mobile viewport breakpoints",
+      "Offline sync status, Outbox queue counter, and conflict resolution triggers"
+    ]
+  },
+  "roleExperienceMatrix": {
+    "SUPER_ADMIN": {
+      "defaultTab": "OPERATIONS_DASHBOARD",
+      "scope": "ALL",
+      "primaryTabs": ["OPERATIONS_DASHBOARD", "REPORTS_ENGINE", "FIELD_OPERATIONS", "WIZARD", "MASTER_DATA"],
+      "systemTools": 11
+    },
+    "PROJECT_ADMIN": {
+      "defaultTab": "OPERATIONS_DASHBOARD",
+      "scope": "PRJ-NEOM-001 (Scoped)",
+      "primaryTabs": ["OPERATIONS_DASHBOARD", "REPORTS_ENGINE", "FIELD_OPERATIONS", "WIZARD", "MASTER_DATA"],
+      "systemTools": 7
+    },
+    "SUPERVISOR": {
+      "defaultTab": "FIELD_OPERATIONS",
+      "scope": "PRJ-NEOM-001 (Scoped)",
+      "primaryTabs": ["FIELD_OPERATIONS", "REPORTS_ENGINE"],
+      "systemTools": 4
+    },
+    "SITE_SUPERVISOR": {
+      "defaultTab": "FIELD_OPERATIONS",
+      "scope": "PRJ-REDSEA-RESORT-02 (Site Scoped)",
+      "primaryTabs": ["FIELD_OPERATIONS", "REPORTS_ENGINE"],
+      "systemTools": 2
+    },
+    "DISPATCHER": {
+      "defaultTab": "FIELD_OPERATIONS",
+      "scope": "PRJ-NEOM-001 (Scoped)",
+      "primaryTabs": ["FIELD_OPERATIONS", "REPORTS_ENGINE"],
+      "systemTools": 2
+    },
+    "SCALE_OPERATOR": {
+      "defaultTab": "FIELD_OPERATIONS",
+      "scope": "PRJ-NEOM-001 (Workstation Only)",
+      "primaryTabs": ["FIELD_OPERATIONS"],
+      "systemTools": 1
+    },
+    "FINANCE_AUDITOR": {
+      "defaultTab": "REPORTS_ENGINE",
+      "scope": "ALL (Financial Read)",
+      "primaryTabs": ["OPERATIONS_DASHBOARD", "REPORTS_ENGINE"],
+      "systemTools": 2
+    },
+    "DRIVER": {
+      "defaultTab": "FIELD_OPERATIONS",
+      "scope": "PRJ-NEOM-001 (Driver View Isolated)",
+      "primaryTabs": ["FIELD_OPERATIONS"],
+      "systemTools": 0
+    },
+    "VIEWER": {
+      "defaultTab": "OPERATIONS_DASHBOARD",
+      "scope": "ALL (Read-Only)",
+      "primaryTabs": ["OPERATIONS_DASHBOARD", "REPORTS_ENGINE"],
+      "systemTools": 4
+    }
+  },
+  "crossModuleVerification": {
+    "loadingWorkstation": "VERIFIED (origin weights, seal numbers, QR codes, offline queueing)",
+    "unloadingWorkstation": "VERIFIED (destination weights, tolerance evaluation, exception triggers)",
+    "supervisionWorkstation": "VERIFIED (exception resolution, overrides, audit logs)",
+    "exceptionEngine": "VERIFIED (12 exception codes, severity levels, state persistence)",
+    "reportsEngine": "VERIFIED (Operational, Weighbridge, Settlement, Ingestion categories)",
+    "centralExecutiveDashboard": "VERIFIED (7 analytical layers, multi-tenant boundaries)",
+    "projectIsolation": "VERIFIED (Strict boundary enforcement across all queries and views)",
+    "pricingInvariance": "VERIFIED (Contractual snapshot immutability strictly preserved)"
+  },
+  "i18nCatalogIntegrity": {
+    "status": "FROZEN_VALIDATED",
+    "arabicKeys": 1128,
+    "englishKeys": 1128,
+    "urduKeys": 1128,
+    "parityRate": "100.0%"
+  },
+  "verificationResults": {
+    "testSuite": "src/tests/roleBasedNavigationSystemAssemblyBlock81.test.ts",
+    "totalTests": 26,
+    "passedTests": 26,
+    "failedTests": 0,
+    "successRate": "100.0%"
+  }
+}
