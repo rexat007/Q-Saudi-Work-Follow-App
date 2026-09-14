@@ -89,9 +89,9 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   const [driverId, setDriverId] = useState<string>('DRV-101');
   const [materialId, setMaterialId] = useState<string>('MAT-AGG-01');
 
-  // Weights (kg)
-  const [tareWeight, setTareWeight] = useState<number>(8200);
-  const [grossWeight, setGrossWeight] = useState<number>(45600);
+  // Weights (kg) - starts empty/zero in production runtime
+  const [tareWeight, setTareWeight] = useState<number>(0);
+  const [grossWeight, setGrossWeight] = useState<number>(0);
 
   // Pricing Rule Selection
   const [pricingRuleId, setPricingRuleId] = useState<string>('PRC-NEOM-HAUL-TON-8.5');

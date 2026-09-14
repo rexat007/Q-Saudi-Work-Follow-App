@@ -20,7 +20,7 @@ import {
 } from '../types/exceptionEngine';
 
 // Seed Exception Records covering all 12 Types
-const INITIAL_EXCEPTIONS_SEED: ExceptionRecord[] = [
+export const INITIAL_EXCEPTIONS_SEED: ExceptionRecord[] = [
   {
     exceptionId: 'EXP-2026-001',
     projectId: 'PRJ-NEOM-001',
@@ -409,9 +409,30 @@ const INITIAL_AUDITS_SEED: ExceptionAuditLog[] = [
 ];
 
 export class ExceptionEngineService {
-  private exceptions: ExceptionRecord[] = [...INITIAL_EXCEPTIONS_SEED];
-  private auditLogs: ExceptionAuditLog[] = [...INITIAL_AUDITS_SEED];
+  private exceptions: ExceptionRecord[] = [];
+  private auditLogs: ExceptionAuditLog[] = [];
   private listeners: Array<() => void> = [];
+
+  /**
+   * Loads seed fixture data (Used exclusively by automated test suites or explicit demo mode)
+   */
+  public loadSeedData(
+    exceptions: ExceptionRecord[] = INITIAL_EXCEPTIONS_SEED,
+    audits: ExceptionAuditLog[] = INITIAL_AUDITS_SEED
+  ): void {
+    this.exceptions = [...exceptions];
+    this.auditLogs = [...audits];
+    this.notify();
+  }
+
+  /**
+   * Clears in-memory exceptions and audit logs
+   */
+  public clearExceptions(): void {
+    this.exceptions = [];
+    this.auditLogs = [];
+    this.notify();
+  }
 
   // =========================================================================
   // Listener Subscriptions

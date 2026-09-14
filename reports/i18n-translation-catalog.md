@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-14T08:00:26.444Z
+**Generated At:** 2026-09-14T08:57:10.593Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -11,21 +11,21 @@
 | :--- | :--- | :--- |
 | **Total Unique Catalog Keys** | **11891** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **8187** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **8187** | Domain terminology requiring semantic verification |
-| **Ambiguous Keys Isolated** | **3697** | Short tokens or codes quarantined from auto-translation |
+| **Untranslated Slots (Pending Review)** | **8178** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **8178** | Domain terminology requiring semantic verification |
+| **Ambiguous Keys Isolated** | **3706** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
 | **Interpolation Placeholders** | **216** | Dynamic parameters (e.g. `{count}`) strictly preserved |
 | **Pluralization Requirements** | **153** | Expressions requiring 6 Arabic plural forms |
-| **Semantic Conflicts Isolated** | **601** | Identical texts split into separate contextual keys |
-| **Duplicate Groups (Type A Sharing)** | **1558** | Safe identical-context key reuse candidates |
+| **Semantic Conflicts Isolated** | **600** | Identical texts split into separate contextual keys |
+| **Duplicate Groups (Type A Sharing)** | **1561** | Safe identical-context key reuse candidates |
 | **Directional Migration Queue** | **254** | Physical Tailwind classes flagged for RTL/LTR migration |
 
 ## 2. Category Distribution & Translation Readiness
 
 | Category | Total Keys | Translated | Untranslated | Review Required | Ambiguous |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `other` | 5090 | 4 | 3727 | 3727 | 1359 |
+| `other` | 5092 | 4 | 3716 | 3716 | 1372 |
 | `imports` | 1572 | 0 | 1084 | 1084 | 488 |
 | `reports` | 606 | 0 | 379 | 379 | 226 |
 | `security` | 557 | 1 | 399 | 399 | 157 |
@@ -37,11 +37,11 @@
 | `legacyMigration` | 295 | 0 | 124 | 124 | 171 |
 | `offline` | 271 | 0 | 179 | 179 | 92 |
 | `entityResolution` | 267 | 0 | 188 | 188 | 79 |
-| `unloading` | 264 | 0 | 189 | 189 | 75 |
+| `unloading` | 263 | 0 | 189 | 189 | 74 |
 | `loading` | 232 | 0 | 196 | 196 | 36 |
 | `projects` | 182 | 0 | 115 | 115 | 67 |
 | `dashboard` | 150 | 0 | 90 | 90 | 60 |
-| `drivers` | 78 | 0 | 31 | 31 | 47 |
+| `drivers` | 77 | 0 | 33 | 33 | 44 |
 | `carriers` | 52 | 0 | 40 | 40 | 12 |
 | `materials` | 50 | 0 | 32 | 32 | 18 |
 | `validation` | 33 | 0 | 16 | 16 | 17 |

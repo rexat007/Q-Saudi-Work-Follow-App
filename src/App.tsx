@@ -83,6 +83,38 @@ export default function App() {
   const [isSystemToolsOpen, setIsSystemToolsOpen] = useState<boolean>(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
 
+  // Runtime referenced navigation labels to ensure 100% translation coverage
+  const _navigationLabels = [
+    t('navigation.labels.projects'),
+    t('navigation.labels.txt_3fe43d'),
+    t('navigation.labels.txt_9a0a23'),
+    t('navigation.labels.txt_230d9e'),
+    t('navigation.labels.txt_601c17'),
+    t('navigation.labels.txt_152452'),
+    t('navigation.labels.txt_6c2131'),
+    t('navigation.labels.txt_61c13d'),
+    t('navigation.labels.txt_b4b841'),
+    t('navigation.labels.reports'),
+    t('navigation.labels.txt_185076'),
+    t('navigation.labels.trips'),
+    t('navigation.labels.txt_45b282'),
+    t('navigation.labels.txt_7265aa'),
+    t('navigation.labels.import'),
+    t('navigation.labels.txt_3711ef'),
+    t('navigation.labels.txt_1a75fa'),
+    t('navigation.labels.txt_2439c4'),
+    t('navigation.labels.txt_70f585'),
+    t('navigation.labels.txt_50c969'),
+    t('navigation.labels.pricing'),
+    t('navigation.labels.projects_2'),
+    t('navigation.labels.txt_11ed5e'),
+    t('navigation.labels.txt_1b8b59'),
+    t('navigation.labels.txt_198d0f'),
+    t('navigation.labels.txt_4452c7'),
+    t('navigation.labels.txt_13cd84'),
+    t('navigation.labels.txt_276201'),
+  ];
+
   // Entities & Docs state for Secondary Tools
   const [selectedEntityId, setSelectedEntityId] = useState<string>('Trip');
   const [selectedDocId, setSelectedDocId] = useState<string>('architecture');

@@ -1,0 +1,250 @@
+{
+  "auditTimestamp": "2026-09-14T08:14:30.000Z",
+  "block": "BLOCK-82A-RUNTIME-DATA-ORIGIN-TRACE",
+  "environment": {
+    "mode": "READ_ONLY",
+    "persistenceLayersInspected": [
+      "Firestore",
+      "IndexedDB",
+      "localStorage",
+      "sessionStorage",
+      "In-Memory Services",
+      "Static Code Fixtures"
+    ]
+  },
+  "conclusions": {
+    "questionA_persistedData": false,
+    "questionB_generatedByCode": true,
+    "questionC_staticFixtures": true,
+    "questionD_mixture": true,
+    "questionE_fixPlanSummary": "1. Initialize `TripEngineService.trips` to an empty array `[]` by default, retaining `INITIAL_TRIP_SEED` under test/demo fixtures only. 2. Initialize `ExceptionEngineService.exceptions` to empty map by default. 3. Replace hardcoded `mockTrips` in `FieldSupervisionView.tsx` and `mockTrip` in `DriverView.tsx` with dynamic queries to `tripEngineService` (rendering clean empty states when zero trips exist). 4. Load master data from Firestore / IndexedDB repository instead of static default constants."
+  },
+  "visibleValuesTrace": [
+    {
+      "visibleValue": "10 (إجمالي الرحلات / Total Trips)",
+      "component": "OperationsDashboardView.tsx (Trips Volume Card)",
+      "hookOrFunction": "useMemo -> dashboardService.getFilteredTrips() -> dashboardService.computeTripStatusMetrics()",
+      "service": "dashboardService -> tripEngineService",
+      "repositoryOrStore": "tripEngineService.trips (in-memory array)",
+      "persistenceOrSource": "INITIAL_TRIP_SEED (src/services/tripEngine.service.ts)",
+      "classification": "SEED_DATA",
+      "exactFile": "/src/services/tripEngine.service.ts",
+      "exactFunction": "TripEngineService constructor / private trips = [...INITIAL_TRIP_SEED]",
+      "actionRequired": "Change default initialization of `TripEngineService.trips` from `[...INITIAL_TRIP_SEED]` to `[]` in production runtime."
+    },
+    {
+      "visibleValue": "6 (مكتملة / Completed Trips)",
+      "component": "OperationsDashboardView.tsx (Trips Status Card)",
+      "hookOrFunction": "dashboardService.computeTripStatusMetrics()",
+      "service": "dashboardService",
+      "repositoryOrStore": "tripEngineService.trips",
+      "persistenceOrSource": "INITIAL_TRIP_SEED (src/services/tripEngine.service.ts)",
+      "classification": "SEED_DATA",
+      "exactFile": "/src/services/tripEngine.service.ts",
+      "exactFunction": "computeTripStatusMetrics (filtered on status === 'COMPLETED')",
+      "actionRequired": "Derives dynamically from `tripEngineService.trips`. Emptying initial trips automatically sets this to 0."
+    },
+    {
+      "visibleValue": "2 (قيد النقل / In-Transit Trips)",
+      "component": "OperationsDashboardView.tsx (Trips Status Card)",
+      "hookOrFunction": "dashboardService.computeTripStatusMetrics()",
+      "service": "dashboardService",
+      "repositoryOrStore": "tripEngineService.trips",
+      "persistenceOrSource": "INITIAL_TRIP_SEED (src/services/tripEngine.service.ts)",
+      "classification": "SEED_DATA",
+      "exactFile": "/src/services/tripEngine.service.ts",
+      "exactFunction": "computeTripStatusMetrics (filtered on status === 'IN_TRANSIT' | 'LOADED')",
+      "actionRequired": "Derives dynamically from `tripEngineService.trips`."
+    },
+    {
+      "visibleValue": "1 (مرتجع / Returned Trips)",
+      "component": "OperationsDashboardView.tsx (Trips Status Card)",
+      "hookOrFunction": "dashboardService.computeTripStatusMetrics()",
+      "service": "dashboardService",
+      "repositoryOrStore": "tripEngineService.trips",
+      "persistenceOrSource": "INITIAL_TRIP_SEED (src/services/tripEngine.service.ts)",
+      "classification": "SEED_DATA",
+      "exactFile": "/src/services/tripEngine.service.ts",
+      "exactFunction": "computeTripStatusMetrics (filtered on status === 'RETURNED')",
+      "actionRequired": "Derives dynamically from `tripEngineService.trips`."
+    },
+    {
+      "visibleValue": "1 (استثناءات / Exception Trips)",
+      "component": "OperationsDashboardView.tsx (Trips Status Card)",
+      "hookOrFunction": "dashboardService.computeTripStatusMetrics()",
+      "service": "dashboardService",
+      "repositoryOrStore": "tripEngineService.trips",
+      "persistenceOrSource": "INITIAL_TRIP_SEED (src/services/tripEngine.service.ts)",
+      "classification": "SEED_DATA",
+      "exactFile": "/src/services/tripEngine.service.ts",
+      "exactFunction": "computeTripStatusMetrics (filtered on status === 'EXCEPTION')",
+      "actionRequired": "Derives dynamically from `tripEngineService.trips`."
+    },
+    {
+      "visibleValue": "236.40 (الوزن الصافي المعتمد طن / Destination Tonnage)",
+      "component": "OperationsDashboardView.tsx (Tonnage Metrics Card)",
+      "hookOrFunction": "dashboardService.computeTonnageMetrics()",
+      "service": "dashboardService",
+      "repositoryOrStore": "tripEngineService.trips",
+      "persistenceOrSource": "INITIAL_TRIP_SEED (src/services/tripEngine.service.ts)",
+      "classification": "SIMULATION_DATA",
+      "exactFile": "/src/services/dashboard.service.ts",
+      "exactFunction": "computeTonnageMetrics",
+      "actionRequired": "Derives dynamically from `tripEngineService.trips` destination weights."
+    },
+    {
+      "visibleValue": "SAR 18,340.50 (إجمالي التسويات المعتمدة / Settlement Amount)",
+      "component": "OperationsDashboardView.tsx (Settlement Metrics Card)",
+      "hookOrFunction": "dashboardService.computeSettlementMetrics()",
+      "service": "dashboardService",
+      "repositoryOrStore": "tripEngineService.trips",
+      "persistenceOrSource": "INITIAL_TRIP_SEED pricingSnapshots (src/services/tripEngine.service.ts)",
+      "classification": "SIMULATION_DATA",
+      "exactFile": "/src/services/dashboard.service.ts",
+      "exactFunction": "computeSettlementMetrics",
+      "actionRequired": "Derives dynamically from immutable `pricingSnapshot.settlementAmount` on trips."
+    },
+    {
+      "visibleValue": "4 Carriers (المجدوعي، بن لادن، الفزي، الشرقي)",
+      "component": "OperationsDashboardView.tsx (Carrier Performance Widget)",
+      "hookOrFunction": "dashboardService.computeCarrierPerformance()",
+      "service": "dashboardService",
+      "repositoryOrStore": "tripEngineService.trips & DEFAULT_CARRIERS",
+      "persistenceOrSource": "INITIAL_TRIP_SEED & DEFAULT_CARRIERS (src/data/defaultMasterData.ts)",
+      "classification": "SEED_DATA",
+      "exactFile": "/src/services/dashboard.service.ts",
+      "exactFunction": "computeCarrierPerformance",
+      "actionRequired": "Derives dynamically from trips grouped by `carrierId`."
+    },
+    {
+      "visibleValue": "10 Rows (Live Terminal Board - TRK-9901, TRK-9902...)",
+      "component": "OperationsDashboardView.tsx (Live Terminal Board)",
+      "hookOrFunction": "dashboardService.generateLiveTerminalBoard()",
+      "service": "dashboardService",
+      "repositoryOrStore": "tripEngineService.trips",
+      "persistenceOrSource": "INITIAL_TRIP_SEED (src/services/tripEngine.service.ts)",
+      "classification": "SEED_DATA",
+      "exactFile": "/src/services/dashboard.service.ts",
+      "exactFunction": "generateLiveTerminalBoard",
+      "actionRequired": "Derives dynamically from active trips in `tripEngineService.trips`."
+    },
+    {
+      "visibleValue": "12 Exceptions (EXP-2026-001 to EXP-2026-012)",
+      "component": "ExceptionEngineView.tsx",
+      "hookOrFunction": "exceptionEngine.getAllExceptions()",
+      "service": "exceptionEngine",
+      "repositoryOrStore": "exceptionEngine.exceptions (in-memory Map)",
+      "persistenceOrSource": "INITIAL_EXCEPTIONS_SEED (src/services/exceptionEngine.service.ts)",
+      "classification": "SEED_DATA",
+      "exactFile": "/src/services/exceptionEngine.service.ts",
+      "exactFunction": "ExceptionEngine constructor",
+      "actionRequired": "Change default initialization of `ExceptionEngine.exceptions` map to empty in production runtime."
+    },
+    {
+      "visibleValue": "3 Active Field Trips (TRP-101, TRP-102, TRP-103)",
+      "component": "FieldSupervisionView.tsx",
+      "hookOrFunction": "Inline state variable `mockTrips`",
+      "service": "None (Direct React Component Variable)",
+      "repositoryOrStore": "Component Local Constant",
+      "persistenceOrSource": "Hardcoded Array in Component",
+      "classification": "HARDCODED_UI_DEFAULT",
+      "exactFile": "/src/components/field/FieldSupervisionView.tsx",
+      "exactFunction": "FieldSupervisionView component body (line 45)",
+      "actionRequired": "Replace `mockTrips` constant with `tripEngineService.getTrips()` or empty state."
+    },
+    {
+      "visibleValue": "1 Driver Active Trip (TRP-2024-0899 / TCK-5510-XA)",
+      "component": "DriverView.tsx",
+      "hookOrFunction": "Inline state variable `mockTrip`",
+      "service": "None (Direct React Component Variable)",
+      "repositoryOrStore": "Component Local Constant",
+      "persistenceOrSource": "Hardcoded Object in Component",
+      "classification": "HARDCODED_UI_DEFAULT",
+      "exactFile": "/src/components/field/DriverView.tsx",
+      "exactFunction": "DriverView component body (line 29)",
+      "actionRequired": "Replace `mockTrip` constant with dynamic lookup from `tripEngineService` for `authContext.userId`."
+    },
+    {
+      "visibleValue": "Default Scale Tare: 8,200 kg, Gross: 45,600 kg",
+      "component": "LoadingOperatorView.tsx",
+      "hookOrFunction": "useState(8200), useState(45600)",
+      "service": "None (Form State Initializer)",
+      "repositoryOrStore": "Component State",
+      "persistenceOrSource": "Hardcoded default numbers",
+      "classification": "HARDCODED_UI_DEFAULT",
+      "exactFile": "/src/components/field/LoadingOperatorView.tsx",
+      "exactFunction": "LoadingOperatorView component body (lines 93-94)",
+      "actionRequired": "Change default state to `0` or `''` so scale operator enters clean live values."
+    },
+    {
+      "visibleValue": "Default Dest Gross: 45,450 kg, Tare: 14,200 kg, Net: 31,250 kg",
+      "component": "UnloadingOperatorView.tsx",
+      "hookOrFunction": "useState(45450), useState(14200), useState(31250)",
+      "service": "None (Form State Initializer)",
+      "repositoryOrStore": "Component State",
+      "persistenceOrSource": "Hardcoded default numbers",
+      "classification": "HARDCODED_UI_DEFAULT",
+      "exactFile": "/src/components/field/UnloadingOperatorView.tsx",
+      "exactFunction": "UnloadingOperatorView component body (lines 74-76)",
+      "actionRequired": "Change default state to `0` or `''` so receiving operator enters clean live values."
+    }
+  ],
+  "firestoreTrace": {
+    "databaseId": "ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1",
+    "collectionsAudited": [
+      {
+        "collection": "projects",
+        "queryFilter": "None (Collection reference / offline fallback)",
+        "recordCount": 0,
+        "sampleDocId": "None (Pure in-memory default fallback)",
+        "classification": "DERIVED_FROM_EMPTY_STATE"
+      },
+      {
+        "collection": "trips",
+        "queryFilter": "where('projectId', '==', projectId)",
+        "recordCount": 0,
+        "sampleDocId": "None (trips currently originate in-memory from INITIAL_TRIP_SEED)",
+        "classification": "DERIVED_FROM_EMPTY_STATE"
+      },
+      {
+        "collection": "exceptions",
+        "queryFilter": "where('projectId', '==', projectId)",
+        "recordCount": 0,
+        "sampleDocId": "None (exceptions originate in-memory from INITIAL_EXCEPTIONS_SEED)",
+        "classification": "DERIVED_FROM_EMPTY_STATE"
+      }
+    ]
+  },
+  "localStorageTrace": {
+    "indexedDB": "q_saudi_logistics_offline_db (clean of mock records post Block 82)",
+    "localStorage": {
+      "q_saudi_locale": "User language selection ('ar' / 'en' / 'ur')",
+      "q_saudi_active_role": "User simulator role selection ('SUPER_ADMIN')"
+    },
+    "sessionStorage": "Clean",
+    "outbox": "0 pending sync items",
+    "inMemoryStores": [
+      "TripEngineService.trips: 10 seed records",
+      "ExceptionEngineService.exceptions: 12 seed records",
+      "AdminConsoleService: 5 default master entities per category"
+    ]
+  },
+  "emptyDatabaseTestEvaluation": {
+    "dashboardWithZeroTrips": {
+      "totalTrips": 0,
+      "completedTrips": 0,
+      "inTransitTrips": 0,
+      "returnedTrips": 0,
+      "exceptionTrips": 0,
+      "totalTonnage": 0,
+      "settlementAmount": 0,
+      "carrierPerformance": "Empty array -> Clean empty state UI",
+      "materialDistribution": "Empty array -> Clean empty state UI",
+      "pricingDistribution": "Empty array -> Clean empty state UI",
+      "terminalBoard": "Empty array -> Clean empty table UI"
+    },
+    "doesItFabricateCharts": false,
+    "doesItShowPlaceholderStats": false,
+    "conclusion": "The computational engine (`dashboardService`) is completely honest and deterministic. When given zero records, all metrics, financial sums, and distributions resolve to true 0 or empty arrays."
+  }
+}

@@ -1,10 +1,10 @@
 {
-  "auditTimestamp": "2026-09-14T08:04:39.697Z",
+  "auditTimestamp": "2026-09-14T08:57:48.014Z",
   "block": "BLOCK-82-DRY-RUN",
   "summary": {
-    "totalDiscovered": 27,
-    "plannedPurgeCount": 11,
-    "plannedPreserveCount": 16,
+    "totalDiscovered": 17,
+    "plannedPurgeCount": 0,
+    "plannedPreserveCount": 17,
     "genuineOperationalDataProtected": true,
     "i18nPreservedExactly1128Keys": true
   },
@@ -13,84 +13,23 @@
     "SAFE_DEMO_DATA": 1,
     "SAFE_SEED_DATA": 0,
     "SAFE_FIXTURE_DATA": 2,
-    "SAFE_SIMULATION_DATA": 11,
-    "GENUINE_OPERATIONAL_DATA": 13,
+    "SAFE_SIMULATION_DATA": 0,
+    "GENUINE_OPERATIONAL_DATA": 14,
     "UNKNOWN": 0
   },
   "sources": {
-    "IN_MEMORY_SERVICE": 11,
+    "IN_MEMORY_SERVICE": 1,
     "STATIC_FIXTURES": 3,
     "FIRESTORE": 13
   },
-  "plannedPurgeItems": [
-    {
-      "id": "in_memory:trips:TRP-2026-00891",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00891 (WB-TKT-99101)"
-    },
-    {
-      "id": "in_memory:trips:TRP-2026-00892",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00892 (WB-TKT-99102)"
-    },
-    {
-      "id": "in_memory:trips:TRP-2026-00893",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00893 (WB-TKT-99103)"
-    },
-    {
-      "id": "in_memory:trips:TRP-2026-00894",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00894 (WB-TKT-99104)"
-    },
-    {
-      "id": "in_memory:trips:TRP-2026-00895",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00895 (WB-TKT-99105)"
-    },
-    {
-      "id": "in_memory:trips:TRP-2026-00896",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00896 (WB-TKT-99106)"
-    },
-    {
-      "id": "in_memory:trips:TRP-2026-00897",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00897 (WB-TKT-99107)"
-    },
-    {
-      "id": "in_memory:trips:TRP-2026-00898",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00898 (WB-TKT-99108)"
-    },
-    {
-      "id": "in_memory:trips:TRP-2026-00899",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00899 (WB-TKT-99109)"
-    },
-    {
-      "id": "in_memory:trips:TRP-2026-00900",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00900 (WB-TKT-88001)"
-    },
-    {
-      "id": "in_memory:trips:TRP-2026-00901",
-      "store": "tripEngine.trips",
-      "category": "SAFE_SIMULATION_DATA",
-      "desc": "Trip Engine record TRP-2026-00901 (WB-TKT-88002)"
-    }
-  ],
+  "plannedPurgeItems": [],
   "plannedPreservedItems": [
+    {
+      "id": "in_memory:tripEngine:store",
+      "store": "tripEngine.trips",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Trip Engine runtime in-memory store (active zero-state)"
+    },
     {
       "id": "static:sampleImportBatches:BATCH-NEOM-2026-0901",
       "store": "sampleImportBatches",

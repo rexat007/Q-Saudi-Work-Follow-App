@@ -26,7 +26,7 @@ import { tripStateMachine, STATE_TRANSITIONS } from './tripStateMachine.service'
 import { exceptionEngine } from './exceptionEngine.service';
 
 // Initial Mock/In-Memory trips database populated with realistic high-fidelity Saudi logistics data
-const INITIAL_TRIP_SEED: TripRecord[] = [
+export const INITIAL_TRIP_SEED: TripRecord[] = [
   {
     tripId: 'TRP-2026-00891',
     projectId: 'PRJ-NEOM-001',
@@ -560,7 +560,21 @@ export function generateUniqueTripId(): string {
 }
 
 class TripEngineService {
-  private trips: TripRecord[] = [...INITIAL_TRIP_SEED];
+  private trips: TripRecord[] = [];
+
+  /**
+   * Loads seed fixture data (Used exclusively by automated test suites or explicit demo mode)
+   */
+  loadSeedData(seedTrips: TripRecord[] = INITIAL_TRIP_SEED): void {
+    this.trips = [...seedTrips];
+  }
+
+  /**
+   * Resets the runtime trips collection to an empty state
+   */
+  clearTrips(): void {
+    this.trips = [];
+  }
 
   /**
    * Retrieves all trips for a given project or all projects.

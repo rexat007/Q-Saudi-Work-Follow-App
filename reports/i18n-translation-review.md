@@ -55,13 +55,13 @@ This document contains domain-specific terminology requiring human verification 
 | `loading.fields.status` | ": نقل الحالة رسمياً إلى IN_TRANSIT وتوليد رقم التذكرة والنسخة" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | ... | *and 212 more items in this domain queue* | | | |
 
-## Domain: `unloading` (264 items requiring review)
+## Domain: `unloading` (263 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
 | `unloading.actions.search` | "بحث" | jsx_text | `MEDIUM` | Semantic conflict isolation |
 | `unloading.actions.trk9901` | "TRK-9901" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
-| `unloading.actions.trpNeom8892` | "TRP-NEOM-8892" | call_handleSearchTrip | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.actions.trpNeom8892` | "TRP-NEOM-8892" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
 | `unloading.actions.trpUnknown999` | "TRP-UNKNOWN-999" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
 | `unloading.actions.txt_75235b` | "د هـ و 5678" | call_handleSearch | `HIGH` | Semantic conflict isolation |
 | `unloading.actions.wbTkt99106` | "WB-TKT-99106" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
@@ -79,7 +79,7 @@ This document contains domain-specific terminology requiring human verification 
 | `unloading.fields.search_2` | "نجح البحث الأساسي برقم السريال: ${searchResult.trip?.tripSerial} وأرجع حالة CONTINUE" | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [SAR]) |
 | `unloading.fields.search_3` | "البحث الثانوي: المطابقة برقم التذكرة (ticketId)" | prop_name | `MEDIUM` | Domain-specific terminology translation (Protected: [ticketId]) |
 | `unloading.fields.status` | "تم إكمال التفريغ بنجاح! تم احتساب فارق الوزن (${result.varianceWeight.toLocaleString()} كجم) وترقية الحالة إلى [COMPLETED]." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [varianceWeight,KG]) |
-| ... | *and 244 more items in this domain queue* | | | |
+| ... | *and 243 more items in this domain queue* | | | |
 
 ## Domain: `weighbridge` (418 items requiring review)
 

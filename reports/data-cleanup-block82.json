@@ -1,22 +1,24 @@
 {
-  "totalScanned": 16,
+  "totalScanned": 17,
   "totalPurged": 0,
-  "totalPreserved": 16,
+  "totalPreserved": 17,
   "byCategory": {
     "SAFE_TEST_DATA": 0,
     "SAFE_DEMO_DATA": 1,
     "SAFE_SEED_DATA": 0,
     "SAFE_FIXTURE_DATA": 2,
     "SAFE_SIMULATION_DATA": 0,
-    "GENUINE_OPERATIONAL_DATA": 13,
+    "GENUINE_OPERATIONAL_DATA": 14,
     "UNKNOWN": 0
   },
   "bySource": {
+    "IN_MEMORY_SERVICE": 1,
     "STATIC_FIXTURES": 3,
     "FIRESTORE": 13
   },
   "purgedItemIds": [],
   "preservedItemIds": [
+    "in_memory:tripEngine:store",
     "static:sampleImportBatches:BATCH-NEOM-2026-0901",
     "static:sampleLegacySheetData:SAMPLE_LEGACY_GOOGLE_SHEET_ROWS",
     "static:sampleQualityData:SAMPLE_QUALITY_CONTEXT",
@@ -34,7 +36,7 @@
     "firestore:importBatches:schema_records",
     "firestore:users:schema_records"
   ],
-  "auditTimestamp": "2026-09-14T08:04:39.701Z",
+  "auditTimestamp": "2026-09-14T08:57:48.018Z",
   "status": "SUCCESS",
   "verification": {
     "noGenuineDataDeleted": true,

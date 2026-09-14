@@ -112,19 +112,33 @@ export class DataCleanupService {
 
     // 2. In-Memory Demo Trips in TripEngine
     const inMemoryTrips = tripEngineService.getAllTrips();
-    for (const trip of inMemoryTrips) {
-      const isInitialSeed = trip.tripId.startsWith('TRP-2026-0089') || trip.tripId.startsWith('TRP-2026-0090');
+    if (inMemoryTrips.length === 0) {
       inventory.push({
-        id: `in_memory:trips:${trip.tripId}`,
+        id: 'in_memory:tripEngine:store',
         source: 'IN_MEMORY_SERVICE',
         storeName: 'tripEngine.trips',
-        recordIdentifier: trip.tripId,
-        recordType: 'TripRecord',
-        category: isInitialSeed ? 'SAFE_SIMULATION_DATA' : 'GENUINE_OPERATIONAL_DATA',
-        description: `Trip Engine record ${trip.tripId} (${trip.ticketId})`,
-        action: isInitialSeed ? 'PURGE' : 'RETAIN_GENUINE',
-        details: { ticketId: trip.ticketId, status: trip.status }
+        recordIdentifier: 'RUNTIME_STORE',
+        recordType: 'InMemoryStore',
+        category: 'GENUINE_OPERATIONAL_DATA',
+        description: 'Trip Engine runtime in-memory store (active zero-state)',
+        action: 'RETAIN_GENUINE',
+        details: { count: 0 }
       });
+    } else {
+      for (const trip of inMemoryTrips) {
+        const isInitialSeed = trip.tripId.startsWith('TRP-2026-0089') || trip.tripId.startsWith('TRP-2026-0090');
+        inventory.push({
+          id: `in_memory:trips:${trip.tripId}`,
+          source: 'IN_MEMORY_SERVICE',
+          storeName: 'tripEngine.trips',
+          recordIdentifier: trip.tripId,
+          recordType: 'TripRecord',
+          category: isInitialSeed ? 'SAFE_SIMULATION_DATA' : 'GENUINE_OPERATIONAL_DATA',
+          description: `Trip Engine record ${trip.tripId} (${trip.ticketId})`,
+          action: isInitialSeed ? 'PURGE' : 'RETAIN_GENUINE',
+          details: { ticketId: trip.ticketId, status: trip.status }
+        });
+      }
     }
 
     // 3. Static Demonstration & Sample Datasets

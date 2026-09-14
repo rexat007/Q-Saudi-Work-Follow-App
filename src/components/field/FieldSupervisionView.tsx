@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   ShieldAlert, 
   Activity, 
@@ -16,6 +16,8 @@ import { AuthUserContext } from '../../types/common';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { useI18n } from '../../i18n';
 import { ImportCenterView } from '../importCenter/ImportCenterView';
+import { tripEngineService } from '../../services/tripEngine.service';
+import { exceptionEngine } from '../../services/exceptionEngine.service';
 
 export interface FieldSupervisionViewProps {
   authContext: AuthUserContext;
@@ -26,6 +28,24 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
   const { isOnline, isSimulatedOffline } = useOnlineStatus();
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'LIVE' | 'EXCEPTIONS' | 'IMPORTS' | 'UNRESOLVED'>('LIVE');
+
+  // Dynamic trip and exception resolution from authoritative services
+  const targetProjectId = authContext.assignedProjectIds?.[0] === 'ALL' ? undefined : authContext.assignedProjectIds?.[0];
+  const trips = useMemo(() => {
+    return tripEngineService.getTrips(targetProjectId);
+  }, [targetProjectId]);
+
+  const exceptions = useMemo(() => {
+    return exceptionEngine.getAllExceptions().filter(e => 
+      (!targetProjectId || e.projectId === targetProjectId) &&
+      (e.status === 'OPEN' || e.status === 'UNDER_REVIEW')
+    );
+  }, [targetProjectId]);
+
+  const loadingQueueCount = useMemo(() => trips.filter(t => t.status === 'LOADED').length, [trips]);
+  const inTransitCount = useMemo(() => trips.filter(t => t.status === 'LOADED' || t.status === 'IN_TRANSIT').length, [trips]);
+  const unloadingQueueCount = useMemo(() => trips.filter(t => t.status === 'UNLOADING' || t.status === 'ARRIVED').length, [trips]);
+  const completedTodayCount = useMemo(() => trips.filter(t => t.status === 'COMPLETED').length, [trips]);
 
   // Role Guard
   const allowedRoles = ['SUPERVISOR', 'SITE_SUPERVISOR', 'PROJECT_ADMIN', 'SUPER_ADMIN'];
@@ -40,13 +60,6 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
       </div>
     );
   }
-
-  // Mock Active Trips
-  const mockTrips = [
-    { id: 'TRP-101', ticket: 'TCK-001', carrier: 'مؤسسة الفهد', truck: 'XYZ-123', material: 'ركام', originWt: 24500, destWt: 24450, state: 'COMPLETED', age: '10m', source: 'MANUAL', variance: 50 },
-    { id: 'TRP-102', ticket: 'TCK-002', carrier: 'شركة الرواد', truck: 'ABC-999', material: 'رمل', originWt: 30000, destWt: null, state: 'IN_TRANSIT', age: '45m', source: 'WEIGHBRIDGE_IMPORT', variance: null },
-    { id: 'TRP-103', ticket: 'TCK-003', carrier: 'ناقل', truck: 'TRK-55', material: 'أسمنت', originWt: 15000, destWt: 14000, state: 'EXCEPTION', age: '2h', source: 'MANUAL', variance: 1000 },
-  ];
 
   const handleDecision = (tripId: string, action: string) => {
     if (onNotification) {
@@ -82,7 +95,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'EXCEPTIONS' ? 'bg-white shadow-sm text-rose-700' : 'text-stone-600 hover:bg-stone-200'}`}
             >
               <AlertOctagon className="w-4 h-4 inline-block mr-1.5 ml-1.5" />
-              مركز الاستثناءات
+              مركز الاستثناءات {exceptions.length > 0 && `(${exceptions.length})`}
             </button>
             <button 
               onClick={() => setActiveTab('UNRESOLVED')}
@@ -120,19 +133,19 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
               <div className="text-xs text-stone-500 mb-1">طابور التحميل</div>
-              <div className="text-2xl font-black text-stone-900">12</div>
+              <div className="text-2xl font-black text-stone-900">{loadingQueueCount}</div>
             </div>
             <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
               <div className="text-xs text-stone-500 mb-1">في الطريق (In Transit)</div>
-              <div className="text-2xl font-black text-indigo-600">45</div>
+              <div className="text-2xl font-black text-indigo-600">{inTransitCount}</div>
             </div>
             <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
               <div className="text-xs text-stone-500 mb-1">طابور التفريغ</div>
-              <div className="text-2xl font-black text-amber-600">8</div>
+              <div className="text-2xl font-black text-amber-600">{unloadingQueueCount}</div>
             </div>
             <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
               <div className="text-xs text-stone-500 mb-1">مكتملة اليوم</div>
-              <div className="text-2xl font-black text-emerald-600">128</div>
+              <div className="text-2xl font-black text-emerald-600">{completedTodayCount}</div>
             </div>
           </div>
 
@@ -143,6 +156,9 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
                 <Navigation className="w-4 h-4 text-indigo-600" />
                 مراقبة الرحلات الحية (Trip Monitoring)
               </h3>
+              <span className="text-xs text-stone-500 font-mono font-bold">
+                إجمالي: {trips.length} رحلة
+              </span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-right text-xs">
@@ -154,38 +170,49 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
                     <th className="p-3 font-bold">وزن المصدر</th>
                     <th className="p-3 font-bold">وزن الوجهة</th>
                     <th className="p-3 font-bold">الحالة</th>
-                    <th className="p-3 font-bold">العمر</th>
+                    <th className="p-3 font-bold">الوقت</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
-                  {mockTrips.map(trip => (
-                    <tr key={trip.id} className="hover:bg-stone-50 transition-colors">
-                      <td className="p-3">
-                        <div className="font-bold text-stone-900 font-mono">{trip.id}</div>
-                        <div className="text-[10px] text-stone-500 font-mono">{trip.ticket}</div>
-                      </td>
-                      <td className="p-3">
-                        <div className="font-bold text-stone-900">{trip.carrier}</div>
-                        <div className="text-[10px] text-stone-500 font-mono">{trip.truck}</div>
-                      </td>
-                      <td className="p-3 text-stone-700">{trip.material}</td>
-                      <td className="p-3 font-mono">{trip.originWt} كجم</td>
-                      <td className="p-3 font-mono">{trip.destWt ? `${trip.destWt} كجم` : '-'}</td>
-                      <td className="p-3">
-                        <span className={`px-2 py-1 rounded text-[10px] font-bold ${
-                          trip.state === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' :
-                          trip.state === 'IN_TRANSIT' ? 'bg-blue-100 text-blue-800' :
-                          'bg-rose-100 text-rose-800'
-                        }`}>
-                          {trip.state}
-                        </span>
-                      </td>
-                      <td className="p-3 flex items-center gap-1 text-stone-500 font-mono">
-                        <Clock className="w-3 h-3" />
-                        {trip.age}
+                  {trips.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="p-8 text-center text-stone-400">
+                        <Navigation className="w-8 h-8 mx-auto mb-2 text-stone-300" />
+                        <p className="font-bold text-sm text-stone-600">لا توجد رحلات نشطة حالياً</p>
+                        <p className="text-xs text-stone-400 mt-1">سيتم إدراج الرحلات الميدانية فور انطلاقها من محطات التحميل</p>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    trips.map(trip => (
+                      <tr key={trip.tripId} className="hover:bg-stone-50 transition-colors">
+                        <td className="p-3">
+                          <div className="font-bold text-stone-900 font-mono">{trip.tripSerial || trip.tripId}</div>
+                          <div className="text-[10px] text-stone-500 font-mono">{trip.ticketId || '-'}</div>
+                        </td>
+                        <td className="p-3">
+                          <div className="font-bold text-stone-900">{trip.carrierId}</div>
+                          <div className="text-[10px] text-stone-500 font-mono">{trip.truckId}</div>
+                        </td>
+                        <td className="p-3 text-stone-700">{trip.materialId}</td>
+                        <td className="p-3 font-mono">{(trip.netWeight || 0).toLocaleString()} كجم</td>
+                        <td className="p-3 font-mono">{trip.destNetWeight ? `${trip.destNetWeight.toLocaleString()} كجم` : '-'}</td>
+                        <td className="p-3">
+                          <span className={`px-2 py-1 rounded text-[10px] font-bold ${
+                            trip.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' :
+                            trip.status === 'IN_TRANSIT' || trip.status === 'LOADED' ? 'bg-blue-100 text-blue-800' :
+                            trip.status === 'EXCEPTION' ? 'bg-rose-100 text-rose-800' :
+                            'bg-stone-100 text-stone-800'
+                          }`}>
+                            {trip.status}
+                          </span>
+                        </td>
+                        <td className="p-3 flex items-center gap-1 text-stone-500 font-mono">
+                          <Clock className="w-3 h-3" />
+                          {new Date(trip.createdAt).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -195,76 +222,60 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
 
       {activeTab === 'EXCEPTIONS' && (
         <div className="space-y-4">
-          <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-rose-500" />
-                  <h3 className="font-bold text-stone-900">تجاوز نسبة التفاوت (Variance Exceeds Tolerance)</h3>
-                </div>
-                <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-1 rounded">CRITICAL</span>
-              </div>
-              <p className="text-xs text-stone-600 mb-4">
-                الرحلة TRP-103 مسجلة بوزن مصدر 15,000 كجم ووزن وجهة 14,000 كجم. الفرق 1,000 كجم يتجاوز نسبة التفاوت المسموحة.
-              </p>
-              
-              {/* OPERATIONAL DECISION PANEL */}
-              <div className="bg-stone-50 p-4 rounded-xl border border-stone-200">
-                <h4 className="text-xs font-bold text-stone-900 mb-3">لوحة القرارات التشغيلية (Decision Panel)</h4>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => handleDecision('TRP-103', 'ACCEPT_ORIGIN_NET_AS_DESTINATION')}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors"
-                  >
-                    قبول وزن المصدر كوزن وجهة
-                  </button>
-                  <button 
-                    onClick={() => handleDecision('TRP-103', 'REJECT_TRIP')}
-                    className="bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-bold py-2 px-4 rounded-lg transition-colors"
-                  >
-                    رفض الرحلة
-                  </button>
-                </div>
-              </div>
+          {exceptions.length === 0 ? (
+            <div className="bg-white p-8 rounded-xl border border-stone-200 shadow-sm text-center">
+              <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
+              <h3 className="font-bold text-stone-900 text-sm mb-1">لا توجد استثناءات معلقة</h3>
+              <p className="text-xs text-stone-500">كافة الرحلات الميدانية مطابقة للمحددات القياسية والتفاوت الوزني المسموح.</p>
             </div>
-          </div>
+          ) : (
+            exceptions.map(exc => (
+              <div key={exc.exceptionId} className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex flex-col md:flex-row gap-6">
+                <div className="flex-1">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-rose-500" />
+                      <h3 className="font-bold text-stone-900">{exc.type} ({exc.exceptionId})</h3>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded ${
+                      exc.severity === 'BLOCKING' || exc.severity === 'HIGH' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {exc.severity}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-600 mb-4">{exc.description}</p>
+                  
+                  {/* OPERATIONAL DECISION PANEL */}
+                  <div className="bg-stone-50 p-4 rounded-xl border border-stone-200">
+                    <h4 className="text-xs font-bold text-stone-900 mb-3">لوحة القرارات التشغيلية (Decision Panel)</h4>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleDecision(exc.exceptionId, 'RESOLVE')}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors"
+                      >
+                        معالجة واعتماد الاستثناء
+                      </button>
+                      <button 
+                        onClick={() => handleDecision(exc.exceptionId, 'REJECT')}
+                        className="bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-bold py-2 px-4 rounded-lg transition-colors"
+                      >
+                        رفض وتوثيق المخالفة
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 
       {activeTab === 'UNRESOLVED' && (
         <div className="space-y-4">
-          <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-amber-500" />
-                <h3 className="font-bold text-stone-900">كيان غير معرف: ناقل (Carrier)</h3>
-              </div>
-              <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-1 rounded">تحتاج مراجعة</span>
-            </div>
-            <div className="grid grid-cols-2 gap-4 mb-4 text-xs">
-              <div className="bg-stone-50 p-3 rounded-lg border border-stone-200">
-                <div className="text-stone-500 mb-1">القيمة المستوردة (Imported)</div>
-                <div className="font-bold text-stone-900">شركة الفهد لنقل المواد</div>
-              </div>
-              <div className="bg-stone-50 p-3 rounded-lg border border-stone-200">
-                <div className="text-stone-500 mb-1">أقرب تطابق (Candidate)</div>
-                <div className="font-bold text-stone-900">مؤسسة الفهد (85% Match)</div>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button 
-                onClick={() => handleDecision('Carrier-Fahad', 'MAP_TO_EXISTING')}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors"
-              >
-                ربط مع الكيان الحالي
-              </button>
-              <button 
-                onClick={() => handleDecision('Carrier-Fahad', 'CREATE_NEW')}
-                className="bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 text-xs font-bold py-2 px-4 rounded-lg transition-colors"
-              >
-                إنشاء كيان جديد
-              </button>
-            </div>
+          <div className="bg-white p-8 rounded-xl border border-stone-200 shadow-sm text-center">
+            <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
+            <h3 className="font-bold text-stone-900 text-sm mb-1">لا توجد كيانات غير معرفة</h3>
+            <p className="text-xs text-stone-500">كافة بيانات الشاحنات والسائقين والناقلين مطابقة لسجلات النظام المركزية.</p>
           </div>
         </div>
       )}

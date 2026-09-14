@@ -65,15 +65,15 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   }, [authContext.role]);
 
   // Search State
-  const [searchQuery, setSearchQuery] = useState<string>('TRP-NEOM-8892');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeTrip, setActiveTrip] = useState<TripRecord | null>(null);
   const [searchFeedback, setSearchFeedback] = useState<{ status: string; message: string } | null>(null);
 
   // Weight Entry Mode: DUAL_SCALE (Gross - Tare) or DIRECT (Net)
   const [weightEntryMode, setWeightEntryMode] = useState<'DUAL_SCALE' | 'DIRECT'>('DIRECT');
-  const [destGrossInput, setDestGrossInput] = useState<number>(45450);
-  const [destTareInput, setDestTareInput] = useState<number>(14200);
-  const [destNetWeightInput, setDestNetWeightInput] = useState<number | ''>(31250);
+  const [destGrossInput, setDestGrossInput] = useState<number | ''>('');
+  const [destTareInput, setDestTareInput] = useState<number | ''>('');
+  const [destNetWeightInput, setDestNetWeightInput] = useState<number | ''>('');
 
   // Operational Timestamps & Notes
   const [arrivalTimeInput, setArrivalTimeInput] = useState<string>(() => new Date().toISOString().slice(0, 16));
@@ -106,16 +106,13 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   // Sync dual scale weights
   useEffect(() => {
     if (weightEntryMode === 'DUAL_SCALE') {
-      if (destGrossInput > destTareInput && destTareInput > 0) {
-        setDestNetWeightInput(destGrossInput - destTareInput);
+      const g = typeof destGrossInput === 'number' ? destGrossInput : 0;
+      const t = typeof destTareInput === 'number' ? destTareInput : 0;
+      if (g > t && t > 0) {
+        setDestNetWeightInput(g - t);
       }
     }
   }, [destGrossInput, destTareInput, weightEntryMode]);
-
-  // Auto-search default seed trip on load
-  useEffect(() => {
-    handleSearchTrip('TRP-NEOM-8892');
-  }, []);
 
   // Handle Search Execution
   const handleSearchTrip = (query?: string) => {
