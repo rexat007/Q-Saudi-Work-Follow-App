@@ -20,12 +20,16 @@ export function AuthButton() {
   return (
     <div className="relative flex items-center gap-2">
       {authError && (
-        <div className="absolute top-full mt-2 left-0 z-50 bg-rose-50 border border-rose-200 text-rose-800 text-xs px-3 py-2 rounded-xl shadow-lg flex items-center gap-2 min-w-[240px]">
-          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-          <span className="flex-1">{authError}</span>
+        <div className="absolute top-full mt-2 end-0 z-50 bg-rose-50 border border-rose-200 text-rose-900 text-xs p-3 rounded-xl shadow-xl flex items-start gap-2.5 w-72 sm:w-80 max-w-[90vw]">
+          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+          <div className="flex-1 text-[11px] leading-relaxed">
+            <p className="font-semibold text-rose-800 mb-0.5">تنبيه المصادقة</p>
+            <p className="text-rose-700">{authError}</p>
+          </div>
           <button
             onClick={clearAuthError}
-            className="text-rose-500 hover:text-rose-700 font-bold px-1"
+            className="text-rose-400 hover:text-rose-700 font-bold p-0.5 rounded transition-colors"
+            title="إغلاق التنبيه"
           >
             ×
           </button>

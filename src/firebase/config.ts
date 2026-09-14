@@ -1,11 +1,19 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import firebaseConfig from '../../firebase-applet-config.json';
+import rawFirebaseConfig from '../../firebase-applet-config.json';
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const normalizedFirebaseConfig = {
+  ...rawFirebaseConfig,
+  authDomain:
+    rawFirebaseConfig.authDomain && !rawFirebaseConfig.authDomain.includes('--')
+      ? rawFirebaseConfig.authDomain
+      : `${rawFirebaseConfig.projectId}.firebaseapp.com`,
+};
 
-// CRITICAL: Must pass firebaseConfig.firestoreDatabaseId to bind to the provisioned database instance
-export const db = getFirestore(app, (firebaseConfig as any).firestoreDatabaseId);
+const app = getApps().length === 0 ? initializeApp(normalizedFirebaseConfig) : getApp();
+
+// CRITICAL: Must pass firestoreDatabaseId to bind to the provisioned database instance
+export const db = getFirestore(app, (normalizedFirebaseConfig as any).firestoreDatabaseId);
 export const auth = getAuth(app);
 export default app;
