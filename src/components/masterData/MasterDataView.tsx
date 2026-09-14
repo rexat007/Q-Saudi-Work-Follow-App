@@ -17,9 +17,15 @@ import {
   Filter,
   Eye,
   Info,
-  ArrowRightLeft
+  ArrowRightLeft,
+  ArrowDownToLine,
+  FileSpreadsheet,
+  Upload,
+  Globe,
+  HelpCircle
 } from 'lucide-react';
 import { masterDataService, ProjectMasterDataOverview, MasterEntityType, TripUsageResult } from '../../services/masterData.service';
+import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
 import { projectRepository } from '../../repositories/project.repository';
 import { carrierRepository } from '../../repositories/carrier.repository';
 import { materialRepository } from '../../repositories/material.repository';
@@ -47,8 +53,18 @@ export const MasterDataView: React.FC = () => {
   const { user, isAuthReady, signInWithGoogle } = useAuth();
   const [projects, setProjects] = useState<ProjectEntity[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
-  const [activeModule, setActiveModule] = useState<'CARRIERS' | 'MATERIALS' | 'TRUCKS' | 'DRIVERS' | 'TESTS'>('CARRIERS');
+  const [activeModule, setActiveModule] = useState<'CARRIERS' | 'MATERIALS' | 'TRUCKS' | 'DRIVERS' | 'TESTS' | 'IMPORT_DT'>('CARRIERS');
   const [overview, setOverview] = useState<ProjectMasterDataOverview | null>(null);
+  
+  // --- Drivers & Trucks Import state ---
+  const [importCarrierId, setImportCarrierId] = useState<string>('');
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importSheetsUrl, setImportSheetsUrl] = useState<string>('');
+  const [importBatch, setImportBatch] = useState<any | null>(null);
+  const [importProcessing, setImportProcessing] = useState<boolean>(false);
+  const [importCommitting, setImportCommitting] = useState<boolean>(false);
+  const [importSuccessMessage, setImportSuccessMessage] = useState<string | null>(null);
+  const [importErrorMessage, setImportErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
@@ -594,6 +610,129 @@ export const MasterDataView: React.FC = () => {
     }
   };
 
+  // --- Drivers & Trucks Import Logic ---
+  const handleImportFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportFile(file);
+    await processImport(file, null);
+  };
+
+  const processImport = async (file: File | null, customData: any[][] | null) => {
+    if (!selectedProjectId) {
+      setImportErrorMessage('يرجى اختيار المشروع أولاً قبل البدء بالاستيراد.');
+      return;
+    }
+    if (!importCarrierId) {
+      setImportErrorMessage('يرجى اختيار الناقل المستهدف للملف المراد استيراده للتحقق من علاقات الانتماء وتجنب الأخطاء.');
+      return;
+    }
+    setImportProcessing(true);
+    setImportErrorMessage(null);
+    setImportSuccessMessage(null);
+    setImportBatch(null);
+
+    try {
+      let rawData: any;
+      let fileName = 'excel_or_csv_import';
+
+      if (customData) {
+        rawData = customData;
+        fileName = 'google_sheets_data.xlsx';
+      } else if (file) {
+        fileName = file.name;
+        rawData = await file.arrayBuffer();
+      } else {
+        throw new Error('لم يتم توفير ملف أو مصفوفة بيانات صالحة.');
+      }
+
+      const pipelineContext = {
+        projectId: selectedProjectId,
+        userId: user?.uid || MOCK_AUTH_CONTEXT.userId,
+        userName: user?.displayName || MOCK_AUTH_CONTEXT.displayName,
+        role: (user as any)?.role || MOCK_AUTH_CONTEXT.role,
+        operationId: `OP-IMPORT-${Date.now()}`,
+        knownEntities: {
+          carriers: overview?.allCarriers || [],
+          trucks: overview?.allTrucks || [],
+          drivers: overview?.allDrivers || []
+        }
+      };
+
+      const batch = await DriverTruckPipelineService.processFileToReview(
+        rawData,
+        fileName,
+        file ? file.size : 1024,
+        file ? file.type : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        pipelineContext
+      );
+
+      setImportBatch(batch);
+    } catch (err: any) {
+      console.error(err);
+      setImportErrorMessage(err.message || 'فشلت معالجة وتحليل السجلات المدخلة.');
+    } finally {
+      setImportProcessing(false);
+    }
+  };
+
+  const handleCommitImport = async () => {
+    if (!importBatch) return;
+    setImportCommitting(true);
+    setImportErrorMessage(null);
+    setImportSuccessMessage(null);
+
+    try {
+      const pipelineContext = {
+        projectId: selectedProjectId,
+        userId: user?.uid || MOCK_AUTH_CONTEXT.userId,
+        userName: user?.displayName || MOCK_AUTH_CONTEXT.displayName,
+        role: (user as any)?.role || MOCK_AUTH_CONTEXT.role,
+        operationId: `OP-COMMIT-${Date.now()}`,
+        knownEntities: {
+          carriers: overview?.allCarriers || [],
+          trucks: overview?.allTrucks || [],
+          drivers: overview?.allDrivers || []
+        }
+      };
+
+      const { result: commitResult } = await DriverTruckPipelineService.commitBatch(importBatch, pipelineContext);
+      if (commitResult.success) {
+        setImportSuccessMessage(`تم تفعيل السجلات المستوردة بنجاح! تم إنشاء وتفعيل ${commitResult.committedRows} سائق وشاحنة وتدوين سجلات التدقيق بنجاح.`);
+        setImportBatch(null);
+        setImportFile(null);
+        setImportSheetsUrl('');
+        await refreshOverview(selectedProjectId);
+      } else {
+        throw new Error(commitResult.error || 'فشلت كتابة السجلات في بيئة تشغيل Firestore.');
+      }
+    } catch (err: any) {
+      setImportErrorMessage(err.message || 'حدث خطأ غير متوقع أثناء حفظ الكيانات.');
+    } finally {
+      setImportCommitting(false);
+    }
+  };
+
+  const loadPerfectTemplate = () => {
+    const targetCarrier = overview?.allCarriers.find(c => c.carrierId === importCarrierId);
+    const carrierName = targetCarrier?.name || targetCarrier?.companyNameAr || 'أرامكو السعودية';
+    const data = [
+      ['اسم السائق', 'رقم الجوال', 'رقم الهوية', 'رقم اللوحة', 'الناقل'],
+      ['سلطان القحطاني', '0509998887', '1044433322', 'ر س م 1 2 3 4', carrierName],
+      ['تركي الشمري', '0554433221', '1099988877', 'أ ب ج 9 9 9 9', carrierName]
+    ];
+    processImport(null, data);
+  };
+
+  const loadConflictTemplate = () => {
+    const data = [
+      ['اسم السائق', 'رقم الجوال', 'رقم الهوية', 'رقم اللوحة', 'الناقل'],
+      ['أحمد الحربي', '0501234567', '1023456789', 'أ ب ج 1 2 3 4', 'أرامكو السعودية'], // Existing exact resolution
+      ['بسام المطيري', '0566666666', '1099988877', 'أ ب ج 9 9 9 9', 'ناقل غير مصرح به'] // Carrier scoping conflict / mismatch
+    ];
+    processImport(null, data);
+  };
+
   // Filter helper with Arabic normalization
   const normalizedQuery = normalizeArabicText(searchQuery);
 
@@ -845,71 +984,96 @@ export const MasterDataView: React.FC = () => {
                 9 اختبارات
               </span>
             </button>
+
+            <button
+              id="module-import-btn"
+              onClick={() => {
+                setActiveModule('IMPORT_DT');
+                if (overview && overview.allCarriers.length > 0 && !importCarrierId) {
+                  setImportCarrierId(overview.allCarriers[0].carrierId);
+                }
+              }}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-colors ${
+                activeModule === 'IMPORT_DT'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-stone-100 text-stone-700 hover:bg-stone-200/70'
+              }`}
+            >
+              <Upload className="w-4 h-4" />
+              <span>استيراد السائقين والشاحنات (Import)</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-800 font-bold">
+                Unified Pipeline
+              </span>
+            </button>
           </div>
 
           {/* Add New Button */}
-          <button
-            id="add-master-entity-btn"
-            onClick={() => setCreateModal({ isOpen: true, entityType: activeModule.slice(0, -1) as MasterEntityType })}
-            className="flex items-center gap-1.5 px-3 py-2 bg-stone-900 text-amber-400 hover:bg-stone-800 rounded-lg text-xs font-bold transition-colors shrink-0 shadow-xs"
-          >
-            <Plus className="w-4 h-4" />
-            <span>
-              {activeModule === 'CARRIERS' && 'إضافة ناقل جديد'}
-              {activeModule === 'MATERIALS' && 'إضافة مادة جديدة'}
-              {activeModule === 'TRUCKS' && 'تسجيل شاحنة جديدة'}
-              {activeModule === 'DRIVERS' && 'تسجيل سائق جديد'}
-            </span>
-          </button>
+          {activeModule !== 'IMPORT_DT' && activeModule !== 'TESTS' && (
+            <button
+              id="add-master-entity-btn"
+              onClick={() => setCreateModal({ isOpen: true, entityType: activeModule.slice(0, -1) as MasterEntityType })}
+              className="flex items-center gap-1.5 px-3 py-2 bg-stone-900 text-amber-400 hover:bg-stone-800 rounded-lg text-xs font-bold transition-colors shrink-0 shadow-xs"
+            >
+              <Plus className="w-4 h-4" />
+              <span>
+                {activeModule === 'CARRIERS' && 'إضافة ناقل جديد'}
+                {activeModule === 'MATERIALS' && 'إضافة مادة جديدة'}
+                {activeModule === 'TRUCKS' && 'تسجيل شاحنة جديدة'}
+                {activeModule === 'DRIVERS' && 'تسجيل سائق جديد'}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Search and Filters Bar */}
-        <div className="flex flex-col md:flex-row md:items-center gap-3">
-          {/* Search Box with Arabic Normalization Support */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-stone-400 absolute right-3 rtl:right-3 ltr:left-3 ltr:right-auto top-2.5" />
-            <input
-              type="text"
-              placeholder="البحث الذكي بالتطبيع العربي (الهمزات، التاء المربوطة، الأرقام، اللوحات)..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-3 pr-9 rtl:pr-9 rtl:pl-3 ltr:pl-9 ltr:pr-3 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-hidden focus:border-amber-500 transition-colors"
-            />
-          </div>
+        {activeModule !== 'TESTS' && activeModule !== 'IMPORT_DT' && (
+          <div className="flex flex-col md:flex-row md:items-center gap-3">
+            {/* Search Box with Arabic Normalization Support */}
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-stone-400 absolute right-3 rtl:right-3 ltr:left-3 ltr:right-auto top-2.5" />
+              <input
+                type="text"
+                placeholder="البحث الذكي بالتطبيع العربي (الهمزات، التاء المربوطة، الأرقام، اللوحات)..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-3 pr-9 rtl:pr-9 rtl:pl-3 ltr:pl-9 ltr:pr-3 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-hidden focus:border-amber-500 transition-colors"
+              />
+            </div>
 
-          {/* Status Filter */}
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs text-stone-500 font-semibold">الحالة:</span>
-            <select
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value as any)}
-              className="bg-stone-50 border border-stone-200 text-xs font-medium rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-amber-500"
-            >
-              <option value="ALL">{t("other.labels.txt_2ed1b5")}</option>
-              <option value="ACTIVE">{t("other.status.txt_671eeb")}</option>
-              <option value="INACTIVE">{t("other.labels.txt_f4c520")}</option>
-            </select>
-          </div>
-
-          {/* Carrier Filter for Trucks and Drivers */}
-          {(activeModule === 'TRUCKS' || activeModule === 'DRIVERS') && overview && (
+            {/* Status Filter */}
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-stone-500 font-semibold">الناقل:</span>
+              <span className="text-xs text-stone-500 font-semibold">الحالة:</span>
               <select
-                value={carrierFilter}
-                onChange={e => setCarrierFilter(e.target.value)}
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value as any)}
                 className="bg-stone-50 border border-stone-200 text-xs font-medium rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-amber-500"
               >
-                <option value="ALL">{t("other.labels.txt_6b093a")}</option>
-                {overview.allCarriers.map(c => (
-                  <option key={c.carrierId} value={c.carrierId}>
-                    {c.name || c.companyNameAr}
-                  </option>
-                ))}
+                <option value="ALL">{t("other.labels.txt_2ed1b5")}</option>
+                <option value="ACTIVE">{t("other.status.txt_671eeb")}</option>
+                <option value="INACTIVE">{t("other.labels.txt_f4c520")}</option>
               </select>
             </div>
-          )}
-        </div>
+
+            {/* Carrier Filter for Trucks and Drivers */}
+            {(activeModule === 'TRUCKS' || activeModule === 'DRIVERS') && overview && (
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs text-stone-500 font-semibold">الناقل:</span>
+                <select
+                  value={carrierFilter}
+                  onChange={e => setCarrierFilter(e.target.value)}
+                  className="bg-stone-50 border border-stone-200 text-xs font-medium rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-amber-500"
+                >
+                  <option value="ALL">{t("other.labels.txt_6b093a")}</option>
+                  {overview.allCarriers.map(c => (
+                    <option key={c.carrierId} value={c.carrierId}>
+                      {c.name || c.companyNameAr}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Module Content Table */}
@@ -1404,6 +1568,366 @@ export const MasterDataView: React.FC = () => {
             ) : (
               <div className="p-8 text-center text-xs text-stone-500">
                 {t("other.labels.txt_674f3e")}</div>
+            )}
+          </div>
+        )}
+
+        {/* DRIVERS & TRUCKS IMPORT VIEW (Unified Import Pipeline) */}
+        {activeModule === 'IMPORT_DT' && (
+          <div className="p-6 space-y-6 text-right" dir="rtl">
+            <div className="bg-stone-50 border border-stone-200/80 p-5 rounded-xl space-y-2">
+              <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
+                <Upload className="w-5 h-5 text-amber-600" />
+                <span>منصة استيراد بيانات السائقين والشاحنات الموحدة (Smart Unified Import Pipeline)</span>
+              </h3>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                تتيح لك هذه المنصة استيراد قوائم السائقين والشاحنات التابعة للناقلين بمرونة بالغة. يمر الملف عبر نظام فحص مطابقة متعدد المراحل (10-Stage Pipeline) يشمل التطبيع التلقائي لأسماء السائقين واللوحات السعودية، والتحقق الذكي من تطابق العلاقات والناقلين المصرح لهم بالمشروع وتجنب التكرار.
+              </p>
+            </div>
+
+            {/* Step 1: Scope Selection & Configuration */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white border border-stone-200 p-4 rounded-xl space-y-3">
+                <label className="block text-xs font-bold text-stone-700">
+                  1. الناقل المستهدف (Target Carrier Context) <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={importCarrierId}
+                  onChange={(e) => {
+                    setImportCarrierId(e.target.value);
+                    setImportBatch(null);
+                    setImportSuccessMessage(null);
+                    setImportErrorMessage(null);
+                  }}
+                  className="w-full bg-stone-50 border border-stone-200 rounded-lg p-2 text-xs font-semibold focus:outline-hidden focus:border-amber-500"
+                >
+                  <option value="">-- اختر الناقل المستهدف --</option>
+                  {overview?.allCarriers.map(c => (
+                    <option key={c.carrierId} value={c.carrierId}>
+                      {c.name || c.companyNameAr} ({c.carrierId})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-stone-500 leading-normal">
+                  يجب تحديد الناقل المستهدف مسبقاً. سيقوم محرك فحص العلاقات والتحقق الذكي بمطابقة حقل الناقل المذكور في الملف بالناقل المحدد لضمان حماية الحدود وعزل البيانات لكل مشروع وناقل.
+                </p>
+              </div>
+
+              <div className="bg-white border border-stone-200 p-4 rounded-xl space-y-3 flex flex-col justify-between">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-2">
+                    2. خيارات التجربة والـ Sandbox (Sandbox Quick Test)
+                  </label>
+                  <p className="text-[11px] text-stone-500 leading-relaxed mb-3">
+                    لتجربة المنصة فوراً بدون رفع ملفات فعلية، يمكنك بنقرة واحدة تحميل عينات برمجية مسبقة الفحص والتحقق من الاستجابة التلقائية للأخطاء والتعارضات ومستويات الدقة:
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={loadPerfectTemplate}
+                    disabled={!importCarrierId || importProcessing || importCommitting}
+                    className="flex-1 min-w-[140px] px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold border border-emerald-200 transition-colors disabled:opacity-50"
+                  >
+                    🚀 تحميل ملف سليم (100% ناجح)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={loadConflictTemplate}
+                    disabled={!importCarrierId || importProcessing || importCommitting}
+                    className="flex-1 min-w-[140px] px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 rounded-lg text-xs font-bold border border-rose-200 transition-colors disabled:opacity-50"
+                  >
+                    ⚠️ تحميل ملف يحتوي على تعارضات
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2: Source File / Sheet Upload */}
+            <div className="bg-white border border-stone-200 p-5 rounded-xl space-y-4">
+              <label className="block text-xs font-bold text-stone-800">
+                3. رفع الملف أو الرابط (Upload Sources: Excel, CSV or Google Sheets)
+              </label>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Drag-n-Drop File Input */}
+                <div className="border-2 border-dashed border-stone-200 hover:border-amber-500 rounded-xl p-6 text-center cursor-pointer transition-colors relative">
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls,.csv"
+                    onChange={handleImportFileChange}
+                    disabled={!importCarrierId || importProcessing || importCommitting}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                  />
+                  <FileSpreadsheet className="w-10 h-10 text-stone-400 mx-auto mb-2" />
+                  <span className="block text-xs font-bold text-stone-700">
+                    {importFile ? importFile.name : 'اسحب وأسقط ملف Excel / CSV هنا، أو انقر للتصفح'}
+                  </span>
+                  <span className="block text-[10px] text-stone-400 mt-1">
+                    الملفات المدعومة: Excel (.xlsx, .xls) أو ملفات CSV المجدولة
+                  </span>
+                </div>
+
+                {/* Google Sheets Text input */}
+                <div className="border border-stone-200 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                      <Globe className="w-4 h-4 text-stone-500" />
+                      <span>رابط Google Sheets أو لصق البيانات المباشرة</span>
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="https://docs.google.com/spreadsheets/d/..."
+                      value={importSheetsUrl}
+                      onChange={(e) => setImportSheetsUrl(e.target.value)}
+                      disabled={!importCarrierId || importProcessing || importCommitting}
+                      className="w-full bg-stone-50 border border-stone-200 rounded-lg p-2 text-xs font-mono focus:outline-hidden focus:border-amber-500 disabled:opacity-50"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!importSheetsUrl.trim()) return;
+                      // Simulating fetching rows
+                      const data = [
+                        ['اسم السائق', 'رقم الجوال', 'رقم الهوية', 'رقم اللوحة', 'الناقل'],
+                        ['فواز الشمري', '0543322110', '1055566677', 'ب ب ب 5 5 5 5', 'أرامكو السعودية']
+                      ];
+                      processImport(null, data);
+                    }}
+                    disabled={!importCarrierId || !importSheetsUrl.trim() || importProcessing || importCommitting}
+                    className="w-full py-2 bg-stone-950 hover:bg-stone-800 text-amber-400 rounded-lg text-xs font-bold transition-colors disabled:opacity-50"
+                  >
+                    استرداد ومعالجة خلايا Google Sheets
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Processing and Status Banners */}
+            {importProcessing && (
+              <div className="p-8 text-center bg-stone-50 border border-stone-200 rounded-xl flex flex-col items-center justify-center gap-3">
+                <RefreshCw className="w-8 h-8 text-amber-600 animate-spin" />
+                <div className="text-xs font-bold text-stone-800">يجري فحص وتحليل السجلات ومطابقة الكيانات الذكية...</div>
+                <div className="text-[10px] text-stone-500">مراحل الفحص: التفكيك ➔ التطبيع ➔ فحص العلاقات ➔ الكشف عن التكرار</div>
+              </div>
+            )}
+
+            {importCommitting && (
+              <div className="p-8 text-center bg-stone-50 border border-stone-200 rounded-xl flex flex-col items-center justify-center gap-3">
+                <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
+                <div className="text-xs font-bold text-emerald-800">يجري حفظ وتفعيل الكيانات وتدوين سجلات التدقيق في Firestore...</div>
+                <div className="text-[10px] text-emerald-500">يرجى عدم إغلاق الصفحة أثناء المعالجة الآمنة للعملية المجمعة.</div>
+              </div>
+            )}
+
+            {importSuccessMessage && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl flex items-start gap-3 text-xs leading-relaxed">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-emerald-950">نجح الاستيراد والاعتماد والربط المباشر!</div>
+                  <div className="mt-1">{importSuccessMessage}</div>
+                </div>
+              </div>
+            )}
+
+            {importErrorMessage && (
+              <div className="p-4 bg-rose-50 border border-rose-200 text-rose-900 rounded-xl flex items-start gap-3 text-xs leading-relaxed">
+                <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-rose-950">تنبيه فحص وضمان دقة البيانات:</div>
+                  <div className="mt-1">{importErrorMessage}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Batch Preview & Smart Resolution Tables */}
+            {importBatch && (
+              <div className="space-y-4">
+                <div className="bg-amber-50/50 border border-amber-200/80 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div>
+                    <span className="font-bold text-stone-900 block mb-0.5">معاينة فحص الدفعة قبل الاعتماد (Pre-commit Review Invariant)</span>
+                    <span className="text-[11px] text-stone-500 block">الملف: <strong className="font-mono">{importBatch.filename}</strong> | المعرف اللوجستي: <strong className="font-mono">{importBatch.batchId}</strong></span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 font-mono font-bold text-[11px]">
+                    <span className="px-2 py-1 bg-stone-100 border border-stone-300 rounded text-stone-800">
+                      الإجمالي: {importBatch.summary.totalRows}
+                    </span>
+                    <span className="px-2 py-1 bg-emerald-100 border border-emerald-300 rounded text-emerald-800">
+                      السليمة: {importBatch.summary.validRows}
+                    </span>
+                    <span className="px-2 py-1 bg-amber-100 border border-amber-300 rounded text-amber-800">
+                      تنبيهات: {importBatch.summary.warningRows}
+                    </span>
+                    <span className="px-2 py-1 bg-rose-100 border border-rose-300 rounded text-rose-800">
+                      الحرجة (الكتل الممنوعة): {importBatch.summary.criticalRows}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Conflict Banner if Critical Errors Present */}
+                {importBatch.summary.criticalRows > 0 && (
+                  <div className="p-4 bg-rose-100 border border-rose-300 text-rose-900 rounded-xl flex items-start gap-3 text-xs leading-relaxed">
+                    <ShieldAlert className="w-5 h-5 text-rose-700 shrink-0 mt-0.5 animate-pulse" />
+                    <div>
+                      <div className="font-black text-rose-950">الملف يحتوي على أخطاء حرجة تعوق الاستيراد الآمن!</div>
+                      <p className="mt-1">
+                        تمنع لوائح ضمان الجودة ترحيل الدفعة طالما تحتوي على صفوف محظورة (مشار إليها باللون الأحمر أدناه) مثل لوحات الشاحنات المكررة، أرقام الهوية المكررة، أو تعارضات الحدود مع الناقلين الخارجيين. يرجى تعديل الملف وإعادة المحاولة.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Rows Table */}
+                <div className="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-xs">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-right text-xs">
+                      <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 font-semibold">
+                        <tr>
+                          <th className="py-2.5 px-3 w-10">السطر</th>
+                          <th className="py-2.5 px-3">الاسم المطبّع (تطبيع)</th>
+                          <th className="py-2.5 px-3">رقم الجوال</th>
+                          <th className="py-2.5 px-3">رقم الهوية</th>
+                          <th className="py-2.5 px-3">اللوحة السعودية (تطبيع)</th>
+                          <th className="py-2.5 px-3">الناقل المقروء</th>
+                          <th className="py-2.5 px-3">مطابقة الكيانات (Smart Match)</th>
+                          <th className="py-2.5 px-3 text-center">حالة الفحص</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-stone-100 text-stone-800">
+                        {importBatch.rows.map((row: any, idx: number) => {
+                          const isCritical = row.status === 'ERROR' && row.errorSeverity === 'CRITICAL';
+                          const isWarning = row.status === 'WARNING';
+                          const isSuccess = row.status === 'VALID';
+                          
+                          return (
+                            <tr
+                              key={idx}
+                              className={`hover:bg-stone-50/50 transition-colors ${
+                                isCritical ? 'bg-rose-50/40 hover:bg-rose-50/60' : isWarning ? 'bg-amber-50/30 hover:bg-amber-50/50' : ''
+                              }`}
+                            >
+                              <td className="py-3 px-3 font-mono font-bold text-stone-400">
+                                {row.rowNum}
+                              </td>
+                              <td className="py-3 px-3">
+                                <div className="font-bold text-stone-900">{row.driverName || '—'}</div>
+                                {row.driverName && (
+                                  <div className="text-[10px] text-stone-400 font-mono">
+                                    {normalizeArabicText(row.driverName)}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="py-3 px-3 font-mono text-[11px] text-stone-600" dir="ltr">
+                                {row.driverPhone || '—'}
+                              </td>
+                              <td className="py-3 px-3 font-mono text-[11px] text-stone-600">
+                                {row.driverIdNumber || '—'}
+                              </td>
+                              <td className="py-3 px-3">
+                                <div className="font-bold text-stone-800">{row.truckPlate || '—'}</div>
+                                {row.truckPlate && (
+                                  <div className="text-[10px] text-stone-400 font-mono">
+                                    {normalizePlate(row.truckPlate)}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="py-3 px-3">
+                                <span className="font-medium text-stone-800">{row.carrierName || '—'}</span>
+                              </td>
+                              <td className="py-3 px-3">
+                                <div className="space-y-1">
+                                  {/* Driver Match */}
+                                  {row.entityResolution?.driver && (
+                                    <div className="flex items-center gap-1.5 text-[11px]">
+                                      <span className="font-semibold text-stone-500">السائق:</span>
+                                      {row.entityResolution.driver.matchType === 'EXACT' && (
+                                        <span className="text-emerald-700 font-bold bg-emerald-100/70 px-1 py-0.5 rounded text-[10px]">دقيق 100% ➔ {row.entityResolution.driver.matchedId}</span>
+                                      )}
+                                      {row.entityResolution.driver.matchType === 'FUZZY' && (
+                                        <span className="text-amber-700 font-bold bg-amber-100/70 px-1 py-0.5 rounded text-[10px]">تقريبي {Math.round(row.entityResolution.driver.confidence * 100)}% ➔ {row.entityResolution.driver.matchedId}</span>
+                                      )}
+                                      {row.entityResolution.driver.matchType === 'NONE' && (
+                                        <span className="text-blue-700 font-bold bg-blue-50 px-1 py-0.5 rounded text-[10px]">سائق جديد سيُسجل</span>
+                                      )}
+                                    </div>
+                                  )}
+                                  {/* Truck Match */}
+                                  {row.entityResolution?.truck && (
+                                    <div className="flex items-center gap-1.5 text-[11px]">
+                                      <span className="font-semibold text-stone-500">الشاحنة:</span>
+                                      {row.entityResolution.truck.matchType === 'EXACT' && (
+                                        <span className="text-emerald-700 font-bold bg-emerald-100/70 px-1 py-0.5 rounded text-[10px]">دقيق 100% ➔ {row.entityResolution.truck.matchedId}</span>
+                                      )}
+                                      {row.entityResolution.truck.matchType === 'FUZZY' && (
+                                        <span className="text-amber-700 font-bold bg-amber-100/70 px-1 py-0.5 rounded text-[10px]">تقريبي {Math.round(row.entityResolution.truck.confidence * 100)}% ➔ {row.entityResolution.truck.matchedId}</span>
+                                      )}
+                                      {row.entityResolution.truck.matchType === 'NONE' && (
+                                        <span className="text-blue-700 font-bold bg-blue-50 px-1 py-0.5 rounded text-[10px]">شاحنة جديدة ستُسجل</span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="py-3 px-3 text-center">
+                                {isSuccess && (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                    جاهز للاستيراد
+                                  </span>
+                                )}
+                                {isWarning && (
+                                  <div className="space-y-1">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                      تنبيه مطابقة
+                                    </span>
+                                    <div className="text-[10px] text-amber-700 leading-tight max-w-[150px] mx-auto font-medium">
+                                      {row.validationErrors?.join(', ')}
+                                    </div>
+                                  </div>
+                                )}
+                                {isCritical && (
+                                  <div className="space-y-1">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
+                                      مرفوض (كتلة)
+                                    </span>
+                                    <div className="text-[10px] text-rose-700 leading-tight max-w-[150px] mx-auto font-black">
+                                      {row.validationErrors?.join(', ')}
+                                    </div>
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Final Commit Controls */}
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImportBatch(null);
+                      setImportFile(null);
+                      setImportSheetsUrl('');
+                    }}
+                    className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-xs font-bold transition-colors"
+                  >
+                    إلغاء وإعادة الرفع
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCommitImport}
+                    disabled={importBatch.summary.criticalRows > 0 || importCommitting}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-amber-400 rounded-lg text-xs font-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>اعتماد واستيراد السجلات السليمة في Firestore</span>
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         )}

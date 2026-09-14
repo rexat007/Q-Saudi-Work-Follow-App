@@ -273,7 +273,7 @@ export interface PipelineContext {
     // BLOCK 35 Enhanced Master Data & Aliases
     carriers?: Array<{ carrierId: string; name: string; aliases?: string[]; projectId?: string; status?: 'ACTIVE' | 'INACTIVE' }>;
     trucks?: Array<{ truckId: string; plate: string; carrierId?: string; projectId?: string; status?: 'ACTIVE' | 'INACTIVE' }>;
-    drivers?: Array<{ driverId: string; name: string; carrierId?: string; phone?: string; projectId?: string; status?: 'ACTIVE' | 'INACTIVE' }>;
+    drivers?: Array<{ driverId: string; name: string; idNumber?: string; carrierId?: string; phone?: string; projectId?: string; status?: 'ACTIVE' | 'INACTIVE' }>;
     materials?: Array<{ materialId: string; name: string; code?: string; projectId?: string; status?: 'ACTIVE' | 'INACTIVE' }>;
     driverCarrierMap?: Record<string, string>;
     projectMaterials?: string[];

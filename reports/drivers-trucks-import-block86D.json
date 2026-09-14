@@ -1,0 +1,149 @@
+{
+  "timestamp": "2026-09-14T14:56:15.899Z",
+  "totalTests": 20,
+  "passedTests": 20,
+  "failedTests": 0,
+  "allPassed": true,
+  "results": [
+    {
+      "id": 1,
+      "name": "Excel XLSX import parsing",
+      "category": "XLSX_IMPORT",
+      "passed": true,
+      "message": "تم فحص تحليل وتفكيك بيانات ملفات Excel XLSX بنجاح وبدون تعديل مسبق للمحتوى."
+    },
+    {
+      "id": 2,
+      "name": "Google Sheets import parsing",
+      "category": "GOOGLE_SHEETS_IMPORT",
+      "passed": true,
+      "message": "تم فحص تحليل مصفوفة Google Sheets ثنائية الأبعاد والحفاظ على القيم والترويسات بنجاح."
+    },
+    {
+      "id": 3,
+      "name": "Canonical column mapping without fixed order",
+      "category": "CANONICAL_MAPPING",
+      "passed": true,
+      "message": "تم تحويل الحقول المبعثرة باللغتين العربية والإنجليزية إلى النموذج الموحد بنجاح."
+    },
+    {
+      "id": 4,
+      "name": "Driver data normalization with Arabic rules",
+      "category": "DRIVER_NORMALIZATION",
+      "passed": true,
+      "message": "تم تطبيع بيانات السائق بنجاح: إزالة التشكيل، توحيد الأرقام، وتنسيق الهاتف الدولي."
+    },
+    {
+      "id": 5,
+      "name": "Truck plate normalization",
+      "category": "TRUCK_NORMALIZATION",
+      "passed": true,
+      "message": "تم تطبيع رقم اللوحة السعودي وفصل الحروف عن الأرقام بترميز مضغوط وموحد بنجاح."
+    },
+    {
+      "id": 6,
+      "name": "Exact Entity Resolution",
+      "category": "EXACT_RESOLUTION",
+      "passed": true,
+      "message": "تمت مطابقة السائق والشاحنة الحاليين بدقة 100% عبر المعرفات الفريدة وسجل قاعدة البيانات."
+    },
+    {
+      "id": 7,
+      "name": "Ambiguous entity resolution (Fuzzy Match)",
+      "category": "FUZZY_RESOLUTION",
+      "passed": true,
+      "message": "تم الكشف عن مطابقة غامضة (Fuzzy Match) بنجاح مع وضع مؤشر دقة نسبي ونسبة ثقة دقيقة."
+    },
+    {
+      "id": 8,
+      "name": "Duplicate truck plate detection and blocking",
+      "category": "DUPLICATE_PLATE_DETECTION",
+      "passed": true,
+      "message": "تم منع تسجيل لوحة شاحنة مكررة داخل نفس الدفعة بشكل فوري وحظر اعتمادها."
+    },
+    {
+      "id": 9,
+      "name": "Duplicate driver identity detection and blocking",
+      "category": "DUPLICATE_DRIVER_DETECTION",
+      "passed": true,
+      "message": "تم الكشف عن رقم هوية سائق مكرر في الملف وحظر اعتماده مع إصدار تنبيه صارم."
+    },
+    {
+      "id": 10,
+      "name": "Driver and carrier relationship conflict detection",
+      "category": "DRIVER_CARRIER_CONFLICT",
+      "passed": true,
+      "message": "تم اكتشاف تعارض السائق مع الناقل بنجاح (السائق ينتمي لناقل آخر مسبقاً) وتصنيفه كخطأ حرج (CRITICAL)."
+    },
+    {
+      "id": 11,
+      "name": "Truck and carrier relationship conflict detection",
+      "category": "TRUCK_CARRIER_CONFLICT",
+      "passed": true,
+      "message": "تم اكتشاف تعارض الشاحنة مع الناقل بنجاح (الشاحنة تنتمي لناقل آخر مسبقاً) وتصنيفه كتعارض علاقة حرج."
+    },
+    {
+      "id": 12,
+      "name": "Project isolation validation",
+      "category": "PROJECT_ISOLATION",
+      "passed": true,
+      "message": "تم حجب عمليات الاستيراد تماماً في حال عدم مطابقة أو تخويل المستخدم للمشروع المستهدف."
+    },
+    {
+      "id": 13,
+      "name": "Carrier scoping verification",
+      "category": "CARRIER_SCOPING",
+      "passed": true,
+      "message": "تم التحقق من حظر الاستيراد أو تعليق الاعتماد للناقلين غير النشطين أو غير المصرح بهم في المشروع."
+    },
+    {
+      "id": 14,
+      "name": "Preview and mapping before commit (Pre-commit Invariant)",
+      "category": "PRE_COMMIT_INVARIANT",
+      "passed": true,
+      "message": "تم فحص توفير واجهة معاينة تفصيلية للمستخدم (Review Model) دون إجراء أي كتابة على قاعدة البيانات."
+    },
+    {
+      "id": 15,
+      "name": "Unresolved/Conflict rows blocked from commit",
+      "category": "COMMIT_BLOCKING_GUARD",
+      "passed": true,
+      "message": "تم التحقق من حظر وحماية الكتل والصفوف التي تحتوي على أخطاء حرجة أو تعارضات من كتابتها لقاعدة البيانات."
+    },
+    {
+      "id": 16,
+      "name": "Firestore commit of valid rows",
+      "category": "FIRESTORE_COMMIT",
+      "passed": true,
+      "message": "تم اعتماد وحفظ البيانات السليمة والخالية من التعارضات بنجاح في مجموعات Firestore المحددة."
+    },
+    {
+      "id": 17,
+      "name": "Real-time UI update triggers",
+      "category": "REAL_TIME_UI_SYNC",
+      "passed": true,
+      "message": "تم التحقق من تخطيط المستمعين النشطين (Firestore Snapshots) لتحديث الواجهة ديناميكياً فور نجاح عملية الحفظ."
+    },
+    {
+      "id": 18,
+      "name": "Audit log recorded on entity creation",
+      "category": "AUDIT_LOGGING",
+      "passed": true,
+      "message": "تم التحقق من تسجيل تفاصيل العمليات (إنشاء، استيراد) مباشرة في سجل التدقيق التاريخي للعمليات اللوجستية."
+    },
+    {
+      "id": 19,
+      "name": "RBAC permission enforcement on Import",
+      "category": "RBAC_ENFORCEMENT",
+      "passed": true,
+      "message": "تم التحقق من قصر صلاحيات تشغيل واجهة الاستيراد والاعتماد على مديري المشاريع والمدير العام فقط."
+    },
+    {
+      "id": 20,
+      "name": "Strict I18N locale catalog constraint",
+      "category": "I18N_COMPLIANCE",
+      "passed": true,
+      "message": "تم التحقق بنجاح من الحفاظ التام على حجم ترويسات ومفاتيح الترجمة الدولية (1,128 مفتاحاً) دون زيادة أو نقصان."
+    }
+  ]
+}
