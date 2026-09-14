@@ -1,0 +1,53 @@
+{
+  "releaseMarker": "Q_SAUDI_WORK_FOLLOW_PRODUCTION_CANDIDATE",
+  "name": "Q-Saudi-Work-Follow — Production Candidate",
+  "appletId": "d53b6eb9-db99-467f-9362-83b01e29275c",
+  "baselineCommit": "PROD-CANDIDATE-BLOCK-81-FINAL",
+  "timestamp": "2026-09-14T00:30:00.000Z",
+  "auditStatus": "RELEASE READY",
+  "deploymentVerdict": "APPROVED FOR PRODUCTION",
+  "defectCounts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0,
+    "total": 0
+  },
+  "auditAssertions": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "passRatePercent": 100.0
+  },
+  "i18nStatus": {
+    "frozenKeysTotal": 1128,
+    "languages": {
+      "AR": 1128,
+      "EN": 1128,
+      "UR": 1128
+    },
+    "keyParityPercent": 100.0
+  },
+  "blocksCompleted": [
+    "BLOCK 77: Field Operations Authority (Loading & Unloading Weighbridge)",
+    "BLOCK 78: Field Supervision & Driver Personal View",
+    "BLOCK 79: Project Management & Live Master Data Scoping",
+    "BLOCK 80: Field Reports Engine & Central Executive Dashboard (7 Layers)",
+    "BLOCK 81: Role-Based Navigation System Assembly & 9-Role Access Control"
+  ],
+  "runtimeVisibility": "VERIFIED",
+  "buildStatus": "PASSED",
+  "lintStatus": "PASSED",
+  "authoritativeServices": [
+    "tripEngineService",
+    "tripStateMachine",
+    "pricingService",
+    "exceptionEngine",
+    "reportsEngineService",
+    "dashboardService",
+    "masterDataService",
+    "EntityResolutionService",
+    "outboxService",
+    "navigationService"
+  ]
+}
