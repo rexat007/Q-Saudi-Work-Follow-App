@@ -1,0 +1,169 @@
+{
+  "timestamp": "2026-09-14T10:19:00.000Z",
+  "block": "BLOCK 84A",
+  "title": "Translation Quality Fixes Report",
+  "status": "PASS",
+  "catalogStats": {
+    "arKeys": 1128,
+    "enKeys": 1128,
+    "urKeys": 1128,
+    "addedKeys": 0,
+    "removedKeys": 0,
+    "renamedKeys": 0,
+    "isCatalogSizePreserved": true
+  },
+  "totalFindingsAddressed": 19,
+  "changedKeys": [
+    {
+      "key": "navigation.labels.trips",
+      "field": "en",
+      "before": "محرك Trips (Trip Engine)",
+      "after": "Trip Engine"
+    },
+    {
+      "key": "navigation.labels.trips",
+      "field": "ur",
+      "before": "محرك ٹرپس (Trip Engine)",
+      "after": "ٹرپ انجن (Trip Engine)"
+    },
+    {
+      "key": "navigation.labels.projects",
+      "field": "ar",
+      "before": "المعمارية الهندسية الصارمة لمنظومة النقل الثقيل والمشاريع متعددة الأطراف (Multi-Project)",
+      "after": "إدارة المشاريع متعددة الأطراف"
+    },
+    {
+      "key": "navigation.labels.txt_17c5e1",
+      "field": "ar",
+      "before": "هذه المبادئ الـ 12 هي السقف الهندسي الحاكم لكامل المنظومة. لا يُسمح بأي استثناء أو خرق لأي مبدأ في أي مرحلة تطويرية أو كود تنفيذي.",
+      "after": "المبادئ الحاكمة للمنظومة"
+    },
+    {
+      "key": "navigation.labels.txt_23bdd6",
+      "field": "ar",
+      "before": "اختر أي كيان لاستعراض ارتباطاته الدقيقة، درجة التعددية (Cardinality)، وواجبات التحقق الخادومية الصارمة.",
+      "after": "استعراض ارتباطات الكيانات والتعددية"
+    },
+    {
+      "key": "navigation.labels.txt_791f1b",
+      "field": "ar",
+      "before": "كل ارتباط بين كيانين يتم التحقق منه خادومياً داخل الـ Transactions في Firestore ولا يُترك القرار للواجهة الأمامية مطلقاً.",
+      "after": "التحقق الخادومي من ارتباطات الكيانات"
+    },
+    {
+      "key": "navigation.labels.txt_791f1b",
+      "field": "en",
+      "before": "كل ارتباط بين كيانين يتم التحقق منه خادومياً داخل الـ Transactions في Firestore ولا يُترك القرار للواجهة الأمامية مطلقاً.",
+      "after": "Server-side validation of entity relationships"
+    },
+    {
+      "key": "navigation.labels.txt_791f1b",
+      "field": "ur",
+      "before": "كل ارتباط بين كيانين يتم التحقق منه خادومياً داخل الـ Transactions في Firestore ولا يُترك القرار للواجهة الأمامية مطلقاً.",
+      "after": "اکائیوں کے تعلقات کی سرور سائیڈ توثیق"
+    },
+    {
+      "key": "navigation.labels.projectReports",
+      "field": "ar",
+      "before": "تنظيم وثائق المشروع داخل المجلد الجذري مع ثلاثة مجلدات فرعية مخصصة للملفات المستوردة والتقارير والمستندات القابلة للطباعة:",
+      "after": "تقارير ووثائق المشروع"
+    },
+    {
+      "key": "materials.labels.materials_2",
+      "field": "ur",
+      "before": "materials",
+      "after": "مواد"
+    },
+    {
+      "key": "offline.labels.projects",
+      "field": "ur",
+      "before": "projects",
+      "after": "منصوبے"
+    },
+    {
+      "key": "offline.labels.trips",
+      "field": "ur",
+      "before": "trips",
+      "after": "ٹرپس"
+    },
+    {
+      "key": "other.labels.carrier_7",
+      "field": "ar",
+      "before": "الناقل التابع له (Driver → Carrier):",
+      "after": "الناقل التابع له:"
+    },
+    {
+      "key": "other.labels.carrier_7",
+      "field": "en",
+      "before": "Associated Carrier (Driver → Carrier):",
+      "after": "Associated Carrier:"
+    },
+    {
+      "key": "other.labels.carrier_7",
+      "field": "ur",
+      "before": "منسلک کیریئر (Driver → Carrier):",
+      "after": "منسلک کیریئر:"
+    },
+    {
+      "key": "other.labels.carrier_8",
+      "field": "ur",
+      "before": "Carrier",
+      "after": "کیریئر"
+    },
+    {
+      "key": "other.labels.carrier_10",
+      "field": "ur",
+      "before": "carrier",
+      "after": "کیریئر"
+    },
+    {
+      "key": "other.labels.enterprise",
+      "field": "ur",
+      "before": "Enterprise",
+      "after": "انٹرپرائز"
+    },
+    {
+      "key": "other.labels.trip_3",
+      "field": "ur",
+      "before": "TRIP",
+      "after": "ٹرپ"
+    },
+    {
+      "key": "projects.labels.materials",
+      "field": "ur",
+      "before": "Materials",
+      "after": "مواد"
+    },
+    {
+      "key": "projects.labels.projects",
+      "field": "ur",
+      "before": "projects",
+      "after": "منصوبے"
+    },
+    {
+      "key": "trips.labels.trips_3",
+      "field": "ur",
+      "before": "trips",
+      "after": "ٹرپس"
+    },
+    {
+      "key": "weighbridge.labels.txt_504ae8",
+      "field": "ur",
+      "before": "0.00 KG",
+      "after": "0.00 کلوگرام"
+    },
+    {
+      "key": "weighbridge.labels.txt_6e06f6",
+      "field": "ur",
+      "before": "37,400 KG (37.4 TON)",
+      "after": "37,400 کلوگرام (37.4 ٹن)"
+    }
+  ],
+  "verification": {
+    "testSuite": "PASS (src/tests/translationQualityFixesBlock84A.test.ts)",
+    "linter": "PASS (npm run lint)",
+    "build": "PASS (npm run build)",
+    "tokenParity": "PASS",
+    "businessLogicUntouched": true
+  }
+}

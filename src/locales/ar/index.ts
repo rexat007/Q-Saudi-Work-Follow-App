@@ -1,7 +1,6 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
-  // BLOCK 40 — Foundation Dictionary
   "shared.actions.save": "حفظ",
   "shared.actions.cancel": "إلغاء",
   "shared.actions.confirm": "تأكيد",
@@ -19,11 +18,9 @@ export const arTranslations: TranslationDictionary = {
   "navigation.language.en": "English",
   "navigation.language.ur": "اردو",
   "example.count": "العدد: {count}",
-
-  // BLOCK 45 & BLOCK 52 — Component-Safe Migrations
   "navigation.labels.import": "مركز الاستيراد (Import Center)",
   "navigation.labels.pricing": "محرك التسعير (Pricing Engine)",
-  "navigation.labels.projects": "المعمارية الهندسية الصارمة لمنظومة النقل الثقيل والمشاريع متعددة الأطراف (Multi-Project)",
+  "navigation.labels.projects": "إدارة المشاريع متعددة الأطراف",
   "navigation.labels.projects_2": "معالج تهيئة المشاريع (Project Wizard)",
   "navigation.labels.reports": "محرك التقارير (Reports Engine)",
   "navigation.labels.trips": "محرك الرحلات (Trip Engine)",
@@ -31,13 +28,13 @@ export const arTranslations: TranslationDictionary = {
   "navigation.labels.txt_11ed5e": "7 خطوات",
   "navigation.labels.txt_13cd84": "المستندات المعمارية (7 ملفات)",
   "navigation.labels.txt_152452": "لوحة الإدارة (Admin Console)",
-  "navigation.labels.txt_17c5e1": "هذه المبادئ الـ 12 هي السقف الهندسي الحاكم لكامل المنظومة. لا يُسمح بأي استثناء أو خرق لأي مبدأ في أي مرحلة تطويرية أو كود تنفيذي.",
+  "navigation.labels.txt_17c5e1": "المبادئ الحاكمة للمنظومة",
   "navigation.labels.txt_185076": "15 تقريراً و PDF",
   "navigation.labels.txt_198d0f": "شبكة العلاقات (11 كياناً)",
   "navigation.labels.txt_1a75fa": "محرك جودة البيانات (Quality Engine)",
   "navigation.labels.txt_1b8b59": "معمارية Firestore (الـ 13 نطاقاً)",
   "navigation.labels.txt_230d9e": "ترحيل الشيت القديم (Legacy Migration)",
-  "navigation.labels.txt_23bdd6": "اختر أي كيان لاستعراض ارتباطاته الدقيقة، درجة التعددية (Cardinality)، وواجبات التحقق الخادومية الصارمة.",
+  "navigation.labels.txt_23bdd6": "استعراض ارتباطات الكيانات والتعددية",
   "navigation.labels.txt_2439c4": "8 مراحل",
   "navigation.labels.txt_276201": "هندسة معمارية للمشاريع الكبرى وسلاسل الإمداد الميدانية بالمملكة",
   "navigation.labels.txt_3711ef": "12 مرحلة",
@@ -60,7 +57,7 @@ export const arTranslations: TranslationDictionary = {
   "navigation.labels.txt_7265aa": "12 نوعاً و Audit",
   "navigation.labels.txt_72b405": "ملخص المستند:",
   "navigation.labels.txt_777008": "الدور والمسؤولية في النظام:",
-  "navigation.labels.txt_791f1b": "كل ارتباط بين كيانين يتم التحقق منه خادومياً داخل الـ Transactions في Firestore ولا يُترك القرار للواجهة الأمامية مطلقاً.",
+  "navigation.labels.txt_791f1b": "التحقق الخادومي من ارتباطات الكيانات",
   "navigation.labels.txt_8cf69f": "المستندات المعمارية المعتمدة (docs/)",
   "navigation.labels.txt_9a0a23": "16 نطاقاً",
   "navigation.labels.txt_b4b841": "مباشر ومحمي",
@@ -71,8 +68,6 @@ export const arTranslations: TranslationDictionary = {
   "trips.labels.txt_226b89": "destNet + فرق",
   "trips.labels.txt_304e68": "تسعير معتمد",
   "weighbridge.messages.txt_5d74e2": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
-
-  // BLOCK 54C — Materialized Runtime Keys (1,061 keys)
   "authentication.labels.txt_3548e6": "متصل بـ Firestore",
   "authentication.labels.txt_413ffd": "تسجيل الدخول (Google)",
   "authentication.labels.txt_49cb21": "جاري تهيئة التحقق...",
@@ -450,7 +445,7 @@ export const arTranslations: TranslationDictionary = {
   "navigation.labels.pricing_2": "بناءً على لقطات التسعير التعاقدية للرحلات",
   "navigation.labels.pricing_3": "2. أعمدة التسعير الـ 6 المضافة حديثاً (Pricing Snapshot Columns)",
   "navigation.labels.pricing_5": "أعمدة التسعير الستة تُضاف في أقصى اليمين (الأعمدة من 21 إلى 26).",
-  "navigation.labels.projectReports": "تنظيم وثائق المشروع داخل المجلد الجذري مع ثلاثة مجلدات فرعية مخصصة للملفات المستوردة والتقارير والمستندات القابلة للطباعة:",
+  "navigation.labels.projectReports": "تقارير ووثائق المشروع",
   "navigation.labels.projectUpload": "يرجى تهيئة مجلدات المشروع في Google Drive أولاً قبل رفع الملفات.",
   "navigation.labels.project_2": "تهيئة هيكل المشروع في Drive & Sheets",
   "navigation.labels.project_3": "المشروع المحدد",
@@ -628,7 +623,7 @@ export const arTranslations: TranslationDictionary = {
   "other.labels.carrier_10": "carrier",
   "other.labels.carrier_3": "تعطيل الناقل (تحويل إلى INACTIVE)",
   "other.labels.carrier_4": "تفعيل الناقل (تحويل إلى ACTIVE)",
-  "other.labels.carrier_7": "الناقل التابع له (Driver → Carrier):",
+  "other.labels.carrier_7": "الناقل التابع له:",
   "other.labels.carrier_8": "Carrier",
   "other.labels.carriers_2": "الناقلون",
   "other.labels.carriers_4": "الناقلون المسجلون",
