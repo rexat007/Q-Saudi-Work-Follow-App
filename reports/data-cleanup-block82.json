@@ -1,0 +1,49 @@
+{
+  "totalScanned": 16,
+  "totalPurged": 0,
+  "totalPreserved": 16,
+  "byCategory": {
+    "SAFE_TEST_DATA": 0,
+    "SAFE_DEMO_DATA": 1,
+    "SAFE_SEED_DATA": 0,
+    "SAFE_FIXTURE_DATA": 2,
+    "SAFE_SIMULATION_DATA": 0,
+    "GENUINE_OPERATIONAL_DATA": 13,
+    "UNKNOWN": 0
+  },
+  "bySource": {
+    "STATIC_FIXTURES": 3,
+    "FIRESTORE": 13
+  },
+  "purgedItemIds": [],
+  "preservedItemIds": [
+    "static:sampleImportBatches:BATCH-NEOM-2026-0901",
+    "static:sampleLegacySheetData:SAMPLE_LEGACY_GOOGLE_SHEET_ROWS",
+    "static:sampleQualityData:SAMPLE_QUALITY_CONTEXT",
+    "firestore:projects:schema_records",
+    "firestore:carriers:schema_records",
+    "firestore:materials:schema_records",
+    "firestore:trucks:schema_records",
+    "firestore:drivers:schema_records",
+    "firestore:pricingRules:schema_records",
+    "firestore:trips:schema_records",
+    "firestore:tripEvents:schema_records",
+    "firestore:exceptions:schema_records",
+    "firestore:auditLogs:schema_records",
+    "firestore:syncOperations:schema_records",
+    "firestore:importBatches:schema_records",
+    "firestore:users:schema_records"
+  ],
+  "auditTimestamp": "2026-09-14T08:04:39.701Z",
+  "status": "SUCCESS",
+  "verification": {
+    "noGenuineDataDeleted": true,
+    "i18nKeyCountPreserved": true,
+    "i18nArCount": 1128,
+    "i18nEnCount": 1128,
+    "i18nUrCount": 1128,
+    "pricingIntegrity": true,
+    "stateMachineIntegrity": true,
+    "projectIsolationIntegrity": true
+  }
+}

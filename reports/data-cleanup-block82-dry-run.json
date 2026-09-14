@@ -1,0 +1,191 @@
+{
+  "auditTimestamp": "2026-09-14T08:04:39.697Z",
+  "block": "BLOCK-82-DRY-RUN",
+  "summary": {
+    "totalDiscovered": 27,
+    "plannedPurgeCount": 11,
+    "plannedPreserveCount": 16,
+    "genuineOperationalDataProtected": true,
+    "i18nPreservedExactly1128Keys": true
+  },
+  "categories": {
+    "SAFE_TEST_DATA": 0,
+    "SAFE_DEMO_DATA": 1,
+    "SAFE_SEED_DATA": 0,
+    "SAFE_FIXTURE_DATA": 2,
+    "SAFE_SIMULATION_DATA": 11,
+    "GENUINE_OPERATIONAL_DATA": 13,
+    "UNKNOWN": 0
+  },
+  "sources": {
+    "IN_MEMORY_SERVICE": 11,
+    "STATIC_FIXTURES": 3,
+    "FIRESTORE": 13
+  },
+  "plannedPurgeItems": [
+    {
+      "id": "in_memory:trips:TRP-2026-00891",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00891 (WB-TKT-99101)"
+    },
+    {
+      "id": "in_memory:trips:TRP-2026-00892",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00892 (WB-TKT-99102)"
+    },
+    {
+      "id": "in_memory:trips:TRP-2026-00893",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00893 (WB-TKT-99103)"
+    },
+    {
+      "id": "in_memory:trips:TRP-2026-00894",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00894 (WB-TKT-99104)"
+    },
+    {
+      "id": "in_memory:trips:TRP-2026-00895",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00895 (WB-TKT-99105)"
+    },
+    {
+      "id": "in_memory:trips:TRP-2026-00896",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00896 (WB-TKT-99106)"
+    },
+    {
+      "id": "in_memory:trips:TRP-2026-00897",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00897 (WB-TKT-99107)"
+    },
+    {
+      "id": "in_memory:trips:TRP-2026-00898",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00898 (WB-TKT-99108)"
+    },
+    {
+      "id": "in_memory:trips:TRP-2026-00899",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00899 (WB-TKT-99109)"
+    },
+    {
+      "id": "in_memory:trips:TRP-2026-00900",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00900 (WB-TKT-88001)"
+    },
+    {
+      "id": "in_memory:trips:TRP-2026-00901",
+      "store": "tripEngine.trips",
+      "category": "SAFE_SIMULATION_DATA",
+      "desc": "Trip Engine record TRP-2026-00901 (WB-TKT-88002)"
+    }
+  ],
+  "plannedPreservedItems": [
+    {
+      "id": "static:sampleImportBatches:BATCH-NEOM-2026-0901",
+      "store": "sampleImportBatches",
+      "category": "SAFE_DEMO_DATA",
+      "desc": "Pre-packaged CSV sample import batch for demonstration UI"
+    },
+    {
+      "id": "static:sampleLegacySheetData:SAMPLE_LEGACY_GOOGLE_SHEET_ROWS",
+      "store": "sampleLegacySheetData",
+      "category": "SAFE_FIXTURE_DATA",
+      "desc": "Read-only legacy Google Sheet benchmark fixture dataset"
+    },
+    {
+      "id": "static:sampleQualityData:SAMPLE_QUALITY_CONTEXT",
+      "store": "sampleQualityData",
+      "category": "SAFE_FIXTURE_DATA",
+      "desc": "Quality engine test context for 8-stage verification"
+    },
+    {
+      "id": "firestore:projects:schema_records",
+      "store": "projects",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'projects' for user-authored operational data"
+    },
+    {
+      "id": "firestore:carriers:schema_records",
+      "store": "carriers",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'carriers' for user-authored operational data"
+    },
+    {
+      "id": "firestore:materials:schema_records",
+      "store": "materials",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'materials' for user-authored operational data"
+    },
+    {
+      "id": "firestore:trucks:schema_records",
+      "store": "trucks",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'trucks' for user-authored operational data"
+    },
+    {
+      "id": "firestore:drivers:schema_records",
+      "store": "drivers",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'drivers' for user-authored operational data"
+    },
+    {
+      "id": "firestore:pricingRules:schema_records",
+      "store": "pricingRules",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'pricingRules' for user-authored operational data"
+    },
+    {
+      "id": "firestore:trips:schema_records",
+      "store": "trips",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'trips' for user-authored operational data"
+    },
+    {
+      "id": "firestore:tripEvents:schema_records",
+      "store": "tripEvents",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'tripEvents' for user-authored operational data"
+    },
+    {
+      "id": "firestore:exceptions:schema_records",
+      "store": "exceptions",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'exceptions' for user-authored operational data"
+    },
+    {
+      "id": "firestore:auditLogs:schema_records",
+      "store": "auditLogs",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'auditLogs' for user-authored operational data"
+    },
+    {
+      "id": "firestore:syncOperations:schema_records",
+      "store": "syncOperations",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'syncOperations' for user-authored operational data"
+    },
+    {
+      "id": "firestore:importBatches:schema_records",
+      "store": "importBatches",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'importBatches' for user-authored operational data"
+    },
+    {
+      "id": "firestore:users:schema_records",
+      "store": "users",
+      "category": "GENUINE_OPERATIONAL_DATA",
+      "desc": "Production Firestore collection 'users' for user-authored operational data"
+    }
+  ]
+}
