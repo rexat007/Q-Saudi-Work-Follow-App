@@ -1,0 +1,301 @@
+{
+  "timestamp": "2026-09-14T10:04:25.179Z",
+  "block": "BLOCK 84",
+  "title": "Lightweight Translation Quality Audit Report",
+  "status": "NEEDS REVIEW",
+  "catalogStats": {
+    "arKeys": 1128,
+    "enKeys": 1128,
+    "urKeys": 1128,
+    "isCatalogSizePreserved": true
+  },
+  "totalIssuesFound": 19,
+  "shortlistCount": 19,
+  "findings": [
+    {
+      "key": "navigation.labels.projects",
+      "locale": "ar",
+      "currentTranslation": {
+        "ar": "المعمارية الهندسية الصارمة لمنظومة النقل الثقيل والمشاريع متعددة الأطراف (Multi-Project)",
+        "en": "Rigorous Enterprise Architecture for Heavy Transport & Multi-Party Projects (Multi-Project)",
+        "ur": "ہیوی ٹرانسپورٹ اور ملٹی پارٹی منصوبوں کا جامع تکنیکی ڈھانچہ (Multi-Project)"
+      },
+      "productionContext": "Main Navigation / System Header / Top Menu Bar",
+      "problem": "Unusually long Arabic string in navigation menu item creates potential truncation or text wrapping risk on mobile screens.",
+      "severity": "P3",
+      "classification": "CONTEXT_DEPENDENT",
+      "recommendedWordingDirection": "Ensure layout uses flexible flex-wrap or tooltip truncation on mobile viewports.",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "navigation.labels.trips",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "محرك الرحلات (Trip Engine)",
+        "en": "محرك Trips (Trip Engine)",
+        "ur": "محرك ٹرپس (Trip Engine)"
+      },
+      "productionContext": "Main Navigation / System Header / Top Menu Bar",
+      "problem": "Urdu dictionary key contains Arabic prefix \"محرك\" combined with raw English \"Trip Engine\".",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Use pure Urdu phrasing: \"ٹرپ انجن (Trip Engine)\".",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "navigation.labels.txt_17c5e1",
+      "locale": "ar",
+      "currentTranslation": {
+        "ar": "هذه المبادئ الـ 12 هي السقف الهندسي الحاكم لكامل المنظومة. لا يُسمح بأي استثناء أو خرق لأي مبدأ في أي مرحلة تطويرية أو كود تنفيذي.",
+        "en": "These 12 principles serve as the governing architectural ceiling for the entire platform. No exception or violation of any principle is permitted at any development stage or executive code.",
+        "ur": "یہ 12 اصول پورے پلیٹ فارم کے لیے حاکم تکنیکی چھت ہیں۔ کسی بھی ترقیاتی مرحلے یا انتظامی کوڈ میں کسی اصول کی استثنا یا خلاف ورزی کی اجازت نہیں ہے۔"
+      },
+      "productionContext": "Main Navigation / System Header / Top Menu Bar",
+      "problem": "Unusually long Arabic string in navigation menu item creates potential truncation or text wrapping risk on mobile screens.",
+      "severity": "P3",
+      "classification": "CONTEXT_DEPENDENT",
+      "recommendedWordingDirection": "Ensure layout uses flexible flex-wrap or tooltip truncation on mobile viewports.",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "navigation.labels.txt_23bdd6",
+      "locale": "ar",
+      "currentTranslation": {
+        "ar": "اختر أي كيان لاستعراض ارتباطاته الدقيقة، درجة التعددية (Cardinality)، وواجبات التحقق الخادومية الصارمة.",
+        "en": "Select any entity to inspect cardinality and server validation invariants.",
+        "ur": "کسی بھی ادارے کو منتخب کر کے اس کے باہمی روابط اور توثیقی شرائط دیکھیں۔"
+      },
+      "productionContext": "Main Navigation / System Header / Top Menu Bar",
+      "problem": "Unusually long Arabic string in navigation menu item creates potential truncation or text wrapping risk on mobile screens.",
+      "severity": "P3",
+      "classification": "CONTEXT_DEPENDENT",
+      "recommendedWordingDirection": "Ensure layout uses flexible flex-wrap or tooltip truncation on mobile viewports.",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "navigation.labels.txt_791f1b",
+      "locale": "ar",
+      "currentTranslation": {
+        "ar": "كل ارتباط بين كيانين يتم التحقق منه خادومياً داخل الـ Transactions في Firestore ولا يُترك القرار للواجهة الأمامية مطلقاً.",
+        "en": "كل ارتباط بين كيانين يتم التحقق منه خادومياً داخل الـ Transactions في Firestore ولا يُترك القرار للواجهة الأمامية مطلقاً.",
+        "ur": "كل ارتباط بين كيانين يتم التحقق منه خادومياً داخل الـ Transactions في Firestore ولا يُترك القرار للواجهة الأمامية مطلقاً."
+      },
+      "productionContext": "Main Navigation / System Header / Top Menu Bar",
+      "problem": "Unusually long Arabic string in navigation menu item creates potential truncation or text wrapping risk on mobile screens.",
+      "severity": "P3",
+      "classification": "CONTEXT_DEPENDENT",
+      "recommendedWordingDirection": "Ensure layout uses flexible flex-wrap or tooltip truncation on mobile viewports.",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "materials.labels.materials_2",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "materials",
+        "en": "materials",
+        "ur": "materials"
+      },
+      "productionContext": "Production Application Surface",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "navigation.labels.projectReports",
+      "locale": "ar",
+      "currentTranslation": {
+        "ar": "تنظيم وثائق المشروع داخل المجلد الجذري مع ثلاثة مجلدات فرعية مخصصة للملفات المستوردة والتقارير والمستندات القابلة للطباعة:",
+        "en": "Organize project documents within the root folder with three subfolders dedicated to imported files, reports, and printable documents:",
+        "ur": "درآمد شدہ فائلوں، رپورٹس اور پرنٹ کے قابل دستاویزات کے لیے وقف تین ذیلی فولڈرز کے ساتھ روٹ فولڈر کے اندر پروجیکٹ دستاویزات کو منظم کریں:"
+      },
+      "productionContext": "Main Navigation / System Header / Top Menu Bar",
+      "problem": "Unusually long Arabic string in navigation menu item creates potential truncation or text wrapping risk on mobile screens.",
+      "severity": "P3",
+      "classification": "CONTEXT_DEPENDENT",
+      "recommendedWordingDirection": "Ensure layout uses flexible flex-wrap or tooltip truncation on mobile viewports.",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "offline.labels.projects",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "projects",
+        "en": "projects",
+        "ur": "projects"
+      },
+      "productionContext": "Production Application Surface",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "offline.labels.trips",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "trips",
+        "en": "trips",
+        "ur": "trips"
+      },
+      "productionContext": "Production Application Surface",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "other.labels.carrier_10",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "carrier",
+        "en": "carrier",
+        "ur": "carrier"
+      },
+      "productionContext": "Projects Setup & Master Data Management",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "other.labels.carrier_7",
+      "locale": "all",
+      "currentTranslation": {
+        "ar": "الناقل التابع له (Driver → Carrier):",
+        "en": "Associated Carrier (Driver → Carrier):",
+        "ur": "منسلک کیریئر (Driver → Carrier):"
+      },
+      "productionContext": "Projects Setup & Master Data Management",
+      "problem": "Potential domain terminology conflict: key refers to carrier (ناقل) but translation mentions driver (سائق).",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Maintain strict distinction between Carrier (الناقل / شركة النقل) and Driver (السائق).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "other.labels.carrier_8",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "Carrier",
+        "en": "Carrier",
+        "ur": "Carrier"
+      },
+      "productionContext": "Projects Setup & Master Data Management",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "other.labels.enterprise",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "Enterprise",
+        "en": "Enterprise",
+        "ur": "Enterprise"
+      },
+      "productionContext": "Production Application Surface",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "other.labels.trip_3",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "TRIP",
+        "en": "TRIP",
+        "ur": "TRIP"
+      },
+      "productionContext": "Production Application Surface",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "projects.labels.materials",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "Materials",
+        "en": "Materials",
+        "ur": "Materials"
+      },
+      "productionContext": "Projects Setup & Master Data Management",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "projects.labels.projects",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "projects",
+        "en": "projects",
+        "ur": "projects"
+      },
+      "productionContext": "Projects Setup & Master Data Management",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "trips.labels.trips_3",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "trips",
+        "en": "trips",
+        "ur": "trips"
+      },
+      "productionContext": "Production Application Surface",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "weighbridge.labels.txt_504ae8",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "0.00 كجم",
+        "en": "0.00 KG",
+        "ur": "0.00 KG"
+      },
+      "productionContext": "Weighbridge Scale Scale Operator View",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    },
+    {
+      "key": "weighbridge.labels.txt_6e06f6",
+      "locale": "ur",
+      "currentTranslation": {
+        "ar": "37,400 كجم (37.4 طن)",
+        "en": "37,400 KG (37.4 TON)",
+        "ur": "37,400 KG (37.4 TON)"
+      },
+      "productionContext": "Weighbridge Scale Scale Operator View",
+      "problem": "Untranslated English string leakage in Urdu dictionary where native Urdu text is expected.",
+      "severity": "P2",
+      "classification": "NEEDS_REVIEW",
+      "recommendedWordingDirection": "Translate English label into standard Urdu script (e.g. کیریئر / مال بردار / پروجیکٹس).",
+      "confidence": "HIGH"
+    }
+  ]
+}
