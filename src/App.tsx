@@ -457,7 +457,7 @@ export default function App() {
               >
                 {isOnline ? <Wifi className="w-3.5 h-3.5 text-emerald-600" /> : <WifiOff className="w-3.5 h-3.5 text-amber-700" />}
                 <span>{isOnline ? 'Online' : 'Offline'}</span>
-                <Inbox className="w-3 h-3 text-stone-500 mr-0.5" />
+                <Inbox className="w-3 h-3 text-stone-500 me-0.5" />
                 <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
                   pendingCount > 0 ? 'bg-amber-500 text-white font-bold' : 'bg-stone-200 text-stone-700'
                 }`}>

@@ -617,7 +617,7 @@ export const ReportsEngineView: React.FC = () => {
           <div className="text-[10px] text-stone-400 mt-0.5">
             {currentDataset.summary.pricedTrips ?? currentDataset.summary.totalTrips} معتمدة
             {currentDataset.summary.pendingSettlementTrips ? (
-              <span className="text-amber-700 font-bold mr-1">• {currentDataset.summary.pendingSettlementTrips} معلقة</span>
+              <span className="text-amber-700 font-bold ms-1">• {currentDataset.summary.pendingSettlementTrips} معلقة</span>
             ) : ''}
           </div>
         </div>

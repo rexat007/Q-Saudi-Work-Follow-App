@@ -696,44 +696,90 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
       </div>
 
       {/* Workflow Stepper Header */}
-      <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 shadow-2xs overflow-x-auto">
-        <div className="flex items-center justify-between min-w-[700px] gap-2 px-2">
-          {STEPS.map((step, idx) => {
-            const isCompleted = stepIndex > idx;
-            const isCurrent = step.id === currentStep;
-            const Icon = step.icon;
+      <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 shadow-2xs">
+        {/* Mobile View (< 640px): Compact, No-Scroll Responsive Stepper */}
+        <div className="sm:hidden space-y-2.5">
+          <div className="flex items-center justify-between gap-2 px-1">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
+                {stepIndex + 1}
+              </span>
+              <div className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                {React.createElement(STEPS[stepIndex].icon, { className: 'w-4 h-4 text-amber-600 shrink-0' })}
+                <span>{STEPS[stepIndex].label}</span>
+              </div>
+            </div>
+            <span className="text-[11px] font-semibold text-stone-500 font-mono">
+              {stepIndex + 1} / {STEPS.length}
+            </span>
+          </div>
 
-            return (
-              <React.Fragment key={step.id}>
+          {/* 8 Compact Step Buttons with full interactivity without horizontal clipping */}
+          <div className="grid grid-cols-8 gap-1">
+            {STEPS.map((step, idx) => {
+              const isCompleted = stepIndex > idx;
+              const isCurrent = step.id === currentStep;
+              return (
                 <button
+                  key={step.id}
                   onClick={() => setCurrentStep(step.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+                  title={step.label}
+                  aria-label={`${step.number}. ${step.label}`}
+                  className={`h-8 rounded-lg flex items-center justify-center text-[11px] font-bold transition-all ${
                     isCurrent
-                      ? 'bg-amber-600 text-white shadow-xs'
+                      ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-400/40'
                       : isCompleted
-                      ? 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100'
+                      ? 'bg-amber-100 text-amber-900 border border-amber-300'
                       : 'bg-white text-stone-500 border border-stone-200 hover:bg-stone-100'
                   }`}
                 >
-                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    isCurrent 
-                      ? 'bg-white text-amber-700' 
-                      : isCompleted 
-                      ? 'bg-amber-600 text-white' 
-                      : 'bg-stone-200 text-stone-600'
-                  }`}>
-                    {isCompleted ? <Check className="w-3 h-3" /> : step.number}
-                  </span>
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{step.label}</span>
+                  {isCompleted ? <Check className="w-3.5 h-3.5 text-amber-800" /> : step.number}
                 </button>
+              );
+            })}
+          </div>
+        </div>
 
-                {idx < STEPS.length - 1 && (
-                  <div className={`flex-1 h-0.5 min-w-[12px] ${stepIndex > idx ? 'bg-amber-500' : 'bg-stone-200'}`} />
-                )}
-              </React.Fragment>
-            );
-          })}
+        {/* Desktop & Tablet View (>= 640px): Full Workflow Stepper */}
+        <div className="hidden sm:block overflow-x-auto">
+          <div className="flex items-center justify-between min-w-[700px] gap-2 px-2">
+            {STEPS.map((step, idx) => {
+              const isCompleted = stepIndex > idx;
+              const isCurrent = step.id === currentStep;
+              const Icon = step.icon;
+
+              return (
+                <React.Fragment key={step.id}>
+                  <button
+                    onClick={() => setCurrentStep(step.id)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+                      isCurrent
+                        ? 'bg-amber-600 text-white shadow-xs'
+                        : isCompleted
+                        ? 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100'
+                        : 'bg-white text-stone-500 border border-stone-200 hover:bg-stone-100'
+                    }`}
+                  >
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                      isCurrent 
+                        ? 'bg-white text-amber-700' 
+                        : isCompleted 
+                        ? 'bg-amber-600 text-white' 
+                        : 'bg-stone-200 text-stone-600'
+                    }`}>
+                      {isCompleted ? <Check className="w-3 h-3" /> : step.number}
+                    </span>
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{step.label}</span>
+                  </button>
+
+                  {idx < STEPS.length - 1 && (
+                    <div className={`flex-1 h-0.5 min-w-[12px] ${stepIndex > idx ? 'bg-amber-500' : 'bg-stone-200'}`} />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
       </div>
 

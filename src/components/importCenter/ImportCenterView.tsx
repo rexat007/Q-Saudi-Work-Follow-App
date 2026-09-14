@@ -791,17 +791,17 @@ export function ImportCenterView() {
 
         {/* 6. EXACT REQUESTED REVIEW TABLE */}
         <div className="overflow-x-auto border border-stone-200 rounded-xl">
-          <table className="w-full text-right border-collapse text-xs">
+          <table className="w-full text-right rtl:text-right ltr:text-left border-collapse text-xs">
             <thead>
               <tr className="bg-stone-100/80 text-stone-700 font-bold border-b border-stone-200">
                 <th className="py-3 px-3 w-14">Row</th>
-                <th className="py-3 px-3 w-36">Field</th>
+                <th className="py-3 px-3 w-36">{t("offline.labels.txt_59a3b5")}</th>
                 <th className="py-3 px-3 min-w-[140px]">Original Value</th>
                 <th className="py-3 px-3 min-w-[150px]">Suggested Value</th>
                 <th className="py-3 px-3 w-28 text-center">Confidence</th>
                 <th className="py-3 px-3 min-w-[220px]">Issue</th>
                 <th className="py-3 px-3 w-24 text-center">Severity</th>
-                <th className="py-3 px-3 min-w-[200px] text-center">Action</th>
+                <th className="py-3 px-3 min-w-[200px] text-center">{t("trips.labels.txt_1309b3")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">

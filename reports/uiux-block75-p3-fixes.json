@@ -1,0 +1,115 @@
+{
+  "metadata": {
+    "block": 75,
+    "phase": "P3_UI_UX_FINAL_CLEANUP",
+    "timestamp": "2026-09-13T21:45:00.000Z",
+    "baseRecoveryPoint": "BLOCK 74 (reports/uiux-block74-p2-fixes.json)",
+    "translationPhaseStatus": "FROZEN_LOCKED",
+    "p3FindingsFixedCount": 3,
+    "unrelatedFindingsFixedCount": 0
+  },
+  "summary": {
+    "status": "COMPLETED",
+    "allAuthorizedP3Fixed": true,
+    "i18nRemainsFrozen": true,
+    "noNewTranslationCatalogCreated": true,
+    "filesChanged": [
+      "src/components/importCenter/ImportCenterView.tsx",
+      "src/App.tsx",
+      "src/components/reports/ReportsEngineView.tsx",
+      "src/components/tripEngine/LoadingStation.tsx"
+    ]
+  },
+  "fixes": [
+    {
+      "id": "AUDIT-72-08",
+      "category": "I18N_LOCALIZATION",
+      "severity": "P3",
+      "title": "Active Batch Review Table Column Headers Localization",
+      "affectedLocales": ["ar", "ur", "en"],
+      "files": ["src/components/importCenter/ImportCenterView.tsx"],
+      "before": {
+        "headers": "Hardcoded English strings: 'Row', 'Field', 'Original Value', 'Suggested Value', 'Confidence', 'Issue', 'Severity', 'Action'",
+        "tableAlignment": "w-full text-right border-collapse text-xs",
+        "issue": "Review table headers in ImportCenterView contained hardcoded English text regardless of the active locale."
+      },
+      "after": {
+        "headers": "Replaced headers where existing i18n keys exist in frozen catalogs: Field -> {t('offline.labels.txt_59a3b5')} ('Field' / 'الحقل' / 'فیلڈ'), Action -> {t('trips.labels.txt_1309b3')} ('Actions' / 'إجراءات' / 'اقدامات'). Remaining headers ('Row', 'Original Value', 'Suggested Value', 'Confidence', 'Issue', 'Severity') retained as English fallback without creating new keys, adhering strictly to the frozen i18n constraint.",
+        "tableAlignment": "w-full text-right rtl:text-right ltr:text-left border-collapse text-xs",
+        "rtlExperience": "Headers for Field and Action render seamlessly in Arabic/Urdu, and table alignment follows RTL reading direction.",
+        "ltrExperience": "Headers render in English with LTR text alignment."
+      },
+      "preservation": {
+        "tableDataPreserved": true,
+        "sortingLogicPreserved": true,
+        "filteringLogicPreserved": true,
+        "columnOrderPreserved": true,
+        "frozenCatalogPreserved": true
+      }
+    },
+    {
+      "id": "AUDIT-72-09",
+      "category": "RTL_LTR_SPACING",
+      "severity": "P3",
+      "title": "Physical Icon Margins in Utility Buttons & Summary Pills",
+      "affectedLocales": ["ar", "ur"],
+      "files": [
+        "src/App.tsx",
+        "src/components/reports/ReportsEngineView.tsx"
+      ],
+      "before": {
+        "headerOutboxIcon": "<Inbox className='w-3 h-3 text-stone-500 mr-0.5' />",
+        "reportsSummaryBadge": "<span className='text-amber-700 font-bold mr-1'>• {currentDataset.summary.pendingSettlementTrips} معلقة</span>",
+        "issue": "Physical mr-* margins placed margin on the physical right edge. In RTL mode, physical right is inline start, creating reversed spacing that pushed icons/bullets towards preceding elements instead of following labels."
+      },
+      "after": {
+        "headerOutboxIcon": "<Inbox className='w-3 h-3 text-stone-500 me-0.5' /> (margin-inline-end)",
+        "reportsSummaryBadge": "<span className='text-amber-700 font-bold ms-1'>• {currentDataset.summary.pendingSettlementTrips} معلقة</span> (margin-inline-start)",
+        "rtlExperience": "Correct inline separation: Outbox icon separates cleanly from the count pill to its inline end; summary bullet separates cleanly from preceding trip count.",
+        "ltrExperience": "Identical visual spacing preserved in LTR mode."
+      },
+      "preservation": {
+        "visualSpacingPreserved": true,
+        "buttonClickHandlersPreserved": true,
+        "statusPillBehaviorPreserved": true
+      }
+    },
+    {
+      "id": "AUDIT-72-10",
+      "category": "RESPONSIVE_UI",
+      "severity": "P3",
+      "title": "Workflow Stepper Container Responsive Refactoring",
+      "affectedLocales": ["ar", "ur", "en"],
+      "files": ["src/components/tripEngine/LoadingStation.tsx"],
+      "before": {
+        "container": "min-w-[700px] flex items-center justify-between in overflow-x-auto",
+        "issue": "Enforcing min-w-[700px] caused horizontal scrolling on mobile screens (< 640px), forcing mobile users to scroll sideways to view all 8 steps."
+      },
+      "after": {
+        "container": "Dual-mode responsive stepper: below 640px (sm:hidden), renders a compact, no-scroll indicator with current step label and 8 responsive tap-target buttons. On >= 640px (hidden sm:block), renders the full multi-step bar with connecting lines and labels preserved.",
+        "mobileExperience": "Clean, single-screen step indicator and 8 accessible quick-jump step buttons without horizontal clipping or scrollbar.",
+        "desktopExperience": "Full workflow stepper bar with min-w-[700px] preserved identically for tablet and desktop."
+      },
+      "preservation": {
+        "desktopTabletAppearancePreserved": true,
+        "stepOrderingPreserved": true,
+        "stepIdsPreserved": ["PROJECT", "CARRIER", "TRUCK", "DRIVER", "MATERIAL", "TARE", "GROSS", "PREVIEW"],
+        "stepClickHandlersPreserved": true,
+        "noRedesignPerformed": true
+      }
+    }
+  ],
+  "verification": {
+    "audit72_08_activeBatchTable": "VERIFIED (existing i18n keys for Field & Action, logical alignment, frozen catalog preserved)",
+    "audit72_09_physicalMargins": "VERIFIED (direction-safe me-0.5 in App.tsx and ms-1 in ReportsEngineView.tsx)",
+    "audit72_10_workflowSteppers": "VERIFIED (no horizontal scroll on < 640px, full desktop stepper preserved)",
+    "localeKeysCount": {
+      "ar": 1128,
+      "en": 1128,
+      "ur": 1128
+    },
+    "i18nFrozen": true,
+    "businessLogicUntouched": true,
+    "pricingLogicUntouched": true
+  }
+}
