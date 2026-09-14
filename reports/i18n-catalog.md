@@ -1,23 +1,23 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-14T11:06:14.553Z
+**Generated At:** 2026-09-14T14:20:33.328Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 284 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 36049 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 9288 | Confirmed visible Arabic and UI texts |
-| **Likely User-Facing Texts** | 371 | English UI text in visible elements |
-| **Ambiguous Texts** | 8641 | Short or context-isolated tokens for manual review |
-| **Technical Strings** | 7587 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 10162 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 8231 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 4234 | Sets of identical/normalized recurring texts |
-| **Semantic Conflict Groups** | 612 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 10601 | Entries flagged with special cases or ambiguity |
+| **Total Files Scanned** | 286 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 36271 | Total strings and text nodes parsed |
+| **Real User-Facing Texts** | 9327 | Confirmed visible Arabic and UI texts |
+| **Likely User-Facing Texts** | 373 | English UI text in visible elements |
+| **Ambiguous Texts** | 8694 | Short or context-isolated tokens for manual review |
+| **Technical Strings** | 7653 | CSS classes, paths, enums, regexes, operators |
+| **Non-User-Facing Strings** | 10224 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 8268 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Duplicate Groups** | 4248 | Sets of identical/normalized recurring texts |
+| **Semantic Conflict Groups** | 617 | Identical texts requiring distinct contextual keys |
+| **Keys Requiring Review** | 10654 | Entries flagged with special cases or ambiguity |
 | **High / Critical Risk Hotspots** | 2300 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
@@ -26,8 +26,8 @@
 | :--- | :--- | :--- |
 | `other` | 4330 | Classified operational domain |
 | `imports` | 1428 | Classified operational domain |
+| `security` | 466 | Classified operational domain |
 | `reports` | 462 | Classified operational domain |
-| `security` | 456 | Classified operational domain |
 | `trips` | 455 | Classified operational domain |
 | `pricing` | 345 | Classified operational domain |
 | `weighbridge` | 281 | Classified operational domain |
@@ -40,10 +40,10 @@
 | `legacyMigration` | 173 | Classified operational domain |
 | `projects` | 121 | Classified operational domain |
 | `dashboard` | 110 | Classified operational domain |
+| `authentication` | 49 | Classified operational domain |
 | `carriers` | 41 | Classified operational domain |
 | `materials` | 35 | Classified operational domain |
 | `drivers` | 33 | Classified operational domain |
-| `authentication` | 18 | Classified operational domain |
 | `validation` | 16 | Classified operational domain |
 | `trucks` | 15 | Classified operational domain |
 | `shared` | 0 | Classified operational domain |
@@ -58,8 +58,8 @@
 
 | File | Line | Class / Icon | Type | Risk | Suggested Replacement |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `src/App.tsx` | 667 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
-| `src/App.tsx` | 692 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
+| `src/App.tsx` | 680 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
+| `src/App.tsx` | 705 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
 | `src/components/FirestoreArchitectureView.tsx` | 471 | `text-left` | text-alignment | `MUST_MIGRATE` | `text-start` |
 | `src/components/FirestoreArchitectureView.tsx` | 529 | `pr-1` | padding | `MUST_MIGRATE` | `pe-1` |
 | `src/components/FirestoreArchitectureView.tsx` | 716 | `border-rose-200` | border | `PROBABLY_SAFE` | `border-rose-200` |

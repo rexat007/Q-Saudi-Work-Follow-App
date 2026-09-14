@@ -1,0 +1,96 @@
+{
+  "timestamp": "2026-09-14T14:00:00.000Z",
+  "auditType": "READ_ONLY_AUTHORIZATION_ARCHITECTURE_AUDIT",
+  "application": "Q-Saudi-Work-Follow",
+  "block": "BLOCK 86A",
+  "summary": {
+    "authArchitecture": "PARTIAL",
+    "userProfileStore": "FIRESTORE_USERS_COLLECTION (/users/{userId})",
+    "roleStore": "FIRESTORE_USERS_COLLECTION (/users/{userId}.role) & CUSTOM_CLAIMS",
+    "projectMembershipStore": "FIRESTORE_USERS_COLLECTION (/users/{userId}.assignedProjectIds) & CUSTOM_CLAIMS",
+    "approvalWorkflow": "MISSING",
+    "serverAuthorization": "PARTIAL",
+    "googleOpenAccess": "YES",
+    "adminUserManagementInterface": "PRESENT"
+  },
+  "verificationDetails": {
+    "1_enabledAuthProviders": [
+      "Google Sign-In (GoogleAuthProvider via signInWithPopup)"
+    ],
+    "2_googleOpenAccess": {
+      "isOpenToAnyGoogleAccount": true,
+      "details": "Any Google user completing signInWithPopup gets authenticated into AuthContext. There is no pre-approval whitelist check or pending gate on sign-in."
+    },
+    "3_firestoreUserProfileExists": {
+      "schemaDefined": true,
+      "repositoryDefined": true,
+      "autoCreatedOnSignIn": false,
+      "details": "Firestore schema /users/{userId} exists in rules and code, but authContext.tsx does not automatically query or initialize a user document upon Google login."
+    },
+    "4_userCollectionStructure": {
+      "collectionPath": "/users/{userId}",
+      "keyFields": {
+        "userId": "string (Firebase Auth UID)",
+        "email": "string",
+        "fullName": "string",
+        "role": "PROJECT_ADMIN | SUPER_ADMIN | SITE_SUPERVISOR | SUPERVISOR | DISPATCHER | FINANCE_AUDITOR | SCALE_OPERATOR | DRIVER | VIEWER",
+        "assignedProjectIds": "string[]",
+        "isActive": "boolean",
+        "createdAt": "timestamp",
+        "createdBy": "string",
+        "updatedAt": "timestamp",
+        "updatedBy": "string"
+      }
+    },
+    "5_roleStorage": {
+      "firestore": "Stored in /users/{userId}.role",
+      "rules": "Checked via request.auth.token.role or get(/users/$(request.auth.uid)).data.role",
+      "expressServer": "Parsed from x-user-role header with PROJECT_ADMIN default fallback"
+    },
+    "6_projectAssignmentStorage": {
+      "firestore": "Stored in /users/{userId}.assignedProjectIds",
+      "rules": "Checked via request.auth.token.assignedProjectIds or get(/users/$(request.auth.uid)).data.assignedProjectIds",
+      "expressServer": "Parsed from x-assigned-projects header with PRJ-NEOM-NORTH-01 default fallback"
+    },
+    "7_accountApprovalStatus": {
+      "present": false,
+      "currentFields": ["isActive: boolean"],
+      "missingFields": ["status: 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED' | 'SUSPENDED'", "requestedRole", "approvedBy", "approvedAt"]
+    },
+    "8_unauthorizedRouteAccess": {
+      "frontendAccess": "Signed-in users can view UI tabs and switch active roles/security profiles using UI dropdowns.",
+      "expressBackendAccess": "Express endpoints default unauthenticated requests to system admin context unless custom headers are provided."
+    },
+    "9_serverSideRoleAuthorization": {
+      "firestoreRules": "ENFORCED (hasProjectRole helper checks role in rules)",
+      "expressServer": "PARTIAL (enforceRole middleware checks role, but reads untrusted x-user-role header)"
+    },
+    "10_serverSideProjectIsolation": {
+      "firestoreRules": "ENFORCED (isProjectMember helper checks assignedProjectIds)",
+      "expressServer": "PARTIAL (enforceProjectIsolation middleware checks assignedProjectIds, but reads x-assigned-projects header)"
+    },
+    "11_adminUserManagementInterface": {
+      "present": true,
+      "location": "src/components/admin/AdminConsoleView.tsx (Users tab)",
+      "capabilities": ["List users", "Update role (updateUserRole)", "Toggle active status (toggleUserStatus)", "Create local user (createUser)"]
+    }
+  },
+  "minimumRequiredArchitecture": {
+    "step1_schemaExtension": "Extend UserEntity & /users/{userId} schema with status ('PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED'), requestedRole, requestReason, approvedBy, and approvedAt.",
+    "step2_postLoginHook": "Update authContext.tsx to query /users/{uid} on Google Sign-In and auto-create a document with status='PENDING_APPROVAL' if not found.",
+    "step3_accessGate": "Implement a PendingApprovalGuard component in App.tsx that blocks operational views and presents a pending request state for non-ACTIVE users.",
+    "step4_adminApprovalQueue": "Add a Pending Account Requests queue in AdminConsoleView.tsx allowing Admins to approve requests, assign roles, and allocate project IDs.",
+    "step5_firestoreRulesGate": "Update firestore.rules to require get(/users/$(request.auth.uid)).data.status == 'ACTIVE' for reading/writing operational documents.",
+    "step6_expressTokenVerification": "Update authenticateUser in Express backend to verify Firebase ID Tokens and resolve role/status/projects from Firestore rather than relying on request headers."
+  },
+  "explicitOutputs": {
+    "AUTH_ARCHITECTURE": "PARTIAL",
+    "USER_PROFILE_STORE": "FIRESTORE_USERS_COLLECTION (/users/{userId})",
+    "ROLE_STORE": "FIRESTORE_USERS_COLLECTION (/users/{userId}.role) & CUSTOM_CLAIMS",
+    "PROJECT_MEMBERSHIP_STORE": "FIRESTORE_USERS_COLLECTION (/users/{userId}.assignedProjectIds) & CUSTOM_CLAIMS",
+    "APPROVAL_WORKFLOW": "MISSING",
+    "SERVER_AUTHORIZATION": "PARTIAL",
+    "GOOGLE_OPEN_ACCESS": "YES",
+    "MINIMUM_REQUIRED_CHANGES": "1. Extend /users/{userId} schema with status ('PENDING_APPROVAL'|'ACTIVE'|'REJECTED') and requestedRole. 2. Update authContext.tsx to check/create Firestore user document on sign-in. 3. Add PendingApprovalGuard component in App.tsx. 4. Add Pending Requests Queue in AdminConsoleView.tsx. 5. Enforce status == 'ACTIVE' in firestore.rules. 6. Verify Firebase ID Tokens in Express backend instead of trusting request headers."
+  }
+}

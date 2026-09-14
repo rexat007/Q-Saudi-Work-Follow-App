@@ -139,6 +139,14 @@ export interface UserEntity extends BaseAuditedEntity {
   role: 'PROJECT_ADMIN' | 'SUPER_ADMIN' | 'SITE_SUPERVISOR' | 'SUPERVISOR' | 'DISPATCHER' | 'FINANCE_AUDITOR' | 'SCALE_OPERATOR' | 'DRIVER' | 'VIEWER';
   assignedProjectIds: string[];
   isActive: boolean;
+  status?: 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED' | 'SUSPENDED';
+  requestedRole?: 'PROJECT_ADMIN' | 'SUPER_ADMIN' | 'SITE_SUPERVISOR' | 'SUPERVISOR' | 'DISPATCHER' | 'FINANCE_AUDITOR' | 'SCALE_OPERATOR' | 'DRIVER' | 'VIEWER';
+  requestReason?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectedBy?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
 }
 
 // Operation Source Model (BLOCK 29)

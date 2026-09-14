@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-09-14T12:30:00.000Z",
+  "block": "BLOCK 86",
+  "title": "Google Sign-In Domain Failure Forensic Trace",
+  "runtimeFirebaseProject": "gen-lang-client-0774589047",
+  "runtimeAuthDomain": "gen-lang-client-0774589047.firebaseapp.com",
+  "currentHostname": "q-saudi-work-follow-app.vercel.app",
+  "appDomainValidationPresent": false,
+  "firebaseAuthorizationPresent": true,
+  "oAuthOriginProblem": true,
+  "productionEnvProblem": true,
+  "primaryRootCause": "Vercel Production deployment bundle was built targeting the legacy Firebase project (promise-of-planet-youtube-api.firebaseapp.com) because VITE_FIREBASE_* environment variables were set only for Preview environments or built prior to configuration correction. Consequently, Firebase Auth verifies the origin against the legacy project where q-saudi-work-follow-app.vercel.app is not authorized.",
+  "rootCauseHierarchy": {
+    "P1": "Stale/Mismatched Production Build on Vercel pointing authDomain to promise-of-planet-youtube-api instead of gen-lang-client-0774589047.",
+    "P2": "Missing or incomplete Authorized Origins (https://q-saudi-work-follow-app.vercel.app) or Redirect URIs (https://gen-lang-client-0774589047.firebaseapp.com/__/auth/handler) in GCP OAuth 2.0 Web Client configuration.",
+    "P3": "Environment variable scoping in Vercel Dashboard (Production scope vs Preview scope)."
+  },
+  "minimumFix": "1. Configure VITE_FIREBASE_* environment variables in Vercel Dashboard explicitly for the Production environment targeting gen-lang-client-0774589047.\n2. Trigger a clean Redeploy on Vercel without build cache.\n3. Verify GCP Console OAuth Web Client Authorized Origins contains https://q-saudi-work-follow-app.vercel.app and Authorized Redirect URIs contains https://gen-lang-client-0774589047.firebaseapp.com/__/auth/handler.",
+  "trace": {
+    "triggerFile": "src/components/auth/AuthButton.tsx",
+    "contextFile": "src/firebase/authContext.tsx",
+    "authFunction": "signInWithGoogle",
+    "sdkCall": "signInWithPopup(auth, provider)",
+    "errorCode": "auth/unauthorized-domain",
+    "arabicErrorFormatter": "src/firebase/authContext.tsx (lines 57-59)"
+  },
+  "explicitOutputs": {
+    "RUNTIME_FIREBASE_PROJECT": "gen-lang-client-0774589047",
+    "RUNTIME_AUTH_DOMAIN": "gen-lang-client-0774589047.firebaseapp.com",
+    "CURRENT_HOSTNAME": "q-saudi-work-follow-app.vercel.app",
+    "APP_DOMAIN_VALIDATION_PRESENT": "NO",
+    "FIREBASE_AUTHORIZATION_PRESENT": "YES",
+    "OAUTH_ORIGIN_PROBLEM": "YES",
+    "PRODUCTION_ENV_PROBLEM": "YES",
+    "PRIMARY_ROOT_CAUSE": "Vercel Production deployment was compiled targeting legacy Firebase project (promise-of-planet-youtube-api.firebaseapp.com) due to Preview-only Vercel environment variable scoping or stale build cache.",
+    "MINIMUM_FIX": "Set Production environment variables in Vercel to gen-lang-client-0774589047, clear Vercel build cache and redeploy, and ensure GCP OAuth Client Authorized Origins includes https://q-saudi-work-follow-app.vercel.app."
+  }
+}

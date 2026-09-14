@@ -71,11 +71,12 @@ import {
 } from './services/navigation.service';
 import { UserRole } from './types/common';
 import { useAuth } from './firebase/authContext';
+import { AccountStatusGate } from './components/auth/AccountStatusGate';
 
 export default function App() {
   const { direction, t } = useI18n();
   const isRtl = direction === 'rtl';
-  const { user } = useAuth();
+  const { user, userProfile, refreshUserProfile } = useAuth();
 
   // Role and Navigation state
   const [currentRole, setCurrentRole] = useState<UserRole>('SUPER_ADMIN');
@@ -215,6 +216,18 @@ export default function App() {
       default: return 'LOADING_STATION';
     }
   };
+
+  // Gate authenticated users if account status is not ACTIVE
+  if (user && (!userProfile || userProfile.status !== 'ACTIVE')) {
+    return (
+      <AccountStatusGate
+        status={userProfile?.status || 'PENDING_APPROVAL'}
+        userEmail={user.email || ''}
+        userName={userProfile?.fullName || user.displayName || ''}
+        onRefresh={refreshUserProfile}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0f1115] text-[#f8fafc] font-sans flex flex-col antialiased selection:bg-[#10b981] selection:text-[#0f1115]" dir={direction}>

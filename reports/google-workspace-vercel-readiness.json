@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-09-14T12:00:00.000Z",
+  "auditType": "READ_ONLY_GOOGLE_WORKSPACE_VERCEL_READINESS",
+  "application": "Q-Saudi-Work-Follow",
+  "summary": {
+    "googleWorkspaceReady": "YES",
+    "vercelServerRequired": "PARTIAL",
+    "driveIntegrationStatus": "READY",
+    "sheetsIntegrationStatus": "READY",
+    "canRemainDisabled": true,
+    "blockersCount": 0
+  },
+  "driveIntegration": {
+    "status": "READY",
+    "implementationLocation": "server/workspace.service.ts & src/services/workspace.service.ts",
+    "capabilities": [
+      "Provision project root and subfolder structure ([Q-Saudi] <ProjectName>)",
+      "Upload printable documents and weighbridge tickets to Drive subfolders",
+      "List importable files from Drive project folder",
+      "Download raw file content bytes for import pipeline"
+    ]
+  },
+  "sheetsIntegration": {
+    "status": "READY",
+    "implementationLocation": "server/workspace.service.ts & src/services/workspace.service.ts",
+    "capabilities": [
+      "Provision 6 operational sheet tabs (Operations, Drivers, Carriers, Materials, Exceptions, Reports)",
+      "Idempotent record upsert across all operational tabs",
+      "Discover spreadsheet metadata and sheet tab lists",
+      "Extract 2D array row data for import intake"
+    ]
+  },
+  "environmentVariables": {
+    "requiredNames": [
+      "VITE_FIREBASE_PROJECT_ID",
+      "VITE_FIREBASE_API_KEY",
+      "VITE_FIREBASE_AUTH_DOMAIN",
+      "VITE_FIREBASE_APP_ID",
+      "VITE_FIREBASE_OAUTH_CLIENT_ID",
+      "VITE_FIREBASE_FIRESTORE_DATABASE_ID"
+    ],
+    "googleCloudConsoleSourceValues": [
+      "VITE_FIREBASE_PROJECT_ID (GCP Project ID)",
+      "VITE_FIREBASE_API_KEY (Web API Key)",
+      "VITE_FIREBASE_AUTH_DOMAIN (Firebase Auth Domain)",
+      "VITE_FIREBASE_OAUTH_CLIENT_ID (OAuth 2.0 Client ID for Web Application)"
+    ]
+  },
+  "googleCloudSetup": {
+    "requiredApis": [
+      "Google Drive API (drive.googleapis.com)",
+      "Google Sheets API (sheets.googleapis.com)",
+      "Identity Toolkit API (identitytoolkit.googleapis.com)"
+    ],
+    "requiredOAuthScopes": [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive.file",
+      "openid",
+      "email",
+      "profile"
+    ],
+    "requiredRedirectAndCallbackUrls": {
+      "firebaseAuthHandler": "https://<PROJECT_ID>.firebaseapp.com/__/auth/handler",
+      "authorizedOrigins": [
+        "https://<your-vercel-app>.vercel.app",
+        "https://<PROJECT_ID>.firebaseapp.com",
+        "http://localhost:3000"
+      ]
+    }
+  },
+  "vercelServerArchitecture": {
+    "canRunServerTsOnVercel": "PARTIAL",
+    "details": "Client-side SPA serves cleanly on Vercel static hosting. Express backend routes in server.ts can be deployed as Vercel Serverless Functions via /api rewrites without requiring an external container host.",
+    "isCloudRunRequired": "NO",
+    "isolationAndFallback": "Drive and Sheets integrations act as secondary projection layers. Core application functionality relies on Firestore as source-of-truth and operates 100% without Drive/Sheets enabled."
+  },
+  "finalAssessment": {
+    "GOOGLE_WORKSPACE_READY": "YES",
+    "VERCEL_SERVER_REQUIRED": "PARTIAL",
+    "BLOCKERS": "NONE"
+  }
+}

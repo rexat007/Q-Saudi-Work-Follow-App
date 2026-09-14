@@ -1021,6 +1021,10 @@ export class AdminConsoleService {
     return [...this.users];
   }
 
+  public getPendingUserRequests(): AdminUserRecord[] {
+    return this.users.filter(u => u.status === 'PENDING_APPROVAL');
+  }
+
   public createUser(payload: Partial<AdminUserRecord>, context: AuthUserContext): AdminUserRecord {
     const defaultAssigned = this.projects[0]?.projectId ? [this.projects[0].projectId] : [];
     const newUser: AdminUserRecord = {
@@ -1030,6 +1034,7 @@ export class AdminConsoleService {
       role: payload.role || 'DISPATCHER',
       assignedProjectIds: payload.assignedProjectIds || defaultAssigned,
       isActive: payload.isActive ?? true,
+      status: payload.status || 'ACTIVE',
       phone: payload.phone || '0500000000',
       lastLoginAt: new Date().toISOString(),
       createdAt: new Date() as any,
@@ -1042,6 +1047,74 @@ export class AdminConsoleService {
     this.recordAuditLog('USER_ROLE', newUser.userId, 'CREATE', null, newUser, context);
     this.notify();
     return newUser;
+  }
+
+  public approveUser(
+    userId: string, 
+    assignedRole: UserEntity['role'], 
+    assignedProjectIds: string[], 
+    context: AuthUserContext
+  ): void {
+    const user = this.users.find(u => u.userId === userId);
+    if (!user) throw new Error('المستخدم غير موجود');
+
+    const before = { ...user };
+    user.status = 'ACTIVE';
+    user.isActive = true;
+    user.role = assignedRole;
+    user.assignedProjectIds = assignedProjectIds;
+    user.approvedBy = context.userId;
+    user.approvedAt = new Date().toISOString();
+    user.updatedAt = new Date() as any;
+    user.updatedBy = context.userId;
+
+    this.recordAuditLog('USER_ROLE', userId, 'UPDATE', before, user, context);
+    this.notify();
+  }
+
+  public rejectUser(userId: string, reason: string, context: AuthUserContext): void {
+    const user = this.users.find(u => u.userId === userId);
+    if (!user) throw new Error('المستخدم غير موجود');
+
+    const before = { ...user };
+    user.status = 'REJECTED';
+    user.isActive = false;
+    user.rejectionReason = reason;
+    user.rejectedBy = context.userId;
+    user.rejectedAt = new Date().toISOString();
+    user.updatedAt = new Date() as any;
+    user.updatedBy = context.userId;
+
+    this.recordAuditLog('USER_ROLE', userId, 'FORCE_STATUS_CHANGE', before, user, context);
+    this.notify();
+  }
+
+  public suspendUser(userId: string, context: AuthUserContext): void {
+    const user = this.users.find(u => u.userId === userId);
+    if (!user) throw new Error('المستخدم غير موجود');
+
+    const before = { ...user };
+    user.status = 'SUSPENDED';
+    user.isActive = false;
+    user.updatedAt = new Date() as any;
+    user.updatedBy = context.userId;
+
+    this.recordAuditLog('USER_ROLE', userId, 'FORCE_STATUS_CHANGE', before, user, context);
+    this.notify();
+  }
+
+  public reactivateUser(userId: string, context: AuthUserContext): void {
+    const user = this.users.find(u => u.userId === userId);
+    if (!user) throw new Error('المستخدم غير موجود');
+
+    const before = { ...user };
+    user.status = 'ACTIVE';
+    user.isActive = true;
+    user.updatedAt = new Date() as any;
+    user.updatedBy = context.userId;
+
+    this.recordAuditLog('USER_ROLE', userId, 'FORCE_STATUS_CHANGE', before, user, context);
+    this.notify();
   }
 
   public updateUserRole(userId: string, role: UserEntity['role'], context: AuthUserContext): void {

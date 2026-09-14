@@ -918,7 +918,106 @@ export function AdminConsoleView() {
       {/* 7. USERS SECTION */}
       {/* ==================================================================== */}
       {activeSection === 'USERS' && (
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {/* Pending Account Requests Section */}
+          <div className="bg-amber-50/60 border border-amber-200 rounded-xl p-4 shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-amber-200/60 pb-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
+                <h3 className="text-sm font-bold text-amber-900">طلبات الحسابات المعلقة والاعتماد (Pending Account Requests)</h3>
+              </div>
+              <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 font-mono font-bold text-xs">
+                {users.filter(u => u.status === 'PENDING_APPROVAL').length} طلب
+              </span>
+            </div>
+
+            {users.filter(u => u.status === 'PENDING_APPROVAL').length === 0 ? (
+              <p className="text-xs text-amber-800/70 font-mono py-2 text-center">
+                لا توجد طلبات حسابات جديدة بانتظار الاعتماد حالياً.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {users.filter(u => u.status === 'PENDING_APPROVAL').map(pendingUser => (
+                  <div key={pendingUser.userId} className="bg-white border border-amber-200 rounded-lg p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <strong className="text-stone-900 font-bold">{pendingUser.fullName}</strong>
+                        <span className="font-mono text-[10px] text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded font-bold">PENDING_APPROVAL</span>
+                      </div>
+                      <div className="text-stone-500 font-mono text-[11px] mt-0.5">{pendingUser.email} • {pendingUser.userId}</div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                      <select
+                        id={`pending-role-${pendingUser.userId}`}
+                        defaultValue={pendingUser.requestedRole || 'DISPATCHER'}
+                        className="bg-stone-50 border border-stone-200 rounded px-2 py-1 text-xs font-semibold text-stone-800"
+                      >
+                        <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+                        <option value="PROJECT_ADMIN">PROJECT_ADMIN</option>
+                        <option value="SITE_SUPERVISOR">SITE_SUPERVISOR</option>
+                        <option value="SUPERVISOR">SUPERVISOR</option>
+                        <option value="DISPATCHER">DISPATCHER</option>
+                        <option value="FINANCE_AUDITOR">FINANCE_AUDITOR</option>
+                        <option value="SCALE_OPERATOR">SCALE_OPERATOR</option>
+                        <option value="DRIVER">DRIVER</option>
+                        <option value="VIEWER">VIEWER</option>
+                      </select>
+
+                      <button
+                        onClick={async () => {
+                          const roleSelect = document.getElementById(`pending-role-${pendingUser.userId}`) as HTMLSelectElement;
+                          const selectedRole = (roleSelect?.value || 'DISPATCHER') as any;
+                          const assignedProjects = ['PRJ-NEOM-NORTH-01'];
+                          adminConsoleService.approveUser(pendingUser.userId, selectedRole, assignedProjects, authContext);
+                          try {
+                            const { userRepository } = await import('../../repositories/user.repository');
+                            await userRepository.update(pendingUser.userId, {
+                              status: 'ACTIVE',
+                              isActive: true,
+                              role: selectedRole,
+                              assignedProjectIds: assignedProjects,
+                              approvedBy: authContext.userId,
+                              approvedAt: new Date().toISOString(),
+                            }, authContext.userId);
+                          } catch (e) {
+                            console.warn('Firestore sync optional:', e);
+                          }
+                          setUsers(adminConsoleService.getUsers());
+                        }}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded text-xs transition-colors shadow-xs"
+                      >
+                        اعتماد وتفعيل
+                      </button>
+
+                      <button
+                        onClick={async () => {
+                          adminConsoleService.rejectUser(pendingUser.userId, 'تم الرفض بواسطة الإدارة', authContext);
+                          try {
+                            const { userRepository } = await import('../../repositories/user.repository');
+                            await userRepository.update(pendingUser.userId, {
+                              status: 'REJECTED',
+                              isActive: false,
+                              rejectedBy: authContext.userId,
+                              rejectedAt: new Date().toISOString(),
+                            }, authContext.userId);
+                          } catch (e) {
+                            console.warn('Firestore sync optional:', e);
+                          }
+                          setUsers(adminConsoleService.getUsers());
+                        }}
+                        className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded text-xs transition-colors"
+                      >
+                        رفض
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* All Users Table */}
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-stone-900">إدارة المستخدمين وصلاحيات الأدوار (RBAC Users)</h2>
           </div>
@@ -930,8 +1029,8 @@ export function AdminConsoleView() {
                   <th className="py-3 px-4">البريد الإلكتروني</th>
                   <th className="py-3 px-4">الدور الوظيفي</th>
                   <th className="py-3 px-4">المشاريع المسندة</th>
-                  <th className="py-3 px-4">الحالة</th>
-                  <th className="py-3 px-4 text-left">تعديل الدور</th>
+                  <th className="py-3 px-4">الحالة الأمنية</th>
+                  <th className="py-3 px-4 text-left">تعديل وإجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
@@ -944,6 +1043,7 @@ export function AdminConsoleView() {
                     <td className="py-3.5 px-4 font-mono text-stone-600">{u.email}</td>
                     <td className="py-3.5 px-4">
                       <span className={`px-2.5 py-0.8 rounded text-[11px] font-bold ${
+                        u.role === 'SUPER_ADMIN' ? 'bg-red-100 text-red-800' :
                         u.role === 'PROJECT_ADMIN' ? 'bg-purple-100 text-purple-800' :
                         u.role === 'FINANCE_AUDITOR' ? 'bg-amber-100 text-amber-800' :
                         u.role === 'DISPATCHER' ? 'bg-blue-100 text-blue-800' :
@@ -957,22 +1057,74 @@ export function AdminConsoleView() {
                     </td>
                     <td className="py-3.5 px-4">
                       <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                        u.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                        u.status === 'ACTIVE' || (u.isActive && !u.status) ? 'bg-emerald-100 text-emerald-800' :
+                        u.status === 'PENDING_APPROVAL' ? 'bg-amber-100 text-amber-800' :
+                        u.status === 'SUSPENDED' ? 'bg-orange-100 text-orange-800' :
+                        'bg-rose-100 text-rose-800'
                       }`}>
-                        {u.isActive ? 'نشط' : 'معطل'}
+                        {u.status || (u.isActive ? 'ACTIVE' : 'INACTIVE')}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-left">
+                    <td className="py-3.5 px-4 text-left space-x-2 rtl:space-x-reverse">
                       <select
                         value={u.role}
-                        onChange={(e) => adminConsoleService.updateUserRole(u.userId, e.target.value as any, authContext)}
+                        onChange={async (e) => {
+                          const newRole = e.target.value as any;
+                          adminConsoleService.updateUserRole(u.userId, newRole, authContext);
+                          try {
+                            const { userRepository } = await import('../../repositories/user.repository');
+                            await userRepository.update(u.userId, { role: newRole }, authContext.userId);
+                          } catch (err) {
+                            console.warn('Firestore update sync:', err);
+                          }
+                          setUsers(adminConsoleService.getUsers());
+                        }}
                         className="bg-stone-50 border border-stone-200 rounded px-2 py-1 text-[11px] font-semibold text-stone-800 focus:outline-none"
                       >
+                        <option value="SUPER_ADMIN">SUPER_ADMIN</option>
                         <option value="PROJECT_ADMIN">PROJECT_ADMIN</option>
+                        <option value="SITE_SUPERVISOR">SITE_SUPERVISOR</option>
+                        <option value="SUPERVISOR">SUPERVISOR</option>
                         <option value="DISPATCHER">DISPATCHER</option>
                         <option value="FINANCE_AUDITOR">FINANCE_AUDITOR</option>
+                        <option value="SCALE_OPERATOR">SCALE_OPERATOR</option>
+                        <option value="DRIVER">DRIVER</option>
                         <option value="VIEWER">VIEWER</option>
                       </select>
+
+                      {u.status === 'ACTIVE' ? (
+                        <button
+                          onClick={async () => {
+                            adminConsoleService.suspendUser(u.userId, authContext);
+                            try {
+                              const { userRepository } = await import('../../repositories/user.repository');
+                              await userRepository.update(u.userId, { status: 'SUSPENDED', isActive: false }, authContext.userId);
+                            } catch (err) {
+                              console.warn('Firestore suspend sync:', err);
+                            }
+                            setUsers(adminConsoleService.getUsers());
+                          }}
+                          className="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded text-[11px] font-bold"
+                        >
+                          تعليق
+                        </button>
+                      ) : u.status === 'SUSPENDED' || u.status === 'REJECTED' ? (
+                        <button
+                          onClick={async () => {
+                            adminConsoleService.reactivateUser(u.userId, authContext);
+                            try {
+                              const { userRepository } = await import('../../repositories/user.repository');
+                              await userRepository.update(u.userId, { status: 'ACTIVE', isActive: true }, authContext.userId);
+                            } catch (err) {
+                              console.warn('Firestore reactivate sync:', err);
+                            }
+                            setUsers(adminConsoleService.getUsers());
+                          }}
+                          className="px-2 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 rounded text-[11px] font-bold"
+                        >
+                          إعادة تفعيل
+                        </button>
+                      ) : null}
                     </td>
                   </tr>
                 ))}

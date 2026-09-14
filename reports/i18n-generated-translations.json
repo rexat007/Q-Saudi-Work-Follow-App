@@ -1,38 +1,38 @@
 {
-  "generatedAt": "2026-09-14T11:06:21.577Z",
+  "generatedAt": "2026-09-14T14:20:40.723Z",
   "version": "1.0.0-block43",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 11965,
-    "generatedEnCount": 11965,
-    "generatedUrCount": 11965,
-    "reviewRequiredCount": 11959,
+    "totalEntries": 12030,
+    "generatedEnCount": 12030,
+    "generatedUrCount": 12030,
+    "reviewRequiredCount": 12024,
     "skippedCount": 0,
     "protectedCount": 1,
     "interpolationCount": 216,
     "pluralizationCount": 154,
-    "highRiskCount": 11959,
-    "semanticConflictCount": 1526,
+    "highRiskCount": 12024,
+    "semanticConflictCount": 1537,
     "domainTerminologyCount": 0,
     "confidenceBreakdown": {
       "HIGH": 143,
-      "MEDIUM": 3406,
-      "LOW": 8416
+      "MEDIUM": 3423,
+      "LOW": 8464
     },
     "tierBreakdown": {
       "1": 6,
       "2": 0,
       "3": 0,
-      "4": 11959
+      "4": 12024
     },
     "reviewReasonsBreakdown": {
-      "SEMANTIC_CONFLICT": 1526,
+      "SEMANTIC_CONFLICT": 1537,
       "DOMAIN_TERM": 0,
       "INTERPOLATION_RISK": 8,
       "PLURALIZATION_RISK": 154,
-      "REPORT_EXPORT_RISK": 3871,
+      "REPORT_EXPORT_RISK": 3872,
       "BUSINESS_DATA_RISK": 1630,
-      "LOW_CONFIDENCE": 11959,
+      "LOW_CONFIDENCE": 12024,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
@@ -55,12 +55,12 @@
         "low": 97
       },
       "authentication": {
-        "total": 25,
-        "generated": 25,
-        "reviewRequired": 25,
+        "total": 81,
+        "generated": 81,
+        "reviewRequired": 81,
         "high": 0,
-        "medium": 10,
-        "low": 15
+        "medium": 23,
+        "low": 58
       },
       "projects": {
         "total": 197,
@@ -175,12 +175,12 @@
         "low": 427
       },
       "security": {
-        "total": 557,
-        "generated": 557,
-        "reviewRequired": 556,
+        "total": 566,
+        "generated": 566,
+        "reviewRequired": 565,
         "high": 3,
-        "medium": 214,
-        "low": 340
+        "medium": 218,
+        "low": 345
       },
       "offline": {
         "total": 271,
@@ -258,7 +258,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 61,
+          "line": 141,
           "column": 22,
           "element": "call_setAuthError"
         }
@@ -308,7 +308,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 54,
+          "line": 134,
           "column": 22,
           "element": "call_setAuthError"
         }
@@ -358,7 +358,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 56,
+          "line": 136,
           "column": 22,
           "element": "call_setAuthError"
         }
@@ -408,7 +408,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 63,
+          "line": 143,
           "column": 22,
           "element": "call_setAuthError"
         }
@@ -424,6 +424,56 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_628e01",
       "presentationLabel": "تعذر الاتصال بخدمة المصادقة. يرجى التحقق من اتصالك بالإنترنت."
+    },
+    "authentication.fields.user": {
+      "key": "authentication.fields.user",
+      "category": "authentication",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "اسم المستخدم / Name:",
+      "proposedTextEn": "اسم User / Name:",
+      "proposedTextUr": "اسم صارف / Name:",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 111,
+          "column": 23,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "user",
+      "presentationLabel": "اسم المستخدم / Name:"
     },
     "authentication.labels.close": {
       "key": "authentication.labels.close",
@@ -472,6 +522,100 @@
       },
       "isReportOrExportField": false
     },
+    "authentication.labels.create": {
+      "key": "authentication.labels.create",
+      "category": "authentication",
+      "semanticContext": "prop_title",
+      "sourceTextAr": "تم رفض طلب إنشاء الحساب",
+      "proposedTextEn": "تم رفض طلب Create الحساب",
+      "proposedTextUr": "تم رفض طلب تخلیق کریں الحساب",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 25,
+          "column": 18,
+          "element": "prop_title"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.googleAuthVerified": {
+      "key": "authentication.labels.googleAuthVerified",
+      "category": "authentication",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "Google Auth Verified",
+      "proposedTextEn": "Google Auth Verified",
+      "proposedTextUr": "Google Auth Verified",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 118,
+          "column": 57,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "authentication.labels.lucideReact": {
       "key": "authentication.labels.lucideReact",
       "category": "authentication",
@@ -503,6 +647,18 @@
       "protectedTokens": [],
       "sourceReferences": [
         {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 3,
+          "column": 93,
+          "element": "literal"
+        },
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 4,
+          "column": 35,
+          "element": "literal"
+        },
+        {
           "file": "src/components/auth/AuthButton.tsx",
           "line": 2,
           "column": 59,
@@ -515,7 +671,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -565,6 +721,148 @@
           "element": "attr_referrerPolicy"
         }
       ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.prjNeomNorth01": {
+      "key": "authentication.labels.prjNeomNorth01",
+      "category": "authentication",
+      "semanticContext": "literal",
+      "sourceTextAr": "PRJ-NEOM-NORTH-01",
+      "proposedTextEn": "PRJ-NEOM-NORTH-01",
+      "proposedTextUr": "PRJ-NEOM-NORTH-01",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 56,
+          "column": 26,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 134,
+          "column": 28,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 156,
+          "column": 28,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 182,
+          "column": 57,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 192,
+          "column": 31,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 204,
+          "column": 67,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 317,
+          "column": 73,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_58",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.prjRedseaResort02": {
+      "key": "authentication.labels.prjRedseaResort02",
+      "category": "authentication",
+      "semanticContext": "literal",
+      "sourceTextAr": "PRJ-REDSEA-RESORT-02",
+      "proposedTextEn": "PRJ-REDSEA-RESORT-02",
+      "proposedTextUr": "PRJ-REDSEA-RESORT-02",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 56,
+          "column": 47,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 192,
+          "column": 52,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_16",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -655,6 +953,12 @@
       "protectedTokens": [],
       "sourceReferences": [
         {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 1,
+          "column": 19,
+          "element": "literal"
+        },
+        {
           "file": "src/components/auth/AuthButton.tsx",
           "line": 1,
           "column": 19,
@@ -673,7 +977,57 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.role": {
+      "key": "authentication.labels.role",
+      "category": "authentication",
+      "semanticContext": "literal",
+      "sourceTextAr": "role",
+      "proposedTextEn": "role",
+      "proposedTextUr": "role",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 176,
+          "column": 32,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_role_8",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -768,9 +1122,842 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 48,
+          "line": 125,
           "column": 46,
           "element": "prop_prompt"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b01": {
+      "key": "authentication.labels.tc86b01",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-01",
+      "proposedTextEn": "TC-86B-01",
+      "proposedTextUr": "TC-86B-01",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 60,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b02": {
+      "key": "authentication.labels.tc86b02",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-02",
+      "proposedTextEn": "TC-86B-02",
+      "proposedTextUr": "TC-86B-02",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 87,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b03": {
+      "key": "authentication.labels.tc86b03",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-03",
+      "proposedTextEn": "TC-86B-03",
+      "proposedTextUr": "TC-86B-03",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 95,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b04": {
+      "key": "authentication.labels.tc86b04",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-04",
+      "proposedTextEn": "TC-86B-04",
+      "proposedTextUr": "TC-86B-04",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 114,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b05": {
+      "key": "authentication.labels.tc86b05",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-05",
+      "proposedTextEn": "TC-86B-05",
+      "proposedTextUr": "TC-86B-05",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 125,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b06": {
+      "key": "authentication.labels.tc86b06",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-06",
+      "proposedTextEn": "TC-86B-06",
+      "proposedTextUr": "TC-86B-06",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 147,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b07": {
+      "key": "authentication.labels.tc86b07",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-07",
+      "proposedTextEn": "TC-86B-07",
+      "proposedTextUr": "TC-86B-07",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 168,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b08": {
+      "key": "authentication.labels.tc86b08",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-08",
+      "proposedTextEn": "TC-86B-08",
+      "proposedTextUr": "TC-86B-08",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 174,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b09": {
+      "key": "authentication.labels.tc86b09",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-09",
+      "proposedTextEn": "TC-86B-09",
+      "proposedTextUr": "TC-86B-09",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 190,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b10": {
+      "key": "authentication.labels.tc86b10",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-10",
+      "proposedTextEn": "TC-86B-10",
+      "proposedTextUr": "TC-86B-10",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 202,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b11": {
+      "key": "authentication.labels.tc86b11",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-11",
+      "proposedTextEn": "TC-86B-11",
+      "proposedTextUr": "TC-86B-11",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 213,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b12": {
+      "key": "authentication.labels.tc86b12",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-12",
+      "proposedTextEn": "TC-86B-12",
+      "proposedTextUr": "TC-86B-12",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 231,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b13": {
+      "key": "authentication.labels.tc86b13",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-13",
+      "proposedTextEn": "TC-86B-13",
+      "proposedTextUr": "TC-86B-13",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 238,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b14": {
+      "key": "authentication.labels.tc86b14",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-14",
+      "proposedTextEn": "TC-86B-14",
+      "proposedTextUr": "TC-86B-14",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 248,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b15": {
+      "key": "authentication.labels.tc86b15",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-15",
+      "proposedTextEn": "TC-86B-15",
+      "proposedTextUr": "TC-86B-15",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 271,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b16": {
+      "key": "authentication.labels.tc86b16",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-16",
+      "proposedTextEn": "TC-86B-16",
+      "proposedTextUr": "TC-86B-16",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 298,
+          "column": 8,
+          "element": "call_test"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.tc86b17": {
+      "key": "authentication.labels.tc86b17",
+      "category": "authentication",
+      "semanticContext": "call_test",
+      "sourceTextAr": "TC-86B-17",
+      "proposedTextEn": "TC-86B-17",
+      "proposedTextUr": "TC-86B-17",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 323,
+          "column": 8,
+          "element": "call_test"
         }
       ],
       "notes": [
@@ -832,6 +2019,152 @@
       },
       "isReportOrExportField": false
     },
+    "authentication.labels.txt_1567b8": {
+      "key": "authentication.labels.txt_1567b8",
+      "category": "authentication",
+      "semanticContext": "literal",
+      "sourceTextAr": "غير محدد",
+      "proposedTextEn": "غير محدد",
+      "proposedTextUr": "غير محدد",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 107,
+          "column": 64,
+          "element": "literal"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_غير_محدد",
+      "duplicateGroupId": "dup_غير_محدد_11",
+      "notes": [
+        "Semantic conflict group conflict_غير_محدد: Retained distinct key \"authentication.labels.txt_1567b8\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_205f8f": {
+      "key": "authentication.labels.txt_205f8f",
+      "category": "authentication",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "Q-Saudi Work Follow // Server-Authoritative Identity & Access Governance System",
+      "proposedTextEn": "Q-Saudi Work Follow // Server-Authoritative Identity & Access Governance System",
+      "proposedTextUr": "Q-Saudi Work Follow // Server-Authoritative Identity & Access Governance System",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 154,
+          "column": 9,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_24d610": {
+      "key": "authentication.labels.txt_24d610",
+      "category": "authentication",
+      "semanticContext": "prop_description",
+      "sourceTextAr": "تم تعليق الصلاحيات التشغيلية لهذا الحساب بقرار إداري. يُرجى مراجعة مسؤول النظام للتحقق من أسباب التعليق وإعادة التفعيل.",
+      "proposedTextEn": "تم تعليق الصلاحيات التشغيلية لهذا الحساب بقرار إداري. يُرجى مراجعة مسؤول النظام للتحقق من أسباب التعليق وإعادة التفعيل.",
+      "proposedTextUr": "تم تعليق الصلاحيات التشغيلية لهذا الحساب بقرار إداري. يُرجى مراجعة مسؤول النظام للتحقق من أسباب التعليق وإعادة التفعيل.",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 36,
+          "column": 24,
+          "element": "prop_description"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "authentication.labels.txt_2c3abd": {
       "key": "authentication.labels.txt_2c3abd",
       "category": "authentication",
@@ -867,6 +2200,100 @@
           "line": 72,
           "column": 21,
           "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_324e53": {
+      "key": "authentication.labels.txt_324e53",
+      "category": "authentication",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "حالة المصادقة / Auth Engine:",
+      "proposedTextEn": "حالة المصادقة / Auth Engine:",
+      "proposedTextUr": "حالة المصادقة / Auth Engine:",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 116,
+          "column": 21,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_34b5de": {
+      "key": "authentication.labels.txt_34b5de",
+      "category": "authentication",
+      "semanticContext": "prop_fullName",
+      "sourceTextAr": "مستخدم غوغل الجديد",
+      "proposedTextEn": "مستخدم غوغل الجديد",
+      "proposedTextUr": "مستخدم غوغل الجديد",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 65,
+          "column": 17,
+          "element": "prop_fullName"
         }
       ],
       "notes": [],
@@ -926,6 +2353,107 @@
       },
       "isReportOrExportField": false
     },
+    "authentication.labels.txt_399748": {
+      "key": "authentication.labels.txt_399748",
+      "category": "authentication",
+      "semanticContext": "call_rejectUser",
+      "sourceTextAr": "صلاحيات تكرارية",
+      "proposedTextEn": "صلاحيات تكرارية",
+      "proposedTextUr": "صلاحيات تكرارية",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 223,
+          "column": 44,
+          "element": "call_rejectUser"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 227,
+          "column": 35,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_صلاحيات_تكرارية_2",
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_3c16cd": {
+      "key": "authentication.labels.txt_3c16cd",
+      "category": "authentication",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "البريد الإلكتروني / Email:",
+      "proposedTextEn": "البريد الإلكتروني / Email:",
+      "proposedTextUr": "البريد الإلكتروني / Email:",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 106,
+          "column": 21,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
     "authentication.labels.txt_4446e0": {
       "key": "authentication.labels.txt_4446e0",
       "category": "authentication",
@@ -973,6 +2501,147 @@
       },
       "isReportOrExportField": false
     },
+    "authentication.labels.txt_4aaac4": {
+      "key": "authentication.labels.txt_4aaac4",
+      "category": "authentication",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "بوابة الاعتماد الأمني وحماية البيانات التشغيلية",
+      "proposedTextEn": "بوابة الApproval الأمني وحماية Data التشغيلية",
+      "proposedTextUr": "بوابة المنظوری الأمني وحماية ڈیٹا التشغيلية",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 69,
+          "column": 15,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_4e2150": {
+      "key": "authentication.labels.txt_4e2150",
+      "category": "authentication",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "إعادة تحقق من حالة الحساب",
+      "proposedTextEn": "إعادة تحقق من حالة الحساب",
+      "proposedTextUr": "إعادة تحقق من حالة الحساب",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 136,
+          "column": 23,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_5a8bcb": {
+      "key": "authentication.labels.txt_5a8bcb",
+      "category": "authentication",
+      "semanticContext": "prop_description",
+      "sourceTextAr": "نعتذر، لم يتم قبول طلب الانضمام للنظام. إذا كنت تعتقد أن هذا حدث عن طريق الخطأ، يُرجى التواصل مع إدارة العمليات لتقديم طلب مراجعة.",
+      "proposedTextEn": "نعتذر، لم يتم قبول طلب الانضمام للنظام. إذا كنت تعتقد أن هذا حدث عن طريق الError، يُرجى التواصل مع إدارة Operations لتقديم طلب مراجعة.",
+      "proposedTextUr": "نعتذر، لم يتم قبول طلب الانضمام للنظام. إذا كنت تعتقد أن هذا حدث عن طريق الخرابی، يُرجى التواصل مع إدارة آپریشنز لتقديم طلب مراجعة.",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 27,
+          "column": 24,
+          "element": "prop_description"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "authentication.labels.txt_63efb5": {
       "key": "authentication.labels.txt_63efb5",
       "category": "authentication",
@@ -1005,7 +2674,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 58,
+          "line": 138,
           "column": 85,
           "element": "literal"
         }
@@ -1067,6 +2736,58 @@
       },
       "isReportOrExportField": false
     },
+    "authentication.labels.txt_65988f": {
+      "key": "authentication.labels.txt_65988f",
+      "category": "authentication",
+      "semanticContext": "prop_displayName",
+      "sourceTextAr": "المهندس طارق بن خالد الشمري",
+      "proposedTextEn": "المهندس طارق بن خالد الشمري",
+      "proposedTextUr": "المهندس طارق بن خالد الشمري",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 54,
+          "column": 18,
+          "element": "prop_displayName"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_المهندس_طارق_بن_خالد_الشمري",
+      "duplicateGroupId": "dup_المهندس_طارق_بن_خالد_الشمري_2",
+      "notes": [
+        "Semantic conflict group conflict_المهندس_طارق_بن_خالد_الشمري: Retained distinct key \"authentication.labels.txt_65988f\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "authentication.labels.txt_6c5c6c": {
       "key": "authentication.labels.txt_6c5c6c",
       "category": "authentication",
@@ -1114,6 +2835,64 @@
       },
       "isReportOrExportField": false
     },
+    "authentication.labels.txt_6c67d4": {
+      "key": "authentication.labels.txt_6c67d4",
+      "category": "authentication",
+      "semanticContext": "literal",
+      "sourceTextAr": "مستخدم جديد",
+      "proposedTextEn": "مستخدم جديد",
+      "proposedTextUr": "مستخدم جديد",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/firebase/authContext.tsx",
+          "line": 50,
+          "column": 48,
+          "element": "literal"
+        },
+        {
+          "file": "src/firebase/authContext.tsx",
+          "line": 79,
+          "column": 46,
+          "element": "literal"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_مستخدم_جديد",
+      "duplicateGroupId": "dup_مستخدم_جديد_3",
+      "notes": [
+        "Semantic conflict group conflict_مستخدم_جديد: Retained distinct key \"authentication.labels.txt_6c67d4\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "authentication.labels.txt_6e1f8e": {
       "key": "authentication.labels.txt_6e1f8e",
       "category": "authentication",
@@ -1151,7 +2930,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 59,
+          "line": 139,
           "column": 22,
           "element": "template_literal"
         }
@@ -1166,6 +2945,205 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_741e0f": {
+      "key": "authentication.labels.txt_741e0f",
+      "category": "authentication",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "كيو لخدمات النقل واللوجستيات // Q-SAUDI WORK FOLLOW",
+      "proposedTextEn": "كيو لخدمات النقل واللوجستيات // Q-SAUDI WORK FOLLOW",
+      "proposedTextUr": "كيو لخدمات النقل واللوجستيات // Q-SAUDI WORK FOLLOW",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 66,
+          "column": 15,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_7ec628": {
+      "key": "authentication.labels.txt_7ec628",
+      "category": "authentication",
+      "semanticContext": "call_rejectUser",
+      "sourceTextAr": "عدم التطابق الشروطي",
+      "proposedTextEn": "عدم التطابق الشروطي",
+      "proposedTextUr": "عدم التطابق الشروطي",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 115,
+          "column": 58,
+          "element": "call_rejectUser"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_80fe54": {
+      "key": "authentication.labels.txt_80fe54",
+      "category": "authentication",
+      "semanticContext": "prop_title",
+      "sourceTextAr": "طلب الحساب قيد المراجعة والاعتماد",
+      "proposedTextEn": "طلب الحساب قيد المراجعة والApproval",
+      "proposedTextUr": "طلب الحساب قيد المراجعة والمنظوری",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 44,
+          "column": 18,
+          "element": "prop_title"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.txt_b1a849": {
+      "key": "authentication.labels.txt_b1a849",
+      "category": "authentication",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "تسجيل الخروج",
+      "proposedTextEn": "تسجيل الخروج",
+      "proposedTextUr": "تسجيل الخروج",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 79,
+          "column": 17,
+          "element": "jsx_text"
+        },
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 145,
+          "column": 21,
+          "element": "jsx_text"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_تسجيل_الخروج",
+      "duplicateGroupId": "dup_تسجيل_الخروج_3",
+      "notes": [
+        "Semantic conflict group conflict_تسجيل_الخروج: Retained distinct key \"authentication.labels.txt_b1a849\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },
@@ -1201,7 +3179,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 58,
+          "line": 138,
           "column": 44,
           "element": "literal"
         }
@@ -1269,6 +3247,462 @@
       },
       "isReportOrExportField": false
     },
+    "authentication.labels.usrActiveOperational": {
+      "key": "authentication.labels.usrActiveOperational",
+      "category": "authentication",
+      "semanticContext": "literal",
+      "sourceTextAr": "USR-ACTIVE-OPERATIONAL",
+      "proposedTextEn": "USR-ACTIVE-OPERATIONAL",
+      "proposedTextUr": "USR-ACTIVE-OPERATIONAL",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 148,
+          "column": 23,
+          "element": "literal"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.usrActiveToSuspend": {
+      "key": "authentication.labels.usrActiveToSuspend",
+      "category": "authentication",
+      "semanticContext": "literal",
+      "sourceTextAr": "USR-ACTIVE-TO-SUSPEND",
+      "proposedTextEn": "USR-ACTIVE-TO-SUSPEND",
+      "proposedTextUr": "USR-ACTIVE-TO-SUSPEND",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 126,
+          "column": 23,
+          "element": "literal"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.usrAdmin001": {
+      "key": "authentication.labels.usrAdmin001",
+      "category": "authentication",
+      "semanticContext": "prop_userId",
+      "sourceTextAr": "USR-ADMIN-001",
+      "proposedTextEn": "USR-ADMIN-001",
+      "proposedTextUr": "USR-ADMIN-001",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 52,
+          "column": 13,
+          "element": "prop_userId"
+        }
+      ],
+      "duplicateGroupId": "dup_USR_ADMIN_001_17",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.usrGoogleNew001": {
+      "key": "authentication.labels.usrGoogleNew001",
+      "category": "authentication",
+      "semanticContext": "literal",
+      "sourceTextAr": "USR-GOOGLE-NEW-001",
+      "proposedTextEn": "USR-GOOGLE-NEW-001",
+      "proposedTextUr": "USR-GOOGLE-NEW-001",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 61,
+          "column": 20,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 90,
+          "column": 60,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 115,
+          "column": 36,
+          "element": "call_rejectUser"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 117,
+          "column": 51,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 175,
+          "column": 23,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 191,
+          "column": 23,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 203,
+          "column": 23,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 239,
+          "column": 23,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_USR_GOOGLE_NEW_001_8",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.usrPendingCheck": {
+      "key": "authentication.labels.usrPendingCheck",
+      "category": "authentication",
+      "semanticContext": "prop_userId",
+      "sourceTextAr": "USR-PENDING-CHECK",
+      "proposedTextEn": "USR-PENDING-CHECK",
+      "proposedTextUr": "USR-PENDING-CHECK",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 97,
+          "column": 15,
+          "element": "prop_userId"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 105,
+          "column": 18,
+          "element": "prop_createdBy"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 107,
+          "column": 18,
+          "element": "prop_updatedBy"
+        }
+      ],
+      "duplicateGroupId": "dup_USR_PENDING_CHECK_3",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.usrToReject": {
+      "key": "authentication.labels.usrToReject",
+      "category": "authentication",
+      "semanticContext": "literal",
+      "sourceTextAr": "USR-TO-REJECT",
+      "proposedTextEn": "USR-TO-REJECT",
+      "proposedTextUr": "USR-TO-REJECT",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 214,
+          "column": 20,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 232,
+          "column": 72,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_USR_TO_REJECT_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.xAssignedProjects": {
+      "key": "authentication.labels.xAssignedProjects",
+      "category": "authentication",
+      "semanticContext": "prop_'x-assigned-projects'",
+      "sourceTextAr": "x-assigned-projects",
+      "proposedTextEn": "x-assigned-projects",
+      "proposedTextUr": "x-assigned-projects",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 303,
+          "column": 9,
+          "element": "prop_'x-assigned-projects'"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.labels.xUserRole": {
+      "key": "authentication.labels.xUserRole",
+      "category": "authentication",
+      "semanticContext": "prop_'x-user-role'",
+      "sourceTextAr": "x-user-role",
+      "proposedTextEn": "x-user-role",
+      "proposedTextUr": "x-user-role",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 302,
+          "column": 9,
+          "element": "prop_'x-user-role'"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "authentication.status.active": {
       "key": "authentication.status.active",
       "category": "authentication",
@@ -1316,6 +3750,147 @@
       },
       "isReportOrExportField": false
     },
+    "authentication.status.active_2": {
+      "key": "authentication.status.active_2",
+      "category": "authentication",
+      "semanticContext": "prop_fullName",
+      "sourceTextAr": "مستخدم نشط للتجربة",
+      "proposedTextEn": "مستخدم Active للتجربة",
+      "proposedTextUr": "مستخدم فعال للتجربة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 130,
+          "column": 17,
+          "element": "prop_fullName"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.status.active_3": {
+      "key": "authentication.status.active_3",
+      "category": "authentication",
+      "semanticContext": "prop_fullName",
+      "sourceTextAr": "مستخدم تشغيلي نشط",
+      "proposedTextEn": "مستخدم تشغيلي Active",
+      "proposedTextUr": "مستخدم تشغيلي فعال",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 152,
+          "column": 17,
+          "element": "prop_fullName"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.status.cancelled": {
+      "key": "authentication.status.cancelled",
+      "category": "authentication",
+      "semanticContext": "prop_fullName",
+      "sourceTextAr": "طلب ملغي",
+      "proposedTextEn": "طلب Cancelled",
+      "proposedTextUr": "طلب منسوخ",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 218,
+          "column": 17,
+          "element": "prop_fullName"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "authentication.status.failed": {
       "key": "authentication.status.failed",
       "category": "authentication",
@@ -1348,7 +3923,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 65,
+          "line": 145,
           "column": 37,
           "element": "literal"
         }
@@ -1395,7 +3970,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 76,
+          "line": 158,
           "column": 35,
           "element": "literal"
         }
@@ -1407,6 +3982,288 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.status.pending": {
+      "key": "authentication.status.pending",
+      "category": "authentication",
+      "semanticContext": "prop_title",
+      "sourceTextAr": "الحساب معلق مؤقتاً",
+      "proposedTextEn": "الحساب Pending مؤقتاً",
+      "proposedTextUr": "الحساب زیر التواء مؤقتاً",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 34,
+          "column": 18,
+          "element": "prop_title"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.status.pending_2": {
+      "key": "authentication.status.pending_2",
+      "category": "authentication",
+      "semanticContext": "prop_badgeText",
+      "sourceTextAr": "معلق // SUSPENDED",
+      "proposedTextEn": "Pending // SUSPENDED",
+      "proposedTextUr": "زیر التواء // SUSPENDED",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 39,
+          "column": 22,
+          "element": "prop_badgeText"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.status.pending_3": {
+      "key": "authentication.status.pending_3",
+      "category": "authentication",
+      "semanticContext": "prop_fullName",
+      "sourceTextAr": "مستخدم معلق",
+      "proposedTextEn": "مستخدم Pending",
+      "proposedTextUr": "مستخدم زیر التواء",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts",
+          "line": 99,
+          "column": 17,
+          "element": "prop_fullName"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.status.successProjects": {
+      "key": "authentication.status.successProjects",
+      "category": "authentication",
+      "semanticContext": "prop_description",
+      "sourceTextAr": "تم تسجيل بيانات حسابك بنجاح عبر Google Auth. حسابك حالياً بحالة الانتظار ولن تتمكن من الوصول إلى الشاشات التشغيلية والمشاريع حتى يتم اعتماد طلبك وتعيين الدور الوظيفي من قبل مسؤول النظام (SUPER_ADMIN / PROJECT_ADMIN).",
+      "proposedTextEn": "تم تسجيل بيانات حسابك بSuccess عبر Google Auth. حسابك حالياً بحالة الانتظار ولن تتمكن من الوصول إلى الشاشات التشغيلية وProjects حتى يتم Approval طلبك وتعيين الدور الوظيفي من قبل مسؤول النظام (SUPER_ADMIN / PROJECT_ADMIN).",
+      "proposedTextUr": "تم تسجيل بيانات حسابك بکامیاب عبر Google Auth. حسابك حالياً بحالة الانتظار ولن تتمكن من الوصول إلى الشاشات التشغيلية وپروجیکٹس حتى يتم منظوری طلبك وتعيين الدور الوظيفي من قبل مسؤول النظام (SUPER_ADMIN / PROJECT_ADMIN).",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 46,
+          "column": 24,
+          "element": "prop_description"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.status.txt_19d009": {
+      "key": "authentication.status.txt_19d009",
+      "category": "authentication",
+      "semanticContext": "prop_badgeText",
+      "sourceTextAr": "مرفوض // REJECTED",
+      "proposedTextEn": "مرفوض // REJECTED",
+      "proposedTextUr": "مرفوض // REJECTED",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 30,
+          "column": 22,
+          "element": "prop_badgeText"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "authentication.status.txt_5a5c32": {
+      "key": "authentication.status.txt_5a5c32",
+      "category": "authentication",
+      "semanticContext": "prop_badgeText",
+      "sourceTextAr": "قيد الاعتماد // PENDING_APPROVAL",
+      "proposedTextEn": "قيد الApproval // PENDING_APPROVAL",
+      "proposedTextUr": "قيد المنظوری // PENDING_APPROVAL",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/auth/AccountStatusGate.tsx",
+          "line": 49,
+          "column": 22,
+          "element": "prop_badgeText"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
       },
       "isReportOrExportField": false
     },
@@ -3110,7 +5967,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -3269,7 +6126,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -4138,7 +6995,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_نشط",
-      "duplicateGroupId": "dup_نشط_10",
+      "duplicateGroupId": "dup_نشط_9",
       "notes": [
         "Semantic conflict group conflict_نشط: Retained distinct key \"carriers.status.active_2\" to avoid accidental merge."
       ],
@@ -4238,7 +7095,7 @@
           "element": "prop_'PRJ-NEOM-NORTH-01'"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_50",
+      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -5122,7 +7979,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -6099,7 +8956,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -7142,7 +9999,7 @@
           "element": "prop_projectId"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_50",
+      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -7278,7 +10135,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_14",
+      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_16",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -7595,7 +10452,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -7972,7 +10829,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_الحالة",
-      "duplicateGroupId": "dup_الحالة_15",
+      "duplicateGroupId": "dup_الحالة_14",
       "notes": [
         "Semantic conflict group conflict_الحالة: Retained distinct key \"dashboard.labels.status\" to avoid accidental merge."
       ],
@@ -12021,7 +14878,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -14908,7 +17765,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -15272,7 +18129,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -18001,7 +20858,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -20650,7 +23507,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -21862,7 +24719,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -24612,7 +27469,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_غير_محدد",
-      "duplicateGroupId": "dup_غير_محدد_10",
+      "duplicateGroupId": "dup_غير_محدد_11",
       "notes": [
         "Semantic conflict group conflict_غير_محدد: Retained distinct key \"entityResolution.labels.txt_1567b8\" to avoid accidental merge."
       ],
@@ -30233,7 +33090,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -33663,7 +36520,7 @@
           "element": "call_setTypeFilter"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -36378,7 +39235,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -37891,7 +40748,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -45337,7 +48194,7 @@
           "element": "call_setStatusFilter"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -46596,7 +49453,7 @@
           "element": "call_setFormatFilter"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -57041,7 +59898,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -70678,7 +73535,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -74742,7 +77599,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_50",
+      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -76259,7 +79116,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -78202,7 +81059,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_الحالة",
-      "duplicateGroupId": "dup_الحالة_15",
+      "duplicateGroupId": "dup_الحالة_14",
       "notes": [
         "Semantic conflict group conflict_الحالة: Retained distinct key \"imports.labels.status_3\" to avoid accidental merge."
       ],
@@ -89139,7 +91996,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_غير_محدد",
-      "duplicateGroupId": "dup_غير_محدد_10",
+      "duplicateGroupId": "dup_غير_محدد_11",
       "notes": [
         "Semantic conflict group conflict_غير_محدد: Retained distinct key \"imports.labels.txt_1567b8\" to avoid accidental merge."
       ],
@@ -90173,6 +93030,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "LOW_CONFIDENCE"
       ],
       "risk": "LOW",
@@ -90198,7 +93056,11 @@
           "element": "call_includes"
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_رفض",
+      "duplicateGroupId": "dup_رفض_2",
+      "notes": [
+        "Semantic conflict group conflict_رفض: Retained distinct key \"imports.labels.txt_180606\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -106704,6 +109566,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "LOW_CONFIDENCE"
       ],
       "risk": "LOW",
@@ -106729,7 +109592,11 @@
           "element": "literal"
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_تعليق",
+      "duplicateGroupId": "dup_تعليق_2",
+      "notes": [
+        "Semantic conflict group conflict_تعليق: Retained distinct key \"imports.labels.txt_59c952\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -124349,7 +127216,7 @@
           "element": "call_setFilterTab"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -124541,7 +127408,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -129807,7 +132674,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -135045,7 +137912,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -136170,7 +139037,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -143258,7 +146125,7 @@
           "element": "prop_userId"
         }
       ],
-      "duplicateGroupId": "dup_USR_ADMIN_001_16",
+      "duplicateGroupId": "dup_USR_ADMIN_001_17",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -143721,7 +146588,7 @@
           "element": "call_setActiveFilterTab"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -143955,7 +146822,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -149288,7 +152155,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -150512,7 +153379,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -157785,7 +160652,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -158232,7 +161099,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -159571,7 +162438,7 @@
           "element": "call_isProjectAuthorized"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_14",
+      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_16",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -160178,7 +163045,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 844,
+          "line": 857,
           "column": 46,
           "element": "jsx_text"
         }
@@ -160574,7 +163441,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -160775,7 +163642,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 687,
+          "line": 700,
           "column": 44,
           "element": "call_setSelectedDocId"
         }
@@ -161028,7 +163895,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 543,
+          "line": 556,
           "column": 85,
           "element": "literal"
         }
@@ -161185,7 +164052,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 200,
+          "line": 201,
           "column": 12,
           "element": "literal"
         },
@@ -161247,7 +164114,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 199,
+          "line": 200,
           "column": 12,
           "element": "literal"
         },
@@ -161315,7 +164182,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 190,
+          "line": 191,
           "column": 12,
           "element": "literal"
         },
@@ -161427,7 +164294,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 169,
+          "line": 170,
           "column": 12,
           "element": "literal"
         }
@@ -161477,7 +164344,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 191,
+          "line": 192,
           "column": 12,
           "element": "literal"
         }
@@ -161574,7 +164441,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 187,
+          "line": 188,
           "column": 12,
           "element": "literal"
         }
@@ -161893,7 +164760,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 186,
+          "line": 187,
           "column": 12,
           "element": "literal"
         },
@@ -162017,7 +164884,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 749,
+          "line": 762,
           "column": 28,
           "element": "literal"
         },
@@ -162079,7 +164946,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 173,
+          "line": 174,
           "column": 12,
           "element": "literal"
         }
@@ -162424,7 +165291,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 251,
+          "line": 264,
           "column": 21,
           "element": "jsx_text"
         }
@@ -162569,7 +165436,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 176,
+          "line": 177,
           "column": 12,
           "element": "literal"
         }
@@ -162784,7 +165651,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 202,
+          "line": 203,
           "column": 12,
           "element": "literal"
         },
@@ -162908,7 +165775,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 847,
+          "line": 860,
           "column": 19,
           "element": "jsx_text"
         }
@@ -163310,7 +166177,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 851,
+          "line": 864,
           "column": 19,
           "element": "jsx_text"
         }
@@ -163419,7 +166286,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 727,
+          "line": 740,
           "column": 29,
           "element": "jsx_text"
         }
@@ -163515,7 +166382,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 185,
+          "line": 186,
           "column": 12,
           "element": "literal"
         }
@@ -163565,7 +166432,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 201,
+          "line": 202,
           "column": 12,
           "element": "literal"
         },
@@ -163884,7 +166751,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -164029,7 +166896,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 171,
+          "line": 172,
           "column": 12,
           "element": "literal"
         }
@@ -164272,7 +167139,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 524,
+          "line": 537,
           "column": 93,
           "element": "jsx_text"
         }
@@ -164468,7 +167335,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 137,
+          "line": 138,
           "column": 62,
           "element": "literal"
         }
@@ -165141,7 +168008,7 @@
           "element": "prop_projectId"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_50",
+      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -165236,7 +168103,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 809,
+          "line": 822,
           "column": 27,
           "element": "jsx_text"
         }
@@ -165283,7 +168150,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 168,
+          "line": 169,
           "column": 12,
           "element": "literal"
         }
@@ -165943,13 +168810,13 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 244,
+          "line": 257,
           "column": 23,
           "element": "jsx_text"
         },
         {
           "file": "src/App.tsx",
-          "line": 842,
+          "line": 855,
           "column": 70,
           "element": "jsx_text"
         },
@@ -166026,7 +168893,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -166913,7 +169780,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 77,
+          "line": 78,
           "column": 31,
           "element": "literal"
         },
@@ -167111,7 +169978,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 198,
+          "line": 199,
           "column": 12,
           "element": "literal"
         },
@@ -167179,7 +170046,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 397,
+          "line": 410,
           "column": 49,
           "element": "jsx_text"
         }
@@ -167226,7 +170093,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 410,
+          "line": 423,
           "column": 64,
           "element": "jsx_text"
         }
@@ -167329,7 +170196,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 849,
+          "line": 862,
           "column": 19,
           "element": "jsx_text"
         }
@@ -167432,7 +170299,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 188,
+          "line": 189,
           "column": 12,
           "element": "literal"
         },
@@ -167623,7 +170490,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 261,
+          "line": 274,
           "column": 49,
           "element": "jsx_text"
         }
@@ -167679,7 +170546,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_الحالة",
-      "duplicateGroupId": "dup_الحالة_15",
+      "duplicateGroupId": "dup_الحالة_14",
       "notes": [
         "Semantic conflict group conflict_الحالة: Retained distinct key \"navigation.labels.status_2\" to avoid accidental merge."
       ],
@@ -169185,7 +172052,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 548,
+          "line": 561,
           "column": 82,
           "element": "literal"
         }
@@ -169238,13 +172105,13 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 775,
+          "line": 788,
           "column": 93,
           "element": "literal"
         },
         {
           "file": "src/App.tsx",
-          "line": 775,
+          "line": 788,
           "column": 112,
           "element": "literal"
         }
@@ -169297,7 +172164,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 548,
+          "line": 561,
           "column": 101,
           "element": "literal"
         }
@@ -169498,7 +172365,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 174,
+          "line": 175,
           "column": 12,
           "element": "literal"
         }
@@ -170385,7 +173252,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 172,
+          "line": 173,
           "column": 12,
           "element": "literal"
         },
@@ -170564,7 +173431,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 776,
+          "line": 789,
           "column": 31,
           "element": "jsx_text"
         }
@@ -170807,7 +173674,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 373,
+          "line": 386,
           "column": 19,
           "element": "attr_title"
         }
@@ -171112,7 +173979,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 666,
+          "line": 679,
           "column": 37,
           "element": "jsx_text"
         }
@@ -171597,7 +174464,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 794,
+          "line": 807,
           "column": 23,
           "element": "jsx_text"
         }
@@ -171988,7 +174855,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 631,
+          "line": 644,
           "column": 31,
           "element": "jsx_text"
         }
@@ -173106,7 +175973,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 232,
+          "line": 245,
           "column": 17,
           "element": "attr_title"
         }
@@ -173557,7 +176424,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 376,
+          "line": 389,
           "column": 25,
           "element": "jsx_text"
         }
@@ -173981,7 +176848,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 320,
+          "line": 333,
           "column": 41,
           "element": "jsx_text"
         }
@@ -176030,7 +178897,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 407,
+          "line": 420,
           "column": 23,
           "element": "jsx_text"
         }
@@ -176305,7 +179172,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 392,
+          "line": 405,
           "column": 49,
           "element": "jsx_text"
         },
@@ -176575,7 +179442,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 189,
+          "line": 190,
           "column": 12,
           "element": "literal"
         }
@@ -177067,7 +179934,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 686,
+          "line": 699,
           "column": 40,
           "element": "call_setActiveTab"
         }
@@ -177811,7 +180678,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 120,
+          "line": 121,
           "column": 62,
           "element": "call_useState"
         }
@@ -179164,7 +182031,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 119,
+          "line": 120,
           "column": 68,
           "element": "call_useState"
         }
@@ -180379,7 +183246,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 277,
+          "line": 290,
           "column": 21,
           "element": "attr_title"
         }
@@ -184529,7 +187396,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -186822,7 +189689,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -188784,7 +191651,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -193938,7 +196805,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -213496,6 +216363,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
@@ -213522,7 +216390,11 @@
           "element": "prop_\"authentication.labels.txt_b1a849\""
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_تسجيل_الخروج",
+      "duplicateGroupId": "dup_تسجيل_الخروج_3",
+      "notes": [
+        "Semantic conflict group conflict_تسجيل_الخروج: Retained distinct key \"other.columns.txt_b1a849\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -320750,7 +323622,7 @@
           "element": "prop_pricingType"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -321155,7 +324027,7 @@
         },
         {
           "file": "src/types/entities.ts",
-          "line": 152,
+          "line": 160,
           "column": 5,
           "element": "literal"
         }
@@ -341593,7 +344465,7 @@
         },
         {
           "file": "src/types/entities.ts",
-          "line": 149,
+          "line": 157,
           "column": 5,
           "element": "literal"
         }
@@ -353835,7 +356707,7 @@
         },
         {
           "file": "src/types/entities.ts",
-          "line": 346,
+          "line": 354,
           "column": 32,
           "element": "literal"
         }
@@ -367445,7 +370317,7 @@
         },
         {
           "file": "src/types/entities.ts",
-          "line": 346,
+          "line": 354,
           "column": 13,
           "element": "literal"
         }
@@ -367723,7 +370595,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -375465,7 +378337,7 @@
         },
         {
           "file": "src/types/entities.ts",
-          "line": 347,
+          "line": 355,
           "column": 11,
           "element": "literal"
         }
@@ -380161,7 +383033,7 @@
           "element": "prop_projectId"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_50",
+      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -380379,7 +383251,7 @@
           "element": "prop_projectId"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_14",
+      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_16",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -384415,7 +387287,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -386567,7 +389439,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_role_6",
+      "duplicateGroupId": "dup_role_8",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -387882,7 +390754,7 @@
         },
         {
           "file": "src/types/entities.ts",
-          "line": 275,
+          "line": 283,
           "column": 15,
           "element": "literal"
         }
@@ -391308,7 +394180,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_الحالة",
-      "duplicateGroupId": "dup_الحالة_15",
+      "duplicateGroupId": "dup_الحالة_14",
       "notes": [
         "Semantic conflict group conflict_الحالة: Retained distinct key \"other.labels.status\" to avoid accidental merge."
       ],
@@ -398381,7 +401253,7 @@
         },
         {
           "file": "src/types/entities.ts",
-          "line": 372,
+          "line": 380,
           "column": 15,
           "element": "literal"
         },
@@ -417064,7 +419936,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_معطل",
-      "duplicateGroupId": "dup_معطل_6",
+      "duplicateGroupId": "dup_معطل_5",
       "notes": [
         "Semantic conflict group conflict_معطل: Retained distinct key \"other.labels.txt_2f1ba8\" to avoid accidental merge."
       ],
@@ -455121,7 +457993,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_المستخدم_غير_موجود",
-      "duplicateGroupId": "dup_المستخدم_غير_موجود_3",
+      "duplicateGroupId": "dup_المستخدم_غير_موجود_7",
       "notes": [
         "Semantic conflict group conflict_المستخدم_غير_موجود: Retained distinct key \"other.labels.user_7\" to avoid accidental merge."
       ],
@@ -455197,7 +458069,7 @@
         },
         {
           "file": "src/types/entities.ts",
-          "line": 156,
+          "line": 164,
           "column": 5,
           "element": "literal"
         }
@@ -461064,7 +463936,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_نشط",
-      "duplicateGroupId": "dup_نشط_10",
+      "duplicateGroupId": "dup_نشط_9",
       "notes": [
         "Semantic conflict group conflict_نشط: Retained distinct key \"other.status.active_2\" to avoid accidental merge."
       ],
@@ -461221,7 +464093,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -473984,7 +476856,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -476928,7 +479800,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -484108,7 +486980,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -492155,7 +495027,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -493357,7 +496229,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_نشط",
-      "duplicateGroupId": "dup_نشط_10",
+      "duplicateGroupId": "dup_نشط_9",
       "notes": [
         "Semantic conflict group conflict_نشط: Retained distinct key \"projects.fields.active\" to avoid accidental merge."
       ],
@@ -496597,9 +499469,27 @@
         },
         {
           "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
-          "line": 129,
-          "column": 69,
+          "line": 130,
+          "column": 18,
           "element": "prop_projectId"
+        },
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 133,
+          "column": 18,
+          "element": "prop_carrierId"
+        },
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 134,
+          "column": 19,
+          "element": "prop_materialId"
+        },
+        {
+          "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
+          "line": 135,
+          "column": 20,
+          "element": "literal"
         },
         {
           "file": "src/tests/runtimeProjectMasterDataEmptyStateBlock82D.test.ts",
@@ -496638,7 +499528,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -497027,7 +499917,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
-          "line": 136,
+          "line": 144,
           "column": 8,
           "element": "call_test"
         }
@@ -497076,7 +499966,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/firebaseProjectConfiguration85A.test.ts",
-          "line": 147,
+          "line": 155,
           "column": 8,
           "element": "call_test"
         }
@@ -498578,7 +501468,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -500225,7 +503115,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -515855,7 +518745,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -522049,7 +524939,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -525044,7 +527934,7 @@
           "element": "prop_projectId"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_14",
+      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_16",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -525474,7 +528364,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -531116,7 +534006,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_غير_محدد",
-      "duplicateGroupId": "dup_غير_محدد_10",
+      "duplicateGroupId": "dup_غير_محدد_11",
       "notes": [
         "Semantic conflict group conflict_غير_محدد: Retained distinct key \"reports.labels.txt_1567b8\" to avoid accidental merge."
       ],
@@ -539039,7 +541929,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_نشط",
-      "duplicateGroupId": "dup_نشط_10",
+      "duplicateGroupId": "dup_نشط_9",
       "notes": [
         "Semantic conflict group conflict_نشط: Retained distinct key \"reports.status.active\" to avoid accidental merge."
       ],
@@ -539154,7 +542044,7 @@
           "element": "prop_status"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -540365,7 +543255,7 @@
         },
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1194,
+          "line": 1346,
           "column": 74,
           "element": "jsx_text"
         }
@@ -540471,7 +543361,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1038,
+          "line": 1190,
           "column": 45,
           "element": "jsx_text"
         }
@@ -541355,7 +544245,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1232,
+          "line": 1384,
           "column": 74,
           "element": "jsx_text"
         }
@@ -541778,7 +544668,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1184,
+          "line": 1336,
           "column": 151,
           "element": "jsx_text"
         }
@@ -541829,7 +544719,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1428,
+          "line": 1580,
           "column": 65,
           "element": "jsx_text"
         }
@@ -542543,7 +545433,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1182,
+          "line": 1334,
           "column": 23,
           "element": "jsx_text"
         }
@@ -542758,7 +545648,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1329,
+          "line": 1481,
           "column": 19,
           "element": "attr_placeholder"
         }
@@ -542809,7 +545699,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1310,
+          "line": 1462,
           "column": 74,
           "element": "jsx_text"
         }
@@ -542860,7 +545750,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1298,
+          "line": 1450,
           "column": 74,
           "element": "jsx_text"
         }
@@ -543114,7 +546004,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 929,
+          "line": 1028,
           "column": 45,
           "element": "jsx_text"
         }
@@ -543266,7 +546156,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1370,
+          "line": 1522,
           "column": 68,
           "element": "jsx_text"
         }
@@ -543777,7 +546667,7 @@
       "sourceReferences": [
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1116,
+          "line": 1189,
           "column": 28,
           "element": "literal"
         },
@@ -543887,24 +546777,24 @@
         },
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1077,
+          "line": 1150,
           "column": 37,
           "element": "literal"
         },
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1165,
+          "line": 1238,
           "column": 37,
           "element": "literal"
         },
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1172,
+          "line": 1245,
           "column": 37,
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -544059,13 +546949,13 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1050,
+          "line": 1202,
           "column": 125,
           "element": "call_toLocaleString"
         },
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1401,
+          "line": 1553,
           "column": 122,
           "element": "call_toLocaleString"
         },
@@ -545505,7 +548395,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1449,
+          "line": 1601,
           "column": 17,
           "element": "jsx_text"
         }
@@ -545602,7 +548492,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1164,
+          "line": 1316,
           "column": 19,
           "element": "jsx_text"
         }
@@ -545649,7 +548539,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1348,
+          "line": 1500,
           "column": 25,
           "element": "jsx_text"
         }
@@ -545988,8 +548878,8 @@
       },
       "isReportOrExportField": false
     },
-    "security.labels.driver": {
-      "key": "security.labels.driver",
+    "security.labels.driver_2": {
+      "key": "security.labels.driver_2",
       "category": "security",
       "semanticContext": "literal",
       "sourceTextAr": "السائق غير موجود",
@@ -546029,7 +548919,7 @@
       "semanticConflictGroupId": "conflict_السائق_غير_موجود",
       "duplicateGroupId": "dup_السائق_غير_موجود_2",
       "notes": [
-        "Semantic conflict group conflict_السائق_غير_موجود: Retained distinct key \"security.labels.driver\" to avoid accidental merge."
+        "Semantic conflict group conflict_السائق_غير_موجود: Retained distinct key \"security.labels.driver_2\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -546262,7 +549152,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1167,
+          "line": 1319,
           "column": 19,
           "element": "jsx_text"
         }
@@ -546450,7 +549340,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1184,
+          "line": 1336,
           "column": 15,
           "element": "jsx_text"
         }
@@ -546610,9 +549500,9 @@
       "key": "security.labels.edit_2",
       "category": "security",
       "semanticContext": "jsx_text",
-      "sourceTextAr": "تعديل الدور",
-      "proposedTextEn": "Edit الدور",
-      "proposedTextUr": "ترمیم کریں الدور",
+      "sourceTextAr": "تعديل وإجراءات",
+      "proposedTextEn": "Edit وإجراءات",
+      "proposedTextUr": "ترمیم کریں وإجراءات",
       "statusEn": "REVIEW_REQUIRED",
       "statusUr": "REVIEW_REQUIRED",
       "confidence": "MEDIUM",
@@ -546638,7 +549528,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 934,
+          "line": 1033,
           "column": 55,
           "element": "jsx_text"
         }
@@ -546685,7 +549575,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1324,
+          "line": 1476,
           "column": 72,
           "element": "jsx_text"
         }
@@ -546732,7 +549622,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1434,
+          "line": 1586,
           "column": 27,
           "element": "jsx_text"
         }
@@ -547178,7 +550068,7 @@
       "sourceReferences": [
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1114,
+          "line": 1187,
           "column": 32,
           "element": "literal"
         },
@@ -547544,7 +550434,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1001,
+          "line": 1153,
           "column": 40,
           "element": "literal"
         },
@@ -548483,7 +551373,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1079,
+          "line": 1231,
           "column": 64,
           "element": "jsx_text"
         }
@@ -548997,7 +551887,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -549139,7 +552029,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1263,
+          "line": 1415,
           "column": 74,
           "element": "jsx_text"
         }
@@ -549351,7 +552241,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1276,
+          "line": 1428,
           "column": 38,
           "element": "jsx_text"
         }
@@ -549903,7 +552793,7 @@
         },
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1216,
+          "line": 1368,
           "column": 74,
           "element": "jsx_text"
         }
@@ -549954,7 +552844,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1374,
+          "line": 1526,
           "column": 25,
           "element": "literal"
         }
@@ -550196,6 +553086,12 @@
       "protectedTokens": [],
       "sourceReferences": [
         {
+          "file": "src/components/admin/AdminConsoleView.tsx",
+          "line": 971,
+          "column": 53,
+          "element": "literal"
+        },
+        {
           "file": "src/services/adminConsole.service.ts",
           "line": 255,
           "column": 30,
@@ -550268,7 +553164,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_50",
+      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -550336,7 +553232,7 @@
           "element": "prop_projectId"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_14",
+      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_16",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -551071,7 +553967,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 932,
+          "line": 1031,
           "column": 45,
           "element": "jsx_text"
         }
@@ -551530,7 +554426,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -551768,12 +554664,18 @@
       "sourceReferences": [
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1047,
+          "line": 1054,
+          "column": 30,
+          "element": "literal"
+        },
+        {
+          "file": "src/services/adminConsole.service.ts",
+          "line": 1120,
           "column": 58,
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_role_6",
+      "duplicateGroupId": "dup_role_8",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -553137,16 +556039,10 @@
           "line": 890,
           "column": 45,
           "element": "jsx_text"
-        },
-        {
-          "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 933,
-          "column": 45,
-          "element": "jsx_text"
         }
       ],
       "semanticConflictGroupId": "conflict_الحالة",
-      "duplicateGroupId": "dup_الحالة_15",
+      "duplicateGroupId": "dup_الحالة_14",
       "notes": [
         "Semantic conflict group conflict_الحالة: Retained distinct key \"security.labels.status\" to avoid accidental merge."
       ],
@@ -553161,6 +556057,53 @@
     },
     "security.labels.status_2": {
       "key": "security.labels.status_2",
+      "category": "security",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "الحالة الأمنية",
+      "proposedTextEn": "Status الأمنية",
+      "proposedTextUr": "حالت الأمنية",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/admin/AdminConsoleView.tsx",
+          "line": 1032,
+          "column": 45,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "security.labels.status_3": {
+      "key": "security.labels.status_3",
       "category": "security",
       "semanticContext": "jsx_text",
       "sourceTextAr": "الحالة للنسخة الجديدة",
@@ -553191,7 +556134,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1285,
+          "line": 1437,
           "column": 74,
           "element": "jsx_text"
         }
@@ -553206,8 +556149,8 @@
       },
       "isReportOrExportField": false
     },
-    "security.labels.status_4": {
-      "key": "security.labels.status_4",
+    "security.labels.status_5": {
+      "key": "security.labels.status_5",
       "category": "security",
       "semanticContext": "prop_expectedBehavior",
       "sourceTextAr": "رفض الخادم لأن آلة الحالة المحدودة FSM تمنع القفز المباشر للإكمال",
@@ -554677,7 +557620,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1417,
+          "line": 1569,
           "column": 80,
           "element": "jsx_text"
         }
@@ -554724,7 +557667,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1226,
+          "line": 1378,
           "column": 47,
           "element": "jsx_text"
         }
@@ -555105,9 +558048,108 @@
       "sourceReferences": [
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1088,
+          "line": 1161,
           "column": 31,
           "element": "literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "security.labels.txt_180606": {
+      "key": "security.labels.txt_180606",
+      "category": "security",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "رفض",
+      "proposedTextEn": "رفض",
+      "proposedTextUr": "رفض",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/admin/AdminConsoleView.tsx",
+          "line": 1011,
+          "column": 25,
+          "element": "jsx_text"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_رفض",
+      "duplicateGroupId": "dup_رفض_2",
+      "notes": [
+        "Semantic conflict group conflict_رفض: Retained distinct key \"security.labels.txt_180606\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "security.labels.txt_181cdb": {
+      "key": "security.labels.txt_181cdb",
+      "category": "security",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "طلب",
+      "proposedTextEn": "طلب",
+      "proposedTextUr": "طلب",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/admin/AdminConsoleView.tsx",
+          "line": 930,
+          "column": 77,
+          "element": "jsx_text"
         }
       ],
       "notes": [],
@@ -555323,7 +558365,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1225,
+          "line": 1377,
           "column": 44,
           "element": "jsx_text"
         }
@@ -555603,7 +558645,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 930,
+          "line": 1029,
           "column": 45,
           "element": "jsx_text"
         }
@@ -555701,7 +558743,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1147,
+          "line": 1299,
           "column": 62,
           "element": "jsx_text"
         }
@@ -556004,6 +559046,53 @@
       },
       "isReportOrExportField": false
     },
+    "security.labels.txt_245c9d": {
+      "key": "security.labels.txt_245c9d",
+      "category": "security",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "اعتماد وتفعيل",
+      "proposedTextEn": "Approval وتفعيل",
+      "proposedTextUr": "منظوری وتفعيل",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/admin/AdminConsoleView.tsx",
+          "line": 990,
+          "column": 25,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "security.labels.txt_2478d2": {
       "key": "security.labels.txt_2478d2",
       "category": "security",
@@ -556115,7 +559204,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1017,
+          "line": 1169,
           "column": 29,
           "element": "jsx_text"
         }
@@ -556257,13 +559346,13 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1041,
+          "line": 1193,
           "column": 45,
           "element": "jsx_text"
         },
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1426,
+          "line": 1578,
           "column": 31,
           "element": "jsx_text"
         }
@@ -556373,7 +559462,7 @@
         },
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1251,
+          "line": 1403,
           "column": 74,
           "element": "jsx_text"
         }
@@ -557034,16 +560123,10 @@
           "line": 906,
           "column": 58,
           "element": "literal"
-        },
-        {
-          "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 962,
-          "column": 47,
-          "element": "literal"
         }
       ],
       "semanticConflictGroupId": "conflict_معطل",
-      "duplicateGroupId": "dup_معطل_6",
+      "duplicateGroupId": "dup_معطل_5",
       "notes": [
         "Semantic conflict group conflict_معطل: Retained distinct key \"security.labels.txt_2f1ba8\" to avoid accidental merge."
       ],
@@ -557334,7 +560417,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1397,
+          "line": 1549,
           "column": 68,
           "element": "template_literal"
         }
@@ -557617,7 +560700,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1032,
+          "line": 1184,
           "column": 64,
           "element": "jsx_text"
         }
@@ -557664,7 +560747,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 931,
+          "line": 1030,
           "column": 45,
           "element": "jsx_text"
         }
@@ -557725,7 +560808,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1373,
+          "line": 1525,
           "column": 25,
           "element": "template_literal"
         }
@@ -557835,6 +560918,53 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "security.labels.txt_3845c2": {
+      "key": "security.labels.txt_3845c2",
+      "category": "security",
+      "semanticContext": "call_rejectUser",
+      "sourceTextAr": "تم الرفض بواسطة الإدارة",
+      "proposedTextEn": "تم الرفض بواسطة الإدارة",
+      "proposedTextUr": "تم الرفض بواسطة الإدارة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/admin/AdminConsoleView.tsx",
+          "line": 995,
+          "column": 78,
+          "element": "call_rejectUser"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },
@@ -558514,7 +561644,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1095,
+          "line": 1247,
           "column": 72,
           "element": "jsx_text"
         }
@@ -558583,6 +561713,53 @@
       },
       "isReportOrExportField": false
     },
+    "security.labels.txt_44b85f": {
+      "key": "security.labels.txt_44b85f",
+      "category": "security",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "لا توجد طلبات حسابات جديدة بانتظار الاعتماد حالياً.",
+      "proposedTextEn": "لا توجد طلبات حسابات جديدة بانتظار الApproval حالياً.",
+      "proposedTextUr": "لا توجد طلبات حسابات جديدة بانتظار المنظوری حالياً.",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/admin/AdminConsoleView.tsx",
+          "line": 936,
+          "column": 17,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "security.labels.txt_45032e": {
       "key": "security.labels.txt_45032e",
       "category": "security",
@@ -558615,7 +561792,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1388,
+          "line": 1540,
           "column": 74,
           "element": "jsx_text"
         }
@@ -558903,7 +562080,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1224,
+          "line": 1376,
           "column": 46,
           "element": "jsx_text"
         }
@@ -559241,7 +562418,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1039,
+          "line": 1191,
           "column": 45,
           "element": "jsx_text"
         }
@@ -559815,7 +562992,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1292,
+          "line": 1444,
           "column": 46,
           "element": "jsx_text"
         }
@@ -559862,7 +563039,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1119,
+          "line": 1271,
           "column": 64,
           "element": "jsx_text"
         }
@@ -560212,7 +563389,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1134,
+          "line": 1286,
           "column": 72,
           "element": "jsx_text"
         }
@@ -560476,13 +563653,13 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1412,
+          "line": 1564,
           "column": 65,
           "element": "jsx_text"
         },
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1419,
+          "line": 1571,
           "column": 58,
           "element": "jsx_text"
         }
@@ -560686,7 +563863,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1410,
+          "line": 1562,
           "column": 80,
           "element": "jsx_text"
         }
@@ -560894,6 +564071,58 @@
         }
       ],
       "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "security.labels.txt_59c952": {
+      "key": "security.labels.txt_59c952",
+      "category": "security",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "تعليق",
+      "proposedTextEn": "تعليق",
+      "proposedTextUr": "تعليق",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/admin/AdminConsoleView.tsx",
+          "line": 1109,
+          "column": 27,
+          "element": "jsx_text"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_تعليق",
+      "duplicateGroupId": "dup_تعليق_2",
+      "notes": [
+        "Semantic conflict group conflict_تعليق: Retained distinct key \"security.labels.txt_59c952\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -561175,7 +564404,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 923,
+          "line": 1022,
           "column": 64,
           "element": "jsx_text"
         }
@@ -561878,6 +565107,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "LOW_CONFIDENCE"
       ],
       "risk": "LOW",
@@ -561903,7 +565133,11 @@
           "element": "prop_fullName"
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_المهندس_طارق_بن_خالد_الشمري",
+      "duplicateGroupId": "dup_المهندس_طارق_بن_خالد_الشمري_2",
+      "notes": [
+        "Semantic conflict group conflict_المهندس_طارق_بن_خالد_الشمري: Retained distinct key \"security.labels.txt_65988f\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -561945,7 +565179,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1146,
+          "line": 1298,
           "column": 102,
           "element": "jsx_text"
         }
@@ -562039,7 +565273,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1103,
+          "line": 1255,
           "column": 71,
           "element": "jsx_text"
         }
@@ -562642,6 +565876,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "LOW_CONFIDENCE"
       ],
       "risk": "LOW",
@@ -562662,12 +565897,16 @@
       "sourceReferences": [
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1029,
+          "line": 1033,
           "column": 37,
           "element": "literal"
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_مستخدم_جديد",
+      "duplicateGroupId": "dup_مستخدم_جديد_3",
+      "notes": [
+        "Semantic conflict group conflict_مستخدم_جديد: Retained distinct key \"security.labels.txt_6c67d4\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -562761,7 +566000,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1125,
+          "line": 1277,
           "column": 72,
           "element": "jsx_text"
         }
@@ -563870,7 +567109,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1223,
+          "line": 1375,
           "column": 45,
           "element": "jsx_text"
         }
@@ -563922,7 +567161,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1138,
+          "line": 1290,
           "column": 62,
           "element": "jsx_text"
         }
@@ -564023,7 +567262,7 @@
         },
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1040,
+          "line": 1192,
           "column": 45,
           "element": "jsx_text"
         }
@@ -564345,6 +567584,53 @@
       },
       "isReportOrExportField": false
     },
+    "security.labels.txt_8aa705": {
+      "key": "security.labels.txt_8aa705",
+      "category": "security",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "إعادة تفعيل",
+      "proposedTextEn": "إعادة تفعيل",
+      "proposedTextUr": "إعادة تفعيل",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/admin/AdminConsoleView.tsx",
+          "line": 1125,
+          "column": 27,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "security.labels.txt_8f9554": {
       "key": "security.labels.txt_8f9554",
       "category": "security",
@@ -564377,7 +567663,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1042,
+          "line": 1194,
           "column": 45,
           "element": "jsx_text"
         }
@@ -564825,7 +568111,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 991,
+          "line": 1143,
           "column": 64,
           "element": "jsx_text"
         }
@@ -564966,7 +568252,7 @@
       "sourceReferences": [
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1194,
+          "line": 1267,
           "column": 38,
           "element": "literal"
         }
@@ -565527,19 +568813,43 @@
       "sourceReferences": [
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1049,
+          "line": 1059,
           "column": 32,
           "element": "literal"
         },
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1062,
+          "line": 1077,
+          "column": 32,
+          "element": "literal"
+        },
+        {
+          "file": "src/services/adminConsole.service.ts",
+          "line": 1094,
+          "column": 32,
+          "element": "literal"
+        },
+        {
+          "file": "src/services/adminConsole.service.ts",
+          "line": 1108,
+          "column": 32,
+          "element": "literal"
+        },
+        {
+          "file": "src/services/adminConsole.service.ts",
+          "line": 1122,
+          "column": 32,
+          "element": "literal"
+        },
+        {
+          "file": "src/services/adminConsole.service.ts",
+          "line": 1135,
           "column": 32,
           "element": "literal"
         }
       ],
       "semanticConflictGroupId": "conflict_المستخدم_غير_موجود",
-      "duplicateGroupId": "dup_المستخدم_غير_موجود_3",
+      "duplicateGroupId": "dup_المستخدم_غير_موجود_7",
       "notes": [
         "Semantic conflict group conflict_المستخدم_غير_موجود: Retained distinct key \"security.labels.user_3\" to avoid accidental merge."
       ],
@@ -565763,7 +569073,7 @@
           "element": "prop_updatedBy"
         }
       ],
-      "duplicateGroupId": "dup_USR_ADMIN_001_16",
+      "duplicateGroupId": "dup_USR_ADMIN_001_17",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -565858,7 +569168,7 @@
       "sourceReferences": [
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1140,
+          "line": 1213,
           "column": 35,
           "element": "literal"
         }
@@ -566915,7 +570225,7 @@
       "sourceReferences": [
         {
           "file": "src/services/adminConsole.service.ts",
-          "line": 1201,
+          "line": 1274,
           "column": 19,
           "element": "prop_databaseId"
         }
@@ -567036,16 +570346,10 @@
           "line": 906,
           "column": 50,
           "element": "literal"
-        },
-        {
-          "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 962,
-          "column": 39,
-          "element": "literal"
         }
       ],
       "semanticConflictGroupId": "conflict_نشط",
-      "duplicateGroupId": "dup_نشط_10",
+      "duplicateGroupId": "dup_نشط_9",
       "notes": [
         "Semantic conflict group conflict_نشط: Retained distinct key \"security.status.active\" to avoid accidental merge."
       ],
@@ -567138,7 +570442,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1291,
+          "line": 1443,
           "column": 44,
           "element": "jsx_text"
         }
@@ -567200,7 +570504,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -568079,7 +571383,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1099,
+          "line": 1251,
           "column": 74,
           "element": "jsx_text"
         }
@@ -568369,7 +571673,7 @@
       "sourceReferences": [
         {
           "file": "src/components/admin/AdminConsoleView.tsx",
-          "line": 1143,
+          "line": 1295,
           "column": 72,
           "element": "jsx_text"
         }
@@ -568428,6 +571732,53 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "security.status.txt_687db2": {
+      "key": "security.status.txt_687db2",
+      "category": "security",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "طلبات الحسابات المعلقة والاعتماد (Pending Account Requests)",
+      "proposedTextEn": "طلبات الحسابات الPendingة والApproval (Pending Account Requests)",
+      "proposedTextUr": "طلبات الحسابات الزیر التواءة والمنظوری (Pending Account Requests)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/admin/AdminConsoleView.tsx",
+          "line": 927,
+          "column": 66,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
       },
       "isReportOrExportField": false
     },
@@ -576446,7 +579797,7 @@
           "element": "attr_value"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -580075,7 +583426,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -581863,7 +585214,7 @@
           "element": "prop_projectId"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_14",
+      "duplicateGroupId": "dup_PRJ_REDSEA_RESORT_02_16",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -582237,7 +585588,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -588254,7 +591605,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_غير_محدد",
-      "duplicateGroupId": "dup_غير_محدد_10",
+      "duplicateGroupId": "dup_غير_محدد_11",
       "notes": [
         "Semantic conflict group conflict_غير_محدد: Retained distinct key \"trips.labels.txt_1567b8\" to avoid accidental merge."
       ],
@@ -595929,7 +599280,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -604814,7 +608165,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -605632,7 +608983,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -606231,7 +609582,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_الحالة",
-      "duplicateGroupId": "dup_الحالة_15",
+      "duplicateGroupId": "dup_الحالة_14",
       "notes": [
         "Semantic conflict group conflict_الحالة: Retained distinct key \"unloading.labels.status_2\" to avoid accidental merge."
       ],
@@ -613083,7 +616434,7 @@
           "element": "prop_field"
         }
       ],
-      "duplicateGroupId": "dup_role_6",
+      "duplicateGroupId": "dup_role_8",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -621460,7 +624811,7 @@
           "element": "attr_value"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -622998,7 +626349,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_lucide_react_50",
+      "duplicateGroupId": "dup_lucide_react_52",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -625435,7 +628786,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_50",
+      "duplicateGroupId": "dup_PRJ_NEOM_NORTH_01_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -625704,7 +629055,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_react_57",
+      "duplicateGroupId": "dup_react_58",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -628281,7 +631632,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_غير_محدد",
-      "duplicateGroupId": "dup_غير_محدد_10",
+      "duplicateGroupId": "dup_غير_محدد_11",
       "notes": [
         "Semantic conflict group conflict_غير_محدد: Retained distinct key \"weighbridge.labels.txt_1567b8\" to avoid accidental merge."
       ],
@@ -635712,7 +639063,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_ALL_254",
+      "duplicateGroupId": "dup_ALL_257",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],

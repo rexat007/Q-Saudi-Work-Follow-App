@@ -50,6 +50,15 @@ service cloud.firestore {
       );
     }
 
+    function isUserActive() {
+      return isSignedIn() && (
+        isSuperAdmin() ||
+        request.auth.token.status == 'ACTIVE' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'ACTIVE')
+      );
+    }
+
     function isServerAuthorized() {
       return isSignedIn() && (
         request.auth.token.isServer == true ||
@@ -59,7 +68,7 @@ service cloud.firestore {
     }
 
     function isProjectMember(projectId) {
-      return isSignedIn() && (
+      return isUserActive() && (
         isSuperAdmin() ||
         (request.auth.token.assignedProjectIds != null && projectId in request.auth.token.assignedProjectIds) ||
         (request.auth.token.projectRoles != null && projectId in request.auth.token.projectRoles) ||
@@ -70,7 +79,7 @@ service cloud.firestore {
     }
 
     function hasProjectRole(projectId, allowedRoles) {
-      return isSignedIn() && (
+      return isUserActive() && (
         isSuperAdmin() ||
         (request.auth.token.role != null && request.auth.token.role in allowedRoles && isProjectMember(projectId)) ||
         (request.auth.token.projectRoles != null && request.auth.token.projectRoles[projectId] in allowedRoles) ||
@@ -297,14 +306,14 @@ service cloud.firestore {
     // 2. Global Users Collection
     // =========================================================================
     match /users/{userId} {
-      allow get: if isSignedIn() && isValidId(userId);
-      allow list: if isSignedIn();
+      allow get: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isUserActive());
+      allow list: if isUserActive();
       allow create: if isSignedIn() && isValidId(userId) &&
-                       (isSuperAdmin() || request.auth.uid == userId) &&
+                       (request.auth.uid == userId || isUserActive()) &&
                        isAuditStampedCreate(incoming()) &&
                        incoming().userId == userId;
       allow update: if isSignedIn() && isValidId(userId) &&
-                       (isSuperAdmin() || (request.auth.uid == userId && incoming().role == existing().role)) &&
+                       ((isSuperAdmin() && isUserActive()) || (request.auth.uid == userId && incoming().role == existing().role && incoming().status == existing().status)) &&
                        isAuditStampedUpdate(incoming()) &&
                        incoming().userId == existing().userId;
       allow delete: if false;
@@ -314,7 +323,7 @@ service cloud.firestore {
     // 3. Global Audit Logs Collection (Strict Append-Only with Actor Verification)
     // =========================================================================
     match /audit_logs/{auditLogId} {
-      allow get, list: if isSignedIn();
+      allow get, list: if isUserActive();
       allow create: if isSignedIn() && isValidId(auditLogId) &&
                        isAuditStampedCreate(incoming()) &&
                        incoming().auditLogId == auditLogId &&
