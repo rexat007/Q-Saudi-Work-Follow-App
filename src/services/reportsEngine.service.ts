@@ -1628,8 +1628,8 @@ export class ReportsEngineService {
   /**
    * Universal Dispatcher: generates any report by its code.
    */
-  public generateReport(type: ReportType, filters: ReportFilterParams): ReportDataset {
-    const trips = tripEngineService.getTrips();
+  public generateReport(type: ReportType, filters: ReportFilterParams, customTrips?: TripRecord[]): ReportDataset {
+    const trips = customTrips || tripEngineService.getTrips();
 
     switch (type) {
       // 9 Operational

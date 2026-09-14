@@ -1,6 +1,6 @@
 import { TripEngineStatus, TripPricingType, TripRecord, OperationSourceType } from './tripEngine';
 
-export type ReportCategory = 'OPERATIONAL' | 'PRICING';
+export type ReportCategory = 'OPERATIONAL' | 'PRICING' | 'WEIGHBRIDGE' | 'SETTLEMENT' | 'INGESTION';
 
 export type OperationalReportType =
   | 'DAILY_OPERATIONS'

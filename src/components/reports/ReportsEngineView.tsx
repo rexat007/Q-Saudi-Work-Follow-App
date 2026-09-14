@@ -274,23 +274,42 @@ export const ReportsEngineView: React.FC = () => {
         </div>
 
         {/* Category Switcher Tabs */}
-        <div className="flex items-center gap-3 mt-6 border-t border-stone-100 pt-4">
+        <div className="flex flex-wrap items-center gap-2.5 mt-6 border-t border-stone-100 pt-4">
           <button
             id="tab-operational-reports"
             onClick={() => {
               setActiveCategory('OPERATIONAL');
               setSelectedReportType('DAILY_OPERATIONS');
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeCategory === 'OPERATIONAL'
                 ? 'bg-stone-900 text-white shadow-xs'
                 : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
             }`}
           >
             <Truck className="w-4 h-4" />
-            <span>تقارير التشغيل (9 تقارير)</span>
+            <span>التقارير التشغيلية (7 تقارير)</span>
             <span className={`px-1.5 py-0.2 rounded text-[10px] ${activeCategory === 'OPERATIONAL' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
               Operational
+            </span>
+          </button>
+
+          <button
+            id="tab-weighbridge-reports"
+            onClick={() => {
+              setActiveCategory('WEIGHBRIDGE');
+              setSelectedReportType('WEIGHT_VARIANCE');
+            }}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeCategory === 'WEIGHBRIDGE'
+                ? 'bg-cyan-700 text-white shadow-xs'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+            }`}
+          >
+            <Scale className="w-4 h-4" />
+            <span>تقارير الموازين والفروقات</span>
+            <span className={`px-1.5 py-0.2 rounded text-[10px] ${activeCategory === 'WEIGHBRIDGE' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
+              Weighbridge
             </span>
           </button>
 
@@ -300,24 +319,45 @@ export const ReportsEngineView: React.FC = () => {
               setActiveCategory('PRICING');
               setSelectedReportType('SETTLEMENT_BY_CARRIER');
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeCategory === 'PRICING'
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeCategory === 'PRICING' || activeCategory === 'SETTLEMENT'
                 ? 'bg-amber-600 text-white shadow-xs'
                 : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
             }`}
           >
             <Banknote className="w-4 h-4" />
-            <span>تقارير التسعير والتسويات (7 تقارير)</span>
-            <span className={`px-1.5 py-0.2 rounded text-[10px] ${activeCategory === 'PRICING' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
+            <span>التقارير المالية والتسويات (7 تقارير)</span>
+            <span className={`px-1.5 py-0.2 rounded text-[10px] ${activeCategory === 'PRICING' || activeCategory === 'SETTLEMENT' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
               Financial
+            </span>
+          </button>
+
+          <button
+            id="tab-ingestion-reports"
+            onClick={() => {
+              setActiveCategory('INGESTION');
+              setSelectedReportType('EXCEPTION_REPORT');
+            }}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeCategory === 'INGESTION'
+                ? 'bg-rose-700 text-white shadow-xs'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+            }`}
+          >
+            <AlertTriangle className="w-4 h-4" />
+            <span>تقارير الاستيراد والاستثناءات</span>
+            <span className={`px-1.5 py-0.2 rounded text-[10px] ${activeCategory === 'INGESTION' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
+              Ingestion / Exceptions
             </span>
           </button>
         </div>
 
         {/* Report Selector Pills */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2 mt-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 mt-3">
           {activeCategory === 'OPERATIONAL' &&
-            Object.values(OPERATIONAL_REPORTS_METADATA).map((rep) => {
+            ['DAILY_OPERATIONS', 'SHIFT_OPERATIONS', 'CARRIER_PERFORMANCE', 'MATERIAL_MOVEMENT', 'TRUCK_UTILIZATION', 'RETURNED_TRIPS', 'SOURCE_BREAKDOWN'].map((typeKey) => {
+              const rep = OPERATIONAL_REPORTS_METADATA[typeKey as OperationalReportType];
+              if (!rep) return null;
               const isSelected = selectedReportType === rep.type;
               return (
                 <button
@@ -337,7 +377,20 @@ export const ReportsEngineView: React.FC = () => {
               );
             })}
 
-          {activeCategory === 'PRICING' &&
+          {activeCategory === 'WEIGHBRIDGE' && (
+            <button
+              onClick={() => setSelectedReportType('WEIGHT_VARIANCE')}
+              className="flex flex-col items-center text-center p-2.5 rounded-xl border bg-cyan-500/10 border-cyan-500 text-cyan-950 font-bold shadow-2xs cursor-pointer col-span-full sm:col-span-2 md:col-span-3"
+            >
+              <div className="p-1.5 rounded-lg mb-1.5 bg-cyan-600 text-white">
+                <Scale className="w-4 h-4" />
+              </div>
+              <span className="text-xs">{OPERATIONAL_REPORTS_METADATA.WEIGHT_VARIANCE.titleAr}</span>
+              <span className="text-[10px] text-cyan-800 font-normal mt-0.5">{OPERATIONAL_REPORTS_METADATA.WEIGHT_VARIANCE.descriptionAr}</span>
+            </button>
+          )}
+
+          {(activeCategory === 'PRICING' || activeCategory === 'SETTLEMENT') &&
             Object.values(PRICING_REPORTS_METADATA).map((rep) => {
               const isSelected = selectedReportType === rep.type;
               return (
@@ -357,6 +410,19 @@ export const ReportsEngineView: React.FC = () => {
                 </button>
               );
             })}
+
+          {activeCategory === 'INGESTION' && (
+            <button
+              onClick={() => setSelectedReportType('EXCEPTION_REPORT')}
+              className="flex flex-col items-center text-center p-2.5 rounded-xl border bg-rose-500/10 border-rose-500 text-rose-950 font-bold shadow-2xs cursor-pointer col-span-full sm:col-span-2 md:col-span-3"
+            >
+              <div className="p-1.5 rounded-lg mb-1.5 bg-rose-600 text-white">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <span className="text-xs">{OPERATIONAL_REPORTS_METADATA.EXCEPTION_REPORT.titleAr}</span>
+              <span className="text-[10px] text-rose-800 font-normal mt-0.5">{OPERATIONAL_REPORTS_METADATA.EXCEPTION_REPORT.descriptionAr}</span>
+            </button>
+          )}
         </div>
       </div>
 

@@ -1,0 +1,190 @@
+{
+  "blockNumber": 80,
+  "blockName": "FIELD REPORTS & CENTRAL EXECUTIVE DASHBOARD",
+  "status": "COMPLETED",
+  "timestamp": "2026-09-14T06:17:00.000Z",
+  "deliverables": {
+    "fieldReportsWorkspace": {
+      "categories": [
+        {
+          "category": "OPERATIONAL",
+          "labelAr": "التقارير التشغيلية",
+          "labelEn": "Operational Reports",
+          "reportsCount": 7,
+          "reports": [
+            "DAILY_OPERATIONS",
+            "SHIFT_OPERATIONS",
+            "CARRIER_PERFORMANCE",
+            "MATERIAL_MOVEMENT",
+            "TRUCK_UTILIZATION",
+            "RETURNED_TRIPS",
+            "SOURCE_BREAKDOWN"
+          ],
+          "metrics": [
+            "total trips",
+            "loading activity",
+            "unloading activity",
+            "completed trips",
+            "in-transit trips",
+            "returned trips",
+            "source breakdown"
+          ]
+        },
+        {
+          "category": "WEIGHBRIDGE",
+          "labelAr": "تقارير الموازين والفروقات",
+          "labelEn": "Weighbridge & Variance Reports",
+          "reportsCount": 1,
+          "reports": [
+            "WEIGHT_VARIANCE"
+          ],
+          "metrics": [
+            "origin net weight",
+            "destination net weight",
+            "variance weight",
+            "variance percentage",
+            "tolerance status",
+            "source type",
+            "ACCEPT_ORIGIN_NET_AS_DESTINATION trace"
+          ]
+        },
+        {
+          "category": "SETTLEMENT",
+          "labelAr": "التقارير المالية والتسويات",
+          "labelEn": "Settlement & Financial Reports",
+          "reportsCount": 7,
+          "reports": [
+            "SETTLEMENT_BY_CARRIER",
+            "SETTLEMENT_BY_PRICING_TYPE",
+            "SETTLEMENT_BY_MATERIAL",
+            "TRIP_BASED_SETTLEMENT",
+            "TON_BASED_SETTLEMENT",
+            "DAILY_SETTLEMENT",
+            "PROJECT_SETTLEMENT_SUMMARY"
+          ],
+          "metrics": [
+            "finalized settlement amount",
+            "pending pricing isolation",
+            "contractual snapshot rate",
+            "PER_TRIP formula check",
+            "PER_TON formula check",
+            "demurrage integrity",
+            "VAT compliance"
+          ]
+        },
+        {
+          "category": "INGESTION",
+          "labelAr": "تقارير الاستيراد والاستثناءات",
+          "labelEn": "Ingestion & Exceptions Reports",
+          "reportsCount": 1,
+          "reports": [
+            "EXCEPTION_REPORT"
+          ],
+          "metrics": [
+            "12 exception failure codes",
+            "severity levels",
+            "resolution statuses",
+            "trip linkage",
+            "operational penalties"
+          ]
+        }
+      ],
+      "multiCriteriaFilters": [
+        "projectId",
+        "dateFrom / shiftDateFrom",
+        "dateTo / shiftDateTo",
+        "shift",
+        "carrierId",
+        "materialId",
+        "pricingType",
+        "status",
+        "sourceType",
+        "truckId",
+        "driverId",
+        "supervisorId"
+      ],
+      "exportSupport": [
+        "CSV (UTF-8 BOM)",
+        "XLSX Binary",
+        "Print / PDF Modal"
+      ]
+    },
+    "centralExecutiveDashboard": {
+      "targetRoles": [
+        "SUPER_ADMIN",
+        "PROJECT_ADMIN"
+      ],
+      "layers": [
+        {
+          "layerNumber": 1,
+          "name": "CORE_KPIS",
+          "nameAr": "المؤشرات التنفيذية الرئيسية",
+          "description": "Total Active Trips, Completed Trips, Exception Count, Settlement Status, Operational Volume, Project Count"
+        },
+        {
+          "layerNumber": 2,
+          "name": "ACTIVE_TRIP_FUNNEL",
+          "nameAr": "مسار وحالة تدفق الرحلات",
+          "description": "Progression across states: Loading, Loaded, In Transit, Arrived/Unloading, Completed, Returned, Exception"
+        },
+        {
+          "layerNumber": 3,
+          "name": "EXCEPTIONS_BREAKDOWN",
+          "nameAr": "تحليل ومصفوفة المخاطر والاستثناءات",
+          "description": "Critical, High, Warning, Aging/Open exceptions, Project-level distribution"
+        },
+        {
+          "layerNumber": 4,
+          "name": "FINANCIAL_SETTLEMENT",
+          "nameAr": "التسويات والالتزامات المالية",
+          "description": "Finalized Settlement, Pending Pricing Isolation, Contractual Snapshot Invariance, Model Distributions"
+        },
+        {
+          "layerNumber": 5,
+          "name": "CROSS_PROJECT_HEALTH",
+          "nameAr": "سلامة العمليات ومؤشرات الأداء عبر المشاريع",
+          "description": "Carrier efficiency, material delivery velocity, project authorization isolation"
+        },
+        {
+          "layerNumber": 6,
+          "name": "DAILY_TRENDS",
+          "nameAr": "الاتجاهات والتوزيعات التشغيلية",
+          "description": "Per Trip vs Per Ton distribution, average rates, volume trends"
+        },
+        {
+          "layerNumber": 7,
+          "name": "SYSTEM_OPERATIONS_HEALTH",
+          "nameAr": "شاشة الحركة المباشرة وسلامة النظام",
+          "description": "Live Terminal Board, real-time vehicle movement tracking, search and filter capabilities"
+        }
+      ]
+    },
+    "authoritativeInvariants": {
+      "i18nFrozenCatalog": {
+        "arabicKeys": 1128,
+        "englishKeys": 1128,
+        "urduKeys": 1128,
+        "missingKeys": 0,
+        "inventedKeys": 0,
+        "status": "LOCKED"
+      },
+      "securityRules": {
+        "rbacRolesPreserved": true,
+        "projectIsolationEnforced": true,
+        "zeroUnauthorizedLeakage": true
+      },
+      "businessLogic": {
+        "pricingSnapshotsPreserved": true,
+        "zeroHistoricalRecalculations": true,
+        "pendingPricingIsolated": true
+      }
+    }
+  },
+  "verification": {
+    "testSuite": "src/tests/fieldReportsCentralDashboardBlock80.test.ts",
+    "totalTests": 22,
+    "passedTests": 22,
+    "failedTests": 0,
+    "passRate": "100%"
+  }
+}
