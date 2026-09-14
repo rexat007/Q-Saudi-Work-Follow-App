@@ -52,16 +52,16 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
 
   const getToolIcon = (iconName: string) => {
     switch (iconName) {
-      case 'ShieldCheck': return <ShieldCheck className="w-5 h-5 text-blue-500" />;
-      case 'FileSpreadsheet': return <FileSpreadsheet className="w-5 h-5 text-emerald-500" />;
-      case 'Truck': return <Truck className="w-5 h-5 text-amber-500" />;
-      case 'AlertOctagon': return <AlertOctagon className="w-5 h-5 text-rose-500" />;
-      case 'ShieldAlert': return <ShieldAlert className="w-5 h-5 text-orange-500" />;
-      case 'Calculator': return <Calculator className="w-5 h-5 text-teal-500" />;
-      case 'Database': return <Database className="w-5 h-5 text-indigo-500" />;
-      case 'Share2': return <Share2 className="w-5 h-5 text-purple-500" />;
-      case 'BookOpen': return <BookOpen className="w-5 h-5 text-stone-500" />;
-      default: return <Boxes className="w-5 h-5 text-stone-500" />;
+      case 'ShieldCheck': return <ShieldCheck className="w-5 h-5 text-slate-300" />;
+      case 'FileSpreadsheet': return <FileSpreadsheet className="w-5 h-5 text-slate-300" />;
+      case 'Truck': return <Truck className="w-5 h-5 text-slate-300" />;
+      case 'AlertOctagon': return <AlertOctagon className="w-5 h-5 text-slate-300" />;
+      case 'ShieldAlert': return <ShieldAlert className="w-5 h-5 text-slate-300" />;
+      case 'Calculator': return <Calculator className="w-5 h-5 text-slate-300" />;
+      case 'Database': return <Database className="w-5 h-5 text-slate-300" />;
+      case 'Share2': return <Share2 className="w-5 h-5 text-slate-300" />;
+      case 'BookOpen': return <BookOpen className="w-5 h-5 text-slate-300" />;
+      default: return <Boxes className="w-5 h-5 text-slate-300" />;
     }
   };
 
@@ -140,8 +140,8 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
                       {tool.badgeAr && (
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 font-mono ${
                           isSelected 
-                            ? 'bg-black text-[#10b981]' 
-                            : 'bg-white/10 text-[#f8fafc] border border-white/10'
+                            ? 'bg-stone-900 text-[#10b981] border border-[#10b981]/40' 
+                            : 'bg-slate-800/90 text-slate-200 border border-slate-700/80'
                         }`}>
                           {tool.badgeAr}
                         </span>

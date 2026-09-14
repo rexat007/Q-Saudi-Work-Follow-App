@@ -77,6 +77,7 @@ export const ReportsEngineView: React.FC = () => {
   // Table Search and Sorting
   const [tableSearch, setTableSearch] = useState<string>('');
   const [isPrintModalOpen, setIsPrintModalOpen] = useState<boolean>(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState<boolean>(false);
 
   // Trips from tripEngineService
   const allTrips = useMemo(() => tripEngineService.getTrips(), []);
@@ -449,8 +450,45 @@ export const ReportsEngineView: React.FC = () => {
           )}
         </div>
 
+        {/* Mobile Accordion Toggle (< 640px) */}
+        <div className="sm:hidden">
+          <button
+            type="button"
+            onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+            className="w-full min-h-[44px] flex items-center justify-between px-3.5 py-2.5 bg-stone-100 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 hover:bg-stone-200/80 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-amber-600" />
+              <span>خيارات تصفية التقارير (Filters)</span>
+              {activeFilterCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-amber-600 text-white text-[10px] font-bold">
+                  {activeFilterCount}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1 text-stone-500 text-[11px]">
+              <span>{isMobileFiltersOpen ? 'إخفاء' : 'عرض'}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${isMobileFiltersOpen ? 'rotate-180' : ''}`} />
+            </div>
+          </button>
+
+          {!isMobileFiltersOpen && (
+            <div className="flex flex-wrap gap-1.5 text-[10px] text-stone-600 mt-2 px-1">
+              <span className="px-2 py-0.5 bg-stone-100 border border-stone-200 rounded-md font-mono">
+                المشروع: {filters.projectId === 'ALL' ? 'الكل' : filters.projectId}
+              </span>
+              <span className="px-2 py-0.5 bg-stone-100 border border-stone-200 rounded-md font-mono">
+                الناقل: {filters.carrierId === 'ALL' ? 'الكل' : filters.carrierId}
+              </span>
+              <span className="px-2 py-0.5 bg-stone-100 border border-stone-200 rounded-md font-mono">
+                المادة: {filters.materialId === 'ALL' ? 'الكل' : filters.materialId}
+              </span>
+            </div>
+          )}
+        </div>
+
         {/* Filter Selectors Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 ${isMobileFiltersOpen ? 'block sm:grid' : 'hidden sm:grid'}`}>
           
           {/* 1. Project */}
           <div>

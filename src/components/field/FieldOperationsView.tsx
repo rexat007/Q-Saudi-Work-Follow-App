@@ -53,6 +53,9 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
     }
   };
 
+  const isDriverRole = activeRole === 'DRIVER';
+  const effectiveTab = isDriverRole ? 'DRIVER_VIEW' : activeTab;
+
   return (
     <div className="space-y-6" dir="rtl">
       {/* Top Field Workplace Control Header */}
@@ -76,57 +79,59 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
 
           {/* Quick Tab Switcher & Role Simulator Controls */}
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* Field Station Tabs */}
-            <div className="flex bg-stone-800 p-1 rounded-xl border border-stone-700/60">
-              <button
-                type="button"
-                onClick={() => setActiveTab('LOADING_STATION')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === 'LOADING_STATION'
-                    ? 'bg-amber-600 text-white shadow-xs'
-                    : 'text-stone-300 hover:text-white'
-                }`}
-              >
-                <Scale className="w-3.5 h-3.5" />
-                <span>ميزان التحميل (Loading)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('UNLOADING_STATION')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === 'UNLOADING_STATION'
-                    ? 'bg-amber-600 text-white shadow-xs'
-                    : 'text-stone-300 hover:text-white'
-                }`}
-              >
-                <Truck className="w-3.5 h-3.5" />
-                <span>ميزان الاستلام (Unloading)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('SUPERVISION')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === 'SUPERVISION'
-                    ? 'bg-amber-600 text-white shadow-xs'
-                    : 'text-stone-300 hover:text-white'
-                }`}
-              >
-                <ShieldAlert className="w-3.5 h-3.5" />
-                <span>الإشراف الميداني (Supervision)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('DRIVER_VIEW')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === 'DRIVER_VIEW'
-                    ? 'bg-amber-600 text-white shadow-xs'
-                    : 'text-stone-300 hover:text-white'
-                }`}
-              >
-                <UserCheck className="w-3.5 h-3.5" />
-                <span>واجهة السائق (Driver)</span>
-              </button>
-            </div>
+            {/* Field Station Tabs — Hidden for DRIVER role */}
+            {!isDriverRole && (
+              <div className="flex bg-stone-800 p-1 rounded-xl border border-stone-700/60">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('LOADING_STATION')}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    effectiveTab === 'LOADING_STATION'
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'text-stone-300 hover:text-white'
+                  }`}
+                >
+                  <Scale className="w-3.5 h-3.5" />
+                  <span>ميزان التحميل (Loading)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('UNLOADING_STATION')}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    effectiveTab === 'UNLOADING_STATION'
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'text-stone-300 hover:text-white'
+                  }`}
+                >
+                  <Truck className="w-3.5 h-3.5" />
+                  <span>ميزان الاستلام (Unloading)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('SUPERVISION')}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    effectiveTab === 'SUPERVISION'
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'text-stone-300 hover:text-white'
+                  }`}
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>الإشراف الميداني (Supervision)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('DRIVER_VIEW')}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    effectiveTab === 'DRIVER_VIEW'
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'text-stone-300 hover:text-white'
+                  }`}
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                  <span>واجهة السائق (Driver)</span>
+                </button>
+              </div>
+            )}
 
             {/* Role Simulation Selector */}
             <div className="flex items-center gap-1.5 bg-stone-800 px-3 py-1.5 rounded-xl border border-stone-700/60 text-xs">
@@ -194,17 +199,17 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
       )}
 
       {/* Active Station View */}
-      {activeTab === 'LOADING_STATION' ? (
+      {effectiveTab === 'LOADING_STATION' ? (
         <LoadingOperatorView
           authContext={currentAuthContext}
           onNotification={handleNotification}
         />
-      ) : activeTab === 'UNLOADING_STATION' ? (
+      ) : effectiveTab === 'UNLOADING_STATION' ? (
         <UnloadingOperatorView
           authContext={currentAuthContext}
           onNotification={handleNotification}
         />
-      ) : activeTab === 'SUPERVISION' ? (
+      ) : effectiveTab === 'SUPERVISION' ? (
         <FieldSupervisionView
           authContext={currentAuthContext}
           onNotification={handleNotification}
