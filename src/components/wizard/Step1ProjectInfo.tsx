@@ -3,6 +3,51 @@ import { ProjectInfoStep } from '../../types/wizard';
 import { Building2, Calendar, FileText, Settings, ShieldCheck, MapPin } from 'lucide-react';
 import { useI18n } from '../../i18n';
 
+const formatLocaleDate = (dateStr: string | null | undefined, locale: string = 'en'): string => {
+  if (!dateStr || dateStr.trim() === '') return '';
+  const parts = dateStr.split('T')[0].split('-');
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    const d = new Date(Number(year), Number(month) - 1, Number(day));
+    if (!isNaN(d.getTime())) {
+      try {
+        if (locale === 'ar') {
+          return d.toLocaleDateString('ar-SA', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+        } else if (locale === 'ur') {
+          return d.toLocaleDateString('ur-PK', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+        } else {
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const yyyy = d.getFullYear();
+          return `${dd}/${mm}/${yyyy}`;
+        }
+      } catch {
+        const dd = String(day).padStart(2, '0');
+        const mm = String(month).padStart(2, '0');
+        return `${dd}/${mm}/${year}`;
+      }
+    }
+  }
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      if (locale === 'ar') {
+        return d.toLocaleDateString('ar-SA', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+      } else if (locale === 'ur') {
+        return d.toLocaleDateString('ur-PK', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+      } else {
+        return `${dd}/${mm}/${yyyy}`;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return dateStr;
+};
+
 
 interface Step1Props {
   data: ProjectInfoStep;
@@ -11,7 +56,7 @@ interface Step1Props {
 }
 
 export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors = [] }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const updateField = <K extends keyof ProjectInfoStep>(field: K, value: ProjectInfoStep[K]) => {
     onChange({
       ...data,
@@ -75,7 +120,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
             value={data.projectCode}
             onChange={(e) => updateField('projectCode', e.target.value.toUpperCase())}
             placeholder="e.g. PRJ-NEOM-WEST-01"
-            className="w-full text-sm font-mono uppercase px-3 py-2 bg-white border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+            className="w-full text-sm font-mono uppercase px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
           />
           <p className="text-[11px] text-stone-400 mt-1">
             {t("projects.labels.txt_74b183")}</p>
@@ -92,7 +137,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
             value={data.projectName}
             onChange={(e) => updateField('projectName', e.target.value)}
             placeholder="e.g. مشروع ناقلات نيوم - قطاع ركام البنية التحتية"
-            className="w-full text-sm px-3 py-2 bg-white border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+            className="w-full text-sm px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
           />
           <p className="text-[11px] text-stone-400 mt-1">الاسم التجاري والتشغيلي المعتمد في السندات والفواتير.</p>
         </div>
@@ -107,7 +152,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
             value={data.clientName}
             onChange={(e) => updateField('clientName', e.target.value)}
             placeholder="e.g. شركة نيوم للتطوير اللوجستي"
-            className="w-full text-sm px-3 py-2 bg-white border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+            className="w-full text-sm px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
           />
         </div>
 
@@ -153,8 +198,14 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
             type="date"
             value={data.startDate}
             onChange={(e) => updateField('startDate', e.target.value)}
-            className="w-full text-sm px-3 py-2 bg-white border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+            className="w-full text-sm px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
           />
+          {data.startDate && (
+            <p className="text-[11px] text-amber-700 mt-1 font-semibold flex items-center gap-1">
+              <span>التاريخ المحدد:</span>
+              <span className="font-mono">{formatLocaleDate(data.startDate, locale)}</span>
+            </p>
+          )}
         </div>
 
         <div>
@@ -167,8 +218,14 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
             type="date"
             value={data.endDate}
             onChange={(e) => updateField('endDate', e.target.value)}
-            className="w-full text-sm px-3 py-2 bg-white border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+            className="w-full text-sm px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
           />
+          {data.endDate && (
+            <p className="text-[11px] text-amber-700 mt-1 font-semibold flex items-center gap-1">
+              <span>التاريخ المحدد:</span>
+              <span className="font-mono">{formatLocaleDate(data.endDate, locale)}</span>
+            </p>
+          )}
         </div>
       </div>
 
@@ -183,7 +240,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
           value={data.description}
           onChange={(e) => updateField('description', e.target.value)}
           placeholder="أدخل ملخصاً عن نطاق المشروع، وجهات التوريد، ونوع الشاحنات المستخدمة..."
-          className="w-full text-sm px-3 py-2 bg-white border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-hidden resize-none"
+          className="w-full text-sm px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden resize-none"
         />
       </div>
 
@@ -201,7 +258,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
               type="text"
               value={data.defaultSettings.currency}
               onChange={(e) => updateSetting('currency', e.target.value)}
-              className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-md font-mono"
+              className="w-full px-3 py-1.5 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-md font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
             />
           </div>
 
@@ -212,7 +269,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
               type="number"
               value={data.defaultSettings.vatRatePercent}
               onChange={(e) => updateSetting('vatRatePercent', parseFloat(e.target.value) || 0)}
-              className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-md font-mono"
+              className="w-full px-3 py-1.5 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-md font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
             />
           </div>
 
@@ -226,7 +283,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
               value={data.defaultSettings.zatcaTaxNumber}
               onChange={(e) => updateSetting('zatcaTaxNumber', e.target.value)}
               placeholder="300000000000003"
-              className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-md font-mono"
+              className="w-full px-3 py-1.5 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-md font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
             />
           </div>
 
@@ -237,7 +294,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
               type="number"
               value={data.defaultSettings.maxToleranceKg}
               onChange={(e) => updateSetting('maxToleranceKg', parseInt(e.target.value, 10) || 0)}
-              className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-md font-mono"
+              className="w-full px-3 py-1.5 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-md font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
             />
           </div>
 
@@ -276,7 +333,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
               type="text"
               value={data.defaultSettings.addressAr}
               onChange={(e) => updateSetting('addressAr', e.target.value)}
-              className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-md"
+              className="w-full px-3 py-1.5 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               placeholder="e.g. تبوك - قطاع العمليات 4"
             />
           </div>
@@ -287,7 +344,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
               type="number"
               value={data.defaultSettings.geoFenceRadiusMeters}
               onChange={(e) => updateSetting('geoFenceRadiusMeters', parseInt(e.target.value, 10) || 1000)}
-              className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-md font-mono"
+              className="w-full px-3 py-1.5 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-md font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
             />
           </div>
         </div>

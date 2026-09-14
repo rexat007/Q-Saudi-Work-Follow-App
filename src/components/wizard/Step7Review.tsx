@@ -25,6 +25,51 @@ import {
 } from 'lucide-react';
 import { useI18n } from '../../i18n';
 
+const formatLocaleDate = (dateStr: string | null | undefined, locale: string = 'en'): string => {
+  if (!dateStr || dateStr.trim() === '') return '';
+  const parts = dateStr.split('T')[0].split('-');
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    const d = new Date(Number(year), Number(month) - 1, Number(day));
+    if (!isNaN(d.getTime())) {
+      try {
+        if (locale === 'ar') {
+          return d.toLocaleDateString('ar-SA', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+        } else if (locale === 'ur') {
+          return d.toLocaleDateString('ur-PK', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+        } else {
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const yyyy = d.getFullYear();
+          return `${dd}/${mm}/${yyyy}`;
+        }
+      } catch {
+        const dd = String(day).padStart(2, '0');
+        const mm = String(month).padStart(2, '0');
+        return `${dd}/${mm}/${year}`;
+      }
+    }
+  }
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      if (locale === 'ar') {
+        return d.toLocaleDateString('ar-SA', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+      } else if (locale === 'ur') {
+        return d.toLocaleDateString('ur-PK', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+      } else {
+        return `${dd}/${mm}/${yyyy}`;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return dateStr;
+};
+
 
 interface Step7Props {
   data: ProjectSetupWizardData;
@@ -47,7 +92,7 @@ export const Step7Review: React.FC<Step7Props> = ({
   onProvision,
   onReset,
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const activeMaterials = data.materials.filter((m) => m.status === 'ACTIVE');
   const activeCarriers = data.carriers.filter((c) => c.status === 'ACTIVE');
   const assignedUsers = data.userAccess.filter((u) => u.isAssigned);
@@ -275,7 +320,9 @@ export const Step7Review: React.FC<Step7Props> = ({
             </p>
             <p className="flex justify-between">
               <span className="text-stone-400">فترة العمليات:</span>
-              <span className="font-mono">{data.projectInfo.startDate} إلى {data.projectInfo.endDate || 'مفتوح'}</span>
+              <span className="font-mono">
+                {formatLocaleDate(data.projectInfo.startDate, locale)} إلى {data.projectInfo.endDate ? formatLocaleDate(data.projectInfo.endDate, locale) : 'مفتوح'}
+              </span>
             </p>
             <p className="flex justify-between">
               <span className="text-stone-400">الضريبة / العملة:</span>

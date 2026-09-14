@@ -158,7 +158,7 @@ export const Step5ProjectAccess: React.FC<Step5Props> = ({ userAccess, onChange,
                 value={newFullName}
                 onChange={(e) => setNewFullName(e.target.value)}
                 placeholder="e.g. م. عبد الله الشهري"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
 
@@ -171,7 +171,7 @@ export const Step5ProjectAccess: React.FC<Step5Props> = ({ userAccess, onChange,
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 placeholder="abdullah@q-saudi.sa"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
 
@@ -181,7 +181,7 @@ export const Step5ProjectAccess: React.FC<Step5Props> = ({ userAccess, onChange,
               <select
                 value={newRole}
                 onChange={(e) => setNewRole(e.target.value as UserRole)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden font-semibold"
+                className="w-full px-3 py-2 bg-white text-stone-900 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden font-semibold"
               >
                 <option value="PROJECT_ADMIN">{t("projects.labels.project_11")}</option>
                 <option value="DISPATCHER">{t("projects.labels.txt_4a32a9")}</option>

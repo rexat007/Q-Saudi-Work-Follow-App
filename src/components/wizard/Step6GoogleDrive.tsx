@@ -138,7 +138,7 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
                   value={data.rootFolderName}
                   onChange={(e) => update('rootFolderName', e.target.value)}
                   placeholder="e.g. PRJ-NEOM-WEST-01 - أرشيف ومستندات المشروع"
-                  className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
                 />
                 <p className="text-[11px] text-stone-400 mt-1">
                   {t("other.labels.txt_14af6c")}</p>
@@ -152,7 +152,7 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
                   value={data.spreadsheetTitle}
                   onChange={(e) => update('spreadsheetTitle', e.target.value)}
                   placeholder="سجل رحلات وموازين المشروع"
-                  className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
                 />
                 <p className="text-[11px] text-stone-400 mt-1">
                   {t("other.labels.txt_5860fa")}</p>

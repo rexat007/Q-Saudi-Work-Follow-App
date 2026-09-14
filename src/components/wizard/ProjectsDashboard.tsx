@@ -25,6 +25,51 @@ import { useI18n } from '../../i18n';
 import { AuthUserContext } from '../../types/common';
 import { projectService } from '../../services/project.service';
 
+const formatLocaleDate = (dateStr: string | null | undefined, locale: string = 'en'): string => {
+  if (!dateStr || dateStr.trim() === '') return '';
+  const parts = dateStr.split('T')[0].split('-');
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    const d = new Date(Number(year), Number(month) - 1, Number(day));
+    if (!isNaN(d.getTime())) {
+      try {
+        if (locale === 'ar') {
+          return d.toLocaleDateString('ar-SA', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+        } else if (locale === 'ur') {
+          return d.toLocaleDateString('ur-PK', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+        } else {
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const yyyy = d.getFullYear();
+          return `${dd}/${mm}/${yyyy}`;
+        }
+      } catch {
+        const dd = String(day).padStart(2, '0');
+        const mm = String(month).padStart(2, '0');
+        return `${dd}/${mm}/${year}`;
+      }
+    }
+  }
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      if (locale === 'ar') {
+        return d.toLocaleDateString('ar-SA', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+      } else if (locale === 'ur') {
+        return d.toLocaleDateString('ur-PK', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+      } else {
+        return `${dd}/${mm}/${yyyy}`;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return dateStr;
+};
+
 interface ProjectsDashboardProps {
   projects: ProjectEntity[];
   authContext: AuthUserContext;
@@ -36,7 +81,7 @@ export const ProjectsDashboard: React.FC<ProjectsDashboardProps> = ({
   authContext,
   onStartCreate,
 }) => {
-  const { t, isRTL } = useI18n();
+  const { t, isRTL, locale } = useI18n();
   const [selectedProject, setSelectedProject] = useState<ProjectEntity | null>(null);
   const [editingProject, setEditingProject] = useState<ProjectEntity | null>(null);
   const [viewingProject, setViewingProject] = useState<ProjectEntity | null>(null);
@@ -287,7 +332,7 @@ export const ProjectsDashboard: React.FC<ProjectsDashboardProps> = ({
                 <div className="mt-5 pt-3 border-t border-stone-800/80 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 text-[10px] text-stone-500">
                     <Calendar className="w-3 h-3" />
-                    <span>{p.startDate || '—'}</span>
+                    <span>{formatLocaleDate(p.startDate, locale) || '—'}</span>
                   </div>
 
                   <div className="flex items-center gap-1">
@@ -362,7 +407,7 @@ export const ProjectsDashboard: React.FC<ProjectsDashboardProps> = ({
                 </div>
                 <div>
                   <span className="block text-[10px] text-stone-500 font-bold uppercase">{isRTL ? 'تاريخ التأسيس' : 'Created Date'}</span>
-                  <span className="text-sm font-bold text-white">{viewingProject.startDate || '—'}</span>
+                  <span className="text-sm font-bold text-white">{formatLocaleDate(viewingProject.startDate, locale) || '—'}</span>
                 </div>
               </div>
 

@@ -215,7 +215,7 @@ export const Step3Carriers: React.FC<Step3Props> = ({ carriers, onChange, errors
                 value={carrierId}
                 onChange={(e) => setCarrierId(e.target.value.toUpperCase())}
                 placeholder="e.g. CAR-A أو CAR-ALRASHID-01"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs font-mono uppercase focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs font-mono uppercase focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
               <p className="text-[10px] text-stone-400 mt-0.5">{t("carriers.labels.trucksPricing")}</p>
             </div>
@@ -230,7 +230,7 @@ export const Step3Carriers: React.FC<Step3Props> = ({ carriers, onChange, errors
                 value={carrierName}
                 onChange={(e) => setCarrierName(e.target.value)}
                 placeholder="e.g. شركة الرشيد للخدمات اللوجستية والنقل"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
 
@@ -242,7 +242,7 @@ export const Step3Carriers: React.FC<Step3Props> = ({ carriers, onChange, errors
                 id="select-carrier-status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as EntityStatus)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               >
                 <option value="ACTIVE">نشط (ACTIVE)</option>
                 <option value="DISABLED">معطّل (DISABLED)</option>
@@ -259,7 +259,7 @@ export const Step3Carriers: React.FC<Step3Props> = ({ carriers, onChange, errors
                 value={crNo}
                 onChange={(e) => setCrNo(e.target.value)}
                 placeholder="1010123456"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
 
@@ -271,7 +271,7 @@ export const Step3Carriers: React.FC<Step3Props> = ({ carriers, onChange, errors
                 value={tgaLicense}
                 onChange={(e) => setTgaLicense(e.target.value)}
                 placeholder="TGA-LOG-12345"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
 
@@ -284,7 +284,7 @@ export const Step3Carriers: React.FC<Step3Props> = ({ carriers, onChange, errors
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
                 placeholder="فهد الرشيد"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
 
@@ -297,7 +297,7 @@ export const Step3Carriers: React.FC<Step3Props> = ({ carriers, onChange, errors
                 value={contactPhone}
                 onChange={(e) => setContactPhone(e.target.value)}
                 placeholder="+966551234567"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
 
@@ -310,7 +310,7 @@ export const Step3Carriers: React.FC<Step3Props> = ({ carriers, onChange, errors
                 value={contactEmail}
                 onChange={(e) => setContactEmail(e.target.value)}
                 placeholder="contact@carrier.sa"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
           </div>

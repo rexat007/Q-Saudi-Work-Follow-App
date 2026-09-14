@@ -222,7 +222,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 placeholder="e.g. ركام طبقة أساس Sub-base"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
 
@@ -236,7 +236,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
                 value={formCode}
                 onChange={(e) => setFormCode(e.target.value.toUpperCase())}
                 placeholder="e.g. SB-01"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs font-mono uppercase focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs font-mono uppercase focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
 
@@ -247,7 +247,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
                 id="select-material-uom"
                 value={formUom}
                 onChange={(e) => setFormUom(e.target.value as UnitOfMeasure)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               >
                 <option value="TON">طن (TON) - الوزن الصافي</option>
                 <option value="M3">{t("materials.labels.txt_6688ac")}</option>
@@ -263,7 +263,7 @@ export const Step2Materials: React.FC<Step2Props> = ({ materials, onChange, erro
                 id="select-material-status"
                 value={formStatus}
                 onChange={(e) => setFormStatus(e.target.value as EntityStatus)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               >
                 <option value="ACTIVE">نشط (ACTIVE)</option>
                 <option value="DISABLED">معطّل (DISABLED)</option>

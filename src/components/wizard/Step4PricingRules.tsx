@@ -23,6 +23,51 @@ import {
 } from 'lucide-react';
 import { useI18n } from '../../i18n';
 
+const formatLocaleDate = (dateStr: string | null | undefined, locale: string = 'en'): string => {
+  if (!dateStr || dateStr.trim() === '') return '';
+  const parts = dateStr.split('T')[0].split('-');
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    const d = new Date(Number(year), Number(month) - 1, Number(day));
+    if (!isNaN(d.getTime())) {
+      try {
+        if (locale === 'ar') {
+          return d.toLocaleDateString('ar-SA', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+        } else if (locale === 'ur') {
+          return d.toLocaleDateString('ur-PK', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+        } else {
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const yyyy = d.getFullYear();
+          return `${dd}/${mm}/${yyyy}`;
+        }
+      } catch {
+        const dd = String(day).padStart(2, '0');
+        const mm = String(month).padStart(2, '0');
+        return `${dd}/${mm}/${year}`;
+      }
+    }
+  }
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      if (locale === 'ar') {
+        return d.toLocaleDateString('ar-SA', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+      } else if (locale === 'ur') {
+        return d.toLocaleDateString('ur-PK', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/[\u200E\u200F]/g, '');
+      } else {
+        return `${dd}/${mm}/${yyyy}`;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return dateStr;
+};
+
 
 interface Step4Props {
   pricingRules: WizardPricingRuleItem[];
@@ -39,7 +84,7 @@ export const Step4PricingRules: React.FC<Step4Props> = ({
   onChange,
   errors = [],
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [selectedCarrierFilter, setSelectedCarrierFilter] = useState<string>('ALL');
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -355,7 +400,7 @@ export const Step4PricingRules: React.FC<Step4Props> = ({
                 id="select-rule-carrier"
                 value={carrierId}
                 onChange={(e) => setCarrierId(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               >
                 {carriers.map((c) => (
                   <option key={c.id} value={c.carrierId}>
@@ -375,7 +420,7 @@ export const Step4PricingRules: React.FC<Step4Props> = ({
                 id="select-rule-pricing-type"
                 value={pricingType}
                 onChange={(e) => setPricingType(e.target.value as PricingType)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden font-bold"
+                className="w-full px-3 py-2 bg-white text-stone-900 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden font-bold"
               >
                 <option value="PER_TRIP">بالرد الواحد (PER_TRIP) - مقطوعية</option>
                 <option value="PER_TON">بالطن الصافي (PER_TON) - وفق الميزان</option>
@@ -396,7 +441,7 @@ export const Step4PricingRules: React.FC<Step4Props> = ({
                   value={rate}
                   onChange={(e) => setRate(parseFloat(e.target.value) || 0)}
                   placeholder="e.g. 120 أو 8.5"
-                  className="w-full pl-12 pr-3 py-2 bg-white border border-stone-300 rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                  className="w-full pl-12 pr-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
                 />
                 <span className="absolute left-3 top-2.5 text-stone-400 font-bold text-[10px]">
                   {currency}
@@ -414,7 +459,7 @@ export const Step4PricingRules: React.FC<Step4Props> = ({
                 id="select-rule-material"
                 value={materialId}
                 onChange={(e) => setMaterialId(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               >
                 <option value="ALL_MATERIALS">كافة المواد المعتمدة (شامل)</option>
                 {materials.map((m) => (
@@ -436,8 +481,14 @@ export const Step4PricingRules: React.FC<Step4Props> = ({
                 type="date"
                 value={effectiveFrom}
                 onChange={(e) => setEffectiveFrom(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
+              {effectiveFrom && (
+                <p className="text-[10px] text-amber-700 mt-0.5 font-semibold">
+                  <span>التاريخ المحدد: </span>
+                  <span className="font-mono">{formatLocaleDate(effectiveFrom, locale)}</span>
+                </p>
+              )}
             </div>
 
             <div>
@@ -450,8 +501,14 @@ export const Step4PricingRules: React.FC<Step4Props> = ({
                 type="date"
                 value={effectiveTo}
                 onChange={(e) => setEffectiveTo(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
+              {effectiveTo && (
+                <p className="text-[10px] text-amber-700 mt-0.5 font-semibold">
+                  <span>التاريخ المحدد: </span>
+                  <span className="font-mono">{formatLocaleDate(effectiveTo, locale)}</span>
+                </p>
+              )}
             </div>
 
             <div className="sm:col-span-2">
@@ -464,7 +521,7 @@ export const Step4PricingRules: React.FC<Step4Props> = ({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="e.g. خصم 5% في حال تجاوز عدد الردود 100 رد أسبوعياً"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
               />
             </div>
           </div>
