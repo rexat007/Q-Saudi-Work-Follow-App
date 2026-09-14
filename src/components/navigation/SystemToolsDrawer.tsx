@@ -71,21 +71,21 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
       <div className="absolute inset-0" onClick={onClose} />
 
       {/* Drawer Panel */}
-      <div className="relative w-full max-w-md sm:max-w-lg bg-white h-full shadow-2xl flex flex-col border-s border-stone-200 z-10">
+      <div className="relative w-full max-w-md sm:max-w-lg bg-[#0f1115] text-[#f8fafc] h-full shadow-2xl flex flex-col border-s border-white/10 z-10 font-mono">
         {/* Header */}
-        <div className="p-5 border-b border-stone-200 bg-stone-900 text-white flex items-center justify-between">
+        <div className="p-5 border-b-2 border-[#10b981] bg-[#14171c] text-[#f8fafc] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <div className="w-10 h-10 bg-[#10b981]/15 border border-[#10b981]/40 flex items-center justify-center text-[#10b981]">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">أدوات النظام والمطورين</h2>
-              <p className="text-xs text-stone-400">System, Audit & Migration Suite</p>
+              <h2 className="text-base font-black font-display uppercase tracking-wider text-[#f8fafc]">أدوات النظام والمطورين</h2>
+              <p className="text-xs text-white/50 font-mono">SYSTEM // AUDIT & MIGRATION SUITE</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"
+            className="p-2 rounded text-white/60 hover:text-[#f8fafc] hover:bg-white/10 border border-white/10 transition-colors"
             title="إغلاق"
           >
             <X className="w-5 h-5" />
@@ -93,23 +93,23 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
         </div>
 
         {/* Search Input */}
-        <div className="p-4 border-b border-stone-200 bg-stone-50">
+        <div className="p-4 border-b border-white/10 bg-[#15181e]">
           <div className="relative">
-            <Search className={`w-4 h-4 text-stone-400 absolute top-3 ${isRtl ? 'right-3' : 'left-3'}`} />
+            <Search className={`w-4 h-4 text-white/50 absolute top-3 ${isRtl ? 'right-3' : 'left-3'}`} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="البحث في أدوات النظام، الترحيل، والتدقيق..."
-              className={`w-full text-xs bg-white border border-stone-300 rounded-xl py-2.5 px-3 focus:outline-hidden focus:ring-2 focus:ring-stone-900 ${isRtl ? 'pr-9' : 'pl-9'}`}
+              className={`w-full text-xs bg-[#0f1115] border border-white/15 text-[#f8fafc] placeholder:text-white/40 rounded py-2.5 px-3 focus:outline-hidden focus:border-[#10b981] ${isRtl ? 'pr-9' : 'pl-9'}`}
             />
           </div>
         </div>
 
         {/* Tools List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2.5 divide-y divide-stone-100">
+        <div className="flex-1 overflow-y-auto p-4 space-y-2.5 divide-y divide-white/5">
           {filteredTools.length === 0 ? (
-            <div className="text-center py-12 text-stone-400 text-xs">
+            <div className="text-center py-12 text-white/50 text-xs">
               لا توجد أدوات مطابقة لبحثك أو غير مصرح لدورك الحالي ({currentRole})
             </div>
           ) : (
@@ -123,35 +123,35 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
                     onSelectTab(tool.id);
                     onClose();
                   }}
-                  className={`w-full pt-2.5 text-right flex items-start gap-3 p-3 rounded-xl transition-all border ${
+                  className={`w-full pt-2.5 text-right flex items-start gap-3 p-3 rounded transition-all border ${
                     isSelected
-                      ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
-                      : 'bg-white hover:bg-stone-50 text-stone-900 border-stone-200/80 hover:border-stone-300'
+                      ? 'bg-[#10b981] text-[#0f1115] border-[#10b981] shadow-sm font-bold'
+                      : 'bg-[#1a1d23] hover:bg-white/5 text-[#f8fafc] border-white/10 hover:border-[#10b981]/50'
                   }`}
                 >
-                  <div className={`p-2.5 rounded-xl shrink-0 ${isSelected ? 'bg-stone-800' : 'bg-stone-100'}`}>
+                  <div className={`p-2.5 rounded shrink-0 ${isSelected ? 'bg-black/20 text-[#0f1115]' : 'bg-white/5'}`}>
                     {getToolIcon(tool.icon)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-0.5">
-                      <span className="text-xs font-bold truncate">
+                      <span className="text-xs font-bold truncate font-mono">
                         {tool.titleAr}
                       </span>
                       {tool.badgeAr && (
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 font-mono ${
                           isSelected 
-                            ? 'bg-white/20 text-white' 
-                            : 'bg-stone-100 text-stone-700 border border-stone-200'
+                            ? 'bg-black text-[#10b981]' 
+                            : 'bg-white/10 text-[#f8fafc] border border-white/10'
                         }`}>
                           {tool.badgeAr}
                         </span>
                       )}
                     </div>
-                    <p className={`text-[11px] leading-relaxed line-clamp-2 ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
+                    <p className={`text-[11px] leading-relaxed line-clamp-2 ${isSelected ? 'text-[#0f1115]/90' : 'text-white/60'}`}>
                       {tool.descriptionAr}
                     </p>
                   </div>
-                  <div className={`shrink-0 self-center ${isSelected ? 'text-amber-400' : 'text-stone-400'}`}>
+                  <div className={`shrink-0 self-center ${isSelected ? 'text-[#0f1115]' : 'text-[#10b981]'}`}>
                     {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </div>
                 </button>
@@ -161,13 +161,13 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
         </div>
 
         {/* Footer info */}
-        <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-between text-[11px] text-stone-500">
+        <div className="p-4 border-t border-white/10 bg-[#14171c] flex items-center justify-between text-[11px] font-mono text-white/50">
           <div className="flex items-center gap-1.5">
-            <Lock className="w-3.5 h-3.5 text-stone-400" />
-            <span>الدور الفعال: <strong className="text-stone-900">{currentRole}</strong></span>
+            <Lock className="w-3.5 h-3.5 text-[#10b981]" />
+            <span>ROLE: <strong className="text-[#f8fafc]">{currentRole}</strong></span>
           </div>
-          <span className="font-mono text-[10px] bg-stone-200 px-2 py-0.5 rounded text-stone-700 font-bold">
-            {tools.length} أدوات مصرحة
+          <span className="font-mono text-[10px] bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/30 px-2 py-0.5 rounded font-bold">
+            {tools.length} AUTHORIZED TOOLS
           </span>
         </div>
       </div>

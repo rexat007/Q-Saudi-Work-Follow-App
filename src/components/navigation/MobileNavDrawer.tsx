@@ -73,21 +73,21 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
       <div className="absolute inset-0" onClick={onClose} />
 
       {/* Drawer Panel */}
-      <div className="relative w-[85vw] max-w-xs sm:max-w-sm bg-white h-full shadow-2xl flex flex-col border-e border-stone-200 z-10">
+      <div className="relative w-[85vw] max-w-xs sm:max-w-sm bg-[#0f1115] text-[#f8fafc] h-full shadow-2xl flex flex-col border-e border-white/10 z-10 font-mono">
         {/* Header */}
-        <div className="p-4 border-b border-stone-200 bg-stone-900 text-white flex items-center justify-between">
+        <div className="p-4 border-b-2 border-[#10b981] bg-[#14171c] text-[#f8fafc] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center font-black text-amber-400">
+            <div className="w-9 h-9 bg-[#10b981] text-[#0f1115] flex items-center justify-center font-black font-display text-lg shadow-sm">
               Q
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Q Saudi Work Follow</h2>
-              <span className="text-[10px] text-amber-300 font-medium">Enterprise Assembly</span>
+              <h2 className="text-sm font-black font-display uppercase tracking-wider text-[#f8fafc]">Q Saudi Work Follow</h2>
+              <span className="text-[10px] text-[#10b981] font-mono tracking-widest uppercase">INDUSTRIAL_CORE</span>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-stone-400 hover:text-white hover:bg-stone-800 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="p-2 rounded text-white/60 hover:text-[#f8fafc] hover:bg-white/10 border border-white/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             title="إغلاق القائمة"
           >
             <X className="w-5 h-5" />
@@ -95,13 +95,13 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
         </div>
 
         {/* User / Role Profile Header Card */}
-        <div className="p-4 border-b border-stone-200 bg-stone-50">
+        <div className="p-4 border-b border-white/10 bg-[#15181e]">
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-stone-900">
-              <UserCheck className="w-4 h-4 text-amber-600" />
-              <span>تبديل الصلاحية النشطة:</span>
+            <div className="flex items-center gap-1.5 text-xs font-bold font-mono text-[#f8fafc]">
+              <UserCheck className="w-4 h-4 text-[#10b981]" />
+              <span>تبديل الصلاحية:</span>
             </div>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${roleProfile.badgeColor}`}>
+            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${roleProfile.badgeColor}`}>
               {currentRole}
             </span>
           </div>
@@ -114,7 +114,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
               const defTab = navigationService.getDefaultTabForRole(newRole);
               onSelectTab(defTab);
             }}
-            className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-stone-900 min-h-[44px]"
+            className="w-full bg-[#0f1115] border border-white/15 rounded px-3 py-2 text-xs font-bold font-mono text-[#f8fafc] focus:outline-hidden focus:border-[#10b981] min-h-[44px]"
           >
             <option value="SUPER_ADMIN">SUPER_ADMIN (مشرف عام)</option>
             <option value="PROJECT_ADMIN">PROJECT_ADMIN (مدير مشروع)</option>
@@ -127,16 +127,16 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
             <option value="VIEWER">VIEWER (مستعرض فقط)</option>
           </select>
 
-          <div className="mt-2 text-[11px] text-stone-500 leading-tight">
-            {roleProfile.userNameAr}
+          <div className="mt-2 text-[11px] font-mono text-white/50 leading-tight">
+            USER: {roleProfile.userNameAr}
           </div>
         </div>
 
         {/* Primary Sections & Navigation Tabs */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-2 px-1">
-              الأقسام الرئيسية المصرحة
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-white/50 mb-2 px-1">
+              الأقسام المصرحة // AUTHORIZED_AREAS
             </div>
 
             <div className="space-y-1.5">
@@ -150,27 +150,27 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                       onSelectTab(tab.id);
                       onClose();
                     }}
-                    className={`w-full min-h-[44px] flex items-center justify-between p-3 rounded-xl text-right transition-all border ${
+                    className={`w-full min-h-[44px] flex items-center justify-between p-3 rounded text-right transition-all border ${
                       isSelected
-                        ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
-                        : 'bg-stone-50 hover:bg-stone-100 text-stone-900 border-stone-200/80'
+                        ? 'bg-[#10b981] text-[#0f1115] border-[#10b981] shadow-sm font-bold'
+                        : 'bg-[#1a1d23] hover:bg-white/5 text-[#f8fafc] border-white/10 hover:border-[#10b981]/40'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${isSelected ? 'bg-stone-800' : 'bg-white shadow-2xs'}`}>
+                      <div className={`p-2 rounded ${isSelected ? 'bg-black/20 text-[#0f1115]' : 'bg-white/5 text-[#10b981]'}`}>
                         {getTabIcon(tab.icon)}
                       </div>
                       <div>
-                        <div className="text-xs font-bold">{tab.titleAr}</div>
-                        <div className={`text-[10px] ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
+                        <div className="text-xs font-bold font-mono">{tab.titleAr}</div>
+                        <div className={`text-[10px] font-mono ${isSelected ? 'text-[#0f1115]/80' : 'text-white/50'}`}>
                           {tab.titleEn}
                         </div>
                       </div>
                     </div>
 
                     {tab.badgeAr && (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        isSelected ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-800'
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
+                        isSelected ? 'bg-black text-[#10b981]' : 'bg-white/10 text-[#f8fafc]'
                       }`}>
                         {tab.badgeAr}
                       </span>
@@ -183,9 +183,9 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
 
           {/* Secondary System Tools Trigger */}
           {authorizedTools.length > 0 && (
-            <div className="pt-3 border-t border-stone-200">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-2 px-1">
-                الأدوات الإدارية والفنية
+            <div className="pt-3 border-t border-white/10">
+              <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-white/50 mb-2 px-1">
+                SYSTEM_TOOLS // أدوات النظام
               </div>
 
               <button
@@ -194,10 +194,10 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   onClose();
                   onOpenSystemTools();
                 }}
-                className="w-full min-h-[44px] flex items-center justify-between p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-950 font-bold text-xs hover:bg-indigo-100 transition-colors"
+                className="w-full min-h-[44px] flex items-center justify-between p-3 rounded bg-[#1a1d23] border border-[#10b981]/40 text-[#10b981] font-mono font-bold text-xs hover:bg-[#10b981]/10 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
-                  <Sparkles className="w-4 h-4 text-indigo-600" />
+                  <Sparkles className="w-4 h-4 text-[#10b981]" />
                   <span>أدوات النظام والمطورين ({authorizedTools.length})</span>
                 </div>
                 {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -207,7 +207,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
         </div>
 
         {/* Bottom Utility Controls */}
-        <div className="p-4 border-t border-stone-200 bg-stone-50 space-y-2.5">
+        <div className="p-4 border-t border-white/10 bg-[#14171c] space-y-2.5">
           <div className="flex items-center justify-between gap-2">
             <LanguageSwitcher />
 
@@ -217,15 +217,15 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 onClose();
                 onOpenOutbox();
               }}
-              className={`flex-1 min-h-[44px] flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold border ${
+              className={`flex-1 min-h-[44px] flex items-center justify-center gap-2 px-3 py-2 rounded text-xs font-mono font-bold border ${
                 isOnline 
-                  ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
-                  : 'bg-amber-50 border-amber-300 text-amber-950'
+                  ? 'bg-[#1a1d23] border-[#10b981]/40 text-[#10b981]' 
+                  : 'bg-[#1a1d23] border-amber-500 text-amber-400'
               }`}
             >
-              {isOnline ? <Wifi className="w-4 h-4 text-emerald-600" /> : <WifiOff className="w-4 h-4 text-amber-700" />}
-              <span>{isOnline ? 'Online' : 'Offline'}</span>
-              <span className="font-mono text-[10px] bg-stone-200 px-1.5 py-0.5 rounded-full">
+              {isOnline ? <Wifi className="w-4 h-4 text-[#10b981]" /> : <WifiOff className="w-4 h-4 text-amber-400" />}
+              <span>{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
+              <span className="font-mono text-[10px] bg-[#10b981]/20 text-[#10b981] px-1.5 py-0.5 rounded">
                 {pendingOutboxCount}
               </span>
             </button>

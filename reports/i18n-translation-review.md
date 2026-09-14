@@ -185,7 +185,7 @@ This document contains domain-specific terminology requiring human verification 
 | `pricing.fields.materialDate` | "لا توجد تسعيرة متوافقة مع المادة [${params.materialId || 'عام'}] للناقل المحدد في هذا التاريخ" | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [materialId]) |
 | ... | *and 471 more items in this domain queue* | | | |
 
-## Domain: `reports` (566 items requiring review)
+## Domain: `reports` (605 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -209,7 +209,7 @@ This document contains domain-specific terminology requiring human verification 
 | `reports.fields.description` | "Description" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
 | `reports.fields.exceptions` | "Exceptions" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
 | `reports.fields.formula` | "Formula" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
-| ... | *and 546 more items in this domain queue* | | | |
+| ... | *and 585 more items in this domain queue* | | | |
 
 ## Domain: `security` (556 items requiring review)
 

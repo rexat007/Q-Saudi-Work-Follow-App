@@ -185,10 +185,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-900 font-sans flex flex-col antialiased" dir={direction}>
+    <div className="min-h-screen bg-[#0f1115] text-[#f8fafc] font-sans flex flex-col antialiased selection:bg-[#10b981] selection:text-[#0f1115]" dir={direction}>
       {/* Top Application Header */}
-      <header className="bg-white border-b border-stone-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+      <header className="bg-[#0f1115] border-b-2 border-white/10 sticky top-0 z-30 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between gap-3">
             {/* Left: Brand & Mobile Menu Toggle */}
             <div className="flex items-center gap-3">
@@ -196,96 +196,56 @@ export default function App() {
               <button
                 id="btn-mobile-nav-toggle"
                 onClick={() => setIsMobileNavOpen(true)}
-                className="lg:hidden p-2 rounded-xl text-stone-700 hover:text-stone-900 hover:bg-stone-100 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="lg:hidden p-2 rounded text-white/70 hover:text-white hover:bg-white/5 border border-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center font-mono"
                 title="القائمة الرئيسية"
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-5 h-5 text-[#10b981]" />
               </button>
 
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-stone-900 text-amber-400 flex items-center justify-center font-black text-lg shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#10b981] text-[#0f1115] flex items-center justify-center font-black font-display text-xl shadow-md tracking-tighter">
                   Q
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h1 className="text-base font-bold tracking-tight text-stone-900">
+                    <h1 className="text-base sm:text-lg font-black font-display tracking-tight text-[#f8fafc] uppercase">
                       Q Saudi Work Follow
                     </h1>
-                    <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
-                      Enterprise Architecture
+                    <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30 uppercase tracking-widest">
+                      INDUSTRIAL_CORE
                     </span>
                   </div>
-                  <p className="hidden md:block text-[11px] text-stone-500 font-medium truncate max-w-xs">
-                    {t("navigation.labels.projects")}
-                  </p>
+                  <span className="label text-[10px] tracking-widest text-[#10b981] font-mono uppercase block">
+                    Enterprise Architecture
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Center: Desktop Persistent Navigation Tabs */}
-            <div className="hidden lg:flex items-center gap-1.5 bg-stone-100 p-1 rounded-xl border border-stone-200/80 max-w-2xl overflow-x-auto [scrollbar-width:none]">
-              {authorizedPrimaryTabs.map((tab) => {
-                const isSelected = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    id={`tab-${tab.id.toLowerCase().replace(/_/g, '-')}`}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
-                      isSelected
-                        ? 'bg-stone-900 text-white shadow-xs'
-                        : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60'
-                    }`}
-                  >
-                    {getTabNavIcon(tab.icon)}
-                    <span>{tab.titleAr}</span>
-                    {tab.badgeAr && (
-                      <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                        isSelected ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-800'
-                      }`}>
-                        {tab.badgeAr}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-
-              {/* System / Developer Tools Trigger Button */}
-              {authorizedTools.length > 0 && (
-                <button
-                  id="tab-system-tools-trigger"
-                  onClick={() => setIsSystemToolsOpen(true)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
-                    !authorizedPrimaryTabs.some(t => t.id === activeTab)
-                      ? 'bg-indigo-900 text-white shadow-xs'
-                      : 'text-indigo-800 hover:text-indigo-950 hover:bg-indigo-100/70'
-                  }`}
-                  title="أدوات التدقيق، الترحيل، والمطورين"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>أدوات النظام</span>
-                  <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-indigo-200 text-indigo-950">
-                    {authorizedTools.length}
-                  </span>
-                </button>
-              )}
-            </div>
-
-            {/* Right: Role Switcher, Language, Outbox & Auth */}
+            {/* Right: Telemetry Status, Role Switcher, Language, Outbox & Auth */}
             <div className="flex items-center gap-2 shrink-0">
+              {/* Telemetry Status Pill */}
+              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#1a1d23] border border-white/10 text-[11px] font-mono">
+                <span className="text-white/40">STATUS:</span>
+                <span className="text-[#10b981] font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse"></span>
+                  STABLE_AUTH
+                </span>
+              </div>
+
               {/* Active Role Selector / Simulator */}
-              <div className="relative flex items-center bg-stone-100 rounded-xl p-0.5 border border-stone-200">
+              <div className="relative flex items-center bg-[#1a1d23] rounded px-1 py-0.5 border border-white/10">
                 <div className="flex items-center gap-1.5 px-2 py-1">
-                  <UserCheck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <UserCheck className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
                   <select
                     id="header-role-selector"
                     value={currentRole}
                     onChange={(e) => handleRoleChange(e.target.value as UserRole)}
-                    className="bg-transparent text-stone-900 font-bold font-mono text-xs focus:outline-hidden cursor-pointer"
+                    className="bg-transparent text-[#f8fafc] font-bold font-mono text-xs focus:outline-hidden cursor-pointer"
                     title="تبديل الصلاحية النشطة"
                   >
                     {SYSTEM_ROLES.map((role) => (
-                      <option key={role} value={role} className="bg-white text-stone-900 font-sans">
+                      <option key={role} value={role} className="bg-[#1a1d23] text-[#f8fafc] font-mono">
                         {role} ({ROLE_PROFILES[role].titleAr.split('(')[0]})
                       </option>
                     ))}
@@ -300,17 +260,17 @@ export default function App() {
               <button
                 id="header-outbox-btn"
                 onClick={() => setIsOutboxOpen(true)}
-                className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border shadow-2xs ${
+                className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-mono font-bold transition-all border ${
                   isOnline 
-                    ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-900' 
-                    : 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950 animate-pulse'
+                    ? 'bg-[#1a1d23] hover:bg-white/5 border-[#10b981]/40 text-[#10b981]' 
+                    : 'bg-[#1a1d23] hover:bg-white/5 border-amber-500 text-amber-400 animate-pulse'
                 }`}
                 title={t("navigation.status.txt_4c0b8d")}
               >
-                {isOnline ? <Wifi className="w-3.5 h-3.5 text-emerald-600" /> : <WifiOff className="w-3.5 h-3.5 text-amber-700" />}
-                <Inbox className="w-3 h-3 text-stone-500" />
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                  pendingCount > 0 ? 'bg-amber-500 text-white font-bold' : 'bg-stone-200 text-stone-700'
+                {isOnline ? <Wifi className="w-3.5 h-3.5 text-[#10b981]" /> : <WifiOff className="w-3.5 h-3.5 text-amber-400" />}
+                <Inbox className="w-3 h-3 text-white/50" />
+                <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${
+                  pendingCount > 0 ? 'bg-[#10b981] text-[#0f1115]' : 'bg-white/10 text-[#f8fafc]'
                 }`}>
                   {pendingCount}
                 </span>
@@ -321,10 +281,10 @@ export default function App() {
                 <button
                   id="header-conflicts-btn"
                   onClick={() => setIsOutboxOpen(true)}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-purple-100 hover:bg-purple-200 border border-purple-400 text-purple-950 shadow-2xs animate-pulse transition-all"
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-mono font-bold bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/50 text-purple-300 shadow-sm animate-pulse transition-all"
                   title={t("navigation.labels.txt_10324c")}
                 >
-                  <ShieldAlert className="w-3.5 h-3.5 text-purple-700" />
+                  <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
                   <span>{conflictCount} تعارض</span>
                 </button>
               )}
@@ -338,38 +298,91 @@ export default function App() {
           </div>
         </div>
 
+        {/* Desktop Nav-Grid Strip */}
+        <div className="hidden lg:block border-t border-white/10 bg-[#15181e]">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center flex-1 divide-x divide-white/10 rtl:divide-x-reverse overflow-x-auto [scrollbar-width:none]">
+              {authorizedPrimaryTabs.map((tab) => {
+                const isSelected = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    id={`tab-${tab.id.toLowerCase().replace(/_/g, '-')}`}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 border-b-2 ${
+                      isSelected
+                        ? 'text-[#10b981] bg-[#10b981]/10 border-[#10b981]'
+                        : 'text-white/60 hover:text-[#f8fafc] hover:bg-white/5 border-transparent'
+                    }`}
+                  >
+                    {getTabNavIcon(tab.icon)}
+                    <span>{tab.titleAr}</span>
+                    {tab.badgeAr && (
+                      <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${
+                        isSelected ? 'bg-[#10b981] text-[#0f1115]' : 'bg-white/10 text-[#f8fafc]'
+                      }`}>
+                        {tab.badgeAr}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+
+              {/* System / Developer Tools Trigger Button */}
+              {authorizedTools.length > 0 && (
+                <button
+                  id="tab-system-tools-trigger"
+                  onClick={() => setIsSystemToolsOpen(true)}
+                  className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 border-b-2 ${
+                    !authorizedPrimaryTabs.some(t => t.id === activeTab)
+                      ? 'text-[#10b981] bg-[#10b981]/10 border-[#10b981]'
+                      : 'text-[#10b981] hover:text-white hover:bg-[#10b981]/10 border-transparent'
+                  }`}
+                  title="أدوات التدقيق، الترحيل، والمطورين"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#10b981]" />
+                  <span>أدوات النظام</span>
+                  <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-[#10b981]/20 text-[#10b981]">
+                    {authorizedTools.length}
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Sub-Header: Active Profile & Isolation Scope Ribbon */}
-        <div className="bg-stone-900 text-white py-1.5 px-4 text-[11px] border-t border-stone-800">
+        <div className="bg-[#14171c] text-white/60 py-1.5 px-4 text-[11px] font-mono border-t border-white/5 border-b border-white/10">
           <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-stone-300">
-                <Lock className="w-3 h-3 text-amber-400" />
-                <span>المستخدم النشط:</span>
-                <strong className="text-white font-bold">{roleProfile.userNameAr}</strong>
+              <span className="flex items-center gap-1 text-white/60">
+                <Lock className="w-3 h-3 text-[#10b981]" />
+                <span className="text-white/40">USER:</span>
+                <strong className="text-[#f8fafc] font-bold">{roleProfile.userNameAr}</strong>
               </span>
-              <span className="text-stone-600">•</span>
-              <span className="text-stone-300">
-                <span>نطاق المشاريع:</span>{' '}
-                <strong className="text-amber-300 font-mono">
+              <span className="text-white/20">•</span>
+              <span className="text-white/60">
+                <span className="text-white/40">SCOPE:</span>{' '}
+                <strong className="text-[#10b981] font-mono font-bold">
                   {roleProfile.assignedProjectIds.join(', ')}
                 </strong>
               </span>
             </div>
 
-            <div className="flex items-center gap-3 text-stone-400">
+            <div className="flex items-center gap-3 text-white/60">
               <span className="flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                <span>عزل المشاريع صارم (Multi-Tenant Isolation)</span>
+                <ShieldCheck className="w-3 h-3 text-[#10b981]" />
+                <span>SSOT // MULTI-TENANT ISOLATION</span>
               </span>
-              <span className="hidden md:inline text-stone-600">•</span>
-              <span className="hidden md:inline">Server-Authoritative SSOT</span>
+              <span className="hidden md:inline text-white/20">•</span>
+              <span className="hidden md:inline text-white/50">SERVER-AUTHORITATIVE CORE</span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content Area with Strict Route Guards */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Main Content Area with Strict Route Guards & Industrial Dot Matrix */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 industrial-dot-matrix">
         
         {/* Route Guard Enforcement: If activeTab is forbidden for currentRole */}
         {!isCurrentTabAuthorized ? (
@@ -790,20 +803,20 @@ export default function App() {
 
       </main>
 
-      {/* Clean Technical Production Footer */}
-      <footer className="bg-white border-t border-stone-200 mt-auto py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-2">
+      {/* Industrial Production Footer */}
+      <footer className="bg-[#0c0e12] border-t border-white/10 mt-auto py-4 font-mono text-xs text-white/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-stone-800">Q Saudi Work Follow</span>
-            <span>•</span>
-            <span>{t("navigation.labels.txt_276201")}</span>
+            <span className="font-black font-display text-[#f8fafc]">Q Saudi Work Follow</span>
+            <span className="text-white/20">•</span>
+            <span className="text-[#10b981]">2024 System Infrastructure</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 text-[11px] text-white/40">
             <span>Firestore SSOT</span>
-            <span>•</span>
-            <span>Google Sheets Projection</span>
-            <span>•</span>
-            <span>Offline-First (IndexedDB)</span>
+            <span>|</span>
+            <span>Sheets Projection</span>
+            <span>|</span>
+            <span>IndexedDB Offline-First</span>
           </div>
         </div>
       </footer>

@@ -1,1 +1,161 @@
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg: #0f1115;
+    --ink: #f8fafc;
+    --ink-muted: rgba(248, 250, 252, 0.5);
+    --accent: #10b981; /* Emerald Green */
+    --accent-glow: rgba(16, 185, 129, 0.25);
+    --panel: #1a1d23;
+    --border: rgba(248, 250, 252, 0.1);
+    --ink-dim: rgba(248, 250, 252, 0.5);
+    --card-bg: #1a1d23;
+    --card-border: rgba(248, 250, 252, 0.1);
+    --input-bg: #0f1115;
+    --input-border: rgba(248, 250, 252, 0.15);
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: #0f1115;
+  }
+
+  /* Display & Monospace Typography */
+  .font-display {
+    font-family: 'Syne', 'Cairo', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.04em;
+  }
+
+  .font-mono, .mono {
+    font-family: 'Space Mono', 'Cairo', monospace;
+  }
+
+  h1, h2, h3, h4, .font-mono-header {
+    font-family: 'Syne', 'Cairo', 'Space Mono', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Custom high-contrast industrial scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0f1115;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1a1d23;
+    border: 1px solid rgba(248, 250, 252, 0.1);
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #10b981;
+  }
+}
+
+/* Industrial View Component Utility Classes */
+.industrial-dot-matrix {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.label, .industrial-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  display: block;
+}
+
+.industrial-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.industrial-card-accent {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.industrial-card-accent::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  inset-inline-start: -1px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid var(--accent);
+  border-inline-start: 2px solid var(--accent);
+}
+
+.btn-capture, .btn-primary-industrial {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-family: 'Space Mono', 'Inter', sans-serif;
+  transition: all 0.15s ease;
+}
+
+.btn-capture:hover, .btn-primary-industrial:hover {
+  background: #34d399;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+}
+
+.stat-display {
+  background: #000000;
+  border: 1px solid var(--border);
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  color: var(--accent);
+  line-height: 1;
+  font-family: 'Space Mono', monospace;
+}
+
+.truck-tag {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.truck-tag.selected, .truck-tag-selected {
+  border-color: var(--accent);
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--ink);
+}
+
+.alert-box-warning {
+  border: 1px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+

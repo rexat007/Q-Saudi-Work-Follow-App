@@ -349,7 +349,7 @@ export function runFinalReleaseReadinessTests(): {
   // =========================================================================
   // 6. PRICING / FINANCIAL AUDIT
   // =========================================================================
-  const testTripPerTrip: TripRecord = {
+  const testTripPerTrip: any = {
     id: 'TRP-AUDIT-01',
     ticketNumber: 'TCK-AUDIT-01',
     truckNumber: '7788-KSA',
@@ -372,7 +372,7 @@ export function runFinalReleaseReadinessTests(): {
     varianceWeight: -50,
     projectId: 'PRJ-NEOM-NORTH-01',
     status: 'COMPLETED',
-    sourceType: 'MANUAL_WEBSITE',
+    sourceType: 'MANUAL',
     pricingType: 'PER_TRIP',
     pricingSnapshot: {
       pricingRuleId: 'PRC-001',
@@ -393,7 +393,7 @@ export function runFinalReleaseReadinessTests(): {
     isSyncPending: false,
   };
 
-  const testTripPerTon: TripRecord = {
+  const testTripPerTon: any = {
     id: 'TRP-AUDIT-02',
     ticketNumber: 'TCK-AUDIT-02',
     truckNumber: '9900-KSA',
@@ -416,7 +416,7 @@ export function runFinalReleaseReadinessTests(): {
     varianceWeight: -20,
     projectId: 'PRJ-NEOM-NORTH-01',
     status: 'COMPLETED',
-    sourceType: 'MANUAL_WEBSITE',
+    sourceType: 'MANUAL',
     pricingType: 'PER_TON',
     pricingSnapshot: {
       pricingRuleId: 'PRC-002',
@@ -437,7 +437,7 @@ export function runFinalReleaseReadinessTests(): {
     isSyncPending: false,
   };
 
-  const testTripUnpriced: TripRecord = {
+  const testTripUnpriced: any = {
     id: 'TRP-AUDIT-03',
     ticketNumber: 'TCK-AUDIT-03',
     truckNumber: '1122-KSA',
@@ -456,7 +456,7 @@ export function runFinalReleaseReadinessTests(): {
     netWeight: 20000,
     projectId: 'PRJ-NEOM-NORTH-01',
     status: 'COMPLETED',
-    sourceType: 'MANUAL_WEBSITE',
+    sourceType: 'MANUAL',
     settlementStatus: 'PENDING',
     createdAt: '2026-09-14T10:00:00Z',
     updatedAt: '2026-09-14T10:00:00Z',
@@ -464,7 +464,7 @@ export function runFinalReleaseReadinessTests(): {
     isSyncPending: false,
   };
 
-  const auditTrips: TripRecord[] = [testTripPerTrip, testTripPerTon, testTripUnpriced];
+  const auditTrips: TripRecord[] = [testTripPerTrip, testTripPerTon, testTripUnpriced] as TripRecord[];
 
   const pricingCheckPass =
     testTripPerTrip.settlementAmount === 350 &&
