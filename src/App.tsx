@@ -37,6 +37,8 @@ import { ENTITY_RELATIONS, MANDATORY_PRINCIPLES, EntityRelationInfo } from './en
 import { ARCHITECTURE_DOCS, DocItem } from './docsData';
 import FirestoreArchitectureView from './components/FirestoreArchitectureView';
 import { ProjectSetupWizard } from './components/wizard/ProjectSetupWizard';
+import { Sidebar } from './components/navigation/Sidebar';
+import { ProjectWorkspaceView } from './components/workspace/ProjectWorkspaceView';
 import { PricingEngineView } from './components/pricing/PricingEngineView';
 import { MasterDataView } from './components/masterData/MasterDataView';
 import { DataQualityView } from './components/dataQuality/DataQualityView';
@@ -89,6 +91,8 @@ export default function App() {
   const [projects, setProjects] = useState<ProjectEntity[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [loadingProjects, setLoadingProjects] = useState<boolean>(true);
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<string>('data');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
   const activeAuthContext = {
     userId: user?.uid || 'USR-ADMIN-01',
@@ -390,524 +394,498 @@ export default function App() {
             </div>
           </div>
         </div>
-
-        {/* Desktop Nav-Grid Strip */}
-        <div className="hidden lg:block border-t border-white/10 bg-[#15181e]">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center flex-1 divide-x divide-white/10 rtl:divide-x-reverse overflow-x-auto [scrollbar-width:none]">
-              {authorizedPrimaryTabs.map((tab) => {
-                const isSelected = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    id={`tab-${tab.id.toLowerCase().replace(/_/g, '-')}`}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 border-b-2 ${
-                      isSelected
-                        ? 'text-[#10b981] bg-[#10b981]/10 border-[#10b981]'
-                        : 'text-white/60 hover:text-[#f8fafc] hover:bg-white/5 border-transparent'
-                    }`}
-                  >
-                    {getTabNavIcon(tab.icon)}
-                    <span>{tab.titleAr}</span>
-                    {tab.badgeAr && (
-                      <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${
-                        isSelected ? 'bg-[#10b981] text-[#0f1115]' : 'bg-white/10 text-[#f8fafc]'
-                      }`}>
-                        {tab.badgeAr}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-
-              {/* System / Developer Tools Trigger Button */}
-              {authorizedTools.length > 0 && (
-                <button
-                  id="tab-system-tools-trigger"
-                  onClick={() => setIsSystemToolsOpen(true)}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 border-b-2 ${
-                    !authorizedPrimaryTabs.some(t => t.id === activeTab)
-                      ? 'text-[#10b981] bg-[#10b981]/10 border-[#10b981]'
-                      : 'text-[#10b981] hover:text-white hover:bg-[#10b981]/10 border-transparent'
-                  }`}
-                  title="أدوات التدقيق، الترحيل، والمطورين"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-[#10b981]" />
-                  <span>أدوات النظام</span>
-                  <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-[#10b981]/20 text-[#10b981]">
-                    {authorizedTools.length}
-                  </span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Sub-Header: Active Profile & Isolation Scope Ribbon */}
-        <div className="bg-[#14171c] text-white/60 py-1.5 px-4 text-[11px] font-mono border-t border-white/5 border-b border-white/10">
-          <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-white/60">
-                <Lock className="w-3 h-3 text-[#10b981]" />
-                <span className="text-white/40">USER:</span>
-                <strong className="text-[#f8fafc] font-bold">{roleProfile.userNameAr}</strong>
-              </span>
-              <span className="text-white/20">•</span>
-              <span className="text-white/60">
-                <span className="text-white/40">SCOPE:</span>{' '}
-                <strong className="text-[#10b981] font-mono font-bold">
-                  {roleProfile.assignedProjectIds.join(', ')}
-                </strong>
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3 text-white/60">
-              <span className="flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-[#10b981]" />
-                <span>SSOT // MULTI-TENANT ISOLATION</span>
-              </span>
-              <span className="hidden md:inline text-white/20">•</span>
-              <span className="hidden md:inline text-white/50">SERVER-AUTHORITATIVE CORE</span>
-            </div>
-          </div>
-        </div>
       </header>
 
-      {/* Main Content Area with Strict Route Guards & Industrial Dot Matrix */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 industrial-dot-matrix">
-        
-        {/* Route Guard Enforcement: If activeTab is forbidden for currentRole */}
-        {!isCurrentTabAuthorized ? (
-          <UnauthorizedBanner
-            requestedTab={activeTab}
-            currentRole={currentRole}
-            onRedirectToDefault={() => {
-              const defTab = navigationService.getDefaultTabForRole(currentRole);
-              setActiveTab(defTab);
-            }}
-          />
-        ) : (
-          <>
-            {/* ================= TAB: OPERATIONS DASHBOARD (STRICT AUTHORIZATION, 7 LAYERS) ================= */}
-            {activeTab === 'OPERATIONS_DASHBOARD' && (
-              <OperationsDashboardView />
-            )}
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 w-full relative">
+        {/* Primary Vertical Sidebar */}
+        <Sidebar
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          currentRole={currentRole}
+          onChangeRole={handleRoleChange}
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          setSelectedProjectId={setSelectedProjectId}
+          activeWorkspaceTab={activeWorkspaceTab}
+          onSelectWorkspaceTab={setActiveWorkspaceTab}
+          onOpenSystemTools={() => setIsSystemToolsOpen(true)}
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
+        />
 
-            {/* ================= TAB: REPORTS ENGINE (OPERATIONAL, WEIGHBRIDGE, SETTLEMENT, INGESTION) ================= */}
-            {activeTab === 'REPORTS_ENGINE' && (
-              <ReportsEngineView />
-            )}
+        {/* Content Wrapper */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[#0f1115]">
+          {/* Sub-Header: Active Profile & Isolation Scope Ribbon */}
+          <div className="bg-[#14171c] text-white/60 py-1.5 px-4 text-[11px] font-mono border-b border-white/10">
+            <div className="w-full flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 text-white/60">
+                  <Lock className="w-3 h-3 text-[#10b981]" />
+                  <span className="text-white/40">USER:</span>
+                  <strong className="text-[#f8fafc] font-bold">{roleProfile.userNameAr}</strong>
+                </span>
+                <span className="text-white/20">•</span>
+                <span className="text-white/60">
+                  <span className="text-white/40">SCOPE:</span>{' '}
+                  <strong className="text-[#10b981] font-mono font-bold">
+                    {roleProfile.assignedProjectIds.join(', ')}
+                  </strong>
+                </span>
+              </div>
 
-            {/* ================= TAB: FIELD OPERATIONS (LOADING, UNLOADING, SUPERVISION, DRIVER) ================= */}
-            {activeTab === 'FIELD_OPERATIONS' && (
-              <FieldOperationsView 
-                initialTab={getFieldInitialTab(currentRole)}
-                initialRole={currentRole}
-                projects={projects}
-                selectedProjectId={selectedProjectId}
-                setSelectedProjectId={setSelectedProjectId}
-                onNavigateToWizard={() => setActiveTab('WIZARD')}
+              <div className="flex items-center gap-3 text-white/60">
+                <span className="flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-[#10b981]" />
+                  <span>SSOT // MULTI-TENANT ISOLATION</span>
+                </span>
+                <span className="hidden md:inline text-white/20">•</span>
+                <span className="hidden md:inline text-white/50">SERVER-AUTHORITATIVE CORE</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Area with Strict Route Guards & Industrial Dot Matrix */}
+          <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 industrial-dot-matrix overflow-y-auto">
+            {/* Route Guard Enforcement: If activeTab is forbidden for currentRole */}
+            {!isCurrentTabAuthorized ? (
+              <UnauthorizedBanner
+                requestedTab={activeTab}
+                currentRole={currentRole}
+                onRedirectToDefault={() => {
+                  const defTab = navigationService.getDefaultTabForRole(currentRole);
+                  setActiveTab(defTab);
+                }}
               />
-            )}
+            ) : (
+              <>
+                {/* ================= TAB: OPERATIONS DASHBOARD (STRICT AUTHORIZATION, 7 LAYERS) ================= */}
+                {activeTab === 'OPERATIONS_DASHBOARD' && (
+                  <OperationsDashboardView />
+                )}
 
-            {/* ================= TAB: PROJECT SETUP WIZARD (7 STEPS) ================= */}
-            {activeTab === 'WIZARD' && (
-              <ProjectSetupWizard 
-                projects={projects}
-                authContext={activeAuthContext}
-              />
-            )}
+                {/* ================= TAB: REPORTS ENGINE (OPERATIONAL, WEIGHBRIDGE, SETTLEMENT, INGESTION) ================= */}
+                {activeTab === 'REPORTS_ENGINE' && (
+                  <ReportsEngineView />
+                )}
 
-            {/* ================= TAB: MASTER DATA MODULES (CARRIERS, TRUCKS, DRIVERS, MATERIALS) ================= */}
-            {activeTab === 'MASTER_DATA' && (
-              <MasterDataView 
-                projects={projects}
-                selectedProjectId={selectedProjectId}
-                setSelectedProjectId={setSelectedProjectId}
-                authContext={activeAuthContext}
-                onNavigateToWizard={() => setActiveTab('WIZARD')}
-              />
-            )}
+                {/* ================= TAB: FIELD OPERATIONS (LOADING, UNLOADING, SUPERVISION, DRIVER) ================= */}
+                {activeTab === 'FIELD_OPERATIONS' && (
+                  <FieldOperationsView 
+                    initialTab={getFieldInitialTab(currentRole)}
+                    initialRole={currentRole}
+                    projects={projects}
+                    selectedProjectId={selectedProjectId}
+                    setSelectedProjectId={setSelectedProjectId}
+                    onNavigateToWizard={() => setActiveTab('WIZARD')}
+                  />
+                )}
 
-            {/* ================= TAB: SECURITY AUDIT & COMPLIANCE (16 DOMAINS & EXHAUSTIVE RBAC) ================= */}
-            {activeTab === 'SECURITY_AUDIT' && (
-              <SecurityAuditView />
-            )}
+                {/* ================= TAB: PROJECT SETUP WIZARD (7 STEPS) / UNIFIED WORKSPACE ================= */}
+                {activeTab === 'WIZARD' && (
+                  selectedProjectId ? (
+                    <ProjectWorkspaceView
+                      projects={projects}
+                      selectedProjectId={selectedProjectId}
+                      activeWorkspaceTab={activeWorkspaceTab}
+                      onSelectWorkspaceTab={setActiveWorkspaceTab}
+                      authContext={activeAuthContext}
+                    />
+                  ) : (
+                    <ProjectSetupWizard 
+                      projects={projects}
+                      authContext={activeAuthContext}
+                    />
+                  )
+                )}
 
-            {/* ================= TAB: LEGACY MIGRATION (20 COLS, PREVIEW-FIRST, MASTER MATCHING) ================= */}
-            {activeTab === 'LEGACY_MIGRATION' && (
-              <LegacyMigrationView />
-            )}
+                {/* ================= TAB: MASTER DATA MODULES (CARRIERS, TRUCKS, DRIVERS, MATERIALS) ================= */}
+                {activeTab === 'MASTER_DATA' && (
+                  <MasterDataView 
+                    projects={projects}
+                    selectedProjectId={selectedProjectId}
+                    setSelectedProjectId={setSelectedProjectId}
+                    authContext={activeAuthContext}
+                    onNavigateToWizard={() => setActiveTab('WIZARD')}
+                  />
+                )}
 
-            {/* ================= TAB: ADMIN CONSOLE (11 SECTIONS & VERSIONED PRICING RULES) ================= */}
-            {activeTab === 'ADMIN_CONSOLE' && (
-              <AdminConsoleView />
-            )}
+                {/* ================= TAB: SECURITY AUDIT & COMPLIANCE (16 DOMAINS & EXHAUSTIVE RBAC) ================= */}
+                {activeTab === 'SECURITY_AUDIT' && (
+                  <SecurityAuditView />
+                )}
 
-            {/* ================= TAB: TRIP ENGINE (6 RULES & SERVER SETTLEMENT) ================= */}
-            {activeTab === 'TRIP_ENGINE' && (
-              <TripEngineView />
-            )}
+                {/* ================= TAB: LEGACY MIGRATION (20 COLS, PREVIEW-FIRST, MASTER MATCHING) ================= */}
+                {activeTab === 'LEGACY_MIGRATION' && (
+                  <LegacyMigrationView />
+                )}
 
-            {/* ================= TAB: GOOGLE WORKSPACE (SHEETS & DRIVE PROJECTION) ================= */}
-            {activeTab === 'WORKSPACE_INTEGRATION' && (
-              <WorkspaceIntegrationView />
-            )}
+                {/* ================= TAB: ADMIN CONSOLE (11 SECTIONS & VERSIONED PRICING RULES) ================= */}
+                {activeTab === 'ADMIN_CONSOLE' && (
+                  <AdminConsoleView />
+                )}
 
-            {/* ================= TAB: EXCEPTION ENGINE (12 TYPES, 4 STATUSES, & AUDIT TRAIL) ================= */}
-            {activeTab === 'EXCEPTION_ENGINE' && (
-              <ExceptionEngineView />
-            )}
+                {/* ================= TAB: TRIP ENGINE (6 RULES & SERVER SETTLEMENT) ================= */}
+                {activeTab === 'TRIP_ENGINE' && (
+                  <TripEngineView />
+                )}
 
-            {/* ================= TAB: IMPORT CENTER (12-STAGE PIPELINE) ================= */}
-            {activeTab === 'IMPORT_CENTER' && (
-              <ImportCenterView />
-            )}
+                {/* ================= TAB: GOOGLE WORKSPACE (SHEETS & DRIVE PROJECTION) ================= */}
+                {activeTab === 'WORKSPACE_INTEGRATION' && (
+                  <WorkspaceIntegrationView />
+                )}
 
-            {/* ================= TAB: DATA QUALITY ENGINE (8-STAGE PIPELINE) ================= */}
-            {activeTab === 'DATA_QUALITY' && (
-              <DataQualityView />
-            )}
+                {/* ================= TAB: EXCEPTION ENGINE (12 TYPES, 4 STATUSES, & AUDIT TRAIL) ================= */}
+                {activeTab === 'EXCEPTION_ENGINE' && (
+                  <ExceptionEngineView />
+                )}
 
-            {/* ================= TAB: PRICING ENGINE & AUTOMATED TESTS ================= */}
-            {activeTab === 'PRICING_ENGINE' && (
-              <PricingEngineView />
-            )}
+                {/* ================= TAB: IMPORT CENTER (12-STAGE PIPELINE) ================= */}
+                {activeTab === 'IMPORT_CENTER' && (
+                  <ImportCenterView />
+                )}
 
-            {/* ================= TAB: FIRESTORE ARCHITECTURE & DOMAIN LAYERS ================= */}
-            {activeTab === 'FIRESTORE_ARCH' && (
-              <FirestoreArchitectureView />
-            )}
+                {/* ================= TAB: DATA QUALITY ENGINE (8-STAGE PIPELINE) ================= */}
+                {activeTab === 'DATA_QUALITY' && (
+                  <DataQualityView />
+                )}
 
-            {/* ================= TAB: RELATIONSHIPS EXPLORER ================= */}
-            {activeTab === 'RELATIONS' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-                    <div>
-                      <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                        <Boxes className="w-5 h-5 text-indigo-600" />
-                        <span>{t("navigation.labels.txt_4df8c5")}</span>
-                      </h2>
-                      <p className="text-xs text-stone-500 mt-1">
-                        {t("navigation.labels.txt_23bdd6")}
-                      </p>
-                    </div>
-                    <div className="text-xs font-medium text-stone-400 bg-stone-50 px-3 py-1.5 rounded-lg border border-stone-200/60">
-                      {t("navigation.labels.txt_46b695")}<strong className="text-stone-700">Multi-Project Logistics FSM</strong>
-                    </div>
-                  </div>
+                {/* ================= TAB: PRICING ENGINE & AUTOMATED TESTS ================= */}
+                {activeTab === 'PRICING_ENGINE' && (
+                  <PricingEngineView />
+                )}
 
-                  {/* Entity Pills Carousel/Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 pt-2 border-t border-stone-100">
-                    {ENTITY_RELATIONS.map(entity => {
-                      const isSelected = entity.id === selectedEntityId;
-                      return (
-                        <button
-                          key={entity.id}
-                          id={`entity-btn-${entity.id}`}
-                          onClick={() => setSelectedEntityId(entity.id)}
-                          className={`flex items-center gap-2.5 p-2.5 rounded-xl text-right transition-all border ${
-                            isSelected 
-                              ? 'bg-stone-900 text-white border-stone-900 shadow-xs' 
-                              : 'bg-stone-50/70 hover:bg-stone-100/80 text-stone-700 border-stone-200/70'
-                          }`}
-                        >
-                          <div className={`p-1.5 rounded-lg shrink-0 ${isSelected ? 'bg-stone-800' : 'bg-white shadow-xs'}`}>
-                            {getEntityIcon(entity.id)}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-xs font-bold truncate">{entity.nameEn}</div>
-                            <div className={`text-[10px] truncate ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
-                              {entity.nameAr.split(' ')[0]}
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                {/* ================= TAB: FIRESTORE ARCHITECTURE & DOMAIN LAYERS ================= */}
+                {activeTab === 'FIRESTORE_ARCH' && (
+                  <FirestoreArchitectureView />
+                )}
 
-                {/* Selected Entity Deep-Dive Card */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Left Column: Entity Definition & Rules */}
-                  <div className="lg:col-span-1 bg-white rounded-2xl border border-stone-200 p-6 shadow-xs flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between border-b border-stone-100 pb-4 mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 bg-stone-100 rounded-xl">
-                            {getEntityIcon(selectedEntity.id)}
-                          </div>
-                          <div>
-                            <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-stone-100 text-stone-600">
-                              {selectedEntity.category}
-                            </span>
-                            <h3 className="text-lg font-bold text-stone-900 mt-1">
-                              {selectedEntity.nameAr}
-                            </h3>
-                          </div>
-                        </div>
-                      </div>
-
-                      <p className="text-xs leading-relaxed text-stone-600 mb-4 bg-stone-50 p-3 rounded-xl border border-stone-200/60">
-                        {selectedEntity.shortDescAr}
-                      </p>
-
-                      <div className="space-y-4">
+                {/* ================= TAB: RELATIONSHIPS EXPLORER ================= */}
+                {activeTab === 'RELATIONS' && (
+                  <div className="space-y-6">
+                    <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
                         <div>
-                          <h4 className="text-xs font-bold text-stone-900 mb-1.5 flex items-center gap-1.5">
-                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>{t("navigation.labels.txt_777008")}</span>
-                          </h4>
-                          <p className="text-xs text-stone-600 leading-normal">
-                            {selectedEntity.roleInSystemAr}
+                          <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
+                            <Boxes className="w-5 h-5 text-indigo-600" />
+                            <span>{t("navigation.labels.txt_4df8c5")}</span>
+                          </h2>
+                          <p className="text-xs text-stone-500 mt-1">
+                            {t("navigation.labels.txt_23bdd6")}
                           </p>
                         </div>
-
-                        <div>
-                          <h4 className="text-xs font-bold text-stone-900 mb-1.5 flex items-center gap-1.5">
-                            <Database className="w-3.5 h-3.5 text-blue-600" />
-                            <span>{t("navigation.labels.txt_41e146")}</span>
-                          </h4>
-                          <div className="flex flex-wrap gap-1.5">
-                            {selectedEntity.keyAttributes.map((attr, idx) => (
-                              <span key={idx} className="font-mono text-[11px] px-2 py-0.5 bg-stone-100 text-stone-700 rounded-md border border-stone-200/60">
-                                {attr}
-                              </span>
-                            ))}
-                          </div>
+                        <div className="text-xs font-medium text-stone-400 bg-stone-50 px-3 py-1.5 rounded-lg border border-stone-200/60">
+                          {t("navigation.labels.txt_46b695")}<strong className="text-stone-700">Multi-Project Logistics FSM</strong>
                         </div>
+                      </div>
+
+                      {/* Entity Pills Carousel/Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 pt-2 border-t border-stone-100">
+                        {ENTITY_RELATIONS.map(entity => {
+                          const isSelected = entity.id === selectedEntityId;
+                          return (
+                            <button
+                              key={entity.id}
+                              id={`entity-btn-${entity.id}`}
+                              onClick={() => setSelectedEntityId(entity.id)}
+                              className={`flex items-center gap-2.5 p-2.5 rounded-xl text-right transition-all border ${
+                                isSelected 
+                                  ? 'bg-stone-900 text-white border-stone-900 shadow-xs' 
+                                  : 'bg-stone-50/70 hover:bg-stone-100/80 text-stone-700 border-stone-200/70'
+                              }`}
+                            >
+                              <div className={`p-1.5 rounded-lg shrink-0 ${isSelected ? 'bg-stone-800' : 'bg-white shadow-xs'}`}>
+                                {getEntityIcon(entity.id)}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-xs font-bold truncate">{entity.nameEn}</div>
+                                <div className={`text-[10px] truncate ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
+                                  {entity.nameAr.split(' ')[0]}
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-stone-100">
-                      <h4 className="text-xs font-bold text-stone-900 mb-2 flex items-center gap-1.5">
-                        <Lock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>{t("navigation.labels.txt_4ada99")}</span>
-                      </h4>
-                      <ul className="space-y-1.5">
-                        {selectedEntity.rulesEnforcedAr.map((rule, idx) => (
-                          <li key={idx} className="text-xs text-stone-600 flex items-start gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-                            <span>{rule}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* Right Column: Direct Domain Connections */}
-                  <div className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
-                    <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-100">
-                      <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-                        <Share2 className="w-4 h-4 text-indigo-600" />
-                        <span>الارتباطات المباشرة مع الكيانات الأخرى في النظام ({selectedEntity.relationships.length})</span>
-                      </h3>
-                      <span className="text-xs text-stone-400">
-                        {t("navigation.labels.txt_5dc573")}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                      {selectedEntity.relationships.map((rel, idx) => {
-                        const targetEntity = ENTITY_RELATIONS.find(e => e.id === rel.target);
-                        return (
-                          <div 
-                            key={idx}
-                            onClick={() => setSelectedEntityId(rel.target)}
-                            className="group p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/40 hover:bg-stone-50 hover:border-indigo-300 transition-all cursor-pointer flex flex-col justify-between"
-                          >
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <div className="p-1 rounded bg-white border border-stone-200">
-                                    {getEntityIcon(rel.target)}
-                                  </div>
-                                  <span className="text-xs font-bold text-stone-900 group-hover:text-indigo-600 transition-colors">
-                                    {targetEntity ? targetEntity.nameAr : rel.target}
-                                  </span>
-                                </div>
-                                <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                  {rel.type}
-                                </span>
+                    {/* Selected Entity Deep-Dive Card */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      {/* Left Column: Entity Definition & Rules */}
+                      <div className="lg:col-span-1 bg-white rounded-2xl border border-stone-200 p-6 shadow-xs flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between border-b border-stone-100 pb-4 mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2.5 bg-stone-100 rounded-xl">
+                                {getEntityIcon(selectedEntity.id)}
                               </div>
-                              <p className="text-xs text-stone-600 leading-relaxed">
-                                {rel.descAr}
+                              <div>
+                                <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-stone-100 text-stone-600">
+                                  {selectedEntity.category}
+                                </span>
+                                <h3 className="text-lg font-bold text-stone-900 mt-1">
+                                  {selectedEntity.nameAr}
+                                </h3>
+                              </div>
+                            </div>
+                          </div>
+
+                          <p className="text-xs leading-relaxed text-stone-600 mb-4 bg-stone-50 p-3 rounded-xl border border-stone-200/60">
+                            {selectedEntity.shortDescAr}
+                          </p>
+
+                          <div className="space-y-4">
+                            <div>
+                              <h4 className="text-xs font-bold text-stone-900 mb-1.5 flex items-center gap-1.5">
+                                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>{t("navigation.labels.txt_777008")}</span>
+                              </h4>
+                              <p className="text-xs text-stone-600 leading-normal">
+                                {selectedEntity.roleInSystemAr}
                               </p>
                             </div>
-                            <div className="mt-3 pt-2 border-t border-stone-200/40 flex items-center justify-end text-[10px] font-bold text-stone-400 group-hover:text-indigo-600 gap-1 transition-colors">
-                              <span>استعراض كيان {rel.target}</span>
-                              <ChevronLeft className="w-3 h-3" />
+
+                            <div>
+                              <h4 className="text-xs font-bold text-stone-900 mb-1.5 flex items-center gap-1.5">
+                                <Database className="w-3.5 h-3.5 text-blue-600" />
+                                <span>{t("navigation.labels.txt_41e146")}</span>
+                              </h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {selectedEntity.keyAttributes.map((attr, idx) => (
+                                  <span key={idx} className="font-mono text-[11px] px-2 py-0.5 bg-stone-100 text-stone-700 rounded-md border border-stone-200/60">
+                                    {attr}
+                                  </span>
+                                ))}
+                              </div>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Architecture Context Banner */}
-                    <div className="mt-6 p-4 rounded-xl bg-stone-900 text-stone-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                      <div>
-                        <div className="text-xs font-bold text-amber-400 mb-0.5">
-                          {t("navigation.labels.txt_6dd618")}
                         </div>
-                        <div className="text-xs text-stone-300">
-                          {t("navigation.labels.txt_791f1b")}
+
+                        <div className="mt-6 pt-4 border-t border-stone-100">
+                          <h4 className="text-xs font-bold text-stone-900 mb-2 flex items-center gap-1.5">
+                            <Lock className="w-3.5 h-3.5 text-amber-600" />
+                            <span>{t("navigation.labels.txt_4ada99")}</span>
+                          </h4>
+                          <ul className="space-y-1.5">
+                            {selectedEntity.rulesEnforcedAr.map((rule, idx) => (
+                              <li key={idx} className="text-xs text-stone-600 flex items-start gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                                <span>{rule}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       </div>
-                      <button
-                        onClick={() => {
-                          setActiveTab('DOCS');
-                          setSelectedDocId('architecture');
-                        }}
-                        className="shrink-0 px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-medium border border-stone-700 flex items-center gap-1.5 transition-colors"
-                      >
-                        <span>{t("navigation.labels.view")}</span>
-                        <ChevronLeft className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* ================= TAB: THE 12 INVARIANT PRINCIPLES ================= */}
-            {activeTab === 'PRINCIPLES' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
-                  <div className="max-w-3xl">
-                    <h2 className="text-lg font-bold text-stone-900 flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                      <span>{t("navigation.labels.txt_4c8195")}</span>
-                    </h2>
-                    <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-                      {t("navigation.labels.txt_17c5e1")}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {MANDATORY_PRINCIPLES.map(principle => (
-                    <div 
-                      key={principle.num}
-                      className="bg-white rounded-xl border border-stone-200 p-5 shadow-xs flex flex-col justify-between hover:border-stone-300 transition-all"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="w-7 h-7 rounded-lg bg-stone-900 text-amber-400 font-mono text-xs font-bold flex items-center justify-center">
-                            #{principle.num}
-                          </span>
-                          <span className="text-[10px] font-bold text-stone-400 bg-stone-100 px-2 py-0.5 rounded">
-                            INVARIANT RULE
+                      {/* Right Column: Direct Domain Connections */}
+                      <div className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
+                        <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-100">
+                          <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
+                            <Share2 className="w-4 h-4 text-indigo-600" />
+                            <span>الارتباطات المباشرة مع الكيانات الأخرى في النظام ({selectedEntity.relationships.length})</span>
+                          </h3>
+                          <span className="text-xs text-stone-400">
+                            {t("navigation.labels.txt_5dc573")}
                           </span>
                         </div>
-                        <h3 className="text-sm font-bold text-stone-900 mb-2">
-                          {principle.title}
-                        </h3>
-                        <p className="text-xs text-stone-600 leading-relaxed">
-                          {principle.desc}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                          {selectedEntity.relationships.map((rel, idx) => {
+                            const targetEntity = ENTITY_RELATIONS.find(e => e.id === rel.target);
+                            return (
+                              <div 
+                                key={idx}
+                                onClick={() => setSelectedEntityId(rel.target)}
+                                className="group p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/40 hover:bg-stone-50 hover:border-indigo-300 transition-all cursor-pointer flex flex-col justify-between"
+                              >
+                                <div>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                      <div className="p-1 rounded bg-white border border-stone-200">
+                                        {getEntityIcon(rel.target)}
+                                      </div>
+                                      <span className="text-xs font-bold text-stone-900 group-hover:text-indigo-600 transition-colors">
+                                        {targetEntity ? targetEntity.nameAr : rel.target}
+                                      </span>
+                                    </div>
+                                    <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                      {rel.type}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-stone-600 leading-relaxed">
+                                    {rel.descAr}
+                                  </p>
+                                </div>
+                                <div className="mt-3 pt-2 border-t border-stone-200/40 flex items-center justify-end text-[10px] font-bold text-stone-400 group-hover:text-indigo-600 gap-1 transition-colors">
+                                  <span>استعراض كيان {rel.target}</span>
+                                  <ChevronLeft className="w-3 h-3" />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Architecture Context Banner */}
+                        <div className="mt-6 p-4 rounded-xl bg-stone-900 text-stone-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                          <div>
+                            <div className="text-xs font-bold text-amber-400 mb-0.5">
+                              {t("navigation.labels.txt_6dd618")}
+                            </div>
+                            <div className="text-xs text-stone-300">
+                              {t("navigation.labels.txt_791f1b")}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setActiveTab('DOCS');
+                              setSelectedDocId('architecture');
+                            }}
+                            className="shrink-0 px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-medium border border-stone-700 flex items-center gap-1.5 transition-colors"
+                          >
+                            <span>{t("navigation.labels.view")}</span>
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ================= TAB: THE 12 INVARIANT PRINCIPLES ================= */}
+                {activeTab === 'PRINCIPLES' && (
+                  <div className="space-y-6">
+                    <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
+                      <div className="max-w-3xl">
+                        <h2 className="text-lg font-bold text-stone-900 flex items-center gap-2">
+                          <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                          <span>{t("navigation.labels.txt_4c8195")}</span>
+                        </h2>
+                        <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                          {t("navigation.labels.txt_17c5e1")}
                         </p>
                       </div>
-                      
-                      <div className="mt-4 pt-3 border-t border-stone-100 flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>{t("navigation.labels.txt_c37ba7")}</span>
-                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
-            {/* ================= TAB: SPECIFICATION DOCUMENTS VIEWER ================= */}
-            {activeTab === 'DOCS' && (
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* Sidebar Documents List */}
-                <div className="lg:col-span-1 space-y-2">
-                  <div className="bg-white rounded-xl border border-stone-200 p-3 shadow-xs">
-                    <div className="text-xs font-bold text-stone-900 px-2 py-1 mb-1">
-                      {t("navigation.labels.txt_8cf69f")}
-                    </div>
-                    <div className="space-y-1">
-                      {ARCHITECTURE_DOCS.map(doc => {
-                        const isSelected = doc.id === selectedDocId;
-                        return (
-                          <button
-                            key={doc.id}
-                            id={`doc-nav-${doc.id}`}
-                            onClick={() => setSelectedDocId(doc.id)}
-                            className={`w-full text-right px-3 py-2.5 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${
-                              isSelected 
-                                ? 'bg-stone-900 text-white shadow-xs' 
-                                : 'text-stone-700 hover:bg-stone-100'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 min-w-0">
-                              {getDocIcon(doc.iconName)}
-                              <span className="truncate">{doc.titleAr}</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {MANDATORY_PRINCIPLES.map(principle => (
+                        <div 
+                          key={principle.num}
+                          className="bg-white rounded-xl border border-stone-200 p-5 shadow-xs flex flex-col justify-between hover:border-stone-300 transition-all"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="w-7 h-7 rounded-lg bg-stone-900 text-amber-400 font-mono text-xs font-bold flex items-center justify-center">
+                                #{principle.num}
+                              </span>
+                              <span className="text-[10px] font-bold text-stone-400 bg-stone-100 px-2 py-0.5 rounded">
+                                INVARIANT RULE
+                              </span>
                             </div>
-                            <span className={`font-mono text-[10px] shrink-0 ${isSelected ? 'text-stone-400' : 'text-stone-400'}`}>
-                              .md
-                            </span>
-                          </button>
-                        );
-                      })}
+                            <h3 className="text-sm font-bold text-stone-900 mb-2">
+                              {principle.title}
+                            </h3>
+                            <p className="text-xs text-stone-600 leading-relaxed">
+                              {principle.desc}
+                            </p>
+                          </div>
+                          
+                          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>{t("navigation.labels.txt_c37ba7")}</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
+                )}
 
-                  {/* Document Summary Pill */}
-                  <div className="bg-stone-50 rounded-xl border border-stone-200 p-4 text-xs text-stone-600">
-                    <div className="font-bold text-stone-900 mb-1 flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5 text-stone-500" />
-                      <span>{t("navigation.labels.txt_72b405")}</span>
-                    </div>
-                    <p className="leading-relaxed">
-                      {selectedDoc.summaryAr}
-                    </p>
-                    <div className="mt-3 pt-2 border-t border-stone-200/60 font-mono text-[11px] text-stone-500">
-                      المسار: {selectedDoc.filename}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Document Reader Main Panel */}
-                <div className="lg:col-span-3 bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-stone-100 gap-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-mono text-xs px-2 py-0.5 rounded bg-stone-100 text-stone-700 border border-stone-200">
-                          {selectedDoc.filename}
-                        </span>
-                        <span className="text-xs text-stone-400">•</span>
-                        <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                          Production Ready Spec
-                        </span>
+                {/* ================= TAB: SPECIFICATION DOCUMENTS VIEWER ================= */}
+                {activeTab === 'DOCS' && (
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    {/* Sidebar Documents List */}
+                    <div className="lg:col-span-1 space-y-2">
+                      <div className="bg-white rounded-xl border border-stone-200 p-3 shadow-xs">
+                        <div className="text-xs font-bold text-stone-900 px-2 py-1 mb-1">
+                          {t("navigation.labels.txt_8cf69f")}
+                        </div>
+                        <div className="space-y-1">
+                          {ARCHITECTURE_DOCS.map(doc => {
+                            const isSelected = doc.id === selectedDocId;
+                            return (
+                              <button
+                                key={doc.id}
+                                id={`doc-nav-${doc.id}`}
+                                onClick={() => setSelectedDocId(doc.id)}
+                                className={`w-full text-right px-3 py-2.5 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${
+                                  isSelected 
+                                    ? 'bg-stone-900 text-white shadow-xs' 
+                                    : 'text-stone-700 hover:bg-stone-100'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  {getDocIcon(doc.iconName)}
+                                  <span className="truncate">{doc.titleAr}</span>
+                                </div>
+                                <span className={`font-mono text-[10px] shrink-0 ${isSelected ? 'text-stone-400' : 'text-stone-400'}`}>
+                                  .md
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <h2 className="text-lg font-bold text-stone-900">
-                        {selectedDoc.titleAr} ({selectedDoc.titleEn})
-                      </h2>
+
+                      {/* Document Summary Pill */}
+                      <div className="bg-stone-50 rounded-xl border border-stone-200 p-4 text-xs text-stone-600">
+                        <div className="font-bold text-stone-900 mb-1 flex items-center gap-1.5">
+                          <FileText className="w-3.5 h-3.5 text-stone-500" />
+                          <span>{t("navigation.labels.txt_72b405")}</span>
+                        </div>
+                        <p className="leading-relaxed">
+                          {selectedDoc.summaryAr}
+                        </p>
+                        <div className="mt-3 pt-2 border-t border-stone-200/60 font-mono text-[11px] text-stone-500">
+                          المسار: {selectedDoc.filename}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-stone-500">
-                        {t("navigation.labels.txt_3a0110")}
-                      </span>
+                    {/* Document Reader Main Panel */}
+                    <div className="lg:col-span-3 bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-stone-100 gap-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-mono text-xs px-2 py-0.5 rounded bg-stone-100 text-stone-700 border border-stone-200">
+                              {selectedDoc.filename}
+                            </span>
+                            <span className="text-xs text-stone-400">•</span>
+                            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                              Production Ready Spec
+                            </span>
+                          </div>
+                          <h2 className="text-lg font-bold text-stone-900">
+                            {selectedDoc.titleAr} ({selectedDoc.titleEn})
+                          </h2>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="text-stone-500">
+                            {t("navigation.labels.txt_3a0110")}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Markdown Display */}
+                      <div className="prose prose-stone max-w-none prose-headings:font-bold prose-h1:text-xl prose-h2:text-base prose-h3:text-sm prose-p:text-xs prose-p:leading-relaxed prose-li:text-xs prose-code:font-mono prose-code:text-xs prose-code:bg-stone-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-stone-900 prose-pre:text-stone-100 prose-pre:p-4 prose-pre:rounded-xl">
+                        <ReactMarkdown>
+                          {selectedDoc.content}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Markdown Display */}
-                  <div className="prose prose-stone max-w-none prose-headings:font-bold prose-h1:text-xl prose-h2:text-base prose-h3:text-sm prose-p:text-xs prose-p:leading-relaxed prose-li:text-xs prose-code:font-mono prose-code:text-xs prose-code:bg-stone-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-stone-900 prose-pre:text-stone-100 prose-pre:p-4 prose-pre:rounded-xl">
-                    <ReactMarkdown>
-                      {selectedDoc.content}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              </div>
+                )}
+              </>
             )}
-          </>
-        )}
-
-      </main>
+          </main>
 
       {/* Industrial Production Footer */}
       <footer className="bg-[#0c0e12] border-t border-white/10 mt-auto py-4 font-mono text-xs text-white/50">
@@ -926,6 +904,9 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+        </div>
+      </div>
 
       {/* Floating Offline Status Pill & Sync Banner */}
       <OfflineIndicator onOpenOutbox={() => setIsOutboxOpen(true)} />
