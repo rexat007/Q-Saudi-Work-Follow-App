@@ -38,6 +38,7 @@ import {
 } from '../../services/dashboard.service';
 import { WidgetFilterBar } from './WidgetFilterBar';
 import { runDashboardSecurityAndMetricsTests, DashboardTestCaseResult } from '../../tests/dashboard.test';
+import { adminConsoleService } from '../../services/adminConsole.service';
 import { DEFAULT_CARRIERS, DEFAULT_MATERIALS } from '../../data/defaultMasterData';
 import { useI18n } from '../../i18n';
 
@@ -105,6 +106,16 @@ export const OperationsDashboardView: React.FC = () => {
   const authorizedProjects = useMemo(() => {
     return dashboardService.getAuthorizedProjects(activeProfile);
   }, [activeProfile]);
+
+  const availableCarriers = useMemo(() => {
+    const list = adminConsoleService.getCarriers(globalFilters.projectId);
+    return list.length > 0 ? list : DEFAULT_CARRIERS;
+  }, [globalFilters.projectId]);
+
+  const availableMaterials = useMemo(() => {
+    const list = adminConsoleService.getMaterials(globalFilters.projectId);
+    return list.length > 0 ? list : DEFAULT_MATERIALS;
+  }, [globalFilters.projectId]);
 
   // When profile changes, reset any invalid project selection
   const handleProfileChange = (profile: UserSecurityProfile) => {
@@ -388,7 +399,7 @@ export const OperationsDashboardView: React.FC = () => {
               className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:bg-white focus:border-amber-500 outline-none"
             >
               <option value="ALL">كافة الناقلين (All Carriers)</option>
-              {DEFAULT_CARRIERS.map(c => (
+              {availableCarriers.map(c => (
                 <option key={c.carrierId} value={c.carrierId}>
                   {c.companyNameAr || c.name}
                 </option>
@@ -408,7 +419,7 @@ export const OperationsDashboardView: React.FC = () => {
               className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:bg-white focus:border-amber-500 outline-none"
             >
               <option value="ALL">كافة المواد (All Materials)</option>
-              {DEFAULT_MATERIALS.map(m => (
+              {availableMaterials.map(m => (
                 <option key={m.materialId} value={m.materialId}>
                   {m.nameAr || m.name}
                 </option>

@@ -1,0 +1,597 @@
+{
+  "auditMetadata": {
+    "blockId": "82C",
+    "title": "PROJECT & MASTER DATA FORENSIC CLEANUP AUDIT",
+    "executionMode": "READ_ONLY_NO_MODIFICATIONS",
+    "timestamp": "2026-09-14T09:15:00.000Z",
+    "targetApplication": "Q Saudi Work Follow (Tactical Logistics & Heavy Transport Architecture)",
+    "investigationObjective": "Trace the exact origin of sample/demo projects, contractual pricing rules, and associated master data remaining after Block 82B runtime zero-state trip cleanup"
+  },
+  "executiveSummary": {
+    "problemStatement": "Following Block 82B, synthetic trips and dashboard metrics dropped to zero, but sample projects, carrier records, material catalogs, trucks, drivers, and pricing models remain fully populated in the UI.",
+    "coreFinding": "Zero projects or master data entities originate from cloud Firestore. The persistent display of sample projects is driven by static TypeScript constants (primarily DEFAULT_PROJECTS in defaultMasterData.ts and MASTER_PRICING_RULES in masterPricingRules.ts) directly imported and mirrored into the in-memory state of AdminConsoleService, DashboardService, MasterDataView, PricingEngineView, and OfflineCacheService.",
+    "firestoreStatus": "EMPTY_OR_UNAUTHENTICATED (Default deny security rules require isSignedIn(); ProjectRepository returns [] when unauthenticated; query test yields permission-denied; zero persistent cloud documents)",
+    "indexedDbStatus": "LAZILY_SEEDED_IN_BROWSER (OfflineCacheService seeds IndexedDB stores 'projects', 'carriers', 'materials', 'trucks', 'drivers', and 'pricingRules' from static constants whenever LoadingStation, LoadingOperatorView, or OutboxDrawer are mounted)"
+  },
+  "visibleSampleProjects": [
+    {
+      "projectId": "PRJ-NEOM-NORTH-01",
+      "projectCode": "NEOM-N01",
+      "nameAr": "مشروع حزم البنية التحتية - نيوم الشمالية",
+      "nameEn": "NEOM North Infrastructure Package",
+      "clientName": "شركة نيوم للإنشاءات",
+      "status": "ACTIVE",
+      "sourceLocation": "src/data/defaultMasterData.ts (lines 7-31)",
+      "persistenceType": "STATIC_MEMORY_CONSTANT",
+      "geoCoordinates": {
+        "latitude": 28.003,
+        "longitude": 35.212
+      },
+      "zatcaTaxId": "300012345600003",
+      "authorizedCarrierIds": [
+        "CAR-ALMAJDOUIE",
+        "CAR-BINLADIN"
+      ],
+      "authorizedMaterialIds": [
+        "MAT-AGG-01",
+        "MAT-SND-01"
+      ],
+      "associatedTrucks": [
+        "TRK-9871",
+        "TRK-5542",
+        "TRK-1122"
+      ],
+      "associatedDrivers": [
+        "DRV-101",
+        "DRV-102",
+        "DRV-201"
+      ],
+      "associatedPricingRules": [
+        {
+          "pricingRuleId": "PRC-NEOM-HAUL-TON-8.5",
+          "name": "تسعيرة توريد ركام بازلتي - نيوم (8.5 ر.س / طن)",
+          "pricingType": "PER_TON",
+          "agreedRate": 8.5,
+          "currency": "SAR",
+          "carrierId": "CAR-ALMAJDOUIE",
+          "materialId": "MAT-AGG-01",
+          "status": "ACTIVE"
+        },
+        {
+          "pricingRuleId": "PRC-NEOM-SHORT-TRIP-120",
+          "name": "مقطوعية نقل وتفريغ موقعية (120 ر.س / رد)",
+          "pricingType": "PER_TRIP",
+          "agreedRate": 120.0,
+          "currency": "SAR",
+          "carrierId": "CAR-ALMAJDOUIE",
+          "materialId": "MAT-AGG-01",
+          "status": "ACTIVE"
+        },
+        {
+          "pricingRuleId": "PRC-NEOM-AGG-TON",
+          "name": "تسعيرة ركام بازلتي - نيوم بالطن",
+          "pricingType": "PER_TON",
+          "agreedRate": 48.5,
+          "currency": "SAR",
+          "carrierId": "CAR-ALMAJDOUIE",
+          "materialId": "MAT-AGG-01",
+          "status": "ACTIVE"
+        },
+        {
+          "pricingRuleId": "PRC-NEOM-SND-TRIP",
+          "name": "مقطوعية نقل رمل ردميات بالرد",
+          "pricingType": "PER_TRIP",
+          "agreedRate": 1400.0,
+          "currency": "SAR",
+          "carrierId": "CAR-BINLADIN",
+          "materialId": "MAT-SND-01",
+          "status": "ACTIVE"
+        },
+        {
+          "pricingRuleId": "PRC-NEOM-EXPIRED",
+          "name": "تسعيرة منتهية الصلاحية (للاختبار الرقابي)",
+          "pricingType": "PER_TON",
+          "agreedRate": 35.0,
+          "currency": "SAR",
+          "carrierId": "CAR-ALMAJDOUIE",
+          "status": "ACTIVE",
+          "effectiveTo": "2025-12-31"
+        },
+        {
+          "pricingRuleId": "PRC-NEOM-INACTIVE",
+          "name": "تسعيرة معطلة غير نشطة (INACTIVE)",
+          "pricingType": "PER_TON",
+          "agreedRate": 40.0,
+          "currency": "SAR",
+          "status": "INACTIVE"
+        }
+      ],
+      "assignedUsers": [
+        {
+          "userId": "USR-ADMIN-001",
+          "fullName": "المهندس طارق بن خالد الشمري",
+          "role": "PROJECT_ADMIN"
+        },
+        {
+          "userId": "USR-DISPATCHER-02",
+          "fullName": "سلطان فهد الفازي (مشرف الميزان والترحيل)",
+          "role": "DISPATCHER"
+        },
+        {
+          "userId": "USR-FIN-AUDITOR-01",
+          "fullName": "راكان عبدالله الغامدي (مدقق الحسابات والعقود)",
+          "role": "FINANCE_AUDITOR"
+        },
+        {
+          "userId": "USR-NEOM-MGR",
+          "fullName": "المهندس / فهد الشمري (مدير موقع نيوم الشمالية)",
+          "role": "PROJECT_ADMIN"
+        }
+      ],
+      "classification": "SAFE_DEMO_PROJECT"
+    },
+    {
+      "projectId": "PRJ-REDSEA-RESORT-02",
+      "projectCode": "RSR-02",
+      "nameAr": "مشروع وجهة البحر الأحمر - منطقة الجزر السياحية",
+      "nameEn": "Red Sea Destination Coastal Resort",
+      "clientName": "شركة البحر الأحمر الدولية",
+      "status": "ACTIVE",
+      "sourceLocation": "src/data/defaultMasterData.ts (lines 32-56)",
+      "persistenceType": "STATIC_MEMORY_CONSTANT",
+      "geoCoordinates": {
+        "latitude": 25.531,
+        "longitude": 36.924
+      },
+      "zatcaTaxId": "300098765400003",
+      "authorizedCarrierIds": [
+        "CAR-ALMAJDOUIE"
+      ],
+      "authorizedMaterialIds": [
+        "MAT-AGG-01"
+      ],
+      "associatedTrucks": [
+        "TRK-9871",
+        "TRK-5542"
+      ],
+      "associatedDrivers": [
+        "DRV-101",
+        "DRV-102"
+      ],
+      "associatedPricingRules": [],
+      "assignedUsers": [
+        {
+          "userId": "USR-ADMIN-001",
+          "fullName": "المهندس طارق بن خالد الشمري",
+          "role": "PROJECT_ADMIN"
+        },
+        {
+          "userId": "USR-FIN-AUDITOR-01",
+          "fullName": "راكان عبدالله الغامدي (مدقق الحسابات والعقود)",
+          "role": "FINANCE_AUDITOR"
+        },
+        {
+          "userId": "USR-REDSEA-MGR",
+          "fullName": "المهندس / خالد القحطاني (مدير وجهة البحر الأحمر)",
+          "role": "PROJECT_ADMIN"
+        },
+        {
+          "userId": "USR-SITE-ENG-03",
+          "fullName": "سالم مبارك باوزير (مهندس الموقع والاستلام)",
+          "role": "SITE_ENGINEER"
+        }
+      ],
+      "classification": "SAFE_DEMO_PROJECT"
+    },
+    {
+      "projectId": "PRJ-NEOM-001",
+      "projectCode": "NEOM-001",
+      "nameAr": "مشروع نيوم - البنية التحتية والمحاجر (PRJ-NEOM-001)",
+      "clientName": "شركة نيوم للإنشاءات",
+      "status": "ACTIVE",
+      "sourceLocation": "src/data/sampleQualityData.ts, src/data/masterPricingRules.ts, src/services/offline/offlineCache.service.ts (lines 64-74), src/components/tripEngine/LoadingStation.tsx (line 81)",
+      "persistenceType": "STATIC_CODE_LITERAL_AND_INDEXEDDB_SEED",
+      "authorizedCarrierIds": [
+        "CAR-ALMAJDOUIE",
+        "CAR-BINLADIN"
+      ],
+      "authorizedMaterialIds": [
+        "MAT-AGG-01",
+        "MAT-SND-01"
+      ],
+      "associatedTrucks": [
+        "TRK-9901",
+        "TRK-9902",
+        "TRK-9903"
+      ],
+      "associatedDrivers": [
+        "DRV-101",
+        "DRV-102"
+      ],
+      "associatedPricingRules": [
+        "PRC-NEOM-HAUL-TON-8.5",
+        "PRC-NEOM-SHORT-TRIP-120",
+        "PRC-NEOM-AGG-TON",
+        "PRC-NEOM-SND-TRIP",
+        "PRC-NEOM-EXPIRED",
+        "PRC-NEOM-INACTIVE"
+      ],
+      "assignedUsers": [
+        "USR-SUPER-ADMIN",
+        "USR-NEOM-MGR"
+      ],
+      "classification": "SAFE_DEMO_PROJECT"
+    },
+    {
+      "projectId": "PRJ-NEOM-WEST-01",
+      "projectCode": "NEOM-W01",
+      "nameAr": "مشروع نيوم الغربية",
+      "clientName": "شركة نيوم للإنشاءات",
+      "status": "ACTIVE",
+      "sourceLocation": "src/components/pricing/PricingEngineView.tsx (lines 53-130)",
+      "persistenceType": "HARDCODED_REACT_COMPONENT_STATE",
+      "authorizedCarrierIds": [
+        "CARRIER-A",
+        "CARRIER-B",
+        "CARRIER-C",
+        "CARRIER-D"
+      ],
+      "authorizedMaterialIds": [
+        "MAT-SUBBASE"
+      ],
+      "associatedTrucks": [],
+      "associatedDrivers": [],
+      "associatedPricingRules": [
+        {
+          "pricingRuleId": "PR-CARRIER-A-TRIP-v1",
+          "carrierId": "CARRIER-A",
+          "pricingType": "PER_TRIP",
+          "rate": 120,
+          "status": "ACTIVE"
+        },
+        {
+          "pricingRuleId": "PR-CARRIER-B-TON-GEN-v1",
+          "carrierId": "CARRIER-B",
+          "pricingType": "PER_TON",
+          "rate": 8.5,
+          "status": "ACTIVE"
+        },
+        {
+          "pricingRuleId": "PR-CARRIER-B-TON-SUBBASE-v1",
+          "carrierId": "CARRIER-B",
+          "materialId": "MAT-SUBBASE",
+          "pricingType": "PER_TON",
+          "rate": 10.0,
+          "status": "ACTIVE"
+        },
+        {
+          "pricingRuleId": "PR-CARRIER-C-TON-v1",
+          "carrierId": "CARRIER-C",
+          "pricingType": "PER_TON",
+          "rate": 7.75,
+          "status": "ACTIVE"
+        },
+        {
+          "pricingRuleId": "PR-CARRIER-D-EXPIRED-v1",
+          "carrierId": "CARRIER-D",
+          "pricingType": "PER_TRIP",
+          "rate": 110,
+          "status": "INACTIVE"
+        }
+      ],
+      "assignedUsers": [],
+      "classification": "UNINTENDED_RESIDUAL"
+    }
+  ],
+  "associatedMasterDataInventory": {
+    "carriers": [
+      {
+        "carrierId": "CAR-ALMAJDOUIE",
+        "name": "شركة المجدوعي اللوجستية",
+        "crNumber": "1010334455",
+        "tgaLicense": "TGA-KSA-9988",
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "ACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 61-75)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "carrierId": "CAR-BINLADIN",
+        "name": "شركة أبناء بن لادن للنقل",
+        "crNumber": "1010998877",
+        "tgaLicense": "TGA-KSA-7766",
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "ACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 76-90)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "carrierId": "CAR-ALSHARQI",
+        "name": "مؤسسة الشرقي للنقل والتجارة",
+        "crNumber": "1010112233",
+        "tgaLicense": "TGA-KSA-4433",
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "INACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 91-105)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      }
+    ],
+    "materials": [
+      {
+        "materialId": "MAT-AGG-01",
+        "name": "ركام بازلتي مقاس 3/4 بوصة",
+        "code": "AGG-01",
+        "density": 1.65,
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "ACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 108-122)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "materialId": "MAT-SND-01",
+        "name": "رمل أحمر مغسول للخلطات الخرسانية",
+        "code": "SND-01",
+        "density": 1.5,
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "ACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 123-137)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "materialId": "MAT-SUB-01",
+        "name": "طبقة أساس حصوي مدموك (Sub-base)",
+        "code": "SUB-01",
+        "density": 1.8,
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "INACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 138-152)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      }
+    ],
+    "trucks": [
+      {
+        "truckId": "TRK-9871",
+        "plate": "أ ب ج 9871",
+        "carrierId": "CAR-ALMAJDOUIE",
+        "tareWeightKg": 14200,
+        "maxGrossWeightKg": 45000,
+        "legalPayloadKg": 30800,
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "ACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 155-171)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "truckId": "TRK-5542",
+        "plate": "د هـ و 5542",
+        "carrierId": "CAR-ALMAJDOUIE",
+        "tareWeightKg": 13800,
+        "maxGrossWeightKg": 45000,
+        "legalPayloadKg": 31200,
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "ACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 172-188)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "truckId": "TRK-1122",
+        "plate": "ر ز س 1122",
+        "carrierId": "CAR-BINLADIN",
+        "tareWeightKg": 14500,
+        "maxGrossWeightKg": 45000,
+        "legalPayloadKg": 30500,
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "ACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 189-205)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      }
+    ],
+    "drivers": [
+      {
+        "driverId": "DRV-101",
+        "name": "أحمد محمود القرني",
+        "carrierId": "CAR-ALMAJDOUIE",
+        "phone": "0551234567",
+        "nationalId": "1098765432",
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "ACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 209-225)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "driverId": "DRV-102",
+        "name": "خالد عبد الله العتيبي",
+        "carrierId": "CAR-ALMAJDOUIE",
+        "phone": "0509876543",
+        "nationalId": "1012345678",
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "ACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 226-242)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "driverId": "DRV-201",
+        "name": "محمد إبراهيم الشمري",
+        "carrierId": "CAR-BINLADIN",
+        "phone": "0543322110",
+        "nationalId": "2088776655",
+        "assignedProjectId": "PRJ-NEOM-NORTH-01",
+        "status": "ACTIVE",
+        "sourceFile": "src/data/defaultMasterData.ts (lines 243-259)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      }
+    ],
+    "pricingRules": [
+      {
+        "pricingRuleId": "PRC-NEOM-HAUL-TON-8.5",
+        "projectId": "PRJ-NEOM-001",
+        "rate": 8.5,
+        "pricingType": "PER_TON",
+        "carrierId": "CAR-ALMAJDOUIE",
+        "materialId": "MAT-AGG-01",
+        "sourceFile": "src/data/masterPricingRules.ts (lines 16-28)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "pricingRuleId": "PRC-NEOM-SHORT-TRIP-120",
+        "projectId": "PRJ-NEOM-001",
+        "rate": 120.0,
+        "pricingType": "PER_TRIP",
+        "carrierId": "CAR-ALMAJDOUIE",
+        "materialId": "MAT-AGG-01",
+        "sourceFile": "src/data/masterPricingRules.ts (lines 29-41)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "pricingRuleId": "PRC-NEOM-AGG-TON",
+        "projectId": "PRJ-NEOM-001",
+        "rate": 48.5,
+        "pricingType": "PER_TON",
+        "carrierId": "CAR-ALMAJDOUIE",
+        "materialId": "MAT-AGG-01",
+        "sourceFile": "src/data/masterPricingRules.ts (lines 42-54)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "pricingRuleId": "PRC-NEOM-SND-TRIP",
+        "projectId": "PRJ-NEOM-001",
+        "rate": 1400.0,
+        "pricingType": "PER_TRIP",
+        "carrierId": "CAR-BINLADIN",
+        "materialId": "MAT-SND-01",
+        "sourceFile": "src/data/masterPricingRules.ts (lines 55-67)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "pricingRuleId": "PRC-NEOM-EXPIRED",
+        "projectId": "PRJ-NEOM-001",
+        "rate": 35.0,
+        "pricingType": "PER_TON",
+        "carrierId": "CAR-ALMAJDOUIE",
+        "effectiveTo": "2025-12-31",
+        "sourceFile": "src/data/masterPricingRules.ts (lines 68-79)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      },
+      {
+        "pricingRuleId": "PRC-NEOM-INACTIVE",
+        "projectId": "PRJ-NEOM-001",
+        "rate": 40.0,
+        "pricingType": "PER_TON",
+        "status": "INACTIVE",
+        "sourceFile": "src/data/masterPricingRules.ts (lines 80-89)",
+        "classification": "SAFE_DEMO_MASTER_DATA"
+      }
+    ]
+  },
+  "sourceFileMapping": {
+    "staticSourcesOfTruth": [
+      {
+        "file": "src/data/defaultMasterData.ts",
+        "role": "Exports DEFAULT_PROJECTS, DEFAULT_CARRIERS, DEFAULT_MATERIALS, DEFAULT_TRUCKS, DEFAULT_DRIVERS, and buildDefaultOverview helper",
+        "consumers": [
+          "src/services/adminConsole.service.ts",
+          "src/services/dashboard.service.ts",
+          "src/services/workspace.service.ts",
+          "src/services/offline/offlineCache.service.ts",
+          "src/components/masterData/MasterDataView.tsx",
+          "src/components/dashboard/OperationsDashboardView.tsx",
+          "src/components/workspace/WorkspaceIntegrationView.tsx"
+        ]
+      },
+      {
+        "file": "src/data/masterPricingRules.ts",
+        "role": "Exports MASTER_PRICING_RULES (6 contractual rules)",
+        "consumers": [
+          "src/services/pricing.service.ts",
+          "src/services/adminConsole.service.ts",
+          "src/services/offline/offlineCache.service.ts",
+          "src/components/tripEngine/LoadingStation.tsx"
+        ]
+      },
+      {
+        "file": "src/data/sampleQualityData.ts",
+        "role": "Exports SAMPLE_QUALITY_CONTEXT containing PRJ-NEOM-001 relationship context",
+        "consumers": [
+          "src/components/tripEngine/LoadingStation.tsx",
+          "src/services/offline/offlineCache.service.ts",
+          "src/components/dataQuality/DataQualityView.tsx"
+        ]
+      },
+      {
+        "file": "src/components/pricing/PricingEngineView.tsx",
+        "role": "Defines local component state rules for PRJ-NEOM-WEST-01",
+        "consumers": [
+          "Self-contained in PricingEngineView"
+        ]
+      }
+    ],
+    "memoryInjectionPoints": [
+      {
+        "serviceOrComponent": "AdminConsoleService",
+        "file": "src/services/adminConsole.service.ts",
+        "mechanism": "Initializes private instance fields (projects, carriers, materials, trucks, drivers) by spreading DEFAULT_PROJECTS, DEFAULT_CARRIERS, etc., and maps MASTER_PRICING_RULES into pricingRules array upon construction"
+      },
+      {
+        "serviceOrComponent": "DashboardService",
+        "file": "src/services/dashboard.service.ts",
+        "mechanism": "Method getAuthorizedProjects() returns DEFAULT_PROJECTS directly for super admin or filters it by authorization"
+      },
+      {
+        "serviceOrComponent": "MasterDataView",
+        "file": "src/components/masterData/MasterDataView.tsx",
+        "mechanism": "When user is unauthenticated or on Firestore read error, calls setProjects(DEFAULT_PROJECTS) and builds default overview"
+      },
+      {
+        "serviceOrComponent": "PricingService",
+        "file": "src/services/pricing.service.ts",
+        "mechanism": "Constructor loops through MASTER_PRICING_RULES and seeds inMemoryRules Map"
+      },
+      {
+        "serviceOrComponent": "OfflineCacheService",
+        "file": "src/services/offline/offlineCache.service.ts",
+        "mechanism": "seedAllMasterData() writes PRJ-NEOM-001, DEFAULT_PROJECTS, carriers, materials, trucks, drivers, and pricing rules into IndexedDB"
+      },
+      {
+        "serviceOrComponent": "WorkspaceIntegrationView",
+        "file": "src/components/workspace/WorkspaceIntegrationView.tsx",
+        "mechanism": "useState<ProjectEntity[]>(DEFAULT_PROJECTS) sets projects dropdown"
+      }
+    ]
+  },
+  "emptyRuntimeTarget": {
+    "recommendedTargetState": "ZERO_PROJECTS_CLEAN_SLATE",
+    "projectCount": 0,
+    "behaviorSpecifications": {
+      "projectSelectionDropdowns": "When 0 projects exist, dropdowns should display an empty indicator option '— لا توجد مشاريع مسجلة —' (disabled) with an inline action button or banner prompting 'أنشئ أول مشروع للبدء' linking to Project Wizard / Admin Console.",
+      "masterDataCascade": "If no project exists, carriers, materials, trucks, drivers, and pricing rules cannot be assigned. The respective sub-tabs or tables should show zero rows with a clear dependency alert: 'يرجى تهيئة مشروع واحد على الأقل أولاً لربط البيانات الرئيسية به'.",
+      "fieldWorkstations": "Loading Station and Unloading Operator must block trip dispatch with an explicit message: 'لا يمكن بدء رحلة نقل بدون مشروع مسجل وقواعد تسعير معتمدة', adhering to corporate rule: لا تسمح بإنشاء رحلة إذا كانت بيانات التسعير غير متاحة.",
+      "optInDemoSeeding": "Provide an administrative trigger in Admin Console or Developer Tools ('تحميل بيانات تجريبية / Load Demo Master Data') that explicitly populates sample projects on demand rather than automatically on runtime initialization."
+    }
+  },
+  "investigationQuestionsAnswered": {
+    "q1_storedInFirestoreOrIndexedDb": {
+      "question": "Are any projects currently stored in Firestore or IndexedDB?",
+      "answer": "Firestore: NO. The cloud database contains zero projects because firestore.rules enforces isSignedIn(), and ProjectRepository aborts unauthenticated writes. IndexedDB: YES, conditionally. IndexedDB is populated lazily on client workstation execution via OfflineCacheService.seedAllMasterData(), which caches PRJ-NEOM-001 and DEFAULT_PROJECTS."
+    },
+    "q2_staticSourcesOfTruth": {
+      "question": "Which files act as static sources of truth for sample projects?",
+      "answer": "1. src/data/defaultMasterData.ts (DEFAULT_PROJECTS)\n2. src/data/masterPricingRules.ts (MASTER_PRICING_RULES bound to PRJ-NEOM-001)\n3. src/data/sampleQualityData.ts (SAMPLE_QUALITY_CONTEXT bound to PRJ-NEOM-001)\n4. src/components/pricing/PricingEngineView.tsx (local rules for PRJ-NEOM-WEST-01)"
+    },
+    "q3_immediateMemoryInjectors": {
+      "question": "Which components/services immediately inject these sample projects into memory?",
+      "answer": "1. AdminConsoleService (spreads DEFAULT_PROJECTS and maps MASTER_PRICING_RULES at class instantiation)\n2. MasterDataView (sets React state to DEFAULT_PROJECTS upon unauthenticated mount)\n3. DashboardService (getAuthorizedProjects returns DEFAULT_PROJECTS)\n4. PricingService (maps MASTER_PRICING_RULES in constructor)\n5. OfflineCacheService (seeds IndexedDB on first workstation access)\n6. WorkspaceIntegrationView (useState initialized with DEFAULT_PROJECTS)"
+    },
+    "q4_whyTripsClearedWhileProjectsRemained": {
+      "question": "Why did trip data disappear in 82B while project data remained?",
+      "answer": "Block 82B isolated and cleared the operational transactional layers (TripEngineService.trips = [] and ExceptionEngineService.exceptions = new Map()), decoupling mock trips in supervision views. However, Project and Master Data are maintained in completely distinct architectural modules (defaultMasterData.ts, AdminConsoleService, MasterDataView) which were intentionally out of scope in Block 82B."
+    },
+    "q5_breakingRisksIfCleared": {
+      "question": "If we clear sample projects, which features or screens will break or show errors?",
+      "answer": "1. MasterDataView: Calling projects[0].projectId when projects is empty causes runtime TypeError or undefined access.\n2. AdminConsoleService: Form creation defaults to this.projects[0]?.projectId, resulting in invalid undefined foreign keys.\n3. LoadingStation & LoadingOperatorView: Relies on availableProjects[0]. If missing, trip creation workflow hangs at Step 1 (Project selection).\n4. OfflineCacheService: validateOfflineTripPrerequisites() checks projects store; if empty, flags offline blocking error.\n5. Automated tests: Tests asserting DEFAULT_PROJECTS[0] will fail if constants are modified without test updates."
+    },
+    "q6_minimalSafeCleanupBlock82D": {
+      "question": "What is the minimal safe cleanup required for Block 82D?",
+      "answer": "1. Transition AdminConsoleService, DashboardService, and MasterDataView to initialize with [] empty state by default.\n2. Implement robust Empty State UI guards for projects.length === 0 in MasterDataView and AdminConsoleView.\n3. Keep DEFAULT_PROJECTS and MASTER_PRICING_RULES in src/data/ as optional seed fixtures accessible via an explicit user button ('تحميل بيانات العرض التوضيحي / Load Demo Fixtures') rather than automatic startup hydration.\n4. Ensure OfflineCacheService only caches real created projects or explicit demo seed requests."
+    }
+  }
+}

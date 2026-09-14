@@ -10,11 +10,28 @@ import {
 import { pricingRuleRepository } from '../repositories/pricingRule.repository';
 import { MASTER_PRICING_RULES } from '../data/masterPricingRules';
 
+export { MASTER_PRICING_RULES };
+
 export class PricingService {
   private inMemoryRules: Map<string, PricingRule> = new Map();
 
-  constructor() {
-    // Pre-populate with default master pricing rules
+  constructor(seedWithDefaults = false) {
+    if (seedWithDefaults) {
+      this.loadDemoRules();
+    }
+  }
+
+  /**
+   * Clears all in-memory pricing rules for a clean runtime (BLOCK 82D)
+   */
+  public clearRules(): void {
+    this.inMemoryRules.clear();
+  }
+
+  /**
+   * Loads default master pricing rules for testing and explicit demo seeding (BLOCK 82D)
+   */
+  public loadDemoRules(): void {
     MASTER_PRICING_RULES.forEach(m => {
       this.inMemoryRules.set(m.pricingRuleId, {
         pricingRuleId: m.pricingRuleId,
@@ -37,6 +54,21 @@ export class PricingService {
 
   public registerRules(rules: PricingRule[]): void {
     rules.forEach(r => this.inMemoryRules.set(r.pricingRuleId, r));
+  }
+
+  public getRules(): PricingRule[] {
+    return Array.from(this.inMemoryRules.values());
+  }
+
+  public findMatchingRule(projectId: string, carrierId: string, materialId?: string, tripDate?: string): PricingRule | null {
+    const rules = Array.from(this.inMemoryRules.values());
+    const res = this.resolvePricingRuleFromList(rules, {
+      projectId,
+      carrierId,
+      materialId: materialId || 'ALL',
+      tripDate: tripDate || new Date().toISOString().split('T')[0]
+    });
+    return res.selectedRule || null;
   }
 
   public getPricingRule(pricingRuleId?: string | null): PricingRule | undefined {

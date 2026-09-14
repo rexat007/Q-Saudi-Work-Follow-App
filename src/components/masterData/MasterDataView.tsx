@@ -30,6 +30,7 @@ import { CarrierEntity, MaterialEntity, TruckEntity, DriverEntity, ProjectEntity
 import { normalizeName, normalizePlate, normalizePhone, normalizeIdNumber, normalizeCode, normalizeArabicText } from '../../utils/normalization';
 import { runMasterDataTests, MasterDataTestCaseResult } from '../../tests/masterData.test';
 import { useAuth } from '../../firebase/authContext';
+import { adminConsoleService } from '../../services/adminConsole.service';
 import { DEFAULT_PROJECTS, DEFAULT_CARRIERS, DEFAULT_MATERIALS, DEFAULT_TRUCKS, DEFAULT_DRIVERS, buildDefaultOverview } from '../../data/defaultMasterData';
 import { useI18n } from '../../i18n';
 
@@ -54,10 +55,10 @@ export const MasterDataView: React.FC = () => {
   const [carrierFilter, setCarrierFilter] = useState<string>('ALL');
 
   // In-memory demo data state (for unauthenticated preview mode)
-  const [localCarriers, setLocalCarriers] = useState<CarrierEntity[]>(DEFAULT_CARRIERS);
-  const [localMaterials, setLocalMaterials] = useState<MaterialEntity[]>(DEFAULT_MATERIALS);
-  const [localTrucks, setLocalTrucks] = useState<TruckEntity[]>(DEFAULT_TRUCKS);
-  const [localDrivers, setLocalDrivers] = useState<DriverEntity[]>(DEFAULT_DRIVERS);
+  const [localCarriers, setLocalCarriers] = useState<CarrierEntity[]>(() => adminConsoleService.getCarriers());
+  const [localMaterials, setLocalMaterials] = useState<MaterialEntity[]>(() => adminConsoleService.getMaterials());
+  const [localTrucks, setLocalTrucks] = useState<TruckEntity[]>(() => adminConsoleService.getTrucks());
+  const [localDrivers, setLocalDrivers] = useState<DriverEntity[]>(() => adminConsoleService.getDrivers());
 
   // Automated Tests State
   const [testResults, setTestResults] = useState<{
@@ -137,51 +138,43 @@ export const MasterDataView: React.FC = () => {
 
       // Safe demo mode when unauthenticated (avoids permission errors)
       if (!user) {
-        setProjects(DEFAULT_PROJECTS);
-        const defaultProjId = DEFAULT_PROJECTS[0].projectId;
-        setSelectedProjectId(defaultProjId);
-        setOverview(buildDefaultOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
+        const liveProjects = adminConsoleService.getProjects();
+        setProjects(liveProjects);
+        if (liveProjects.length > 0) {
+          const defaultProjId = liveProjects[0].projectId;
+          setSelectedProjectId(defaultProjId);
+          setOverview(buildDefaultOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
+        } else {
+          setSelectedProjectId('');
+          setOverview(null);
+        }
         setLoading(false);
         return;
       }
 
       // Authenticated mode: load from live Firestore
       try {
-        let pList = await projectRepository.listAll();
-        if (!pList || pList.length === 0) {
-          const sampleProject = DEFAULT_PROJECTS[0];
-          await projectRepository.create(sampleProject);
-
-          for (const c of DEFAULT_CARRIERS) {
-            await carrierRepository.create(c);
-          }
-          for (const m of DEFAULT_MATERIALS) {
-            await materialRepository.create(m);
-          }
-          for (const t of DEFAULT_TRUCKS) {
-            await truckRepository.create(t);
-          }
-          for (const d of DEFAULT_DRIVERS) {
-            await driverRepository.create(d);
-          }
-
-          pList = [sampleProject];
-        }
-
-        setProjects(pList);
-        if (pList.length > 0) {
+        const pList = await projectRepository.listAll();
+        // BLOCK 82D: In clean normal runtime, do not automatically seed synthetic projects/data into Firestore.
+        setProjects(pList || []);
+        if (pList && pList.length > 0) {
           setSelectedProjectId(pList[0].projectId);
+        } else {
+          setSelectedProjectId('');
+          setOverview(null);
         }
       } catch (err: any) {
-        console.warn('Live Firestore synchronization issue, using fallback data:', err);
-        setActionNotice({
-          type: 'error',
-          message: t('other.messages.txt_731859'),
-        });
-        setProjects(DEFAULT_PROJECTS);
-        const defaultProjId = DEFAULT_PROJECTS[0].projectId;
-        setSelectedProjectId(defaultProjId);
-        setOverview(buildDefaultOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
+        console.warn('Live Firestore synchronization issue, using runtime fallback:', err);
+        const liveProjects = adminConsoleService.getProjects();
+        setProjects(liveProjects);
+        if (liveProjects.length > 0) {
+          const defaultProjId = liveProjects[0].projectId;
+          setSelectedProjectId(defaultProjId);
+          setOverview(buildDefaultOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
+        } else {
+          setSelectedProjectId('');
+          setOverview(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -667,11 +660,15 @@ export const MasterDataView: React.FC = () => {
               onChange={e => setSelectedProjectId(e.target.value)}
               className="bg-white border border-stone-300 text-stone-900 text-xs font-bold rounded-md px-3 py-1.5 focus:ring-1 focus:ring-amber-500 focus:outline-hidden"
             >
-              {projects.map(p => (
-                <option key={p.projectId} value={p.projectId}>
-                  {p.nameAr} ({p.projectId})
-                </option>
-              ))}
+              {projects.length === 0 ? (
+                <option value="">-- لا توجد مشاريع مسجلة --</option>
+              ) : (
+                projects.map(p => (
+                  <option key={p.projectId} value={p.projectId}>
+                    {p.nameAr} ({p.projectId})
+                  </option>
+                ))
+              )}
             </select>
             <button
               onClick={() => refreshOverview(selectedProjectId)}
@@ -726,6 +723,16 @@ export const MasterDataView: React.FC = () => {
         </div>
       )}
 
+      {projects.length === 0 ? (
+        <div className="bg-white border border-stone-200/80 rounded-xl p-12 text-center shadow-xs">
+          <Building2 className="w-12 h-12 text-stone-300 mx-auto mb-3 stroke-[1.5]" />
+          <h3 className="text-base font-bold text-stone-900 mb-1">لا توجد مشاريع مسجلة في بيئة التشغيل</h3>
+          <p className="text-xs text-stone-500 max-w-md mx-auto">
+            النظام يعمل في بيئة تشغيل نظيفة خالية من المشاريع والبيانات الافتراضية. يمكنك إنشاء مشروع جديد من لوحة الإدارة لربط وإدارة البيانات الأساسية.
+          </p>
+        </div>
+      ) : (
+        <>
       {/* Module Selector & Controls */}
       <div className="bg-white border border-stone-200/80 rounded-xl p-4 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-stone-100 pb-3">
@@ -1790,6 +1797,8 @@ export const MasterDataView: React.FC = () => {
             )}
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

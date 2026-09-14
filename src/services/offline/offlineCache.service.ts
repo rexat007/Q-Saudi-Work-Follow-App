@@ -33,8 +33,9 @@ export class OfflineCacheService {
   private isInitialized = false;
 
   /**
-   * Initializes and hydrates IndexedDB with standard Master Data and Pricing Rules if not already seeded.
-   * Stores both item-level version/timestamp and store-level metadata.
+   * Initializes and prepares IndexedDB cache.
+   * BLOCK 82D: Does NOT automatically seed synthetic master data or projects into normal runtime.
+   * Seeding only occurs if explicitly requested via forceRefresh=true (e.g. for developer/demo seeding).
    */
   public async initializeCache(forceRefresh = false): Promise<void> {
     if (this.isInitialized && !forceRefresh) {
@@ -42,13 +43,32 @@ export class OfflineCacheService {
     }
 
     try {
-      const projectCount = await indexedDBService.count('projects');
-      if (projectCount === 0 || forceRefresh) {
+      if (forceRefresh) {
         await this.seedAllMasterData();
       }
       this.isInitialized = true;
     } catch (err) {
       console.warn('Could not initialize IndexedDB cache (running in memory fallback?):', err);
+    }
+  }
+
+  /**
+   * Clears all cached master data and project stores in IndexedDB (BLOCK 82D)
+   */
+  public async clearAllMasterData(): Promise<void> {
+    try {
+      await Promise.all([
+        indexedDBService.clear('projects'),
+        indexedDBService.clear('carriers'),
+        indexedDBService.clear('materials'),
+        indexedDBService.clear('trucks'),
+        indexedDBService.clear('drivers'),
+        indexedDBService.clear('pricingRules'),
+        indexedDBService.clear('metadata'),
+      ]);
+      this.isInitialized = false;
+    } catch (err) {
+      console.warn('Could not clear IndexedDB master data:', err);
     }
   }
 

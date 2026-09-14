@@ -114,11 +114,11 @@ export interface SyncHealthStatus {
 // ============================================================================
 
 export class AdminConsoleService {
-  private projects: ProjectEntity[] = [...DEFAULT_PROJECTS];
-  private carriers: CarrierEntity[] = [...DEFAULT_CARRIERS];
-  private materials: MaterialEntity[] = [...DEFAULT_MATERIALS];
-  private trucks: TruckEntity[] = [...DEFAULT_TRUCKS];
-  private drivers: DriverEntity[] = [...DEFAULT_DRIVERS];
+  private projects: ProjectEntity[] = [];
+  private carriers: CarrierEntity[] = [];
+  private materials: MaterialEntity[] = [];
+  private trucks: TruckEntity[] = [];
+  private drivers: DriverEntity[] = [];
   private pricingRules: PricingRuleRecord[] = [];
   private pricingAuditHistory: PricingAuditHistoryEntry[] = [];
   private users: AdminUserRecord[] = [];
@@ -127,12 +127,45 @@ export class AdminConsoleService {
   private importBatches: ImportBatchEntity[] = [];
   private listeners: Set<() => void> = new Set();
 
-  constructor() {
+  constructor(seedWithDefaults = false) {
+    if (seedWithDefaults) {
+      this.loadDemoMasterData();
+    }
+  }
+
+  /**
+   * Explicitly reset all in-memory master data and project state to zero (BLOCK 82D)
+   */
+  public clearMasterData(): void {
+    this.projects = [];
+    this.carriers = [];
+    this.materials = [];
+    this.trucks = [];
+    this.drivers = [];
+    this.pricingRules = [];
+    this.pricingAuditHistory = [];
+    this.users = [];
+    this.exceptions = [];
+    this.auditLogs = [];
+    this.importBatches = [];
+    this.notify();
+  }
+
+  /**
+   * Load static fixtures for test suites and explicit developer demo seeding (BLOCK 82D)
+   */
+  public loadDemoMasterData(): void {
+    this.projects = [...DEFAULT_PROJECTS];
+    this.carriers = [...DEFAULT_CARRIERS];
+    this.materials = [...DEFAULT_MATERIALS];
+    this.trucks = [...DEFAULT_TRUCKS];
+    this.drivers = [...DEFAULT_DRIVERS];
     this.initializePricingRules();
     this.initializeUsers();
     this.initializeExceptions();
     this.initializeAuditLogs();
     this.initializeImportBatches();
+    this.notify();
   }
 
   // --------------------------------------------------------------------------
@@ -473,6 +506,24 @@ export class AdminConsoleService {
     return [...this.projects];
   }
 
+  public getMasterDataStats(): {
+    totalProjects: number;
+    activeProjects: number;
+    totalCarriers: number;
+    totalTrucks: number;
+    totalDrivers: number;
+    totalMaterials: number;
+  } {
+    return {
+      totalProjects: this.projects.length,
+      activeProjects: this.projects.filter(p => p.status === 'ACTIVE').length,
+      totalCarriers: this.carriers.length,
+      totalTrucks: this.trucks.length,
+      totalDrivers: this.drivers.length,
+      totalMaterials: this.materials.length,
+    };
+  }
+
   public createProject(payload: Partial<ProjectEntity>, context: AuthUserContext): ProjectEntity {
     const newProject: ProjectEntity = {
       projectId: payload.projectId || `PRJ-${Date.now().toString(36).toUpperCase()}`,
@@ -532,9 +583,10 @@ export class AdminConsoleService {
 
   public createCarrier(payload: Partial<CarrierEntity>, context: AuthUserContext): CarrierEntity {
     const name = payload.name || payload.companyNameAr || 'ناقل جديد';
+    const targetProjectId = payload.projectId || (this.projects[0]?.projectId ?? '');
     const newCarrier: CarrierEntity = {
       carrierId: payload.carrierId || `CAR-${Date.now().toString(36).toUpperCase()}`,
-      projectId: payload.projectId || this.projects[0]?.projectId || 'PRJ-NEOM-NORTH-01',
+      projectId: targetProjectId,
       name,
       normalizedName: name.trim().toLowerCase(),
       companyNameAr: name,
@@ -583,9 +635,10 @@ export class AdminConsoleService {
 
   public createMaterial(payload: Partial<MaterialEntity>, context: AuthUserContext): MaterialEntity {
     const name = payload.name || payload.nameAr || 'خامة جديدة';
+    const targetProjectId = payload.projectId || (this.projects[0]?.projectId ?? '');
     const newMaterial: MaterialEntity = {
       materialId: payload.materialId || `MAT-${Date.now().toString(36).toUpperCase()}`,
-      projectId: payload.projectId || this.projects[0]?.projectId || 'PRJ-NEOM-NORTH-01',
+      projectId: targetProjectId,
       name,
       normalizedName: name.trim().toLowerCase(),
       code: payload.code || `MAT-${this.materials.length + 1}`,
@@ -868,10 +921,12 @@ export class AdminConsoleService {
 
   public createTruck(payload: Partial<TruckEntity>, context: AuthUserContext): TruckEntity {
     const plate = payload.plate || payload.plateNumberAr || 'أ ب ج 0000';
+    const targetProjectId = payload.projectId || (this.projects[0]?.projectId ?? '');
+    const targetCarrierId = payload.carrierId || (this.carriers[0]?.carrierId ?? '');
     const newTruck: TruckEntity = {
       truckId: payload.truckId || `TRK-${Date.now().toString(36).toUpperCase()}`,
-      projectId: payload.projectId || this.projects[0]?.projectId || 'PRJ-NEOM-NORTH-01',
-      carrierId: payload.carrierId || this.carriers[0]?.carrierId || 'CAR-ALMAJDOUIE',
+      projectId: targetProjectId,
+      carrierId: targetCarrierId,
       plate,
       normalizedPlate: plate.trim().toLowerCase(),
       plateNumberAr: plate,
@@ -917,10 +972,12 @@ export class AdminConsoleService {
 
   public createDriver(payload: Partial<DriverEntity>, context: AuthUserContext): DriverEntity {
     const name = payload.name || payload.fullNameAr || 'سائق جديد';
+    const targetProjectId = payload.projectId || (this.projects[0]?.projectId ?? '');
+    const targetCarrierId = payload.carrierId || (this.carriers[0]?.carrierId ?? '');
     const newDriver: DriverEntity = {
       driverId: payload.driverId || `DRV-${Date.now().toString(36).toUpperCase()}`,
-      projectId: payload.projectId || this.projects[0]?.projectId || 'PRJ-NEOM-NORTH-01',
-      carrierId: payload.carrierId || this.carriers[0]?.carrierId || 'CAR-ALMAJDOUIE',
+      projectId: targetProjectId,
+      carrierId: targetCarrierId,
       name,
       normalizedName: name.trim().toLowerCase(),
       fullNameAr: name,
@@ -928,7 +985,7 @@ export class AdminConsoleService {
       idNumber: payload.idNumber || payload.nationalOrIqamaId || '1000000000',
       nationalOrIqamaId: payload.idNumber || payload.nationalOrIqamaId || '1000000000',
       licenseNumber: payload.licenseNumber || 'LIC-999',
-      currentAssignedTruckId: payload.currentAssignedTruckId || this.trucks[0]?.truckId,
+      currentAssignedTruckId: payload.currentAssignedTruckId || (this.trucks[0]?.truckId ?? ''),
       status: payload.status || 'ACTIVE',
       isActive: payload.status !== 'INACTIVE',
       createdAt: new Date() as any,
@@ -965,12 +1022,13 @@ export class AdminConsoleService {
   }
 
   public createUser(payload: Partial<AdminUserRecord>, context: AuthUserContext): AdminUserRecord {
+    const defaultAssigned = this.projects[0]?.projectId ? [this.projects[0].projectId] : [];
     const newUser: AdminUserRecord = {
       userId: payload.userId || `USR-${Date.now().toString(36).toUpperCase()}`,
       email: payload.email || 'user@qsaudi.com',
       fullName: payload.fullName || 'مستخدم جديد',
       role: payload.role || 'DISPATCHER',
-      assignedProjectIds: payload.assignedProjectIds || [this.projects[0]?.projectId || 'PRJ-NEOM-NORTH-01'],
+      assignedProjectIds: payload.assignedProjectIds || defaultAssigned,
       isActive: payload.isActive ?? true,
       phone: payload.phone || '0500000000',
       lastLoginAt: new Date().toISOString(),

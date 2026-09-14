@@ -2,6 +2,7 @@ import React from 'react';
 import { Filter, RotateCcw, Building2, Calendar, Truck, Layers, Calculator } from 'lucide-react';
 import { DashboardFilterParams, UserSecurityProfile } from '../../types/dashboard';
 import { ProjectEntity } from '../../types/entities';
+import { adminConsoleService } from '../../services/adminConsole.service';
 import { DEFAULT_CARRIERS, DEFAULT_MATERIALS } from '../../data/defaultMasterData';
 import { useI18n } from '../../i18n';
 
@@ -26,6 +27,12 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
   compact = true,
 }) => {
   const { t } = useI18n();
+  const dynamicCarriers = adminConsoleService.getCarriers(filters.projectId);
+  const carriersList = dynamicCarriers.length > 0 ? dynamicCarriers : DEFAULT_CARRIERS;
+
+  const dynamicMaterials = adminConsoleService.getMaterials(filters.projectId);
+  const materialsList = dynamicMaterials.length > 0 ? dynamicMaterials : DEFAULT_MATERIALS;
+
   const handleChange = (key: keyof DashboardFilterParams, value: any) => {
     onFilterChange({
       ...filters,
@@ -109,7 +116,7 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
             className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs text-stone-800 focus:border-amber-500 outline-none"
           >
             <option value="ALL">{t("dashboard.labels.txt_553cd5")}</option>
-            {DEFAULT_CARRIERS.map((c) => (
+            {carriersList.map((c) => (
               <option key={c.carrierId} value={c.carrierId}>
                 {c.companyNameAr || c.name}
               </option>
@@ -129,7 +136,7 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
             className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs text-stone-800 focus:border-amber-500 outline-none"
           >
             <option value="ALL">كافة المواد</option>
-            {DEFAULT_MATERIALS.map((m) => (
+            {materialsList.map((m) => (
               <option key={m.materialId} value={m.materialId}>
                 {m.nameAr || m.name}
               </option>

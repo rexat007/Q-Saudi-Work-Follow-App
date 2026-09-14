@@ -18,6 +18,7 @@ import {
   LiveTerminalEntry 
 } from '../types/dashboard';
 import { tripEngineService } from './tripEngine.service';
+import { adminConsoleService } from './adminConsole.service';
 import { DEFAULT_PROJECTS, DEFAULT_CARRIERS, DEFAULT_MATERIALS, DEFAULT_TRUCKS, DEFAULT_DRIVERS } from '../data/defaultMasterData';
 
 // Predefined security profiles for testing and demonstration of access control
@@ -93,11 +94,12 @@ class DashboardService {
    * Returns only the projects that this user profile is permitted to see.
    */
   public getAuthorizedProjects(userProfile: UserSecurityProfile) {
+    const allProjects = adminConsoleService.getProjects();
     if (!userProfile.isRestricted || userProfile.authorizedProjectIds.includes('ALL')) {
-      return DEFAULT_PROJECTS;
+      return allProjects;
     }
 
-    return DEFAULT_PROJECTS.filter(project => 
+    return allProjects.filter(project => 
       this.isProjectAuthorized(project.projectId, userProfile)
     );
   }
@@ -368,8 +370,9 @@ class DashboardService {
     });
 
     const items: CarrierPerformanceItem[] = [];
+    const carriersList = adminConsoleService.getCarriers();
     carrierMap.forEach((val, cid) => {
-      const carrier = DEFAULT_CARRIERS.find(c => c.carrierId === cid);
+      const carrier = carriersList.find(c => c.carrierId === cid) || DEFAULT_CARRIERS.find(c => c.carrierId === cid);
       const carrierNameAr = carrier?.companyNameAr || carrier?.name || cid;
       const loadedTons = Number((val.loadedKg / 1000).toFixed(2));
       const receivedTons = Number((val.receivedKg / 1000).toFixed(2));
@@ -436,8 +439,9 @@ class DashboardService {
     });
 
     const items: MaterialDistributionItem[] = [];
+    const materialsList = adminConsoleService.getMaterials();
     matMap.forEach((val, mid) => {
-      const material = DEFAULT_MATERIALS.find(m => m.materialId === mid);
+      const material = materialsList.find(m => m.materialId === mid) || DEFAULT_MATERIALS.find(m => m.materialId === mid);
       const materialNameAr = material?.nameAr || material?.name || mid;
       const code = material?.code || mid;
       const loadedTons = Number((val.loadedKg / 1000).toFixed(2));
@@ -519,12 +523,18 @@ class DashboardService {
    * 7. Generate Live Terminal Board Entries
    */
   public generateLiveTerminalBoard(trips: TripRecord[]): LiveTerminalEntry[] {
+    const projectsList = adminConsoleService.getProjects();
+    const carriersList = adminConsoleService.getCarriers();
+    const materialsList = adminConsoleService.getMaterials();
+    const trucksList = adminConsoleService.getTrucks();
+    const driversList = adminConsoleService.getDrivers();
+
     return trips.map(t => {
-      const project = DEFAULT_PROJECTS.find(p => p.projectId === t.projectId);
-      const carrier = DEFAULT_CARRIERS.find(c => c.carrierId === t.carrierId);
-      const material = DEFAULT_MATERIALS.find(m => m.materialId === t.materialId);
-      const truck = DEFAULT_TRUCKS.find(tk => tk.truckId === t.truckId);
-      const driver = DEFAULT_DRIVERS.find(d => d.driverId === t.driverId);
+      const project = projectsList.find(p => p.projectId === t.projectId) || DEFAULT_PROJECTS.find(p => p.projectId === t.projectId);
+      const carrier = carriersList.find(c => c.carrierId === t.carrierId) || DEFAULT_CARRIERS.find(c => c.carrierId === t.carrierId);
+      const material = materialsList.find(m => m.materialId === t.materialId) || DEFAULT_MATERIALS.find(m => m.materialId === t.materialId);
+      const truck = trucksList.find(tk => tk.truckId === t.truckId) || DEFAULT_TRUCKS.find(tk => tk.truckId === t.truckId);
+      const driver = driversList.find(d => d.driverId === t.driverId) || DEFAULT_DRIVERS.find(d => d.driverId === t.driverId);
 
       const loadedWeightKg = t.netWeight || (t.grossWeight && t.tareWeight ? t.grossWeight - t.tareWeight : 0);
       const receivedWeightKg = t.destNetWeight;

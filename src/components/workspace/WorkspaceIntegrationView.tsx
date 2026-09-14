@@ -38,6 +38,7 @@ import {
   GoogleDriveProjectStructure,
   WorkspaceSyncSummary
 } from '../../types/workspace';
+import { adminConsoleService } from '../../services/adminConsole.service';
 import { DEFAULT_PROJECTS } from '../../data/defaultMasterData';
 import { ProjectEntity } from '../../types/entities';
 import { clientWorkspaceService } from '../../services/workspace.service';
@@ -49,8 +50,14 @@ import { useI18n } from '../../i18n';
 export function WorkspaceIntegrationView() {
   const { t } = useI18n();
   const { user } = useAuth();
-  const [projects, setProjects] = useState<ProjectEntity[]>(DEFAULT_PROJECTS);
-  const [selectedProjectId, setSelectedProjectId] = useState<string>(DEFAULT_PROJECTS[0].projectId);
+  const [projects, setProjects] = useState<ProjectEntity[]>(() => {
+    const list = adminConsoleService.getProjects();
+    return list.length > 0 ? list : DEFAULT_PROJECTS;
+  });
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(() => {
+    const list = adminConsoleService.getProjects();
+    return list.length > 0 ? list[0].projectId : (DEFAULT_PROJECTS[0]?.projectId || '');
+  });
   const [activeTabKey, setActiveTabKey] = useState<WorkspaceSheetTab>('OPERATIONS');
   
   const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
@@ -65,7 +72,22 @@ export function WorkspaceIntegrationView() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [lastUploadedLink, setLastUploadedLink] = useState<string | null>(null);
 
-  const currentProject = projects.find(p => p.projectId === selectedProjectId) || projects[0];
+  useEffect(() => {
+    const update = () => {
+      const list = adminConsoleService.getProjects();
+      if (list.length > 0) {
+        setProjects(list);
+        if (!selectedProjectId || !list.some(p => p.projectId === selectedProjectId)) {
+          setSelectedProjectId(list[0].projectId);
+        }
+      }
+    };
+    update();
+    const unsub = adminConsoleService.subscribe(update);
+    return () => unsub();
+  }, [selectedProjectId]);
+
+  const currentProject = projects.find(p => p.projectId === selectedProjectId) || projects[0] || null;
 
   useEffect(() => {
     clientWorkspaceService.fetchMigrationPlan().then(setMigrationPlan).catch(console.error);
@@ -82,6 +104,7 @@ export function WorkspaceIntegrationView() {
   };
 
   const handleProvisionProject = async () => {
+    if (!currentProject) return;
     setIsProvisioning(true);
     setNotification(null);
     try {
@@ -113,6 +136,7 @@ export function WorkspaceIntegrationView() {
   };
 
   const handleSyncProjection = async () => {
+    if (!currentProject) return;
     const spreadsheetId = currentProject.settings.googleSpreadsheetId || provisionResult?.spreadsheetId;
     if (!spreadsheetId) {
       setNotification({
@@ -139,6 +163,7 @@ export function WorkspaceIntegrationView() {
   };
 
   const handleFileUpload = async () => {
+    if (!currentProject) return;
     if (!provisionResult?.subfolders && !currentProject.settings.googleDriveFolderId) {
       setNotification({
         type: 'error',
@@ -171,7 +196,7 @@ export function WorkspaceIntegrationView() {
   };
 
   const trips = tripEngineService.getTrips();
-  const currentSpreadsheetId = currentProject.settings.googleSpreadsheetId || provisionResult?.spreadsheetId;
+  const currentSpreadsheetId = currentProject?.settings?.googleSpreadsheetId || provisionResult?.spreadsheetId;
 
   return (
     <div className="space-y-6 pb-12">

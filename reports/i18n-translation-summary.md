@@ -1,6 +1,6 @@
 # Translation Generation Executive Summary (BLOCK 43)
 
-**Generated At:** 2026-09-14T08:57:06.330Z
+**Generated At:** 2026-09-14T09:28:24.353Z
 **Translation Engine Provider:** Deterministic Domain & Terminology Engine (BLOCK 43)
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Proposal Languages:** English (`en`), Urdu (`ur`)
@@ -9,24 +9,24 @@
 
 | Metric | Count | Percentage | Architectural Role |
 | :--- | :--- | :--- | :--- |
-| **Total Entries Processed** | **11891** | 100.0% | Complete catalog coverage |
-| **Generated English Proposals** | **11891** | 100.0% | English target translation proposals |
-| **Generated Urdu Proposals** | **11891** | 100.0% | Urdu target translation proposals |
-| **Review-Required Proposals** | **11885** | 99.9% | Flagged for human translator sign-off |
-| **High-Risk Entries** | **11885** | 99.9% | Formulas, conflicts, or complex templates |
+| **Total Entries Processed** | **11897** | 100.0% | Complete catalog coverage |
+| **Generated English Proposals** | **11897** | 100.0% | English target translation proposals |
+| **Generated Urdu Proposals** | **11897** | 100.0% | Urdu target translation proposals |
+| **Review-Required Proposals** | **11891** | 99.9% | Flagged for human translator sign-off |
+| **High-Risk Entries** | **11891** | 99.9% | Formulas, conflicts, or complex templates |
 | **Interpolation Entries** | **216** | 1.8% | Dynamic parameters strictly preserved |
 | **Pluralization Requirements** | **153** | 1.3% | Aligned with Arabic 6-form rules |
 | **Protected Business Tokens** | **1** | 0.0% | IDs, codes, units (SAR, KG, TON) |
-| **Semantic Conflicts Isolated** | **1497** | 12.6% | Distinct contextual keys maintained |
+| **Semantic Conflicts Isolated** | **1498** | 12.6% | Distinct contextual keys maintained |
 | **Domain Terminology Entries** | **0** | 0.0% | Heavy transport & enterprise terms |
 
 ## 2. Confidence Level Distribution
 
 | Confidence Level | Count | Percentage | Criteria |
 | :--- | :--- | :--- | :--- |
-| **HIGH** | **141** | 1.2% | Foundation verified & exact UI dictionary matches |
+| **HIGH** | **142** | 1.2% | Foundation verified & exact UI dictionary matches |
 | **MEDIUM** | **3400** | 28.6% | Contextual UI terms with clear semantics |
-| **LOW** | **8350** | 70.2% | Ambiguous phrases, high risk, or conflicts (Review Mandatory) |
+| **LOW** | **8355** | 70.2% | Ambiguous phrases, high risk, or conflicts (Review Mandatory) |
 
 ## 3. Tiered Strategy Breakdown
 
@@ -35,13 +35,13 @@
 | **Tier 1: Safe Generic UI** | **6** | Common buttons, actions, and standard alerts |
 | **Tier 2: Contextual Application UI** | **0** | Logistics entities (Trucks, Drivers, Carriers, Projects) |
 | **Tier 3: Domain-Sensitive** | **0** | Pricing, Settlement, Weighbridge, Security, Exceptions |
-| **Tier 4: High Risk** | **11885** | Semantic conflicts, complex templates, mixed calculations |
+| **Tier 4: High Risk** | **11891** | Semantic conflicts, complex templates, mixed calculations |
 
 ## 4. Category Breakdown
 
 | Category | Total Entries | Generated | Review Required | High Conf | Med Conf | Low Conf |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `other` | 5092 | 5092 | 5088 | 82 | 1142 | 3868 |
+| `other` | 5098 | 5098 | 5094 | 82 | 1143 | 3873 |
 | `imports` | 1572 | 1572 | 1572 | 17 | 483 | 1072 |
 | `reports` | 606 | 606 | 606 | 3 | 178 | 425 |
 | `security` | 557 | 557 | 556 | 3 | 214 | 340 |
@@ -57,7 +57,7 @@
 | `loading` | 232 | 232 | 232 | 4 | 110 | 118 |
 | `projects` | 182 | 182 | 182 | 3 | 62 | 117 |
 | `dashboard` | 150 | 150 | 150 | 5 | 48 | 97 |
-| `drivers` | 77 | 77 | 77 | 1 | 24 | 52 |
+| `drivers` | 77 | 77 | 77 | 2 | 23 | 52 |
 | `carriers` | 52 | 52 | 52 | 1 | 20 | 31 |
 | `materials` | 50 | 50 | 50 | 0 | 26 | 24 |
 | `validation` | 33 | 33 | 33 | 0 | 9 | 24 |
@@ -69,12 +69,12 @@
 
 | Review Reason | Items Flagged | Primary Trigger |
 | :--- | :--- | :--- |
-| `SEMANTIC_CONFLICT` | **1497** | Triggered by rule engine classification |
+| `SEMANTIC_CONFLICT` | **1498** | Triggered by rule engine classification |
 | `INTERPOLATION_RISK` | **8** | Triggered by rule engine classification |
 | `PLURALIZATION_RISK` | **153** | Triggered by rule engine classification |
 | `REPORT_EXPORT_RISK` | **3860** | Triggered by rule engine classification |
 | `BUSINESS_DATA_RISK` | **1622** | Triggered by rule engine classification |
-| `LOW_CONFIDENCE` | **11885** | Triggered by rule engine classification |
+| `LOW_CONFIDENCE` | **11891** | Triggered by rule engine classification |
 
 ## 6. Architectural Invariance Guarantees
 
