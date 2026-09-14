@@ -12,10 +12,12 @@ import {
 } from 'lucide-react';
 import { LoadingOperatorView } from './LoadingOperatorView';
 import { UnloadingOperatorView } from './UnloadingOperatorView';
+import { FieldSupervisionView } from './FieldSupervisionView';
+import { DriverView } from './DriverView';
 import { AuthUserContext, UserRole } from '../../types/common';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 
-export type FieldTab = 'LOADING_STATION' | 'UNLOADING_STATION';
+export type FieldTab = 'LOADING_STATION' | 'UNLOADING_STATION' | 'SUPERVISION' | 'DRIVER_VIEW';
 
 export interface FieldOperationsViewProps {
   initialTab?: FieldTab;
@@ -100,6 +102,30 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
                 <Truck className="w-3.5 h-3.5" />
                 <span>ميزان الاستلام (Unloading)</span>
               </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('SUPERVISION')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                  activeTab === 'SUPERVISION'
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'text-stone-300 hover:text-white'
+                }`}
+              >
+                <ShieldAlert className="w-3.5 h-3.5" />
+                <span>الإشراف الميداني (Supervision)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('DRIVER_VIEW')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                  activeTab === 'DRIVER_VIEW'
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'text-stone-300 hover:text-white'
+                }`}
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>واجهة السائق (Driver)</span>
+              </button>
             </div>
 
             {/* Role Simulation Selector */}
@@ -173,10 +199,19 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
           authContext={currentAuthContext}
           onNotification={handleNotification}
         />
-      ) : (
+      ) : activeTab === 'UNLOADING_STATION' ? (
         <UnloadingOperatorView
           authContext={currentAuthContext}
           onNotification={handleNotification}
+        />
+      ) : activeTab === 'SUPERVISION' ? (
+        <FieldSupervisionView
+          authContext={currentAuthContext}
+          onNotification={handleNotification}
+        />
+      ) : (
+        <DriverView
+          authContext={currentAuthContext}
         />
       )}
     </div>

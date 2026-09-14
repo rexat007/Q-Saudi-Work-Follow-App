@@ -29,18 +29,22 @@ This document contains domain-specific terminology requiring human verification 
 | `trips.fields.downloadTruck` | "تم وزن وتحميل الشاحنة (${truck?.plate || params.truckId}) بصافي حمولة (${calculatedNetWeight.toLocaleString()} كجم). تسعيرة معتمدة: (${pricingRule.name} - ${agreedRate} ${currency} / ${pricingType === 'PER_TON' ? 'طن' : 'رد'})." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {agreedRate,currency}; Protected: [pricingType,KG,TON]) |
 | ... | *and 501 more items in this domain queue* | | | |
 
-## Domain: `loading` (154 items requiring review)
+## Domain: `loading` (232 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
+| `loading.fields.0` | "0" | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
 | `loading.fields.carrier` | "الناقل" | prop_label | `MEDIUM` | Semantic conflict isolation |
 | `loading.fields.confirm` | "لا يمكن تأكيد الرحلة: الوزن القائم يجب أن يكون أكبر من وزن الفارغ." | prop_message | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.confirmTruck` | "تم تأكيد وزن الشاحنة وإصدار تذكرة الترحيل" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `loading.fields.createConfirmTrip` | "تم إنشاء وتأكيد الرحلة بنجاح! رقم الرحلة: ${result.trip.tripSerial} - التذكرة: ${result.trip.ticketId} (الحالة: في الطريق IN_TRANSIT)" | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [ticketId]) |
 | `loading.fields.createTrip` | "تم إنشاء الرحلة محلياً في وضع عدم الاتصال (Offline)! رقم الرحلة: ${localTripSerial} - وتم إدراجها في قائمة المزامنة (Outbox - PENDING) للمزامنة عند عودة الاتصال." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {localTripSerial}) |
-| `loading.fields.download` | "تسلسل خطوات التحميل والوزن بالمصدر، احتساب صافي الحمولة، والتحقق من التسعيرة قبل الترحيل" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.download` | "تحميل ووزن شاحنة جديدة (Next Truck)" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.download_2` | "تسلسل خطوات التحميل والوزن بالمصدر، احتساب صافي الحمولة، والتحقق من التسعيرة قبل الترحيل" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `loading.fields.driver` | "السائق" | prop_label | `MEDIUM` | Semantic conflict isolation |
 | `loading.fields.edit` | ") برمجياً بناءً على صافي الوزن المعتمد وسعر العقد. لا يُسمح بإدخال أو تعديل القيمة من الواجهة لضمان الشفافية المحاسبية." | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `loading.fields.edit_2` | "منع تعديل التسوية أو الوزن الصافي من الواجهة" | prop_name | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.error` | "خطأ وزني مانع: الوزن القائم (${grossWeight.toLocaleString()} كجم) يجب أن يكون أكبر من وزن الفارغ (${tareWeight.toLocaleString()} كجم)." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [grossWeight,tareWeight,KG]) |
 | `loading.fields.material` | "المادة" | prop_label | `MEDIUM` | Semantic conflict isolation |
 | `loading.fields.price` | "السعر المتفق عليه (Agreed Rate)" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `loading.fields.priceConfirm` | "مراجعة صافي الوزن، نوع التسعير، السعر المتفق عليه، والتسوية التقديرية قبل التأكيد" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
@@ -49,37 +53,33 @@ This document contains domain-specific terminology requiring human verification 
 | `loading.fields.pricing_2` | "قاعدة التسعير منتهية الصلاحية أو غير سارية بتاريخ اليوم (${activePricingRule.effectiveFrom} إلى ${activePricingRule.effectiveTo})." | template_literal | `HIGH` | Domain-specific terminology translation |
 | `loading.fields.project` | "المشروع" | prop_label | `MEDIUM` | Semantic conflict isolation |
 | `loading.fields.status` | ": نقل الحالة رسمياً إلى IN_TRANSIT وتوليد رقم التذكرة والنسخة" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
-| `loading.fields.ticketNumber` | "رقم التذكرة:" | jsx_text | `MEDIUM` | Semantic conflict isolation |
-| `loading.fields.total` | "تنبيه وزن إجمالي مرتفع: الوزن الإجمالي (${(grossWeight / 1000).toFixed(1)} طن) قد يعرض المركبة لمخالفة الموازين المتنقلة." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [grossWeight,TON]) |
-| `loading.fields.trip` | "رقم الرحلة:" | jsx_text | `MEDIUM` | Semantic conflict isolation |
-| `loading.fields.trip_2` | "حظر الرحلة في حال كان الوزن القائم أقل من أو يساوي الفارغ" | prop_name | `MEDIUM` | Domain-specific terminology translation |
-| ... | *and 134 more items in this domain queue* | | | |
+| ... | *and 212 more items in this domain queue* | | | |
 
-## Domain: `unloading` (133 items requiring review)
+## Domain: `unloading` (264 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
+| `unloading.actions.search` | "بحث" | jsx_text | `MEDIUM` | Semantic conflict isolation |
 | `unloading.actions.trk9901` | "TRK-9901" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
-| `unloading.actions.trpNeom8892` | "TRP-NEOM-8892" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.actions.trpNeom8892` | "TRP-NEOM-8892" | call_handleSearchTrip | `MEDIUM` | Domain-specific terminology translation |
 | `unloading.actions.trpUnknown999` | "TRP-UNKNOWN-999" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
 | `unloading.actions.txt_75235b` | "د هـ و 5678" | call_handleSearch | `HIGH` | Semantic conflict isolation |
 | `unloading.actions.wbTkt99106` | "WB-TKT-99106" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
-| `unloading.fields.create` | "تنبيه رقابي صارم: فارق الوزن (${result.varianceWeight.toLocaleString()} كجم) خارج نسبة التسامح المسموحة! تم رسمياً إنشاء كائن استثناء (${result.exceptionCreated.exceptionId}) في قاعدة البيانات وسجل التدقيق." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [varianceWeight,KG]) |
+| `unloading.fields.closeTrips` | ") غير مصرح له بإتمام عمليات وزن الاستلام أو إغلاق الرحلات المفرغة. هذه الواجهة مخصصة لمشغلي موازين المواقع ومسؤولي الاستلام (Site Receivers) ومديري المشاريع." | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.fields.create` | "تنبيه رقابي: فارق الوزن (${result.varianceWeight.toLocaleString()} كجم) تجاوز حد التسامح! تم إنشاء استثناء رقابي (${result.exceptionCreated.exceptionId}) وتجميد التسوية لحين الاعتماد." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [varianceWeight,KG]) |
+| `unloading.fields.create_2` | "تم إنشاء استثناء رقابي رسمي رقم:" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.fields.create_3` | "تنبيه رقابي صارم: فارق الوزن (${result.varianceWeight.toLocaleString()} كجم) خارج نسبة التسامح المسموحة! تم رسمياً إنشاء كائن استثناء (${result.exceptionCreated.exceptionId}) في قاعدة البيانات وسجل التدقيق." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [varianceWeight,KG]) |
+| `unloading.fields.location` | "صافي وزن الاستلام بميزان الموقع (Dest Net Weight)" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `unloading.fields.netWeight` | "الوزن الصافي:" | jsx_text | `MEDIUM` | Semantic conflict isolation |
 | `unloading.fields.recInspector01` | "REC-INSPECTOR-01" | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
 | `unloading.fields.refreshStatus` | "تم إكمال التفريغ بنجاح: تم احتساب فارق الوزن خادومياً (${result.varianceWeight.toLocaleString()} كجم) وتحديث الحقول الـ 5 وترقية الحالة إلى [COMPLETED]." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [varianceWeight,KG]) |
-| `unloading.fields.search` | "نجح البحث الأساسي برقم السريال: ${searchResult.trip?.tripSerial} وأرجع حالة CONTINUE" | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [SAR]) |
+| `unloading.fields.search` | "محظور نظامياً: البحث برقم اللوحة فقط غير مسموح لمنع تطابق رحلات سابقة خاطئة." | literal | `MEDIUM` | Domain-specific terminology translation |
 | `unloading.fields.searchCreate` | "منظومة استلام وتفريغ الشحنات بالموقع: البحث بالتدرج الإلزامي (tripSerial ➔ ticketId ➔ truckId)، حظر البحث باللوحة المنفردة، التدرج التشغيلي للحالات، واحتساب فارق الوزن خادومياً وإنشاء كائنات الاستثناءات الرسمية عند تجاوز التفاوت." | jsx_text | `MEDIUM` | Domain-specific terminology translation (Protected: [ticketId]) |
 | `unloading.fields.searchTrip` | "البحث الأساسي: المطابقة برقم الرحلة (tripSerial)" | prop_name | `MEDIUM` | Domain-specific terminology translation |
-| `unloading.fields.search_2` | "البحث الثانوي: المطابقة برقم التذكرة (ticketId)" | prop_name | `MEDIUM` | Domain-specific terminology translation (Protected: [ticketId]) |
-| `unloading.fields.trip` | "أدخل رقم الرحلة (مثال: TRP-NEOM-8892) أو رقم التذكرة أو معرف الشاحنة..." | attr_placeholder | `HIGH` | Domain-specific terminology translation |
-| `unloading.fields.tripTruck` | "أدخل رقم الرحلة (tripSerial) أو رقم التذكرة (ticketId) أو معرف الشاحنة (truckId) لبدء إجراءات الاستلام والتفريغ." | jsx_text | `MEDIUM` | Domain-specific terminology translation (Protected: [ticketId]) |
-| `unloading.fields.trip_2` | "رقم الرحلة السريال" | jsx_text | `HIGH` | Domain-specific terminology translation (Protected: [SAR]) |
-| `unloading.fields.txt_1023cc` | "عجز وزني كبير غير مبرر أثناء التفريغ" | prop_notes | `MEDIUM` | Domain-specific terminology translation |
-| `unloading.fields.txt_2c8454` | "يجب إدخال صافي وزن الوصول (destNetWeight) كقيمة موجبة أكبر من صفر." | prop_message | `MEDIUM` | Domain-specific terminology translation |
-| `unloading.fields.txt_33fd22` | "فارق الوزن المحسوب خادومياً" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
-| `unloading.fields.txt_484cef` | "صافي وزن الوصول (كجم)" | jsx_text | `HIGH` | Domain-specific terminology translation (Protected: [KG]) |
-| ... | *and 113 more items in this domain queue* | | | |
+| `unloading.fields.search_2` | "نجح البحث الأساسي برقم السريال: ${searchResult.trip?.tripSerial} وأرجع حالة CONTINUE" | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [SAR]) |
+| `unloading.fields.search_3` | "البحث الثانوي: المطابقة برقم التذكرة (ticketId)" | prop_name | `MEDIUM` | Domain-specific terminology translation (Protected: [ticketId]) |
+| `unloading.fields.status` | "تم إكمال التفريغ بنجاح! تم احتساب فارق الوزن (${result.varianceWeight.toLocaleString()} كجم) وترقية الحالة إلى [COMPLETED]." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [varianceWeight,KG]) |
+| ... | *and 244 more items in this domain queue* | | | |
 
 ## Domain: `weighbridge` (418 items requiring review)
 
