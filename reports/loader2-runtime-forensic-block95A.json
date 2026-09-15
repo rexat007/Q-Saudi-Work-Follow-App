@@ -1,0 +1,113 @@
+{
+  "block": "BLOCK 95A",
+  "title": "Loader2 Runtime Exception Forensic Audit",
+  "auditTimestamp": "2026-09-15T08:40:00.000Z",
+  "auditMode": "READ_ONLY",
+  "productionUrl": "https://q-saudi-work-follow-app.vercel.app",
+  "stackTrace": [
+    "ReferenceError: Loader2 is not defined",
+    "at bxe (assets/index-Dkhte_ef.js:4240:125641)",
+    "at jZ (assets/index-Dkhte_ef.js:4099:266389)",
+    "at see (assets/index-Dkhte_ef.js:4099:442690)",
+    "at Nxe (assets/index-Dkhte_ef.js:4240:149769)"
+  ],
+  "rootCauseAnalysis": {
+    "rootCause": "In the deployed production bundle (index-Dkhte_ef.js), the AuthButton component referenced the Loader2 icon component in JSX for its initial '!isAuthReady' state, but Loader2 was missing from the lucide-react import declaration in that build. When React mounted the top-level application header on initial startup, AuthButton executed its loading branch and threw a ReferenceError due to the undeclared identifier.",
+    "sourceFile": "src/components/auth/AuthButton.tsx",
+    "component": "AuthButton",
+    "lineReference": "src/components/auth/AuthButton.tsx:14",
+    "introducedBy": "Firebase Auth button integration in App.tsx top-level header",
+    "routeImpact": "GLOBAL",
+    "importStatusInDeployedArtifact": "MISSING",
+    "importStatusInCurrentSource": "VALID",
+    "sourceMapStatus": "FOUND",
+    "additionalSimilarIssues": 0,
+    "block96Status": "HOLD",
+    "codeChanged": "NO"
+  },
+  "stackTraceDeobfuscation": {
+    "bxe": {
+      "mappedComponent": "AuthButton (src/components/auth/AuthButton.tsx)",
+      "triggerLine": "<Loader2 className=\"w-3.5 h-3.5 animate-spin text-amber-600\" />",
+      "condition": "!isAuthReady (initial Firebase auth initialization phase)"
+    },
+    "jZ": {
+      "mappedFunction": "renderWithHooks (React 18 fiber reconciler)",
+      "role": "Executes function component render logic"
+    },
+    "see": {
+      "mappedFunction": "beginWork / performUnitOfWork (React 18 reconciler)",
+      "role": "Reconciles host and composite child fiber nodes"
+    },
+    "Nxe": {
+      "mappedFunction": "App root component header render (src/App.tsx:394)",
+      "role": "Top-level layout render cycle mounting <AuthButton /> in global header"
+    }
+  },
+  "sourceReferences": [
+    {
+      "file": "src/components/auth/AuthButton.tsx",
+      "component": "AuthButton",
+      "references": [
+        {
+          "line": 2,
+          "context": "import { LogOut, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';"
+        },
+        {
+          "line": 14,
+          "context": "<Loader2 className=\"w-3.5 h-3.5 animate-spin text-amber-600\" />"
+        }
+      ],
+      "lifecycleCondition": "Renders when !isAuthReady on application initialization"
+    },
+    {
+      "file": "src/components/wizard/Step7Review.tsx",
+      "component": "Step7Review",
+      "references": [
+        {
+          "line": 20,
+          "context": "Loader2,"
+        },
+        {
+          "line": 499,
+          "context": "<Loader2 className=\"w-5 h-5 text-amber-600 animate-spin\" />"
+        },
+        {
+          "line": 521,
+          "context": "<Loader2 className=\"w-3.5 h-3.5 text-amber-600 animate-spin shrink-0\" />"
+        },
+        {
+          "line": 567,
+          "context": "<Loader2 className=\"w-4 h-4 animate-spin\" />"
+        }
+      ],
+      "lifecycleCondition": "Renders conditionally during wizard provisioning execution"
+    }
+  ],
+  "astAuditResults": {
+    "totalTsxFilesScanned": 56,
+    "missingComponentImportsFound": 0,
+    "undeclaredIconTagsFound": 0,
+    "verdict": "All local TSX source files possess valid named imports for all referenced JSX tags"
+  },
+  "block93Integrity": {
+    "block93B": "INTACT",
+    "block93C": "INTACT",
+    "firestoreSecurityRules": "INTACT",
+    "i18nCatalogParity": "100% (1,128 keys across AR/EN/UR)",
+    "offlineOutboxEngine": "INTACT"
+  },
+  "finalOutputVariables": {
+    "ROOT_CAUSE": "Missing Loader2 named import from lucide-react in deployed production bundle index-Dkhte_ef.js during AuthButton initial !isAuthReady render",
+    "SOURCE_FILE": "src/components/auth/AuthButton.tsx",
+    "COMPONENT": "AuthButton",
+    "LINE_REFERENCE": "src/components/auth/AuthButton.tsx:14",
+    "INTRODUCED_BY": "Firebase Auth UI synchronization mounting AuthButton in App.tsx header",
+    "ROUTE_IMPACT": "GLOBAL",
+    "IMPORT_STATUS": "MISSING in deployed build / VALID in local source",
+    "SOURCE_MAP_STATUS": "FOUND",
+    "ADDITIONAL_SIMILAR_ISSUES": 0,
+    "BLOCK_96_STATUS": "HOLD",
+    "CODE_CHANGED": "NO"
+  }
+}
