@@ -1,0 +1,48 @@
+{
+  "block": "BLOCK 95E",
+  "title": "Vercel Release Candidate Redeployment Verification",
+  "verificationTimestamp": "2026-09-15T09:18:00.000Z",
+  "targetRepository": "rexat007/Q-Saudi-Work-Follow-App",
+  "branch": "main",
+  "expectedCommit": "f204e750b5744af3bb276a55eb87abd3a14af610",
+  "githubHead": "f204e750b5744af3bb276a55eb87abd3a14af610",
+  "vercelDeployedCommit": "990f35bf0c696d09dbb2230940ef366d201c4097",
+  "productionUrl": "https://q-saudi-work-follow-app.vercel.app",
+  "deployedBundle": "assets/index-BEer72a7.js",
+  "deployedBundleLength": 3567391,
+  "inspectionResults": {
+    "deployedArtifactAnalysis": {
+      "bundleFile": "assets/index-BEer72a7.js",
+      "freeLoader2IdentifierCount": 1,
+      "loader2Location": "Byte 3,545,385 in App.tsx loading screen: r.jsx(Loader2,{className:\"w-6 h-6 text-[#10b981] animate-spin\"})",
+      "status": "Vercel production URL is still serving the stale build index-BEer72a7.js from commit 990f35b (containing fd508d7). A clean redeployment build has not yet been processed by Vercel for commit f204e75."
+    },
+    "runtimeVerification": {
+      "appBoot": "FAIL (Throws ReferenceError: Loader2 is not defined on initial render)",
+      "auth": "FAIL (Blocked by root App component mount failure)",
+      "authRefresh": "FAIL",
+      "loader2Error": "YES",
+      "blackScreen": "YES",
+      "coreFlows": "FAIL"
+    },
+    "localVsVercel": {
+      "localReleaseCandidate": "Clean build (index-Bf1E5dSb.js) with 0 free Loader2 identifiers and passing test suites.",
+      "vercelProduction": "Stale deployment serving index-BEer72a7.js."
+    }
+  },
+  "finalOutputVariables": {
+    "GITHUB_HEAD": "f204e750b5744af3bb276a55eb87abd3a14af610",
+    "VERCEL_DEPLOYED_COMMIT": "990f35bf0c696d09dbb2230940ef366d201c4097",
+    "COMMIT_MATCH": "NO",
+    "CLEAN_BUILD": "NO",
+    "DEPLOYMENT_SUCCESS": "NO",
+    "APP_BOOT": "FAIL",
+    "AUTH": "FAIL",
+    "AUTH_REFRESH": "FAIL",
+    "LOADER2_ERROR": "YES",
+    "BLACK_SCREEN": "YES",
+    "CORE_FLOWS": "FAIL",
+    "DEPLOYMENT_INTEGRITY": "FAIL",
+    "RELEASE_CANDIDATE": "INVALID"
+  }
+}

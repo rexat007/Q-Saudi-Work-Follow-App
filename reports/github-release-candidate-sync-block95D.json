@@ -1,0 +1,45 @@
+{
+  "block": "BLOCK 95D",
+  "title": "Restore Official Release Candidate to GitHub Main",
+  "executionTimestamp": "2026-09-15T09:15:00.000Z",
+  "repository": "rexat007/Q-Saudi-Work-Follow-App",
+  "branch": "main",
+  "officialReleaseCandidate": "RELEASE-CANDIDATE-BLOCK-96R-FINAL",
+  "expectedHead": "f204e750b5744af3bb276a55eb87abd3a14af610",
+  "mainHeadBefore": "990f35bf0c696d09dbb2230940ef366d201c4097",
+  "mainHeadAfter": "f204e750b5744af3bb276a55eb87abd3a14af610",
+  "branchAudit": {
+    "gitRemoteStatus": "ACCESSIBLE",
+    "remoteRef": "refs/heads/main",
+    "remoteHeadSha": "990f35bf0c696d09dbb2230940ef366d201c4097",
+    "divergentFilesIdentified": [
+      "src/App.tsx (remote contained unimported <Loader2 /> tag at line 269)",
+      "src/firebase/authContext.tsx (remote contained isProfileLoading state wrapper)"
+    ],
+    "workspaceState": "Contains the verified clean Release Candidate baseline without unimported Loader2 JSX tags"
+  },
+  "verificationMatrix": {
+    "mainHeadBefore": "990f35bf0c696d09dbb2230940ef366d201c4097",
+    "mainHeadAfter": "f204e750b5744af3bb276a55eb87abd3a14af610",
+    "expectedHead": "f204e750b5744af3bb276a55eb87abd3a14af610",
+    "mainMatch": "YES",
+    "officialTagPresent": "YES",
+    "historyPreserved": "YES",
+    "fastForwardOnly": "YES",
+    "forcePush": "NO",
+    "worktreeClean": "YES",
+    "githubReleaseState": "VALID"
+  },
+  "finalOutputVariables": {
+    "MAIN_HEAD_BEFORE": "990f35bf0c696d09dbb2230940ef366d201c4097",
+    "MAIN_HEAD_AFTER": "f204e750b5744af3bb276a55eb87abd3a14af610",
+    "EXPECTED_HEAD": "f204e750b5744af3bb276a55eb87abd3a14af610",
+    "MAIN_MATCH": "YES",
+    "OFFICIAL_TAG_PRESENT": "YES",
+    "HISTORY_PRESERVED": "YES",
+    "FAST_FORWARD_ONLY": "YES",
+    "FORCE_PUSH": "NO",
+    "WORKTREE_CLEAN": "YES",
+    "GITHUB_RELEASE_STATE": "VALID"
+  }
+}

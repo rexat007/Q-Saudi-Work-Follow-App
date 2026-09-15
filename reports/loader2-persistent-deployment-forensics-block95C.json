@@ -1,0 +1,58 @@
+{
+  "block": "BLOCK 95C",
+  "title": "Loader2 Persistent Production Deployment Forensics",
+  "investigationTimestamp": "2026-09-15T09:10:00.000Z",
+  "investigationMode": "READ_ONLY",
+  "productionUrl": "https://q-saudi-work-follow-app.vercel.app",
+  "deployedBundle": "assets/index-BEer72a7.js",
+  "deployedBundleSize": 3567397,
+  "stackTrace": [
+    "ReferenceError: Loader2 is not defined",
+    "at bxe (assets/index-BEer72a7.js:4240:125641)",
+    "at jZ (assets/index-BEer72a7.js:4099:266415)",
+    "at see (assets/index-BEer72a7.js:4099:442700)",
+    "at Nxe (assets/index-BEer72a7.js:4240:149769)"
+  ],
+  "rootCauseInvestigation": {
+    "summary": "The runtime exception 'ReferenceError: Loader2 is not defined' in the deployed Vercel bundle 'index-BEer72a7.js' is NOT originating from AuthButton.tsx. It originates from an unimported '<Loader2 />' JSX tag inside the root 'App.tsx' component in the GitHub commit that was deployed to Vercel.",
+    "exactCodeLocationInDeployedBundle": {
+      "byteOffset": 3545383,
+      "snippet": "r.jsx(\"div\",{className:\"w-12 h-12 rounded-xl bg-[#10b981]/10 border border-[#10b981]/30 flex items-center justify-center\",children:r.jsx(Loader2,{className:\"w-6 h-6 text-[#10b981] animate-spin\"})})",
+      "containingFunction": "bxe (mapped to App component in src/App.tsx in deployed commit)",
+      "condition": "!isAuthReady || (user && isProfileLoading)"
+    },
+    "discrepancyBetweenDeployedAndLocal": {
+      "deployedCommit": "Contains legacy loading screen in App.tsx with '<Loader2 className=\"w-6 h-6 text-[#10b981] animate-spin\" />' but lacks 'import { Loader2 } from \"lucide-react\"' in App.tsx.",
+      "localWorkspace": "App.tsx was already updated to delegate loading and auth gating to <AccountStatusGate />. In local workspace App.tsx, zero Loader2 references exist, and local builds (index-Bf1E5dSb.js) contain zero free Loader2 identifiers.",
+      "authButtonStatus": "AuthButton.tsx in both local and deployed bundle properly compiles to 'r.jsx(m1, ...)' where m1 is the valid Lucide loader-circle icon factory. AuthButton is NOT the source of the active error."
+    }
+  },
+  "chainAnalysis": {
+    "1_gitCommit": "GitHub repository 'rexat007/Q-Saudi-Work-Follow-App' on branch 'main' was deployed with an earlier commit containing the unimported Loader2 JSX in App.tsx.",
+    "2_workingTree": "Local working tree is clean and already removed the unimported Loader2 block from App.tsx.",
+    "3_dependencyResolution": "lucide-react resolved to version 0.546.0 in lockfile and node_modules.",
+    "4_lucideVersions": "Single installation (node_modules/lucide-react@0.546.0).",
+    "5_compilationTransformation": "Vite/esbuild JSX transform converted '<Loader2 />' in App.tsx directly to 'r.jsx(Loader2, ...)' as a free global variable because App.tsx had no import statement for Loader2 in that commit.",
+    "6_localVsVercelBuild": "Local fresh build emits 'index-Bf1E5dSb.js' (clean, 0 free Loader2 identifiers). Vercel deployed 'index-BEer72a7.js' (contains 1 free Loader2 identifier at byte 3,545,383 inside App.tsx).",
+    "7_rootCauseLayer": "SOURCE_CODE_IN_DEPLOYED_COMMIT_MISMATCH (GitHub branch main contains an older commit where src/App.tsx references <Loader2 /> without importing it)."
+  },
+  "finalOutputVariables": {
+    "SOURCE_IMPORT": "FAIL_IN_DEPLOYED_COMMIT_APP_TSX",
+    "DEPLOYED_COMMIT": "Earlier GitHub commit on rexat007/Q-Saudi-Work-Follow-App:main",
+    "EXPECTED_COMMIT": "f204e750b5744af3bb276a55eb87abd3a14af610",
+    "COMMIT_MATCH": "NO",
+    "LUCIDE_VERSION": "0.546.0",
+    "MULTIPLE_LUCIDE_VERSIONS": "NO",
+    "LOCAL_BUILD_BINDING": "PASS",
+    "VERCEL_BUILD_BINDING": "FAIL",
+    "DEPLOYED_BUNDLE_BINDING": "FAIL",
+    "SOURCE_MAP_MATCH": "PASS",
+    "VERCEL_CACHE_INVOLVED": "NO",
+    "DEPLOYMENT_MISMATCH": "YES",
+    "ROOT_CAUSE_LAYER": "src/App.tsx in deployed GitHub commit (contains <Loader2 /> in initial loading screen without import from lucide-react)",
+    "CODE_CHANGED": "NO",
+    "DEPLOYMENT_CHANGED": "NO",
+    "BLOCK_97_STATUS": "HOLD",
+    "RELEASE_CANDIDATE": "NO"
+  }
+}
