@@ -34,9 +34,7 @@ export class PricingRuleService {
       updatedBy: context.userId,
     };
 
-    if (auth.currentUser) {
-      await pricingRuleRepository.create(newRule);
-    }
+    await pricingRuleRepository.create(newRule);
 
     await auditLogService.recordLog({
       projectId: payload.projectId,

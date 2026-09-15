@@ -60,9 +60,7 @@ export class AuditLogService {
       throw new Error(`Audit validation failed: ${validation.errors.map(e => e.messageAr).join(', ')}`);
     }
 
-    if (auth.currentUser) {
-      await auditLogRepository.create(logEntry);
-    }
+    await auditLogRepository.create(logEntry);
     return auditLogId;
   }
 

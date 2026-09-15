@@ -92,12 +92,13 @@ class DashboardService {
   /**
    * Returns only the projects that this user profile is permitted to see.
    */
-  public getAuthorizedProjects(userProfile: UserSecurityProfile) {
+  public getAuthorizedProjects(userProfile: UserSecurityProfile, projectsList?: any[]) {
+    const pool = projectsList || adminConsoleService.getProjects();
     if (!userProfile.isRestricted || userProfile.authorizedProjectIds.includes('ALL')) {
-      return allProjects;
+      return pool;
     }
 
-    return allProjects.filter(project => 
+    return pool.filter(project => 
       this.isProjectAuthorized(project.projectId, userProfile)
     );
   }
@@ -521,6 +522,7 @@ class DashboardService {
    * 7. Generate Live Terminal Board Entries
    */
   public generateLiveTerminalBoard(trips: TripRecord[]): LiveTerminalEntry[] {
+    const projectsList = adminConsoleService.getProjects();
     const carriersList = adminConsoleService.getCarriers();
     const materialsList = adminConsoleService.getMaterials();
     const trucksList = adminConsoleService.getTrucks();

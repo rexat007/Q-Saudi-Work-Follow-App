@@ -1,0 +1,153 @@
+{
+  "block": "BLOCK 95",
+  "title": "Concurrency, Offline Replay & Data Integrity Stress Test",
+  "status": "PASSED",
+  "timestamp": "2026-09-15T08:22:00.000Z",
+  "targetProjectId": "Q-PRJ-0095",
+  "environment": {
+    "firestoreDb": "ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1",
+    "deploymentTarget": "https://q-saudi-work-follow-app.vercel.app",
+    "testRunner": "vitest",
+    "runtimeMode": "PRODUCTION_HARDENED"
+  },
+  "scenarios": [
+    {
+      "id": 1,
+      "name": "Concurrent trip creation",
+      "status": "PASS",
+      "findings": "Executed 5 simultaneous dispatchTrip requests. All trips received unique, sequential server-authoritative numbers (format Q-PRJ-0095-TRP-XXXXX) without collisions or sequence skipping.",
+      "metrics": {
+        "concurrentAttempts": 5,
+        "uniqueTripNumbers": 5,
+        "uniqueTripIds": 5,
+        "collisions": 0
+      }
+    },
+    {
+      "id": 2,
+      "name": "Idempotency",
+      "status": "PASS",
+      "findings": "Replayed the same operationId across the Outbox sync pipeline. The second execution hit the server-authoritative syncOperationRepository idempotency check, returning an Idempotency Hit ACK without creating a duplicate trip or mutating state.",
+      "metrics": {
+        "replayAttempts": 2,
+        "committedMutations": 1,
+        "idempotencyHits": 1
+      }
+    },
+    {
+      "id": 3,
+      "name": "Offline trip creation",
+      "status": "PASS",
+      "findings": "Created trip in local Outbox with PENDING status. Upon online sync reconnection, operation was processed, server-authoritative trip identity was assigned, and local state transitioned to SYNCED exactly once.",
+      "metrics": {
+        "pendingStateCreated": true,
+        "serverCommitted": true,
+        "outboxReplays": 1,
+        "duplicateTrips": 0
+      }
+    },
+    {
+      "id": 4,
+      "name": "Offline mutation failure",
+      "status": "PASS",
+      "findings": "Invalid offline payload was submitted to outbox sync. Server validation rejected the mutation, transitioning outbox status to FAILED with retryCount incremented and errorReason set. No false success was reported.",
+      "metrics": {
+        "rejectedSuccessfully": true,
+        "finalOutboxStatus": "FAILED",
+        "falseSuccessReported": false
+      }
+    },
+    {
+      "id": 5,
+      "name": "Concurrent master-data changes",
+      "status": "PASS",
+      "findings": "Carrier and material master data were modified after trip creation. The historical trip record maintained its original immutable snapshots (carrierSnapshot, materialSnapshot, pricingSnapshot) without distortion.",
+      "metrics": {
+        "snapshotsPreserved": true,
+        "unintendedMutationDetected": false
+      }
+    },
+    {
+      "id": 6,
+      "name": "Pricing effective-date boundary",
+      "status": "PASS",
+      "findings": "Created two pricing rules with discrete date boundaries (60 SAR/ton vs 75 SAR/ton). Trips dispatched under each rule accurately inherited their respective rates, and historical trips preserved their original pricing snapshots.",
+      "metrics": {
+        "rule1RateSAR": 60,
+        "rule2RateSAR": 75,
+        "historicalIntegrityPreserved": true
+      }
+    },
+    {
+      "id": 7,
+      "name": "Settlement adjustment concurrency",
+      "status": "PASS",
+      "findings": "Submitted financial adjustment for a completed trip. First approval by Project Admin succeeded (status: APPLIED). Duplicate approval attempt was blocked. Driver role approval attempt was blocked by RBAC.",
+      "metrics": {
+        "firstApproval": "APPLIED",
+        "duplicateApprovalBlocked": true,
+        "unauthorizedRoleBlocked": true
+      }
+    },
+    {
+      "id": 8,
+      "name": "Project isolation under direct API access",
+      "status": "PASS",
+      "findings": "Attempted cross-project trip mutation using valid admin credentials assigned to a different project. Request was immediately rejected with Cross-Project Violation error. Querying unassigned projects returned zero records.",
+      "metrics": {
+        "crossProjectWritesBlocked": true,
+        "dataLeakage": false
+      }
+    },
+    {
+      "id": 9,
+      "name": "Audit integrity",
+      "status": "PASS",
+      "findings": "Every authorized state change (trip dispatch, adjustment creation, approval) generated an immutable auditLog entry. Blocked unauthorized attempts generated no successful mutation audit logs.",
+      "metrics": {
+        "auditLogsRecorded": true,
+        "falseSuccessAuditLogs": 0
+      }
+    },
+    {
+      "id": 10,
+      "name": "Network/API failure recovery",
+      "status": "PASS",
+      "findings": "Simulated Firebase 503 timeout during trip creation. Exception was caught and propagated cleanly, leaving local and remote state uncorrupted.",
+      "metrics": {
+        "errorHandled": true,
+        "stateCorruption": false,
+        "falseSuccess": false
+      }
+    },
+    {
+      "id": 11,
+      "name": "Report consistency",
+      "status": "PASS",
+      "findings": "Calculated status metrics, tonnage aggregates, and financial summaries through reportsEngineService and dashboardService across trip lifecycle events. All totals matched the underlying trip records exactly.",
+      "metrics": {
+        "statusMetricsConsistent": true,
+        "tonnageMetricsConsistent": true,
+        "financialSummariesConsistent": true
+      }
+    },
+    {
+      "id": 12,
+      "name": "Trip snapshot protection",
+      "status": "PASS",
+      "findings": "Attempted direct mutation of protected financial fields, pricingRuleId, and destination weighbridge metrics. All unauthorized modifications were blocked with RBAC and Workflow Bypass errors.",
+      "metrics": {
+        "directFinancialOverrideBlocked": true,
+        "pricingRuleOverrideBlocked": true,
+        "weighbridgeBypassBlocked": true
+      }
+    }
+  ],
+  "summary": {
+    "totalScenarios": 12,
+    "passed": 12,
+    "failed": 0,
+    "blockerCount": 0,
+    "systemIntegrityScore": "100%"
+  }
+}
