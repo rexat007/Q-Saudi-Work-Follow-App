@@ -30,7 +30,8 @@ export class ProjectValidator {
       });
     }
 
-    if (!project.status || !['ACTIVE', 'SUSPENDED', 'ARCHIVED'].includes(project.status)) {
+    const canonicalStatuses = ['DRAFT', 'SETUP', 'READY_FOR_REVIEW', 'APPROVED', 'ACTIVE', 'SUSPENDED', 'ARCHIVED', 'PLANNING'];
+    if (!project.status || !canonicalStatuses.includes(project.status)) {
       errors.push({
         field: 'status',
         code: 'INVALID_STATUS',

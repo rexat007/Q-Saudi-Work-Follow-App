@@ -1,0 +1,26 @@
+{
+  "block": "BLOCK 100H",
+  "timestamp": "2026-09-15T10:17:35.000Z",
+  "auditType": "READ_ONLY_FORENSIC_AUDIT",
+  "findings": {
+    "SUBMITTED_STATUS": "SETUP",
+    "VALID_STATUS_VALUES": {
+      "projectValidatorAllowed": ["ACTIVE", "SUSPENDED", "ARCHIVED"],
+      "projectEntitySchemaAllowed": ["DRAFT", "SETUP", "READY_FOR_REVIEW", "APPROVED", "ACTIVE", "SUSPENDED", "ARCHIVED", "PLANNING"],
+      "projectProvisioningValidatorAllowed": "Requires presence of non-empty status string"
+    },
+    "STATUS_VALIDATION_LAYER": "src/validators/project.validator.ts (ProjectValidator.validate line 33)",
+    "ROOT_CAUSE": "The Project Setup UI (ProjectSetupWizard.tsx line 249) submits status: 'SETUP' as designed for the Phase 1 Foundation setup lifecycle. However, projectService.createProject calls ProjectValidator.validate(), which contains a legacy hardcoded check (src/validators/project.validator.ts line 33) enforcing only ['ACTIVE', 'SUSPENDED', 'ARCHIVED']. Because 'SETUP' is omitted from the validator's whitelist, validation fails with 'حالة المشروع غير صالحة'. Additionally, projectService.createProject calls ProjectNumberGenerator.getNextProjectNumber() before validation, causing validation failures to consume project sequence numbers.",
+    "CORRECT_INITIAL_STATUS": "SETUP",
+    "PROJECT_CODE_CLIENT_REQUIRED": "NO",
+    "PROJECT_NUMBER_CLIENT_REQUIRED": "NO",
+    "SERVER_GENERATION_INTACT": "YES",
+    "COUNTER_CONSUMED_ON_FAILED_VALIDATION": "YES",
+    "CURRENT_PROJECT_SEQUENCE": "Sequence counter is incremented in Firestore/memory during getNextProjectNumber() before validation runs; a failed validation leaves an unused sequence number.",
+    "OTHER_PHASE1_VALIDATION_ISSUES": [],
+    "REQUIRED_FIX": "1. Update src/validators/project.validator.ts line 33 to include all valid ProjectEntity status lifecycle values: ['DRAFT', 'SETUP', 'READY_FOR_REVIEW', 'APPROVED', 'ACTIVE', 'SUSPENDED', 'ARCHIVED', 'PLANNING']. 2. In src/services/project.service.ts, run payload validation before invoking ProjectNumberGenerator.getNextProjectNumber() to prevent sequence number exhaustion on invalid requests.",
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "DEPLOYMENT_CHANGED": "NO"
+  }
+}

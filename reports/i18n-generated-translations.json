@@ -1,38 +1,38 @@
 {
-  "generatedAt": "2026-09-15T16:55:59.013Z",
+  "generatedAt": "2026-09-15T17:27:06.548Z",
   "version": "1.0.0-block43",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 13084,
-    "generatedEnCount": 13084,
-    "generatedUrCount": 13084,
-    "reviewRequiredCount": 13078,
+    "totalEntries": 13112,
+    "generatedEnCount": 13112,
+    "generatedUrCount": 13112,
+    "reviewRequiredCount": 13106,
     "skippedCount": 0,
     "protectedCount": 1,
     "interpolationCount": 224,
     "pluralizationCount": 150,
-    "highRiskCount": 13078,
+    "highRiskCount": 13106,
     "semanticConflictCount": 1599,
     "domainTerminologyCount": 0,
     "confidenceBreakdown": {
       "HIGH": 146,
-      "MEDIUM": 3725,
-      "LOW": 9213
+      "MEDIUM": 3728,
+      "LOW": 9238
     },
     "tierBreakdown": {
       "1": 6,
       "2": 0,
       "3": 0,
-      "4": 13078
+      "4": 13106
     },
     "reviewReasonsBreakdown": {
       "SEMANTIC_CONFLICT": 1599,
       "DOMAIN_TERM": 0,
       "INTERPOLATION_RISK": 9,
       "PLURALIZATION_RISK": 150,
-      "REPORT_EXPORT_RISK": 3963,
-      "BUSINESS_DATA_RISK": 1703,
-      "LOW_CONFIDENCE": 13078,
+      "REPORT_EXPORT_RISK": 3965,
+      "BUSINESS_DATA_RISK": 1705,
+      "LOW_CONFIDENCE": 13106,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
@@ -63,12 +63,12 @@
         "low": 85
       },
       "projects": {
-        "total": 743,
-        "generated": 743,
-        "reviewRequired": 743,
+        "total": 771,
+        "generated": 771,
+        "reviewRequired": 771,
         "high": 5,
-        "medium": 272,
-        "low": 466
+        "medium": 275,
+        "low": 491
       },
       "carriers": {
         "total": 52,
@@ -4838,7 +4838,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -5296,7 +5296,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_vitest_5",
+      "duplicateGroupId": "dup_vitest_6",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -9337,7 +9337,7 @@
           "element": "prop_effectiveTo"
         }
       ],
-      "duplicateGroupId": "dup_2026_12_31_41",
+      "duplicateGroupId": "dup_2026_12_31_48",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -12240,7 +12240,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"dashboard.labels.sar\" to avoid accidental merge.",
@@ -26575,7 +26575,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"entityResolution.labels.sar\" to avoid accidental merge.",
@@ -62009,7 +62009,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_2026_09_15_7",
+      "duplicateGroupId": "dup_2026_09_15_14",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -84130,7 +84130,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"imports.labels.sar\" to avoid accidental merge.",
@@ -127565,7 +127565,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -139584,7 +139584,7 @@
           "element": "prop_expected"
         }
       ],
-      "duplicateGroupId": "dup_2026_09_15_7",
+      "duplicateGroupId": "dup_2026_09_15_14",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -147240,7 +147240,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"legacyMigration.labels.sar\" to avoid accidental merge.",
@@ -153071,7 +153071,7 @@
           "element": "prop_expected"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -160691,7 +160691,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"loading.labels.sar\" to avoid accidental merge.",
@@ -177757,7 +177757,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_Q_PRJ_001_2",
+      "duplicateGroupId": "dup_Q_PRJ_001_8",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -179199,7 +179199,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"navigation.labels.sar\" to avoid accidental merge.",
@@ -190558,7 +190558,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -199150,7 +199150,7 @@
           "element": "prop_effectiveTo"
         }
       ],
-      "duplicateGroupId": "dup_2026_12_31_41",
+      "duplicateGroupId": "dup_2026_12_31_48",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -204854,7 +204854,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"offline.labels.sar\" to avoid accidental merge.",
@@ -209172,7 +209172,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -335282,7 +335282,7 @@
           "element": "prop_effectiveTo"
         }
       ],
-      "duplicateGroupId": "dup_2026_12_31_41",
+      "duplicateGroupId": "dup_2026_12_31_48",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -407168,7 +407168,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"other.labels.sar\" to avoid accidental merge.",
@@ -433256,7 +433256,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_الرياض",
-      "duplicateGroupId": "dup_الرياض_3",
+      "duplicateGroupId": "dup_الرياض_10",
       "notes": [
         "Semantic conflict group conflict_الرياض: Retained distinct key \"other.labels.txt_252b20\" to avoid accidental merge."
       ],
@@ -475432,7 +475432,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -480809,7 +480809,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_vitest_5",
+      "duplicateGroupId": "dup_vitest_6",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -497183,7 +497183,7 @@
           "element": "prop_effectiveFrom"
         }
       ],
-      "duplicateGroupId": "dup_2026_12_31_41",
+      "duplicateGroupId": "dup_2026_12_31_48",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -509036,7 +509036,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"pricing.labels.sar\" to avoid accidental merge.",
@@ -515787,7 +515787,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -516905,7 +516905,7 @@
           "element": "call_useState"
         }
       ],
-      "duplicateGroupId": "dup_2026_12_31_41",
+      "duplicateGroupId": "dup_2026_12_31_48",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -517417,7 +517417,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"pricing.status.sar\" to avoid accidental merge.",
@@ -518480,6 +518480,56 @@
       "isReportOrExportField": true,
       "internalDataKey": "2Digit",
       "presentationLabel": "2-digit"
+    },
+    "projects.columns.errorProject": {
+      "key": "projects.columns.errorProject",
+      "category": "projects",
+      "semanticContext": "call_toThrow",
+      "sourceTextAr": "خطأ في التحقق من صحة المشروع",
+      "proposedTextEn": "Error في Verify صحة Project",
+      "proposedTextUr": "خرابی في تصدیق کریں صحة پروجیکٹ",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 93,
+          "column": 9,
+          "element": "call_toThrow"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "errorProject",
+      "presentationLabel": "خطأ في التحقق من صحة المشروع"
     },
     "projects.columns.projects": {
       "key": "projects.columns.projects",
@@ -521684,7 +521734,7 @@
       "sourceReferences": [
         {
           "file": "src/validators/project.validator.ts",
-          "line": 47,
+          "line": 48,
           "column": 22,
           "element": "prop_messageAr"
         }
@@ -521801,6 +521851,57 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_1d1b79",
       "presentationLabel": "e.g. تبوك - قطاع العمليات 4"
+    },
+    "projects.fields.txt_1d5490": {
+      "key": "projects.fields.txt_1d5490",
+      "category": "projects",
+      "semanticContext": "template_literal",
+      "sourceTextAr": "مشروع متزامن رقم ${index + 1}",
+      "proposedTextEn": "مشروع متزامن رقم ${index + 1}",
+      "proposedTextUr": "مشروع متزامن رقم ${index + 1}",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "BUSINESS_DATA_RISK",
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 124,
+          "column": 21,
+          "element": "template_literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "txt_1d5490",
+      "presentationLabel": "مشروع متزامن رقم ${index + 1}"
     },
     "projects.fields.txt_1e4896": {
       "key": "projects.fields.txt_1e4896",
@@ -525005,7 +525106,7 @@
         },
         {
           "file": "src/services/project.service.ts",
-          "line": 29,
+          "line": 62,
           "column": 80,
           "element": "call_padStart"
         },
@@ -525363,7 +525464,7 @@
     "projects.labels.20260915": {
       "key": "projects.labels.20260915",
       "category": "projects",
-      "semanticContext": "literal",
+      "semanticContext": "prop_startDate",
       "sourceTextAr": "2026-09-15",
       "proposedTextEn": "2026-09-15",
       "proposedTextUr": "2026-09-15",
@@ -525391,6 +525492,48 @@
       "protectedTokens": [],
       "sourceReferences": [
         {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 61,
+          "column": 22,
+          "element": "prop_startDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 84,
+          "column": 20,
+          "element": "prop_startDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 101,
+          "column": 20,
+          "element": "prop_startDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 127,
+          "column": 24,
+          "element": "prop_startDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 165,
+          "column": 20,
+          "element": "prop_startDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 190,
+          "column": 20,
+          "element": "prop_startDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 229,
+          "column": 20,
+          "element": "prop_startDate"
+        },
+        {
           "file": "src/tests/projectFormDateUx86F.test.ts",
           "line": 187,
           "column": 21,
@@ -525409,7 +525552,93 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_2026_09_15_7",
+      "duplicateGroupId": "dup_2026_09_15_14",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.20261231": {
+      "key": "projects.labels.20261231",
+      "category": "projects",
+      "semanticContext": "prop_endDate",
+      "sourceTextAr": "2026-12-31",
+      "proposedTextEn": "2026-12-31",
+      "proposedTextUr": "2026-12-31",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 62,
+          "column": 20,
+          "element": "prop_endDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 85,
+          "column": 18,
+          "element": "prop_endDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 102,
+          "column": 18,
+          "element": "prop_endDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 128,
+          "column": 22,
+          "element": "prop_endDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 166,
+          "column": 18,
+          "element": "prop_endDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 191,
+          "column": 18,
+          "element": "prop_endDate"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 230,
+          "column": 18,
+          "element": "prop_endDate"
+        }
+      ],
+      "duplicateGroupId": "dup_2026_12_31_48",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -528434,6 +528663,55 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.clientHackCode": {
+      "key": "projects.labels.clientHackCode",
+      "category": "projects",
+      "semanticContext": "prop_projectCode",
+      "sourceTextAr": "CLIENT-HACK-CODE",
+      "proposedTextEn": "CLIENT-HACK-CODE",
+      "proposedTextUr": "CLIENT-HACK-CODE",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 160,
+          "column": 22,
+          "element": "prop_projectCode"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.close": {
       "key": "projects.labels.close",
       "category": "projects",
@@ -529139,7 +529417,7 @@
       "sourceReferences": [
         {
           "file": "src/services/project.service.ts",
-          "line": 24,
+          "line": 31,
           "column": 23,
           "element": "literal"
         }
@@ -529275,13 +529553,13 @@
         },
         {
           "file": "src/services/project.service.ts",
-          "line": 19,
+          "line": 26,
           "column": 34,
           "element": "literal"
         },
         {
           "file": "src/services/project.service.ts",
-          "line": 32,
+          "line": 65,
           "column": 43,
           "element": "literal"
         },
@@ -529427,7 +529705,7 @@
         },
         {
           "file": "src/services/project.service.ts",
-          "line": 19,
+          "line": 26,
           "column": 62,
           "element": "literal"
         },
@@ -530038,7 +530316,7 @@
       "sourceReferences": [
         {
           "file": "src/services/project.service.ts",
-          "line": 100,
+          "line": 133,
           "column": 23,
           "element": "literal"
         }
@@ -530719,7 +530997,7 @@
       "sourceReferences": [
         {
           "file": "src/services/project.service.ts",
-          "line": 69,
+          "line": 102,
           "column": 23,
           "element": "literal"
         }
@@ -531452,7 +531730,7 @@
       "sourceReferences": [
         {
           "file": "src/services/project.service.ts",
-          "line": 46,
+          "line": 57,
           "column": 23,
           "element": "template_literal"
         }
@@ -531500,7 +531778,7 @@
       "sourceReferences": [
         {
           "file": "src/services/project.service.ts",
-          "line": 83,
+          "line": 116,
           "column": 23,
           "element": "template_literal"
         }
@@ -532226,6 +532504,55 @@
         }
       ],
       "duplicateGroupId": "dup_Google_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.hackedId999": {
+      "key": "projects.labels.hackedId999",
+      "category": "projects",
+      "semanticContext": "prop_projectId",
+      "sourceTextAr": "HACKED-ID-999",
+      "proposedTextEn": "HACKED-ID-999",
+      "proposedTextUr": "HACKED-ID-999",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 159,
+          "column": 20,
+          "element": "prop_projectId"
+        }
+      ],
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -534442,7 +534769,7 @@
         },
         {
           "file": "src/validators/project.validator.ts",
-          "line": 53,
+          "line": 54,
           "column": 72,
           "element": "literal"
         },
@@ -534570,6 +534897,55 @@
         }
       ],
       "duplicateGroupId": "dup_numeric_22",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.opBlock100hIdempotent01": {
+      "key": "projects.labels.opBlock100hIdempotent01",
+      "category": "projects",
+      "semanticContext": "literal",
+      "sourceTextAr": "OP-BLOCK100H-IDEMPOTENT-01",
+      "proposedTextEn": "OP-BLOCK100H-IDEMPOTENT-01",
+      "proposedTextUr": "OP-BLOCK100H-IDEMPOTENT-01",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 222,
+          "column": 25,
+          "element": "literal"
+        }
+      ],
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -537482,13 +537858,13 @@
       "sourceReferences": [
         {
           "file": "src/services/project.service.ts",
-          "line": 74,
+          "line": 107,
           "column": 23,
           "element": "literal"
         },
         {
           "file": "src/services/project.service.ts",
-          "line": 104,
+          "line": 137,
           "column": 23,
           "element": "literal"
         }
@@ -538904,6 +539280,191 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.qPrj001": {
+      "key": "projects.labels.qPrj001",
+      "category": "projects",
+      "semanticContext": "prop_projectId",
+      "sourceTextAr": "Q-PRJ-001",
+      "proposedTextEn": "Q-PRJ-001",
+      "proposedTextUr": "Q-PRJ-001",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 34,
+          "column": 22,
+          "element": "prop_projectId"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 44,
+          "column": 20,
+          "element": "prop_projectId"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 112,
+          "column": 47,
+          "element": "call_toBe"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 210,
+          "column": 38,
+          "element": "call_toBe"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 241,
+          "column": 35,
+          "element": "call_toBe"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 242,
+          "column": 35,
+          "element": "call_toBe"
+        }
+      ],
+      "duplicateGroupId": "dup_Q_PRJ_001_8",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.qPrj010": {
+      "key": "projects.labels.qPrj010",
+      "category": "projects",
+      "semanticContext": "call_toBe",
+      "sourceTextAr": "Q-PRJ-010",
+      "proposedTextEn": "Q-PRJ-010",
+      "proposedTextUr": "Q-PRJ-010",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 176,
+          "column": 40,
+          "element": "call_toBe"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 178,
+          "column": 38,
+          "element": "call_toBe"
+        }
+      ],
+      "duplicateGroupId": "dup_Q_PRJ_010_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.qPrjTempValidation": {
+      "key": "projects.labels.qPrjTempValidation",
+      "category": "projects",
+      "semanticContext": "prop_projectId",
+      "sourceTextAr": "Q-PRJ-TEMP-VALIDATION",
+      "proposedTextEn": "Q-PRJ-TEMP-VALIDATION",
+      "proposedTextUr": "Q-PRJ-TEMP-VALIDATION",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/services/project.service.ts",
+          "line": 52,
+          "column": 18,
+          "element": "prop_projectId"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.rate": {
       "key": "projects.labels.rate",
       "category": "projects",
@@ -539839,10 +540400,52 @@
           "line": 516,
           "column": 17,
           "element": "prop_currency"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 66,
+          "column": 33,
+          "element": "prop_currency"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 89,
+          "column": 31,
+          "element": "prop_currency"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 106,
+          "column": 31,
+          "element": "prop_currency"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 132,
+          "column": 35,
+          "element": "prop_currency"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 170,
+          "column": 31,
+          "element": "prop_currency"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 196,
+          "column": 21,
+          "element": "prop_currency"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 234,
+          "column": 31,
+          "element": "prop_currency"
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"projects.labels.sar\" to avoid accidental merge.",
@@ -540390,6 +540993,100 @@
         }
       ],
       "duplicateGroupId": "dup_الحالة_اللوجستية_2",
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.status_3": {
+      "key": "projects.labels.status_3",
+      "category": "projects",
+      "semanticContext": "prop_nameAr",
+      "sourceTextAr": "مشروع اختبار الحالة",
+      "proposedTextEn": "مشروع اختبار Status",
+      "proposedTextUr": "مشروع اختبار حالت",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 35,
+          "column": 19,
+          "element": "prop_nameAr"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.status_4": {
+      "key": "projects.labels.status_4",
+      "category": "projects",
+      "semanticContext": "prop_description",
+      "sourceTextAr": "اختبار الحالة الافتراضية",
+      "proposedTextEn": "اختبار Status الافتراضية",
+      "proposedTextUr": "اختبار حالت الافتراضية",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 59,
+          "column": 24,
+          "element": "prop_description"
+        }
+      ],
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -541714,6 +542411,53 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.txt_000623": {
+      "key": "projects.labels.txt_000623",
+      "category": "projects",
+      "semanticContext": "prop_nameAr",
+      "sourceTextAr": "أ",
+      "proposedTextEn": "أ",
+      "proposedTextUr": "أ",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 81,
+          "column": 17,
+          "element": "prop_nameAr"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.txt_00c863": {
       "key": "projects.labels.txt_00c863",
       "category": "projects",
@@ -542067,6 +542811,53 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.txt_113307": {
+      "key": "projects.labels.txt_113307",
+      "category": "projects",
+      "semanticContext": "prop_nameAr",
+      "sourceTextAr": "مشروع بدون حالة محددة",
+      "proposedTextEn": "مشروع بدون حالة محددة",
+      "proposedTextUr": "مشروع بدون حالة محددة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 56,
+          "column": 19,
+          "element": "prop_nameAr"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },
@@ -542459,6 +543250,53 @@
           "line": 917,
           "column": 43,
           "element": "literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.txt_150934": {
+      "key": "projects.labels.txt_150934",
+      "category": "projects",
+      "semanticContext": "prop_nameAr",
+      "sourceTextAr": "مشروع تكرار العملية",
+      "proposedTextEn": "مشروع تكرار العملية",
+      "proposedTextUr": "مشروع تكرار العملية",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 226,
+          "column": 17,
+          "element": "prop_nameAr"
         }
       ],
       "notes": [],
@@ -543526,6 +544364,100 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.txt_205fdf": {
+      "key": "projects.labels.txt_205fdf",
+      "category": "projects",
+      "semanticContext": "prop_clientName",
+      "sourceTextAr": "شركة النخلة",
+      "proposedTextEn": "شركة النخلة",
+      "proposedTextUr": "شركة النخلة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 99,
+          "column": 21,
+          "element": "prop_clientName"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.txt_206f75": {
+      "key": "projects.labels.txt_206f75",
+      "category": "projects",
+      "semanticContext": "prop_clientName",
+      "sourceTextAr": "شركة الأمان",
+      "proposedTextEn": "شركة الأمان",
+      "proposedTextUr": "شركة الأمان",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 163,
+          "column": 21,
+          "element": "prop_clientName"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.txt_208674": {
       "key": "projects.labels.txt_208674",
       "category": "projects",
@@ -544197,10 +545129,52 @@
           "line": 343,
           "column": 81,
           "element": "prop_addressAr"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 65,
+          "column": 90,
+          "element": "prop_addressAr"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 88,
+          "column": 88,
+          "element": "prop_addressAr"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 105,
+          "column": 88,
+          "element": "prop_addressAr"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 131,
+          "column": 92,
+          "element": "prop_addressAr"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 169,
+          "column": 88,
+          "element": "prop_addressAr"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 194,
+          "column": 88,
+          "element": "prop_addressAr"
+        },
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 233,
+          "column": 88,
+          "element": "prop_addressAr"
         }
       ],
       "semanticConflictGroupId": "conflict_الرياض",
-      "duplicateGroupId": "dup_الرياض_3",
+      "duplicateGroupId": "dup_الرياض_10",
       "notes": [
         "Semantic conflict group conflict_الرياض: Retained distinct key \"projects.labels.txt_252b20\" to avoid accidental merge."
       ],
@@ -545014,6 +545988,53 @@
           "line": 1630,
           "column": 48,
           "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.txt_2ec756": {
+      "key": "projects.labels.txt_2ec756",
+      "category": "projects",
+      "semanticContext": "prop_clientName",
+      "sourceTextAr": "عميل",
+      "proposedTextEn": "عميل",
+      "proposedTextUr": "عميل",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 82,
+          "column": 21,
+          "element": "prop_clientName"
         }
       ],
       "notes": [],
@@ -545897,6 +546918,53 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.txt_390198": {
+      "key": "projects.labels.txt_390198",
+      "category": "projects",
+      "semanticContext": "prop_nameAr",
+      "sourceTextAr": "مشروع نخلة الجديد",
+      "proposedTextEn": "مشروع نخلة الجديد",
+      "proposedTextUr": "مشروع نخلة الجديد",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 98,
+          "column": 17,
+          "element": "prop_nameAr"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.txt_3a800b": {
       "key": "projects.labels.txt_3a800b",
       "category": "projects",
@@ -546714,6 +547782,53 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.txt_4329a9": {
+      "key": "projects.labels.txt_4329a9",
+      "category": "projects",
+      "semanticContext": "prop_nameAr",
+      "sourceTextAr": "مشروع حماية المعرّفات",
+      "proposedTextEn": "مشروع حماية المعرّفات",
+      "proposedTextUr": "مشروع حماية المعرّفات",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 162,
+          "column": 17,
+          "element": "prop_nameAr"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.txt_44076c": {
       "key": "projects.labels.txt_44076c",
       "category": "projects",
@@ -547042,6 +548157,100 @@
           "line": 86,
           "column": 58,
           "element": "literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.txt_4a5779": {
+      "key": "projects.labels.txt_4a5779",
+      "category": "projects",
+      "semanticContext": "prop_clientName",
+      "sourceTextAr": "عميل محلي",
+      "proposedTextEn": "عميل محلي",
+      "proposedTextUr": "عميل محلي",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 188,
+          "column": 21,
+          "element": "prop_clientName"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.txt_4a57c9": {
+      "key": "projects.labels.txt_4a57c9",
+      "category": "projects",
+      "semanticContext": "prop_clientName",
+      "sourceTextAr": "عميل مكرر",
+      "proposedTextEn": "عميل مكرر",
+      "proposedTextUr": "عميل مكرر",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 227,
+          "column": 21,
+          "element": "prop_clientName"
         }
       ],
       "notes": [],
@@ -548177,6 +549386,54 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.txt_590ae4": {
+      "key": "projects.labels.txt_590ae4",
+      "category": "projects",
+      "semanticContext": "template_literal",
+      "sourceTextAr": "العميل ${index + 1}",
+      "proposedTextEn": "العميل ${index + 1}",
+      "proposedTextUr": "العميل ${index + 1}",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 125,
+          "column": 25,
+          "element": "template_literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.txt_59a4f2": {
       "key": "projects.labels.txt_59a4f2",
       "category": "projects",
@@ -548746,6 +550003,53 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.txt_5b999c": {
+      "key": "projects.labels.txt_5b999c",
+      "category": "projects",
+      "semanticContext": "prop_clientName",
+      "sourceTextAr": "عميل الاختبار",
+      "proposedTextEn": "عميل الاختبار",
+      "proposedTextUr": "عميل الاختبار",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 58,
+          "column": 23,
+          "element": "prop_clientName"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },
@@ -551963,6 +553267,53 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.txt_7e880c": {
+      "key": "projects.labels.txt_7e880c",
+      "category": "projects",
+      "semanticContext": "prop_nameAr",
+      "sourceTextAr": "مشروع اختبار",
+      "proposedTextEn": "مشروع اختبار",
+      "proposedTextUr": "مشروع اختبار",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 45,
+          "column": 17,
+          "element": "prop_nameAr"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.txt_7ebf99": {
       "key": "projects.labels.txt_7ebf99",
       "category": "projects",
@@ -553500,6 +554851,152 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.txt_fb3a21": {
+      "key": "projects.labels.txt_fb3a21",
+      "category": "projects",
+      "semanticContext": "prop_nameAr",
+      "sourceTextAr": "مشروع بدون جوجل درايف",
+      "proposedTextEn": "مشروع بدون جوجل درايف",
+      "proposedTextUr": "مشروع بدون جوجل درايف",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 187,
+          "column": 17,
+          "element": "prop_nameAr"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.uTestAdmin": {
+      "key": "projects.labels.uTestAdmin",
+      "category": "projects",
+      "semanticContext": "prop_userId",
+      "sourceTextAr": "U-TEST-ADMIN",
+      "proposedTextEn": "U-TEST-ADMIN",
+      "proposedTextUr": "U-TEST-ADMIN",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 9,
+          "column": 11,
+          "element": "prop_userId"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "projects.labels.undefined": {
+      "key": "projects.labels.undefined",
+      "category": "projects",
+      "semanticContext": "call_includes",
+      "sourceTextAr": "undefined",
+      "proposedTextEn": "undefined",
+      "proposedTextUr": "undefined",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 214,
+          "column": 61,
+          "element": "call_includes"
+        }
+      ],
+      "duplicateGroupId": "dup_undefined_43",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.uom": {
       "key": "projects.labels.uom",
       "category": "projects",
@@ -553621,13 +555118,13 @@
         },
         {
           "file": "src/services/project.service.ts",
-          "line": 19,
+          "line": 26,
           "column": 48,
           "element": "literal"
         },
         {
           "file": "src/services/project.service.ts",
-          "line": 32,
+          "line": 65,
           "column": 57,
           "element": "literal"
         },
@@ -553773,7 +555270,7 @@
         },
         {
           "file": "src/services/project.service.ts",
-          "line": 19,
+          "line": 26,
           "column": 76,
           "element": "literal"
         },
@@ -555204,6 +556701,56 @@
       },
       "isReportOrExportField": false
     },
+    "projects.labels.vitest": {
+      "key": "projects.labels.vitest",
+      "category": "projects",
+      "semanticContext": "literal",
+      "sourceTextAr": "vitest",
+      "proposedTextEn": "vitest",
+      "proposedTextUr": "vitest",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
+          "line": 1,
+          "column": 50,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_vitest_6",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "projects.labels.web": {
       "key": "projects.labels.web",
       "category": "projects",
@@ -555571,7 +557118,7 @@
       "sourceReferences": [
         {
           "file": "src/validators/project.validator.ts",
-          "line": 37,
+          "line": 38,
           "column": 20,
           "element": "prop_messageAr"
         }
@@ -555618,7 +557165,7 @@
       "sourceReferences": [
         {
           "file": "src/validators/project.validator.ts",
-          "line": 58,
+          "line": 59,
           "column": 22,
           "element": "prop_messageAr"
         }
@@ -581148,7 +582695,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"reports.labels.sar\" to avoid accidental merge.",
@@ -592113,7 +593660,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -596286,7 +597833,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_2026_12_31_41",
+      "duplicateGroupId": "dup_2026_12_31_48",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -604830,7 +606377,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"security.labels.sar\" to avoid accidental merge.",
@@ -617585,7 +619132,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -630746,7 +632293,7 @@
           "element": "prop_effectiveTo"
         }
       ],
-      "duplicateGroupId": "dup_2026_12_31_41",
+      "duplicateGroupId": "dup_2026_12_31_48",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -639054,7 +640601,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"trips.labels.sar\" to avoid accidental merge.",
@@ -651309,7 +652856,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -672720,7 +674267,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"validation.labels.sar\" to avoid accidental merge.",
@@ -674265,7 +675812,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_vitest_5",
+      "duplicateGroupId": "dup_vitest_6",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -680334,7 +681881,7 @@
           "element": "prop_effectiveTo"
         }
       ],
-      "duplicateGroupId": "dup_2026_12_31_41",
+      "duplicateGroupId": "dup_2026_12_31_48",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -685983,7 +687530,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_SAR",
-      "duplicateGroupId": "dup_SAR_207",
+      "duplicateGroupId": "dup_SAR_214",
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
         "Semantic conflict group conflict_SAR: Retained distinct key \"weighbridge.labels.sar\" to avoid accidental merge.",
@@ -693220,7 +694767,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_undefined_42",
+      "duplicateGroupId": "dup_undefined_43",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],

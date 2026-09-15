@@ -4,8 +4,15 @@ import { ProjectEntity } from '../types/entities';
 import { AuthUserContext } from '../types/common';
 import { auditLogService } from './auditLog.service';
 import { ProjectNumberGenerator } from './projectNumberGenerator';
+import { sanitizeUndefined } from '../utils/sanitize';
 
 export class ProjectService {
+  private idempotencyMap = new Map<string, ProjectEntity>();
+
+  public clearIdempotencyCache(): void {
+    this.idempotencyMap.clear();
+  }
+
   async getProject(projectId: string): Promise<ProjectEntity | null> {
     return projectRepository.findById(projectId);
   }
@@ -16,48 +23,74 @@ export class ProjectService {
   }
 
   async createProject(
-    payload: Omit<ProjectEntity, 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'>,
-    context: AuthUserContext
+    payload: Omit<ProjectEntity, 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'> & { operationId?: string },
+    context: AuthUserContext & { operationId?: string }
   ): Promise<ProjectEntity> {
     // 1. Authorization check
     if (context.role !== 'PROJECT_ADMIN' && context.role !== 'SUPER_ADMIN') {
       throw new Error('غير مصرح لك: إنشاء المشاريع مقتصر فقط على مديري المشاريع (PROJECT_ADMIN)');
     }
 
-    // 2. Server-Authoritative Project Number & Code Generation
-    const serverProjectNumber = await ProjectNumberGenerator.getNextProjectNumber();
-    const serverProjectCode = `Q-PRJ-${String(serverProjectNumber).padStart(3, '0')}`;
+    // 2. Idempotency Check
+    const operationId = payload.operationId || context.operationId;
+    if (operationId && this.idempotencyMap.has(operationId)) {
+      return this.idempotencyMap.get(operationId)!;
+    }
 
-    // 3. Stamping & Repositories (Server overrides/rejects any client-supplied identifiers)
-    const newProject: Omit<ProjectEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string } = {
+    // 3. Normalize & Sanitize Input BEFORE number allocation
+    const status = payload.status || 'SETUP';
+    const normalizedInput = sanitizeUndefined({
       ...payload,
-      projectId: serverProjectCode,
-      projectCode: serverProjectCode,
-      projectNumber: serverProjectNumber,
+      status,
       authorizedCarrierIds: payload.authorizedCarrierIds || [],
       authorizedMaterialIds: payload.authorizedMaterialIds || [],
-      createdBy: context.userId,
-      updatedBy: context.userId,
+    });
+
+    // 4. Validate Business Fields BEFORE allocating sequence number
+    const candidateForValidation: Partial<ProjectEntity> = {
+      ...normalizedInput,
+      projectId: 'Q-PRJ-TEMP-VALIDATION', // Valid ID pattern to test non-ID business fields
     };
 
-    // 4. Domain Validation using server-generated/sanitized payload
-    const validation = ProjectValidator.validate(newProject);
+    const validation = ProjectValidator.validate(candidateForValidation);
     if (!validation.isValid) {
       throw new Error(`خطأ في التحقق من صحة المشروع: ${validation.errors.map(e => e.messageAr).join(' | ')}`);
     }
 
-    await projectRepository.create(newProject);
+    // 5. Server-Authoritative Project Number & Code Generation (Only reached if validation passes)
+    const serverProjectNumber = await ProjectNumberGenerator.getNextProjectNumber();
+    const serverProjectCode = `Q-PRJ-${String(serverProjectNumber).padStart(3, '0')}`;
 
-    // 5. Audit Log
+    // 6. Stamping & Storage (Server overrides any client-supplied projectCode/projectNumber)
+    const newProject: Omit<ProjectEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string } = {
+      ...normalizedInput,
+      projectId: serverProjectCode,
+      projectCode: serverProjectCode,
+      projectNumber: serverProjectNumber,
+      createdBy: context.userId,
+      updatedBy: context.userId,
+    };
+
+    const sanitizedNewProject = sanitizeUndefined(newProject);
+
+    await projectRepository.create(sanitizedNewProject as any);
+
+    // 7. Audit Log
     await auditLogService.recordLog({
-      projectId: newProject.projectId,
+      projectId: serverProjectCode,
       entityType: 'PROJECT',
-      entityId: newProject.projectId,
+      entityId: serverProjectCode,
       action: 'CREATE',
-      after: newProject,
+      after: sanitizedNewProject,
     }, context);
 
-    return newProject as ProjectEntity;
+    const finalProject = sanitizedNewProject as ProjectEntity;
+
+    if (operationId) {
+      this.idempotencyMap.set(operationId, finalProject);
+    }
+
+    return finalProject;
   }
 
   async updateProject(

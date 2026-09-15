@@ -2,24 +2,25 @@
 
 @layer base {
   :root {
-    --bg: #0f1115;
-    --ink: #f8fafc;
-    --ink-muted: rgba(248, 250, 252, 0.5);
-    --accent: #10b981; /* Emerald Green */
-    --accent-glow: rgba(16, 185, 129, 0.25);
-    --panel: #1a1d23;
-    --border: rgba(248, 250, 252, 0.1);
-    --ink-dim: rgba(248, 250, 252, 0.5);
-    --card-bg: #1a1d23;
-    --card-border: rgba(248, 250, 252, 0.1);
-    --input-bg: #0f1115;
-    --input-border: rgba(248, 250, 252, 0.15);
+    --bg: #F8F7F4;
+    --ink: #1D1818;
+    --ink-muted: rgba(29, 24, 24, 0.6);
+    --ink-faint: rgba(29, 24, 24, 0.1);
+    --accent: #E11D48; /* Crimson Red Accent */
+    --accent-glow: rgba(225, 29, 72, 0.15);
+    --panel: #FFFFFF;
+    --border: #1D1818;
+    --border-light: rgba(29, 24, 24, 0.15);
+    --card-bg: #FFFFFF;
+    --card-border: #1D1818;
+    --input-bg: #F8F7F4;
+    --input-border: #1D1818;
   }
 
   body {
     background-color: var(--bg);
     color: var(--ink);
-    font-family: 'Inter', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Oswald', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     margin: 0;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -32,14 +33,14 @@
 
   ::selection {
     background-color: var(--accent);
-    color: #0f1115;
+    color: #FFFFFF;
   }
 
   /* Display & Monospace Typography */
   .font-display {
-    font-family: 'Syne', 'Cairo', sans-serif;
+    font-family: 'Oswald', 'Cairo', sans-serif;
     text-transform: uppercase;
-    letter-spacing: -0.04em;
+    letter-spacing: 0.05em;
   }
 
   .font-mono, .mono {
@@ -47,8 +48,9 @@
   }
 
   h1, h2, h3, h4, .font-mono-header {
-    font-family: 'Syne', 'Cairo', 'Space Mono', sans-serif;
-    letter-spacing: -0.02em;
+    font-family: 'Oswald', 'Cairo', sans-serif;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
   /* Custom high-contrast industrial scrollbars */
@@ -58,23 +60,22 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #0f1115;
+    background: #F8F7F4;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #1a1d23;
-    border: 1px solid rgba(248, 250, 252, 0.1);
+    background: #1D1818;
     border-radius: 2px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #10b981;
+    background: #E11D48;
   }
 }
 
 /* Industrial View Component Utility Classes */
 .industrial-dot-matrix {
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(29, 24, 24, 0.06) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
@@ -82,53 +83,46 @@
   font-family: 'Space Mono', monospace;
   font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--accent);
+  letter-spacing: 0.15em;
+  color: var(--ink);
+  opacity: 0.7;
+  font-weight: 500;
   display: block;
 }
 
 .industrial-card {
   background: var(--panel);
-  border: 1px solid var(--border);
+  border: 2px solid var(--ink);
   position: relative;
 }
 
 .industrial-card-accent {
   background: var(--panel);
-  border: 1px solid var(--border);
+  border: 2px solid var(--ink);
   position: relative;
-}
-
-.industrial-card-accent::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  inset-inline-start: -1px;
-  width: 10px;
-  height: 10px;
-  border-top: 2px solid var(--accent);
-  border-inline-start: 2px solid var(--accent);
+  border-inline-start: 4px solid var(--accent);
 }
 
 .btn-capture, .btn-primary-industrial {
-  background: var(--accent);
+  background: var(--ink);
   color: var(--bg);
   border: none;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   text-transform: uppercase;
-  font-family: 'Space Mono', 'Inter', sans-serif;
+  font-family: 'Oswald', 'Space Mono', sans-serif;
+  letter-spacing: 0.05em;
   transition: all 0.15s ease;
 }
 
 .btn-capture:hover, .btn-primary-industrial:hover {
-  background: #34d399;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+  background: var(--accent);
+  color: #FFFFFF;
 }
 
 .stat-display {
-  background: #000000;
-  border: 1px solid var(--border);
+  background: #FFFFFF;
+  border: 2px solid var(--ink);
 }
 
 .stat-value {
@@ -140,22 +134,24 @@
 
 .truck-tag {
   background: var(--bg);
-  border: 1px solid var(--border);
+  border: 2px solid var(--ink);
   padding: 0.5rem;
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: 'Space Mono', monospace;
 }
 
 .truck-tag.selected, .truck-tag-selected {
   border-color: var(--accent);
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--ink);
+  background: var(--accent);
+  color: #FFFFFF;
 }
 
 .alert-box-warning {
-  border: 1px solid #f59e0b;
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
+  border: 2px solid var(--accent);
+  border-inline-start: 5px solid var(--accent);
+  background: rgba(225, 29, 72, 0.06);
+  color: #BE123C;
 }
 
