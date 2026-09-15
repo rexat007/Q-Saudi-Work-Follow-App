@@ -1,0 +1,119 @@
+{
+  "block": "90A",
+  "title": "SYSTEM TOOLS RATIONALIZATION AUDIT & EXECUTION REPORT",
+  "timestamp": "2026-09-15T04:43:00.124Z",
+  "summary": {
+    "visibleProductionToolsCount": 5,
+    "developerOnlyToolsCount": 3,
+    "mergedRetiredEntriesCount": 5,
+    "rbacSecurityGateEnforced": true,
+    "i18nKeysCounts": {
+      "ar": 1128,
+      "en": 1128,
+      "ur": 1128
+    }
+  },
+  "productionTools": [
+    {
+      "id": "ADMIN_CONSOLE",
+      "category": "SYSTEM_ADMIN",
+      "titleAr": "لوحة إدارة النظام (Admin Console)",
+      "titleEn": "Admin Console",
+      "allowedRoles": [
+        "SUPER_ADMIN",
+        "PROJECT_ADMIN"
+      ]
+    },
+    {
+      "id": "SECURITY_AUDIT",
+      "category": "AUDIT_SECURITY",
+      "titleAr": "التدقيق الأمني والحوكمة (Security Audit)",
+      "titleEn": "Security Audit & Compliance",
+      "allowedRoles": [
+        "SUPER_ADMIN",
+        "PROJECT_ADMIN",
+        "FINANCE_AUDITOR"
+      ]
+    },
+    {
+      "id": "EXCEPTION_ENGINE",
+      "category": "OPERATIONS_SUPPORT",
+      "titleAr": "محرك الاستثناءات (Exception Engine)",
+      "titleEn": "Exception Engine",
+      "allowedRoles": [
+        "SUPER_ADMIN",
+        "PROJECT_ADMIN",
+        "SUPERVISOR",
+        "SITE_SUPERVISOR"
+      ]
+    },
+    {
+      "id": "IMPORT_CENTER",
+      "category": "OPERATIONS_SUPPORT",
+      "titleAr": "مركز الاستيراد الموحد (Import Center)",
+      "titleEn": "Unified Import Center",
+      "allowedRoles": [
+        "SUPER_ADMIN",
+        "PROJECT_ADMIN"
+      ]
+    },
+    {
+      "id": "DATA_QUALITY",
+      "category": "OPERATIONS_SUPPORT",
+      "titleAr": "محرك جودة البيانات (Data Quality)",
+      "titleEn": "Data Quality Engine",
+      "allowedRoles": [
+        "SUPER_ADMIN",
+        "PROJECT_ADMIN"
+      ]
+    }
+  ],
+  "developerTools": [
+    {
+      "id": "TRIP_ENGINE",
+      "titleAr": "محرك الرحلات وآلة الحالة (Trip Engine)",
+      "titleEn": "Trip Engine FSM",
+      "restrictedTo": [
+        "SUPER_ADMIN"
+      ]
+    },
+    {
+      "id": "PRICING_ENGINE",
+      "titleAr": "محرك التسعير والعقود (Pricing Engine)",
+      "titleEn": "Pricing Engine & Tests",
+      "restrictedTo": [
+        "SUPER_ADMIN"
+      ]
+    },
+    {
+      "id": "DOCS",
+      "titleAr": "المستندات المعمارية والمواصفات (Docs)",
+      "titleEn": "Architecture Specs & Docs",
+      "restrictedTo": [
+        "SUPER_ADMIN"
+      ]
+    }
+  ],
+  "mergedRetiredEntries": [
+    {
+      "id": "WORKSPACE_INTEGRATION",
+      "mergedInto": "WIZARD -> Google Tab"
+    },
+    {
+      "id": "LEGACY_MIGRATION",
+      "mergedInto": "IMPORT_CENTER -> Legacy Tab"
+    },
+    {
+      "id": "FIRESTORE_ARCH",
+      "mergedInto": "DOCS -> Firestore Sub-tab"
+    },
+    {
+      "id": "RELATIONS",
+      "mergedInto": "DOCS -> Relations Sub-tab"
+    },
+    {
+      "id": "PRINCIPLES",
+      "mergedInto": "DOCS -> Principles Sub-tab"
+    }
+  ]
+}

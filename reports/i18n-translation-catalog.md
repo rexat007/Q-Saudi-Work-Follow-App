@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-14T14:20:49.284Z
+**Generated At:** 2026-09-15T04:38:41.680Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,39 +9,39 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **12030** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **12758** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **8255** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **8255** | Domain terminology requiring semantic verification |
-| **Ambiguous Keys Isolated** | **3768** | Short tokens or codes quarantined from auto-translation |
+| **Untranslated Slots (Pending Review)** | **8701** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **8701** | Domain terminology requiring semantic verification |
+| **Ambiguous Keys Isolated** | **4050** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
-| **Interpolation Placeholders** | **216** | Dynamic parameters (e.g. `{count}`) strictly preserved |
+| **Interpolation Placeholders** | **221** | Dynamic parameters (e.g. `{count}`) strictly preserved |
 | **Pluralization Requirements** | **154** | Expressions requiring 6 Arabic plural forms |
-| **Semantic Conflicts Isolated** | **617** | Identical texts split into separate contextual keys |
-| **Duplicate Groups (Type A Sharing)** | **1571** | Safe identical-context key reuse candidates |
-| **Directional Migration Queue** | **254** | Physical Tailwind classes flagged for RTL/LTR migration |
+| **Semantic Conflicts Isolated** | **644** | Identical texts split into separate contextual keys |
+| **Duplicate Groups (Type A Sharing)** | **1751** | Safe identical-context key reuse candidates |
+| **Directional Migration Queue** | **268** | Physical Tailwind classes flagged for RTL/LTR migration |
 
 ## 2. Category Distribution & Translation Readiness
 
 | Category | Total Keys | Translated | Untranslated | Review Required | Ambiguous |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `other` | 5147 | 4 | 3753 | 3753 | 1390 |
-| `imports` | 1572 | 0 | 1084 | 1084 | 488 |
+| `other` | 5223 | 4 | 3822 | 3822 | 1397 |
+| `imports` | 1663 | 0 | 1148 | 1148 | 515 |
 | `reports` | 610 | 0 | 382 | 382 | 227 |
+| `projects` | 587 | 0 | 370 | 370 | 217 |
+| `trips` | 583 | 0 | 412 | 412 | 171 |
 | `security` | 566 | 1 | 408 | 408 | 157 |
-| `trips` | 521 | 0 | 401 | 401 | 120 |
-| `pricing` | 491 | 0 | 321 | 321 | 170 |
+| `pricing` | 514 | 0 | 330 | 330 | 184 |
+| `navigation` | 439 | 0 | 246 | 246 | 193 |
 | `weighbridge` | 418 | 0 | 229 | 229 | 189 |
-| `navigation` | 413 | 0 | 236 | 236 | 177 |
+| `offline` | 302 | 0 | 180 | 180 | 122 |
 | `exceptions` | 295 | 0 | 178 | 178 | 117 |
 | `legacyMigration` | 295 | 0 | 124 | 124 | 171 |
-| `offline` | 271 | 0 | 179 | 179 | 92 |
 | `entityResolution` | 267 | 0 | 188 | 188 | 79 |
 | `unloading` | 263 | 0 | 189 | 189 | 74 |
-| `loading` | 232 | 0 | 196 | 196 | 36 |
-| `projects` | 197 | 0 | 115 | 115 | 82 |
+| `loading` | 229 | 0 | 194 | 194 | 35 |
 | `dashboard` | 150 | 0 | 90 | 90 | 60 |
-| `authentication` | 81 | 0 | 46 | 46 | 35 |
+| `authentication` | 113 | 0 | 75 | 75 | 38 |
 | `drivers` | 77 | 0 | 33 | 33 | 44 |
 | `carriers` | 52 | 0 | 40 | 40 | 12 |
 | `materials` | 50 | 0 | 32 | 32 | 18 |
@@ -56,9 +56,10 @@ Identical Arabic terms separated into distinct keys based on operational context
 | Key | Arabic Source | Category | Semantic Context | Review Status |
 | :--- | :--- | :--- | :--- | :--- |
 | `authentication.labels.txt_1567b8` | "غير محدد" | `authentication` | literal | `REVIEW_REQUIRED` |
+| `authentication.labels.txt_1f05e4` | "البريد الإلكتروني:" | `authentication` | literal | `REVIEW_REQUIRED` |
 | `authentication.labels.txt_65988f` | "المهندس طارق بن خالد الشمري" | `authentication` | prop_displayName | `REVIEW_REQUIRED` |
 | `authentication.labels.txt_6c67d4` | "مستخدم جديد" | `authentication` | literal | `REVIEW_REQUIRED` |
-| `authentication.labels.txt_b1a849` | "تسجيل الخروج" | `authentication` | jsx_text | `REVIEW_REQUIRED` |
+| `authentication.labels.txt_b1a849` | "تسجيل الخروج" | `authentication` | literal | `REVIEW_REQUIRED` |
 | `carriers.actions.cancel` | "إلغاء" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
 | `carriers.labels.add` | "إضافة ناقل جديد" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
 | `carriers.labels.carrier_2` | "تسجيل الناقل" | `carriers` | literal | `REVIEW_REQUIRED` |
@@ -69,14 +70,13 @@ Identical Arabic terms separated into distinct keys based on operational context
 | `carriers.labels.txt_252d6d` | "الجوال:" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
 | `carriers.labels.txt_2f889d` | "السجل التجاري:" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
 | `carriers.labels.txt_2f9f86` | "مسؤول العمليات" | `carriers` | literal | `REVIEW_REQUIRED` |
-| `carriers.labels.txt_38b1a6` | "معطّل (DISABLED)" | `carriers` | jsx_text | `REVIEW_REQUIRED` |
 
 ## 4. Directional Migration Queue (First 15 Items)
 
 | File | Line | Physical Class | Recommended Logical Class | Risk |
 | :--- | :--- | :--- | :--- | :--- |
-| `src/App.tsx` | 680 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
-| `src/App.tsx` | 705 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
+| `src/App.tsx` | 721 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
+| `src/App.tsx` | 746 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
 | `src/components/FirestoreArchitectureView.tsx` | 471 | `text-left` | `text-start` | `MUST_MIGRATE` |
 | `src/components/FirestoreArchitectureView.tsx` | 529 | `pr-1` | `pe-1` | `MUST_MIGRATE` |
 | `src/components/TripEngineView.tsx` | 609 | `mr-1` | `me-1` | `MUST_MIGRATE` |

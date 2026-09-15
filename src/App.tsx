@@ -161,6 +161,7 @@ export default function App() {
   // Entities & Docs state for Secondary Tools
   const [selectedEntityId, setSelectedEntityId] = useState<string>('Trip');
   const [selectedDocId, setSelectedDocId] = useState<string>('architecture');
+  const [docsSubTab, setDocsSubTab] = useState<'SPECS' | 'FIRESTORE' | 'RELATIONS' | 'PRINCIPLES'>('SPECS');
 
   // Offline-first PWA and Outbox states
   const [isOutboxOpen, setIsOutboxOpen] = useState<boolean>(false);

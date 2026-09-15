@@ -13,6 +13,8 @@ import { UserRole } from '../types/common';
 
 export type PrimaryAreaId = 'FIELD_OPERATIONS' | 'PROJECTS' | 'REPORTS' | 'SYSTEM_TOOLS';
 
+export type SystemToolCategoryId = 'SYSTEM_ADMIN' | 'AUDIT_SECURITY' | 'OPERATIONS_SUPPORT' | 'DEVELOPER_MODE';
+
 export type NavTabId = 
   | 'OPERATIONS_DASHBOARD'
   | 'REPORTS_ENGINE'
@@ -36,6 +38,7 @@ export type NavTabId =
 export interface NavItemDef {
   id: NavTabId;
   area: PrimaryAreaId;
+  category?: SystemToolCategoryId;
   titleAr: string;
   titleEn: string;
   badgeAr?: string;
@@ -45,6 +48,8 @@ export interface NavItemDef {
   allowedRoles: UserRole[];
   descriptionAr: string;
   isPrimary: boolean;
+  isDeveloperOnly?: boolean;
+  isHighRisk?: boolean;
 }
 
 export interface PrimaryAreaDef {
@@ -190,36 +195,11 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     isPrimary: true,
   },
 
-  // 4. SYSTEM / DEVELOPER TOOLS (SECONDARY SUITE)
-  {
-    id: 'SECURITY_AUDIT',
-    area: 'SYSTEM_TOOLS',
-    titleAr: 'التدقيق الأمني والحوكمة (Security Audit)',
-    titleEn: 'Security Audit & Compliance',
-    badgeAr: '16 نطاقاً',
-    badgeEn: '16 Domains',
-    badgeVariant: 'blue',
-    icon: 'ShieldCheck',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'FINANCE_AUDITOR'],
-    descriptionAr: 'فحص مصفوفة الصلاحيات، سياسات Firestore، وعزل المشاريع',
-    isPrimary: false,
-  },
-  {
-    id: 'LEGACY_MIGRATION',
-    area: 'SYSTEM_TOOLS',
-    titleAr: 'ترحيل البيانات القديمة (Legacy Migration)',
-    titleEn: 'Legacy Migration',
-    badgeAr: '20 عموداً',
-    badgeEn: '20 Cols',
-    badgeVariant: 'emerald',
-    icon: 'FileSpreadsheet',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN'],
-    descriptionAr: 'معالجة واستيراد ملفات الإكسل القديمة ومطابقتها بالسجلات الرئيسية',
-    isPrimary: false,
-  },
+  // 4. PRODUCTION SYSTEM TOOLS (RATIONALIZED SUITE - EXACTLY 5 TOOLS)
   {
     id: 'ADMIN_CONSOLE',
     area: 'SYSTEM_TOOLS',
+    category: 'SYSTEM_ADMIN',
     titleAr: 'لوحة إدارة النظام (Admin Console)',
     titleEn: 'Admin Console',
     badgeAr: '11 قسماً',
@@ -229,36 +209,27 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN'],
     descriptionAr: 'إدارة المستخدمين، قواعد التسعير، وإعدادات المنظومة المتقدمة',
     isPrimary: false,
+    isHighRisk: true,
   },
   {
-    id: 'TRIP_ENGINE',
+    id: 'SECURITY_AUDIT',
     area: 'SYSTEM_TOOLS',
-    titleAr: 'محرك الرحلات وآلة الحالة (Trip Engine)',
-    titleEn: 'Trip Engine FSM',
-    badgeAr: '6 قواعد',
-    badgeEn: '6 Rules',
-    badgeVariant: 'emerald',
-    icon: 'Truck',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'DISPATCHER'],
-    descriptionAr: 'فحص دورة حياة الرحلات والانتقالات المسموحة في آلة الحالة',
+    category: 'AUDIT_SECURITY',
+    titleAr: 'التدقيق الأمني والحوكمة (Security Audit)',
+    titleEn: 'Security Audit & Compliance',
+    badgeAr: '16 نطاقاً',
+    badgeEn: '16 Domains',
+    badgeVariant: 'blue',
+    icon: 'ShieldCheck',
+    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'FINANCE_AUDITOR'],
+    descriptionAr: 'فحص مصفوفة الصلاحيات، سياسات Firestore، وعزل المشاريع',
     isPrimary: false,
-  },
-  {
-    id: 'WORKSPACE_INTEGRATION',
-    area: 'SYSTEM_TOOLS',
-    titleAr: 'تكامل Google Workspace (Sheets & Drive)',
-    titleEn: 'Google Workspace Integration',
-    badgeAr: 'OAuth 2.0',
-    badgeEn: 'OAuth 2.0',
-    badgeVariant: 'emerald',
-    icon: 'FileSpreadsheet',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN'],
-    descriptionAr: 'تصدير ومزامنة البيانات مع جداول Google Sheets ومجلدات Drive',
-    isPrimary: false,
+    isHighRisk: true,
   },
   {
     id: 'EXCEPTION_ENGINE',
     area: 'SYSTEM_TOOLS',
+    category: 'OPERATIONS_SUPPORT',
     titleAr: 'محرك الاستثناءات (Exception Engine)',
     titleEn: 'Exception Engine',
     badgeAr: '12 نوعاً',
@@ -268,10 +239,12 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'SITE_SUPERVISOR'],
     descriptionAr: 'تتبع وحل الاستثناءات الميدانية وفروقات الموازين والخصومات',
     isPrimary: false,
+    isHighRisk: true,
   },
   {
     id: 'IMPORT_CENTER',
     area: 'SYSTEM_TOOLS',
+    category: 'OPERATIONS_SUPPORT',
     titleAr: 'مركز الاستيراد الموحد (Import Center)',
     titleEn: 'Unified Import Center',
     badgeAr: '12 مرحلة',
@@ -281,10 +254,12 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN'],
     descriptionAr: 'معالجة وتدقيق الشحنات المستوردة وحل الكيانات غير المعرفة',
     isPrimary: false,
+    isHighRisk: true,
   },
   {
     id: 'DATA_QUALITY',
     area: 'SYSTEM_TOOLS',
+    category: 'OPERATIONS_SUPPORT',
     titleAr: 'محرك جودة البيانات (Data Quality)',
     titleEn: 'Data Quality Engine',
     badgeAr: '8 مراحل',
@@ -294,71 +269,59 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN'],
     descriptionAr: 'فحص الشحنات المكررة، أخطاء الوزن، والشذوذ الإحصائي',
     isPrimary: false,
+    isHighRisk: true,
+  },
+];
+
+// Developer-Only System Tools Registry (Restricted Exclusively to SUPER_ADMIN)
+export const DEVELOPER_TOOLS_REGISTRY: NavItemDef[] = [
+  {
+    id: 'TRIP_ENGINE',
+    area: 'SYSTEM_TOOLS',
+    category: 'DEVELOPER_MODE',
+    titleAr: 'محرك الرحلات وآلة الحالة (Trip Engine)',
+    titleEn: 'Trip Engine FSM',
+    badgeAr: '6 قواعد',
+    badgeEn: '6 Rules',
+    badgeVariant: 'emerald',
+    icon: 'Truck',
+    allowedRoles: ['SUPER_ADMIN'],
+    descriptionAr: 'فحص دورة حياة الرحلات والانتقالات المسموحة في آلة الحالة',
+    isPrimary: false,
+    isDeveloperOnly: true,
+    isHighRisk: true,
   },
   {
     id: 'PRICING_ENGINE',
     area: 'SYSTEM_TOOLS',
+    category: 'DEVELOPER_MODE',
     titleAr: 'محرك التسعير والعقود (Pricing Engine)',
     titleEn: 'Pricing Engine & Tests',
     badgeAr: '9 اختبارات',
     badgeEn: '9 Tests',
     badgeVariant: 'emerald',
     icon: 'Calculator',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'FINANCE_AUDITOR'],
+    allowedRoles: ['SUPER_ADMIN'],
     descriptionAr: 'حساب التعريفات، لقطات الأسعار الثابتة، وضريبة القيمة المضافة',
     isPrimary: false,
-  },
-  {
-    id: 'FIRESTORE_ARCH',
-    area: 'SYSTEM_TOOLS',
-    titleAr: 'معمارية Firestore (13 نطاقاً)',
-    titleEn: 'Firestore Architecture',
-    badgeAr: 'مخطط',
-    badgeEn: 'Schema',
-    badgeVariant: 'neutral',
-    icon: 'Database',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'VIEWER'],
-    descriptionAr: 'استعراض مخططات المجموعات والحقول الأمنية وقواعد البيانات',
-    isPrimary: false,
-  },
-  {
-    id: 'RELATIONS',
-    area: 'SYSTEM_TOOLS',
-    titleAr: 'شبكة العلاقات (11 كياناً)',
-    titleEn: 'Entity Relations Network',
-    badgeAr: 'تفاعلي',
-    badgeEn: 'Interactive',
-    badgeVariant: 'neutral',
-    icon: 'Share2',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'VIEWER'],
-    descriptionAr: 'مخطط العلاقات والروابط بين المشاريع والشاحنات والرحلات',
-    isPrimary: false,
-  },
-  {
-    id: 'PRINCIPLES',
-    area: 'SYSTEM_TOOLS',
-    titleAr: 'المبادئ الـ 12 الإلزامية (The 12 Invariants)',
-    titleEn: 'The 12 Invariant Principles',
-    badgeAr: 'حوكمة',
-    badgeEn: 'Governance',
-    badgeVariant: 'neutral',
-    icon: 'ShieldCheck',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'VIEWER'],
-    descriptionAr: 'السقف الهندسي الحاكم لكامل المنظومة وسيادة الخادم والـ SSOT',
-    isPrimary: false,
+    isDeveloperOnly: true,
+    isHighRisk: true,
   },
   {
     id: 'DOCS',
     area: 'SYSTEM_TOOLS',
+    category: 'DEVELOPER_MODE',
     titleAr: 'المستندات المعمارية والمواصفات (Docs)',
     titleEn: 'Architecture Specs & Docs',
     badgeAr: '7 ملفات',
     badgeEn: '7 Docs',
     badgeVariant: 'neutral',
     icon: 'BookOpen',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'SITE_SUPERVISOR', 'DISPATCHER', 'SCALE_OPERATOR', 'FINANCE_AUDITOR', 'VIEWER'],
-    descriptionAr: 'التوثيق الفني والمواصفات المعمارية للإنتاج',
+    allowedRoles: ['SUPER_ADMIN'],
+    descriptionAr: 'التوثيق الفني، المخططات المعمارية، وشبكة العلاقات، والمبادئ الحاكمة',
     isPrimary: false,
+    isDeveloperOnly: true,
+    isHighRisk: true,
   },
 ];
 
@@ -471,8 +434,24 @@ class NavigationService {
    */
   public isTabAuthorizedForRole(tabId: NavTabId, role: UserRole): boolean {
     const item = NAV_ITEMS_REGISTRY.find(item => item.id === tabId);
-    if (!item) return false;
-    return item.allowedRoles.includes(role);
+    if (item) return item.allowedRoles.includes(role);
+
+    const devItem = DEVELOPER_TOOLS_REGISTRY.find(item => item.id === tabId);
+    if (devItem) return devItem.allowedRoles.includes(role);
+
+    // Sub-views / Retired standalone routes preserve role authorization
+    switch (tabId) {
+      case 'LEGACY_MIGRATION':
+      case 'WORKSPACE_INTEGRATION':
+        return ['SUPER_ADMIN', 'PROJECT_ADMIN'].includes(role);
+      case 'FIRESTORE_ARCH':
+      case 'PRINCIPLES':
+        return ['SUPER_ADMIN', 'PROJECT_ADMIN', 'VIEWER'].includes(role);
+      case 'RELATIONS':
+        return ['SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'VIEWER'].includes(role);
+      default:
+        return false;
+    }
   }
 
   /**
@@ -488,7 +467,11 @@ class NavigationService {
    * Returns all authorized navigation items for a specific role.
    */
   public getAuthorizedTabs(role: UserRole): NavItemDef[] {
-    return NAV_ITEMS_REGISTRY.filter(item => item.allowedRoles.includes(role));
+    const primaryAndProd = NAV_ITEMS_REGISTRY.filter(item => item.allowedRoles.includes(role));
+    if (role === 'SUPER_ADMIN') {
+      return [...primaryAndProd, ...DEVELOPER_TOOLS_REGISTRY];
+    }
+    return primaryAndProd;
   }
 
   /**
@@ -499,10 +482,20 @@ class NavigationService {
   }
 
   /**
-   * Returns authorized system/developer tools for a role.
+   * Returns authorized production system tools for a role (strictly max 5).
    */
   public getAuthorizedSystemTools(role: UserRole): NavItemDef[] {
-    return NAV_ITEMS_REGISTRY.filter(item => !item.isPrimary && item.allowedRoles.includes(role));
+    return NAV_ITEMS_REGISTRY.filter(item => !item.isPrimary && !item.isDeveloperOnly && item.allowedRoles.includes(role));
+  }
+
+  /**
+   * Returns developer tools (strictly 3 tools, restricted exclusively to SUPER_ADMIN).
+   */
+  public getAuthorizedDeveloperTools(role: UserRole): NavItemDef[] {
+    if (role === 'SUPER_ADMIN') {
+      return DEVELOPER_TOOLS_REGISTRY;
+    }
+    return [];
   }
 
   /**

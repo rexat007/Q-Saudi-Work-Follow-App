@@ -3,7 +3,7 @@
 This document contains domain-specific terminology requiring human verification and professional translation.
 **Instructions:** Review Arabic canonical terminology, provide precise English and Urdu terms, and maintain parameter names.
 
-## Domain: `trips` (521 items requiring review)
+## Domain: `trips` (583 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -11,6 +11,8 @@ This document contains domain-specific terminology requiring human verification 
 | `trips.actions.view` | "عرض" | jsx_text | `MEDIUM` | Semantic conflict isolation |
 | `trips.columns.events` | "events" | call_collection | `MEDIUM` | Domain-specific terminology translation |
 | `trips.columns.projects` | "projects" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.qPrj0001Trp00001` | "Q-PRJ-0001-TRP-00001" | call_startsWith | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.qPrj0025Trp00015` | "Q-PRJ-0025-TRP-00015" | call_startsWith | `MEDIUM` | Domain-specific terminology translation |
 | `trips.columns.trips` | "trips" | call_collection | `MEDIUM` | Domain-specific terminology translation |
 | `trips.errors.trip` | "خطأ: سمح النظام بإتمام الرحلة دون إمكانية حساب variance بدقة!" | prop_serverMessage | `MEDIUM` | Domain-specific terminology translation |
 | `trips.errors.tripLocation` | "خطأ: سمح النظام بإكمال الرحلة بدون تحديد مستلم الموقع أو وقت التفريغ!" | prop_serverMessage | `MEDIUM` | Domain-specific terminology translation |
@@ -24,12 +26,10 @@ This document contains domain-specific terminology requiring human verification 
 | `trips.fields.createTrip` | "تم إنشاء وترحيل الرحلة (${result.trip.tripSerial}) بنجاح! تم احتساب صافي الوزن (${result.trip.netWeight} كجم) والتسوية (${result.trip.settlementAmount} ريال) خادومياً." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [netWeight,settlementAmount,KG,SAR]) |
 | `trips.fields.createTripPricing` | "تم إنشاء الرحلة واحتساب الوزن والتسعير خادومياً" | literal | `MEDIUM` | Domain-specific terminology translation |
 | `trips.fields.createTripPricing_2` | "إنشاء الرحلة (${tripSerial}) بعد اجتياز فحص القواعد الستة واعتماد لقطة التسعير (${pricingSnapshot.ruleName}) واحتساب صافي الوزن (${calculatedNetWeight.toLocaleString()} كجم)." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {tripSerial}; Protected: [KG]) |
-| `trips.fields.download` | "تم التحميل والوزن" | literal | `MEDIUM` | Domain-specific terminology translation |
-| `trips.fields.downloadLocationWeighbridge` | "اكتمال عملية التحميل في الموقع ووزن الميزان القائم والفارغ بالمصدر" | prop_descriptionAr | `MEDIUM` | Domain-specific terminology translation |
-| `trips.fields.downloadTruck` | "تم وزن وتحميل الشاحنة (${truck?.plate || params.truckId}) بصافي حمولة (${calculatedNetWeight.toLocaleString()} كجم). تسعيرة معتمدة: (${pricingRule.name} - ${agreedRate} ${currency} / ${pricingType === 'PER_TON' ? 'طن' : 'رد'})." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {agreedRate,currency}; Protected: [pricingType,KG,TON]) |
-| ... | *and 501 more items in this domain queue* | | | |
+| `trips.fields.createTrip_2` | "تم إنشاء الرحلة محلياً في وضع عدم الاتصال بانتظار تخصيص الرقم المتسلسل المعتمد خادومياً" | prop_descriptionAr | `MEDIUM` | Domain-specific terminology translation |
+| ... | *and 563 more items in this domain queue* | | | |
 
-## Domain: `loading` (232 items requiring review)
+## Domain: `loading` (229 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -38,7 +38,7 @@ This document contains domain-specific terminology requiring human verification 
 | `loading.fields.confirm` | "لا يمكن تأكيد الرحلة: الوزن القائم يجب أن يكون أكبر من وزن الفارغ." | prop_message | `MEDIUM` | Domain-specific terminology translation |
 | `loading.fields.confirmTruck` | "تم تأكيد وزن الشاحنة وإصدار تذكرة الترحيل" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `loading.fields.createConfirmTrip` | "تم إنشاء وتأكيد الرحلة بنجاح! رقم الرحلة: ${result.trip.tripSerial} - التذكرة: ${result.trip.ticketId} (الحالة: في الطريق IN_TRANSIT)" | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [ticketId]) |
-| `loading.fields.createTrip` | "تم إنشاء الرحلة محلياً في وضع عدم الاتصال (Offline)! رقم الرحلة: ${localTripSerial} - وتم إدراجها في قائمة المزامنة (Outbox - PENDING) للمزامنة عند عودة الاتصال." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {localTripSerial}) |
+| `loading.fields.createTrip` | "تم إنشاء الرحلة واحتساب التسعيرة محلياً بوضع عدم الاتصال بانتظار تخصيص الرقم المتسلسل الخادومي" | prop_reason | `MEDIUM` | Domain-specific terminology translation |
 | `loading.fields.download` | "تحميل ووزن شاحنة جديدة (Next Truck)" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `loading.fields.download_2` | "تسلسل خطوات التحميل والوزن بالمصدر، احتساب صافي الحمولة، والتحقق من التسعيرة قبل الترحيل" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `loading.fields.driver` | "السائق" | prop_label | `MEDIUM` | Semantic conflict isolation |
@@ -53,7 +53,7 @@ This document contains domain-specific terminology requiring human verification 
 | `loading.fields.pricing_2` | "قاعدة التسعير منتهية الصلاحية أو غير سارية بتاريخ اليوم (${activePricingRule.effectiveFrom} إلى ${activePricingRule.effectiveTo})." | template_literal | `HIGH` | Domain-specific terminology translation |
 | `loading.fields.project` | "المشروع" | prop_label | `MEDIUM` | Semantic conflict isolation |
 | `loading.fields.status` | ": نقل الحالة رسمياً إلى IN_TRANSIT وتوليد رقم التذكرة والنسخة" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
-| ... | *and 212 more items in this domain queue* | | | |
+| ... | *and 209 more items in this domain queue* | | | |
 
 ## Domain: `unloading` (263 items requiring review)
 
@@ -107,7 +107,7 @@ This document contains domain-specific terminology requiring human verification 
 | `weighbridge.fields.null` | "null" | attr_placeholder | `MEDIUM` | Semantic conflict isolation |
 | ... | *and 398 more items in this domain queue* | | | |
 
-## Domain: `imports` (1572 items requiring review)
+## Domain: `imports` (1663 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -124,14 +124,14 @@ This document contains domain-specific terminology requiring human verification 
 | `imports.fields.carrierName` | "اسم الناقل" | literal | `MEDIUM` | Semantic conflict isolation |
 | `imports.fields.carrier_2` | "carrier" | prop_fieldKey | `MEDIUM` | Domain-specific terminology translation |
 | `imports.fields.carrier_3` | "اسم الناقل المعتمد" | literal | `MEDIUM` | Domain-specific terminology translation |
+| `imports.fields.carriername` | "carrierName" | prop_field | `MEDIUM` | Domain-specific terminology translation |
 | `imports.fields.completed` | "رقم البوليصة [${rawWaybill}] مسجل مسبقاً في النظام ومكتمل الترحيل." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {rawWaybill}) |
 | `imports.fields.csv` | "CSV" | call_setFormatFilter | `MEDIUM` | Domain-specific terminology translation |
 | `imports.fields.date` | "التاريخ" | jsx_text | `HIGH` | Semantic conflict isolation |
 | `imports.fields.date_2` | "صيغة التاريخ غير صالحة (${dateStr}). يجب أن تكون YYYY-MM-DD." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {dateStr}) |
 | `imports.fields.destnetweight` | "destNetWeight" | prop_canonicalField | `MEDIUM` | Domain-specific terminology translation |
-| `imports.fields.driver` | "اكتب سبب قبول هذه التحذيرات (مثال: تم التأكد من هوية السائق ورقياً، أو تم التنسيق مع مقاول النقل)..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
-| `imports.fields.driverName` | "اسم السائق" | literal | `MEDIUM` | Semantic conflict isolation |
-| ... | *and 1552 more items in this domain queue* | | | |
+| `imports.fields.details` | "تم التحقق من تسجيل تفاصيل العمليات (إنشاء، استيراد) مباشرة في سجل التدقيق التاريخي للعمليات اللوجستية." | call_record | `HIGH` | Domain-specific terminology translation |
+| ... | *and 1643 more items in this domain queue* | | | |
 
 ## Domain: `entityResolution` (267 items requiring review)
 
@@ -159,13 +159,16 @@ This document contains domain-specific terminology requiring human verification 
 | `entityResolution.fields.txt_627907` | "خالد عبدالله الشمري" | call_setSandboxInput | `MEDIUM` | Semantic conflict isolation |
 | ... | *and 247 more items in this domain queue* | | | |
 
-## Domain: `pricing` (491 items requiring review)
+## Domain: `pricing` (514 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
 | `pricing.actions.cancel` | "إلغاء" | jsx_text | `MEDIUM` | Semantic conflict isolation |
+| `pricing.columns.2Digit` | "2-digit" | prop_month | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.columns.adjustments` | "adjustments" | call_collection | `MEDIUM` | Domain-specific terminology translation |
 | `pricing.columns.pricingRules` | "pricing_rules" | call_collection | `MEDIUM` | Domain-specific terminology translation |
 | `pricing.columns.projects` | "projects" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.columns.trips` | "trips" | call_collection | `MEDIUM` | Domain-specific terminology translation |
 | `pricing.fields.active` | "تاريخ نشط (2026-09-09)" | jsx_text | `HIGH` | Domain-specific terminology translation |
 | `pricing.fields.cancelPrice` | "إلغاء بدل الانتظار الثابت المخمن (150 ريال) عند غياب السعر التعاقدي" | call_record | `HIGH` | Domain-specific terminology translation (Protected: [SAR]) |
 | `pricing.fields.carrier` | "يرجى تحديد الناقل المستهدف بالاتفاقية" | call_setFormError | `MEDIUM` | Domain-specific terminology translation |
@@ -174,16 +177,13 @@ This document contains domain-specific terminology requiring human verification 
 | `pricing.fields.carrier_2` | "تسعيرة الناقل منتهية الصلاحية بتاريخ ${expiredRules[0].effectiveTo} (تاريخ الرحلة: ${targetDate})" | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {targetDate}) |
 | `pricing.fields.confirmPrice` | "تم تأكيد أن السعر غير المخمن يظل صفراً مع تعليق التسوية" | call_record | `MEDIUM` | Domain-specific terminology translation |
 | `pricing.fields.currency` | "currency" | prop_field | `MEDIUM` | Domain-specific terminology translation |
-| `pricing.fields.date` | "تحديد التسعيرة السارية ضمن التاريخ الفعال" | call_record | `HIGH` | Domain-specific terminology translation |
+| `pricing.fields.date` | "التاريخ المحدد:" | jsx_text | `HIGH` | Semantic conflict isolation |
+| `pricing.fields.date_2` | "تحديد التسعيرة السارية ضمن التاريخ الفعال" | call_record | `HIGH` | Domain-specific terminology translation |
 | `pricing.fields.demurragerateperhoursar` | "demurrageRatePerHourSAR" | prop_field | `MEDIUM` | Domain-specific terminology translation (Protected: [SAR]) |
 | `pricing.fields.edit` | "لا يمكن تعديل المبالغ التاريخية للرحلات المنجزة" | call_record | `HIGH` | Domain-specific terminology translation |
 | `pricing.fields.editPriceCreateTrips` | "تعديل السعر بإنشاء نسخة جديدة لحماية الرحلات السابقة" | attr_title | `MEDIUM` | Domain-specific terminology translation |
 | `pricing.fields.editPriceTrips` | "وفقاً لقواعد النزاهة المالية، لن يتم تعديل السعر القديم مباشرة داخل القاعدة السابقة لحماية الرحلات المنجزة. سيتم تجميد الإصدار" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
-| `pricing.fields.editPricingTripCreateTrips` | "رفض أمني (حماية النزاهة المالية والتاريخية): ممنوع تعديل سعر قاعدة التسعير الحالية مباشرة لأنها مرتبطة بـ (${linkedTripsCount}) رحلة تاريخية مسجلة. يجب استخدام نظام النسخ عند التعديل (Copy-on-Write Versioning) وإنشاء نسخة جديدة لضمان عدم تأثر الرحلات السابقة." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {linkedTripsCount}) |
-| `pricing.fields.effectivefrom` | "effectiveFrom" | prop_field | `MEDIUM` | Domain-specific terminology translation |
-| `pricing.fields.effectiveto` | "effectiveTo" | prop_field | `MEDIUM` | Domain-specific terminology translation |
-| `pricing.fields.materialDate` | "لا توجد تسعيرة متوافقة مع المادة [${params.materialId || 'عام'}] للناقل المحدد في هذا التاريخ" | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [materialId]) |
-| ... | *and 471 more items in this domain queue* | | | |
+| ... | *and 494 more items in this domain queue* | | | |
 
 ## Domain: `reports` (609 items requiring review)
 
@@ -237,7 +237,7 @@ This document contains domain-specific terminology requiring human verification 
 | `security.fields.location` | "فارق وزني بين ميزان المقلع وميزان الموقع (-1,450 كجم، بنسبة تفاوت -4.62% بينما الحد الأقصى 1.5%)" | prop_description | `HIGH` | Domain-specific terminology translation (Protected: [KG]) |
 | ... | *and 545 more items in this domain queue* | | | |
 
-## Domain: `offline` (271 items requiring review)
+## Domain: `offline` (302 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -245,6 +245,7 @@ This document contains domain-specific terminology requiring human verification 
 | `offline.actions.readwrite` | "readwrite" | call_transaction | `MEDIUM` | Domain-specific terminology translation |
 | `offline.columns.conflictid` | "conflictId" | prop_keyPath | `MEDIUM` | Domain-specific terminology translation |
 | `offline.columns.operationid` | "operationId" | prop_keyPath | `MEDIUM` | Domain-specific terminology translation |
+| `offline.columns.post` | "POST" | prop_method | `MEDIUM` | Domain-specific terminology translation |
 | `offline.columns.pricingruleid` | "pricingRuleId" | prop_keyPath | `MEDIUM` | Domain-specific terminology translation |
 | `offline.columns.projects` | "projects" | call_collection | `MEDIUM` | Domain-specific terminology translation |
 | `offline.columns.storename` | "storeName" | prop_keyPath | `MEDIUM` | Domain-specific terminology translation |
@@ -260,8 +261,7 @@ This document contains domain-specific terminology requiring human verification 
 | `offline.fields.download` | "سعر لقطة وثيقة التحميل (Snapshot):" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `offline.fields.download_2` | "الخيار القياسي المعتمد: المحافظة على سعر لقطة وثيقة التحميل (Lock Snapshot Rate)" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `offline.fields.edit` | "يتطلب موافقة خطية ومبرراً رسمياً لتعديل سعر التعاقد الأصلي للرحلة." | jsx_text | `MEDIUM` | Domain-specific terminology translation |
-| `offline.fields.editPriceCreateTrip` | "تم تعديل السعر المعتمد على الخادم بعد إنشاء الرحلة Offline" | prop_reasonAr | `MEDIUM` | Domain-specific terminology translation |
-| ... | *and 251 more items in this domain queue* | | | |
+| ... | *and 282 more items in this domain queue* | | | |
 
 ## Domain: `exceptions` (295 items requiring review)
 
