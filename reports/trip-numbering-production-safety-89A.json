@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-09-14T13:21:07-07:00",
+  "audit": "BLOCK_89A_TRIP_NUMBERING_PRODUCTION_SAFETY_AUDIT",
+  "classification": {
+    "TRIP_NUMBERING_PRODUCTION_SAFE": "FAIL",
+    "FIRESTORE_AUTHORITATIVE": "YES",
+    "OFFLINE_SAFE": "NO",
+    "CONCURRENCY_SAFE": "YES",
+    "CLIENT_OVERRIDE_BLOCKED": "NO",
+    "HISTORICAL_IMMUTABILITY": "YES"
+  },
+  "findings": [
+    {
+      "id": "SAFE-AUDIT-01",
+      "metric": "Online production trip creation uses Firestore-authoritative numbering",
+      "status": "PASS",
+      "details": "When online, the TripNumberGenerator invokes doc/runTransaction inside systemCounters/tripNumber_{projectId} which guarantees sequential, centralized numbering."
+    },
+    {
+      "id": "SAFE-AUDIT-02",
+      "metric": "In-memory fallback cannot create duplicate or conflicting trip numbers",
+      "status": "FAIL",
+      "details": "Unsafe path identified: Offline or unauthenticated clients fall back to an in-memory counter starting at 1. If another client has created online/offline trips with index 1, syncing the offline record will write duplicate tripNumber attributes inside Firestore because there is no unique constraint on tripNumber attributes."
+    },
+    {
+      "id": "SAFE-AUDIT-03",
+      "metric": "Offline trip creation behavior is explicitly defined",
+      "status": "PASS",
+      "details": "Fallback code paths are defined inside TripNumberGenerator.getNextTripNumber, reverting to in-memory counter tracking (Record<string, number>) on catch block or if auth context is missing."
+    },
+    {
+      "id": "SAFE-AUDIT-04",
+      "metric": "Synchronization after offline operation cannot duplicate tripNumber",
+      "status": "FAIL",
+      "details": "Since trips are saved to subcollections /projects/{projectId}/trips/{tripId} using a random UUID as the document ID, Firestore rules permit direct client-side creation. No unique index, constraint, or server-side sync check blocks the persistence of duplicate tripNumber attributes, leading to duplicate identifiers."
+    },
+    {
+      "id": "SAFE-AUDIT-05",
+      "metric": "Failed transactions cannot consume or reuse an unsafe number",
+      "status": "PASS",
+      "details": "Firestore transactions roll back completely on failure, meaning the counter nextNumber is not mutated on the server if transaction retries exhaust or fail. Consumed sequences are continuous."
+    },
+    {
+      "id": "SAFE-AUDIT-06",
+      "metric": "Concurrent users cannot generate the same trip number",
+      "status": "PASS",
+      "details": "For active online concurrent requests, Firestore server-side transactions serialize execution, preventing race conditions or duplicate sequence numbers between multiple online dispatchers."
+    },
+    {
+      "id": "SAFE-AUDIT-07",
+      "metric": "Existing historical trip numbers remain immutable",
+      "status": "PASS",
+      "details": "Firestore security rules enforce that delete actions on trips are blocked (allow delete: if false), and updates to tripNumber are blocked once defined."
+    },
+    {
+      "id": "SAFE-AUDIT-08",
+      "metric": "Client cannot supply or override tripNumber",
+      "status": "FAIL",
+      "details": "Vulnerability identified: Firestore security rules allow clients to write any payload on trip creation. A malicious client can bypass TripNumberGenerator completely and specify an arbitrary or pre-existing tripNumber value directly in the document create request."
+    },
+    {
+      "id": "SAFE-AUDIT-09",
+      "metric": "Project prefix always matches the projectNumber",
+      "status": "PASS",
+      "details": "Prefix is formatted dynamically as Q-PRJ-{projectNumber} utilizing project metadata fetched either via arguments or real-time lookup."
+    },
+    {
+      "id": "SAFE-AUDIT-10",
+      "metric": "Sequence cannot cross project boundaries",
+      "status": "PASS",
+      "details": "Counter state is isolated on document paths systemCounters/tripNumber_{projectId} and partitioned in memory via projectId keys, ensuring strict isolation."
+    }
+  ],
+  "unsafe_paths": [
+    {
+      "vulnerability": "Offline Fallback Sequence Conflict",
+      "path": "TripNumberGenerator.ts lines 93-98",
+      "description": "Falling back to in-memory counters (e.g. 1) generates local duplicates of sequence numbers already consumed by online users. Reconnection uploads duplicate tripNumbers.",
+      "minimum_fix": "Enforce trip creation strictly via backend APIs where sequential allocation is performed server-side on Express server during persistence, and enforce read-only status on tripNumber at the client rules level."
+    },
+    {
+      "vulnerability": "Client Override Payload Exposure",
+      "path": "firestore.rules lines 215-221",
+      "description": "Rules do not validate that incoming().tripNumber corresponds to an authorized, calculated sequential index, allowing clients to inject arbitrary numbers.",
+      "minimum_fix": "Inhibit client-side create permissions on /projects/{projectId}/trips and delegate creation exclusively to secure API routes under Server SDK credentials."
+    }
+  ]
+}
