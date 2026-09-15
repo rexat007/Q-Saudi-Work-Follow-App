@@ -80,7 +80,7 @@ import { ProjectEntity } from './types/entities';
 export default function App() {
   const { direction, t } = useI18n();
   const isRtl = direction === 'rtl';
-  const { user, userProfile, refreshUserProfile } = useAuth();
+  const { user, userProfile, isAuthReady, isProfileLoading, refreshUserProfile } = useAuth();
 
   // Role and Navigation state
   const [currentRole, setCurrentRole] = useState<UserRole>('SUPER_ADMIN');
@@ -261,6 +261,24 @@ export default function App() {
   };
 
   // Separate authentication and account verification from main application shell
+    if (!isAuthReady || (user && isProfileLoading)) {
+    return (
+      <div className="min-h-screen bg-[#0f1115] text-[#f8fafc] flex flex-col items-center justify-center p-4 font-sans" dir={direction}>
+        <div className="bg-[#15181e] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center space-y-4 max-w-sm w-full text-center">
+          <div className="w-12 h-12 rounded-xl bg-[#10b981]/10 border border-[#10b981]/30 flex items-center justify-center">
+            <Loader2 className="w-6 h-6 text-[#10b981] animate-spin" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-white mb-1">Q-Saudi Work Follow</h2>
+            <p className="text-xs text-stone-400 font-mono">
+              {t("authentication.labels.txt_49cb21")}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <AccountStatusGate

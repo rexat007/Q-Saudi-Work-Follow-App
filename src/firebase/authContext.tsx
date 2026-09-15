@@ -15,6 +15,7 @@ export interface AuthContextType {
   userProfile: UserEntity | null;
   idToken: string | null;
   isAuthReady: boolean;
+  isProfileLoading: boolean;
   signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
   refreshUserProfile: () => Promise<void>;
@@ -30,16 +31,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserEntity | null>(null);
   const [idToken, setIdToken] = useState<string | null>(null);
   const [isAuthReady, setIsAuthReady] = useState<boolean>(false);
+  const [isProfileLoading, setIsProfileLoading] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
   const fetchOrCreateProfile = async (currentUser: User) => {
+    setIsProfileLoading(true);
     try {
       const token = await currentUser.getIdToken();
       setIdToken(token);
     } catch (e) {
       console.warn('[AuthProvider] Failed to fetch ID token:', e);
     }
-
     try {
       let profile = await userRepository.findById(currentUser.uid);
       if (!profile) {
@@ -72,6 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updatedAt: new Date().toISOString() as any,
         updatedBy: currentUser.uid,
       });
+    } finally {
+      setIsProfileLoading(false);
     }
   };
 
