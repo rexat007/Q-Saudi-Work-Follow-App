@@ -339,6 +339,147 @@ app.get('/api/workspace/drive/files', enforceProjectIsolation, async (req, res) 
 // ----------------------------------------------------
 // 6c. Download File Content from Google Drive (BLOCK 32)
 // ----------------------------------------------------
+
+// ----------------------------------------------------
+// BLOCK 100G-B: Configurable Project Storage & Archive Endpoints
+// ----------------------------------------------------
+
+// 1. Validate Destination Folder
+app.post('/api/workspace/validate-destination', enforceAdminOnly, async (req, res) => {
+  try {
+    const bearerToken = req.headers.authorization;
+    const { projectId, targetFolderId, targetProvider, currentFolderId, sharedDriveId } = req.body;
+
+    const result = await serverWorkspaceService.validateDestinationFolder(
+      projectId,
+      targetFolderId,
+      targetProvider || 'SHARED_DRIVE',
+      currentFolderId,
+      sharedDriveId,
+      bearerToken
+    );
+
+    res.json({
+      success: result.valid,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'فشل التحقق من المجلد المستهدف',
+    });
+  }
+});
+
+// 2. Start Storage Migration
+app.post('/api/workspace/migrate/start', enforceAdminOnly, async (req, res) => {
+  try {
+    const bearerToken = req.headers.authorization;
+    const { 
+      projectId, 
+      projectCode, 
+      projectNameAr, 
+      sourceFolderId, 
+      sourceSpreadsheetId, 
+      targetFolderId, 
+      targetProvider, 
+      sharedDriveId, 
+      migrationJobId,
+      trips,
+      drivers,
+      carriers,
+      materials,
+      pricingRules,
+      exceptions
+    } = req.body;
+
+    const job = await serverWorkspaceService.executeStorageMigration(
+      {
+        projectId,
+        projectCode: projectCode || 'Q-PRJ-001',
+        projectNameAr: projectNameAr || 'مشروع Q-Saudi',
+        sourceFolderId,
+        sourceSpreadsheetId,
+        targetFolderId,
+        targetProvider: targetProvider || 'SHARED_DRIVE',
+        sharedDriveId,
+        migrationJobId,
+        trips,
+        drivers,
+        carriers,
+        materials,
+        pricingRules,
+        exceptions
+      },
+      bearerToken
+    );
+
+    res.json({
+      success: job.status !== 'FAILED',
+      job,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'فشلت عملية النقل إلى المكان المستهدف',
+    });
+  }
+});
+
+// 3. Download Standalone Project Archive (.ZIP)
+app.post('/api/workspace/archive/download', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    const bearerToken = req.headers.authorization;
+    const { project, trips, carriers, trucks, drivers, materials, pricingRules, exceptions, auditLogs, storageProfile } = req.body;
+
+    const zipBuffer = await serverWorkspaceService.generateProjectArchive(
+      {
+        project,
+        trips,
+        carriers,
+        trucks,
+        drivers,
+        materials,
+        pricingRules,
+        exceptions,
+        auditLogs,
+        storageProfile,
+      },
+      bearerToken
+    );
+
+    const projectCode = project?.projectCode || project?.projectId || 'Q-PRJ-001';
+    const fileName = `Q-PRJ-${projectCode}_PROJECT_ARCHIVE_${Date.now()}.zip`;
+
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(zipBuffer);
+  } catch (error: any) {
+    console.error('Error generating project archive:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'فشل إنشاء وإعداد ملف الأرشيف الكامل',
+    });
+  }
+});
+
+// 4. Resolve File ID via fileIdMap
+app.post('/api/workspace/resolve-file', enforceProjectIsolation, async (req, res) => {
+  try {
+    const { fileId, historyRecords } = req.body;
+    const result = serverWorkspaceService.resolveFileId(fileId, historyRecords || []);
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'فشلت عملية حل معرف الملف',
+    });
+  }
+});
+
 app.get('/api/workspace/drive/files/:fileId/content', async (req, res) => {
   try {
     const bearerToken = req.headers.authorization;

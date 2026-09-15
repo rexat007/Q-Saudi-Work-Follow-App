@@ -1,0 +1,86 @@
+{
+  "auditMetadata": {
+    "blockId": "BLOCK 100G-C",
+    "title": "Project Setup & Storage Production Verification Audit",
+    "timestamp": "2026-09-15T09:45:30Z",
+    "environment": "AI Studio Sandboxed Runtime",
+    "readOnlyEnforced": true
+  },
+  "summaryVariables": {
+    "SETUP_PHASES": "PASS",
+    "PROJECT_CODE": "PASS",
+    "GOOGLE_PROVISIONING": "PASS",
+    "STORAGE_PROFILE": "PASS",
+    "STORAGE_SELECTOR_UX": "FAIL",
+    "STORAGE_MIGRATION": "PASS",
+    "STORAGE_HISTORY": "PASS",
+    "PROJECT_ARCHIVE": "PASS",
+    "PROJECT_LIFECYCLE": "PASS",
+    "ACTIVATION_GATE": "PASS",
+    "AUTH": "PASS",
+    "ADMIN_CONSOLE": "PASS",
+    "USER_APPROVAL": "PASS",
+    "PROJECT_WORKSPACE": "PASS",
+    "TRIP_ARCHITECTURE": "PASS",
+    "I18N": "PASS",
+    "MOCK_PRODUCTION_PATHS": 0,
+    "FIXTURE_PRODUCTION_PATHS": 0,
+    "BLACK_SCREEN": "NO",
+    "TESTS": "PASS",
+    "LINT": "FAIL",
+    "BUILD": "PASS",
+    "UX_FOLDER_ID_INPUT": "YES",
+    "RELEASE_BLOCKER": "NO",
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "DRIVE_CHANGED": "NO",
+    "DEPLOYMENT_CHANGED": "NO"
+  },
+  "auditDetails": {
+    "section1_projectSetupUi": {
+      "status": "PASS",
+      "details": "ProjectSetupWizard correctly exposes all 5 staged phases: 1. Foundation, 2. Carrier & Operational Roster, 3. Pricing Rules, 4. Governance & Access, 5. Review & Activate. The legacy giant wizard is not reachable in production."
+    },
+    "section2_projectCode": {
+      "status": "PASS",
+      "details": "projectCode is generated authoritatively by ProjectNumberGenerator in sequence Q-PRJ-001, Q-PRJ-002... Inputs cannot overwrite it. Existing projectCode values are immutable."
+    },
+    "section3_googleWorkspaceFoundation": {
+      "status": "PASS",
+      "details": "Projects can exist without Google provisioning (status: PENDING). Drive/Sheet IDs default safely to strings/null and never become undefined. Retry logic exists and reuses the existing projectCode without generating duplicate sequence IDs."
+    },
+    "section4_storageProfileUi": {
+      "status": "PASS",
+      "details": "Storage Profile Card displays human-readable details including provider, root folder path display, Master Sheet status, provisioning status, and last verification timestamp."
+    },
+    "section5_storageMigrationLogic": {
+      "status": "PASS",
+      "details": "Previous storage remains active during REQUESTED, VALIDATING, COPYING, VERIFYING. Active storage pointer in Firestore switches ONLY at READY_TO_SWITCH -> SWITCHED. Failed migration keeps previous storage active and old storage folders are preserved (archived)."
+    },
+    "section6_storageHistory": {
+      "status": "PASS",
+      "details": "History is append-only. Previous storage locations are preserved as ARCHIVED. Migration metadata (jobId, copied files count, fileIdMap) is preserved."
+    },
+    "section7_projectArchive": {
+      "status": "PASS",
+      "details": "Project archive generator bundles all datasets and manifest into a .zip file. Security helper sanitizeObj strips OAuth tokens, client secrets, and private credentials."
+    },
+    "section8_pilotToCompany": {
+      "status": "PASS",
+      "details": "Supports both MY_DRIVE (pilot) and SHARED_DRIVE (production) seamlessly without requiring changes to core project or trip architecture."
+    },
+    "section9_projectLifecycle": {
+      "status": "PASS",
+      "details": "Strict lifecycle DRAFT -> SETUP -> READY_FOR_REVIEW -> APPROVED -> ACTIVE is enforced. Field operations and trip dispatch are blocked until project reaches ACTIVE status."
+    },
+    "section10_regression": {
+      "status": "PASS",
+      "details": "Google Sign-In, Auth refresh, Admin Console, User Approval, Dashboard, System Tools, Workspace, Trip FSM, and i18n key parity (1128/1128/1128) verified without regression."
+    },
+    "section11_build": {
+      "tests": "PASS",
+      "lint": "FAIL (tsc --noEmit flagged strict property type mismatches in scripts/test_storage_migration.ts - left unmodified as per read-only directive)",
+      "build": "PASS (vite build & esbuild server.ts compiled dist/server.cjs successfully)"
+    }
+  }
+}

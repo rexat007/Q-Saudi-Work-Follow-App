@@ -5,7 +5,11 @@ import {
   SchemaMigrationPlan,
   GoogleDriveProjectStructure,
   WorkspaceSyncSummary,
-  UpsertResult
+  UpsertResult,
+  ProjectStorageProfile,
+  StorageHistoryRecord,
+  MigrationJob,
+  DestinationValidationResult
 } from '../types/workspace';
 import { GoogleDriveFileItem } from '../types/googleDriveImport';
 import { ProjectEntity } from '../types/entities';
@@ -480,6 +484,157 @@ export class ClientWorkspaceService {
 
     return res.json();
   }
+
+  // ====================================================
+  // BLOCK 100G-B: Configurable Storage & Archive Methods
+  // ====================================================
+
+  /**
+   * Validates target Google Drive destination folder.
+   */
+  public async validateDestinationFolder(
+    projectId: string,
+    targetFolderId: string,
+    targetProvider: 'MY_DRIVE' | 'SHARED_DRIVE',
+    currentFolderId?: string,
+    sharedDriveId?: string
+  ): Promise<DestinationValidationResult> {
+    const token = this.getAccessToken();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${getApiBase()}/api/workspace/validate-destination`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        projectId,
+        targetFolderId,
+        targetProvider,
+        currentFolderId,
+        sharedDriveId,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({ success: false, error: `HTTP ${res.status}` }));
+    if (!res.ok) {
+      return {
+        valid: false,
+        folderId: targetFolderId,
+        folderName: '',
+        provider: targetProvider,
+        error: data.error || 'فشل التحقق من المجلد المستهدف',
+      };
+    }
+    return data.data;
+  }
+
+  /**
+   * Starts safe storage migration job.
+   */
+  public async startStorageMigration(params: {
+    projectId: string;
+    projectCode: string;
+    projectNameAr: string;
+    sourceFolderId: string;
+    sourceSpreadsheetId: string;
+    targetFolderId: string;
+    targetProvider: 'MY_DRIVE' | 'SHARED_DRIVE';
+    sharedDriveId?: string | null;
+    migrationJobId?: string;
+    trips?: any[];
+    drivers?: any[];
+    carriers?: any[];
+    materials?: any[];
+    pricingRules?: any[];
+    exceptions?: any[];
+  }): Promise<{ success: boolean; job: MigrationJob }> {
+    const token = this.getAccessToken();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${getApiBase()}/api/workspace/migrate/start`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    const data = await res.json().catch(() => ({ success: false, error: `HTTP ${res.status}` }));
+    if (!res.ok) {
+      throw new Error(data.error || 'فشلت عملية النقل إلى المكان المستهدف');
+    }
+    return data;
+  }
+
+  /**
+   * Generates and triggers browser download of Complete Project Archive (.ZIP).
+   */
+  public async downloadProjectArchive(params: {
+    project: any;
+    trips?: any[];
+    carriers?: any[];
+    trucks?: any[];
+    drivers?: any[];
+    materials?: any[];
+    pricingRules?: any[];
+    exceptions?: any[];
+    auditLogs?: any[];
+    storageProfile?: ProjectStorageProfile | null;
+  }): Promise<void> {
+    const token = this.getAccessToken();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${getApiBase()}/api/workspace/archive/download`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      throw new Error(err.error || 'فشل إنشاء وتحميل ملف الأرشيف الكامل للمشروع');
+    }
+
+    const blob = await res.blob();
+    const projectCode = params.project?.projectCode || params.project?.projectId || 'Q-PRJ-001';
+    const filename = `Q-PRJ-${projectCode}_PROJECT_ARCHIVE_${Date.now()}.zip`;
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
+  /**
+   * Resolves a file ID via current fileIdMap or historical storage history.
+   */
+  public async resolveFileLink(
+    projectId: string,
+    fileId: string,
+    historyRecords?: StorageHistoryRecord[]
+  ): Promise<{ resolvedFileId: string; isHistorical: boolean; sourceHistoryId?: string }> {
+    const token = this.getAccessToken();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${getApiBase()}/api/workspace/resolve-file`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ projectId, fileId, historyRecords }),
+    });
+
+    if (!res.ok) {
+      return { resolvedFileId: fileId, isHistorical: false };
+    }
+    const data = await res.json();
+    return data.data;
+  }
 }
 
 export const clientWorkspaceService = new ClientWorkspaceService();
+

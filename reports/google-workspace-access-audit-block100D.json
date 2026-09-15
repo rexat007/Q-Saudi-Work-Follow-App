@@ -1,0 +1,195 @@
+{
+  "auditMetadata": {
+    "blockId": "BLOCK100D",
+    "title": "Google Drive & Sheets Access & Root Folder Audit",
+    "auditedAt": "2026-09-15T13:40:00Z",
+    "status": "COMPLETED",
+    "scope": "READ-ONLY",
+    "targetFiles": [
+      "/src/services/workspace.service.ts",
+      "/server/workspace.service.ts",
+      "/src/services/projectProvisioning.service.ts",
+      "/.env.example"
+    ]
+  },
+  "authenticationModel": {
+    "type": "USER_OAUTH_DELEGATED",
+    "description": "Delegated User OAuth 2.0 flow initiated via Firebase Auth GoogleAuthProvider popup, passing Bearer access tokens to server-side API endpoints.",
+    "isServiceAccountConfigured": false,
+    "flowSteps": [
+      {
+        "step": 1,
+        "name": "Consent Request",
+        "component": "ClientWorkspaceService.requestGoogleScopes",
+        "actions": "Triggers GoogleAuthProvider with configured scopes. Prompts user with consent screen in a popup window."
+      },
+      {
+        "step": 2,
+        "name": "Token Acquisition",
+        "component": "Firebase Auth Popup Utility",
+        "actions": "Extracts credential.accessToken and caches it in sessionStorage under the key 'q_saudi_google_token'."
+      },
+      {
+        "step": 3,
+        "name": "API Request Proxying",
+        "component": "ClientWorkspaceService REST Proxies",
+        "actions": "Appends the Bearer token in the 'Authorization' header for requests directed to /api/workspace/* endpoints."
+      },
+      {
+        "step": 4,
+        "name": "Server-Side Authentication",
+        "component": "ServerWorkspaceService.getAuthClient",
+        "actions": "Extracts Bearer token from headers, instantiates a google.auth.OAuth2 instance, and injects user credentials into the API client."
+      }
+    ]
+  },
+  "oauthScopes": {
+    "requested": [
+      {
+        "scope": "https://www.googleapis.com/auth/spreadsheets",
+        "description": "Full read/write access to Google Spreadsheets. Needed for operations log sync, driver, carrier, and exception tabs.",
+        "riskLevel": "MEDIUM-HIGH"
+      },
+      {
+        "scope": "https://www.googleapis.com/auth/drive.file",
+        "description": "Access to Google Drive files/folders created or opened with this application. Restricts directory traversal risks.",
+        "riskLevel": "LOW"
+      }
+    ],
+    "analysis": "The use of drive.file limits app access to project folders it creates, which is highly secure. However, spreadsheets provides full access to all user spreadsheets, which can be flagged during enterprise security audits."
+  },
+  "rootFolder": {
+    "isConfigured": false,
+    "parentFolderId": null,
+    "storageLocation": "User's My Drive (Root Directory)",
+    "description": "Every provisioned project root folder is created directly in the root directory of the authorizing user's Google Drive. There is no central organizational root folder boundary."
+  },
+  "projectFolderCreation": {
+    "namingPattern": "[Q-Saudi] <ProjectNameAr> (<ProjectCode>)",
+    "description": "Creates a distinct project directory for storing structured documents and operational sheets.",
+    "subfolders": [
+      {
+        "name": "imported files",
+        "description": "ملفات الاستيراد وشيتات الإدخال اليومية"
+      },
+      {
+        "name": "reports",
+        "description": "التقارير وسجلات التشغيل الدورية وملفات المتابعة"
+      },
+      {
+        "name": "printable documents",
+        "description": "الوثائق القابلة للطباعة وتذاكر الميزان وإشعارات الاستلام"
+      }
+    ]
+  },
+  "googleSheetCreation": {
+    "titlePattern": "[Q-Saudi] سجل العمليات والإسقاط التشغيلي - <ProjectNameAr>",
+    "properties": {
+      "locale": "ar_SA",
+      "timeZone": "Asia/Riyadh"
+    },
+    "organization": "Initially created at user's root Drive directory, then immediately moved to the Project Root Folder via drive.files.update with addParents.",
+    "tabs": [
+      {
+        "tabNameAr": "العمليات",
+        "tabNameEn": "Operations",
+        "primaryKey": "tripId",
+        "description": "Syncs all trip logs with full pricing/governance snapshots."
+      },
+      {
+        "tabNameAr": "السائقين",
+        "tabNameEn": "Drivers",
+        "primaryKey": "driverId",
+        "description": "Syncs registered operational drivers."
+      },
+      {
+        "tabNameAr": "الناقلين",
+        "tabNameEn": "Carriers",
+        "primaryKey": "carrierId",
+        "description": "Syncs registered carrier entities."
+      },
+      {
+        "tabNameAr": "المواد",
+        "tabNameEn": "Materials",
+        "primaryKey": "materialId",
+        "description": "Syncs allowed project materials and standard densities."
+      },
+      {
+        "tabNameAr": "الاستثناءات",
+        "tabNameEn": "Exceptions",
+        "primaryKey": "exceptionId",
+        "description": "Syncs weighbridge variances and load exceedances."
+      },
+      {
+        "tabNameAr": "التقارير",
+        "tabNameEn": "Reports",
+        "primaryKey": "reportCode",
+        "description": "Syncs computed KPI metrics."
+      }
+    ],
+    "migrationStrategy": "NON_DESTRUCTIVE_COLUMN_EXPANSION"
+  },
+  "serviceAccountAnalysis": {
+    "isUsed": false,
+    "justification": [
+      "No Service Account JSON key, email, or credentials are used or stored on the server.",
+      "The server operates as a pure pass-through agent for user OAuth credentials.",
+      "Ensures files created are owned and manageable directly by the deploying project administrator.",
+      "Requires zero corporate credential storage, reducing backend attack surface."
+    ]
+  },
+  "environmentVariables": {
+    "viteVariables": [
+      {
+        "name": "VITE_FIREBASE_OAUTH_CLIENT_ID",
+        "required": true,
+        "purpose": "Configures Google OAuth credentialing client on the Firebase Auth console."
+      }
+    ],
+    "serverVariables": []
+  },
+  "operatingModel": {
+    "current": "Model B: Project-Centric Delegated Ownership",
+    "description": "Project structures and sheets are created directly inside the authenticated administrator's Google Drive. Ownership lies with the individual user rather than a shared corporate workspace."
+  },
+  "securityRisks": [
+    {
+      "riskId": "RISK-01",
+      "domain": "Data Loss & Account Lifecycle",
+      "severity": "HIGH",
+      "description": "Project folders are tied to individual administrators' Drive accounts. If an administrator leaves the company and their Google account is deactivated, all associated project logs, reports, and sheet files could be permanently deleted."
+    },
+    {
+      "riskId": "RISK-02",
+      "domain": "Directory Clutter",
+      "severity": "LOW",
+      "description": "Since there is no centralized parent folder, a multi-project administrator's My Drive will get cluttered with independent project folder structures."
+    },
+    {
+      "riskId": "RISK-03",
+      "domain": "Excessive API Scopes",
+      "severity": "MEDIUM",
+      "description": "The spreadsheets scope grants full read/write access to all Google Sheets owned by the user. Enterprise environments prefer specific file isolation."
+    }
+  ],
+  "recommendations": [
+    {
+      "title": "Transition to Shared Drive (Model C)",
+      "targetState": "Introduce a centralized GOOGLE_SHARED_DRIVE_ID and corporate parent folder. All newly provisioned project folders must be created inside this Corporate Shared Drive, guaranteeing institutional data persistence.",
+      "remediationSteps": [
+        "1. Configure GOOGLE_SHARED_DRIVE_ID as a server-side environment variable.",
+        "2. Modify drive.files.create in server/workspace.service.ts to include supportsAllDrives: true.",
+        "3. Specify parents: [GOOGLE_SHARED_DRIVE_ID] during Project Root Folder creation."
+      ]
+    },
+    {
+      "title": "Use Corporate Service Account for Background Provisioning",
+      "targetState": "Scaffolding of folder structures and schema enforcement should happen in the background using a restricted Service Account, eliminating popup blocks and user permission friction.",
+      "remediationSteps": [
+        "1. Provision a GCP Service Account with scoped access to the Corporate Shared Drive.",
+        "2. Add GOOGLE_APPLICATION_CREDENTIALS to server environments.",
+        "3. Configure ServerWorkspaceService to fallback to Service Account authentication for background operations."
+      ]
+    }
+  ]
+}

@@ -191,3 +191,126 @@ export interface WorkspaceSyncSummary {
   totalRecordsUpserted: number;
   auditMessage: string;
 }
+
+// ====================================================
+// BLOCK 100G-B: Project Storage & Archive Interfaces
+// ====================================================
+
+export type StorageProviderType = 'MY_DRIVE' | 'SHARED_DRIVE';
+
+export type ProvisioningStatusType = 
+  | 'PROVISIONED' 
+  | 'PENDING' 
+  | 'IN_PROGRESS'
+  | 'READY'
+  | 'PARTIAL' 
+  | 'FAILED' 
+  | 'RETRY_REQUIRED';
+
+export type MigrationStatusType = 
+  | 'IDLE' 
+  | 'REQUESTED' 
+  | 'VALIDATING' 
+  | 'COPYING' 
+  | 'VERIFYING' 
+  | 'READY_TO_SWITCH' 
+  | 'SWITCHED' 
+  | 'FAILED' 
+  | 'ROLLBACK_REQUIRED';
+
+export interface ProjectStorageProfile {
+  storageProvider: StorageProviderType;
+  currentStorageFolderId: string;
+  currentSpreadsheetId: string;
+  previousStorageFolderId?: string | null;
+  previousSpreadsheetId?: string | null;
+  sharedDriveId?: string | null;
+  rootFolderPathDisplay: string;
+  provisioningStatus: ProvisioningStatusType;
+  migrationStatus: MigrationStatusType;
+  lastVerifiedAt: string;
+  archiveVersion: number;
+}
+
+export interface StorageHistoryRecord {
+  historyId: string;
+  projectId: string;
+  folderId: string;
+  spreadsheetId: string;
+  displayNamePath: string;
+  provider: StorageProviderType;
+  sharedDriveId?: string | null;
+  createdAt: string;
+  deactivatedAt?: string | null;
+  changedBy: {
+    userId: string;
+    email: string;
+    role: string;
+  };
+  migrationJobId: string;
+  copiedFilesCount: number;
+  verificationStatus: 'VERIFIED' | 'UNVERIFIED' | 'FAILED';
+  fileIdMap: Record<string, string>;
+  status: 'ACTIVE' | 'ARCHIVED' | 'HISTORICAL';
+}
+
+export interface MigrationJob {
+  migrationJobId: string;
+  projectId: string;
+  projectCode?: string;
+  sourceProvider: StorageProviderType;
+  targetProvider: StorageProviderType;
+  sourceFolderId?: string;
+  targetFolderId: string;
+  targetFolderName?: string;
+  targetSpreadsheetId?: string;
+  sharedDriveId?: string | null;
+  status: MigrationStatusType;
+  copiedFileIds: string[];
+  fileIdMap: Record<string, string>;
+  errorDetails?: string | null;
+  startedAt: string;
+  updatedAt?: string;
+}
+
+export interface DestinationValidationResult {
+  valid: boolean;
+  folderId: string;
+  folderName: string;
+  provider: StorageProviderType;
+  sharedDriveId?: string | null;
+  error?: string;
+}
+
+export interface ProjectArchiveManifest {
+  projectId: string;
+  projectCode: string;
+  projectNameAr: string;
+  projectNameEn?: string;
+  archiveVersion: number;
+  createdTimestamp: string;
+  systemVersion: string;
+  sourceStorageProvider: StorageProviderType;
+  activeStorageReference: {
+    folderId: string;
+    spreadsheetId: string;
+  };
+  fileCounts: {
+    reports: number;
+    imports: number;
+    printableDocuments: number;
+    totalDriveFiles: number;
+  };
+  datasetCounts: {
+    trips: number;
+    carriers: number;
+    trucks: number;
+    drivers: number;
+    materials: number;
+    pricingRules: number;
+    exceptions: number;
+    auditLogs: number;
+  };
+  hashes: Record<string, string>;
+}
+

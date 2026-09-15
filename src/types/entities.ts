@@ -1,5 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 import { BaseAuditedEntity } from './common';
+import { ProjectStorageProfile } from './workspace';
 
 // 1. Project Entity
 export interface ProjectEntity extends BaseAuditedEntity {
@@ -32,6 +33,7 @@ export interface ProjectEntity extends BaseAuditedEntity {
       spreadsheetTitle?: string;
       status?: 'PROVISIONED' | 'DISABLED' | 'PENDING' | 'FAILED';
     };
+    storageProfile?: ProjectStorageProfile;
   };
   authorizedCarrierIds?: string[];
   authorizedMaterialIds?: string[];

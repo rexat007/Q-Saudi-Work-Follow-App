@@ -1,0 +1,147 @@
+{
+  "auditMetadata": {
+    "blockId": "BLOCK100E",
+    "title": "Google Shared Drive Architecture & Provisioning Audit",
+    "auditedAt": "2026-09-15T13:58:00Z",
+    "status": "COMPLETED",
+    "scope": "READ-ONLY",
+    "targetFiles": [
+      "/server/workspace.service.ts",
+      "/src/services/workspace.service.ts",
+      "/src/services/projectProvisioning.service.ts"
+    ]
+  },
+  "evaluationSummary": {
+    "SHARED_DRIVE_SUPPORTED": "NO",
+    "ROOT_FOLDER_SUPPORTED": "NO",
+    "CURRENT_MY_DRIVE_DEPENDENCY": "YES",
+    "OAUTH_SUFFICIENT": "YES",
+    "SERVICE_ACCOUNT_REQUIRED": "NO",
+    "HYBRID_RECOMMENDED": "YES",
+    "RECOMMENDED_MODEL": "C",
+    "RECOMMENDED_STORAGE": "GOOGLE_SHARED_DRIVE -> Q-Saudi Root Folder -> Project Root Folders -> Subfolders & Master Sheet",
+    "REQUIRED_ENV_VARS": [
+      "GOOGLE_SHARED_DRIVE_ID",
+      "GOOGLE_PROJECTS_ROOT_FOLDER_ID"
+    ],
+    "SCOPES_SUFFICIENT": "YES",
+    "SCOPE_REDUCTION_RECOMMENDED": "NO",
+    "EMPLOYEE_DEPARTURE_RISK": "HIGH",
+    "DATA_OWNERSHIP_MODEL": "CORPORATE_SHARED_DRIVE_OWNED",
+    "MIGRATION_REQUIRED": "YES",
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "GOOGLE_DRIVE_CHANGED": "NO"
+  },
+  "driveApiUsageMap": {
+    "calls": [
+      {
+        "service": "ServerWorkspaceService.provisionProjectDrive",
+        "apiMethod": "drive.files.create",
+        "parameters": {
+          "name": "rootFolderName",
+          "mimeType": "application/vnd.google-apps.folder"
+        },
+        "missingSharedDriveParameters": [
+          "supportsAllDrives",
+          "parents"
+        ],
+        "assumesMyDrive": true
+      },
+      {
+        "service": "ServerWorkspaceService.provisionProjectDrive",
+        "apiMethod": "drive.files.create (subfolders)",
+        "parameters": {
+          "name": "subfolderName",
+          "mimeType": "application/vnd.google-apps.folder",
+          "parents": ["rootFolderId"]
+        },
+        "missingSharedDriveParameters": [
+          "supportsAllDrives"
+        ],
+        "assumesMyDrive": false
+      },
+      {
+        "service": "ServerWorkspaceService.provisionProjectDrive",
+        "apiMethod": "drive.files.update (move sheet)",
+        "parameters": {
+          "fileId": "spreadsheetId",
+          "addParents": "rootFolderId",
+          "removeParents": "currentParents"
+        },
+        "missingSharedDriveParameters": [
+          "supportsAllDrives"
+        ],
+        "assumesMyDrive": false
+      }
+    ]
+  },
+  "modelComparison": {
+    "modelA": {
+      "type": "USER_OAUTH_MY_DRIVE",
+      "security": "LOW",
+      "ownership": "Individual user accounts",
+      "maintenanceComplexity": "Low",
+      "deploymentComplexity": "Low",
+      "reliability": "High initially, degrades on staff change"
+    },
+    "modelB": {
+      "type": "SERVICE_ACCOUNT_SHARED_DRIVE",
+      "security": "HIGH",
+      "ownership": "Organization / Corporate Drive",
+      "maintenanceComplexity": "Medium",
+      "deploymentComplexity": "High (Service Account key management)",
+      "reliability": "Extremely high"
+    },
+    "modelC": {
+      "type": "HYBRID_USER_OAUTH_SHARED_DRIVE",
+      "security": "VERY_HIGH",
+      "ownership": "Organization / Corporate Shared Drive",
+      "maintenanceComplexity": "Low-Medium",
+      "deploymentComplexity": "Medium (Requires Shared Drive ID configuration)",
+      "reliability": "Perfect persistence + Native Google Permissioning"
+    }
+  },
+  "provisioningWorkflowStates": {
+    "states": [
+      {
+        "state": "PENDING",
+        "description": "Project created in Firestore but Google workspace has not started provisioning yet."
+      },
+      {
+        "state": "IN_PROGRESS",
+        "description": "Folders are being programmatically created and Google Sheets template is being written."
+      },
+      {
+        "state": "READY",
+        "description": "Folders and Spreadsheet exist, fully mapped inside Firestore, with successful schema verification."
+      },
+      {
+        "state": "PARTIAL",
+        "description": "Project Root Folder created but spreadsheet or subfolders failed to instantiate/move."
+      },
+      {
+        "state": "FAILED",
+        "description": "Google API raised unauthorized, quota-limit, or network connection exception."
+      },
+      {
+        "state": "RETRY_REQUIRED",
+        "description": "Temporary API issue occurred, awaiting explicit administrative retry click."
+      }
+    ],
+    "provisioningOrder": [
+      "1. Project Document written to Firestore (State: PENDING)",
+      "2. Project Root Folder created inside Corporate Root Folder within Shared Drive (supportsAllDrives: true)",
+      "3. Three project subfolders created under Project Root Folder ('imported files', 'reports', 'printable documents')",
+      "4. Spreadsheet created in Shared Drive (or My Drive then moved with supportsAllDrives: true)",
+      "5. Tab schema and sheet localization instantiated dynamically",
+      "6. Google Drive settings updated in project Firestore document, state transitioned to READY"
+    ]
+  },
+  "departureRemediation": {
+    "description": "Since all files reside in the Shared Drive, when an employee is deactivated, zero project files are lost. Corporate retention remains 100% sound because the Shared Drive owns the assets, not the individual account."
+  },
+  "migrationPlan": {
+    "description": "For existing projects on My Drive: 1. Fetch current googleDriveFolderId. 2. Call drive.files.update with supportsAllDrives=true to add parent of Shared Drive Root Folder and remove previous My Drive parent. 3. Update project document with status and parent details."
+  }
+}

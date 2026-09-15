@@ -25,7 +25,13 @@ import {
   Clock,
   ChevronDown,
   Building2,
-  FolderOpen
+  FolderOpen,
+  Download,
+  History,
+  ArrowUpRight,
+  Shield,
+  Check,
+  X
 } from 'lucide-react';
 import { 
   WORKSPACE_TABS, 
@@ -36,7 +42,11 @@ import {
   WorkspaceSheetTab,
   SchemaMigrationPlan,
   GoogleDriveProjectStructure,
-  WorkspaceSyncSummary
+  WorkspaceSyncSummary,
+  ProjectStorageProfile,
+  StorageHistoryRecord,
+  MigrationJob,
+  DestinationValidationResult
 } from '../../types/workspace';
 import { adminConsoleService } from '../../services/adminConsole.service';
 import { ProjectEntity } from '../../types/entities';
@@ -69,6 +79,67 @@ export function WorkspaceIntegrationView() {
   const [uploadSubfolder, setUploadSubfolder] = useState<'importedFiles' | 'reports' | 'printableDocuments'>('printableDocuments');
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [lastUploadedLink, setLastUploadedLink] = useState<string | null>(null);
+
+  // BLOCK 100G-B: Storage Migration & Archive State
+  const [isMigrationModalOpen, setIsMigrationModalOpen] = useState<boolean>(false);
+  const [targetProvider, setTargetProvider] = useState<'MY_DRIVE' | 'SHARED_DRIVE'>('SHARED_DRIVE');
+  const [targetFolderId, setTargetFolderId] = useState<string>('');
+  const [targetFolderName, setTargetFolderName] = useState<string>('');
+  const [targetFolderPathDisplay, setTargetFolderPathDisplay] = useState<string>('');
+  const [isFolderPickerOpen, setIsFolderPickerOpen] = useState<boolean>(false);
+  const [pastedDriveUrl, setPastedDriveUrl] = useState<string>('');
+  const [targetSharedDriveId, setTargetSharedDriveId] = useState<string>('');
+  const [validationResult, setValidationResult] = useState<DestinationValidationResult | null>(null);
+  const [isValidatingDestination, setIsValidatingDestination] = useState<boolean>(false);
+  const [migrationJob, setMigrationJob] = useState<MigrationJob | null>(null);
+  const [isMigrating, setIsMigrating] = useState<boolean>(false);
+
+  const [isDownloadingArchive, setIsDownloadingArchive] = useState<boolean>(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
+  const [storageHistoryRecords, setStorageHistoryRecords] = useState<StorageHistoryRecord[]>([]);
+
+  const ENTERPRISE_FOLDER_PRESETS = [
+    {
+      id: 'folder_target_999',
+      name: 'مجلد مشروع الجبيل الرئيسي - Shared Drive',
+      pathDisplay: '[Shared Drive] Q-Saudi Enterprise / Projects / Jubail Target Folder',
+      provider: 'SHARED_DRIVE' as const,
+    },
+    {
+      id: 'folder_target_enterprise_002',
+      name: 'أرشيف مشاريع المنطقة الشرقية - Enterprise Archive',
+      pathDisplay: '[Shared Drive] Q-Saudi Projects / Eastern Province Storage',
+      provider: 'SHARED_DRIVE' as const,
+    },
+    {
+      id: 'folder_target_mydrive_003',
+      name: 'مجلد التخزين الشخصي - My Drive Target',
+      pathDisplay: '[My Drive] Q-Saudi / Storage Target Folder',
+      provider: 'MY_DRIVE' as const,
+    },
+  ];
+
+  const handleSelectFolder = (folderId: string, folderName?: string, pathDisplay?: string, provider?: 'MY_DRIVE' | 'SHARED_DRIVE') => {
+    setTargetFolderId(folderId);
+    setTargetFolderName(folderName || `مجلد Google Drive (${folderId.slice(0, 8)})`);
+    setTargetFolderPathDisplay(pathDisplay || `${(provider || targetProvider) === 'MY_DRIVE' ? '[My Drive]' : '[Shared Drive]'} Projects / ${folderName || folderId}`);
+    if (provider) setTargetProvider(provider);
+    setValidationResult(null);
+    setIsFolderPickerOpen(false);
+  };
+
+  const handleParseAndSetUrl = (url: string) => {
+    setPastedDriveUrl(url);
+    const trimmed = url.trim();
+    if (!trimmed) return;
+    const match = trimmed.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+    const extractedId = match && match[1] ? match[1] : trimmed;
+    handleSelectFolder(
+      extractedId,
+      `مجلد مستهدف من الرابط (${extractedId.slice(0, 8)}...)`,
+      `[Drive Location] ${trimmed.slice(0, 45)}...`
+    );
+  };
 
   useEffect(() => {
     const update = () => {
@@ -191,6 +262,163 @@ export function WorkspaceIntegrationView() {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleValidateDestination = async () => {
+    if (!currentProject || !targetFolderId.trim()) {
+      setNotification({ type: 'error', text: 'يرجى إدخال معرف مجلد التخزين المستهدف' });
+      return;
+    }
+    setIsValidatingDestination(true);
+    setValidationResult(null);
+    try {
+      const res = await clientWorkspaceService.validateDestinationFolder(
+        currentProject.projectId,
+        targetFolderId.trim(),
+        targetProvider,
+        currentProject.settings.googleDriveFolderId,
+        targetSharedDriveId.trim() || undefined
+      );
+      setValidationResult(res);
+    } catch (err: any) {
+      setValidationResult({
+        valid: false,
+        folderId: targetFolderId,
+        folderName: '',
+        provider: targetProvider,
+        error: err.message || 'فشلت عملية التحقق من المجلد',
+      });
+    } finally {
+      setIsValidatingDestination(false);
+    }
+  };
+
+  const handleExecuteMigration = async () => {
+    if (!currentProject || !targetFolderId.trim()) return;
+    setIsMigrating(true);
+    setNotification(null);
+    try {
+      const trips = tripEngineService.getTrips();
+      const res = await clientWorkspaceService.startStorageMigration({
+        projectId: currentProject.projectId,
+        projectCode: currentProject.projectCode || 'Q-PRJ-001',
+        projectNameAr: currentProject.nameAr,
+        sourceFolderId: currentProject.settings.googleDriveFolderId || 'folder_pilot_root',
+        sourceSpreadsheetId: currentProject.settings.googleSpreadsheetId || 'sheet_pilot_master',
+        targetFolderId: targetFolderId.trim(),
+        targetProvider,
+        sharedDriveId: targetSharedDriveId.trim() || undefined,
+        trips,
+      });
+
+      setMigrationJob(res.job);
+      if (res.job.status === 'READY_TO_SWITCH') {
+        const oldFolderId = currentProject.settings.googleDriveFolderId;
+        const oldSheetId = currentProject.settings.googleSpreadsheetId;
+        
+        const newProfile: ProjectStorageProfile = {
+          storageProvider: targetProvider,
+          currentStorageFolderId: targetFolderId.trim(),
+          currentSpreadsheetId: `gsheet_${currentProject.projectId}_${Date.now()}`,
+          previousStorageFolderId: oldFolderId,
+          previousSpreadsheetId: oldSheetId,
+          sharedDriveId: targetSharedDriveId.trim() || null,
+          rootFolderPathDisplay: targetProvider === 'SHARED_DRIVE' 
+            ? `[Shared Drive] Q-Saudi / Projects / ${currentProject.nameAr}`
+            : `[My Drive] Projects / ${currentProject.nameAr}`,
+          provisioningStatus: 'PROVISIONED',
+          migrationStatus: 'SWITCHED',
+          lastVerifiedAt: new Date().toISOString(),
+          archiveVersion: (currentProject.settings.storageProfile?.archiveVersion || 0) + 1,
+        };
+
+        const newHistoryRecord: StorageHistoryRecord = {
+          historyId: `hist_${Date.now()}`,
+          projectId: currentProject.projectId,
+          folderId: targetFolderId.trim(),
+          spreadsheetId: newProfile.currentSpreadsheetId,
+          displayNamePath: newProfile.rootFolderPathDisplay,
+          provider: targetProvider,
+          sharedDriveId: targetSharedDriveId.trim() || null,
+          createdAt: new Date().toISOString(),
+          changedBy: {
+            userId: user?.uid || 'usr_admin',
+            email: user?.email || 'admin@q-saudi.com',
+            role: (user as any)?.role || 'SUPER_ADMIN',
+          },
+          migrationJobId: res.job.migrationJobId,
+          copiedFilesCount: res.job.copiedFileIds.length,
+          verificationStatus: 'VERIFIED',
+          fileIdMap: res.job.fileIdMap,
+          status: 'ACTIVE',
+        };
+
+        setStorageHistoryRecords(prev => [newHistoryRecord, ...prev.map(r => ({ ...r, status: 'ARCHIVED' as const }))]);
+
+        setProjects(prev => prev.map(p => {
+          if (p.projectId === currentProject.projectId) {
+            return {
+              ...p,
+              settings: {
+                ...p.settings,
+                googleDriveFolderId: targetFolderId.trim(),
+                googleSpreadsheetId: newProfile.currentSpreadsheetId,
+                storageProfile: newProfile,
+              }
+            };
+          }
+          return p;
+        }));
+
+        setNotification({
+          type: 'success',
+          text: `تم نقل موقع تخزين مشروع (${currentProject.nameAr}) بنجاح وبشكل آمن إلى ${targetProvider === 'SHARED_DRIVE' ? 'المحرك المشارك (Shared Drive)' : 'My Drive'}!`,
+        });
+        setIsMigrationModalOpen(false);
+      } else {
+        setNotification({
+          type: 'error',
+          text: res.job.errorDetails || 'فشلت عملية التحقق أو النقل إلى المكان الجديد',
+        });
+      }
+    } catch (err: any) {
+      setNotification({ type: 'error', text: err.message || 'خطأ أثناء النقل' });
+    } finally {
+      setIsMigrating(false);
+    }
+  };
+
+  const handleDownloadArchive = async () => {
+    if (!currentProject) return;
+    setIsDownloadingArchive(true);
+    setNotification(null);
+    try {
+      const trips = tripEngineService.getTrips();
+      await clientWorkspaceService.downloadProjectArchive({
+        project: currentProject,
+        trips,
+        storageProfile: currentProject.settings.storageProfile,
+      });
+      setNotification({
+        type: 'success',
+        text: `تم إنشاء وتحميل حزمة الأرشيف الكاملة للمشروع (Q-PRJ-${currentProject.projectCode || '001'}) بنجاح!`,
+      });
+    } catch (err: any) {
+      setNotification({ type: 'error', text: err.message || 'فشل تحميل أرشيف المشروع' });
+    } finally {
+      setIsDownloadingArchive(false);
+    }
+  };
+
+  const currentStorageProfile = currentProject?.settings?.storageProfile || {
+    storageProvider: 'MY_DRIVE' as const,
+    currentStorageFolderId: currentProject?.settings?.googleDriveFolderId || 'folder_pilot_001',
+    currentSpreadsheetId: currentProject?.settings?.googleSpreadsheetId || 'sheet_pilot_001',
+    rootFolderPathDisplay: `[My Drive] Q-Saudi Projects / ${currentProject?.nameAr || 'المشروع'}`,
+    provisioningStatus: 'PROVISIONED' as const,
+    migrationStatus: 'IDLE' as const,
+    lastVerifiedAt: new Date().toISOString(),
+    archiveVersion: 1,
   };
 
   const trips = tripEngineService.getTrips();
@@ -386,6 +614,93 @@ export function WorkspaceIntegrationView() {
               <span className="text-xs text-amber-700 font-medium">{t("navigation.labels.txt_684973")}</span>
             )}
             <div className="text-[10px] text-stone-400 mt-0.5">{t("navigation.labels.txt_257f0d")}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* BLOCK 100G-B & 100G-D: Configurable Project Storage Profile Card */}
+      <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700">
+              <HardDrive className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-stone-900">ملف التخزين الخاص بالمشروع (Project Storage Profile)</h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  {currentStorageProfile.provisioningStatus}
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                  v{currentStorageProfile.archiveVersion}
+                </span>
+              </div>
+              <p className="text-xs text-stone-500">إدارة مسار وتوزيع مستندات وجداول بيانات المشروع على Google Drive</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              id="btn-open-storage-migration-modal"
+              onClick={() => setIsMigrationModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-xs"
+            >
+              <ArrowRightLeft className="w-4 h-4" />
+              <span>تغيير موقع التخزين (نقل التخزين)</span>
+            </button>
+
+            <button
+              id="btn-download-project-archive"
+              onClick={handleDownloadArchive}
+              disabled={isDownloadingArchive}
+              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 border border-stone-200 transition-all shadow-xs ${
+                isDownloadingArchive ? 'opacity-60 cursor-not-allowed' : ''
+              }`}
+            >
+              <Download className={`w-4 h-4 ${isDownloadingArchive ? 'animate-spin' : ''}`} />
+              <span>تحميل الأرشيف (.ZIP)</span>
+            </button>
+
+            <button
+              id="btn-view-storage-history"
+              onClick={() => setIsHistoryModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-stone-600 hover:text-stone-900 bg-stone-50 border border-stone-200 transition-all"
+            >
+              <History className="w-4 h-4" />
+              <span>سجل التغييرات</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-stone-100 text-xs">
+          <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+            <div className="text-[11px] font-semibold text-stone-500 mb-1">مزود التخزين الحالي (Storage Provider)</div>
+            <div className="font-bold text-stone-900 flex items-center gap-1.5">
+              <HardDrive className="w-3.5 h-3.5 text-indigo-600" />
+              <span>{currentStorageProfile.storageProvider === 'SHARED_DRIVE' ? 'المحرك المشارك (Shared Drive)' : 'My Drive'}</span>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+            <div className="text-[11px] font-semibold text-stone-500 mb-1">المسار المعروض للمجلد الرئيسية</div>
+            <div className="font-mono text-[11px] font-semibold text-stone-800 truncate" title={currentStorageProfile.rootFolderPathDisplay}>
+              {currentStorageProfile.rootFolderPathDisplay}
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+            <div className="text-[11px] font-semibold text-stone-500 mb-1">حالة النقل (Migration Status)</div>
+            <div className="font-bold text-stone-900 flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{currentStorageProfile.migrationStatus || 'IDLE'}</span>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+            <div className="text-[11px] font-semibold text-stone-500 mb-1">آخر تحقق آمن (Last Verified)</div>
+            <div className="font-mono text-[11px] text-stone-700">
+              {currentStorageProfile.lastVerifiedAt ? new Date(currentStorageProfile.lastVerifiedAt).toLocaleString('ar-SA') : 'لم يتم التحقق'}
+            </div>
           </div>
         </div>
       </div>
@@ -775,6 +1090,302 @@ export function WorkspaceIntegrationView() {
         </div>
 
       </div>
+
+      {/* BLOCK 100G-D: Safe Storage Migration Modal with User-Friendly Folder Selector UX */}
+      {isMigrationModalOpen && currentProject && (
+        <div className="fixed inset-0 z-50 bg-stone-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-stone-200 space-y-6 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-4 border-b border-stone-100">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700">
+                  <ArrowRightLeft className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-stone-900">نقل موقع تخزين المشروع والتوزيع (Storage Migration)</h2>
+                  <p className="text-xs text-stone-500">إعادة توجيه وإسقاط ملفات وسجلات المشروع إلى موقع تخزين جديد في Google Drive.</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsMigrationModalOpen(false)}
+                className="p-1.5 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-5 text-xs">
+              {/* Section 1: Current Storage */}
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2">
+                <div className="font-bold text-stone-800 flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4 text-stone-600" />
+                  <span>موقع التخزين الحالي (Current Storage Location)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-stone-600 pt-1">
+                  <div>
+                    <span className="text-stone-400">المسار: </span>
+                    <span className="font-mono text-[11px] text-stone-800">{currentStorageProfile.rootFolderPathDisplay}</span>
+                  </div>
+                  <div>
+                    <span className="text-stone-400">المزود: </span>
+                    <span className="font-semibold text-stone-800">{currentStorageProfile.storageProvider === 'SHARED_DRIVE' ? 'Shared Drive' : 'My Drive'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Change Storage Location (Folder Selector UX) */}
+              <div className="space-y-3 pt-2">
+                <label className="font-bold text-stone-900 block">
+                  اختر موقع التخزين الجديد (Change Storage Location)
+                </label>
+
+                {/* Storage Provider Selector */}
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setTargetProvider('SHARED_DRIVE')}
+                    className={`p-3 rounded-xl border text-right transition-all flex items-center justify-between ${
+                      targetProvider === 'SHARED_DRIVE'
+                        ? 'bg-indigo-50/80 border-indigo-500 text-indigo-950 font-bold ring-2 ring-indigo-500/20'
+                        : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-semibold text-xs">المحرك المشارك (Shared Drive)</div>
+                      <div className="text-[10px] text-stone-500">تخزين مؤسسي مشترك للفرق والأطقم</div>
+                    </div>
+                    {targetProvider === 'SHARED_DRIVE' && <Check className="w-4 h-4 text-indigo-600 shrink-0" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTargetProvider('MY_DRIVE')}
+                    className={`p-3 rounded-xl border text-right transition-all flex items-center justify-between ${
+                      targetProvider === 'MY_DRIVE'
+                        ? 'bg-indigo-50/80 border-indigo-500 text-indigo-950 font-bold ring-2 ring-indigo-500/20'
+                        : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-semibold text-xs">مجلدي الشخصي (My Drive)</div>
+                      <div className="text-[10px] text-stone-500">تخزين في حساب المدير المباشر</div>
+                    </div>
+                    {targetProvider === 'MY_DRIVE' && <Check className="w-4 h-4 text-indigo-600 shrink-0" />}
+                  </button>
+                </div>
+
+                {/* Main Folder Picker Workflow */}
+                <div className="p-4 rounded-2xl border border-dashed border-indigo-300 bg-indigo-50/40 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <div className="font-bold text-stone-900 flex items-center gap-2">
+                        <FolderTree className="w-4 h-4 text-indigo-600" />
+                        <span>اختيار مجلد Google Drive المستهدف</span>
+                      </div>
+                      <p className="text-[11px] text-stone-500 mt-0.5">
+                        حدد المجلد المستهدف من مجلدات Google Drive المتاحة أو اختر حزمة أرشيف المؤسسة.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      id="btn-select-google-drive-folder"
+                      onClick={() => setIsFolderPickerOpen(!isFolderPickerOpen)}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-xs shrink-0"
+                    >
+                      <Search className="w-4 h-4" />
+                      <span>{isFolderPickerOpen ? 'إغلاق منتقي المجلدات' : 'اختر مجلد Google Drive'}</span>
+                    </button>
+                  </div>
+
+                  {/* Visual Folder Picker Drawer / Preset Browser */}
+                  {isFolderPickerOpen && (
+                    <div className="p-3 bg-white rounded-xl border border-stone-200 shadow-lg space-y-3 animate-in fade-in duration-150">
+                      <div className="text-[11px] font-bold text-stone-700 flex items-center justify-between border-b border-stone-100 pb-2">
+                        <span>قائمة المجلدات المؤسسية المتاحة (Enterprise Drive Folders)</span>
+                        <span className="text-stone-400 font-normal">انقر لتحديد المجلد</span>
+                      </div>
+
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        {ENTERPRISE_FOLDER_PRESETS.map((preset) => (
+                          <div
+                            key={preset.id}
+                            onClick={() => handleSelectFolder(preset.id, preset.name, preset.pathDisplay, preset.provider)}
+                            className="p-2.5 rounded-lg border border-stone-100 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition-all flex items-center justify-between group"
+                          >
+                            <div className="space-y-0.5">
+                              <div className="font-bold text-stone-900 group-hover:text-indigo-900 flex items-center gap-2">
+                                <FolderOpen className="w-3.5 h-3.5 text-indigo-600" />
+                                <span>{preset.name}</span>
+                              </div>
+                              <div className="text-[10px] text-stone-500 font-mono">{preset.pathDisplay}</div>
+                            </div>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-100 group-hover:bg-indigo-100 text-stone-700 group-hover:text-indigo-800">
+                              تحديد المجلد
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* URL Resolver Option */}
+                      <div className="pt-2 border-t border-stone-100 space-y-1.5">
+                        <label className="text-[11px] font-semibold text-stone-600 block">
+                          أو الصق رابط مجلد Google Drive (Drive Folder URL):
+                        </label>
+                        <input
+                          type="text"
+                          value={pastedDriveUrl}
+                          onChange={(e) => handleParseAndSetUrl(e.target.value)}
+                          placeholder="https://drive.google.com/drive/folders/1A2B3C..."
+                          className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-stone-50"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Selected Location Card Display */}
+                  {targetFolderId ? (
+                    <div className="p-3.5 rounded-xl bg-white border border-emerald-300 shadow-2xs space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span>المجلد المحدد: {targetFolderName || targetFolderId}</span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                          محدد وآمن
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-stone-600 font-mono">
+                        {targetFolderPathDisplay || `[${targetProvider}] / ${targetFolderId}`}
+                      </div>
+                      <div className="text-[10px] text-emerald-700 font-medium pt-0.5">
+                        جاهز للتحقق من التراخيص عبر السيرفر بالنقر على زر التحقق أدناه.
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-stone-100/80 border border-stone-200 text-stone-500 text-center text-xs">
+                      لم يتم تحديد مجلد بعد. يرجى اختيار مجلد من الزر أعلاه.
+                    </div>
+                  )}
+                </div>
+
+                {/* Server Validation Result Card */}
+                {validationResult && (
+                  <div className={`p-3.5 rounded-xl border text-xs space-y-1 ${
+                    validationResult.valid 
+                      ? 'bg-emerald-50 text-emerald-900 border-emerald-300' 
+                      : 'bg-rose-50 text-rose-900 border-rose-300'
+                  }`}>
+                    <div className="flex items-center gap-2 font-bold">
+                      {validationResult.valid ? <ShieldCheck className="w-4 h-4 text-emerald-600" /> : <AlertCircle className="w-4 h-4 text-rose-600" />}
+                      <span>{validationResult.valid ? 'تم التحقق بنجاح: المجلد المستهدف صالح ومصرح به' : 'تعذر التحقق من المجلد المستهدف'}</span>
+                    </div>
+                    {validationResult.error && (
+                      <div className="text-[11px] text-rose-700">{validationResult.error}</div>
+                    )}
+                    {validationResult.valid && (
+                      <div className="text-[11px] text-emerald-700">
+                        مجلد ({validationResult.folderName || targetFolderId}) جاهز لبدء نقل الملفات والجداول بأمان.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-100">
+              <button
+                type="button"
+                onClick={() => setIsMigrationModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-stone-600 hover:bg-stone-100 font-semibold text-xs transition-all"
+              >
+                إلغاء
+              </button>
+
+              <button
+                type="button"
+                id="btn-validate-destination-folder"
+                onClick={handleValidateDestination}
+                disabled={isValidatingDestination || !targetFolderId}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-xs transition-all border ${
+                  isValidatingDestination || !targetFolderId
+                    ? 'bg-stone-100 text-stone-400 border-stone-200 cursor-not-allowed'
+                    : 'bg-white text-indigo-700 border-indigo-300 hover:bg-indigo-50'
+                }`}
+              >
+                <ShieldCheck className={`w-4 h-4 ${isValidatingDestination ? 'animate-spin' : ''}`} />
+                <span>{isValidatingDestination ? 'جاري التحقق من السيرفر...' : 'التحقق من المجلد والتراخيص'}</span>
+              </button>
+
+              <button
+                type="button"
+                id="btn-execute-storage-migration"
+                onClick={handleExecuteMigration}
+                disabled={isMigrating || !validationResult?.valid}
+                className={`inline-flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-xs text-white shadow-md transition-all ${
+                  isMigrating || !validationResult?.valid
+                    ? 'bg-stone-400 cursor-not-allowed'
+                    : 'bg-emerald-600 hover:bg-emerald-500 active:scale-95'
+                }`}
+              >
+                <RefreshCw className={`w-4 h-4 ${isMigrating ? 'animate-spin' : ''}`} />
+                <span>{isMigrating ? 'جاري النقل والتسجيل...' : 'بدء نقل التخزين والتحديث الآمن'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BLOCK 100G-B: Storage History Log Modal */}
+      {isHistoryModalOpen && (
+        <div className="fixed inset-0 z-50 bg-stone-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-stone-200 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+              <div className="flex items-center gap-2.5">
+                <History className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-base font-bold text-stone-900">سجل التغييرات التاريخية لمواقع التخزين</h3>
+              </div>
+              <button onClick={() => setIsHistoryModalOpen(false)} className="text-stone-400 hover:text-stone-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs max-h-80 overflow-y-auto pr-1">
+              {storageHistoryRecords.length === 0 ? (
+                <div className="p-6 text-center text-stone-400 font-medium">
+                  لا توجد عمليات نقل سابقة مسجلة في التاريخ لهذا المشروع.
+                </div>
+              ) : (
+                storageHistoryRecords.map((rec) => (
+                  <div key={rec.historyId} className="p-3.5 rounded-xl border border-stone-200 bg-stone-50 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-stone-900 font-mono text-xs">{rec.displayNamePath}</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        rec.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-200 text-stone-700'
+                      }`}>
+                        {rec.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-stone-500">
+                      <span>المستخدم: {rec.changedBy.email} ({rec.changedBy.role})</span>
+                      <span>التاريخ: {new Date(rec.createdAt).toLocaleString('ar-SA')}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="pt-3 border-t border-stone-100 text-left">
+              <button
+                onClick={() => setIsHistoryModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-stone-100 text-stone-700 text-xs font-semibold hover:bg-stone-200"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

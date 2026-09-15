@@ -1,0 +1,156 @@
+{
+  "auditMetadata": {
+    "blockId": "BLOCK100F",
+    "title": "Shared Drive Provisioning Preparation & Setup Specification",
+    "auditedAt": "2026-09-15T14:15:00Z",
+    "status": "COMPLETED",
+    "scope": "READ-ONLY",
+    "targetFiles": [
+      "server/workspace.service.ts",
+      "src/services/workspace.service.ts",
+      "src/services/projectProvisioning.service.ts",
+      ".env.example"
+    ]
+  },
+  "summaryVariables": {
+    "SHARED_DRIVE_MANUAL_CREATION": "YES",
+    "ROOT_FOLDER_MANUAL_CREATION": "YES",
+    "PROJECTS_FOLDER_MANUAL_CREATION": "YES",
+    "SERVER_ENV_REQUIRED": [
+      "GOOGLE_SHARED_DRIVE_ID",
+      "GOOGLE_PROJECTS_ROOT_FOLDER_ID"
+    ],
+    "CLIENT_ENV_REQUIRED": [
+      "VITE_FIREBASE_OAUTH_CLIENT_ID"
+    ],
+    "SUPPORTS_ALL_DRIVES_REQUIRED": "YES",
+    "DRIVE_SCOPE_SUFFICIENT": "YES",
+    "SHEET_SCOPE_SUFFICIENT": "YES",
+    "CODE_FILES_REQUIRING_UPDATE": [
+      "server/workspace.service.ts",
+      "src/services/workspace.service.ts",
+      "src/services/projectProvisioning.service.ts"
+    ],
+    "MIGRATION_REQUIRED": "YES",
+    "ROLLBACK_DEFINED": "YES",
+    "MANUAL_ADMIN_STEPS": [
+      "1. Google Workspace Administrator logs into https://drive.google.com using corporate account.",
+      "2. Create a new Shared Drive named 'Q-Saudi'.",
+      "3. Add Project Administrators / App OAuth User Accounts as Members with 'Content Manager' or 'Contributor' role.",
+      "4. Inside 'Q-Saudi' Shared Drive, create a top-level parent folder named 'Projects'.",
+      "5. Extract the Shared Drive ID from the URL (e.g., https://drive.google.com/drive/folders/<SHARED_DRIVE_ID>).",
+      "6. Extract the 'Projects' Root Folder ID from its URL (e.g., https://drive.google.com/drive/folders/<GOOGLE_PROJECTS_ROOT_FOLDER_ID>).",
+      "7. Add GOOGLE_SHARED_DRIVE_ID and GOOGLE_PROJECTS_ROOT_FOLDER_ID to Cloud Run / Vercel Server Environment Variables."
+    ],
+    "NEXT_IMPLEMENTATION_BLOCK": "BLOCK 100G — Shared Drive Code Implementation & Provisioning Pipeline",
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "DRIVE_CHANGED": "NO",
+    "DEPLOYMENT_CHANGED": "NO"
+  },
+  "workspaceResourceSpecification": {
+    "creationMethod": "MANUAL_BY_COMPANY_WORKSPACE_ADMIN",
+    "justification": "Creating the Shared Drive manually via the Google Workspace Admin console guarantees corporate ownership, eliminates programmatic domain-permission errors, and avoids needing super-admin OAuth privileges within the web application.",
+    "hierarchy": {
+      "sharedDriveName": "Q-Saudi",
+      "rootFolderName": "Projects",
+      "projectFolderNameTemplate": "[Q-Saudi] <ProjectNameAr> (<ProjectCode>)",
+      "subfolders": [
+        "imported files",
+        "reports",
+        "printable documents"
+      ],
+      "masterSheetTitleTemplate": "[Q-Saudi] سجل العمليات والإسقاط التشغيلي - <ProjectNameAr>"
+    }
+  },
+  "environmentVariablesSpecification": {
+    "serverSideVariables": [
+      {
+        "name": "GOOGLE_SHARED_DRIVE_ID",
+        "required": true,
+        "exposure": "SERVER_ONLY",
+        "description": "Unique Google Drive ID of the corporate Shared Drive container ('Q-Saudi')."
+      },
+      {
+        "name": "GOOGLE_PROJECTS_ROOT_FOLDER_ID",
+        "required": true,
+        "exposure": "SERVER_ONLY",
+        "description": "Folder ID of the 'Projects' directory inside the 'Q-Saudi' Shared Drive."
+      }
+    ],
+    "clientSideVariables": [
+      {
+        "name": "VITE_FIREBASE_OAUTH_CLIENT_ID",
+        "required": true,
+        "exposure": "CLIENT_PUBLIC",
+        "description": "Firebase OAuth Client ID used by GoogleAuthProvider."
+      }
+    ]
+  },
+  "codeChangesSpecification": {
+    "serverWorkspaceService": [
+      {
+        "targetFunction": "provisionProjectDrive",
+        "changes": [
+          "Inject query parameter supportsAllDrives: true into drive.files.create for Project Root Folder creation.",
+          "Set parents: [process.env.GOOGLE_PROJECTS_ROOT_FOLDER_ID || process.env.GOOGLE_SHARED_DRIVE_ID] in requestBody.",
+          "Inject supportsAllDrives: true into drive.files.create calls for subfolder creations ('imported files', 'reports', 'printable documents').",
+          "Inject supportsAllDrives: true into drive.files.update when moving the Master Google Sheet into the project folder."
+        ]
+      },
+      {
+        "targetFunction": "ensureSheetTabWithHeaders",
+        "changes": [
+          "Ensure sheets API requests specify spreadsheetId and propagate authentication token with supportsAllDrives where applicable."
+        ]
+      }
+    ],
+    "clientWorkspaceService": [
+      {
+        "targetFunction": "provisionProjectStructure",
+        "changes": [
+          "Pass authorization token and project metadata to backend endpoint /api/workspace/provision.",
+          "Handle updated lifecycle states: PENDING_PROVISIONING, READY, PARTIAL, RETRY_REQUIRED."
+        ]
+      }
+    ],
+    "projectProvisioningService": [
+      {
+        "targetFunction": "provisionNewProject",
+        "changes": [
+          "Decouple Firestore project document creation (State: PENDING_PROVISIONING) from Google Drive API execution.",
+          "Update status to READY upon successful folder and sheet initialization, or PARTIAL/RETRY_REQUIRED upon error."
+        ]
+      }
+    ]
+  },
+  "permissionsAndRoleMapping": {
+    "companyWorkspaceAdmin": "Full administrative control over Google Workspace and Shared Drive membership.",
+    "superAdmin": "App-level full management, initiates workspace provisioning, assigned 'Content Manager' or 'Manager' in Shared Drive.",
+    "projectAdmin": "App-level management for assigned projects, assigned 'Contributor' or 'Content Manager' in Shared Drive.",
+    "supervisor": "Operational field supervisor, interactions mediated through app API (no direct Drive access required).",
+    "operationalUsers": "Drivers and weighbridge operators, restricted strictly to app UI."
+  },
+  "provisioningLifecycleStates": {
+    "states": [
+      "PENDING_PROVISIONING",
+      "IN_PROGRESS",
+      "READY",
+      "PARTIAL",
+      "FAILED",
+      "RETRY_REQUIRED"
+    ],
+    "order": [
+      "1. Firestore Project Document Created (State: PENDING_PROVISIONING)",
+      "2. Project Root Folder created in Shared Drive (State: IN_PROGRESS)",
+      "3. Three subfolders created in Project Root Folder ('imported files', 'reports', 'printable documents')",
+      "4. Master Google Sheet created and moved into Project Root Folder",
+      "5. Sheet tabs initialized with Saudi Arabic headers (Operations, Drivers, Carriers, Materials, Exceptions, Reports)",
+      "6. Firestore Project Document updated with googleDriveFolderId and googleSpreadsheetId (State: READY)"
+    ]
+  },
+  "migrationAndRollbackStrategy": {
+    "migrationStrategy": "Scripted server-side relocation calling drive.files.update with supportsAllDrives=true and addParents=GOOGLE_PROJECTS_ROOT_FOLDER_ID for existing My Drive project folders.",
+    "rollbackStrategy": "If Google Shared Drive API call fails during project setup, the Firestore project remains intact in PENDING_PROVISIONING or RETRY_REQUIRED state. The user can trigger an explicit retry via UI without creating duplicate Firestore documents."
+  }
+}

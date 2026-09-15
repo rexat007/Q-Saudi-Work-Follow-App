@@ -1,0 +1,137 @@
+{
+  "auditMetadata": {
+    "blockId": "BLOCK100G-A",
+    "title": "Project Storage Migration, Backup & Archive Architecture Audit",
+    "auditedAt": "2026-09-15T15:55:00Z",
+    "status": "COMPLETED",
+    "scope": "READ-ONLY",
+    "targetFiles": [
+      "server/workspace.service.ts",
+      "src/services/workspace.service.ts",
+      "src/services/projectProvisioning.service.ts",
+      "src/types/entities.ts",
+      "src/types/workspace.ts",
+      "src/components/workspace/WorkspaceIntegrationView.tsx"
+    ]
+  },
+  "summaryVariables": {
+    "CONFIGURABLE_STORAGE_RECOMMENDED": "YES",
+    "PROJECT_STORAGE_PROFILE": "Firestore-managed entity settings defining current storage location, provider mode (My Drive vs Shared Drive), health status, and migration state.",
+    "STORAGE_HISTORY_REQUIRED": "YES",
+    "SAFE_STORAGE_SWITCH": "YES",
+    "OLD_STORAGE_PRESERVED": "YES",
+    "ARCHIVE_DOWNLOAD_RECOMMENDED": "YES",
+    "ARCHIVE_STRUCTURE": "Q-PRJ-001_PROJECT_ARCHIVE_<timestamp>.zip containing manifest, json datasets (project, roster, pricing, trips, exceptions, audit), and subdirectories (reports/, imports/, printable-documents/).",
+    "ARCHIVE_REPLACES_FIRESTORE_BACKUP": "NO",
+    "MASTER_SHEET_MIGRATION": "REBUILD_AND_RESYNC: Instantiate fresh Master Sheet in target location, set 6 localized tabs, and run full Firestore projection sync. Preserves 100% data integrity.",
+    "FILE_COPY_STRATEGY": "RECURSIVE_DRIVE_COPY: Recreate subfolder structure (imported files, reports, printable documents) and copy binary assets using drive.files.copy with supportsAllDrives=true.",
+    "LINK_INTEGRITY_STRATEGY": "IMMUTABLE_FILE_MAPPING: Store oldFileId-to-newFileId mapping in storage history and resolve file links dynamically via active storage pointer or historical mapping lookup.",
+    "PILOT_MY_DRIVE_SUPPORTED": "YES",
+    "COMPANY_SHARED_DRIVE_SUPPORTED": "YES",
+    "MIGRATION_PRESERVES_PROJECT_ID": "YES",
+    "MIGRATION_PRESERVES_TRIP_IDS": "YES",
+    "RBAC_MODEL": "Strict RBAC: SUPER_ADMIN and assigned PROJECT_ADMIN can initiate storage changes or archive downloads; SITE_SUPERVISOR and OPERATIONAL users are DENIED.",
+    "IDEMPOTENT_MIGRATION": "YES",
+    "ROLLBACK_STRATEGY": "ZERO_POINTER_SWITCH_ON_FAILURE: Active storage pointer in Firestore is NEVER updated until 100% verification passes. If failure occurs, old storage remains active and partial target files are flagged for idempotent retry.",
+    "AUDIT_REQUIRED": "YES",
+    "CURRENT_FILES": [
+      "server/workspace.service.ts",
+      "src/services/workspace.service.ts",
+      "src/services/projectProvisioning.service.ts",
+      "src/types/entities.ts",
+      "src/types/workspace.ts",
+      "src/components/workspace/WorkspaceIntegrationView.tsx"
+    ],
+    "FILES_TO_REUSE": [
+      "server/workspace.service.ts",
+      "src/services/workspace.service.ts",
+      "src/services/projectProvisioning.service.ts",
+      "src/services/reportsEngine.service.ts",
+      "src/components/workspace/WorkspaceIntegrationView.tsx"
+    ],
+    "FILES_TO_REBUILD": [],
+    "IMPLEMENTATION_RECOMMENDED": "YES",
+    "NEXT_IMPLEMENTATION_BLOCK": "BLOCK 100G-B — Configurable Project Storage & Archive Implementation",
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "DRIVE_CHANGED": "NO",
+    "DEPLOYMENT_CHANGED": "NO"
+  },
+  "currentStorageArchitecture": {
+    "storageRootDefinition": "Top-level Google Drive folder identified by settings.googleDriveFolderId, housing subfolders ('imported files', 'reports', 'printable documents') and the Master Google Sheet (settings.googleSpreadsheetId).",
+    "firestoreReferences": [
+      "ProjectEntity.settings.googleDriveFolderId",
+      "ProjectEntity.settings.googleSpreadsheetId",
+      "ProjectEntity.settings.googleDriveProvisioning",
+      "TripEntity.weights.originTicketDriveFileId",
+      "TripEntity.weights.destinationTicketDriveFileId",
+      "TripSourceMetadata.sourceFileId"
+    ]
+  },
+  "proposedStorageProfileSchema": {
+    "locationInFirestore": "projects/{projectId}/settings/storageProfile OR ProjectEntity.settings.storageProfile",
+    "fields": {
+      "currentStorageFolderId": "string (Google Drive folder ID currently active)",
+      "currentSpreadsheetId": "string (Master Sheet ID currently active)",
+      "storageProvider": "MY_DRIVE | SHARED_DRIVE | LOCAL_HYBRID",
+      "sharedDriveId": "string | null",
+      "rootFolderPath": "string (Display path, e.g., 'Q-Saudi/Projects/NEOM-North')",
+      "provisioningStatus": "PROVISIONED | PENDING | PARTIAL | FAILED | RETRY_REQUIRED",
+      "migrationStatus": "IDLE | REQUESTED | VALIDATING | COPYING | VERIFYING | READY_TO_SWITCH | SWITCHED | FAILED | ROLLBACK_REQUIRED",
+      "lastVerifiedAt": "string (ISO Timestamp)",
+      "archiveVersion": "number (Monotonically increasing archive export counter)"
+    }
+  },
+  "storageHistoryModel": {
+    "collectionPath": "projects/{projectId}/storageHistory/{historyId}",
+    "fields": {
+      "historyId": "string (UUID)",
+      "folderId": "string",
+      "spreadsheetId": "string",
+      "displayNamePath": "string",
+      "provider": "MY_DRIVE | SHARED_DRIVE",
+      "createdAt": "string (ISO Timestamp)",
+      "deactivatedAt": "string | null",
+      "changedBy": "{ userId: string, email: string, role: string }",
+      "migrationJobId": "string",
+      "copiedFilesCount": "number",
+      "verificationStatus": "VERIFIED | UNVERIFIED | FAILED",
+      "fileIdMap": "Record<string, string> (oldFileId -> newFileId mapping)",
+      "status": "ACTIVE | ARCHIVED | HISTORICAL"
+    }
+  },
+  "migrationStateMachine": {
+    "states": [
+      "IDLE",
+      "REQUESTED",
+      "VALIDATING",
+      "COPYING",
+      "VERIFYING",
+      "READY_TO_SWITCH",
+      "SWITCHED",
+      "FAILED",
+      "ROLLBACK_REQUIRED"
+    ],
+    "switchTriggerCondition": "Active storage pointer switches ONLY when state reaches READY_TO_SWITCH and verification check passes 100%. Active pointer NEVER changes during COPYING or FAILED states."
+  },
+  "archivePackageSpecification": {
+    "filenamePattern": "Q-PRJ-<ProjectCode>_PROJECT_ARCHIVE_<Timestamp>.zip",
+    "securityFilter": "MUST NEVER include OAuth tokens, service account keys, client secrets, password hashes, or Firebase credentials.",
+    "components": {
+      "manifest": "project-manifest.json",
+      "firestoreExport": [
+        "project-data.json",
+        "roster.json",
+        "pricing.json",
+        "trips-export.json",
+        "exceptions.json",
+        "audit-export.json"
+      ],
+      "driveAssets": [
+        "reports/*",
+        "imports/*",
+        "printable-documents/*"
+      ]
+    }
+  }
+}

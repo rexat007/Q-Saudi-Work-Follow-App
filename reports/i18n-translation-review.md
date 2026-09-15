@@ -196,7 +196,7 @@ This document contains domain-specific terminology requiring human verification 
 | `reports.fields.carrier_2` | "الناقل التابع" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
 | `reports.fields.carrier_3` | "Carrier" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
 | `reports.fields.carrier_4` | "الناقل" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
-| `reports.fields.carrier_5` | "الناقل المعني" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.carrier_5` | "الناقل المعني" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
 | `reports.fields.carrier_6` | "معدل إنجاز الناقل" | prop_primaryMetricLabel | `MEDIUM` | Domain-specific terminology translation |
 | `reports.fields.carriers` | "الناقلون المنفذون" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
 | `reports.fields.carriers_2` | "Carriers" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
@@ -211,7 +211,7 @@ This document contains domain-specific terminology requiring human verification 
 | `reports.fields.formula` | "Formula" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
 | ... | *and 589 more items in this domain queue* | | | |
 
-## Domain: `security` (552 items requiring review)
+## Domain: `security` (553 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -235,7 +235,7 @@ This document contains domain-specific terminology requiring human verification 
 | `security.fields.refresh_2` | "فشل: سمح النظام باعتماد وزن المصدر كوجهة بتحديث عميل عادي!" | literal | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.search` | "البحث بواسطة الاسم، البريد الإلكتروني، أو الرقم التعريفي..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.successConfirmTrucksEditPricing` | "اجتاز النظام بنجاح تام كافة الاختبارات الأمنية الـ (${results.length}) بنسبة امتثال 100%. تم رفض محاولات Supervisor غير المصرح بها (carrierId, projectId, pricingRuleId, settlementAmount, status, truckId)، وتأكيد العزل بين المشاريع، وحظر تضارب الشاحنات مع الناقلين، وفرض النسخ عند التعديل (Copy-on-Write) لحماية التسعير التاريخي، وتأمين Idempotency ضد Replay Attacks." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [projectId,carrierId,status,settlementAmount]) |
-| ... | *and 532 more items in this domain queue* | | | |
+| ... | *and 533 more items in this domain queue* | | | |
 
 ## Domain: `offline` (296 items requiring review)
 
