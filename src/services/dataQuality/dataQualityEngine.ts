@@ -442,9 +442,10 @@ export class DataQualityEngine {
     summaryIssues: string[];
   } {
     const summaryIssues: string[] = [];
+    const safeContext = context || { knownCarriers: [], knownTrucks: [], knownDrivers: [], knownMaterials: [], authorizedCarrierIds: [], authorizedMaterialIds: [] };
 
     // Format carrier candidates
-    const carrierCandidates: MatchingCandidate[] = context.knownCarriers.map(c => ({
+    const carrierCandidates: MatchingCandidate[] = (safeContext.knownCarriers || []).map(c => ({
       id: c.carrierId,
       value: c.name,
       normalizedValue: normalizeName(c.name),
@@ -453,7 +454,7 @@ export class DataQualityEngine {
     }));
 
     // Format truck candidates
-    const truckCandidates: MatchingCandidate[] = context.knownTrucks.map(t => ({
+    const truckCandidates: MatchingCandidate[] = (safeContext.knownTrucks || []).map(t => ({
       id: t.truckId,
       value: t.plate,
       normalizedValue: normalizePlate(t.plate),
@@ -462,7 +463,7 @@ export class DataQualityEngine {
     }));
 
     // Format driver candidates
-    const driverCandidates: MatchingCandidate[] = context.knownDrivers.map(d => ({
+    const driverCandidates: MatchingCandidate[] = (safeContext.knownDrivers || []).map(d => ({
       id: d.driverId,
       value: d.name,
       normalizedValue: normalizeName(d.name),
@@ -471,7 +472,7 @@ export class DataQualityEngine {
     }));
 
     // Format material candidates
-    const materialCandidates: MatchingCandidate[] = context.knownMaterials.map(m => ({
+    const materialCandidates: MatchingCandidate[] = (safeContext.knownMaterials || []).map(m => ({
       id: m.materialId,
       value: m.name,
       normalizedValue: normalizeName(m.name),

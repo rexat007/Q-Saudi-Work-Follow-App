@@ -120,6 +120,15 @@ export class AdminConsoleService {
   private importBatches: ImportBatchEntity[] = [];
   private listeners: Set<() => void> = new Set();
 
+  public subscribe(cb: () => void): () => void {
+    this.listeners.add(cb);
+    return () => this.listeners.delete(cb);
+  }
+
+  private notify(): void {
+    this.listeners.forEach(cb => cb());
+  }
+
   constructor(seedWithDefaults = false) {
     if (seedWithDefaults) {
       this.loadDemoMasterData();

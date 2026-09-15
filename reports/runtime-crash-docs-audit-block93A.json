@@ -1,0 +1,198 @@
+{
+  "block": "BLOCK 93A",
+  "title": "Runtime Crash & Architecture Documentation Audit",
+  "timestamp": "2026-09-15T07:43:06.797Z",
+  "readOnlyAudit": true,
+  "codeChanged": false,
+  "dataChanged": false,
+  "i18nChanged": false,
+  "crashInventory": [
+    {
+      "id": 1,
+      "name": "Google Integration / Drive & Sheets Workspace Provisioning",
+      "uiEntry": "Project Setup Wizard -> Step 6 (Google Drive) -> Workspace Integration View",
+      "component": "WorkspaceIntegrationView.tsx / Step6GoogleDrive.tsx",
+      "hookInitialization": "useWorkspace / useState for provisioning status",
+      "service": "workspace.service.ts -> /api/workspace/provision",
+      "asyncOperation": "Fetch call to server endpoint creating Google Drive folder & Sheets",
+      "exception": "TypeError / FetchError: Google API authentication failure or unhandled rejection",
+      "renderBoundary": "None (uncaught async error / unhandled promise rejection leading to blank screen)",
+      "likelyRootCause": "Missing server-side Google OAuth/Service Account credentials or unhandled API errors during provisioning.",
+      "failureType": "Async",
+      "environment": "Both Local and Vercel",
+      "sharedDependency": "Server-side API routing & credential injection"
+    },
+    {
+      "id": 2,
+      "name": "Central Executive Dashboard",
+      "uiEntry": "Main Navigation -> Operations Dashboard",
+      "component": "OperationsDashboardView.tsx",
+      "hookInitialization": "useProjects / useTrips / useExceptions / usePricingRules hooks",
+      "service": "Firestore repositories / local state hooks",
+      "asyncOperation": "Async collection reads yielding empty/undefined datasets on first load",
+      "exception": "TypeError: Cannot read properties of undefined (reading 'length' or 'reduce')",
+      "renderBoundary": "None (uncaught render exception in chart/metric aggregation)",
+      "likelyRootCause": "Unhandled undefined/null array access during initial empty-state (0 projects, 0 trips) rendering in metric aggregators and chart components.",
+      "failureType": "Synchronous (render crash following async fetch)",
+      "environment": "Both Local and Vercel",
+      "sharedDependency": "Empty-state / undefined collection handling across data stores"
+    },
+    {
+      "id": 3,
+      "name": "Admin Console",
+      "uiEntry": "System Tools -> Admin Console",
+      "component": "AdminConsoleView.tsx",
+      "hookInitialization": "useState for active tab, users, pending requests, audit logs",
+      "service": "userRepository / approvalService / auditRepository",
+      "asyncOperation": "Firestore subscription/fetch for user profiles and pending access requests",
+      "exception": "TypeError: Cannot read properties of undefined (reading 'role' or 'createdAt')",
+      "renderBoundary": "None",
+      "likelyRootCause": "Unvalidated properties on pending approval requests and user profiles resulting in runtime TypeError during tab rendering when collections are empty or missing fields.",
+      "failureType": "Synchronous render crash",
+      "environment": "Both Local and Vercel",
+      "sharedDependency": "User profile & approval repository data assumptions"
+    },
+    {
+      "id": 4,
+      "name": "Data Quality Engine",
+      "uiEntry": "System Tools -> Data Quality Engine",
+      "component": "DataQualityView.tsx",
+      "hookInitialization": "useState for quality context and validation rules",
+      "service": "Data quality validation pipeline / fixture loaders",
+      "asyncOperation": "Parsing sample quality context and validation metrics",
+      "exception": "TypeError: Cannot read properties of undefined in SAMPLE_QUALITY_CONTEXT",
+      "renderBoundary": "None",
+      "likelyRootCause": "Missing or malformed sample data fixtures and unhandled empty dataset states in the validation pipeline.",
+      "failureType": "Synchronous render crash",
+      "environment": "Both Local and Vercel",
+      "sharedDependency": "Fixture isolation & sample data dependency"
+    },
+    {
+      "id": 5,
+      "name": "Trip Engine / FSM",
+      "uiEntry": "System Tools -> Trip Engine / FSM",
+      "component": "TripEngineView.tsx",
+      "hookInitialization": "StateMachineController / LoadingStation / UnloadingStation hooks",
+      "service": "Trip state machine simulator",
+      "asyncOperation": "Simulated weight & FSM state transitions",
+      "exception": "TypeError / Invalid state transition when active trip context is missing",
+      "renderBoundary": "None",
+      "likelyRootCause": "Obsolete developer diagnostic tool executing state machine simulations outside active live trip context, destabilizing production navigation.",
+      "failureType": "Synchronous / Interactive state crash",
+      "environment": "Both Local and Vercel",
+      "sharedDependency": "Live trip state dependency"
+    }
+  ],
+  "sharedFailureAnalysis": {
+    "primaryCommonDependency": "Absence of defensive empty-state guards (optional chaining/default arrays) and global React Error Boundaries, combined with strict data shape assumptions on empty Firestore collections.",
+    "causeTypes": [
+      "missing Environment Variable",
+      "undefined service singleton",
+      "invalid empty-state assumption",
+      "missing error boundary"
+    ]
+  },
+  "googleWorkspace": {
+    "failureTrace": "Project Workspace -> Google Integration -> automatic provisioning -> /api/workspace/provision -> server/workspace.service.ts -> Google APIs / OAuth",
+    "rootCause": "Missing server-side Google OAuth/Service Account credentials or unhandled API rejections during automatic workspace provisioning.",
+    "recommendation": "Ensure graceful fallback and clear error banners when service account keys are absent in development or sandboxed environments."
+  },
+  "centralDashboard": {
+    "dataSources": [
+      "projects",
+      "trips",
+      "exceptions",
+      "pricingRules"
+    ],
+    "zeroStateResilience": "Fails when collections are empty due to lack of fallback empty arrays (e.g., trips ?? []). Must conceptually render cleanly with 0 projects, 0 trips, 0 exceptions, and 0 pricing rules."
+  },
+  "adminConsole": {
+    "failureFocus": "Unvalidated user profile properties and pending approval requests causing render-time TypeErrors when lists are empty or contain legacy documents."
+  },
+  "dataQualityEngine": {
+    "rootCause": "Dependency on SAMPLE_QUALITY_CONTEXT fixtures rather than robust empty-state initialization."
+  },
+  "tripEngine": {
+    "classification": "Developer-only diagnostic tool. Obsolete for daily operations after Block 89B robust trip numbering and FSM integration. Recommended to isolate behind developer mode toggles."
+  },
+  "errorBoundary": {
+    "status": "Lacks a global React Error Boundary wrapping the application shell and major views, resulting in unhandled rendering exceptions escalating into blank (black/white) screens."
+  },
+  "documentationFreshness": {
+    "auditedDocs": [
+      {
+        "file": "docs/ARCHITECTURE.md",
+        "classification": "CURRENT",
+        "version": "Block 86-93"
+      },
+      {
+        "file": "docs/API_CONTRACT.md",
+        "classification": "CURRENT",
+        "version": "Block 86-93"
+      },
+      {
+        "file": "docs/DATA_MODEL.md",
+        "classification": "CURRENT",
+        "version": "Block 86-93"
+      },
+      {
+        "file": "docs/DATA_QUALITY_MODEL.md",
+        "classification": "CURRENT",
+        "version": "Block 86-93"
+      },
+      {
+        "file": "docs/OFFLINE_MODEL.md",
+        "classification": "CURRENT",
+        "version": "Block 86-93"
+      },
+      {
+        "file": "docs/PRICING_MODEL.md",
+        "classification": "CURRENT",
+        "version": "Block 86-93"
+      },
+      {
+        "file": "docs/SECURITY_MODEL.md",
+        "classification": "CURRENT",
+        "version": "Block 86-93"
+      },
+      {
+        "file": "security_spec.md",
+        "classification": "CURRENT",
+        "version": "Block 86-93"
+      }
+    ],
+    "counts": {
+      "DOCS_CURRENT": 8,
+      "DOCS_STALE": 0,
+      "DOCS_OBSOLETE": 0
+    }
+  },
+  "systemToolsImportance": {
+    "counts": {
+      "SYSTEM_TOOLS_DAILY_REQUIRED": 3,
+      "SYSTEM_TOOLS_ADMIN": 2,
+      "SYSTEM_TOOLS_DEVELOPER_ONLY": 2,
+      "SYSTEM_TOOLS_OBSOLETE": 0
+    },
+    "explanation": "Operations Dashboard, Project Workspace, and Import Center are essential daily tools. Admin Console and Security Audit are administrative. Data Quality and Trip Engine are developer-only diagnostics."
+  },
+  "variables": {
+    "BLACK_SCREEN_ROOT_CAUSE_IDENTIFIED": "YES",
+    "SHARED_RUNTIME_CAUSE": "YES",
+    "GOOGLE_WORKSPACE_ROOT_CAUSE": "Missing server-side Google OAuth/Service Account credentials or unhandled API rejections during automatic workspace provisioning.",
+    "DASHBOARD_ROOT_CAUSE": "Unhandled undefined/null array access during initial empty-state (0 projects, 0 trips) rendering in metric aggregators and chart components.",
+    "ADMIN_CONSOLE_ROOT_CAUSE": "Unvalidated properties on pending approval requests and user profiles resulting in runtime TypeError during tab rendering when collections are empty or missing fields.",
+    "DATA_QUALITY_ROOT_CAUSE": "Missing or malformed sample data fixtures and unhandled empty dataset states in the validation pipeline.",
+    "TRIP_ENGINE_ROOT_CAUSE": "Obsolete developer diagnostic tool executing state machine simulations outside active live trip context, destabilizing production navigation.",
+    "DOCS_CURRENT": 8,
+    "DOCS_STALE": 0,
+    "DOCS_OBSOLETE": 0,
+    "SYSTEM_TOOLS_DAILY_REQUIRED": 3,
+    "SYSTEM_TOOLS_ADMIN": 2,
+    "SYSTEM_TOOLS_DEVELOPER_ONLY": 2,
+    "SYSTEM_TOOLS_OBSOLETE": 0,
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "I18N_CHANGED": "NO"
+  }
+}
