@@ -1,73 +1,73 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-15T06:09:48.893Z
+**Generated At:** 2026-09-15T09:54:58.909Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 313 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 39132 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 9874 | Confirmed visible Arabic and UI texts |
-| **Likely User-Facing Texts** | 402 | English UI text in visible elements |
-| **Ambiguous Texts** | 9470 | Short or context-isolated tokens for manual review |
-| **Technical Strings** | 8400 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 10986 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 8714 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 4558 | Sets of identical/normalized recurring texts |
-| **Semantic Conflict Groups** | 642 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 11487 | Entries flagged with special cases or ambiguity |
-| **High / Critical Risk Hotspots** | 2374 | Concatenations, templates, or business data overlaps |
+| **Total Files Scanned** | 322 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 39497 | Total strings and text nodes parsed |
+| **Real User-Facing Texts** | 9915 | Confirmed visible Arabic and UI texts |
+| **Likely User-Facing Texts** | 404 | English UI text in visible elements |
+| **Ambiguous Texts** | 9663 | Short or context-isolated tokens for manual review |
+| **Technical Strings** | 8422 | CSS classes, paths, enums, regexes, operators |
+| **Non-User-Facing Strings** | 11093 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 8740 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Duplicate Groups** | 4577 | Sets of identical/normalized recurring texts |
+| **Semantic Conflict Groups** | 640 | Identical texts requiring distinct contextual keys |
+| **Keys Requiring Review** | 11694 | Entries flagged with special cases or ambiguity |
+| **High / Critical Risk Hotspots** | 2388 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
 
 | Semantic Category | User-Facing Strings | Description |
 | :--- | :--- | :--- |
-| `other` | 4428 | Classified operational domain |
+| `other` | 4446 | Classified operational domain |
 | `imports` | 1556 | Classified operational domain |
-| `trips` | 472 | Classified operational domain |
+| `trips` | 473 | Classified operational domain |
 | `security` | 467 | Classified operational domain |
 | `reports` | 462 | Classified operational domain |
 | `projects` | 387 | Classified operational domain |
 | `pricing` | 356 | Classified operational domain |
 | `weighbridge` | 281 | Classified operational domain |
-| `navigation` | 269 | Classified operational domain |
+| `navigation` | 270 | Classified operational domain |
 | `entityResolution` | 265 | Classified operational domain |
 | `loading` | 226 | Classified operational domain |
 | `unloading` | 226 | Classified operational domain |
 | `exceptions` | 188 | Classified operational domain |
-| `offline` | 185 | Classified operational domain |
+| `offline` | 183 | Classified operational domain |
 | `legacyMigration` | 173 | Classified operational domain |
 | `dashboard` | 110 | Classified operational domain |
 | `authentication` | 85 | Classified operational domain |
 | `carriers` | 41 | Classified operational domain |
+| `validation` | 36 | Classified operational domain |
 | `materials` | 35 | Classified operational domain |
 | `drivers` | 33 | Classified operational domain |
-| `validation` | 16 | Classified operational domain |
 | `trucks` | 15 | Classified operational domain |
-| `shared` | 0 | Classified operational domain |
+| `shared` | 5 | Classified operational domain |
 
 ## 3. Directional (RTL / LTR) Class Inventory
 
-- **Total Directional Usages Detected:** 387
-- **Must Migrate (Physical to Logical):** 268 (e.g. `text-left` -> `text-start`, `pl-` -> `ps-`)
-- **Probably Safe / Technical:** 119
+- **Total Directional Usages Detected:** 389
+- **Must Migrate (Physical to Logical):** 269 (e.g. `text-left` -> `text-start`, `pl-` -> `ps-`)
+- **Probably Safe / Technical:** 120
 
 ### Directional Classes Sample (First 15 Entries)
 
 | File | Line | Class / Icon | Type | Risk | Suggested Replacement |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `src/App.tsx` | 721 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
-| `src/App.tsx` | 746 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
+| `src/App.tsx` | 740 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
+| `src/App.tsx` | 765 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
 | `src/components/FirestoreArchitectureView.tsx` | 471 | `text-left` | text-alignment | `MUST_MIGRATE` | `text-start` |
 | `src/components/FirestoreArchitectureView.tsx` | 529 | `pr-1` | padding | `MUST_MIGRATE` | `pe-1` |
 | `src/components/FirestoreArchitectureView.tsx` | 716 | `border-rose-200` | border | `PROBABLY_SAFE` | `border-rose-200` |
-| `src/components/TripEngineView.tsx` | 609 | `mr-1` | margin | `MUST_MIGRATE` | `me-1` |
-| `src/components/TripEngineView.tsx` | 629 | `mr-1` | margin | `MUST_MIGRATE` | `me-1` |
-| `src/components/TripEngineView.tsx` | 652 | `mr-1` | margin | `MUST_MIGRATE` | `me-1` |
-| `src/components/TripEngineView.tsx` | 672 | `mr-1` | margin | `MUST_MIGRATE` | `me-1` |
-| `src/components/TripEngineView.tsx` | 694 | `mr-1` | margin | `MUST_MIGRATE` | `me-1` |
+| `src/components/TripEngineView.tsx` | 608 | `mr-1` | margin | `MUST_MIGRATE` | `me-1` |
+| `src/components/TripEngineView.tsx` | 628 | `mr-1` | margin | `MUST_MIGRATE` | `me-1` |
+| `src/components/TripEngineView.tsx` | 651 | `mr-1` | margin | `MUST_MIGRATE` | `me-1` |
+| `src/components/TripEngineView.tsx` | 671 | `mr-1` | margin | `MUST_MIGRATE` | `me-1` |
+| `src/components/TripEngineView.tsx` | 693 | `mr-1` | margin | `MUST_MIGRATE` | `me-1` |
 | `src/components/TripEngineView.tsx` | 765 | `border-rose-200` | border | `PROBABLY_SAFE` | `border-rose-200` |
 | `src/components/TripEngineView.tsx` | 772 | `border-rose-300` | border | `PROBABLY_SAFE` | `border-rose-300` |
 | `src/components/TripEngineView.tsx` | 950 | `ArrowRight` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
@@ -93,12 +93,12 @@ Identical visible text appearing across different operational domains with disti
 
 ## 5. High-Risk Hotspots & Special Cases
 
-- **Concatenated Strings (`+`):** 9
+- **Concatenated Strings (`+`):** 8
 - **Template Literals (`${...}`):** 666
 - **Interpolation Placeholders (`{...}`):** 261
-- **Mixed Numbers & Units:** 952
-- **Currency String Usages:** 430
-- **Unit String Usages:** 872
+- **Mixed Numbers & Units:** 966
+- **Currency String Usages:** 433
+- **Unit String Usages:** 875
 - **Protected Business Field Matches:** 350
 
 ## 6. Safety & Non-Destructive Invariance Confirmation

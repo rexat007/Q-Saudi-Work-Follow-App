@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-15T08:20:53.899Z
+**Generated At:** 2026-09-15T09:55:14.240Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,10 +9,10 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **12853** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **12854** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **8725** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **8725** | Domain terminology requiring semantic verification |
+| **Untranslated Slots (Pending Review)** | **8726** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **8726** | Domain terminology requiring semantic verification |
 | **Ambiguous Keys Isolated** | **4121** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
 | **Interpolation Placeholders** | **221** | Dynamic parameters (e.g. `{count}`) strictly preserved |
@@ -32,7 +32,7 @@
 | `security` | 571 | 1 | 409 | 409 | 161 |
 | `projects` | 568 | 0 | 363 | 363 | 205 |
 | `pricing` | 514 | 0 | 330 | 330 | 184 |
-| `navigation` | 437 | 0 | 244 | 244 | 193 |
+| `navigation` | 438 | 0 | 245 | 245 | 193 |
 | `weighbridge` | 418 | 0 | 229 | 229 | 189 |
 | `offline` | 296 | 0 | 178 | 178 | 118 |
 | `exceptions` | 295 | 0 | 178 | 178 | 117 |
@@ -75,8 +75,8 @@ Identical Arabic terms separated into distinct keys based on operational context
 
 | File | Line | Physical Class | Recommended Logical Class | Risk |
 | :--- | :--- | :--- | :--- | :--- |
-| `src/App.tsx` | 721 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
-| `src/App.tsx` | 746 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
+| `src/App.tsx` | 740 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
+| `src/App.tsx` | 765 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
 | `src/components/FirestoreArchitectureView.tsx` | 471 | `text-left` | `text-start` | `MUST_MIGRATE` |
 | `src/components/FirestoreArchitectureView.tsx` | 529 | `pr-1` | `pe-1` | `MUST_MIGRATE` |
 | `src/components/TripEngineView.tsx` | 608 | `mr-1` | `me-1` | `MUST_MIGRATE` |

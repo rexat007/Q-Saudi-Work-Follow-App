@@ -158,6 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userProfile,
         idToken,
         isAuthReady,
+        isProfileLoading,
         signInWithGoogle,
         signOutUser,
         refreshUserProfile,

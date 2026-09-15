@@ -30,7 +30,8 @@ import {
   Sparkles,
   Menu,
   Sliders,
-  ChevronDown
+  ChevronDown,
+  Loader2
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { ENTITY_RELATIONS, MANDATORY_PRINCIPLES, EntityRelationInfo } from './entityRelations';

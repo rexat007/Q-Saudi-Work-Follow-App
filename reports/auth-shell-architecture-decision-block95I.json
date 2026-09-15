@@ -1,0 +1,67 @@
+{
+  "block": "BLOCK 95I",
+  "title": "Authentication Shell Architecture Decision Audit",
+  "auditTimestamp": "2026-09-15T09:52:00.000Z",
+  "auditMode": "READ_ONLY",
+  "githubHead": "80a2ac2ff033202ca98f3a2a5ce6c110e2f6ed22",
+  "repository": "rexat007/Q-Saudi-Work-Follow-App",
+  "branch": "main",
+  "loader2Inventory": [
+    {
+      "file": "src/App.tsx",
+      "importLine": 34,
+      "importValid": true,
+      "usageLine": 270,
+      "context": "Session initialization gate (if (!isAuthReady || (user && isProfileLoading)))"
+    },
+    {
+      "file": "src/components/auth/AuthButton.tsx",
+      "importLine": 2,
+      "importValid": true,
+      "usageLine": 14,
+      "context": "Header authentication status indicator (!isAuthReady)"
+    },
+    {
+      "file": "src/components/wizard/Step7Review.tsx",
+      "importLine": 20,
+      "importValid": true,
+      "usageLines": [499, 521, 567],
+      "context": "Wizard provisioning and deployment submission spinners"
+    }
+  ],
+  "architecturalAnalysis": {
+    "inlineLoaderEvaluation": {
+      "classification": "A. required and intentional",
+      "isRequired": true,
+      "isObsolete": false,
+      "origin": "Block 93 (commit fd508d7: feat(auth): implement session initialization gate)",
+      "rationale": "Prevents premature evaluation of AccountStatusGate during the asynchronous window while Firebase resolves local session persistence and queries /users/{uid} in Firestore. Without it, authenticated users reload/refresh into a 200-500ms flash of the UNAUTHENTICATED login screen and NO_PROFILE account request form.",
+      "defectResolved": "The only defect in commit fd508d7 was the accidental omission of Loader2 from the lucide-react import in src/App.tsx, which triggered ReferenceError: Loader2 is not defined. Importing Loader2 resolves the runtime error while retaining complete session initialization protection."
+    },
+    "accountStatusGateEvaluation": {
+      "isRequired": true,
+      "role": "Dedicated full-screen gateway for unauthenticated visitors (UNAUTHENTICATED) and post-login access governance (NO_PROFILE, PENDING_APPROVAL, REJECTED, SUSPENDED)."
+    },
+    "canonicalArchitecture": "Two-Stage Gated Authentication Architecture: Stage 1 Session Initialization Gate (App.tsx lines 265-281 evaluating !isAuthReady || (user && isProfileLoading)) protects against session resolution flashes, followed by Stage 2 AccountStatusGate (App.tsx lines 283-302) enforcing server-authoritative account approval and role validation."
+  },
+  "workspaceAndGithubComparison": {
+    "githubMainCommit": "80a2ac2ff033202ca98f3a2a5ce6c110e2f6ed22",
+    "githubMainAppTsxState": "Contains inline loading branch at line 269 referencing Loader2, but is MISSING Loader2 in lucide-react imports (causes Vercel runtime crash).",
+    "workspaceAppTsxState": "Contains inline loading branch with Loader2 explicitly imported from lucide-react at line 34 (100% build & runtime valid).",
+    "commitF204E75": "Referenced in Block 97 freeze docs as baseline release candidate tree hash.",
+    "commit5C30807": "Local temporary commit created during Block 95G test clone; was never pushed to remote GitHub main.",
+    "workspaceGithubState": "DIVERGED",
+    "safeToSync": true,
+    "syncRecommendation": "Sync current workspace src/App.tsx and src/firebase/authContext.tsx to GitHub main so remote Vercel builds receive the valid Loader2 import."
+  },
+  "finalOutputVariables": {
+    "CANONICAL_AUTH_ARCHITECTURE": "Two-Stage Gated Architecture: Stage 1 Session Initialization Gate (!isAuthReady || (user && isProfileLoading)) in App.tsx followed by Stage 2 AccountStatusGate for unauthenticated/unapproved access governance",
+    "INLINE_LOADER_REQUIRED": "YES",
+    "INLINE_LOADER_OBSOLETE": "NO",
+    "ACCOUNT_STATUS_GATE_REQUIRED": "YES",
+    "WORKSPACE_STATE": "LATER_CHANGE",
+    "WORKSPACE_GITHUB_STATE": "DIVERGED",
+    "SAFE_TO_SYNC": "YES",
+    "CODE_CHANGED": "NO"
+  }
+}

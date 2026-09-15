@@ -1,29 +1,29 @@
 {
-  "generatedAt": "2026-09-15T08:21:03.972Z",
+  "generatedAt": "2026-09-15T09:55:07.640Z",
   "version": "1.0.0-block43",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 12853,
-    "generatedEnCount": 12853,
-    "generatedUrCount": 12853,
-    "reviewRequiredCount": 12847,
+    "totalEntries": 12854,
+    "generatedEnCount": 12854,
+    "generatedUrCount": 12854,
+    "reviewRequiredCount": 12848,
     "skippedCount": 0,
     "protectedCount": 1,
     "interpolationCount": 221,
     "pluralizationCount": 153,
-    "highRiskCount": 12847,
+    "highRiskCount": 12848,
     "semanticConflictCount": 1603,
     "domainTerminologyCount": 0,
     "confidenceBreakdown": {
       "HIGH": 144,
       "MEDIUM": 3619,
-      "LOW": 9090
+      "LOW": 9091
     },
     "tierBreakdown": {
       "1": 6,
       "2": 0,
       "3": 0,
-      "4": 12847
+      "4": 12848
     },
     "reviewReasonsBreakdown": {
       "SEMANTIC_CONFLICT": 1603,
@@ -32,19 +32,19 @@
       "PLURALIZATION_RISK": 153,
       "REPORT_EXPORT_RISK": 3956,
       "BUSINESS_DATA_RISK": 1691,
-      "LOW_CONFIDENCE": 12847,
+      "LOW_CONFIDENCE": 12848,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
     },
     "categoryBreakdown": {
       "navigation": {
-        "total": 437,
-        "generated": 437,
-        "reviewRequired": 437,
+        "total": 438,
+        "generated": 438,
+        "reviewRequired": 438,
         "high": 2,
         "medium": 91,
-        "low": 344
+        "low": 345
       },
       "dashboard": {
         "total": 150,
@@ -258,7 +258,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 127,
+          "line": 131,
           "column": 22,
           "element": "call_setAuthError"
         }
@@ -308,7 +308,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 120,
+          "line": 124,
           "column": 22,
           "element": "call_setAuthError"
         }
@@ -358,7 +358,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 122,
+          "line": 126,
           "column": 22,
           "element": "call_setAuthError"
         }
@@ -408,7 +408,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 129,
+          "line": 133,
           "column": 22,
           "element": "call_setAuthError"
         }
@@ -1551,7 +1551,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 111,
+          "line": 115,
           "column": 46,
           "element": "prop_prompt"
         }
@@ -3938,7 +3938,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 124,
+          "line": 128,
           "column": 85,
           "element": "literal"
         }
@@ -4226,7 +4226,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 65,
+          "line": 67,
           "column": 46,
           "element": "literal"
         }
@@ -4329,7 +4329,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 125,
+          "line": 129,
           "column": 22,
           "element": "template_literal"
         }
@@ -4833,7 +4833,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 124,
+          "line": 128,
           "column": 44,
           "element": "literal"
         }
@@ -5627,7 +5627,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 131,
+          "line": 135,
           "column": 37,
           "element": "literal"
         }
@@ -5674,7 +5674,7 @@
       "sourceReferences": [
         {
           "file": "src/firebase/authContext.tsx",
-          "line": 144,
+          "line": 148,
           "column": 35,
           "element": "literal"
         }
@@ -169985,7 +169985,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 897,
+          "line": 916,
           "column": 46,
           "element": "jsx_text"
         }
@@ -170644,7 +170644,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 741,
+          "line": 760,
           "column": 48,
           "element": "call_setSelectedDocId"
         }
@@ -170850,7 +170850,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 597,
+          "line": 616,
           "column": 89,
           "element": "literal"
         }
@@ -171107,7 +171107,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 244,
+          "line": 245,
           "column": 12,
           "element": "literal"
         },
@@ -171175,7 +171175,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 243,
+          "line": 244,
           "column": 12,
           "element": "literal"
         },
@@ -171249,7 +171249,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 234,
+          "line": 235,
           "column": 12,
           "element": "literal"
         },
@@ -171361,7 +171361,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 213,
+          "line": 214,
           "column": 12,
           "element": "literal"
         }
@@ -171473,7 +171473,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 235,
+          "line": 236,
           "column": 12,
           "element": "literal"
         }
@@ -171570,7 +171570,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 231,
+          "line": 232,
           "column": 12,
           "element": "literal"
         }
@@ -172000,7 +172000,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 230,
+          "line": 231,
           "column": 12,
           "element": "literal"
         },
@@ -172118,7 +172118,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 803,
+          "line": 822,
           "column": 32,
           "element": "literal"
         },
@@ -172180,7 +172180,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 217,
+          "line": 218,
           "column": 12,
           "element": "literal"
         }
@@ -172587,7 +172587,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 317,
+          "line": 336,
           "column": 21,
           "element": "jsx_text"
         }
@@ -172732,7 +172732,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 220,
+          "line": 221,
           "column": 12,
           "element": "literal"
         }
@@ -172937,7 +172937,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 246,
+          "line": 247,
           "column": 12,
           "element": "literal"
         },
@@ -173067,7 +173067,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 900,
+          "line": 919,
           "column": 19,
           "element": "jsx_text"
         }
@@ -173484,7 +173484,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 904,
+          "line": 923,
           "column": 19,
           "element": "jsx_text"
         }
@@ -173593,7 +173593,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 781,
+          "line": 800,
           "column": 33,
           "element": "jsx_text"
         }
@@ -173689,7 +173689,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 229,
+          "line": 230,
           "column": 12,
           "element": "literal"
         }
@@ -173739,7 +173739,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 245,
+          "line": 246,
           "column": 12,
           "element": "literal"
         },
@@ -174085,13 +174085,13 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 34,
+          "line": 35,
           "column": 8,
           "element": "literal"
         },
         {
           "file": "src/App.tsx",
-          "line": 65,
+          "line": 66,
           "column": 29,
           "element": "literal"
         },
@@ -174265,7 +174265,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 215,
+          "line": 216,
           "column": 12,
           "element": "literal"
         }
@@ -174622,7 +174622,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 578,
+          "line": 597,
           "column": 97,
           "element": "jsx_text"
         }
@@ -174818,7 +174818,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 181,
+          "line": 182,
           "column": 62,
           "element": "literal"
         }
@@ -175695,7 +175695,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 863,
+          "line": 882,
           "column": 31,
           "element": "jsx_text"
         }
@@ -175789,7 +175789,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 212,
+          "line": 213,
           "column": 12,
           "element": "literal"
         }
@@ -176568,6 +176568,53 @@
       "key": "navigation.labels.qSaudiWorkFollow",
       "category": "navigation",
       "semanticContext": "jsx_text",
+      "sourceTextAr": "Q-Saudi Work Follow",
+      "proposedTextEn": "Q-Saudi Work Follow",
+      "proposedTextUr": "Q-Saudi Work Follow",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/App.tsx",
+          "line": 273,
+          "column": 63,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "navigation.labels.qSaudiWorkFollow_2": {
+      "key": "navigation.labels.qSaudiWorkFollow_2",
+      "category": "navigation",
+      "semanticContext": "jsx_text",
       "sourceTextAr": "Q Saudi Work Follow",
       "proposedTextEn": "Q Saudi Work Follow",
       "proposedTextUr": "Q Saudi Work Follow",
@@ -176596,13 +176643,13 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 310,
+          "line": 329,
           "column": 23,
           "element": "jsx_text"
         },
         {
           "file": "src/App.tsx",
-          "line": 895,
+          "line": 914,
           "column": 70,
           "element": "jsx_text"
         },
@@ -176730,7 +176777,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 35,
+          "line": 36,
           "column": 27,
           "element": "literal"
         }
@@ -177674,7 +177721,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 82,
+          "line": 83,
           "column": 31,
           "element": "literal"
         },
@@ -177884,7 +177931,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 242,
+          "line": 243,
           "column": 12,
           "element": "literal"
         },
@@ -177958,7 +178005,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 430,
+          "line": 449,
           "column": 51,
           "element": "jsx_text"
         }
@@ -178005,7 +178052,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 443,
+          "line": 462,
           "column": 66,
           "element": "jsx_text"
         }
@@ -178101,7 +178148,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 902,
+          "line": 921,
           "column": 19,
           "element": "jsx_text"
         }
@@ -178204,7 +178251,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 232,
+          "line": 233,
           "column": 12,
           "element": "literal"
         },
@@ -178389,7 +178436,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 327,
+          "line": 346,
           "column": 49,
           "element": "jsx_text"
         }
@@ -180097,7 +180144,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 602,
+          "line": 621,
           "column": 86,
           "element": "literal"
         }
@@ -180150,13 +180197,13 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 829,
+          "line": 848,
           "column": 97,
           "element": "literal"
         },
         {
           "file": "src/App.tsx",
-          "line": 829,
+          "line": 848,
           "column": 116,
           "element": "literal"
         }
@@ -180209,7 +180256,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 602,
+          "line": 621,
           "column": 105,
           "element": "literal"
         }
@@ -180410,7 +180457,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 218,
+          "line": 219,
           "column": 12,
           "element": "literal"
         }
@@ -181297,7 +181344,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 216,
+          "line": 217,
           "column": 12,
           "element": "literal"
         },
@@ -181523,7 +181570,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 830,
+          "line": 849,
           "column": 35,
           "element": "jsx_text"
         }
@@ -182071,7 +182118,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 720,
+          "line": 739,
           "column": 41,
           "element": "jsx_text"
         }
@@ -182668,7 +182715,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 848,
+          "line": 867,
           "column": 27,
           "element": "jsx_text"
         }
@@ -182815,7 +182862,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 99,
+          "line": 100,
           "column": 64,
           "element": "literal"
         },
@@ -183077,7 +183124,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 685,
+          "line": 704,
           "column": 35,
           "element": "jsx_text"
         }
@@ -184294,7 +184341,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 298,
+          "line": 317,
           "column": 17,
           "element": "attr_title"
         }
@@ -185134,7 +185181,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 386,
+          "line": 405,
           "column": 41,
           "element": "jsx_text"
         }
@@ -187289,7 +187336,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 440,
+          "line": 459,
           "column": 25,
           "element": "jsx_text"
         }
@@ -187564,7 +187611,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 425,
+          "line": 444,
           "column": 51,
           "element": "jsx_text"
         },
@@ -187683,7 +187730,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 98,
+          "line": 99,
           "column": 26,
           "element": "literal"
         }
@@ -187982,7 +188029,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 233,
+          "line": 234,
           "column": 12,
           "element": "literal"
         }
@@ -188474,7 +188521,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 740,
+          "line": 759,
           "column": 44,
           "element": "call_setActiveTab"
         }
@@ -189218,7 +189265,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 163,
+          "line": 164,
           "column": 62,
           "element": "call_useState"
         }
@@ -189318,7 +189365,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 94,
+          "line": 95,
           "column": 72,
           "element": "call_useState"
         }
@@ -190496,7 +190543,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 162,
+          "line": 163,
           "column": 68,
           "element": "call_useState"
         }
@@ -191512,7 +191559,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 343,
+          "line": 362,
           "column": 21,
           "element": "attr_title"
         }
