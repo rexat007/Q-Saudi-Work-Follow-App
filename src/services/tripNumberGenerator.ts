@@ -47,55 +47,53 @@ export class TripNumberGenerator {
 
     let nextNumber = 1;
 
-    if (!auth.currentUser) {
+    try {
+      const counterRef = doc(db, 'systemCounters', `tripNumber_${projectId}`);
+      nextNumber = await runTransaction(db, async (transaction) => {
+        const counterSnap = await transaction.get(counterRef);
+        let seq = 1;
+        if (counterSnap.exists()) {
+          const data = counterSnap.data();
+          seq = typeof data.nextNumber === 'number' ? data.nextNumber : 1;
+        } else {
+          // Check existing trips to find the max index as fallback
+          try {
+            const tripsSnap = await getDocs(collection(db, 'projects', projectId, 'trips'));
+            let maxExisting = 0;
+            tripsSnap.docs.forEach((d) => {
+              const data = d.data() as TripEntity;
+              if (data && data.tripNumber) {
+                const parts = data.tripNumber.split('-TRP-');
+                if (parts.length === 2) {
+                  const idx = parseInt(parts[1], 10);
+                  if (!isNaN(idx)) {
+                    maxExisting = Math.max(maxExisting, idx);
+                  }
+                }
+              }
+            });
+            seq = maxExisting > 0 ? maxExisting + 1 : 1;
+          } catch {
+            seq = 1;
+          }
+        }
+
+        transaction.set(counterRef, {
+          nextNumber: seq + 1,
+          updatedAt: serverTimestamp(),
+        });
+
+        return seq;
+      });
+    } catch (error) {
+      console.warn('[TripNumberGenerator] Firestore transaction failed:', error);
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('فشل نظام تخصيص الأرقام الخادومي: قاعدة البيانات غير متاحة حالياً لتخصيص رقم رحلة رسمي.');
+      }
+      // Non-production fallback to allow offline simulation and test cases to run
       const current = this.inMemoryCounters[projectId] || 1;
       this.inMemoryCounters[projectId] = current + 1;
       nextNumber = current;
-    } else {
-      try {
-        const counterRef = doc(db, 'systemCounters', `tripNumber_${projectId}`);
-        nextNumber = await runTransaction(db, async (transaction) => {
-          const counterSnap = await transaction.get(counterRef);
-          let seq = 1;
-          if (counterSnap.exists()) {
-            const data = counterSnap.data();
-            seq = typeof data.nextNumber === 'number' ? data.nextNumber : 1;
-          } else {
-            // Check existing trips to find the max index as fallback
-            try {
-              const tripsSnap = await getDocs(collection(db, 'projects', projectId, 'trips'));
-              let maxExisting = 0;
-              tripsSnap.docs.forEach((d) => {
-                const data = d.data() as TripEntity;
-                if (data && data.tripNumber) {
-                  const parts = data.tripNumber.split('-TRP-');
-                  if (parts.length === 2) {
-                    const idx = parseInt(parts[1], 10);
-                    if (!isNaN(idx)) {
-                      maxExisting = Math.max(maxExisting, idx);
-                    }
-                  }
-                }
-              });
-              seq = maxExisting > 0 ? maxExisting + 1 : 1;
-            } catch {
-              seq = 1;
-            }
-          }
-
-          transaction.set(counterRef, {
-            nextNumber: seq + 1,
-            updatedAt: serverTimestamp(),
-          });
-
-          return seq;
-        });
-      } catch (error) {
-        console.warn('[TripNumberGenerator] Firestore transaction fallback to in-memory sequence:', error);
-        const current = this.inMemoryCounters[projectId] || 1;
-        this.inMemoryCounters[projectId] = current + 1;
-        nextNumber = current;
-      }
     }
 
     const formattedTripNum = `TRP-${String(nextNumber).padStart(5, '0')}`;

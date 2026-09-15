@@ -24,7 +24,8 @@ export type TripEngineStatus =
   | 'RETURN_REQUESTED'
   | 'RETURNED'
   | 'EXCEPTION'
-  | 'CANCELLED';
+  | 'CANCELLED'
+  | 'PENDING_NUMBER_ALLOCATION';
 
 export type TripActorRole = 
   | 'DISPATCHER'

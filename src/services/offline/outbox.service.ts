@@ -24,6 +24,7 @@ import { tripStateMachine } from '../tripStateMachine.service';
 import { syncOperationRepository } from '../../repositories/syncOperation.repository';
 import { TripRecord, TripLifecycleEvent, TripAuditLog } from '../../types/tripEngine';
 import { conflictResolutionService } from './conflictResolution.service';
+import { auth } from '../../firebase/config';
 
 const DEVICE_ID_KEY = 'q_saudi_device_id';
 
@@ -182,7 +183,68 @@ export class OutboxService {
           }
 
           // Step 4: Commit to authoritative stores
-          const commitResult = this.commitOperation(op);
+          let commitResult: { tripId: string; tripSerial: string; version: number };
+
+          if (!isSimulatedOffline && typeof window !== 'undefined' && navigator.onLine) {
+            // Real network sync: make Express API request
+            let token = '';
+            try {
+              if (auth.currentUser) {
+                token = await auth.currentUser.getIdToken();
+              }
+            } catch (tokErr) {
+              console.warn('[OutboxService] Failed to get auth ID token, continuing with empty header:', tokErr);
+            }
+
+            const headers: Record<string, string> = {
+              'Content-Type': 'application/json',
+            };
+            if (token) {
+              headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(`/api/projects/${op.projectId}/trips`, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({
+                ...op.payload,
+                operationId: op.operationId,
+              }),
+            });
+
+            if (!response.ok) {
+              const errData = await response.json().catch(() => ({}));
+              throw new Error(errData.error || `فشلت مزامنة الرحلة مع السيرفر (كود: ${response.status})`);
+            }
+
+            const resData = await response.json();
+            const serverTrip = resData.trip;
+
+            // Delete the temporary trip if it exists
+            if (op.payload.tripId) {
+              await indexedDBService.delete('trips', op.payload.tripId);
+            }
+            // Save the server-allocated authoritative trip record into local IndexedDB
+            await indexedDBService.put('trips', serverTrip);
+
+            // Also synchronize in-memory state of tripEngineService if active
+            const existingTrips = tripEngineService.getTrips();
+            const exIdx = existingTrips.findIndex(t => t.tripId === serverTrip.tripId || t.tripId === op.payload.tripId);
+            if (exIdx !== -1) {
+              existingTrips[exIdx] = serverTrip;
+            } else {
+              (tripEngineService as any).trips = [serverTrip, ...existingTrips];
+            }
+
+            commitResult = {
+              tripId: serverTrip.tripId,
+              tripSerial: serverTrip.tripNumber || serverTrip.tripSerial,
+              version: serverTrip.version,
+            };
+          } else {
+            // Simulated local memory commit
+            commitResult = this.commitOperation(op);
+          }
 
           // Register idempotency entry in syncOperationRepository
           try {

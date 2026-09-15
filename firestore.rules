@@ -218,7 +218,8 @@ service cloud.firestore {
                          hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SUPER_ADMIN']) &&
                          isAuditStampedCreate(incoming()) &&
                          incoming().tripId == tripId &&
-                         incoming().projectId == projectId;
+                         incoming().projectId == projectId &&
+                         (isServerAuthorized() || !('tripNumber' in incoming()));
         allow update: if isSignedIn() && isValidId(tripId) &&
                          isProjectMember(projectId) &&
                          hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
@@ -228,6 +229,7 @@ service cloud.firestore {
                          incoming().carrierId == existing().carrierId && // Carrier immutable
                          incoming().truckId == existing().truckId && // Truck immutable
                          incoming().pricingRuleId == existing().pricingRuleId && // Pricing rule immutable
+                         (!('tripNumber' in existing()) || incoming().tripNumber == existing().tripNumber) && // tripNumber immutable
                          // Snapshot & Financial Immutability Protection
                          (existing().pricingSnapshot == null || incoming().pricingSnapshot == null ||
                           (incoming().pricingSnapshot.agreedRate == existing().pricingSnapshot.agreedRate &&

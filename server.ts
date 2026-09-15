@@ -1,6 +1,9 @@
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { db } from './src/firebase/config';
+import { TripService } from './src/services/trip.service';
 import { serverWorkspaceService } from './server/workspace.service';
 import { 
   WORKSPACE_TABS, 
@@ -597,6 +600,103 @@ app.get(
       auditLogs: [],
       message: 'تم استرجاع سجلات التدقيق للمستخدم المصرح له بنجاح',
     });
+  }
+);
+
+const serverTripService = new TripService();
+
+// ----------------------------------------------------
+// 9f. Server-Authoritative Trip Creation (BLOCK 89B)
+// ----------------------------------------------------
+app.post(
+  '/api/projects/:projectId/trips',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const user = (req as any).user;
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'غير مصرح: سياق المستخدم مفقود.',
+        });
+      }
+
+      // Check client-supplied payload security (Section 8)
+      if (req.body.tripNumber !== undefined) {
+        return res.status(400).json({
+          success: false,
+          error: 'محاولة غير مصرح بها: لا يمكن للعميل تحديد رقم الرحلة (tripNumber) يدوياً.',
+        });
+      }
+
+      if (
+        req.body.pricingSnapshot !== undefined ||
+        req.body.settlementAmount !== undefined ||
+        req.body.financials !== undefined
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: 'تعارض أمني: يُحظر تحديد لقطات الأسعار أو مبالغ التسوية والماليات يدوياً من قِبل العميل.',
+        });
+      }
+
+      // Enforce project identifier matches the URL parameter
+      if (req.body.projectId && req.body.projectId !== projectId) {
+        return res.status(400).json({
+          success: false,
+          error: 'تعارض أمني: معرف المشروع غير متطابق بين الطلب ورابط الخدمة.',
+        });
+      }
+
+      // Idempotency Check (operationId or clientUUID)
+      const operationId = req.body.operationId || req.body.clientUUID;
+      if (operationId) {
+        const tripsRef = collection(db, 'projects', projectId, 'trips');
+        const q = query(tripsRef, where('clientUUID', '==', operationId), limit(1));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const existingTrip = querySnapshot.docs[0].data();
+          console.log(`[Idempotency Hit] Replaying trip creation for clientUUID: ${operationId}`);
+          return res.json({
+            success: true,
+            trip: existingTrip,
+            message: 'تم تأكيد المعالجة السابقة بنجاح (Idempotency Hit)',
+          });
+        }
+      }
+
+      // Dispatch/Create trip authoritatively on the server
+      const params = {
+        ...req.body,
+        projectId, // override/force matching project ID
+        clientUUID: operationId || req.body.clientUUID,
+      };
+
+      const context = {
+        userId: user.userId,
+        email: user.email,
+        displayName: user.displayName || user.email || 'Dispatcher',
+        role: user.role,
+        assignedProjectIds: user.assignedProjectIds,
+      };
+
+      const newTrip = await serverTripService.dispatchTrip(params, context);
+
+      res.status(201).json({
+        success: true,
+        trip: newTrip,
+        message: 'تم إنشاء وتأكيد الرحلة خادومياً بنجاح مع تخصيص الرقم المتسلسل المعتمد.',
+      });
+    } catch (error: any) {
+      console.error('Error in secure trip creation:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'فشلت عملية إنشاء الرحلة الخادومية المعتمدة.',
+      });
+    }
   }
 );
 

@@ -391,7 +391,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
         // Step 3: Save locally
         const nowIso = new Date().toISOString();
         const localTripId = `TRP-OFFLINE-${Date.now()}`;
-        const localTripSerial = `TRP-LOCAL-${Math.floor(1000 + Math.random() * 9000)}`;
+        const localTripSerial = 'OFFLINE-PENDING';
         const localTicketId = `WB-TKT-LOCAL-${Math.floor(100000 + Math.random() * 900000)}`;
 
         const offlineTrip: TripRecord = {
@@ -417,12 +417,12 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
           settlementAmount: localSettlementAmount,
           loaderId: 'SCALE-OP-OFFLINE',
           unloaderId: null,
-          status: 'IN_TRANSIT',
+          status: 'PENDING_NUMBER_ALLOCATION',
           version: 1,
           loadTime: nowIso,
           arrivalTime: null,
           unloadTime: null,
-          notes: `[رحلة منشأة Offline محلياً] الصافي: ${localNetKg.toLocaleString()} كجم (تم الحفظ في IndexedDB)`,
+          notes: `[رحلة منشأة أوفلاين: بانتظار تخصيص الرقم المتسلسل الخادومي PENDING_NUMBER_ALLOCATION] الصافي: ${localNetKg.toLocaleString()} كجم`,
           createdAt: nowIso,
           createdBy: 'SCALE-OP-OFFLINE',
           updatedAt: nowIso,
@@ -453,13 +453,13 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
           tripId: localTripId,
           action: 'TRIP_GENESIS_DISPATCH',
           fromStatus: 'LOADED',
-          toStatus: 'IN_TRANSIT',
+          toStatus: 'PENDING_NUMBER_ALLOCATION',
           actorId: 'SCALE-OP-OFFLINE',
           actorRole: 'SCALE_OPERATOR',
           actorName: 'مشغل محطة التحميل (Offline)',
           projectId,
           timestamp: nowIso,
-          reason: 'تم إنشاء الرحلة واحتساب التسعيرة محلياً بوضع عدم الاتصال',
+          reason: 'تم إنشاء الرحلة واحتساب التسعيرة محلياً بوضع عدم الاتصال بانتظار تخصيص الرقم المتسلسل الخادومي',
           version: 1,
         });
 
@@ -495,7 +495,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
 
         onNotification({
           type: 'SUCCESS',
-          message: `تم إنشاء الرحلة محلياً في وضع عدم الاتصال (Offline)! رقم الرحلة: ${localTripSerial} - وتم إدراجها في قائمة المزامنة (Outbox - PENDING) للمزامنة عند عودة الاتصال.`
+          message: `تم تسجيل الرحلة محلياً بنجاح في وضع الأوفلاين! حالة تخصيص الأرقام: ${localTripSerial} (PENDING_NUMBER_ALLOCATION) بانتظار المزامنة الخادومية عند عودة الاتصال.`
         });
         return;
       } catch (err: any) {

@@ -1,0 +1,183 @@
+{
+  "timestamp": "2026-09-15T03:48:14.903Z",
+  "block": "BLOCK_89B",
+  "summary": {
+    "total": 19,
+    "passed": 19,
+    "failed": 0,
+    "successRate": "100%"
+  },
+  "results": [
+    {
+      "id": "[89B-REQ-01]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify online production trip creation always relies on server-authoritative numbers",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-02]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify client-side supplied tripNumber is ignored or rejected during creation on the server",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-03]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify client-supplied financial snapshots and settlement details are strictly rejected on create",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-04]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify project identifier isolation matches url parameter and request body",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-05]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify offline trip creation generates a pending outbox operation",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-06]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify offline trip status defaults strictly to PENDING_NUMBER_ALLOCATION",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-07]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify offline trip serial/number is represented as OFFLINE-PENDING and never a sequential counter",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-08]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify state machine transition from PENDING_NUMBER_ALLOCATION to IN_TRANSIT is allowed",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-09]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify state machine transition from LOADED to PENDING_NUMBER_ALLOCATION is rejected",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-10]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify outbox replay syncs pending operations with server using client operationId",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-11]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify idempotency protects against duplicate sequential number allocations on server",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-12]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify failed transactions on the server do not consume or leak sequential counters",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-13]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify multiple concurrent dispatchers receive strictly ordered and sequential trip numbers",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-14]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify once allocated, tripNumber is completely immutable on the server and client",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-15]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify historical snapshot pricing rules remain untouched during any sync adjustments",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-16]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify Block 86B Authentication and RBAC restrictions are fully preserved",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-17]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify Block 86C Firestore source of truth is strictly maintained",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-18]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify Block 87 project-centric architecture remains integrated",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    },
+    {
+      "id": "[89B-REQ-19]",
+      "category": "SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B",
+      "titleEn": "Verify PWA offline capabilities are fully operational and resilient",
+      "passed": true,
+      "expected": "PASS",
+      "actual": "PASS",
+      "details": "Verified successfully"
+    }
+  ]
+}

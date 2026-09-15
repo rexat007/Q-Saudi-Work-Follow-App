@@ -62,7 +62,7 @@ export const STATE_TRANSITIONS: Record<TripEngineStatus, TransitionRule> = {
   },
   IN_TRANSIT: {
     targetStatus: 'IN_TRANSIT',
-    allowedFrom: ['LOADED', 'DRAFT', 'EXCEPTION'],
+    allowedFrom: ['LOADED', 'DRAFT', 'EXCEPTION', 'PENDING_NUMBER_ALLOCATION'],
     allowedRoles: ['DISPATCHER', 'SCALE_OPERATOR', 'OPERATIONS_MANAGER'],
     labelAr: 'بدء الرحلة (في الطريق)',
     descriptionAr: 'ترحيل الشاحنة وانطلاقها على المسار المعتمد بعد اجتياز تسعير الرحلة'
@@ -119,6 +119,13 @@ export const STATE_TRANSITIONS: Record<TripEngineStatus, TransitionRule> = {
     labelAr: 'إلغاء الرحلة',
     descriptionAr: 'إلغاء أمر الرحلة كلياً قبل الانطلاق أو بقرار تشغيلي معتمد',
     requiresReason: true
+  },
+  PENDING_NUMBER_ALLOCATION: {
+    targetStatus: 'PENDING_NUMBER_ALLOCATION',
+    allowedFrom: [],
+    allowedRoles: ['SCALE_OPERATOR', 'DISPATCHER', 'OPERATIONS_MANAGER'],
+    labelAr: 'بانتظار تخصيص الرقم',
+    descriptionAr: 'تم إنشاء الرحلة محلياً في وضع عدم الاتصال بانتظار تخصيص الرقم المتسلسل المعتمد خادومياً'
   }
 };
 
