@@ -39,7 +39,6 @@ import {
   WorkspaceSyncSummary
 } from '../../types/workspace';
 import { adminConsoleService } from '../../services/adminConsole.service';
-import { DEFAULT_PROJECTS } from '../../data/defaultMasterData';
 import { ProjectEntity } from '../../types/entities';
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { tripEngineService } from '../../services/tripEngine.service';
@@ -51,12 +50,11 @@ export function WorkspaceIntegrationView() {
   const { t } = useI18n();
   const { user } = useAuth();
   const [projects, setProjects] = useState<ProjectEntity[]>(() => {
-    const list = adminConsoleService.getProjects();
-    return list.length > 0 ? list : DEFAULT_PROJECTS;
+    return adminConsoleService.getProjects();
   });
   const [selectedProjectId, setSelectedProjectId] = useState<string>(() => {
     const list = adminConsoleService.getProjects();
-    return list.length > 0 ? list[0].projectId : (DEFAULT_PROJECTS[0]?.projectId || '');
+    return list.length > 0 ? list[0].projectId : '';
   });
   const [activeTabKey, setActiveTabKey] = useState<WorkspaceSheetTab>('OPERATIONS');
   

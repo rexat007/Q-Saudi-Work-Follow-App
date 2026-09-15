@@ -3,7 +3,6 @@ import { Filter, RotateCcw, Building2, Calendar, Truck, Layers, Calculator } fro
 import { DashboardFilterParams, UserSecurityProfile } from '../../types/dashboard';
 import { ProjectEntity } from '../../types/entities';
 import { adminConsoleService } from '../../services/adminConsole.service';
-import { DEFAULT_CARRIERS, DEFAULT_MATERIALS } from '../../data/defaultMasterData';
 import { useI18n } from '../../i18n';
 
 
@@ -27,11 +26,8 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
   compact = true,
 }) => {
   const { t } = useI18n();
-  const dynamicCarriers = adminConsoleService.getCarriers(filters.projectId);
-  const carriersList = dynamicCarriers.length > 0 ? dynamicCarriers : DEFAULT_CARRIERS;
-
-  const dynamicMaterials = adminConsoleService.getMaterials(filters.projectId);
-  const materialsList = dynamicMaterials.length > 0 ? dynamicMaterials : DEFAULT_MATERIALS;
+  const carriersList = adminConsoleService.getCarriers(filters.projectId);
+  const materialsList = adminConsoleService.getMaterials(filters.projectId);
 
   const handleChange = (key: keyof DashboardFilterParams, value: any) => {
     onFilterChange({

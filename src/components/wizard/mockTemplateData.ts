@@ -1,5 +1,6 @@
 import { ProjectSetupWizardData } from '../../types/wizard';
 
+
 export const mockTemplateData: ProjectSetupWizardData = {
   projectInfo: {
     projectCode: 'PRJ-NEOM-WEST-01',
@@ -195,4 +196,3 @@ export const mockTemplateData: ProjectSetupWizardData = {
   },
 };
 
-export const INITIAL_EMPTY_WIZARD_DATA = mockTemplateData;

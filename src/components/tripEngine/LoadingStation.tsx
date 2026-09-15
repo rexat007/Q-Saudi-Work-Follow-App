@@ -1,3 +1,5 @@
+import { buildRelationshipContext } from "../../utils/masterDataUtils";
+import { pricingService } from "../../services/pricing.service";
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Scale, 
@@ -29,8 +31,7 @@ import {
   Layers
 } from 'lucide-react';
 import { TripRecord, CreateTripParams, TripActorRole } from '../../types/tripEngine';
-import { tripEngineService, MasterPricingRule, MASTER_PRICING_RULES } from '../../services/tripEngine.service';
-import { SAMPLE_QUALITY_CONTEXT } from '../../data/sampleQualityData';
+import { tripEngineService, MasterPricingRule } from '../../services/tripEngine.service';
 import { runLoadingStationTests, LoadingStationTestResult } from '../../tests/loadingStation.test';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { offlineCacheService } from '../../services/offline/offlineCache.service';
@@ -107,7 +108,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
   }, [createdTripResult]);
 
   // Reference Context
-  const context = SAMPLE_QUALITY_CONTEXT;
+  const context = buildRelationshipContext("ALL");
 
   // Available Data lists
   const availableProjects = [
@@ -132,7 +133,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
 
   // Pricing rules for project & carrier & material
   const applicablePricingRules = useMemo(() => {
-    return MASTER_PRICING_RULES.filter(r => 
+    return pricingService.getRules().filter(r => 
       r.projectId === projectId &&
       (!r.carrierId || r.carrierId === carrierId) &&
       (!r.materialId || r.materialId === materialId)
@@ -144,7 +145,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
     // If selected rule is applicable, use it; otherwise pick first applicable or fallback
     const found = applicablePricingRules.find(r => r.pricingRuleId === pricingRuleId);
     if (found) return found;
-    return applicablePricingRules[0] || MASTER_PRICING_RULES.find(r => r.pricingRuleId === pricingRuleId) || MASTER_PRICING_RULES[0];
+    return applicablePricingRules[0] || pricingService.getRules().find(r => r.pricingRuleId === pricingRuleId) || pricingService.getRules()[0];
   }, [applicablePricingRules, pricingRuleId]);
 
   // Live evaluation of offline Master Data and Pricing availability in IndexedDB

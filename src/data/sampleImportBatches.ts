@@ -1,10 +1,10 @@
+import { RelationshipContext } from "../types/dataQuality";
 /**
  * Sample Import Batches and CSV Presets
  * Designed to demonstrate the 12-stage pipeline, CRITICAL blocking, and WARNING confirmation.
  */
 
 import { ImportBatch } from '../types/importCenter';
-import { SAMPLE_QUALITY_CONTEXT } from './sampleQualityData';
 import { ImportCenterService } from '../services/dataQuality/importCenterService';
 
 export const SAMPLE_RAW_CSV_TEXT = `الناقل,رقم اللوحة,اسم السائق,المادة,الوزن الفارغ,الوزن الإجمالي,رقم البوليصة
@@ -15,10 +15,30 @@ export const SAMPLE_RAW_CSV_TEXT = `الناقل,رقم اللوحة,اسم ال
 شركة المجدوعي اللوجستية,أ ب ج 1234,خالد عبدالله الشمري,ركام بازلتي مقاس 20 ملم,20000,15000,WB-NEOM-8805
 شركة المجدوعي اللوجستية,أ ب ج 1234,خالد عبدالله الشمري,ركام بازلتي مقاس 20 ملم,14200,45000,WB-NEOM-8801`;
 
+export function createEmptyImportBatch(): ImportBatch {
+  return {
+    importBatchId: 'BATCH-EMPTY',
+    projectId: '',
+    fileName: 'no_file.csv',
+    uploadedBy: 'SYSTEM',
+    uploadedAt: new Date().toISOString(),
+    status: 'PARSED',
+    totalRecords: 0,
+    validRecordsCount: 0,
+    warningRecordsCount: 0,
+    blockingRecordsCount: 0,
+    resolvedRecordsCount: 0,
+    committedRecordsCount: 0,
+    reviewItems: [],
+    rawSnapshots: [],
+    auditLogs: [],
+  };
+}
+
 /**
  * Builds the initial demonstration batch from the preset CSV
  */
-export function createInitialSampleBatch(): ImportBatch {
+export function createInitialSampleBatch(context: RelationshipContext): ImportBatch {
   const { headers, rows } = ImportCenterService.parseRawText(SAMPLE_RAW_CSV_TEXT);
   return ImportCenterService.processImportBatch({
     importBatchId: 'BATCH-NEOM-2026-0901',
@@ -27,7 +47,7 @@ export function createInitialSampleBatch(): ImportBatch {
     uploadedBy: 'م. عبدالرحمن السبيعي (مدير حركة النقل)',
     rawRows: rows,
     headers,
-    context: SAMPLE_QUALITY_CONTEXT,
+    context,
     existingTripNumbers: ['WB-EXISTING-999'],
   });
 }

@@ -1,46 +1,46 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-15T04:38:25.654Z
+**Generated At:** 2026-09-15T06:09:48.893Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 309 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 39052 | Total strings and text nodes parsed |
+| **Total Files Scanned** | 313 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 39132 | Total strings and text nodes parsed |
 | **Real User-Facing Texts** | 9874 | Confirmed visible Arabic and UI texts |
-| **Likely User-Facing Texts** | 400 | English UI text in visible elements |
-| **Ambiguous Texts** | 9473 | Short or context-isolated tokens for manual review |
-| **Technical Strings** | 8397 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 10908 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 8715 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 4540 | Sets of identical/normalized recurring texts |
-| **Semantic Conflict Groups** | 644 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 11492 | Entries flagged with special cases or ambiguity |
-| **High / Critical Risk Hotspots** | 2376 | Concatenations, templates, or business data overlaps |
+| **Likely User-Facing Texts** | 402 | English UI text in visible elements |
+| **Ambiguous Texts** | 9470 | Short or context-isolated tokens for manual review |
+| **Technical Strings** | 8400 | CSS classes, paths, enums, regexes, operators |
+| **Non-User-Facing Strings** | 10986 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 8714 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Duplicate Groups** | 4558 | Sets of identical/normalized recurring texts |
+| **Semantic Conflict Groups** | 642 | Identical texts requiring distinct contextual keys |
+| **Keys Requiring Review** | 11487 | Entries flagged with special cases or ambiguity |
+| **High / Critical Risk Hotspots** | 2374 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
 
 | Semantic Category | User-Facing Strings | Description |
 | :--- | :--- | :--- |
-| `other` | 4423 | Classified operational domain |
+| `other` | 4428 | Classified operational domain |
 | `imports` | 1556 | Classified operational domain |
 | `trips` | 472 | Classified operational domain |
-| `security` | 466 | Classified operational domain |
+| `security` | 467 | Classified operational domain |
 | `reports` | 462 | Classified operational domain |
-| `projects` | 395 | Classified operational domain |
+| `projects` | 387 | Classified operational domain |
 | `pricing` | 356 | Classified operational domain |
 | `weighbridge` | 281 | Classified operational domain |
-| `navigation` | 267 | Classified operational domain |
-| `entityResolution` | 264 | Classified operational domain |
+| `navigation` | 269 | Classified operational domain |
+| `entityResolution` | 265 | Classified operational domain |
 | `loading` | 226 | Classified operational domain |
 | `unloading` | 226 | Classified operational domain |
 | `exceptions` | 188 | Classified operational domain |
 | `offline` | 185 | Classified operational domain |
 | `legacyMigration` | 173 | Classified operational domain |
 | `dashboard` | 110 | Classified operational domain |
-| `authentication` | 84 | Classified operational domain |
+| `authentication` | 85 | Classified operational domain |
 | `carriers` | 41 | Classified operational domain |
 | `materials` | 35 | Classified operational domain |
 | `drivers` | 33 | Classified operational domain |
@@ -89,16 +89,16 @@ Identical visible text appearing across different operational domains with disti
 | "المادة" | 24 | Identical string "المادة" occurs in multiple semantic contexts with distinct keys (dashboard.labels.material_2, entityResolution.labels.material_3, other.labels.material_2, imports.labels.material_2, legacyMigration.labels.material_2, pricing.labels.material_2, reports.labels.material, loading.fields.material, loading.labels.material_5, unloading.labels.material_2, weighbridge.labels.material, other.fields.material_3, reports.fields.material_3). | `dashboard` (dashboard.labels.material_2)<br/>`entityResolution` (entityResolution.labels.material_3)<br/>`other` (other.labels.material_2)<br/>`imports` (imports.labels.material_2)<br/>`legacyMigration` (legacyMigration.labels.material_2)<br/>`pricing` (pricing.labels.material_2)<br/>`reports` (reports.labels.material)<br/>`loading` (loading.fields.material)<br/>`loading` (loading.labels.material_5)<br/>`unloading` (unloading.labels.material_2)<br/>`weighbridge` (weighbridge.labels.material)<br/>`other` (other.labels.material_2)<br/>`other` (other.fields.material_3)<br/>`other` (other.fields.material_3)<br/>`other` (other.fields.material_3)<br/>`imports` (imports.labels.material_2)<br/>`reports` (reports.fields.material_3) |
 | "الوزن الصافي" | 24 | Identical string "الوزن الصافي" occurs in multiple semantic contexts with distinct keys (unloading.fields.netWeight, other.fields.netWeight, imports.fields.netWeight, weighbridge.fields.netWeight). | `unloading` (unloading.fields.netWeight)<br/>`other` (other.fields.netWeight)<br/>`other` (other.fields.netWeight)<br/>`imports` (imports.fields.netWeight)<br/>`imports` (imports.fields.netWeight)<br/>`other` (other.fields.netWeight)<br/>`other` (other.fields.netWeight)<br/>`weighbridge` (weighbridge.fields.netWeight)<br/>`weighbridge` (weighbridge.fields.netWeight) |
 | "مؤسسة الرمال السريعة" | 24 | Identical string "مؤسسة الرمال السريعة" occurs in multiple semantic contexts with distinct keys (imports.labels.txt_1e149b, entityResolution.labels.txt_1e149b, other.labels.txt_1e149b). | `imports` (imports.labels.txt_1e149b)<br/>`imports` (imports.labels.txt_1e149b)<br/>`imports` (imports.labels.txt_1e149b)<br/>`imports` (imports.labels.txt_1e149b)<br/>`entityResolution` (entityResolution.labels.txt_1e149b)<br/>`entityResolution` (entityResolution.labels.txt_1e149b)<br/>`entityResolution` (entityResolution.labels.txt_1e149b)<br/>`entityResolution` (entityResolution.labels.txt_1e149b)<br/>`entityResolution` (entityResolution.labels.txt_1e149b)<br/>`entityResolution` (entityResolution.labels.txt_1e149b)<br/>`entityResolution` (entityResolution.labels.txt_1e149b)<br/>`other` (other.labels.txt_1e149b) |
-| "أ ب ج 1234" | 21 | Identical string "أ ب ج 1234" occurs in multiple semantic contexts with distinct keys (other.labels.txt_5045a4, entityResolution.fields.txt_5045a4, projects.fields.txt_5045a4, trips.labels.txt_5045a4, legacyMigration.labels.txt_5045a4, projects.labels.txt_5045a4). | `other` (other.labels.txt_5045a4)<br/>`entityResolution` (entityResolution.fields.txt_5045a4)<br/>`projects` (projects.fields.txt_5045a4)<br/>`other` (other.labels.txt_5045a4)<br/>`other` (other.labels.txt_5045a4)<br/>`other` (other.labels.txt_5045a4)<br/>`trips` (trips.labels.txt_5045a4)<br/>`legacyMigration` (legacyMigration.labels.txt_5045a4)<br/>`legacyMigration` (legacyMigration.labels.txt_5045a4)<br/>`legacyMigration` (legacyMigration.labels.txt_5045a4)<br/>`legacyMigration` (legacyMigration.labels.txt_5045a4)<br/>`projects` (projects.labels.txt_5045a4) |
+| "أ ب ج 1234" | 21 | Identical string "أ ب ج 1234" occurs in multiple semantic contexts with distinct keys (other.labels.txt_5045a4, entityResolution.fields.txt_5045a4, projects.fields.txt_5045a4, trips.labels.txt_5045a4, legacyMigration.labels.txt_5045a4, projects.labels.txt_5045a4). | `other` (other.labels.txt_5045a4)<br/>`entityResolution` (entityResolution.fields.txt_5045a4)<br/>`projects` (projects.fields.txt_5045a4)<br/>`trips` (trips.labels.txt_5045a4)<br/>`other` (other.labels.txt_5045a4)<br/>`other` (other.labels.txt_5045a4)<br/>`other` (other.labels.txt_5045a4)<br/>`legacyMigration` (legacyMigration.labels.txt_5045a4)<br/>`legacyMigration` (legacyMigration.labels.txt_5045a4)<br/>`legacyMigration` (legacyMigration.labels.txt_5045a4)<br/>`legacyMigration` (legacyMigration.labels.txt_5045a4)<br/>`projects` (projects.labels.txt_5045a4) |
 
 ## 5. High-Risk Hotspots & Special Cases
 
 - **Concatenated Strings (`+`):** 9
 - **Template Literals (`${...}`):** 666
 - **Interpolation Placeholders (`{...}`):** 261
-- **Mixed Numbers & Units:** 954
-- **Currency String Usages:** 433
-- **Unit String Usages:** 873
+- **Mixed Numbers & Units:** 952
+- **Currency String Usages:** 430
+- **Unit String Usages:** 872
 - **Protected Business Field Matches:** 350
 
 ## 6. Safety & Non-Destructive Invariance Confirmation

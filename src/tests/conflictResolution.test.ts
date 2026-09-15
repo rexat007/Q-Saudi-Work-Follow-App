@@ -25,7 +25,8 @@
  */
 
 import { conflictResolutionService } from '../services/offline/conflictResolution.service';
-import { tripEngineService, MASTER_PRICING_RULES } from '../services/tripEngine.service';
+import { tripEngineService } from '../services/tripEngine.service';
+import { MASTER_PRICING_RULES } from '../data/masterPricingRules';
 import { ConflictType, ResolutionStrategy } from '../types/conflict';
 import { OutboxOperation } from '../types/offline';
 

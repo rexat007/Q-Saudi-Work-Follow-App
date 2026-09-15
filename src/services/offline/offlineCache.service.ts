@@ -1,3 +1,5 @@
+import { pricingService } from "../pricing.service";
+import { adminConsoleService } from "../adminConsole.service";
 /**
  * Offline Master Data Cache Manager.
  * Handles IndexedDB caching for:
@@ -25,9 +27,6 @@ import {
   CacheStoreName,
   OfflineTripPrerequisitesReport 
 } from '../../types/offline';
-import { DEFAULT_PROJECTS } from '../../data/defaultMasterData';
-import { SAMPLE_QUALITY_CONTEXT } from '../../data/sampleQualityData';
-import { MASTER_PRICING_RULES, MasterPricingRule } from '../../data/masterPricingRules';
 
 export class OfflineCacheService {
   private isInitialized = false;
@@ -80,19 +79,7 @@ export class OfflineCacheService {
     const currentVersion = 1;
 
     // 1. Projects
-    const projectsToCache: CachedProject[] = [
-      {
-        projectId: 'PRJ-NEOM-001',
-        projectCode: 'NEOM-001',
-        nameAr: 'مشروع نيوم - البنية التحتية والمحاجر (PRJ-NEOM-001)',
-        clientName: 'شركة نيوم للإنشاءات',
-        authorizedCarrierIds: ['CAR-ALMAJDOUIE', 'CAR-BINLADIN'],
-        authorizedMaterialIds: ['MAT-AGG-01', 'MAT-SND-01'],
-        status: 'ACTIVE',
-        _version: currentVersion,
-        _cachedAt: now,
-      },
-      ...DEFAULT_PROJECTS.map((p, idx) => ({
+    const projectsToCache: CachedProject[] = adminConsoleService.getProjects().map(p => ({
         projectId: p.projectId,
         projectCode: p.projectCode,
         nameAr: p.nameAr,
@@ -103,30 +90,29 @@ export class OfflineCacheService {
         status: p.status,
         _version: currentVersion,
         _cachedAt: now,
-      }))
-    ];
-    // Deduplicate by projectId
-    const uniqueProjects = Array.from(new Map(projectsToCache.map(p => [p.projectId, p])).values());
-    await indexedDBService.putMany('projects', uniqueProjects);
+    }));
+
+    await indexedDBService.putMany('projects', projectsToCache);
     await indexedDBService.setMetadata({
       storeName: 'projects',
       version: currentVersion,
       timestamp: now,
-      recordCount: uniqueProjects.length,
+      recordCount: projectsToCache.length,
       lastSyncedBy: 'SYSTEM_SEED',
     });
 
     // 2. Carriers
-    const carriersToCache: CachedCarrier[] = SAMPLE_QUALITY_CONTEXT.knownCarriers.map(c => ({
+    const carriersToCache: CachedCarrier[] = adminConsoleService.getCarriers().map(c => ({
       carrierId: c.carrierId,
-      projectId: 'PRJ-NEOM-001',
+      projectId: '',
       name: c.name,
       companyNameAr: c.name,
-      commercialRegistrationNo: '1010' + Math.floor(100000 + Math.random() * 900000),
+      commercialRegistrationNo: c.crNo || '1010000000',
       status: c.status,
       _version: currentVersion,
       _cachedAt: now,
     }));
+
     await indexedDBService.putMany('carriers', carriersToCache);
     await indexedDBService.setMetadata({
       storeName: 'carriers',
@@ -137,18 +123,19 @@ export class OfflineCacheService {
     });
 
     // 3. Materials
-    const materialsToCache: CachedMaterial[] = SAMPLE_QUALITY_CONTEXT.knownMaterials.map(m => ({
+    const materialsToCache: CachedMaterial[] = adminConsoleService.getMaterials().map(m => ({
       materialId: m.materialId,
-      projectId: 'PRJ-NEOM-001',
+      projectId: '',
       name: m.name,
       nameAr: m.name,
-      code: m.code,
-      unitOfMeasure: 'TON',
+      code: m.code || 'MAT',
+      unitOfMeasure: m.uom || 'TON',
       standardDensityTonPerM3: 1.6,
-      status: 'ACTIVE',
+      status: m.status,
       _version: currentVersion,
       _cachedAt: now,
     }));
+
     await indexedDBService.putMany('materials', materialsToCache);
     await indexedDBService.setMetadata({
       storeName: 'materials',
@@ -159,19 +146,20 @@ export class OfflineCacheService {
     });
 
     // 4. Trucks
-    const trucksToCache: CachedTruck[] = SAMPLE_QUALITY_CONTEXT.knownTrucks.map(t => ({
+    const trucksToCache: CachedTruck[] = adminConsoleService.getTrucks().map(t => ({
       truckId: t.truckId,
       carrierId: t.carrierId,
-      projectId: 'PRJ-NEOM-001',
+      projectId: '',
       plate: t.plate,
       plateNumberAr: t.plate,
       truckType: 'TIPPER_30T',
-      tareWeightKg: 8200,
-      legalPayloadLimitKg: 35000,
+      tareWeightKg: t.tareKg || 14000,
+      legalPayloadLimitKg: t.grossKg || 45000,
       status: t.status,
       _version: currentVersion,
       _cachedAt: now,
     }));
+
     await indexedDBService.putMany('trucks', trucksToCache);
     await indexedDBService.setMetadata({
       storeName: 'trucks',
@@ -182,18 +170,19 @@ export class OfflineCacheService {
     });
 
     // 5. Drivers
-    const driversToCache: CachedDriver[] = SAMPLE_QUALITY_CONTEXT.knownDrivers.map(d => ({
+    const driversToCache: CachedDriver[] = adminConsoleService.getDrivers().map(d => ({
       driverId: d.driverId,
       carrierId: d.carrierId,
-      projectId: 'PRJ-NEOM-001',
+      projectId: '',
       name: d.name,
       fullNameAr: d.name,
       phone: d.phone,
-      idNumber: d.idNumber,
+      idNumber: d.idNumber || '',
       status: d.status,
       _version: currentVersion,
       _cachedAt: now,
     }));
+
     await indexedDBService.putMany('drivers', driversToCache);
     await indexedDBService.setMetadata({
       storeName: 'drivers',
@@ -204,7 +193,7 @@ export class OfflineCacheService {
     });
 
     // 6. Pricing Rules
-    const pricingRulesToCache: CachedPricingRule[] = MASTER_PRICING_RULES.map(r => ({
+    const pricingRulesToCache: CachedPricingRule[] = pricingService.getRules().map(r => ({
       pricingRuleId: r.pricingRuleId,
       projectId: r.projectId,
       name: r.name,
@@ -219,6 +208,7 @@ export class OfflineCacheService {
       _version: currentVersion,
       _cachedAt: now,
     }));
+
     await indexedDBService.putMany('pricingRules', pricingRulesToCache);
     await indexedDBService.setMetadata({
       storeName: 'pricingRules',

@@ -9,8 +9,10 @@
  * 5. I18N localization dictionary remains exactly 1,128 keys per locale.
  */
 
-import { tripEngineService, INITIAL_TRIP_SEED } from '../services/tripEngine.service';
-import { exceptionEngine, INITIAL_EXCEPTIONS_SEED } from '../services/exceptionEngine.service';
+import { tripEngineService } from '../services/tripEngine.service';
+import { INITIAL_TRIP_SEED } from '../data/mockTripEngineData';
+import { exceptionEngine } from '../services/exceptionEngine.service';
+import { INITIAL_EXCEPTIONS_SEED, INITIAL_AUDITS_SEED } from '../data/mockExceptionEngineData';
 import { dashboardService, PREDEFINED_SECURITY_PROFILES } from '../services/dashboard.service';
 import { arTranslations } from '../locales/ar';
 import { enTranslations } from '../locales/en';
@@ -97,7 +99,7 @@ export async function runBlock82BTests() {
   });
 
   test('[ES-04]', 'Trip Engine can inject and clear fixture data deterministically', () => {
-    tripEngineService.loadSeedData();
+    tripEngineService.loadSeedData(INITIAL_TRIP_SEED);
     expect(tripEngineService.getAllTrips().length).toBe(INITIAL_TRIP_SEED.length);
     tripEngineService.clearTrips();
     expect(tripEngineService.getAllTrips().length).toBe(0);
@@ -122,7 +124,7 @@ export async function runBlock82BTests() {
   });
 
   test('[ES-08]', 'Exception Engine can inject and clear fixture data deterministically', () => {
-    exceptionEngine.loadSeedData();
+    exceptionEngine.loadSeedData(INITIAL_EXCEPTIONS_SEED, INITIAL_AUDITS_SEED);
     expect(exceptionEngine.getAllExceptions().length).toBe(INITIAL_EXCEPTIONS_SEED.length);
     exceptionEngine.clearExceptions();
     expect(exceptionEngine.getAllExceptions().length).toBe(0);

@@ -19,13 +19,12 @@ import {
 } from '../types/dashboard';
 import { tripEngineService } from './tripEngine.service';
 import { adminConsoleService } from './adminConsole.service';
-import { DEFAULT_PROJECTS, DEFAULT_CARRIERS, DEFAULT_MATERIALS, DEFAULT_TRUCKS, DEFAULT_DRIVERS } from '../data/defaultMasterData';
 
 // Predefined security profiles for testing and demonstration of access control
 export const PREDEFINED_SECURITY_PROFILES: UserSecurityProfile[] = [
   {
     userId: 'USR-SUPER-ADMIN',
-    userNameAr: 'المهندس / عبد الرحمن السعدون (مدير العمليات العام)',
+    userNameAr: 'مدير العمليات المركزية',
     roleTitleAr: 'إدارة العمليات المركزية - كافة المشاريع',
     role: 'SUPER_ADMIN',
     authorizedProjectIds: ['ALL'],
@@ -33,7 +32,7 @@ export const PREDEFINED_SECURITY_PROFILES: UserSecurityProfile[] = [
   },
   {
     userId: 'USR-NEOM-MGR',
-    userNameAr: 'المهندس / فهد الشمري (مدير موقع نيوم الشمالية)',
+    userNameAr: 'مدير مشروع نيوم',
     roleTitleAr: 'إدارة موقع نيوم - محصور بمشاريع نيوم فقط',
     role: 'PROJECT_ADMIN',
     authorizedProjectIds: ['PRJ-NEOM-NORTH-01', 'PRJ-NEOM-001'],
@@ -41,7 +40,7 @@ export const PREDEFINED_SECURITY_PROFILES: UserSecurityProfile[] = [
   },
   {
     userId: 'USR-REDSEA-MGR',
-    userNameAr: 'المهندس / خالد القحطاني (مدير وجهة البحر الأحمر)',
+    userNameAr: 'مدير مشروع البحر الأحمر',
     roleTitleAr: 'إدارة موقع البحر الأحمر - محصور بمشروع البحر الأحمر فقط',
     role: 'PROJECT_ADMIN',
     authorizedProjectIds: ['PRJ-REDSEA-RESORT-02'],
@@ -49,7 +48,7 @@ export const PREDEFINED_SECURITY_PROFILES: UserSecurityProfile[] = [
   },
   {
     userId: 'USR-QIDDIYA-LEAD',
-    userNameAr: 'المهندس / تركي الدوسري (مشرف مشروع القدية)',
+    userNameAr: 'مشرف مشروع القدية',
     roleTitleAr: 'مشرف موقع القدية - محصور بمشروع القدية فقط',
     role: 'SITE_SUPERVISOR',
     authorizedProjectIds: ['PRJ-QIDDIYA-EXP-03'],
@@ -94,7 +93,6 @@ class DashboardService {
    * Returns only the projects that this user profile is permitted to see.
    */
   public getAuthorizedProjects(userProfile: UserSecurityProfile) {
-    const allProjects = adminConsoleService.getProjects();
     if (!userProfile.isRestricted || userProfile.authorizedProjectIds.includes('ALL')) {
       return allProjects;
     }
@@ -372,7 +370,7 @@ class DashboardService {
     const items: CarrierPerformanceItem[] = [];
     const carriersList = adminConsoleService.getCarriers();
     carrierMap.forEach((val, cid) => {
-      const carrier = carriersList.find(c => c.carrierId === cid) || DEFAULT_CARRIERS.find(c => c.carrierId === cid);
+      const carrier = carriersList.find(c => c.carrierId === cid);
       const carrierNameAr = carrier?.companyNameAr || carrier?.name || cid;
       const loadedTons = Number((val.loadedKg / 1000).toFixed(2));
       const receivedTons = Number((val.receivedKg / 1000).toFixed(2));
@@ -441,7 +439,7 @@ class DashboardService {
     const items: MaterialDistributionItem[] = [];
     const materialsList = adminConsoleService.getMaterials();
     matMap.forEach((val, mid) => {
-      const material = materialsList.find(m => m.materialId === mid) || DEFAULT_MATERIALS.find(m => m.materialId === mid);
+      const material = materialsList.find(m => m.materialId === mid);
       const materialNameAr = material?.nameAr || material?.name || mid;
       const code = material?.code || mid;
       const loadedTons = Number((val.loadedKg / 1000).toFixed(2));
@@ -523,18 +521,17 @@ class DashboardService {
    * 7. Generate Live Terminal Board Entries
    */
   public generateLiveTerminalBoard(trips: TripRecord[]): LiveTerminalEntry[] {
-    const projectsList = adminConsoleService.getProjects();
     const carriersList = adminConsoleService.getCarriers();
     const materialsList = adminConsoleService.getMaterials();
     const trucksList = adminConsoleService.getTrucks();
     const driversList = adminConsoleService.getDrivers();
 
     return trips.map(t => {
-      const project = projectsList.find(p => p.projectId === t.projectId) || DEFAULT_PROJECTS.find(p => p.projectId === t.projectId);
-      const carrier = carriersList.find(c => c.carrierId === t.carrierId) || DEFAULT_CARRIERS.find(c => c.carrierId === t.carrierId);
-      const material = materialsList.find(m => m.materialId === t.materialId) || DEFAULT_MATERIALS.find(m => m.materialId === t.materialId);
-      const truck = trucksList.find(tk => tk.truckId === t.truckId) || DEFAULT_TRUCKS.find(tk => tk.truckId === t.truckId);
-      const driver = driversList.find(d => d.driverId === t.driverId) || DEFAULT_DRIVERS.find(d => d.driverId === t.driverId);
+      const project = projectsList.find(p => p.projectId === t.projectId);
+      const carrier = carriersList.find(c => c.carrierId === t.carrierId);
+      const material = materialsList.find(m => m.materialId === t.materialId);
+      const truck = trucksList.find(tk => tk.truckId === t.truckId);
+      const driver = driversList.find(d => d.driverId === t.driverId);
 
       const loadedWeightKg = t.netWeight || (t.grossWeight && t.tareWeight ? t.grossWeight - t.tareWeight : 0);
       const receivedWeightKg = t.destNetWeight;

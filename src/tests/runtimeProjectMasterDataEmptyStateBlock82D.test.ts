@@ -13,7 +13,8 @@
  */
 
 import { adminConsoleService } from '../services/adminConsole.service';
-import { pricingService, MASTER_PRICING_RULES } from '../services/pricing.service';
+import { pricingService } from '../services/pricing.service';
+import { MASTER_PRICING_RULES } from '../data/masterPricingRules';
 import { dashboardService, PREDEFINED_SECURITY_PROFILES } from '../services/dashboard.service';
 import { 
   DEFAULT_PROJECTS, 
@@ -170,8 +171,23 @@ export async function runBlock82DTests() {
     expect(adminConsoleService.getCarriers().length).toBe(0);
   });
 
-  test('[MD-11]', 'Explicit loadDemoRules seeds pricing service deterministically', () => {
-    pricingService.loadDemoRules();
+  test('[MD-11]', 'Explicit registerRules seeds pricing service deterministically', () => {
+    pricingService.registerRules(MASTER_PRICING_RULES.map(m => ({
+        pricingRuleId: m.pricingRuleId,
+        projectId: m.projectId,
+        name: m.name,
+        pricingType: m.pricingType,
+        rate: m.agreedRate,
+        currency: m.currency,
+        effectiveFrom: m.effectiveFrom,
+        effectiveTo: m.effectiveTo,
+        carrierId: m.carrierId || '',
+        materialId: m.materialId,
+        status: m.status,
+        version: 1,
+        createdAt: new Date().toISOString(),
+        createdBy: 'system',
+      })));
     expect(pricingService.getRules().length).toBe(MASTER_PRICING_RULES.length);
     
     // Reset back to clean runtime

@@ -25,7 +25,6 @@ import {
 } from 'lucide-react';
 import { TripRecord, TripActorRole } from '../../types/tripEngine';
 import { tripEngineService } from '../../services/tripEngine.service';
-import { SAMPLE_QUALITY_CONTEXT } from '../../data/sampleQualityData';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { projectRepository } from '../../repositories/project.repository';
 import { ProjectEntity } from '../../types/entities';

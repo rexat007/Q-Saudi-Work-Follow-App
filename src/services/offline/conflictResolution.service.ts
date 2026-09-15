@@ -1,3 +1,4 @@
+import { pricingService } from "../pricing.service";
 /**
  * Conflict Resolution Service for Offline-First Architecture.
  * 
@@ -26,7 +27,7 @@ import {
   ConflictPricingProtection 
 } from '../../types/conflict';
 import { OutboxOperation } from '../../types/offline';
-import { tripEngineService, MASTER_PRICING_RULES, MasterPricingRule } from '../tripEngine.service';
+import { tripEngineService, MasterPricingRule } from '../tripEngine.service';
 import { tripStateMachine } from '../tripStateMachine.service';
 import { TripRecord, TripLifecycleEvent } from '../../types/tripEngine';
 
@@ -209,9 +210,9 @@ class ConflictResolutionService {
     // 3. PRICING_CHANGED: Server pricing rule updated compared to local creation snapshot
     const pricingRuleId = payload.pricingRuleId || payload.pricingSnapshot?.pricingRuleId;
     if (pricingRuleId) {
-      let currentServerRule = MASTER_PRICING_RULES.find(r => r.pricingRuleId === pricingRuleId);
+      let currentServerRule = pricingService.getRules().find(r => r.pricingRuleId === pricingRuleId);
       if (!currentServerRule && (pricingRuleId === 'PRC-AGG-TON-01' || pricingRuleId === 'PRC-NEOM-AGG-TON-01')) {
-        currentServerRule = MASTER_PRICING_RULES.find(r => r.pricingRuleId === 'PRC-NEOM-HAUL-TON-8.5') || MASTER_PRICING_RULES[0];
+        currentServerRule = pricingService.getRules().find(r => r.pricingRuleId === 'PRC-NEOM-HAUL-TON-8.5') || pricingService.getRules()[0];
       }
       const localSnapshot = payload.pricingSnapshot;
 

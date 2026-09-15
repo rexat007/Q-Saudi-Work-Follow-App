@@ -25,14 +25,7 @@ import {
   AuditLogEntity,
   ImportBatchEntity
 } from '../types/entities';
-import { 
-  DEFAULT_PROJECTS, 
-  DEFAULT_CARRIERS, 
-  DEFAULT_MATERIALS, 
-  DEFAULT_TRUCKS, 
-  DEFAULT_DRIVERS 
-} from '../data/defaultMasterData';
-import { MASTER_PRICING_RULES } from '../data/masterPricingRules';
+
 import { tripEngineService } from './tripEngine.service';
 import { AuthUserContext } from '../types/common';
 
@@ -154,38 +147,21 @@ export class AdminConsoleService {
   /**
    * Load static fixtures for test suites and explicit developer demo seeding (BLOCK 82D)
    */
-  public loadDemoMasterData(): void {
+      public async loadDemoMasterData(): Promise<void> {
+    const { DEFAULT_PROJECTS, DEFAULT_CARRIERS, DEFAULT_MATERIALS, DEFAULT_TRUCKS, DEFAULT_DRIVERS } = await import('../data/defaultMasterData');
     this.projects = [...DEFAULT_PROJECTS];
     this.carriers = [...DEFAULT_CARRIERS];
     this.materials = [...DEFAULT_MATERIALS];
     this.trucks = [...DEFAULT_TRUCKS];
     this.drivers = [...DEFAULT_DRIVERS];
-    this.initializePricingRules();
+    await this.initializePricingRules();
     this.initializeUsers();
     this.initializeExceptions();
-    this.initializeAuditLogs();
-    this.initializeImportBatches();
-    this.notify();
   }
 
-  // --------------------------------------------------------------------------
-  // Reactive Listener Support
-  // --------------------------------------------------------------------------
-  public subscribe(listener: () => void): () => void {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
-  }
 
-  private notify(): void {
-    this.listeners.forEach(cb => {
-      try { cb(); } catch (e) { console.error('Admin Console subscriber error', e); }
-    });
-  }
-
-  // --------------------------------------------------------------------------
-  // 1. Initial Data Setup
-  // --------------------------------------------------------------------------
-  private initializePricingRules(): void {
+  private async initializePricingRules(): Promise<void> {
+    const { MASTER_PRICING_RULES } = await import('../data/masterPricingRules');
     const carrierNameMap = new Map<string, string>();
     this.carriers.forEach(c => carrierNameMap.set(c.carrierId, c.name || c.companyNameAr || c.carrierId));
 

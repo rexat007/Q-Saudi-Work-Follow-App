@@ -23,6 +23,7 @@ import { NavTabId, navigationService } from '../../services/navigation.service';
 import { UserRole } from '../../types/common';
 import { ProjectEntity } from '../../types/entities';
 import { useI18n } from '../../i18n';
+import { useAuth } from '../../firebase/authContext';
 
 interface SidebarProps {
   activeTab: NavTabId;
@@ -55,6 +56,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { direction, t } = useI18n();
   const isRtl = direction === 'rtl';
+  const { user, userProfile } = useAuth();
+  const displayName = userProfile?.fullName || user?.displayName || 'مدير النظام';
 
   const [isProjectsExpanded, setIsProjectsExpanded] = useState(true);
 
@@ -150,7 +153,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {isCollapsed ? (
           <div 
             className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-xs ${roleProfile.badgeColor}`}
-            title={`${currentRole}: ${roleProfile.userNameAr}`}
+            title={`${currentRole}: ${displayName}`}
           >
             {currentRole.substring(0, 2)}
           </div>
@@ -184,8 +187,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <option value="DRIVER">DRIVER (سائق شاحنة)</option>
               <option value="VIEWER">VIEWER (مستعرض فقط)</option>
             </select>
-            <div className="text-[10px] font-mono text-white/50 leading-snug truncate" title={roleProfile.userNameAr}>
-              {roleProfile.userNameAr}
+            <div className="text-[10px] font-mono text-white/50 leading-snug truncate" title={displayName}>
+              {displayName}
             </div>
           </div>
         )}

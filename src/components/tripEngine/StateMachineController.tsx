@@ -33,7 +33,7 @@ import {
   TripLifecycleEvent, 
   TripAuditLog 
 } from '../../types/tripEngine';
-import { tripEngineService, MASTER_PRICING_RULES } from '../../services/tripEngine.service';
+import { tripEngineService } from '../../services/tripEngine.service';
 import { tripStateMachine, STATE_TRANSITIONS } from '../../services/tripStateMachine.service';
 import { useI18n } from '../../i18n';
 

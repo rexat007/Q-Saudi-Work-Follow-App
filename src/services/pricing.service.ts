@@ -8,48 +8,17 @@ import {
   PricingResolutionResult
 } from '../types/pricing';
 import { pricingRuleRepository } from '../repositories/pricingRule.repository';
-import { MASTER_PRICING_RULES } from '../data/masterPricingRules';
-
-export { MASTER_PRICING_RULES };
 
 export class PricingService {
   private inMemoryRules: Map<string, PricingRule> = new Map();
 
-  constructor(seedWithDefaults = false) {
-    if (seedWithDefaults) {
-      this.loadDemoRules();
-    }
-  }
+  constructor() {}
 
   /**
    * Clears all in-memory pricing rules for a clean runtime (BLOCK 82D)
    */
   public clearRules(): void {
     this.inMemoryRules.clear();
-  }
-
-  /**
-   * Loads default master pricing rules for testing and explicit demo seeding (BLOCK 82D)
-   */
-  public loadDemoRules(): void {
-    MASTER_PRICING_RULES.forEach(m => {
-      this.inMemoryRules.set(m.pricingRuleId, {
-        pricingRuleId: m.pricingRuleId,
-        projectId: m.projectId,
-        name: m.name,
-        pricingType: m.pricingType,
-        rate: m.agreedRate,
-        currency: m.currency,
-        effectiveFrom: m.effectiveFrom,
-        effectiveTo: m.effectiveTo,
-        carrierId: m.carrierId || '',
-        materialId: m.materialId,
-        status: m.status,
-        version: 1,
-        createdAt: new Date().toISOString(),
-        createdBy: 'system',
-      });
-    });
   }
 
   public registerRules(rules: PricingRule[]): void {

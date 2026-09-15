@@ -1,3 +1,5 @@
+import { buildRelationshipContext } from "../../utils/masterDataUtils";
+import { pricingService } from "../../services/pricing.service";
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Scale, 
@@ -21,8 +23,7 @@ import {
   Minus
 } from 'lucide-react';
 import { TripRecord, TripActorRole } from '../../types/tripEngine';
-import { tripEngineService, MasterPricingRule, MASTER_PRICING_RULES } from '../../services/tripEngine.service';
-import { SAMPLE_QUALITY_CONTEXT } from '../../data/sampleQualityData';
+import { tripEngineService, MasterPricingRule } from '../../services/tripEngine.service';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { projectRepository } from '../../repositories/project.repository';
 import { ProjectEntity } from '../../types/entities';
@@ -69,7 +70,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   }, [authContext.role]);
 
   // Reference Context
-  const context = SAMPLE_QUALITY_CONTEXT;
+  const context = buildRelationshipContext("ALL");
 
   const [projectsList, setProjectsList] = useState<ProjectEntity[]>([]);
 
@@ -154,7 +155,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
 
   // Applicable Pricing Rules
   const applicablePricingRules = useMemo(() => {
-    return MASTER_PRICING_RULES.filter(r => 
+    return pricingService.getRules().filter(r => 
       r.projectId === projectId &&
       (!r.carrierId || r.carrierId === carrierId) &&
       (!r.materialId || r.materialId === materialId)
@@ -165,7 +166,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   const activePricingRule = useMemo<MasterPricingRule | undefined>(() => {
     const found = applicablePricingRules.find(r => r.pricingRuleId === pricingRuleId);
     if (found) return found;
-    return applicablePricingRules[0] || MASTER_PRICING_RULES.find(r => r.pricingRuleId === pricingRuleId) || MASTER_PRICING_RULES[0];
+    return applicablePricingRules[0] || pricingService.getRules().find(r => r.pricingRuleId === pricingRuleId) || pricingService.getRules()[0];
   }, [applicablePricingRules, pricingRuleId]);
 
   // Derived Net Weight (Client display calculation - strictly verified server-side upon dispatch)

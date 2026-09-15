@@ -1,3 +1,5 @@
+import { buildRelationshipContext } from "../utils/masterDataUtils";
+import { pricingService } from "../services/pricing.service";
 import React, { useState } from 'react';
 import { 
   Truck, 
@@ -32,9 +34,7 @@ import {
 } from '../types/tripEngine';
 import { 
   tripEngineService, 
-  MASTER_PRICING_RULES 
 } from '../services/tripEngine.service';
-import { SAMPLE_QUALITY_CONTEXT } from '../data/sampleQualityData';
 import { StateMachineController } from './tripEngine/StateMachineController';
 import { LoadingStation } from './tripEngine/LoadingStation';
 import { UnloadingStation } from './tripEngine/UnloadingStation';
@@ -101,7 +101,6 @@ export const TripEngineView: React.FC = () => {
 
   // Server-side live calculations for preview
   const liveCalculatedNet = Math.max(0, formData.grossWeight - formData.tareWeight);
-  const selectedRule = MASTER_PRICING_RULES.find(r => r.pricingRuleId === formData.pricingRuleId);
   const liveSettlementBase = selectedRule?.pricingType === 'PER_TON' 
     ? parseFloat((liveCalculatedNet / 1000).toFixed(3)) 
     : 1;
@@ -613,8 +612,8 @@ export const TripEngineView: React.FC = () => {
                     onChange={e => setFormData({ ...formData, carrierId: e.target.value })}
                     className="w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   >
-                    {SAMPLE_QUALITY_CONTEXT.knownCarriers.map(c => {
-                      const isAuth = SAMPLE_QUALITY_CONTEXT.authorizedCarrierIds.includes(c.carrierId);
+                    {buildRelationshipContext("ALL").knownCarriers.map(c => {
+                      const isAuth = buildRelationshipContext("ALL").authorizedCarrierIds.includes(c.carrierId);
                       return (
                         <option key={c.carrierId} value={c.carrierId}>
                           {c.name} ({c.carrierId}) {isAuth ? '✓ مصرح' : '✗ غير مصرح'}
@@ -633,8 +632,8 @@ export const TripEngineView: React.FC = () => {
                     onChange={e => setFormData({ ...formData, materialId: e.target.value })}
                     className="w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   >
-                    {SAMPLE_QUALITY_CONTEXT.knownMaterials.map(m => {
-                      const isAuth = SAMPLE_QUALITY_CONTEXT.authorizedMaterialIds.includes(m.materialId);
+                    {buildRelationshipContext("ALL").knownMaterials.map(m => {
+                      const isAuth = buildRelationshipContext("ALL").authorizedMaterialIds.includes(m.materialId);
                       return (
                         <option key={m.materialId} value={m.materialId}>
                           {m.name} ({m.code}) {isAuth ? '✓ مصرح' : '✗ غير مصرح'}
@@ -656,8 +655,8 @@ export const TripEngineView: React.FC = () => {
                     onChange={e => setFormData({ ...formData, truckId: e.target.value })}
                     className="w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   >
-                    {SAMPLE_QUALITY_CONTEXT.knownTrucks.map(t => {
-                      const ownerCarrier = SAMPLE_QUALITY_CONTEXT.knownCarriers.find(c => c.carrierId === t.carrierId)?.name || t.carrierId;
+                    {buildRelationshipContext("ALL").knownTrucks.map(t => {
+                      const ownerCarrier = buildRelationshipContext("ALL").knownCarriers.find(c => c.carrierId === t.carrierId)?.name || t.carrierId;
                       return (
                         <option key={t.truckId} value={t.truckId}>
                           {t.plate} [{t.truckId}] — تتبع: {ownerCarrier}
@@ -676,8 +675,8 @@ export const TripEngineView: React.FC = () => {
                     onChange={e => setFormData({ ...formData, driverId: e.target.value })}
                     className="w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   >
-                    {SAMPLE_QUALITY_CONTEXT.knownDrivers.map(d => {
-                      const ownerCarrier = SAMPLE_QUALITY_CONTEXT.knownCarriers.find(c => c.carrierId === d.carrierId)?.name || d.carrierId;
+                    {buildRelationshipContext("ALL").knownDrivers.map(d => {
+                      const ownerCarrier = buildRelationshipContext("ALL").knownCarriers.find(c => c.carrierId === d.carrierId)?.name || d.carrierId;
                       return (
                         <option key={d.driverId} value={d.driverId}>
                           {d.name} (هوية: {d.idNumber}) — كفالة: {ownerCarrier}
@@ -698,7 +697,8 @@ export const TripEngineView: React.FC = () => {
                   onChange={e => setFormData({ ...formData, pricingRuleId: e.target.value })}
                   className="w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
-                  {MASTER_PRICING_RULES.map(r => (
+                  <option value="">{t("trips.labels.txt_default_pricing") || "-- اختر قاعدة التسعير --"}</option>
+                  {availablePricingRules.map(r => (
                     <option key={r.pricingRuleId} value={r.pricingRuleId}>
                       {r.name} — {r.agreedRate} {r.currency}/{r.pricingType === 'PER_TON' ? 'طن' : 'رد'} [صلاحية: {r.effectiveFrom} إلى {r.effectiveTo}] {r.status !== 'ACTIVE' ? '(معطلة)' : ''}
                     </option>

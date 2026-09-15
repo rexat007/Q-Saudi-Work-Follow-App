@@ -1,0 +1,822 @@
+{
+  "auditMetadata": {
+    "block": "BLOCK 91",
+    "title": "SYSTEM // AUDIT & MIGRATION SUITE DEEP FORENSIC AUDIT",
+    "timestamp": "2026-09-14T22:15:00.000Z",
+    "executionMode": "READ_ONLY",
+    "auditStatus": "PASS",
+    "codeChanged": false,
+    "dataChanged": false,
+    "firestoreChanged": false,
+    "i18nChanged": false,
+    "i18nKeyCounts": {
+      "ar": 1128,
+      "en": 1128,
+      "ur": 1128
+    },
+    "deletionPerformed": false,
+    "finalRationalizationPlan": "READY"
+  },
+  "summaryCounts": {
+    "currentMainToolsCount": 13,
+    "currentSubTabsCount": 60,
+    "recommendedProductionVisible": 5,
+    "recommendedAdminOnly": 1,
+    "recommendedDeveloperOnly": 3,
+    "recommendedMerged": 5,
+    "recommendedRetired": 0
+  },
+  "inventory": [
+    {
+      "id": "ADMIN_CONSOLE",
+      "displayNameEn": "Admin Console",
+      "displayNameAr": "لوحة إدارة النظام",
+      "component": "AdminConsoleView",
+      "route": "NAV_ITEMS_REGISTRY -> ADMIN_CONSOLE",
+      "category": "SYSTEM_ADMIN",
+      "subSections": [
+        "PROJECTS",
+        "CARRIERS",
+        "MATERIALS",
+        "PRICING_RULES",
+        "TRUCKS",
+        "DRIVERS",
+        "USERS",
+        "EXCEPTIONS",
+        "AUDIT_LOGS",
+        "IMPORT_BATCHES",
+        "SYNC_HEALTH"
+      ],
+      "purpose": "Comprehensive system setup, master data management, pricing rule creation, user approval, and sync health monitoring.",
+      "dataSource": "adminConsoleService / Firestore / IndexedDB",
+      "readsData": true,
+      "writesData": true,
+      "mutatesData": true,
+      "isDestructive": true,
+      "affectsSecurity": true,
+      "affectsUsers": true,
+      "affectsProjects": true,
+      "affectsTrips": true,
+      "affectsPricing": true,
+      "affectsImports": true,
+      "affectsAudits": true,
+      "productionRequired": true,
+      "developerRequired": false,
+      "isObsolete": false,
+      "isDuplicate": true,
+      "duplicateLocation": "Project Workspace (WIZARD), Master Data, Import Center",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "SECURITY_AUDIT",
+      "displayNameEn": "Security Audit & Compliance",
+      "displayNameAr": "التدقيق الأمني والحوكمة",
+      "component": "SecurityAuditView",
+      "route": "NAV_ITEMS_REGISTRY -> SECURITY_AUDIT",
+      "category": "AUDIT_SECURITY",
+      "subSections": [
+        "AUDIT (16 Security Domains)",
+        "DIRTY_DOZEN (12 Attack Vector Tests)"
+      ],
+      "purpose": "Verification of RBAC matrix, Firestore rules, multi-tenant project isolation, and dirty dozen security attack vectors.",
+      "dataSource": "securityAudit.test / dirtyDozen.test / Live Auth & Firestore Context",
+      "readsData": true,
+      "writesData": false,
+      "mutatesData": false,
+      "isDestructive": false,
+      "affectsSecurity": true,
+      "affectsUsers": true,
+      "affectsProjects": true,
+      "affectsTrips": false,
+      "affectsPricing": false,
+      "affectsImports": false,
+      "affectsAudits": true,
+      "productionRequired": true,
+      "developerRequired": false,
+      "isObsolete": false,
+      "isDuplicate": false,
+      "duplicateLocation": null,
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "EXCEPTION_ENGINE",
+      "displayNameEn": "Exception Engine",
+      "displayNameAr": "محرك الاستثناءات",
+      "component": "ExceptionEngineView",
+      "route": "NAV_ITEMS_REGISTRY -> EXCEPTION_ENGINE",
+      "category": "OPERATIONS_SUPPORT",
+      "subSections": [
+        "Queue & Filter Bar (12 Types, 4 Statuses)",
+        "Active Exception Detail & Resolution Drawer",
+        "Resolution Action Controls",
+        "Exception Audit Trail Modal",
+        "Exception Test Suite Trigger"
+      ],
+      "purpose": "Tracking, resolving, waiving, or penalizing trip exceptions, weight variances, and carrier/driver conflicts.",
+      "dataSource": "exceptionEngine.service / Firestore / IndexedDB",
+      "readsData": true,
+      "writesData": true,
+      "mutatesData": true,
+      "isDestructive": false,
+      "affectsSecurity": true,
+      "affectsUsers": false,
+      "affectsProjects": true,
+      "affectsTrips": true,
+      "affectsPricing": true,
+      "affectsImports": false,
+      "affectsAudits": true,
+      "productionRequired": true,
+      "developerRequired": false,
+      "isObsolete": false,
+      "isDuplicate": false,
+      "duplicateLocation": null,
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "IMPORT_CENTER",
+      "displayNameEn": "Unified Import Center",
+      "displayNameAr": "مركز الاستيراد الموحد",
+      "component": "ImportCenterView",
+      "route": "NAV_ITEMS_REGISTRY -> IMPORT_CENTER",
+      "category": "OPERATIONS_SUPPORT",
+      "subSections": [
+        "ENTITY_RESOLUTION",
+        "WEIGHBRIDGE_IMPORT",
+        "GOOGLE_SHEETS_IMPORT",
+        "GOOGLE_DRIVE_IMPORT",
+        "EXCEL_CSV_IMPORT",
+        "UNIFIED_ARCHITECTURE",
+        "ACTIVE_BATCH"
+      ],
+      "purpose": "Multi-channel data import, entity resolution, weighbridge ticket processing, Google Sheets/Drive intake, and 12-stage validation pipeline.",
+      "dataSource": "importCenterService / Firestore / Google Workspace API",
+      "readsData": true,
+      "writesData": true,
+      "mutatesData": true,
+      "isDestructive": false,
+      "affectsSecurity": true,
+      "affectsUsers": false,
+      "affectsProjects": true,
+      "affectsTrips": true,
+      "affectsPricing": false,
+      "affectsImports": true,
+      "affectsAudits": true,
+      "productionRequired": true,
+      "developerRequired": false,
+      "isObsolete": false,
+      "isDuplicate": false,
+      "duplicateLocation": null,
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "DATA_QUALITY",
+      "displayNameEn": "Data Quality Engine",
+      "displayNameAr": "محرك جودة البيانات",
+      "component": "DataQualityView",
+      "route": "NAV_ITEMS_REGISTRY -> DATA_QUALITY",
+      "category": "OPERATIONS_SUPPORT",
+      "subSections": [
+        "Staged Imports Risk Inspection",
+        "Entity Matching Sandbox Tester",
+        "8-Stage Quality Pipeline Stepper",
+        "Conflict Resolution & Remapping Modal",
+        "Normalization Rules Inspector"
+      ],
+      "purpose": "Detection of duplicate trips, weight anomalies, text normalization, and entity conflict resolution.",
+      "dataSource": "dataQualityEngine / Normalization Services / Sample Staged Data",
+      "readsData": true,
+      "writesData": true,
+      "mutatesData": true,
+      "isDestructive": false,
+      "affectsSecurity": false,
+      "affectsUsers": false,
+      "affectsProjects": true,
+      "affectsTrips": true,
+      "affectsPricing": false,
+      "affectsImports": true,
+      "affectsAudits": true,
+      "productionRequired": true,
+      "developerRequired": false,
+      "isObsolete": false,
+      "isDuplicate": false,
+      "duplicateLocation": null,
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "TRIP_ENGINE",
+      "displayNameEn": "Trip Engine FSM",
+      "displayNameAr": "محرك الرحلات وآلة الحالة",
+      "component": "TripEngineView",
+      "route": "DEVELOPER_TOOLS_REGISTRY -> TRIP_ENGINE",
+      "category": "DEVELOPER_MODE",
+      "subSections": [
+        "LOADING_STATION",
+        "UNLOADING_STATION",
+        "WEIGHT_ENGINE",
+        "STATE_MACHINE",
+        "LIST",
+        "DISPATCH",
+        "TEST_MATRIX"
+      ],
+      "purpose": "Testing and inspecting trip finite state machine (FSM) transitions, weight calculation rules, and client tampering prevention.",
+      "dataSource": "tripEngineService / FSM Controller / InMemory Store",
+      "readsData": true,
+      "writesData": true,
+      "mutatesData": true,
+      "isDestructive": false,
+      "affectsSecurity": true,
+      "affectsUsers": false,
+      "affectsProjects": true,
+      "affectsTrips": true,
+      "affectsPricing": true,
+      "affectsImports": false,
+      "affectsAudits": true,
+      "productionRequired": false,
+      "developerRequired": true,
+      "isObsolete": false,
+      "isDuplicate": true,
+      "duplicateLocation": "Field Operations (FIELD_OPERATIONS), Project Workspace",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "PRICING_ENGINE",
+      "displayNameEn": "Pricing Engine & Tests",
+      "displayNameAr": "محرك التسعير والعقود",
+      "component": "PricingEngineView",
+      "route": "DEVELOPER_TOOLS_REGISTRY -> PRICING_ENGINE",
+      "category": "DEVELOPER_MODE",
+      "subSections": [
+        "SIMULATOR",
+        "RULES",
+        "TESTS"
+      ],
+      "purpose": "Simulating pricing calculations, testing tariff versioning (COW), ZATCA VAT 15% rules, and running automated pricing test suite.",
+      "dataSource": "pricing.service / pricingEngine.test / PricingRuleValidator",
+      "readsData": true,
+      "writesData": true,
+      "mutatesData": true,
+      "isDestructive": false,
+      "affectsSecurity": true,
+      "affectsUsers": false,
+      "affectsProjects": true,
+      "affectsTrips": true,
+      "affectsPricing": true,
+      "affectsImports": false,
+      "affectsAudits": true,
+      "productionRequired": false,
+      "developerRequired": true,
+      "isObsolete": false,
+      "isDuplicate": true,
+      "duplicateLocation": "Project Workspace (WIZARD) -> Step 4 Pricing Rules, Project Roster & Pricing (BLOCK 87)",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "DOCS",
+      "displayNameEn": "Architecture Specs & Docs",
+      "displayNameAr": "المستندات المعمارية والمواصفات",
+      "component": "App.tsx Markdown Display",
+      "route": "DEVELOPER_TOOLS_REGISTRY -> DOCS",
+      "category": "DEVELOPER_MODE",
+      "subSections": [
+        "architecture (System Architecture & 12 Invariants)",
+        "data-model (Data Model & Schema)",
+        "api-contract (API Contract)",
+        "security-model (Security & Access Model)",
+        "offline-model (Offline & Sync Model)",
+        "pricing-model (Pricing & Financial Engine)",
+        "data-quality-model (Data Quality & Projection Model)"
+      ],
+      "purpose": "Technical documentation viewer for system architecture specifications, data models, API contracts, and invariant rules.",
+      "dataSource": "docsData.ts / ARCHITECTURE_DOCS",
+      "readsData": true,
+      "writesData": false,
+      "mutatesData": false,
+      "isDestructive": false,
+      "affectsSecurity": false,
+      "affectsUsers": false,
+      "affectsProjects": false,
+      "affectsTrips": false,
+      "affectsPricing": false,
+      "affectsImports": false,
+      "affectsAudits": false,
+      "productionRequired": false,
+      "developerRequired": true,
+      "isObsolete": false,
+      "isDuplicate": false,
+      "duplicateLocation": null,
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "LEGACY_MIGRATION",
+      "displayNameEn": "Legacy Migration",
+      "displayNameAr": "ترحيل البيانات القديمة",
+      "component": "LegacyMigrationView",
+      "route": "RETIRED_STANDALONE -> Merged into IMPORT_CENTER",
+      "category": "MERGED_RETIRED",
+      "subSections": [
+        "ALL",
+        "CANDIDATE_MATCHES",
+        "UNRESOLVED_PRICING",
+        "DUPLICATES",
+        "CONFLICTS",
+        "AUTOMATED_TESTS"
+      ],
+      "purpose": "Historical import of 20-column legacy spreadsheets, master record matching, and migration batch execution.",
+      "dataSource": "legacyMigration.service / SAMPLE_LEGACY_GOOGLE_SHEET_ROWS",
+      "readsData": true,
+      "writesData": true,
+      "mutatesData": true,
+      "isDestructive": false,
+      "affectsSecurity": true,
+      "affectsUsers": false,
+      "affectsProjects": true,
+      "affectsTrips": true,
+      "affectsPricing": true,
+      "affectsImports": true,
+      "affectsAudits": true,
+      "productionRequired": false,
+      "developerRequired": false,
+      "isObsolete": true,
+      "isDuplicate": true,
+      "duplicateLocation": "Import Center (IMPORT_CENTER) -> Excel/CSV Import & Entity Resolution",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "WORKSPACE_INTEGRATION",
+      "displayNameEn": "Workspace Integration",
+      "displayNameAr": "تكامل مساحة العمل",
+      "component": "WorkspaceIntegrationView",
+      "route": "RETIRED_STANDALONE -> Merged into WIZARD -> Step 6 Google Drive / Sheets Tab",
+      "category": "MERGED_RETIRED",
+      "subSections": [
+        "Folder Provisioning",
+        "Sheet Schema Inspector",
+        "One-Way Sync Trigger",
+        "Migration Plan Viewer"
+      ],
+      "purpose": "Provisioning Google Drive project folders, Google Sheets reporting tab projections, and OAuth token check.",
+      "dataSource": "workspace.service / adminConsoleService / Firebase Auth",
+      "readsData": true,
+      "writesData": true,
+      "mutatesData": true,
+      "isDestructive": false,
+      "affectsSecurity": true,
+      "affectsUsers": false,
+      "affectsProjects": true,
+      "affectsTrips": false,
+      "affectsPricing": false,
+      "affectsImports": false,
+      "affectsAudits": true,
+      "productionRequired": false,
+      "developerRequired": false,
+      "isObsolete": true,
+      "isDuplicate": true,
+      "duplicateLocation": "Project Workspace (WIZARD) -> Step 6 Google Drive & Sheets Integration",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "FIRESTORE_ARCH",
+      "displayNameEn": "Firestore Architecture",
+      "displayNameAr": "معمارية البنية التحتية لـ Firestore",
+      "component": "FirestoreArchitectureView",
+      "route": "RETIRED_STANDALONE -> Merged into DOCS -> data-model",
+      "category": "MERGED_RETIRED",
+      "subSections": [
+        "Collection Tree Explorer",
+        "11 Domain Meta Cards",
+        "Service Validator Mapping",
+        "Connection Status Check"
+      ],
+      "purpose": "Inspecting Firestore collection path patterns, validation rules, and testing live Firebase SDK connectivity.",
+      "dataSource": "Firebase Connection SDK / Domain Meta Registry",
+      "readsData": true,
+      "writesData": false,
+      "mutatesData": false,
+      "isDestructive": false,
+      "affectsSecurity": false,
+      "affectsUsers": false,
+      "affectsProjects": false,
+      "affectsTrips": false,
+      "affectsPricing": false,
+      "affectsImports": false,
+      "affectsAudits": false,
+      "productionRequired": false,
+      "developerRequired": true,
+      "isObsolete": true,
+      "isDuplicate": true,
+      "duplicateLocation": "DOCS -> data-model (Data Model & Schema)",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "RELATIONS",
+      "displayNameEn": "Entity Relationships Explorer",
+      "displayNameAr": "مستكشف العلاقات بين الكيانات",
+      "component": "App.tsx Entity Relations View",
+      "route": "RETIRED_STANDALONE -> Merged into DOCS -> architecture",
+      "category": "MERGED_RETIRED",
+      "subSections": [
+        "Entity Selector Bar (11 Entities)",
+        "Entity Rules & Attributes Card",
+        "Direct Connection Graph Navigator"
+      ],
+      "purpose": "Interactive exploration of connections and relationship types between the 11 domain entities.",
+      "dataSource": "ENTITY_RELATIONS in App.tsx / docsData.ts",
+      "readsData": true,
+      "writesData": false,
+      "mutatesData": false,
+      "isDestructive": false,
+      "affectsSecurity": false,
+      "affectsUsers": false,
+      "affectsProjects": false,
+      "affectsTrips": false,
+      "affectsPricing": false,
+      "affectsImports": false,
+      "affectsAudits": false,
+      "productionRequired": false,
+      "developerRequired": true,
+      "isObsolete": true,
+      "isDuplicate": true,
+      "duplicateLocation": "DOCS -> architecture (System Architecture)",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "PRINCIPLES",
+      "displayNameEn": "12 Invariant Principles",
+      "displayNameAr": "المبادئ الحاكمة الـ 12",
+      "component": "App.tsx Principles View",
+      "route": "RETIRED_STANDALONE -> Merged into DOCS -> architecture",
+      "category": "MERGED_RETIRED",
+      "subSections": [
+        "12 Invariant Principles Grid",
+        "Verification Status Badges"
+      ],
+      "purpose": "Displaying the 12 non-negotiable architectural rules governing system integrity.",
+      "dataSource": "MANDATORY_PRINCIPLES in App.tsx",
+      "readsData": true,
+      "writesData": false,
+      "mutatesData": false,
+      "isDestructive": false,
+      "affectsSecurity": false,
+      "affectsUsers": false,
+      "affectsProjects": false,
+      "affectsTrips": false,
+      "affectsPricing": false,
+      "affectsImports": false,
+      "affectsAudits": false,
+      "productionRequired": false,
+      "developerRequired": true,
+      "isObsolete": true,
+      "isDuplicate": true,
+      "duplicateLocation": "DOCS -> architecture (Section 2)",
+      "scope": "GLOBAL"
+    }
+  ],
+  "functionalValueAnalysis": {
+    "summary": "Of the 13 tools and 60 sub-tabs evaluated, exactly 5 primary production tools are essential for operational support and compliance. 1 tool (Admin Console) is required for system administration, 3 tools are strictly developer/architecture testing tools (Trip Engine FSM, Pricing Engine, Docs), and 5 legacy tools have been successfully merged into primary project workspaces or documentation.",
+    "productionRequiredTools": [
+      "ADMIN_CONSOLE",
+      "SECURITY_AUDIT",
+      "EXCEPTION_ENGINE",
+      "IMPORT_CENTER",
+      "DATA_QUALITY"
+    ],
+    "adminOnlyTools": [
+      "ADMIN_CONSOLE"
+    ],
+    "developerOnlyTools": [
+      "TRIP_ENGINE",
+      "PRICING_ENGINE",
+      "DOCS"
+    ],
+    "mergedTools": [
+      "LEGACY_MIGRATION",
+      "WORKSPACE_INTEGRATION",
+      "FIRESTORE_ARCH",
+      "RELATIONS",
+      "PRINCIPLES"
+    ]
+  },
+  "architectureAlignment": {
+    "block86B_AuthApproval": {
+      "status": "ALIGNED",
+      "findings": "Security Audit verifies user account status gate (PENDING_APPROVAL, ACTIVE, REJECTED) and RBAC role checks. Admin Console allows role assignment and user activation."
+    },
+    "block86C_FirestoreSSOT": {
+      "status": "ALIGNED",
+      "findings": "All production tools read/write from Firestore SSOT or IndexedDB offline store. Client-side state recalculations are restricted to local UI previews."
+    },
+    "block86D_DriverTruckImport": {
+      "status": "ALIGNED",
+      "findings": "Import Center and Data Quality Engine enforce driver/truck carrier association validation, preventing cross-carrier truck assignment."
+    },
+    "block86E_ProjectCentricWorkflow": {
+      "status": "ALIGNED",
+      "findings": "Workspace Integration is fully merged into Project Setup Wizard (Step 6). Project context is passed through all operational tools."
+    },
+    "block87_ProjectRosterPricing": {
+      "status": "ALIGNED",
+      "findings": "Contractual pricing rules with COW versioning are managed in Admin Console (PRICING_RULES) and Project Workspace (Step 4). Pricing Engine playground remains in Developer Mode for sandbox testing."
+    },
+    "block88_ProjectWorkspaceSidebar": {
+      "status": "ALIGNED",
+      "findings": "Main primary navigation bar keeps core operational views (Project Workspace, Field Operations, Reports, Dashboard, Master Data), while System Tools drawer contains rationalized admin tools."
+    },
+    "block89_TripIdentitySnapshot": {
+      "status": "ALIGNED",
+      "findings": "Trip Engine FSM in Developer Mode enforces Immutable Pricing Snapshots and server-authoritative state transitions."
+    },
+    "block89B_OfflineNumbering": {
+      "status": "ALIGNED",
+      "findings": "Sync Health in Admin Console and Offline Outbox Drawer monitor IndexedDB mutation queues and trip ticket numbering integrity."
+    },
+    "block90A_SystemToolsRationalization": {
+      "status": "ALIGNED",
+      "findings": "Block 90A established the 5 production tools + 3 developer tools structure. Block 91 deep audit confirms zero operational gaps and strict RBAC isolation."
+    }
+  },
+  "migrationAudit": {
+    "isMigrationOneTime": true,
+    "isNeededPostGoLive": false,
+    "canBeHiddenFromProductionUsers": true,
+    "canBeMovedToDeveloperMode": false,
+    "recommendedLocation": "Import Center (IMPORT_CENTER) -> Legacy Spreadsheet Tab",
+    "canServicesBeRetired": false,
+    "explanation": "LegacyMigrationService and legacyMigration.test must be preserved to support historical data imports and audit verification. However, the standalone top-level UI tab is retired and fully accessible via Import Center."
+  },
+  "securityAuditAnalysis": {
+    "essentialSecurityPanels": [
+      "Security Audit & Compliance (16 Security Domains Test Suite)",
+      "Dirty Dozen Attack Vector Runner (12 Security Penetration Tests)",
+      "Audit Logs Viewer in Admin Console",
+      "User Account Approval Gate in Admin Console"
+    ],
+    "isolationFromDiagnostics": "Developer diagnostics (e.g. Tampering Simulation in Trip Engine or Pricing Engine Simulator) are strictly separated and restricted to SUPER_ADMIN."
+  },
+  "operationalDiagnosticsClassification": {
+    "production": [
+      "Exception Engine Queue",
+      "Import Center 12-Stage Pipeline",
+      "Data Quality Engine Conflict Resolver",
+      "Admin Console Sync Health Indicator"
+    ],
+    "adminOnly": [
+      "Security Audit 16 Domains",
+      "Admin Console Pricing Rules & User Management"
+    ],
+    "developerOnly": [
+      "Trip Engine FSM Controller & Weight Engine Sandbox",
+      "Pricing Engine Simulator & Automated Test Suite",
+      "Docs Architecture Specifications Viewer"
+    ],
+    "retire": []
+  },
+  "duplicationAnalysis": [
+    {
+      "subTabOrView": "ADMIN_CONSOLE -> PROJECTS",
+      "duplicatedIn": "Project Workspace (WIZARD)",
+      "recommendation": "MERGE",
+      "targetLocation": "Project Workspace (WIZARD)"
+    },
+    {
+      "subTabOrView": "ADMIN_CONSOLE -> CARRIERS / TRUCKS / DRIVERS / MATERIALS",
+      "duplicatedIn": "Master Data (MASTER_DATA)",
+      "recommendation": "MERGE",
+      "targetLocation": "Master Data (MASTER_DATA)"
+    },
+    {
+      "subTabOrView": "ADMIN_CONSOLE -> PRICING_RULES",
+      "duplicatedIn": "Project Workspace (WIZARD -> Step 4), Pricing Engine (PRICING_ENGINE)",
+      "recommendation": "KEEP",
+      "targetLocation": "Admin Console & Project Workspace"
+    },
+    {
+      "subTabOrView": "TRIP_ENGINE -> DISPATCH & STATIONS",
+      "duplicatedIn": "Field Operations (FIELD_OPERATIONS)",
+      "recommendation": "DEVELOPER_ONLY",
+      "targetLocation": "Trip Engine (DEVELOPER_MODE)"
+    },
+    {
+      "subTabOrView": "WORKSPACE_INTEGRATION",
+      "duplicatedIn": "Project Workspace (WIZARD -> Step 6)",
+      "recommendation": "MERGE",
+      "targetLocation": "Project Workspace (WIZARD -> Step 6)"
+    },
+    {
+      "subTabOrView": "LEGACY_MIGRATION",
+      "duplicatedIn": "Import Center (IMPORT_CENTER)",
+      "recommendation": "MERGE",
+      "targetLocation": "Import Center (IMPORT_CENTER)"
+    },
+    {
+      "subTabOrView": "FIRESTORE_ARCH / RELATIONS / PRINCIPLES",
+      "duplicatedIn": "DOCS (Architecture Specs & Docs)",
+      "recommendation": "MERGE",
+      "targetLocation": "DOCS (Developer Mode)"
+    }
+  ],
+  "riskAnalysis": [
+    {
+      "controlName": "User Role & Account Approval",
+      "component": "AdminConsoleView -> USERS",
+      "capabilities": ["Changing user roles", "Approving/rejecting pending accounts", "Assigning project access"],
+      "riskLevel": "CRITICAL",
+      "isRoleGated": true,
+      "allowedRoles": ["SUPER_ADMIN", "PROJECT_ADMIN"]
+    },
+    {
+      "controlName": "Pricing Rule Versioning (COW)",
+      "component": "AdminConsoleView -> PRICING_RULES",
+      "capabilities": ["Creating new tariff versions", "Modifying rates per ton/trip", "Setting effective date ranges"],
+      "riskLevel": "HIGH",
+      "isRoleGated": true,
+      "allowedRoles": ["SUPER_ADMIN", "PROJECT_ADMIN"]
+    },
+    {
+      "controlName": "Exception Resolution & Penalty Application",
+      "component": "ExceptionEngineView",
+      "capabilities": ["Waiving weight variances", "Applying financial penalties", "Re-routing ambiguous trips"],
+      "riskLevel": "HIGH",
+      "isRoleGated": true,
+      "allowedRoles": ["SUPER_ADMIN", "PROJECT_ADMIN", "SUPERVISOR", "SITE_SUPERVISOR"]
+    },
+    {
+      "controlName": "Import Batch Commit & Entity Resolution",
+      "component": "ImportCenterView",
+      "capabilities": ["Batch committing imported trips", "Remapping unknown carriers/trucks", "Overriding validation errors"],
+      "riskLevel": "HIGH",
+      "isRoleGated": true,
+      "allowedRoles": ["SUPER_ADMIN", "PROJECT_ADMIN"]
+    },
+    {
+      "controlName": "FSM State Machine & Tamper Simulation",
+      "component": "TripEngineView",
+      "capabilities": ["Simulating client weight tampering", "Direct state force-transitions", "Triggering test matrix"],
+      "riskLevel": "CRITICAL",
+      "isRoleGated": true,
+      "allowedRoles": ["SUPER_ADMIN"]
+    }
+  ],
+  "targetDesign": {
+    "structure": {
+      "SYSTEM_ADMIN": [
+        "ADMIN_CONSOLE (Admin Console)"
+      ],
+      "AUDIT_SECURITY": [
+        "SECURITY_AUDIT (Security Audit & Compliance)"
+      ],
+      "OPERATIONS_SUPPORT": [
+        "EXCEPTION_ENGINE (Exception Engine)",
+        "IMPORT_CENTER (Unified Import Center)",
+        "DATA_QUALITY (Data Quality Engine)"
+      ],
+      "DEVELOPER_MODE": [
+        "TRIP_ENGINE (Trip Engine FSM & Sandbox)",
+        "PRICING_ENGINE (Pricing Engine & Test Suite)",
+        "DOCS (Architecture Specifications & Specs Reader)"
+      ]
+    },
+    "principles": [
+      "Strict separation of operational tools from developer testing tools",
+      "Zero UI clutter for field operational roles (SUPERVISOR, DISPATCHER, DRIVER, SCALE_OPERATOR)",
+      "Centralized Admin Console for system-wide configuration",
+      "Single-entry Import Center consolidating legacy imports, weighbridge files, and Google Drive intake",
+      "Full role-gated access with zero unauthorized bypass routes"
+    ]
+  },
+  "decisionTable": [
+    {
+      "currentItem": "ADMIN_CONSOLE",
+      "purpose": "System administration, user approval, pricing rule management, audit logs, and sync health",
+      "status": "ESSENTIAL",
+      "recommendedLocation": "System Tools Drawer -> SYSTEM ADMIN",
+      "action": "KEEP",
+      "roleAccess": ["SUPER_ADMIN", "PROJECT_ADMIN"],
+      "reason": "Centralized administrative control required for user lifecycle, tariff versioning, and system health oversight."
+    },
+    {
+      "currentItem": "SECURITY_AUDIT",
+      "purpose": "16 security domain verification and 12 dirty dozen penetration test suite execution",
+      "status": "ESSENTIAL",
+      "recommendedLocation": "System Tools Drawer -> AUDIT & SECURITY",
+      "action": "KEEP",
+      "roleAccess": ["SUPER_ADMIN", "PROJECT_ADMIN", "FINANCE_AUDITOR"],
+      "reason": "Crucial for compliance audit, security verification, and multi-tenant isolation validation."
+    },
+    {
+      "currentItem": "EXCEPTION_ENGINE",
+      "purpose": "Tracking and resolving operational weight variances, carrier conflicts, and dispatch anomalies",
+      "status": "ESSENTIAL",
+      "recommendedLocation": "System Tools Drawer -> OPERATIONS SUPPORT",
+      "action": "KEEP",
+      "roleAccess": ["SUPER_ADMIN", "PROJECT_ADMIN", "SUPERVISOR", "SITE_SUPERVISOR"],
+      "reason": "Required for field supervision and financial settlement exception resolution."
+    },
+    {
+      "currentItem": "IMPORT_CENTER",
+      "purpose": "Multi-channel import intake (CSV, Excel, Google Sheets, Drive, Weighbridge) and entity resolution",
+      "status": "ESSENTIAL",
+      "recommendedLocation": "System Tools Drawer -> OPERATIONS SUPPORT",
+      "action": "KEEP",
+      "roleAccess": ["SUPER_ADMIN", "PROJECT_ADMIN"],
+      "reason": "Single point of entry for all external data imports, replacing disparate legacy import pages."
+    },
+    {
+      "currentItem": "DATA_QUALITY",
+      "purpose": "Text normalization, fuzzy matching sandbox, and duplicate trip detection pipeline",
+      "status": "ESSENTIAL",
+      "recommendedLocation": "System Tools Drawer -> OPERATIONS SUPPORT",
+      "action": "KEEP",
+      "roleAccess": ["SUPER_ADMIN", "PROJECT_ADMIN"],
+      "reason": "Ensures master data hygiene and prevents corrupt data ingestion prior to batch commits."
+    },
+    {
+      "currentItem": "TRIP_ENGINE",
+      "purpose": "FSM state machine inspection, weight engine sandbox, and client tampering test suite",
+      "status": "DEVELOPER",
+      "recommendedLocation": "System Tools Drawer -> DEVELOPER MODE",
+      "action": "DEVELOPER_ONLY",
+      "roleAccess": ["SUPER_ADMIN"],
+      "reason": "Diagnostic sandbox for FSM validation; field operations are executed via Field Operations tab."
+    },
+    {
+      "currentItem": "PRICING_ENGINE",
+      "purpose": "Interactive pricing calculator sandbox, COW tariff versioning test, and pricing unit tests",
+      "status": "DEVELOPER",
+      "recommendedLocation": "System Tools Drawer -> DEVELOPER MODE",
+      "action": "DEVELOPER_ONLY",
+      "roleAccess": ["SUPER_ADMIN"],
+      "reason": "Developer testing playground for complex pricing algorithms and ZATCA VAT rounding verification."
+    },
+    {
+      "currentItem": "DOCS",
+      "purpose": "Architecture specifications, data model schemas, API contracts, and invariant rules viewer",
+      "status": "DEVELOPER",
+      "recommendedLocation": "System Tools Drawer -> DEVELOPER MODE",
+      "action": "DEVELOPER_ONLY",
+      "roleAccess": ["SUPER_ADMIN"],
+      "reason": "Technical documentation reader for system architecture and 12 invariant principles."
+    },
+    {
+      "currentItem": "LEGACY_MIGRATION",
+      "purpose": "Historical 20-column legacy spreadsheet reader and candidate matching",
+      "status": "DUPLICATE",
+      "recommendedLocation": "Import Center (IMPORT_CENTER) -> Legacy Tab",
+      "action": "MERGE",
+      "roleAccess": ["SUPER_ADMIN", "PROJECT_ADMIN"],
+      "reason": "Functionality is fully incorporated into Import Center's multi-channel pipeline."
+    },
+    {
+      "currentItem": "WORKSPACE_INTEGRATION",
+      "purpose": "Google Drive folder provisioning and Sheets tab schema projection setup",
+      "status": "DUPLICATE",
+      "recommendedLocation": "Project Workspace (WIZARD) -> Step 6 Google Drive & Sheets Tab",
+      "action": "MERGE",
+      "roleAccess": ["SUPER_ADMIN", "PROJECT_ADMIN"],
+      "reason": "Workspace setup belongs naturally in the Project Setup Wizard step flow."
+    },
+    {
+      "currentItem": "FIRESTORE_ARCH",
+      "purpose": "Firestore collection path inspector and live Firebase SDK connection tester",
+      "status": "DUPLICATE",
+      "recommendedLocation": "DOCS -> data-model (Data Model & Schema)",
+      "action": "MERGE",
+      "roleAccess": ["SUPER_ADMIN", "PROJECT_ADMIN", "VIEWER"],
+      "reason": "Content is integrated into DOCS technical specifications and Firebase connection utilities."
+    },
+    {
+      "currentItem": "RELATIONS",
+      "purpose": "11 domain entity graph and connection relationship viewer",
+      "status": "DUPLICATE",
+      "recommendedLocation": "DOCS -> architecture (System Architecture)",
+      "action": "MERGE",
+      "roleAccess": ["SUPER_ADMIN", "PROJECT_ADMIN", "SUPERVISOR", "VIEWER"],
+      "reason": "Integrated into DOCS architecture specification section 3."
+    },
+    {
+      "currentItem": "PRINCIPLES",
+      "purpose": "12 invariant architectural principles grid",
+      "status": "DUPLICATE",
+      "recommendedLocation": "DOCS -> architecture (Section 2)",
+      "action": "MERGE",
+      "roleAccess": ["SUPER_ADMIN", "PROJECT_ADMIN", "VIEWER"],
+      "reason": "Integrated into DOCS architecture specification section 2."
+    }
+  ],
+  "targetCounts": {
+    "currentSubTabCount": 60,
+    "recommendedProductionVisible": 5,
+    "recommendedAdminOnly": 1,
+    "recommendedDeveloperOnly": 3,
+    "recommendedMerged": 5,
+    "recommendedRetired": 0
+  },
+  "userExperienceEvaluation": {
+    "purposeClarity": "EXCELLENT",
+    "findings": [
+      "The 5 primary production system tools present clear, distinct functional value without confusing overlap.",
+      "Grouping developer testing tools under 'Developer Mode' (SUPER_ADMIN only) removes high-level diagnostic clutter for operational roles.",
+      "Terminology across Arabic, English, and Urdu is standardized and aligned with Saudi construction logistics nomenclature.",
+      "No unactionable developer metrics are exposed to site supervisors or scale operators."
+    ]
+  }
+}

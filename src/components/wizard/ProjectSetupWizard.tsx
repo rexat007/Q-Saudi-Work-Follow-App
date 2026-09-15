@@ -9,7 +9,7 @@ import {
   WizardGoogleDriveProvisioning,
   ProjectInfoStep
 } from '../../types/wizard';
-import { mockTemplateData } from './mockTemplateData';
+import { EMPTY_WIZARD_DATA } from './emptyWizardData';
 import { ProjectProvisioningValidator } from '../../validators/projectProvisioning.validator';
 import { projectProvisioningService } from '../../services/projectProvisioning.service';
 import { ProjectsDashboard } from './ProjectsDashboard';
@@ -55,7 +55,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const { t, isRTL } = useI18n();
   const [isCreatingProject, setIsCreatingProject] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [wizardData, setWizardData] = useState<ProjectSetupWizardData>(mockTemplateData);
+  const [wizardData, setWizardData] = useState<ProjectSetupWizardData>(EMPTY_WIZARD_DATA);
   const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
   const [provisioningStepIndex, setProvisioningStepIndex] = useState<number>(0);
   const [provisionResult, setProvisionResult] = useState<ProjectProvisioningResult | null>(null);
@@ -129,86 +129,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // Reset to empty / clean state
   const handleReset = () => {
-    const freshData: ProjectSetupWizardData = {
-      projectInfo: {
-        projectCode: `PRJ-${Date.now().toString(36).toUpperCase()}`,
-        projectName: '',
-        clientName: '',
-        description: '',
-        status: 'ACTIVE',
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: '',
-        defaultSettings: {
-          currency: 'SAR',
-          vatRatePercent: 15,
-          zatcaTaxNumber: '300000000000003',
-          requireTareOnExit: true,
-          maxToleranceKg: 150,
-          allowDriverSelfDispatch: false,
-          addressAr: 'المملكة العربية السعودية',
-          geoFenceRadiusMeters: 1000,
-        },
-      },
-      materials: [
-        {
-          id: 'mat-1',
-          materialId: 'MAT-SUBBASE-01',
-          materialName: 'ركام طبقة أساس صلب (Sub-base Grade A)',
-          materialCode: 'SB-01',
-          unitOfMeasure: 'TON',
-          status: 'ACTIVE',
-          sortOrder: 1,
-          standardDensityTonPerM3: 1.65,
-        },
-      ],
-      carriers: [
-        {
-          id: 'car-1',
-          carrierId: 'CAR-A',
-          carrierName: 'شركة النقل المتقدم (Carrier A)',
-          status: 'ACTIVE',
-          commercialRegistrationNo: '1010998877',
-          transportLicenseNo: 'TGA-SA-901',
-          contactPersonName: 'سلطان المطيري',
-          contactPhone: '+966501112233',
-          contactEmail: 'logistics@carriera.sa',
-        },
-      ],
-      pricingRules: [
-        {
-          id: 'pr-1',
-          pricingRuleId: 'PR-CAR-A-PER-TRIP-120',
-          carrierId: 'CAR-A',
-          pricingType: 'PER_TRIP',
-          rate: 120,
-          currency: 'SAR',
-          effectiveFrom: '2026-09-01',
-          effectiveTo: '2027-12-31',
-          materialId: 'ALL_MATERIALS',
-          notes: 'اتفاقية الرد الثابت 120 ريال',
-          vatApplicable: true,
-        },
-      ],
-      userAccess: [
-        {
-          userId: 'USR-ADMIN-01',
-          fullName: 'م. أحمد الحربي (المدير الإقليمي)',
-          email: 'admin.operations@q-saudi.sa',
-          role: 'PROJECT_ADMIN',
-          isAssigned: true,
-        },
-      ],
-      googleDrive: {
-        enabled: true,
-        rootFolderName: 'PRJ - أرشيف ومستندات المشروع اللوجستية',
-        provisionSpreadsheet: true,
-        spreadsheetTitle: 'سجل رحلات وموازين المشروع',
-        folderStructure: ['01_Weighbridge_Tickets', '02_Delivery_Notes', '03_Settlements', '04_Permits'],
-        autoSyncTickets: true,
-        archiveDailyTrips: true,
-      },
-    };
-    setWizardData(freshData);
+    setWizardData(EMPTY_WIZARD_DATA);
     setProvisionResult(null);
     setProvisionError(null);
     setCurrentStep(1);
@@ -317,7 +238,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           <button
             type="button"
             onClick={() => {
-              setWizardData(mockTemplateData);
+              import('./mockTemplateData').then(m => setWizardData(m.mockTemplateData));
               setProvisionResult(null);
             }}
             className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"

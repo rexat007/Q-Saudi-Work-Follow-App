@@ -1,3 +1,4 @@
+import { buildRelationshipContext } from "../../utils/masterDataUtils";
 import React, { useState, useMemo } from 'react';
 import { 
   FileSpreadsheet, 
@@ -40,8 +41,7 @@ import {
   IssueSeverity 
 } from '../../types/importCenter';
 import { ImportCenterService } from '../../services/dataQuality/importCenterService';
-import { SAMPLE_QUALITY_CONTEXT } from '../../data/sampleQualityData';
-import { SAMPLE_RAW_CSV_TEXT, createInitialSampleBatch } from '../../data/sampleImportBatches';
+import { SAMPLE_RAW_CSV_TEXT, createInitialSampleBatch, createEmptyImportBatch } from '../../data/sampleImportBatches';
 import { UnifiedImportArchitectureSection } from './UnifiedImportArchitectureSection';
 import { ExcelCsvImportSection } from './ExcelCsvImportSection';
 import { GoogleDriveImportSection } from './GoogleDriveImportSection';
@@ -57,8 +57,14 @@ export function ImportCenterView() {
   const [centerSubTab, setCenterSubTab] = useState<'ENTITY_RESOLUTION' | 'WEIGHBRIDGE_IMPORT' | 'GOOGLE_SHEETS_IMPORT' | 'GOOGLE_DRIVE_IMPORT' | 'EXCEL_CSV_IMPORT' | 'UNIFIED_ARCHITECTURE' | 'ACTIVE_BATCH'>('ENTITY_RESOLUTION');
 
   // Active batch state
-  const [activeBatch, setActiveBatch] = useState<ImportBatch>(createInitialSampleBatch);
-  const [batchHistory, setBatchHistory] = useState<ImportBatch[]>([createInitialSampleBatch()]);
+  const [activeBatch, setActiveBatch] = useState<ImportBatch>(createEmptyImportBatch);
+  const [batchHistory, setBatchHistory] = useState<ImportBatch[]>([]);
+
+  const handleLoadDemoBatch = () => {
+    const demo = createInitialSampleBatch(buildRelationshipContext(selectedProjectId || "ALL"));
+    setActiveBatch(demo);
+    setBatchHistory([demo]);
+  };
 
   // UI Filter states
   const [selectedSeverityFilter, setSelectedSeverityFilter] = useState<'ALL' | IssueSeverity>('ALL');
@@ -138,7 +144,7 @@ export function ImportCenterView() {
         uploadedBy: currentUserName,
         rawRows: rows,
         headers,
-        context: SAMPLE_QUALITY_CONTEXT,
+        context: buildRelationshipContext("ALL"),
       });
 
       setActiveBatch(newBatch);
@@ -1240,7 +1246,7 @@ export function ImportCenterView() {
 
               <div className="max-h-60 overflow-y-auto space-y-2">
                 {selectingMasterItem.fieldKey === 'carrier' && (
-                  SAMPLE_QUALITY_CONTEXT.knownCarriers.map((c) => (
+                  buildRelationshipContext("ALL").knownCarriers.map((c) => (
                     <button
                       key={c.carrierId}
                       onClick={() => {
@@ -1254,14 +1260,14 @@ export function ImportCenterView() {
                     >
                       <div className="font-bold text-stone-900">{c.name}</div>
                       <div className="text-[10px] text-stone-500 mt-0.5 font-mono">
-                        {c.carrierId} {SAMPLE_QUALITY_CONTEXT.authorizedCarrierIds.includes(c.carrierId) ? '✓ مصرح في المشروع' : '✗ غير مصرح'}
+                        {c.carrierId} {buildRelationshipContext("ALL").authorizedCarrierIds.includes(c.carrierId) ? '✓ مصرح في المشروع' : '✗ غير مصرح'}
                       </div>
                     </button>
                   ))
                 )}
 
                 {selectingMasterItem.fieldKey === 'truck' && (
-                  SAMPLE_QUALITY_CONTEXT.knownTrucks.map((t) => (
+                  buildRelationshipContext("ALL").knownTrucks.map((t) => (
                     <button
                       key={t.truckId}
                       onClick={() => {
@@ -1282,7 +1288,7 @@ export function ImportCenterView() {
                 )}
 
                 {selectingMasterItem.fieldKey === 'material' && (
-                  SAMPLE_QUALITY_CONTEXT.knownMaterials.map((m) => (
+                  buildRelationshipContext("ALL").knownMaterials.map((m) => (
                     <button
                       key={m.materialId}
                       onClick={() => {
@@ -1296,14 +1302,14 @@ export function ImportCenterView() {
                     >
                       <div className="font-bold text-stone-900">{m.name}</div>
                       <div className="text-[10px] text-stone-500 mt-0.5 font-mono">
-                        {m.code} {SAMPLE_QUALITY_CONTEXT.authorizedMaterialIds.includes(m.materialId) ? '✓ مصرح' : '✗ غير مصرح'}
+                        {m.code} {buildRelationshipContext("ALL").authorizedMaterialIds.includes(m.materialId) ? '✓ مصرح' : '✗ غير مصرح'}
                       </div>
                     </button>
                   ))
                 )}
 
                 {selectingMasterItem.fieldKey === 'driver' && (
-                  SAMPLE_QUALITY_CONTEXT.knownDrivers.map((d) => (
+                  buildRelationshipContext("ALL").knownDrivers.map((d) => (
                     <button
                       key={d.driverId}
                       onClick={() => {

@@ -1,0 +1,83 @@
+{
+  "fixtures": {
+    "mockTripEngineData": {
+      "directRuntimeImport": false,
+      "transitiveRuntimeImport": false,
+      "testOnlyImport": true,
+      "developerOnlyImport": false,
+      "productionBundleIncluded": false
+    },
+    "mockExceptionEngineData": {
+      "directRuntimeImport": false,
+      "transitiveRuntimeImport": false,
+      "testOnlyImport": true,
+      "developerOnlyImport": false,
+      "productionBundleIncluded": false
+    },
+    "mockTemplateData": {
+      "directRuntimeImport": true,
+      "transitiveRuntimeImport": true,
+      "testOnlyImport": false,
+      "developerOnlyImport": true,
+      "productionBundleIncluded": true
+    },
+    "DEFAULT_PROJECTS": {
+      "directRuntimeImport": true,
+      "transitiveRuntimeImport": true,
+      "testOnlyImport": false,
+      "developerOnlyImport": false,
+      "productionBundleIncluded": true
+    },
+    "DEFAULT_CARRIERS": {
+      "directRuntimeImport": true,
+      "transitiveRuntimeImport": true,
+      "testOnlyImport": false,
+      "developerOnlyImport": false,
+      "productionBundleIncluded": true
+    },
+    "DEFAULT_MATERIALS": {
+      "directRuntimeImport": true,
+      "transitiveRuntimeImport": true,
+      "testOnlyImport": false,
+      "developerOnlyImport": false,
+      "productionBundleIncluded": true
+    },
+    "DEFAULT_TRUCKS": {
+      "directRuntimeImport": true,
+      "transitiveRuntimeImport": true,
+      "testOnlyImport": false,
+      "developerOnlyImport": false,
+      "productionBundleIncluded": true
+    },
+    "DEFAULT_DRIVERS": {
+      "directRuntimeImport": true,
+      "transitiveRuntimeImport": true,
+      "testOnlyImport": false,
+      "developerOnlyImport": false,
+      "productionBundleIncluded": true
+    },
+    "MASTER_PRICING_RULES": {
+      "directRuntimeImport": true,
+      "transitiveRuntimeImport": true,
+      "testOnlyImport": false,
+      "developerOnlyImport": false,
+      "productionBundleIncluded": true
+    },
+    "SAMPLE_QUALITY_CONTEXT": {
+      "directRuntimeImport": true,
+      "transitiveRuntimeImport": true,
+      "testOnlyImport": false,
+      "developerOnlyImport": false,
+      "productionBundleIncluded": true
+    }
+  },
+  "summary": {
+    "PRODUCTION_FIXTURE_CONTAMINATION": "FAIL",
+    "DIRECT_FIXTURE_IMPORTS": 8,
+    "TRANSITIVE_FIXTURE_IMPORTS": 8,
+    "PRODUCTION_BUNDLE_FIXTURES": 8,
+    "TEST_FIXTURES_PRESERVED": "PASS",
+    "RUNTIME_ZERO_STATE": "FAIL",
+    "I18N": "1,128 / 1,128 / 1,128"
+  }
+}

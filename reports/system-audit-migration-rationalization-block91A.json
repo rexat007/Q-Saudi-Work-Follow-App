@@ -1,0 +1,93 @@
+{
+  "block": "91A",
+  "title": "SYSTEM / AUDIT & MIGRATION SUITE RATIONALIZATION REPORT",
+  "timestamp": "2026-09-15T05:12:15.204Z",
+  "status": "COMPLETED_SUCCESSFULLY",
+  "summary": {
+    "visibleProductionToolsCount": 5,
+    "developerOnlyToolsCount": 3,
+    "mergedRetiredEntriesCount": 5,
+    "rbacSecurityGateEnforced": true,
+    "i18nKeysCounts": {
+      "ar": 1128,
+      "en": 1128,
+      "ur": 1128
+    }
+  },
+  "approvedRationalizationMap": {
+    "KEEP": [
+      {
+        "id": "ADMIN_CONSOLE",
+        "category": "SYSTEM_ADMIN",
+        "location": "System Tools Drawer"
+      },
+      {
+        "id": "SECURITY_AUDIT",
+        "category": "AUDIT_SECURITY",
+        "location": "System Tools Drawer"
+      },
+      {
+        "id": "EXCEPTION_ENGINE",
+        "category": "OPERATIONS_SUPPORT",
+        "location": "System Tools Drawer"
+      },
+      {
+        "id": "IMPORT_CENTER",
+        "category": "OPERATIONS_SUPPORT",
+        "location": "System Tools Drawer"
+      },
+      {
+        "id": "DATA_QUALITY",
+        "category": "OPERATIONS_SUPPORT",
+        "location": "System Tools Drawer"
+      }
+    ],
+    "DEVELOPER_ONLY": [
+      {
+        "id": "TRIP_ENGINE",
+        "category": "DEVELOPER_MODE",
+        "location": "System Tools Drawer (SUPER_ADMIN Gated)"
+      },
+      {
+        "id": "PRICING_ENGINE",
+        "category": "DEVELOPER_MODE",
+        "location": "System Tools Drawer (SUPER_ADMIN Gated)"
+      },
+      {
+        "id": "DOCS",
+        "category": "DEVELOPER_MODE",
+        "location": "System Tools Drawer (SUPER_ADMIN Gated)"
+      }
+    ],
+    "MERGED_RETIRED": [
+      {
+        "id": "WORKSPACE_INTEGRATION",
+        "primaryMergedLocation": "Project Setup Wizard (WIZARD) -> Step 6 Google Integration"
+      },
+      {
+        "id": "LEGACY_MIGRATION",
+        "primaryMergedLocation": "Unified Import Center (IMPORT_CENTER) -> Excel/CSV Tab"
+      },
+      {
+        "id": "FIRESTORE_ARCH",
+        "primaryMergedLocation": "Architecture Specs & Docs (DOCS) -> Firestore Schema Sub-tab"
+      },
+      {
+        "id": "RELATIONS",
+        "primaryMergedLocation": "Architecture Specs & Docs (DOCS) -> Entity Relations Sub-tab"
+      },
+      {
+        "id": "PRINCIPLES",
+        "primaryMergedLocation": "Architecture Specs & Docs (DOCS) -> 12 Invariants Sub-tab"
+      }
+    ]
+  },
+  "verificationChecklist": {
+    "productionToolCountVerified": true,
+    "developerToolCountVerified": true,
+    "superAdminGatingVerified": true,
+    "nonSuperAdminBlockedVerified": true,
+    "uiLayoutAndIconsVerified": true,
+    "i18nParityVerified": true
+  }
+}

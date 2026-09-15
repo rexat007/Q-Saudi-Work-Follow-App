@@ -1,3 +1,4 @@
+import { adminConsoleService } from "./adminConsole.service";
 import { 
   WORKSPACE_TABS, 
   OPERATIONS_FULL_COLUMNS,
@@ -11,7 +12,6 @@ import { ProjectEntity } from '../types/entities';
 import { projectRepository } from '../repositories/project.repository';
 import { tripEngineService } from './tripEngine.service';
 import { exceptionEngineService } from './exceptionEngine.service';
-import { DEFAULT_PROJECTS, DEFAULT_CARRIERS, DEFAULT_DRIVERS, DEFAULT_MATERIALS } from '../data/defaultMasterData';
 import { auth } from '../firebase/config';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
@@ -175,7 +175,7 @@ export class ClientWorkspaceService {
     const projectTrips = allTrips.filter(t => t.projectId === projectId || projectId === 'ALL');
 
     // 2. Gather master data
-    const drivers = DEFAULT_DRIVERS.map(d => ({
+    const drivers = adminConsoleService.getDrivers().map(d => ({
       driverId: d.driverId,
       projectId: d.projectId,
       fullNameAr: d.name,
@@ -185,7 +185,7 @@ export class ClientWorkspaceService {
       status: d.status,
     }));
 
-    const carriers = DEFAULT_CARRIERS.map(c => ({
+    const carriers = adminConsoleService.getCarriers().map(c => ({
       carrierId: c.carrierId,
       projectId: c.projectId,
       companyNameAr: c.companyNameAr || c.name,
@@ -194,7 +194,7 @@ export class ClientWorkspaceService {
       status: c.status,
     }));
 
-    const materials = DEFAULT_MATERIALS.map(m => ({
+    const materials = adminConsoleService.getMaterials().map(m => ({
       materialId: m.materialId,
       projectId: m.projectId,
       nameAr: m.nameAr || m.name,

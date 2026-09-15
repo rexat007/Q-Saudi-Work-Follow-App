@@ -1,3 +1,4 @@
+import { pricingService } from "./pricing.service";
 /**
  * Centralized Trip State Machine Service
  *
@@ -26,7 +27,6 @@ import {
   TransitionContext,
   TransitionPayload,
 } from '../types/tripEngine';
-import { MASTER_PRICING_RULES } from '../data/masterPricingRules';
 
 export interface TransitionRule {
   targetStatus: TripEngineStatus;
@@ -317,7 +317,7 @@ export class TripStateMachine {
     }
 
     // Verify against active master data pricing rules
-    const activePricingRules = MASTER_PRICING_RULES.filter(r => r.projectId === trip.projectId);
+    const activePricingRules = pricingService.getRules().filter(r => r.projectId === trip.projectId);
     const matchedRule = activePricingRules.find(r => r.pricingRuleId === trip.pricingRuleId);
 
     if (!matchedRule) {

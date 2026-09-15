@@ -423,7 +423,7 @@ export default function App() {
                 <span className="flex items-center gap-1 text-white/60">
                   <Lock className="w-3 h-3 text-[#10b981]" />
                   <span className="text-white/40">USER:</span>
-                  <strong className="text-[#f8fafc] font-bold">{roleProfile.userNameAr}</strong>
+                  <strong className="text-[#f8fafc] font-bold">{activeAuthContext.displayName}</strong>
                 </span>
                 <span className="text-white/20">•</span>
                 <span className="text-white/60">

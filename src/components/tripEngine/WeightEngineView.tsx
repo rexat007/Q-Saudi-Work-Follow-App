@@ -1,3 +1,4 @@
+import { pricingService } from "../../services/pricing.service";
 import React, { useState } from 'react';
 import { 
   Scale, 
@@ -27,7 +28,7 @@ import {
   WeightSettlementResult
 } from '../../types/weightEngine';
 import { weightEngine } from '../../services/weightEngine.service';
-import { MASTER_PRICING_RULES, MasterPricingRule } from '../../data/masterPricingRules';
+import {  MasterPricingRule } from '../../data/masterPricingRules';
 import { runWeightEngineTestSuite, WeightEngineTestCaseResult } from '../../tests/weightEngine.test';
 import { useI18n } from '../../i18n';
 
@@ -102,10 +103,10 @@ export const WeightEngineView: React.FC = () => {
   // =========================================================================
   // Function 4: calculateSettlement(pricingRule, netWeight) State
   // =========================================================================
-  const [selectedPricingRuleId, setSelectedPricingRuleId] = useState<string>(MASTER_PRICING_RULES[0].pricingRuleId);
+  const [selectedPricingRuleId, setSelectedPricingRuleId] = useState<string>(pricingService.getRules()[0].pricingRuleId);
   const [settlementNetInput, setSettlementNetInput] = useState<string>('37400');
 
-  const activePricingRule = MASTER_PRICING_RULES.find(r => r.pricingRuleId === selectedPricingRuleId) || MASTER_PRICING_RULES[0];
+  const activePricingRule = pricingService.getRules().find(r => r.pricingRuleId === selectedPricingRuleId) || pricingService.getRules()[0];
   const parsedSettlementNet = settlementNetInput.trim() === '' ? null : Number(settlementNetInput);
 
   const settlementResult: WeightSettlementResult = weightEngine.calculateSettlement(
@@ -649,7 +650,7 @@ export const WeightEngineView: React.FC = () => {
                   onChange={(e) => setSelectedPricingRuleId(e.target.value)}
                   className="w-full bg-stone-50 border border-stone-300 rounded-lg px-3 py-2 text-xs font-bold text-stone-800"
                 >
-                  {MASTER_PRICING_RULES.map((rule) => (
+                  {pricingService.getRules().map((rule) => (
                     <option key={rule.pricingRuleId} value={rule.pricingRuleId}>
                       {rule.name} ({rule.pricingType} - {rule.agreedRate} {rule.currency})
                     </option>

@@ -19,7 +19,7 @@
 
 import { indexedDBService } from './indexedDB.service';
 import { OutboxOperation, OutboxStatus, OutboxStats } from '../../types/offline';
-import { tripEngineService, MasterPricingRule, MASTER_PRICING_RULES } from '../tripEngine.service';
+import { tripEngineService, MasterPricingRule } from '../tripEngine.service';
 import { tripStateMachine } from '../tripStateMachine.service';
 import { syncOperationRepository } from '../../repositories/syncOperation.repository';
 import { TripRecord, TripLifecycleEvent, TripAuditLog } from '../../types/tripEngine';

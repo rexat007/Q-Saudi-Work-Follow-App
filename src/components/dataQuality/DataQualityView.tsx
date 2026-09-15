@@ -1,3 +1,4 @@
+import { buildRelationshipContext } from "../../utils/masterDataUtils";
 import React, { useState, useMemo } from 'react';
 import { 
   ShieldAlert, 
@@ -43,7 +44,6 @@ import {
   normalizePhone 
 } from '../../services/dataQuality/normalization';
 import { 
-  SAMPLE_QUALITY_CONTEXT, 
   SAMPLE_STAGED_IMPORTS 
 } from '../../data/sampleQualityData';
 import { useI18n } from '../../i18n';
@@ -51,10 +51,15 @@ import { useI18n } from '../../i18n';
 
 export function DataQualityView() {
   const { t } = useI18n();
-  const [context, setContext] = useState<RelationshipContext>(SAMPLE_QUALITY_CONTEXT);
-  const [stagedRecords, setStagedRecords] = useState<ImportRecordPayload[]>(SAMPLE_STAGED_IMPORTS);
+  const [context, setContext] = useState<RelationshipContext>({ carriers: [], trucks: [], drivers: [], materials: [], projects: [] });
+  const [stagedRecords, setStagedRecords] = useState<ImportRecordPayload[]>([]);
   const [selectedRiskFilter, setSelectedRiskFilter] = useState<'ALL' | RiskLevel>('ALL');
-  const [selectedRecordId, setSelectedRecordId] = useState<string>(SAMPLE_STAGED_IMPORTS[0].rowId);
+  const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
+
+  const handleLoadDemoQualityData = () => {
+    setStagedRecords(SAMPLE_STAGED_IMPORTS);
+    setSelectedRecordId(SAMPLE_STAGED_IMPORTS[0]?.rowId || null);
+  };
 
   // Sandbox Tester State
   const [sandboxEntityType, setSandboxEntityType] = useState<'CARRIER' | 'TRUCK' | 'DRIVER' | 'MATERIAL'>('CARRIER');
@@ -358,6 +363,14 @@ export function DataQualityView() {
           </div>
 
           <div className="flex items-center gap-2 self-start lg:self-auto bg-stone-50 p-1.5 rounded-xl border border-stone-200">
+            <button
+              type="button"
+              onClick={handleLoadDemoQualityData}
+              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-white" />
+              <span>تحميل عينة جودة تجريبية (LOAD DEMO SAMPLE)</span>
+            </button>
             <div className="text-right px-2">
               <span className="text-[10px] text-stone-500 block font-medium">{t("entityResolution.status.projectActive")}</span>
               <span className="text-xs font-bold text-stone-800">{t("entityResolution.labels.txt_42f259")}</span>

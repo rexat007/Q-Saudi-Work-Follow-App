@@ -1,0 +1,557 @@
+{
+  "block": "92",
+  "title": "DEEP DEFAULT DATA & AUDIT/COMPLIANCE CONTENT INVENTORY",
+  "timestamp": "2026-09-14T22:32:00.000Z",
+  "status": "COMPLETED_SUCCESSFULLY",
+  "auditScope": "READ-ONLY FORENSIC AUDIT — NO CODE CHANGES, NO DATA CHANGES, NO FIRESTORE CHANGES, NO DELETIONS, NO DEPLOYMENT, NO I18N CHANGES",
+  "summary": {
+    "unexpectedIdentitySource": "IDENTIFIED (src/services/navigation.service.ts & src/services/dashboard.service.ts)",
+    "systemToolsAuditComplianceCount": 5,
+    "developerModeToolsCount": 3,
+    "materialsCount": 4,
+    "carriersCount": 3,
+    "pricingRulesCount": 3,
+    "projectAccessUsersCount": 4,
+    "runtimeDefaultInjectionSourcesCount": 8,
+    "codeChanged": false,
+    "dataChanged": false,
+    "i18nChanged": false
+  },
+  "sections": {
+    "A_unexpectedUserIdentityTrace": {
+      "displayedIdentityAr": "المهندس / عبد الرحمن السعدون (مدير العمليات العام)",
+      "displayedIdentityEn": "Eng. Abdulrahman Al-Saadoun (Global Ops Director)",
+      "uiComponents": [
+        "src/App.tsx (Sub-header active profile ribbon, line 426)",
+        "src/components/navigation/Sidebar.tsx (Role profile badge & title, line 188)",
+        "src/components/navigation/MobileNavDrawer.tsx (Header user status, line 131)",
+        "src/components/navigation/UnauthorizedBanner.tsx (Role profile header, line 51)",
+        "src/components/dashboard/OperationsDashboardView.tsx (Security profile dropdown selector, line 268)"
+      ],
+      "sourceFiles": [
+        "src/services/navigation.service.ts (ROLE_PROFILES.SUPER_ADMIN.userNameAr, line 334)",
+        "src/services/dashboard.service.ts (PREDEFINED_SECURITY_PROFILES[0].userNameAr, line 28)"
+      ],
+      "functionState": "ROLE_PROFILES object and PREDEFINED_SECURITY_PROFILES array. Evaluated via navigationService.getRoleProfile(currentRole) where currentRole state defaults to 'SUPER_ADMIN'.",
+      "dataSource": "In-memory static TypeScript object constants",
+      "reasonItAppears": "App.tsx sub-header ribbon and Sidebar role drawer bind directly to navigationService.getRoleProfile(currentRole).userNameAr instead of reading activeAuthContext.displayName or userProfile.fullName.",
+      "whetherPersisted": false,
+      "whetherGenerated": false,
+      "whetherFallbackDefault": true,
+      "signedInUserDiscrepancy": "Components consuming Firebase Auth (e.g., AuthButton, AccountStatusGate, MasterDataView) read user.displayName or userProfile.fullName correctly. However, header/sidebar navigation components display the role simulator's static profile string (ROLE_PROFILES[currentRole].userNameAr), leading to a dual identity display."
+    },
+    "B_systemToolsAuditComplianceInventory": [
+      {
+        "name": "Admin Console",
+        "internalKey": "ADMIN_CONSOLE",
+        "category": "SYSTEM_ADMIN",
+        "component": "AdminConsoleView",
+        "file": "src/components/admin/AdminConsoleView.tsx",
+        "purpose": "System administration, operational parameter configuration, pricing rule versioning, sync status, and audit log inspection",
+        "dataSource": "AdminConsoleService (subscribes to in-memory/Firestore state)",
+        "readsData": true,
+        "writesData": true,
+        "modifiesData": true,
+        "productionRelevance": "HIGH",
+        "adminRelevance": "HIGH",
+        "developerRelevance": "MEDIUM",
+        "defaultSampleDataPresent": true,
+        "duplicateOfAnotherSystemFeature": false,
+        "subTabsSections": [
+          "PROJECTS (Projects Registry)",
+          "CARRIERS (Carriers List)",
+          "MATERIALS (Materials List)",
+          "PRICING_RULES (Versioned Pricing Rules)",
+          "TRUCKS (Truck Fleet)",
+          "DRIVERS (Driver Registry)",
+          "USERS (Pending & Approved System Users)",
+          "EXCEPTIONS (Trip Exceptions Queue)",
+          "AUDIT_LOGS (Immutable Audit Log)",
+          "IMPORT_BATCHES (Import Batches Overview)",
+          "SYNC_HEALTH (Offline Sync & Outbox Monitor)"
+        ]
+      },
+      {
+        "name": "Security & Audit Matrix",
+        "internalKey": "SECURITY_AUDIT",
+        "category": "AUDIT_SECURITY",
+        "component": "SecurityAuditView",
+        "file": "src/components/security/SecurityAuditView.tsx",
+        "purpose": "Executes 16-Domain Automated Security Audit and 12-Item Dirty Dozen Penetration & Boundary Suite",
+        "dataSource": "Automated security test runners (src/tests/securityAudit.test.ts & src/tests/dirtyDozen.test.ts)",
+        "readsData": true,
+        "writesData": false,
+        "modifiesData": false,
+        "productionRelevance": "CRITICAL",
+        "adminRelevance": "CRITICAL",
+        "developerRelevance": "HIGH",
+        "defaultSampleDataPresent": false,
+        "duplicateOfAnotherSystemFeature": false,
+        "subTabsSections": [
+          "AUDIT (16 Security Domains Verification)",
+          "DIRTY_DOZEN (12 Penetration Test Scenarios)"
+        ]
+      },
+      {
+        "name": "Exception Engine",
+        "internalKey": "EXCEPTION_ENGINE",
+        "category": "OPERATIONS_SUPPORT",
+        "component": "ExceptionEngineView",
+        "file": "src/components/exceptionEngine/ExceptionEngineView.tsx",
+        "purpose": "Lifecycle management and resolution for 12 operational and financial exception types",
+        "dataSource": "ExceptionEngineService (INITIAL_EXCEPTIONS_SEED in src/services/exceptionEngine.service.ts)",
+        "readsData": true,
+        "writesData": true,
+        "modifiesData": true,
+        "productionRelevance": "HIGH",
+        "adminRelevance": "HIGH",
+        "developerRelevance": "MEDIUM",
+        "defaultSampleDataPresent": true,
+        "duplicateOfAnotherSystemFeature": false,
+        "subTabsSections": [
+          "ACTIVE_LIST (Active Exceptions Queue)",
+          "RAISE_EXCEPTION (Manual Exception Entry Form)",
+          "AUDIT_LOGS (Exception Lifecycle Audit Logs)",
+          "TEST_SUITE (Automated Exception Engine Tests)"
+        ]
+      },
+      {
+        "name": "Unified Import Center",
+        "internalKey": "IMPORT_CENTER",
+        "category": "OPERATIONS_SUPPORT",
+        "component": "ImportCenterView",
+        "file": "src/components/importCenter/ImportCenterView.tsx",
+        "purpose": "Unified batch ingestion pipeline supporting CSV, Excel, Google Sheets, Google Drive, and Weighbridge data",
+        "dataSource": "ImportCenterService & SAMPLE_STAGED_IMPORTS (src/data/sampleImportBatches.ts)",
+        "readsData": true,
+        "writesData": true,
+        "modifiesData": true,
+        "productionRelevance": "HIGH",
+        "adminRelevance": "HIGH",
+        "developerRelevance": "MEDIUM",
+        "defaultSampleDataPresent": true,
+        "duplicateOfAnotherSystemFeature": false,
+        "subTabsSections": [
+          "ENTITY_RESOLUTION (Entity Resolution & Mapping)",
+          "WEIGHBRIDGE_IMPORT (Weighbridge Ticket Parser)",
+          "GOOGLE_SHEETS_IMPORT (Google Sheets Integration)",
+          "GOOGLE_DRIVE_IMPORT (Google Drive Sync)",
+          "EXCEL_CSV_IMPORT (Excel & CSV File Import)",
+          "UNIFIED_ARCHITECTURE (Pipeline Diagram & Docs)",
+          "ACTIVE_BATCH (Active Batch Inspection & Correction)"
+        ]
+      },
+      {
+        "name": "Data Quality Pipeline",
+        "internalKey": "DATA_QUALITY",
+        "category": "OPERATIONS_SUPPORT",
+        "component": "DataQualityView",
+        "file": "src/components/dataQuality/DataQualityView.tsx",
+        "purpose": "8-stage Arabic-aware data quality, normalization, conflict detection, and fuzzy matching engine",
+        "dataSource": "DataQualityEngine & SAMPLE_QUALITY_CONTEXT (src/data/sampleQualityData.ts)",
+        "readsData": true,
+        "writesData": false,
+        "modifiesData": false,
+        "productionRelevance": "HIGH",
+        "adminRelevance": "HIGH",
+        "developerRelevance": "HIGH",
+        "defaultSampleDataPresent": true,
+        "duplicateOfAnotherSystemFeature": false,
+        "subTabsSections": [
+          "EVALUATED_RECORDS (Staged Record Validation Results)",
+          "SANDBOX_TESTER (Fuzzy Match & Normalization Sandbox)",
+          "PIPELINE_STEPS (8-Stage Architecture Explorer)"
+        ]
+      },
+      {
+        "name": "Trip Engine (Developer Mode)",
+        "internalKey": "TRIP_ENGINE",
+        "category": "DEVELOPER_MODE",
+        "component": "TripEngineView",
+        "file": "src/components/TripEngineView.tsx",
+        "purpose": "Trip lifecycle state machine testing and FSM diagnostics (SUPER_ADMIN restricted)",
+        "dataSource": "TripEngineService & MASTER_PRICING_RULES",
+        "readsData": true,
+        "writesData": true,
+        "modifiesData": true,
+        "productionRelevance": "LOW",
+        "adminRelevance": "LOW",
+        "developerRelevance": "CRITICAL",
+        "defaultSampleDataPresent": true,
+        "duplicateOfAnotherSystemFeature": false,
+        "subTabsSections": [
+          "FSM_SIMULATOR (Trip State Machine Controls)",
+          "STATE_LOGS (Transition History Log)"
+        ]
+      },
+      {
+        "name": "Pricing Engine (Developer Mode)",
+        "internalKey": "PRICING_ENGINE",
+        "category": "DEVELOPER_MODE",
+        "component": "PricingEngineView",
+        "file": "src/components/pricing/PricingEngineView.tsx",
+        "purpose": "Versioned pricing formula evaluation and rate inspector (SUPER_ADMIN restricted)",
+        "dataSource": "PricingService & MASTER_PRICING_RULES",
+        "readsData": true,
+        "writesData": false,
+        "modifiesData": false,
+        "productionRelevance": "LOW",
+        "adminRelevance": "LOW",
+        "developerRelevance": "CRITICAL",
+        "defaultSampleDataPresent": true,
+        "duplicateOfAnotherSystemFeature": false,
+        "subTabsSections": [
+          "FORMULA_EVALUATOR (Pricing Calculation Sandbox)",
+          "RULE_EXPLORER (Active Rules List)"
+        ]
+      },
+      {
+        "name": "Architecture Specs & Docs (Developer Mode)",
+        "internalKey": "DOCS",
+        "category": "DEVELOPER_MODE",
+        "component": "App.tsx Markdown Display",
+        "file": "src/App.tsx",
+        "purpose": "System architecture documentation, Firestore schema specs, entity relations, and 12 invariant principles (SUPER_ADMIN restricted)",
+        "dataSource": "Static Markdown documentation files",
+        "readsData": false,
+        "writesData": false,
+        "modifiesData": false,
+        "productionRelevance": "LOW",
+        "adminRelevance": "LOW",
+        "developerRelevance": "HIGH",
+        "defaultSampleDataPresent": false,
+        "duplicateOfAnotherSystemFeature": false,
+        "subTabsSections": [
+          "DOCS_MAIN (System Specifications)",
+          "FIRESTORE_ARCH (Firestore Schema & Rules)",
+          "RELATIONS (Entity Relationship Matrix)",
+          "PRINCIPLES (12 Invariant Principles)"
+        ]
+      }
+    ],
+    "C_projectSetupDefaults": {
+      "sourceFile": "src/components/wizard/mockTemplateData.ts",
+      "sourceConstant": "mockTemplateData (INITIAL_EMPTY_WIZARD_DATA)",
+      "initialStateBinding": "src/components/wizard/ProjectSetupWizard.tsx (line 58: useState<ProjectSetupWizardData>(mockTemplateData))",
+      "prePopulatedProjectInfo": {
+        "projectCode": "PRJ-NEOM-WEST-01",
+        "projectName": "مشروع ناقلات نيوم - قطاع ركام البنية التحتية",
+        "clientName": "شركة نيوم للتطوير العقاري واللوجستي",
+        "description": "إدارة أسطول النقل الثقيل، موازين الشاحنات، وتوريد مواد الردم والخرسانة المسلحة لمشروع البنية التحتية الشمالي.",
+        "startDate": "2026-09-01",
+        "endDate": "2027-12-31",
+        "zatcaTaxNumber": "301234567800003",
+        "vatRatePercent": 15,
+        "maxToleranceKg": 500,
+        "geoFenceRadiusMeters": 2000,
+        "addressAr": "منطقة تبوك - قطاع العمليات اللوجستية 4"
+      }
+    },
+    "D_fourMaterials": [
+      {
+        "materialId": "MAT-SB-CLASS-A",
+        "materialName": "ركام طبقة أساس (Sub-base Class A)",
+        "materialCode": "SB-01",
+        "unitOfMeasure": "TON",
+        "status": "ACTIVE",
+        "standardDensityTonPerM3": 2.1,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 23-33)",
+        "classification": "Static Template Fixture",
+        "persistentOrGenerated": "Pre-populated in wizard state; persisted to Firestore if project creation is submitted without modification."
+      },
+      {
+        "materialId": "MAT-WASHED-SAND",
+        "materialName": "رمل أحمر مغسول ناعم",
+        "materialCode": "SND-02",
+        "unitOfMeasure": "TON",
+        "status": "ACTIVE",
+        "standardDensityTonPerM3": 1.6,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 34-43)",
+        "classification": "Static Template Fixture",
+        "persistentOrGenerated": "Pre-populated in wizard state; persisted to Firestore if project creation is submitted without modification."
+      },
+      {
+        "materialId": "MAT-GRAVEL-34",
+        "materialName": "بحص خرساني مقاس 3/4 إنش",
+        "materialCode": "GRV-03",
+        "unitOfMeasure": "TON",
+        "status": "ACTIVE",
+        "standardDensityTonPerM3": 1.55,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 44-53)",
+        "classification": "Static Template Fixture",
+        "persistentOrGenerated": "Pre-populated in wizard state; persisted to Firestore if project creation is submitted without modification."
+      },
+      {
+        "materialId": "MAT-BACKFILL-M3",
+        "materialName": "تربة دفان صخرية عامة",
+        "materialCode": "BKF-04",
+        "unitOfMeasure": "M3",
+        "status": "DISABLED",
+        "standardDensityTonPerM3": 1.8,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 54-63)",
+        "classification": "Static Template Fixture",
+        "persistentOrGenerated": "Pre-populated in wizard state; persisted to Firestore if project creation is submitted without modification."
+      }
+    ],
+    "E_threeCarriers": [
+      {
+        "carrierId": "CAR-A",
+        "carrierName": "شركة الرشيد للخدمات اللوجستية (Carrier A)",
+        "commercialRegistrationNo": "1010234567",
+        "transportLicenseNo": "TGA-LOG-44910",
+        "status": "ACTIVE",
+        "contactPersonName": "م. فهد الرشيد",
+        "contactEmail": "f.alrashid@alrashid-log.sa",
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 65-76)",
+        "classification": "Static Template Fixture",
+        "scope": "Project Wizard Pre-populated Data",
+        "persistentOrGenerated": "Pre-populated in wizard state; persisted to Firestore if project creation is submitted without modification."
+      },
+      {
+        "carrierId": "CAR-B",
+        "carrierName": "مؤسسة الصفا للنقل الثقيل (Carrier B)",
+        "commercialRegistrationNo": "1010876543",
+        "transportLicenseNo": "TGA-LOG-55821",
+        "status": "ACTIVE",
+        "contactPersonName": "أ. خالد الصفا",
+        "contactEmail": "khalid@alsafa-transport.com",
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 77-88)",
+        "classification": "Static Template Fixture",
+        "scope": "Project Wizard Pre-populated Data",
+        "persistentOrGenerated": "Pre-populated in wizard state; persisted to Firestore if project creation is submitted without modification."
+      },
+      {
+        "carrierId": "CAR-C",
+        "carrierName": "شركة الجميح للشاحنات والمقاولات (Carrier C)",
+        "commercialRegistrationNo": "1010332211",
+        "transportLicenseNo": "TGA-LOG-66732",
+        "status": "ACTIVE",
+        "contactPersonName": "أ. سامي الجميح",
+        "contactEmail": "sami@aljomaih-haulage.sa",
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 89-98)",
+        "classification": "Static Template Fixture",
+        "scope": "Project Wizard Pre-populated Data",
+        "persistentOrGenerated": "Pre-populated in wizard state; persisted to Firestore if project creation is submitted without modification."
+      }
+    ],
+    "F_threePricingRules": [
+      {
+        "pricingRuleId": "PR-CAR-A-TRIP-120",
+        "carrierId": "CAR-A",
+        "materialId": "ALL_MATERIALS",
+        "pricingType": "PER_TRIP",
+        "rate": 120,
+        "currency": "SAR",
+        "effectiveFrom": "2026-09-01",
+        "effectiveTo": "2027-12-31",
+        "demurrageRate": "60 SAR/hr",
+        "freeTimeHours": 2,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 100-116)",
+        "classification": "Static Template Fixture",
+        "persistentOrGenerated": "Pre-populated in wizard state; persisted to Firestore if project creation is submitted without modification."
+      },
+      {
+        "pricingRuleId": "PR-CAR-B-TON-8-5",
+        "carrierId": "CAR-B",
+        "materialId": "ALL_MATERIALS",
+        "pricingType": "PER_TON",
+        "rate": 8.5,
+        "currency": "SAR",
+        "effectiveFrom": "2026-09-01",
+        "effectiveTo": "2027-12-31",
+        "demurrageRate": "50 SAR/hr",
+        "freeTimeHours": 2,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 117-132)",
+        "classification": "Static Template Fixture",
+        "persistentOrGenerated": "Pre-populated in wizard state; persisted to Firestore if project creation is submitted without modification."
+      },
+      {
+        "pricingRuleId": "PR-CAR-C-TON-7-75",
+        "carrierId": "CAR-C",
+        "materialId": "ALL_MATERIALS",
+        "pricingType": "PER_TON",
+        "rate": 7.75,
+        "currency": "SAR",
+        "effectiveFrom": "2026-09-01",
+        "effectiveTo": "2027-12-31",
+        "demurrageRate": "45 SAR/hr",
+        "freeTimeHours": 2.5,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 133-148)",
+        "classification": "Static Template Fixture",
+        "persistentOrGenerated": "Pre-populated in wizard state; persisted to Firestore if project creation is submitted without modification."
+      }
+    ],
+    "G_projectAccessUsers": [
+      {
+        "userId": "USR-ADMIN-01",
+        "fullName": "م. راكان الراجحي",
+        "email": "rakan.alrajhi@q-saudi.sa",
+        "role": "PROJECT_ADMIN",
+        "isAssigned": true,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 151-157)",
+        "classification": "Static Fixture User",
+        "persistentOrGenerated": "Pre-populated in wizard state; assigned to new project in Firestore if submitted without modification."
+      },
+      {
+        "userId": "USR-DISP-01",
+        "fullName": "سعد القحطاني",
+        "email": "saad.disp@q-saudi.sa",
+        "role": "DISPATCHER",
+        "isAssigned": true,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 158-164)",
+        "classification": "Static Fixture User",
+        "persistentOrGenerated": "Pre-populated in wizard state; assigned to new project in Firestore if submitted without modification."
+      },
+      {
+        "userId": "USR-AUDIT-01",
+        "fullName": "نورة السبيعي",
+        "email": "noura.finance@q-saudi.sa",
+        "role": "FINANCE_AUDITOR",
+        "isAssigned": true,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 165-171)",
+        "classification": "Static Fixture User",
+        "persistentOrGenerated": "Pre-populated in wizard state; assigned to new project in Firestore if submitted without modification."
+      },
+      {
+        "userId": "USR-VIEW-01",
+        "fullName": "مراقب العمليات الميدانية",
+        "email": "field.viewer@q-saudi.sa",
+        "role": "VIEWER",
+        "isAssigned": false,
+        "exactOrigin": "src/components/wizard/mockTemplateData.ts (lines 172-178)",
+        "classification": "Static Fixture User",
+        "persistentOrGenerated": "Pre-populated in wizard state; not assigned by default (isAssigned: false)."
+      }
+    ],
+    "H_runtimeInjectionSources": [
+      {
+        "sourceName": "DEFAULT_PROJECTS",
+        "file": "src/data/defaultMasterData.ts",
+        "autoRuntime": "YES",
+        "reason": "Used as fallback in dashboard.service.ts and workspace.service.ts when Firestore returns empty projects array."
+      },
+      {
+        "sourceName": "DEFAULT_CARRIERS",
+        "file": "src/data/defaultMasterData.ts",
+        "autoRuntime": "YES",
+        "reason": "Used as fallback in masterDataView and OperationsDashboardView widget filters when project-specific carriers are empty."
+      },
+      {
+        "sourceName": "DEFAULT_MATERIALS",
+        "file": "src/data/defaultMasterData.ts",
+        "autoRuntime": "YES",
+        "reason": "Used as fallback in masterDataView, OperationsDashboardView, and WidgetFilterBar when project-specific materials are empty."
+      },
+      {
+        "sourceName": "DEFAULT_TRUCKS",
+        "file": "src/data/defaultMasterData.ts",
+        "autoRuntime": "YES",
+        "reason": "Used as fallback in masterDataView when project trucks are empty."
+      },
+      {
+        "sourceName": "DEFAULT_DRIVERS",
+        "file": "src/data/defaultMasterData.ts",
+        "autoRuntime": "YES",
+        "reason": "Used as fallback in masterDataView when project drivers are empty."
+      },
+      {
+        "sourceName": "MASTER_PRICING_RULES",
+        "file": "src/data/masterPricingRules.ts",
+        "autoRuntime": "YES",
+        "reason": "Used as fallback in tripEngine.service.ts, pricing.service.ts, and WeightEngineView when project rules are empty."
+      },
+      {
+        "sourceName": "SAMPLE_QUALITY_CONTEXT & SAMPLE_STAGED_IMPORTS",
+        "file": "src/data/sampleQualityData.ts",
+        "autoRuntime": "YES",
+        "reason": "Directly loaded into DataQualityView state on component mount."
+      },
+      {
+        "sourceName": "mockTemplateData",
+        "file": "src/components/wizard/mockTemplateData.ts",
+        "autoRuntime": "YES",
+        "reason": "Directly loaded into ProjectSetupWizard.tsx initial wizard state on component mount."
+      }
+    ],
+    "I_cleanRuntimeExpectedState": {
+      "Dashboard": {
+        "status": "EXPECTED SYSTEM METADATA / EMPTY IF NO TRIPS",
+        "currentBehavior": "Falls back to DEFAULT_PROJECTS and sample metrics when Firestore contains 0 trips."
+      },
+      "Projects": {
+        "status": "EXPECTED SYSTEM METADATA",
+        "currentBehavior": "Fetches live projects from Firestore projects collection; shows empty state cleanly if 0 projects exist."
+      },
+      "CreateProject": {
+        "status": "EXPECTED EMPTY",
+        "currentBehavior": "Pre-populates fields with mockTemplateData (NEOM West project info, 4 materials, 3 carriers, 3 pricing rules, 4 users)."
+      },
+      "MasterData": {
+        "status": "EXPECTED SYSTEM METADATA",
+        "currentBehavior": "Fetches project-scoped master data from Firestore; falls back to DEFAULT_CARRIERS/DEFAULT_MATERIALS if empty."
+      },
+      "ProjectAccess": {
+        "status": "EXPECTED SYSTEM METADATA",
+        "currentBehavior": "Wizard Step 5 displays 4 static fixture users (rakan.alrajhi, saad.disp, noura.finance, field.viewer)."
+      },
+      "AuditAndCompliance": {
+        "status": "EXPECTED SYSTEM METADATA FOR AUDIT LOGS, EXPECTED EMPTY FOR STAGED BATCHES",
+        "currentBehavior": "DataQualityView and ImportCenterView auto-seed sample staged records on mount."
+      },
+      "Pricing": {
+        "status": "EXPECTED SYSTEM METADATA",
+        "currentBehavior": "Falls back to MASTER_PRICING_RULES when no project-specific pricing rules are found in Firestore."
+      }
+    },
+    "J_exactCleanupCandidates": [
+      {
+        "candidate": "ROLE_PROFILES.SUPER_ADMIN.userNameAr Hardcoded Title",
+        "source": "src/services/navigation.service.ts (line 334)",
+        "evidence": "Header ribbon in App.tsx displays 'المهندس / عبد الرحمن السعدون (مدير العمليات العام)' even when signed in as a different authenticated user.",
+        "currentLocation": "src/services/navigation.service.ts & src/App.tsx line 426",
+        "runtimeActive": true,
+        "recommendation": "MANUAL REVIEW — Update App.tsx header ribbon to use activeAuthContext.displayName / userProfile.fullName with fallback to role title."
+      },
+      {
+        "candidate": "PREDEFINED_SECURITY_PROFILES Array",
+        "source": "src/services/dashboard.service.ts (lines 25-55)",
+        "evidence": "Contains static profiles with hardcoded names ('عبد الرحمن السعدون', 'فهد الشمري', 'خالد القحطاني', 'تركي الدوسري').",
+        "currentLocation": "src/services/dashboard.service.ts & OperationsDashboardView.tsx",
+        "runtimeActive": true,
+        "recommendation": "KEEP TEST-ONLY — Used in test suites and security simulator dropdown."
+      },
+      {
+        "candidate": "mockTemplateData Pre-population in Wizard",
+        "source": "src/components/wizard/mockTemplateData.ts",
+        "evidence": "ProjectSetupWizard initializes wizardData with mockTemplateData, causing 'PRJ-NEOM-WEST-01', 4 materials, 3 carriers, 3 pricing rules, and 4 users to be pre-filled when creating a new project.",
+        "currentLocation": "src/components/wizard/ProjectSetupWizard.tsx (line 58)",
+        "runtimeActive": true,
+        "recommendation": "MOVE TO EXPLICIT DEMO MODE — Provide a 'Fill Template Data' button in the wizard while initializing new projects with a clean empty state."
+      },
+      {
+        "candidate": "INITIAL_EXCEPTIONS_SEED",
+        "source": "src/services/exceptionEngine.service.ts (lines 23-117)",
+        "evidence": "Initializes ExceptionEngineService with 4 seed exceptions (EXP-2026-001 through 004).",
+        "currentLocation": "src/services/exceptionEngine.service.ts",
+        "runtimeActive": true,
+        "recommendation": "MOVE TO EXPLICIT DEMO MODE — Load seed exceptions on demand or when running test suites."
+      },
+      {
+        "candidate": "createInitialSampleBatch in ImportCenterView",
+        "source": "src/data/sampleImportBatches.ts",
+        "evidence": "ImportCenterView initializes activeBatch with createInitialSampleBatch() on component mount.",
+        "currentLocation": "src/components/importCenter/ImportCenterView.tsx (line 60)",
+        "runtimeActive": true,
+        "recommendation": "MOVE TO EXPLICIT DEMO MODE — Allow users to load sample batches via a 'Load Sample CSV' button while keeping initial view clean."
+      },
+      {
+        "candidate": "DEFAULT_CARRIERS & DEFAULT_MATERIALS Fallbacks",
+        "source": "src/data/defaultMasterData.ts",
+        "evidence": "Used as fallback when Firestore returns empty collections for a project.",
+        "currentLocation": "src/data/defaultMasterData.ts & dashboard.service.ts",
+        "runtimeActive": true,
+        "recommendation": "REMOVE FROM RUNTIME — Show clean empty state when project master data is empty."
+      }
+    ]
+  }
+}

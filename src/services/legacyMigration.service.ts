@@ -46,7 +46,6 @@ import { adminConsoleService } from './adminConsole.service';
 import { auditLogService } from './auditLog.service';
 import { pricingService } from './pricing.service';
 import { pricingRuleRepository } from '../repositories/pricingRule.repository';
-import { MASTER_PRICING_RULES } from '../data/masterPricingRules';
 import { PricingRule } from '../types/pricing';
 import { CanonicalTripRow } from '../types/excelCsvImport';
 import { mapLegacyStatusToTripStatus } from './import/legacyStatusMapper';
@@ -278,7 +277,7 @@ export class LegacyMigrationService implements IImportParser<LegacySheetRow[] | 
     // 5. Load project pricing rules for deterministic contractual settlement resolution (BLOCK 36)
     let projectPricingRules: PricingRule[] = [];
     try {
-      const loaded = MASTER_PRICING_RULES.filter((r) => r.projectId === projectId || r.projectId === 'ALL');
+      const loaded = pricingService.getRules().filter((r) => r.projectId === projectId || r.projectId === 'ALL');
       projectPricingRules = loaded.map((r) => ({
         pricingRuleId: r.pricingRuleId,
         projectId: r.projectId,

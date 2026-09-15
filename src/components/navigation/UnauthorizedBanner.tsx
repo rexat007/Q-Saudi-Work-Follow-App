@@ -3,6 +3,7 @@ import { ShieldAlert, Lock, ArrowRight, ArrowLeft, UserCheck } from 'lucide-reac
 import { NavTabId, navigationService } from '../../services/navigation.service';
 import { UserRole } from '../../types/common';
 import { useI18n } from '../../i18n';
+import { useAuth } from '../../firebase/authContext';
 
 interface UnauthorizedBannerProps {
   requestedTab: NavTabId;
@@ -18,6 +19,8 @@ export const UnauthorizedBanner: React.FC<UnauthorizedBannerProps> = ({
   const { direction } = useI18n();
   const isRtl = direction === 'rtl';
   const roleProfile = navigationService.getRoleProfile(currentRole);
+  const { user, userProfile } = useAuth();
+  const displayName = userProfile?.fullName || user?.displayName || 'مدير النظام';
 
   return (
     <div className="max-w-3xl mx-auto my-12 bg-[#1a1d23] rounded border border-rose-500/40 p-6 sm:p-8 shadow-2xl text-right font-mono" dir={direction}>
@@ -48,7 +51,7 @@ export const UnauthorizedBanner: React.FC<UnauthorizedBannerProps> = ({
           <div className="bg-[#0f1115] border border-white/10 rounded p-4 mb-6 space-y-2 text-xs">
             <div className="flex items-center justify-between text-white/60">
               <span>المستخدم النشط:</span>
-              <strong className="text-[#f8fafc]">{roleProfile.userNameAr}</strong>
+              <strong className="text-[#f8fafc]">{displayName}</strong>
             </div>
             <div className="flex items-center justify-between text-white/60">
               <span>الصلاحية الحالية:</span>

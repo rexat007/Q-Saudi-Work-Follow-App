@@ -38,7 +38,7 @@ import { runMasterDataTests, MasterDataTestCaseResult } from '../../tests/master
 import { runBlock86ETests } from '../../tests/projectWorkflowNavigation86E.test';
 import { useAuth } from '../../firebase/authContext';
 import { adminConsoleService } from '../../services/adminConsole.service';
-import { DEFAULT_PROJECTS, DEFAULT_CARRIERS, DEFAULT_MATERIALS, DEFAULT_TRUCKS, DEFAULT_DRIVERS, buildDefaultOverview } from '../../data/defaultMasterData';
+import { buildLocalOverview } from './localOverviewBuilder';
 import { useI18n } from '../../i18n';
 import { ProjectsDashboard } from '../wizard/ProjectsDashboard';
 
@@ -200,7 +200,7 @@ export const MasterDataView: React.FC<{
         if (liveProjects.length > 0) {
           const defaultProjId = liveProjects[0].projectId;
           setInternalSelectedProjectId(defaultProjId);
-          setOverview(buildDefaultOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
+          setOverview(buildLocalOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
         } else {
           setInternalSelectedProjectId('');
           setOverview(null);
@@ -227,7 +227,7 @@ export const MasterDataView: React.FC<{
         if (liveProjects.length > 0) {
           const defaultProjId = liveProjects[0].projectId;
           setInternalSelectedProjectId(defaultProjId);
-          setOverview(buildDefaultOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
+          setOverview(buildLocalOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
         } else {
           setInternalSelectedProjectId('');
           setOverview(null);
@@ -243,7 +243,7 @@ export const MasterDataView: React.FC<{
   const refreshOverview = async (pId: string) => {
     if (!pId) return;
     if (!user) {
-      setOverview(buildDefaultOverview(pId, localCarriers, localMaterials, localTrucks, localDrivers));
+      setOverview(buildLocalOverview(pId, localCarriers, localMaterials, localTrucks, localDrivers));
       return;
     }
     try {
@@ -251,7 +251,7 @@ export const MasterDataView: React.FC<{
       setOverview(ov);
     } catch (err: any) {
       console.warn('Failed to load project master data from Firestore, using local overview:', err);
-      setOverview(buildDefaultOverview(pId, localCarriers, localMaterials, localTrucks, localDrivers));
+      setOverview(buildLocalOverview(pId, localCarriers, localMaterials, localTrucks, localDrivers));
     }
   };
 
@@ -287,7 +287,7 @@ export const MasterDataView: React.FC<{
         setLocalDrivers(updatedDrivers);
       }
 
-      setOverview(buildDefaultOverview(selectedProjectId, updatedCarriers, updatedMaterials, updatedTrucks, updatedDrivers));
+      setOverview(buildLocalOverview(selectedProjectId, updatedCarriers, updatedMaterials, updatedTrucks, updatedDrivers));
       setActionNotice({
         type: 'success',
         message: `تم تحديث حالة السجل (${entityId}) بنجاح إلى [${newStatus}] (محلياً في وضع المعاينة).`,
@@ -382,7 +382,7 @@ export const MasterDataView: React.FC<{
         setLocalDrivers(updatedDrivers);
       }
 
-      setOverview(buildDefaultOverview(selectedProjectId, updatedCarriers, updatedMaterials, updatedTrucks, updatedDrivers));
+      setOverview(buildLocalOverview(selectedProjectId, updatedCarriers, updatedMaterials, updatedTrucks, updatedDrivers));
       setDeleteModal(prev => ({
         ...prev,
         success: t('other.status.success_2'),
@@ -509,7 +509,7 @@ export const MasterDataView: React.FC<{
       setLocalCarriers(updated);
       setCreateModal({ isOpen: false, entityType: 'CARRIER' });
       setNewCarrier({ carrierId: '', name: '', crNo: '1010000000', phone: '+966500000001' });
-      setOverview(buildDefaultOverview(selectedProjectId, updated, localMaterials, localTrucks, localDrivers));
+      setOverview(buildLocalOverview(selectedProjectId, updated, localMaterials, localTrucks, localDrivers));
       setActionNotice({ type: 'success', message: 'تم إضافة الناقل بنجاح مع التطبيع التلقائي للاسم (محلياً).' });
       return;
     }
@@ -549,7 +549,7 @@ export const MasterDataView: React.FC<{
       setLocalMaterials(updated);
       setCreateModal({ isOpen: false, entityType: 'MATERIAL' });
       setNewMaterial({ materialId: '', name: '', code: 'AGG-02', uom: 'TON' });
-      setOverview(buildDefaultOverview(selectedProjectId, localCarriers, updated, localTrucks, localDrivers));
+      setOverview(buildLocalOverview(selectedProjectId, localCarriers, updated, localTrucks, localDrivers));
       setActionNotice({ type: 'success', message: 'تم إضافة المادة بنجاح وتطبيع الرمز والاسم (محلياً).' });
       return;
     }
@@ -592,7 +592,7 @@ export const MasterDataView: React.FC<{
       setLocalTrucks(updated);
       setCreateModal({ isOpen: false, entityType: 'TRUCK' });
       setNewTruck({ truckId: '', plate: '', carrierId: '', tareKg: 14000, grossKg: 45000 });
-      setOverview(buildDefaultOverview(selectedProjectId, localCarriers, localMaterials, updated, localDrivers));
+      setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, updated, localDrivers));
       setActionNotice({ type: 'success', message: t('other.messages.truckCarrier') });
       return;
     }
@@ -635,7 +635,7 @@ export const MasterDataView: React.FC<{
       setLocalDrivers(updated);
       setCreateModal({ isOpen: false, entityType: 'DRIVER' });
       setNewDriver({ driverId: '', name: '', phone: '0501234567', idNumber: '1087654321', carrierId: '' });
-      setOverview(buildDefaultOverview(selectedProjectId, localCarriers, localMaterials, localTrucks, updated));
+      setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, localTrucks, updated));
       setActionNotice({ type: 'success', message: t('other.messages.driverCarrier') });
       return;
     }

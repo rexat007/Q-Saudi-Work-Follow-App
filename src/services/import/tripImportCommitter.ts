@@ -26,7 +26,6 @@ import { tripRepository } from '../../repositories/trip.repository';
 import { auditLogService } from '../auditLog.service';
 import { pricingService } from '../pricing.service';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
-import { MASTER_PRICING_RULES } from '../../data/masterPricingRules';
 import { PricingRule, TripPricingSnapshot } from '../../types/pricing';
 import { mapLegacyStatusToTripStatus } from './legacyStatusMapper';
 
@@ -148,7 +147,7 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
     }
 
     if (projectRules.length === 0) {
-      projectRules = MASTER_PRICING_RULES.filter((r) => r.projectId === batch.projectId).map((r) => ({
+      projectRules = pricingService.getRules().filter((r) => r.projectId === batch.projectId).map((r) => ({
         pricingRuleId: r.pricingRuleId,
         projectId: r.projectId,
         carrierId: r.carrierId || 'CAR-ALMAJDOUIE',

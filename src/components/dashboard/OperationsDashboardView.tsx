@@ -39,7 +39,6 @@ import {
 import { WidgetFilterBar } from './WidgetFilterBar';
 import { runDashboardSecurityAndMetricsTests, DashboardTestCaseResult } from '../../tests/dashboard.test';
 import { adminConsoleService } from '../../services/adminConsole.service';
-import { DEFAULT_CARRIERS, DEFAULT_MATERIALS } from '../../data/defaultMasterData';
 import { useI18n } from '../../i18n';
 
 
@@ -108,13 +107,11 @@ export const OperationsDashboardView: React.FC = () => {
   }, [activeProfile]);
 
   const availableCarriers = useMemo(() => {
-    const list = adminConsoleService.getCarriers(globalFilters.projectId);
-    return list.length > 0 ? list : DEFAULT_CARRIERS;
+    return adminConsoleService.getCarriers(globalFilters.projectId);
   }, [globalFilters.projectId]);
 
   const availableMaterials = useMemo(() => {
-    const list = adminConsoleService.getMaterials(globalFilters.projectId);
-    return list.length > 0 ? list : DEFAULT_MATERIALS;
+    return adminConsoleService.getMaterials(globalFilters.projectId);
   }, [globalFilters.projectId]);
 
   // When profile changes, reset any invalid project selection

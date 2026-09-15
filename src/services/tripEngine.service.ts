@@ -1,3 +1,5 @@
+import { buildRelationshipContext } from "../utils/masterDataUtils";
+import { pricingService } from "./pricing.service";
 /**
  * Trip Engine Service
  * Authoritative business rules, validation, weight logic, and server-side settlement.
@@ -21,535 +23,13 @@ import {
   UnloadingCompletionResult
 } from '../types/tripEngine';
 import { TripExceptionEntity } from '../types/entities';
-import { SAMPLE_QUALITY_CONTEXT } from '../data/sampleQualityData';
 import { tripStateMachine, STATE_TRANSITIONS } from './tripStateMachine.service';
 import { exceptionEngine } from './exceptionEngine.service';
 
 // Initial Mock/In-Memory trips database populated with realistic high-fidelity Saudi logistics data
-export const INITIAL_TRIP_SEED: TripRecord[] = [
-  {
-    tripId: 'TRP-2026-00891',
-    projectId: 'PRJ-NEOM-001',
-    tripSerial: 'TRP-NEOM-8891',
-    ticketId: 'WB-TKT-99101',
-    truckId: 'TRK-9901',
-    driverId: 'DRV-101',
-    carrierId: 'CAR-ALMAJDOUIE',
-    materialId: 'MAT-AGG-01',
-    shiftDate: '2026-09-09',
-    tareWeight: 14200,
-    grossWeight: 45600,
-    netWeight: 31400, // 45600 - 14200
-    destNetWeight: 31250, // Unloaded at site
-    varianceWeight: -150, // 31250 - 31400 = -150 kg shrinkage
-    pricingRuleId: 'PRC-NEOM-AGG-TON',
-    pricingType: 'PER_TON',
-    agreedRate: 48.5,
-    currency: 'SAR',
-    settlementBase: 31.4, // 31.400 Tons
-    settlementAmount: 1522.9, // 31.4 * 48.5
-    loaderId: 'OPR-SCALE-01',
-    unloaderId: 'ENG-SITE-04',
-    status: 'COMPLETED',
-    version: 2,
-    loadTime: '2026-09-09T08:30:00.000Z',
-    arrivalTime: '2026-09-09T11:15:00.000Z',
-    unloadTime: '2026-09-09T11:45:00.000Z',
-    notes: 'تمت مطابقة الموازين واعتماد الفارق المسموح (-0.48%)',
-    createdAt: '2026-09-09T08:15:00.000Z',
-    createdBy: 'USR-DISPATCHER-01',
-    updatedAt: '2026-09-09T11:50:00.000Z',
-    updatedBy: 'USR-AUDITOR-01',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-NEOM-AGG-TON',
-      pricingType: 'PER_TON',
-      agreedRate: 48.5,
-      currency: 'SAR',
-      settlementBase: 31.4,
-      settlementAmount: 1522.9,
-      ruleName: 'تسعيرة ركام بازلتي - نيوم بالطن',
-      pricingSnapshotAt: '2026-09-09T08:15:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    },
-    entitySnapshots: {
-      carrier: { carrierId: 'CAR-ALMAJDOUIE', companyNameAr: 'شركة المجدوعي اللوجستية' },
-      truck: { truckId: 'TRK-9901', plateNumberAr: 'أ ب ج 1234', truckType: 'TIPPER_32M3', tareWeightKg: 14200 },
-      driver: { driverId: 'DRV-101', fullNameAr: 'خالد عبدالله الشمري', idNumber: '1098765432', phone: '0501234567' },
-      material: { materialId: 'MAT-AGG-01', nameAr: 'ركام بازلتي مقاس 20 ملم', code: 'AGG-20MM', unitOfMeasure: 'TON' }
-    }
-  },
-  {
-    tripId: 'TRP-2026-00892',
-    projectId: 'PRJ-NEOM-001',
-    tripSerial: 'TRP-NEOM-8892',
-    ticketId: 'WB-TKT-99102',
-    truckId: 'TRK-9902',
-    driverId: 'DRV-102',
-    carrierId: 'CAR-BINLADIN',
-    materialId: 'MAT-SND-01',
-    shiftDate: '2026-09-09',
-    tareWeight: 13800,
-    grossWeight: 44300,
-    netWeight: 30500, // 44300 - 13800
-    destNetWeight: null, // Still in transit!
-    varianceWeight: null, // null until destNetWeight exists
-    pricingRuleId: 'PRC-NEOM-SND-TRIP',
-    pricingType: 'PER_TRIP',
-    agreedRate: 1400.0,
-    currency: 'SAR',
-    settlementBase: 1, // 1 Trip
-    settlementAmount: 1400.0,
-    loaderId: 'OPR-SCALE-02',
-    unloaderId: null,
-    status: 'IN_TRANSIT',
-    version: 1,
-    loadTime: '2026-09-09T14:10:00.000Z',
-    arrivalTime: null,
-    unloadTime: null,
-    notes: 'شحنة رمل ناعم قيد التوصيل إلى قطاع الميناء',
-    createdAt: '2026-09-09T14:00:00.000Z',
-    createdBy: 'USR-DISPATCHER-02',
-    updatedAt: '2026-09-09T14:15:00.000Z',
-    updatedBy: 'USR-DISPATCHER-02',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-NEOM-SND-TRIP',
-      pricingType: 'PER_TRIP',
-      agreedRate: 1400.0,
-      currency: 'SAR',
-      settlementBase: 1,
-      settlementAmount: 1400.0,
-      ruleName: 'مقطوعية نقل رمل ردميات بالرد',
-      pricingSnapshotAt: '2026-09-09T14:00:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    },
-    entitySnapshots: {
-      carrier: { carrierId: 'CAR-BINLADIN', companyNameAr: 'مجموعة بن لادن للنقل' },
-      truck: { truckId: 'TRK-9902', plateNumberAr: 'د هـ و 5678', truckType: 'TRAILER_24M', tareWeightKg: 13800 },
-      driver: { driverId: 'DRV-102', fullNameAr: 'محمد إبراهيم الزهراني', idNumber: '1012345678', phone: '0559876543' },
-      material: { materialId: 'MAT-SND-01', nameAr: 'رمل أحمر ردميات ناعم', code: 'SND-RED-01', unitOfMeasure: 'TRIP' }
-    }
-  },
-  {
-    tripId: 'TRP-2026-00893',
-    projectId: 'PRJ-NEOM-001',
-    tripSerial: 'TRP-NEOM-8893',
-    ticketId: 'WB-TKT-99103',
-    truckId: 'TRK-9901',
-    driverId: 'DRV-101',
-    carrierId: 'CAR-ALMAJDOUIE',
-    materialId: 'MAT-AGG-01',
-    shiftDate: '2026-09-09',
-    tareWeight: 14100,
-    grossWeight: 46200,
-    netWeight: 32100,
-    destNetWeight: null, // Still unloading! Must be provided before COMPLETED
-    varianceWeight: null,
-    pricingRuleId: 'PRC-NEOM-AGG-TON',
-    pricingType: 'PER_TON',
-    agreedRate: 48.5,
-    currency: 'SAR',
-    settlementBase: 32.1,
-    settlementAmount: 1556.85,
-    loaderId: 'OPR-SCALE-01',
-    unloaderId: 'ENG-SITE-04',
-    status: 'UNLOADING',
-    version: 3,
-    loadTime: '2026-09-09T09:00:00.000Z',
-    arrivalTime: '2026-09-09T12:00:00.000Z',
-    unloadTime: null,
-    notes: 'الشاحنة في منصة التفريغ رقم 2 بانتظار استكمال الوزن النهائي واحتساب التفاوت',
-    createdAt: '2026-09-09T08:45:00.000Z',
-    createdBy: 'USR-DISPATCHER-01',
-    updatedAt: '2026-09-09T12:05:00.000Z',
-    updatedBy: 'ENG-SITE-04',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-NEOM-AGG-TON',
-      pricingType: 'PER_TON',
-      agreedRate: 48.5,
-      currency: 'SAR',
-      settlementBase: 32.1,
-      settlementAmount: 1556.85,
-      ruleName: 'تسعيرة ركام بازلتي - نيوم بالطن',
-      pricingSnapshotAt: '2026-09-09T08:45:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    }
-  },
-  {
-    tripId: 'TRP-2026-00894',
-    projectId: 'PRJ-NEOM-001',
-    tripSerial: 'TRP-NEOM-8894',
-    ticketId: 'WB-TKT-99104',
-    truckId: 'TRK-9903',
-    driverId: 'DRV-103',
-    carrierId: 'CAR-ALMAJDOUIE',
-    materialId: 'MAT-AGG-01',
-    shiftDate: '2026-09-09',
-    tareWeight: 14500,
-    grossWeight: 45000,
-    netWeight: 30500,
-    destNetWeight: null,
-    varianceWeight: null,
-    pricingRuleId: 'PRC-NEOM-AGG-TON',
-    pricingType: 'PER_TON',
-    agreedRate: 48.5,
-    currency: 'SAR',
-    settlementBase: 30.5,
-    settlementAmount: 1479.25,
-    loaderId: 'OPR-SCALE-01',
-    unloaderId: null,
-    status: 'LOADED',
-    version: 1,
-    loadTime: '2026-09-09T13:30:00.000Z',
-    arrivalTime: null,
-    unloadTime: null,
-    notes: 'تم وزن القائم والفارغ بنجاح وجاهزة لأمر الانطلاق والترحيل (IN_TRANSIT)',
-    createdAt: '2026-09-09T13:15:00.000Z',
-    createdBy: 'OPR-SCALE-01',
-    updatedAt: '2026-09-09T13:30:00.000Z',
-    updatedBy: 'OPR-SCALE-01',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-NEOM-AGG-TON',
-      pricingType: 'PER_TON',
-      agreedRate: 48.5,
-      currency: 'SAR',
-      settlementBase: 30.5,
-      settlementAmount: 1479.25,
-      ruleName: 'تسعيرة ركام بازلتي - نيوم بالطن',
-      pricingSnapshotAt: '2026-09-09T13:15:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    }
-  },
-  {
-    tripId: 'TRP-2026-00895',
-    projectId: 'PRJ-NEOM-001',
-    tripSerial: 'TRP-NEOM-8895',
-    ticketId: 'WB-TKT-99105',
-    truckId: 'TRK-9902',
-    driverId: 'DRV-102',
-    carrierId: 'CAR-BINLADIN',
-    materialId: 'MAT-SND-01',
-    shiftDate: '2026-09-09',
-    tareWeight: 13800,
-    grossWeight: 0,
-    netWeight: 0,
-    destNetWeight: null,
-    varianceWeight: null,
-    pricingRuleId: 'PRC-NEOM-SND-TRIP',
-    pricingType: 'PER_TRIP',
-    agreedRate: 1400.0,
-    currency: 'SAR',
-    settlementBase: 1,
-    settlementAmount: 1400.0,
-    loaderId: null,
-    unloaderId: null,
-    status: 'DRAFT',
-    version: 1,
-    loadTime: null,
-    arrivalTime: null,
-    unloadTime: null,
-    notes: 'مسودة أمر نقل مسجلة لم يتم تحميلها بعد بالموقع',
-    createdAt: '2026-09-09T14:30:00.000Z',
-    createdBy: 'USR-DISPATCHER-02',
-    updatedAt: '2026-09-09T14:30:00.000Z',
-    updatedBy: 'USR-DISPATCHER-02',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-NEOM-SND-TRIP',
-      pricingType: 'PER_TRIP',
-      agreedRate: 1400.0,
-      currency: 'SAR',
-      settlementBase: 1,
-      settlementAmount: 1400.0,
-      ruleName: 'مقطوعية نقل رمل ردميات بالرد',
-      pricingSnapshotAt: '2026-09-09T14:30:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    }
-  },
-  {
-    tripId: 'TRP-2026-00896',
-    projectId: 'PRJ-NEOM-001',
-    tripSerial: 'TRP-NEOM-8896',
-    ticketId: 'WB-TKT-99106',
-    truckId: 'TRK-9901',
-    driverId: 'DRV-101',
-    carrierId: 'CAR-ALMAJDOUIE',
-    materialId: 'MAT-AGG-01',
-    shiftDate: '2026-09-09',
-    tareWeight: 14200,
-    grossWeight: 45200,
-    netWeight: 31000,
-    destNetWeight: null,
-    varianceWeight: null,
-    pricingRuleId: 'PRC-NEOM-AGG-TON',
-    pricingType: 'PER_TON',
-    agreedRate: 48.5,
-    currency: 'SAR',
-    settlementBase: 31.0,
-    settlementAmount: 1503.5,
-    loaderId: 'OPR-SCALE-01',
-    unloaderId: null,
-    status: 'ARRIVED',
-    version: 2,
-    loadTime: '2026-09-09T10:00:00.000Z',
-    arrivalTime: '2026-09-09T13:45:00.000Z',
-    unloadTime: null,
-    notes: 'وصلت الشاحنة إلى البوابة الرئيسية لمشروع نيوم - بانتظار إذن الدخول للتفريغ',
-    createdAt: '2026-09-09T09:45:00.000Z',
-    createdBy: 'USR-DISPATCHER-01',
-    updatedAt: '2026-09-09T13:45:00.000Z',
-    updatedBy: 'DRV-101',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-NEOM-AGG-TON',
-      pricingType: 'PER_TON',
-      agreedRate: 48.5,
-      currency: 'SAR',
-      settlementBase: 31.0,
-      settlementAmount: 1503.5,
-      ruleName: 'تسعيرة ركام بازلتي - نيوم بالطن',
-      pricingSnapshotAt: '2026-09-09T09:45:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    }
-  },
-  {
-    tripId: 'TRP-2026-00897',
-    projectId: 'PRJ-NEOM-001',
-    tripSerial: 'TRP-NEOM-8897',
-    ticketId: 'WB-TKT-99107',
-    truckId: 'TRK-9903',
-    driverId: 'DRV-103',
-    carrierId: 'CAR-ALMAJDOUIE',
-    materialId: 'MAT-AGG-01',
-    shiftDate: '2026-09-09',
-    tareWeight: 14500,
-    grossWeight: 44900,
-    netWeight: 30400,
-    destNetWeight: null,
-    varianceWeight: null,
-    pricingRuleId: 'PRC-NEOM-AGG-TON',
-    pricingType: 'PER_TON',
-    agreedRate: 48.5,
-    currency: 'SAR',
-    settlementBase: 30.4,
-    settlementAmount: 1474.4,
-    loaderId: 'OPR-SCALE-01',
-    unloaderId: null,
-    status: 'EXCEPTION',
-    version: 3,
-    loadTime: '2026-09-09T07:30:00.000Z',
-    arrivalTime: null,
-    unloadTime: null,
-    notes: 'تسجيل استثناء: عطل في الإطار على الطريق السريع، تم إرسال فريق الصيانة',
-    createdAt: '2026-09-09T07:15:00.000Z',
-    createdBy: 'USR-DISPATCHER-01',
-    updatedAt: '2026-09-09T09:10:00.000Z',
-    updatedBy: 'DRV-103',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-NEOM-AGG-TON',
-      pricingType: 'PER_TON',
-      agreedRate: 48.5,
-      currency: 'SAR',
-      settlementBase: 30.4,
-      settlementAmount: 1474.4,
-      ruleName: 'تسعيرة ركام بازلتي - نيوم بالطن',
-      pricingSnapshotAt: '2026-09-09T07:15:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    }
-  },
-  {
-    tripId: 'TRP-2026-00898',
-    projectId: 'PRJ-NEOM-001',
-    tripSerial: 'TRP-NEOM-8898',
-    ticketId: 'WB-TKT-99108',
-    truckId: 'TRK-9902',
-    driverId: 'DRV-102',
-    carrierId: 'CAR-BINLADIN',
-    materialId: 'MAT-SND-01',
-    shiftDate: '2026-09-09',
-    tareWeight: 13800,
-    grossWeight: 44800,
-    netWeight: 31000,
-    destNetWeight: 30350,
-    varianceWeight: -650, // Significant negative shrinkage > tolerance
-    pricingRuleId: 'PRC-NEOM-SND-TRIP',
-    pricingType: 'PER_TRIP',
-    agreedRate: 1400.0,
-    currency: 'SAR',
-    settlementBase: 1,
-    settlementAmount: 1400.0,
-    loaderId: 'OPR-SCALE-02',
-    unloaderId: 'ENG-SITE-04',
-    status: 'COMPLETED',
-    version: 4,
-    loadTime: '2026-09-09T18:30:00.000Z', // Evening shift
-    arrivalTime: '2026-09-09T21:15:00.000Z',
-    unloadTime: '2026-09-09T21:50:00.000Z',
-    notes: 'تم التفريغ في الوردية المسائية مع تسجيل فارق وزني تجاوز نسبة التسامح (-650 كجم)',
-    createdAt: '2026-09-09T18:15:00.000Z',
-    createdBy: 'USR-DISPATCHER-02',
-    updatedAt: '2026-09-09T22:00:00.000Z',
-    updatedBy: 'ENG-SITE-04',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-NEOM-SND-TRIP',
-      pricingType: 'PER_TRIP',
-      agreedRate: 1400.0,
-      currency: 'SAR',
-      settlementBase: 1,
-      settlementAmount: 1400.0,
-      ruleName: 'مقطوعية نقل رمل ردميات بالرد',
-      pricingSnapshotAt: '2026-09-09T18:15:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    }
-  },
-  {
-    tripId: 'TRP-2026-00899',
-    projectId: 'PRJ-NEOM-001',
-    tripSerial: 'TRP-NEOM-8899',
-    ticketId: 'WB-TKT-99109',
-    truckId: 'TRK-9901',
-    driverId: 'DRV-101',
-    carrierId: 'CAR-ALMAJDOUIE',
-    materialId: 'MAT-AGG-01',
-    shiftDate: '2026-09-08',
-    tareWeight: 14200,
-    grossWeight: 45800,
-    netWeight: 31600,
-    destNetWeight: 0,
-    varianceWeight: -31600,
-    pricingRuleId: 'PRC-NEOM-AGG-TON',
-    pricingType: 'PER_TON',
-    agreedRate: 48.5,
-    currency: 'SAR',
-    settlementBase: 0,
-    settlementAmount: 0,
-    loaderId: 'OPR-SCALE-01',
-    unloaderId: 'ENG-SITE-04',
-    status: 'RETURNED', // Returned trip!
-    version: 4,
-    loadTime: '2026-09-08T11:00:00.000Z',
-    arrivalTime: '2026-09-08T14:30:00.000Z',
-    unloadTime: null,
-    notes: 'تم إرجاع الشحنة بالكامل لعدم مطابقة مقاس الركام وتجاوز نسبة الرطوبة 8% المسموحة في كود البناء',
-    createdAt: '2026-09-08T10:45:00.000Z',
-    createdBy: 'USR-DISPATCHER-01',
-    updatedAt: '2026-09-08T15:00:00.000Z',
-    updatedBy: 'ENG-SITE-04',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-NEOM-AGG-TON',
-      pricingType: 'PER_TON',
-      agreedRate: 48.5,
-      currency: 'SAR',
-      settlementBase: 0,
-      settlementAmount: 0, // Returned trips settle at 0 net
-      ruleName: 'تسعيرة ركام بازلتي - نيوم بالطن',
-      pricingSnapshotAt: '2026-09-08T10:45:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    }
-  },
-  {
-    tripId: 'TRP-2026-00900',
-    projectId: 'PRJ-REDSEA-RESORT-02',
-    tripSerial: 'TRP-RSR-9900',
-    ticketId: 'WB-TKT-88001',
-    truckId: 'TRK-9903',
-    driverId: 'DRV-103',
-    carrierId: 'CAR-ALMAJDOUIE',
-    materialId: 'MAT-AGG-01',
-    shiftDate: '2026-09-10',
-    tareWeight: 14400,
-    grossWeight: 46200,
-    netWeight: 31800,
-    destNetWeight: 31920,
-    varianceWeight: 120, // +120 kg within tolerance
-    pricingRuleId: 'PRC-REDSEA-AGG-TON',
-    pricingType: 'PER_TON',
-    agreedRate: 54.0,
-    currency: 'SAR',
-    settlementBase: 31.8,
-    settlementAmount: 1717.2, // 31.8 * 54
-    loaderId: 'OPR-SCALE-02',
-    unloaderId: 'ENG-AUDITOR-01',
-    status: 'COMPLETED',
-    version: 3,
-    loadTime: '2026-09-10T23:30:00.000Z', // Night shift
-    arrivalTime: '2026-09-11T02:15:00.000Z',
-    unloadTime: '2026-09-11T02:45:00.000Z',
-    notes: 'توريد وردية ليلية لمشروع جزر البحر الأحمر - تم اعتماد الوزن وتصفية التذكرة',
-    createdAt: '2026-09-10T23:15:00.000Z',
-    createdBy: 'USR-SUPERVISOR-HQ',
-    updatedAt: '2026-09-11T02:50:00.000Z',
-    updatedBy: 'ENG-AUDITOR-01',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-REDSEA-AGG-TON',
-      pricingType: 'PER_TON',
-      agreedRate: 54.0,
-      currency: 'SAR',
-      settlementBase: 31.8,
-      settlementAmount: 1717.2,
-      ruleName: 'تسعيرة ركام - البحر الأحمر بالطن',
-      pricingSnapshotAt: '2026-09-10T23:15:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    }
-  },
-  {
-    tripId: 'TRP-2026-00901',
-    projectId: 'PRJ-REDSEA-RESORT-02',
-    tripSerial: 'TRP-RSR-9901',
-    ticketId: 'WB-TKT-88002',
-    truckId: 'TRK-9902',
-    driverId: 'DRV-102',
-    carrierId: 'CAR-BINLADIN',
-    materialId: 'MAT-SND-01',
-    shiftDate: '2026-09-10',
-    tareWeight: 13900,
-    grossWeight: 44500,
-    netWeight: 30600,
-    destNetWeight: 30550,
-    varianceWeight: -50,
-    pricingRuleId: 'PRC-REDSEA-SND-TRIP',
-    pricingType: 'PER_TRIP',
-    agreedRate: 1650.0,
-    currency: 'SAR',
-    settlementBase: 1,
-    settlementAmount: 1650.0,
-    loaderId: 'OPR-SCALE-02',
-    unloaderId: 'ENG-AUDITOR-01',
-    status: 'COMPLETED',
-    version: 3,
-    loadTime: '2026-09-10T09:15:00.000Z', // Morning shift
-    arrivalTime: '2026-09-10T12:30:00.000Z',
-    unloadTime: '2026-09-10T13:00:00.000Z',
-    notes: 'توريد ردميات بالرد المقطوع إلى منطقة المرسى السياحي',
-    createdAt: '2026-09-10T09:00:00.000Z',
-    createdBy: 'USR-SUPERVISOR-HQ',
-    updatedAt: '2026-09-10T13:05:00.000Z',
-    updatedBy: 'ENG-AUDITOR-01',
-    pricingSnapshot: {
-      pricingRuleId: 'PRC-REDSEA-SND-TRIP',
-      pricingType: 'PER_TRIP',
-      agreedRate: 1650.0,
-      currency: 'SAR',
-      settlementBase: 1,
-      settlementAmount: 1650.0,
-      ruleName: 'مقطوعية رمل ردميات - البحر الأحمر بالرد',
-      pricingSnapshotAt: '2026-09-10T09:00:00.000Z',
-      effectiveFrom: '2026-01-01',
-      effectiveTo: '2026-12-31'
-    }
-  }
-];
 
-import { MasterPricingRule, MASTER_PRICING_RULES } from '../data/masterPricingRules';
+import type { MasterPricingRule } from "../data/masterPricingRules";
 export type { MasterPricingRule };
-export { MASTER_PRICING_RULES };
 
 let tripSequenceCounter = 1000;
 
@@ -565,7 +45,7 @@ class TripEngineService {
   /**
    * Loads seed fixture data (Used exclusively by automated test suites or explicit demo mode)
    */
-  loadSeedData(seedTrips: TripRecord[] = INITIAL_TRIP_SEED): void {
+  loadSeedData(seedTrips: TripRecord[]): void {
     this.trips = [...seedTrips];
   }
 
@@ -609,7 +89,7 @@ class TripEngineService {
    */
   validateTripRules(params: CreateTripParams): TripValidationReport {
     const results: RuleValidationResult[] = [];
-    const context = SAMPLE_QUALITY_CONTEXT;
+    const context = buildRelationshipContext(params.projectId || "ALL");
 
     // RULE 1: truck يجب أن يكون تابعاً للمشروع
     const truck = context.knownTrucks.find(t => t.truckId === params.truckId);
@@ -721,7 +201,7 @@ class TripEngineService {
     });
 
     // RULE 6: pricing rule يجب أن تكون صالحة في تاريخ الرحلة
-    const pricingRule = MASTER_PRICING_RULES.find(p => p.pricingRuleId === params.pricingRuleId);
+    const pricingRule = pricingService.getRules().find(p => p.pricingRuleId === params.pricingRuleId);
     let rule6Passed = false;
     let rule6Msg = '';
     if (!pricingRule) {
@@ -787,7 +267,7 @@ class TripEngineService {
     const varianceWeight: number | null = null;
 
     // 4. Pricing & Settlement: يحسب server-side فقط
-    const pricingRule = MASTER_PRICING_RULES.find(p => p.pricingRuleId === params.pricingRuleId)!;
+    const pricingRule = pricingService.getRules().find(p => p.pricingRuleId === params.pricingRuleId)!;
     const agreedRate = pricingRule.agreedRate;
     const currency = pricingRule.currency || 'SAR';
     const pricingType = pricingRule.pricingType;
@@ -806,7 +286,7 @@ class TripEngineService {
     }
 
     // Snapshots
-    const context = SAMPLE_QUALITY_CONTEXT;
+    const context = buildRelationshipContext(params.projectId || "ALL");
     const carrier = context.knownCarriers.find(c => c.carrierId === params.carrierId);
     const truck = context.knownTrucks.find(t => t.truckId === params.truckId);
     const driver = context.knownDrivers.find(d => d.driverId === params.driverId);
@@ -983,7 +463,7 @@ class TripEngineService {
     }
 
     // Pricing Rule Lookup
-    const pricingRule = MASTER_PRICING_RULES.find(p => p.pricingRuleId === params.pricingRuleId);
+    const pricingRule = pricingService.getRules().find(p => p.pricingRuleId === params.pricingRuleId);
     if (!pricingRule) {
       throw new Error(`قاعدة التسعير (${params.pricingRuleId}) غير موجودة بالنظام`);
     }
@@ -1008,7 +488,7 @@ class TripEngineService {
     const tripSerial = `TRP-NEOM-${Math.floor(1000 + Math.random() * 9000)}`;
     const ticketId = params.ticketId || `WB-TKT-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    const context = SAMPLE_QUALITY_CONTEXT;
+    const context = buildRelationshipContext(params.projectId || "ALL");
     const carrier = context.knownCarriers.find(c => c.carrierId === params.carrierId);
     const truck = context.knownTrucks.find(t => t.truckId === params.truckId);
     const driver = context.knownDrivers.find(d => d.driverId === params.driverId);
@@ -1332,7 +812,7 @@ class TripEngineService {
     const qLower = q.toLowerCase();
 
     // Check if user entered truck plate ONLY
-    const isMatchingPlate = SAMPLE_QUALITY_CONTEXT.knownTrucks.some(
+    const isMatchingPlate = buildRelationshipContext("ALL").knownTrucks.some(
       t => t.plate.toLowerCase() === qLower || t.plate.replace(/\s+/g, '') === qLower.replace(/\s+/g, '')
     ) || this.trips.some(
       t => t.entitySnapshots?.truck?.plateNumberAr?.toLowerCase() === qLower ||
@@ -1736,8 +1216,8 @@ class TripEngineService {
   /**
    * Resets demo trips back to seed.
    */
-  resetTrips(): void {
-    this.trips = [...INITIAL_TRIP_SEED];
+  resetTrips(seedTrips: TripRecord[]): void {
+    this.trips = [...seedTrips];
     this.exceptions.clear();
   }
 }

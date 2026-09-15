@@ -21,6 +21,7 @@ import { NavTabId, PRIMARY_AREAS, navigationService } from '../../services/navig
 import { UserRole } from '../../types/common';
 import { useI18n } from '../../i18n';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
+import { useAuth } from '../../firebase/authContext';
 
 interface MobileNavDrawerProps {
   isOpen: boolean;
@@ -49,6 +50,8 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
 }) => {
   const { direction } = useI18n();
   const isRtl = direction === 'rtl';
+  const { user, userProfile } = useAuth();
+  const displayName = userProfile?.fullName || user?.displayName || 'مدير النظام';
 
   if (!isOpen) return null;
 
@@ -128,7 +131,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
           </select>
 
           <div className="mt-2 text-[11px] font-mono text-white/50 leading-tight">
-            USER: {roleProfile.userNameAr}
+            USER: {displayName}
           </div>
         </div>
 
