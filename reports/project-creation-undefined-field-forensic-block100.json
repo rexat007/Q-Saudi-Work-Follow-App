@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-09-15T05:18:11-07:00",
+  "block": "100",
+  "audit": {
+    "PROJECT_CREATED": "NO",
+    "PROJECT_CODE": "Q-PRJ-001",
+    "GOOGLE_DRIVE_FIELD_SOURCE": "driveFolderId inside projectProvisioning.service.ts evaluated as data.googleDrive.enabled ? (data.googleDrive.generatedFolderId || ...) : undefined",
+    "GOOGLE_DRIVE_FIELD_REQUIRED": "NO",
+    "GOOGLE_DRIVE_FIELD_CONTRACT": "OMIT",
+    "PROJECT_CREATION_PAYLOAD_HAS_UNDEFINED": "YES",
+    "OTHER_UNDEFINED_FIELDS": [
+      "settings.googleSpreadsheetId",
+      "settings.googleDriveProvisioning.rootFolderName",
+      "settings.googleDriveProvisioning.spreadsheetTitle",
+      "pricing_rules.carrierId",
+      "pricing_rules.materialId",
+      "pricing_rules.effectiveTo"
+    ],
+    "COUNTER_CONSUMED_ON_FAILURE": "YES",
+    "GOOGLE_PROVISIONING_ORDER": "ON_DEMAND_OR_DURING_CREATION_IF_ENABLED",
+    "ROOT_CAUSE": "The Firestore JS SDK throws 'Unsupported field value: undefined' when writing an object containing properties explicitly set to 'undefined' (such as settings.googleDriveFolderId and settings.googleSpreadsheetId when Google Drive integration is disabled). Because Firestore is initialized using getFirestore() without ignoreUndefinedProperties: true, this local validation fails and aborts the creation before sending a write request to the server, while the project number generator transaction has already executed and consumed Q-PRJ-001.",
+    "REQUIRED_FIX": "Two complementary solutions are recommended: 1) Initialize Firestore with the ignoreUndefinedProperties flag by using initializeFirestore(app, { ignoreUndefinedProperties: true }) in src/firebase/config.ts, and 2) Ensure payload creation in projectProvisioning.service.ts recursively strips out undefined fields or maps optional/blank fields to null/omission."
+  },
+  "constraints": {
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "DEPLOYMENT_CHANGED": "NO"
+  }
+}

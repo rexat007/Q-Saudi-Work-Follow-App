@@ -72,7 +72,7 @@ export interface CachedProject {
   clientName?: string;
   authorizedCarrierIds: string[];
   authorizedMaterialIds: string[];
-  status: 'ACTIVE' | 'PLANNING' | 'SUSPENDED' | 'ARCHIVED' | 'INACTIVE';
+  status: 'DRAFT' | 'SETUP' | 'READY_FOR_REVIEW' | 'APPROVED' | 'ACTIVE' | 'PLANNING' | 'SUSPENDED' | 'ARCHIVED' | 'INACTIVE';
   _version: number;
   _cachedAt: string;
 }

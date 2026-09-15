@@ -14,6 +14,7 @@ import {
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { ProjectEntity } from '../types/entities';
+import { sanitizeUndefined } from '../utils/sanitize';
 
 export class ProjectRepository {
   private readonly collectionName = 'projects';
@@ -64,11 +65,11 @@ export class ProjectRepository {
       return;
     }
     try {
-      const payload = {
+      const payload = sanitizeUndefined({
         ...project,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      };
+      });
       await setDoc(doc(db, this.collectionName, project.projectId), payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
@@ -82,12 +83,12 @@ export class ProjectRepository {
       return;
     }
     try {
-      const payload = {
+      const payload = sanitizeUndefined({
         ...updates,
         projectId, // immutable ID invariant
         updatedAt: serverTimestamp(),
         updatedBy,
-      };
+      });
       await updateDoc(doc(db, this.collectionName, projectId), payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, path);

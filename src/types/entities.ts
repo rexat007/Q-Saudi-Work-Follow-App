@@ -30,13 +30,13 @@ export interface ProjectEntity extends BaseAuditedEntity {
       enabled: boolean;
       rootFolderName?: string;
       spreadsheetTitle?: string;
-      status?: 'PROVISIONED' | 'DISABLED';
+      status?: 'PROVISIONED' | 'DISABLED' | 'PENDING' | 'FAILED';
     };
   };
   authorizedCarrierIds?: string[];
   authorizedMaterialIds?: string[];
   projectNumber?: number;
-  status: 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED' | 'PLANNING';
+  status: 'DRAFT' | 'SETUP' | 'READY_FOR_REVIEW' | 'APPROVED' | 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED' | 'PLANNING';
 }
 
 // 2. Carrier Entity

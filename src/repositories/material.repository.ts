@@ -11,6 +11,7 @@ import {
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { MaterialEntity } from '../types/entities';
+import { sanitizeUndefined } from '../utils/sanitize';
 
 export class MaterialRepository {
   private getPath(projectId: string, materialId?: string): string {
@@ -51,11 +52,11 @@ export class MaterialRepository {
       return;
     }
     try {
-      const payload = {
+      const payload = sanitizeUndefined({
         ...material,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      };
+      });
       await setDoc(doc(db, 'projects', material.projectId, 'materials', material.materialId), payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
@@ -69,13 +70,13 @@ export class MaterialRepository {
       return;
     }
     try {
-      const payload = {
+      const payload = sanitizeUndefined({
         ...updates,
         materialId,
         projectId,
         updatedAt: serverTimestamp(),
         updatedBy,
-      };
+      });
       await updateDoc(doc(db, 'projects', projectId, 'materials', materialId), payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, path);

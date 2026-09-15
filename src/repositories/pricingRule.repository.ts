@@ -11,6 +11,7 @@ import {
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { PricingRuleEntity } from '../types/entities';
+import { sanitizeUndefined } from '../utils/sanitize';
 
 export class PricingRuleRepository {
   private getPath(projectId: string, pricingRuleId?: string): string {
@@ -91,11 +92,11 @@ export class PricingRuleRepository {
     }
 
     try {
-      const payload = {
+      const payload = sanitizeUndefined({
         ...rule,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      };
+      });
       await setDoc(doc(db, 'projects', rule.projectId, 'pricing_rules', rule.pricingRuleId), payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
@@ -114,13 +115,13 @@ export class PricingRuleRepository {
     }
 
     try {
-      const payload = {
+      const payload = sanitizeUndefined({
         ...updates,
         pricingRuleId,
         projectId,
         updatedAt: serverTimestamp(),
         updatedBy,
-      };
+      });
       await updateDoc(doc(db, 'projects', projectId, 'pricing_rules', pricingRuleId), payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, path);

@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-09-15T05:43:25-07:00",
+  "block": "100B",
+  "name": "Project Setup Lifecycle & Operational Roster Architecture Audit",
+  "variables": {
+    "PHASE_COUNT": 6,
+    "PHASE_1_VALID": "YES",
+    "PHASE_2_VALID": "YES",
+    "GLOBAL_DRIVER_ID_RECOMMENDED": "YES",
+    "PROJECT_ROSTER_ID_RECOMMENDED": "YES",
+    "ROSTER_ID_FORMAT": "Q-PRJ-001-DRV-00001",
+    "UNIFIED_IMPORT_PIPELINE": "YES",
+    "ENTITY_RESOLUTION_REQUIRED": "YES",
+    "PROJECT_STATUS_MACHINE": "DRAFT, SETUP, READY_FOR_REVIEW, APPROVED, ACTIVE",
+    "GOOGLE_WORKSPACE_ORDER": "PROJECT_DOCUMENT -> DRIVE_FOLDER -> GOOGLE_SHEET -> SHEET_INITIALIZATION -> PROJECT_LINKAGE",
+    "PROJECT_READINESS_GATE": "YES",
+    "CURRENT_WIZARD_REBUILD_RECOMMENDED": "YES"
+  },
+  "constraints": {
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO"
+  },
+  "audit": {
+    "phase1": {
+      "inputs": ["projectName", "clientName", "description", "startDate", "endDate", "location", "materials", "defaultSettings"],
+      "outputs": ["projectId", "projectCode", "projectNumber", "googleDriveFolderId", "googleSpreadsheetId"],
+      "failureMitigation": "On workspace creation failures, projects are written in PENDING_PROVISIONING status, allowing administrative retry."
+    },
+    "phase2": {
+      "ratios": {
+        "globalDriverId": "Based on Iqama / National Residency ID (legally binding, system-wide unique key).",
+        "projectRosterId": "Project-scoped driver-truck assignment slot identifier, e.g., Q-PRJ-001-DRV-00001.",
+        "tripSnapshot": "Immutable copy of driver and truck roster info written directly inside the weighbridge ticket, preserving historic records."
+      },
+      "fields": ["rosterId", "carrier", "driver", "plate", "phone", "residencyId", "material", "project", "status"]
+    },
+    "pipelines": {
+      "channels": ["Excel/CSV File Upload", "Google Sheets Live URL Sync", "Manual Roster Form Entry"],
+      "stages": ["SOURCE", "PARSE", "NORMALIZE", "MAP", "ENTITY_RESOLUTION", "VALIDATE", "DUPLICATE_CHECK", "REVIEW", "COMMIT", "AUDIT"]
+    },
+    "entityResolution": {
+      "matchingPriority": ["Residency ID (Iqama/National ID)", "Phone Number", "Plate Number", "Driver Display Name"],
+      "statuses": ["NEW", "EXISTING", "CHANGED", "CONFLICT"]
+    },
+    "materialAssignment": {
+      "enforceRosterMaterialScope": true,
+      "unauthorizedMaterialsAllowed": false,
+      "driverMaterialMultiplicity": "A single driver can hold multiple active roster rows or an array of authorized materialIds within their profile."
+    },
+    "statusMachine": {
+      "DRAFT": "Editable project details, workspace integrations disabled.",
+      "SETUP": "Operational roster and pricing rules can be defined.",
+      "READY_FOR_REVIEW": "Project metadata is locked; pending administrator validation.",
+      "APPROVED": "Locked, scheduled, waiting for startDate to trigger operation.",
+      "ACTIVE": "Operations live; weighbridge ticket and dispatching modules unlocked."
+    }
+  }
+}

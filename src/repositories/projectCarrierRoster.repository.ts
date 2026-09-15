@@ -14,6 +14,7 @@ import {
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { ProjectCarrierRosterEntity } from '../types/entities';
+import { sanitizeUndefined } from '../utils/sanitize';
 
 export class ProjectCarrierRosterRepository {
   private getPath(projectId: string, rosterId?: string): string {
@@ -51,11 +52,11 @@ export class ProjectCarrierRosterRepository {
       return;
     }
     try {
-      const payload = {
+      const payload = sanitizeUndefined({
         ...roster,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      };
+      });
       await setDoc(doc(db, 'projects', roster.projectId, 'roster', roster.rosterId), payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
@@ -69,13 +70,13 @@ export class ProjectCarrierRosterRepository {
       return;
     }
     try {
-      const payload = {
+      const payload = sanitizeUndefined({
         ...updates,
         rosterId,
         projectId,
         updatedAt: serverTimestamp(),
         updatedBy,
-      };
+      });
       await updateDoc(doc(db, 'projects', projectId, 'roster', rosterId), payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, path);
