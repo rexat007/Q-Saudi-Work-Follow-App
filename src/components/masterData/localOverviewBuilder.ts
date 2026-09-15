@@ -1,4 +1,4 @@
-import { ProjectMasterDataOverview } from '../../types/masterData';
+import { ProjectMasterDataOverview } from '../../services/masterData.service';
 import { CarrierEntity, MaterialEntity, TruckEntity, DriverEntity } from '../../types/entities';
 import { adminConsoleService } from '../../services/adminConsole.service';
 

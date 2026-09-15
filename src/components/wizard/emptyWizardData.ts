@@ -26,11 +26,11 @@ export const EMPTY_WIZARD_DATA: ProjectSetupWizardData = {
   userAccess: [],
   googleDrive: {
     enabled: false,
-    folderId: '',
-    folderName: '',
-    spreadsheetId: '',
-    spreadsheetName: '',
-    autoSyncEnabled: false,
-    syncIntervalMinutes: 15,
+    rootFolderName: '',
+    provisionSpreadsheet: false,
+    spreadsheetTitle: '',
+    autoSyncTickets: false,
+    archiveDailyTrips: false,
+    folderStructure: [],
   },
 };

@@ -188,13 +188,13 @@ export class AdminConsoleService {
         carrierId: r.carrierId || 'CAR-ALMAJDOUIE',
         carrierName,
         pricingType: r.pricingType as any,
-        agreedRate: r.agreedRate,
+        agreedRate: r.agreedRate ?? r.rate ?? 0,
         currency: r.currency || 'SAR',
         materialId: r.materialId,
         materialName,
         effectiveFrom: r.effectiveFrom || '2026-01-01',
         effectiveTo: r.effectiveTo || '2026-12-31',
-        status: r.status || 'ACTIVE',
+        status: (r.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE') as 'ACTIVE' | 'INACTIVE',
         notes: r.name,
         createdAt: '2026-01-01T08:00:00.000Z',
         createdBy: 'USR-FIN-AUDITOR-01',
@@ -510,11 +510,14 @@ export class AdminConsoleService {
   }
 
   public createProject(payload: Partial<ProjectEntity>, context: AuthUserContext): ProjectEntity {
+    const nextNum = this.projects.length + 1;
+    const serverProjectCode = `Q-PRJ-${String(nextNum).padStart(3, '0')}`;
     const newProject: ProjectEntity = {
-      projectId: payload.projectId || `PRJ-${Date.now().toString(36).toUpperCase()}`,
-      projectCode: payload.projectCode || `PRJ-${this.projects.length + 1}`,
+      projectId: serverProjectCode,
+      projectCode: serverProjectCode,
+      projectNumber: nextNum,
       nameAr: payload.nameAr || 'مشروع جديد',
-      nameEn: payload.nameEn || 'New Project',
+      nameEn: serverProjectCode,
       clientName: payload.clientName || 'الجهة المالكة',
       location: payload.location || {
         lat: 24.7136,
@@ -547,9 +550,10 @@ export class AdminConsoleService {
     if (idx === -1) throw new Error('المشروع غير موجود');
 
     const before = { ...this.projects[idx] };
+    const { projectCode, projectNumber, ...sanitizedUpdates } = updates;
     this.projects[idx] = {
       ...this.projects[idx],
-      ...updates,
+      ...sanitizedUpdates,
       updatedAt: new Date() as any,
       updatedBy: context.userId,
     };

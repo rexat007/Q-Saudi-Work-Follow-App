@@ -31,7 +31,7 @@ Object.values(ROLE_PROFILES).forEach(profile => {
   personaNames.forEach(persona => {
     assert(
       !profile.userNameAr.includes(persona),
-      `ROLE_PROFILE [${profile.userId}] still contains hardcoded persona name: ${persona}`
+      `ROLE_PROFILE [${profile.role}] still contains hardcoded persona name: ${persona}`
     );
   });
 });

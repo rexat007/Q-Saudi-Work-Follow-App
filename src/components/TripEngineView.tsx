@@ -96,6 +96,9 @@ export const TripEngineView: React.FC = () => {
     setTrips(tripEngineService.getTrips());
   };
 
+  const availablePricingRules = pricingService.getRules();
+  const selectedRule = availablePricingRules.find(r => r.pricingRuleId === formData.pricingRuleId) || availablePricingRules[0];
+
   // Real-time live validation of form
   const liveValidation = tripEngineService.validateTripRules(formData);
 
@@ -105,7 +108,7 @@ export const TripEngineView: React.FC = () => {
     ? parseFloat((liveCalculatedNet / 1000).toFixed(3)) 
     : 1;
   const liveSettlementAmount = selectedRule 
-    ? parseFloat((liveSettlementBase * selectedRule.agreedRate).toFixed(2)) 
+    ? parseFloat((liveSettlementBase * (selectedRule.agreedRate ?? selectedRule.rate ?? 0)).toFixed(2)) 
     : 0;
 
   // Handle Dispatch Submit

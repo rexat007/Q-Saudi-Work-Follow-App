@@ -1216,8 +1216,8 @@ class TripEngineService {
   /**
    * Resets demo trips back to seed.
    */
-  resetTrips(seedTrips: TripRecord[]): void {
-    this.trips = [...seedTrips];
+  resetTrips(seedTrips?: TripRecord[]): void {
+    this.trips = seedTrips ? [...seedTrips] : [];
     this.exceptions.clear();
   }
 }

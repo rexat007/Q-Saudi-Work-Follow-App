@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-09-14T19:45:30.023Z",
+  "timestamp": "2026-09-15T11:24:24.553Z",
   "totalTests": 13,
-  "passedTests": 13,
-  "failedTests": 0,
-  "allPassed": true,
+  "passedTests": 12,
+  "failedTests": 1,
+  "allPassed": false,
   "results": [
     {
       "id": 1,
@@ -106,8 +106,8 @@
           "status": "ACTIVE",
           "createdBy": "USR-ADMIN-87",
           "updatedBy": "USR-ADMIN-87",
-          "createdAt": "2026-09-14T19:45:30.020Z",
-          "updatedAt": "2026-09-14T19:45:30.020Z"
+          "createdAt": "2026-09-15T11:24:24.550Z",
+          "updatedAt": "2026-09-15T11:24:24.550Z"
         }
       }
     },
@@ -133,18 +133,19 @@
       "name": "Settlement adjustments can be requested by site supervisors",
       "category": "SETTLEMENT_ADJUSTMENTS",
       "passed": true,
-      "message": "Adjustment ID: ADJ-1789415130022-ZL86, Type: RATE",
+      "message": "Adjustment ID: ADJ-1789471464551-6DR0, Type: RATE",
       "details": {
         "adjustment": {
-          "adjustmentId": "ADJ-1789415130022-ZL86",
+          "adjustmentId": "ADJ-1789471464551-6DR0",
           "tripId": "TRP-COMPLETED-87-001",
+          "tripNumber": "Q-PRJ-0001-TRP-00012",
           "projectId": "PRJ-BLOCK87-A",
           "adjustmentType": "RATE",
           "amountOrRateAdjustment": 10,
           "reason": "زيادة تعرفة نقل الطرق الوعرة",
           "status": "REQUEST",
           "requestedBy": "USR-SUP-87",
-          "requestedAt": "2026-09-14T19:45:30.022Z",
+          "requestedAt": "2026-09-15T11:24:24.552Z",
           "createdBy": "USR-SUP-87",
           "updatedBy": "USR-SUP-87"
         }
@@ -161,18 +162,23 @@
       "id": 12,
       "name": "Recalculates trip baseAmount, demurrage, deductions, ZATCA VAT, and totalAmount correctly upon adjustment approval",
       "category": "FINANCIAL_MATH",
-      "passed": true,
-      "message": "Calculated: Base=3190, VAT=478.5, Total=3668.5",
+      "passed": false,
+      "message": "Calculated: Base=2900, VAT=435, Total=3335",
       "details": {
         "financials": {
-          "baseAmountSAR": 3190,
+          "baseAmountSAR": 2900,
           "demurrageAmountSAR": 0,
           "deductionsAmountSAR": 0,
-          "subtotalSAR": 3190,
-          "vatAmountSAR": 478.5,
-          "totalAmountSAR": 3668.5,
+          "subtotalSAR": 2900,
+          "vatAmountSAR": 435,
+          "totalAmountSAR": 3335,
           "currency": "SAR",
-          "isFinalized": true
+          "isFinalized": true,
+          "adjustmentsTotalAmountSAR": 290,
+          "finalBaseAmountSAR": 3190,
+          "finalSubtotalSAR": 3190,
+          "finalVatAmountSAR": 478.5,
+          "finalTotalAmountSAR": 3668.5
         },
         "adjustmentStatus": "APPLIED"
       }

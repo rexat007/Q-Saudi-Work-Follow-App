@@ -51,7 +51,7 @@ import { useI18n } from '../../i18n';
 
 export function DataQualityView() {
   const { t } = useI18n();
-  const [context, setContext] = useState<RelationshipContext>({ carriers: [], trucks: [], drivers: [], materials: [], projects: [] });
+  const [context, setContext] = useState<RelationshipContext>(() => buildRelationshipContext('PRJ-NEOM-001'));
   const [stagedRecords, setStagedRecords] = useState<ImportRecordPayload[]>([]);
   const [selectedRiskFilter, setSelectedRiskFilter] = useState<'ALL' | RiskLevel>('ALL');
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);

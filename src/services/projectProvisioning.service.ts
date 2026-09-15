@@ -52,9 +52,12 @@ export class ProjectProvisioningService {
       throw new Error('غير مصرح لك: تهيئة المشاريع مقتصرة فقط على مديري المشاريع (PROJECT_ADMIN)');
     }
 
-    const projectId = data.projectInfo.projectCode.trim().toUpperCase();
+    // 3. GENERATE SERVER-AUTHORITATIVE PROJECT NUMBER & CODE
+    const serverProjectNumber = await ProjectNumberGenerator.getNextProjectNumber();
+    const serverProjectCode = `Q-PRJ-${String(serverProjectNumber).padStart(3, '0')}`;
+    const projectId = serverProjectCode;
 
-    // 3. CHECK PROJECT UNIQUENESS
+    // 4. CHECK PROJECT UNIQUENESS
     const existing = await projectRepository.findById(projectId);
     if (existing) {
       throw new Error(`مشروع بنفس الرمز (${projectId}) موجود بالفعل في قاعدة البيانات.`);
@@ -70,18 +73,16 @@ export class ProjectProvisioningService {
         ? data.googleDrive.generatedSpreadsheetId || `gsheet-${projectId.toLowerCase()}-${Date.now().toString(36)}`
         : undefined;
 
-    const serverProjectNumber = await ProjectNumberGenerator.getNextProjectNumber();
-
-    // 4. STEP 1: CREATE PROJECT DOCUMENT
+    // 5. STEP 1: CREATE PROJECT DOCUMENT
     const projectPayload: Omit<ProjectEntity, 'createdAt' | 'updatedAt'> & {
       createdBy: string;
       updatedBy: string;
     } = {
       projectId,
-      projectCode: projectId,
+      projectCode: serverProjectCode,
       projectNumber: serverProjectNumber,
       nameAr: data.projectInfo.projectName.trim(),
-      nameEn: data.projectInfo.projectCode.trim(),
+      nameEn: serverProjectCode,
       clientName: data.projectInfo.clientName?.trim() || 'العميل الرئيسي للمشروع',
       description: data.projectInfo.description?.trim() || '',
       startDate: data.projectInfo.startDate,

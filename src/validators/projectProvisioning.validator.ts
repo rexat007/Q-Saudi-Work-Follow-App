@@ -111,10 +111,10 @@ export class ProjectProvisioningValidator {
     const s1Errors: string[] = [];
     const info = data.projectInfo;
 
-    if (!info.projectCode || !info.projectCode.trim()) {
-      s1Errors.push('رمز المشروع (projectCode) مطلوب');
-    } else if (!/^[A-Za-z0-9_-]+$/.test(info.projectCode.trim())) {
-      s1Errors.push('رمز المشروع يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات');
+    if (info.projectCode && info.projectCode.trim() !== '') {
+      if (!/^[A-Za-z0-9_-]+$/.test(info.projectCode.trim())) {
+        s1Errors.push('رمز المشروع يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات');
+      }
     }
 
     if (!info.projectName || info.projectName.trim().length < 3) {

@@ -1,0 +1,100 @@
+{
+  "timestamp": "2026-09-15T11:46:43.324Z",
+  "totalTests": 4,
+  "passedTests": 4,
+  "failedTests": 0,
+  "allPassed": true,
+  "results": [
+    {
+      "id": 1,
+      "name": "Sequential Allocation of Project Codes",
+      "passed": true,
+      "message": "Project codes are allocated sequentially with standard padding. Obtained: Q-PRJ-050, Q-PRJ-051",
+      "details": {
+        "code1": "Q-PRJ-050",
+        "code2": "Q-PRJ-051"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Client Override Rejection & Server Authority",
+      "passed": true,
+      "message": "Client-supplied codes/numbers were rejected. Assigned unique server code: Q-PRJ-060 (ID: Q-PRJ-060)",
+      "details": {
+        "submittedProjectId": "CLIENT-ATTEMPTED-ID-XYZ",
+        "submittedProjectCode": "CLIENT-ATTEMPTED-CODE-123",
+        "actualProjectId": "Q-PRJ-060",
+        "actualProjectCode": "Q-PRJ-060",
+        "actualProjectNumber": 60
+      }
+    },
+    {
+      "id": 3,
+      "name": "High-Concurrency Creation Unique Code Allocation",
+      "passed": true,
+      "message": "Successfully created 12 projects concurrently. Unique codes & IDs generated atomically from 101 to 112 with zero duplicates.",
+      "details": {
+        "projectIds": [
+          "Q-PRJ-101",
+          "Q-PRJ-102",
+          "Q-PRJ-103",
+          "Q-PRJ-104",
+          "Q-PRJ-105",
+          "Q-PRJ-106",
+          "Q-PRJ-107",
+          "Q-PRJ-108",
+          "Q-PRJ-109",
+          "Q-PRJ-110",
+          "Q-PRJ-111",
+          "Q-PRJ-112"
+        ],
+        "projectCodes": [
+          "Q-PRJ-101",
+          "Q-PRJ-102",
+          "Q-PRJ-103",
+          "Q-PRJ-104",
+          "Q-PRJ-105",
+          "Q-PRJ-106",
+          "Q-PRJ-107",
+          "Q-PRJ-108",
+          "Q-PRJ-109",
+          "Q-PRJ-110",
+          "Q-PRJ-111",
+          "Q-PRJ-112"
+        ],
+        "projectNumbers": [
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "name": "Immutability of Project Code and Number",
+      "passed": true,
+      "message": "Project code (Q-PRJ-200) and project number (200) remained immutable after update, while other fields (nameAr: \"مشروع اختبار عدم القابلية للتعديل - اسم محدث\") updated successfully.",
+      "details": {
+        "before": {
+          "code": "Q-PRJ-200",
+          "number": 200,
+          "name": "مشروع اختبار عدم القابلية للتعديل"
+        },
+        "after": {
+          "code": "Q-PRJ-200",
+          "number": 200,
+          "name": "مشروع اختبار عدم القابلية للتعديل - اسم محدث"
+        }
+      }
+    }
+  ]
+}

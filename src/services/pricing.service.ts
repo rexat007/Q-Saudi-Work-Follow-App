@@ -22,7 +22,16 @@ export class PricingService {
   }
 
   public registerRules(rules: PricingRule[]): void {
-    rules.forEach(r => this.inMemoryRules.set(r.pricingRuleId, r));
+    rules.forEach(r => {
+      const agreedRate = r.agreedRate ?? r.rate;
+      const rate = r.rate ?? r.agreedRate;
+      this.inMemoryRules.set(r.pricingRuleId, {
+        ...r,
+        agreedRate,
+        rate,
+        name: r.name || r.pricingRuleId
+      });
+    });
   }
 
   public getRules(): PricingRule[] {

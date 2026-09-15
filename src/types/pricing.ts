@@ -24,10 +24,11 @@ export type PricingRuleStatus = 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DRAFT';
 export interface PricingRule {
   pricingRuleId: string;
   projectId: string;
-  carrierId: string;
+  carrierId?: string;
   materialId?: string | null;
   pricingType: PricingType;
-  rate: number;
+  rate?: number;
+  agreedRate?: number;
   currency: string;
   settlementBase?: string | number; // 'NET_WEIGHT' | 'TRIP'
   effectiveFrom: string; // YYYY-MM-DD or ISO
@@ -35,8 +36,8 @@ export interface PricingRule {
   status: PricingRuleStatus;
   version?: number;
   parentRuleId?: string;
-  createdAt: string | Date | Timestamp;
-  createdBy: string;
+  createdAt?: string | Date | Timestamp;
+  createdBy?: string;
   updatedAt?: string | Date | Timestamp;
   updatedBy?: string;
   notes?: string;
@@ -48,6 +49,7 @@ export interface PricingRule {
   isActive?: boolean;
   demurrageRatePerHourSAR?: number;
   freeTimeHours?: number;
+  vatApplicable?: boolean;
 }
 
 /**

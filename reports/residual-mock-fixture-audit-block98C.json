@@ -1,0 +1,23 @@
+{
+  "MOCK_PATHS": [
+    "src/tests/runtimeEmptyStateBlock82B.test.ts",
+    "src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts"
+  ],
+  "FIXTURE_PATHS": [
+    "src/data/mockTripEngineData.ts",
+    "src/data/mockExceptionEngineData.ts"
+  ],
+  "PRODUCTION_REACHABLE": 0,
+  "DEVELOPER_ONLY": 4,
+  "TEST_ONLY": 4,
+  "AUTO_INJECTION_RISK": "NO",
+  "DATA_OVERRIDE_RISK": "NO",
+  "RELEASE_BLOCKER": "NO",
+  "CODE_CHANGED": "NO",
+  "DATA_CHANGED": "NO",
+  "details": {
+    "timestamp": "2026-09-15T04:27:27-07:00",
+    "auditPassed": true,
+    "auditSummary": "All four mock/fixture files have been verified to be completely isolated from production pipelines, strictly unreachable by ordinary users, and pose zero automatic injection or override risk."
+  }
+}

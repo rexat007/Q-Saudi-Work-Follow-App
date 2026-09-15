@@ -19,23 +19,20 @@ export class ProjectService {
     payload: Omit<ProjectEntity, 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'>,
     context: AuthUserContext
   ): Promise<ProjectEntity> {
-    // 1. Domain Validation
-    const validation = ProjectValidator.validate(payload);
-    if (!validation.isValid) {
-      throw new Error(`خطأ في التحقق من صحة المشروع: ${validation.errors.map(e => e.messageAr).join(' | ')}`);
-    }
-
-    // 2. Authorization check
+    // 1. Authorization check
     if (context.role !== 'PROJECT_ADMIN' && context.role !== 'SUPER_ADMIN') {
       throw new Error('غير مصرح لك: إنشاء المشاريع مقتصر فقط على مديري المشاريع (PROJECT_ADMIN)');
     }
 
-    // 3. Server-Authoritative Project Number Generation
+    // 2. Server-Authoritative Project Number & Code Generation
     const serverProjectNumber = await ProjectNumberGenerator.getNextProjectNumber();
+    const serverProjectCode = `Q-PRJ-${String(serverProjectNumber).padStart(3, '0')}`;
 
-    // 4. Stamping & Repositories (Server overrides any client-supplied projectNumber)
+    // 3. Stamping & Repositories (Server overrides/rejects any client-supplied identifiers)
     const newProject: Omit<ProjectEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string } = {
       ...payload,
+      projectId: serverProjectCode,
+      projectCode: serverProjectCode,
       projectNumber: serverProjectNumber,
       authorizedCarrierIds: payload.authorizedCarrierIds || [],
       authorizedMaterialIds: payload.authorizedMaterialIds || [],
@@ -43,13 +40,19 @@ export class ProjectService {
       updatedBy: context.userId,
     };
 
+    // 4. Domain Validation using server-generated/sanitized payload
+    const validation = ProjectValidator.validate(newProject);
+    if (!validation.isValid) {
+      throw new Error(`خطأ في التحقق من صحة المشروع: ${validation.errors.map(e => e.messageAr).join(' | ')}`);
+    }
+
     await projectRepository.create(newProject);
 
     // 5. Audit Log
     await auditLogService.recordLog({
-      projectId: payload.projectId,
+      projectId: newProject.projectId,
       entityType: 'PROJECT',
-      entityId: payload.projectId,
+      entityId: newProject.projectId,
       action: 'CREATE',
       after: newProject,
     }, context);
@@ -71,13 +74,16 @@ export class ProjectService {
       throw new Error('المشروع غير موجود');
     }
 
-    const merged = { ...existing, ...updates, projectId };
+    // Ensure projectCode and projectNumber are immutable
+    const { projectCode, projectNumber, ...sanitizedUpdates } = updates;
+    const merged = { ...existing, ...sanitizedUpdates, projectId };
+    
     const validation = ProjectValidator.validate(merged);
     if (!validation.isValid) {
       throw new Error(`خطأ في التحقق: ${validation.errors.map(e => e.messageAr).join(' | ')}`);
     }
 
-    await projectRepository.update(projectId, updates, context.userId);
+    await projectRepository.update(projectId, sanitizedUpdates, context.userId);
 
     await auditLogService.recordLog({
       projectId,

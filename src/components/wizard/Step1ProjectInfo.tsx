@@ -91,7 +91,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
         </div>
         <div className="mt-2 sm:mt-0 flex items-center gap-2">
           <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 text-stone-700 border border-stone-200">
-            رمز المشروع: {data.projectCode || 'لم يحدد'}
+            رمز المشروع: {data.projectCode || 'توليد تلقائي (Q-PRJ-XXX)'}
           </span>
         </div>
       </div>
@@ -109,21 +109,18 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Project Code */}
+        {/* Project Code (Server Authoritative) */}
         <div>
           <label className="block text-xs font-bold text-stone-700 mb-1">
-            {t("projects.labels.project_6")}<span className="text-rose-500">*</span>
+            {t("projects.labels.project_6")}
           </label>
-          <input
-            id="input-project-code"
-            type="text"
-            value={data.projectCode}
-            onChange={(e) => updateField('projectCode', e.target.value.toUpperCase())}
-            placeholder="e.g. PRJ-NEOM-WEST-01"
-            className="w-full text-sm font-mono uppercase px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
-          />
+          <div className="w-full text-sm px-3 py-2 bg-stone-100 text-stone-600 border border-stone-200 rounded-lg select-none flex items-center justify-between font-mono">
+            <span className="font-semibold text-stone-500">توليد تلقائي (Q-PRJ-XXX)</span>
+            <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-stone-200 text-stone-600 font-semibold uppercase">مضمون ومحمي</span>
+          </div>
           <p className="text-[11px] text-stone-400 mt-1">
-            {t("projects.labels.txt_74b183")}</p>
+            يتم تخصيص هذا الرمز تلقائياً وبشكل تسلسلي بواسطة الخادم لضمان عدم التكرار.
+          </p>
         </div>
 
         {/* Project Name */}

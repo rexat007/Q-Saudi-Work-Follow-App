@@ -255,7 +255,7 @@ describe('BLOCK 95 — Concurrency, Offline Replay & Data Integrity Stress Test'
       nameAr: 'مشروع اختبار الضغط والنزاهة 95',
       nameEn: 'Stress & Concurrency Validation Project 95',
       clientName: 'Audit Authority',
-      location: { lat: 24.7136, lng: 46.6753, geoFenceRadiusMeters: 1000 },
+      location: { lat: 24.7136, lng: 46.6753, geoFenceRadiusMeters: 1000, addressAr: 'الرياض' },
       settings: { zatcaTaxNumber: '311122233300003', vatRatePercent: 15, allowDriverSelfDispatch: false, currency: 'SAR' },
       authorizedCarrierIds: [carrierId],
       authorizedMaterialIds: [materialId],
@@ -373,7 +373,7 @@ describe('BLOCK 95 — Concurrency, Offline Replay & Data Integrity Stress Test'
       operationId: fixedOperationId,
       projectId,
       userId: supervisorContext.userId,
-      operationType: 'CREATE_TRIP',
+      operationType: 'CREATE_TRIP_LOADING',
       payload: {
         tripId: 'TRP-IDEMP-01',
         tripSerial: 'Q-PRJ-0095-TRP-00099',
@@ -397,12 +397,11 @@ describe('BLOCK 95 — Concurrency, Offline Replay & Data Integrity Stress Test'
     await syncOperationRepository.create({
       operationId: fixedOperationId,
       projectId,
-      userId: supervisorContext.userId,
-      deviceId: 'DEV-TEST-01',
-      operationType: 'CREATE_TRIP',
-      entityId: 'TRP-IDEMP-01',
-      status: 'COMMITTED',
-      syncedAt: new Date().toISOString() as any,
+      clientOperationUUID: fixedOperationId,
+      targetCollection: 'trips',
+      targetDocId: 'TRP-IDEMP-01',
+      status: 'PROCESSED',
+      processedResponse: { ack: true },
       createdBy: supervisorContext.userId,
       updatedBy: supervisorContext.userId,
     });
@@ -429,7 +428,7 @@ describe('BLOCK 95 — Concurrency, Offline Replay & Data Integrity Stress Test'
       operationId: offlineOpId,
       projectId,
       userId: supervisorContext.userId,
-      operationType: 'CREATE_TRIP',
+      operationType: 'CREATE_TRIP_LOADING',
       payload: {
         tripId: tempTripId,
         projectId,
@@ -462,7 +461,7 @@ describe('BLOCK 95 — Concurrency, Offline Replay & Data Integrity Stress Test'
       operationId: invalidOpId,
       projectId: '', // Invalid empty project ID
       userId: supervisorContext.userId,
-      operationType: 'CREATE_TRIP',
+      operationType: 'CREATE_TRIP_LOADING',
       payload: {
         missingFields: true,
       },
@@ -668,7 +667,7 @@ describe('BLOCK 95 — Concurrency, Offline Replay & Data Integrity Stress Test'
 
     // Audit logs should NOT have added a successful UPDATE record
     const failedUpdateLog = store.auditLogs.find(
-      l => l.entityId === lastLog.entityId && l.action === 'UPDATE' && (l.after as any)?.carrierId === 'CAR-UNAUTHORIZED'
+      (l: any) => l.entityId === lastLog.entityId && l.action === 'UPDATE' && (l.after?.carrierId === 'CAR-UNAUTHORIZED' || l.changes?.after?.carrierId === 'CAR-UNAUTHORIZED')
     );
     expect(failedUpdateLog).toBeUndefined();
   });

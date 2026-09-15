@@ -107,7 +107,7 @@ This document contains domain-specific terminology requiring human verification 
 | `weighbridge.fields.null` | "null" | attr_placeholder | `MEDIUM` | Semantic conflict isolation |
 | ... | *and 398 more items in this domain queue* | | | |
 
-## Domain: `imports` (1664 items requiring review)
+## Domain: `imports` (1667 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -131,7 +131,7 @@ This document contains domain-specific terminology requiring human verification 
 | `imports.fields.date_2` | "صيغة التاريخ غير صالحة (${dateStr}). يجب أن تكون YYYY-MM-DD." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {dateStr}) |
 | `imports.fields.destnetweight` | "destNetWeight" | prop_canonicalField | `MEDIUM` | Domain-specific terminology translation |
 | `imports.fields.details` | "تم التحقق من تسجيل تفاصيل العمليات (إنشاء، استيراد) مباشرة في سجل التدقيق التاريخي للعمليات اللوجستية." | call_record | `HIGH` | Domain-specific terminology translation |
-| ... | *and 1644 more items in this domain queue* | | | |
+| ... | *and 1647 more items in this domain queue* | | | |
 
 ## Domain: `entityResolution` (268 items requiring review)
 
@@ -211,7 +211,7 @@ This document contains domain-specific terminology requiring human verification 
 | `reports.fields.formula` | "Formula" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
 | ... | *and 589 more items in this domain queue* | | | |
 
-## Domain: `security` (570 items requiring review)
+## Domain: `security` (552 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -219,23 +219,23 @@ This document contains domain-specific terminology requiring human verification 
 | `security.columns.trips` | "trips" | prop_targetCollection | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.action` | "action" | prop_field | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.auditlogid` | "auditLogId" | prop_field | `MEDIUM` | Domain-specific terminology translation |
-| `security.fields.carrier` | "رقم الناقل" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
-| `security.fields.carrierName` | "اسم الناقل" | jsx_text | `MEDIUM` | Semantic conflict isolation |
-| `security.fields.createSuccessTrip` | "تم إنشاء النسخة الجديدة (${result.newVersionRule.pricingRuleId}) بنجاح بمعدل ${result.newVersionRule.agreedRate} ${result.newVersionRule.currency}. تم تأمين وحماية ${result.protectedTripsCount} رحلة تاريخية في السجل المحاسبي دون أي تعديل!" | template_literal | `HIGH` | Domain-specific terminology translation |
 | `security.fields.date` | "رقم القيد والتاريخ" | jsx_text | `HIGH` | Domain-specific terminology translation |
-| `security.fields.driver` | "رقم السائق" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
-| `security.fields.driverName` | "اسم السائق" | jsx_text | `MEDIUM` | Semantic conflict isolation |
 | `security.fields.edit` | "سجل تدقيق تاريخي غير قابل للحذف أو التعديل لجميع العمليات الحساسة" | prop_desc | `HIGH` | Domain-specific terminology translation |
-| `security.fields.editPriceCreate` | "تعديل السعر بإنشاء نسخة جديدة لحماية السجلات السابقة" | attr_title | `MEDIUM` | Domain-specific terminology translation |
-| `security.fields.editPriceTrips` | "تعديل السعر المعتمد (إنشاء النسخة v${(rule.version || 1) + 1}) وحماية الرحلات السابقة" | template_literal | `HIGH` | Domain-specific terminology translation |
 | `security.fields.editPricing` | "ممنوع تعديل سعر قاعدة التسعير الحالية مباشرة" | call_includes | `MEDIUM` | Semantic conflict isolation |
 | `security.fields.editPricingTrips` | "فشل: سمح النظام بتعديل سعر قاعدة التسعير الحالية مباشرة مما يهدد الرحلات السابقة!" | literal | `MEDIUM` | Domain-specific terminology translation |
-| `security.fields.editTrips` | "عند تعديل أي قاعدة تسعير، لا يتم المساس بالرحلات السابقة (Historical Trips) إطلاقاً. يتم توليد نسخة جديدة (Version) تسري فقط من تاريخ النفاذ الجديد، بينما تظل كافة الرحلات السابقة محتفظة بلقطة التعرفة الأصلية." | jsx_text | `HIGH` | Domain-specific terminology translation |
 | `security.fields.edit_2` | "حظر التعديل المباشر للسعر وإلزام استخدام النسخ عند التعديل (Copy-on-Write Versioning)" | prop_expectedBehavior | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.edit_3` | "حظر تعديل صافي وزن الوجهة (destNetWeight) مباشرة" | prop_titleAr | `MEDIUM` | Domain-specific terminology translation |
 | `security.fields.edit_4` | "حظر تعديل فارق الوزن (varianceWeight) مباشرة" | prop_titleAr | `MEDIUM` | Domain-specific terminology translation (Protected: [varianceWeight]) |
 | `security.fields.entity` | "entity" | prop_field | `MEDIUM` | Domain-specific terminology translation |
-| ... | *and 550 more items in this domain queue* | | | |
+| `security.fields.location` | "فارق وزني بين ميزان المقلع وميزان الموقع (-1,450 كجم، بنسبة تفاوت -4.62% بينما الحد الأقصى 1.5%)" | prop_description | `HIGH` | Domain-specific terminology translation (Protected: [KG]) |
+| `security.fields.priceTrips` | "منع تحوير السعر على الرحلات السابقة عبر Copy-on-Write" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.projects` | "مثال: الحساب لا يتبع لأي من مقاولي المشاريع الحالية أو لم يتم التحقق من بطاقته الوظيفية..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.refresh` | "رفض تسجيل قرار قبول وزن المصدر أو رفض الشحنة عبر استدعاء تحديث عادي" | prop_expectedBehavior | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.refreshPrice` | "تحديث السعر إلى النسخة ${newVersion}" | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {newVersion}) |
+| `security.fields.refresh_2` | "فشل: سمح النظام باعتماد وزن المصدر كوجهة بتحديث عميل عادي!" | literal | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.search` | "البحث بواسطة الاسم، البريد الإلكتروني، أو الرقم التعريفي..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.successConfirmTrucksEditPricing` | "اجتاز النظام بنجاح تام كافة الاختبارات الأمنية الـ (${results.length}) بنسبة امتثال 100%. تم رفض محاولات Supervisor غير المصرح بها (carrierId, projectId, pricingRuleId, settlementAmount, status, truckId)، وتأكيد العزل بين المشاريع، وحظر تضارب الشاحنات مع الناقلين، وفرض النسخ عند التعديل (Copy-on-Write) لحماية التسعير التاريخي، وتأمين Idempotency ضد Replay Attacks." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [projectId,carrierId,status,settlementAmount]) |
+| ... | *and 532 more items in this domain queue* | | | |
 
 ## Domain: `offline` (296 items requiring review)
 

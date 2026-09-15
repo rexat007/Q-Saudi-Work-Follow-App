@@ -72,4 +72,13 @@ export class ProjectNumberGenerator {
       return num;
     }
   }
+
+  /**
+   * Generates next unique sequential project code.
+   * Concurrency-safe: uses getNextProjectNumber.
+   */
+  public static async getNextProjectCode(): Promise<string> {
+    const num = await this.getNextProjectNumber();
+    return `Q-PRJ-${String(num).padStart(3, '0')}`;
+  }
 }

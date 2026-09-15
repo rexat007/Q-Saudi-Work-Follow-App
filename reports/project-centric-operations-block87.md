@@ -1,10 +1,10 @@
 # BLOCK 87 — PROJECT-CENTRIC OPERATIONS ARCHITECTURE REPORT
 
-**Timestamp:** 2026-09-14T19:45:30.023Z  
+**Timestamp:** 2026-09-15T11:24:24.553Z  
 **Total Requirements Tested:** 13  
-**Passed:** 13  
-**Failed:** 0  
-**Overall Status:** ✅ PASSED (100% SUCCESS)
+**Passed:** 12  
+**Failed:** 1  
+**Overall Status:** ❌ FAILED
 
 ---
 
@@ -27,9 +27,9 @@ This report evaluates and verifies the implementation of the **Project-Centric O
 | 7 | Project Carrier Roster entry can be modified with active auditing | `PROJECT_ROSTER` | ✅ PASS | Updated driver name: أبو أحمد الشامي |
 | 8 | Project Carrier Roster entry can be deleted cleanly | `PROJECT_ROSTER` | ✅ PASS | Entry is no longer retrievable after deletion |
 | 9 | Project Carrier Roster enforces cross-project security isolation strictly | `PROJECT_ROSTER` | ✅ PASS | Access blocked correctly |
-| 10 | Settlement adjustments can be requested by site supervisors | `SETTLEMENT_ADJUSTMENTS` | ✅ PASS | Adjustment ID: ADJ-1789415130022-ZL86, Type: RATE |
+| 10 | Settlement adjustments can be requested by site supervisors | `SETTLEMENT_ADJUSTMENTS` | ✅ PASS | Adjustment ID: ADJ-1789471464551-6DR0, Type: RATE |
 | 11 | Rejects settlement adjustment approval requests from unauthorized roles (DRIVER) | `SETTLEMENT_ADJUSTMENTS` | ✅ PASS | Block successful |
-| 12 | Recalculates trip baseAmount, demurrage, deductions, ZATCA VAT, and totalAmount correctly upon adjustment approval | `FINANCIAL_MATH` | ✅ PASS | Calculated: Base=3190, VAT=478.5, Total=3668.5 |
+| 12 | Recalculates trip baseAmount, demurrage, deductions, ZATCA VAT, and totalAmount correctly upon adjustment approval | `FINANCIAL_MATH` | ❌ FAIL | Calculated: Base=2900, VAT=435, Total=3335 |
 | 13 | All roster mutations and adjustment approvals are fully logged to the immutable audit trail | `AUDIT_COMPLIANCE` | ✅ PASS | Audit log detected |
 
 ---

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { dashboardService } from '../services/dashboard.service';
 import { adminConsoleService } from '../services/adminConsole.service';
 import { DataQualityEngine } from '../services/dataQuality/dataQualityEngine';
+import { buildRelationshipContext } from '../utils/masterDataUtils';
 import { arTranslations } from '../locales/ar';
 import { enTranslations } from '../locales/en';
 import { urTranslations } from '../locales/ur';
@@ -51,7 +52,7 @@ describe('BLOCK 93B — Runtime Crash Fix & Production Hardening Test Suite', ()
     const result = DataQualityEngine.validateImportRecord({
       rowId: 'EMPTY-1',
       rawCarrierName: '',
-    }, { carriers: [], trucks: [], drivers: [], materials: [], projects: [] });
+    }, buildRelationshipContext('PRJ-NEOM-001'));
     expect(result).toBeDefined();
     expect(result.overallRisk).toBeDefined();
   });
