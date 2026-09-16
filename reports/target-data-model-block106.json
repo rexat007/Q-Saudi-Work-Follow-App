@@ -1,0 +1,60 @@
+{
+  "reportId": "BLOCK-106-TARGET-DATA-MODEL",
+  "timestamp": "2026-09-16T00:35:00Z",
+  "safetyConditions": {
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "FIRESTORE_CHANGED": "NO",
+    "INDEXEDDB_CHANGED": "NO",
+    "GOOGLE_DRIVE_CHANGED": "NO",
+    "GOOGLE_SHEETS_CHANGED": "NO",
+    "ROUTES_CHANGED": "NO",
+    "UI_CHANGED": "NO"
+  },
+  "metrics": {
+    "P0": 0,
+    "P1": 0,
+    "PRODUCTION_FIXTURE_PATHS": 0,
+    "GHOST_DATA_PATHS_REMAINING": 0,
+    "RELEASE_BLOCKER": "NO"
+  },
+  "canonicalEntities": [
+    "PROJECT",
+    "CARRIER",
+    "DRIVER",
+    "TRUCK",
+    "MATERIAL",
+    "PROJECT_ROSTER",
+    "PRICING_RULE",
+    "PRICING_SNAPSHOT",
+    "TRIP",
+    "TRIP_SNAPSHOT",
+    "EXCEPTION",
+    "USER",
+    "ROLE",
+    "PROJECT_MEMBERSHIP",
+    "IMPORT_OPERATION",
+    "STORAGE_PROFILE",
+    "AUDIT_LOG"
+  ],
+  "dataInvariants": [
+    "INVARIANT-DATA-001: Every Project Roster row belongs to exactly one Project.",
+    "INVARIANT-DATA-002: Operational Driver/Truck intake originates from Project workflows.",
+    "INVARIANT-DATA-003: Global registries are derived, never primary operational intake.",
+    "INVARIANT-DATA-004: Trip snapshots are immutable.",
+    "INVARIANT-DATA-005: Historical pricing snapshots are immutable.",
+    "INVARIANT-DATA-006: A secondary UI entry point cannot create a parallel data model.",
+    "INVARIANT-DATA-007: Project authorization is required for project-scoped writes."
+  ],
+  "targetFirestoreStructure": {
+    "/projects/{projectId}": "Project metadata and configuration",
+    "/projects/{projectId}/roster/{rosterId}": "Project Roster rows linking carrier, driver, truck, material",
+    "/projects/{projectId}/pricingRules/{pricingRuleId}": "Project pricing configuration",
+    "/projects/{projectId}/trips/{tripId}": "Live trip state and immutable snapshots",
+    "/projects/{projectId}/exceptions/{exceptionId}": "Trip and operational exceptions",
+    "/projects/{projectId}/imports/{importId}": "Batch import audit and review operations",
+    "/users/{userId}": "Global user identity and approval state",
+    "/auditLogs/{auditId}": "Immutable global audit trail"
+  },
+  "finalVerdict": "TARGET_DATA_MODEL_ESTABLISHED"
+}

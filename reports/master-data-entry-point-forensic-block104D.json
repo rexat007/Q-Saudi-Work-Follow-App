@@ -1,0 +1,142 @@
+{
+  "reportId": "BLOCK-104D-MASTER-DATA-ENTRY-POINT-FORENSIC",
+  "timestamp": "2026-09-16T05:31:29.096Z",
+  "safetyConditions": {
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "FIRESTORE_CHANGED": "NO",
+    "INDEXEDDB_CHANGED": "NO",
+    "GOOGLE_DRIVE_CHANGED": "NO",
+    "GOOGLE_SHEETS_CHANGED": "NO",
+    "ROUTES_CHANGED": "NO",
+    "UI_CHANGED": "NO"
+  },
+  "metrics": {
+    "P0": 0,
+    "P1": 0,
+    "PRODUCTION_FIXTURE_PATHS": 0,
+    "GHOST_DATA_PATHS_REMAINING": 0,
+    "RELEASE_BLOCKER": "NO"
+  },
+  "entryPoints": [
+    {
+      "id": "EP-CARRIER-01",
+      "entity": "CARRIER",
+      "uiLabel": "Add Carrier",
+      "screen": "Master Data",
+      "route": "MASTER_DATA",
+      "sourceFile": "src/components/masterData/MasterDataView.tsx",
+      "component": "MasterDataView",
+      "businessEntity": "GLOBAL_CARRIER",
+      "scope": "GLOBAL",
+      "writePath": "firestore/carriers",
+      "service": "adminConsoleService",
+      "classification": "ONE_ROOM_MULTIPLE_DOORS"
+    },
+    {
+      "id": "EP-CARRIER-02",
+      "entity": "CARRIER",
+      "uiLabel": "Project Carrier Assignment",
+      "screen": "Project Workspace",
+      "route": "WORKSPACE",
+      "sourceFile": "src/components/workspace/ProjectWorkspaceView.tsx",
+      "component": "ProjectWorkspaceView",
+      "businessEntity": "PROJECT_CARRIER",
+      "scope": "PROJECT_SCOPED",
+      "writePath": "firestore/projects/{projectId}/carriers",
+      "service": "projectRepository",
+      "classification": "SAME_PURPOSE_DIFFERENT_BUSINESS_RULE"
+    },
+    {
+      "id": "EP-DRIVER-01",
+      "entity": "DRIVER",
+      "uiLabel": "Add Driver",
+      "screen": "Master Data",
+      "route": "MASTER_DATA",
+      "sourceFile": "src/components/masterData/MasterDataView.tsx",
+      "component": "MasterDataView",
+      "businessEntity": "GLOBAL_DRIVER",
+      "scope": "GLOBAL",
+      "writePath": "firestore/drivers",
+      "service": "adminConsoleService",
+      "classification": "ONE_ROOM_MULTIPLE_DOORS"
+    },
+    {
+      "id": "EP-DRIVER-02",
+      "entity": "DRIVER",
+      "uiLabel": "Assign Driver to Roster",
+      "screen": "Project Workspace",
+      "route": "WORKSPACE",
+      "sourceFile": "src/components/workspace/ProjectWorkspaceView.tsx",
+      "component": "ProjectWorkspaceView",
+      "businessEntity": "PROJECT_ROSTER_ROW",
+      "scope": "PROJECT_SCOPED",
+      "writePath": "firestore/projects/{projectId}/roster",
+      "service": "projectRepository",
+      "classification": "SAME_ENTITY_DIFFERENT_WORKFLOW"
+    },
+    {
+      "id": "EP-TRUCK-01",
+      "entity": "TRUCK",
+      "uiLabel": "Add Truck",
+      "screen": "Master Data",
+      "route": "MASTER_DATA",
+      "sourceFile": "src/components/masterData/MasterDataView.tsx",
+      "component": "MasterDataView",
+      "businessEntity": "GLOBAL_TRUCK",
+      "scope": "GLOBAL",
+      "writePath": "firestore/trucks",
+      "service": "adminConsoleService",
+      "classification": "ONE_ROOM_MULTIPLE_DOORS"
+    },
+    {
+      "id": "EP-TRUCK-02",
+      "entity": "TRUCK",
+      "uiLabel": "Assign Truck",
+      "screen": "Project Workspace",
+      "route": "WORKSPACE",
+      "sourceFile": "src/components/workspace/ProjectWorkspaceView.tsx",
+      "component": "ProjectWorkspaceView",
+      "businessEntity": "PROJECT_ROSTER_ROW",
+      "scope": "PROJECT_SCOPED",
+      "writePath": "firestore/projects/{projectId}/roster",
+      "service": "projectRepository",
+      "classification": "SAME_ENTITY_DIFFERENT_WORKFLOW"
+    },
+    {
+      "id": "EP-MAT-01",
+      "entity": "MATERIAL",
+      "uiLabel": "Add Material",
+      "screen": "Master Data",
+      "route": "MASTER_DATA",
+      "sourceFile": "src/components/masterData/MasterDataView.tsx",
+      "component": "MasterDataView",
+      "businessEntity": "GLOBAL_MATERIAL",
+      "scope": "GLOBAL",
+      "writePath": "firestore/materials",
+      "service": "adminConsoleService",
+      "classification": "ONE_ROOM_MULTIPLE_DOORS"
+    },
+    {
+      "id": "EP-ROSTER-01",
+      "entity": "PROJECT_ROSTER",
+      "uiLabel": "Import Roster",
+      "screen": "Import Center",
+      "route": "IMPORT",
+      "sourceFile": "src/components/importCenter/ImportCenterView.tsx",
+      "component": "ImportCenterView",
+      "businessEntity": "PROJECT_ROSTER_ROW",
+      "scope": "PROJECT_SCOPED",
+      "writePath": "firestore/projects/{projectId}/roster",
+      "service": "importExportService",
+      "classification": "SAME_PURPOSE_DIFFERENT_BUSINESS_RULE"
+    }
+  ],
+  "rooms": {
+    "roomA": "Global Entity Management (Admin Console & Master Data for global master records)",
+    "roomB": "Project-Scoped Configuration (Project Workspace for active project assignment settings)",
+    "roomC": "Project Roster / Operational Assignment (Unified Roster & Workspace row management)",
+    "roomD": "Import / Data Ingestion (Import Center for batch CSV/Excel/Sheets ingestion)"
+  },
+  "finalVerdict": "MASTER_DATA_ARCHITECTURE_TRUTH_ESTABLISHED"
+}

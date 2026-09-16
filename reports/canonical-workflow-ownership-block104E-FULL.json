@@ -1,0 +1,265 @@
+{
+  "reportId": "BLOCK-104E-FULL-CANONICAL-WORKFLOW-OWNERSHIP",
+  "timestamp": "2026-09-15T22:58:00Z",
+  "safetyConditions": {
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "FIRESTORE_CHANGED": "NO",
+    "INDEXEDDB_CHANGED": "NO",
+    "GOOGLE_DRIVE_CHANGED": "NO",
+    "GOOGLE_SHEETS_CHANGED": "NO",
+    "ROUTES_CHANGED": "NO",
+    "UI_CHANGED": "NO"
+  },
+  "metrics": {
+    "P0": 0,
+    "P1": 0,
+    "PRODUCTION_FIXTURE_PATHS": 0,
+    "GHOST_DATA_PATHS_REMAINING": 0,
+    "RELEASE_BLOCKER": "NO"
+  },
+  "capabilities": [
+    {
+      "id": "CAP-01",
+      "name": "Authentication & Session",
+      "canonicalOwner": "AuthService",
+      "primaryEntry": "AuthButton / Login Gate",
+      "secondaryValidEntries": ["Profile Gate"],
+      "dataOwner": "Firebase Auth / users",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-02",
+      "name": "User Approval",
+      "canonicalOwner": "Admin Console",
+      "primaryEntry": "AdminConsoleView",
+      "secondaryValidEntries": ["Security Audit View"],
+      "dataOwner": "users",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-03",
+      "name": "Project Setup",
+      "canonicalOwner": "Project Setup Wizard",
+      "primaryEntry": "ProjectSetupWizard",
+      "secondaryValidEntries": ["Admin Console Project Manager"],
+      "dataOwner": "projects",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-04",
+      "name": "Project Workspace",
+      "canonicalOwner": "Project Workspace",
+      "primaryEntry": "ProjectWorkspaceView",
+      "secondaryValidEntries": ["Master Data"],
+      "dataOwner": "projects/{projectId}/roster",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-05",
+      "name": "Driver & Truck Intake",
+      "canonicalOwner": "Project Roster Intake",
+      "primaryEntry": "Project Workspace Roster Table",
+      "secondaryValidEntries": ["Import Center Batch Ingestion"],
+      "dataOwner": "projects/{projectId}/roster",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-06",
+      "name": "Trip Execution",
+      "canonicalOwner": "Trip Engine",
+      "primaryEntry": "TripEngineView",
+      "secondaryValidEntries": ["Operations Dashboard"],
+      "dataOwner": "trips",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-07",
+      "name": "Carrier Management",
+      "canonicalOwner": "Project Workspace / Admin",
+      "primaryEntry": "ProjectWorkspaceView",
+      "secondaryValidEntries": ["MasterDataView"],
+      "dataOwner": "carriers",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-08",
+      "name": "Material Management",
+      "canonicalOwner": "Project Workspace",
+      "primaryEntry": "ProjectWorkspaceView",
+      "secondaryValidEntries": ["PricingEngineView"],
+      "dataOwner": "materials",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-09",
+      "name": "Project Roster",
+      "canonicalOwner": "Project Workspace Roster Engine",
+      "primaryEntry": "ProjectWorkspaceView",
+      "secondaryValidEntries": ["ImportCenterView"],
+      "dataOwner": "projects/{projectId}/roster",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-10",
+      "name": "Pricing",
+      "canonicalOwner": "Pricing Engine",
+      "primaryEntry": "PricingEngineView",
+      "secondaryValidEntries": ["ProjectWorkspaceView"],
+      "dataOwner": "pricingRules",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-11",
+      "name": "Field Operations",
+      "canonicalOwner": "Field Operations View",
+      "primaryEntry": "FieldOperationsView",
+      "secondaryValidEntries": ["TripEngineView"],
+      "dataOwner": "trips",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-12",
+      "name": "Loading",
+      "canonicalOwner": "Loading Station View",
+      "primaryEntry": "LoadingStationView",
+      "secondaryValidEntries": ["TripEngineView"],
+      "dataOwner": "trips",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-13",
+      "name": "Unloading",
+      "canonicalOwner": "Unloading Station View",
+      "primaryEntry": "UnloadingStationView",
+      "secondaryValidEntries": ["TripEngineView"],
+      "dataOwner": "trips",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-14",
+      "name": "Weighbridge",
+      "canonicalOwner": "Weighbridge View",
+      "primaryEntry": "WeighbridgeView",
+      "secondaryValidEntries": ["TripEngineView"],
+      "dataOwner": "trips",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-15",
+      "name": "Exceptions",
+      "canonicalOwner": "Exceptions Engine",
+      "primaryEntry": "ExceptionsEngineView",
+      "secondaryValidEntries": ["TripEngineView"],
+      "dataOwner": "exceptions",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-16",
+      "name": "Import & Data Ingestion",
+      "canonicalOwner": "Import Center",
+      "primaryEntry": "ImportCenterView",
+      "secondaryValidEntries": ["LegacyMigrationView"],
+      "dataOwner": "importOperations",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-17",
+      "name": "Reports",
+      "canonicalOwner": "Reports Engine",
+      "primaryEntry": "ReportsEngineView",
+      "secondaryValidEntries": ["OperationsDashboardView"],
+      "dataOwner": "reports",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-18",
+      "name": "Dashboard",
+      "canonicalOwner": "Operations Dashboard",
+      "primaryEntry": "OperationsDashboardView",
+      "secondaryValidEntries": ["TripEngineView"],
+      "dataOwner": "metrics",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-19",
+      "name": "Storage",
+      "canonicalOwner": "Offline Cache & Storage Service",
+      "primaryEntry": "SystemToolsDrawer",
+      "secondaryValidEntries": ["ImportCenterView"],
+      "dataOwner": "storageProfiles",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-20",
+      "name": "Google Drive Integration",
+      "canonicalOwner": "Import Center / Storage Service",
+      "primaryEntry": "ImportCenterView",
+      "secondaryValidEntries": [],
+      "dataOwner": "driveSync",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-21",
+      "name": "Google Sheets Integration",
+      "canonicalOwner": "Import Center",
+      "primaryEntry": "ImportCenterView",
+      "secondaryValidEntries": [],
+      "dataOwner": "sheetsSync",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-22",
+      "name": "Security & Compliance",
+      "canonicalOwner": "Security Audit View",
+      "primaryEntry": "SecurityAuditView",
+      "secondaryValidEntries": ["AdminConsoleView"],
+      "dataOwner": "securityAudit",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-23",
+      "name": "Permissions / RBAC",
+      "canonicalOwner": "Admin Console",
+      "primaryEntry": "AdminConsoleView",
+      "secondaryValidEntries": [],
+      "dataOwner": "users",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-24",
+      "name": "Immutable Audit",
+      "canonicalOwner": "Audit Log Service",
+      "primaryEntry": "SecurityAuditView",
+      "secondaryValidEntries": ["AdminConsoleView"],
+      "dataOwner": "auditLogs",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-25",
+      "name": "System Administration",
+      "canonicalOwner": "Admin Console",
+      "primaryEntry": "AdminConsoleView",
+      "secondaryValidEntries": [],
+      "dataOwner": "systemConfig",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-26",
+      "name": "Developer Diagnostics",
+      "canonicalOwner": "System Tools & Dev Consoles",
+      "primaryEntry": "SystemToolsDrawer",
+      "secondaryValidEntries": ["FirestoreArchitectureView"],
+      "dataOwner": "devDiagnostics",
+      "scope": "DEVELOPER_SCOPED"
+    }
+  ],
+  "decisionRules": [
+    "RULE-001: Operational driver and truck intake MUST originate from within the PROJECT, using shared intake workflows or single Excel/Sheet batch import.",
+    "RULE-002: Derived global registries cannot become primary operational entry points; they are strictly aggregated/indexed views.",
+    "RULE-003: Trip historical snapshots are immutable against master-data changes.",
+    "RULE-004: Project Roster is the canonical project-scoped operational relationship between carriers, drivers, trucks, and materials.",
+    "RULE-005: Import workflows must use the canonical Review → Commit pipeline."
+  ],
+  "finalVerdict": "CANONICAL_WORKFLOW_OWNERSHIP_FULLY_ESTABLISHED"
+}

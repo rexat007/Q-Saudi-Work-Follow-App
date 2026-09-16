@@ -1,0 +1,83 @@
+{
+  "reportId": "BLOCK-104E-CANONICAL-WORKFLOW-OWNERSHIP",
+  "timestamp": "2026-09-15T22:52:00Z",
+  "safetyConditions": {
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "FIRESTORE_CHANGED": "NO",
+    "INDEXEDDB_CHANGED": "NO",
+    "GOOGLE_DRIVE_CHANGED": "NO",
+    "GOOGLE_SHEETS_CHANGED": "NO",
+    "ROUTES_CHANGED": "NO",
+    "UI_CHANGED": "NO"
+  },
+  "metrics": {
+    "P0": 0,
+    "P1": 0,
+    "PRODUCTION_FIXTURE_PATHS": 0,
+    "GHOST_DATA_PATHS_REMAINING": 0,
+    "RELEASE_BLOCKER": "NO"
+  },
+  "capabilities": [
+    {
+      "id": "CAP-01",
+      "name": "Authentication & Session",
+      "canonicalOwner": "AuthService",
+      "primaryEntry": "AuthButton / Login Gate",
+      "secondaryValidEntry": "Profile Gate",
+      "dataOwner": "Firebase Auth / users",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-02",
+      "name": "User Approval",
+      "canonicalOwner": "Admin Console",
+      "primaryEntry": "AdminConsoleView",
+      "secondaryValidEntry": "Security Audit View",
+      "dataOwner": "users",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-03",
+      "name": "Project Setup",
+      "canonicalOwner": "Project Setup Wizard",
+      "primaryEntry": "ProjectSetupWizard",
+      "secondaryValidEntry": "Admin Console Project Manager",
+      "dataOwner": "projects",
+      "scope": "GLOBAL"
+    },
+    {
+      "id": "CAP-04",
+      "name": "Project Workspace",
+      "canonicalOwner": "Project Workspace",
+      "primaryEntry": "ProjectWorkspaceView",
+      "secondaryValidEntry": "Master Data",
+      "dataOwner": "projects/{projectId}/roster",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-05",
+      "name": "Driver & Truck Intake",
+      "canonicalOwner": "Project Roster Intake",
+      "primaryEntry": "Project Workspace Roster Table",
+      "secondaryValidEntry": "Import Center Batch Ingestion",
+      "dataOwner": "projects/{projectId}/roster",
+      "scope": "PROJECT_SCOPED"
+    },
+    {
+      "id": "CAP-06",
+      "name": "Trip Execution",
+      "canonicalOwner": "Trip Engine",
+      "primaryEntry": "TripEngineView",
+      "secondaryValidEntry": "Operations Dashboard",
+      "dataOwner": "trips",
+      "scope": "PROJECT_SCOPED"
+    }
+  ],
+  "decisionRules": [
+    "RULE-001: Operational driver and truck intake MUST originate from within the PROJECT, using shared intake workflows or single Excel/Sheet batch import.",
+    "RULE-002: Derived global registries cannot become primary operational entry points; they are strictly aggregated/indexed views.",
+    "RULE-003: All trip historical snapshots are immutable and cannot be mutated by master-data workflows."
+  ],
+  "finalVerdict": "CANONICAL_WORKFLOW_OWNERSHIP_ESTABLISHED"
+}
