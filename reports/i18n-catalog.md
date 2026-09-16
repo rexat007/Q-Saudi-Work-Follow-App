@@ -1,31 +1,31 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-15T17:26:59.267Z
+**Generated At:** 2026-09-16T01:59:01.451Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 325 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 40372 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 10175 | Confirmed visible Arabic and UI texts |
+| **Total Files Scanned** | 327 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 40481 | Total strings and text nodes parsed |
+| **Real User-Facing Texts** | 10203 | Confirmed visible Arabic and UI texts |
 | **Likely User-Facing Texts** | 404 | English UI text in visible elements |
-| **Ambiguous Texts** | 9831 | Short or context-isolated tokens for manual review |
-| **Technical Strings** | 8834 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 11128 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 8966 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 4651 | Sets of identical/normalized recurring texts |
-| **Semantic Conflict Groups** | 636 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 11886 | Entries flagged with special cases or ambiguity |
-| **High / Critical Risk Hotspots** | 2407 | Concatenations, templates, or business data overlaps |
+| **Ambiguous Texts** | 9873 | Short or context-isolated tokens for manual review |
+| **Technical Strings** | 8841 | CSS classes, paths, enums, regexes, operators |
+| **Non-User-Facing Strings** | 11160 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 8981 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Duplicate Groups** | 4669 | Sets of identical/normalized recurring texts |
+| **Semantic Conflict Groups** | 639 | Identical texts requiring distinct contextual keys |
+| **Keys Requiring Review** | 11936 | Entries flagged with special cases or ambiguity |
+| **High / Critical Risk Hotspots** | 2414 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
 
 | Semantic Category | User-Facing Strings | Description |
 | :--- | :--- | :--- |
-| `other` | 4447 | Classified operational domain |
-| `imports` | 1558 | Classified operational domain |
+| `other` | 4473 | Classified operational domain |
+| `imports` | 1560 | Classified operational domain |
 | `projects` | 615 | Classified operational domain |
 | `trips` | 473 | Classified operational domain |
 | `reports` | 462 | Classified operational domain |
@@ -50,16 +50,16 @@
 
 ## 3. Directional (RTL / LTR) Class Inventory
 
-- **Total Directional Usages Detected:** 393
-- **Must Migrate (Physical to Logical):** 269 (e.g. `text-left` -> `text-start`, `pl-` -> `ps-`)
+- **Total Directional Usages Detected:** 395
+- **Must Migrate (Physical to Logical):** 271 (e.g. `text-left` -> `text-start`, `pl-` -> `ps-`)
 - **Probably Safe / Technical:** 124
 
 ### Directional Classes Sample (First 15 Entries)
 
 | File | Line | Class / Icon | Type | Risk | Suggested Replacement |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `src/App.tsx` | 740 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
-| `src/App.tsx` | 765 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
+| `src/App.tsx` | 761 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
+| `src/App.tsx` | 786 | `ChevronLeft` | icon | `MUST_MIGRATE` | `Logical directional flip required (e.g. rtl:rotate-180)` |
 | `src/components/FirestoreArchitectureView.tsx` | 471 | `text-left` | text-alignment | `MUST_MIGRATE` | `text-start` |
 | `src/components/FirestoreArchitectureView.tsx` | 529 | `pr-1` | padding | `MUST_MIGRATE` | `pe-1` |
 | `src/components/FirestoreArchitectureView.tsx` | 716 | `border-rose-200` | border | `PROBABLY_SAFE` | `border-rose-200` |
@@ -94,11 +94,11 @@ Identical visible text appearing across different operational domains with disti
 ## 5. High-Risk Hotspots & Special Cases
 
 - **Concatenated Strings (`+`):** 8
-- **Template Literals (`${...}`):** 691
+- **Template Literals (`${...}`):** 695
 - **Interpolation Placeholders (`{...}`):** 264
-- **Mixed Numbers & Units:** 969
+- **Mixed Numbers & Units:** 970
 - **Currency String Usages:** 440
-- **Unit String Usages:** 882
+- **Unit String Usages:** 884
 - **Protected Business Field Matches:** 353
 
 ## 6. Safety & Non-Destructive Invariance Confirmation

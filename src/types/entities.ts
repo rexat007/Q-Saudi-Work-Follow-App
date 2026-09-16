@@ -445,7 +445,9 @@ export interface ProjectCarrierRosterEntity extends BaseAuditedEntity {
   plateNumber: string;
   phone: string;
   residencyId?: string;
+  globalDriverId?: string;
   materialId: string;
+  materialIds?: string[];
   status: 'ACTIVE' | 'INACTIVE';
 }
 

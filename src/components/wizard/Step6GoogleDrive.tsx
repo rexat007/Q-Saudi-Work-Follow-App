@@ -131,31 +131,55 @@ export const Step6GoogleDrive: React.FC<Step6Props> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div>
                 <label className="block font-bold text-stone-700 mb-1">
-                  اسم المجلد الجذري في Google Drive (rootFolderName) <span className="text-rose-500">*</span>
+                  تحديد مجلد Google Drive للمشروع عبر المنتقي المؤسسي
                 </label>
-                <input
-                  type="text"
-                  value={data.rootFolderName}
-                  onChange={(e) => update('rootFolderName', e.target.value)}
-                  placeholder="e.g. PRJ-NEOM-WEST-01 - أرشيف ومستندات المشروع"
-                  className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
-                />
-                <p className="text-[11px] text-stone-400 mt-1">
-                  {t("other.labels.txt_14af6c")}</p>
+                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-stone-700 font-bold text-xs">
+                      المجلد المكتشف: {data.rootFolderName || 'مجلد جديد سينشأ آلياً'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const defaultName = `[Q-Saudi] ${projectCode || 'PRJ'} - ${projectName || 'مشروع جديد'}`;
+                        update('rootFolderName', defaultName);
+                      }}
+                      className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[11px] font-semibold transition-colors"
+                    >
+                      استخدام الهيكل التلقائي للمشروع
+                    </button>
+                  </div>
+                  <div className="text-[11px] text-stone-500 space-y-1">
+                    <div className="font-semibold text-stone-600">اختيار مجلد من المجلدات المؤسسية المتاحة:</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => update('rootFolderName', `[Shared Drive] Q-Saudi / Projects / ${projectCode || 'PRJ'}`)}
+                        className="p-2 text-right rounded border border-stone-200 bg-white hover:bg-amber-50 text-[11px] font-medium text-stone-800"
+                      >
+                        📁 [Shared Drive] Q-Saudi Projects
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => update('rootFolderName', `[My Drive] Q-Saudi Storage / ${projectCode || 'PRJ'}`)}
+                        className="p-2 text-right rounded border border-stone-200 bg-white hover:bg-amber-50 text-[11px] font-medium text-stone-800"
+                      >
+                        📁 [My Drive] Q-Saudi Storage
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div>
                 <label className="block font-bold text-stone-700 mb-1">
-                  {t("other.labels.txt_1a0a87")}</label>
-                <input
-                  type="text"
-                  value={data.spreadsheetTitle}
-                  onChange={(e) => update('spreadsheetTitle', e.target.value)}
-                  placeholder="سجل رحلات وموازين المشروع"
-                  className="w-full px-3 py-2 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-hidden"
-                />
-                <p className="text-[11px] text-stone-400 mt-1">
-                  {t("other.labels.txt_5860fa")}</p>
+                  عنوان ملف Google Sheet (تلقائي)
+                </label>
+                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
+                  <span className="text-stone-800 font-bold text-xs font-mono">
+                    {data.spreadsheetTitle || `سجل رحلات وموازين (${projectCode || 'PRJ'})`}
+                  </span>
+                </div>
               </div>
             </div>
 

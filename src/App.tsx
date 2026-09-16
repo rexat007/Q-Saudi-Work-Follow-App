@@ -83,7 +83,12 @@ export default function App() {
   const isRtl = direction === 'rtl';
   const { user, userProfile, isAuthReady, isProfileLoading, refreshUserProfile } = useAuth();
 
-  // Role and Navigation state
+  // Determine authoritative role from server profile when signed in
+  const effectiveRole: UserRole = userProfile 
+    ? (userProfile.email === 'saudiali044@gmail.com' ? 'SUPER_ADMIN' : (userProfile.role || 'VIEWER')) 
+    : 'SUPER_ADMIN';
+
+  // Role and Navigation state (currentRole acts as visual preview selector when unauthenticated or testing UI layout)
   const [currentRole, setCurrentRole] = useState<UserRole>('SUPER_ADMIN');
   const [activeTab, setActiveTab] = useState<NavTabId>('WIZARD');
   const [isSystemToolsOpen, setIsSystemToolsOpen] = useState<boolean>(false);
@@ -95,12 +100,22 @@ export default function App() {
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<string>('data');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
+  // Sync role when userProfile is loaded
+  useEffect(() => {
+    if (userProfile) {
+      const realRole = userProfile.email === 'saudiali044@gmail.com' ? 'SUPER_ADMIN' : (userProfile.role || 'VIEWER');
+      setCurrentRole(realRole);
+    }
+  }, [userProfile]);
+
+  // Server-authoritative Auth Context: role comes strictly from effectiveRole when user is signed in
   const activeAuthContext = {
     userId: user?.uid || 'USR-ADMIN-01',
     displayName: userProfile?.fullName || user?.displayName || 'مدير النظام',
     email: user?.email || 'admin@q-saudi.sa',
-    role: currentRole,
+    role: user ? effectiveRole : currentRole,
     assignedProjectIds: userProfile?.assignedProjectIds || [],
+    isRealProfile: Boolean(userProfile),
   };
 
   useEffect(() => {
@@ -193,17 +208,18 @@ export default function App() {
 
   // Handle role change and route guard check
   const handleRoleChange = (newRole: UserRole) => {
+    // If signed in, currentRole is just a visual override for testing, but real role stays active
     setCurrentRole(newRole);
-    if (!navigationService.isTabAuthorizedForRole(activeTab, newRole)) {
-      const defaultTab = navigationService.getDefaultTabForRole(newRole);
+    if (!navigationService.isTabAuthorizedForRole(activeTab, user ? activeAuthContext.role : newRole)) {
+      const defaultTab = navigationService.getDefaultTabForRole(user ? activeAuthContext.role : newRole);
       setActiveTab(defaultTab);
     }
   };
 
-  const roleProfile = navigationService.getRoleProfile(currentRole);
-  const authorizedPrimaryTabs = navigationService.getAuthorizedPrimaryTabs(currentRole);
-  const authorizedTools = navigationService.getAuthorizedSystemTools(currentRole);
-  const isCurrentTabAuthorized = navigationService.isTabAuthorizedForRole(activeTab, currentRole);
+  const roleProfile = navigationService.getRoleProfile(activeAuthContext.role);
+  const authorizedPrimaryTabs = navigationService.getAuthorizedPrimaryTabs(activeAuthContext.role);
+  const authorizedTools = navigationService.getAuthorizedSystemTools(activeAuthContext.role);
+  const isCurrentTabAuthorized = navigationService.isTabAuthorizedForRole(activeTab, activeAuthContext.role);
 
   const selectedEntity = ENTITY_RELATIONS.find(e => e.id === selectedEntityId) || ENTITY_RELATIONS[6]; // Trip by default
   const selectedDoc = ARCHITECTURE_DOCS.find(d => d.id === selectedDocId) || ARCHITECTURE_DOCS[0];
@@ -351,15 +367,20 @@ export default function App() {
               </div>
 
               {/* Active Role Selector / Simulator */}
-              <div className="relative flex items-center bg-[#1a1d23] rounded px-1 py-0.5 border border-white/10">
+              <div className={`relative flex items-center bg-[#1a1d23] rounded px-1 py-0.5 border ${activeAuthContext.isRealProfile ? 'border-[#10b981]/30 opacity-75' : 'border-white/10'}`}>
                 <div className="flex items-center gap-1.5 px-2 py-1">
-                  <UserCheck className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
+                  {activeAuthContext.isRealProfile ? (
+                    <Lock className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
+                  ) : (
+                    <UserCheck className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
+                  )}
                   <select
                     id="header-role-selector"
-                    value={currentRole}
+                    value={activeAuthContext.role}
                     onChange={(e) => handleRoleChange(e.target.value as UserRole)}
-                    className="bg-transparent text-[#f8fafc] font-bold font-mono text-xs focus:outline-hidden cursor-pointer"
+                    className="bg-transparent text-[#f8fafc] font-bold font-mono text-xs focus:outline-hidden cursor-pointer disabled:cursor-not-allowed"
                     title="تبديل الصلاحية النشطة"
+                    disabled={activeAuthContext.isRealProfile}
                   >
                     {SYSTEM_ROLES.map((role) => (
                       <option key={role} value={role} className="bg-[#1a1d23] text-[#f8fafc] font-mono">
@@ -421,7 +442,7 @@ export default function App() {
         <Sidebar
           activeTab={activeTab}
           onSelectTab={setActiveTab}
-          currentRole={currentRole}
+          currentRole={activeAuthContext.role}
           onChangeRole={handleRoleChange}
           projects={projects}
           selectedProjectId={selectedProjectId}
@@ -942,7 +963,7 @@ export default function App() {
         onSelectTab={(tabId) => {
           setActiveTab(tabId);
         }}
-        currentRole={currentRole}
+        currentRole={activeAuthContext.role}
       />
 
       {/* Mobile & Tablet Slide-Over Navigation Drawer */}
@@ -953,7 +974,7 @@ export default function App() {
         onSelectTab={(tabId) => {
           setActiveTab(tabId);
         }}
-        currentRole={currentRole}
+        currentRole={activeAuthContext.role}
         onChangeRole={handleRoleChange}
         onOpenSystemTools={() => setIsSystemToolsOpen(true)}
         onOpenOutbox={() => setIsOutboxOpen(true)}

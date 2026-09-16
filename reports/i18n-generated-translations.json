@@ -1,38 +1,38 @@
 {
-  "generatedAt": "2026-09-15T17:27:06.548Z",
+  "generatedAt": "2026-09-16T01:59:08.881Z",
   "version": "1.0.0-block43",
   "provider": "Deterministic Domain & Terminology Engine (BLOCK 43)",
   "summary": {
-    "totalEntries": 13112,
-    "generatedEnCount": 13112,
-    "generatedUrCount": 13112,
-    "reviewRequiredCount": 13106,
+    "totalEntries": 13145,
+    "generatedEnCount": 13145,
+    "generatedUrCount": 13145,
+    "reviewRequiredCount": 13139,
     "skippedCount": 0,
     "protectedCount": 1,
     "interpolationCount": 224,
     "pluralizationCount": 150,
-    "highRiskCount": 13106,
-    "semanticConflictCount": 1599,
+    "highRiskCount": 13139,
+    "semanticConflictCount": 1606,
     "domainTerminologyCount": 0,
     "confidenceBreakdown": {
       "HIGH": 146,
-      "MEDIUM": 3728,
-      "LOW": 9238
+      "MEDIUM": 3729,
+      "LOW": 9270
     },
     "tierBreakdown": {
       "1": 6,
       "2": 0,
       "3": 0,
-      "4": 13106
+      "4": 13139
     },
     "reviewReasonsBreakdown": {
-      "SEMANTIC_CONFLICT": 1599,
+      "SEMANTIC_CONFLICT": 1606,
       "DOMAIN_TERM": 0,
       "INTERPOLATION_RISK": 9,
       "PLURALIZATION_RISK": 150,
       "REPORT_EXPORT_RISK": 3965,
-      "BUSINESS_DATA_RISK": 1705,
-      "LOW_CONFIDENCE": 13106,
+      "BUSINESS_DATA_RISK": 1709,
+      "LOW_CONFIDENCE": 13139,
       "DIRECTIONAL_RISK": 0,
       "VALIDATION_FAILURE": 0,
       "OTHER": 0
@@ -135,12 +135,12 @@
         "low": 300
       },
       "imports": {
-        "total": 1667,
-        "generated": 1667,
-        "reviewRequired": 1667,
+        "total": 1669,
+        "generated": 1669,
+        "reviewRequired": 1669,
         "high": 17,
-        "medium": 516,
-        "low": 1134
+        "medium": 517,
+        "low": 1135
       },
       "entityResolution": {
         "total": 268,
@@ -215,12 +215,12 @@
         "low": 3
       },
       "other": {
-        "total": 5285,
-        "generated": 5285,
-        "reviewRequired": 5281,
+        "total": 5316,
+        "generated": 5316,
+        "reviewRequired": 5312,
         "high": 82,
         "medium": 1181,
-        "low": 4022
+        "low": 4053
       }
     }
   },
@@ -22300,7 +22300,7 @@
           "element": "prop_'٠'"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -22743,7 +22743,7 @@
           "element": "prop_carrierId"
         }
       ],
-      "duplicateGroupId": "dup_CAR_001_8",
+      "duplicateGroupId": "dup_CAR_001_15",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -31074,7 +31074,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_علي_حسن",
-      "duplicateGroupId": "dup_علي_حسن_10",
+      "duplicateGroupId": "dup_علي_حسن_11",
       "notes": [
         "Semantic conflict group conflict_علي_حسن: Retained distinct key \"entityResolution.labels.txt_368a4e\" to avoid accidental merge."
       ],
@@ -37935,7 +37935,7 @@
           "element": "call_padStart"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -51628,7 +51628,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 308,
+          "line": 309,
           "column": 16,
           "element": "prop_field"
         },
@@ -52097,7 +52097,7 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 43,
+          "line": 44,
           "column": 40,
           "element": "literal"
         },
@@ -52133,7 +52133,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_اسم_السائق",
-      "duplicateGroupId": "dup_اسم_السائق_16",
+      "duplicateGroupId": "dup_اسم_السائق_18",
       "notes": [
         "Semantic conflict group conflict_اسم_السائق: Retained distinct key \"imports.fields.driverName\" to avoid accidental merge."
       ],
@@ -52359,13 +52359,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 263,
+          "line": 264,
           "column": 20,
           "element": "prop_message"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 264,
+          "line": 265,
           "column": 22,
           "element": "prop_messageAr"
         }
@@ -52417,13 +52417,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 433,
+          "line": 457,
           "column": 22,
           "element": "template_literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 434,
+          "line": 458,
           "column": 24,
           "element": "template_literal"
         }
@@ -52524,19 +52524,19 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 274,
+          "line": 275,
           "column": 18,
           "element": "prop_field"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 411,
+          "line": 435,
           "column": 20,
           "element": "prop_field"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 430,
+          "line": 454,
           "column": 20,
           "element": "prop_field"
         }
@@ -52595,19 +52595,19 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 243,
+          "line": 244,
           "column": 16,
           "element": "prop_field"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 260,
+          "line": 261,
           "column": 18,
           "element": "prop_field"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 324,
+          "line": 325,
           "column": 16,
           "element": "prop_field"
         },
@@ -53202,6 +53202,59 @@
       "internalDataKey": "material_3",
       "presentationLabel": "اسم المادة"
     },
+    "imports.fields.materialname": {
+      "key": "imports.fields.materialname",
+      "category": "imports",
+      "semanticContext": "prop_field",
+      "sourceTextAr": "materialName",
+      "proposedTextEn": "materialName",
+      "proposedTextUr": "materialName",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/services/import/driverTruckImport.ts",
+          "line": 363,
+          "column": 18,
+          "element": "prop_field"
+        }
+      ],
+      "duplicateGroupId": "dup_materialName_6",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "materialname",
+      "presentationLabel": "materialName"
+    },
     "imports.fields.materialtype": {
       "key": "imports.fields.materialtype",
       "category": "imports",
@@ -53547,7 +53600,7 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 46,
+          "line": 47,
           "column": 69,
           "element": "literal"
         },
@@ -53613,7 +53666,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_رقم_اللوحة",
-      "duplicateGroupId": "dup_رقم_اللوحة_20",
+      "duplicateGroupId": "dup_رقم_اللوحة_21",
       "notes": [
         "Semantic conflict group conflict_رقم_اللوحة: Retained distinct key \"imports.fields.plateNumber\" to avoid accidental merge."
       ],
@@ -55132,13 +55185,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 294,
+          "line": 295,
           "column": 20,
           "element": "prop_message"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 295,
+          "line": 296,
           "column": 22,
           "element": "prop_messageAr"
         }
@@ -55190,13 +55243,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 394,
+          "line": 418,
           "column": 22,
           "element": "template_literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 395,
+          "line": 419,
           "column": 24,
           "element": "template_literal"
         }
@@ -55297,25 +55350,25 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 291,
+          "line": 292,
           "column": 18,
           "element": "prop_field"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 340,
+          "line": 341,
           "column": 16,
           "element": "prop_field"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 372,
+          "line": 396,
           "column": 20,
           "element": "prop_field"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 391,
+          "line": 415,
           "column": 20,
           "element": "prop_field"
         }
@@ -57028,13 +57081,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 277,
+          "line": 278,
           "column": 20,
           "element": "prop_message"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 278,
+          "line": 279,
           "column": 22,
           "element": "prop_messageAr"
         }
@@ -59064,7 +59117,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 45,
+          "line": 46,
           "column": 118,
           "element": "literal"
         }
@@ -60559,7 +60612,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 44,
+          "line": 45,
           "column": 93,
           "element": "literal"
         },
@@ -60589,7 +60642,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_رقم_الجوال",
-      "duplicateGroupId": "dup_رقم_الجوال_12",
+      "duplicateGroupId": "dup_رقم_الجوال_13",
       "notes": [
         "Semantic conflict group conflict_رقم_الجوال: Retained distinct key \"imports.fields.txt_d4c518\" to avoid accidental merge."
       ],
@@ -60688,7 +60741,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 44,
+          "line": 45,
           "column": 55,
           "element": "literal"
         }
@@ -60743,7 +60796,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 45,
+          "line": 46,
           "column": 80,
           "element": "literal"
         },
@@ -60773,7 +60826,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_رقم_الهوية",
-      "duplicateGroupId": "dup_رقم_الهوية_10",
+      "duplicateGroupId": "dup_رقم_الهوية_12",
       "notes": [
         "Semantic conflict group conflict_رقم_الهوية: Retained distinct key \"imports.fields.txt_d589ba\" to avoid accidental merge."
       ],
@@ -61381,7 +61434,7 @@
     "imports.labels.0": {
       "key": "imports.labels.0",
       "category": "imports",
-      "semanticContext": "prop_'٠'",
+      "semanticContext": "call_padStart",
       "sourceTextAr": "0",
       "proposedTextEn": "0",
       "proposedTextUr": "0",
@@ -61408,6 +61461,12 @@
       },
       "protectedTokens": [],
       "sourceReferences": [
+        {
+          "file": "src/services/import/driverTruckImport.ts",
+          "line": 585,
+          "column": 82,
+          "element": "call_padStart"
+        },
         {
           "file": "src/services/import/entityNormalization.service.ts",
           "line": 14,
@@ -61469,7 +61528,7 @@
           "element": "call_padStart"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -62262,7 +62321,7 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 441,
+          "line": 465,
           "column": 68,
           "element": "literal"
         },
@@ -62279,7 +62338,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_accepted_33",
+      "duplicateGroupId": "dup_accepted_35",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -66917,7 +66976,7 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 48,
+          "line": 49,
           "column": 59,
           "element": "literal"
         },
@@ -70363,7 +70422,7 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 43,
+          "line": 44,
           "column": 61,
           "element": "literal"
         },
@@ -70701,7 +70760,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 162,
+          "line": 163,
           "column": 29,
           "element": "template_literal"
         }
@@ -70911,13 +70970,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 327,
+          "line": 328,
           "column": 47,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 328,
+          "line": 329,
           "column": 49,
           "element": "literal"
         }
@@ -70966,13 +71025,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 414,
+          "line": 438,
           "column": 22,
           "element": "template_literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 415,
+          "line": 439,
           "column": 24,
           "element": "template_literal"
         }
@@ -72372,13 +72431,13 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 441,
+          "line": 465,
           "column": 58,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 455,
+          "line": 479,
           "column": 95,
           "element": "literal"
         },
@@ -77332,19 +77391,19 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 114,
+          "line": 115,
           "column": 30,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 154,
+          "line": 155,
           "column": 64,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 200,
+          "line": 201,
           "column": 64,
           "element": "literal"
         },
@@ -78082,6 +78141,65 @@
       "key": "imports.labels.materialProject_3",
       "category": "imports",
       "semanticContext": "template_literal",
+      "sourceTextAr": "المادة غير معرّفة في المشروع [${canonical.materialName || canonical.materialId}]",
+      "proposedTextEn": "Material غير معرّفة في Project [${canonical.materialName || canonical.materialId}]",
+      "proposedTextUr": "مٹیریل غير معرّفة في پروجیکٹ [${canonical.materialName || canonical.materialId}]",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [
+        "materialId"
+      ],
+      "sourceReferences": [
+        {
+          "file": "src/services/import/driverTruckImport.ts",
+          "line": 366,
+          "column": 20,
+          "element": "template_literal"
+        },
+        {
+          "file": "src/services/import/driverTruckImport.ts",
+          "line": 367,
+          "column": 22,
+          "element": "template_literal"
+        }
+      ],
+      "duplicateGroupId": "dup_المادة_غير_معرّفة_في_المشروع___2",
+      "notes": [
+        "Protected business/currency tokens: [materialId] must not be altered"
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "imports.labels.materialProject_4": {
+      "key": "imports.labels.materialProject_4",
+      "category": "imports",
+      "semanticContext": "template_literal",
       "sourceTextAr": "تعارض المادة مع نطاق المشروع: المادة [${matchedMaterial.name}] غير مصرح بنقلها أو غير معتمدة في هذا المشروع (${context.projectId}). يمنع استيرادها تلقائياً.",
       "proposedTextEn": "تعارض Material مع نطاق Project: Material [${matchedMaterial.name}] غير مصرح بنقلها أو غير معتمدة في هذا Project (${context.projectId}). يمنع Importها تلقائياً.",
       "proposedTextUr": "تعارض مٹیریل مع نطاق پروجیکٹ: مٹیریل [${matchedMaterial.name}] غير مصرح بنقلها أو غير معتمدة في هذا پروجیکٹ (${context.projectId}). يمنع امپورٹ کریںها تلقائياً.",
@@ -78130,8 +78248,8 @@
       },
       "isReportOrExportField": false
     },
-    "imports.labels.materialProject_4": {
-      "key": "imports.labels.materialProject_4",
+    "imports.labels.materialProject_5": {
+      "key": "imports.labels.materialProject_5",
       "category": "imports",
       "semanticContext": "template_literal",
       "sourceTextAr": "المادة (${canonical.materialType}) غير مصرح بها أو غير معتمدة ضمن نطاق هذا المشروع (${context.projectId}).",
@@ -79240,25 +79358,25 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 123,
+          "line": 124,
           "column": 59,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 123,
+          "line": 124,
           "column": 68,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 186,
+          "line": 187,
           "column": 49,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 186,
+          "line": 187,
           "column": 58,
           "element": "literal"
         },
@@ -83654,13 +83772,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 153,
+          "line": 154,
           "column": 58,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 199,
+          "line": 200,
           "column": 58,
           "element": "literal"
         }
@@ -83956,13 +84074,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 154,
+          "line": 155,
           "column": 49,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 200,
+          "line": 201,
           "column": 49,
           "element": "literal"
         }
@@ -85497,37 +85615,37 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 50,
+          "line": 51,
           "column": 44,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 51,
+          "line": 52,
           "column": 46,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 52,
+          "line": 53,
           "column": 52,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 53,
+          "line": 54,
           "column": 45,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 54,
+          "line": 55,
           "column": 43,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 55,
+          "line": 56,
           "column": 48,
           "element": "literal"
         },
@@ -93475,7 +93593,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 208,
+          "line": 209,
           "column": 29,
           "element": "template_literal"
         }
@@ -94023,6 +94141,7 @@
       "confidence": "MEDIUM",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "LOW_CONFIDENCE"
       ],
       "risk": "LOW",
@@ -94043,12 +94162,16 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 47,
+          "line": 48,
           "column": 51,
           "element": "literal"
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_نوع_الشاحنة",
+      "duplicateGroupId": "dup_نوع_الشاحنة_2",
+      "notes": [
+        "Semantic conflict group conflict_نوع_الشاحنة: Retained distinct key \"imports.labels.truck_7\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -94090,13 +94213,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 343,
+          "line": 344,
           "column": 46,
           "element": "literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 344,
+          "line": 345,
           "column": 48,
           "element": "literal"
         }
@@ -100261,13 +100384,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 375,
+          "line": 399,
           "column": 22,
           "element": "template_literal"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 376,
+          "line": 400,
           "column": 24,
           "element": "template_literal"
         }
@@ -100970,7 +101093,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 45,
+          "line": 46,
           "column": 101,
           "element": "literal"
         }
@@ -101018,7 +101141,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 44,
+          "line": 45,
           "column": 76,
           "element": "literal"
         }
@@ -101375,7 +101498,7 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 46,
+          "line": 47,
           "column": 90,
           "element": "literal"
         },
@@ -101971,7 +102094,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 44,
+          "line": 45,
           "column": 114,
           "element": "literal"
         }
@@ -107159,7 +107282,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_علي_حسن",
-      "duplicateGroupId": "dup_علي_حسن_10",
+      "duplicateGroupId": "dup_علي_حسن_11",
       "notes": [
         "Semantic conflict group conflict_علي_حسن: Retained distinct key \"imports.labels.txt_368a4e\" to avoid accidental merge."
       ],
@@ -107353,6 +107476,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "LOW_CONFIDENCE"
       ],
       "risk": "LOW",
@@ -107379,13 +107503,16 @@
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 48,
+          "line": 49,
           "column": 76,
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_شركة_النقل_2",
-      "notes": [],
+      "semanticConflictGroupId": "conflict_شركة_النقل",
+      "duplicateGroupId": "dup_شركة_النقل_3",
+      "notes": [
+        "Semantic conflict group conflict_شركة_النقل: Retained distinct key \"imports.labels.txt_38c31c\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -107548,7 +107675,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_أ_ب_ج_1_2_3_4",
-      "duplicateGroupId": "dup_أ_ب_ج_1_2_3_4_5",
+      "duplicateGroupId": "dup_أ_ب_ج_1_2_3_4_6",
       "notes": [
         "Semantic conflict group conflict_أ_ب_ج_1_2_3_4: Retained distinct key \"imports.labels.txt_395f35\" to avoid accidental merge."
       ],
@@ -119616,7 +119743,7 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 47,
+          "line": 48,
           "column": 73,
           "element": "literal"
         },
@@ -132112,13 +132239,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 311,
+          "line": 312,
           "column": 18,
           "element": "prop_message"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 312,
+          "line": 313,
           "column": 20,
           "element": "prop_messageAr"
         }
@@ -133656,13 +133783,13 @@
       "sourceReferences": [
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 246,
+          "line": 247,
           "column": 18,
           "element": "prop_message"
         },
         {
           "file": "src/services/import/driverTruckImport.ts",
-          "line": 247,
+          "line": 248,
           "column": 20,
           "element": "prop_messageAr"
         }
@@ -133958,7 +134085,7 @@
           "element": "prop_reviewStatus"
         }
       ],
-      "duplicateGroupId": "dup_accepted_33",
+      "duplicateGroupId": "dup_accepted_35",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -139090,7 +139217,7 @@
           "element": "call_padStart"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -139792,7 +139919,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_accepted_33",
+      "duplicateGroupId": "dup_accepted_35",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -145290,7 +145417,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_MAT_001_2",
+      "duplicateGroupId": "dup_MAT_001_3",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -153976,7 +154103,7 @@
           "element": "prop_reviewStatus"
         }
       ],
-      "duplicateGroupId": "dup_accepted_33",
+      "duplicateGroupId": "dup_accepted_35",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -154345,7 +154472,7 @@
           "element": "attr_placeholder"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -170361,7 +170488,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 916,
+          "line": 937,
           "column": 46,
           "element": "jsx_text"
         }
@@ -171093,7 +171220,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 760,
+          "line": 781,
           "column": 48,
           "element": "call_setSelectedDocId"
         }
@@ -171323,7 +171450,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 616,
+          "line": 637,
           "column": 89,
           "element": "literal"
         }
@@ -171580,7 +171707,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 245,
+          "line": 261,
           "column": 12,
           "element": "literal"
         },
@@ -171648,7 +171775,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 244,
+          "line": 260,
           "column": 12,
           "element": "literal"
         },
@@ -171722,7 +171849,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 235,
+          "line": 251,
           "column": 12,
           "element": "literal"
         },
@@ -171834,7 +171961,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 214,
+          "line": 230,
           "column": 12,
           "element": "literal"
         }
@@ -171946,7 +172073,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 236,
+          "line": 252,
           "column": 12,
           "element": "literal"
         }
@@ -172090,7 +172217,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 232,
+          "line": 248,
           "column": 12,
           "element": "literal"
         }
@@ -172544,7 +172671,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 231,
+          "line": 247,
           "column": 12,
           "element": "literal"
         },
@@ -172662,7 +172789,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 822,
+          "line": 843,
           "column": 32,
           "element": "literal"
         },
@@ -172771,7 +172898,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 218,
+          "line": 234,
           "column": 12,
           "element": "literal"
         }
@@ -173178,7 +173305,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 336,
+          "line": 352,
           "column": 21,
           "element": "jsx_text"
         }
@@ -173394,7 +173521,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 221,
+          "line": 237,
           "column": 12,
           "element": "literal"
         }
@@ -173599,7 +173726,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 247,
+          "line": 263,
           "column": 12,
           "element": "literal"
         },
@@ -173729,7 +173856,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 919,
+          "line": 940,
           "column": 19,
           "element": "jsx_text"
         }
@@ -174500,7 +174627,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 923,
+          "line": 944,
           "column": 19,
           "element": "jsx_text"
         }
@@ -174609,7 +174736,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 800,
+          "line": 821,
           "column": 33,
           "element": "jsx_text"
         }
@@ -174705,7 +174832,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 230,
+          "line": 246,
           "column": 12,
           "element": "literal"
         }
@@ -174755,7 +174882,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 246,
+          "line": 262,
           "column": 12,
           "element": "literal"
         },
@@ -175281,7 +175408,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 216,
+          "line": 232,
           "column": 12,
           "element": "literal"
         }
@@ -175638,7 +175765,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 597,
+          "line": 618,
           "column": 97,
           "element": "jsx_text"
         }
@@ -175884,7 +176011,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 182,
+          "line": 197,
           "column": 62,
           "element": "literal"
         }
@@ -176761,7 +176888,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 882,
+          "line": 903,
           "column": 31,
           "element": "jsx_text"
         }
@@ -176855,7 +176982,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 213,
+          "line": 229,
           "column": 12,
           "element": "literal"
         }
@@ -177757,7 +177884,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_Q_PRJ_001_8",
+      "duplicateGroupId": "dup_Q_PRJ_001_14",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -177911,7 +178038,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 273,
+          "line": 289,
           "column": 63,
           "element": "jsx_text"
         }
@@ -177958,13 +178085,13 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 329,
+          "line": 345,
           "column": 23,
           "element": "jsx_text"
         },
         {
           "file": "src/App.tsx",
-          "line": 914,
+          "line": 935,
           "column": 70,
           "element": "jsx_text"
         },
@@ -179246,7 +179373,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 243,
+          "line": 259,
           "column": 12,
           "element": "literal"
         },
@@ -179320,7 +179447,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 449,
+          "line": 470,
           "column": 51,
           "element": "jsx_text"
         }
@@ -179367,7 +179494,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 462,
+          "line": 483,
           "column": 66,
           "element": "jsx_text"
         }
@@ -179561,7 +179688,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 921,
+          "line": 942,
           "column": 19,
           "element": "jsx_text"
         }
@@ -179657,7 +179784,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 233,
+          "line": 249,
           "column": 12,
           "element": "literal"
         },
@@ -179842,7 +179969,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 346,
+          "line": 362,
           "column": 49,
           "element": "jsx_text"
         }
@@ -181562,7 +181689,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 621,
+          "line": 642,
           "column": 86,
           "element": "literal"
         }
@@ -181615,13 +181742,13 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 848,
+          "line": 869,
           "column": 97,
           "element": "literal"
         },
         {
           "file": "src/App.tsx",
-          "line": 848,
+          "line": 869,
           "column": 116,
           "element": "literal"
         }
@@ -181674,7 +181801,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 621,
+          "line": 642,
           "column": 105,
           "element": "literal"
         }
@@ -181875,7 +182002,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 219,
+          "line": 235,
           "column": 12,
           "element": "literal"
         }
@@ -182367,6 +182494,7 @@
           "element": "prop_truckId"
         }
       ],
+      "duplicateGroupId": "dup_TRK_101_2",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -182762,7 +182890,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 217,
+          "line": 233,
           "column": 12,
           "element": "literal"
         },
@@ -182988,7 +183116,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 849,
+          "line": 870,
           "column": 35,
           "element": "jsx_text"
         }
@@ -183766,7 +183894,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 739,
+          "line": 760,
           "column": 41,
           "element": "jsx_text"
         }
@@ -184410,7 +184538,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 867,
+          "line": 888,
           "column": 27,
           "element": "jsx_text"
         },
@@ -184606,7 +184734,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 100,
+          "line": 114,
           "column": 64,
           "element": "literal"
         },
@@ -184868,7 +184996,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 704,
+          "line": 725,
           "column": 35,
           "element": "jsx_text"
         }
@@ -186692,7 +186820,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 317,
+          "line": 333,
           "column": 17,
           "element": "attr_title"
         }
@@ -187857,7 +187985,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 405,
+          "line": 426,
           "column": 41,
           "element": "jsx_text"
         }
@@ -190406,7 +190534,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 459,
+          "line": 480,
           "column": 25,
           "element": "jsx_text"
         }
@@ -190728,7 +190856,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 444,
+          "line": 465,
           "column": 51,
           "element": "jsx_text"
         },
@@ -190904,6 +191032,7 @@
           "element": "literal"
         }
       ],
+      "duplicateGroupId": "dup_usr_admin_3",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -190948,7 +191077,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 99,
+          "line": 113,
           "column": 26,
           "element": "literal"
         }
@@ -191247,7 +191376,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 234,
+          "line": 250,
           "column": 12,
           "element": "literal"
         }
@@ -191739,7 +191868,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 759,
+          "line": 780,
           "column": 44,
           "element": "call_setActiveTab"
         }
@@ -192477,7 +192606,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 164,
+          "line": 179,
           "column": 62,
           "element": "call_useState"
         }
@@ -192625,7 +192754,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 95,
+          "line": 100,
           "column": 72,
           "element": "call_useState"
         }
@@ -193986,7 +194115,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 163,
+          "line": 178,
           "column": 68,
           "element": "call_useState"
         }
@@ -195124,7 +195253,7 @@
       "sourceReferences": [
         {
           "file": "src/App.tsx",
-          "line": 362,
+          "line": 382,
           "column": 21,
           "element": "attr_title"
         }
@@ -199206,7 +199335,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_accepted_33",
+      "duplicateGroupId": "dup_accepted_35",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -199876,7 +200005,7 @@
           "element": "prop_carrierId"
         }
       ],
-      "duplicateGroupId": "dup_CAR_001_8",
+      "duplicateGroupId": "dup_CAR_001_15",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -216349,6 +216478,58 @@
       "internalDataKey": "drivers_4",
       "presentationLabel": "Drivers"
     },
+    "other.columns.drv": {
+      "key": "other.columns.drv",
+      "category": "other",
+      "semanticContext": "call_startsWith",
+      "sourceTextAr": "DRV-",
+      "proposedTextEn": "DRV-",
+      "proposedTextUr": "DRV-",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 191,
+          "column": 75,
+          "element": "call_startsWith"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "drv",
+      "presentationLabel": "DRV-"
+    },
     "other.columns.enterprise": {
       "key": "other.columns.enterprise",
       "category": "other",
@@ -217818,6 +217999,58 @@
       "internalDataKey": "projects_3",
       "presentationLabel": "Projects"
     },
+    "other.columns.qPrj001Drv": {
+      "key": "other.columns.qPrj001Drv",
+      "category": "other",
+      "semanticContext": "call_startsWith",
+      "sourceTextAr": "Q-PRJ-001-DRV-",
+      "proposedTextEn": "Q-PRJ-001-DRV-",
+      "proposedTextUr": "Q-PRJ-001-DRV-",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 190,
+          "column": 75,
+          "element": "call_startsWith"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "qPrj001Drv",
+      "presentationLabel": "Q-PRJ-001-DRV-"
+    },
     "other.columns.refresh": {
       "key": "other.columns.refresh",
       "category": "other",
@@ -218593,7 +218826,7 @@
           "element": "call_startsWith"
         }
       ],
-      "duplicateGroupId": "dup_text_178",
+      "duplicateGroupId": "dup_text_176",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -235300,10 +235533,22 @@
           "line": 484,
           "column": 3,
           "element": "prop_'اسم السائق'"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 57,
+          "column": 3,
+          "element": "prop_'اسم السائق'"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 103,
+          "column": 5,
+          "element": "prop_'اسم السائق'"
         }
       ],
       "semanticConflictGroupId": "conflict_اسم_السائق",
-      "duplicateGroupId": "dup_اسم_السائق_16",
+      "duplicateGroupId": "dup_اسم_السائق_18",
       "notes": [
         "Semantic conflict group conflict_اسم_السائق: Retained distinct key \"other.fields.driverName\" to avoid accidental merge."
       ],
@@ -240048,10 +240293,16 @@
           "line": 483,
           "column": 3,
           "element": "prop_'رقم اللوحة'"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 60,
+          "column": 3,
+          "element": "prop_'رقم اللوحة'"
         }
       ],
       "semanticConflictGroupId": "conflict_رقم_اللوحة",
-      "duplicateGroupId": "dup_رقم_اللوحة_20",
+      "duplicateGroupId": "dup_رقم_اللوحة_21",
       "notes": [
         "Semantic conflict group conflict_رقم_اللوحة: Retained distinct key \"other.fields.plateNumber\" to avoid accidental merge."
       ],
@@ -241423,20 +241674,20 @@
     "other.fields.project": {
       "key": "other.fields.project",
       "category": "other",
-      "semanticContext": "attr_placeholder",
-      "sourceTextAr": "e.g. PRJ-NEOM-WEST-01 - أرشيف ومستندات المشروع",
-      "proposedTextEn": "e.g. PRJ-NEOM-WEST-01 - أرشيف ومستندات Project",
-      "proposedTextUr": "e.g. PRJ-NEOM-WEST-01 - أرشيف ومستندات پروجیکٹ",
+      "semanticContext": "prop_'اسم المشروع'",
+      "sourceTextAr": "اسم المشروع",
+      "proposedTextEn": "Project Name",
+      "proposedTextUr": "پروجیکٹ کا نام",
       "statusEn": "REVIEW_REQUIRED",
       "statusUr": "REVIEW_REQUIRED",
       "confidence": "MEDIUM",
       "reviewRequired": true,
       "reviewReasons": [
-        "BUSINESS_DATA_RISK",
+        "SEMANTIC_CONFLICT",
         "REPORT_EXPORT_RISK",
         "LOW_CONFIDENCE"
       ],
-      "risk": "HIGH",
+      "risk": "LOW",
       "tier": 4,
       "interpolationParams": [],
       "pluralization": {
@@ -241453,23 +241704,27 @@
       "protectedTokens": [],
       "sourceReferences": [
         {
-          "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 140,
-          "column": 19,
-          "element": "attr_placeholder"
+          "file": "src/i18n/translation/translation.constants.ts",
+          "line": 487,
+          "column": 3,
+          "element": "prop_'اسم المشروع'"
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_اسم_المشروع",
+      "duplicateGroupId": "dup_اسم_المشروع_3",
+      "notes": [
+        "Semantic conflict group conflict_اسم_المشروع: Retained distinct key \"other.fields.project\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
         "en": "ltr",
         "ur": "rtl",
-        "hasMixedDirectionContent": true
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": true,
       "internalDataKey": "project",
-      "presentationLabel": "e.g. PRJ-NEOM-WEST-01 - أرشيف ومستندات المشروع"
+      "presentationLabel": "اسم المشروع"
     },
     "other.fields.projectDownloadPricing": {
       "key": "other.fields.projectDownloadPricing",
@@ -241624,111 +241879,6 @@
     "other.fields.project_10": {
       "key": "other.fields.project_10",
       "category": "other",
-      "semanticContext": "prop_\"navigation.labels.project_3\"",
-      "sourceTextAr": "المشروع المحدد",
-      "proposedTextEn": "Project المحدد",
-      "proposedTextUr": "پروجیکٹ المحدد",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "MEDIUM",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "SEMANTIC_CONFLICT",
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ar/index.ts",
-          "line": 451,
-          "column": 34,
-          "element": "prop_\"navigation.labels.project_3\""
-        }
-      ],
-      "semanticConflictGroupId": "conflict_المشروع_المحدد",
-      "duplicateGroupId": "dup_المشروع_المحدد_2",
-      "notes": [
-        "Semantic conflict group conflict_المشروع_المحدد: Retained distinct key \"other.fields.project_10\" to avoid accidental merge."
-      ],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "project_10",
-      "presentationLabel": "المشروع المحدد"
-    },
-    "other.fields.project_11": {
-      "key": "other.fields.project_11",
-      "category": "other",
-      "semanticContext": "prop_\"navigation.labels.project_6\"",
-      "sourceTextAr": "معاينة رحلات المشروع المسقطة (جاهزة للإسقاط بالـ Upsert)",
-      "proposedTextEn": "معاينة رحلات Project المسقطة (Readyة للإسقاط بالـ Upsert)",
-      "proposedTextUr": "معاينة رحلات پروجیکٹ المسقطة (تیارة للإسقاط بالـ Upsert)",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "MEDIUM",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ar/index.ts",
-          "line": 452,
-          "column": 34,
-          "element": "prop_\"navigation.labels.project_6\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "project_11",
-      "presentationLabel": "معاينة رحلات المشروع المسقطة (جاهزة للإسقاط بالـ Upsert)"
-    },
-    "other.fields.project_12": {
-      "key": "other.fields.project_12",
-      "category": "other",
       "semanticContext": "prop_\"navigation.labels.project_7\"",
       "sourceTextAr": "سجل المشروع (Google Sheets)",
       "proposedTextEn": "سجل Project (Google Sheets)",
@@ -241773,11 +241923,11 @@
         "hasMixedDirectionContent": true
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_12",
+      "internalDataKey": "project_10",
       "presentationLabel": "سجل المشروع (Google Sheets)"
     },
-    "other.fields.project_13": {
-      "key": "other.fields.project_13",
+    "other.fields.project_11": {
+      "key": "other.fields.project_11",
       "category": "other",
       "semanticContext": "prop_\"projects.labels.project\"",
       "sourceTextAr": "PRJ - أرشيف ومستندات المشروع اللوجستية",
@@ -241823,11 +241973,11 @@
         "hasMixedDirectionContent": true
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_13",
+      "internalDataKey": "project_11",
       "presentationLabel": "PRJ - أرشيف ومستندات المشروع اللوجستية"
     },
-    "other.fields.project_14": {
-      "key": "other.fields.project_14",
+    "other.fields.project_12": {
+      "key": "other.fields.project_12",
       "category": "other",
       "semanticContext": "prop_\"projects.labels.project_10\"",
       "sourceTextAr": "دعوة مستخدم جديد وتعيين صلاحياته في المشروع",
@@ -241873,11 +242023,11 @@
         "hasMixedDirectionContent": false
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_14",
+      "internalDataKey": "project_12",
       "presentationLabel": "دعوة مستخدم جديد وتعيين صلاحياته في المشروع"
     },
-    "other.fields.project_15": {
-      "key": "other.fields.project_15",
+    "other.fields.project_13": {
+      "key": "other.fields.project_13",
       "category": "other",
       "semanticContext": "prop_\"projects.labels.project_11\"",
       "sourceTextAr": "مدير المشروع (PROJECT_ADMIN)",
@@ -241918,7 +242068,7 @@
       "semanticConflictGroupId": "conflict_مدير_المشروع__PROJECT_ADMIN_",
       "duplicateGroupId": "dup_مدير_المشروع__PROJECT_ADMIN__2",
       "notes": [
-        "Semantic conflict group conflict_مدير_المشروع__PROJECT_ADMIN_: Retained distinct key \"other.fields.project_15\" to avoid accidental merge."
+        "Semantic conflict group conflict_مدير_المشروع__PROJECT_ADMIN_: Retained distinct key \"other.fields.project_13\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -241928,11 +242078,11 @@
         "hasMixedDirectionContent": true
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_15",
+      "internalDataKey": "project_13",
       "presentationLabel": "مدير المشروع (PROJECT_ADMIN)"
     },
-    "other.fields.project_16": {
-      "key": "other.fields.project_16",
+    "other.fields.project_14": {
+      "key": "other.fields.project_14",
       "category": "other",
       "semanticContext": "prop_\"projects.labels.project_4\"",
       "sourceTextAr": "مديرو المشروع (Admin):",
@@ -241973,7 +242123,7 @@
       "semanticConflictGroupId": "conflict_مديرو_المشروع__Admin_",
       "duplicateGroupId": "dup_مديرو_المشروع__Admin__2",
       "notes": [
-        "Semantic conflict group conflict_مديرو_المشروع__Admin_: Retained distinct key \"other.fields.project_16\" to avoid accidental merge."
+        "Semantic conflict group conflict_مديرو_المشروع__Admin_: Retained distinct key \"other.fields.project_14\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -241983,11 +242133,11 @@
         "hasMixedDirectionContent": true
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_16",
+      "internalDataKey": "project_14",
       "presentationLabel": "مديرو المشروع (Admin):"
     },
-    "other.fields.project_17": {
-      "key": "other.fields.project_17",
+    "other.fields.project_15": {
+      "key": "other.fields.project_15",
       "category": "other",
       "semanticContext": "prop_\"projects.labels.project_6\"",
       "sourceTextAr": "رمز المشروع (projectCode) مطلوب",
@@ -242033,11 +242183,11 @@
         "hasMixedDirectionContent": true
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_17",
+      "internalDataKey": "project_15",
       "presentationLabel": "رمز المشروع (projectCode) مطلوب"
     },
-    "other.fields.project_18": {
-      "key": "other.fields.project_18",
+    "other.fields.project_16": {
+      "key": "other.fields.project_16",
       "category": "other",
       "semanticContext": "prop_\"projects.labels.project_7\"",
       "sourceTextAr": "رمز المشروع يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات",
@@ -242078,7 +242228,7 @@
       "semanticConflictGroupId": "conflict_رمز_المشروع_يجب_أن_يحتوي_على_أ",
       "duplicateGroupId": "dup_رمز_المشروع_يجب_أن_يحتوي_على_أ_2",
       "notes": [
-        "Semantic conflict group conflict_رمز_المشروع_يجب_أن_يحتوي_على_أ: Retained distinct key \"other.fields.project_18\" to avoid accidental merge."
+        "Semantic conflict group conflict_رمز_المشروع_يجب_أن_يحتوي_على_أ: Retained distinct key \"other.fields.project_16\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -242088,11 +242238,11 @@
         "hasMixedDirectionContent": false
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_18",
+      "internalDataKey": "project_16",
       "presentationLabel": "رمز المشروع يجب أن يحتوي على أحرف وأرقام وشرطات فقط بدون مسافات"
     },
-    "other.fields.project_19": {
-      "key": "other.fields.project_19",
+    "other.fields.project_17": {
+      "key": "other.fields.project_17",
       "category": "other",
       "semanticContext": "prop_\"projects.labels.project_8\"",
       "sourceTextAr": "حالة المشروع مطلوبة",
@@ -242133,7 +242283,7 @@
       "semanticConflictGroupId": "conflict_حالة_المشروع_مطلوبة",
       "duplicateGroupId": "dup_حالة_المشروع_مطلوبة_2",
       "notes": [
-        "Semantic conflict group conflict_حالة_المشروع_مطلوبة: Retained distinct key \"other.fields.project_19\" to avoid accidental merge."
+        "Semantic conflict group conflict_حالة_المشروع_مطلوبة: Retained distinct key \"other.fields.project_17\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -242143,61 +242293,11 @@
         "hasMixedDirectionContent": false
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_19",
+      "internalDataKey": "project_17",
       "presentationLabel": "حالة المشروع مطلوبة"
     },
-    "other.fields.project_2": {
-      "key": "other.fields.project_2",
-      "category": "other",
-      "semanticContext": "attr_placeholder",
-      "sourceTextAr": "سجل رحلات وموازين المشروع",
-      "proposedTextEn": "سجل رحلات وموازين Project",
-      "proposedTextUr": "سجل رحلات وموازين پروجیکٹ",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "MEDIUM",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 154,
-          "column": 19,
-          "element": "attr_placeholder"
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "project_2",
-      "presentationLabel": "سجل رحلات وموازين المشروع"
-    },
-    "other.fields.project_20": {
-      "key": "other.fields.project_20",
+    "other.fields.project_18": {
+      "key": "other.fields.project_18",
       "category": "other",
       "semanticContext": "prop_\"trips.labels.project_2\"",
       "sourceTextAr": "| المشروع:",
@@ -242238,7 +242338,7 @@
       "semanticConflictGroupId": "conflict___المشروع",
       "duplicateGroupId": "dup___المشروع_3",
       "notes": [
-        "Semantic conflict group conflict___المشروع: Retained distinct key \"other.fields.project_20\" to avoid accidental merge."
+        "Semantic conflict group conflict___المشروع: Retained distinct key \"other.fields.project_18\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -242248,11 +242348,11 @@
         "hasMixedDirectionContent": false
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_20",
+      "internalDataKey": "project_18",
       "presentationLabel": "| المشروع:"
     },
-    "other.fields.project_21": {
-      "key": "other.fields.project_21",
+    "other.fields.project_19": {
+      "key": "other.fields.project_19",
       "category": "other",
       "semanticContext": "prop_\"trips.labels.project_4\"",
       "sourceTextAr": "material يجب أن تكون مسموحة ومصرحة في المشروع",
@@ -242293,7 +242393,7 @@
       "semanticConflictGroupId": "conflict_material_يجب_أن_تكون_مسموحة_وم",
       "duplicateGroupId": "dup_material_يجب_أن_تكون_مسموحة_وم_2",
       "notes": [
-        "Semantic conflict group conflict_material_يجب_أن_تكون_مسموحة_وم: Retained distinct key \"other.fields.project_21\" to avoid accidental merge."
+        "Semantic conflict group conflict_material_يجب_أن_تكون_مسموحة_وم: Retained distinct key \"other.fields.project_19\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -242303,166 +242403,11 @@
         "hasMixedDirectionContent": true
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_21",
+      "internalDataKey": "project_19",
       "presentationLabel": "material يجب أن تكون مسموحة ومصرحة في المشروع"
     },
-    "other.fields.project_22": {
-      "key": "other.fields.project_22",
-      "category": "other",
-      "semanticContext": "prop_\"unloading.labels.project\"",
-      "sourceTextAr": "محطة التفريغ والاستلام بموقع المشروع (Unloading Station)",
-      "proposedTextEn": "Unloading Station والاستلام بموقع Project (Unloading Station)",
-      "proposedTextUr": "ان لوڈنگ اسٹیشن والاستلام بموقع پروجیکٹ (Unloading Station)",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "MEDIUM",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ar/index.ts",
-          "line": 970,
-          "column": 31,
-          "element": "prop_\"unloading.labels.project\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "project_22",
-      "presentationLabel": "محطة التفريغ والاستلام بموقع المشروع (Unloading Station)"
-    },
-    "other.fields.project_23": {
-      "key": "other.fields.project_23",
-      "category": "other",
-      "semanticContext": "prop_\"unloading.labels.project_2\"",
-      "sourceTextAr": "مطلوب اعتماد مدير المشروع",
-      "proposedTextEn": "Required Approval مدير Project",
-      "proposedTextUr": "لازمی منظوری مدير پروجیکٹ",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "MEDIUM",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/locales/ar/index.ts",
-          "line": 971,
-          "column": 33,
-          "element": "prop_\"unloading.labels.project_2\""
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "project_23",
-      "presentationLabel": "مطلوب اعتماد مدير المشروع"
-    },
-    "other.fields.project_3": {
-      "key": "other.fields.project_3",
-      "category": "other",
-      "semanticContext": "prop_'اسم المشروع'",
-      "sourceTextAr": "اسم المشروع",
-      "proposedTextEn": "Project Name",
-      "proposedTextUr": "پروجیکٹ کا نام",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "MEDIUM",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "SEMANTIC_CONFLICT",
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/i18n/translation/translation.constants.ts",
-          "line": 487,
-          "column": 3,
-          "element": "prop_'اسم المشروع'"
-        }
-      ],
-      "semanticConflictGroupId": "conflict_اسم_المشروع",
-      "duplicateGroupId": "dup_اسم_المشروع_3",
-      "notes": [
-        "Semantic conflict group conflict_اسم_المشروع: Retained distinct key \"other.fields.project_3\" to avoid accidental merge."
-      ],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "project_3",
-      "presentationLabel": "اسم المشروع"
-    },
-    "other.fields.project_4": {
-      "key": "other.fields.project_4",
+    "other.fields.project_2": {
+      "key": "other.fields.project_2",
       "category": "other",
       "semanticContext": "prop_\"carriers.labels.project_2\"",
       "sourceTextAr": "لا يوجد ناقلون مسجلون في المشروع حتى الآن.",
@@ -242508,11 +242453,111 @@
         "hasMixedDirectionContent": false
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_4",
+      "internalDataKey": "project_2",
       "presentationLabel": "لا يوجد ناقلون مسجلون في المشروع حتى الآن."
     },
-    "other.fields.project_5": {
-      "key": "other.fields.project_5",
+    "other.fields.project_20": {
+      "key": "other.fields.project_20",
+      "category": "other",
+      "semanticContext": "prop_\"unloading.labels.project\"",
+      "sourceTextAr": "محطة التفريغ والاستلام بموقع المشروع (Unloading Station)",
+      "proposedTextEn": "Unloading Station والاستلام بموقع Project (Unloading Station)",
+      "proposedTextUr": "ان لوڈنگ اسٹیشن والاستلام بموقع پروجیکٹ (Unloading Station)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ar/index.ts",
+          "line": 970,
+          "column": 31,
+          "element": "prop_\"unloading.labels.project\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "project_20",
+      "presentationLabel": "محطة التفريغ والاستلام بموقع المشروع (Unloading Station)"
+    },
+    "other.fields.project_21": {
+      "key": "other.fields.project_21",
+      "category": "other",
+      "semanticContext": "prop_\"unloading.labels.project_2\"",
+      "sourceTextAr": "مطلوب اعتماد مدير المشروع",
+      "proposedTextEn": "Required Approval مدير Project",
+      "proposedTextUr": "لازمی منظوری مدير پروجیکٹ",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ar/index.ts",
+          "line": 971,
+          "column": 33,
+          "element": "prop_\"unloading.labels.project_2\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "project_21",
+      "presentationLabel": "مطلوب اعتماد مدير المشروع"
+    },
+    "other.fields.project_3": {
+      "key": "other.fields.project_3",
       "category": "other",
       "semanticContext": "prop_\"dashboard.labels.project\"",
       "sourceTextAr": "المشروع",
@@ -242553,7 +242598,7 @@
       "semanticConflictGroupId": "conflict_المشروع",
       "duplicateGroupId": "dup_المشروع_18",
       "notes": [
-        "Semantic conflict group conflict_المشروع: Retained distinct key \"other.fields.project_5\" to avoid accidental merge."
+        "Semantic conflict group conflict_المشروع: Retained distinct key \"other.fields.project_3\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -242563,11 +242608,11 @@
         "hasMixedDirectionContent": false
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_5",
+      "internalDataKey": "project_3",
       "presentationLabel": "المشروع"
     },
-    "other.fields.project_6": {
-      "key": "other.fields.project_6",
+    "other.fields.project_4": {
+      "key": "other.fields.project_4",
       "category": "other",
       "semanticContext": "prop_\"loading.labels.project\"",
       "sourceTextAr": "معرّف المشروع:",
@@ -242608,7 +242653,7 @@
       "semanticConflictGroupId": "conflict_معرّف_المشروع",
       "duplicateGroupId": "dup_معرّف_المشروع_2",
       "notes": [
-        "Semantic conflict group conflict_معرّف_المشروع: Retained distinct key \"other.fields.project_6\" to avoid accidental merge."
+        "Semantic conflict group conflict_معرّف_المشروع: Retained distinct key \"other.fields.project_4\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -242618,11 +242663,11 @@
         "hasMixedDirectionContent": false
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_6",
+      "internalDataKey": "project_4",
       "presentationLabel": "معرّف المشروع:"
     },
-    "other.fields.project_7": {
-      "key": "other.fields.project_7",
+    "other.fields.project_5": {
+      "key": "other.fields.project_5",
       "category": "other",
       "semanticContext": "prop_\"loading.labels.project_3\"",
       "sourceTextAr": "يقتصر الاختيار على شركات النقل المصرح لها بالعمل في المشروع",
@@ -242668,11 +242713,11 @@
         "hasMixedDirectionContent": false
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_7",
+      "internalDataKey": "project_5",
       "presentationLabel": "يقتصر الاختيار على شركات النقل المصرح لها بالعمل في المشروع"
     },
-    "other.fields.project_8": {
-      "key": "other.fields.project_8",
+    "other.fields.project_6": {
+      "key": "other.fields.project_6",
       "category": "other",
       "semanticContext": "prop_\"navigation.labels.projectReports\"",
       "sourceTextAr": "تقارير ووثائق المشروع",
@@ -242713,7 +242758,7 @@
       "semanticConflictGroupId": "conflict_تقارير_ووثائق_المشروع",
       "duplicateGroupId": "dup_تقارير_ووثائق_المشروع_2",
       "notes": [
-        "Semantic conflict group conflict_تقارير_ووثائق_المشروع: Retained distinct key \"other.fields.project_8\" to avoid accidental merge."
+        "Semantic conflict group conflict_تقارير_ووثائق_المشروع: Retained distinct key \"other.fields.project_6\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -242723,11 +242768,11 @@
         "hasMixedDirectionContent": false
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_8",
+      "internalDataKey": "project_6",
       "presentationLabel": "تقارير ووثائق المشروع"
     },
-    "other.fields.project_9": {
-      "key": "other.fields.project_9",
+    "other.fields.project_7": {
+      "key": "other.fields.project_7",
       "category": "other",
       "semanticContext": "prop_\"navigation.labels.project_2\"",
       "sourceTextAr": "تهيئة هيكل المشروع في Drive & Sheets",
@@ -242768,7 +242813,7 @@
       "semanticConflictGroupId": "conflict_تهيئة_هيكل_المشروع_في_Drive___",
       "duplicateGroupId": "dup_تهيئة_هيكل_المشروع_في_Drive____2",
       "notes": [
-        "Semantic conflict group conflict_تهيئة_هيكل_المشروع_في_Drive___: Retained distinct key \"other.fields.project_9\" to avoid accidental merge."
+        "Semantic conflict group conflict_تهيئة_هيكل_المشروع_في_Drive___: Retained distinct key \"other.fields.project_7\" to avoid accidental merge."
       ],
       "validationErrors": [],
       "directionMetadata": {
@@ -242778,8 +242823,113 @@
         "hasMixedDirectionContent": true
       },
       "isReportOrExportField": true,
-      "internalDataKey": "project_9",
+      "internalDataKey": "project_7",
       "presentationLabel": "تهيئة هيكل المشروع في Drive & Sheets"
+    },
+    "other.fields.project_8": {
+      "key": "other.fields.project_8",
+      "category": "other",
+      "semanticContext": "prop_\"navigation.labels.project_3\"",
+      "sourceTextAr": "المشروع المحدد",
+      "proposedTextEn": "Project المحدد",
+      "proposedTextUr": "پروجیکٹ المحدد",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ar/index.ts",
+          "line": 451,
+          "column": 34,
+          "element": "prop_\"navigation.labels.project_3\""
+        }
+      ],
+      "semanticConflictGroupId": "conflict_المشروع_المحدد",
+      "duplicateGroupId": "dup_المشروع_المحدد_2",
+      "notes": [
+        "Semantic conflict group conflict_المشروع_المحدد: Retained distinct key \"other.fields.project_8\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "project_8",
+      "presentationLabel": "المشروع المحدد"
+    },
+    "other.fields.project_9": {
+      "key": "other.fields.project_9",
+      "category": "other",
+      "semanticContext": "prop_\"navigation.labels.project_6\"",
+      "sourceTextAr": "معاينة رحلات المشروع المسقطة (جاهزة للإسقاط بالـ Upsert)",
+      "proposedTextEn": "معاينة رحلات Project المسقطة (Readyة للإسقاط بالـ Upsert)",
+      "proposedTextUr": "معاينة رحلات پروجیکٹ المسقطة (تیارة للإسقاط بالـ Upsert)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "REPORT_EXPORT_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/locales/ar/index.ts",
+          "line": 452,
+          "column": 34,
+          "element": "prop_\"navigation.labels.project_6\""
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": true,
+      "internalDataKey": "project_9",
+      "presentationLabel": "معاينة رحلات المشروع المسقطة (جاهزة للإسقاط بالـ Upsert)"
     },
     "other.fields.projects": {
       "key": "other.fields.projects",
@@ -256180,56 +256330,6 @@
       "isReportOrExportField": true,
       "internalDataKey": "txt_1902ef",
       "presentationLabel": "منتخب کردہ نامزد ٹرپ: ${cand.tripSerial}"
-    },
-    "other.fields.txt_190de0": {
-      "key": "other.fields.txt_190de0",
-      "category": "other",
-      "semanticContext": "jsx_text",
-      "sourceTextAr": "اسم المجلد الجذري في Google Drive (rootFolderName)",
-      "proposedTextEn": "اسم المجلد الجذري في Google Drive (rootFolderName)",
-      "proposedTextUr": "اسم المجلد الجذري في Google Drive (rootFolderName)",
-      "statusEn": "REVIEW_REQUIRED",
-      "statusUr": "REVIEW_REQUIRED",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "REPORT_EXPORT_RISK",
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "LOW",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 134,
-          "column": 19,
-          "element": "jsx_text"
-        }
-      ],
-      "notes": [],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": true
-      },
-      "isReportOrExportField": true,
-      "internalDataKey": "txt_190de0",
-      "presentationLabel": "اسم المجلد الجذري في Google Drive (rootFolderName)"
     },
     "other.fields.txt_1912a6": {
       "key": "other.fields.txt_1912a6",
@@ -330779,10 +330879,16 @@
           "line": 1859,
           "column": 55,
           "element": "jsx_text"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 58,
+          "column": 3,
+          "element": "prop_'رقم الجوال'"
         }
       ],
       "semanticConflictGroupId": "conflict_رقم_الجوال",
-      "duplicateGroupId": "dup_رقم_الجوال_12",
+      "duplicateGroupId": "dup_رقم_الجوال_13",
       "notes": [
         "Semantic conflict group conflict_رقم_الجوال: Retained distinct key \"other.fields.txt_d4c518\" to avoid accidental merge."
       ],
@@ -330852,10 +330958,22 @@
           "line": 1860,
           "column": 55,
           "element": "jsx_text"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 59,
+          "column": 3,
+          "element": "prop_'رقم الهوية'"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 104,
+          "column": 5,
+          "element": "prop_'رقم الهوية'"
         }
       ],
       "semanticConflictGroupId": "conflict_رقم_الهوية",
-      "duplicateGroupId": "dup_رقم_الهوية_10",
+      "duplicateGroupId": "dup_رقم_الهوية_12",
       "notes": [
         "Semantic conflict group conflict_رقم_الهوية: Retained distinct key \"other.fields.txt_d589ba\" to avoid accidental merge."
       ],
@@ -333821,7 +333939,7 @@
       "sourceReferences": [
         {
           "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 194,
+          "line": 218,
           "column": 55,
           "element": "jsx_text"
         }
@@ -333871,7 +333989,7 @@
       "sourceReferences": [
         {
           "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 219,
+          "line": 243,
           "column": 19,
           "element": "jsx_text"
         }
@@ -334500,7 +334618,7 @@
           "element": "prop_'٠'"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -336145,6 +336263,62 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.accepted": {
+      "key": "other.labels.accepted",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "accepted",
+      "proposedTextEn": "accepted",
+      "proposedTextUr": "accepted",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 130,
+          "column": 17,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 173,
+          "column": 21,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_accepted_35",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.access": {
       "key": "other.labels.access",
       "category": "other",
@@ -337703,7 +337877,7 @@
         },
         {
           "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 255,
+          "line": 279,
           "column": 76,
           "element": "literal"
         }
@@ -338848,7 +339022,7 @@
       "sourceReferences": [
         {
           "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 227,
+          "line": 251,
           "column": 43,
           "element": "call_update"
         }
@@ -340542,7 +340716,7 @@
       "sourceReferences": [
         {
           "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 215,
+          "line": 239,
           "column": 43,
           "element": "call_update"
         }
@@ -345247,6 +345421,62 @@
       ],
       "notes": [
         "Protected business/currency tokens: [SAR] must not be altered",
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.batch102001": {
+      "key": "other.labels.batch102001",
+      "category": "other",
+      "semanticContext": "prop_importBatchId",
+      "sourceTextAr": "BATCH-102-001",
+      "proposedTextEn": "BATCH-102-001",
+      "proposedTextUr": "BATCH-102-001",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 148,
+          "column": 20,
+          "element": "prop_importBatchId"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 150,
+          "column": 59,
+          "element": "prop_importBatchId"
+        }
+      ],
+      "duplicateGroupId": "dup_BATCH_102_001_2",
+      "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
       "validationErrors": [],
@@ -350079,7 +350309,7 @@
           "element": "call_includes"
         }
       ],
-      "duplicateGroupId": "dup_button_164",
+      "duplicateGroupId": "dup_button_167",
       "notes": [
         "Protected business/currency tokens: [TON] must not be altered",
         "Ambiguous/isolated string: Human verification required before translation."
@@ -351027,6 +351257,141 @@
           "line": 498,
           "column": 11,
           "element": "prop_id"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.car001": {
+      "key": "other.labels.car001",
+      "category": "other",
+      "semanticContext": "prop_carrierId",
+      "sourceTextAr": "CAR-001",
+      "proposedTextEn": "CAR-001",
+      "proposedTextUr": "CAR-001",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 78,
+          "column": 29,
+          "element": "prop_carrierId"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 80,
+          "column": 93,
+          "element": "prop_carrierId"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 84,
+          "column": 58,
+          "element": "prop_carrierId"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 127,
+          "column": 63,
+          "element": "prop_originalValue"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 127,
+          "column": 85,
+          "element": "prop_matchedId"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 170,
+          "column": 67,
+          "element": "prop_originalValue"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 170,
+          "column": 89,
+          "element": "prop_matchedId"
+        }
+      ],
+      "duplicateGroupId": "dup_CAR_001_15",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.car002": {
+      "key": "other.labels.car002",
+      "category": "other",
+      "semanticContext": "prop_carrierId",
+      "sourceTextAr": "CAR-002",
+      "proposedTextEn": "CAR-002",
+      "proposedTextUr": "CAR-002",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 81,
+          "column": 90,
+          "element": "prop_carrierId"
         }
       ],
       "notes": [
@@ -364105,6 +364470,111 @@
         }
       ],
       "duplicateGroupId": "dup_DRV_01_9",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.drv100001": {
+      "key": "other.labels.drv100001",
+      "category": "other",
+      "semanticContext": "prop_driverId",
+      "sourceTextAr": "DRV-100001",
+      "proposedTextEn": "DRV-100001",
+      "proposedTextUr": "DRV-100001",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 80,
+          "column": 19,
+          "element": "prop_driverId"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 96,
+          "column": 104,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_DRV_100001_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.drv100002": {
+      "key": "other.labels.drv100002",
+      "category": "other",
+      "semanticContext": "prop_driverId",
+      "sourceTextAr": "DRV-100002",
+      "proposedTextEn": "DRV-100002",
+      "proposedTextUr": "DRV-100002",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 81,
+          "column": 19,
+          "element": "prop_driverId"
+        }
+      ],
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -386203,6 +386673,56 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.mat001": {
+      "key": "other.labels.mat001",
+      "category": "other",
+      "semanticContext": "prop_materialId",
+      "sourceTextAr": "MAT-001",
+      "proposedTextEn": "MAT-001",
+      "proposedTextUr": "MAT-001",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 87,
+          "column": 21,
+          "element": "prop_materialId"
+        }
+      ],
+      "duplicateGroupId": "dup_MAT_001_3",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.mat01": {
       "key": "other.labels.mat01",
       "category": "other",
@@ -393857,6 +394377,104 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.op102Commit": {
+      "key": "other.labels.op102Commit",
+      "category": "other",
+      "semanticContext": "prop_operationId",
+      "sourceTextAr": "OP-102-COMMIT",
+      "proposedTextEn": "OP-102-COMMIT",
+      "proposedTextUr": "OP-102-COMMIT",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 177,
+          "column": 18,
+          "element": "prop_operationId"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.op102Test": {
+      "key": "other.labels.op102Test",
+      "category": "other",
+      "semanticContext": "prop_operationId",
+      "sourceTextAr": "OP-102-TEST",
+      "proposedTextEn": "OP-102-TEST",
+      "proposedTextUr": "OP-102-TEST",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 76,
+          "column": 16,
+          "element": "prop_operationId"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.opAuditEr": {
       "key": "other.labels.opAuditEr",
       "category": "other",
@@ -398555,6 +399173,74 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.prj": {
+      "key": "other.labels.prj",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "PRJ",
+      "proposedTextEn": "PRJ",
+      "proposedTextUr": "PRJ",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 144,
+          "column": 73,
+          "element": "literal"
+        },
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 157,
+          "column": 119,
+          "element": "literal"
+        },
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 164,
+          "column": 112,
+          "element": "literal"
+        },
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 180,
+          "column": 84,
+          "element": "literal"
+        }
+      ],
+      "duplicateGroupId": "dup_PRJ_4",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.prj01": {
       "key": "other.labels.prj01",
       "category": "other",
@@ -402420,6 +403106,86 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.qPrj001": {
+      "key": "other.labels.qPrj001",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "Q-PRJ-001",
+      "proposedTextEn": "Q-PRJ-001",
+      "proposedTextUr": "Q-PRJ-001",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 15,
+          "column": 24,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 28,
+          "column": 24,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 42,
+          "column": 36,
+          "element": "call_canEditProject"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 47,
+          "column": 36,
+          "element": "call_canEditProject"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 74,
+          "column": 14,
+          "element": "prop_projectId"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 149,
+          "column": 16,
+          "element": "prop_projectId"
+        }
+      ],
+      "duplicateGroupId": "dup_Q_PRJ_001_14",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.qPrj0095": {
       "key": "other.labels.qPrj0095",
       "category": "other",
@@ -403451,7 +404217,7 @@
         },
         {
           "file": "src/types/entities.ts",
-          "line": 454,
+          "line": 456,
           "column": 40,
           "element": "literal"
         }
@@ -405923,11 +406689,24 @@
       "sourceReferences": [
         {
           "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 139,
-          "column": 43,
+          "line": 145,
+          "column": 32,
+          "element": "call_update"
+        },
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 157,
+          "column": 47,
+          "element": "call_update"
+        },
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 164,
+          "column": 47,
           "element": "call_update"
         }
       ],
+      "duplicateGroupId": "dup_rootFolderName_3",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -410157,55 +410936,6 @@
       },
       "isReportOrExportField": false
     },
-    "other.labels.spreadsheettitle": {
-      "key": "other.labels.spreadsheettitle",
-      "category": "other",
-      "semanticContext": "call_update",
-      "sourceTextAr": "spreadsheetTitle",
-      "proposedTextEn": "spreadsheetTitle",
-      "proposedTextUr": "spreadsheetTitle",
-      "statusEn": "AMBIGUOUS",
-      "statusUr": "AMBIGUOUS",
-      "confidence": "LOW",
-      "reviewRequired": true,
-      "reviewReasons": [
-        "LOW_CONFIDENCE"
-      ],
-      "risk": "MEDIUM",
-      "tier": 4,
-      "interpolationParams": [],
-      "pluralization": {
-        "required": false,
-        "formsAr": [
-          "zero",
-          "one",
-          "two",
-          "few",
-          "many",
-          "other"
-        ]
-      },
-      "protectedTokens": [],
-      "sourceReferences": [
-        {
-          "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 153,
-          "column": 43,
-          "element": "call_update"
-        }
-      ],
-      "notes": [
-        "Ambiguous/isolated string: Human verification required before translation."
-      ],
-      "validationErrors": [],
-      "directionMetadata": {
-        "ar": "rtl",
-        "en": "ltr",
-        "ur": "rtl",
-        "hasMixedDirectionContent": false
-      },
-      "isReportOrExportField": false
-    },
     "other.labels.src": {
       "key": "other.labels.src",
       "category": "other",
@@ -412610,6 +413340,74 @@
           "element": "prop_validatorName"
         }
       ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.sys": {
+      "key": "other.labels.sys",
+      "category": "other",
+      "semanticContext": "prop_createdBy",
+      "sourceTextAr": "sys",
+      "proposedTextEn": "sys",
+      "proposedTextUr": "sys",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 19,
+          "column": 14,
+          "element": "prop_createdBy"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 20,
+          "column": 14,
+          "element": "prop_updatedBy"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 32,
+          "column": 14,
+          "element": "prop_createdBy"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 33,
+          "column": 14,
+          "element": "prop_updatedBy"
+        }
+      ],
+      "duplicateGroupId": "dup_sys_4",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -419647,6 +420445,56 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.trk101": {
+      "key": "other.labels.trk101",
+      "category": "other",
+      "semanticContext": "prop_truckId",
+      "sourceTextAr": "TRK-101",
+      "proposedTextEn": "TRK-101",
+      "proposedTextUr": "TRK-101",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 84,
+          "column": 18,
+          "element": "prop_truckId"
+        }
+      ],
+      "duplicateGroupId": "dup_TRK_101_2",
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.trk1122": {
       "key": "other.labels.trk1122",
       "category": "other",
@@ -421462,6 +422310,58 @@
         "en": "ltr",
         "ur": "rtl",
         "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.truck_11": {
+      "key": "other.labels.truck_11",
+      "category": "other",
+      "semanticContext": "prop_'نوع الشاحنة'",
+      "sourceTextAr": "نوع الشاحنة",
+      "proposedTextEn": "نوع Truck",
+      "proposedTextUr": "نوع ٹرک",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 61,
+          "column": 3,
+          "element": "prop_'نوع الشاحنة'"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_نوع_الشاحنة",
+      "duplicateGroupId": "dup_نوع_الشاحنة_2",
+      "notes": [
+        "Semantic conflict group conflict_نوع_الشاحنة: Retained distinct key \"other.labels.truck_11\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
       },
       "isReportOrExportField": false
     },
@@ -429473,6 +430373,54 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_1d6ffd": {
+      "key": "other.labels.txt_1d6ffd",
+      "category": "other",
+      "semanticContext": "template_literal",
+      "sourceTextAr": "سجل رحلات وموازين (${projectCode || 'PRJ'})",
+      "proposedTextEn": "سجل رحلات وموازين (${projectCode || 'PRJ'})",
+      "proposedTextUr": "سجل رحلات وموازين (${projectCode || 'PRJ'})",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 180,
+          "column": 47,
+          "element": "template_literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_1d7c65": {
       "key": "other.labels.txt_1d7c65",
       "category": "other",
@@ -429900,6 +430848,54 @@
           "line": 220,
           "column": 20,
           "element": "prop_title"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_1e54e2": {
+      "key": "other.labels.txt_1e54e2",
+      "category": "other",
+      "semanticContext": "template_literal",
+      "sourceTextAr": "[Q-Saudi] ${projectCode || 'PRJ'} - ${projectName || 'مشروع جديد'}",
+      "proposedTextEn": "[Q-Saudi] ${projectCode || 'PRJ'} - ${projectName || 'مشروع جديد'}",
+      "proposedTextUr": "[Q-Saudi] ${projectCode || 'PRJ'} - ${projectName || 'مشروع جديد'}",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 144,
+          "column": 45,
+          "element": "template_literal"
         }
       ],
       "notes": [],
@@ -433008,6 +434004,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_250fcc": {
+      "key": "other.labels.txt_250fcc",
+      "category": "other",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "المجلد المكتشف:",
+      "proposedTextEn": "المجلد المكتشف:",
+      "proposedTextUr": "المجلد المكتشف:",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 139,
+          "column": 23,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_25129f": {
       "key": "other.labels.txt_25129f",
       "category": "other",
@@ -433406,6 +434449,65 @@
         }
       ],
       "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_253232": {
+      "key": "other.labels.txt_253232",
+      "category": "other",
+      "semanticContext": "prop_name",
+      "sourceTextAr": "شركة النقل الوطنية",
+      "proposedTextEn": "شركة النقل الوtonية",
+      "proposedTextUr": "شركة النقل الوٹنية",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "MEDIUM",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [
+        "TON"
+      ],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 78,
+          "column": 46,
+          "element": "prop_name"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 105,
+          "column": 19,
+          "element": "prop_'شركة النقل'"
+        }
+      ],
+      "duplicateGroupId": "dup_شركة_النقل_الوطنية_2",
+      "notes": [
+        "Protected business/currency tokens: [TON] must not be altered"
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -434938,6 +436040,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_28dace": {
+      "key": "other.labels.txt_28dace",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "مجلد جديد سينشأ آلياً",
+      "proposedTextEn": "مجلد جديد سينشأ آلياً",
+      "proposedTextUr": "مجلد جديد سينشأ آلياً",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 139,
+          "column": 63,
+          "element": "literal"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_2931ab": {
       "key": "other.labels.txt_2931ab",
       "category": "other",
@@ -435665,6 +436814,53 @@
           "line": 488,
           "column": 44,
           "element": "prop_ur"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_2b646f": {
+      "key": "other.labels.txt_2b646f",
+      "category": "other",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "استخدام الهيكل التلقائي للمشروع",
+      "proposedTextEn": "استخدام الهيكل التلقائي للمشروع",
+      "proposedTextUr": "استخدام الهيكل التلقائي للمشروع",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 149,
+          "column": 23,
+          "element": "jsx_text"
         }
       ],
       "notes": [],
@@ -440150,6 +441346,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_32c404": {
+      "key": "other.labels.txt_32c404",
+      "category": "other",
+      "semanticContext": "prop_materialName",
+      "sourceTextAr": "مادة غريبة غير معرفة",
+      "proposedTextEn": "مادة غريبة غير معرفة",
+      "proposedTextUr": "مادة غريبة غير معرفة",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 124,
+          "column": 19,
+          "element": "prop_materialName"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_32f503": {
       "key": "other.labels.txt_32f503",
       "category": "other",
@@ -441605,6 +442848,58 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_368a4e": {
+      "key": "other.labels.txt_368a4e",
+      "category": "other",
+      "semanticContext": "prop_driverName",
+      "sourceTextAr": "علي حسن",
+      "proposedTextEn": "علي حسن",
+      "proposedTextUr": "علي حسن",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 123,
+          "column": 17,
+          "element": "prop_driverName"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_علي_حسن",
+      "duplicateGroupId": "dup_علي_حسن_11",
+      "notes": [
+        "Semantic conflict group conflict_علي_حسن: Retained distinct key \"other.labels.txt_368a4e\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_369be0": {
       "key": "other.labels.txt_369be0",
       "category": "other",
@@ -442330,6 +443625,58 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_38c31c": {
+      "key": "other.labels.txt_38c31c",
+      "category": "other",
+      "semanticContext": "prop_'شركة النقل'",
+      "sourceTextAr": "شركة النقل",
+      "proposedTextEn": "شركة النقل",
+      "proposedTextUr": "شركة النقل",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 105,
+          "column": 5,
+          "element": "prop_'شركة النقل'"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_شركة_النقل",
+      "duplicateGroupId": "dup_شركة_النقل_3",
+      "notes": [
+        "Semantic conflict group conflict_شركة_النقل: Retained distinct key \"other.labels.txt_38c31c\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_38d3eb": {
       "key": "other.labels.txt_38d3eb",
       "category": "other",
@@ -442664,10 +444011,16 @@
           "line": 771,
           "column": 51,
           "element": "literal"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 60,
+          "column": 17,
+          "element": "prop_'رقم اللوحة'"
         }
       ],
       "semanticConflictGroupId": "conflict_أ_ب_ج_1_2_3_4",
-      "duplicateGroupId": "dup_أ_ب_ج_1_2_3_4_5",
+      "duplicateGroupId": "dup_أ_ب_ج_1_2_3_4_6",
       "notes": [
         "Semantic conflict group conflict_أ_ب_ج_1_2_3_4: Retained distinct key \"other.labels.txt_395f35\" to avoid accidental merge."
       ],
@@ -446878,6 +448231,53 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_45de96": {
+      "key": "other.labels.txt_45de96",
+      "category": "other",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "تحديد مجلد Google Drive للمشروع عبر المنتقي المؤسسي",
+      "proposedTextEn": "تحديد مجلد Google Drive للمشروع عبر المنتقي المؤسسي",
+      "proposedTextUr": "تحديد مجلد Google Drive للمشروع عبر المنتقي المؤسسي",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 134,
+          "column": 19,
+          "element": "jsx_text"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_461552": {
       "key": "other.labels.txt_461552",
       "category": "other",
@@ -448782,6 +450182,53 @@
           "line": 579,
           "column": 13,
           "element": "prop_name"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": true
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_4a9030": {
+      "key": "other.labels.txt_4a9030",
+      "category": "other",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "عنوان ملف Google Sheet (تلقائي)",
+      "proposedTextEn": "عنوان ملف Google Sheet (تلقائي)",
+      "proposedTextUr": "عنوان ملف Google Sheet (تلقائي)",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 176,
+          "column": 19,
+          "element": "jsx_text"
         }
       ],
       "notes": [],
@@ -451627,6 +453074,66 @@
       "notes": [
         "Semantic conflict group conflict_محرك_حسابي_خادومي: Retained distinct key \"other.labels.txt_518cd3\" to avoid accidental merge."
       ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_519362": {
+      "key": "other.labels.txt_519362",
+      "category": "other",
+      "semanticContext": "prop_'اسم السائق'",
+      "sourceTextAr": "محمد علي السعيد",
+      "proposedTextEn": "محمد علي السعيد",
+      "proposedTextUr": "محمد علي السعيد",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 57,
+          "column": 17,
+          "element": "prop_'اسم السائق'"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 64,
+          "column": 34,
+          "element": "literal"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 80,
+          "column": 39,
+          "element": "prop_name"
+        }
+      ],
+      "duplicateGroupId": "dup_محمد_علي_السعيد_3",
+      "notes": [],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -456289,6 +457796,58 @@
       },
       "isReportOrExportField": false
     },
+    "other.labels.txt_5b3ee9": {
+      "key": "other.labels.txt_5b3ee9",
+      "category": "other",
+      "semanticContext": "literal",
+      "sourceTextAr": "مشروع جديد",
+      "proposedTextEn": "مشروع جديد",
+      "proposedTextUr": "مشروع جديد",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "SEMANTIC_CONFLICT",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 144,
+          "column": 99,
+          "element": "literal"
+        }
+      ],
+      "semanticConflictGroupId": "conflict_مشروع_جديد",
+      "duplicateGroupId": "dup_مشروع_جديد_2",
+      "notes": [
+        "Semantic conflict group conflict_مشروع_جديد: Retained distinct key \"other.labels.txt_5b3ee9\" to avoid accidental merge."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
     "other.labels.txt_5b3f86": {
       "key": "other.labels.txt_5b3f86",
       "category": "other",
@@ -457441,6 +459000,54 @@
       "notes": [
         "Semantic conflict group conflict_لازمی_آپریشنل_مراحل_کو_چھوڑنا_: Retained distinct key \"other.labels.txt_5d7d22\" to avoid accidental merge."
       ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_5dfe71": {
+      "key": "other.labels.txt_5dfe71",
+      "category": "other",
+      "semanticContext": "prop_name",
+      "sourceTextAr": "حصى 3/4",
+      "proposedTextEn": "حصى 3/4",
+      "proposedTextUr": "حصى 3/4",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "BUSINESS_DATA_RISK",
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "HIGH",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 87,
+          "column": 38,
+          "element": "prop_name"
+        }
+      ],
+      "notes": [],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -460246,7 +461853,7 @@
       "sourceReferences": [
         {
           "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 256,
+          "line": 280,
           "column": 64,
           "element": "literal"
         }
@@ -464915,7 +466522,7 @@
       "sourceReferences": [
         {
           "file": "src/components/wizard/Step6GoogleDrive.tsx",
-          "line": 256,
+          "line": 280,
           "column": 46,
           "element": "literal"
         }
@@ -466431,6 +468038,53 @@
           "line": 41,
           "column": 18,
           "element": "prop_addressAr"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_73ffca": {
+      "key": "other.labels.txt_73ffca",
+      "category": "other",
+      "semanticContext": "prop_driverName",
+      "sourceTextAr": "عمر الفاروق",
+      "proposedTextEn": "عمر الفاروق",
+      "proposedTextUr": "عمر الفاروق",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 164,
+          "column": 21,
+          "element": "prop_driverName"
         }
       ],
       "notes": [],
@@ -472294,7 +473948,7 @@
     "other.labels.txt_a505f0": {
       "key": "other.labels.txt_a505f0",
       "category": "other",
-      "semanticContext": "prop_fullNameAr",
+      "semanticContext": "prop_name",
       "sourceTextAr": "خالد عبدالله",
       "proposedTextEn": "خالد عبدالله",
       "proposedTextUr": "خالد عبدالله",
@@ -472322,12 +473976,25 @@
       "protectedTokens": [],
       "sourceReferences": [
         {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 81,
+          "column": 39,
+          "element": "prop_name"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 103,
+          "column": 19,
+          "element": "prop_'اسم السائق'"
+        },
+        {
           "file": "src/tests/operationSource.test.ts",
           "line": 337,
           "column": 21,
           "element": "prop_fullNameAr"
         }
       ],
+      "duplicateGroupId": "dup_خالد_عبدالله_3",
       "notes": [],
       "validationErrors": [],
       "directionMetadata": {
@@ -474620,6 +476287,53 @@
           "line": 376,
           "column": 12,
           "element": "prop_title"
+        }
+      ],
+      "notes": [],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.txt_f5fcb6": {
+      "key": "other.labels.txt_f5fcb6",
+      "category": "other",
+      "semanticContext": "jsx_text",
+      "sourceTextAr": "اختيار مجلد من المجلدات المؤسسية المتاحة:",
+      "proposedTextEn": "اختيار مجلد من المجلدات المؤسسية المتاحة:",
+      "proposedTextUr": "اختيار مجلد من المجلدات المؤسسية المتاحة:",
+      "statusEn": "REVIEW_REQUIRED",
+      "statusUr": "REVIEW_REQUIRED",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "LOW",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/components/wizard/Step6GoogleDrive.tsx",
+          "line": 153,
+          "column": 67,
+          "element": "jsx_text"
         }
       ],
       "notes": [],
@@ -478292,6 +480006,160 @@
           "element": "prop_validatorName"
         }
       ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.usr1": {
+      "key": "other.labels.usr1",
+      "category": "other",
+      "semanticContext": "prop_userId",
+      "sourceTextAr": "usr_1",
+      "proposedTextEn": "usr_1",
+      "proposedTextUr": "usr_1",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 11,
+          "column": 11,
+          "element": "prop_userId"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.usr2": {
+      "key": "other.labels.usr2",
+      "category": "other",
+      "semanticContext": "prop_userId",
+      "sourceTextAr": "usr_2",
+      "proposedTextEn": "usr_2",
+      "proposedTextUr": "usr_2",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 24,
+          "column": 11,
+          "element": "prop_userId"
+        }
+      ],
+      "notes": [
+        "Ambiguous/isolated string: Human verification required before translation."
+      ],
+      "validationErrors": [],
+      "directionMetadata": {
+        "ar": "rtl",
+        "en": "ltr",
+        "ur": "rtl",
+        "hasMixedDirectionContent": false
+      },
+      "isReportOrExportField": false
+    },
+    "other.labels.usrAdmin": {
+      "key": "other.labels.usrAdmin",
+      "category": "other",
+      "semanticContext": "prop_userId",
+      "sourceTextAr": "usr_admin",
+      "proposedTextEn": "usr_admin",
+      "proposedTextUr": "usr_admin",
+      "statusEn": "AMBIGUOUS",
+      "statusUr": "AMBIGUOUS",
+      "confidence": "LOW",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "LOW_CONFIDENCE"
+      ],
+      "risk": "MEDIUM",
+      "tier": 4,
+      "interpolationParams": [],
+      "pluralization": {
+        "required": false,
+        "formsAr": [
+          "zero",
+          "one",
+          "two",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      "protectedTokens": [],
+      "sourceReferences": [
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 75,
+          "column": 11,
+          "element": "prop_userId"
+        },
+        {
+          "file": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+          "line": 179,
+          "column": 16,
+          "element": "prop_createdBy"
+        }
+      ],
+      "duplicateGroupId": "dup_usr_admin_3",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -496384,7 +498252,7 @@
           "element": "call_padStart"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -518514,7 +520382,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 93,
+          "line": 102,
           "column": 9,
           "element": "call_toThrow"
         }
@@ -519341,7 +521209,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_اسم_السائق",
-      "duplicateGroupId": "dup_اسم_السائق_16",
+      "duplicateGroupId": "dup_اسم_السائق_18",
       "notes": [
         "Semantic conflict group conflict_اسم_السائق: Retained distinct key \"projects.fields.driverName\" to avoid accidental merge."
       ],
@@ -520139,7 +522007,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_رقم_اللوحة",
-      "duplicateGroupId": "dup_رقم_اللوحة_20",
+      "duplicateGroupId": "dup_رقم_اللوحة_21",
       "notes": [
         "Semantic conflict group conflict_رقم_اللوحة: Retained distinct key \"projects.fields.plateNumber\" to avoid accidental merge."
       ],
@@ -521886,7 +523754,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 124,
+          "line": 140,
           "column": 21,
           "element": "template_literal"
         }
@@ -524687,7 +526555,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_رقم_الجوال",
-      "duplicateGroupId": "dup_رقم_الجوال_12",
+      "duplicateGroupId": "dup_رقم_الجوال_13",
       "notes": [
         "Semantic conflict group conflict_رقم_الجوال: Retained distinct key \"projects.fields.txt_d4c518\" to avoid accidental merge."
       ],
@@ -524803,7 +526671,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_رقم_الهوية",
-      "duplicateGroupId": "dup_رقم_الهوية_10",
+      "duplicateGroupId": "dup_رقم_الهوية_12",
       "notes": [
         "Semantic conflict group conflict_رقم_الهوية: Retained distinct key \"projects.fields.txt_d589ba\" to avoid accidental merge."
       ],
@@ -525195,7 +527063,7 @@
           "element": "call_padStart"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -525493,43 +527361,43 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 61,
+          "line": 66,
           "column": 22,
           "element": "prop_startDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 84,
+          "line": 93,
           "column": 20,
           "element": "prop_startDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 101,
+          "line": 114,
           "column": 20,
           "element": "prop_startDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 127,
+          "line": 144,
           "column": 24,
           "element": "prop_startDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 165,
+          "line": 183,
           "column": 20,
           "element": "prop_startDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 190,
+          "line": 212,
           "column": 20,
           "element": "prop_startDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 229,
+          "line": 255,
           "column": 20,
           "element": "prop_startDate"
         },
@@ -525597,43 +527465,43 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 62,
+          "line": 67,
           "column": 20,
           "element": "prop_endDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 85,
+          "line": 94,
           "column": 18,
           "element": "prop_endDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 102,
+          "line": 115,
           "column": 18,
           "element": "prop_endDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 128,
+          "line": 145,
           "column": 22,
           "element": "prop_endDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 166,
+          "line": 184,
           "column": 18,
           "element": "prop_endDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 191,
+          "line": 213,
           "column": 18,
           "element": "prop_endDate"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 230,
+          "line": 256,
           "column": 18,
           "element": "prop_endDate"
         }
@@ -528695,7 +530563,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 160,
+          "line": 177,
           "column": 22,
           "element": "prop_projectCode"
         }
@@ -532548,7 +534416,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 159,
+          "line": 176,
           "column": 20,
           "element": "prop_projectId"
         }
@@ -534941,7 +536809,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 222,
+          "line": 244,
           "column": 25,
           "element": "literal"
         }
@@ -539312,42 +541180,42 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 34,
+          "line": 36,
           "column": 22,
           "element": "prop_projectId"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 44,
+          "line": 46,
           "column": 20,
           "element": "prop_projectId"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 112,
+          "line": 125,
           "column": 47,
           "element": "call_toBe"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 210,
+          "line": 232,
           "column": 38,
           "element": "call_toBe"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 241,
+          "line": 267,
           "column": 35,
           "element": "call_toBe"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 242,
+          "line": 268,
           "column": 35,
           "element": "call_toBe"
         }
       ],
-      "duplicateGroupId": "dup_Q_PRJ_001_8",
+      "duplicateGroupId": "dup_Q_PRJ_001_14",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -539392,13 +541260,13 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 176,
+          "line": 194,
           "column": 40,
           "element": "call_toBe"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 178,
+          "line": 196,
           "column": 38,
           "element": "call_toBe"
         }
@@ -540403,43 +542271,43 @@
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 66,
+          "line": 71,
           "column": 33,
           "element": "prop_currency"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 89,
+          "line": 98,
           "column": 31,
           "element": "prop_currency"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 106,
+          "line": 119,
           "column": 31,
           "element": "prop_currency"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 132,
+          "line": 149,
           "column": 35,
           "element": "prop_currency"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 170,
+          "line": 188,
           "column": 31,
           "element": "prop_currency"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 196,
+          "line": 218,
           "column": 21,
           "element": "prop_currency"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 234,
+          "line": 260,
           "column": 31,
           "element": "prop_currency"
         }
@@ -541035,7 +542903,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 35,
+          "line": 37,
           "column": 19,
           "element": "prop_nameAr"
         }
@@ -541082,7 +542950,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 59,
+          "line": 64,
           "column": 24,
           "element": "prop_description"
         }
@@ -542443,7 +544311,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 81,
+          "line": 89,
           "column": 17,
           "element": "prop_nameAr"
         }
@@ -542846,7 +544714,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 56,
+          "line": 61,
           "column": 19,
           "element": "prop_nameAr"
         }
@@ -543294,7 +545162,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 226,
+          "line": 251,
           "column": 17,
           "element": "prop_nameAr"
         }
@@ -544396,7 +546264,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 99,
+          "line": 112,
           "column": 21,
           "element": "prop_clientName"
         }
@@ -544443,7 +546311,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 163,
+          "line": 181,
           "column": 21,
           "element": "prop_clientName"
         }
@@ -545132,43 +547000,43 @@
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 65,
+          "line": 70,
           "column": 90,
           "element": "prop_addressAr"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 88,
+          "line": 97,
           "column": 88,
           "element": "prop_addressAr"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 105,
+          "line": 118,
           "column": 88,
           "element": "prop_addressAr"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 131,
+          "line": 148,
           "column": 92,
           "element": "prop_addressAr"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 169,
+          "line": 187,
           "column": 88,
           "element": "prop_addressAr"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 194,
+          "line": 216,
           "column": 88,
           "element": "prop_addressAr"
         },
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 233,
+          "line": 259,
           "column": 88,
           "element": "prop_addressAr"
         }
@@ -546032,7 +547900,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 82,
+          "line": 91,
           "column": 21,
           "element": "prop_clientName"
         }
@@ -546950,7 +548818,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 98,
+          "line": 110,
           "column": 17,
           "element": "prop_nameAr"
         }
@@ -547814,7 +549682,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 162,
+          "line": 179,
           "column": 17,
           "element": "prop_nameAr"
         }
@@ -548201,7 +550069,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 188,
+          "line": 210,
           "column": 21,
           "element": "prop_clientName"
         }
@@ -548248,7 +550116,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 227,
+          "line": 253,
           "column": 21,
           "element": "prop_clientName"
         }
@@ -549419,7 +551287,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 125,
+          "line": 142,
           "column": 25,
           "element": "template_literal"
         }
@@ -550038,7 +551906,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 58,
+          "line": 63,
           "column": 23,
           "element": "prop_clientName"
         }
@@ -553299,7 +555167,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 45,
+          "line": 47,
           "column": 17,
           "element": "prop_nameAr"
         }
@@ -554883,7 +556751,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 187,
+          "line": 208,
           "column": 17,
           "element": "prop_nameAr"
         }
@@ -554979,7 +556847,7 @@
       "sourceReferences": [
         {
           "file": "src/tests/projectCreationAtomicValidationBlock100H.test.ts",
-          "line": 214,
+          "line": 236,
           "column": 61,
           "element": "call_includes"
         }
@@ -561265,7 +563133,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_رقم_اللوحة",
-      "duplicateGroupId": "dup_رقم_اللوحة_20",
+      "duplicateGroupId": "dup_رقم_اللوحة_21",
       "notes": [
         "Semantic conflict group conflict_رقم_اللوحة: Retained distinct key \"reports.fields.plateNumber\" to avoid accidental merge."
       ],
@@ -562394,7 +564262,7 @@
           "element": "prop_format"
         }
       ],
-      "duplicateGroupId": "dup_text_178",
+      "duplicateGroupId": "dup_text_176",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -570180,7 +572048,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -577921,7 +579789,7 @@
           "element": "prop_key"
         }
       ],
-      "duplicateGroupId": "dup_materialName_5",
+      "duplicateGroupId": "dup_materialName_6",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -583639,7 +585507,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_text_178",
+      "duplicateGroupId": "dup_text_176",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -597684,7 +599552,7 @@
           "element": "call_padStart"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -615076,6 +616944,7 @@
       "confidence": "LOW",
       "reviewRequired": true,
       "reviewReasons": [
+        "SEMANTIC_CONFLICT",
         "LOW_CONFIDENCE"
       ],
       "risk": "LOW",
@@ -615101,7 +616970,11 @@
           "element": "literal"
         }
       ],
-      "notes": [],
+      "semanticConflictGroupId": "conflict_مشروع_جديد",
+      "duplicateGroupId": "dup_مشروع_جديد_2",
+      "notes": [
+        "Semantic conflict group conflict_مشروع_جديد: Retained distinct key \"security.labels.txt_5b3ee9\" to avoid accidental merge."
+      ],
       "validationErrors": [],
       "directionMetadata": {
         "ar": "rtl",
@@ -631708,7 +633581,7 @@
           "element": "call_padStart"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -676251,7 +678124,7 @@
           "element": "call_setSettlementNetInput"
         }
       ],
-      "duplicateGroupId": "dup_0_75",
+      "duplicateGroupId": "dup_0_76",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],
@@ -676964,7 +678837,7 @@
         }
       ],
       "semanticConflictGroupId": "conflict_اسم_السائق",
-      "duplicateGroupId": "dup_اسم_السائق_16",
+      "duplicateGroupId": "dup_اسم_السائق_18",
       "notes": [
         "Semantic conflict group conflict_اسم_السائق: Retained distinct key \"weighbridge.fields.driverName\" to avoid accidental merge."
       ],
@@ -683010,7 +684883,7 @@
           "element": "literal"
         }
       ],
-      "duplicateGroupId": "dup_accepted_33",
+      "duplicateGroupId": "dup_accepted_35",
       "notes": [
         "Ambiguous/isolated string: Human verification required before translation."
       ],

@@ -1,0 +1,72 @@
+{
+  "auditMetadata": {
+    "blockId": "BLOCK 101",
+    "auditTitle": "Operational Permissions & Smart Roster Import Forensic Audit",
+    "timestamp": "2026-09-15T11:11:00Z",
+    "environment": "Production Cloud Run / Firebase Firestore Sandbox",
+    "auditMode": "READ_ONLY_FORENSIC",
+    "targetProject": "Q-PRJ-001",
+    "authenticatedUser": {
+      "userId": "tnvNvIwUdgSrud72N38LhJfBlhw2",
+      "email": "raharaya2002@gmail.com"
+    }
+  },
+  "userAccessAnalysis": {
+    "firestoreUserDocument": "users/tnvNvIwUdgSrud72N38LhJfBlhw2",
+    "assignedRoleInDatabase": "VIEWER",
+    "accountStatusInDatabase": "PENDING_APPROVAL",
+    "assignedProjectIds": [],
+    "rootCauseAnalysis": {
+      "autoProvisioning": "When new Google Auth users sign in for the first time without prior admin provision, authContext.tsx provisions a default profile with role VIEWER and assignedProjectIds [].",
+      "clientRoleSwitcherIllusion": "The header role selector in App.tsx updates React state currentRole in the browser UI, but Firestore Security Rules execute server-side on Google Cloud evaluating the actual document in /users/{uid}.",
+      "authorizationMismatch": "Since /users/tnvNvIwUdgSrud72N38LhJfBlhw2 has role VIEWER and assignedProjectIds [], hasProjectRole('Q-PRJ-001', ['PROJECT_ADMIN', 'SUPER_ADMIN']) evaluates to false."
+    }
+  },
+  "rosterPermissionErrorDiagnosis": {
+    "targetPath": "projects/Q-PRJ-001/roster/RST-MU2Z7M4L",
+    "operationAttempted": "CREATE / SET",
+    "repository": "src/repositories/projectCarrierRoster.repository.ts",
+    "securityRuleClause": "match /projects/{projectId}/roster/{rosterId} { allow create, update: if isSignedIn() && isValidId(rosterId) && hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) && ...; }",
+    "denialReason": "User tnvNvIwUdgSrud72N38LhJfBlhw2 lacks PROJECT_ADMIN or SUPER_ADMIN role in Firestore /users collection and Q-PRJ-001 is missing from assignedProjectIds.",
+    "errorCode": "PERMISSION_DENIED",
+    "errorMessage": "Missing or insufficient permissions."
+  },
+  "driveSelectorRegressionAnalysis": {
+    "issue": "Manual folder name/ID input still exposed in UI despite BLOCK 100G-D specifications.",
+    "locationsIdentified": [
+      "src/components/wizard/Step6GoogleDrive.tsx (rootFolderName text input)",
+      "src/components/workspace/WorkspaceIntegrationView.tsx (pastedDriveUrl and targetFolderId text input)"
+    ],
+    "rootCause": "Wizard Phase 6 and Workspace settings retained legacy text input elements alongside the new Enterprise Drive Picker, creating UI confusion.",
+    "remediationRequirement": "Replace raw text inputs with the Enterprise Folder Selector modal as primary UX, automatically resolving folder IDs via server-side API calls."
+  },
+  "smartRosterImportArchitectureAudit": {
+    "pipelineOrchestrator": "src/services/import/unifiedImportPipeline.service.ts",
+    "driverTruckPipeline": "src/services/import/driverTruckImport.ts",
+    "supportedFileFormats": [
+      "Excel (.xlsx, .xls via excelParser.service.ts)",
+      "CSV (.csv via csvParser.service.ts)",
+      "Google Sheets (via googleSheetsParser.service.ts / googleSheetsPipeline.service.ts)"
+    ],
+    "intelligentParsingCapabilities": {
+      "columnAliasing": "Supports Arabic & English header variations (اسم السائق, رقم الهوية, رقم اللوحة, driverName, truckPlate, etc.)",
+      "normalization": "Normalizes names, Saudi phone numbers (+966), 10-digit National ID/Iqama, and Saudi license plate numbers.",
+      "entityResolution": "Matches drivers and trucks against known project entities with confidence scoring (100 = Exact, 90 = Normalized, 75 = Fuzzy).",
+      "conflictDetection": "Detects DRIVER_CARRIER_CONFLICT and RELATIONSHIP_CONFLICT if driver or truck is registered to a different carrier."
+    },
+    "reviewBeforeCommitWorkflow": {
+      "inMemoryProcessing": "Stages 1-8 (PARSE -> NORMALIZE -> MAP -> RESOLVE -> VALIDATE -> DUPLICATE_CHECK -> REVIEW) execute entirely in client memory with zero Firestore side effects.",
+      "commitGating": "Writing to Firestore only occurs during Stage 9 (COMMIT) after explicit user confirmation of reviewed rows."
+    }
+  },
+  "entityAndIdLogicVerification": {
+    "globalDriverId": "DRV-IMP-{timestamp}-{hash} (Stored in drivers collection, linked to primary carrierId)",
+    "projectRosterId": "RST-{hash} (Stored in projects/{projectId}/roster/{rosterId}, links carrier, driver, truck, and allowed materialIds to specific project scope)",
+    "materialAssignmentScope": "Roster records specify allowed materialIds from projects/{projectId}/materials to bound weighbridge ticket operations."
+  },
+  "recommendations": [
+    "Assign PROJECT_ADMIN or SUPER_ADMIN role and Q-PRJ-001 to user profile in /users/tnvNvIwUdgSrud72N38LhJfBlhw2 in Firestore.",
+    "Consolidate Google Drive storage selection UX across Step6GoogleDrive.tsx and WorkspaceIntegrationView.tsx into the unified Enterprise Folder Picker.",
+    "Verify Roster creation via AdminConsole or user management tooling once role permissions are updated."
+  ]
+}

@@ -107,7 +107,7 @@ This document contains domain-specific terminology requiring human verification 
 | `weighbridge.fields.null` | "null" | attr_placeholder | `MEDIUM` | Semantic conflict isolation |
 | ... | *and 398 more items in this domain queue* | | | |
 
-## Domain: `imports` (1667 items requiring review)
+## Domain: `imports` (1669 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -131,7 +131,7 @@ This document contains domain-specific terminology requiring human verification 
 | `imports.fields.date_2` | "صيغة التاريخ غير صالحة (${dateStr}). يجب أن تكون YYYY-MM-DD." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {dateStr}) |
 | `imports.fields.destnetweight` | "destNetWeight" | prop_canonicalField | `MEDIUM` | Domain-specific terminology translation |
 | `imports.fields.details` | "تم التحقق من تسجيل تفاصيل العمليات (إنشاء، استيراد) مباشرة في سجل التدقيق التاريخي للعمليات اللوجستية." | call_record | `HIGH` | Domain-specific terminology translation |
-| ... | *and 1647 more items in this domain queue* | | | |
+| ... | *and 1649 more items in this domain queue* | | | |
 
 ## Domain: `entityResolution` (268 items requiring review)
 

@@ -6,10 +6,11 @@ import {
   ImportResult, 
   PipelineContext 
 } from '../../types/unifiedImport';
-import { DriverEntity, TruckEntity } from '../../types/entities';
+import { DriverEntity, TruckEntity, ProjectCarrierRosterEntity } from '../../types/entities';
 import { driverRepository } from '../../repositories/driver.repository';
 import { truckRepository } from '../../repositories/truck.repository';
 import { carrierRepository } from '../../repositories/carrier.repository';
+import { projectCarrierRosterRepository } from '../../repositories/projectCarrierRoster.repository';
 import { auditLogService } from '../auditLog.service';
 import { 
   normalizeName, 
@@ -347,6 +348,29 @@ export class DriverTruckImportValidator {
       });
     }
 
+    // F. Material Scope Validation
+    if (canonical.materialName || canonical.materialId) {
+      const matName = normalizeName(String(canonical.materialName || ''));
+      const matId = String(canonical.materialId || '');
+      const knownMaterials = context.knownEntities?.materials || [];
+      const matchedMat = knownMaterials.find(
+        (m) => normalizeName(m.name) === matName || m.code === matId || m.materialId === matId
+      );
+      if (!matchedMat && knownMaterials.length > 0) {
+        issues.push({
+          issueId: `ISSUE-${row.rowNumber}-MAT-UNKNOWN`,
+          row: row.rowNumber,
+          field: 'materialName',
+          code: 'UNRESOLVED_MATERIAL',
+          severity: 'BLOCKING',
+          message: `المادة غير معرّفة في المشروع [${canonical.materialName || canonical.materialId}]`,
+          messageAr: `المادة غير معرّفة في المشروع [${canonical.materialName || canonical.materialId}]`,
+          resolvable: false,
+          blocking: true,
+        });
+      }
+    }
+
     return issues;
   }
 }
@@ -455,6 +479,10 @@ export class DriverTruckImportCommitter {
     const activeRows = batch.rows.filter((r) => r.status !== 'REJECTED' && r.reviewStatus !== 'error');
     const committedIds: string[] = [];
 
+    // Fetch existing project roster count for sequence calculation
+    const existingRoster = await projectCarrierRosterRepository.listByProject(batch.projectId).catch(() => []);
+    let rosterSeq = (existingRoster?.length || 0) + 1;
+
     for (const row of activeRows) {
       const canonical = row.canonical || row.raw || {};
       const carrierId = row.entityResolutions?.carrier?.matchedId || context.knownEntities?.carriers?.[0]?.carrierId;
@@ -466,7 +494,7 @@ export class DriverTruckImportCommitter {
 
       // A. Commit Truck if plate exists
       if (canonical.truckPlate) {
-        const truckId = row.entityResolutions?.truck?.matchedId || `TRK-IMP-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+        const truckId = row.entityResolutions?.truck?.matchedId || `TRK-${normalizePlate(canonical.truckPlate)}`;
         createdTruckId = truckId;
 
         const truckPayload: TruckEntity = {
@@ -507,7 +535,8 @@ export class DriverTruckImportCommitter {
 
       // B. Commit Driver if name exists
       if (canonical.driverName) {
-        const driverId = row.entityResolutions?.driver?.matchedId || `DRV-IMP-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+        const globalDriverSeq = String(Math.floor(100000 + Math.random() * 900000));
+        const driverId = row.entityResolutions?.driver?.matchedId || `DRV-${globalDriverSeq}`;
         createdDriverId = driverId;
 
         const driverPayload: DriverEntity = {
@@ -551,6 +580,44 @@ export class DriverTruckImportCommitter {
           currentAssignedTruckId: createdTruckId
         }, context.userId);
       }
+
+      // D. Commit Project Carrier Roster Record
+      const rosterId = `${batch.projectId}-DRV-${String(rosterSeq++).padStart(5, '0')}`;
+      const rosterPayload: ProjectCarrierRosterEntity = {
+        rosterId,
+        projectId: batch.projectId,
+        carrierId,
+        driverName: canonical.driverName || '',
+        plateNumber: canonical.truckPlate || '',
+        phone: canonical.driverPhone || '',
+        residencyId: canonical.driverIdentity || '',
+        globalDriverId: createdDriverId,
+        materialId: canonical.materialId || '',
+        materialIds: canonical.materialIds || [],
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString() as any,
+        updatedAt: new Date().toISOString() as any,
+        createdBy: context.userId,
+        updatedBy: context.userId,
+      };
+
+      await projectCarrierRosterRepository.create(rosterPayload);
+      committedIds.push(rosterId);
+
+      // Audit Roster Creation
+      await auditLogService.recordLog({
+        projectId: batch.projectId,
+        entityType: 'ROSTER_ENTRY' as any,
+        entityId: rosterId,
+        action: 'CREATE',
+        after: rosterPayload,
+      }, {
+        userId: context.userId,
+        email: context.userId,
+        displayName: context.userName || context.userId,
+        role: context.role as any,
+        assignedProjectIds: [batch.projectId],
+      });
     }
 
     return {
