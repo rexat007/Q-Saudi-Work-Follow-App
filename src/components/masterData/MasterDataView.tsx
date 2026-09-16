@@ -221,17 +221,14 @@ export const MasterDataView: React.FC<{
           setOverview(null);
         }
       } catch (err: any) {
-        console.warn('Live Firestore synchronization issue, using runtime fallback:', err);
-        const liveProjects = adminConsoleService.getProjects();
-        setInternalProjects(liveProjects);
-        if (liveProjects.length > 0) {
-          const defaultProjId = liveProjects[0].projectId;
-          setInternalSelectedProjectId(defaultProjId);
-          setOverview(buildLocalOverview(defaultProjId, localCarriers, localMaterials, localTrucks, localDrivers));
-        } else {
-          setInternalSelectedProjectId('');
-          setOverview(null);
-        }
+        console.warn('Live Firestore synchronization issue:', err);
+        setInternalProjects([]);
+        setInternalSelectedProjectId('');
+        setOverview(null);
+        setActionNotice({
+          message: 'فشل مزامنة بيانات المشاريع من الخادم. يرجى التحقق من الاتصال والمحاولة لاحقاً.',
+          type: 'error',
+        });
       } finally {
         setLoading(false);
       }

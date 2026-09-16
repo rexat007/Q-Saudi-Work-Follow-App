@@ -1,0 +1,44 @@
+{
+  "reportId": "FORENSIC-103A-GHOST-DATA-RESURRECTION",
+  "incidentClassification": "P0_DATA_RESURRECTION",
+  "status": "ROOT_CAUSE_IDENTIFIED",
+  "rootCauseAnalysis": {
+    "primaryMechanism": "IndexedDB Upsert-Only Synchronization (Lack of Tombstoning/Deletions)",
+    "detailedDescription": "When master data (projects, carriers, etc.) is synchronized to the IndexedDB offline cache (e.g., via offlineCacheService.seedAllMasterData or manual cache refreshes), the indexedDBService.putMany() method performs UPSERT operations using store.put(). It DOES NOT reconcile or delete records that no longer exist in the upstream source. Consequently, when a record is deleted from Firestore, it becomes an 'orphaned' record living perpetually in the IndexedDB cache.",
+    "resurrectionPathway": "Upon application startup or when navigating to offline-capable views (LoadingStation, UnloadingStation), the UI retrieves data via offlineCacheService.getProjects(), which reads directly from indexedDBService.getAll('projects'). The orphaned/deleted records are fetched and rendered in the UI, causing them to 'reappear'.",
+    "compoundingRisk": "If a user selects a resurrected (deleted) project or carrier in the Loading Station to create an offline trip, the OutboxService queues a CREATE_TRIP_LOADING operation. Upon reconnection, the Outbox syncs this trip to the server without strictly validating the real-time existence of the master data, effectively creating active trips linked to deleted entities."
+  },
+  "affectedSubsystems": [
+    {
+      "system": "IndexedDBService",
+      "file": "src/services/offline/indexedDB.service.ts",
+      "issue": "putMany() method lacks deletion/reconciliation logic for missing upstream records."
+    },
+    {
+      "system": "OfflineCacheService",
+      "file": "src/services/offline/offlineCache.service.ts",
+      "issue": "getProjects(), getCarriers(), etc., return all IndexedDB records unconditionally, including orphaned/deleted ones."
+    },
+    {
+      "system": "MasterDataView",
+      "file": "src/components/masterData/MasterDataView.tsx",
+      "issue": "Fallback error handler uses adminConsoleService.getProjects(), creating a pathway to inject static demo fixtures if the service was ever seeded."
+    },
+    {
+      "system": "DataCleanupService",
+      "file": "src/services/dataCleanup.service.ts",
+      "issue": "IndexedDB cleanup relies on hardcoded string matching (e.g., 'NEOM', 'BINLADIN') rather than reconciling against active Firestore records."
+    }
+  ],
+  "safetyInvariantsBreached": [
+    "DELETED_RECORDS_MUST_NOT_BE_RENDERED",
+    "OFFLINE_CACHE_MUST_MIRROR_AUTHORITATIVE_SOURCE",
+    "FALLBACKS_MUST_NOT_INJECT_STATIC_FIXTURES_IN_PRODUCTION"
+  ],
+  "recommendedRemediation": [
+    "Implement a full synchronization/reconciliation protocol in indexedDBService that clears stale records or applies tombstones.",
+    "Remove adminConsoleService fallback injection from MasterDataView.tsx.",
+    "Enhance Outbox server-side validation to reject trips associated with deleted master data.",
+    "Refactor DataCleanupService to cross-reference IndexedDB records against authoritative Firestore state instead of using static heuristics."
+  ]
+}

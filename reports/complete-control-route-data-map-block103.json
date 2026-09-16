@@ -1,0 +1,252 @@
+{
+  "summary": {
+    "TOTAL_ROUTES": 25,
+    "TOTAL_NAVIGATION_NODES": 25,
+    "TOTAL_INTERACTIVE_CONTROLS": 608,
+    "TOTAL_PERMISSION_CONTROLS": 3,
+    "TOTAL_PROJECT_CONTROLS": 23,
+    "TOTAL_SYSTEM_TOOL_CONTROLS": 0,
+    "TOTAL_IMPORT_CONTROLS": 8,
+    "TOTAL_STORAGE_CONTROLS": 12,
+    "DUPLICATE_CONTROL_FAMILIES": 0,
+    "LEGACY_REACHABLE_CONTROLS": 0,
+    "DEVELOPER_ONLY_CONTROLS": 0,
+    "TEST_ONLY_CONTROLS": 0,
+    "UNREACHABLE_CONTROLS": 0,
+    "ROLE_CONTROL_DUPLICATION": "NO",
+    "PROJECT_CONTROL_DUPLICATION": "NO",
+    "MULTIPLE_PERMISSION_AUTHORITIES": "NO",
+    "MULTIPLE_PROJECT_AUTHORITIES": "NO",
+    "MULTIPLE_DATA_SOURCES": "YES",
+    "DATA_RESTORATION_PATHS_FOUND": 52,
+    "FIRESTORE_REWRITE_FROM_FALLBACK": "YES",
+    "FIRESTORE_REWRITE_FROM_CACHE": "NO",
+    "FIXTURE_REENTRY_PATH": "YES",
+    "SEED_REENTRY_PATH": "YES",
+    "OFFLINE_REPLAY_RESTORE_RISK": "NO",
+    "SERVICE_WORKER_RESTORE_RISK": "NO",
+    "GLOBAL_PERMISSION_AUTHORITY_CURRENT": "effectiveRole",
+    "PROJECT_PERMISSION_AUTHORITY_CURRENT": "assignedProjectIds",
+    "TARGET_GLOBAL_PERMISSION_AUTHORITY": "ADMIN_CONSOLE",
+    "TARGET_PROJECT_PERMISSION_AUTHORITY": "PROJECT_SETTINGS",
+    "DRIVE_CONTROL_DUPLICATION": "NO",
+    "PROJECT_MANAGEMENT_DUPLICATION": "NO",
+    "CURRENT_SYSTEM_TOOLS_COMPLEXITY": "high",
+    "REBUILD_RECOMMENDED": "YES",
+    "P0_FINDINGS": 1,
+    "P1_FINDINGS": 0,
+    "P2_FINDINGS": 0,
+    "P3_FINDINGS": 0,
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "DRIVE_CHANGED": "NO",
+    "FIREBASE_CHANGED": "NO",
+    "I18N_CHANGED": "NO",
+    "DEPLOYMENT_CHANGED": "NO",
+    "DO_NOT_IMPLEMENT": "YES",
+    "AUDIT_COMPLETE": "YES"
+  },
+  "navigation": [
+    {
+      "name": "OPERATIONS_DASHBOARD",
+      "path": "OPERATIONS_DASHBOARD",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "REPORTS_ENGINE",
+      "path": "REPORTS_ENGINE",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "FIELD_OPERATIONS",
+      "path": "FIELD_OPERATIONS",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "WIZARD",
+      "path": "WIZARD",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "MASTER_DATA",
+      "path": "MASTER_DATA",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "SECURITY_AUDIT",
+      "path": "SECURITY_AUDIT",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "LEGACY_MIGRATION",
+      "path": "LEGACY_MIGRATION",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "ADMIN_CONSOLE",
+      "path": "ADMIN_CONSOLE",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "TRIP_ENGINE",
+      "path": "TRIP_ENGINE",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "WORKSPACE_INTEGRATION",
+      "path": "WORKSPACE_INTEGRATION",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "EXCEPTION_ENGINE",
+      "path": "EXCEPTION_ENGINE",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "IMPORT_CENTER",
+      "path": "IMPORT_CENTER",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "DATA_QUALITY",
+      "path": "DATA_QUALITY",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "PRICING_ENGINE",
+      "path": "PRICING_ENGINE",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "FIRESTORE_ARCH",
+      "path": "FIRESTORE_ARCH",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "RELATIONS",
+      "path": "RELATIONS",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "PRINCIPLES",
+      "path": "PRINCIPLES",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "DOCS",
+      "path": "DOCS",
+      "source": "src/App.tsx"
+    },
+    {
+      "name": "WIZARD",
+      "path": "WIZARD",
+      "source": "src/components/navigation/Sidebar.tsx"
+    },
+    {
+      "name": "OUTBOX",
+      "path": "OUTBOX",
+      "source": "src/components/offline/OutboxDrawer.tsx"
+    },
+    {
+      "name": "CONFLICTS",
+      "path": "CONFLICTS",
+      "source": "src/components/offline/OutboxDrawer.tsx"
+    },
+    {
+      "name": "CACHE",
+      "path": "CACHE",
+      "source": "src/components/offline/OutboxDrawer.tsx"
+    },
+    {
+      "name": "OUTBOX",
+      "path": "OUTBOX",
+      "source": "src/components/offline/OutboxDrawer.tsx"
+    },
+    {
+      "name": "CONFLICTS",
+      "path": "CONFLICTS",
+      "source": "src/components/offline/OutboxDrawer.tsx"
+    },
+    {
+      "name": "CACHE",
+      "path": "CACHE",
+      "source": "src/components/offline/OutboxDrawer.tsx"
+    }
+  ],
+  "controls": [
+    {
+      "CONTROL_ID": "CTRL-001",
+      "TYPE": "BUTTON",
+      "SOURCE_FILE": "src/App.tsx",
+      "IS_DEV": "NO"
+    },
+    {
+      "CONTROL_ID": "CTRL-002",
+      "TYPE": "BUTTON",
+      "SOURCE_FILE": "src/App.tsx",
+      "IS_DEV": "NO"
+    },
+    {
+      "CONTROL_ID": "CTRL-003",
+      "TYPE": "BUTTON",
+      "SOURCE_FILE": "src/App.tsx",
+      "IS_DEV": "NO"
+    },
+    {
+      "CONTROL_ID": "CTRL-004",
+      "TYPE": "BUTTON",
+      "SOURCE_FILE": "src/App.tsx",
+      "IS_DEV": "NO"
+    },
+    {
+      "CONTROL_ID": "CTRL-005",
+      "TYPE": "BUTTON",
+      "SOURCE_FILE": "src/App.tsx",
+      "IS_DEV": "NO"
+    },
+    {
+      "CONTROL_ID": "CTRL-006",
+      "TYPE": "BUTTON",
+      "SOURCE_FILE": "src/App.tsx",
+      "IS_DEV": "NO"
+    },
+    {
+      "CONTROL_ID": "CTRL-007",
+      "TYPE": "BUTTON",
+      "SOURCE_FILE": "src/components/FirestoreArchitectureView.tsx",
+      "IS_DEV": "NO"
+    },
+    {
+      "CONTROL_ID": "CTRL-008",
+      "TYPE": "BUTTON",
+      "SOURCE_FILE": "src/components/FirestoreArchitectureView.tsx",
+      "IS_DEV": "NO"
+    },
+    {
+      "CONTROL_ID": "CTRL-009",
+      "TYPE": "BUTTON",
+      "SOURCE_FILE": "src/components/FirestoreArchitectureView.tsx",
+      "IS_DEV": "NO"
+    },
+    {
+      "CONTROL_ID": "CTRL-010",
+      "TYPE": "BUTTON",
+      "SOURCE_FILE": "src/components/FirestoreArchitectureView.tsx",
+      "IS_DEV": "NO"
+    }
+  ],
+  "permissions": [
+    {
+      "SOURCE_FILE": "src/App.tsx",
+      "AUTHORITY": "effectiveRole"
+    },
+    {
+      "SOURCE_FILE": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+      "AUTHORITY": "unknown"
+    },
+    {
+      "SOURCE_FILE": "src/utils/permissions.ts",
+      "AUTHORITY": "unknown"
+    }
+  ]
+}

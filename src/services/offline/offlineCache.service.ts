@@ -72,7 +72,43 @@ export class OfflineCacheService {
   }
 
   /**
-   * Seeds all required master datasets into IndexedDB with explicit versions and ISO timestamps.
+   * Reconciles authoritative Firestore/upstream state with local IndexedDB cache,
+   * removing orphaned local records that no longer exist upstream.
+   */
+  public async reconcileStore<T>(
+    storeName: CacheStoreName,
+    authoritativeItems: T[],
+    getKey: (item: T) => string
+  ): Promise<void> {
+    try {
+      const existingItems = await indexedDBService.getAll<T>(storeName);
+      const authoritativeKeys = new Set(authoritativeItems.map(getKey));
+
+      for (const item of existingItems) {
+        const key = getKey(item);
+        if (key && !authoritativeKeys.has(key)) {
+          await indexedDBService.delete(storeName, key);
+        }
+      }
+
+      await indexedDBService.putMany(storeName, authoritativeItems);
+
+      const now = new Date().toISOString();
+      await indexedDBService.setMetadata({
+        storeName,
+        version: 1,
+        timestamp: now,
+        recordCount: authoritativeItems.length,
+        lastSyncedBy: 'AUTHORITATIVE_RECONCILIATION',
+      });
+    } catch (err) {
+      console.warn(`Error reconciling store ${storeName}:`, err);
+    }
+  }
+
+  /**
+   * Seeds all required master datasets into IndexedDB with explicit versions and ISO timestamps,
+   * using authoritative deletion-aware reconciliation.
    */
   public async seedAllMasterData(): Promise<void> {
     const now = new Date().toISOString();
@@ -91,15 +127,7 @@ export class OfflineCacheService {
         _version: currentVersion,
         _cachedAt: now,
     }));
-
-    await indexedDBService.putMany('projects', projectsToCache);
-    await indexedDBService.setMetadata({
-      storeName: 'projects',
-      version: currentVersion,
-      timestamp: now,
-      recordCount: projectsToCache.length,
-      lastSyncedBy: 'SYSTEM_SEED',
-    });
+    await this.reconcileStore('projects', projectsToCache, p => p.projectId);
 
     // 2. Carriers
     const carriersToCache: CachedCarrier[] = adminConsoleService.getCarriers().map(c => ({
@@ -112,15 +140,7 @@ export class OfflineCacheService {
       _version: currentVersion,
       _cachedAt: now,
     }));
-
-    await indexedDBService.putMany('carriers', carriersToCache);
-    await indexedDBService.setMetadata({
-      storeName: 'carriers',
-      version: currentVersion,
-      timestamp: now,
-      recordCount: carriersToCache.length,
-      lastSyncedBy: 'SYSTEM_SEED',
-    });
+    await this.reconcileStore('carriers', carriersToCache, c => c.carrierId);
 
     // 3. Materials
     const materialsToCache: CachedMaterial[] = adminConsoleService.getMaterials().map(m => ({
@@ -135,15 +155,7 @@ export class OfflineCacheService {
       _version: currentVersion,
       _cachedAt: now,
     }));
-
-    await indexedDBService.putMany('materials', materialsToCache);
-    await indexedDBService.setMetadata({
-      storeName: 'materials',
-      version: currentVersion,
-      timestamp: now,
-      recordCount: materialsToCache.length,
-      lastSyncedBy: 'SYSTEM_SEED',
-    });
+    await this.reconcileStore('materials', materialsToCache, m => m.materialId);
 
     // 4. Trucks
     const trucksToCache: CachedTruck[] = adminConsoleService.getTrucks().map(t => ({
@@ -159,15 +171,7 @@ export class OfflineCacheService {
       _version: currentVersion,
       _cachedAt: now,
     }));
-
-    await indexedDBService.putMany('trucks', trucksToCache);
-    await indexedDBService.setMetadata({
-      storeName: 'trucks',
-      version: currentVersion,
-      timestamp: now,
-      recordCount: trucksToCache.length,
-      lastSyncedBy: 'SYSTEM_SEED',
-    });
+    await this.reconcileStore('trucks', trucksToCache, t => t.truckId);
 
     // 5. Drivers
     const driversToCache: CachedDriver[] = adminConsoleService.getDrivers().map(d => ({
@@ -182,15 +186,7 @@ export class OfflineCacheService {
       _version: currentVersion,
       _cachedAt: now,
     }));
-
-    await indexedDBService.putMany('drivers', driversToCache);
-    await indexedDBService.setMetadata({
-      storeName: 'drivers',
-      version: currentVersion,
-      timestamp: now,
-      recordCount: driversToCache.length,
-      lastSyncedBy: 'SYSTEM_SEED',
-    });
+    await this.reconcileStore('drivers', driversToCache, d => d.driverId);
 
     // 6. Pricing Rules
     const pricingRulesToCache: CachedPricingRule[] = pricingService.getRules().map(r => ({
@@ -208,58 +204,55 @@ export class OfflineCacheService {
       _version: currentVersion,
       _cachedAt: now,
     }));
-
-    await indexedDBService.putMany('pricingRules', pricingRulesToCache);
-    await indexedDBService.setMetadata({
-      storeName: 'pricingRules',
-      version: currentVersion,
-      timestamp: now,
-      recordCount: pricingRulesToCache.length,
-      lastSyncedBy: 'SYSTEM_SEED',
-    });
+    await this.reconcileStore('pricingRules', pricingRulesToCache, r => r.pricingRuleId);
   }
 
   // ---------------- Query Cached Data ---------------- //
 
   public async getProjects(): Promise<CachedProject[]> {
     await this.initializeCache();
-    return indexedDBService.getAll<CachedProject>('projects');
+    const list = await indexedDBService.getAll<CachedProject>('projects');
+    return list.filter(p => !p.status || p.status === 'ACTIVE');
   }
 
   public async getCarriers(projectId?: string): Promise<CachedCarrier[]> {
     await this.initializeCache();
     const list = await indexedDBService.getAll<CachedCarrier>('carriers');
+    const active = list.filter(c => !c.status || c.status === 'ACTIVE');
     if (projectId) {
-      return list.filter(c => c.projectId === projectId || !c.projectId);
+      return active.filter(c => c.projectId === projectId || !c.projectId);
     }
-    return list;
+    return active;
   }
 
   public async getMaterials(projectId?: string): Promise<CachedMaterial[]> {
     await this.initializeCache();
     const list = await indexedDBService.getAll<CachedMaterial>('materials');
+    const active = list.filter(m => !m.status || m.status === 'ACTIVE');
     if (projectId) {
-      return list.filter(m => m.projectId === projectId || !m.projectId);
+      return active.filter(m => m.projectId === projectId || !m.projectId);
     }
-    return list;
+    return active;
   }
 
   public async getTrucks(carrierId?: string): Promise<CachedTruck[]> {
     await this.initializeCache();
     const list = await indexedDBService.getAll<CachedTruck>('trucks');
+    const active = list.filter(t => !t.status || t.status === 'ACTIVE');
     if (carrierId) {
-      return list.filter(t => t.carrierId === carrierId);
+      return active.filter(t => t.carrierId === carrierId);
     }
-    return list;
+    return active;
   }
 
   public async getDrivers(carrierId?: string): Promise<CachedDriver[]> {
     await this.initializeCache();
     const list = await indexedDBService.getAll<CachedDriver>('drivers');
+    const active = list.filter(d => !d.status || d.status === 'ACTIVE');
     if (carrierId) {
-      return list.filter(d => d.carrierId === carrierId);
+      return active.filter(d => d.carrierId === carrierId);
     }
-    return list;
+    return active;
   }
 
   public async getPricingRules(params?: {
@@ -269,9 +262,10 @@ export class OfflineCacheService {
   }): Promise<CachedPricingRule[]> {
     await this.initializeCache();
     const list = await indexedDBService.getAll<CachedPricingRule>('pricingRules');
-    if (!params) return list;
+    const active = list.filter(r => !r.status || r.status === 'ACTIVE');
+    if (!params) return active;
 
-    return list.filter(r => {
+    return active.filter(r => {
       if (params.projectId && r.projectId !== params.projectId) return false;
       if (params.carrierId && r.carrierId && r.carrierId !== params.carrierId) return false;
       if (params.materialId && r.materialId && r.materialId !== params.materialId) return false;
