@@ -485,8 +485,12 @@ export class TripService {
     return merged;
   }
 
-  subscribeByProject(projectId: string, onData: (trips: TripEntity[]) => void) {
-    return tripRepository.subscribeByProject(projectId, onData);
+  subscribeByProject(
+    projectId: string, 
+    onData: (trips: TripEntity[]) => void,
+    onError?: (error: Error) => void
+  ) {
+    return tripRepository.subscribeByProject(projectId, onData, onError);
   }
 }
 

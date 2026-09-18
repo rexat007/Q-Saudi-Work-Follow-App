@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-09-18T01:54:30.000Z",
+  "totalTests": 4,
+  "passedTests": 4,
+  "failedTests": 0,
+  "allPassed": true,
+  "results": [
+    {
+      "id": "CONV-01",
+      "name": "Zero Legacy Authority / Input Enforcement",
+      "passed": true,
+      "message": "Verify that generateReport throws an error if customTrips dataset is omitted",
+      "details": {
+        "threwExpectedError": true,
+        "errorMessage": "Trip data must be explicitly provided to the Reports Engine; automatic fallback to tripEngineService is deactivated."
+      }
+    },
+    {
+      "id": "CONV-02",
+      "name": "Truthful Adapter Mapping",
+      "passed": true,
+      "message": "Verify adaptTripEntityToRecord does not fabricate default dates, pricing snapshots, or synthetic values",
+      "details": {
+        "tripId": "TRP-MIN-01",
+        "tripSerialResolved": "TS-MIN-01",
+        "ticketIdResolved": "TKT-MIN-01",
+        "shiftDateResolved": "2026-09-18",
+        "tareWeight": null,
+        "grossWeight": null,
+        "netWeight": null,
+        "pricingSnapshotResolved": null,
+        "loaderId": null,
+        "unloaderId": null
+      }
+    },
+    {
+      "id": "CONV-03",
+      "name": "Complete Field Propagation",
+      "passed": true,
+      "message": "Verify complete and correct propagation of actual weight, pricing rules, and snapshots",
+      "details": {
+        "tripId": "TRP-FULL-01",
+        "tripSerialResolved": "TS-FULL-01",
+        "status": "OFFLOADED",
+        "shiftDate": "2026-09-18",
+        "tareWeight": 15000,
+        "grossWeight": 45000,
+        "netWeight": 30000,
+        "destNetWeight": 29800,
+        "varianceWeight": -200,
+        "pricingSnapshot": {
+          "pricingRuleId": "PRC-TON-99",
+          "pricingType": "PER_TON",
+          "agreedRate": 75,
+          "currency": "SAR",
+          "settlementBase": 30,
+          "settlementAmount": 2250,
+          "pricingSnapshotAt": "2026-09-18T00:00:00.000Z"
+        }
+      }
+    },
+    {
+      "id": "CONV-04",
+      "name": "Exception Trip Mapping",
+      "passed": true,
+      "message": "Verify active exception statuses map correctly without modification",
+      "details": {
+        "tripId": "TRP-EXC-01",
+        "status": "EXCEPTION",
+        "hasExceptions": true
+      }
+    }
+  ],
+  "unitStatus": "CLOSED",
+  "finalVerification": "VERIFIED",
+  "legacyTripAuthority": "REMOVED",
+  "exceptionEngineConvergence": "NOT_STARTED",
+  "reportsControlReduction": "NOT_STARTED",
+  "workspaceIntegration": "NOT_TOUCHED",
+  "liveFirestoreE2eVerified": false,
+  "verificationSummary": {
+    "reportsEngineConvergence": "23/23 PASS",
+    "reportsEngine": "12/12 PASS",
+    "fieldReportsCentralDashboardBlock80": "22/22 PASS",
+    "pricingEngine": "46/46 PASS",
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "productionBuild": "PASS",
+    "gitDiffCheck": "UNAVAILABLE_IN_SANDBOX_NO_GIT"
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   FileText, 
   Calendar, 
@@ -36,12 +36,33 @@ import {
   OPERATIONAL_REPORTS_METADATA, 
   PRICING_REPORTS_METADATA 
 } from '../../types/reports';
-import { TripEngineStatus, TripPricingType, OperationSourceType } from '../../types/tripEngine';
+import { TripEngineStatus, TripPricingType, OperationSourceType, TripRecord } from '../../types/tripEngine';
 import { reportsEngineService } from '../../services/reportsEngine.service';
-import { tripEngineService } from '../../services/tripEngine.service';
+import { useAuth } from '../../firebase/authContext';
+import { tripRepository } from '../../repositories/trip.repository';
+import { projectRepository } from '../../repositories/project.repository';
 import { PrintableReportModal } from './PrintableReportModal';
 import { runReportsEngineTests, ReportsTestCaseResult } from '../../tests/reportsEngine.test';
 import { Play, Check, X, ShieldAlert } from 'lucide-react';
+
+export function computeMergedTripsFromProjects(tripsByProject: Record<string, TripRecord[]>): TripRecord[] {
+  const list: TripRecord[] = [];
+  Object.keys(tripsByProject).forEach(projectId => {
+    if (tripsByProject[projectId]) {
+      list.push(...tripsByProject[projectId]);
+    }
+  });
+
+  const seen = new Set<string>();
+  const deduplicated: TripRecord[] = [];
+  for (const t of list) {
+    if (!seen.has(t.tripId)) {
+      seen.add(t.tripId);
+      deduplicated.push(t);
+    }
+  }
+  return deduplicated;
+}
 
 export const ReportsEngineView: React.FC = () => {
   // Navigation
@@ -79,18 +100,153 @@ export const ReportsEngineView: React.FC = () => {
   const [isPrintModalOpen, setIsPrintModalOpen] = useState<boolean>(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState<boolean>(false);
 
-  // Trips from tripEngineService
-  const allTrips = useMemo(() => tripEngineService.getTrips(), []);
+  // Auth and Subscription State
+  const { userProfile, isAuthReady } = useAuth();
+  const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
+  const [dataError, setDataError] = useState<string | null>(null);
+
+  // Authorized projects
+  const [authorizedProjects, setAuthorizedProjects] = useState<{ id: string; nameAr: string }[]>([]);
+  const [authorizedProjectIds, setAuthorizedProjectIds] = useState<string[]>([]);
+
+  // Real-time trip database mapping: projectId -> TripRecord[]
+  const [tripsByProject, setTripsByProject] = useState<Record<string, TripRecord[]>>({});
+
+  // 1. Authorized Projects Subscription Lifecycle (strictly active canonical projects for SUPER_ADMIN)
+  useEffect(() => {
+    if (!isAuthReady || !userProfile) {
+      return;
+    }
+
+    setIsDataLoading(true);
+    setDataError(null);
+
+    const isSuperAdmin = userProfile.role === 'SUPER_ADMIN';
+    const assignedIds = userProfile.assignedProjectIds || [];
+
+    const unsubscribeProjects = projectRepository.subscribeToProjects(
+      (projects) => {
+        const filtered = projects.filter(p => {
+          if (p.status === 'ARCHIVED') return false;
+          if (isSuperAdmin) return true;
+          return assignedIds.includes(p.projectId);
+        });
+        const formatted = filtered.map(p => ({
+          id: p.projectId,
+          nameAr: p.nameAr || p.projectId,
+        }));
+        setAuthorizedProjects(formatted);
+        const ids = formatted.map(f => f.id);
+        setAuthorizedProjectIds(ids);
+      },
+      (err) => {
+        console.error('Failed to subscribe to authorized projects:', err);
+        setDataError('عذراً، فشل تحميل قائمة المشاريع المصرحة.');
+        setIsDataLoading(false);
+      },
+      assignedIds,
+      isSuperAdmin
+    );
+
+    return () => {
+      unsubscribeProjects();
+    };
+  }, [userProfile, isAuthReady]);
+
+  // 2. Trip Real-time Subscription Lifecycle (strictly scoped to authorized projects)
+  useEffect(() => {
+    if (authorizedProjectIds.length === 0) {
+      if (isAuthReady) {
+        setIsDataLoading(false);
+      }
+      return;
+    }
+
+    setIsDataLoading(true);
+    setDataError(null);
+
+    // Determine target projects to subscribe to
+    const targetIds = filters.projectId === 'ALL' 
+      ? authorizedProjectIds 
+      : (authorizedProjectIds.includes(filters.projectId) ? [filters.projectId] : []);
+
+    if (targetIds.length === 0) {
+      setTripsByProject({});
+      setIsDataLoading(false);
+      return;
+    }
+
+    // Initialize or prune old project datasets from state
+    setTripsByProject(prev => {
+      const next: Record<string, TripRecord[]> = {};
+      targetIds.forEach(id => {
+        if (prev[id]) {
+          next[id] = prev[id];
+        }
+      });
+      return next;
+    });
+
+    const unsubscribers: (() => void)[] = [];
+    const pendingSet = new Set<string>(targetIds);
+    const failedSet = new Set<string>();
+
+    targetIds.forEach(pId => {
+      const unsub = tripRepository.subscribeByProject(
+        pId,
+        (tripEntities) => {
+          const adapted = tripEntities.map(t => reportsEngineService.adaptTripEntityToRecord(t));
+          
+          setTripsByProject(prev => ({ ...prev, [pId]: adapted }));
+
+          failedSet.delete(pId);
+          pendingSet.delete(pId);
+
+          if (failedSet.size > 0) {
+            setDataError('عذراً، فشل جلب بيانات الرحلات لبعض المشاريع المصرحة.');
+          } else {
+            setDataError(null);
+          }
+
+          if (pendingSet.size === 0) {
+            setIsDataLoading(false);
+          }
+        },
+        (error) => {
+          console.error(`Failed to subscribe to trips for project ${pId}:`, error);
+          failedSet.add(pId);
+          pendingSet.delete(pId);
+
+          setTripsByProject(prev => {
+            const next = { ...prev };
+            delete next[pId];
+            return next;
+          });
+
+          setDataError('عذراً، فشل جلب بيانات الرحلات لبعض المشاريع المصرحة.');
+
+          if (pendingSet.size === 0) {
+            setIsDataLoading(false);
+          }
+        }
+      );
+      unsubscribers.push(unsub);
+    });
+
+    return () => {
+      unsubscribers.forEach(unsub => unsub());
+    };
+  }, [authorizedProjectIds, filters.projectId, isAuthReady]);
+
+  // Merged & Deduplicated canonical datasets
+  const allTrips = useMemo(() => {
+    return computeMergedTripsFromProjects(tripsByProject);
+  }, [tripsByProject]);
 
   // Distinct master data options extracted dynamically from live trips & snapshots (RP-27, RP-28, RP-34)
   const availableProjects = useMemo(() => {
-    const map = new Map<string, string>();
-    allTrips.forEach(t => {
-      const pName = reportsEngineService.getEntityLabels(t).projectName;
-      map.set(t.projectId, pName);
-    });
-    return Array.from(map.entries()).map(([id, name]) => ({ projectId: id, nameAr: name }));
-  }, [allTrips]);
+    return authorizedProjects.map(p => ({ projectId: p.id, nameAr: p.nameAr }));
+  }, [authorizedProjects]);
 
   const availableCarriers = useMemo(() => {
     const map = new Map<string, string>();
@@ -142,7 +298,7 @@ export const ReportsEngineView: React.FC = () => {
 
   // Generate current active dataset
   const currentDataset = useMemo(() => {
-    return reportsEngineService.generateReport(selectedReportType, filters);
+    return reportsEngineService.generateReport(selectedReportType, filters, allTrips);
   }, [selectedReportType, filters, allTrips]);
 
   // Filter rows by table search
@@ -673,8 +829,27 @@ export const ReportsEngineView: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Authoritative Financial KPI Cards (Gross, Adjustments, Exceptions, Net) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      {isDataLoading && (
+        <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center shadow-xs">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <h3 className="text-sm font-bold text-stone-900">جاري تحميل بيانات الرحلات المصرحة...</h3>
+          <p className="text-xs text-stone-500 mt-1 font-sans">يرجى الانتظار بينما يتم جلب السجلات والتحقق من الصلاحيات بشكل آمن من قاعدة البيانات.</p>
+        </div>
+      )}
+
+      {dataError && (
+        <div className="bg-rose-50 rounded-2xl border border-rose-200 p-8 text-center shadow-xs">
+          <ShieldAlert className="w-10 h-10 text-rose-600 mx-auto mb-3" />
+          <h3 className="text-sm font-bold text-rose-900">فشل تحميل البيانات</h3>
+          <p className="text-xs text-rose-700 mt-1">{dataError}</p>
+          <p className="text-[11px] text-stone-500 mt-2 font-sans">يرجى التأكد من اتصال الإنترنت وإعادة تحميل الصفحة، أو مراجعة مسؤول النظام.</p>
+        </div>
+      )}
+
+      {!isDataLoading && !dataError && (
+        <>
+          {/* 3. Authoritative Financial KPI Cards (Gross, Adjustments, Exceptions, Net) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         
         {/* Gross Amount */}
         <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-xs">
@@ -903,6 +1078,8 @@ export const ReportsEngineView: React.FC = () => {
           </div>
         )}
       </div>
+    </>
+  )}
 
       {/* 5. Printable PDF Modal */}
       {isPrintModalOpen && (

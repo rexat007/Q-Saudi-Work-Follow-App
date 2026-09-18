@@ -112,8 +112,10 @@ test('BLOCK80-REP-01', 'Category A: Operational Reports generation (Daily, Shift
     'SOURCE_BREAKDOWN'
   ];
 
+  const sampleTrips = tripEngineService.getTrips();
+
   operationalTypes.forEach(type => {
-    const dataset = reportsEngineService.generateReport(type, { projectId: 'ALL' });
+    const dataset = reportsEngineService.generateReport(type, { projectId: 'ALL' }, sampleTrips);
     expect(dataset.reportType).toBe(type);
     expect(dataset.columns.length).toBeGreaterThan(0);
     expect(dataset.summary).toBeDefined();
@@ -122,7 +124,8 @@ test('BLOCK80-REP-01', 'Category A: Operational Reports generation (Daily, Shift
 });
 
 test('BLOCK80-REP-02', 'Category B: Weighbridge & Variance Reports (Weights, tolerances, and ACCEPT_ORIGIN_NET_AS_DESTINATION)', () => {
-  const dataset = reportsEngineService.generateReport('WEIGHT_VARIANCE', { projectId: 'ALL' });
+  const sampleTrips = tripEngineService.getTrips();
+  const dataset = reportsEngineService.generateReport('WEIGHT_VARIANCE', { projectId: 'ALL' }, sampleTrips);
   expect(dataset.reportType).toBe('WEIGHT_VARIANCE');
   expect(dataset.columns.some(c => c.key === 'originNetKg' || c.key === 'loadedWeightKg')).toBeTrue();
   expect(dataset.columns.some(c => c.key === 'destNetKg' || c.key === 'receivedWeightKg')).toBeTrue();
@@ -142,8 +145,10 @@ test('BLOCK80-REP-03', 'Category C: Settlement & Financial Reports (Snapshots, P
     'PROJECT_SETTLEMENT_SUMMARY'
   ];
 
+  const sampleTrips = tripEngineService.getTrips();
+
   financialTypes.forEach(type => {
-    const dataset = reportsEngineService.generateReport(type, { projectId: 'ALL' });
+    const dataset = reportsEngineService.generateReport(type, { projectId: 'ALL' }, sampleTrips);
     expect(dataset.reportType).toBe(type);
     expect(dataset.summary.grossAmountSAR).toBeGreaterThanOrEqual(0);
     expect(dataset.summary.netAmountSAR).toBeGreaterThanOrEqual(0);
@@ -151,7 +156,8 @@ test('BLOCK80-REP-03', 'Category C: Settlement & Financial Reports (Snapshots, P
 });
 
 test('BLOCK80-REP-04', 'Category D: Ingestion & Exception Reports (12 exception codes, severity levels, and resolution status)', () => {
-  const dataset = reportsEngineService.generateReport('EXCEPTION_REPORT', { projectId: 'ALL' });
+  const sampleTrips = tripEngineService.getTrips();
+  const dataset = reportsEngineService.generateReport('EXCEPTION_REPORT', { projectId: 'ALL' }, sampleTrips);
   expect(dataset.reportType).toBe('EXCEPTION_REPORT');
   expect(dataset.columns.some(c => c.key === 'type' || c.key === 'exceptionId')).toBeTrue();
   expect(dataset.columns.some(c => c.key === 'severity')).toBeTrue();
@@ -387,7 +393,8 @@ test('BLOCK80-RBAC-01', 'SUPER_ADMIN has global multi-project visibility', () =>
   expect(profile.isRestricted).toBe(false);
   expect(profile.authorizedProjectIds).toContain('ALL');
 
-  const authorized = dashboardService.getAuthorizedProjects(profile);
+  const sampleProjects = [{ projectId: 'P1' }, { projectId: 'P2' }];
+  const authorized = dashboardService.getAuthorizedProjects(profile, sampleProjects);
   expect(authorized.length).toBeGreaterThan(1);
 });
 

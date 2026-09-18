@@ -30,7 +30,6 @@ import {
   OPERATIONAL_REPORTS_METADATA, 
   PRICING_REPORTS_METADATA 
 } from '../types/reports';
-import { tripEngineService } from './tripEngine.service';
 import { exceptionEngine } from './exceptionEngine.service';
 import { pricingService } from './pricing.service';
 import { masterDataService } from './masterData.service';
@@ -1626,10 +1625,224 @@ export class ReportsEngineService {
   }
 
   /**
+   * Adapts a canonical database TripEntity to a Reports Engine TripRecord.
+   * Strictly avoids fabricating defaults or falsifying operational/financial facts.
+   */
+  public adaptTripEntityToRecord(trip: any): TripRecord {
+    // 1. Core mapping of ID and foreign keys
+    const tripId = trip.tripId;
+    const projectId = trip.projectId;
+    const tripSerial = trip.tripNumber || trip.tripId; // Fallback to tripId is the accepted display fallback
+    const ticketId = trip.weights?.originTicketNo || '';
+    const truckId = trip.truckId;
+    const driverId = trip.driverId;
+    const carrierId = trip.carrierId;
+    const materialId = trip.materialId;
+
+    // 2. Temporal Fields (with shiftDate resolving via createdAt if missing)
+    let shiftDate = trip.shiftDate;
+    if (!shiftDate && trip.createdAt) {
+      const createdAtStr = typeof trip.createdAt === 'string' 
+        ? trip.createdAt 
+        : (typeof trip.createdAt.toISOString === 'function' ? trip.createdAt.toISOString() : '');
+      if (createdAtStr) {
+        shiftDate = createdAtStr.substring(0, 10);
+      }
+    }
+    if (!shiftDate) {
+      shiftDate = '';
+    }
+
+    const sourceType = trip.sourceType;
+    const loadingDataSource = trip.loadingDataSource;
+    const unloadingDataSource = trip.unloadingDataSource;
+    const loadingActorType = trip.loadingActorType;
+    const loadingActorId = trip.loadingActorId;
+    const unloadingActorType = trip.unloadingActorType;
+    const unloadingActorId = trip.unloadingActorId;
+    const sourceMetadata = trip.sourceMetadata;
+
+    // 3. Weight fields (strict non-fabricating)
+    const tareWeight = trip.weights?.originTareKg;
+    const grossWeight = trip.weights?.originGrossKg;
+    
+    let netWeight = trip.weights?.originNetKg;
+    if (netWeight === undefined && tareWeight !== undefined && grossWeight !== undefined) {
+      netWeight = grossWeight - tareWeight;
+    }
+
+    const destNetWeight = trip.weights?.destinationNetKg !== undefined ? trip.weights.destinationNetKg : null;
+    const varianceWeight = trip.weights?.varianceKg !== undefined ? trip.weights.varianceKg : null;
+
+    // 4. Pricing / Financials fields
+    const pricingRuleId = trip.pricingRuleId;
+    const pricingType = trip.pricingSnapshot?.pricingType;
+    const agreedRate = trip.pricingSnapshot?.agreedRate;
+    const currency = trip.pricingSnapshot?.currency;
+    const settlementBase = trip.pricingSnapshot?.settlementBase;
+    
+    let settlementAmount = trip.pricingSnapshot?.settlementAmount;
+    if (settlementAmount === undefined || settlementAmount === null) {
+      settlementAmount = trip.financials?.baseAmountSAR;
+    }
+
+    // 5. Actor fields
+    const loaderId = trip.loaderId !== undefined ? trip.loaderId : null;
+    const unloaderId = trip.unloaderId !== undefined ? trip.unloaderId : null;
+
+    // 6. Concurrency Version (strictly optional/preserves absence)
+    const version = trip.version;
+
+    // 7. Status Contract mapping (clean and non-fabricating)
+    let status: TripEngineStatus;
+    switch (trip.status) {
+      case 'DRAFT':
+        status = 'DRAFT';
+        break;
+      case 'DISPATCHED':
+      case 'AT_ORIGIN':
+      case 'LOADING':
+      case 'WEIGHED_ORIGIN':
+        status = 'LOADED';
+        break;
+      case 'IN_TRANSIT':
+        status = 'IN_TRANSIT';
+        break;
+      case 'AT_DESTINATION':
+      case 'WEIGHED_DESTINATION':
+        status = 'ARRIVED';
+        break;
+      case 'OFFLOADED':
+        status = 'OFFLOADED';
+        break;
+      case 'COMPLETED':
+        status = 'COMPLETED';
+        break;
+      case 'REJECTED':
+        status = 'RETURNED';
+        break;
+      case 'CANCELLED':
+        status = 'CANCELLED';
+        break;
+      default:
+        status = trip.status as any;
+        break;
+    }
+
+    // 8. Timestamps (safe normalization of Timestamp/Date/String)
+    const normalizeTime = (t: any): string | null => {
+      if (!t) return null;
+      if (typeof t === 'string') return t;
+      if (typeof t.toISOString === 'function') return t.toISOString();
+      if (t.seconds !== undefined) return new Date(t.seconds * 1000).toISOString();
+      return null;
+    };
+
+    const loadTime = normalizeTime(trip.loadTime);
+    const arrivalTime = normalizeTime(trip.arrivalTime);
+    const unloadTime = normalizeTime(trip.unloadTime);
+    const createdAt = normalizeTime(trip.createdAt) || '';
+    const createdBy = trip.createdBy || '';
+    const updatedAt = normalizeTime(trip.updatedAt) || '';
+    const updatedBy = trip.updatedBy || '';
+
+    // 9. Snapshot fields
+    const pricingSnapshot = trip.pricingSnapshot;
+    
+    let entitySnapshots: any = undefined;
+    if (trip.carrierSnapshot || trip.truckSnapshot || trip.driverSnapshot || trip.materialSnapshot) {
+      entitySnapshots = {};
+      if (trip.carrierSnapshot) {
+        entitySnapshots.carrier = {
+          carrierId: trip.carrierSnapshot.carrierId,
+          companyNameAr: trip.carrierSnapshot.companyNameAr,
+          commercialRegistrationNo: trip.carrierSnapshot.commercialRegistrationNo,
+        };
+      }
+      if (trip.truckSnapshot) {
+        entitySnapshots.truck = {
+          truckId: trip.truckSnapshot.truckId,
+          plateNumberAr: trip.truckSnapshot.plateNumberAr,
+          tareWeightKg: trip.truckSnapshot.tareWeightKg,
+        };
+      }
+      if (trip.driverSnapshot) {
+        entitySnapshots.driver = {
+          driverId: trip.driverSnapshot.driverId,
+          fullNameAr: trip.driverSnapshot.fullNameAr,
+          nationalOrIqamaId: trip.driverSnapshot.nationalOrIqamaId,
+          phone: trip.driverSnapshot.phone,
+        };
+      }
+      if (trip.materialSnapshot) {
+        entitySnapshots.material = {
+          materialId: trip.materialSnapshot.materialId,
+          nameAr: trip.materialSnapshot.nameAr,
+          code: trip.materialSnapshot.code,
+          unitOfMeasure: trip.materialSnapshot.unitOfMeasure,
+        };
+      }
+    }
+
+    const hasExceptions = trip.hasExceptions;
+    const activeExceptionCount = trip.activeExceptionCount;
+
+    return {
+      tripId,
+      projectId,
+      tripSerial,
+      ticketId,
+      truckId,
+      driverId,
+      carrierId,
+      materialId,
+      shiftDate,
+      sourceType,
+      loadingDataSource,
+      unloadingDataSource,
+      loadingActorType,
+      loadingActorId,
+      unloadingActorType,
+      unloadingActorId,
+      sourceMetadata,
+      tareWeight,
+      grossWeight,
+      netWeight,
+      destNetWeight,
+      varianceWeight,
+      pricingRuleId,
+      pricingType,
+      agreedRate,
+      currency,
+      settlementBase,
+      settlementAmount,
+      loaderId,
+      unloaderId,
+      status,
+      ...(version !== undefined ? { version } : {}),
+      loadTime,
+      arrivalTime,
+      unloadTime,
+      notes: trip.notes || '',
+      createdAt,
+      createdBy,
+      updatedAt,
+      updatedBy,
+      pricingSnapshot,
+      entitySnapshots,
+      hasExceptions,
+      activeExceptionCount,
+    };
+  }
+
+  /**
    * Universal Dispatcher: generates any report by its code.
    */
   public generateReport(type: ReportType, filters: ReportFilterParams, customTrips?: TripRecord[]): ReportDataset {
-    const trips = customTrips || tripEngineService.getTrips();
+    if (!customTrips) {
+      throw new Error('Trip data must be explicitly provided to the Reports Engine; automatic fallback to tripEngineService is deactivated.');
+    }
+    const trips = customTrips;
 
     switch (type) {
       // 9 Operational

@@ -145,7 +145,11 @@ export class TripRepository {
     }
   }
 
-  subscribeByProject(projectId: string, onData: (trips: TripEntity[]) => void) {
+  subscribeByProject(
+    projectId: string, 
+    onData: (trips: TripEntity[]) => void,
+    onError?: (error: Error) => void
+  ) {
     if (!auth.currentUser) {
       return () => {};
     }
@@ -157,6 +161,9 @@ export class TripRepository {
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, path);
+        if (onError) {
+          onError(error);
+        }
       }
     );
   }

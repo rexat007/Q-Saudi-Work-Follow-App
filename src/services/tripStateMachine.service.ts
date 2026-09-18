@@ -120,6 +120,13 @@ export const STATE_TRANSITIONS: Record<TripEngineStatus, TransitionRule> = {
     descriptionAr: 'إلغاء أمر الرحلة كلياً قبل الانطلاق أو بقرار تشغيلي معتمد',
     requiresReason: true
   },
+  OFFLOADED: {
+    targetStatus: 'OFFLOADED',
+    allowedFrom: [],
+    allowedRoles: ['SITE_RECEIVER', 'OPERATIONS_MANAGER'],
+    labelAr: 'تم التفريغ',
+    descriptionAr: 'تم تفريغ الحمولة بالكامل في موقع الاستلام'
+  },
   PENDING_NUMBER_ALLOCATION: {
     targetStatus: 'PENDING_NUMBER_ALLOCATION',
     allowedFrom: [],

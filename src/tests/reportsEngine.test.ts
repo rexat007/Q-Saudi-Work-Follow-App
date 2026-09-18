@@ -267,7 +267,7 @@ export function runReportsEngineTests(): {
 
   let allOpPassed = true;
   for (const rep of opReports) {
-    const ds = reportsEngineService.generateReport(rep, { projectId: 'ALL' });
+    const ds = reportsEngineService.generateReport(rep, { projectId: 'ALL' }, mockTrips);
     if (!ds || !ds.columns || ds.columns.length === 0) {
       allOpPassed = false;
       break;
@@ -297,7 +297,7 @@ export function runReportsEngineTests(): {
 
   let allPrPassed = true;
   for (const rep of prReports) {
-    const ds = reportsEngineService.generateReport(rep, { projectId: 'ALL' });
+    const ds = reportsEngineService.generateReport(rep, { projectId: 'ALL' }, mockTrips);
     if (!ds || !ds.columns || ds.columns.length === 0) {
       allPrPassed = false;
       break;
@@ -342,7 +342,7 @@ export function runReportsEngineTests(): {
   });
 
   // Test 11: SOURCE_BREAKDOWN Report Generation & Metrics
-  const sourceBreakdownDataset = reportsEngineService.generateReport('SOURCE_BREAKDOWN', { projectId: 'ALL' });
+  const sourceBreakdownDataset = reportsEngineService.generateReport('SOURCE_BREAKDOWN', { projectId: 'ALL' }, mockTrips);
   const hasValidRows = sourceBreakdownDataset.rows.length > 0 &&
                        sourceBreakdownDataset.rows.some(r => r.sourceType !== undefined && r.tripsCount !== undefined);
   const hasExpectedColumns = sourceBreakdownDataset.columns.some(c => c.key === 'sourceTypeLabelAr') &&
@@ -359,6 +359,26 @@ export function runReportsEngineTests(): {
     expected: true,
     actual: hasValidRows && hasExpectedColumns,
     details: 'تم إنشاء تقرير توزيع مصادر العمليات وتطابق أعمدة المصدر والأوزان والتسويات وحالات التعليق.',
+  });
+
+  // Test 12: Explicit Trip Input Contract Enforcement
+  let rejectedWithoutCustomTrips = false;
+  try {
+    reportsEngineService.generateReport('DAILY_OPERATIONS', { projectId: 'ALL' });
+  } catch (e: any) {
+    if (e.message && e.message.includes('Trip data must be explicitly provided')) {
+      rejectedWithoutCustomTrips = true;
+    }
+  }
+
+  results.push({
+    id: 'REP-TST-12',
+    category: 'Canonical Contract',
+    titleAr: 'فرض التمرير الصريح لبيانات الرحلات ومفهوم إلغاء التكيف التلقائي',
+    passed: rejectedWithoutCustomTrips,
+    expected: true,
+    actual: rejectedWithoutCustomTrips,
+    details: 'تم رفض التوليد بدون مدخلات صريحة والتأكد من إلغاء الاعتماد التلقائي على tripEngineService.',
   });
 
   const passedTests = results.filter(r => r.passed).length;

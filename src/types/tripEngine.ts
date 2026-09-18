@@ -20,6 +20,7 @@ export type TripEngineStatus =
   | 'IN_TRANSIT'
   | 'ARRIVED'
   | 'UNLOADING'
+  | 'OFFLOADED'
   | 'COMPLETED'
   | 'RETURN_REQUESTED'
   | 'RETURNED'
@@ -188,7 +189,7 @@ export interface TripRecord {
 
   // Lifecycle & Concurrency
   status: TripEngineStatus;
-  version: number; // Concurrency tracking, starts at 1
+  version?: number; // Concurrency tracking, starts at 1
 
   // Timestamps (ISO strings)
   loadTime: string | null;
