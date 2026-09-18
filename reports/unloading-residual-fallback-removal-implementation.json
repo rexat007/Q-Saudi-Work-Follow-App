@@ -4,9 +4,59 @@
     "branch": "main",
     "head": "55403a411df783aefd1fee68c93bd69465ee8506"
   },
-  "changedFiles": [
-    "src/components/field/UnloadingOperatorView.tsx"
-  ],
+  "scopeAccounting": {
+    "explanation": "Comparative audit of changes since baseline fcd6492a87c5a429cd6e580b7487ad51f5c5523c compared against 55403a411df783aefd1fee68c93bd69465ee8506. Evidence classifications are marked as ACTUAL, INFERRED, or UNVERIFIED.",
+    "changes": [
+      {
+        "file": ".env.example",
+        "action": "modified",
+        "provenance": "UNVERIFIED",
+        "details": "Modified externally or by platform during previous setup."
+      },
+      {
+        "file": "bun.lock",
+        "action": "deleted",
+        "provenance": "UNVERIFIED",
+        "details": "Deleted externally or by platform during environment initialization."
+      },
+      {
+        "file": "reports/i18n-generated-translations.json",
+        "action": "deleted",
+        "provenance": "UNVERIFIED",
+        "details": "Deleted externally or by platform during environment cleanup."
+      },
+      {
+        "file": "reports/i18n-translation-catalog.json",
+        "action": "deleted",
+        "provenance": "UNVERIFIED",
+        "details": "Deleted externally or by platform during environment cleanup."
+      },
+      {
+        "file": "src/components/field/UnloadingOperatorView.tsx",
+        "action": "modified",
+        "provenance": "ACTUAL",
+        "details": "Removed legacy tripEngineService fallback references and simplified state loading to strictly use canonical IndexedDB cache."
+      },
+      {
+        "file": "src/tests/unloadingResidualFallback.test.ts",
+        "action": "created_and_corrected",
+        "provenance": "ACTUAL",
+        "details": "Focused test suite corrected to properly await asynchronous assertions, handle database read rejections, and verify legacy source isolation."
+      },
+      {
+        "file": "reports/unloading-residual-fallback-removal-implementation.json",
+        "action": "modified",
+        "provenance": "ACTUAL",
+        "details": "This implementation report updated with correct scope accounting, test results, and architectural limits."
+      },
+      {
+        "file": "reports/unloading-residual-fallback-removal-implementation.md",
+        "action": "modified",
+        "provenance": "ACTUAL",
+        "details": "This markdown documentation updated with FSM progression, project scoping limits, and test results."
+      }
+    ]
+  },
   "removedLegacyReferences": [
     "import { tripEngineService } from '../../services/tripEngine.service';",
     "const allFallback = tripEngineService.getAllTrips();",
@@ -24,32 +74,85 @@
     "cacheReadFailure": "Handled as empty with no legacy fallback queried"
   },
   "projectScopeAndAuthorization": {
-    "authorization": "Preserved. Restricted to scale operators, site supervisors, supervisors, project admins, and super admins.",
-    "projectFiltering": "Preserved. Employs tripRepository.listByProject(projectId) to hydrate local cache."
+    "authorization": "Preserved. Restricted to scale operators, site supervisors, supervisors, project admins, and super admins. [ACTUAL]",
+    "projectFilteringLimits": "Scoping by project via listByProject filters remote responses during sync but does not enforce project filtering on all local IndexedDB table reads. A distinction is maintained between an empty local cache and an empty remote response with a retained local cache. [ACTUAL]"
   },
   "outboxAndFSMPreservation": {
-    "outboxBehavior": "Unchanged. Enqueues status updates and weights atomically into outboxService.",
-    "fsmTransitions": "Unchanged. Adheres to IN_TRANSIT -> ARRIVED -> UNLOADING -> COMPLETED sequence."
+    "outboxBehavior": "Unchanged. Enqueues status updates and weights atomically as JS object structures in outboxService. Does not make formal database-level transaction guarantees. [ACTUAL]",
+    "fsmProgressionVsUiLabels": {
+      "legacyUiStatusLabels": ["IN_TRANSIT", "ARRIVED", "AT_DESTINATION", "UNLOADING", "OFFLOADED"],
+      "canonicalFsmProgression": ["IN_TRANSIT", "AT_DESTINATION", "WEIGHED_DESTINATION", "OFFLOADED", "COMPLETED"],
+      "details": "UI filters on transitional state subsets while the canonical FSM follows strict progression from dispatch to complete."
+    }
   },
   "verification": {
     "focusedTests": {
       "command": "npx tsx src/tests/unloadingResidualFallback.test.ts",
-      "results": "5/5 tests passed successfully",
-      "exitStatus": 0
+      "results": "16/16 assertions passed successfully",
+      "exitStatus": 0,
+      "classification": "ACTUAL"
     },
+    "regressionTests": [
+      {
+        "suite": "FSM Alignment Unloading",
+        "command": "npx vitest run src/tests/fsmAlignmentUnloading.test.ts",
+        "results": "7/7 tests passed",
+        "exitStatus": 0,
+        "classification": "ACTUAL"
+      },
+      {
+        "suite": "Driver/Truck Intake Atomicity",
+        "command": "npx vitest run src/tests/driverTruckIntakeP602A.test.ts",
+        "results": "6/6 tests passed",
+        "exitStatus": 0,
+        "classification": "ACTUAL"
+      },
+      {
+        "suite": "Material Authority Enforcement",
+        "command": "npx vitest run src/tests/materialAuthorityP602B2.test.ts",
+        "results": "6/6 tests passed",
+        "exitStatus": 0,
+        "classification": "ACTUAL"
+      },
+      {
+        "suite": "Field Supervision Convergence",
+        "command": "npx vitest run src/tests/fieldSupervisionConvergenceP604.test.ts",
+        "results": "6/6 tests passed",
+        "exitStatus": 0,
+        "classification": "ACTUAL"
+      },
+      {
+        "suite": "Driver View Convergence",
+        "command": "npx vitest run src/tests/driverViewConvergenceP603.test.ts",
+        "results": "7/7 tests passed",
+        "exitStatus": 0,
+        "classification": "ACTUAL"
+      },
+      {
+        "suite": "Block 77 Field Operations",
+        "command": "npm run test:field-ops-77",
+        "results": "13/21 passed (8 failed due to pre-existing TRK-9901 truck registration master data limitation)",
+        "exitStatus": 1,
+        "classification": "ACTUAL"
+      }
+    ],
     "typeScriptCheck": {
       "command": "npm run lint",
-      "results": "tsc --noEmit passed successfully",
-      "exitStatus": 0
+      "results": "tsc --noEmit compiled successfully with zero errors (One compiler gate)",
+      "exitStatus": 0,
+      "classification": "ACTUAL"
     },
     "productionBuild": {
       "command": "npm run build",
-      "results": "Compiled successfully",
-      "exitStatus": 0
+      "results": "Bundled and compiled production build successfully using esbuild and vite",
+      "exitStatus": 0,
+      "classification": "ACTUAL"
     },
     "preExistingIssues": [
       {
         "issue": "B77-T05 to B77-T12 tests in src/tests/fieldLoadingUnloadingBlock77.test.ts fail due to TRK-9901 truck not being registered in system master data.",
+        "preExistingStatus": "UNVERIFIED",
+        "details": "Lack of prior baseline Git history in container prevents verification in isolation, but comparison with baseline requirements indicates pre-existing status.",
         "mitigation": "Not modified as per instructions to avoid changing unrelated historical tests."
       }
     ]
