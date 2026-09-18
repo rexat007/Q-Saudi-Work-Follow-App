@@ -1,5 +1,5 @@
-import { buildRelationshipContext } from "../../utils/masterDataUtils";
-import React, { useState, useMemo } from 'react';
+import { buildRelationshipContextFromCanonical } from "../../utils/masterDataUtils";
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   FileSpreadsheet, 
   UploadCloud, 
@@ -50,20 +50,175 @@ import { WeighbridgeImportSection } from './WeighbridgeImportSection';
 import { EntityResolutionSection } from './EntityResolutionSection';
 import { DataQualityView } from '../dataQuality/DataQualityView';
 import { useI18n } from '../../i18n';
+import { carrierRepository } from '../../repositories/carrier.repository';
+import { driverRepository } from '../../repositories/driver.repository';
+import { truckRepository } from '../../repositories/truck.repository';
+import { materialRepository } from '../../repositories/material.repository';
+import { CarrierEntity, DriverEntity, TruckEntity, MaterialEntity } from '../../types/entities';
+import { RelationshipContext } from '../../types/dataQuality';
 
+export interface ImportCenterViewProps {
+  selectedProjectId?: string;
+}
 
-export function ImportCenterView() {
+export function ImportCenterView({ selectedProjectId }: ImportCenterViewProps) {
   const { t } = useI18n();
   // Navigation between Entity Resolution, Weighbridge, Google Sheets, Google Drive, Excel/CSV, Unified Architecture, Data Quality, and Active Batch
   const [centerSubTab, setCenterSubTab] = useState<'ENTITY_RESOLUTION' | 'WEIGHBRIDGE_IMPORT' | 'GOOGLE_SHEETS_IMPORT' | 'GOOGLE_DRIVE_IMPORT' | 'EXCEL_CSV_IMPORT' | 'UNIFIED_ARCHITECTURE' | 'ACTIVE_BATCH' | 'DATA_QUALITY'>('ENTITY_RESOLUTION');
 
+  // Canonical Project Master Data Collections
+  const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
+  const [drivers, setDrivers] = useState<DriverEntity[]>([]);
+  const [trucks, setTrucks] = useState<TruckEntity[]>([]);
+  const [materials, setMaterials] = useState<MaterialEntity[]>([]);
+
+  // Independent Dataset Readiness Tracking
+  const [datasetReadiness, setDatasetReadiness] = useState<{
+    carriers: 'PENDING' | 'READY' | 'ERROR';
+    drivers: 'PENDING' | 'READY' | 'ERROR';
+    trucks: 'PENDING' | 'READY' | 'ERROR';
+    materials: 'PENDING' | 'READY' | 'ERROR';
+  }>({
+    carriers: 'PENDING',
+    drivers: 'PENDING',
+    trucks: 'PENDING',
+    materials: 'PENDING',
+  });
+
+  // Stale callback protection generation counter
+  const generationRef = useRef<number>(0);
+
   // Active batch state
-  const [selectedProjectId, setSelectedProjectId] = useState<string>('PRJ-NEOM-001');
   const [activeBatch, setActiveBatch] = useState<ImportBatch>(createEmptyImportBatch);
   const [batchHistory, setBatchHistory] = useState<ImportBatch[]>([]);
 
+  // Project Switch Isolation and Canonical Subscriptions
+  useEffect(() => {
+    // Increment generation to invalidate any in-flight asynchronous callbacks
+    const currentGen = ++generationRef.current;
+
+    // Immediately flush previous project master data & reset readiness
+    setCarriers([]);
+    setDrivers([]);
+    setTrucks([]);
+    setMaterials([]);
+    setDatasetReadiness({
+      carriers: 'PENDING',
+      drivers: 'PENDING',
+      trucks: 'PENDING',
+      materials: 'PENDING',
+    });
+
+    // Invalidate P1 downstream import state
+    setActiveBatch(createEmptyImportBatch());
+    setBatchHistory([]);
+    setSelectingMasterItem(null);
+    setEditingItem(null);
+    setShowAuditTrailModal(false);
+    setShowWarningConfirmModal(false);
+
+    // Validate selectedProjectId: treat undefined, null, empty, whitespace-only as NOT READY
+    const normalizedProjectId = selectedProjectId ? selectedProjectId.trim() : '';
+    if (!normalizedProjectId) {
+      return;
+    }
+
+    const unsubCarriers = carrierRepository.subscribeByProject(
+      normalizedProjectId,
+      (list) => {
+        if (currentGen !== generationRef.current) return;
+        setCarriers(list || []);
+        setDatasetReadiness(prev => ({ ...prev, carriers: 'READY' }));
+      },
+      (err) => {
+        if (currentGen !== generationRef.current) return;
+        console.error('Carriers subscription error:', err);
+        setDatasetReadiness(prev => ({ ...prev, carriers: 'ERROR' }));
+      }
+    );
+
+    const unsubDrivers = driverRepository.subscribeByProject(
+      normalizedProjectId,
+      (list) => {
+        if (currentGen !== generationRef.current) return;
+        setDrivers(list || []);
+        setDatasetReadiness(prev => ({ ...prev, drivers: 'READY' }));
+      },
+      (err) => {
+        if (currentGen !== generationRef.current) return;
+        console.error('Drivers subscription error:', err);
+        setDatasetReadiness(prev => ({ ...prev, drivers: 'ERROR' }));
+      }
+    );
+
+    const unsubTrucks = truckRepository.subscribeByProject(
+      normalizedProjectId,
+      (list) => {
+        if (currentGen !== generationRef.current) return;
+        setTrucks(list || []);
+        setDatasetReadiness(prev => ({ ...prev, trucks: 'READY' }));
+      },
+      (err) => {
+        if (currentGen !== generationRef.current) return;
+        console.error('Trucks subscription error:', err);
+        setDatasetReadiness(prev => ({ ...prev, trucks: 'ERROR' }));
+      }
+    );
+
+    const unsubMaterials = materialRepository.subscribeByProject(
+      normalizedProjectId,
+      (list) => {
+        if (currentGen !== generationRef.current) return;
+        setMaterials(list || []);
+        setDatasetReadiness(prev => ({ ...prev, materials: 'READY' }));
+      },
+      (err) => {
+        if (currentGen !== generationRef.current) return;
+        console.error('Materials subscription error:', err);
+        setDatasetReadiness(prev => ({ ...prev, materials: 'ERROR' }));
+      }
+    );
+
+    return () => {
+      unsubCarriers();
+      unsubDrivers();
+      unsubTrucks();
+      unsubMaterials();
+    };
+  }, [selectedProjectId]);
+
+  // Pure RelationshipContext derived strictly from canonical project-scoped master data
+  const canonicalRelationshipContext: RelationshipContext | null = useMemo(() => {
+    const trimmedId = selectedProjectId?.trim();
+    if (!trimmedId) return null;
+    if (
+      datasetReadiness.carriers !== 'READY' ||
+      datasetReadiness.drivers !== 'READY' ||
+      datasetReadiness.trucks !== 'READY' ||
+      datasetReadiness.materials !== 'READY'
+    ) {
+      return null;
+    }
+    return buildRelationshipContextFromCanonical({
+      projectId: trimmedId,
+      carriers,
+      drivers,
+      trucks,
+      materials,
+    });
+  }, [selectedProjectId, datasetReadiness, carriers, drivers, trucks, materials]);
+
+  const isMasterDataReady = Boolean(canonicalRelationshipContext !== null);
+  const hasMasterDataError = Boolean(
+    datasetReadiness.carriers === 'ERROR' ||
+    datasetReadiness.drivers === 'ERROR' ||
+    datasetReadiness.trucks === 'ERROR' ||
+    datasetReadiness.materials === 'ERROR'
+  );
+
   const handleLoadDemoBatch = () => {
-    const demo = createInitialSampleBatch(buildRelationshipContext(selectedProjectId || "ALL"));
+    if (!canonicalRelationshipContext) return;
+    const demo = createInitialSampleBatch(canonicalRelationshipContext);
     setActiveBatch(demo);
     setBatchHistory([demo]);
   };
@@ -136,17 +291,23 @@ export function ImportCenterView() {
 
   // Handle uploading and parsing a new file
   const handleStartImport = () => {
+    const trimmedId = selectedProjectId?.trim();
+    if (!trimmedId || !canonicalRelationshipContext || !isMasterDataReady) {
+      alert('لا يمكن بدء المعالجة: لم تكتمل جاهزية البيانات الأساسية للمشروع المحدد.');
+      return;
+    }
+
     setIsAnalyzing(true);
     setTimeout(() => {
       const { headers, rows } = ImportCenterService.parseRawText(rawUploadText);
       const newBatch = ImportCenterService.processImportBatch({
-        importBatchId: `BATCH-NEOM-${Date.now().toString().slice(-6)}`,
-        projectId: 'PRJ-NEOM-001',
+        importBatchId: `BATCH-${trimmedId}-${Date.now().toString().slice(-6)}`,
+        projectId: trimmedId,
         fileName: uploadedFileName,
         uploadedBy: currentUserName,
         rawRows: rows,
         headers,
-        context: buildRelationshipContext("ALL"),
+        context: canonicalRelationshipContext,
       });
 
       setActiveBatch(newBatch);
@@ -448,6 +609,33 @@ export function ImportCenterView() {
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">
                   توقف إلزامي قبل الاعتماد (Pre-Commit Gate)
                 </span>
+                {selectedProjectId ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-900 text-amber-300 font-mono flex items-center gap-1.5 border border-stone-700">
+                    <Database className="w-3.5 h-3.5 text-amber-400" />
+                    <span>مشروع: {selectedProjectId}</span>
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span>لم يتم تحديد مشروع</span>
+                  </span>
+                )}
+                {isMasterDataReady ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>البيانات المرجعية جاهزة ({carriers.length} ناقل، {trucks.length} شاحنة، {drivers.length} سائق، {materials.length} مادة)</span>
+                  </span>
+                ) : hasMasterDataError ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 flex items-center gap-1">
+                    <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
+                    <span>خطأ في تحميل البيانات المرجعية للمشروع</span>
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 flex items-center gap-1">
+                    <RefreshCw className="w-3.5 h-3.5 text-amber-600 animate-spin" />
+                    <span>جاري تحميل ومزامنة البيانات المرجعية...</span>
+                  </span>
+                )}
               </div>
               <p className="text-xs sm:text-sm text-stone-600 mt-1">
                 استيراد وتدقيق دفعات الشحنات والتوريدات عبر 12 مرحلة تحكم ورقابة صارمة. يحتفظ بالنسخة الأصلية للبيانات لأغراض التدقيق.
@@ -1030,6 +1218,19 @@ export function ImportCenterView() {
                 />
               </div>
 
+              {!isMasterDataReady && (
+                <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>
+                    {!selectedProjectId?.trim()
+                      ? 'يرجى اختيار مشروع صالح من أعلى شاشة التطبيق أولاً لتمكين الاستيراد.'
+                      : hasMasterDataError
+                      ? 'تعذر تحميل البيانات المرجعية للمشروع. يرجى التحقق من الاتصال بالشبكة.'
+                      : 'جاري تحميل البيانات المرجعية المعتمدة للمشروع المحدد...'}
+                  </span>
+                </div>
+              )}
+
               <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs text-stone-600">
                 <span className="font-bold block mb-1">سلوك مسار المعالجة:</span>
                 <p>
@@ -1045,9 +1246,9 @@ export function ImportCenterView() {
               >
                 {t("shared.actions.cancel")}</button>
               <button
-                disabled={isAnalyzing}
+                disabled={isAnalyzing || !isMasterDataReady}
                 onClick={handleStartImport}
-                className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isAnalyzing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
                 <span>بدء مسار الاستيراد والفحص (Start Pipeline)</span>
@@ -1262,28 +1463,31 @@ export function ImportCenterView() {
 
               <div className="max-h-60 overflow-y-auto space-y-2">
                 {selectingMasterItem.fieldKey === 'carrier' && (
-                  buildRelationshipContext("ALL").knownCarriers.map((c) => (
-                    <button
-                      key={c.carrierId}
-                      onClick={() => {
-                        handleApplyAction(selectingMasterItem.id, 'CHOOSE_MASTER_RECORD', {
-                          chosenMasterId: c.carrierId,
-                          chosenMasterValue: c.name,
-                        });
-                        setSelectingMasterItem(null);
-                      }}
-                      className="w-full text-right p-3 rounded-xl border border-stone-200 hover:border-purple-400 hover:bg-purple-50/50 transition-all text-xs font-semibold block cursor-pointer"
-                    >
-                      <div className="font-bold text-stone-900">{c.name}</div>
-                      <div className="text-[10px] text-stone-500 mt-0.5 font-mono">
-                        {c.carrierId} {buildRelationshipContext("ALL").authorizedCarrierIds.includes(c.carrierId) ? '✓ مصرح في المشروع' : '✗ غير مصرح'}
-                      </div>
-                    </button>
-                  ))
+                  (canonicalRelationshipContext?.knownCarriers || []).map((c) => {
+                    const isAuthorized = canonicalRelationshipContext?.authorizedCarrierIds.includes(c.carrierId) ?? false;
+                    return (
+                      <button
+                        key={c.carrierId}
+                        onClick={() => {
+                          handleApplyAction(selectingMasterItem.id, 'CHOOSE_MASTER_RECORD', {
+                            chosenMasterId: c.carrierId,
+                            chosenMasterValue: c.name,
+                          });
+                          setSelectingMasterItem(null);
+                        }}
+                        className="w-full text-right p-3 rounded-xl border border-stone-200 hover:border-purple-400 hover:bg-purple-50/50 transition-all text-xs font-semibold block cursor-pointer"
+                      >
+                        <div className="font-bold text-stone-900">{c.name}</div>
+                        <div className="text-[10px] text-stone-500 mt-0.5 font-mono">
+                          {c.carrierId} {isAuthorized ? '✓ مصرح في المشروع' : '✗ غير مصرح'}
+                        </div>
+                      </button>
+                    );
+                  })
                 )}
 
                 {selectingMasterItem.fieldKey === 'truck' && (
-                  buildRelationshipContext("ALL").knownTrucks.map((t) => (
+                  (canonicalRelationshipContext?.knownTrucks || []).map((t) => (
                     <button
                       key={t.truckId}
                       onClick={() => {
@@ -1304,28 +1508,31 @@ export function ImportCenterView() {
                 )}
 
                 {selectingMasterItem.fieldKey === 'material' && (
-                  buildRelationshipContext("ALL").knownMaterials.map((m) => (
-                    <button
-                      key={m.materialId}
-                      onClick={() => {
-                        handleApplyAction(selectingMasterItem.id, 'CHOOSE_MASTER_RECORD', {
-                          chosenMasterId: m.materialId,
-                          chosenMasterValue: m.name,
-                        });
-                        setSelectingMasterItem(null);
-                      }}
-                      className="w-full text-right p-3 rounded-xl border border-stone-200 hover:border-purple-400 hover:bg-purple-50/50 transition-all text-xs font-semibold block cursor-pointer"
-                    >
-                      <div className="font-bold text-stone-900">{m.name}</div>
-                      <div className="text-[10px] text-stone-500 mt-0.5 font-mono">
-                        {m.code} {buildRelationshipContext("ALL").authorizedMaterialIds.includes(m.materialId) ? '✓ مصرح' : '✗ غير مصرح'}
-                      </div>
-                    </button>
-                  ))
+                  (canonicalRelationshipContext?.knownMaterials || []).map((m) => {
+                    const isAuthorized = canonicalRelationshipContext?.authorizedMaterialIds.includes(m.materialId) ?? false;
+                    return (
+                      <button
+                        key={m.materialId}
+                        onClick={() => {
+                          handleApplyAction(selectingMasterItem.id, 'CHOOSE_MASTER_RECORD', {
+                            chosenMasterId: m.materialId,
+                            chosenMasterValue: m.name,
+                          });
+                          setSelectingMasterItem(null);
+                        }}
+                        className="w-full text-right p-3 rounded-xl border border-stone-200 hover:border-purple-400 hover:bg-purple-50/50 transition-all text-xs font-semibold block cursor-pointer"
+                      >
+                        <div className="font-bold text-stone-900">{m.name}</div>
+                        <div className="text-[10px] text-stone-500 mt-0.5 font-mono">
+                          {m.code} {isAuthorized ? '✓ مصرح' : '✗ غير مصرح'}
+                        </div>
+                      </button>
+                    );
+                  })
                 )}
 
                 {selectingMasterItem.fieldKey === 'driver' && (
-                  buildRelationshipContext("ALL").knownDrivers.map((d) => (
+                  (canonicalRelationshipContext?.knownDrivers || []).map((d) => (
                     <button
                       key={d.driverId}
                       onClick={() => {

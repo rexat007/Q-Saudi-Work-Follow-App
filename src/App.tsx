@@ -582,7 +582,7 @@ export default function App() {
 
                 {/* ================= TAB: IMPORT CENTER (12-STAGE PIPELINE) ================= */}
                 {activeTab === 'IMPORT_CENTER' && (
-                  <ImportCenterView />
+                  <ImportCenterView selectedProjectId={selectedProjectId} />
                 )}
 
                 {/* ================= TAB: DATA QUALITY ENGINE (8-STAGE PIPELINE) ================= */}

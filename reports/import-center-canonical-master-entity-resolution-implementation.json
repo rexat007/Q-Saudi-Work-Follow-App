@@ -1,0 +1,110 @@
+{
+  "unit": "Import Center Canonical Master-Entity Resolution",
+  "implementationStatus": "COMPLETE",
+  "finalVerification": "VERIFIED",
+  "liveFirestoreE2EVerified": "NO",
+  "productionFilesChanged": [
+    "src/components/importCenter/ImportCenterView.tsx",
+    "src/App.tsx"
+  ],
+  "testFiles": [
+    "src/tests/importCenterConvergence.test.ts"
+  ],
+  "architecturalResult": {
+    "importCenterLegacyMasterAuthority": "REMOVED",
+    "canonicalSources": {
+      "carriers": "carrierRepository.subscribeByProject(selectedProjectId)",
+      "drivers": "driverRepository.subscribeByProject(selectedProjectId)",
+      "trucks": "truckRepository.subscribeByProject(selectedProjectId)",
+      "materials": "materialRepository.subscribeByProject(selectedProjectId)"
+    },
+    "legacyReferences": {
+      "buildRelationshipContextALL": 0,
+      "adminConsoleService": 0,
+      "hardcodedNeomProjectIdDefault": 0
+    }
+  },
+  "pureBuilder": {
+    "helper": "buildRelationshipContextFromCanonical",
+    "isPure": true,
+    "isDeterministic": true,
+    "isSynchronous": true,
+    "repositoryFree": true,
+    "adminConsoleServiceFree": true,
+    "projectIdContract": {
+      "empty": "rejected",
+      "whitespace": "rejected",
+      "ALL": "rejected",
+      "fallbackToGlobalALL": "none"
+    }
+  },
+  "projectScope": {
+    "projectAuthority": "App.tsx",
+    "authorizedCarrierIds": "selected-project canonical carriers",
+    "authorizedMaterialIds": "selected-project canonical materials",
+    "historicalInactiveEntitiesPreserved": true,
+    "crossProjectEntityResolution": "flagged_as_critical_review_item"
+  },
+  "truthfulDisplaySemantics": {
+    "idAsLabelSubstitution": false,
+    "carrierNameMissing": "truthful_absence_empty_string",
+    "driverNameMissing": "truthful_absence_empty_string",
+    "truckPlateMissing": "truthful_absence_empty_string",
+    "materialNameMissing": "truthful_absence_empty_string"
+  },
+  "readinessModel": {
+    "states": ["PENDING", "READY", "ERROR"],
+    "trackedDatasets": ["carriers", "drivers", "trucks", "materials"],
+    "pipelineGatedByReadiness": true,
+    "operationalMasterDataReadiness": "all_four_datasets_ready"
+  },
+  "projectSwitchIsolation": {
+    "unsubscribeP1Listeners": true,
+    "clearP1Arrays": true,
+    "resetReadinessToPending": true,
+    "resetActiveBatch": true,
+    "subscribeToP2": true,
+    "generationGuardRejectsStaleP1Callbacks": true
+  },
+  "testRecord": [
+    {
+      "command": "npx vitest run src/tests/importCenterConvergence.test.ts",
+      "exitCode": 0,
+      "passed": 27,
+      "failed": 0
+    },
+    {
+      "command": "npx tsx src/tests/importPipeline.test.ts",
+      "exitCode": 0,
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "npx tsx src/tests/importSession.test.ts",
+      "exitCode": 0,
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "npx vitest run src/tests/loadingOperatorConvergence.test.ts",
+      "exitCode": 0,
+      "passed": 10,
+      "failed": 0
+    }
+  ],
+  "qualityGates": {
+    "tscNoEmit": "PASS",
+    "lint": "PASS",
+    "productionBuild": "PASS",
+    "liveFirestoreE2EVerified": "NO"
+  },
+  "scopePreservation": {
+    "reportsEngine": "NOT_REOPENED",
+    "workspace": "NOT_REOPENED",
+    "loadingOperator": "NOT_REOPENED",
+    "dataQualityEngine": "NOT_MODIFIED",
+    "tripEngine": "NOT_MODIFIED",
+    "pricingEngine": "NOT_MODIFIED",
+    "securityModel": "NOT_MODIFIED"
+  }
+}
