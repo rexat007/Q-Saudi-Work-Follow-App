@@ -119,14 +119,17 @@ All verification tasks executed on the workspace and reported below.
 ### 1. Focused Residual Fallback Test Suite
 - **Command**: `npx tsx src/tests/unloadingResidualFallback.test.ts`
 - **Method**: Dynamic function execution of the actual `refreshInboundTrips` and `handleSearchTrip` production code extracted directly from `UnloadingOperatorView.tsx` with controlled collaborators.
-- **Results**: **6 / 6 Test Blocks Passed (100%)** **[ACTUAL]**
-  - **Test Block 1: Static Code Analysis & Zero-Reference Check** — Evaluated component source, verifying zero references and complete legacy fallback removal. — **PASSED**
-  - **Test Block 2: Connected Legacy Collaborator & Empty Cache Read** — Explicitly injected `tripEngineService` with active spies returning legacy data fixtures (`LEGACY-TRP-01`, `LEGACY-TRP-02`). Verified state setters are called, resulting states are `[]`, and zero legacy read methods are called. — **PASSED**
-  - **Test Block 3: Nonempty Cache with Zero Inbound Matches** — Verified queue stays empty when cache only holds non-inbound matches. — **PASSED**
-  - **Test Block 4: Hardened Cache-Failure Assertions** — Initialized state with sentinel records (`SENTINEL-INBOUND-01`, `SENTINEL-CACHE-01`), caused `indexedDBService.getAll` to reject, and verified states are cleanly reset to empty arrays `[]` with zero legacy read counts. — **PASSED**
-  - **Test Block 5: Canonical Search and Input Security Rules** — Tested empty search source results in `NOT_FOUND` and plate-only search fails security rules. — **PASSED**
-  - **Test Block 6: Existing Project-Scoped Repository Integration** — Validated `listByProject` sync calls. — **PASSED**
-- **Exit Status**: `0`
+- **Results**: **6 / 6 Test Blocks Passed (27/27 Assertions Passed)** **[ACTUAL]**
+  - **Test Block 1: Static Code Analysis & Zero-Reference Check** — Evaluated component source, verifying zero references and complete legacy fallback removal. — **PASSED** (4 assertions)
+  - **Test Block 2: Connected Legacy Collaborator & Empty Cache Read** — Explicitly injected `tripEngineService` with active spies returning legacy data fixtures (`LEGACY-TRP-01`, `LEGACY-TRP-02`). Verified state setters are called, resulting states are `[]`, and zero legacy read methods are called. — **PASSED** (7 assertions)
+  - **Test Block 3: Nonempty Cache with Zero Inbound Matches** — Verified queue stays empty when cache only holds non-inbound matches. — **PASSED** (2 assertions)
+  - **Test Block 4: Hardened Cache-Failure Assertions** — Initialized state with sentinel records (`SENTINEL-INBOUND-01`, `SENTINEL-CACHE-01`), caused `indexedDBService.getAll` to reject, and verified states are cleanly reset to empty arrays `[]` with zero legacy read counts. — **PASSED** (3 assertions)
+  - **Test Block 5: Canonical Search and Input Security Rules** — Tested empty search source results in `NOT_FOUND`, plate-only search fails security rules, and restored search by valid `tripSerial` successfully selects trip and matches correctly. — **PASSED** (9 assertions)
+  - **Test Block 6: Existing Project-Scoped Repository Integration** — Validated `listByProject` sync calls. — **PASSED** (2 assertions)
+- **Assertion Failure Propagation Verification**:
+  - *Controlled Failure Test*: Injected `false` into `assert()`, causing the assertion to throw an Error, stop the test block, and reject the promise chain.
+  - *Failure Exit Status*: **`1`** (Main Execution Failed) **[ACTUAL]**
+  - *Success Exit Status*: **`0`** (All tests passed cleanly) **[ACTUAL]**
 
 ### 2. Regression Test Suites
 All relevant Phase 6 and FSM alignment unloading regression suites executed using their correct runners:

@@ -20,7 +20,7 @@ function assert(description: string, condition: boolean) {
   } else {
     console.error(`  ❌ [FAIL] ${description}`);
     process.exitCode = 1;
-    return false;
+    throw new Error(`Assertion failed: ${description}`);
   }
 }
 
@@ -370,6 +370,27 @@ async function main() {
       assert('Plate-only search returns SECURITY status', searchFeedbackPlate?.status === 'SECURITY');
       assert('Plate-only search does not invoke selectTrip', !selectTripCalledPlate);
 
+      // Rule C: Successful search by tripSerial
+      let selectTripCount = 0;
+      let selectedTripResult: any = null;
+      let matchedByResult: string = '';
+
+      runExtractedHandleSearchTrip('TRP-1002', {
+        searchQuery: '',
+        tripsCache: dummyCache,
+        setActiveTrip: () => {},
+        setSearchFeedback: () => {},
+        selectTrip: (trip, matchedBy) => {
+          selectTripCount++;
+          selectedTripResult = trip;
+          matchedByResult = matchedBy;
+        }
+      });
+
+      assert('selectTrip is called exactly once', selectTripCount === 1);
+      assert('The selected trip has the expected tripId', selectedTripResult?.tripId === 'TRP-02');
+      assert('matchedBy equals "tripSerial"', matchedByResult === 'tripSerial');
+
       if (
         activeTripResult !== null ||
         searchFeedbackResult?.status !== 'NOT_FOUND' ||
@@ -417,8 +438,9 @@ async function main() {
       }
     });
 
+    const pct = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
     console.log(`\n================================================================`);
-    console.log(`Focused Test Suite Result: ${passedTests}/${totalTests} Passed (100%)`);
+    console.log(`Focused Test Suite Result: ${passedTests}/${totalTests} Passed (${pct}%)`);
     console.log(`================================================================`);
 
   } finally {
@@ -432,4 +454,7 @@ async function main() {
   }
 }
 
-main();
+main().catch((err) => {
+  console.error('\n❌ Main Execution Failed:', err);
+  process.exit(1);
+});
