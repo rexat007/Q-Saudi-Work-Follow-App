@@ -10,12 +10,12 @@
 ## Changed Files & Scope Accounting
 Comparative audit of changes since fcd6492a87c5a429cd6e580b7487ad51f5c5523c compared against 55403a411df783aefd1fee68c93bd69465ee8506. Evidence classifications are marked explicitly.
 
-1. `.env.example` (Modified) — **[UNVERIFIED]** — Modified externally or by the platform during environment initialization.
-2. `bun.lock` (Deleted) — **[UNVERIFIED]** — Deleted externally or by the platform during environment initialization.
-3. `reports/i18n-generated-translations.json` (Deleted) — **[UNVERIFIED]** — Cleaned up by platform/system.
-4. `reports/i18n-translation-catalog.json` (Deleted) — **[UNVERIFIED]** — Cleaned up by platform/system.
+1. `.env.example` (Modified) — **[ACTUAL / UNKNOWN]** — Change occurrence is ACTUAL from GitHub diff; cause/provenance is UNKNOWN / UNVERIFIED.
+2. `bun.lock` (Deleted) — **[ACTUAL / UNKNOWN]** — Change occurrence is ACTUAL from GitHub diff; cause/provenance is UNKNOWN / UNVERIFIED.
+3. `reports/i18n-generated-translations.json` (Deleted) — **[ACTUAL / UNKNOWN]** — Change occurrence is ACTUAL from GitHub diff; cause/provenance is UNKNOWN / UNVERIFIED.
+4. `reports/i18n-translation-catalog.json` (Deleted) — **[ACTUAL / UNKNOWN]** — Change occurrence is ACTUAL from GitHub diff; cause/provenance is UNKNOWN / UNVERIFIED.
 5. `src/components/field/UnloadingOperatorView.tsx` (Modified) — **[ACTUAL]** — Removed legacy `tripEngineService` fallback references and simplified state loading to strictly use canonical IndexedDB cache.
-6. `src/tests/unloadingResidualFallback.test.ts` (Corrected) — **[ACTUAL]** — Focused test suite corrected to properly await asynchronous assertions, handle database read rejections, and verify legacy source isolation.
+6. `src/tests/unloadingResidualFallback.test.ts` (Corrected) — **[ACTUAL]** — Focused test suite corrected to dynamically extract and execute the actual production component functions under controlled collaborators, satisfying all 7 empty-state and search rules.
 7. `reports/unloading-residual-fallback-removal-implementation.json` (Modified) — **[ACTUAL]** — Report JSON updated with correct scope accounting, actual test results, and limitations.
 8. `reports/unloading-residual-fallback-removal-implementation.md` (Modified) — **[ACTUAL]** — This report updated with FSM progression, project scoping limits, and test results.
 
@@ -95,11 +95,11 @@ The following lines have been completely removed from `src/components/field/Unlo
 
 ---
 
-## Canonical FSM Progression vs. Legacy UI Labels
+## Canonical FSM Progression vs. UI Status Filter Set
 
 A clear boundary is maintained between transitional UI state filters and canonical FSM progression:
-- **Legacy UI Status Labels**: Subsets used to filter incoming lists inside the view component:
-  `IN_TRANSIT` → `ARRIVED` → `AT_DESTINATION` → `UNLOADING` → `OFFLOADED`
+- **UI Filter Status Set**: The set of filter statuses inside the view component:
+  `{"IN_TRANSIT", "ARRIVED", "AT_DESTINATION", "UNLOADING", "OFFLOADED"}`
 - **Canonical FSM Progression**: The actual end-to-end lifecycle state sequence enforced by the trip state machine:
   `IN_TRANSIT` → `AT_DESTINATION` → `WEIGHED_DESTINATION` → `OFFLOADED` → `COMPLETED`
 
@@ -107,9 +107,8 @@ A clear boundary is maintained between transitional UI state filters and canonic
 
 ## Outbox Integrity & Atomicity Bounds
 
-- **State Machine Transitions**: Adherence to the strict `IN_TRANSIT -> ARRIVED -> UNLOADING -> COMPLETED` sequence remains intact.
 - **Outbox Integrity**: On arrivals and unloading completion, operations (`UPDATE_TRIP_STATUS`, `RECORD_RECEIPT`) are correctly queued via `outboxService.queueOperation` for offline/online dual synchronization.
-- **Atomicity Bounds**: Outbox queuing enqueues status updates and weights atomically as a JS object structure. This does not make or claim formal database-level transaction guarantees across distributed systems.
+- **Atomicity Bounds**: The existing Outbox calls and ordering are unchanged. No new atomicity guarantee was established.
 
 ---
 
@@ -119,23 +118,35 @@ All verification tasks executed on the workspace and reported below.
 
 ### 1. Focused Residual Fallback Test Suite
 - **Command**: `npx tsx src/tests/unloadingResidualFallback.test.ts`
-- **Results**: **16 / 16 Assertions Passed** **[ACTUAL]**
+- **Method**: Dynamic function execution of the actual `refreshInboundTrips` and `handleSearchTrip` production code extracted directly from `UnloadingOperatorView.tsx` with controlled collaborators.
+- **Results**: **27 / 27 Assertions Passed** **[ACTUAL]**
   - Zero `tripEngineService` references remain in `UnloadingOperatorView.tsx` - **PASSED**
   - The legacy fallback block inside `refreshInboundTrips` is completely removed - **PASSED**
   - `inbounds` is declared with `const` - **PASSED**
   - `tripsCache` state is strictly set to the loaded all trips array - **PASSED**
-  - Case 1 (Empty Cache): Inbounds list is empty - **PASSED**
-  - Case 1 (Empty Cache): Trips cache is empty - **PASSED**
-  - Case 2 (Zero Incoming Matches): Inbounds list is empty - **PASSED**
-  - Case 2 (Zero Incoming Matches): tripsCache maintains non-inbound matches - **PASSED**
-  - Case 3 (Cache Read Failure): Recovered as empty array - **PASSED**
-  - Case 3 (Cache Read Failure): Inbounds list is empty - **PASSED**
-  - Case 4 (Empty Search Query): Returns EMPTY status - **PASSED**
-  - Case 5 (Legacy Source Isolation): Legacy data does not pollute the canonical trips query - **PASSED**
-  - Case 6 (Normal behavior): Inbounds filtered count is exactly 1 - **PASSED**
-  - Case 6 (Normal behavior): Trips cache has exactly 2 elements - **PASSED**
-  - Case 6 (Search Serial): Returns CONTINUE status for valid tripSerial - **PASSED**
-  - Case 6 (Search Plate Only): Returns SECURITY status block - **PASSED**
+  - Successfully extracted `refreshInboundTrips` function body - **PASSED**
+  - Successfully extracted `handleSearchTrip` function body - **PASSED**
+  - Case 1: Empty canonical cache sets `inboundTrips` to empty array - **PASSED**
+  - Case 1: Empty canonical cache sets `tripsCache` to empty array - **PASSED**
+  - Case 2: Nonempty cache with zero inbound matches leaves `inboundTrips` empty - **PASSED**
+  - Case 2: `tripsCache` holds the loaded non-matching trip - **PASSED**
+  - Case 3: Cache read rejection does not invoke legacy `tripEngineService.getAllTrips` - **PASSED**
+  - Case 3: Inbound state remains empty or unchanged without fallback values - **PASSED**
+  - Case 4: Empty search source sets `activeTrip` to null - **PASSED**
+  - Case 4: Empty search source returns `NOT_FOUND` status - **PASSED**
+  - Case 4: `selectTrip` was not called - **PASSED**
+  - Case 5: Legacy trip is not loaded into `inboundTrips` - **PASSED**
+  - Case 5: Legacy trip is not loaded into `tripsCache` - **PASSED**
+  - Case 5: Legacy read methods were not called - **PASSED**
+  - Case 6: Inbound trip is parsed successfully - **PASSED**
+  - Case 6: Search with valid `tripSerial` invokes `selectTrip` with correct trip - **PASSED**
+  - Case 6: `matchedBy` parameter is `"tripSerial"` - **PASSED**
+  - Case 6 (Plate only): `activeTrip` is set to null - **PASSED**
+  - Case 6 (Plate only): Returns `SECURITY` status block - **PASSED**
+  - Case 6 (Plate only): `selectTrip` is not invoked - **PASSED**
+  - Case 7: `listByProject` is called for project `PRJ-A` - **PASSED**
+  - Case 7: `listByProject` is called for project `PRJ-B` - **PASSED**
+  - Case 7: Online trips are populated in local states - **PASSED**
 - **Exit Status**: `0`
 
 ### 2. Regression Test Suites
@@ -171,11 +182,11 @@ All relevant Phase 6 and FSM alignment unloading regression suites executed usin
 
 ---
 
-## Directly Observed Pre-Existing Issues
+## Block 77 Failure Occurrence & Provenance
 - In the historical test suite `src/tests/fieldLoadingUnloadingBlock77.test.ts`, tests `B77-T05` through `B77-T12` fail with the error:
   `Error: تعذر إنشاء واعتماد الشحنة بمحطة التحميل: الشاحنة (TRK-9901) غير مسجلة بالنظام` (Truck TRK-9901 not registered in system).
-- *Status*: **[UNVERIFIED]** pre-existing status. Lack of prior baseline Git history in container prevents verification in isolation, but comparison with baseline requirements indicates pre-existing status.
-- *Mitigation*: Left unmodified according to rules to avoid changing unrelated historical tests to force them to pass.
+- *Status*: **[UNVERIFIED]**. Without baseline execution, the pre-existing status remains UNVERIFIED. Every contradictory "confirmed pre-existing" claim is removed.
+- *Mitigation*: Left unmodified according to rules to avoid changing unrelated historical tests.
 
 ---
 

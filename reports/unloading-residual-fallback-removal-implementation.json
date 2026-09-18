@@ -10,26 +10,26 @@
       {
         "file": ".env.example",
         "action": "modified",
-        "provenance": "UNVERIFIED",
-        "details": "Modified externally or by platform during previous setup."
+        "provenance": "UNKNOWN / UNVERIFIED",
+        "details": "Change recorded in diff, cause/provenance is UNKNOWN."
       },
       {
         "file": "bun.lock",
         "action": "deleted",
-        "provenance": "UNVERIFIED",
-        "details": "Deleted externally or by platform during environment initialization."
+        "provenance": "UNKNOWN / UNVERIFIED",
+        "details": "Change recorded in diff, cause/provenance is UNKNOWN."
       },
       {
         "file": "reports/i18n-generated-translations.json",
         "action": "deleted",
-        "provenance": "UNVERIFIED",
-        "details": "Deleted externally or by platform during environment cleanup."
+        "provenance": "UNKNOWN / UNVERIFIED",
+        "details": "Change recorded in diff, cause/provenance is UNKNOWN."
       },
       {
         "file": "reports/i18n-translation-catalog.json",
         "action": "deleted",
-        "provenance": "UNVERIFIED",
-        "details": "Deleted externally or by platform during environment cleanup."
+        "provenance": "UNKNOWN / UNVERIFIED",
+        "details": "Change recorded in diff, cause/provenance is UNKNOWN."
       },
       {
         "file": "src/components/field/UnloadingOperatorView.tsx",
@@ -41,19 +41,19 @@
         "file": "src/tests/unloadingResidualFallback.test.ts",
         "action": "created_and_corrected",
         "provenance": "ACTUAL",
-        "details": "Focused test suite corrected to properly await asynchronous assertions, handle database read rejections, and verify legacy source isolation."
+        "details": "Focused test suite corrected to dynamically extract and execute the actual production component functions under controlled collaborators, satisfying all 7 empty-state and search rules."
       },
       {
         "file": "reports/unloading-residual-fallback-removal-implementation.json",
         "action": "modified",
         "provenance": "ACTUAL",
-        "details": "This implementation report updated with correct scope accounting, test results, and architectural limits."
+        "details": "This implementation report updated with correct scope accounting, actual test results, and architectural limits."
       },
       {
         "file": "reports/unloading-residual-fallback-removal-implementation.md",
         "action": "modified",
         "provenance": "ACTUAL",
-        "details": "This markdown documentation updated with FSM progression, project scoping limits, and test results."
+        "details": "This markdown documentation updated with UI sets, project scoping limits, and test results."
       }
     ]
   },
@@ -78,9 +78,9 @@
     "projectFilteringLimits": "Scoping by project via listByProject filters remote responses during sync but does not enforce project filtering on all local IndexedDB table reads. A distinction is maintained between an empty local cache and an empty remote response with a retained local cache. [ACTUAL]"
   },
   "outboxAndFSMPreservation": {
-    "outboxBehavior": "Unchanged. Enqueues status updates and weights atomically as JS object structures in outboxService. Does not make formal database-level transaction guarantees. [ACTUAL]",
+    "outboxBehavior": "The existing Outbox calls and ordering are unchanged. No new atomicity guarantee was established. [ACTUAL]",
     "fsmProgressionVsUiLabels": {
-      "legacyUiStatusLabels": ["IN_TRANSIT", "ARRIVED", "AT_DESTINATION", "UNLOADING", "OFFLOADED"],
+      "uiFilterStatuses": "The set of UI filter statuses: {'IN_TRANSIT', 'ARRIVED', 'AT_DESTINATION', 'UNLOADING', 'OFFLOADED'}. [ACTUAL]",
       "canonicalFsmProgression": ["IN_TRANSIT", "AT_DESTINATION", "WEIGHED_DESTINATION", "OFFLOADED", "COMPLETED"],
       "details": "UI filters on transitional state subsets while the canonical FSM follows strict progression from dispatch to complete."
     }
@@ -88,9 +88,10 @@
   "verification": {
     "focusedTests": {
       "command": "npx tsx src/tests/unloadingResidualFallback.test.ts",
-      "results": "16/16 assertions passed successfully",
+      "results": "27/27 assertions passed successfully",
       "exitStatus": 0,
-      "classification": "ACTUAL"
+      "classification": "ACTUAL",
+      "method": "Dynamic function execution of extracted refreshInboundTrips and handleSearchTrip production code"
     },
     "regressionTests": [
       {
@@ -131,7 +132,7 @@
       {
         "suite": "Block 77 Field Operations",
         "command": "npm run test:field-ops-77",
-        "results": "13/21 passed (8 failed due to pre-existing TRK-9901 truck registration master data limitation)",
+        "results": "13/21 passed (8 failed due to TRK-9901 truck registration master data limitation, whose pre-existing status remains UNVERIFIED)",
         "exitStatus": 1,
         "classification": "ACTUAL"
       }
@@ -152,7 +153,7 @@
       {
         "issue": "B77-T05 to B77-T12 tests in src/tests/fieldLoadingUnloadingBlock77.test.ts fail due to TRK-9901 truck not being registered in system master data.",
         "preExistingStatus": "UNVERIFIED",
-        "details": "Lack of prior baseline Git history in container prevents verification in isolation, but comparison with baseline requirements indicates pre-existing status.",
+        "details": "Lack of prior baseline Git history/execution prevents verification in isolation, so this status remains UNVERIFIED.",
         "mitigation": "Not modified as per instructions to avoid changing unrelated historical tests."
       }
     ]
