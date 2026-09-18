@@ -246,22 +246,6 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
 // Developer-Only System Tools Registry (Restricted Exclusively to SUPER_ADMIN)
 export const DEVELOPER_TOOLS_REGISTRY: NavItemDef[] = [
   {
-    id: 'TRIP_ENGINE',
-    area: 'SYSTEM_TOOLS',
-    category: 'DEVELOPER_MODE',
-    titleAr: 'محرك الرحلات وآلة الحالة (Trip Engine)',
-    titleEn: 'Trip Engine FSM',
-    badgeAr: '6 قواعد',
-    badgeEn: '6 Rules',
-    badgeVariant: 'emerald',
-    icon: 'Truck',
-    allowedRoles: ['SUPER_ADMIN'],
-    descriptionAr: 'فحص دورة حياة الرحلات والانتقالات المسموحة في آلة الحالة',
-    isPrimary: false,
-    isDeveloperOnly: true,
-    isHighRisk: true,
-  },
-  {
     id: 'PRICING_ENGINE',
     area: 'SYSTEM_TOOLS',
     category: 'DEVELOPER_MODE',

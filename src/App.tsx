@@ -43,7 +43,6 @@ import { ProjectWorkspaceView } from './components/workspace/ProjectWorkspaceVie
 import { PricingEngineView } from './components/pricing/PricingEngineView';
 import { MasterDataView } from './components/masterData/MasterDataView';
 import { ImportCenterView } from './components/importCenter/ImportCenterView';
-import { TripEngineView } from './components/TripEngineView';
 import { FieldOperationsView, FieldTab } from './components/field/FieldOperationsView';
 import { ReportsEngineView } from './components/reports/ReportsEngineView';
 import { OperationsDashboardView } from './components/dashboard/OperationsDashboardView';
@@ -562,11 +561,6 @@ export default function App() {
                 {/* ================= TAB: ADMIN CONSOLE (11 SECTIONS & VERSIONED PRICING RULES) ================= */}
                 {activeTab === 'ADMIN_CONSOLE' && (
                   <AdminConsoleView />
-                )}
-
-                {/* ================= TAB: TRIP ENGINE (6 RULES & SERVER SETTLEMENT) ================= */}
-                {activeTab === 'TRIP_ENGINE' && (
-                  <TripEngineView />
                 )}
 
                 {/* ================= TAB: GOOGLE WORKSPACE (SHEETS & DRIVE PROJECTION) ================= */}
