@@ -1,0 +1,96 @@
+{
+  "block": "126",
+  "name": "Transactional Commit Engine & Canonical Service Delegation",
+  "auditType": "FINAL_SCOPE_GAP_AUDIT",
+  "verdict": "BLOCK_126_SCOPE_CONFIRMED",
+  "timestamp": "2026-09-16T07:42:00.000Z",
+  "pricingAnalysis": {
+    "participatesInCommitPlan": false,
+    "canCommitEngineWrite": false,
+    "architecturalJustification": "Pricing rules are master contract configurations defined prior to operations by Project Admins. In the import pipeline (Blocks 120-126), pricing data is read-only reference data used during validation (BLOCK 122) and referenced via immutable pricingSnapshotId on trip records. Bulk import does not create/update pricing rules.",
+    "service": "pricingService",
+    "repository": "pricingRuleRepository"
+  },
+  "exceptionAnalysis": {
+    "participatesInCommitPlan": false,
+    "canCommitEngineWrite": false,
+    "architecturalJustification": "In the import pipeline (Blocks 120-126), validation issues and duplicate conflicts are captured as pre-commit review findings inside the Review Artifact (BLOCK 124). Blocking issues prevent approval (BLOCK 125). Operational exception records (BLOCK 111) are raised by live field operations during trip execution, not created during bulk batch commit.",
+    "service": "exceptionService",
+    "repository": "exceptionRepository"
+  },
+  "atomicityScopeTable": [
+    {
+      "entity": "Trip",
+      "canCommitEngineWrite": true,
+      "canonicalService": "tripService.createTrip",
+      "repository": "tripRepository.create",
+      "sameFirestoreTransaction": true,
+      "evidence": "src/services/commitEngine.service.ts line 327 passes transaction; src/repositories/trip.repository.ts line 72 executes transaction.set(docRef, tripData)"
+    },
+    {
+      "entity": "Driver",
+      "canCommitEngineWrite": true,
+      "canonicalService": "driverTruckIntakeService.intakeProjectDriver",
+      "repository": "driverRepository.create",
+      "sameFirestoreTransaction": true,
+      "evidence": "src/services/commitEngine.service.ts line 265 passes transaction; src/repositories/driver.repository.ts line 51 executes transaction.set(docRef, data)"
+    },
+    {
+      "entity": "Truck",
+      "canCommitEngineWrite": true,
+      "canonicalService": "driverTruckIntakeService.intakeProjectTruck",
+      "repository": "truckRepository.create",
+      "sameFirestoreTransaction": true,
+      "evidence": "src/services/commitEngine.service.ts line 284 passes transaction; src/repositories/truck.repository.ts line 52 executes transaction.set(docRef, data)"
+    },
+    {
+      "entity": "Project Roster",
+      "canCommitEngineWrite": true,
+      "canonicalService": "projectRosterService.createOrUpdateRoster",
+      "repository": "projectCarrierRosterRepository.create",
+      "sameFirestoreTransaction": true,
+      "evidence": "src/services/commitEngine.service.ts line 300 passes transaction; src/repositories/projectCarrierRoster.repository.ts line 60 executes transaction.set(docRef, rosterData)"
+    },
+    {
+      "entity": "Pricing",
+      "canCommitEngineWrite": false,
+      "canonicalService": "pricingService (read-only reference)",
+      "repository": "pricingRuleRepository",
+      "sameFirestoreTransaction": "N/A (Read-only master data; not written during import commit)",
+      "evidence": "commitEngine.service.ts does not invoke pricing writes; pricing rules are configured independently"
+    },
+    {
+      "entity": "Exception",
+      "canCommitEngineWrite": false,
+      "canonicalService": "exceptionService (operational lifecycle)",
+      "repository": "exceptionRepository",
+      "sameFirestoreTransaction": "N/A (Pre-commit findings remain in review artifact; not written as operational exceptions)",
+      "evidence": "commitEngine.service.ts does not invoke exception writes; validation issues gate approval in Block 125"
+    },
+    {
+      "entity": "Sync Operation",
+      "canCommitEngineWrite": true,
+      "canonicalService": "commitEngine -> syncOperationRepository.create",
+      "repository": "syncOperationRepository.create",
+      "sameFirestoreTransaction": true,
+      "evidence": "src/services/commitEngine.service.ts line 382 passes transaction; src/repositories/syncOperation.repository.ts line 55 executes transaction.set(docRef, opData)"
+    },
+    {
+      "entity": "Import Batch",
+      "canCommitEngineWrite": true,
+      "canonicalService": "commitEngine -> importBatchRepository.create",
+      "repository": "importBatchRepository.create",
+      "sameFirestoreTransaction": true,
+      "evidence": "src/services/commitEngine.service.ts line 399 passes transaction; src/repositories/importBatch.repository.ts line 47 executes transaction.set(docRef, batchData)"
+    }
+  ],
+  "partialFailureAndRollback": {
+    "description": "All domain writes (Trip, Driver, Truck, Roster, SyncOperation, ImportBatch) and session state updates occur inside the runTransaction callback. If any step throws, Firestore discards all staged writes atomically.",
+    "status": "VERIFIED"
+  },
+  "metrics": {
+    "directWritesInCommitEngine": 0,
+    "unsafeImportBypasses": 0,
+    "scopeGapsFound": 0
+  }
+}

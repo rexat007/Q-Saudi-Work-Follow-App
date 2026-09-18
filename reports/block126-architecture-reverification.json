@@ -1,0 +1,75 @@
+{
+  "block": "126",
+  "name": "Transactional Commit Engine & Canonical Service Delegation",
+  "auditType": "ARCHITECTURE_REVERIFICATION",
+  "verdict": "BLOCK_126_ARCHITECTURE_VERIFIED",
+  "timestamp": "2026-09-16T07:36:00.000Z",
+  "gitScope": {
+    "modifiedFiles": [
+      "/src/services/commitEngine.service.ts",
+      "/src/services/canonicalServices.ts",
+      "/src/repositories/trip.repository.ts",
+      "/src/repositories/driver.repository.ts",
+      "/src/repositories/truck.repository.ts",
+      "/src/repositories/projectCarrierRoster.repository.ts",
+      "/src/repositories/syncOperation.repository.ts",
+      "/src/repositories/importBatch.repository.ts",
+      "/src/tests/commitEngine.test.ts"
+    ],
+    "unrelatedFilesChanged": false,
+    "blocks120To125Intact": true
+  },
+  "blockersResolution": {
+    "BLK-126-01": {
+      "status": "RESOLVED",
+      "description": "Atomic cross-entity production transaction boundary",
+      "mechanism": "runTransaction(db, ...) with transaction instance propagated through canonical services down to repository transaction.set/update",
+      "evidence": "Verified in src/services/commitEngine.service.ts, src/services/canonicalServices.ts, and all domain repositories"
+    },
+    "BLK-126-02": {
+      "status": "RESOLVED",
+      "description": "Durable idempotency & commit records",
+      "mechanism": "Persisted to projects/{projectId}/sync_operations/{operationId} and projects/{projectId}/import_batches/{batchId} with SHA-256 hash and idempotent replay handling",
+      "evidence": "Verified in src/services/commitEngine.service.ts and syncOperation/importBatch repositories"
+    }
+  },
+  "transactionPropagation": {
+    "trip": {
+      "service": "tripService.createTrip",
+      "repository": "tripRepository.create",
+      "usesTransaction": true
+    },
+    "driver": {
+      "service": "driverTruckIntakeService.intakeProjectDriver",
+      "repository": "driverRepository.create",
+      "usesTransaction": true
+    },
+    "truck": {
+      "service": "driverTruckIntakeService.intakeProjectTruck",
+      "repository": "truckRepository.create",
+      "usesTransaction": true
+    },
+    "projectRoster": {
+      "service": "projectRosterService.createOrUpdateRoster",
+      "repository": "projectCarrierRosterRepository.create",
+      "usesTransaction": true
+    },
+    "syncOperation": {
+      "service": "commitEngine -> syncOperationRepository.create",
+      "repository": "syncOperationRepository.create",
+      "usesTransaction": true
+    },
+    "importBatch": {
+      "service": "commitEngine -> importBatchRepository.create",
+      "repository": "importBatchRepository.create",
+      "usesTransaction": true
+    }
+  },
+  "metrics": {
+    "directWritesInCommitEngine": 0,
+    "unsafeImportBypasses": 0,
+    "totalPassingTests": 12,
+    "blocks120To126RegressionPassed": true
+  },
+  "remainingRisks": []
+}

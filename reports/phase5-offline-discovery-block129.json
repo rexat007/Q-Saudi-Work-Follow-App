@@ -1,0 +1,454 @@
+{
+  "reportType": "BLOCK_129_PHASE_5_OFFLINE_DISCOVERY_REPORT",
+  "generatedAt": "2026-09-16T11:32:00.000Z",
+  "block": "BLOCK_129",
+  "verdict": "PHASE_5_DISCOVERY_COMPLETE",
+  "safetyAssertions": {
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "FIRESTORE_DATA_CHANGED": "NO",
+    "FIRESTORE_SCHEMA_CHANGED": "NO",
+    "FIRESTORE_RULES_CHANGED": "NO",
+    "INDEXEDDB_CHANGED": "NO",
+    "GOOGLE_DRIVE_CHANGED": "NO",
+    "GOOGLE_SHEETS_CHANGED": "NO",
+    "ROUTES_CHANGED": "NO",
+    "UI_CHANGED": "NO",
+    "AUTHENTICATION_STATE_CHANGED": "NO",
+    "CONFIGURATION_CHANGED": "NO",
+    "RUNTIME_STATE_CHANGED": "NO",
+    "RELEASE_BLOCKER": "NO",
+    "UI_ENTRY_POINT_CONVERGENCE": "NOT_YET_IMPLEMENTED",
+    "LIVE_FIRESTORE_E2E_VERIFIED": "NO"
+  },
+  "coreInvariants": {
+    "firestoreAuthority": "Single Business Authority",
+    "indexedDBAuthority": "Cache Only",
+    "outboxAuthority": "Pending Mutation Queue Only",
+    "syncOperationsAuthority": "Durable Idempotency Ledger",
+    "canonicalDomainServices": "Business Operation Authority",
+    "canonicalRepositories": "Persistence Authority"
+  },
+  "indexedDBInventory": {
+    "databaseName": "q_saudi_logistics_offline_db",
+    "databaseVersion": 2,
+    "objectStores": [
+      {
+        "name": "projects",
+        "keyPath": "projectId",
+        "indexes": [],
+        "evidenceClass": "ACTUAL",
+        "purpose": "Local cache of active projects"
+      },
+      {
+        "name": "carriers",
+        "keyPath": "carrierId",
+        "indexes": ["projectId"],
+        "evidenceClass": "ACTUAL",
+        "purpose": "Local cache of authorized carriers"
+      },
+      {
+        "name": "materials",
+        "keyPath": "materialId",
+        "indexes": ["projectId"],
+        "evidenceClass": "ACTUAL",
+        "purpose": "Local cache of authorized project materials"
+      },
+      {
+        "name": "trucks",
+        "keyPath": "truckId",
+        "indexes": ["carrierId", "projectId"],
+        "evidenceClass": "ACTUAL",
+        "purpose": "Local cache of authorized trucks"
+      },
+      {
+        "name": "drivers",
+        "keyPath": "driverId",
+        "indexes": ["carrierId", "projectId"],
+        "evidenceClass": "ACTUAL",
+        "purpose": "Local cache of authorized drivers"
+      },
+      {
+        "name": "pricingRules",
+        "keyPath": "pricingRuleId",
+        "indexes": ["projectId", "carrierId", "materialId"],
+        "evidenceClass": "ACTUAL",
+        "purpose": "Local cache of pricing rules for field rate snapshot calculations"
+      },
+      {
+        "name": "trips",
+        "keyPath": "tripId",
+        "indexes": ["projectId", "status"],
+        "evidenceClass": "ACTUAL",
+        "purpose": "Local cache of operational and temporary offline trips"
+      },
+      {
+        "name": "outbox",
+        "keyPath": "operationId",
+        "indexes": ["status", "projectId", "createdAt"],
+        "evidenceClass": "ACTUAL",
+        "purpose": "Pending client mutation queue"
+      },
+      {
+        "name": "metadata",
+        "keyPath": "storeName",
+        "indexes": [],
+        "evidenceClass": "ACTUAL",
+        "purpose": "Store metadata containing version, record count, and timestamp"
+      },
+      {
+        "name": "conflicts",
+        "keyPath": "conflictId",
+        "indexes": ["status", "conflictType", "operationId", "projectId"],
+        "evidenceClass": "ACTUAL",
+        "purpose": "Explicit conflict records for non-LWW resolution"
+      }
+    ]
+  },
+  "outboxInventory": {
+    "serviceFile": "/src/services/offline/outbox.service.ts",
+    "typesFile": "/src/types/offline.ts",
+    "storedFields": [
+      "operationId",
+      "projectId",
+      "userId",
+      "deviceId",
+      "operationType",
+      "payload",
+      "createdAt",
+      "retryCount",
+      "status",
+      "errorReason",
+      "syncedAt",
+      "serverAck",
+      "conflictDetails"
+    ],
+    "operationTypes": [
+      "CREATE_TRIP_LOADING",
+      "UPDATE_TRIP_STATUS",
+      "RECORD_RECEIPT",
+      "REPORT_EXCEPTION"
+    ],
+    "stateMachine": {
+      "type": "ACTUAL",
+      "states": ["PENDING", "SENDING", "SYNCED", "FAILED", "CONFLICT"],
+      "transitions": [
+        { "from": "INITIAL", "to": "PENDING", "trigger": "queueOperation()" },
+        { "from": "PENDING", "to": "SENDING", "trigger": "syncAll() processing item" },
+        { "from": "FAILED", "to": "SENDING", "trigger": "syncAll() retry (retryCount < 5)" },
+        { "from": "SENDING", "to": "FAILED", "trigger": "Client validation failure OR Server/Network error" },
+        { "from": "SENDING", "to": "CONFLICT", "trigger": "Conflict detection hit (No LWW)" },
+        { "from": "SENDING", "to": "SYNCED", "trigger": "Successful server commit OR Idempotency hit" },
+        { "from": "FAILED", "to": "PENDING", "trigger": "retryOperation(operationId)" },
+        { "from": "CONFLICT", "to": "PENDING", "trigger": "resolveConflict(conflictId)" }
+      ]
+    }
+  },
+  "replayAnalysis": {
+    "actualOnlineReplayPath": [
+      "Outbox Item (IDB 'outbox')",
+      "OutboxService.syncAll()",
+      "OutboxService.validateOperationServerSide()",
+      "syncOperationRepository.findById() (Local Idempotency Check)",
+      "ConflictResolutionService.detectConflict() (Conflict Check)",
+      "HTTP POST /api/projects/:projectId/trips",
+      "Server Middleware (authenticateUser, enforceProjectIsolation, enforceDispatcherOrAbove)",
+      "Server Idempotency Check (Firestore query where clientUUID == operationId)",
+      "serverTripService.dispatchTrip() (Canonical TripService)",
+      "Canonical Repositories Validation (Project, Carrier, Truck, Driver, Material, PricingRule)",
+      "Immutable Snapshot Construction",
+      "TripNumberGenerator.getNextTripNumber()",
+      "tripRepository.create() -> Firestore write",
+      "Audit & Event Logging (auditLogService, tripEventService)",
+      "HTTP Response 201 with authoritative server trip",
+      "OutboxService receives serverTrip, updates IDB 'trips', registers syncOperationRepository.create()",
+      "Outbox status -> SYNCED with serverAck"
+    ],
+    "actualFallbackReplayPath": [
+      "Outbox Item (IDB 'outbox')",
+      "OutboxService.syncAll(true) or offline fallback",
+      "OutboxService.commitOperation()",
+      "Direct mutation of legacy tripEngineService.trips in-memory array",
+      "tripStateMachine.addLifecycleEvent()",
+      "syncOperationRepository.create()",
+      "Outbox status -> SYNCED"
+    ],
+    "targetPhase5ReplayPath": [
+      "Outbox Item (IDB 'outbox')",
+      "Canonical Replay & Sync Coordinator",
+      "Authoritative Execution Revalidation (Project Active, RBAC, Entity Existence, Active Roster, expectedVersion, operationId)",
+      "Canonical Domain Service (TripService / CanonicalCommitEngineService)",
+      "Canonical Repository Layer",
+      "Authoritative Firestore Transaction Commit",
+      "Synchronous Audit & Event Trail",
+      "Durable Idempotency Ledger Record in sync_operations",
+      "Atomic Outbox State Update (SYNCED) in IndexedDB",
+      "Deletion-Aware Cache Reconciliation"
+    ]
+  },
+  "authoritativeRevalidationMatrix": {
+    "projectExists": { "status": "IMPLEMENTED", "evidence": "TripService.dispatchTrip + server.ts enforceProjectIsolation" },
+    "projectIsActive": { "status": "PARTIAL", "evidence": "Project repository fetches project; active status filter exists in UI cache queries but explicit assertion in TripService is partial" },
+    "userIsAuthenticated": { "status": "IMPLEMENTED", "evidence": "server.ts authenticateUser middleware + context.userId in TripService" },
+    "userHasRequiredRbacPermission": { "status": "IMPLEMENTED", "evidence": "server.ts enforceDispatcherOrAbove + TripService validation" },
+    "projectMembershipIsValid": { "status": "IMPLEMENTED", "evidence": "server.ts enforceProjectIsolation" },
+    "referencedCarrierIsValidAndActive": { "status": "IMPLEMENTED", "evidence": "TripService.dispatchTrip checks carrierRepository.findById and carrier.status === 'ACTIVE'" },
+    "referencedDriverIsValidAndActive": { "status": "IMPLEMENTED", "evidence": "TripService.dispatchTrip checks driverRepository.findById and driver.status === 'ACTIVE' and driver.carrierId === carrierId" },
+    "referencedTruckIsValidAndActive": { "status": "IMPLEMENTED", "evidence": "TripService.dispatchTrip checks truckRepository.findById and truck.status === 'ACTIVE' and truck.carrierId === carrierId" },
+    "referencedMaterialIsValidAndActive": { "status": "IMPLEMENTED", "evidence": "TripService.dispatchTrip checks materialRepository.findById and material.status === 'ACTIVE'" },
+    "rosterRelationshipIsActive": { "status": "PARTIAL", "evidence": "TripService checks project.authorizedCarrierIds and authorizedMaterialIds; dedicated ProjectCarrierRoster validation is partial during replay" },
+    "expectedVersionMatches": { "status": "PARTIAL", "evidence": "Handled in ConflictResolutionService.detectConflict for updates; not asserted uniformly across all mutation endpoints" },
+    "operationIdNotPreviouslyCommitted": { "status": "IMPLEMENTED", "evidence": "Checked via syncOperationRepository and server.ts clientUUID query" },
+    "staleOrDeletedTargetRejectedSafely": { "status": "IMPLEMENTED", "evidence": "TripService repository lookups fail if entity is deleted" },
+    "retryAfterPartialFailureIsSafe": { "status": "IMPLEMENTED", "evidence": "Idempotent replay returns existing entity without duplicate writes" }
+  },
+  "operationIdTrace": {
+    "generation": "OutboxService.queueOperation() generates 'OP-${Date.now()}-${rand}' or accepts clientUUID",
+    "persistence": "IndexedDB 'outbox' object store with keyPath 'operationId'",
+    "transmission": "Included in POST /api/projects/:projectId/trips body",
+    "preValidation": "syncOperationRepository.findById(op.projectId, op.operationId) in OutboxService.syncAll()",
+    "serverValidation": "server.ts queries Firestore collection projects/:projectId/trips where clientUUID == operationId",
+    "durableLedgerStorage": "syncOperationRepository.create() persists to sync_operations collection with status PROCESSED",
+    "evidenceClass": "ACTUAL"
+  },
+  "expectedVersionTrace": {
+    "capture": "Captured on client during initial load/mutation (OutboxOperation.payload.version)",
+    "stalenessRisk": "Possible if client was offline while server updated entity version",
+    "checkLocation": "ConflictResolutionService.detectConflict() compares serverTrip.version > localVersion",
+    "conflictOutcome": "Creates ConflictRecord (type: 'VERSION_CONFLICT'), marks outbox status 'CONFLICT', prompts explicit human resolution",
+    "gap": "Server endpoint does not strictly validate expectedVersion for state updates (e.g. UPDATE_TRIP_STATUS)",
+    "evidenceClass": "ACTUAL"
+  },
+  "projectIsolationAnalysis": {
+    "status": "PASS",
+    "evidence": [
+      "IndexedDB stores partition queries by projectId",
+      "Outbox operations strictly require projectId",
+      "Server middleware enforceProjectIsolation validates route params vs authenticated user project assignments",
+      "TripService scopes all master data lookups to params.projectId"
+    ],
+    "evidenceClass": "ACTUAL"
+  },
+  "cacheReconciliationAnalysis": {
+    "block103BPreservation": "VERIFIED",
+    "implementation": "offlineCacheService.reconcileStore() compares local keys with authoritative keys and deletes orphaned records",
+    "riskIdentified": "offlineCacheService.seedAllMasterData() currently queries legacy adminConsoleService instead of canonical repositories",
+    "evidenceClass": "ACTUAL"
+  },
+  "legacyPathsInventory": [
+    {
+      "service": "adminConsoleService",
+      "location": "src/services/offline/offlineCache.service.ts",
+      "purpose": "Sources master data for initial cache seeding",
+      "disposition": "REWIRE IN PHASE 5",
+      "targetReplacement": "Canonical repositories (projectRepository, carrierRepository, etc.)"
+    },
+    {
+      "service": "tripEngineService",
+      "location": "src/services/offline/outbox.service.ts (commitOperation fallback)",
+      "purpose": "In-memory trip mutation in simulated/fallback offline mode",
+      "disposition": "REWIRE IN PHASE 5",
+      "targetReplacement": "Canonical TripService / CommitEngineService"
+    },
+    {
+      "service": "tripEngineService",
+      "location": "src/services/offline/conflictResolution.service.ts",
+      "purpose": "Queries in-memory trips for conflict detection",
+      "disposition": "REWIRE IN PHASE 5",
+      "targetReplacement": "tripRepository.findById / TripService"
+    },
+    {
+      "service": "tripStateMachine",
+      "location": "src/services/offline/outbox.service.ts",
+      "purpose": "Dispatches legacy lifecycle events",
+      "disposition": "REWIRE IN PHASE 5",
+      "targetReplacement": "tripEventService / auditLogService"
+    }
+  ],
+  "duplicateBusinessLogicFindings": [
+    {
+      "area": "Trip Creation in Simulated Offline",
+      "location": "OutboxService.commitOperation()",
+      "status": "DUPLICATE_FOUND",
+      "details": "Calculates net tons, settlement amount, and creates serverTrip directly into tripEngineService instead of calling TripService.",
+      "risk": "SECOND_KITCHEN_RISK (ACTUAL)"
+    },
+    {
+      "area": "Server Validation in Outbox",
+      "location": "OutboxService.validateOperationServerSide()",
+      "status": "POTENTIAL_DUPLICATE",
+      "details": "Performs local lightweight validation that duplicates a subset of TripValidator.",
+      "risk": "Minor divergence risk if TripValidator evolves"
+    }
+  ],
+  "testCoverageMatrix": {
+    "existingTests": [
+      {
+        "file": "src/tests/ghostDataEliminationBlock103B.test.ts",
+        "description": "Tests deletion-aware cache reconciliation, pruning, and inactive entity filtering",
+        "classification": "LOGICALLY TESTED"
+      },
+      {
+        "file": "src/tests/concurrencyIntegrityStressBlock95.test.ts",
+        "description": "Tests concurrent outbox sync, idempotency replays, duplicate operation handling",
+        "classification": "LOGICALLY TESTED"
+      },
+      {
+        "file": "src/tests/conflictResolution.test.ts",
+        "description": "Tests explicit conflict detection (version, pricing, status) and anti-LWW guarantees",
+        "classification": "LOGICALLY TESTED"
+      },
+      {
+        "file": "src/tests/secureTripNumberingOffline89B.test.ts",
+        "description": "Tests outbox queueing and server trip number allocation upon sync",
+        "classification": "LOGICALLY TESTED"
+      }
+    ],
+    "missingTests": [
+      "Direct canonical repository hydration for OfflineCacheService",
+      "Full outbox replay through CanonicalCommitEngineService without legacy shims",
+      "Strict expectedVersion rejection for UPDATE_TRIP_STATUS outbox replays",
+      "Live Firestore emulator replay verification"
+    ]
+  },
+  "gapRegister": [
+    {
+      "gapId": "GAP-P5-01",
+      "area": "Cache Hydration Source",
+      "currentState": "OfflineCacheService.seedAllMasterData() pulls records from legacy adminConsoleService and pricingService in-memory states.",
+      "targetState": "OfflineCacheService hydrates local IndexedDB directly from canonical repositories (projectRepository, carrierRepository, truckRepository, driverRepository, materialRepository, pricingRuleRepository).",
+      "evidence": "src/services/offline/offlineCache.service.ts lines 118-207",
+      "evidenceClass": "ACTUAL",
+      "severity": "P1",
+      "blocking": true,
+      "implementationDisposition": "MUST_IMPLEMENT",
+      "dependency": "Canonical repositories from Phase 2",
+      "verificationMethod": "Unit & cache hydration tests"
+    },
+    {
+      "gapId": "GAP-P5-02",
+      "area": "Fallback Replay Second Kitchen Elimination",
+      "currentState": "OutboxService.commitOperation() manually constructs trip records and updates legacy tripEngineService in-memory array.",
+      "targetState": "All replay operations route exclusively through canonical domain operations (TripService / CanonicalCommitEngineService) and canonical repositories.",
+      "evidence": "src/services/offline/outbox.service.ts lines 341-448",
+      "evidenceClass": "ACTUAL",
+      "severity": "P1",
+      "blocking": true,
+      "implementationDisposition": "MUST_IMPLEMENT",
+      "dependency": "TripService from Phase 3, CommitEngine from Phase 4",
+      "verificationMethod": "Replay integration tests"
+    },
+    {
+      "gapId": "GAP-P5-03",
+      "area": "Conflict Detection Repository Integration",
+      "currentState": "ConflictResolutionService.detectConflict() queries legacy tripEngineService to find server trips.",
+      "targetState": "ConflictResolutionService queries canonical tripRepository / TripService for authoritative server trip state.",
+      "evidence": "src/services/offline/conflictResolution.service.ts lines 30, 69",
+      "evidenceClass": "ACTUAL",
+      "severity": "P2",
+      "blocking": false,
+      "implementationDisposition": "MUST_IMPLEMENT",
+      "dependency": "tripRepository from Phase 2",
+      "verificationMethod": "Conflict resolution suite tests"
+    },
+    {
+      "gapId": "GAP-P5-04",
+      "area": "Unified Update Operation Replay Revalidation",
+      "currentState": "Outbox supports UPDATE_TRIP_STATUS and RECORD_RECEIPT, but server API endpoints only exist for trip creation (/api/projects/:projectId/trips).",
+      "targetState": "Authoritative endpoints or canonical domain service handlers for update operations that enforce expectedVersion concurrency checks and durable idempotency on replay.",
+      "evidence": "src/services/offline/outbox.service.ts lines 12-16, server.ts lines 753-840",
+      "evidenceClass": "ACTUAL",
+      "severity": "P2",
+      "blocking": false,
+      "implementationDisposition": "SHOULD_IMPLEMENT",
+      "dependency": "TripService state machine methods",
+      "verificationMethod": "State update replay tests"
+    }
+  ],
+  "logicalImplementationUnits": [
+    {
+      "logicalUnitId": "LU-P5-01",
+      "purpose": "Rewire OfflineCacheService to hydrate from Canonical Repositories instead of legacy adminConsoleService",
+      "currentGapIds": ["GAP-P5-01"],
+      "dependencies": ["Phase 2 Repositories"],
+      "affectedFiles": [
+        "/src/services/offline/offlineCache.service.ts",
+        "/src/tests/ghostDataEliminationBlock103B.test.ts"
+      ],
+      "affectedLayers": ["Offline Cache", "Repository Integration"],
+      "verificationRequirements": "Verify deletion-aware reconciliation, active filtering, and version tracking using canonical repositories",
+      "risk": "LOW"
+    },
+    {
+      "logicalUnitId": "LU-P5-02",
+      "purpose": "Harmonize Outbox Replay & Fallback Execution with Canonical Domain Services and Repositories",
+      "currentGapIds": ["GAP-P5-02", "GAP-P5-03"],
+      "dependencies": ["LU-P5-01", "TripService", "tripRepository", "syncOperationRepository"],
+      "affectedFiles": [
+        "/src/services/offline/outbox.service.ts",
+        "/src/services/offline/conflictResolution.service.ts"
+      ],
+      "affectedLayers": ["Outbox Replay Engine", "Conflict Resolution", "Domain Services"],
+      "verificationRequirements": "Verify zero direct writes to legacy tripEngineService, full canonical TripService invocation, durable idempotency registration",
+      "risk": "MEDIUM"
+    },
+    {
+      "logicalUnitId": "LU-P5-03",
+      "purpose": "Comprehensive Phase 5 Offline / Outbox End-to-End Test Suite",
+      "currentGapIds": ["GAP-P5-01", "GAP-P5-02", "GAP-P5-03", "GAP-P5-04"],
+      "dependencies": ["LU-P5-01", "LU-P5-02"],
+      "affectedFiles": [
+        "/src/tests/phase5OfflineOutboxVerification.test.ts"
+      ],
+      "affectedLayers": ["Test Infrastructure", "Verification Suite"],
+      "verificationRequirements": "100% pass on cache reconciliation, outbox replay, anti-LWW conflict detection, and idempotency",
+      "risk": "LOW"
+    }
+  ],
+  "dependencyGraph": {
+    "nodes": [
+      { "id": "IndexedDB", "type": "Client Cache / Queue", "evidence": "ACTUAL" },
+      { "id": "OfflineCacheService", "type": "Cache Manager", "evidence": "ACTUAL" },
+      { "id": "OutboxService", "type": "Mutation Queue & Replay", "evidence": "ACTUAL" },
+      { "id": "ConflictResolutionService", "type": "Anti-LWW Engine", "evidence": "ACTUAL" },
+      { "id": "ServerApiMiddleware", "type": "Auth & RBAC Enforcement", "evidence": "ACTUAL" },
+      { "id": "TripService", "type": "Canonical Business Authority", "evidence": "ACTUAL" },
+      { "id": "CanonicalRepositories", "type": "Persistence Authority", "evidence": "ACTUAL" },
+      { "id": "SyncOperationRepository", "type": "Durable Idempotency", "evidence": "ACTUAL" },
+      { "id": "Firestore", "type": "Single Source of Truth", "evidence": "ACTUAL" }
+    ],
+    "edges": [
+      { "from": "IndexedDB", "to": "OfflineCacheService", "status": "ACTUAL" },
+      { "from": "IndexedDB", "to": "OutboxService", "status": "ACTUAL" },
+      { "from": "OfflineCacheService", "to": "CanonicalRepositories", "status": "TARGET (Currently Legacy AdminConsole)" },
+      { "from": "OutboxService", "to": "ConflictResolutionService", "status": "ACTUAL" },
+      { "from": "OutboxService", "to": "ServerApiMiddleware", "status": "ACTUAL (Online Path)" },
+      { "from": "OutboxService", "to": "TripService", "status": "TARGET (Fallback Currently TripEngine)" },
+      { "from": "ServerApiMiddleware", "to": "TripService", "status": "ACTUAL" },
+      { "from": "TripService", "to": "CanonicalRepositories", "status": "ACTUAL" },
+      { "from": "TripService", "to": "SyncOperationRepository", "status": "ACTUAL" },
+      { "from": "CanonicalRepositories", "to": "Firestore", "status": "ACTUAL" }
+    ]
+  },
+  "secondKitchenCheck": {
+    "secondBusinessServiceIntroduced": false,
+    "secondRepositoryAuthorityIntroduced": false,
+    "secondStateMachineIntroduced": false,
+    "directFirestoreBypassIntroduced": false,
+    "notes": "Backend One Kitchen architecture is verified. Identified legacy linkages in OfflineCacheService and simulated Outbox fallback are categorized as P1 gaps for resolution in Phase 5."
+  },
+  "originalProjectGoalsCheck": {
+    "firestoreRemainsAuthoritative": "VERIFIED",
+    "indexedDBRemainsCacheOnly": "VERIFIED",
+    "outboxRemainsPendingQueueOnly": "VERIFIED",
+    "driverTruckIntakeProjectOriginated": "VERIFIED",
+    "projectRosterCanonical": "VERIFIED",
+    "tripFieldOpsUnified": "VERIFIED",
+    "idempotencyDurable": "VERIFIED",
+    "historicalSnapshotsImmutable": "VERIFIED",
+    "offlineReplayCannotBypassRbacOrScope": "VERIFIED",
+    "offlineReplayCannotProduceGhostWrites": "VERIFIED",
+    "duplicateBusinessImplementationsEliminatedInPhase5": "TARGET (Requires LU-P5-02)",
+    "phase6OwnsUiConvergence": "VERIFIED"
+  }
+}

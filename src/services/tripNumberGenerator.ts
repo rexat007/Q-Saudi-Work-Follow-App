@@ -25,7 +25,7 @@ export class TripNumberGenerator {
    * Falls back to in-memory count if unauthenticated or offline.
    */
   public static async getNextTripNumber(projectId: string, projectNumberVal?: number): Promise<string> {
-    let formattedProjNum = 'Q-PRJ-0001';
+    let formattedProjNum = /^Q-PRJ-\d+$/i.test(projectId) ? projectId.toUpperCase() : 'Q-PRJ-0001';
     
     if (projectNumberVal !== undefined) {
       formattedProjNum = `Q-PRJ-${String(projectNumberVal).padStart(4, '0')}`;

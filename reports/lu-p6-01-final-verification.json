@@ -1,0 +1,108 @@
+{
+  "finalVerdict": "LU_P6_01_VERIFICATION_BLOCKED",
+  "reason": "The UnloadingOperatorView UI queues status transition operations out-of-order with respect to the strict server-side Finite State Machine (FSM). During Start Unloading, the UI attempts to transition the status directly to 'OFFLOADED' while the server status is still 'AT_DESTINATION', which fails the server status validation check (only 'WEIGHED_DESTINATION' or 'REJECTED' is permitted). Similarly, during Complete Unloading, it transitions directly to 'COMPLETED' from 'WEIGHED_DESTINATION', bypassing 'OFFLOADED' status check requirements.",
+  "loadingTrace": {
+    "workflow": "Loading Operator Weighbridge Ticket Creation",
+    "steps": [
+      { "name": "Loading UI event triggers handleCreateTrip", "classification": "ACTUAL" },
+      { "name": "Build local TripRecord clientRecord in-memory with client ID prefix", "classification": "ACTUAL" },
+      { "name": "Write clientRecord to local IndexedDB trips store", "classification": "ACTUAL" },
+      { "name": "Queue CREATE_TRIP_LOADING operation in OutboxService queue", "classification": "ACTUAL" },
+      { "name": "Call outboxService.syncAll(false) to trigger server dispatch when online", "classification": "ACTUAL" },
+      { "name": "Server API POST /api/projects/:projectId/trips handles validation and authorization", "classification": "ACTUAL" },
+      { "name": "Server saves authoritative Trip to Firestore database", "classification": "ACTUAL" },
+      { "name": "Server responds with the authoritative serverTrip containing backend-assigned ID", "classification": "ACTUAL" },
+      { "name": "OutboxService deletes the temporary client ID and saves the serverTrip in local IndexedDB cache", "classification": "ACTUAL" },
+      { "name": "Outbox operation is successfully marked SYNCED with serverAck metadata", "classification": "ACTUAL" }
+    ]
+  },
+  "unloadingTrace": {
+    "arrival": {
+      "steps": [
+        { "name": "UI event triggers handleRecordArrival", "classification": "ACTUAL" },
+        { "name": "Optimistically writes updated status 'ARRIVED' to local IndexedDB", "classification": "ACTUAL" },
+        { "name": "Queues UPDATE_TRIP_STATUS with status 'AT_DESTINATION' in OutboxService", "classification": "ACTUAL" },
+        { "name": "Server API PATCH /api/projects/:projectId/trips/:tripId/status processed", "classification": "ACTUAL" },
+        { "name": "Server transitions state IN_TRANSIT to AT_DESTINATION and saves to Firestore", "classification": "ACTUAL" },
+        { "name": "IndexedDB cache updated with serverTrip and operation marked SYNCED", "classification": "ACTUAL" }
+      ]
+    },
+    "startUnloading": {
+      "steps": [
+        { "name": "UI event triggers handleStartUnloading", "classification": "ACTUAL" },
+        { "name": "Optimistically writes status 'UNLOADING' to local IndexedDB", "classification": "ACTUAL" },
+        { "name": "Queues UPDATE_TRIP_STATUS with status 'OFFLOADED' in OutboxService", "classification": "ACTUAL" },
+        { "name": "Server PATCH status replayed via syncAll()", "classification": "ACTUAL" },
+        { "name": "Server FSM validation throws error since transition AT_DESTINATION to OFFLOADED is disallowed", "classification": "ACTUAL" },
+        { "name": "Operation fails and status marked FAILED in Outbox", "classification": "ACTUAL" }
+      ]
+    },
+    "destinationReceipt": {
+      "steps": [
+        { "name": "UI event handleCompleteUnloading triggers weights capture", "classification": "ACTUAL" },
+        { "name": "Optimistically writes completed trip to local IndexedDB", "classification": "ACTUAL" },
+        { "name": "Queues RECORD_RECEIPT with destination weights payload in OutboxService", "classification": "ACTUAL" },
+        { "name": "Server API POST /api/projects/:projectId/trips/:tripId/receipt processed", "classification": "ACTUAL" },
+        { "name": "Server transitions state AT_DESTINATION to WEIGHED_DESTINATION and recalculates billable weight and variance", "classification": "ACTUAL" },
+        { "name": "Server writes updated trip to Firestore and responds with ACK", "classification": "ACTUAL" }
+      ]
+    },
+    "completeUnloading": {
+      "steps": [
+        { "name": "Queued in sequence right after RECORD_RECEIPT inside handleCompleteUnloading", "classification": "ACTUAL" },
+        { "name": "Queues UPDATE_TRIP_STATUS with status 'COMPLETED' in OutboxService", "classification": "ACTUAL" },
+        { "name": "Server PATCH status 'COMPLETED' replayed via syncAll()", "classification": "ACTUAL" },
+        { "name": "Server validation throws error since transition WEIGHED_DESTINATION to COMPLETED is disallowed", "classification": "ACTUAL" },
+        { "name": "Operation fails and status marked FAILED in Outbox", "classification": "ACTUAL" }
+      ]
+    }
+  },
+  "onlineOfflineConvergence": {
+    "workflowUnified": true,
+    "proof": "Both paths construct the same clientRecord in-memory representation, write to local IndexedDB cache, queue in the outbox, and only diverge by synchronously replaying via syncAll() when online or deferring replay when offline."
+  },
+  "recordReceiptSemanticVerification": {
+    "intendedRepresentation": true,
+    "correctState": "WEIGHED_DESTINATION",
+    "receiptCompleteness": "destinationGrossKg, destinationTareKg, and destinationTicketNo are captured fully, which are sufficient to derive destinationNetKg and varianceWeight",
+    "serverCalculationsEnforced": true,
+    "sequenceClassification": "A. CANONICAL AND REQUIRED"
+  },
+  "fsmVerification": {
+    "transitions": [
+      { "current": "IN_TRANSIT", "target": "AT_DESTINATION", "permitted": true },
+      { "current": "AT_DESTINATION", "target": "OFFLOADED", "permitted": false, "reason": "Bypasses WEIGHED_DESTINATION state in strict server state machine" },
+      { "current": "WEIGHED_DESTINATION", "target": "COMPLETED", "permitted": false, "reason": "Bypasses OFFLOADED state in strict server state machine" }
+    ]
+  },
+  "secondKitchenSearch": [
+    { "file": "src/components/field/LoadingOperatorView.tsx", "symbol": "tripEngineService", "operation": "None", "production": "production", "reachable": false, "authoritative": false },
+    { "file": "src/components/field/UnloadingOperatorView.tsx", "symbol": "tripEngineService", "operation": "getAllTrips", "production": "production", "reachable": true, "authoritative": false, "description": "Used as safe read-only presentation fallback when local hydrated cache is empty" }
+  ],
+  "seededFallbackAnalysis": {
+    "classification": "SAFE_READ_ONLY_FALLBACK",
+    "source": "tripEngineService.getAllTrips() static seeds",
+    "reachable": true,
+    "consequence": "Cannot become business authority because mutations always target true project IDs and user session auth tokens replayed through the outbox service."
+  },
+  "searchSecurityVerification": {
+    "plateOnlyBlocked": true,
+    "projectScopeIsolated": true,
+    "rbacMaintained": true
+  },
+  "outboxAckCacheSemantics": {
+    "outboxOnlyPendingQueue": true,
+    "indexedDbOnlyCache": true,
+    "serverAuthoritative": true,
+    "syncedCannotBeForced": true
+  },
+  "failureRetryConflict": {
+    "unsuccessfulFails": true,
+    "conflictDetection": true
+  },
+  "changedFiles": [
+    { "file": "src/components/field/LoadingOperatorView.tsx", "classification": "DIRECTLY_REQUIRED" },
+    { "file": "src/components/field/UnloadingOperatorView.tsx", "classification": "DIRECTLY_REQUIRED" }
+  ],
+  "liveFirestoreE2E": "NO"
+}

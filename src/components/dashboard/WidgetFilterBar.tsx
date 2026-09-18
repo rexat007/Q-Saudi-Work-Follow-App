@@ -2,15 +2,15 @@ import React from 'react';
 import { Filter, RotateCcw, Building2, Calendar, Truck, Layers, Calculator } from 'lucide-react';
 import { DashboardFilterParams, UserSecurityProfile } from '../../types/dashboard';
 import { ProjectEntity } from '../../types/entities';
-import { adminConsoleService } from '../../services/adminConsole.service';
 import { useI18n } from '../../i18n';
-
 
 interface WidgetFilterBarProps {
   filters: DashboardFilterParams;
   onFilterChange: (newFilters: DashboardFilterParams) => void;
   authorizedProjects: ProjectEntity[];
   userProfile: UserSecurityProfile;
+  carriersList?: Array<{ carrierId: string; companyNameAr?: string; name?: string; projectId?: string }>;
+  materialsList?: Array<{ materialId: string; nameAr?: string; name?: string; code?: string; projectId?: string }>;
   isCustomized?: boolean;
   onResetToGlobal?: () => void;
   compact?: boolean;
@@ -21,13 +21,23 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
   onFilterChange,
   authorizedProjects,
   userProfile,
+  carriersList = [],
+  materialsList = [],
   isCustomized = false,
   onResetToGlobal,
   compact = true,
 }) => {
   const { t } = useI18n();
-  const carriersList = adminConsoleService.getCarriers(filters.projectId);
-  const materialsList = adminConsoleService.getMaterials(filters.projectId);
+
+  const filteredCarriers = React.useMemo(() => {
+    if (filters.projectId === 'ALL') return carriersList;
+    return carriersList.filter(c => c.projectId === filters.projectId || !c.projectId);
+  }, [carriersList, filters.projectId]);
+
+  const filteredMaterials = React.useMemo(() => {
+    if (filters.projectId === 'ALL') return materialsList;
+    return materialsList.filter(m => m.projectId === filters.projectId || !m.projectId);
+  }, [materialsList, filters.projectId]);
 
   const handleChange = (key: keyof DashboardFilterParams, value: any) => {
     onFilterChange({
@@ -112,7 +122,7 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
             className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs text-stone-800 focus:border-amber-500 outline-none"
           >
             <option value="ALL">{t("dashboard.labels.txt_553cd5")}</option>
-            {carriersList.map((c) => (
+            {filteredCarriers.map((c) => (
               <option key={c.carrierId} value={c.carrierId}>
                 {c.companyNameAr || c.name}
               </option>
@@ -132,7 +142,7 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
             className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs text-stone-800 focus:border-amber-500 outline-none"
           >
             <option value="ALL">كافة المواد</option>
-            {materialsList.map((m) => (
+            {filteredMaterials.map((m) => (
               <option key={m.materialId} value={m.materialId}>
                 {m.nameAr || m.name}
               </option>

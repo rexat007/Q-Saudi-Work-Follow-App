@@ -1,0 +1,109 @@
+{
+  "logicalUnitId": "LU-P6-02",
+  "status": "DISCOVERY",
+  "verdict": "LU_P6_02_DISCOVERY_COMPLETE",
+  "verifications": {
+    "noImplementation": true,
+    "block103bReconciled": true,
+    "uncontrolledTextPrevented": true,
+    "rosterCentricityMaintained": true
+  },
+  "canonicalOwnerMatrix": [
+    {
+      "capability": "Global Carrier Creation",
+      "canonicalUiOwner": "MasterDataView.tsx",
+      "repository": "carrierRepository",
+      "scope": "GLOBAL"
+    },
+    {
+      "capability": "Project Carrier Assignment",
+      "canonicalUiOwner": "ProjectWorkspaceView.tsx",
+      "repository": "projectRepository",
+      "scope": "PROJECT"
+    },
+    {
+      "capability": "Material Creation",
+      "canonicalUiOwner": "MasterDataView.tsx",
+      "repository": "materialRepository",
+      "scope": "GLOBAL"
+    },
+    {
+      "capability": "Driver Operational Intake",
+      "canonicalUiOwner": "ProjectWorkspaceView.tsx",
+      "repository": "driverRepository",
+      "scope": "PROJECT"
+    },
+    {
+      "capability": "Truck Operational Intake",
+      "canonicalUiOwner": "ProjectWorkspaceView.tsx",
+      "repository": "truckRepository",
+      "scope": "PROJECT"
+    },
+    {
+      "capability": "Project Roster Management",
+      "canonicalUiOwner": "ProjectWorkspaceView.tsx",
+      "repository": "projectCarrierRosterRepository",
+      "scope": "PROJECT"
+    },
+    {
+      "capability": "Roster Import",
+      "canonicalUiOwner": "MasterDataView.tsx (IMPORT_DT)",
+      "service": "DriverTruckPipelineService",
+      "scope": "PROJECT"
+    }
+  ],
+  "multipleDoorsMatrix": [
+    {
+      "capability": "Carrier Creation",
+      "doorA": "ProjectWorkspaceView.tsx (Carriers Tab)",
+      "doorB": "MasterDataView.tsx (Carriers Tab)",
+      "sameWorkflow": false,
+      "risk": "P1"
+    },
+    {
+      "capability": "Material Creation",
+      "doorA": "ProjectWorkspaceView.tsx (Materials Tab)",
+      "doorB": "MasterDataView.tsx (Materials Tab)",
+      "sameWorkflow": false,
+      "risk": "P1"
+    },
+    {
+      "capability": "Driver Creation",
+      "doorA": "ProjectWorkspaceView.tsx (Roster Tab)",
+      "doorB": "MasterDataView.tsx (Drivers Tab)",
+      "sameWorkflow": false,
+      "risk": "P0"
+    },
+    {
+      "capability": "Truck Creation",
+      "doorA": "ProjectWorkspaceView.tsx (Roster Tab)",
+      "doorB": "MasterDataView.tsx (Trucks Tab)",
+      "sameWorkflow": false,
+      "risk": "P0"
+    }
+  ],
+  "serviceCallGraph": {
+    "ProjectWorkspaceView": [
+      "projectService.updateProject",
+      "carrierRepository.create",
+      "materialRepository.create",
+      "projectCarrierRosterRepository.create",
+      "pricingRuleRepository.create",
+      "userRepository.update"
+    ],
+    "MasterDataView": [
+      "carrierRepository.create",
+      "materialRepository.create",
+      "truckRepository.create",
+      "driverRepository.create",
+      "masterDataService.setEntityStatus",
+      "DriverTruckPipelineService.processFileToReview",
+      "DriverTruckPipelineService.commitBatch"
+    ]
+  },
+  "firstImplementationUnitRecommendation": {
+    "title": "Driver / Truck Roster Convergence",
+    "rationale": "Mitigates the highest-priority architectural risk (P0) where standalone driver/truck records are created independently from the Project Roster, causing validation lookups to fail at Weighbridge stations.",
+    "complexity": "LOW"
+  }
+}

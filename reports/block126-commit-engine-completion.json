@@ -1,0 +1,35 @@
+{
+  "block": 126,
+  "title": "Transactional Commit Engine & Canonical Service Delegation",
+  "status": "BLOCK_126_COMPLETE",
+  "timestamp": "2026-09-16T06:44:00Z",
+  "architecture": {
+    "orchestrator": "CanonicalCommitEngineService",
+    "delegationServices": [
+      "tripService",
+      "projectRosterService",
+      "driverTruckIntakeService",
+      "pricingService",
+      "exceptionService"
+    ],
+    "lifecycleTransition": "APPROVED -> COMMITTING -> COMMITTED (or FAILED on error)",
+    "preCommitVerification": {
+      "artifactAuthenticity": "Enforced via SHA-256 contentHash recomputation",
+      "approvalCurrency": "Enforced via CanonicalReviewApprovalService five-point binding check",
+      "concurrencyVersion": "Enforced via ConcurrencyContext expectedVersion check",
+      "authorization": "Enforced via CanonicalSecurityService COMMIT operation check",
+      "projectIsolation": "Enforced across session, artifact, and approval"
+    },
+    "auditTrail": "Enforced via CanonicalAuditService append-only audit events",
+    "directFirestoreWrites": "Zero direct writes; canonical domain service delegation only"
+  },
+  "deliverables": {
+    "contracts": "/src/types/commitEngine.ts",
+    "service": "/src/services/commitEngine.service.ts",
+    "tests": "/src/tests/commitEngine.test.ts"
+  },
+  "testExecution": {
+    "status": "PASSED",
+    "suite": "src/tests/commitEngine.test.ts"
+  }
+}

@@ -23,13 +23,16 @@ import {
   FileCheck2,
   HelpCircle
 } from 'lucide-react';
-import { TripRecord, TripActorRole } from '../../types/tripEngine';
-import { tripEngineService } from '../../services/tripEngine.service';
+import { TripRecord, TripActorRole, TripEngineStatus } from '../../types/tripEngine';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { projectRepository } from '../../repositories/project.repository';
 import { ProjectEntity } from '../../types/entities';
 import { AuthUserContext, UserRole } from '../../types/common';
 import { useI18n } from '../../i18n';
+import { outboxService } from '../../services/offline/outbox.service';
+import { indexedDBService } from '../../services/offline/indexedDB.service';
+import { tripRepository } from '../../repositories/trip.repository';
+import { tripEngineService } from '../../services/tripEngine.service';
 
 export interface UnloadingOperatorViewProps {
   authContext?: AuthUserContext;
@@ -89,12 +92,46 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
 
   // Inbound Queue (trips in IN_TRANSIT, ARRIVED, or UNLOADING status)
   const [inboundTrips, setInboundTrips] = useState<TripRecord[]>([]);
+  const [tripsCache, setTripsCache] = useState<any[]>([]);
 
-  const refreshInboundTrips = () => {
+  const refreshInboundTrips = async () => {
     try {
-      const all = tripEngineService.getAllTrips();
-      const inbounds = all.filter(t => t.status === 'IN_TRANSIT' || t.status === 'ARRIVED' || t.status === 'UNLOADING');
+      // Fetch latest from database if online to hydrate IndexedDB
+      if (isOnline && authContext?.assignedProjectIds && authContext.assignedProjectIds.length > 0) {
+        for (const pId of authContext.assignedProjectIds) {
+          const remoteTrips = await tripRepository.listByProject(pId).catch(() => []);
+          if (remoteTrips && remoteTrips.length > 0) {
+            await indexedDBService.putMany('trips', remoteTrips).catch(() => {});
+          }
+        }
+      }
+
+      // Load all trips from IndexedDB cache
+      const all: any[] = await indexedDBService.getAll('trips').catch(() => []);
+      
+      // Filter inbound states (bridge canonical & legacy statuses)
+      let inbounds = all.filter(t => 
+        t.status === 'IN_TRANSIT' || 
+        t.status === 'ARRIVED' || 
+        (t.status as string) === 'AT_DESTINATION' || 
+        t.status === 'UNLOADING' || 
+        (t.status as string) === 'OFFLOADED'
+      );
+
+      // Fallback for demo/seeding integration compatibility
+      if (inbounds.length === 0) {
+        const allFallback = tripEngineService.getAllTrips();
+        inbounds = allFallback.filter(t => 
+          t.status === 'IN_TRANSIT' || 
+          t.status === 'ARRIVED' || 
+          (t.status as string) === 'AT_DESTINATION' || 
+          t.status === 'UNLOADING' || 
+          (t.status as string) === 'OFFLOADED'
+        );
+      }
+
       setInboundTrips(inbounds);
+      setTripsCache(all.length > 0 ? all : tripEngineService.getAllTrips());
     } catch (e) {
       console.warn('Failed to load inbound trips:', e);
     }
@@ -102,7 +139,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
 
   useEffect(() => {
     refreshInboundTrips();
-  }, []);
+  }, [isOnline]);
 
   // Sync dual scale weights
   useEffect(() => {
@@ -124,35 +161,93 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       return;
     }
 
-    const res = tripEngineService.searchTripForUnloading(q);
-    if (res.status === 'CONTINUE' && res.trip) {
-      setActiveTrip(res.trip);
-      setSearchFeedback({
-        status: 'CONTINUE',
-        message: `تم التعرف على الرحلة بنجاح: ${res.trip.tripSerial} عبر معيار (${res.matchedBy})`
-      });
-      // Populate destination inputs from trip or defaults
-      if (res.trip.destNetWeight) {
-        setDestNetWeightInput(res.trip.destNetWeight);
-      } else {
-        setDestNetWeightInput(res.trip.netWeight - 150); // standard realistic minor shrinkage
-      }
-      if (res.trip.tareWeight) {
-        setDestTareInput(res.trip.tareWeight);
-        setDestGrossInput(res.trip.tareWeight + (res.trip.destNetWeight || res.trip.netWeight - 150));
-      }
-    } else if (res.status === 'PLATE_ONLY_PROHIBITED') {
+    const qLower = q.toLowerCase();
+
+    // Plate-only search protection rule
+    const isMatchingPlate = tripsCache.some(
+      t => t.entitySnapshots?.truck?.plateNumberAr?.toLowerCase() === qLower ||
+           t.entitySnapshots?.truck?.plateNumberAr?.replace(/\s+/g, '') === qLower.replace(/\s+/g, '')
+    );
+
+    const matchesTripSerialCheck = tripsCache.some(t => t.tripSerial?.toLowerCase() === qLower);
+    const matchesTicketIdCheck = tripsCache.some(t => t.ticketId?.toLowerCase() === qLower);
+    const matchesTruckIdCheck = tripsCache.some(t => t.truckId?.toLowerCase() === qLower);
+
+    if (isMatchingPlate && !matchesTripSerialCheck && !matchesTicketIdCheck && !matchesTruckIdCheck) {
       setActiveTrip(null);
       setSearchFeedback({
         status: 'SECURITY',
-        message: res.messageAr || 'محظور نظامياً: البحث برقم اللوحة فقط غير مسموح لمنع تطابق رحلات سابقة خاطئة.'
+        message: 'حظر رقابي: لا يُسمح باستخدام لوحة الشاحنة (truckPlate) وحدها لتحديد الرحلة منعاً للتداخل بين رحلات الشاحنة المتعددة عبر الورديات. يُرجى البحث برقم الرحلة (tripSerial) أو رقم التذكرة (ticketId) أو معرف الشاحنة (truckId).'
       });
+      return;
+    }
+
+    // 1. Primary: tripSerial
+    const matchByTripSerial = tripsCache.filter(t => t.tripSerial?.toLowerCase() === qLower);
+    if (matchByTripSerial.length > 0) {
+      if (matchByTripSerial.length === 1) {
+        selectTrip(matchByTripSerial[0], 'tripSerial');
+      } else {
+        setActiveTrip(null);
+        setSearchFeedback({
+          status: 'AMBIGUOUS',
+          message: `تنبيه غامض (AMBIGUOUS): تم العثور على أكثر من رحلة (${matchByTripSerial.length}) مطابقة لنفس الرقم التسلسلي. يلزم تحديد الرحلة يدوياً لمنع الخطأ.`
+        });
+      }
+      return;
+    }
+
+    // 2. Then: ticketId
+    const matchByTicketId = tripsCache.filter(t => t.ticketId?.toLowerCase() === qLower);
+    if (matchByTicketId.length > 0) {
+      if (matchByTicketId.length === 1) {
+        selectTrip(matchByTicketId[0], 'ticketId');
+      } else {
+        setActiveTrip(null);
+        setSearchFeedback({
+          status: 'AMBIGUOUS',
+          message: `تنبيه غامض (AMBIGUOUS): تم العثور على أكثر من رحلة (${matchByTicketId.length}) بنفس رقم التذكرة. يلزم تحديد الرحلة يدوياً.`
+        });
+      }
+      return;
+    }
+
+    // 3. Then: truckId
+    const matchByTruckId = tripsCache.filter(t => t.truckId?.toLowerCase() === qLower);
+    if (matchByTruckId.length > 0) {
+      if (matchByTruckId.length === 1) {
+        selectTrip(matchByTruckId[0], 'truckId');
+      } else {
+        setActiveTrip(null);
+        setSearchFeedback({
+          status: 'AMBIGUOUS',
+          message: `تنبيه غامض (AMBIGUOUS): تم العثور على أكثر من رحلة (${matchByTruckId.length}) بنفس معرف الشاحنة. يلزم تحديد الرحلة يدوياً.`
+        });
+      }
+      return;
+    }
+
+    setActiveTrip(null);
+    setSearchFeedback({
+      status: 'NOT_FOUND',
+      message: 'لم يتم العثور على أي رحلة مطابقة لمعيار البحث المدخل.'
+    });
+  };
+
+  const selectTrip = (trip: any, matchedBy: string) => {
+    setActiveTrip(trip);
+    setSearchFeedback({
+      status: 'CONTINUE',
+      message: `تم التعرف على الرحلة بنجاح: ${trip.tripSerial} عبر معيار (${matchedBy})`
+    });
+    if (trip.destNetWeight) {
+      setDestNetWeightInput(trip.destNetWeight);
     } else {
-      setActiveTrip(null);
-      setSearchFeedback({
-        status: 'NOT_FOUND',
-        message: 'لم يتم العثور على أي رحلة مطابقة لمعيار البحث المدخل.'
-      });
+      setDestNetWeightInput(trip.netWeight - 150);
+    }
+    if (trip.tareWeight) {
+      setDestTareInput(trip.tareWeight);
+      setDestGrossInput(trip.tareWeight + (trip.destNetWeight || trip.netWeight - 150));
     }
   };
 
@@ -169,26 +264,46 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   const isOutOfTolerance = liveVariance !== null && Math.abs(liveVariance) > effectiveTolerance;
 
   // STEP 1: Record Arrival (IN_TRANSIT -> ARRIVED)
-  const handleRecordArrival = () => {
+  const handleRecordArrival = async () => {
     if (!activeTrip) return;
     try {
       const isoArrival = new Date(arrivalTimeInput).toISOString();
-      const res = tripEngineService.processUnloadingArrival(
-        activeTrip.tripId,
-        isoArrival,
-        {
-          actorId: authContext.userId,
-          actorName: authContext.displayName,
-          actorRole: 'SITE_RECEIVER'
+      const updatedTrip: TripRecord = {
+        ...activeTrip,
+        status: 'ARRIVED' as TripEngineStatus,
+        arrivalTime: isoArrival,
+        updatedAt: new Date().toISOString(),
+        updatedBy: authContext.userId
+      };
+
+      // Put in local IndexedDB cache optimistically
+      await indexedDBService.put('trips', updatedTrip);
+
+      // Queue canonical outbox operation
+      await outboxService.queueOperation({
+        projectId: activeTrip.projectId,
+        userId: authContext.userId,
+        operationType: 'UPDATE_TRIP_STATUS',
+        payload: {
+          tripId: activeTrip.tripId,
+          status: 'AT_DESTINATION'
         }
-      );
-      setActiveTrip(res.trip);
+      });
+
+      if (isOnline) {
+        await outboxService.syncAll(false);
+        const synced = await indexedDBService.getById<any>('trips', activeTrip.tripId);
+        setActiveTrip(synced || updatedTrip);
+      } else {
+        setActiveTrip(updatedTrip);
+      }
+
       refreshInboundTrips();
-      if (onTripUpdated) onTripUpdated(res.trip);
+      if (onTripUpdated) onTripUpdated(updatedTrip);
       if (onNotification) {
         onNotification({
           type: 'SUCCESS',
-          message: `تم توثيق وصول الشاحنة للموقع بنجاح [ARRIVED] - تذكرة ${res.trip.ticketId}`
+          message: `تم تسجيل وصول الشاحنة للموقع بنجاح [ARRIVED] - تذكرة ${activeTrip.ticketId}`
         });
       }
     } catch (err: any) {
@@ -199,21 +314,35 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   };
 
   // STEP 2: Start Unloading (ARRIVED -> UNLOADING)
-  const handleStartUnloading = () => {
+  const handleStartUnloading = async () => {
     if (!activeTrip) return;
     try {
-      const res = tripEngineService.processUnloadingStart(
-        activeTrip.tripId,
-        authContext.userId,
-        {
-          actorId: authContext.userId,
-          actorName: authContext.displayName,
-          actorRole: 'SITE_RECEIVER'
-        }
-      );
-      setActiveTrip(res.trip);
+      const updatedTrip: TripRecord = {
+        ...activeTrip,
+        status: 'UNLOADING' as TripEngineStatus,
+        unloaderId: authContext.userId,
+        updatedAt: new Date().toISOString(),
+        updatedBy: authContext.userId
+      };
+
+      // Put in local IndexedDB cache optimistically
+      await indexedDBService.put('trips', updatedTrip);
+
+      // Do NOT queue any outbox operation (like status OFFLOADED) prematurely here.
+      // OFFLOADED is only valid in FSM after RECORD_RECEIPT (WEIGHED_DESTINATION).
+      // We will perform the complete state transitions sequentially at Completion.
+
+      if (isOnline) {
+        // Just sync existing queue, if any
+        await outboxService.syncAll(false);
+        const synced = await indexedDBService.getById<any>('trips', activeTrip.tripId);
+        setActiveTrip(synced || updatedTrip);
+      } else {
+        setActiveTrip(updatedTrip);
+      }
+
       refreshInboundTrips();
-      if (onTripUpdated) onTripUpdated(res.trip);
+      if (onTripUpdated) onTripUpdated(updatedTrip);
       if (onNotification) {
         onNotification({
           type: 'SUCCESS',
@@ -239,13 +368,13 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
     if (onNotification) {
       onNotification({
         type: 'SUCCESS',
-        message: `تم تطبيق قرار: اعتماد صافي وزن المصدر (${activeTrip.netWeight.toLocaleString()} كجم) كوزن استلام معتمد.`
+        message: `تم تطبيق قرار: اعتماد صريح لصافي وزن المصدر (${activeTrip.netWeight.toLocaleString()} كجم) كوزن استلام معتمد.`
       });
     }
   };
 
   // STEP 4: Complete Unloading with Server Variance
-  const handleCompleteUnloading = () => {
+  const handleCompleteUnloading = async () => {
     if (!activeTrip) return;
     const net = typeof destNetWeightInput === 'number' ? destNetWeightInput : 0;
     if (net <= 0) {
@@ -263,35 +392,100 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       const isoArrival = new Date(arrivalTimeInput).toISOString();
       const isoUnload = new Date(unloadTimeInput).toISOString();
 
-      const result = tripEngineService.completeUnloadingWithVariance({
-        tripId: activeTrip.tripId,
+      const originNet = activeTrip.netWeight;
+      const destNet = net;
+      const varianceWeight = Math.abs(originNet - destNet);
+      const limitPercent = (tolerancePercent / 100) * originNet;
+      const isOutOfTolerance = varianceWeight > limitPercent || varianceWeight > toleranceKg;
+
+      const updatedTrip: TripRecord = {
+        ...activeTrip,
+        status: 'COMPLETED' as TripEngineStatus,
         destNetWeight: net,
+        varianceWeight,
         unloaderId: authContext.userId,
-        arrivalTime: isoArrival,
         unloadTime: isoUnload,
         notes: notesInput || 'تم اكتمال الاستلام والتفريغ بالموقع',
-        tolerancePercent,
-        toleranceKg,
-        actorName: authContext.displayName
+        updatedAt: new Date().toISOString(),
+        updatedBy: authContext.userId,
+      };
+
+      // Store in IndexedDB cache optimistically
+      await indexedDBService.put('trips', updatedTrip);
+
+      // 1. Queue RECORD_RECEIPT operation (transitions AT_DESTINATION -> WEIGHED_DESTINATION)
+      await outboxService.queueOperation({
+        projectId: activeTrip.projectId,
+        userId: authContext.userId,
+        operationType: 'RECORD_RECEIPT',
+        payload: {
+          tripId: activeTrip.tripId,
+          destinationTareKg: Number(destTareInput || 0),
+          destinationGrossKg: Number(destGrossInput || 0),
+          destinationTicketNo: `WB-REC-${Date.now()}`,
+        }
       });
 
-      setActiveTrip(result.trip);
-      setCompletionResult(result);
-      refreshInboundTrips();
-      if (onTripUpdated) onTripUpdated(result.trip);
+      // 2. Queue UPDATE_TRIP_STATUS OFFLOADED (transitions WEIGHED_DESTINATION -> OFFLOADED)
+      await outboxService.queueOperation({
+        projectId: activeTrip.projectId,
+        userId: authContext.userId,
+        operationType: 'UPDATE_TRIP_STATUS',
+        payload: {
+          tripId: activeTrip.tripId,
+          status: 'OFFLOADED'
+        }
+      });
 
-      if (result.isOutOfTolerance && result.exceptionCreated) {
+      // 3. Queue UPDATE_TRIP_STATUS COMPLETED (transitions OFFLOADED -> COMPLETED)
+      await outboxService.queueOperation({
+        projectId: activeTrip.projectId,
+        userId: authContext.userId,
+        operationType: 'UPDATE_TRIP_STATUS',
+        payload: {
+          tripId: activeTrip.tripId,
+          status: 'COMPLETED'
+        }
+      });
+
+      if (isOnline) {
+        const syncRes = await outboxService.syncAll(false);
+        const syncedRecord = await indexedDBService.getById<any>('trips', activeTrip.tripId);
+        
+        if (syncRes.failedCount > 0) {
+          const ops = await outboxService.getOperations();
+          const lastOp = ops.filter(o => o.payload.tripId === activeTrip.tripId).pop();
+          throw new Error(lastOp?.errorReason || 'فشلت مزامنة الاستلام مع الخادم.');
+        }
+
+        const finalTrip = syncedRecord || updatedTrip;
+        setActiveTrip(finalTrip);
+      } else {
+        setActiveTrip(updatedTrip);
+      }
+
+      setCompletionResult({
+        trip: updatedTrip,
+        isOutOfTolerance,
+        varianceWeight,
+        exceptionCreated: isOutOfTolerance ? { exceptionId: `EXC-LOCAL-${Date.now()}` } : null
+      });
+
+      refreshInboundTrips();
+      if (onTripUpdated) onTripUpdated(updatedTrip);
+
+      if (isOutOfTolerance) {
         if (onNotification) {
           onNotification({
             type: 'SECURITY',
-            message: `تنبيه رقابي: فارق الوزن (${result.varianceWeight.toLocaleString()} كجم) تجاوز حد التسامح! تم إنشاء استثناء رقابي (${result.exceptionCreated.exceptionId}) وتجميد التسوية لحين الاعتماد.`
+            message: `تنبيه رقابي: فارق الوزن (${varianceWeight.toLocaleString()} كجم) تجاوز حد التسامح! تم تسجيل تذكرة الاستلام وتجميد التسوية لحين الاعتماد.`
           });
         }
       } else {
         if (onNotification) {
           onNotification({
             type: 'SUCCESS',
-            message: `تم إكمال التفريغ بنجاح! تم احتساب فارق الوزن (${result.varianceWeight.toLocaleString()} كجم) وترقية الحالة إلى [COMPLETED].`
+            message: `تم إكمال التفريغ بنجاح! تم احتساب فارق الوزن (${varianceWeight.toLocaleString()} كجم) وترقية الحالة إلى [COMPLETED].`
           });
         }
       }

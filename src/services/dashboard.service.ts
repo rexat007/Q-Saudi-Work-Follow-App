@@ -17,8 +17,6 @@ import {
   PricingDistributionItem, 
   LiveTerminalEntry 
 } from '../types/dashboard';
-import { tripEngineService } from './tripEngine.service';
-import { adminConsoleService } from './adminConsole.service';
 
 // Predefined security profiles for testing and demonstration of access control
 export const PREDEFINED_SECURITY_PROFILES: UserSecurityProfile[] = [
@@ -92,8 +90,8 @@ class DashboardService {
   /**
    * Returns only the projects that this user profile is permitted to see.
    */
-  public getAuthorizedProjects(userProfile: UserSecurityProfile, projectsList?: any[]) {
-    const pool = projectsList || adminConsoleService.getProjects();
+  public getAuthorizedProjects(userProfile: UserSecurityProfile, projectsList: any[] = []) {
+    const pool = projectsList || [];
     if (!userProfile.isRestricted || userProfile.authorizedProjectIds.includes('ALL')) {
       return pool;
     }
@@ -120,9 +118,9 @@ class DashboardService {
   public getFilteredTrips(
     filters: DashboardFilterParams, 
     userProfile: UserSecurityProfile,
-    customTripsPool?: TripRecord[]
+    customTripsPool: TripRecord[] = []
   ): { trips: TripRecord[]; securityViolated: boolean } {
-    const pool = customTripsPool || tripEngineService.getAllTrips();
+    const pool = customTripsPool || [];
 
     // 1. Check if the user is attempting to query a project they are NOT authorized for
     if (filters.projectId !== 'ALL' && !this.isProjectAuthorized(filters.projectId, userProfile)) {
@@ -326,7 +324,10 @@ class DashboardService {
   /**
    * 4. Calculate Carrier Performance
    */
-  public computeCarrierPerformance(trips: TripRecord[]): CarrierPerformanceItem[] {
+  public computeCarrierPerformance(
+    trips: TripRecord[],
+    carriersList: Array<{ carrierId: string; companyNameAr?: string; name?: string }> = []
+  ): CarrierPerformanceItem[] {
     const carrierMap = new Map<string, {
       totalTrips: number;
       completedTrips: number;
@@ -369,10 +370,9 @@ class DashboardService {
     });
 
     const items: CarrierPerformanceItem[] = [];
-    const carriersList = adminConsoleService.getCarriers();
     carrierMap.forEach((val, cid) => {
       const carrier = carriersList.find(c => c.carrierId === cid);
-      const carrierNameAr = carrier?.companyNameAr || carrier?.name || cid;
+      const carrierNameAr = carrier?.companyNameAr || carrier?.name || (val as any).sampleCarrierName || cid;
       const loadedTons = Number((val.loadedKg / 1000).toFixed(2));
       const receivedTons = Number((val.receivedKg / 1000).toFixed(2));
       const varianceTons = Number((receivedTons - loadedTons).toFixed(2));
@@ -401,7 +401,10 @@ class DashboardService {
   /**
    * 5. Calculate Material Distribution
    */
-  public computeMaterialDistribution(trips: TripRecord[]): MaterialDistributionItem[] {
+  public computeMaterialDistribution(
+    trips: TripRecord[],
+    materialsList: Array<{ materialId: string; nameAr?: string; name?: string; code?: string }> = []
+  ): MaterialDistributionItem[] {
     const matMap = new Map<string, {
       totalTrips: number;
       loadedKg: number;
@@ -438,10 +441,9 @@ class DashboardService {
     });
 
     const items: MaterialDistributionItem[] = [];
-    const materialsList = adminConsoleService.getMaterials();
     matMap.forEach((val, mid) => {
       const material = materialsList.find(m => m.materialId === mid);
-      const materialNameAr = material?.nameAr || material?.name || mid;
+      const materialNameAr = material?.nameAr || material?.name || (val as any).sampleMaterialName || mid;
       const code = material?.code || mid;
       const loadedTons = Number((val.loadedKg / 1000).toFixed(2));
       const receivedTons = Number((val.receivedKg / 1000).toFixed(2));
@@ -521,12 +523,21 @@ class DashboardService {
   /**
    * 7. Generate Live Terminal Board Entries
    */
-  public generateLiveTerminalBoard(trips: TripRecord[]): LiveTerminalEntry[] {
-    const projectsList = adminConsoleService.getProjects();
-    const carriersList = adminConsoleService.getCarriers();
-    const materialsList = adminConsoleService.getMaterials();
-    const trucksList = adminConsoleService.getTrucks();
-    const driversList = adminConsoleService.getDrivers();
+  public generateLiveTerminalBoard(
+    trips: TripRecord[],
+    masterData: {
+      projects?: any[];
+      carriers?: any[];
+      materials?: any[];
+      trucks?: any[];
+      drivers?: any[];
+    } = {}
+  ): LiveTerminalEntry[] {
+    const projectsList = masterData.projects || [];
+    const carriersList = masterData.carriers || [];
+    const materialsList = masterData.materials || [];
+    const trucksList = masterData.trucks || [];
+    const driversList = masterData.drivers || [];
 
     return trips.map(t => {
       const project = projectsList.find(p => p.projectId === t.projectId);
@@ -561,12 +572,12 @@ class DashboardService {
         tripSerial: t.tripSerial,
         ticketId: t.ticketId,
         projectId: t.projectId,
-        projectNameAr: project?.nameAr || t.projectId,
-        truckPlateAr: truck?.plateNumberAr || truck?.plate || t.truckId,
-        truckType: truck?.truckType,
-        driverNameAr: driver?.name || t.driverId,
-        carrierNameAr: carrier?.companyNameAr || carrier?.name || t.carrierId,
-        materialNameAr: material?.nameAr || material?.name || t.materialId,
+        projectNameAr: project?.nameAr || (t as any).projectName || t.projectId,
+        truckPlateAr: truck?.plateNumberAr || truck?.plate || (t as any).truckPlateAr || t.truckId,
+        truckType: truck?.truckType || (t as any).truckType,
+        driverNameAr: driver?.name || driver?.fullNameAr || (t as any).driverNameAr || t.driverId,
+        carrierNameAr: carrier?.companyNameAr || carrier?.name || (t as any).carrierNameAr || t.carrierId,
+        materialNameAr: material?.nameAr || material?.name || (t as any).materialNameAr || t.materialId,
         pricingType: t.pricingType,
         status: t.status,
         loadedWeightKg,

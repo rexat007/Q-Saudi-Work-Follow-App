@@ -1,9 +1,10 @@
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit, doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './src/firebase/config';
 import { TripService } from './src/services/trip.service';
+import { exceptionService as serverExceptionService } from './src/services/exception.service';
 import { serverWorkspaceService } from './server/workspace.service';
 import { 
   WORKSPACE_TABS, 
@@ -836,6 +837,293 @@ app.post(
       res.status(500).json({
         success: false,
         error: error.message || 'فشلت عملية إنشاء الرحلة الخادومية المعتمدة.',
+      });
+    }
+  }
+);
+
+// ----------------------------------------------------
+// 9g. Server-Authoritative Trip Status Transition (GAP-P5-04)
+// ----------------------------------------------------
+app.patch(
+  '/api/projects/:projectId/trips/:tripId/status',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req, res) => {
+    try {
+      const { projectId, tripId } = req.params;
+      const { status, payload = {}, operationId } = req.body;
+      const user = (req as any).user;
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'غير مصرح: سياق المستخدم مفقود.',
+        });
+      }
+
+      if (!status) {
+        return res.status(400).json({
+          success: false,
+          error: 'حالة الرحلة المستهدفة مطلوبة.',
+        });
+      }
+
+      // Idempotency check via sync_operations
+      if (operationId) {
+        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
+        const opSnap = await getDoc(opRef);
+        if (opSnap.exists()) {
+          const tripRef = doc(db, 'projects', projectId, 'trips', tripId);
+          const tripSnap = await getDoc(tripRef);
+          if (tripSnap.exists()) {
+            console.log(`[Idempotency Hit] Replaying status transition for operation: ${operationId}`);
+            return res.json({
+              success: true,
+              trip: tripSnap.data(),
+              message: 'تم تأكيد معالجة تحديث الحالة السابقة (Idempotency Hit)',
+            });
+          }
+        }
+      }
+
+      const context = {
+        userId: user.userId,
+        email: user.email,
+        displayName: user.displayName || user.email || 'Dispatcher',
+        role: user.role,
+        assignedProjectIds: user.assignedProjectIds,
+      };
+
+      const updatedTrip = await serverTripService.transitionTripStatus(projectId, tripId, status, payload, context);
+
+      // Save sync_operation ledger
+      if (operationId) {
+        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
+        await setDoc(opRef, {
+          operationId,
+          projectId,
+          clientOperationUUID: operationId,
+          targetCollection: 'trips',
+          targetDocId: tripId,
+          status: 'PROCESSED',
+          processedResponse: {
+            tripId,
+            status,
+            committedAt: new Date().toISOString(),
+          },
+          createdBy: user.userId,
+          updatedBy: user.userId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+
+      res.json({
+        success: true,
+        trip: updatedTrip,
+        message: 'تم تحديث حالة الرحلة واعتمادها خادومياً بنجاح.',
+      });
+    } catch (error: any) {
+      console.error('Error in secure trip status transition:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'فشلت عملية تحديث حالة الرحلة خادومياً',
+      });
+    }
+  }
+);
+
+// ----------------------------------------------------
+// 9h. Server-Authoritative Record Receipt (GAP-P5-04)
+// ----------------------------------------------------
+app.post(
+  '/api/projects/:projectId/trips/:tripId/receipt',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req, res) => {
+    try {
+      const { projectId, tripId } = req.params;
+      const { destinationTareKg, destinationGrossKg, destinationTicketNo, operationId } = req.body;
+      const user = (req as any).user;
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'غير مصرح: سياق المستخدم مفقود.',
+        });
+      }
+
+      // Idempotency check via sync_operations
+      if (operationId) {
+        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
+        const opSnap = await getDoc(opRef);
+        if (opSnap.exists()) {
+          const tripRef = doc(db, 'projects', projectId, 'trips', tripId);
+          const tripSnap = await getDoc(tripRef);
+          if (tripSnap.exists()) {
+            console.log(`[Idempotency Hit] Replaying record receipt for operation: ${operationId}`);
+            return res.json({
+              success: true,
+              trip: tripSnap.data(),
+              message: 'تم تأكيد معالجة إيصال الاستلام السابق (Idempotency Hit)',
+            });
+          }
+        }
+      }
+
+      const context = {
+        userId: user.userId,
+        email: user.email,
+        displayName: user.displayName || user.email || 'Dispatcher',
+        role: user.role,
+        assignedProjectIds: user.assignedProjectIds,
+      };
+
+      const updatedTrip = await serverTripService.transitionTripStatus(
+        projectId,
+        tripId,
+        'WEIGHED_DESTINATION',
+        {
+          destinationTareKg: Number(destinationTareKg || 0),
+          destinationGrossKg: Number(destinationGrossKg || 0),
+          destinationTicketNo: destinationTicketNo || '',
+        },
+        context
+      );
+
+      // Save sync_operation ledger
+      if (operationId) {
+        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
+        await setDoc(opRef, {
+          operationId,
+          projectId,
+          clientOperationUUID: operationId,
+          targetCollection: 'trips',
+          targetDocId: tripId,
+          status: 'PROCESSED',
+          processedResponse: {
+            tripId,
+            committedAt: new Date().toISOString(),
+          },
+          createdBy: user.userId,
+          updatedBy: user.userId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+
+      res.json({
+        success: true,
+        trip: updatedTrip,
+        message: 'تم تسجيل إيصال الاستلام وتحديث أوزان الوجهة بنجاح.',
+      });
+    } catch (error: any) {
+      console.error('Error in secure receipt recording:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'فشلت عملية تسجيل إيصال الاستلام خادومياً',
+      });
+    }
+  }
+);
+
+// ----------------------------------------------------
+// 9i. Server-Authoritative Report Exception (GAP-P5-04)
+// ----------------------------------------------------
+app.post(
+  '/api/projects/:projectId/trips/:tripId/exceptions',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req, res) => {
+    try {
+      const { projectId, tripId } = req.params;
+      const { exceptionId, type, severity, descriptionAr, descriptionEn, operationId } = req.body;
+      const user = (req as any).user;
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'غير مصرح: سياق المستخدم مفقود.',
+        });
+      }
+
+      if (!exceptionId) {
+        return res.status(400).json({
+          success: false,
+          error: 'معرف الاستثناء مطلوب.',
+        });
+      }
+
+      // Idempotency check via sync_operations
+      if (operationId) {
+        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
+        const opSnap = await getDoc(opRef);
+        if (opSnap.exists()) {
+          const safeTrip = tripId || '_general';
+          const excRef = doc(db, 'projects', projectId, 'trips', safeTrip, 'exceptions', exceptionId);
+          const excSnap = await getDoc(excRef);
+          if (excSnap.exists()) {
+            console.log(`[Idempotency Hit] Replaying report exception for operation: ${operationId}`);
+            return res.json({
+              success: true,
+              exception: excSnap.data(),
+              message: 'تم تأكيد الإبلاغ عن الاستثناء السابق (Idempotency Hit)',
+            });
+          }
+        }
+      }
+
+      const context = {
+        userId: user.userId,
+        email: user.email,
+        displayName: user.displayName || user.email || 'Dispatcher',
+        role: user.role,
+        assignedProjectIds: user.assignedProjectIds,
+      };
+
+      const newException = await serverExceptionService.raiseException({
+        projectId,
+        tripId,
+        exceptionId,
+        type: (type || 'ROUTE_DEVIATION') as any,
+        severity: severity || 'MEDIUM',
+        description: descriptionAr || descriptionEn || '',
+        reasonAr: descriptionAr || 'استثناء تشغيلي',
+        status: 'OPEN',
+      }, context);
+
+      // Save sync_operation ledger
+      if (operationId) {
+        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
+        await setDoc(opRef, {
+          operationId,
+          projectId,
+          clientOperationUUID: operationId,
+          targetCollection: 'exceptions',
+          targetDocId: exceptionId,
+          status: 'PROCESSED',
+          processedResponse: {
+            exceptionId,
+            committedAt: new Date().toISOString(),
+          },
+          createdBy: user.userId,
+          updatedBy: user.userId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+
+      res.status(201).json({
+        success: true,
+        exception: newException,
+        message: 'تم تسجيل الاستثناء التشغيلي بنجاح وتحديث الرحلة خادومياً.',
+      });
+    } catch (error: any) {
+      console.error('Error in secure exception reporting:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'فشلت عملية تسجيل الاستثناء خادومياً',
       });
     }
   }

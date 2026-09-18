@@ -25,6 +25,7 @@ export class IndexedDBService {
     if (storeName === 'trucks') return item.truckId;
     if (storeName === 'drivers') return item.driverId;
     if (storeName === 'pricingRules') return item.pricingRuleId;
+    if (storeName === 'trips') return item.tripId || item.id;
     if (storeName === 'outbox') return item.operationId;
     if (storeName === 'metadata') return item.storeName;
     if (storeName === 'conflicts') return item.conflictId;
@@ -158,8 +159,9 @@ export class IndexedDBService {
   }
 
   public async getById<T>(storeName: string, key: string): Promise<T | undefined> {
+    const memVal = this.getMemoryStore(storeName).get(key) as T | undefined;
     if (!this.isSupported()) {
-      return this.getMemoryStore(storeName).get(key) as T | undefined;
+      return memVal;
     }
     const db = await this.getDB();
     return new Promise((resolve, reject) => {
@@ -167,15 +169,31 @@ export class IndexedDBService {
       const store = transaction.objectStore(storeName);
       const request = store.get(key);
 
-      request.onsuccess = () => resolve(request.result as T | undefined);
+      request.onsuccess = () => {
+        const result = request.result as T | undefined;
+        if (result !== undefined) {
+          const k = this.getItemKey(storeName, result);
+          this.getMemoryStore(storeName).set(k, result);
+        }
+        resolve(result !== undefined ? result : memVal);
+      };
       request.onerror = () => reject(request.error);
     });
   }
 
+  public getSync<T>(storeName: string, key: string): T | undefined {
+    return this.getMemoryStore(storeName).get(key) as T | undefined;
+  }
+
+  public getAllSync<T>(storeName: string): T[] {
+    return Array.from(this.getMemoryStore(storeName).values()) as T[];
+  }
+
   public async put<T>(storeName: string, value: T): Promise<void> {
+    const k = this.getItemKey(storeName, value);
+    this.getMemoryStore(storeName).set(k, value);
+
     if (!this.isSupported()) {
-      const k = this.getItemKey(storeName, value);
-      this.getMemoryStore(storeName).set(k, value);
       return;
     }
     const db = await this.getDB();
@@ -190,9 +208,10 @@ export class IndexedDBService {
   }
 
   public async putMany<T>(storeName: string, items: T[]): Promise<void> {
+    const s = this.getMemoryStore(storeName);
+    items.forEach(item => s.set(this.getItemKey(storeName, item), item));
+
     if (!this.isSupported()) {
-      const s = this.getMemoryStore(storeName);
-      items.forEach(item => s.set(this.getItemKey(storeName, item), item));
       return;
     }
     const db = await this.getDB();
@@ -208,8 +227,9 @@ export class IndexedDBService {
   }
 
   public async delete(storeName: string, key: string): Promise<void> {
+    this.getMemoryStore(storeName).delete(key);
+
     if (!this.isSupported()) {
-      this.getMemoryStore(storeName).delete(key);
       return;
     }
     const db = await this.getDB();
@@ -224,8 +244,9 @@ export class IndexedDBService {
   }
 
   public async clear(storeName: string): Promise<void> {
+    this.getMemoryStore(storeName).clear();
+
     if (!this.isSupported()) {
-      this.getMemoryStore(storeName).clear();
       return;
     }
     const db = await this.getDB();

@@ -1,0 +1,156 @@
+{
+  "report_name": "Phase 6 — UI Entrypoint Discovery & Mapping",
+  "authoritative_principle": "ONE BUSINESS CAPABILITY → ONE CANONICAL UI OWNER → ONE CANONICAL WORKFLOW",
+  "metadata": {
+    "block": 133,
+    "phase": 6,
+    "status": "DISCOVERY_COMPLETE"
+  },
+  "capabilities": {
+    "TRIP_DISPATCH_AND_LOADING": {
+      "description": "Dispatching new cargo trips and logging origin weighbridge tickets",
+      "canonical_backend_service": "TripService.dispatchTrip",
+      "canonical_firestore_path": "projects/{projectId}/trips/{tripId}",
+      "ui_entrypoints": {
+        "Door_A_Field_Workstation": {
+          "file": "src/components/field/LoadingOperatorView.tsx",
+          "persistence_mechanism": "Online: Local client-side in-memory state via tripEngineService; Offline: IndexedDB 'trips' queue and outbox replay via outboxService",
+          "gap_type": "P0 — Critical Data Mutation Overlap"
+        },
+        "Door_B_Developer_Tools": {
+          "file": "src/components/tripEngine/LoadingStation.tsx",
+          "persistence_mechanism": "Local in-memory mock state simulation",
+          "gap_type": "P0 — Critical Data Mutation Overlap"
+        }
+      }
+    },
+    "TRIP_UNLOADING_AND_COMPLETION": {
+      "description": "Logging destination arrival, unloading process, and final cargo completion with weight tolerance variance checks",
+      "canonical_backend_service": "TripService.transitionTripStatus",
+      "canonical_firestore_path": "projects/{projectId}/trips/{tripId}",
+      "ui_entrypoints": {
+        "Door_A_Field_Workstation": {
+          "file": "src/components/field/UnloadingOperatorView.tsx",
+          "persistence_mechanism": "Strictly local in-memory state manipulation via tripEngineService with no outbox queueing or server sync fallback",
+          "gap_type": "P0 — Critical Data Mutation Overlap"
+        },
+        "Door_B_Developer_Tools": {
+          "file": "src/components/tripEngine/UnloadingStation.tsx",
+          "persistence_mechanism": "Local in-memory mock state simulation",
+          "gap_type": "P0 — Critical Data Mutation Overlap"
+        }
+      }
+    },
+    "MASTER_DATA_ADMINISTRATION": {
+      "description": "Managing primary master-data records including Carriers, Materials, and Driver-Truck rosters",
+      "canonical_backend_service": "carrierRepository, materialRepository, projectCarrierRosterRepository",
+      "canonical_firestore_path": "projects/{projectId}/[subcollection]",
+      "ui_entrypoints": {
+        "Door_A_Project_Workspace": {
+          "file": "src/components/workspace/ProjectWorkspaceView.tsx",
+          "persistence_mechanism": "Direct live Firestore repository writes and real-time document subscriptions",
+          "gap_type": "P1 — Duplicate Form & Validation Logic"
+        },
+        "Door_B_Master_Data_Modules": {
+          "file": "src/components/masterData/MasterDataView.tsx",
+          "persistence_mechanism": "Authenticated: Real-time Firestore write; Unauthenticated: Local state mock builder",
+          "gap_type": "P1 — Duplicate Form & Validation Logic"
+        }
+      }
+    },
+    "GOOGLE_WORKSPACE_SYNC": {
+      "description": "Configuring shared drives, directory structures, and forcing live synchronization with Google Sheets/Drive",
+      "canonical_backend_service": "projectService.updateProject, googleWorkspaceService",
+      "canonical_firestore_path": "projects/{projectId}",
+      "ui_entrypoints": {
+        "Door_A_Project_Workspace": {
+          "file": "src/components/workspace/ProjectWorkspaceView.tsx (Google Tab)",
+          "persistence_mechanism": "Direct project document property updates in Firestore",
+          "gap_type": "P2 — Split Integration Entrypoint"
+        },
+        "Door_B_Workspace_Integration_Tab": {
+          "file": "src/components/navigation/WorkspaceIntegrationView.tsx",
+          "persistence_mechanism": "Shared drive status queries and global sheets import controls",
+          "gap_type": "P2 — Split Integration Entrypoint"
+        }
+      }
+    },
+    "IMPORT_CENTER_SUPERVISION": {
+      "description": "Uploading, parsing, normalizing, and resolving Excel/CSV cargo rosters through a 12-stage validation pipeline",
+      "canonical_backend_service": "ImportCenterService.commitBatch",
+      "canonical_firestore_path": "projects/{projectId}/importBatches/{batchId}",
+      "ui_entrypoints": {
+        "Door_A_Standalone_Import_Center": {
+          "file": "src/components/importCenter/ImportCenterView.tsx",
+          "persistence_mechanism": "Transient local React state and in-memory ImportCenterService mappings",
+          "gap_type": "P3 — Redundant Embedded Layouts"
+        },
+        "Door_B_Nested_Field_Supervision": {
+          "file": "src/components/field/FieldSupervisionView.tsx",
+          "persistence_mechanism": "Nested copy of the standalone ImportCenterView rendered inside the Supervisor workstation",
+          "gap_type": "P3 — Redundant Embedded Layouts"
+        }
+      }
+    }
+  },
+  "gap_classifications": [
+    {
+      "gap_id": "GAP-P6-UI-01",
+      "severity": "P0",
+      "title": "Online Workstation Outbox Disconnection",
+      "description": "Field operation views use local in-memory simulation state (tripEngineService) for online pathways. Only the loading operator's offline route utilizes the sync outbox, creating a critical partition where online dispatches and unloading transitions never reach the server or Firestore.",
+      "impacted_files": [
+        "src/components/field/LoadingOperatorView.tsx",
+        "src/components/field/UnloadingOperatorView.tsx"
+      ],
+      "status": "OPEN",
+      "convergence_plan": "Unify both online and offline UI pathways in field workstations to queue operations directly into the Outbox, allowing the outbox replay engine to synchronously dispatch to server REST APIs for online users, and asynchronously for offline users."
+    },
+    {
+      "gap_id": "GAP-P6-UI-02",
+      "severity": "P0",
+      "title": "Unloading Completion Server Bypass",
+      "description": "The destination arrival, weight ticket entry, and variance calculations are entirely routed to the in-memory mock engine. The server-side transition API is completely bypassed, leaving completed trips unsaved in live Firestore.",
+      "impacted_files": [
+        "src/components/field/UnloadingOperatorView.tsx"
+      ],
+      "status": "OPEN",
+      "convergence_plan": "Re-architect UnloadingOperatorView to create a 'RECORD_RECEIPT' action, queuing it in the Outbox to execute the server-side TripService transition and calculate authoritative financials."
+    },
+    {
+      "gap_id": "GAP-P6-UI-03",
+      "severity": "P1",
+      "title": "Duplicate Master Data Administrative Doors",
+      "description": "Both MasterDataView and ProjectWorkspaceView provide duplicate entry points to manage project roster entities. Each implements distinct UI views, search fields, normalization helpers, and validation forms.",
+      "impacted_files": [
+        "src/components/masterData/MasterDataView.tsx",
+        "src/components/workspace/ProjectWorkspaceView.tsx"
+      ],
+      "status": "OPEN",
+      "convergence_plan": "Establish ProjectWorkspaceView as the single canonical owner for project-scoped master data management, and refactor MasterDataView to read from canonical repositories with read-only metrics, redirecting any creation or edit operations directly to the workspace view."
+    },
+    {
+      "gap_id": "GAP-P6-UI-04",
+      "severity": "P2",
+      "title": "Separated Google Workspace Entrypoints",
+      "description": "Project-level Google Drive folder mappings are configured inside the Project Workspace, whereas global spreadsheet imports and sync health checks are managed on a distinct Workspace Integration tab, splitting the workspace capability across two disjoint menus.",
+      "impacted_files": [
+        "src/components/workspace/ProjectWorkspaceView.tsx",
+        "src/components/navigation/WorkspaceIntegrationView.tsx"
+      ],
+      "status": "OPEN",
+      "convergence_plan": "Unify the Google Workspace configuration into a cohesive tab inside ProjectWorkspaceView, restricting the global tab purely to super-admin diagnostic reports."
+    },
+    {
+      "gap_id": "GAP-P6-UI-05",
+      "severity": "P3",
+      "title": "Redundant Embedded Import Center Views",
+      "description": "The entire 12-stage ImportCenterView is embedded directly inside the Field Supervision workstation under the Imports tab, violating strict role boundaries and duplicating active React rendering.",
+      "impacted_files": [
+        "src/components/field/FieldSupervisionView.tsx"
+      ],
+      "status": "OPEN",
+      "convergence_plan": "Replace the embedded ImportCenterView inside the field supervisor's view with a simple diagnostic log list, pointing supervisors to the dedicated Import Center tab for active batch corrections."
+    }
+  ]
+}

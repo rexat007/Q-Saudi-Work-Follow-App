@@ -1,5 +1,17 @@
-import { pricingService } from "../pricing.service";
-import { adminConsoleService } from "../adminConsole.service";
+import { projectRepository } from '../../repositories/project.repository';
+import { carrierRepository } from '../../repositories/carrier.repository';
+import { materialRepository } from '../../repositories/material.repository';
+import { truckRepository } from '../../repositories/truck.repository';
+import { driverRepository } from '../../repositories/driver.repository';
+import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
+import { 
+  ProjectEntity, 
+  CarrierEntity, 
+  MaterialEntity, 
+  TruckEntity, 
+  DriverEntity, 
+  PricingRuleEntity 
+} from '../../types/entities';
 /**
  * Offline Master Data Cache Manager.
  * Handles IndexedDB caching for:
@@ -108,103 +120,174 @@ export class OfflineCacheService {
 
   /**
    * Seeds all required master datasets into IndexedDB with explicit versions and ISO timestamps,
-   * using authoritative deletion-aware reconciliation.
+   * hydrating directly from canonical repositories using authoritative deletion-aware reconciliation.
    */
-  public async seedAllMasterData(): Promise<void> {
+  public async seedAllMasterData(projectId?: string): Promise<void> {
     const now = new Date().toISOString();
     const currentVersion = 1;
 
-    // 1. Projects
-    const projectsToCache: CachedProject[] = adminConsoleService.getProjects().map(p => ({
-        projectId: p.projectId,
-        projectCode: p.projectCode,
-        nameAr: p.nameAr,
-        nameEn: p.nameEn,
-        clientName: p.clientName,
-        authorizedCarrierIds: p.authorizedCarrierIds,
-        authorizedMaterialIds: p.authorizedMaterialIds,
-        status: p.status,
-        _version: currentVersion,
-        _cachedAt: now,
+    // 1. Projects - hydrated from projectRepository
+    let rawProjects: ProjectEntity[] = [];
+    if (projectId) {
+      const singleProj = await projectRepository.findById(projectId);
+      rawProjects = singleProj ? [singleProj] : [];
+    } else {
+      rawProjects = await projectRepository.listAll();
+    }
+
+    const projectsToCache: CachedProject[] = rawProjects.map(p => ({
+      projectId: p.projectId,
+      projectCode: p.projectCode || p.projectId,
+      nameAr: p.nameAr,
+      nameEn: p.nameEn,
+      clientName: p.clientName,
+      authorizedCarrierIds: p.authorizedCarrierIds || [],
+      authorizedMaterialIds: p.authorizedMaterialIds || [],
+      status: (p.status as any) || 'ACTIVE',
+      _version: currentVersion,
+      _cachedAt: now,
     }));
     await this.reconcileStore('projects', projectsToCache, p => p.projectId);
 
-    // 2. Carriers
-    const carriersToCache: CachedCarrier[] = adminConsoleService.getCarriers().map(c => ({
+    // Determine target project IDs for sub-entity hydration
+    const targetProjectIds = projectId 
+      ? [projectId] 
+      : rawProjects.map(p => p.projectId);
+
+    // 2. Carriers - hydrated from carrierRepository
+    const carrierLists = await Promise.all(
+      targetProjectIds.map(pId => carrierRepository.listByProject(pId))
+    );
+    const rawCarriers = carrierLists.flat();
+    const uniqueCarriersMap = new Map<string, CarrierEntity>();
+    for (const c of rawCarriers) {
+      if (!uniqueCarriersMap.has(c.carrierId)) {
+        uniqueCarriersMap.set(c.carrierId, c);
+      }
+    }
+    const carriersToCache: CachedCarrier[] = Array.from(uniqueCarriersMap.values()).map(c => ({
       carrierId: c.carrierId,
-      projectId: '',
+      projectId: c.projectId || '',
       name: c.name,
-      companyNameAr: c.name,
-      commercialRegistrationNo: c.commercialRegistrationNo || (c as any).crNo || '1010000000',
-      status: c.status,
+      companyNameAr: c.companyNameAr || c.name,
+      commercialRegistrationNo: c.commercialRegistrationNo || '1010000000',
+      transportLicenseNo: c.transportLicenseNo,
+      status: (c.status || (c.isActive ? 'ACTIVE' : 'INACTIVE')) as 'ACTIVE' | 'INACTIVE',
       _version: currentVersion,
       _cachedAt: now,
     }));
     await this.reconcileStore('carriers', carriersToCache, c => c.carrierId);
 
-    // 3. Materials
-    const materialsToCache: CachedMaterial[] = adminConsoleService.getMaterials().map(m => ({
+    // 3. Materials - hydrated from materialRepository
+    const materialLists = await Promise.all(
+      targetProjectIds.map(pId => materialRepository.listByProject(pId))
+    );
+    const rawMaterials = materialLists.flat();
+    const uniqueMaterialsMap = new Map<string, MaterialEntity>();
+    for (const m of rawMaterials) {
+      if (!uniqueMaterialsMap.has(m.materialId)) {
+        uniqueMaterialsMap.set(m.materialId, m);
+      }
+    }
+    const materialsToCache: CachedMaterial[] = Array.from(uniqueMaterialsMap.values()).map(m => ({
       materialId: m.materialId,
-      projectId: '',
+      projectId: m.projectId || '',
       name: m.name,
-      nameAr: m.name,
+      nameAr: m.nameAr || m.name,
       code: m.code || 'MAT',
-      unitOfMeasure: m.unitOfMeasure || (m as any).uom || 'TON',
-      standardDensityTonPerM3: 1.6,
-      status: m.status,
+      unitOfMeasure: m.unitOfMeasure || 'TON',
+      standardDensityTonPerM3: m.standardDensityTonPerM3 || 1.6,
+      status: (m.status || (m.isActive ? 'ACTIVE' : 'INACTIVE')) as 'ACTIVE' | 'INACTIVE',
       _version: currentVersion,
       _cachedAt: now,
     }));
     await this.reconcileStore('materials', materialsToCache, m => m.materialId);
 
-    // 4. Trucks
-    const trucksToCache: CachedTruck[] = adminConsoleService.getTrucks().map(t => ({
+    // 4. Trucks - hydrated from truckRepository
+    const truckLists = await Promise.all(
+      targetProjectIds.map(pId => truckRepository.listByProject(pId))
+    );
+    const rawTrucks = truckLists.flat();
+    const uniqueTrucksMap = new Map<string, TruckEntity>();
+    for (const t of rawTrucks) {
+      if (!uniqueTrucksMap.has(t.truckId)) {
+        uniqueTrucksMap.set(t.truckId, t);
+      }
+    }
+    const trucksToCache: CachedTruck[] = Array.from(uniqueTrucksMap.values()).map(t => ({
       truckId: t.truckId,
       carrierId: t.carrierId,
-      projectId: '',
+      projectId: t.projectId || '',
       plate: t.plate,
-      plateNumberAr: t.plate,
-      truckType: 'TIPPER_30T',
-      tareWeightKg: t.tareWeightKg || (t as any).tareKg || 14000,
-      legalPayloadLimitKg: t.legalPayloadLimitKg || (t as any).grossKg || 45000,
-      status: t.status,
+      plateNumberAr: t.plateNumberAr || t.plate,
+      truckType: t.truckType || 'TIPPER_30T',
+      tareWeightKg: t.tareWeightKg || 14000,
+      legalPayloadLimitKg: t.legalPayloadLimitKg || 45000,
+      status: (t.status || (t.isActive ? 'ACTIVE' : 'INACTIVE')) as 'ACTIVE' | 'INACTIVE',
       _version: currentVersion,
       _cachedAt: now,
     }));
     await this.reconcileStore('trucks', trucksToCache, t => t.truckId);
 
-    // 5. Drivers
-    const driversToCache: CachedDriver[] = adminConsoleService.getDrivers().map(d => ({
+    // 5. Drivers - hydrated from driverRepository
+    const driverLists = await Promise.all(
+      targetProjectIds.map(pId => driverRepository.listByProject(pId))
+    );
+    const rawDrivers = driverLists.flat();
+    const uniqueDriversMap = new Map<string, DriverEntity>();
+    for (const d of rawDrivers) {
+      if (!uniqueDriversMap.has(d.driverId)) {
+        uniqueDriversMap.set(d.driverId, d);
+      }
+    }
+    const driversToCache: CachedDriver[] = Array.from(uniqueDriversMap.values()).map(d => ({
       driverId: d.driverId,
       carrierId: d.carrierId,
-      projectId: '',
+      projectId: d.projectId || '',
       name: d.name,
-      fullNameAr: d.name,
+      fullNameAr: d.fullNameAr || d.name,
       phone: d.phone,
       idNumber: d.idNumber || '',
-      status: d.status,
+      status: (d.status || (d.isActive ? 'ACTIVE' : 'INACTIVE')) as 'ACTIVE' | 'INACTIVE',
       _version: currentVersion,
       _cachedAt: now,
     }));
     await this.reconcileStore('drivers', driversToCache, d => d.driverId);
 
-    // 6. Pricing Rules
-    const pricingRulesToCache: CachedPricingRule[] = pricingService.getRules().map(r => ({
+    // 6. Pricing Rules - hydrated from pricingRuleRepository
+    const pricingRuleLists = await Promise.all(
+      targetProjectIds.map(pId => pricingRuleRepository.listByProject(pId))
+    );
+    const rawPricingRules = pricingRuleLists.flat();
+    const uniquePricingRulesMap = new Map<string, PricingRuleEntity>();
+    for (const r of rawPricingRules) {
+      if (!uniquePricingRulesMap.has(r.pricingRuleId)) {
+        uniquePricingRulesMap.set(r.pricingRuleId, r);
+      }
+    }
+    const pricingRulesToCache: CachedPricingRule[] = Array.from(uniquePricingRulesMap.values()).map(r => ({
       pricingRuleId: r.pricingRuleId,
       projectId: r.projectId,
       name: r.name || r.pricingRuleId,
-      pricingType: r.pricingType,
-      agreedRate: r.agreedRate ?? r.rate ?? 0,
+      pricingType: (r.pricingModel === 'PER_TRIP' ? 'PER_TRIP' : 'PER_TON') as 'PER_TON' | 'PER_TRIP',
+      agreedRate: r.baseRateSAR ?? (r as any).agreedRate ?? (r as any).rate ?? 0,
       currency: r.currency || 'SAR',
-      effectiveFrom: r.effectiveFrom,
+      effectiveFrom: r.effectiveFrom || now.slice(0, 10),
       effectiveTo: r.effectiveTo || '',
       carrierId: r.carrierId || '',
       materialId: r.materialId || '',
-      status: (r.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE') as 'ACTIVE' | 'INACTIVE',
+      status: (r.status === 'ACTIVE' || r.isActive ? 'ACTIVE' : 'INACTIVE') as 'ACTIVE' | 'INACTIVE',
       _version: currentVersion,
       _cachedAt: now,
     }));
     await this.reconcileStore('pricingRules', pricingRulesToCache, r => r.pricingRuleId);
+  }
+
+  /**
+   * Convenience method to seed/hydrate cache for a specific project scope.
+   */
+  public async seedByProject(projectId: string): Promise<void> {
+    return this.seedAllMasterData(projectId);
   }
 
   // ---------------- Query Cached Data ---------------- //

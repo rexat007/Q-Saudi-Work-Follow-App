@@ -1,0 +1,95 @@
+{
+  "block": "127",
+  "name": "Audit Integration & End-to-End Verification Gate",
+  "auditType": "READ_ONLY_DISCOVERY",
+  "verdict": "BLOCK_127_DISCOVERY_READY",
+  "timestamp": "2026-09-16T08:48:00.000Z",
+  "gitScope": {
+    "inspectedFiles": [
+      "/src/services/canonicalServices.ts",
+      "/src/services/importSessionManager.ts",
+      "/src/services/importPipeline.service.ts",
+      "/src/services/validationPipeline.service.ts",
+      "/src/services/conflictEngine.service.ts",
+      "/src/services/reviewArtifact.service.ts",
+      "/src/services/reviewApproval.service.ts",
+      "/src/services/commitEngine.service.ts",
+      "/src/repositories/auditLog.repository.ts",
+      "/src/repositories/canonicalRepositories.ts",
+      "/src/repositories/syncOperation.repository.ts",
+      "/src/repositories/importBatch.repository.ts",
+      "/firestore.rules"
+    ],
+    "codeModificationsMade": false
+  },
+  "auditOwnership": {
+    "soleCanonicalOwner": "auditService",
+    "repository": "auditLogRepository",
+    "appendOnly": true,
+    "immutableInRules": true
+  },
+  "auditEventLifecycle": [
+    "CREATE_IMPORT_SESSION",
+    "IMPORT_TRANSITION_PARSED",
+    "IMPORT_TRANSITION_NORMALIZED",
+    "IMPORT_TRANSITION_VALIDATED",
+    "IMPORT_TRANSITION_REVIEW_REQUIRED",
+    "APPROVE_IMPORT_ARTIFACT",
+    "REJECT_IMPORT_ARTIFACT",
+    "IMPORT_COMMIT_STARTED",
+    "IMPORT_TRANSITION_COMMITTING",
+    "IMPORT_COMMIT_COMPLETED",
+    "IMPORT_TRANSITION_COMMITTED",
+    "IMPORT_TRANSITION_FAILED",
+    "IMPORT_TRANSITION_STALE",
+    "IMPORT_TRANSITION_CANCELLED"
+  ],
+  "auditTiming": {
+    "preTransactionAudit": "IMPORT_COMMIT_STARTED (emitted prior to runTransaction)",
+    "inTransactionDomainWrites": "Atomic execution of entity mutations and session transition to COMMITTING/COMMITTED",
+    "postTransactionAudit": "IMPORT_COMMIT_COMPLETED (emitted strictly post successful transaction commit)",
+    "noFalseAuditOnRollback": true,
+    "transactionCallbackSideEffectFree": true
+  },
+  "provenanceCorrelation": {
+    "importSessionId": true,
+    "projectId": true,
+    "operationId": true,
+    "artifactId": true,
+    "artifactVersion": true,
+    "contentHash": true,
+    "approvalId": true,
+    "reviewerIdentity": true,
+    "commitId": true,
+    "committerIdentity": true,
+    "immutabilityHash": true,
+    "timestamps": true
+  },
+  "immutabilityChain": {
+    "sourceSnapshot": "Bound to session.sourceSnapshotIdentity",
+    "normalizedRows": "Defensively cloned in review artifact",
+    "reviewArtifact": "Frozen with deterministic SHA-256 contentHash",
+    "approvalRecord": "Frozen with SHA-256 immutabilityHash binding contentHash + artifactVersion",
+    "commitRecord": "Frozen with SHA-256 immutabilityHash binding approvalId + contentHash",
+    "syncOperations": "Durable Firestore record under projects/{projectId}/sync_operations/{operationId}",
+    "importBatches": "Durable Firestore record under projects/{projectId}/import_batches/{batchId}",
+    "auditLogs": "Append-only Firestore collection under audit_logs/{auditLogId}"
+  },
+  "authorizationBoundaries": {
+    "centralizedInSecurityService": true,
+    "readOnlyRolesBlocked": true,
+    "projectScopeEnforced": true,
+    "noCommitBypass": true
+  },
+  "metrics": {
+    "directWritesInCommitEngine": 0,
+    "unsafeImportBypasses": 0,
+    "p0Findings": 0,
+    "p1Findings": 0
+  },
+  "minimumBlock127ImplementationScope": [
+    "Create unified end-to-end integration test suite src/tests/endToEndImportPipelineBlock127.test.ts exercising the full pipeline from raw input to audit trail",
+    "Wire CanonicalAuditService to persistently write to auditLogRepository when live Firestore auth is present",
+    "Execute full verification suite confirming zero regressions across Blocks 120-126"
+  ]
+}

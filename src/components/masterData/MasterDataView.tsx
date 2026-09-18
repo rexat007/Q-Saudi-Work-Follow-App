@@ -25,6 +25,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { masterDataService, ProjectMasterDataOverview, MasterEntityType, TripUsageResult } from '../../services/masterData.service';
+import { driverTruckIntakeService } from '../../services/driverTruckIntake.service';
 import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
 import { projectRepository } from '../../repositories/project.repository';
 import { carrierRepository } from '../../repositories/carrier.repository';
@@ -564,87 +565,75 @@ export const MasterDataView: React.FC<{
 
   const handleCreateTruck = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProjectId || !newTruck.truckId || !newTruck.plate || !newTruck.carrierId) return;
-
-    const truckEntity: TruckEntity = {
-      truckId: newTruck.truckId.trim().toUpperCase(),
-      projectId: selectedProjectId,
-      carrierId: newTruck.carrierId,
-      plate: newTruck.plate.trim(),
-      normalizedPlate: normalizePlate(newTruck.plate.trim()),
-      plateNumberAr: newTruck.plate.trim(),
-      status: 'ACTIVE',
-      tareWeightKg: Number(newTruck.tareKg),
-      maxGrossWeightKg: Number(newTruck.grossKg),
-      legalPayloadLimitKg: Math.max(0, Number(newTruck.grossKg) - Number(newTruck.tareKg)),
-      isActive: true,
-      createdAt: new Date(),
-      createdBy: MOCK_AUTH_CONTEXT.userId,
-      updatedAt: new Date(),
-      updatedBy: MOCK_AUTH_CONTEXT.userId,
-    };
-
-    if (!user) {
-      const updated = [truckEntity, ...localTrucks];
-      setLocalTrucks(updated);
-      setCreateModal({ isOpen: false, entityType: 'TRUCK' });
-      setNewTruck({ truckId: '', plate: '', carrierId: '', tareKg: 14000, grossKg: 45000 });
-      setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, updated, localDrivers));
-      setActionNotice({ type: 'success', message: t('other.messages.truckCarrier') });
-      return;
-    }
+    if (!selectedProjectId || !newTruck.plate || !newTruck.carrierId) return;
 
     try {
-      await truckRepository.create(truckEntity);
+      const activeAuth = {
+        userId: user ? user.uid : MOCK_AUTH_CONTEXT.userId,
+        email: user ? (user.email || MOCK_AUTH_CONTEXT.email) : MOCK_AUTH_CONTEXT.email,
+        displayName: user ? (user.displayName || MOCK_AUTH_CONTEXT.displayName) : MOCK_AUTH_CONTEXT.displayName,
+        role: MOCK_AUTH_CONTEXT.role,
+        assignedProjectIds: [selectedProjectId],
+      };
+
+      const result = await driverTruckIntakeService.processSharedIntake({
+        projectId: selectedProjectId,
+        carrierId: newTruck.carrierId,
+        materialId: overview?.allMaterials[0]?.materialId || 'MAT-GEN',
+        driverName: `سائق الشاحنة ${newTruck.plate}`,
+        plateNumber: newTruck.plate,
+        tareWeightKg: Number(newTruck.tareKg),
+        maxGrossWeightKg: Number(newTruck.grossKg),
+      }, activeAuth);
+
       setCreateModal({ isOpen: false, entityType: 'TRUCK' });
       setNewTruck({ truckId: '', plate: '', carrierId: '', tareKg: 14000, grossKg: 45000 });
-      setActionNotice({ type: 'success', message: t('other.messages.truckCarrier_2') });
-      await refreshOverview(selectedProjectId);
+      setActionNotice({ type: 'success', message: 'تم تسجيل الشاحنة وتوثيقها في لائحة المشروع بنجاح' });
+      if (!user) {
+        setLocalTrucks([result.truck, ...localTrucks]);
+        setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, [result.truck, ...localTrucks], localDrivers));
+      } else {
+        await refreshOverview(selectedProjectId);
+      }
     } catch (err: any) {
-      setActionNotice({ type: 'error', message: err.message });
+      setActionNotice({ type: 'error', message: err.message || 'خطأ في حفظ الشاحنة' });
     }
   };
 
   const handleCreateDriver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProjectId || !newDriver.driverId || !newDriver.name || !newDriver.carrierId) return;
-
-    const driverEntity: DriverEntity = {
-      driverId: newDriver.driverId.trim().toUpperCase(),
-      projectId: selectedProjectId,
-      carrierId: newDriver.carrierId,
-      name: newDriver.name.trim(),
-      normalizedName: normalizeName(newDriver.name.trim()),
-      fullNameAr: newDriver.name.trim(),
-      phone: normalizePhone(newDriver.phone),
-      idNumber: normalizeIdNumber(newDriver.idNumber),
-      nationalOrIqamaId: normalizeIdNumber(newDriver.idNumber),
-      status: 'ACTIVE',
-      isActive: true,
-      createdAt: new Date(),
-      createdBy: MOCK_AUTH_CONTEXT.userId,
-      updatedAt: new Date(),
-      updatedBy: MOCK_AUTH_CONTEXT.userId,
-    };
-
-    if (!user) {
-      const updated = [driverEntity, ...localDrivers];
-      setLocalDrivers(updated);
-      setCreateModal({ isOpen: false, entityType: 'DRIVER' });
-      setNewDriver({ driverId: '', name: '', phone: '0501234567', idNumber: '1087654321', carrierId: '' });
-      setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, localTrucks, updated));
-      setActionNotice({ type: 'success', message: t('other.messages.driverCarrier') });
-      return;
-    }
+    if (!selectedProjectId || !newDriver.name || !newDriver.carrierId) return;
 
     try {
-      await driverRepository.create(driverEntity);
+      const activeAuth = {
+        userId: user ? user.uid : MOCK_AUTH_CONTEXT.userId,
+        email: user ? (user.email || MOCK_AUTH_CONTEXT.email) : MOCK_AUTH_CONTEXT.email,
+        displayName: user ? (user.displayName || MOCK_AUTH_CONTEXT.displayName) : MOCK_AUTH_CONTEXT.displayName,
+        role: MOCK_AUTH_CONTEXT.role,
+        assignedProjectIds: [selectedProjectId],
+      };
+
+      const result = await driverTruckIntakeService.processSharedIntake({
+        projectId: selectedProjectId,
+        carrierId: newDriver.carrierId,
+        materialId: overview?.allMaterials[0]?.materialId || 'MAT-GEN',
+        driverName: newDriver.name,
+        plateNumber: `ط ك ل ${Math.floor(1000 + Math.random() * 9000)}`,
+        phone: newDriver.phone,
+        residencyId: newDriver.idNumber,
+      }, activeAuth);
+
       setCreateModal({ isOpen: false, entityType: 'DRIVER' });
       setNewDriver({ driverId: '', name: '', phone: '0501234567', idNumber: '1087654321', carrierId: '' });
-      setActionNotice({ type: 'success', message: t('other.messages.driverCarrier_2') });
-      await refreshOverview(selectedProjectId);
+      setActionNotice({ type: 'success', message: 'تم تسجيل السائق وتوثيقه في لائحة المشروع بنجاح' });
+      if (!user) {
+        setLocalDrivers([result.driver, ...localDrivers]);
+        setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, localTrucks, [result.driver, ...localDrivers]));
+      } else {
+        await refreshOverview(selectedProjectId);
+      }
     } catch (err: any) {
-      setActionNotice({ type: 'error', message: err.message });
+      setActionNotice({ type: 'error', message: err.message || 'خطأ في حفظ السائق' });
     }
   };
 
@@ -1063,8 +1052,8 @@ export const MasterDataView: React.FC<{
             </button>
           </div>
 
-          {/* Add New Button */}
-          {activeModule !== 'IMPORT_DT' && activeModule !== 'TESTS' && (
+          {/* Add New Button (Only for CARRIERS & MATERIALS - Drivers & Trucks use Project Workspace Intake) */}
+          {activeModule !== 'IMPORT_DT' && activeModule !== 'TESTS' && activeModule !== 'TRUCKS' && activeModule !== 'DRIVERS' && (
             <button
               id="add-master-entity-btn"
               onClick={() => setCreateModal({ isOpen: true, entityType: activeModule.slice(0, -1) as MasterEntityType })}
@@ -1074,8 +1063,6 @@ export const MasterDataView: React.FC<{
               <span>
                 {activeModule === 'CARRIERS' && 'إضافة ناقل جديد'}
                 {activeModule === 'MATERIALS' && 'إضافة مادة جديدة'}
-                {activeModule === 'TRUCKS' && 'تسجيل شاحنة جديدة'}
-                {activeModule === 'DRIVERS' && 'تسجيل سائق جديد'}
               </span>
             </button>
           )}
@@ -1360,7 +1347,24 @@ export const MasterDataView: React.FC<{
 
         {/* TRUCKS TABLE (Truck -> Carrier) */}
         {activeModule === 'TRUCKS' && (
-          <div className="overflow-x-auto">
+          <div className="space-y-3">
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3.5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-amber-900">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>
+                  إدارة وتسجيل الشاحنات يتم حصرياً من خلال <strong>مدخل لائحة الناقل في مساحة عمل المشروع (Project Workspace Roster Intake)</strong> لضمان الربط التلقائي بين السائق والشاحنة واللائحة التشغيلية.
+                </span>
+              </div>
+              {onNavigateToWizard && (
+                <button
+                  onClick={onNavigateToWizard}
+                  className="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg shrink-0 transition-colors shadow-xs"
+                >
+                  الانتقال لمساحة عمل المشروع
+                </button>
+              )}
+            </div>
+            <div className="overflow-x-auto">
             <table className="w-full text-right rtl:text-right ltr:text-left text-xs">
               <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
@@ -1443,11 +1447,29 @@ export const MasterDataView: React.FC<{
               </tbody>
             </table>
           </div>
+        </div>
         )}
 
         {/* DRIVERS TABLE (Driver -> Carrier) */}
         {activeModule === 'DRIVERS' && (
-          <div className="overflow-x-auto">
+          <div className="space-y-3">
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3.5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-amber-900">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>
+                  إدارة وتسجيل السائقين تتم حصرياً من خلال <strong>مدخل لائحة الناقل في مساحة عمل المشروع (Project Workspace Roster Intake)</strong> لضمان الربط التلقائي للهوية واللائحة التشغيلية.
+                </span>
+              </div>
+              {onNavigateToWizard && (
+                <button
+                  onClick={onNavigateToWizard}
+                  className="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg shrink-0 transition-colors shadow-xs"
+                >
+                  الانتقال لمساحة عمل المشروع
+                </button>
+              )}
+            </div>
+            <div className="overflow-x-auto">
             <table className="w-full text-right rtl:text-right ltr:text-left text-xs">
               <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-semibold">
                 <tr>
@@ -1533,6 +1555,7 @@ export const MasterDataView: React.FC<{
               </tbody>
             </table>
           </div>
+        </div>
         )}
 
         {/* AUTOMATED TESTS VIEW */}

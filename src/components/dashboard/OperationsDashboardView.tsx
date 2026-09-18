@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   ShieldCheck, 
@@ -38,8 +38,12 @@ import {
 } from '../../services/dashboard.service';
 import { WidgetFilterBar } from './WidgetFilterBar';
 import { runDashboardSecurityAndMetricsTests, DashboardTestCaseResult } from '../../tests/dashboard.test';
-import { adminConsoleService } from '../../services/adminConsole.service';
 import { useI18n } from '../../i18n';
+import { offlineCacheService } from '../../services/offline/offlineCache.service';
+import { projectRepository } from '../../repositories/project.repository';
+import { indexedDBService } from '../../services/offline/indexedDB.service';
+import { TripRecord } from '../../types/tripEngine';
+import { ProjectEntity, CarrierEntity, MaterialEntity, TruckEntity, DriverEntity } from '../../types/entities';
 
 
 export const OperationsDashboardView: React.FC = () => {
@@ -47,6 +51,51 @@ export const OperationsDashboardView: React.FC = () => {
   // 1. User Security Profile & Project Authorization
   const [activeProfile, setActiveProfile] = useState<UserSecurityProfile>(PREDEFINED_SECURITY_PROFILES[0]);
   
+  // Canonical State from Repositories / IndexedDB
+  const [canonicalProjects, setCanonicalProjects] = useState<ProjectEntity[]>([]);
+  const [canonicalCarriers, setCanonicalCarriers] = useState<CarrierEntity[]>([]);
+  const [canonicalMaterials, setCanonicalMaterials] = useState<MaterialEntity[]>([]);
+  const [canonicalTrucks, setCanonicalTrucks] = useState<TruckEntity[]>([]);
+  const [canonicalDrivers, setCanonicalDrivers] = useState<DriverEntity[]>([]);
+  const [canonicalTrips, setCanonicalTrips] = useState<TripRecord[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadCanonicalData = async () => {
+      try {
+        // 1. Projects
+        let prjs = await offlineCacheService.getProjects().catch(() => []);
+        if (!prjs || prjs.length === 0) {
+          prjs = await projectRepository.listAll().catch(() => []);
+        }
+
+        // 2. Carriers, Materials, Trucks, Drivers
+        const [crs, mats, trks, drvs] = await Promise.all([
+          offlineCacheService.getCarriers().catch(() => []),
+          offlineCacheService.getMaterials().catch(() => []),
+          offlineCacheService.getTrucks().catch(() => []),
+          offlineCacheService.getDrivers().catch(() => []),
+        ]);
+
+        // 3. Trips
+        const dbTrips = await indexedDBService.getAll<TripRecord>('trips').catch(() => []);
+
+        if (isMounted) {
+          setCanonicalProjects(prjs || []);
+          setCanonicalCarriers(crs || []);
+          setCanonicalMaterials(mats || []);
+          setCanonicalTrucks(trks || []);
+          setCanonicalDrivers(drvs || []);
+          setCanonicalTrips(dbTrips || []);
+        }
+      } catch (err) {
+        console.warn('OperationsDashboardView: Error loading canonical data:', err);
+      }
+    };
+
+    loadCanonicalData();
+  }, []);
+
   // 2. Global Dashboard Filters
   const [globalFilters, setGlobalFilters] = useState<DashboardFilterParams>({
     projectId: 'ALL',
@@ -103,16 +152,30 @@ export const OperationsDashboardView: React.FC = () => {
 
   // 5. Authorized Projects for Active Profile
   const authorizedProjects = useMemo(() => {
-    return dashboardService.getAuthorizedProjects(activeProfile);
-  }, [activeProfile]);
+    return dashboardService.getAuthorizedProjects(activeProfile, canonicalProjects);
+  }, [activeProfile, canonicalProjects]);
 
   const availableCarriers = useMemo(() => {
-    return adminConsoleService.getCarriers(globalFilters.projectId);
-  }, [globalFilters.projectId]);
+    if (globalFilters.projectId === 'ALL') {
+      return canonicalCarriers;
+    }
+    return canonicalCarriers.filter(c => c.projectId === globalFilters.projectId || !c.projectId);
+  }, [canonicalCarriers, globalFilters.projectId]);
 
   const availableMaterials = useMemo(() => {
-    return adminConsoleService.getMaterials(globalFilters.projectId);
-  }, [globalFilters.projectId]);
+    if (globalFilters.projectId === 'ALL') {
+      return canonicalMaterials;
+    }
+    return canonicalMaterials.filter(m => m.projectId === globalFilters.projectId || !m.projectId);
+  }, [canonicalMaterials, globalFilters.projectId]);
+
+  const masterDataContext = useMemo(() => ({
+    projects: canonicalProjects,
+    carriers: canonicalCarriers,
+    materials: canonicalMaterials,
+    trucks: canonicalTrucks,
+    drivers: canonicalDrivers,
+  }), [canonicalProjects, canonicalCarriers, canonicalMaterials, canonicalTrucks, canonicalDrivers]);
 
   // When profile changes, reset any invalid project selection
   const handleProfileChange = (profile: UserSecurityProfile) => {
@@ -140,68 +203,68 @@ export const OperationsDashboardView: React.FC = () => {
   // (A) Trips Volume & Status Cards
   const tripsFilters = getEffectiveFilters('tripsCard').filters;
   const tripsData = useMemo(() => {
-    const { trips, securityViolated } = dashboardService.getFilteredTrips(tripsFilters, activeProfile);
+    const { trips, securityViolated } = dashboardService.getFilteredTrips(tripsFilters, activeProfile, canonicalTrips);
     return {
       metrics: dashboardService.computeTripStatusMetrics(trips),
       securityViolated,
     };
-  }, [tripsFilters, activeProfile]);
+  }, [tripsFilters, activeProfile, canonicalTrips]);
 
   // (B) Tonnage & Weighbridge Variance Cards
   const tonnageFilters = getEffectiveFilters('tonnageCard').filters;
   const tonnageData = useMemo(() => {
-    const { trips, securityViolated } = dashboardService.getFilteredTrips(tonnageFilters, activeProfile);
+    const { trips, securityViolated } = dashboardService.getFilteredTrips(tonnageFilters, activeProfile, canonicalTrips);
     return {
       metrics: dashboardService.computeTonnageMetrics(trips),
       securityViolated,
     };
-  }, [tonnageFilters, activeProfile]);
+  }, [tonnageFilters, activeProfile, canonicalTrips]);
 
   // (C) Financial Settlement Cards
   const settlementFilters = getEffectiveFilters('settlementCard').filters;
   const settlementData = useMemo(() => {
-    const { trips, securityViolated } = dashboardService.getFilteredTrips(settlementFilters, activeProfile);
+    const { trips, securityViolated } = dashboardService.getFilteredTrips(settlementFilters, activeProfile, canonicalTrips);
     return {
       metrics: dashboardService.computeSettlementMetrics(trips),
       securityViolated,
     };
-  }, [settlementFilters, activeProfile]);
+  }, [settlementFilters, activeProfile, canonicalTrips]);
 
   // (D) Carrier Performance Widget
   const carrierFilters = getEffectiveFilters('carrierPerf').filters;
   const carrierData = useMemo(() => {
-    const { trips, securityViolated } = dashboardService.getFilteredTrips(carrierFilters, activeProfile);
+    const { trips, securityViolated } = dashboardService.getFilteredTrips(carrierFilters, activeProfile, canonicalTrips);
     return {
-      items: dashboardService.computeCarrierPerformance(trips),
+      items: dashboardService.computeCarrierPerformance(trips, canonicalCarriers),
       securityViolated,
     };
-  }, [carrierFilters, activeProfile]);
+  }, [carrierFilters, activeProfile, canonicalTrips, canonicalCarriers]);
 
   // (E) Material Distribution Widget
   const materialFilters = getEffectiveFilters('materialDist').filters;
   const materialData = useMemo(() => {
-    const { trips, securityViolated } = dashboardService.getFilteredTrips(materialFilters, activeProfile);
+    const { trips, securityViolated } = dashboardService.getFilteredTrips(materialFilters, activeProfile, canonicalTrips);
     return {
-      items: dashboardService.computeMaterialDistribution(trips),
+      items: dashboardService.computeMaterialDistribution(trips, canonicalMaterials),
       securityViolated,
     };
-  }, [materialFilters, activeProfile]);
+  }, [materialFilters, activeProfile, canonicalTrips, canonicalMaterials]);
 
   // (F) Pricing Distribution Widget
   const pricingFilters = getEffectiveFilters('pricingDist').filters;
   const pricingData = useMemo(() => {
-    const { trips, securityViolated } = dashboardService.getFilteredTrips(pricingFilters, activeProfile);
+    const { trips, securityViolated } = dashboardService.getFilteredTrips(pricingFilters, activeProfile, canonicalTrips);
     return {
       items: dashboardService.computePricingDistribution(trips),
       securityViolated,
     };
-  }, [pricingFilters, activeProfile]);
+  }, [pricingFilters, activeProfile, canonicalTrips]);
 
   // (G) Live Terminal Board Widget
   const terminalFilters = getEffectiveFilters('terminalBoard').filters;
   const terminalData = useMemo(() => {
-    const { trips, securityViolated } = dashboardService.getFilteredTrips(terminalFilters, activeProfile);
-    let board = dashboardService.generateLiveTerminalBoard(trips);
+    const { trips, securityViolated } = dashboardService.getFilteredTrips(terminalFilters, activeProfile, canonicalTrips);
+    let board = dashboardService.generateLiveTerminalBoard(trips, masterDataContext);
 
     if (terminalStatusFilter !== 'ALL') {
       board = board.filter(b => b.status === terminalStatusFilter);
@@ -223,7 +286,7 @@ export const OperationsDashboardView: React.FC = () => {
       items: board,
       securityViolated,
     };
-  }, [terminalFilters, activeProfile, terminalStatusFilter, terminalSearch]);
+  }, [terminalFilters, activeProfile, canonicalTrips, masterDataContext, terminalStatusFilter, terminalSearch]);
 
   return (
     <div className="space-y-6">
@@ -472,6 +535,8 @@ export const OperationsDashboardView: React.FC = () => {
             onFilterChange={(f) => setWidgetFilter('tripsCard', f)}
             authorizedProjects={authorizedProjects}
             userProfile={activeProfile}
+            carriersList={canonicalCarriers}
+            materialsList={canonicalMaterials}
             isCustomized={getEffectiveFilters('tripsCard').isCustomized}
             onResetToGlobal={() => resetWidgetFilter('tripsCard')}
           />
@@ -591,6 +656,8 @@ export const OperationsDashboardView: React.FC = () => {
             onFilterChange={(f) => setWidgetFilter('tonnageCard', f)}
             authorizedProjects={authorizedProjects}
             userProfile={activeProfile}
+            carriersList={canonicalCarriers}
+            materialsList={canonicalMaterials}
             isCustomized={getEffectiveFilters('tonnageCard').isCustomized}
             onResetToGlobal={() => resetWidgetFilter('tonnageCard')}
           />
@@ -689,6 +756,8 @@ export const OperationsDashboardView: React.FC = () => {
             onFilterChange={(f) => setWidgetFilter('settlementCard', f)}
             authorizedProjects={authorizedProjects}
             userProfile={activeProfile}
+            carriersList={canonicalCarriers}
+            materialsList={canonicalMaterials}
             isCustomized={getEffectiveFilters('settlementCard').isCustomized}
             onResetToGlobal={() => resetWidgetFilter('settlementCard')}
           />
@@ -783,6 +852,8 @@ export const OperationsDashboardView: React.FC = () => {
                   onFilterChange={(f) => setWidgetFilter('carrierPerf', f)}
                   authorizedProjects={authorizedProjects}
                   userProfile={activeProfile}
+                  carriersList={canonicalCarriers}
+                  materialsList={canonicalMaterials}
                   isCustomized={getEffectiveFilters('carrierPerf').isCustomized}
                   onResetToGlobal={() => resetWidgetFilter('carrierPerf')}
                 />
@@ -867,6 +938,8 @@ export const OperationsDashboardView: React.FC = () => {
                   onFilterChange={(f) => setWidgetFilter('materialDist', f)}
                   authorizedProjects={authorizedProjects}
                   userProfile={activeProfile}
+                  carriersList={canonicalCarriers}
+                  materialsList={canonicalMaterials}
                   isCustomized={getEffectiveFilters('materialDist').isCustomized}
                   onResetToGlobal={() => resetWidgetFilter('materialDist')}
                 />
@@ -940,6 +1013,8 @@ export const OperationsDashboardView: React.FC = () => {
             onFilterChange={(f) => setWidgetFilter('pricingDist', f)}
             authorizedProjects={authorizedProjects}
             userProfile={activeProfile}
+            carriersList={canonicalCarriers}
+            materialsList={canonicalMaterials}
             isCustomized={getEffectiveFilters('pricingDist').isCustomized}
             onResetToGlobal={() => resetWidgetFilter('pricingDist')}
           />
@@ -1049,6 +1124,8 @@ export const OperationsDashboardView: React.FC = () => {
             onFilterChange={(f) => setWidgetFilter('terminalBoard', f)}
             authorizedProjects={authorizedProjects}
             userProfile={activeProfile}
+            carriersList={canonicalCarriers}
+            materialsList={canonicalMaterials}
             isCustomized={getEffectiveFilters('terminalBoard').isCustomized}
             onResetToGlobal={() => resetWidgetFilter('terminalBoard')}
           />

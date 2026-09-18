@@ -1,0 +1,87 @@
+{
+  "verdict": "LU_P6_01_VERIFICATION_COMPLETE",
+  "logical_unit": "LU-P6-01",
+  "state_update": {
+    "LU-P6-01": "CLOSED",
+    "PHASE_6": "IN_PROGRESS"
+  },
+  "canonical_fsm": {
+    "valid_transitions": [
+      "IN_TRANSIT -> AT_DESTINATION",
+      "AT_DESTINATION -> WEIGHED_DESTINATION",
+      "WEIGHED_DESTINATION -> OFFLOADED",
+      "OFFLOADED -> COMPLETED"
+    ],
+    "verification_source": "/src/validators/trip.validator.ts"
+  },
+  "action_mapping": {
+    "arrival": {
+      "ui_event": "handleRecordArrival",
+      "outbox_operation": "UPDATE_TRIP_STATUS",
+      "payload": {
+        "status": "AT_DESTINATION"
+      },
+      "canonical_endpoint": "/api/projects/:projectId/trips/:tripId/status",
+      "classification": "ACTUAL"
+    },
+    "start_unloading": {
+      "ui_event": "handleStartUnloading",
+      "outbox_operation": null,
+      "payload": null,
+      "canonical_endpoint": null,
+      "classification": "ACTUAL"
+    },
+    "destination_receipt": {
+      "ui_event": "handleCompleteUnloading (Step 1)",
+      "outbox_operation": "RECORD_RECEIPT",
+      "payload": {
+        "destinationTareKg": "number",
+        "destinationGrossKg": "number",
+        "destinationTicketNo": "string"
+      },
+      "canonical_endpoint": "/api/projects/:projectId/trips/:tripId/receipt",
+      "classification": "ACTUAL"
+    },
+    "complete_unloading": {
+      "ui_event": "handleCompleteUnloading (Step 2 & 3)",
+      "outbox_operations": [
+        {
+          "type": "UPDATE_TRIP_STATUS",
+          "payload": {
+            "status": "OFFLOADED"
+          }
+        },
+        {
+          "type": "UPDATE_TRIP_STATUS",
+          "payload": {
+            "status": "COMPLETED"
+          }
+        }
+      ],
+      "canonical_endpoint": "/api/projects/:projectId/trips/:tripId/status",
+      "classification": "ACTUAL"
+    }
+  },
+  "critical_dependency_checks": {
+    "case_a_success": "RECORD_RECEIPT -> OFFLOADED -> COMPLETED succeeds sequentially",
+    "case_b_offload_failure": "RECORD_RECEIPT succeeds, OFFLOADED fails, COMPLETED blocked from committing",
+    "case_c_receipt_failure": "RECORD_RECEIPT fails, OFFLOADED and COMPLETED blocked",
+    "case_d_completed_failure": "OFFLOADED succeeds, COMPLETED fails and stays retryable",
+    "case_e_network_disconnect": "Chronological order preserved post-reconnection using sequential outbox queueing"
+  },
+  "false_success_protection": {
+    "optimistic_states_isolated_from_authoritative_stores": true,
+    "user_feedback_differentiates_pending_from_authoritative": true
+  },
+  "second_kitchen_analysis": {
+    "direct_mutations_by_trip_engine_service_prohibited": true,
+    "unloading_path_free_of_duplicate_mutation_channels": true
+  },
+  "live_firestore_e2e_verified": "NO",
+  "changed_file_boundaries": {
+    "/src/components/field/UnloadingOperatorView.tsx": "DIRECTLY_REQUIRED",
+    "/src/tests/fsmAlignmentUnloading.test.ts": "TEST",
+    "/reports/lu-p6-01-fsm-remediation.md": "SUPPORTING",
+    "/reports/lu-p6-01-fsm-remediation.json": "SUPPORTING"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "verdict": "GAP_P5-04_VERIFICATION_COMPLETE",
+  "operationalState": {
+    "block132": "CLOSED",
+    "gapP5_01": "CLOSED",
+    "gapP5_02": "CLOSED",
+    "gapP5_03": "CLOSED",
+    "gapP5_04": "CLOSED",
+    "phase5": "IN_PROGRESS",
+    "phase6": "NOT_STARTED"
+  },
+  "runtimeVerification": {
+    "updateTripStatus": {
+      "classification": "ACTUAL",
+      "queued": "YES",
+      "endpoint": "/api/projects/:projectId/trips/:tripId/status",
+      "method": "PATCH"
+    },
+    "recordReceipt": {
+      "classification": "ACTUAL",
+      "queued": "YES",
+      "endpoint": "/api/projects/:projectId/trips/:tripId/receipt",
+      "method": "POST"
+    },
+    "reportException": {
+      "classification": "ACTUAL",
+      "queued": "YES",
+      "endpoint": "/api/projects/:projectId/trips/:tripId/exceptions",
+      "method": "POST"
+    }
+  },
+  "rbac": {
+    "roleExists": "YES",
+    "roleName": "DISPATCHER",
+    "middleware": "enforceDispatcherOrAbove",
+    "compatibility": "YES"
+  },
+  "receiptSemantics": "A",
+  "cacheSemantics": "B",
+  "durableIdempotency": {
+    "serverValidation": "YES",
+    "clientBypass": "YES"
+  },
+  "failureSemantics": "YES",
+  "secondKitchenSearch": {
+    "findingsCount": 0,
+    "leakageStatus": "SAFE"
+  },
+  "regressionStatus": "YES",
+  "testExecution": {
+    "testsPassed": 12,
+    "success": true
+  },
+  "changedFiles": [
+    "server.ts",
+    "src/services/offline/outbox.service.ts",
+    "src/tests/canonicalReplayHarmonizationBlock132.test.ts"
+  ]
+}

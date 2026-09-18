@@ -1,0 +1,117 @@
+{
+  "final_discovery_verdict": "REAL_IMPLEMENTATION_GAP",
+  "gap_p5_04_definition": [
+    "UPDATE_TRIP_STATUS",
+    "RECORD_RECEIPT",
+    "REPORT_EXCEPTION"
+  ],
+  "overall_gap_status": "REAL_IMPLEMENTATION_GAP",
+  "operation_traces": {
+    "UPDATE_TRIP_STATUS": {
+      "queueing": "UNVERIFIED",
+      "sync_all_processing": "UNVERIFIED",
+      "http_dispatch": "UNVERIFIED",
+      "server_canonical_endpoint": "UNVERIFIED",
+      "canonical_service": "UNVERIFIED",
+      "authoritative_persistence": "UNVERIFIED",
+      "indexed_db_cache_update": "UNVERIFIED",
+      "outbox_status_synced": "UNVERIFIED"
+    },
+    "RECORD_RECEIPT": {
+      "queueing": "NOT_IMPLEMENTED",
+      "sync_all_processing": "NOT_IMPLEMENTED",
+      "http_dispatch": "NOT_IMPLEMENTED",
+      "server_canonical_endpoint": "NOT_IMPLEMENTED",
+      "canonical_service": "NOT_IMPLEMENTED",
+      "authoritative_persistence": "NOT_IMPLEMENTED",
+      "indexed_db_cache_update": "NOT_IMPLEMENTED",
+      "outbox_status_synced": "NOT_IMPLEMENTED"
+    },
+    "REPORT_EXCEPTION": {
+      "queueing": "NOT_IMPLEMENTED",
+      "sync_all_processing": "NOT_IMPLEMENTED",
+      "http_dispatch": "NOT_IMPLEMENTED",
+      "server_canonical_endpoint": "NOT_IMPLEMENTED",
+      "canonical_service": "NOT_IMPLEMENTED",
+      "authoritative_persistence": "NOT_IMPLEMENTED",
+      "indexed_db_cache_update": "NOT_IMPLEMENTED",
+      "outbox_status_synced": "NOT_IMPLEMENTED"
+    }
+  },
+  "canonical_service_mapping": {
+    "UPDATE_TRIP_STATUS": {
+      "service": "TripService",
+      "method": "transitionTripStatus",
+      "repository": "TripRepository.update",
+      "firestore_path": "projects/{projectId}/trips/{tripId}"
+    },
+    "RECORD_RECEIPT": {
+      "service": null,
+      "method": null,
+      "repository": null,
+      "firestore_path": null
+    },
+    "REPORT_EXCEPTION": {
+      "service": null,
+      "method": null,
+      "repository": null,
+      "firestore_path": null
+    }
+  },
+  "conceptual_replay_convergence_matrix": {
+    "UPDATE_TRIP_STATUS": {
+      "queued": "NO",
+      "canonical_replay": "NO",
+      "authoritative_write": "NO",
+      "authoritative_ack": "NO",
+      "cache_convergence": "NO",
+      "durable_idempotency": "NO",
+      "failure_safe": "NO",
+      "test_proof": "NO"
+    },
+    "RECORD_RECEIPT": {
+      "queued": "NO",
+      "canonical_replay": "NO",
+      "authoritative_write": "NO",
+      "authoritative_ack": "NO",
+      "cache_convergence": "NO",
+      "durable_idempotency": "NO",
+      "failure_safe": "NO",
+      "test_proof": "NO"
+    },
+    "REPORT_EXCEPTION": {
+      "queued": "NO",
+      "canonical_replay": "NO",
+      "authoritative_write": "NO",
+      "authoritative_ack": "NO",
+      "cache_convergence": "NO",
+      "durable_idempotency": "NO",
+      "failure_safe": "NO",
+      "test_proof": "NO"
+    }
+  },
+  "second_kitchen_search": {
+    "tripEngineService_in_production": true,
+    "tripEngineService_reachable_from_replay": false,
+    "direct_firestore_mutation_in_sync_all": false,
+    "direct_indexed_db_mutation_authority": false,
+    "synthetic_ack_in_production_sync": false
+  },
+  "existing_test_evidence": {
+    "test_file": "src/tests/conflictResolution.test.ts",
+    "covered_operations": ["UPDATE_TRIP_STATUS"],
+    "behavior_proven": "in-memory conflict detection rules",
+    "crosses_canonical_http_boundary": false,
+    "proves_authoritative_persistence": false
+  },
+  "inspected_files": [
+    "src/services/offline/outbox.service.ts",
+    "src/services/offline/conflictResolution.service.ts",
+    "src/services/trip.service.ts",
+    "server.ts",
+    "src/repositories/trip.repository.ts",
+    "src/types/offline.ts",
+    "src/tests/conflictResolution.test.ts"
+  ],
+  "implementation_performed": false
+}

@@ -1,0 +1,319 @@
+{
+  "blockId": "BLOCK-130-VERIFICATION-CORRECTION",
+  "mode": "READ_ONLY_VERIFICATION_AND_REPORT_CORRECTION",
+  "verdict": "LU_P5_01_VERIFIED_AND_CORRECTED",
+  "phase": "PHASE_5",
+  "phaseStatus": "IN_PROGRESS",
+  "timestamp": "2026-09-16T12:11:00.000Z",
+  "logicalUnit": "LU-P5-01",
+  "logicalUnitTitle": "Canonical Cache Hydration",
+  "executiveSummary": {
+    "status": "VERIFIED_AND_CORRECTED",
+    "details": "Read-only forensic verification confirms that BLOCK 130 successfully and strictly implemented LU-P5-01 (Canonical Cache Hydration). OfflineCacheService master-data hydration now reads exclusively from canonical domain repositories (projectRepository, carrierRepository, materialRepository, truckRepository, driverRepository, pricingRuleRepository). Legacy dependencies (adminConsoleService, pricingService) have been completely eliminated from offlineCache.service.ts. Block 103B deletion-aware reconciliation (reconcileStore) is strictly preserved. The authoritative BLOCK 129 Gap Register is restored and corrected: GAP-P5-01 is CLOSED; GAP-P5-02, GAP-P5-03, and GAP-P5-04 remain OPEN. Erroneous gap renumbering and premature closure claims from the initial report have been eliminated. Phase 5 remains IN PROGRESS.",
+    "nextAuthorizedUnit": "LU-P5-02"
+  },
+  "canonicalRepositoryAudit": {
+    "targetFile": "/src/services/offline/offlineCache.service.ts",
+    "status": "COMPLIANT",
+    "evidenceClass": "ACTUAL",
+    "repositories": [
+      {
+        "store": "projects",
+        "repository": "projectRepository",
+        "methodsInvoked": ["findById(projectId)", "listAll()"],
+        "filePath": "/src/repositories/project.repository.ts",
+        "lines": "128-142"
+      },
+      {
+        "store": "carriers",
+        "repository": "carrierRepository",
+        "methodsInvoked": ["listByProject(projectId)"],
+        "filePath": "/src/repositories/carrier.repository.ts",
+        "lines": "153"
+      },
+      {
+        "store": "materials",
+        "repository": "materialRepository",
+        "methodsInvoked": ["listByProject(projectId)"],
+        "filePath": "/src/repositories/material.repository.ts",
+        "lines": "156"
+      },
+      {
+        "store": "trucks",
+        "repository": "truckRepository",
+        "methodsInvoked": ["listByProject(projectId)"],
+        "filePath": "/src/repositories/truck.repository.ts",
+        "lines": "159"
+      },
+      {
+        "store": "drivers",
+        "repository": "driverRepository",
+        "methodsInvoked": ["listByProject(projectId)"],
+        "filePath": "/src/repositories/driver.repository.ts",
+        "lines": "162"
+      },
+      {
+        "store": "pricingRules",
+        "repository": "pricingRuleRepository",
+        "methodsInvoked": ["listByProject(projectId)"],
+        "filePath": "/src/repositories/pricingRule.repository.ts",
+        "lines": "165"
+      }
+    ],
+    "legacyImportsRemoved": [
+      {
+        "service": "adminConsoleService",
+        "path": "/src/services/adminConsole.service.ts",
+        "occurrencesInCacheService": 0,
+        "evidenceClass": "ACTUAL"
+      },
+      {
+        "service": "pricingService",
+        "path": "/src/services/pricing.service.ts",
+        "occurrencesInCacheService": 0,
+        "evidenceClass": "ACTUAL"
+      },
+      {
+        "service": "tripEngineService",
+        "path": "/src/services/tripEngine.service.ts",
+        "occurrencesInCacheService": 0,
+        "evidenceClass": "ACTUAL"
+      }
+    ],
+    "directFirestoreWrites": {
+      "count": 0,
+      "status": "COMPLIANT",
+      "evidenceClass": "ACTUAL"
+    },
+    "businessDomainAuthority": {
+      "status": "NON_AUTHORITATIVE_CACHE_ONLY",
+      "evidenceClass": "ACTUAL"
+    }
+  },
+  "projectScopeSemantics": {
+    "method": "seedAllMasterData(projectId?)",
+    "filePath": "/src/services/offline/offlineCache.service.ts",
+    "lines": "125-255",
+    "evidenceClass": "ACTUAL",
+    "projectIdSupplied": {
+      "projectScoping": "projectRepository.findById(projectId) isolates hydration to the specified project",
+      "subEntityScoping": "All sub-entities (carriers, materials, trucks, drivers, pricingRules) queried strictly via listByProject(projectId)",
+      "crossProjectBleed": "NONE",
+      "status": "VERIFIED"
+    },
+    "projectIdOmitted": {
+      "priorSemantics": "Prior adminConsoleService.getProjects() loaded all in-memory projects, and getCarriers() with no arg returned all carriers globally",
+      "currentSemantics": "projectRepository.listAll() fetches all authorized projects, followed by per-project subcollection queries for each targetProjectId",
+      "scopePreservation": "Preserves prior global hydration capability while adapting to canonical subcollection hierarchy (/projects/{projectId}/*)",
+      "unintendedBroadening": "NO - projectId remains optional for full-roster initialization, scoped strictly to user's authorized projects",
+      "status": "VERIFIED"
+    }
+  },
+  "block103BPreservation": {
+    "mechanism": "reconcileStore<T>()",
+    "filePath": "/src/services/offline/offlineCache.service.ts",
+    "lines": "90-119",
+    "evidenceClass": "ACTUAL",
+    "deletionPruningVerified": true,
+    "emptyDatasetClearingVerified": true,
+    "upsertOnlyRegresssion": false,
+    "testConfirmation": "/src/tests/ghostDataEliminationBlock103B.test.ts (5 tests passed)"
+  },
+  "activeInactiveFiltering": {
+    "storageLayer": "All entities stored with explicit status field in IndexedDB ('ACTIVE' | 'INACTIVE')",
+    "operationalQueryLayer": "Selectors getProjects, getCarriers, getMaterials, getTrucks, getDrivers, getPricingRules filter status === 'ACTIVE'",
+    "validationLayer": "validateOfflineTripPrerequisites verifies every entity reference is ACTIVE prior to offline queueing",
+    "status": "VERIFIED",
+    "evidenceClass": "ACTUAL"
+  },
+  "changeBoundary": {
+    "filesModified": [
+      {
+        "filePath": "/src/services/offline/offlineCache.service.ts",
+        "changeType": "MODIFIED",
+        "purpose": "Rewire master data cache hydration to canonical repositories; eliminate legacy adminConsoleService and pricingService imports",
+        "requiredForLUP501": true,
+        "evidenceClass": "ACTUAL"
+      },
+      {
+        "filePath": "/src/tests/ghostDataEliminationBlock103B.test.ts",
+        "changeType": "MODIFIED",
+        "purpose": "Align test fixtures and types to ProjectEntity/CarrierEntity interfaces for repository mocking",
+        "requiredForLUP501": true,
+        "evidenceClass": "ACTUAL"
+      }
+    ],
+    "filesAdded": [
+      {
+        "filePath": "/src/tests/canonicalCacheHydrationBlock130.test.ts",
+        "changeType": "ADDED",
+        "purpose": "Dedicated 8-point verification test suite for LU-P5-01 canonical cache hydration",
+        "requiredForLUP501": true,
+        "evidenceClass": "ACTUAL"
+      },
+      {
+        "filePath": "/reports/phase5-lu-p5-01-implementation-block130.json",
+        "changeType": "ADDED",
+        "purpose": "Initial BLOCK 130 implementation report artifact",
+        "requiredForLUP501": true,
+        "evidenceClass": "ACTUAL"
+      },
+      {
+        "filePath": "/reports/phase5-lu-p5-01-implementation-block130.md",
+        "changeType": "ADDED",
+        "purpose": "Initial BLOCK 130 implementation report documentation",
+        "requiredForLUP501": true,
+        "evidenceClass": "ACTUAL"
+      },
+      {
+        "filePath": "/reports/phase5-lu-p5-01-verification-correction-block130.json",
+        "changeType": "ADDED",
+        "purpose": "BLOCK 130 verification correction report artifact",
+        "requiredForLUP501": true,
+        "evidenceClass": "ACTUAL"
+      },
+      {
+        "filePath": "/reports/phase5-lu-p5-01-verification-correction-block130.md",
+        "changeType": "ADDED",
+        "purpose": "BLOCK 130 verification correction report documentation",
+        "requiredForLUP501": true,
+        "evidenceClass": "ACTUAL"
+      }
+    ],
+    "filesDeleted": [],
+    "outOfScopeModifications": "NONE",
+    "uiModified": false,
+    "routesModified": false,
+    "outboxServiceModified": false,
+    "conflictServiceModified": false
+  },
+  "testExecution": {
+    "testSuites": [
+      {
+        "file": "src/tests/canonicalCacheHydrationBlock130.test.ts",
+        "tests": 8,
+        "passed": 8,
+        "failed": 0,
+        "durationMs": 21,
+        "status": "PASS",
+        "evidenceClass": "ACTUAL"
+      },
+      {
+        "file": "src/tests/ghostDataEliminationBlock103B.test.ts",
+        "tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "durationMs": 11,
+        "status": "PASS",
+        "evidenceClass": "ACTUAL"
+      }
+    ],
+    "totalTests": 13,
+    "totalPassed": 13,
+    "totalFailed": 0,
+    "lintStatus": "PASS (tsc --noEmit clean)",
+    "compileStatus": "PASS (vite build clean)"
+  },
+  "authoritativeGapRegister": [
+    {
+      "gapId": "GAP-P5-01",
+      "area": "Cache Hydration Source",
+      "authoritativeDescription": "OfflineCacheService.seedAllMasterData() reads from legacy adminConsoleService in-memory state.",
+      "targetState": "Hydrates directly from Canonical Repositories (projectRepository, carrierRepository, etc.).",
+      "severity": "P1",
+      "blocking": true,
+      "currentStatus": "CLOSED",
+      "closedInBlock": "BLOCK-130",
+      "logicalUnit": "LU-P5-01",
+      "evidenceClass": "ACTUAL",
+      "verificationEvidence": "offlineCache.service.ts lines 1-35, 125-255; canonicalCacheHydrationBlock130.test.ts tests 1-8"
+    },
+    {
+      "gapId": "GAP-P5-02",
+      "area": "Outbox Fallback Replay",
+      "authoritativeDescription": "OutboxService.commitOperation() directly mutates tripEngineService.trips in memory during simulated fallback.",
+      "targetState": "All replays execute through canonical TripService / CanonicalCommitEngineService.",
+      "severity": "P1",
+      "blocking": true,
+      "currentStatus": "OPEN",
+      "closedInBlock": null,
+      "logicalUnit": "LU-P5-02",
+      "evidenceClass": "TARGET",
+      "verificationEvidence": "Deferred to LU-P5-02 per BLOCK 129 specification"
+    },
+    {
+      "gapId": "GAP-P5-03",
+      "area": "Conflict Engine Integration",
+      "authoritativeDescription": "ConflictResolutionService queries tripEngineService for server trip comparison.",
+      "targetState": "Queries canonical tripRepository.findById().",
+      "severity": "P2",
+      "blocking": false,
+      "currentStatus": "OPEN",
+      "closedInBlock": null,
+      "logicalUnit": "LU-P5-02",
+      "evidenceClass": "TARGET",
+      "verificationEvidence": "Deferred to LU-P5-02 per BLOCK 129 specification"
+    },
+    {
+      "gapId": "GAP-P5-04",
+      "area": "State Update Replay Endpoints",
+      "authoritativeDescription": "Server API currently only exposes /api/projects/:projectId/trips for creation.",
+      "targetState": "Provide unified handlers for UPDATE_TRIP_STATUS and RECORD_RECEIPT enforcing expectedVersion.",
+      "severity": "P2",
+      "blocking": false,
+      "currentStatus": "OPEN",
+      "closedInBlock": null,
+      "logicalUnit": "LU-P5-03",
+      "evidenceClass": "TARGET",
+      "verificationEvidence": "Deferred to LU-P5-03 per BLOCK 129 specification"
+    }
+  ],
+  "correctedMisconceptions": [
+    {
+      "item": "GAP-P5-03 Mislabeling",
+      "erroneousDescriptionInInitialReport": "Store schema consolidation",
+      "correction": "Restored authoritative BLOCK 129 GAP-P5-03: Conflict Engine Integration (ConflictResolutionService queries tripEngineService instead of tripRepository). Status remains OPEN.",
+      "status": "CORRECTED"
+    },
+    {
+      "item": "GAP-P5-04 Mislabeling",
+      "erroneousDescriptionInInitialReport": "Entry point / UI alignment",
+      "correction": "Restored authoritative BLOCK 129 GAP-P5-04: State Update Replay Endpoints. UI entry-point convergence is Phase 6 scope, NOT Phase 5. Status remains OPEN.",
+      "status": "CORRECTED"
+    },
+    {
+      "item": "Phase 5 Premature Completion",
+      "erroneousDescriptionInInitialReport": "Implied or assumed Phase 5 near completion or complete",
+      "correction": "Phase 5 is strictly IN PROGRESS. Only LU-P5-01 is complete. LU-P5-02 and LU-P5-03 remain pending.",
+      "status": "CORRECTED"
+    }
+  ],
+  "secondKitchenAudit": {
+    "secondBusinessService": "NONE - OfflineCacheService is purely a read-through cache orchestrator",
+    "secondPersistenceAuthority": "NONE - Firestore is sole persistence authority; IndexedDB is non-authoritative client cache",
+    "secondStateMachine": "NONE - OfflineCacheService implements no state machines",
+    "secondCacheAuthority": "NONE - OfflineCacheService is the single cache interface wrapping indexedDBService",
+    "secondMasterDataPipeline": "NONE - Master data hydration converges exclusively on canonical domain repositories",
+    "directFirestoreWritesInCache": "NONE - Exactly 0 direct Firestore writes in offlineCache.service.ts",
+    "status": "PASS",
+    "evidenceClass": "ACTUAL"
+  },
+  "invariantState": {
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "FIRESTORE_DATA_CHANGED": "NO",
+    "FIRESTORE_SCHEMA_CHANGED": "NO",
+    "FIRESTORE_RULES_CHANGED": "NO",
+    "INDEXEDDB_CHANGED": "NO",
+    "GOOGLE_DRIVE_CHANGED": "NO",
+    "GOOGLE_SHEETS_CHANGED": "NO",
+    "ROUTES_CHANGED": "NO",
+    "UI_CHANGED": "NO",
+    "AUTHENTICATION_STATE_CHANGED": "NO",
+    "CONFIGURATION_CHANGED": "NO",
+    "RUNTIME_STATE_CHANGED": "NO",
+    "RELEASE_BLOCKER": "NO",
+    "UI_ENTRY_POINT_CONVERGENCE": "NOT_YET_IMPLEMENTED",
+    "LIVE_FIRESTORE_E2E_VERIFIED": "NO"
+  }
+}

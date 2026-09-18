@@ -1,0 +1,214 @@
+{
+  "blockId": 131,
+  "blockType": "FORENSIC_DISCOVERY_AND_IMPLEMENTATION_BOUNDARY_GATE",
+  "logicalUnit": "LU-P5-02",
+  "title": "Canonical Replay & Outbox Harmonization Discovery",
+  "timestamp": "2026-09-16T12:35:00Z",
+  "mode": "STRICT_READ_ONLY_DISCOVERY",
+  "verdict": "LU-P5-02_DISCOVERY_COMPLETE",
+  "authoritativeContext": {
+    "block128": "ACCEPTED_CLOSED",
+    "block129": "PHASE_5_DISCOVERY_COMPLETE",
+    "block130": "LU-P5-01_VERIFIED_AND_CORRECTED",
+    "phase5Status": "IN_PROGRESS"
+  },
+  "gapRegister": {
+    "GAP-P5-01": {
+      "area": "Canonical Cache Hydration",
+      "status": "CLOSED",
+      "evidence": "Verified in BLOCK 130 via canonical repositories in offlineCache.service.ts"
+    },
+    "GAP-P5-02": {
+      "area": "Outbox Fallback Replay Legacy Dependency",
+      "status": "OPEN",
+      "current": "outboxService.commitOperation manually mutates in-memory tripEngineService.trips",
+      "target": "Converge fallback replay on canonical TripService and tripRepository without secondary business logic"
+    },
+    "GAP-P5-03": {
+      "area": "Conflict Resolution Legacy Dependency",
+      "status": "OPEN",
+      "current": "conflictResolutionService.detectConflict and resolveConflict query/mutate tripEngineService",
+      "target": "Query authoritative canonical state from tripRepository and/or local cached trip store"
+    },
+    "GAP-P5-04": {
+      "area": "Update & Receipt Replay Convergence",
+      "status": "OPEN",
+      "current": "UPDATE_TRIP_STATUS and RECORD_RECEIPT lack dedicated canonical replay routing",
+      "target": "Route status updates and weighbridge receipt records to canonical TripService methods"
+    }
+  },
+  "canonicalCommitEngineRole": "NOT_APPLICABLE",
+  "canonicalCommitEngineJustification": "CanonicalCommitEngineService (/src/services/commitEngine.service.ts) is exclusively dedicated to Stage 6 of the batch file import pipeline (ImportSession, CanonicalReviewArtifact, CanonicalApprovalRecord) and does not govern operational single-trip outbox replay.",
+  "operationOwnershipMatrix": [
+    {
+      "operationType": "CREATE_TRIP_LOADING",
+      "actualProducer": "LoadingStation.tsx / LoadingOperatorView.tsx",
+      "currentReplayOwnerOnline": "serverTripService.dispatchTrip (via server.ts)",
+      "currentReplayOwnerFallback": "outboxService.commitOperation (via tripEngineService)",
+      "canonicalOwner": "TripService.dispatchTrip",
+      "canonicalRepository": "tripRepository",
+      "onlinePath": "POST /api/projects/:projectId/trips",
+      "offlinePath": "outboxService.commitOperation",
+      "inLuP502Scope": true,
+      "evidenceClass": "ACTUAL"
+    },
+    {
+      "operationType": "UPDATE_TRIP_STATUS",
+      "actualProducer": "UnloadingStation.tsx / OutboxDrawer.tsx / conflictResolution.service.ts",
+      "currentReplayOwnerOnline": "PATCH /api/projects/:projectId/trips/:tripId",
+      "currentReplayOwnerFallback": "Generic/unrouted fallback",
+      "canonicalOwner": "TripService.transitionTripStatus",
+      "canonicalRepository": "tripRepository",
+      "onlinePath": "PATCH /api/projects/:projectId/trips/:tripId",
+      "offlinePath": "Unhandled / generic fallback",
+      "inLuP502Scope": false,
+      "evidenceClass": "ACTUAL"
+    },
+    {
+      "operationType": "RECORD_RECEIPT",
+      "actualProducer": "UnloadingStation.tsx",
+      "currentReplayOwnerOnline": "POST /api/projects/:projectId/weighbridge/commit or PATCH",
+      "currentReplayOwnerFallback": "Unhandled",
+      "canonicalOwner": "TripService.transitionTripStatus (OFFLOADED/COMPLETED)",
+      "canonicalRepository": "tripRepository",
+      "onlinePath": "POST /api/projects/:projectId/weighbridge/commit",
+      "offlinePath": "Unhandled",
+      "inLuP502Scope": false,
+      "evidenceClass": "ACTUAL"
+    },
+    {
+      "operationType": "REPORT_EXCEPTION",
+      "actualProducer": "UnloadingStation.tsx / fieldSupervision.service.ts",
+      "currentReplayOwnerOnline": "None dedicated",
+      "currentReplayOwnerFallback": "Unhandled",
+      "canonicalOwner": "TripEventService / TripService.transitionTripStatus",
+      "canonicalRepository": "tripRepository / tripEventRepository",
+      "onlinePath": "None dedicated",
+      "offlinePath": "Unhandled",
+      "inLuP502Scope": false,
+      "evidenceClass": "ACTUAL"
+    }
+  ],
+  "tripEngineServiceDependencies": [
+    {
+      "file": "src/services/offline/outbox.service.ts",
+      "line": 22,
+      "context": "Import statement",
+      "usageCategory": "IMPORT",
+      "authoritative": false,
+      "belongsInLuP502": true,
+      "action": "REMOVE"
+    },
+    {
+      "file": "src/services/offline/outbox.service.ts",
+      "line": 230,
+      "context": "syncAll() post-HTTP sync",
+      "usageCategory": "WRITE_CACHE_SYNC",
+      "authoritative": false,
+      "belongsInLuP502": true,
+      "action": "REMOVE"
+    },
+    {
+      "file": "src/services/offline/outbox.service.ts",
+      "line": 325,
+      "context": "detectStateConflict()",
+      "usageCategory": "READ_CONFLICT_CHECK",
+      "authoritative": false,
+      "belongsInLuP502": true,
+      "action": "REPLACE_WITH_TRIP_REPOSITORY"
+    },
+    {
+      "file": "src/services/offline/outbox.service.ts",
+      "line": 415,
+      "context": "commitOperation()",
+      "usageCategory": "WRITE_STATE_MUTATION",
+      "authoritative": false,
+      "belongsInLuP502": true,
+      "action": "REPLACE_WITH_CANONICAL_TRIP_SERVICE"
+    },
+    {
+      "file": "src/services/offline/conflictResolution.service.ts",
+      "line": 30,
+      "context": "Import statement",
+      "usageCategory": "IMPORT",
+      "authoritative": false,
+      "belongsInLuP502": true,
+      "action": "REMOVE_OR_REPLACE"
+    },
+    {
+      "file": "src/services/offline/conflictResolution.service.ts",
+      "line": 69,
+      "context": "detectConflict() serverTrip lookup",
+      "usageCategory": "READ_CONFLICT_CHECK",
+      "authoritative": false,
+      "belongsInLuP502": true,
+      "action": "REPLACE_WITH_TRIP_REPOSITORY"
+    },
+    {
+      "file": "src/services/offline/conflictResolution.service.ts",
+      "line": 178,
+      "context": "detectConflict() duplicate ticket check",
+      "usageCategory": "READ_DUPLICATE_CHECK",
+      "authoritative": false,
+      "belongsInLuP502": true,
+      "action": "REPLACE_WITH_TRIP_REPOSITORY_OR_CACHE"
+    },
+    {
+      "file": "src/services/offline/conflictResolution.service.ts",
+      "line": 503,
+      "context": "resolveConflict() FORCE_CLIENT_STATE lookup",
+      "usageCategory": "READ_EXISTING_TRIP",
+      "authoritative": false,
+      "belongsInLuP502": true,
+      "action": "REPLACE_WITH_TRIP_REPOSITORY"
+    },
+    {
+      "file": "src/services/offline/conflictResolution.service.ts",
+      "line": 675,
+      "context": "commitTripWithPreservedSnapshot()",
+      "usageCategory": "WRITE_STATE_MUTATION",
+      "authoritative": false,
+      "belongsInLuP502": true,
+      "action": "REMOVE_LEGACY_MUTATION"
+    }
+  ],
+  "secondKitchenRisk": {
+    "detected": true,
+    "location": "outboxService.commitOperation() and conflictResolutionService.commitTripWithPreservedSnapshot()",
+    "description": "Fallback path constructs raw TripRecord objects, calculates net weights and settlements locally, and directly modifies (tripEngineService as any).trips, bypassing TripService, TripValidator, and Firestore.",
+    "mitigation": "Harmonize all replay paths through canonical TripService.dispatchTrip and tripRepository, eliminating local alternative state."
+  },
+  "implementationBoundary": {
+    "targetLogicalUnit": "LU-P5-02",
+    "scope": "Canonical Replay & Outbox Harmonization",
+    "mustChangeFiles": [
+      "src/services/offline/outbox.service.ts",
+      "src/services/offline/conflictResolution.service.ts"
+    ],
+    "mustNotChangeFiles": [
+      "src/components/field/LoadingOperatorView.tsx",
+      "src/components/tripEngine/LoadingStation.tsx",
+      "src/services/commitEngine.service.ts",
+      "src/services/offline/indexedDB.service.ts"
+    ],
+    "coDependencies": [
+      {
+        "gapId": "GAP-P5-03",
+        "category": "DIRECT_CO_DEPENDENCY",
+        "rationale": "ConflictResolutionService queries must be harmonized simultaneously to prevent reading from empty legacy memory."
+      }
+    ],
+    "deferredGaps": [
+      {
+        "gapId": "GAP-P5-04",
+        "category": "DEFERRED",
+        "rationale": "UPDATE_TRIP_STATUS and RECORD_RECEIPT replay do not block CREATE_TRIP_LOADING canonical convergence."
+      }
+    ]
+  },
+  "verificationPreConditions": {
+    "cleanBuild": true,
+    "zeroLinterErrors": true,
+    "productionCodeUntouchedInBlock131": true
+  }
+}

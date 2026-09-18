@@ -1,0 +1,66 @@
+{
+  "block": 126,
+  "title": "P0 Repair Discovery: Atomic Commit Boundary & Durable Idempotency",
+  "verdict": "REPAIR_PATH_CONFIRMED",
+  "discoveryTimestamp": "2026-09-16T14:10:00Z",
+  "blockersAnalyzed": [
+    {
+      "id": "BLK-126-01",
+      "severity": "P0",
+      "title": "Absence of Atomic Transaction Boundary across Multi-Entity Domain Writes",
+      "findings": "Existing writes occur in sequential async loop. Firestore runTransaction/writeBatch is needed to provide all-or-nothing atomicity across trips, drivers, trucks, roster, and batch state."
+    },
+    {
+      "id": "BLK-126-02",
+      "severity": "P0",
+      "title": "In-Memory Commit Record & Idempotency Storage",
+      "findings": "Commit records and replay history are held in-memory. Durable storage in existing projects/{projectId}/import_batches and projects/{projectId}/sync_operations collections provides multi-instance and restart safety with 0 schema changes."
+    }
+  ],
+  "existingInfrastructure": {
+    "firestoreSdk": "Firebase Web modular Client SDK (firebase/firestore)",
+    "transactionPrimitivesAvailable": ["runTransaction", "writeBatch", "Transaction", "WriteBatch"],
+    "existingUsages": [
+      "src/services/projectNumberGenerator.ts",
+      "src/services/tripNumberGenerator.ts"
+    ],
+    "establishedCollections": [
+      "projects/{projectId}/trips",
+      "projects/{projectId}/roster",
+      "projects/{projectId}/drivers",
+      "projects/{projectId}/trucks",
+      "projects/{projectId}/pricing_rules",
+      "projects/{projectId}/exceptions",
+      "projects/{projectId}/import_batches",
+      "projects/{projectId}/sync_operations",
+      "audit_logs"
+    ]
+  },
+  "repairArchitecture": {
+    "atomicBoundary": "Firestore runTransaction wrapping session state check, domain writes, and commit record creation",
+    "durableIdempotencyLocation": "projects/{projectId}/import_batches/{importSessionId} and projects/{projectId}/sync_operations/{operationId}",
+    "schemaChangesRequired": false,
+    "firestoreRulesChangesRequired": false,
+    "concurrencyMechanism": "Atomic read-and-check inside runTransaction on the import session / batch document"
+  },
+  "plannedRepairScope": {
+    "filesToModify": [
+      "src/repositories/trip.repository.ts",
+      "src/repositories/driver.repository.ts",
+      "src/repositories/truck.repository.ts",
+      "src/repositories/projectCarrierRoster.repository.ts",
+      "src/repositories/importBatch.repository.ts",
+      "src/services/commitEngine.service.ts",
+      "src/tests/commitEngine.test.ts"
+    ],
+    "filesPreservedUntouched": [
+      "src/services/importPipeline.service.ts",
+      "src/services/validationPipeline.service.ts",
+      "src/services/conflictEngine.service.ts",
+      "src/services/reviewArtifact.service.ts",
+      "src/services/reviewApproval.service.ts",
+      "firestore.rules",
+      "firebase-blueprint.json"
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "block": 126,
+  "title": "Transactional Commit Engine & Canonical Service Delegation",
+  "verdict": "BLOCK_126_ARCHITECTURE_VERIFIED",
+  "auditTimestamp": "2026-09-16T13:51:00Z",
+  "gitScopeIntegrity": {
+    "modifiedFiles": [
+      "/src/services/commitEngine.service.ts"
+    ],
+    "addedFiles": [
+      "/src/types/commitEngine.ts",
+      "/src/services/commitEngine.service.ts",
+      "/src/tests/commitEngine.test.ts",
+      "/reports/block126-commit-engine-completion.json",
+      "/reports/block126-commit-engine-completion.md"
+    ],
+    "deletedFiles": [],
+    "renamedFiles": [],
+    "unrelatedFilesChanged": false,
+    "schemaOrRulesChanged": false
+  },
+  "architectureAudit": {
+    "orchestrator": "CanonicalCommitEngineService",
+    "delegationServices": {
+      "trip": "tripService / tripRepository",
+      "projectRoster": "projectRosterService / projectCarrierRosterRepository",
+      "driverTruck": "driverTruckIntakeService / driverRepository / truckRepository",
+      "pricing": "pricingService / pricingRuleRepository",
+      "exception": "exceptionService / exceptionRepository",
+      "security": "securityService",
+      "audit": "auditService"
+    },
+    "unsafeImportBypasses": 0,
+    "directFirestoreWritesInCommitEngine": 0,
+    "preCommitGateOrder": [
+      "1. Session state check (APPROVED)",
+      "2. Concurrency expectedVersion check",
+      "3. Project isolation across session, artifact, approval",
+      "4. Cryptographic artifact verification (SHA-256 contentHash)",
+      "5. Approval 5-point currency & binding check",
+      "6. RBAC COMMIT permission check via securityService",
+      "7. Concurrency-safe transition to COMMITTING",
+      "8. Canonical domain delegation",
+      "9. Immutable commit record computation",
+      "10. Transition to COMMITTED"
+    ],
+    "staleApprovalProtection": "VERIFIED",
+    "concurrencyProtection": "VERIFIED",
+    "authorizationEnforcement": "VERIFIED",
+    "auditTrailIntegrity": "VERIFIED",
+    "immutabilityHashIntegrity": "VERIFIED"
+  },
+  "regressionVerification": {
+    "block120": "PASSED",
+    "block121": "PASSED",
+    "block122": "PASSED",
+    "block123": "PASSED",
+    "block124": "PASSED",
+    "block125": "PASSED",
+    "block126": "PASSED"
+  },
+  "metrics": {
+    "typecheck": "PASSED",
+    "lint": "PASSED",
+    "build": "PASSED",
+    "p0Findings": 0,
+    "p1Findings": 0,
+    "releaseBlockers": 0
+  }
+}

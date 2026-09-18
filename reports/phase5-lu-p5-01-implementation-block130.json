@@ -1,0 +1,45 @@
+{
+  "block": "BLOCK 130",
+  "implementationUnit": "LU-P5-01",
+  "status": "IMPLEMENTATION_COMPLETE",
+  "canonicalSources": {
+    "projects": "projectRepository.listAll / projectRepository.findById",
+    "carriers": "carrierRepository.listByProject",
+    "materials": "materialRepository.listByProject",
+    "trucks": "truckRepository.listByProject",
+    "drivers": "driverRepository.listByProject",
+    "pricingRules": "pricingRuleRepository.listByProject"
+  },
+  "legacyRemoved": [
+    "adminConsoleService.getProjects",
+    "adminConsoleService.getCarriers",
+    "adminConsoleService.getMaterials",
+    "adminConsoleService.getTrucks",
+    "adminConsoleService.getDrivers",
+    "pricingService.getRules"
+  ],
+  "storesReconciled": [
+    "projects",
+    "carriers",
+    "materials",
+    "trucks",
+    "drivers",
+    "pricingRules"
+  ],
+  "preservationChecks": {
+    "indexedDBSchemaUnchanged": true,
+    "projectScopingPreserved": true,
+    "activeFilteringPreserved": true,
+    "deletionAwareReconciliationPreserved": true,
+    "noDirectFirestoreWritesFromCache": true,
+    "noNewBusinessAuthority": true,
+    "noTripEngineServiceDependency": true
+  },
+  "tests": {
+    "status": "PASSED",
+    "suites": [
+      "src/tests/canonicalCacheHydrationBlock130.test.ts",
+      "src/tests/ghostDataEliminationBlock103B.test.ts"
+    ]
+  }
+}

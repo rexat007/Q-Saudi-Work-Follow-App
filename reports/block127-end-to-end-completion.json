@@ -1,0 +1,136 @@
+{
+  "block": "127",
+  "name": "Audit Integration & End-to-End Verification Gate",
+  "verdict": "BLOCK_127_COMPLETE",
+  "timestamp": "2026-09-16T09:04:10.000Z",
+  "gitScope": {
+    "filesChanged": [
+      "/src/tests/endToEndImportPipelineBlock127.test.ts",
+      "/reports/block127-end-to-end-completion.json",
+      "/reports/block127-end-to-end-completion.md"
+    ],
+    "productionArchitectureModified": false
+  },
+  "metrics": {
+    "DIRECT_WRITES_IN_COMMIT_ENGINE": 0,
+    "UNSAFE_IMPORT_BYPASSES": 0,
+    "BLOCK_120_REGRESSION": false,
+    "BLOCK_121_REGRESSION": false,
+    "BLOCK_122_REGRESSION": false,
+    "BLOCK_123_REGRESSION": false,
+    "BLOCK_124_REGRESSION": false,
+    "BLOCK_125_REGRESSION": false,
+    "BLOCK_126_REGRESSION": false,
+    "E2E_TESTS_PASSING": 10,
+    "E2E_TESTS_FAILING": 0,
+    "P0_FINDINGS": 0,
+    "P1_FINDINGS": 0
+  },
+  "endToEndHappyPath": {
+    "status": "PASSED",
+    "scenarios": [
+      "Weighbridge Trip Import with 3 valid records",
+      "Fleet Roster Import with Driver, Truck, and Project Roster domain delegation"
+    ]
+  },
+  "stateMachineVerification": {
+    "status": "PASSED",
+    "flow": "SOURCE -> PARSED -> NORMALIZED -> VALIDATED -> REVIEW_REQUIRED -> APPROVED -> COMMITTING -> COMMITTED",
+    "guardedTransitions": [
+      "Stale version concurrency rejection",
+      "Pre-approval commit block",
+      "Rejected decision terminal block",
+      "Double commit on terminal state block"
+    ]
+  },
+  "provenanceVerification": {
+    "status": "PASSED",
+    "verifiedBindings": {
+      "approvalArtifactIdEqualsCommittedArtifactId": true,
+      "approvalContentHashEqualsReviewArtifactContentHash": true,
+      "commitImportSessionIdEqualsSessionImportSessionId": true,
+      "commitOperationIdEqualsOperationId": true,
+      "auditTargetIdEqualsImportSessionId": true,
+      "auditProjectIdEqualsProjectId": true
+    }
+  },
+  "reviewArtifactIntegrity": {
+    "status": "PASSED",
+    "deterministicSha256ContentHash": true,
+    "objectFreezeProtection": true,
+    "tamperingRejection": true
+  },
+  "approvalVerification": {
+    "status": "PASSED",
+    "cryptographicBinding": true,
+    "rbacRoleEnforcement": true,
+    "staleApprovalPrevention": true
+  },
+  "transactionalCommitVerification": {
+    "status": "PASSED",
+    "atomicBoundary": true,
+    "domainDelegation": [
+      "tripService",
+      "driverTruckIntakeService",
+      "projectRosterService"
+    ]
+  },
+  "durableIdempotencyVerification": {
+    "status": "PASSED",
+    "exactReplayReturnsOriginalCommitRecord": true,
+    "zeroDuplicateDomainWritesOnReplay": true,
+    "parameterConflictDetection": true
+  },
+  "rollbackVerification": {
+    "status": "PASSED",
+    "cleanRollbackOnAbort": true,
+    "zeroFalseCommitCompletedAudits": true,
+    "failureInfoPreserved": true
+  },
+  "auditLifecycleVerification": {
+    "status": "PASSED",
+    "capturedEventsInSequence": [
+      "CREATE_IMPORT_SESSION",
+      "IMPORT_TRANSITION_PARSED",
+      "IMPORT_TRANSITION_NORMALIZED",
+      "IMPORT_TRANSITION_VALIDATED",
+      "IMPORT_TRANSITION_REVIEW_REQUIRED",
+      "APPROVE_IMPORT_ARTIFACT",
+      "IMPORT_COMMIT_STARTED",
+      "IMPORT_TRANSITION_COMMITTING",
+      "IMPORT_COMMIT_COMPLETED",
+      "IMPORT_TRANSITION_COMMITTED"
+    ],
+    "timingGuarantees": {
+      "commitStartedPreTransaction": true,
+      "commitCompletedPostTransaction": true,
+      "noFalseCommittedAuditOnRollback": true
+    }
+  },
+  "authorizationVerification": {
+    "status": "PASSED",
+    "viewerApprovalBlocked": true,
+    "viewerCommitBlocked": true,
+    "crossProjectBoundaryEnforced": true
+  },
+  "regressionTestResults": {
+    "block120": "PASSED",
+    "block121": "PASSED",
+    "block122": "PASSED",
+    "block123": "PASSED",
+    "block124": "PASSED",
+    "block125": "PASSED",
+    "block126": "PASSED",
+    "block127": "PASSED"
+  },
+  "coverageDistinction": {
+    "mode": "In-memory repository adapters and pure transaction context simulator",
+    "liveFirestoreEmulation": "Live Firestore repository adapters gracefully degrade when unauthenticated in test runners",
+    "staticVerification": "Verified zero unmanaged direct writes in commit engine"
+  },
+  "qualityGates": {
+    "typecheck": "PASSED",
+    "lint": "PASSED",
+    "build": "PASSED"
+  }
+}

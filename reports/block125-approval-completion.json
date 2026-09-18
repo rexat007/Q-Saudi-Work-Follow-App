@@ -1,0 +1,65 @@
+{
+  "reportId": "BLOCK-125-APPROVAL-COMPLETION",
+  "timestamp": "2026-09-16T06:23:30Z",
+  "phase": "Block 125 — Review-Gated Approval & Stale Approval Protection",
+  "objective": "Implement a review-gated human approval mechanism that cryptographically and version-wise binds an approval decision to the exact immutable review artifact that was reviewed.",
+  "implementationFiles": [
+    "/src/types/reviewApproval.ts",
+    "/src/services/reviewApproval.service.ts"
+  ],
+  "testFiles": [
+    "/src/tests/reviewApproval.test.ts"
+  ],
+  "approvalContract": {
+    "approvalId": "Unique technical identifier (app_...)",
+    "importSessionId": "Session binding",
+    "projectId": "Project isolation",
+    "artifactId": "Review artifact technical identity binding",
+    "artifactVersion": "Exact review artifact version",
+    "contentHash": "Exact SHA-256 cryptographic binding over canonicalized review payload",
+    "reviewerId": "Authenticated actor ID",
+    "reviewerEmail": "Reviewer email context",
+    "reviewerDisplayName": "Reviewer display name",
+    "approvedAt": "ISO 8601 timestamp",
+    "decision": "APPROVED or REJECTED",
+    "approvalStatus": "APPROVED | REJECTED | STALE | INVALID",
+    "comment": "Optional reviewer notes",
+    "concurrencyVersion": "Session concurrency version at decision time",
+    "immutabilityHash": "Cryptographic SHA-256 hash of the complete approval record payload"
+  },
+  "artifactBindingModel": {
+    "bindings": [
+      "approval.importSessionId === artifact.importSessionId",
+      "approval.projectId === artifact.projectId",
+      "approval.artifactId === artifact.artifactId",
+      "approval.artifactVersion === artifact.artifactVersion",
+      "approval.contentHash === artifact.contentHash"
+    ],
+    "cryptographicIntegrity": "canonicalReviewArtifactService.verifyArtifact(artifact) === true"
+  },
+  "staleApprovalMechanism": {
+    "isApprovalCurrent": "Boolean check enforcing exact 5-point session, artifact ID, version, and content hash identity",
+    "evaluateApprovalStatus": "Deep structured diagnosis returning STALE upon version/hash/identity mismatch, INVALID upon session/project/corruption mismatch, or APPROVED/REJECTED"
+  },
+  "authorizationPath": "securityService.evaluatePermission(auth, 'APPROVE', 'IMPORT_OPERATION', projectId, state) with strict role verification (read-only roles rejected).",
+  "auditPath": "auditService.logAuditEvent emitting immutable append-only event with complete artifact and hash details.",
+  "concurrencyMechanism": "session.version === concurrency.expectedVersion checked against ImportSessionManager before transition.",
+  "sessionTransition": "REVIEW_REQUIRED -> APPROVED (or REJECTED); zero APPROVED -> COMMITTING transitions implemented.",
+  "storageBehavior": "In-memory append-only registry per session; zero Firestore production mutations or schema additions.",
+  "productionWritePaths": 0,
+  "validationResults": {
+    "typecheck": "PASSED",
+    "lint": "PASSED",
+    "tests": "PASSED (Blocks 120, 121, 122, 123, 124, 125)",
+    "build": "PASSED"
+  },
+  "safetyMetrics": {
+    "P0": 0,
+    "P1": 0,
+    "PRODUCTION_FIXTURE_PATHS": 0,
+    "GHOST_DATA_PATHS_REMAINING": 0,
+    "PRODUCTION_WRITE_PATHS_INTRODUCED": 0,
+    "RELEASE_BLOCKER": "NO"
+  },
+  "finalVerdict": "BLOCK_125_COMPLETE"
+}

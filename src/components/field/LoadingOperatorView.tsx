@@ -22,8 +22,8 @@ import {
   Plus,
   Minus
 } from 'lucide-react';
-import { TripRecord, TripActorRole } from '../../types/tripEngine';
-import { tripEngineService, MasterPricingRule } from '../../services/tripEngine.service';
+import { TripRecord, TripActorRole, TripPricingType } from '../../types/tripEngine';
+import { MasterPricingRule } from '../../services/tripEngine.service';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { projectRepository } from '../../repositories/project.repository';
 import { ProjectEntity } from '../../types/entities';
@@ -211,7 +211,16 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     if (!carrierId) errors.push('يجب تحديد شركة النقل المعتمدة.');
     if (!truckId) errors.push('يجب تحديد الشاحنة المراد وزنها.');
     if (!driverId) errors.push('يجب تحديد السائق المكلف.');
-    if (!materialId) errors.push('يجب تحديد صنف المادة المحملة.');
+    if (!materialId || !materialId.trim()) {
+      errors.push('يجب تحديد صنف المادة المحملة ومعرف المادة المعتمد.');
+    } else {
+      const knownMat = context.knownMaterials.find(m => m.materialId === materialId);
+      if (!knownMat) {
+        errors.push(`معرف المادة (${materialId}) غير معرف في الكتالوج المعتمد.`);
+      } else if (!context.authorizedMaterialIds.includes(materialId)) {
+        errors.push(`المادة (${(knownMat as any).nameAr || knownMat.name || materialId}) غير مصرح بتوريدها لهذا المشروع.`);
+      }
+    }
     if (grossWeight <= 0) errors.push('يجب تسجيل قراءة الوزن القائم.');
     if (tareWeight <= 0) errors.push('يجب تسجيل قراءة وزن الفارغ.');
     if (grossWeight <= tareWeight) {
@@ -306,116 +315,111 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
       const nowIso = new Date().toISOString();
       const shiftDate = nowIso.split('T')[0];
 
-      // OFFLINE PATH
-      if (!isOnline) {
+      // Security check for offline mode: must have pricing rule
+      if (!isOnline || isSimulatedOffline) {
         if (!offlinePrereq?.hasPricingRule || !offlinePrereq.pricingRule || offlinePrereq.pricingRule.agreedRate <= 0) {
           throw new Error('حظر أمني: لا يُسمح بإنشاء تذكرة ميزان في وضع عدم الاتصال دون توفر بيانات التسعير التعاقدية محلياً.');
         }
+      }
 
-        const localNetKg = grossWeight - tareWeight;
-        const localNetTons = parseFloat((localNetKg / 1000).toFixed(3));
-        const resolvedPricing = offlinePrereq.pricingRule;
-        const localSettlement = resolvedPricing.pricingType === 'PER_TON'
-          ? parseFloat((localNetTons * resolvedPricing.agreedRate).toFixed(2))
-          : resolvedPricing.agreedRate;
+      const localNetKg = grossWeight - tareWeight;
+      const localNetTons = parseFloat((localNetKg / 1000).toFixed(3));
+      const resolvedPricing = offlinePrereq?.pricingRule || activePricingRule;
 
-        const offlineTripId = `TRP-OFFLINE-${Date.now()}`;
-        const offlineSerial = `TRP-LOCAL-${Math.floor(1000 + Math.random() * 9000)}`;
-        const offlineTicket = `WB-TKT-LOCAL-${Math.floor(100000 + Math.random() * 900000)}`;
+      const rate = resolvedPricing?.agreedRate || 0;
+      const localSettlement = resolvedPricing?.pricingType === 'PER_TON'
+        ? parseFloat((localNetTons * rate).toFixed(2))
+        : rate;
 
-        const offlineRecord: TripRecord = {
-          tripId: offlineTripId,
-          projectId,
-          tripSerial: offlineSerial,
-          ticketId: offlineTicket,
-          truckId,
-          driverId,
-          carrierId,
-          materialId,
-          shiftDate,
-          tareWeight,
-          grossWeight,
-          netWeight: localNetKg,
-          destNetWeight: null,
-          varianceWeight: null,
+      const clientTripId = `TRP-CLIENT-${Date.now()}`;
+      const clientSerial = `TRP-LOCAL-${Math.floor(1000 + Math.random() * 9000)}`;
+      const clientTicket = `WB-TKT-LOCAL-${Math.floor(100000 + Math.random() * 900000)}`;
+
+      const clientRecord: TripRecord = {
+        tripId: clientTripId,
+        projectId,
+        tripSerial: clientSerial,
+        ticketId: clientTicket,
+        truckId,
+        driverId,
+        carrierId,
+        materialId,
+        shiftDate,
+        tareWeight,
+        grossWeight,
+        netWeight: localNetKg,
+        destNetWeight: null,
+        varianceWeight: null,
+        pricingRuleId: resolvedPricing?.pricingRuleId || pricingRuleId || '',
+        pricingType: (resolvedPricing?.pricingType === 'PER_TON' ? 'PER_TON' : 'PER_TRIP') as TripPricingType,
+        agreedRate: rate,
+        currency: resolvedPricing?.currency || 'SAR',
+        settlementBase: resolvedPricing?.pricingType === 'PER_TON' ? localNetTons : 1,
+        settlementAmount: localSettlement,
+        loaderId: authContext.userId,
+        unloaderId: null,
+        status: 'IN_TRANSIT',
+        version: 1,
+        loadTime: nowIso,
+        arrivalTime: null,
+        unloadTime: null,
+        notes: `[تذكرة ميزان منشأة ميدانياً] الصافي: ${localNetKg.toLocaleString()} كجم`,
+        createdAt: nowIso,
+        createdBy: authContext.userId,
+        updatedAt: nowIso,
+        updatedBy: authContext.userId,
+        pricingSnapshot: resolvedPricing ? {
           pricingRuleId: resolvedPricing.pricingRuleId,
           pricingType: resolvedPricing.pricingType,
           agreedRate: resolvedPricing.agreedRate,
           currency: resolvedPricing.currency || 'SAR',
           settlementBase: resolvedPricing.pricingType === 'PER_TON' ? localNetTons : 1,
           settlementAmount: localSettlement,
-          loaderId: authContext.userId,
-          unloaderId: null,
-          status: 'IN_TRANSIT',
-          version: 1,
-          loadTime: nowIso,
-          arrivalTime: null,
-          unloadTime: null,
-          notes: `[تذكرة ميزان منشأة محلياً دون اتصال] الصافي: ${localNetKg.toLocaleString()} كجم`,
-          createdAt: nowIso,
-          createdBy: authContext.userId,
-          updatedAt: nowIso,
-          updatedBy: authContext.userId,
-          pricingSnapshot: {
-            pricingRuleId: resolvedPricing.pricingRuleId,
-            pricingType: resolvedPricing.pricingType,
-            agreedRate: resolvedPricing.agreedRate,
-            currency: resolvedPricing.currency || 'SAR',
-            settlementBase: resolvedPricing.pricingType === 'PER_TON' ? localNetTons : 1,
-            settlementAmount: localSettlement,
-            ruleName: resolvedPricing.name,
-            pricingSnapshotAt: nowIso,
-            effectiveFrom: resolvedPricing.effectiveFrom,
-            effectiveTo: resolvedPricing.effectiveTo
-          }
-        };
+          ruleName: resolvedPricing.name,
+          pricingSnapshotAt: nowIso,
+          effectiveFrom: resolvedPricing.effectiveFrom,
+          effectiveTo: resolvedPricing.effectiveTo
+        } : undefined
+      };
 
-        // Store in IndexedDB and enqueue in Outbox
-        await indexedDBService.put('trips', offlineRecord);
-        await outboxService.queueOperation({
-          operationType: 'CREATE_TRIP_LOADING',
-          projectId: offlineRecord.projectId,
-          userId: authContext.userId,
-          payload: offlineRecord
-        });
+      // Store in IndexedDB and enqueue in Outbox
+      await indexedDBService.put('trips', clientRecord);
+      const queuedOp = await outboxService.queueOperation({
+        operationType: 'CREATE_TRIP_LOADING',
+        projectId: clientRecord.projectId,
+        userId: authContext.userId,
+        payload: clientRecord
+      });
 
-        setCreatedTrip(offlineRecord);
-        if (onTripCreated) onTripCreated(offlineRecord);
+      if (isOnline && !isSimulatedOffline) {
+        const syncResult = await outboxService.syncAll(false);
+        const syncedRecord = await indexedDBService.getById<any>('trips', clientRecord.tripId);
+        
+        if (syncResult.failedCount > 0) {
+          const ops = await outboxService.getOperations();
+          const opAfterSync = ops.find(o => o.operationId === queuedOp.operationId);
+          throw new Error(opAfterSync?.errorReason || 'فشلت مزامنة تذكرة الميزان مع الخادم.');
+        }
+
+        const finalTrip = syncedRecord || clientRecord;
+        setCreatedTrip(finalTrip);
+        if (onTripCreated) onTripCreated(finalTrip);
         if (onNotification) {
           onNotification({
             type: 'SUCCESS',
-            message: `تم إنشاء وتوثيق تذكرة التحميل محلياً [${offlineRecord.tripSerial}] وإدراجها في صندوق العمليات المعلقة (Outbox).`
+            message: `تم إنشاء تذكرة الميزان [${finalTrip.tripSerial}] وتزامنها مع الخادم بنجاح! الحالة التشغيلية: IN_TRANSIT.`
           });
         }
-        return;
-      }
-
-      // ONLINE PATH: Use existing trip engine service with strict server calculations
-      const result = tripEngineService.createTripViaLoadingStation({
-        projectId,
-        carrierId,
-        truckId,
-        driverId,
-        materialId,
-        pricingRuleId: activePricingRule?.pricingRuleId || pricingRuleId,
-        shiftDate,
-        tareWeight,
-        grossWeight,
-        loaderId: authContext.userId,
-        notes: `تم الإصدار الميداني عبر واجهة مشغل ميزان التحميل (${authContext.displayName})`
-      }, {
-        actorId: authContext.userId,
-        actorName: authContext.displayName,
-        actorRole: (authContext.role as unknown as TripActorRole) || 'SCALE_OPERATOR'
-      });
-
-      setCreatedTrip(result.trip);
-      if (onTripCreated) onTripCreated(result.trip);
-      if (onNotification) {
-        onNotification({
-          type: 'SUCCESS',
-          message: `تم إصدار وترحيل تذكرة الميزان [${result.trip.tripSerial}] بنجاح! الحالة التشغيلية: IN_TRANSIT.`
-        });
+      } else {
+        // Offline / simulated offline path
+        setCreatedTrip(clientRecord);
+        if (onTripCreated) onTripCreated(clientRecord);
+        if (onNotification) {
+          onNotification({
+            type: 'SUCCESS',
+            message: `تم إنشاء وتوثيق تذكرة التحميل محلياً [${clientRecord.tripSerial}] وإدراجها في صندوق العمليات المعلقة (Outbox).`
+          });
+        }
       }
     } catch (err: any) {
       if (onNotification) {

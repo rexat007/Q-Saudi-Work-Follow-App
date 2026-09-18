@@ -19,10 +19,7 @@
 
 import { indexedDBService } from './indexedDB.service';
 import { OutboxOperation, OutboxStatus, OutboxStats } from '../../types/offline';
-import { tripEngineService, MasterPricingRule } from '../tripEngine.service';
-import { tripStateMachine } from '../tripStateMachine.service';
 import { syncOperationRepository } from '../../repositories/syncOperation.repository';
-import { TripRecord, TripLifecycleEvent, TripAuditLog } from '../../types/tripEngine';
 import { conflictResolutionService } from './conflictResolution.service';
 import { auth } from '../../firebase/config';
 
@@ -116,7 +113,7 @@ export class OutboxService {
       return { processedCount: 0, syncedCount: 0, failedCount: 0, conflictCount: 0 };
     }
 
-    if (isSimulatedOffline || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+    if (isSimulatedOffline || (typeof navigator !== 'undefined' && navigator.onLine === false)) {
       return { processedCount: 0, syncedCount: 0, failedCount: 0, conflictCount: 0 };
     }
 
@@ -182,28 +179,30 @@ export class OutboxService {
             continue;
           }
 
-          // Step 4: Commit to authoritative stores
-          let commitResult: { tripId: string; tripSerial: string; version: number };
+          // Step 4: Commit to authoritative stores via canonical replay path
+          let commitResult: { tripId: string; tripSerial: string; version: number } = { tripId: '', tripSerial: '', version: 1 };
 
-          if (!isSimulatedOffline && typeof window !== 'undefined' && navigator.onLine) {
-            // Real network sync: make Express API request
-            let token = '';
-            try {
-              if (auth.currentUser) {
-                token = await auth.currentUser.getIdToken();
-              }
-            } catch (tokErr) {
-              console.warn('[OutboxService] Failed to get auth ID token, continuing with empty header:', tokErr);
+          let token = '';
+          try {
+            if (auth.currentUser) {
+              token = await auth.currentUser.getIdToken();
             }
+          } catch (tokErr) {
+            console.warn('[OutboxService] Failed to get auth ID token, continuing with empty header:', tokErr);
+          }
 
-            const headers: Record<string, string> = {
-              'Content-Type': 'application/json',
-            };
-            if (token) {
-              headers['Authorization'] = `Bearer ${token}`;
-            }
+          const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+          };
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
 
-            const response = await fetch(`/api/projects/${op.projectId}/trips`, {
+          const baseUrl = typeof window !== 'undefined' ? '' : (process.env.TEST_API_URL || 'http://localhost:3000');
+          
+          let response: Response;
+          if (op.operationType === 'CREATE_TRIP_LOADING') {
+            response = await fetch(`${baseUrl}/api/projects/${op.projectId}/trips`, {
               method: 'POST',
               headers,
               body: JSON.stringify({
@@ -211,73 +210,164 @@ export class OutboxService {
                 operationId: op.operationId,
               }),
             });
+          } else if (op.operationType === 'UPDATE_TRIP_STATUS') {
+            const tripId = op.payload.tripId;
+            response = await fetch(`${baseUrl}/api/projects/${op.projectId}/trips/${tripId}/status`, {
+              method: 'PATCH',
+              headers,
+              body: JSON.stringify({
+                status: op.payload.status,
+                payload: op.payload,
+                operationId: op.operationId,
+              }),
+            });
+          } else if (op.operationType === 'RECORD_RECEIPT') {
+            const tripId = op.payload.tripId;
+            response = await fetch(`${baseUrl}/api/projects/${op.projectId}/trips/${tripId}/receipt`, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({
+                destinationTareKg: op.payload.destinationTareKg,
+                destinationGrossKg: op.payload.destinationGrossKg,
+                destinationTicketNo: op.payload.destinationTicketNo,
+                operationId: op.operationId,
+              }),
+            });
+          } else if (op.operationType === 'REPORT_EXCEPTION') {
+            const tripId = op.payload.tripId;
+            response = await fetch(`${baseUrl}/api/projects/${op.projectId}/trips/${tripId}/exceptions`, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({
+                exceptionId: op.payload.exceptionId,
+                type: op.payload.type,
+                severity: op.payload.severity,
+                descriptionAr: op.payload.descriptionAr,
+                descriptionEn: op.payload.descriptionEn,
+                operationId: op.operationId,
+              }),
+            });
+          } else {
+            throw new Error(`نوع العملية غير مدعوم في المزامنة: ${op.operationType}`);
+          }
 
-            if (!response.ok) {
-              const errData = await response.json().catch(() => ({}));
-              throw new Error(errData.error || `فشلت مزامنة الرحلة مع السيرفر (كود: ${response.status})`);
-            }
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || `فشلت مزامنة العملية مع السيرفر (كود: ${response.status})`);
+          }
 
-            const resData = await response.json();
+          const resData = await response.json();
+
+          if (op.operationType === 'CREATE_TRIP_LOADING') {
             const serverTrip = resData.trip;
-
-            // Delete the temporary trip if it exists
             if (op.payload.tripId) {
               await indexedDBService.delete('trips', op.payload.tripId);
             }
-            // Save the server-allocated authoritative trip record into local IndexedDB
             await indexedDBService.put('trips', serverTrip);
-
-            // Also synchronize in-memory state of tripEngineService if active
-            const existingTrips = tripEngineService.getTrips();
-            const exIdx = existingTrips.findIndex(t => t.tripId === serverTrip.tripId || t.tripId === op.payload.tripId);
-            if (exIdx !== -1) {
-              existingTrips[exIdx] = serverTrip;
-            } else {
-              (tripEngineService as any).trips = [serverTrip, ...existingTrips];
-            }
 
             commitResult = {
               tripId: serverTrip.tripId,
               tripSerial: serverTrip.tripNumber || serverTrip.tripSerial,
               version: serverTrip.version,
             };
-          } else {
-            // Simulated local memory commit
-            commitResult = this.commitOperation(op);
-          }
 
-          // Register idempotency entry in syncOperationRepository
-          try {
-            await syncOperationRepository.create({
-              operationId: op.operationId,
-              projectId: op.projectId,
-              clientOperationUUID: op.operationId,
-              targetCollection: 'trips',
-              targetDocId: commitResult.tripId,
-              status: 'PROCESSED',
-              processedResponse: {
+            try {
+              await syncOperationRepository.create({
+                operationId: op.operationId,
+                projectId: op.projectId,
+                clientOperationUUID: op.operationId,
+                targetCollection: 'trips',
+                targetDocId: commitResult.tripId,
+                status: 'PROCESSED',
+                processedResponse: {
+                  tripSerial: commitResult.tripSerial,
+                  committedAt: new Date().toISOString(),
+                },
+                createdBy: op.userId,
+                updatedBy: op.userId,
+              });
+            } catch {
+              // Non-fatal
+            }
+
+            await indexedDBService.updateOutboxStatus(op.operationId, 'SYNCED', {
+              syncedAt: new Date().toISOString(),
+              serverAck: {
+                tripId: commitResult.tripId,
                 tripSerial: commitResult.tripSerial,
+                serverVersion: commitResult.version,
                 committedAt: new Date().toISOString(),
+                messageAr: 'تمت المصادقة والاعتماد الخادومي بنجاح (ACK Confirmed)',
               },
-              createdBy: op.userId,
-              updatedBy: op.userId,
             });
-          } catch {
-            // Non-fatal if repository fails
-          }
+            syncedCount++;
+          } else if (op.operationType === 'UPDATE_TRIP_STATUS') {
+            const serverTrip = resData.trip;
+            await indexedDBService.put('trips', serverTrip);
 
-          // Step 5: ACK
-          await indexedDBService.updateOutboxStatus(op.operationId, 'SYNCED', {
-            syncedAt: new Date().toISOString(),
-            serverAck: {
-              tripId: commitResult.tripId,
-              tripSerial: commitResult.tripSerial,
-              serverVersion: commitResult.version,
-              committedAt: new Date().toISOString(),
-              messageAr: 'تمت المصادقة والاعتماد الخادومي بنجاح (ACK Confirmed)',
-            },
-          });
-          syncedCount++;
+            commitResult = {
+              tripId: serverTrip.tripId,
+              tripSerial: serverTrip.tripNumber || serverTrip.tripSerial,
+              version: serverTrip.version,
+            };
+
+            await indexedDBService.updateOutboxStatus(op.operationId, 'SYNCED', {
+              syncedAt: new Date().toISOString(),
+              serverAck: {
+                tripId: commitResult.tripId,
+                tripSerial: commitResult.tripSerial,
+                serverVersion: commitResult.version,
+                committedAt: new Date().toISOString(),
+                messageAr: 'تم تحديث حالة الرحلة واعتمادها بنجاح خادومياً (ACK Confirmed)',
+              },
+            });
+            syncedCount++;
+          } else if (op.operationType === 'RECORD_RECEIPT') {
+            const serverTrip = resData.trip;
+            await indexedDBService.put('trips', serverTrip);
+
+            commitResult = {
+              tripId: serverTrip.tripId,
+              tripSerial: serverTrip.tripNumber || serverTrip.tripSerial,
+              version: serverTrip.version,
+            };
+
+            await indexedDBService.updateOutboxStatus(op.operationId, 'SYNCED', {
+              syncedAt: new Date().toISOString(),
+              serverAck: {
+                tripId: commitResult.tripId,
+                tripSerial: commitResult.tripSerial,
+                serverVersion: commitResult.version,
+                committedAt: new Date().toISOString(),
+                messageAr: 'تم تسجيل إيصال الاستلام وتحديث أوزان الوجهة بنجاح (ACK Confirmed)',
+              },
+            });
+            syncedCount++;
+          } else if (op.operationType === 'REPORT_EXCEPTION') {
+            const serverException = resData.exception;
+            
+            try {
+              const tripId = op.payload.tripId;
+              if (tripId) {
+                const localTrip = await indexedDBService.getById<any>('trips', tripId);
+                if (localTrip) {
+                  localTrip.hasExceptions = true;
+                  await indexedDBService.put('trips', localTrip);
+                }
+              }
+            } catch (err) {
+              console.warn('[OutboxService] Failed to update local trip with exceptions flag:', err);
+            }
+
+            await indexedDBService.updateOutboxStatus(op.operationId, 'SYNCED', {
+              syncedAt: new Date().toISOString(),
+              serverAck: {
+                committedAt: new Date().toISOString(),
+                messageAr: 'تم تسجيل الاستثناء التشغيلي بنجاح خادومياً (ACK Confirmed)',
+              },
+            });
+            syncedCount++;
+          }
         } catch (err: any) {
           await indexedDBService.updateOutboxStatus(op.operationId, 'FAILED', {
             retryCount: op.retryCount + 1,
@@ -303,7 +393,7 @@ export class OutboxService {
 
     if (op.operationType === 'CREATE_TRIP_LOADING') {
       const { tareWeight, grossWeight, pricingRuleId, truckId, carrierId, driverId, materialId } = op.payload;
-      if (!tareWeight || !grossWeight || grossWeight <= tareWeight) {
+      if (tareWeight !== undefined && grossWeight !== undefined && grossWeight <= tareWeight) {
         return `فشل التحقق الخادومي: الوزن القائم (${grossWeight}) غير صالح مقارنة بوزن الفارغ (${tareWeight})`;
       }
       if (!pricingRuleId) {
@@ -314,6 +404,27 @@ export class OutboxService {
       }
     }
 
+    if (op.operationType === 'UPDATE_TRIP_STATUS') {
+      const { tripId, status } = op.payload;
+      if (!tripId) return 'فشل التحقق الخادومي: معرف الرحلة مفقود';
+      if (!status) return 'فشل التحقق الخادومي: حالة الرحلة مفقودة';
+    }
+
+    if (op.operationType === 'RECORD_RECEIPT') {
+      const { tripId, destinationTareKg, destinationGrossKg } = op.payload;
+      if (!tripId) return 'فشل التحقق الخادومي: معرف الرحلة مفقود';
+      if (destinationTareKg !== undefined && destinationGrossKg !== undefined && destinationGrossKg <= destinationTareKg) {
+        return `فشل التحقق الخادومي: وزن الوجهة القائم (${destinationGrossKg}) يجب أن يكون أكبر من وزن الفارغ (${destinationTareKg})`;
+      }
+    }
+
+    if (op.operationType === 'REPORT_EXCEPTION') {
+      const { exceptionId, type, severity } = op.payload;
+      if (!exceptionId) return 'فشل التحقق الخادومي: معرف الاستثناء مفقود';
+      if (!type) return 'فشل التحقق الخادومي: نوع الاستثناء مفقود';
+      if (!severity) return 'فشل التحقق الخادومي: درجة خطورة الاستثناء مفقودة';
+    }
+
     return null;
   }
 
@@ -322,7 +433,7 @@ export class OutboxService {
    */
   private detectStateConflict(op: OutboxOperation): OutboxOperation['conflictDetails'] | null {
     if (op.operationType === 'CREATE_TRIP_LOADING') {
-      const existingTrip = tripEngineService.getTripById(op.payload.tripId);
+      const existingTrip = indexedDBService.getSync<any>('trips', op.payload.tripId);
       if (existingTrip && existingTrip.status === 'COMPLETED') {
         return {
           clientVersion: op.payload.version || 1,
@@ -336,115 +447,13 @@ export class OutboxService {
   }
 
   /**
-   * Commits the operation to authoritative memory/repositories.
+   * Prohibits local fallback business mutations.
+   * Authoritative trips must be committed through the canonical server/domain replay path.
    */
   private commitOperation(op: OutboxOperation): { tripId: string; tripSerial: string; version: number } {
-    if (op.operationType === 'CREATE_TRIP_LOADING') {
-      const p = op.payload;
-      const tripId = p.tripId || `TRP-${Date.now()}`;
-      const tripSerial = p.tripSerial || `TRP-NEOM-${Math.floor(1000 + Math.random() * 9000)}`;
-      const nowIso = new Date().toISOString();
-
-      // Pricing Invariance Mandate:
-      // If the trip was created offline with a valid Pricing Snapshot, do NOT alter the trip price later due to server price updates.
-      // The new server price applies strictly to future trips.
-      const snapshot = p.pricingSnapshot;
-      const agreedRate = snapshot?.agreedRate !== undefined ? snapshot.agreedRate : (p.agreedRate ?? 0);
-      const pricingType = snapshot?.pricingType || p.pricingType || 'PER_TON';
-      const pricingRuleId = snapshot?.pricingRuleId || p.pricingRuleId || 'UNRESOLVED_PENDING';
-      const ruleName = snapshot?.ruleName || 'تسعيرة وثيقة التحميل';
-
-      const calculatedNet = p.grossWeight - p.tareWeight;
-      const netTons = parseFloat((calculatedNet / 1000).toFixed(3));
-      
-      const settlementAmount = (snapshot && snapshot.settlementAmount !== undefined)
-        ? snapshot.settlementAmount
-        : (p.settlementAmount !== undefined 
-          ? p.settlementAmount 
-          : (pricingType === 'PER_TON' ? parseFloat((netTons * agreedRate).toFixed(2)) : agreedRate));
-
-      const serverTrip: TripRecord = {
-        tripId,
-        projectId: op.projectId,
-        tripSerial,
-        ticketId: p.ticketId || `WB-TKT-${Math.floor(100000 + Math.random() * 900000)}`,
-        truckId: p.truckId,
-        driverId: p.driverId,
-        carrierId: p.carrierId,
-        materialId: p.materialId,
-        shiftDate: p.shiftDate || '2026-09-09',
-        tareWeight: p.tareWeight,
-        grossWeight: p.grossWeight,
-        netWeight: calculatedNet,
-        destNetWeight: null,
-        varianceWeight: null,
-        pricingRuleId,
-        pricingType,
-        agreedRate,
-        currency: snapshot?.currency || p.currency || 'SAR',
-        settlementBase: pricingType === 'PER_TON' ? netTons : 1,
-        settlementAmount,
-        loaderId: p.loaderId || 'SCALE-OP-OFFLINE',
-        unloaderId: null,
-        status: 'IN_TRANSIT',
-        version: (p.version || 1) + 1,
-        loadTime: p.loadTime || nowIso,
-        arrivalTime: null,
-        unloadTime: null,
-        notes: `${p.notes || ''} [تمت مزامنة العملية خادومياً مع حماية لقطة التسعير الميدانية]`.trim(),
-        createdAt: p.createdAt || nowIso,
-        createdBy: op.userId,
-        updatedAt: nowIso,
-        updatedBy: op.userId,
-        pricingSnapshot: snapshot || {
-          pricingRuleId,
-          pricingType,
-          agreedRate,
-          currency: 'SAR',
-          settlementBase: pricingType === 'PER_TON' ? netTons : 1,
-          settlementAmount,
-          ruleName,
-          pricingSnapshotAt: nowIso,
-          effectiveFrom: '2026-01-01',
-          effectiveTo: '2026-12-31',
-        },
-        entitySnapshots: p.entitySnapshots,
-      };
-
-      // Add or update to trip service in-memory list
-      const existingTrips = tripEngineService.getTrips();
-      const exIdx = existingTrips.findIndex(t => t.tripId === tripId);
-      if (exIdx !== -1) {
-        existingTrips[exIdx] = serverTrip;
-      } else {
-        (tripEngineService as any).trips = [serverTrip, ...existingTrips];
-      }
-
-      // Record Lifecycle & Audit Events
-      const syncEvent: TripLifecycleEvent = {
-        eventId: `EVT-${Date.now()}-SYNC`,
-        tripId,
-        action: 'TRIP_GENESIS_DISPATCH',
-        fromStatus: 'LOADED',
-        toStatus: 'IN_TRANSIT',
-        actorId: op.userId,
-        actorRole: 'SCALE_OPERATOR',
-        actorName: 'مرحل العمليات (Outbox Sync)',
-        projectId: op.projectId,
-        timestamp: nowIso,
-        reason: `مزامنة واعتماد الرحلة خادومياً بعد اتصال الجهاز (${op.deviceId})`,
-        version: serverTrip.version,
-      };
-      tripStateMachine.addLifecycleEvent(syncEvent);
-
-      return {
-        tripId: serverTrip.tripId,
-        tripSerial: serverTrip.tripSerial,
-        version: serverTrip.version,
-      };
-    }
-
-    return { tripId: op.payload.tripId || 'N/A', tripSerial: 'N/A', version: 1 };
+    throw new Error(
+      `مسار الاعتماد المحلي القديم تم إيقافه. يجب ترحيل العملية (${op.operationId}) عبر مسار الاعتماد الخادومي المعتمد.`
+    );
   }
 
   /**

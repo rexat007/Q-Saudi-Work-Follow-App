@@ -1,0 +1,30 @@
+{
+  "logical_unit": "LU-P6-01",
+  "remediation_unit": "FSM Sequencing & Alignment",
+  "status": "PASSED",
+  "remediation_passed": true,
+  "files_modified": [
+    "/src/components/field/UnloadingOperatorView.tsx"
+  ],
+  "test_files_created": [
+    "/src/tests/fsmAlignmentUnloading.test.ts"
+  ],
+  "scenarios_verified": {
+    "Scenario_A": "Valid arrival: IN_TRANSIT -> AT_DESTINATION",
+    "Scenario_B": "Invalid direct OFFLOADED attempt: AT_DESTINATION -> OFFLOADED blocked",
+    "Scenario_C": "Receipt: RECORD_RECEIPT -> WEIGHED_DESTINATION",
+    "Scenario_D": "Offload: WEIGHED_DESTINATION -> OFFLOADED",
+    "Scenario_E": "Complete: OFFLOADED -> COMPLETED",
+    "Scenario_F": "Full valid unloading sequence: RECORD_RECEIPT -> OFFLOADED -> COMPLETED",
+    "Scenario_G": "Intermediate failure safety: Failure prevents state promotion to COMPLETED",
+    "Scenario_H": "Regression: All existing Block 130 and 132 tests pass with zero drift"
+  },
+  "compilation_status": "SUCCESS",
+  "lint_status": "SUCCESS",
+  "architecture_constraints_met": {
+    "phase_5_unaltered": true,
+    "no_new_sync_engine": true,
+    "online_offline_unified": true,
+    "server_authoritative": true
+  }
+}

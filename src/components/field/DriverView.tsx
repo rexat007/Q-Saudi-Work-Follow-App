@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Truck, MapPin, Navigation, QrCode, WifiOff, ShieldAlert } from 'lucide-react';
 import { AuthUserContext } from '../../types/common';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { useI18n } from '../../i18n';
-import { tripEngineService } from '../../services/tripEngine.service';
+import { indexedDBService } from '../../services/offline/indexedDB.service';
+import { outboxService } from '../../services/offline/outbox.service';
+import { tripRepository } from '../../repositories/trip.repository';
 
 export interface DriverViewProps {
   authContext: AuthUserContext;
@@ -12,6 +14,34 @@ export interface DriverViewProps {
 export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
   const { isOnline, isSimulatedOffline } = useOnlineStatus();
   const { t } = useI18n();
+
+  const [activeTrip, setActiveTrip] = useState<any | null>(null);
+
+  const refreshActiveTrip = useCallback(async () => {
+    try {
+      if (isOnline && authContext?.assignedProjectIds && authContext.assignedProjectIds.length > 0) {
+        for (const pId of authContext.assignedProjectIds) {
+          const remoteTrips = await tripRepository.listByProject(pId).catch(() => []);
+          if (remoteTrips && remoteTrips.length > 0) {
+            await indexedDBService.putMany('trips', remoteTrips).catch(() => {});
+          }
+        }
+      }
+
+      const all: any[] = await indexedDBService.getAll('trips').catch(() => []);
+      const driverActive = all.find(t => 
+        (t.driverId === authContext.userId || t.assignedDriverId === authContext.userId) && 
+        (t.status === 'LOADED' || t.status === 'IN_TRANSIT' || t.status === 'ARRIVED' || t.status === 'UNLOADING')
+      );
+      setActiveTrip(driverActive || null);
+    } catch (e) {
+      console.warn('[DriverView] Failed to refresh active trip:', e);
+    }
+  }, [authContext, isOnline]);
+
+  useEffect(() => {
+    refreshActiveTrip();
+  }, [refreshActiveTrip]);
 
   // Role Guard
   if (authContext.role !== 'DRIVER') {
@@ -26,27 +56,40 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
     );
   }
 
-  // Dynamic active trip resolution from trip engine
-  const activeTrip = useMemo(() => {
-    const allTrips = tripEngineService.getAllTrips();
-    return allTrips.find(t => 
-      (t.driverId === authContext.userId) && 
-      (t.status === 'LOADED' || t.status === 'IN_TRANSIT' || t.status === 'ARRIVED' || t.status === 'UNLOADING')
-    ) || null;
-  }, [authContext.userId]);
-
-  const handleRecordArrival = () => {
+  const handleRecordArrival = async () => {
     if (!activeTrip) return;
     try {
-      tripEngineService.processUnloadingArrival(
-        activeTrip.tripId,
-        new Date().toISOString(),
-        {
+      const now = new Date().toISOString();
+      const updatedTrip = {
+        ...activeTrip,
+        status: 'ARRIVED',
+        arrivedAt: now,
+        updatedAt: now,
+        updatedBy: authContext.userId,
+      };
+
+      await indexedDBService.put('trips', updatedTrip);
+
+      await outboxService.queueOperation({
+        projectId: activeTrip.projectId,
+        userId: authContext.userId,
+        operationType: 'UPDATE_TRIP_STATUS',
+        payload: {
+          tripId: activeTrip.tripId,
+          status: 'AT_DESTINATION',
+          arrivedAt: now,
+          timestamp: now,
           actorId: authContext.userId,
           actorName: authContext.displayName || 'السائق',
-          actorRole: 'DRIVER'
-        }
-      );
+          actorRole: 'DRIVER',
+        },
+      });
+
+      if (isOnline && !isSimulatedOffline) {
+        await outboxService.syncAll(false).catch(() => {});
+      }
+
+      setActiveTrip(updatedTrip);
     } catch (e: any) {
       console.warn('Failed to record arrival:', e);
     }

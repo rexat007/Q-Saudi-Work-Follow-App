@@ -16,6 +16,7 @@ import { pricingService } from "../pricing.service";
  *    - The new server price applies strictly to FUTURE trips.
  */
 
+import { MASTER_PRICING_RULES } from '../../data/masterPricingRules';
 import { indexedDBService } from './indexedDB.service';
 import { 
   ConflictRecord, 
@@ -27,7 +28,7 @@ import {
   ConflictPricingProtection 
 } from '../../types/conflict';
 import { OutboxOperation } from '../../types/offline';
-import { tripEngineService, MasterPricingRule } from '../tripEngine.service';
+import { MasterPricingRule } from '../tripEngine.service';
 import { tripStateMachine } from '../tripStateMachine.service';
 import { TripRecord, TripLifecycleEvent } from '../../types/tripEngine';
 
@@ -40,6 +41,20 @@ class ConflictResolutionService {
 
   constructor() {
     this.initFromStorage();
+  }
+
+  /**
+   * Retrieves non-authoritative local cached trip for offline conflict inspection.
+   */
+  public getCachedTripById(tripId: string): any {
+    return indexedDBService.getSync<any>('trips', tripId);
+  }
+
+  /**
+   * Retrieves non-authoritative local cached trips collection for offline conflict inspection.
+   */
+  public getCachedTrips(): any[] {
+    return indexedDBService.getAllSync<any>('trips');
   }
 
   private async initFromStorage() {
@@ -66,7 +81,7 @@ class ConflictResolutionService {
 
     // 1. Check for TRIP_ALREADY_COMPLETED & TRIP_ALREADY_RETURNED & VERSION_CONFLICT on existing trip
     if (tripId) {
-      const serverTrip = tripEngineService.getTripById(tripId);
+      const serverTrip = this.getCachedTripById(tripId);
       if (serverTrip) {
         // 1a. TRIP_ALREADY_COMPLETED
         if (serverTrip.status === 'COMPLETED' && payload.status !== 'COMPLETED') {
@@ -175,7 +190,7 @@ class ConflictResolutionService {
 
     // 2. DUPLICATE_OPERATION: Check for duplicate ticketId or tripSerial on distinct trip
     if (payload.ticketId) {
-      const existingWithTicket = tripEngineService.getTrips().find(t => 
+      const existingWithTicket = this.getCachedTrips().find(t => 
         t.ticketId === payload.ticketId && t.tripId !== tripId
       );
       if (existingWithTicket) {
@@ -210,9 +225,12 @@ class ConflictResolutionService {
     // 3. PRICING_CHANGED: Server pricing rule updated compared to local creation snapshot
     const pricingRuleId = payload.pricingRuleId || payload.pricingSnapshot?.pricingRuleId;
     if (pricingRuleId) {
-      let currentServerRule = pricingService.getRules().find(r => r.pricingRuleId === pricingRuleId);
+      let currentServerRule = pricingService.getRules().find(r => r.pricingRuleId === pricingRuleId)
+        || MASTER_PRICING_RULES.find(r => r.pricingRuleId === pricingRuleId);
       if (!currentServerRule && (pricingRuleId === 'PRC-AGG-TON-01' || pricingRuleId === 'PRC-NEOM-AGG-TON-01')) {
-        currentServerRule = pricingService.getRules().find(r => r.pricingRuleId === 'PRC-NEOM-HAUL-TON-8.5') || pricingService.getRules()[0];
+        currentServerRule = pricingService.getRules().find(r => r.pricingRuleId === 'PRC-NEOM-HAUL-TON-8.5') 
+          || MASTER_PRICING_RULES.find(r => r.pricingRuleId === 'PRC-NEOM-HAUL-TON-8.5')
+          || pricingService.getRules()[0];
       }
       const localSnapshot = payload.pricingSnapshot;
 
@@ -412,6 +430,15 @@ class ConflictResolutionService {
     return record;
   }
 
+  private sanitizePayload(payload: Record<string, any>): Record<string, any> {
+    const cleaned = { ...payload };
+    delete cleaned.pricingSnapshot;
+    delete cleaned.settlementAmount;
+    delete cleaned.financials;
+    delete cleaned.tripNumber;
+    return cleaned;
+  }
+
   /**
    * Resolves a conflict with an explicit resolution strategy.
    * Mandate: "require explicit resolution"
@@ -438,120 +465,92 @@ class ConflictResolutionService {
     let committedTrip: TripRecord | undefined;
     let messageAr = '';
 
+    const localPayload = conflict.localCommand.payload;
+    const updatedPayload = { ...localPayload };
+    const mutatingStrategies: ResolutionStrategy[] = [
+      'PRESERVE_PRICING_SNAPSHOT',
+      'OVERRIDE_TO_NEW_PRICING',
+      'FORCE_CLIENT_STATE',
+      'ASSIGN_NEW_SERIAL',
+      'UPDATE_MASTER_DATA_RELATION'
+    ];
+    const isMutating = mutatingStrategies.includes(resolution.strategy);
+
     // Apply strategy based on user/supervisor explicit decision
     switch (resolution.strategy) {
       // 1. For PRICING_CHANGED: Preserve original offline snapshot
       case 'PRESERVE_PRICING_SNAPSHOT': {
-        const localPayload = conflict.localCommand.payload;
-        // Keep the exact snapshot rate and settlement amount recorded at loading
-        const snapshot = localPayload.pricingSnapshot || {
-          agreedRate: localPayload.agreedRate || 8.5,
-          pricingType: localPayload.pricingType || 'PER_TON',
-          settlementAmount: localPayload.settlementAmount,
-          ruleName: 'تسعيرة وثيقة التحميل المحمية',
-        };
-
-        const serverTrip = this.commitTripWithPreservedSnapshot(localPayload, snapshot, resolution.resolvedBy);
-        committedTrip = serverTrip;
-        messageAr = `تم تأكيد واعتماد الرحلة مع المحافظة التامة على سعر اللقطة التعاقدية الأصلية (${snapshot.agreedRate} ر.س) دون تأثر بتحديث الأسعار الخادومي.`;
+        // Keep the original payload as is, server will use the pricingRuleId canonically on replay
+        messageAr = `تمت إعادة جدولة العملية للمزامنة مع المحافظة على سعر اللقطة التعاقدية الأصلية دون تأثر بتحديث الأسعار الخادومي.`;
         break;
       }
 
       // 1b. Exceptional override to new pricing
       case 'OVERRIDE_TO_NEW_PRICING': {
-        const localPayload = conflict.localCommand.payload;
         const newRule = conflict.serverState.pricingRule;
         if (!newRule) {
           throw new Error('بيانات السعر الجديد للخادم غير متوفرة للتطبيق');
         }
-        const netTons = (localPayload.grossWeight - localPayload.tareWeight) / 1000;
-        const updatedAmount = newRule.pricingType === 'PER_TON'
-          ? parseFloat((netTons * newRule.agreedRate).toFixed(2))
-          : newRule.agreedRate;
-
-        const overriddenSnapshot = {
-          pricingRuleId: newRule.pricingRuleId,
-          pricingType: newRule.pricingType,
-          agreedRate: newRule.agreedRate,
-          settlementAmount: updatedAmount,
-          ruleName: newRule.name,
-          pricingSnapshotAt: nowIso,
-          effectiveFrom: newRule.effectiveFrom,
-          effectiveTo: newRule.effectiveTo,
-        };
-
-        const serverTrip = this.commitTripWithPreservedSnapshot(
-          { ...localPayload, settlementAmount: updatedAmount, agreedRate: newRule.agreedRate },
-          overriddenSnapshot,
-          resolution.resolvedBy
-        );
-        committedTrip = serverTrip;
-        messageAr = `تم تطبيق السعر الجديد استثنائياً (${newRule.agreedRate} ر.س) بناء على اعتماد المشرف.`;
+        updatedPayload.pricingRuleId = newRule.pricingRuleId;
+        messageAr = `تمت إعادة جدولة العملية وتحديث قاعدة التسعير لتطبيق السعر الجديد (${newRule.agreedRate} ر.س) بناء على اعتماد المشرف.`;
         break;
       }
 
       // 2. Accept Server State
       case 'ACCEPT_SERVER_STATE': {
         // Keep the server's current state and cancel local conflicting mutations
+        if (conflict.serverState.trip) {
+          await indexedDBService.put('trips', conflict.serverState.trip);
+          committedTrip = conflict.serverState.trip;
+        }
+        if (conflict.tripId) {
+          await indexedDBService.delete('trips', conflict.tripId);
+        }
         messageAr = 'تم اعتماد حالة الخادم بنجاح وإلغاء التعارض المحلي.';
         break;
       }
 
       // 3. Force Client State (with supervisor audit justification)
       case 'FORCE_CLIENT_STATE': {
-        const localPayload = conflict.localCommand.payload;
-        const existingTrip = conflict.tripId ? tripEngineService.getTripById(conflict.tripId) : undefined;
-        const targetVersion = (existingTrip?.version || conflict.serverState.serverVersion || 1) + 1;
-
-        committedTrip = this.commitTripWithPreservedSnapshot(
-          { ...localPayload, version: targetVersion },
-          localPayload.pricingSnapshot,
-          resolution.resolvedBy
-        );
-        messageAr = `تم فرض الأمر المحلي واعتماده بالإصدار الجديد v${targetVersion} مع توثيق التدقيق.`;
+        const targetVersion = (conflict.serverState.serverVersion || 1) + 1;
+        updatedPayload.version = targetVersion;
+        messageAr = `تم فرض الأمر المحلي وإعادة جدولة العملية بالإصدار الجديد v${targetVersion} مع توثيق التدقيق.`;
         break;
       }
 
       // 4. Discard Duplicate
       case 'DISCARD_DUPLICATE': {
+        if (conflict.tripId) {
+          await indexedDBService.delete('trips', conflict.tripId);
+        }
         messageAr = 'تم استبعاد وتجاهل العملية المكررة بنجاح.';
         break;
       }
 
       // 5. Assign New Ticket Serial
       case 'ASSIGN_NEW_SERIAL': {
-        const localPayload = { ...conflict.localCommand.payload };
         const newTicketId = `WB-REISSUE-${Date.now()}`;
         const newTripSerial = `TRP-REISSUE-${Math.floor(1000 + Math.random() * 9000)}`;
-        localPayload.ticketId = newTicketId;
-        localPayload.tripSerial = newTripSerial;
-
-        committedTrip = this.commitTripWithPreservedSnapshot(
-          localPayload,
-          localPayload.pricingSnapshot,
-          resolution.resolvedBy
-        );
-        messageAr = `تمت إعادة إصدار تذكرة ميزان جديدة برقم (${newTicketId}) واعتماد الرحلة بنجاح.`;
+        updatedPayload.ticketId = newTicketId;
+        updatedPayload.tripSerial = newTripSerial;
+        messageAr = `تمت إعادة إصدار تذكرة ميزان جديدة برقم (${newTicketId}) وإعادة جدولة الرحلة للمزامنة.`;
         break;
       }
 
       // 6. Update Master Data Relation
       case 'UPDATE_MASTER_DATA_RELATION': {
-        const localPayload = { ...conflict.localCommand.payload };
         if (conflict.serverState.masterData?.serverCarrierId) {
-          localPayload.carrierId = conflict.serverState.masterData.serverCarrierId;
+          updatedPayload.carrierId = conflict.serverState.masterData.serverCarrierId;
         }
-        committedTrip = this.commitTripWithPreservedSnapshot(
-          localPayload,
-          localPayload.pricingSnapshot,
-          resolution.resolvedBy
-        );
-        messageAr = 'تمت تسوية ومطابقة التبعية مع البيانات الأساسية للخادم واعتماد الرحلة.';
+        messageAr = 'تمت تسوية ومطابقة التبعية مع البيانات الأساسية للخادم وإعادة جدولة الرحلة.';
         break;
       }
 
       // 7. Cancel Local Operation
       case 'CANCEL_LOCAL_OPERATION': {
+        if (conflict.tripId) {
+          await indexedDBService.delete('trips', conflict.tripId);
+        }
         messageAr = 'تم إلغاء العملية المحلية وحفظ سجل المراجعة التدقيقية.';
         break;
       }
@@ -581,17 +580,31 @@ class ConflictResolutionService {
       resolution: updatedDetails,
     });
 
-    // Update outbox status to SYNCED now that conflict is explicitly resolved
+    // Update outbox status to PENDING (for mutating) or SYNCED (for non-mutating)
     if (conflict.operationId) {
-      await indexedDBService.updateOutboxStatus(conflict.operationId, 'SYNCED', {
-        syncedAt: nowIso,
-        serverAck: {
-          tripId: committedTrip?.tripId || conflict.tripId,
-          tripSerial: committedTrip?.tripSerial || conflict.tripSerial,
-          committedAt: nowIso,
-          messageAr: `تم حل التعارض واعتماد العملية: ${messageAr}`,
-        },
-      });
+      if (isMutating) {
+        const sanitized = this.sanitizePayload(updatedPayload);
+        await indexedDBService.updateOutboxStatus(conflict.operationId, 'PENDING', {
+          payload: sanitized,
+          retryCount: 0,
+          errorReason: undefined,
+        });
+
+        // Trigger a sync run dynamically to process the pending operation canonically
+        import('./outbox.service').then(({ outboxService }) => {
+          outboxService.syncAll(false).catch(console.error);
+        });
+      } else {
+        await indexedDBService.updateOutboxStatus(conflict.operationId, 'SYNCED', {
+          syncedAt: nowIso,
+          serverAck: {
+            tripId: conflict.tripId,
+            tripSerial: conflict.tripSerial,
+            committedAt: nowIso,
+            messageAr: `تم حل التعارض محلياً: ${messageAr}`,
+          },
+        });
+      }
     }
 
     // Record Lifecycle & Audit Trail Event
@@ -672,16 +685,7 @@ class ConflictResolutionService {
       pricingSnapshot: snapshot,
     };
 
-    // Store in tripEngineService memory
-    const existing = tripEngineService.getTrips();
-    const idx = existing.findIndex(t => t.tripId === tripId);
-    if (idx !== -1) {
-      existing[idx] = trip;
-    } else {
-      (tripEngineService as any).trips = [trip, ...existing];
-    }
-
-    // Also persist in IndexedDB
+    // Persist locally in IndexedDB trips store
     indexedDBService.put('trips', trip).catch(() => {});
 
     return trip;
@@ -786,7 +790,7 @@ class ConflictResolutionService {
       }
 
       case 'VERSION_CONFLICT': {
-        const existing = tripEngineService.getTrips()[0];
+        const existing = this.getCachedTrips()[0];
         op = {
           operationId: fakeOpId,
           projectId: existing?.projectId || 'PRJ-NEOM-NORTH',
@@ -809,7 +813,7 @@ class ConflictResolutionService {
       }
 
       case 'TRIP_ALREADY_COMPLETED': {
-        const existing = tripEngineService.getTrips().find(t => t.status === 'COMPLETED') || tripEngineService.getTrips()[0];
+        const existing = this.getCachedTrips().find(t => t.status === 'COMPLETED') || this.getCachedTrips()[0];
         op = {
           operationId: fakeOpId,
           projectId: existing?.projectId || 'PRJ-NEOM-NORTH',
@@ -827,17 +831,19 @@ class ConflictResolutionService {
             notes: 'محاولة إعادة ترحيل أو تعديل رحلة اكتملت وتفرغت بالفعل في الموقع',
           },
         };
-        // Ensure server trip is COMPLETED
+        // Ensure server trip is COMPLETED in local cache
         if (existing) {
           (existing as any).status = 'COMPLETED';
+          indexedDBService.put('trips', existing).catch(() => {});
         }
         break;
       }
 
       case 'TRIP_ALREADY_RETURNED': {
-        const existing = tripEngineService.getTrips()[1] || tripEngineService.getTrips()[0];
+        const existing = this.getCachedTrips()[1] || this.getCachedTrips()[0];
         if (existing) {
           (existing as any).status = 'RETURNED';
+          indexedDBService.put('trips', existing).catch(() => {});
         }
         op = {
           operationId: fakeOpId,
@@ -860,7 +866,7 @@ class ConflictResolutionService {
       }
 
       case 'DUPLICATE_OPERATION': {
-        const existing = tripEngineService.getTrips()[0];
+        const existing = this.getCachedTrips()[0];
         op = {
           operationId: fakeOpId,
           projectId: 'PRJ-NEOM-NORTH',

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ShieldAlert, 
   Activity, 
@@ -16,7 +16,8 @@ import { AuthUserContext } from '../../types/common';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { useI18n } from '../../i18n';
 import { ImportCenterView } from '../importCenter/ImportCenterView';
-import { tripEngineService } from '../../services/tripEngine.service';
+import { indexedDBService } from '../../services/offline/indexedDB.service';
+import { tripRepository } from '../../repositories/trip.repository';
 import { exceptionEngine } from '../../services/exceptionEngine.service';
 
 export interface FieldSupervisionViewProps {
@@ -29,11 +30,39 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'LIVE' | 'EXCEPTIONS' | 'IMPORTS' | 'UNRESOLVED'>('LIVE');
 
-  // Dynamic trip and exception resolution from authoritative services
+  // Dynamic trip and exception resolution from canonical store
   const targetProjectId = authContext.assignedProjectIds?.[0] === 'ALL' ? undefined : authContext.assignedProjectIds?.[0];
-  const trips = useMemo(() => {
-    return tripEngineService.getTrips(targetProjectId);
-  }, [targetProjectId]);
+  const [trips, setTrips] = useState<any[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadCanonicalTrips = async () => {
+      try {
+        if (isOnline && !isSimulatedOffline && targetProjectId) {
+          const remoteTrips = await tripRepository.listByProject(targetProjectId).catch(() => []);
+          if (remoteTrips && remoteTrips.length > 0) {
+            await indexedDBService.putMany('trips', remoteTrips).catch(() => {});
+          }
+        }
+
+        const allTrips: any[] = await indexedDBService.getAll('trips').catch(() => []);
+        const filteredTrips = targetProjectId
+          ? allTrips.filter(t => t.projectId === targetProjectId)
+          : allTrips;
+
+        if (isMounted) {
+          setTrips(filteredTrips);
+        }
+      } catch (err) {
+        console.warn('FieldSupervisionView: Error loading canonical trips:', err);
+      }
+    };
+
+    loadCanonicalTrips();
+    return () => {
+      isMounted = false;
+    };
+  }, [targetProjectId, isOnline, isSimulatedOffline]);
 
   const exceptions = useMemo(() => {
     return exceptionEngine.getAllExceptions().filter(e => 
@@ -44,7 +73,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
 
   const loadingQueueCount = useMemo(() => trips.filter(t => t.status === 'LOADED').length, [trips]);
   const inTransitCount = useMemo(() => trips.filter(t => t.status === 'LOADED' || t.status === 'IN_TRANSIT').length, [trips]);
-  const unloadingQueueCount = useMemo(() => trips.filter(t => t.status === 'UNLOADING' || t.status === 'ARRIVED').length, [trips]);
+  const unloadingQueueCount = useMemo(() => trips.filter(t => t.status === 'UNLOADING' || t.status === 'ARRIVED' || t.status === 'AT_DESTINATION').length, [trips]);
   const completedTodayCount = useMemo(() => trips.filter(t => t.status === 'COMPLETED').length, [trips]);
 
   // Role Guard
@@ -194,8 +223,8 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
                           <div className="text-[10px] text-stone-500 font-mono">{trip.truckId}</div>
                         </td>
                         <td className="p-3 text-stone-700">{trip.materialId}</td>
-                        <td className="p-3 font-mono">{(trip.netWeight || 0).toLocaleString()} كجم</td>
-                        <td className="p-3 font-mono">{trip.destNetWeight ? `${trip.destNetWeight.toLocaleString()} كجم` : '-'}</td>
+                        <td className="p-3 font-mono">{(trip.netWeight || trip.weights?.originNetKg || 0).toLocaleString()} كجم</td>
+                        <td className="p-3 font-mono">{trip.destNetWeight || trip.weights?.destinationNetKg ? `${(trip.destNetWeight || trip.weights?.destinationNetKg).toLocaleString()} كجم` : '-'}</td>
                         <td className="p-3">
                           <span className={`px-2 py-1 rounded text-[10px] font-bold ${
                             trip.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' :

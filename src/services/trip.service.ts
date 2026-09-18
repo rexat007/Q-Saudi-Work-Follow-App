@@ -44,6 +44,11 @@ export class TripService {
    * Prohibits React from direct business writes.
    */
   async dispatchTrip(params: DispatchTripParams, context: AuthUserContext): Promise<TripEntity> {
+    // 0. Enforce canonical materialId authority
+    if (!params.materialId || typeof params.materialId !== 'string' || !params.materialId.trim()) {
+      throw new Error('معرف المادة (materialId) مطلوب لإتمام عملية الشحن والتفريغ ولا يمكن الاعتماد على النص العابر');
+    }
+
     // 1. Fetch domain references to take immutable snapshots
     const [carrier, truck, driver, material, pricingRule, project] = await Promise.all([
        carrierRepository.findById(params.projectId, params.carrierId),
@@ -53,6 +58,11 @@ export class TripService {
        pricingRuleRepository.findById(params.projectId, params.pricingRuleId),
        projectRepository.findById(params.projectId),
     ]);
+
+    // Check entity existence and ACTIVE status
+    if (!material || (material.status !== undefined ? material.status !== 'ACTIVE' : !material.isActive)) {
+      throw new Error('المادة المحددة غير مصرح بها أو غير نشطة (INACTIVE)');
+    }
 
     // Check project authorizations
     if (project?.authorizedCarrierIds && project.authorizedCarrierIds.length > 0) {
@@ -65,8 +75,6 @@ export class TripService {
         throw new Error(`المادة (${params.materialId}) غير مصرح بتوريدها في هذا المشروع`);
       }
     }
-
-    // Check entity existence and ACTIVE status
     if (!carrier || (carrier.status !== undefined ? carrier.status !== 'ACTIVE' : !carrier.isActive)) {
       throw new Error('الناقل المحدد غير موجود أو غير نشط (INACTIVE)');
     }
@@ -86,9 +94,6 @@ export class TripService {
       throw new Error(`السائق المحدد (${driver.driverId}) غير تابع للناقل المختار (${params.carrierId}) [العلاقة: Driver → Carrier]`);
     }
 
-    if (!material || (material.status !== undefined ? material.status !== 'ACTIVE' : !material.isActive)) {
-      throw new Error('المادة المحددة غير مصرح بها أو غير نشطة (INACTIVE)');
-    }
     if (!pricingRule || (pricingRule.status !== undefined ? pricingRule.status !== 'ACTIVE' : !pricingRule.isActive)) {
       throw new Error('قاعدة التسعير غير صالحة أو غير نشطة');
     }

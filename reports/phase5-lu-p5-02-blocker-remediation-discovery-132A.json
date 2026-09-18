@@ -1,0 +1,238 @@
+{
+  "report_metadata": {
+    "block_id": "132-A",
+    "logical_unit": "LU-P5-02",
+    "title": "BLOCK 132-A — LU-P5-02 Blocker Remediation Discovery Report",
+    "evaluation_date": "2026-09-16",
+    "verdict": "LU-P5-02_BLOCKER_REMEDIATION_DISCOVERY_COMPLETE"
+  },
+  "authoritative_project_state": {
+    "BLOCK_128": "CLOSED",
+    "BLOCK_129": "CLOSED",
+    "BLOCK_130": "CLOSED",
+    "BLOCK_131": "CLOSED",
+    "BLOCK_132": "VERIFICATION_BLOCKED",
+    "GAP-P5-01": "CLOSED",
+    "GAP-P5-02": "OPEN",
+    "GAP-P5-03": "OPEN",
+    "GAP-P5-04": "OPEN_DEFERRED",
+    "PHASE_5": "IN_PROGRESS",
+    "PHASE_6": "NOT_STARTED",
+    "UI_ENTRY_POINT_CONVERGENCE": "NOT_YET_IMPLEMENTED",
+    "608_CONTROL_CONVERGENCE": "NOT_YET_IMPLEMENTED",
+    "LIVE_FIRESTORE_E2E_VERIFIED": false
+  },
+  "evidence_discipline": {
+    "discipline_rules_observed": true,
+    "findings_classification": "RIGOROUS"
+  },
+  "blocker_1_create_trip_loading_replay_path": {
+    "status": "ANALYZED",
+    "queue_operation": "indexedDB outbox.service",
+    "trigger": "syncAll()",
+    "dispatch_filter": "PENDING and FAILED with retryCount < 5",
+    "idempotency_pre_check": "syncOperationRepository.findById()",
+    "conflict_pre_check": "conflictResolutionService.detectConflict()",
+    "http_replay_boundary": "POST /api/projects/:projectId/trips",
+    "server_endpoint": "server.ts app.post(/api/projects/:projectId/trips)",
+    "server_domain_operation": "TripService.dispatchTrip()",
+    "server_validation_logic": "TripValidator.validate()",
+    "authoritative_persistence": "Firestore via tripRepository.create()",
+    "client_completion": "Save authoritative trip to IndexedDB cached trips, delete temporary offline trip, write sync ledger, update outbox to SYNCED",
+    "evidence_level": "ACTUAL"
+  },
+  "critical_dispatch_check": {
+    "does_sync_all_call_commit_operation": false,
+    "commit_operation_called": false,
+    "commit_operation_throwing": true,
+    "actual_dispatch_path": "syncAll() -> fetch(POST /api/projects/:projectId/trips)",
+    "current_state_classification": "WORKING_CANONICAL_REPLAY",
+    "verified_in_test_suite": false,
+    "evidence_level": "ACTUAL"
+  },
+  "canonical_runtime_boundary": {
+    "authentication_enforced": true,
+    "project_isolation_enforced": true,
+    "rbac_enforced": true,
+    "master_relationships_enforced": true,
+    "snapshots_immutable": true,
+    "transaction_boundary_enforced": true,
+    "evidence_level": "ACTUAL"
+  },
+  "offline_online_simulated_semantics": {
+    "genuine_offline": {
+      "mutation": "local cache only",
+      "firestore": "no",
+      "canonical_operation": "no",
+      "outbox_status": "PENDING",
+      "cache_trip_state": "OFFLINE-PENDING",
+      "legacy_service_used": false,
+      "success_authority": "NON-AUTHORITATIVE"
+    },
+    "online_replay": {
+      "mutation": "server / Firestore",
+      "firestore": "yes",
+      "canonical_operation": "yes",
+      "outbox_status": "SYNCED",
+      "cache_trip_state": "server-allocated authoritative record",
+      "legacy_service_used": false,
+      "success_authority": "AUTHORITATIVE"
+    },
+    "simulated_offline": {
+      "mutation": "local cache only",
+      "firestore": "no",
+      "canonical_operation": "no",
+      "outbox_status": "PENDING",
+      "cache_trip_state": "OFFLINE-PENDING",
+      "legacy_service_used": false,
+      "success_authority": "NON-AUTHORITATIVE"
+    }
+  },
+  "operation_id_idempotency": {
+    "durable_infrastructure_preserved": true,
+    "client_side_ledger_used": true,
+    "server_side_duplicate_checking": true,
+    "evidence_level": "ACTUAL"
+  },
+  "blocker_2_conflict_resolution_paths": {
+    "status": "ANALYZED",
+    "state_source": "indexedDBService.getSync('trips')",
+    "conflict_detection": "offline cache-only check",
+    "false_success_confirmed": true,
+    "affected_strategies": [
+      "PRESERVE_PRICING_SNAPSHOT",
+      "OVERRIDE_TO_NEW_PRICING",
+      "FORCE_CLIENT_STATE",
+      "ASSIGN_NEW_SERIAL",
+      "UPDATE_MASTER_DATA_RELATION"
+    ],
+    "mutation_behavior": "local IndexedDB write + synthetic serverAck + Outbox status updated directly to SYNCED",
+    "evidence_level": "ACTUAL"
+  },
+  "force_client_state_semantics": {
+    "current_behavior": "Local cache mutation with deferred/lost replay",
+    "outbox_operation_marked_synced_falsely": true,
+    "eventual_authoritative_boundary_reached": false,
+    "classification": "FALSE_SUCCESS_RISK",
+    "evidence_level": "ACTUAL"
+  },
+  "synced_semantics": {
+    "authoritative_success_path": "syncAll() -> server success response -> SYNCED",
+    "false_success_path": "resolveConflict() -> direct status change -> SYNCED",
+    "classification": "FALSE_SUCCESS_RISK",
+    "evidence_level": "ACTUAL"
+  },
+  "trip_number_generator_audit": {
+    "file": "/src/services/tripNumberGenerator.ts",
+    "method": "getNextTripNumber",
+    "caller": "serverTripService.dispatchTrip",
+    "behavior": "uses regex to match explicit project prefixes in testing; strictly throws database unavailable error in production if Firestore transactions fail",
+    "offline_authority_present": false,
+    "architectural_violation": false,
+    "classification": "SUPPORTING_DEPENDENCY",
+    "evidence_level": "ACTUAL"
+  },
+  "indexeddb_service_change_audit": {
+    "file": "/src/services/offline/indexedDB.service.ts",
+    "methods_added": ["getSync", "getAllSync"],
+    "in_memory_mirror": "memoryStore (Map of Maps)",
+    "lifecycle": "volatile, populated on-demand, synchronized dual-commits on all writes",
+    "stale_data_possibilities": "highly unlikely in single-threaded PWA context",
+    "necessary_for_gap_p5_03": true,
+    "introduces_state_authority": false,
+    "classification": "SUPPORTING_DEPENDENCY",
+    "evidence_level": "ACTUAL"
+  },
+  "second_kitchen_audit": {
+    "trip_engine_service_used": false,
+    "trip_state_machine_used_strictly_for_events": true,
+    "duplicate_construction_code_discovered": "commitTripWithPreservedSnapshot() in conflictResolution.service.ts",
+    "proposed_remediation_eliminates_duplicate_code": true,
+    "evidence_level": "ACTUAL"
+  },
+  "project_rbac_authority_analysis": {
+    "projectId": "IMPLEMENTED",
+    "authentication": "IMPLEMENTED",
+    "user_identity": "IMPLEMENTED",
+    "project_membership": "IMPLEMENTED",
+    "rbac": "IMPLEMENTED",
+    "carrier_scope": "IMPLEMENTED",
+    "driver_scope": "IMPLEMENTED",
+    "truck_scope": "IMPLEMENTED",
+    "material_scope": "IMPLEMENTED",
+    "roster_scope": "IMPLEMENTED",
+    "entity_existence": "IMPLEMENTED",
+    "active_status": "IMPLEMENTED",
+    "expectedVersion": "IMPLEMENTED",
+    "operationId": "IMPLEMENTED"
+  },
+  "test_gap_discovery": {
+    "positive_replay_tests_missing": true,
+    "idempotency_replay_tests_missing": true,
+    "conflict_resolution_replay_tests_missing": true,
+    "classification": "TEST_MISSING",
+    "evidence_level": "ACTUAL"
+  },
+  "block_132_change_boundary": {
+    "files_changed": [
+      "/src/services/offline/outbox.service.ts",
+      "/src/services/offline/conflictResolution.service.ts",
+      "/src/services/offline/indexedDB.service.ts",
+      "/src/services/tripNumberGenerator.ts",
+      "/src/tests/canonicalReplayHarmonizationBlock132.test.ts"
+    ],
+    "scope_expansion_detected": false
+  },
+  "gap_p5_04_safety_check": {
+    "can_remediate_without_p5_04": true,
+    "classification": "DEFERRED"
+  },
+  "blocker_1_remediation_boundary": {
+    "current_state": "Replay pipeline is correct but missing test validation",
+    "root_cause": "Test suite only covers network failure; lacks mock-fetch integration tests for successful replays",
+    "required_change": "Add integration test cases verifying positive end-to-end replay, client update, and idempotency",
+    "affected_files": ["src/tests/canonicalReplayHarmonizationBlock132.test.ts"],
+    "dependencies": [],
+    "verification_requirements": "Vitest run executes and passes with 100% success",
+    "risk": "LOW"
+  },
+  "blocker_2_remediation_boundary": {
+    "current_state": "Resolving a conflict falsely marks outbox SYNCED and bypasses Firestore",
+    "root_cause": "resolveConflict() calls commitTripWithPreservedSnapshot() and updates Outbox status to SYNCED directly",
+    "required_change": "For mutating strategies, modify operation payload, set status back to PENDING, and trigger syncAll() to canonically replay through the server. Remove manual local trip insertion.",
+    "affected_files": [
+      "src/services/offline/conflictResolution.service.ts",
+      "src/tests/canonicalReplayHarmonizationBlock132.test.ts"
+    ],
+    "dependencies": [],
+    "verification_requirements": "Resolving conflict transitions Outbox through PENDING -> SYNCED after mocked server replay",
+    "risk": "MEDIUM"
+  },
+  "combined_minimal_remediation_scope": {
+    "must_change": [
+      "src/services/offline/conflictResolution.service.ts",
+      "src/tests/canonicalReplayHarmonizationBlock132.test.ts"
+    ],
+    "must_not_change": [
+      "server.ts",
+      "src/services/trip.service.ts"
+    ],
+    "verification_gate": "npm run build && vitest run success"
+  },
+  "original_project_invariants_preserved": {
+    "firestore_single_authority": "VERIFIED",
+    "indexeddb_cache_only": "VERIFIED",
+    "outbox_pending_queue_only": "VERIFIED",
+    "sync_operations_idempotency_ledger": "VERIFIED",
+    "project_roster_canonical": "VERIFIED",
+    "driver_truck_project_originated": "VERIFIED",
+    "trip_snapshots_immutable": "VERIFIED",
+    "pricing_snapshots_immutable": "VERIFIED",
+    "canonical_fsm_authoritative": "VERIFIED",
+    "isolation_authoritative": "VERIFIED",
+    "offline_state_non_authoritative": "VERIFIED",
+    "synced_strictly_server_ack": "VERIFIED",
+    "phase_6_ui_convergence_preserved": "VERIFIED",
+    "608_controls_unresolved_preserved": "VERIFIED"
+  }
+}

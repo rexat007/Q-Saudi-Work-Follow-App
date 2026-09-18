@@ -1,0 +1,598 @@
+{
+  "reportId": "BLOCK-128-RESTORATION-ROADMAP-REBASE",
+  "timestamp": "2026-09-16T11:15:00.000Z",
+  "mode": "STRICT_READ_ONLY_ARCHITECTURAL_REBASE",
+  "safetyConditions": {
+    "CODE_CHANGED": "NO",
+    "DATA_CHANGED": "NO",
+    "FIRESTORE_DATA_CHANGED": "NO",
+    "FIRESTORE_SCHEMA_CHANGED": "NO",
+    "FIRESTORE_RULES_CHANGED": "NO",
+    "INDEXEDDB_CHANGED": "NO",
+    "GOOGLE_DRIVE_CHANGED": "NO",
+    "GOOGLE_SHEETS_CHANGED": "NO",
+    "ROUTES_CHANGED": "NO",
+    "UI_CHANGED": "NO",
+    "AUTHENTICATION_STATE_CHANGED": "NO",
+    "CONFIGURATION_CHANGED": "NO",
+    "RUNTIME_STATE_CHANGED": "NO"
+  },
+  "metrics": {
+    "P0": 0,
+    "P1": 0,
+    "PRODUCTION_FIXTURE_PATHS": 0,
+    "GHOST_DATA_PATHS_REMAINING": 0,
+    "RELEASE_BLOCKER": "NO",
+    "UI_ENTRY_POINT_CONVERGENCE": "NOT_YET_IMPLEMENTED",
+    "LIVE_FIRESTORE_E2E_VERIFIED": "NO"
+  },
+  "currentCompletionMatrix": [
+    {
+      "block": "105",
+      "purpose": "Target System Architecture Definition",
+      "status": "COMPLETE",
+      "implementation": "Architectural Specification (/reports/target-system-architecture-block105.md)",
+      "verification": "Read-Only Baseline Validated",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "106",
+      "purpose": "Target Data Model & Schema Boundaries",
+      "status": "COMPLETE",
+      "implementation": "Schema & Entity Specification (/reports/target-data-model-block106.md)",
+      "verification": "Read-Only Baseline Validated",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "107",
+      "purpose": "Target Service & Domain Boundaries",
+      "status": "COMPLETE",
+      "implementation": "Domain Boundary Contracts (/reports/target-service-domain-boundaries-block107.md)",
+      "verification": "Read-Only Baseline Validated",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "108",
+      "purpose": "Target Domain Operation & Service Contracts",
+      "status": "COMPLETE",
+      "implementation": "Operation Matrix (/reports/target-domain-operation-service-contracts-block108.md)",
+      "verification": "Read-Only Baseline Validated",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "109",
+      "purpose": "Target API & Persistence Contracts",
+      "status": "COMPLETE",
+      "implementation": "Persistence Contracts (/reports/target-api-persistence-contracts-block109.md)",
+      "verification": "Read-Only Baseline Validated",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "110",
+      "purpose": "Target State Machines & Lifecycle Rules",
+      "status": "COMPLETE",
+      "implementation": "State Machine Contracts (/reports/target-state-machines-lifecycle-block110.md)",
+      "verification": "Read-Only Baseline Validated",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "111",
+      "purpose": "Target Authorization & RBAC Matrices",
+      "status": "COMPLETE",
+      "implementation": "RBAC Matrices (/reports/target-authorization-rbac-block111.md)",
+      "verification": "Read-Only Baseline Validated",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "112",
+      "purpose": "Target Restoration Strategy & Phase Order",
+      "status": "COMPLETE",
+      "implementation": "8-Phase Roadmap Specification (/reports/target-restoration-strategy-block112.md)",
+      "verification": "Read-Only Baseline Validated",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "113",
+      "purpose": "Implementation Baseline & Asset Inventory",
+      "status": "COMPLETE",
+      "implementation": "Asset Inventory & Dispositions (/reports/implementation-baseline-block113.md)",
+      "verification": "Read-Only Baseline Validated",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "114",
+      "purpose": "Phase 1: Shared Contracts & Security Foundations",
+      "status": "COMPLETE",
+      "implementation": "/src/types/canonical/*, /src/services/security.service.ts",
+      "verification": "Typecheck, Linter, Security Contract Tests Passing",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "115",
+      "purpose": "Phase 2: Canonical Repositories & Firestore Adapters",
+      "status": "COMPLETE",
+      "implementation": "/src/repositories/* (Trip, Driver, Truck, Carrier, Material, Roster, etc.)",
+      "verification": "Typecheck, Linter, Repository Contract Verification Passing",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "116",
+      "purpose": "Phase 2: Repository Integration & Verification",
+      "status": "COMPLETE",
+      "implementation": "/src/tests/repositories.test.ts, /reports/phase2-repository-integration-verification-block116.md",
+      "verification": "Integration Tests Passing",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "117",
+      "purpose": "Phase 3: Canonical Domain Services & State Machines",
+      "status": "COMPLETE",
+      "implementation": "/src/services/* (tripService, driverService, truckService, projectRosterService, etc.)",
+      "verification": "Domain Service Contract & State Machine Invariants Passing",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "118",
+      "purpose": "Phase 3: Service Adoption & Invariant Verification",
+      "status": "COMPLETE",
+      "implementation": "/src/tests/domainServices.test.ts, /reports/phase3-service-adoption-verification-block118.md",
+      "verification": "Domain Invariants Verified",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "119",
+      "purpose": "Phase 4: Import Pipeline Discovery & Architecture",
+      "status": "COMPLETE",
+      "implementation": "Discovery Specification (/reports/phase4-import-pipeline-discovery-block119.md)",
+      "verification": "Read-Only Baseline Validated",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "120",
+      "purpose": "Phase 4: Import Session Lifecycle Engine",
+      "status": "COMPLETE",
+      "implementation": "/src/services/importSessionManager.ts, /src/types/importSession.ts",
+      "verification": "/src/tests/importSession.test.ts Passing",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "121",
+      "purpose": "Phase 4: Parser & Normalization Pipeline",
+      "status": "COMPLETE",
+      "implementation": "/src/services/importPipeline.service.ts, /src/services/import/parsers/*",
+      "verification": "/src/tests/importPipeline.test.ts Passing",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "122",
+      "purpose": "Phase 4: Validation & Deduplication Engine",
+      "status": "COMPLETE",
+      "implementation": "/src/services/validationPipeline.service.ts, /src/validators/*",
+      "verification": "/src/tests/validationPipeline.test.ts Passing",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "123",
+      "purpose": "Phase 4: Conflict Detection & Exception Classification",
+      "status": "COMPLETE",
+      "implementation": "/src/services/conflictEngine.service.ts, /src/services/exceptionEngine.service.ts",
+      "verification": "/src/tests/conflictEngine.test.ts Passing",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "124",
+      "purpose": "Phase 4: Cryptographic Review Artifact Engine",
+      "status": "COMPLETE",
+      "implementation": "/src/services/reviewArtifact.service.ts, /src/types/reviewArtifact.ts",
+      "verification": "/src/tests/reviewArtifact.test.ts Passing",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "125",
+      "purpose": "Phase 4: Review-Gated Human Approval Engine",
+      "status": "COMPLETE",
+      "implementation": "/src/services/reviewApproval.service.ts, /src/types/reviewApproval.ts",
+      "verification": "/src/tests/reviewApproval.test.ts Passing",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "126",
+      "purpose": "Phase 4: Transactional Commit & Durable Idempotency",
+      "status": "COMPLETE",
+      "implementation": "/src/services/commitEngine.service.ts, /src/repositories/syncOperation.repository.ts, /src/repositories/importBatch.repository.ts",
+      "verification": "/src/tests/commitEngine.test.ts Passing; BLOCK_126_ARCHITECTURE_VERIFIED",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "NONE"
+    },
+    {
+      "block": "127",
+      "purpose": "Phase 4: Audit Integration & Final Verification Gate",
+      "status": "COMPLETE",
+      "implementation": "/src/tests/endToEndImportPipelineBlock127.test.ts, /reports/block127-end-to-end-completion.md",
+      "verification": "10/10 E2E Tests Passing; In-memory Transaction Verified; LIVE_FIRESTORE_VERIFICATION_UNAVAILABLE",
+      "dataChange": "NO",
+      "currentConfidence": "HIGH",
+      "remainingRisk": "Live Firestore execution unverified until emulator suite is provisioned"
+    }
+  ],
+  "phaseStatus": {
+    "Phase 1": {
+      "name": "Shared Contracts & Security Foundations",
+      "status": "COMPLETE",
+      "completedScope": "Canonical contracts, DTOs, interfaces, and SecurityService established in Blocks 114.",
+      "verifiedScope": "Unit test suite verified; 100% typecheck clean.",
+      "remainingScope": "None",
+      "knownRisks": "None",
+      "dependencies": [],
+      "blockedBy": null,
+      "readiness": "PRODUCTION_READY",
+      "definitionFits": true
+    },
+    "Phase 2": {
+      "name": "Repositories & Firestore Adapters",
+      "status": "COMPLETE",
+      "completedScope": "All canonical repositories (Trip, Driver, Truck, Carrier, Material, ProjectCarrierRoster, SyncOperation, ImportBatch, AuditLog) implemented in Blocks 115-116.",
+      "verifiedScope": "Repository integration test suite passing.",
+      "remainingScope": "None",
+      "knownRisks": "None",
+      "dependencies": ["Phase 1"],
+      "blockedBy": null,
+      "readiness": "PRODUCTION_READY",
+      "definitionFits": true
+    },
+    "Phase 3": {
+      "name": "Canonical Domain Services & State Machines",
+      "status": "COMPLETE",
+      "completedScope": "Domain services (TripService, DriverService, TruckService, ProjectRosterService, etc.) and state machines implemented in Blocks 117-118.",
+      "verifiedScope": "Domain invariant test suites passing.",
+      "remainingScope": "None",
+      "knownRisks": "None",
+      "dependencies": ["Phase 1", "Phase 2"],
+      "blockedBy": null,
+      "readiness": "PRODUCTION_READY",
+      "definitionFits": true
+    },
+    "Phase 4": {
+      "name": "Import Pipeline & Review-Gated Commit",
+      "status": "COMPLETE",
+      "completedScope": "All 11 stages from Source to Audit implemented in Blocks 119-127.",
+      "verifiedScope": "10/10 End-to-End architectural verification tests passing; direct writes in commit engine = 0.",
+      "remainingScope": "Live Firestore Emulator execution verification (deferred to testing harness provisioning).",
+      "knownRisks": "Real Firestore lock contention during high concurrency requires future emulator stress testing.",
+      "dependencies": ["Phase 1", "Phase 2", "Phase 3"],
+      "blockedBy": null,
+      "readiness": "ARCHITECTURE_COMPLETE_AND_VERIFIED",
+      "definitionFits": true
+    },
+    "Phase 5": {
+      "name": "Offline Cache & Outbox Replay Revalidation",
+      "status": "NOT_STARTED",
+      "completedScope": "Existing IndexedDB, Cache reconciliation (Block 103B), and Outbox schemas analyzed.",
+      "verifiedScope": "Deletion-aware reconciliation verified in Block 103B.",
+      "remainingScope": "Revalidating Outbox replay against canonical server contracts, enforcing entity existence & project scope revalidation, integrating operationId durable ledger with client outbox.",
+      "knownRisks": "Outbox replay must strictly validate current entity existence and expectedVersion to prevent ghost writes.",
+      "dependencies": ["Phase 1", "Phase 2", "Phase 3", "Phase 4"],
+      "blockedBy": null,
+      "readiness": "READY",
+      "definitionFits": true
+    },
+    "Phase 6": {
+      "name": "UI Rewiring & Secondary Entry Point Convergence",
+      "status": "NOT_STARTED",
+      "completedScope": "Forensic inventory of 608 interactive controls and entry points cataloged in Block 104.",
+      "verifiedScope": "None yet (UI currently still calls legacy services).",
+      "remainingScope": "Rewiring all UI views, forms, and dialogs to invoke canonical services and operations exclusively; rationalizing duplicate controls; converging secondary entry points.",
+      "knownRisks": "Regressing user interactions if UI bindings miss specific event handlers.",
+      "dependencies": ["Phase 1", "Phase 2", "Phase 3", "Phase 4", "Phase 5"],
+      "blockedBy": "Phase 5 (Offline/Outbox stability required for solid client-side UI binding)",
+      "readiness": "PENDING_PHASE_5",
+      "definitionFits": true
+    },
+    "Phase 7": {
+      "name": "Legacy Path Retirement & Full Verification",
+      "status": "NOT_STARTED",
+      "completedScope": "Legacy paths identified and isolated in Blocks 104 and 113.",
+      "verifiedScope": "None yet.",
+      "remainingScope": "Decommissioning legacy services, deleting dead compatibility shims, full regression suite execution.",
+      "knownRisks": "Premature deletion of un-migrated paths.",
+      "dependencies": ["Phase 6"],
+      "blockedBy": "Phase 6",
+      "readiness": "BLOCKED_BY_PHASE_6",
+      "definitionFits": true
+    },
+    "Phase 8": {
+      "name": "Controlled Cutover",
+      "status": "NOT_STARTED",
+      "completedScope": "Cutover criteria defined in Block 112.",
+      "verifiedScope": "None yet.",
+      "remainingScope": "Final production smoke testing, telemetry verification, release tagging.",
+      "knownRisks": "Production cutover rollback preparedness.",
+      "dependencies": ["Phase 7"],
+      "blockedBy": "Phase 7",
+      "readiness": "BLOCKED_BY_PHASE_7",
+      "definitionFits": true
+    }
+  },
+  "phase4Status": {
+    "logicalArchitecture": "BLOCK_127_COMPLETE",
+    "e2eTestPassing": "10/10",
+    "liveFirestoreVerification": "BLOCK_127_LIVE_FIRESTORE_VERIFICATION_UNAVAILABLE",
+    "reasoning": "Verification suite proves entire application logic, SHA-256 cryptographic binding, and transaction orchestration in-memory. Lack of local emulator does not block Phase 5 because Phase 5 operates on client-side caching, outbox queues, and server contract alignment."
+  },
+  "block126Status": {
+    "verdict": "BLOCK_126_ARCHITECTURE_VERIFIED",
+    "scopeVerdict": "BLOCK_126_SCOPE_CONFIRMED",
+    "directWritesInCommitEngine": 0,
+    "unsafeImportBypasses": 0,
+    "atomicBoundaries": [
+      "TripRecord (projects/{projectId}/trips)",
+      "DriverRecord (masterData/drivers / projects/{projectId}/drivers)",
+      "TruckRecord (masterData/trucks / projects/{projectId}/trucks)",
+      "ProjectCarrierRosterRecord (projects/{projectId}/roster)",
+      "SyncOperationRecord (projects/{projectId}/sync_operations)",
+      "ImportBatchRecord (projects/{projectId}/import_batches)"
+    ],
+    "explicitExclusionsFromImportCommit": [
+      "PricingRule (governed by pricingService and pricingRuleRepository)",
+      "ExceptionRecord (governed by exceptionEngineService and exceptionRepository)"
+    ]
+  },
+  "importCompletionBoundary": {
+    "SOURCE": { "owner": "User / External File", "service": "N/A", "status": "COMPLETE" },
+    "INGESTION": { "owner": "ImportSessionManager", "service": "importSessionManager.ts", "repository": "importSessionRepository", "status": "COMPLETE" },
+    "PARSING": { "owner": "ImportPipelineService", "service": "importPipeline.service.ts", "repository": "N/A", "status": "COMPLETE" },
+    "NORMALIZATION": { "owner": "ImportPipelineService", "service": "importPipeline.service.ts", "repository": "N/A", "status": "COMPLETE" },
+    "VALIDATION": { "owner": "ValidationPipelineService", "service": "validationPipeline.service.ts", "repository": "N/A", "status": "COMPLETE" },
+    "DEDUPLICATION": { "owner": "ValidationPipelineService", "service": "validationPipeline.service.ts", "repository": "N/A", "status": "COMPLETE" },
+    "CONFLICT_DETECTION": { "owner": "ConflictEngineService", "service": "conflictEngine.service.ts", "repository": "conflictRepository", "status": "COMPLETE" },
+    "REVIEW_ARTIFACT": { "owner": "ReviewArtifactService", "service": "reviewArtifact.service.ts", "repository": "reviewArtifactRepository", "status": "COMPLETE" },
+    "APPROVAL": { "owner": "ReviewApprovalService", "service": "reviewApproval.service.ts", "repository": "reviewApprovalRepository", "status": "COMPLETE" },
+    "TRANSACTIONAL_COMMIT": { "owner": "CanonicalCommitEngineService", "service": "commitEngine.service.ts", "repository": "Domain Repositories", "status": "COMPLETE" },
+    "DURABLE_COMMIT": { "owner": "CanonicalCommitEngineService", "service": "commitEngine.service.ts", "repository": "syncOperationRepository, importBatchRepository", "status": "COMPLETE" },
+    "AUDIT": { "owner": "AuditLogService", "service": "auditLog.service.ts", "repository": "auditLogRepository", "status": "COMPLETE" }
+  },
+  "controlRationalizationStatus": {
+    "status": "UI_ENTRY_POINT_CONVERGENCE = NOT_YET_IMPLEMENTED",
+    "totalControls": 608,
+    "currentStatusSummary": "Backend services and canonical repositories are 100% established and verified. However, UI components, Admin Console, and Project Workspace dialogs still reference legacy services and direct in-memory calls. Convergence of all UI entry points onto canonical operations is scheduled for Phase 6."
+  },
+  "multipleDoorsAnalysis": {
+    "backendState": "ONE_KITCHEN_ESTABLISHED (All canonical entities have exactly one authoritative domain service and repository)",
+    "frontendState": "MULTIPLE_DOORS_REMAINING (Multiple UI buttons and views exist for Driver/Truck intake, Trip creation, and Roster management; pending Phase 6 rewiring)",
+    "riskAssessment": "Low risk of divergence during Phase 5 because backend contracts are frozen and strict RBAC/state machines are in place."
+  },
+  "canonicalNamingStatus": {
+    "status": "CANONICAL_GLOSSARY_FROZEN",
+    "mappings": [
+      { "canonical": "ProjectCarrierRoster", "aliases": ["Carrier Assignment", "Fleet Roster", "Project Carriers"], "status": "DEFINED_IN_PHASE_1" },
+      { "canonical": "TripRecord", "aliases": ["Field Trip", "Weighbridge Ticket", "Haul Record"], "status": "DEFINED_IN_PHASE_1" },
+      { "canonical": "ReviewArtifact", "aliases": ["Import Manifest", "Staging Batch", "Validation Summary"], "status": "DEFINED_IN_PHASE_1" },
+      { "canonical": "SyncOperation", "aliases": ["Outbox Item", "Client Mutation", "Idempotency Token"], "status": "DEFINED_IN_PHASE_1" }
+    ]
+  },
+  "entryPointConvergence": {
+    "targetPhase": "Phase 6",
+    "readiness": "READY_AFTER_PHASE_5"
+  },
+  "uiRewireReadiness": {
+    "verdict": "READY_AFTER_PHASE_5",
+    "justification": "UI components require stable, offline-resilient client services (Phase 5) before binding UI state and error notifications to canonical services."
+  },
+  "phase5ReadinessAnalysis": {
+    "readiness": "PHASE_5_READY",
+    "offlineAuthorityEnforced": true,
+    "indexedDBIsCacheOnly": true,
+    "outboxIsPendingQueueOnly": true,
+    "firestoreIsAuthoritative": true,
+    "reconciliationGuaranteed": "Deletion-aware reconciliation preserved from Block 103B",
+    "idempotencyIntegration": "Uses operationId and SyncOperation schema established in Blocks 126-127"
+  },
+  "offlineAuthority": {
+    "rule": "Firestore is the single business authority. IndexedDB is cache-only. Outbox is pending mutation queue.",
+    "status": "CONFIRMED"
+  },
+  "phase5Dependencies": {
+    "fromBlock126": "syncOperationRepository, durable operationId ledger, expectedVersion optimistic locking",
+    "fromBlock127": "Audit event correlation, structured error rejection",
+    "fromBlock103B": "Deletion-aware cache reconciliation (clear and prune deleted records from local IndexedDB)"
+  },
+  "legacyPathStatus": {
+    "activeCanonical": [
+      "/src/services/trip.service.ts",
+      "/src/services/driver.service.ts",
+      "/src/services/truck.service.ts",
+      "/src/services/projectCarrierRoster.service.ts",
+      "/src/services/commitEngine.service.ts",
+      "/src/services/security.service.ts",
+      "/src/repositories/*"
+    ],
+    "activeLegacy": [
+      "/src/services/tripEngine.service.ts",
+      "/src/services/adminConsole.service.ts",
+      "/src/services/masterData.service.ts"
+    ],
+    "retireCandidates": [
+      "Legacy unvalidated direct Firestore writes in UI dialogs",
+      "Redundant in-memory state duplications"
+    ],
+    "targetRetirementPhase": "Phase 7"
+  },
+  "fixtureGhostDataStatus": {
+    "PRODUCTION_FIXTURE_PATHS": 0,
+    "GHOST_DATA_PATHS_REMAINING": 0,
+    "emptyStateGuarantees": "Verified: runtime does not inject mock data into empty production/test tenants without explicit forceRefresh."
+  },
+  "testBaseline": {
+    "typecheck": "PASSED (0 errors)",
+    "lint": "PASSED (0 errors)",
+    "build": "PASSED",
+    "unitTests": "PASSED (Blocks 120-126)",
+    "e2eIntegrationTests": "PASSED (10/10 in-memory scenarios in Block 127)",
+    "liveFirestoreEmulatorTests": "UNAVAILABLE (No emulator infrastructure provisioned)"
+  },
+  "liveFirestoreVerificationStatus": {
+    "status": "LIVE_FIRESTORE_E2E_VERIFIED = NO",
+    "placement": "REQUIRED_BEFORE_CUTOVER",
+    "justification": "Lack of local emulator does not block Phase 5 offline cache development, but must be validated prior to production cutover (Phase 8)."
+  },
+  "riskRebase": [
+    {
+      "riskId": "RISK-01",
+      "description": "UI Entry Points still point to legacy services",
+      "currentStatus": "MANAGED",
+      "impact": "MEDIUM",
+      "blocking": false,
+      "targetPhase": "Phase 6",
+      "verificationMethod": "UI Rewire Test Suite & Component Inspection"
+    },
+    {
+      "riskId": "RISK-02",
+      "description": "Outbox replay revalidating stale or deleted project/roster",
+      "currentStatus": "MANAGED_IN_PHASE_5",
+      "impact": "HIGH",
+      "blocking": false,
+      "targetPhase": "Phase 5",
+      "verificationMethod": "Phase 5 Outbox Revalidation Test Suite"
+    },
+    {
+      "riskId": "RISK-03",
+      "description": "Live Firestore Lock Contention on massive parallel imports",
+      "currentStatus": "DEFERRED_TO_EMULATOR_VERIFICATION",
+      "impact": "MEDIUM",
+      "blocking": false,
+      "targetPhase": "Phase 7/8",
+      "verificationMethod": "Firebase Emulator Stress Test"
+    }
+  ],
+  "dependencyGraph": {
+    "structure": "UI (Phase 6) -> Application Commands -> Canonical Domain Services (Phase 3) -> Canonical Repositories (Phase 2) -> Firestore (Remote Authority) & IndexedDB / Outbox (Phase 5 Offline Cache)",
+    "violations": "Zero architecture violations in domain/repository layers; UI decoupling scheduled for Phase 6."
+  },
+  "nextStepOptions": {
+    "Option A": {
+      "name": "Phase 5 — Offline Cache & Outbox Replay Revalidation",
+      "prerequisites": "Phase 1-4 Complete (Satisfied)",
+      "benefits": "Completes the client-side persistence and outbox replay architecture, providing stable offline-first foundation for UI rewiring.",
+      "risks": "None blocking.",
+      "recommended": true
+    },
+    "Option B": {
+      "name": "Phase 6 — UI Rewiring & Entry-Point Convergence",
+      "prerequisites": "Phase 1-5 Complete (Phase 5 currently missing)",
+      "benefits": "Unifies UI workflows directly.",
+      "risks": "Risk of having to re-adapt UI when offline/outbox contracts are subsequently altered in Phase 5.",
+      "recommended": false
+    },
+    "Option C": {
+      "name": "Additional Architectural Verification / Live Emulator Setup",
+      "prerequisites": "Dev environment package additions",
+      "benefits": "Provides live emulator proofs.",
+      "risks": "Requires infrastructure modifications and packages outside core domain roadmap.",
+      "recommended": false
+    },
+    "Option D": {
+      "name": "Targeted Legacy Cleanup",
+      "prerequisites": "Phase 6 UI convergence complete",
+      "benefits": "Reduces codebase size.",
+      "risks": "Premature deletion before UI is fully rewired.",
+      "recommended": false
+    }
+  },
+  "originalGoalsCheck": [
+    { "goal": "1. Existing application restored, not blindly replaced", "status": "VERIFIED", "evidence": "Core authentication, layouts, and data preserved", "remainingWork": "Complete Phases 5-8" },
+    { "goal": "2. One canonical business owner per capability", "status": "VERIFIED", "evidence": "Phase 3 domain services established", "remainingWork": "Rewire UI in Phase 6" },
+    { "goal": "3. One canonical persistence owner", "status": "VERIFIED", "evidence": "Phase 2 repositories established", "remainingWork": "None" },
+    { "goal": "4. One canonical state authority", "status": "VERIFIED", "evidence": "State machine services established", "remainingWork": "None" },
+    { "goal": "5. One canonical authorization model", "status": "VERIFIED", "evidence": "SecurityService RBAC matrix established", "remainingWork": "None" },
+    { "goal": "6. Driver/Truck operational intake is Project-originated", "status": "VERIFIED", "evidence": "driverTruckIntakeService & projectRosterService", "remainingWork": "Rewire UI intake modals in Phase 6" },
+    { "goal": "7. Project Roster is canonical", "status": "VERIFIED", "evidence": "projectCarrierRoster.service.ts", "remainingWork": "None" },
+    { "goal": "8. Trip + Field Operations unified", "status": "VERIFIED", "evidence": "trip.service.ts & trip.repository.ts", "remainingWork": "Rewire field UI screens in Phase 6" },
+    { "goal": "9. Import is review-gated", "status": "VERIFIED", "evidence": "reviewArtifact.service.ts & reviewApproval.service.ts", "remainingWork": "Rewire Import Center UI in Phase 6" },
+    { "goal": "10. Commit is transactional", "status": "VERIFIED", "evidence": "commitEngine.service.ts with atomic boundaries", "remainingWork": "None" },
+    { "goal": "11. Idempotency is durable", "status": "VERIFIED", "evidence": "syncOperationRepository with operationId ledger", "remainingWork": "None" },
+    { "goal": "12. Historical snapshots remain immutable", "status": "VERIFIED", "evidence": "ReviewArtifact object freeze & SHA-256 hashes", "remainingWork": "None" },
+    { "goal": "13. Offline remains non-authoritative", "status": "VERIFIED", "evidence": "IndexedDB is strictly cache; Outbox is pending queue", "remainingWork": "Revalidation hardening in Phase 5" },
+    { "goal": "14. Duplicate business implementations eliminated", "status": "IN_PROGRESS", "evidence": "Backend unified; UI migration pending", "remainingWork": "Phase 6 & 7" },
+    { "goal": "15. Multiple UI entry points converge on canonical workflows", "status": "PENDING", "evidence": "Cataloged in Block 104", "remainingWork": "Phase 6" },
+    { "goal": "16. Canonical terminology enforced", "status": "VERIFIED", "evidence": "Phase 1 types and glossaries", "remainingWork": "Phase 6 UI label convergence" },
+    { "goal": "17. Legacy paths eventually retire", "status": "PLANNED", "evidence": "Inventory complete", "remainingWork": "Phase 7" },
+    { "goal": "18. Cutover is controlled and reversible", "status": "PLANNED", "evidence": "Phase 8 criteria defined", "remainingWork": "Phase 8" }
+  ],
+  "targetEndStateGap": [
+    {
+      "gapId": "GAP-01",
+      "area": "Offline Outbox Replay Revalidation",
+      "currentState": "Basic sync pipeline exists; lacks rigorous server-side entity existence and expectedVersion validation.",
+      "targetState": "Outbox replay revalidates project scope, active status, and expectedVersion before committing.",
+      "whatRemains": "Phase 5 Implementation & Verification",
+      "targetPhase": "Phase 5",
+      "blocking": true,
+      "verification": "Phase 5 Outbox Revalidation Test Suite"
+    },
+    {
+      "gapId": "GAP-02",
+      "area": "UI Control & Entry Point Convergence",
+      "currentState": "UI dialogs invoke legacy services directly.",
+      "targetState": "All 608 controls invoke canonical services through unified application commands.",
+      "whatRemains": "Phase 6 UI Rewiring & Convergence",
+      "targetPhase": "Phase 6",
+      "blocking": false,
+      "verification": "Phase 6 UI Integration Tests"
+    },
+    {
+      "gapId": "GAP-03",
+      "area": "Legacy Service Decommissioning",
+      "currentState": "Legacy services remain in repository as compatibility shims.",
+      "targetState": "Legacy services deleted; zero legacy references in codebase.",
+      "whatRemains": "Phase 7 Legacy Retirement",
+      "targetPhase": "Phase 7",
+      "blocking": false,
+      "verification": "Static Analysis & Full Regression Test Gate"
+    }
+  ],
+  "phase5Readiness": "PHASE_5_READY",
+  "finalVerdict": "PHASE_5_READY"
+}

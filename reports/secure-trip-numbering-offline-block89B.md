@@ -1,14 +1,14 @@
 # BLOCK 89B — SECURE TRIP NUMBERING & OFFLINE CREATION VERIFICATION REPORT
 
-**Date executed:** 9/15/2026
-**Status:** 🟢 ALL VERIFIED
+**Date executed:** 9/16/2026
+**Status:** 🔴 VERIFICATION FAILED
 
 ## Executive Summary
 
 - **Total tests executed:** 19
-- **Passed:** 19
-- **Failed:** 0
-- **Success Rate:** 100%
+- **Passed:** 17
+- **Failed:** 2
+- **Success Rate:** 89%
 
 ### Key Goals Accomplished
 
@@ -28,12 +28,12 @@
 | [89B-REQ-05] | Verify offline trip creation generates a pending outbox operation | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
 | [89B-REQ-06] | Verify offline trip status defaults strictly to PENDING_NUMBER_ALLOCATION | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
 | [89B-REQ-07] | Verify offline trip serial/number is represented as OFFLINE-PENDING and never a sequential counter | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
-| [89B-REQ-08] | Verify state machine transition from PENDING_NUMBER_ALLOCATION to IN_TRANSIT is allowed | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
+| [89B-REQ-08] | Verify state machine transition from PENDING_NUMBER_ALLOCATION to IN_TRANSIT is allowed | 🔴 FAIL | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Expected true, but got false |
 | [89B-REQ-09] | Verify state machine transition from LOADED to PENDING_NUMBER_ALLOCATION is rejected | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
 | [89B-REQ-10] | Verify outbox replay syncs pending operations with server using client operationId | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
 | [89B-REQ-11] | Verify idempotency protects against duplicate sequential number allocations on server | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
 | [89B-REQ-12] | Verify failed transactions on the server do not consume or leak sequential counters | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
-| [89B-REQ-13] | Verify multiple concurrent dispatchers receive strictly ordered and sequential trip numbers | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
+| [89B-REQ-13] | Verify multiple concurrent dispatchers receive strictly ordered and sequential trip numbers | 🔴 FAIL | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Expected Q-PRJ-0005-TRP-00010, but got Q-PRJ-0005-TRP-00011 |
 | [89B-REQ-14] | Verify once allocated, tripNumber is completely immutable on the server and client | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
 | [89B-REQ-15] | Verify historical snapshot pricing rules remain untouched during any sync adjustments | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |
 | [89B-REQ-16] | Verify Block 86B Authentication and RBAC restrictions are fully preserved | 🟢 PASS | SECURE_TRIP_NUMBERING_OFFLINE_BLOCK89B | Verified successfully |

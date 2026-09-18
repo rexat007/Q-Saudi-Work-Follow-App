@@ -6,7 +6,8 @@ import {
   setDoc, 
   updateDoc, 
   serverTimestamp, 
-  onSnapshot 
+  onSnapshot,
+  Transaction 
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
@@ -46,39 +47,58 @@ export class ImportBatchRepository {
     }
   }
 
-  async create(batch: Omit<ImportBatchEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
+  async create(
+    batch: Omit<ImportBatchEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string },
+    transaction?: Transaction
+  ): Promise<void> {
     const path = this.getPath(batch.projectId, batch.batchId);
+    const docRef = doc(db, 'projects', batch.projectId, 'import_batches', batch.batchId);
+    const payload = {
+      ...batch,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+    if (transaction) {
+      transaction.set(docRef, payload);
+      return;
+    }
     if (!auth.currentUser) {
       console.warn(`[ImportBatchRepository] User unauthenticated. Skipping live Firestore create for ${path}`);
       return;
     }
     try {
-      const payload = {
-        ...batch,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      };
-      await setDoc(doc(db, 'projects', batch.projectId, 'import_batches', batch.batchId), payload);
+      await setDoc(docRef, payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
     }
   }
 
-  async update(projectId: string, batchId: string, updates: Partial<ImportBatchEntity>, updatedBy: string): Promise<void> {
+  async update(
+    projectId: string, 
+    batchId: string, 
+    updates: Partial<ImportBatchEntity>, 
+    updatedBy: string,
+    transaction?: Transaction
+  ): Promise<void> {
     const path = this.getPath(projectId, batchId);
+    const docRef = doc(db, 'projects', projectId, 'import_batches', batchId);
+    const payload = {
+      ...updates,
+      batchId,
+      projectId,
+      updatedAt: serverTimestamp(),
+      updatedBy,
+    };
+    if (transaction) {
+      transaction.update(docRef, payload);
+      return;
+    }
     if (!auth.currentUser) {
       console.warn(`[ImportBatchRepository] User unauthenticated. Skipping live Firestore update for ${path}`);
       return;
     }
     try {
-      const payload = {
-        ...updates,
-        batchId,
-        projectId,
-        updatedAt: serverTimestamp(),
-        updatedBy,
-      };
-      await updateDoc(doc(db, 'projects', projectId, 'import_batches', batchId), payload);
+      await updateDoc(docRef, payload);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, path);
     }

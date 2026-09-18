@@ -276,8 +276,12 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
       list.push('الناقل المحدد غير مصرح له بالعمل في هذا المشروع.');
     }
 
-    // 5. Material Authorization
-    if (!context.authorizedMaterialIds.includes(materialId)) {
+    // 5. Material Authorization & Identity Check
+    if (!materialId || !materialId.trim()) {
+      list.push('معرف المادة (materialId) مطلوب لإتمام عملية التحميل.');
+    } else if (!context.knownMaterials.some(m => m.materialId === materialId)) {
+      list.push(`معرف المادة (${materialId}) غير مسجل في الكتالوج المعتمد.`);
+    } else if (!context.authorizedMaterialIds.includes(materialId)) {
       list.push('المادة المحددة غير معتمدة ضمن توريدات هذا المشروع.');
     }
 

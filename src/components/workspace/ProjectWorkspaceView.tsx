@@ -23,6 +23,7 @@ import { carrierRepository } from '../../repositories/carrier.repository';
 import { materialRepository } from '../../repositories/material.repository';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
 import { projectCarrierRosterRepository } from '../../repositories/projectCarrierRoster.repository';
+import { driverTruckIntakeService } from '../../services/driverTruckIntake.service';
 import { userRepository } from '../../repositories/user.repository';
 import { useI18n } from '../../i18n';
 
@@ -335,27 +336,23 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
     setIsSubmitting(true);
     setErrorMsg(null);
     try {
-      const rosterId = `RST-${Date.now().toString(36).toUpperCase()}`;
-      await projectCarrierRosterRepository.create({
-        rosterId,
+      await driverTruckIntakeService.processSharedIntake({
         projectId: project.projectId,
         carrierId: newRosterCarrier,
         materialId: newRosterMaterial,
         driverName: newRosterDriver.trim(),
         plateNumber: newRosterPlate.trim().toUpperCase(),
-        phone: newRosterPhone.trim() || '+966500000000',
+        phone: newRosterPhone.trim() || undefined,
         residencyId: newRosterResidency.trim() || undefined,
-        status: 'ACTIVE',
-        createdBy: authContext.userId,
-        updatedBy: authContext.userId,
-      });
+      }, authContext);
+
       setNewRosterDriver('');
       setNewRosterPlate('');
       setNewRosterPhone('');
       setNewRosterResidency('');
       setNewRosterCarrier('');
       setNewRosterMaterial('');
-      showSuccess(isRtl ? 'تم تسجيل السائق والشاحنة في اللائحة بنجاح' : 'Driver and truck enrolled successfully');
+      showSuccess(isRtl ? 'تم تسجيل وتوثيق السائق والشاحنة في اللائحة والسجلات المركزية بنجاح' : 'Driver and truck enrolled globally & in roster successfully');
     } catch (err: any) {
       showError(err.message || 'Error adding to roster');
     } finally {
