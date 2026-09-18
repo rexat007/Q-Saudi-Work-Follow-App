@@ -32,7 +32,6 @@ import { useI18n } from '../../i18n';
 import { outboxService } from '../../services/offline/outbox.service';
 import { indexedDBService } from '../../services/offline/indexedDB.service';
 import { tripRepository } from '../../repositories/trip.repository';
-import { tripEngineService } from '../../services/tripEngine.service';
 
 export interface UnloadingOperatorViewProps {
   authContext?: AuthUserContext;
@@ -110,7 +109,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       const all: any[] = await indexedDBService.getAll('trips').catch(() => []);
       
       // Filter inbound states (bridge canonical & legacy statuses)
-      let inbounds = all.filter(t => 
+      const inbounds = all.filter(t => 
         t.status === 'IN_TRANSIT' || 
         t.status === 'ARRIVED' || 
         (t.status as string) === 'AT_DESTINATION' || 
@@ -118,20 +117,8 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         (t.status as string) === 'OFFLOADED'
       );
 
-      // Fallback for demo/seeding integration compatibility
-      if (inbounds.length === 0) {
-        const allFallback = tripEngineService.getAllTrips();
-        inbounds = allFallback.filter(t => 
-          t.status === 'IN_TRANSIT' || 
-          t.status === 'ARRIVED' || 
-          (t.status as string) === 'AT_DESTINATION' || 
-          t.status === 'UNLOADING' || 
-          (t.status as string) === 'OFFLOADED'
-        );
-      }
-
       setInboundTrips(inbounds);
-      setTripsCache(all.length > 0 ? all : tripEngineService.getAllTrips());
+      setTripsCache(all);
     } catch (e) {
       console.warn('Failed to load inbound trips:', e);
     }

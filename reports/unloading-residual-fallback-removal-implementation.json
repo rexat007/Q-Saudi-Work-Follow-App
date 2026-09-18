@@ -1,0 +1,59 @@
+{
+  "baseline": {
+    "repository": "rexat007/Q-Saudi-Work-Follow-App",
+    "branch": "main",
+    "head": "55403a411df783aefd1fee68c93bd69465ee8506"
+  },
+  "changedFiles": [
+    "src/components/field/UnloadingOperatorView.tsx"
+  ],
+  "removedLegacyReferences": [
+    "import { tripEngineService } from '../../services/tripEngine.service';",
+    "const allFallback = tripEngineService.getAllTrips();",
+    "inbounds = allFallback.filter(...)",
+    "setTripsCache(all.length > 0 ? all : tripEngineService.getAllTrips());"
+  ],
+  "dataFlow": {
+    "before": "When IndexedDB cache (all) or filtered inbound queue (inbounds) was empty, the component queried the legacy, in-memory tripEngineService.getAllTrips() to populate the queues.",
+    "after": "Component reads strictly from IndexedDB cache and remote Firestore. If the cache is empty, the queue and search source remain empty. No legacy fallback is queried."
+  },
+  "emptyStateAcceptance": {
+    "emptyCanonicalCache": "Empty incoming queue and empty search source",
+    "nonemptyCacheWithZeroIncomingMatches": "Incoming queue stays empty, search source remains cached",
+    "emptySearchSource": "Returns standard NOT_FOUND status/feedback",
+    "cacheReadFailure": "Handled as empty with no legacy fallback queried"
+  },
+  "projectScopeAndAuthorization": {
+    "authorization": "Preserved. Restricted to scale operators, site supervisors, supervisors, project admins, and super admins.",
+    "projectFiltering": "Preserved. Employs tripRepository.listByProject(projectId) to hydrate local cache."
+  },
+  "outboxAndFSMPreservation": {
+    "outboxBehavior": "Unchanged. Enqueues status updates and weights atomically into outboxService.",
+    "fsmTransitions": "Unchanged. Adheres to IN_TRANSIT -> ARRIVED -> UNLOADING -> COMPLETED sequence."
+  },
+  "verification": {
+    "focusedTests": {
+      "command": "npx tsx src/tests/unloadingResidualFallback.test.ts",
+      "results": "5/5 tests passed successfully",
+      "exitStatus": 0
+    },
+    "typeScriptCheck": {
+      "command": "npm run lint",
+      "results": "tsc --noEmit passed successfully",
+      "exitStatus": 0
+    },
+    "productionBuild": {
+      "command": "npm run build",
+      "results": "Compiled successfully",
+      "exitStatus": 0
+    },
+    "preExistingIssues": [
+      {
+        "issue": "B77-T05 to B77-T12 tests in src/tests/fieldLoadingUnloadingBlock77.test.ts fail due to TRK-9901 truck not being registered in system master data.",
+        "mitigation": "Not modified as per instructions to avoid changing unrelated historical tests."
+      }
+    ]
+  },
+  "liveFirestoreE2EVerified": "NO",
+  "unitClosureStatus": "NOT CLOSED"
+}
