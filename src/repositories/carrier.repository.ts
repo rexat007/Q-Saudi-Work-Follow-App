@@ -83,7 +83,11 @@ export class CarrierRepository {
     }
   }
 
-  subscribeByProject(projectId: string, onData: (carriers: CarrierEntity[]) => void) {
+  subscribeByProject(
+    projectId: string, 
+    onData: (carriers: CarrierEntity[]) => void,
+    onError?: (error: Error) => void
+  ) {
     if (!auth.currentUser) {
       return () => {};
     }
@@ -95,6 +99,9 @@ export class CarrierRepository {
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, path);
+        if (onError) {
+          onError(error);
+        }
       }
     );
   }

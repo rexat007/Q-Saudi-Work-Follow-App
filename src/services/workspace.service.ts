@@ -1,4 +1,3 @@
-import { adminConsoleService } from "./adminConsole.service";
 import { 
   WORKSPACE_TABS, 
   OPERATIONS_FULL_COLUMNS,
@@ -9,15 +8,47 @@ import {
   ProjectStorageProfile,
   StorageHistoryRecord,
   MigrationJob,
-  DestinationValidationResult
+  DestinationValidationResult,
+  WorkspaceProjectionInput,
+  WorkspaceTripProjectionDTO
 } from '../types/workspace';
 import { GoogleDriveFileItem } from '../types/googleDriveImport';
-import { ProjectEntity } from '../types/entities';
+import { ProjectEntity, TripEntity } from '../types/entities';
 import { projectRepository } from '../repositories/project.repository';
-import { tripEngineService } from './tripEngine.service';
-import { exceptionEngineService } from './exceptionEngine.service';
 import { auth } from '../firebase/config';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+
+export function mapTripToWorkspaceProjection(trip: TripEntity): WorkspaceTripProjectionDTO {
+  return {
+    tripId: trip.tripId,
+    tripNumber: trip.tripNumber,
+    projectId: trip.projectId,
+    carrierId: trip.carrierId,
+    carrierNameAr: trip.carrierSnapshot?.companyNameAr,
+    driverId: trip.driverId,
+    driverNameAr: trip.driverSnapshot?.fullNameAr,
+    truckId: trip.truckId,
+    truckPlateAr: trip.truckSnapshot?.plateNumberAr,
+    materialId: trip.materialId,
+    materialNameAr: trip.materialSnapshot?.nameAr,
+    status: trip.status,
+    originGrossKg: trip.weights?.originGrossKg,
+    originTareKg: trip.weights?.originTareKg,
+    originNetKg: trip.weights?.originNetKg,
+    destinationGrossKg: trip.weights?.destinationGrossKg,
+    destinationTareKg: trip.weights?.destinationTareKg,
+    destinationNetKg: trip.weights?.destinationNetKg,
+    pricingType: trip.pricingSnapshot?.pricingType,
+    agreedRate: trip.pricingSnapshot?.agreedRate,
+    pricingRuleId: trip.pricingSnapshot?.pricingRuleId,
+    settlementAmount: trip.pricingSnapshot?.settlementAmount,
+    waybillNumber: trip.weights?.originTicketNo || (trip as any).waybillNumber || trip.tripNumber,
+    loadTime: (trip as any).loadingTimestamp || (trip.createdAt ? (typeof trip.createdAt === 'string' ? trip.createdAt : (trip.createdAt as any)?.toDate?.()?.toISOString?.() || '') : ''),
+    arrivalTime: (trip as any).arrivalTimestamp || '',
+    unloadTime: (trip as any).unloadingTimestamp || '',
+    createdAt: typeof trip.createdAt === 'string' ? trip.createdAt : (trip.createdAt as any)?.toDate ? (trip.createdAt as any).toDate().toISOString() : trip.createdAt instanceof Date ? trip.createdAt.toISOString() : new Date().toISOString(),
+  };
+}
 
 const getApiBase = () => (typeof window !== 'undefined' ? '' : 'http://localhost:3000');
 
@@ -169,50 +200,72 @@ export class ClientWorkspaceService {
   /**
    * Syncs Firestore projection to Google Sheets with idempotent upsert.
    */
-  public async syncProjectionToSheets(projectId: string, spreadsheetId: string): Promise<WorkspaceSyncSummary> {
+  public async syncProjectionToSheets(input: WorkspaceProjectionInput | string, legacySpreadsheetId?: string): Promise<WorkspaceSyncSummary> {
+    let projectId: string;
+    let spreadsheetId: string;
+    let trips: TripEntity[];
+    let drivers: any[];
+    let carriers: any[];
+    let materials: any[];
+    let exceptions: any[];
+
+    if (typeof input === 'object' && input !== null) {
+      projectId = input.projectId;
+      spreadsheetId = input.spreadsheetId;
+      trips = input.trips;
+      drivers = input.drivers;
+      carriers = input.carriers;
+      materials = input.materials;
+      exceptions = input.exceptions;
+    } else {
+      projectId = input as string;
+      spreadsheetId = legacySpreadsheetId || '';
+      trips = [];
+      drivers = [];
+      carriers = [];
+      materials = [];
+      exceptions = [];
+    }
+
     const token = this.getAccessToken();
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    // 1. Gather trips from authoritative trip engine
-    const allTrips = tripEngineService.getTrips();
-    const projectTrips = allTrips.filter(t => t.projectId === projectId || projectId === 'ALL');
+    const projectTrips = trips.map(mapTripToWorkspaceProjection);
 
-    // 2. Gather master data
-    const drivers = adminConsoleService.getDrivers().map(d => ({
+    const mappedDrivers = drivers.map(d => ({
       driverId: d.driverId,
       projectId: d.projectId,
-      fullNameAr: d.name,
-      idNumber: d.nationalOrIqamaId || '1000000000',
-      phone: d.phone || '0500000000',
-      licenseNumber: d.licenseNumber || 'LIC-1000',
+      fullNameAr: d.name || d.fullNameAr || '',
+      idNumber: d.nationalOrIqamaId || d.idNumber || '',
+      phone: d.phone || '',
+      licenseNumber: d.licenseNumber || '',
       status: d.status,
     }));
 
-    const carriers = adminConsoleService.getCarriers().map(c => ({
+    const mappedCarriers = carriers.map(c => ({
       carrierId: c.carrierId,
       projectId: c.projectId,
-      companyNameAr: c.companyNameAr || c.name,
-      commercialRegistrationNo: c.commercialRegistrationNo || '1010000000',
-      transportLicenseNo: c.transportLicenseNo || 'TGA-9900',
+      companyNameAr: c.companyNameAr || c.name || '',
+      commercialRegistrationNo: c.commercialRegistrationNo || '',
+      transportLicenseNo: c.transportLicenseNo || '',
       status: c.status,
     }));
 
-    const materials = adminConsoleService.getMaterials().map(m => ({
+    const mappedMaterials = materials.map(m => ({
       materialId: m.materialId,
       projectId: m.projectId,
-      nameAr: m.nameAr || m.name,
-      code: m.code,
-      unitOfMeasure: m.unitOfMeasure || 'TON',
-      standardDensityTonPerM3: m.standardDensityTonPerM3 || 1.6,
+      nameAr: m.nameAr || m.name || '',
+      code: m.code || '',
+      unitOfMeasure: m.unitOfMeasure || '',
+      standardDensityTonPerM3: m.standardDensityTonPerM3,
       status: m.status,
     }));
 
-    // 3. Gather exceptions
-    const exceptions = exceptionEngineService.getAllExceptions().map(e => ({
+    const mappedExceptions = exceptions.map(e => ({
       exceptionId: e.exceptionId,
       projectId: e.projectId,
-      tripId: e.tripId || 'N/A',
+      tripId: e.tripId || '',
       type: e.type,
       severity: e.severity,
       status: e.status,
@@ -222,10 +275,10 @@ export class ClientWorkspaceService {
       resolutionNote: e.resolutionNote || '',
     }));
 
-    // 4. Compute Selected Reports
-    const totalTons = projectTrips.reduce((acc, t) => acc + (t.netWeight ? t.netWeight / 1000 : 0), 0);
-    const totalSettlement = projectTrips.reduce((acc, t) => acc + (t.settlementAmount || 0), 0);
-    const completedCount = projectTrips.filter(t => t.status === 'COMPLETED').length;
+    // Compute Selected Reports
+    const totalTons = trips.reduce((acc, t) => acc + (t.weights?.originNetKg ? t.weights.originNetKg / 1000 : 0), 0);
+    const totalSettlement = trips.reduce((acc, t) => acc + (t.pricingSnapshot?.settlementAmount || 0), 0);
+    const completedCount = trips.filter(t => t.status === 'COMPLETED').length;
     const exceptionCount = exceptions.length;
 
     const reports = [
@@ -236,7 +289,7 @@ export class ClientWorkspaceService {
         metricUnit: 'طن متري',
         period: 'سبتمبر 2026',
         calculatedAt: new Date().toISOString(),
-        notes: `حساب تراكمي لـ ${projectTrips.length} رحلة مسجلة`,
+        notes: `حساب تراكمي لـ ${trips.length} رحلة مسجلة`,
       },
       {
         reportCode: 'REP-FIN-02',
@@ -250,11 +303,11 @@ export class ClientWorkspaceService {
       {
         reportCode: 'REP-OPS-03',
         reportNameAr: 'نسبة إنجاز الرحلات المكتملة',
-        metricValue: projectTrips.length > 0 ? parseFloat(((completedCount / projectTrips.length) * 100).toFixed(1)) : 100,
+        metricValue: trips.length > 0 ? parseFloat(((completedCount / trips.length) * 100).toFixed(1)) : 100,
         metricUnit: '%',
         period: 'سبتمبر 2026',
         calculatedAt: new Date().toISOString(),
-        notes: `${completedCount} من أصل ${projectTrips.length} رحلة مكتملة التفريغ`,
+        notes: `${completedCount} من أصل ${trips.length} رحلة مكتملة التفريغ`,
       },
       {
         reportCode: 'REP-EXC-04',
@@ -274,10 +327,10 @@ export class ClientWorkspaceService {
         projectId,
         spreadsheetId,
         trips: projectTrips,
-        drivers,
-        carriers,
-        materials,
-        exceptions,
+        drivers: mappedDrivers,
+        carriers: mappedCarriers,
+        materials: mappedMaterials,
+        exceptions: mappedExceptions,
         reports,
       }),
     });

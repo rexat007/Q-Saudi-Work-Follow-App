@@ -117,14 +117,61 @@ export class ProjectRepository {
       return () => {};
     }
 
-    if (!isSuperAdmin && assignedProjectIds !== undefined && assignedProjectIds.length === 0) {
-      onData([]);
-      return () => {};
+    if (!isSuperAdmin && assignedProjectIds !== undefined) {
+      if (assignedProjectIds.length === 0) {
+        onData([]);
+        return () => {};
+      }
+
+      const chunkSize = 30;
+      const chunks: string[][] = [];
+      for (let i = 0; i < assignedProjectIds.length; i += chunkSize) {
+        chunks.push(assignedProjectIds.slice(i, i + chunkSize));
+      }
+
+      const chunkResults: ProjectEntity[][] = new Array(chunks.length).fill(null).map(() => []);
+      const chunkInitialEmitted: boolean[] = new Array(chunks.length).fill(false);
+      const unsubscribes: (() => void)[] = [];
+
+      const notifyCombinedIfReady = () => {
+        if (!chunkInitialEmitted.every(Boolean)) {
+          return;
+        }
+        const map = new Map<string, ProjectEntity>();
+        for (const chunkList of chunkResults) {
+          for (const proj of chunkList) {
+            if (proj && proj.projectId) {
+              map.set(proj.projectId, proj);
+            }
+          }
+        }
+        const mergedList = Array.from(map.values());
+        onData(mergedList);
+      };
+
+      chunks.forEach((chunk, index) => {
+        const q = query(collection(db, this.collectionName), where('projectId', 'in', chunk));
+        const unsub = onSnapshot(
+          q,
+          (snapshot) => {
+            chunkResults[index] = snapshot.docs.map(d => d.data() as ProjectEntity);
+            chunkInitialEmitted[index] = true;
+            notifyCombinedIfReady();
+          },
+          (error) => {
+            if (onError) onError(error);
+            handleFirestoreError(error, OperationType.LIST, this.collectionName);
+          }
+        );
+        unsubscribes.push(unsub);
+      });
+
+      return () => {
+        unsubscribes.forEach(unsub => unsub());
+      };
     }
 
-    const q = (!isSuperAdmin && assignedProjectIds && assignedProjectIds.length > 0)
-      ? query(collection(db, this.collectionName), where('projectId', 'in', assignedProjectIds.slice(0, 30)))
-      : collection(db, this.collectionName);
+    const q = collection(db, this.collectionName);
 
     return onSnapshot(
       q,

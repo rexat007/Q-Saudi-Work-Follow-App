@@ -46,12 +46,17 @@ import {
   ProjectStorageProfile,
   StorageHistoryRecord,
   MigrationJob,
-  DestinationValidationResult
+  DestinationValidationResult,
+  WorkspaceProjectionInput
 } from '../../types/workspace';
-import { adminConsoleService } from '../../services/adminConsole.service';
-import { ProjectEntity } from '../../types/entities';
+import { ProjectEntity, TripEntity, DriverEntity, CarrierEntity, MaterialEntity, TripExceptionEntity } from '../../types/entities';
+import { projectRepository } from '../../repositories/project.repository';
+import { tripRepository } from '../../repositories/trip.repository';
+import { driverRepository } from '../../repositories/driver.repository';
+import { carrierRepository } from '../../repositories/carrier.repository';
+import { materialRepository } from '../../repositories/material.repository';
+import { exceptionRepository } from '../../repositories/exception.repository';
 import { clientWorkspaceService } from '../../services/workspace.service';
-import { tripEngineService } from '../../services/tripEngine.service';
 import { useAuth } from '../../firebase/authContext';
 import { useI18n } from '../../i18n';
 
@@ -59,13 +64,23 @@ import { useI18n } from '../../i18n';
 export function WorkspaceIntegrationView() {
   const { t } = useI18n();
   const { user } = useAuth();
-  const [projects, setProjects] = useState<ProjectEntity[]>(() => {
-    return adminConsoleService.getProjects();
-  });
-  const [selectedProjectId, setSelectedProjectId] = useState<string>(() => {
-    const list = adminConsoleService.getProjects();
-    return list.length > 0 ? list[0].projectId : '';
-  });
+  const [projects, setProjects] = useState<ProjectEntity[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  
+  // Canonical dataset state
+  const [trips, setTrips] = useState<TripEntity[]>([]);
+  const [drivers, setDrivers] = useState<DriverEntity[]>([]);
+  const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
+  const [materials, setMaterials] = useState<MaterialEntity[]>([]);
+  const [exceptions, setExceptions] = useState<TripExceptionEntity[]>([]);
+
+  // Readiness / Error state per dataset
+  const [tripsStatus, setTripsStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
+  const [driversStatus, setDriversStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
+  const [carriersStatus, setCarriersStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
+  const [materialsStatus, setMaterialsStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
+  const [exceptionsStatus, setExceptionsStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
+
   const [activeTabKey, setActiveTabKey] = useState<WorkspaceSheetTab>('OPERATIONS');
   
   const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
@@ -142,19 +157,124 @@ export function WorkspaceIntegrationView() {
   };
 
   useEffect(() => {
-    const update = () => {
-      const list = adminConsoleService.getProjects();
-      if (list.length > 0) {
-        setProjects(list);
-        if (!selectedProjectId || !list.some(p => p.projectId === selectedProjectId)) {
-          setSelectedProjectId(list[0].projectId);
+    const unsub = projectRepository.subscribeToProjects(
+      (list) => {
+        const activeList = list.filter(p => p.status !== 'ARCHIVED' && p.status !== 'SUSPENDED');
+        setProjects(activeList);
+        if (activeList.length > 0) {
+          if (!selectedProjectId || !activeList.some(p => p.projectId === selectedProjectId)) {
+            setSelectedProjectId(activeList[0].projectId);
+          }
+        } else {
+          setSelectedProjectId('');
         }
-      }
-    };
-    update();
-    const unsub = adminConsoleService.subscribe(update);
+      },
+      (err) => {
+        console.error('[WorkspaceIntegrationView] Error subscribing to projects:', err);
+      },
+      (user as any)?.assignedProjectIds,
+      (user as any)?.isSuperAdmin
+    );
     return () => unsub();
+  }, [user, selectedProjectId]);
+
+  useEffect(() => {
+    if (!selectedProjectId) {
+      setTrips([]);
+      setDrivers([]);
+      setCarriers([]);
+      setMaterials([]);
+      setExceptions([]);
+      setTripsStatus('PENDING');
+      setDriversStatus('PENDING');
+      setCarriersStatus('PENDING');
+      setMaterialsStatus('PENDING');
+      setExceptionsStatus('PENDING');
+      return;
+    }
+
+    setTrips([]);
+    setDrivers([]);
+    setCarriers([]);
+    setMaterials([]);
+    setExceptions([]);
+    setTripsStatus('PENDING');
+    setDriversStatus('PENDING');
+    setCarriersStatus('PENDING');
+    setMaterialsStatus('PENDING');
+    setExceptionsStatus('PENDING');
+
+    const currentSubProjectId = selectedProjectId;
+
+    const unsubTrips = tripRepository.subscribeByProject(
+      currentSubProjectId,
+      (data) => {
+        setTrips(data);
+        setTripsStatus('READY');
+      },
+      () => setTripsStatus('ERROR')
+    );
+
+    const unsubDrivers = driverRepository.subscribeByProject(
+      currentSubProjectId,
+      (data) => {
+        setDrivers(data);
+        setDriversStatus('READY');
+      },
+      () => setDriversStatus('ERROR')
+    );
+
+    const unsubCarriers = carrierRepository.subscribeByProject(
+      currentSubProjectId,
+      (data) => {
+        setCarriers(data);
+        setCarriersStatus('READY');
+      },
+      () => setCarriersStatus('ERROR')
+    );
+
+    const unsubMaterials = materialRepository.subscribeByProject(
+      currentSubProjectId,
+      (data) => {
+        setMaterials(data);
+        setMaterialsStatus('READY');
+      },
+      () => setMaterialsStatus('ERROR')
+    );
+
+    const unsubExceptions = exceptionRepository.subscribeByProject(
+      currentSubProjectId,
+      (data) => {
+        setExceptions(data);
+        setExceptionsStatus('READY');
+      },
+      () => setExceptionsStatus('ERROR')
+    );
+
+    return () => {
+      unsubTrips();
+      unsubDrivers();
+      unsubCarriers();
+      unsubMaterials();
+      unsubExceptions();
+    };
   }, [selectedProjectId]);
+
+  const isSyncReady = selectedProjectId !== '' && 
+    tripsStatus === 'READY' && 
+    driversStatus === 'READY' && 
+    carriersStatus === 'READY' && 
+    materialsStatus === 'READY' && 
+    exceptionsStatus === 'READY';
+
+  const isSyncError = tripsStatus === 'ERROR' || 
+    driversStatus === 'ERROR' || 
+    carriersStatus === 'ERROR' || 
+    materialsStatus === 'ERROR' || 
+    exceptionsStatus === 'ERROR';
+
+  const isMigrationReady = selectedProjectId !== '' && tripsStatus === 'READY';
+  const isArchiveReady = selectedProjectId !== '' && tripsStatus === 'READY';
 
   const currentProject = projects.find(p => p.projectId === selectedProjectId) || projects[0] || null;
 
@@ -205,7 +325,15 @@ export function WorkspaceIntegrationView() {
   };
 
   const handleSyncProjection = async () => {
-    if (!currentProject) return;
+    if (!currentProject || !isSyncReady) {
+      if (isSyncError) {
+        setNotification({
+          type: 'error',
+          text: 'تعذر إجراء المزامنة بسبب وجود خطأ في تحميل بيانات Firestore للمشروع.',
+        });
+      }
+      return;
+    }
     const spreadsheetId = currentProject.settings.googleSpreadsheetId || provisionResult?.spreadsheetId;
     if (!spreadsheetId) {
       setNotification({
@@ -218,7 +346,16 @@ export function WorkspaceIntegrationView() {
     setIsSyncing(true);
     setNotification(null);
     try {
-      const summary = await clientWorkspaceService.syncProjectionToSheets(currentProject.projectId, spreadsheetId);
+      const input: WorkspaceProjectionInput = {
+        projectId: currentProject.projectId,
+        spreadsheetId,
+        trips,
+        drivers,
+        carriers,
+        materials,
+        exceptions,
+      };
+      const summary = await clientWorkspaceService.syncProjectionToSheets(input);
       setSyncSummary(summary);
       setNotification({
         type: 'success',
@@ -294,11 +431,10 @@ export function WorkspaceIntegrationView() {
   };
 
   const handleExecuteMigration = async () => {
-    if (!currentProject || !targetFolderId.trim()) return;
+    if (!currentProject || !targetFolderId.trim() || !isMigrationReady) return;
     setIsMigrating(true);
     setNotification(null);
     try {
-      const trips = tripEngineService.getTrips();
       const res = await clientWorkspaceService.startStorageMigration({
         projectId: currentProject.projectId,
         projectCode: currentProject.projectCode || 'Q-PRJ-001',
@@ -389,14 +525,17 @@ export function WorkspaceIntegrationView() {
   };
 
   const handleDownloadArchive = async () => {
-    if (!currentProject) return;
+    if (!currentProject || !isArchiveReady) return;
     setIsDownloadingArchive(true);
     setNotification(null);
     try {
-      const trips = tripEngineService.getTrips();
       await clientWorkspaceService.downloadProjectArchive({
         project: currentProject,
         trips,
+        drivers,
+        carriers,
+        materials,
+        exceptions,
         storageProfile: currentProject.settings.storageProfile,
       });
       setNotification({
@@ -421,7 +560,6 @@ export function WorkspaceIntegrationView() {
     archiveVersion: 1,
   };
 
-  const trips = tripEngineService.getTrips();
   const currentSpreadsheetId = currentProject?.settings?.googleSpreadsheetId || provisionResult?.spreadsheetId;
 
   return (
@@ -452,13 +590,13 @@ export function WorkspaceIntegrationView() {
             <button
               id="btn-sync-all-projection"
               onClick={handleSyncProjection}
-              disabled={isSyncing}
+              disabled={isSyncing || !isSyncReady}
               className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-medium text-xs shadow-md transition-all active:scale-95 ${
-                isSyncing ? 'bg-stone-600 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500'
+                isSyncing || !isSyncReady ? 'bg-stone-600 cursor-not-allowed opacity-70' : 'bg-emerald-600 hover:bg-emerald-500'
               }`}
             >
               <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              <span>{t("navigation.labels.txt_22bd57")}</span>
+              <span>{isSyncing ? 'جاري المزامنة...' : !isSyncReady ? 'جاري تحميل البيانات...' : t("navigation.labels.txt_22bd57")}</span>
             </button>
           </div>
         </div>
@@ -867,24 +1005,24 @@ export function WorkspaceIntegrationView() {
                         {trips.slice(0, 5).map((t) => (
                           <tr key={t.tripId} className="hover:bg-amber-50/40">
                             <td className="p-2 font-mono font-bold text-amber-900 border-l border-stone-100">{t.tripId}</td>
-                            <td className="p-2 font-mono border-l border-stone-100">{t.tripSerial}</td>
-                            <td className="p-2 font-mono border-l border-stone-100">{t.ticketId}</td>
-                            <td className="p-2 font-mono border-l border-stone-100">{(t.netWeight || 0).toLocaleString()}</td>
+                            <td className="p-2 font-mono border-l border-stone-100">{t.tripNumber}</td>
+                            <td className="p-2 font-mono border-l border-stone-100">{t.weights?.originTicketNo || (t as any).waybillNumber || t.tripNumber}</td>
+                            <td className="p-2 font-mono border-l border-stone-100">{(t.weights?.originNetKg ? t.weights.originNetKg / 1000 : 0).toLocaleString()}</td>
                             <td className="p-2 border-l border-stone-100">
                               <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-stone-100 text-stone-700">
                                 {t.status}
                               </span>
                             </td>
                             <td className="p-2 font-mono font-semibold text-emerald-800 bg-emerald-50/40 border-l border-stone-100">
-                              {t.pricingType}
+                              {t.pricingSnapshot?.pricingType || 'N/A'}
                             </td>
                             <td className="p-2 font-mono text-emerald-900 bg-emerald-50/40 border-l border-stone-100">
-                              {t.agreedRate}
+                              {t.pricingSnapshot?.agreedRate ?? 'N/A'}
                             </td>
                             <td className="p-2 font-mono font-bold text-emerald-900 bg-emerald-50/40 border-l border-stone-100">
-                              {(t.settlementAmount || 0).toLocaleString()}
+                              {(t.pricingSnapshot?.settlementAmount || 0).toLocaleString()}
                             </td>
-                            <td className="p-2 font-mono text-emerald-800 bg-emerald-50/40">{t.currency}</td>
+                            <td className="p-2 font-mono text-emerald-800 bg-emerald-50/40">{t.pricingSnapshot?.currency || 'SAR'}</td>
                           </tr>
                         ))}
                       </tbody>

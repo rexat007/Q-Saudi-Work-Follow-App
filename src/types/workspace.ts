@@ -282,6 +282,48 @@ export interface DestinationValidationResult {
   error?: string;
 }
 
+import { ProjectEntity, TripEntity, DriverEntity, CarrierEntity, MaterialEntity, TripExceptionEntity } from './entities';
+
+export interface WorkspaceProjectionInput {
+  projectId: string;
+  spreadsheetId: string;
+  trips: TripEntity[];
+  drivers: DriverEntity[];
+  carriers: CarrierEntity[];
+  materials: MaterialEntity[];
+  exceptions: TripExceptionEntity[];
+}
+
+export interface WorkspaceTripProjectionDTO {
+  tripId: string;
+  tripNumber?: string;
+  projectId: string;
+  carrierId?: string;
+  carrierNameAr?: string;
+  driverId?: string;
+  driverNameAr?: string;
+  truckId?: string;
+  truckPlateAr?: string;
+  materialId?: string;
+  materialNameAr?: string;
+  status: string;
+  originGrossKg?: number;
+  originTareKg?: number;
+  originNetKg?: number;
+  destinationGrossKg?: number;
+  destinationTareKg?: number;
+  destinationNetKg?: number;
+  pricingType?: string;
+  agreedRate?: number;
+  pricingRuleId?: string;
+  settlementAmount?: number;
+  waybillNumber?: string;
+  loadTime?: string;
+  arrivalTime?: string;
+  unloadTime?: string;
+  createdAt: string;
+}
+
 export interface ProjectArchiveManifest {
   projectId: string;
   projectCode: string;

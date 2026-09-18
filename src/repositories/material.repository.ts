@@ -83,7 +83,11 @@ export class MaterialRepository {
     }
   }
 
-  subscribeByProject(projectId: string, onData: (materials: MaterialEntity[]) => void) {
+  subscribeByProject(
+    projectId: string, 
+    onData: (materials: MaterialEntity[]) => void,
+    onError?: (error: Error) => void
+  ) {
     if (!auth.currentUser) {
       return () => {};
     }
@@ -95,6 +99,9 @@ export class MaterialRepository {
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, path);
+        if (onError) {
+          onError(error);
+        }
       }
     );
   }
