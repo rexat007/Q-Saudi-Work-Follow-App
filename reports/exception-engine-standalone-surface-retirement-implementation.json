@@ -1,0 +1,93 @@
+{
+  "unit": "ExceptionEngine Standalone Production Surface Retirement",
+  "status": "IMPLEMENTED_VERIFIED",
+  "phase": 6,
+  "summary": {
+    "standaloneExceptionEngineRole": "RETIRED",
+    "appRoute": "REMOVED",
+    "navigationAuthorization": "REMOVED",
+    "standaloneProductionReachability": "NONE",
+    "exceptionEngineViewSource": "PRESERVED",
+    "exceptionEngineService": "PRESERVED",
+    "exceptionEngineServiceReachability": "ADMINCONSOLE_ONLY",
+    "canonicalMigration": "NOT_PERFORMED",
+    "duplicateStandaloneControl": "REMOVED",
+    "canonicalExceptionWorkflows": "PRESERVED",
+    "adminConsoleStatus": "UNCHANGED",
+    "liveFirestoreE2eVerified": "NO"
+  },
+  "changes": [
+    {
+      "file": "src/App.tsx",
+      "action": "MODIFY",
+      "description": "Removed ExceptionEngineView import and activeTab === 'EXCEPTION_ENGINE' render branch."
+    },
+    {
+      "file": "src/services/navigation.service.ts",
+      "action": "MODIFY",
+      "description": "Removed EXCEPTION_ENGINE from isTabAuthorizedForRole fallback switch."
+    },
+    {
+      "file": "src/tests/exceptionEngineRetirement.test.ts",
+      "action": "CREATE",
+      "description": "Created focused 18-test ExceptionEngine retirement verification suite."
+    },
+    {
+      "file": "reports/exception-engine-standalone-surface-retirement-implementation.md",
+      "action": "CREATE",
+      "description": "Markdown implementation summary report."
+    },
+    {
+      "file": "reports/exception-engine-standalone-surface-retirement-implementation.json",
+      "action": "CREATE",
+      "description": "Machine-readable implementation summary report."
+    }
+  ],
+  "verification": {
+    "focusedTests": {
+      "file": "src/tests/exceptionEngineRetirement.test.ts",
+      "passed": 18,
+      "failed": 0
+    },
+    "regressions": [
+      {
+        "file": "src/tests/tripEngineRetirement.test.ts",
+        "passed": 20,
+        "failed": 0
+      },
+      {
+        "file": "src/tests/importCenterConvergence.test.ts",
+        "passed": 27,
+        "failed": 0
+      },
+      {
+        "file": "src/tests/loadingOperatorConvergence.test.ts",
+        "passed": 10,
+        "failed": 0
+      },
+      {
+        "file": "src/tests/dataQualityRetirement.test.ts",
+        "passed": 14,
+        "failed": 0
+      },
+      {
+        "file": "src/tests/workspaceConvergence.test.ts",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "file": "src/tests/reportsEngineConvergence.test.ts",
+        "passed": 48,
+        "failed": 0
+      }
+    ],
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS",
+    "diffCheck": "UNAVAILABLE"
+  },
+  "remainingPhase6Residuals": [
+    "AdminConsole Canonical Authority Convergence (primary production residual)",
+    "MasterDataUtils legacy buildRelationshipContext definition deprecation/cleanup"
+  ]
+}

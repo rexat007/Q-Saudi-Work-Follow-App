@@ -395,8 +395,6 @@ class NavigationService {
 
     // Sub-views / Retired standalone routes preserve role authorization
     switch (tabId) {
-      case 'EXCEPTION_ENGINE':
-        return ['SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'SITE_SUPERVISOR'].includes(role);
       case 'LEGACY_MIGRATION':
       case 'WORKSPACE_INTEGRATION':
         return ['SUPER_ADMIN', 'PROJECT_ADMIN'].includes(role);

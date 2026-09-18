@@ -46,7 +46,6 @@ import { ImportCenterView } from './components/importCenter/ImportCenterView';
 import { FieldOperationsView, FieldTab } from './components/field/FieldOperationsView';
 import { ReportsEngineView } from './components/reports/ReportsEngineView';
 import { OperationsDashboardView } from './components/dashboard/OperationsDashboardView';
-import { ExceptionEngineView } from './components/exceptionEngine/ExceptionEngineView';
 import { WorkspaceIntegrationView } from './components/workspace/WorkspaceIntegrationView';
 import { AdminConsoleView } from './components/admin/AdminConsoleView';
 import { LegacyMigrationView } from './components/migration/LegacyMigrationView';
@@ -566,11 +565,6 @@ export default function App() {
                 {/* ================= TAB: GOOGLE WORKSPACE (SHEETS & DRIVE PROJECTION) ================= */}
                 {activeTab === 'WORKSPACE_INTEGRATION' && (
                   <WorkspaceIntegrationView />
-                )}
-
-                {/* ================= TAB: EXCEPTION ENGINE (12 TYPES, 4 STATUSES, & AUDIT TRAIL) ================= */}
-                {activeTab === 'EXCEPTION_ENGINE' && (
-                  <ExceptionEngineView />
                 )}
 
                 {/* ================= TAB: IMPORT CENTER (12-STAGE PIPELINE) ================= */}
