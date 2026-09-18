@@ -30,7 +30,7 @@ import {
   OPERATIONAL_REPORTS_METADATA, 
   PRICING_REPORTS_METADATA 
 } from '../types/reports';
-import { exceptionEngine } from './exceptionEngine.service';
+import { TripExceptionEntity } from '../types/entities';
 import { pricingService } from './pricing.service';
 import { masterDataService } from './masterData.service';
 
@@ -975,13 +975,19 @@ export class ReportsEngineService {
   /**
    * 8. Exception Report
    */
-  public generateExceptionReport(trips: TripRecord[], filters: ReportFilterParams): ReportDataset {
+  public generateExceptionReport(
+    trips: TripRecord[], 
+    filters: ReportFilterParams,
+    customExceptions?: TripExceptionEntity[]
+  ): ReportDataset {
     const meta = OPERATIONAL_REPORTS_METADATA.EXCEPTION_REPORT;
-    const allExceptions = exceptionEngine.getAllExceptions();
+    if (!customExceptions) {
+      throw new Error('Exception data must be explicitly provided to the Reports Engine; automatic fallback to exceptionEngine is deactivated.');
+    }
     const filteredTrips = this.filterTrips(trips, filters);
     const tripIds = new Set(filteredTrips.map(t => t.tripId));
 
-    const matchedExceptions = allExceptions.filter(e => {
+    const matchedExceptions = customExceptions.filter(e => {
       if (filters.projectId && filters.projectId !== 'ALL' && e.projectId !== filters.projectId) return false;
       if (e.tripId && !tripIds.has(e.tripId) && filteredTrips.length < trips.length) return false;
       return true;
@@ -990,25 +996,34 @@ export class ReportsEngineService {
     const summary = this.calculateSummary(filteredTrips);
 
     const rows = matchedExceptions.map(e => {
-      const trip = trips.find(t => t.tripId === e.tripId);
-      const labels = trip ? this.getEntityLabels(trip) : { carrierName: 'غير محدد', truckPlate: '-', materialName: '-' };
+      const trip = e.tripId ? trips.find(t => t.tripId === e.tripId) : undefined;
+      const carrierSnapshot = (trip as any)?.carrierSnapshot;
+      const truckSnapshot = (trip as any)?.truckSnapshot;
+      const labels = trip ? this.getEntityLabels(trip) : undefined;
+      const carrierName = carrierSnapshot?.companyNameAr || carrierSnapshot?.name || labels?.carrierName;
+      const truckPlate = truckSnapshot?.plateNumberAr || truckSnapshot?.plateNumber || labels?.truckPlate;
 
-      let penalty = 0;
-      if (e.severity === 'CRITICAL' || e.severity === 'BLOCKING') penalty = 500;
-      else if (e.severity === 'HIGH') penalty = 250;
+      const openedAt = e.openedAt 
+        ? (typeof e.openedAt === 'string' || typeof e.openedAt === 'number' ? new Date(e.openedAt).toLocaleDateString('ar-SA') : undefined)
+        : (e.createdAt ? new Date(e.createdAt as any).toLocaleDateString('ar-SA') : undefined);
+      
+      const resObj = typeof e.resolution === 'object' && e.resolution !== null ? e.resolution : undefined;
+      const resolutionNote = e.resolutionNote || resObj?.resolutionNotes || (typeof e.resolution === 'string' ? e.resolution : undefined);
+      const penaltyAmount = resObj?.financialPenaltySAR;
 
       return {
         exceptionId: e.exceptionId,
-        tripId: e.tripId || 'N/A',
+        tripId: e.tripId || undefined,
+        projectId: e.projectId,
         type: e.type,
         severity: e.severity,
         status: e.status,
-        carrierName: labels.carrierName,
-        truckPlate: labels.truckPlate,
+        carrierName,
+        truckPlate,
         description: e.description,
-        openedAt: new Date(e.openedAt).toLocaleDateString('ar-SA'),
-        resolutionNote: e.resolutionNote || 'قيد المتابعة والتدقيق الإداري',
-        penaltyAmount: penalty,
+        openedAt,
+        resolutionNote,
+        penaltyAmount,
       };
     });
 
@@ -1838,9 +1853,17 @@ export class ReportsEngineService {
   /**
    * Universal Dispatcher: generates any report by its code.
    */
-  public generateReport(type: ReportType, filters: ReportFilterParams, customTrips?: TripRecord[]): ReportDataset {
+  public generateReport(
+    type: ReportType, 
+    filters: ReportFilterParams, 
+    customTrips?: TripRecord[],
+    customExceptions?: TripExceptionEntity[]
+  ): ReportDataset {
     if (!customTrips) {
       throw new Error('Trip data must be explicitly provided to the Reports Engine; automatic fallback to tripEngineService is deactivated.');
+    }
+    if (type === 'EXCEPTION_REPORT' && !customExceptions) {
+      throw new Error('Exception data must be explicitly provided to the Reports Engine; automatic fallback to exceptionEngine is deactivated.');
     }
     const trips = customTrips;
 
@@ -1861,7 +1884,7 @@ export class ReportsEngineService {
       case 'RETURNED_TRIPS':
         return this.generateReturnedTripsReport(trips, filters);
       case 'EXCEPTION_REPORT':
-        return this.generateExceptionReport(trips, filters);
+        return this.generateExceptionReport(trips, filters, customExceptions);
       case 'SOURCE_BREAKDOWN':
         return this.generateSourceBreakdownReport(trips, filters);
 

@@ -338,6 +338,11 @@ service cloud.firestore {
       }
     }
 
+    // Collection Group Read Rule for Exceptions
+    match /{path=**}/exceptions/{exceptionId} {
+      allow get, list: if isSignedIn() && isProjectMember(resource.data.projectId);
+    }
+
     // =========================================================================
     // 2. Global Users Collection
     // =========================================================================

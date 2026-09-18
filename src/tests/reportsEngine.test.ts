@@ -267,7 +267,12 @@ export function runReportsEngineTests(): {
 
   let allOpPassed = true;
   for (const rep of opReports) {
-    const ds = reportsEngineService.generateReport(rep, { projectId: 'ALL' }, mockTrips);
+    const ds = reportsEngineService.generateReport(
+      rep, 
+      { projectId: 'ALL' }, 
+      mockTrips,
+      rep === 'EXCEPTION_REPORT' ? [] : undefined
+    );
     if (!ds || !ds.columns || ds.columns.length === 0) {
       allOpPassed = false;
       break;

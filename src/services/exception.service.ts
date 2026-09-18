@@ -145,6 +145,14 @@ export class ExceptionService {
   subscribeToTripExceptions(projectId: string, tripId: string, onData: (exceptions: TripExceptionEntity[]) => void) {
     return exceptionRepository.subscribeByTrip(projectId, tripId, onData);
   }
+
+  subscribeByProject(
+    projectId: string, 
+    onData: (exceptions: TripExceptionEntity[]) => void,
+    onError?: (error: Error) => void
+  ) {
+    return exceptionRepository.subscribeByProject(projectId, onData, onError);
+  }
 }
 
 export const exceptionService = new ExceptionService();

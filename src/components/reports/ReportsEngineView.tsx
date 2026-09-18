@@ -41,6 +41,8 @@ import { reportsEngineService } from '../../services/reportsEngine.service';
 import { useAuth } from '../../firebase/authContext';
 import { tripRepository } from '../../repositories/trip.repository';
 import { projectRepository } from '../../repositories/project.repository';
+import { exceptionRepository } from '../../repositories/exception.repository';
+import { TripExceptionEntity } from '../../types/entities';
 import { PrintableReportModal } from './PrintableReportModal';
 import { runReportsEngineTests, ReportsTestCaseResult } from '../../tests/reportsEngine.test';
 import { Play, Check, X, ShieldAlert } from 'lucide-react';
@@ -59,6 +61,26 @@ export function computeMergedTripsFromProjects(tripsByProject: Record<string, Tr
     if (!seen.has(t.tripId)) {
       seen.add(t.tripId);
       deduplicated.push(t);
+    }
+  }
+  return deduplicated;
+}
+
+export function computeMergedExceptionsFromProjects(exceptionsByProject: Record<string, TripExceptionEntity[]>): TripExceptionEntity[] {
+  const list: TripExceptionEntity[] = [];
+  Object.keys(exceptionsByProject).forEach(projectId => {
+    if (exceptionsByProject[projectId]) {
+      list.push(...exceptionsByProject[projectId]);
+    }
+  });
+
+  const seen = new Set<string>();
+  const deduplicated: TripExceptionEntity[] = [];
+  for (const e of list) {
+    const key = `${e.projectId}:${e.exceptionId}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      deduplicated.push(e);
     }
   }
   return deduplicated;
@@ -111,6 +133,9 @@ export const ReportsEngineView: React.FC = () => {
 
   // Real-time trip database mapping: projectId -> TripRecord[]
   const [tripsByProject, setTripsByProject] = useState<Record<string, TripRecord[]>>({});
+
+  // Real-time exception database mapping: projectId -> TripExceptionEntity[]
+  const [exceptionsByProject, setExceptionsByProject] = useState<Record<string, TripExceptionEntity[]>>({});
 
   // 1. Authorized Projects Subscription Lifecycle (strictly active canonical projects for SUPER_ADMIN)
   useEffect(() => {
@@ -238,10 +263,100 @@ export const ReportsEngineView: React.FC = () => {
     };
   }, [authorizedProjectIds, filters.projectId, isAuthReady]);
 
+  // 3. Exception Real-time Subscription Lifecycle (active ONLY when EXCEPTION_REPORT selected)
+  useEffect(() => {
+    if (selectedReportType !== 'EXCEPTION_REPORT') {
+      setExceptionsByProject({});
+      return;
+    }
+
+    if (authorizedProjectIds.length === 0) {
+      if (isAuthReady) {
+        setIsDataLoading(false);
+      }
+      return;
+    }
+
+    setIsDataLoading(true);
+    setDataError(null);
+
+    const targetIds = filters.projectId === 'ALL' 
+      ? authorizedProjectIds 
+      : (authorizedProjectIds.includes(filters.projectId) ? [filters.projectId] : []);
+
+    if (targetIds.length === 0) {
+      setExceptionsByProject({});
+      setIsDataLoading(false);
+      return;
+    }
+
+    setExceptionsByProject(prev => {
+      const next: Record<string, TripExceptionEntity[]> = {};
+      targetIds.forEach(id => {
+        if (prev[id]) {
+          next[id] = prev[id];
+        }
+      });
+      return next;
+    });
+
+    const unsubscribers: (() => void)[] = [];
+    const pendingSet = new Set<string>(targetIds);
+    const failedSet = new Set<string>();
+
+    targetIds.forEach(pId => {
+      const unsub = exceptionRepository.subscribeByProject(
+        pId,
+        (exceptions) => {
+          setExceptionsByProject(prev => ({ ...prev, [pId]: exceptions }));
+
+          failedSet.delete(pId);
+          pendingSet.delete(pId);
+
+          if (failedSet.size > 0) {
+            setDataError('عذراً، فشل جلب بيانات الاستثناءات لبعض المشاريع المصرحة.');
+          } else {
+            setDataError(null);
+          }
+
+          if (pendingSet.size === 0) {
+            setIsDataLoading(false);
+          }
+        },
+        (error) => {
+          console.error(`Failed to subscribe to exceptions for project ${pId}:`, error);
+          failedSet.add(pId);
+          pendingSet.delete(pId);
+
+          setExceptionsByProject(prev => {
+            const next = { ...prev };
+            delete next[pId];
+            return next;
+          });
+
+          setDataError('عذراً، فشل جلب بيانات الاستثناءات لبعض المشاريع المصرحة.');
+
+          if (pendingSet.size === 0) {
+            setIsDataLoading(false);
+          }
+        }
+      );
+      unsubscribers.push(unsub);
+    });
+
+    return () => {
+      unsubscribers.forEach(unsub => unsub());
+    };
+  }, [authorizedProjectIds, filters.projectId, isAuthReady, selectedReportType]);
+
   // Merged & Deduplicated canonical datasets
   const allTrips = useMemo(() => {
     return computeMergedTripsFromProjects(tripsByProject);
   }, [tripsByProject]);
+
+  const allExceptions = useMemo(() => {
+    return computeMergedExceptionsFromProjects(exceptionsByProject);
+  }, [exceptionsByProject]);
 
   // Distinct master data options extracted dynamically from live trips & snapshots (RP-27, RP-28, RP-34)
   const availableProjects = useMemo(() => {
@@ -298,8 +413,13 @@ export const ReportsEngineView: React.FC = () => {
 
   // Generate current active dataset
   const currentDataset = useMemo(() => {
-    return reportsEngineService.generateReport(selectedReportType, filters, allTrips);
-  }, [selectedReportType, filters, allTrips]);
+    return reportsEngineService.generateReport(
+      selectedReportType, 
+      filters, 
+      allTrips, 
+      selectedReportType === 'EXCEPTION_REPORT' ? allExceptions : undefined
+    );
+  }, [selectedReportType, filters, allTrips, allExceptions]);
 
   // Filter rows by table search
   const filteredRows = useMemo(() => {

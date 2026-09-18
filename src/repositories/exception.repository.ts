@@ -1,5 +1,8 @@
 import { 
   collection, 
+  collectionGroup,
+  query,
+  where,
   doc, 
   getDocs, 
   setDoc, 
@@ -85,6 +88,33 @@ export class ExceptionRepository {
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, path);
+      }
+    );
+  }
+
+  subscribeByProject(
+    projectId: string, 
+    onData: (exceptions: TripExceptionEntity[]) => void,
+    onError?: (error: Error) => void
+  ) {
+    if (!auth.currentUser) {
+      return () => {};
+    }
+    const path = `projects/${projectId}/exceptions`;
+    const q = query(
+      collectionGroup(db, 'exceptions'),
+      where('projectId', '==', projectId)
+    );
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        onData(snapshot.docs.map(d => d.data() as TripExceptionEntity));
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.LIST, path);
+        if (onError) {
+          onError(error);
+        }
       }
     );
   }

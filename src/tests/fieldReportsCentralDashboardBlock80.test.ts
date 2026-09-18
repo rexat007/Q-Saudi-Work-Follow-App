@@ -157,7 +157,7 @@ test('BLOCK80-REP-03', 'Category C: Settlement & Financial Reports (Snapshots, P
 
 test('BLOCK80-REP-04', 'Category D: Ingestion & Exception Reports (12 exception codes, severity levels, and resolution status)', () => {
   const sampleTrips = tripEngineService.getTrips();
-  const dataset = reportsEngineService.generateReport('EXCEPTION_REPORT', { projectId: 'ALL' }, sampleTrips);
+  const dataset = reportsEngineService.generateReport('EXCEPTION_REPORT', { projectId: 'ALL' }, sampleTrips, []);
   expect(dataset.reportType).toBe('EXCEPTION_REPORT');
   expect(dataset.columns.some(c => c.key === 'type' || c.key === 'exceptionId')).toBeTrue();
   expect(dataset.columns.some(c => c.key === 'severity')).toBeTrue();

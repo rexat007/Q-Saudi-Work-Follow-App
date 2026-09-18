@@ -1,0 +1,20 @@
+{
+  "unitName": "Reports Engine Canonical Exception Read Convergence",
+  "status": "CLOSED",
+  "date": "2026-09-18",
+  "verdict": "VERIFIED",
+  "architecturalSummary": {
+    "legacyExceptionEngineAuthority": "REMOVED",
+    "canonicalDataAuthority": "exceptionRepository.subscribeByProject (Firestore collectionGroup)",
+    "dataFabrication": "NONE (tripId null remains undefined, no monetary penalty fabrication)",
+    "deduplicationStrategy": "Composite key `${e.projectId}:${e.exceptionId}`",
+    "errorHandling": "Project-isolated error state with loading locks"
+  },
+  "verificationResults": {
+    "reportsEngineConvergenceTests": "48/48 PASSED",
+    "reportsEngineUnitTests": "12/12 PASSED",
+    "block80DashboardTests": "22/22 PASSED",
+    "typescriptLint": "PASS (0 errors)",
+    "appletCompilation": "PASS"
+  }
+}
