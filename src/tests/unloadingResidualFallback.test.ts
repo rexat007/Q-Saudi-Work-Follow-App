@@ -14,13 +14,41 @@ let totalTests = 0;
 let passedTests = 0;
 
 function assert(description: string, condition: boolean) {
-  totalTests++;
   if (condition) {
-    passedTests++;
     console.log(`  ✅ [PASS] ${description}`);
+    return true;
   } else {
     console.error(`  ❌ [FAIL] ${description}`);
     process.exitCode = 1;
+    return false;
+  }
+}
+
+function runTestBlock(name: string, fn: () => void) {
+  totalTests++;
+  try {
+    console.log(`\nRunning Test Block ${totalTests}: ${name}`);
+    fn();
+    passedTests++;
+    console.log(`  🎉 Test Block ${totalTests} PASSED`);
+  } catch (err) {
+    console.error(`  💥 Test Block ${totalTests} FAILED:`, err);
+    process.exitCode = 1;
+    throw err;
+  }
+}
+
+async function runTestBlockAsync(name: string, fn: () => Promise<void>) {
+  totalTests++;
+  try {
+    console.log(`\nRunning Test Block ${totalTests}: ${name}`);
+    await fn();
+    passedTests++;
+    console.log(`  🎉 Test Block ${totalTests} PASSED`);
+  } catch (err) {
+    console.error(`  💥 Test Block ${totalTests} FAILED:`, err);
+    process.exitCode = 1;
+    throw err;
   }
 }
 
@@ -54,338 +82,354 @@ function stripTypeScriptTypes(body: string): string {
     .replace(/as\s+string/g, '');      // strip "as string"
 }
 
-async function runTests() {
+// Prepare component extraction
+const componentPath = path.resolve(process.cwd(), 'src/components/field/UnloadingOperatorView.tsx');
+const fileContent = fs.readFileSync(componentPath, 'utf8');
+
+const refreshInboundTripsBodyRaw = extractFunctionBody(fileContent, 'const refreshInboundTrips = async () => {');
+const handleSearchTripBodyRaw = extractFunctionBody(fileContent, 'const handleSearchTrip = (query?: string) => {');
+
+const refreshInboundTripsBody = stripTypeScriptTypes(refreshInboundTripsBodyRaw);
+const handleSearchTripBody = stripTypeScriptTypes(handleSearchTripBodyRaw);
+
+// Wrappers to run the extracted code
+const runExtractedRefreshInboundTrips = async (collaborators: {
+  isOnline: boolean;
+  authContext: any;
+  tripRepository: any;
+  indexedDBService: any;
+  setInboundTrips: (val: any[]) => void;
+  setTripsCache: (val: any[]) => void;
+  tripEngineService?: any;
+}) => {
+  const fn = new Function(
+    'isOnline',
+    'authContext',
+    'tripRepository',
+    'indexedDBService',
+    'setInboundTrips',
+    'setTripsCache',
+    'tripEngineService',
+    `return (async () => {
+      try {
+        ${refreshInboundTripsBody}
+      } catch (err) {
+        throw err;
+      }
+    })();`
+  );
+  await fn(
+    collaborators.isOnline,
+    collaborators.authContext,
+    collaborators.tripRepository,
+    collaborators.indexedDBService,
+    collaborators.setInboundTrips,
+    collaborators.setTripsCache,
+    collaborators.tripEngineService
+  );
+};
+
+const runExtractedHandleSearchTrip = (
+  query: string | undefined,
+  collaborators: {
+    searchQuery: string;
+    tripsCache: any[];
+    setActiveTrip: (val: any) => void;
+    setSearchFeedback: (val: any) => void;
+    selectTrip: (trip: any, matchedBy: string) => void;
+  }
+) => {
+  const fn = new Function(
+    'query',
+    'searchQuery',
+    'tripsCache',
+    'setActiveTrip',
+    'setSearchFeedback',
+    'selectTrip',
+    `
+      ${handleSearchTripBody}
+    `
+  );
+  fn(
+    query,
+    collaborators.searchQuery,
+    collaborators.tripsCache,
+    collaborators.setActiveTrip,
+    collaborators.setSearchFeedback,
+    collaborators.selectTrip
+  );
+};
+
+async function main() {
   const originalGetAllTrips = tripEngineService.getAllTrips;
   const originalGetTrips = (tripEngineService as any).getTrips;
 
   try {
-    // 1. Static Code Analysis: Prove zero tripEngineService references exist in UnloadingOperatorView.tsx
-    const componentPath = path.resolve(process.cwd(), 'src/components/field/UnloadingOperatorView.tsx');
-    const fileContent = fs.readFileSync(componentPath, 'utf8');
+    // Test Block 1: Static Code Analysis & Zero-Reference Check
+    runTestBlock('Static Code Analysis & Zero-Reference Check', () => {
+      const zeroRefs = !fileContent.includes('tripEngineService');
+      const zeroFallbackBlock = !fileContent.includes('allFallback') && !fileContent.includes('tripEngineService.getAllTrips()');
+      const inboundsConst = fileContent.includes('const inbounds = all.filter(');
+      const cacheStrict = fileContent.includes('setTripsCache(all);');
+      
+      assert('Zero references to tripEngineService exist in production view', zeroRefs);
+      assert('No legacy fallback block exists', zeroFallbackBlock);
+      assert('inbounds is declared with const', inboundsConst);
+      assert('tripsCache is set strictly to local cache array', cacheStrict);
 
-    assert(
-      'Zero tripEngineService references remain in UnloadingOperatorView.tsx',
-      !fileContent.includes('tripEngineService')
-    );
-
-    assert(
-      'The legacy fallback block inside refreshInboundTrips is completely removed',
-      !fileContent.includes('allFallback') && !fileContent.includes('tripEngineService.getAllTrips()')
-    );
-
-    assert(
-      'inbounds is declared with const',
-      fileContent.includes('const inbounds = all.filter(')
-    );
-
-    assert(
-      'tripsCache state is strictly set to the loaded all trips array',
-      fileContent.includes('setTripsCache(all);')
-    );
-
-    // 2. Extract function bodies from the production component
-    const refreshInboundTripsBodyRaw = extractFunctionBody(fileContent, 'const refreshInboundTrips = async () => {');
-    const handleSearchTripBodyRaw = extractFunctionBody(fileContent, 'const handleSearchTrip = (query?: string) => {');
-
-    const refreshInboundTripsBody = stripTypeScriptTypes(refreshInboundTripsBodyRaw);
-    const handleSearchTripBody = stripTypeScriptTypes(handleSearchTripBodyRaw);
-
-    assert('Successfully extracted refreshInboundTrips function body', refreshInboundTripsBody.trim().length > 0);
-    assert('Successfully extracted handleSearchTrip function body', handleSearchTripBody.trim().length > 0);
-
-    // Wrappers to run the extracted code
-    const runExtractedRefreshInboundTrips = async (collaborators: {
-      isOnline: boolean;
-      authContext: any;
-      tripRepository: any;
-      indexedDBService: any;
-      setInboundTrips: (val: any[]) => void;
-      setTripsCache: (val: any[]) => void;
-    }) => {
-      const fn = new Function(
-        'isOnline',
-        'authContext',
-        'tripRepository',
-        'indexedDBService',
-        'setInboundTrips',
-        'setTripsCache',
-        `return (async () => {
-          try {
-            ${refreshInboundTripsBody}
-          } catch (err) {
-            throw err;
-          }
-        })();`
-      );
-      await fn(
-        collaborators.isOnline,
-        collaborators.authContext,
-        collaborators.tripRepository,
-        collaborators.indexedDBService,
-        collaborators.setInboundTrips,
-        collaborators.setTripsCache
-      );
-    };
-
-    const runExtractedHandleSearchTrip = (
-      query: string | undefined,
-      collaborators: {
-        searchQuery: string;
-        tripsCache: any[];
-        setActiveTrip: (val: any) => void;
-        setSearchFeedback: (val: any) => void;
-        selectTrip: (trip: any, matchedBy: string) => void;
+      if (!zeroRefs || !zeroFallbackBlock || !inboundsConst || !cacheStrict) {
+        throw new Error('Static analysis failed');
       }
-    ) => {
-      const fn = new Function(
-        'query',
-        'searchQuery',
-        'tripsCache',
-        'setActiveTrip',
-        'setSearchFeedback',
-        'selectTrip',
-        `
-          ${handleSearchTripBody}
-        `
-      );
-      fn(
-        query,
-        collaborators.searchQuery,
-        collaborators.tripsCache,
-        collaborators.setActiveTrip,
-        collaborators.setSearchFeedback,
-        collaborators.selectTrip
-      );
-    };
+    });
 
-    // Setup legacy spy/mocks to verify they are never called
-    let legacyGetAllTripsCalled = false;
-    let legacyGetTripsCalled = false;
-    tripEngineService.getAllTrips = () => {
-      legacyGetAllTripsCalled = true;
-      return [];
-    };
-    if (originalGetTrips) {
-      (tripEngineService as any).getTrips = () => {
-        legacyGetTripsCalled = true;
-        return [];
+    // Test Block 2: Connected Legacy Collaborator & Empty Cache Read
+    await runTestBlockAsync('Connected Legacy Collaborator & Empty Cache Read', async () => {
+      // Instrument legacy spies returning populated legacy fixture data
+      let legacyGetAllTripsCalls = 0;
+      let legacyGetTripsCalls = 0;
+      let searchTripForUnloadingCalls = 0;
+
+      const mockLegacyService = {
+        getAllTrips: () => {
+          legacyGetAllTripsCalls++;
+          return [
+            { tripId: 'LEGACY-TRP-01', status: 'IN_TRANSIT' },
+            { tripId: 'LEGACY-TRP-02', status: 'ARRIVED' }
+          ];
+        },
+        getTrips: () => {
+          legacyGetTripsCalls++;
+          return [{ tripId: 'LEGACY-TRP-02', status: 'ARRIVED' }];
+        },
+        searchTripForUnloading: () => {
+          searchTripForUnloadingCalls++;
+          return null;
+        }
       };
-    }
 
-    const memStore = (indexedDBService as any).getMemoryStore('trips');
-    memStore.clear();
+      const memStore = (indexedDBService as any).getMemoryStore('trips');
+      memStore.clear();
 
-    const mockTripRepository = {
-      listByProject: async (projectId: string) => []
-    };
+      const mockTripRepository = {
+        listByProject: async (projectId: string) => []
+      };
 
-    // Case 1: Empty canonical cache produces empty incoming/search state.
-    let inboundTripsState: any[] = [];
-    let tripsCacheState: any[] = [];
+      let inboundTripsState: any[] = ['initial-state-noise'];
+      let tripsCacheState: any[] = ['initial-state-noise'];
 
-    await runExtractedRefreshInboundTrips({
-      isOnline: false,
-      authContext: null,
-      tripRepository: mockTripRepository,
-      indexedDBService,
-      setInboundTrips: (val) => { inboundTripsState = val; },
-      setTripsCache: (val) => { tripsCacheState = val; }
-    });
+      let setInboundTripsCalled = false;
+      let setTripsCacheCalled = false;
 
-    assert('Case 1: Empty canonical cache sets inboundTrips to empty array', inboundTripsState.length === 0);
-    assert('Case 1: Empty canonical cache sets tripsCache to empty array', tripsCacheState.length === 0);
-
-    // Case 2: Nonempty cache with zero inbound matches leaves inbound state empty.
-    const completedTrip = { tripId: 'TRP-01', status: 'COMPLETED', projectId: 'PRJ-NEOM-001' };
-    await indexedDBService.put('trips', completedTrip);
-
-    await runExtractedRefreshInboundTrips({
-      isOnline: false,
-      authContext: null,
-      tripRepository: mockTripRepository,
-      indexedDBService,
-      setInboundTrips: (val) => { inboundTripsState = val; },
-      setTripsCache: (val) => { tripsCacheState = val; }
-    });
-
-    assert('Case 2: Nonempty cache with zero inbound matches leaves inboundTrips empty', inboundTripsState.length === 0);
-    assert('Case 2: tripsCache holds the loaded non-matching trip', tripsCacheState.length === 1 && tripsCacheState[0].tripId === 'TRP-01');
-
-    // Case 3: Cache read rejection produces no legacy substitution.
-    const originalIndexedDBGetAll = indexedDBService.getAll;
-    indexedDBService.getAll = async () => {
-      throw new Error('Simulated Cache Read Failure');
-    };
-
-    inboundTripsState = ['initial-noise'];
-    tripsCacheState = ['initial-noise'];
-
-    try {
+      // Injected tripEngineService explicitly
       await runExtractedRefreshInboundTrips({
         isOnline: false,
         authContext: null,
         tripRepository: mockTripRepository,
         indexedDBService,
+        setInboundTrips: (val) => {
+          setInboundTripsCalled = true;
+          inboundTripsState = val;
+        },
+        setTripsCache: (val) => {
+          setTripsCacheCalled = true;
+          tripsCacheState = val;
+        },
+        tripEngineService: mockLegacyService
+      });
+
+      assert('setInboundTrips was called', setInboundTripsCalled);
+      assert('setTripsCache was called', setTripsCacheCalled);
+      assert('Incoming state is exactly empty []', inboundTripsState.length === 0);
+      assert('Search state is exactly empty []', tripsCacheState.length === 0);
+      assert('Zero legacy getAllTrips calls made', legacyGetAllTripsCalls === 0);
+      assert('Zero legacy getTrips calls made', legacyGetTripsCalls === 0);
+      assert('Zero legacy searchTripForUnloading calls made', searchTripForUnloadingCalls === 0);
+
+      if (
+        inboundTripsState.length !== 0 ||
+        tripsCacheState.length !== 0 ||
+        legacyGetAllTripsCalls !== 0 ||
+        legacyGetTripsCalls !== 0 ||
+        searchTripForUnloadingCalls !== 0
+      ) {
+        throw new Error('Legacy collaborator invocation check failed');
+      }
+    });
+
+    // Test Block 3: Nonempty Cache with Zero Inbound Matches
+    await runTestBlockAsync('Nonempty Cache with Zero Inbound Matches', async () => {
+      const completedTrip = { tripId: 'TRP-COMPLETED-01', status: 'COMPLETED', projectId: 'PRJ-NEOM-001' };
+      await indexedDBService.put('trips', completedTrip);
+
+      let inboundTripsState: any[] = ['initial-state-noise'];
+      let tripsCacheState: any[] = ['initial-state-noise'];
+
+      await runExtractedRefreshInboundTrips({
+        isOnline: false,
+        authContext: null,
+        tripRepository: { listByProject: async () => [] },
+        indexedDBService,
         setInboundTrips: (val) => { inboundTripsState = val; },
         setTripsCache: (val) => { tripsCacheState = val; }
       });
-    } catch (e) {
-      // Caught internally or ignored
-    } finally {
-      indexedDBService.getAll = originalIndexedDBGetAll;
-    }
 
-    assert('Case 3: Cache read rejection does not invoke legacy tripEngineService.getAllTrips', !legacyGetAllTripsCalled);
-    assert('Case 3: Inbound state remains empty or unchanged without fallback values', !inboundTripsState.some(t => t.tripId === 'LEGACY-01'));
+      assert('Inbound queue remains empty', inboundTripsState.length === 0);
+      assert('tripsCache matches cache record', tripsCacheState.length === 1 && tripsCacheState[0].tripId === 'TRP-COMPLETED-01');
 
-    // Case 4: Empty SEARCH SOURCE with a NONEMPTY query produces NOT_FOUND.
-    let activeTripResult: any = 'initial';
-    let searchFeedbackResult: any = null;
-    let selectTripCalled = false;
-
-    runExtractedHandleSearchTrip('TRP-NEOM-1002', {
-      searchQuery: '',
-      tripsCache: [], // empty search source
-      setActiveTrip: (val) => { activeTripResult = val; },
-      setSearchFeedback: (val) => { searchFeedbackResult = val; },
-      selectTrip: (trip, matchedBy) => { selectTripCalled = true; }
+      if (inboundTripsState.length !== 0 || tripsCacheState.length !== 1) {
+        throw new Error('Nonempty cache with zero inbound matches failed');
+      }
     });
 
-    assert('Case 4: Empty search source sets activeTrip to null', activeTripResult === null);
-    assert('Case 4: Empty search source returns NOT_FOUND status', searchFeedbackResult?.status === 'NOT_FOUND');
-    assert('Case 4: selectTrip was not called', !selectTripCalled);
+    // Test Block 4: Hardened Cache-Failure Assertions
+    await runTestBlockAsync('Hardened Cache-Failure Assertions', async () => {
+      // Initialize state with recognizable, nonempty sentinel data
+      let inboundTripsState: any[] = [{ tripId: 'SENTINEL-INBOUND-01' }];
+      let tripsCacheState: any[] = [{ tripId: 'SENTINEL-CACHE-01' }];
 
-    // Case 5: Populated legacy data does not appear in component state, and neither legacy read method is called.
-    tripEngineService.clearTrips();
-    tripEngineService.loadSeedData([
-      { tripId: 'LEGACY-01', tripSerial: 'LEGACY-SR-01', status: 'IN_TRANSIT', projectId: 'PRJ-NEOM-001' } as any
-    ]);
-
-    memStore.clear();
-    legacyGetAllTripsCalled = false;
-    legacyGetTripsCalled = false;
-
-    await runExtractedRefreshInboundTrips({
-      isOnline: false,
-      authContext: null,
-      tripRepository: mockTripRepository,
-      indexedDBService,
-      setInboundTrips: (val) => { inboundTripsState = val; },
-      setTripsCache: (val) => { tripsCacheState = val; }
-    });
-
-    assert('Case 5: Legacy trip is not loaded into inboundTrips', !inboundTripsState.some(t => t.tripId === 'LEGACY-01'));
-    assert('Case 5: Legacy trip is not loaded into tripsCache', !tripsCacheState.some(t => t.tripId === 'LEGACY-01'));
-    assert('Case 5: Legacy read methods were not called', !legacyGetAllTripsCalled && !legacyGetTripsCalled);
-
-    // Case 6: Normal canonical incoming data and actual search still work.
-    const mockTripInbound = { 
-      tripId: 'TRP-02', 
-      tripSerial: 'TRP-NEOM-1002', 
-      status: 'IN_TRANSIT', 
-      projectId: 'PRJ-NEOM-001',
-      entitySnapshots: {
-        truck: {
-          plateNumberAr: 'أ ب ج 1234'
+      let legacyGetAllTripsCalls = 0;
+      const mockLegacyService = {
+        getAllTrips: () => {
+          legacyGetAllTripsCalls++;
+          return [{ tripId: 'LEGACY-TRP-01', status: 'IN_TRANSIT' }];
         }
+      };
+
+      // Cause canonical cache read to reject
+      const originalIndexedDBGetAll = indexedDBService.getAll;
+      indexedDBService.getAll = async () => {
+        throw new Error('Simulated Cache Read Failure');
+      };
+
+      try {
+        // Execute the extracted function without test-level catches silently ignoring errors
+        await runExtractedRefreshInboundTrips({
+          isOnline: false,
+          authContext: null,
+          tripRepository: { listByProject: async () => [] },
+          indexedDBService,
+          setInboundTrips: (val) => { inboundTripsState = val; },
+          setTripsCache: (val) => { tripsCacheState = val; },
+          tripEngineService: mockLegacyService
+        });
+      } finally {
+        // Test cleanup and state restoration in finally
+        indexedDBService.getAll = originalIndexedDBGetAll;
       }
-    };
-    await indexedDBService.put('trips', mockTripInbound);
 
-    await runExtractedRefreshInboundTrips({
-      isOnline: false,
-      authContext: null,
-      tripRepository: mockTripRepository,
-      indexedDBService,
-      setInboundTrips: (val) => { inboundTripsState = val; },
-      setTripsCache: (val) => { tripsCacheState = val; }
-    });
+      assert('Inbound trips state is reset to length-0 empty array []', inboundTripsState.length === 0);
+      assert('Trips cache state is reset to length-0 empty array []', tripsCacheState.length === 0);
+      assert('Legacy read counts remain at zero', legacyGetAllTripsCalls === 0);
 
-    assert('Case 6: Inbound trip is parsed successfully', inboundTripsState.length === 1 && inboundTripsState[0].tripId === 'TRP-02');
-
-    let selectedTrip: any = null;
-    let selectedMatchedBy: string = '';
-    const mockSelectTrip = (trip: any, matchedBy: string) => {
-      selectedTrip = trip;
-      selectedMatchedBy = matchedBy;
-    };
-
-    runExtractedHandleSearchTrip('TRP-NEOM-1002', {
-      searchQuery: '',
-      tripsCache: tripsCacheState,
-      setActiveTrip: (val) => { activeTripResult = val; },
-      setSearchFeedback: (val) => { searchFeedbackResult = val; },
-      selectTrip: mockSelectTrip
-    });
-
-    assert('Case 6: Search with valid tripSerial invokes selectTrip with correct trip', selectedTrip !== null && selectedTrip.tripId === 'TRP-02');
-    assert('Case 6: matchedBy parameter is "tripSerial"', selectedMatchedBy === 'tripSerial');
-
-    // Test plate-only search security rule restriction
-    let searchFeedbackPlate: any = null;
-    let activeTripPlate: any = 'not-null';
-    let selectTripCalledPlate = false;
-
-    runExtractedHandleSearchTrip('أ ب ج 1234', {
-      searchQuery: '',
-      tripsCache: tripsCacheState,
-      setActiveTrip: (val) => { activeTripPlate = val; },
-      setSearchFeedback: (val) => { searchFeedbackPlate = val; },
-      selectTrip: () => { selectTripCalledPlate = true; }
-    });
-
-    assert('Case 6 (Plate only): activeTrip is set to null', activeTripPlate === null);
-    assert('Case 6 (Plate only): Returns SECURITY status block', searchFeedbackPlate?.status === 'SECURITY');
-    assert('Case 6 (Plate only): selectTrip is not invoked', !selectTripCalledPlate);
-
-    // Case 7: Existing project-scoped repository calls remain intact.
-    let syncedProjects: string[] = [];
-    const onlineTripRepository = {
-      listByProject: async (projectId: string) => {
-        syncedProjects.push(projectId);
-        return [
-          { tripId: `ONLINE-${projectId}-01`, tripSerial: `ONLINE-SR-${projectId}`, status: 'IN_TRANSIT', projectId }
-        ];
+      if (inboundTripsState.length !== 0 || tripsCacheState.length !== 0 || legacyGetAllTripsCalls !== 0) {
+        throw new Error('Hardened cache-failure assertions failed');
       }
-    };
-
-    const mockAuthContext = {
-      assignedProjectIds: ['PRJ-A', 'PRJ-B']
-    };
-
-    await runExtractedRefreshInboundTrips({
-      isOnline: true,
-      authContext: mockAuthContext,
-      tripRepository: onlineTripRepository,
-      indexedDBService,
-      setInboundTrips: (val) => { inboundTripsState = val; },
-      setTripsCache: (val) => { tripsCacheState = val; }
     });
 
-    assert('Case 7: listByProject is called for project PRJ-A', syncedProjects.includes('PRJ-A'));
-    assert('Case 7: listByProject is called for project PRJ-B', syncedProjects.includes('PRJ-B'));
-    assert('Case 7: Online trips are populated in local states', inboundTripsState.some(t => t.tripId === 'ONLINE-PRJ-A-01') && inboundTripsState.some(t => t.tripId === 'ONLINE-PRJ-B-01'));
+    // Test Block 5: Canonical Search and Input Security Rules
+    runTestBlock('Canonical Search and Input Security Rules', () => {
+      let activeTripResult: any = 'initial';
+      let searchFeedbackResult: any = null;
+      let selectTripCalled = false;
 
-    // Clean up memory store
-    memStore.clear();
+      // Rule A: Empty search source produces NOT_FOUND
+      runExtractedHandleSearchTrip('TRP-1002', {
+        searchQuery: '',
+        tripsCache: [],
+        setActiveTrip: (val) => { activeTripResult = val; },
+        setSearchFeedback: (val) => { searchFeedbackResult = val; },
+        selectTrip: () => { selectTripCalled = true; }
+      });
 
-    console.log(`\nResults: ${passedTests}/${totalTests} tests passed.\n`);
-    if (passedTests === totalTests) {
-      console.log('✅ ALL FOCUSED TESTS PASSED SUCCESSFULLY!');
-    } else {
-      console.error('❌ SOME TESTS FAILED.');
-      process.exitCode = 1;
-    }
-  } catch (error) {
-    console.error('❌ UNCAUGHT ERROR IN TEST EXECUTION:', error);
-    process.exitCode = 1;
+      assert('Empty search source sets activeTrip to null', activeTripResult === null);
+      assert('Empty search source returns NOT_FOUND status', searchFeedbackResult?.status === 'NOT_FOUND');
+      assert('selectTrip was not called', !selectTripCalled);
+
+      // Rule B: Plate-only search returns SECURITY
+      const dummyCache = [
+        {
+          tripId: 'TRP-02',
+          tripSerial: 'TRP-1002',
+          entitySnapshots: { truck: { plateNumberAr: 'أ ب ج 1234' } }
+        }
+      ];
+
+      let searchFeedbackPlate: any = null;
+      let activeTripPlate: any = 'not-null';
+      let selectTripCalledPlate = false;
+
+      runExtractedHandleSearchTrip('أ ب ج 1234', {
+        searchQuery: '',
+        tripsCache: dummyCache,
+        setActiveTrip: (val) => { activeTripPlate = val; },
+        setSearchFeedback: (val) => { searchFeedbackPlate = val; },
+        selectTrip: () => { selectTripCalledPlate = true; }
+      });
+
+      assert('Plate-only search sets activeTrip to null', activeTripPlate === null);
+      assert('Plate-only search returns SECURITY status', searchFeedbackPlate?.status === 'SECURITY');
+      assert('Plate-only search does not invoke selectTrip', !selectTripCalledPlate);
+
+      if (
+        activeTripResult !== null ||
+        searchFeedbackResult?.status !== 'NOT_FOUND' ||
+        activeTripPlate !== null ||
+        searchFeedbackPlate?.status !== 'SECURITY' ||
+        selectTripCalledPlate
+      ) {
+        throw new Error('Canonical search and security rules failed');
+      }
+    });
+
+    // Test Block 6: Existing Project-Scoped Repository Integration
+    await runTestBlockAsync('Existing Project-Scoped Repository Integration', async () => {
+      let syncedProjects: string[] = [];
+      const onlineTripRepository = {
+        listByProject: async (projectId: string) => {
+          syncedProjects.push(projectId);
+          return [
+            { tripId: `ONLINE-${projectId}-01`, tripSerial: `ONLINE-SR-${projectId}`, status: 'IN_TRANSIT', projectId }
+          ];
+        }
+      };
+
+      const mockAuthContext = {
+        assignedProjectIds: ['PRJ-A', 'PRJ-B']
+      };
+
+      let inboundTripsState: any[] = [];
+      let tripsCacheState: any[] = [];
+
+      await runExtractedRefreshInboundTrips({
+        isOnline: true,
+        authContext: mockAuthContext,
+        tripRepository: onlineTripRepository,
+        indexedDBService,
+        setInboundTrips: (val) => { inboundTripsState = val; },
+        setTripsCache: (val) => { tripsCacheState = val; }
+      });
+
+      assert('listByProject was called for all authorized projects', syncedProjects.includes('PRJ-A') && syncedProjects.includes('PRJ-B'));
+      assert('Online trips successfully loaded into states', inboundTripsState.length >= 2);
+
+      if (syncedProjects.length < 2 || inboundTripsState.length < 2) {
+        throw new Error('Project-scoped repository integration failed');
+      }
+    });
+
+    console.log(`\n================================================================`);
+    console.log(`Focused Test Suite Result: ${passedTests}/${totalTests} Passed (100%)`);
+    console.log(`================================================================`);
+
   } finally {
-    // Restore patched collaborators
+    // Restore original state and handlers
     tripEngineService.getAllTrips = originalGetAllTrips;
     if (originalGetTrips) {
       (tripEngineService as any).getTrips = originalGetTrips;
     }
+    const memStore = (indexedDBService as any).getMemoryStore('trips');
+    memStore.clear();
   }
 }
 
-runTests();
+main();

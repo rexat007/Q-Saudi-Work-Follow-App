@@ -88,7 +88,7 @@
   "verification": {
     "focusedTests": {
       "command": "npx tsx src/tests/unloadingResidualFallback.test.ts",
-      "results": "27/27 assertions passed successfully",
+      "results": "6/6 test blocks passed successfully",
       "exitStatus": 0,
       "classification": "ACTUAL",
       "method": "Dynamic function execution of extracted refreshInboundTrips and handleSearchTrip production code"
