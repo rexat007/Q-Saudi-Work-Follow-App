@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-18T13:34:03.255Z
+**Generated At:** 2026-09-18T19:30:15.747Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,16 +9,16 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **13757** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **13753** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **9129** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **9129** | Domain terminology requiring semantic verification |
-| **Ambiguous Keys Isolated** | **4621** | Short tokens or codes quarantined from auto-translation |
+| **Untranslated Slots (Pending Review)** | **9090** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **9090** | Domain terminology requiring semantic verification |
+| **Ambiguous Keys Isolated** | **4656** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
 | **Interpolation Placeholders** | **232** | Dynamic parameters (e.g. `{count}`) strictly preserved |
 | **Pluralization Requirements** | **151** | Expressions requiring 6 Arabic plural forms |
-| **Semantic Conflicts Isolated** | **649** | Identical texts split into separate contextual keys |
-| **Duplicate Groups (Type A Sharing)** | **2038** | Safe identical-context key reuse candidates |
+| **Semantic Conflicts Isolated** | **645** | Identical texts split into separate contextual keys |
+| **Duplicate Groups (Type A Sharing)** | **2045** | Safe identical-context key reuse candidates |
 | **Directional Migration Queue** | **271** | Physical Tailwind classes flagged for RTL/LTR migration |
 
 ## 2. Category Distribution & Translation Readiness
@@ -26,20 +26,20 @@
 | Category | Total Keys | Translated | Untranslated | Review Required | Ambiguous |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `other` | 5491 | 4 | 3895 | 3895 | 1592 |
-| `imports` | 1752 | 0 | 1175 | 1175 | 577 |
+| `imports` | 1750 | 0 | 1173 | 1173 | 577 |
 | `projects` | 771 | 0 | 551 | 551 | 220 |
 | `reports` | 723 | 0 | 396 | 396 | 326 |
-| `trips` | 587 | 0 | 416 | 416 | 171 |
-| `security` | 553 | 0 | 390 | 390 | 163 |
-| `navigation` | 535 | 0 | 310 | 310 | 225 |
+| `trips` | 595 | 0 | 416 | 416 | 179 |
+| `security` | 533 | 0 | 355 | 355 | 178 |
+| `navigation` | 532 | 0 | 307 | 307 | 225 |
 | `pricing` | 514 | 0 | 330 | 330 | 184 |
 | `weighbridge` | 418 | 0 | 229 | 229 | 189 |
 | `unloading` | 312 | 0 | 194 | 194 | 118 |
 | `offline` | 302 | 0 | 184 | 184 | 118 |
-| `exceptions` | 295 | 0 | 178 | 178 | 117 |
+| `exceptions` | 299 | 0 | 178 | 178 | 121 |
 | `legacyMigration` | 295 | 0 | 124 | 124 | 171 |
+| `entityResolution` | 288 | 0 | 190 | 190 | 98 |
 | `loading` | 283 | 0 | 219 | 219 | 64 |
-| `entityResolution` | 279 | 0 | 189 | 189 | 90 |
 | `dashboard` | 152 | 1 | 90 | 90 | 61 |
 | `authentication` | 115 | 0 | 76 | 76 | 39 |
 | `drivers` | 105 | 0 | 34 | 34 | 71 |
@@ -75,8 +75,8 @@ Identical Arabic terms separated into distinct keys based on operational context
 
 | File | Line | Physical Class | Recommended Logical Class | Risk |
 | :--- | :--- | :--- | :--- | :--- |
-| `src/App.tsx` | 761 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
-| `src/App.tsx` | 786 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
+| `src/App.tsx` | 743 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
+| `src/App.tsx` | 768 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
 | `src/components/FirestoreArchitectureView.tsx` | 471 | `text-left` | `text-start` | `MUST_MIGRATE` |
 | `src/components/FirestoreArchitectureView.tsx` | 529 | `pr-1` | `pe-1` | `MUST_MIGRATE` |
 | `src/components/TripEngineView.tsx` | 611 | `mr-1` | `me-1` | `MUST_MIGRATE` |

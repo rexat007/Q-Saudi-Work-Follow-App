@@ -1,49 +1,34 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  adminConsoleService, 
-  SyncHealthStatus 
-} from '../../services/adminConsole.service';
-import { 
   ProjectEntity, 
-  TripExceptionEntity, 
-  AuditLogEntity 
+  AuditLogEntity,
+  UserEntity
 } from '../../types/entities';
 import { AuthUserContext } from '../../types/common';
 import { 
   ShieldCheck, 
-  ShieldAlert, 
   Users, 
   History, 
-  Clock, 
-  AlertTriangle, 
-  CheckCircle2, 
-  XCircle, 
+  FolderKanban,
   Search, 
-  Filter, 
-  ArrowRight, 
-  ChevronDown, 
   Info, 
   Check, 
   X, 
   Lock, 
-  Unlock, 
   Activity, 
-  FileText, 
   CheckCheck,
-  AlertCircle
+  AlertCircle,
+  XCircle
 } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import { useAuth } from '../../firebase/authContext';
 import { userRepository } from '../../repositories/user.repository';
+import { projectRepository } from '../../repositories/project.repository';
 import { auditLogService } from '../../services/auditLog.service';
-import { exceptionEngine } from '../../services/exceptionEngine.service';
-import { UserEntity } from '../../types/entities';
-import { ExceptionRecord, ExceptionStatus } from '../../types/exceptionEngine';
 
 type AdminSection = 
   | 'USERS'
   | 'SECURITY_ACCESS'
-  | 'EXCEPTIONS'
   | 'AUDIT_LOGS';
 
 export function AdminConsoleView() {
@@ -62,16 +47,13 @@ export function AdminConsoleView() {
     displayName: userProfile?.fullName || 'مدير النظام الموحد',
   }), [currentUser, userProfile]);
 
-  // Firestore-based real collections
+  // Firestore-based canonical collections
   const [users, setUsers] = useState<UserEntity[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLogEntity[]>([]);
-  const [exceptions, setExceptions] = useState<ExceptionRecord[]>([]);
-  const [syncHealth, setSyncHealth] = useState<SyncHealthStatus>(adminConsoleService.getSyncHealth());
   const [projects, setProjects] = useState<ProjectEntity[]>([]);
 
   // Sub-navigation filter states
   const [userStatusFilter, setUserStatusFilter] = useState<'ALL' | 'PENDING_APPROVAL' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED'>('ALL');
-  const [exceptionStatusFilter, setExceptionStatusFilter] = useState<'ALL' | ExceptionStatus>('ALL');
 
   // Audit filter states
   const [auditUserFilter, setAuditUserFilter] = useState<string>('ALL');
@@ -94,11 +76,6 @@ export function AdminConsoleView() {
   const [approvalRole, setApprovalRole] = useState<UserEntity['role']>('SUPERVISOR');
   const [approvalProjectIds, setApprovalProjectIds] = useState<string[]>([]);
 
-  // Exceptions handling modals
-  const [resolvingException, setResolvingException] = useState<ExceptionRecord | null>(null);
-  const [rejectingException, setRejectingException] = useState<ExceptionRecord | null>(null);
-  const [clinicalReasonNotes, setClinicalReasonNotes] = useState<string>('');
-
   // General banner notifications
   const [banner, setBanner] = useState<{ type: 'success' | 'warning' | 'info'; message: string } | null>(null);
 
@@ -107,7 +84,7 @@ export function AdminConsoleView() {
     setTimeout(() => setBanner(null), 5000);
   };
 
-  // Subscribe to real collections
+  // Subscribe to canonical collections
   useEffect(() => {
     // 1. Live Firestore users subscription
     const unsubscribeUsers = userRepository.subscribeToUsers((realUsers) => {
@@ -123,22 +100,24 @@ export function AdminConsoleView() {
       setAuditLogs(realLogs);
     });
 
-    // 3. Exception engine subscription
-    setExceptions(exceptionEngine.getAllExceptions());
-    const unsubscribeExceptions = exceptionEngine.subscribe(() => {
-      setExceptions(exceptionEngine.getAllExceptions());
-    });
-
-    // 4. Static / service configurations
-    setProjects(adminConsoleService.getProjects());
-    setSyncHealth(adminConsoleService.getSyncHealth());
+    // 3. Live Firestore projects subscription (canonical RBAC-scoped)
+    const isSuperAdmin = userProfile?.role === 'SUPER_ADMIN';
+    const assignedProjectIds = userProfile?.assignedProjectIds || [];
+    const unsubscribeProjects = projectRepository.subscribeToProjects(
+      (realProjects) => {
+        setProjects(realProjects);
+      },
+      undefined,
+      assignedProjectIds,
+      isSuperAdmin
+    );
 
     return () => {
       unsubscribeUsers();
       unsubscribeLogs();
-      unsubscribeExceptions();
+      unsubscribeProjects();
     };
-  }, []);
+  }, [userProfile]);
 
   // Filtered Users List
   const filteredUsers = useMemo(() => {
@@ -152,15 +131,6 @@ export function AdminConsoleView() {
       return matchesStatus && matchesSearch;
     });
   }, [users, userStatusFilter, searchQuery]);
-
-  // Filtered Exceptions List
-  const filteredExceptions = useMemo(() => {
-    return exceptions.filter(e => {
-      const matchesStatus = exceptionStatusFilter === 'ALL' || e.status === exceptionStatusFilter;
-      const matchesProject = selectedProjectId === 'ALL' || e.projectId === selectedProjectId;
-      return matchesStatus && matchesProject;
-    });
-  }, [exceptions, exceptionStatusFilter, selectedProjectId]);
 
   // Filtered Audit Logs
   const filteredAuditLogs = useMemo(() => {
@@ -215,7 +185,7 @@ export function AdminConsoleView() {
     return Array.from(set);
   }, [auditLogs]);
 
-  // Approve User Action Handler
+  // Approve User Action Handler (Canonical Only)
   const handleApproveUserConfirm = async () => {
     if (!userApprovalModal) return;
     const userToApprove = userApprovalModal;
@@ -243,9 +213,6 @@ export function AdminConsoleView() {
         after: { ...userToApprove, ...updates }
       }, authContext);
 
-      // Sync local in-memory fallback helper
-      adminConsoleService.approveUser(userToApprove.userId, approvalRole, approvalProjectIds, authContext);
-
       showBanner(`تم اعتماد المستخدم بنجاح بالدور: ${approvalRole}`);
       setUserApprovalModal(null);
     } catch (error: any) {
@@ -253,7 +220,7 @@ export function AdminConsoleView() {
     }
   };
 
-  // Reject User Action Handler
+  // Reject User Action Handler (Canonical Only)
   const handleRejectUserConfirm = async () => {
     if (!userRejectionModal || !rejectionReason.trim()) return;
     const userToReject = userRejectionModal;
@@ -280,9 +247,6 @@ export function AdminConsoleView() {
         after: { ...userToReject, ...updates }
       }, authContext);
 
-      // Sync local helper
-      adminConsoleService.rejectUser(userToReject.userId, rejectionReason, authContext);
-
       showBanner(`تم رفض حساب المستخدم وتقديم التبرير الحوكمي.`);
       setUserRejectionModal(null);
       setRejectionReason('');
@@ -291,7 +255,7 @@ export function AdminConsoleView() {
     }
   };
 
-  // Suspend User Handler
+  // Suspend User Handler (Canonical Only)
   const handleSuspendUser = async (userToSuspend: UserEntity) => {
     try {
       const updates = {
@@ -310,14 +274,13 @@ export function AdminConsoleView() {
         after: { ...userToSuspend, ...updates }
       }, authContext);
 
-      adminConsoleService.suspendUser(userToSuspend.userId, authContext);
       showBanner(`تم تعليق حساب المستخدم بنجاح.`);
     } catch (error: any) {
       showBanner(`فشلت عملية التعليق: ${error.message}`, 'warning');
     }
   };
 
-  // Reactivate User Handler
+  // Reactivate User Handler (Canonical Only)
   const handleReactivateUser = async (userToReactivate: UserEntity) => {
     try {
       const updates = {
@@ -336,14 +299,13 @@ export function AdminConsoleView() {
         after: { ...userToReactivate, ...updates }
       }, authContext);
 
-      adminConsoleService.reactivateUser(userToReactivate.userId, authContext);
       showBanner(`تمت إعادة تفعيل الحساب بنجاح.`);
     } catch (error: any) {
       showBanner(`فشلت إعادة التفعيل: ${error.message}`, 'warning');
     }
   };
 
-  // Security Access Policies modification
+  // Security Access Policies modification (Canonical Only)
   const handleSaveSecurityPolicy = async () => {
     if (!selectedUserForSecurity) return;
     const target = selectedUserForSecurity;
@@ -373,71 +335,6 @@ export function AdminConsoleView() {
     }
   };
 
-  // Exception resolution
-  const handleResolveException = () => {
-    if (!resolvingException || !clinicalReasonNotes.trim()) return;
-    
-    try {
-      // Resolve through exception engine with clinical audit reason
-      exceptionEngine.resolveException({
-        exceptionId: resolvingException.exceptionId,
-        actorId: authContext.userId,
-        actorName: authContext.displayName,
-        actorRole: authContext.role,
-        resolution: 'RESOLVED',
-        resolutionNote: clinicalReasonNotes,
-      });
-
-      // Record in security journal
-      auditLogService.recordLog({
-        projectId: resolvingException.projectId,
-        entityType: 'EXCEPTION',
-        entityId: resolvingException.exceptionId,
-        action: 'WAIVE_EXCEPTION',
-        before: resolvingException,
-        after: { ...resolvingException, status: 'RESOLVED', resolutionNote: clinicalReasonNotes }
-      }, authContext);
-
-      showBanner(`تمت معالجة الاستثناء بنجاح وإغلاق التنبيه الميداني.`);
-      setResolvingException(null);
-      setClinicalReasonNotes('');
-    } catch (error: any) {
-      showBanner(`فشل تحديث الاستثناء: ${error.message}`, 'warning');
-    }
-  };
-
-  // Exception rejection
-  const handleRejectException = () => {
-    if (!rejectingException || !clinicalReasonNotes.trim()) return;
-
-    try {
-      exceptionEngine.rejectException({
-        exceptionId: rejectingException.exceptionId,
-        actorId: authContext.userId,
-        actorName: authContext.displayName,
-        actorRole: authContext.role,
-        rejectionReason: clinicalReasonNotes,
-        resolutionNote: clinicalReasonNotes,
-      });
-
-      auditLogService.recordLog({
-        projectId: rejectingException.projectId,
-        entityType: 'EXCEPTION',
-        entityId: rejectingException.exceptionId,
-        action: 'FORCE_STATUS_CHANGE',
-        before: rejectingException,
-        after: { ...rejectingException, status: 'REJECTED', resolutionNote: clinicalReasonNotes }
-      }, authContext);
-
-      showBanner(`تم رفض معالجة الاستثناء وتسجيل التبرير الإداري المانع.`);
-      setRejectingException(null);
-      setClinicalReasonNotes('');
-    } catch (error: any) {
-      showBanner(`فشلت المعالجة: ${error.message}`, 'warning');
-    }
-  };
-
-
   return (
     <div className="space-y-6" dir="rtl">
       
@@ -453,7 +350,7 @@ export function AdminConsoleView() {
         </div>
       )}
 
-      {/* ================= COGNITIVE METRICS SUMMARY (BENTO GRID STYLE) ================= */}
+      {/* ================= COGNITIVE METRICS SUMMARY ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         <div className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs flex items-center gap-4">
@@ -481,25 +378,25 @@ export function AdminConsoleView() {
         </div>
 
         <div className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 flex items-center justify-center shrink-0">
-            <ShieldAlert className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-700 flex items-center justify-center shrink-0">
+            <FolderKanban className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 block font-bold">الاستثناءات التشغيلية النشطة</span>
-            <span className="text-2xl font-black text-rose-600">
-              {exceptions.filter(e => e.status === 'OPEN' || e.status === 'UNDER_REVIEW').length}
+            <span className="text-xs text-stone-400 block font-bold">المشاريع المتاحة في النطاق</span>
+            <span className="text-2xl font-black text-stone-900">
+              {projects.length}
             </span>
           </div>
         </div>
 
         <div className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-stone-500/10 border border-stone-500/20 text-stone-700 flex items-center justify-center shrink-0">
-            <Activity className="w-6 h-6" />
+            <History className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 block font-bold">حالة تزامن قاعدة البيانات</span>
-            <span className="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-              {syncHealth.isOnline ? 'مباشر (Online)' : 'محلي (Offline)'}
+            <span className="text-xs text-stone-400 block font-bold">سجلات التدقيق المسجلة</span>
+            <span className="text-2xl font-black text-stone-900">
+              {auditLogs.length}
             </span>
           </div>
         </div>
@@ -530,17 +427,6 @@ export function AdminConsoleView() {
           >
             <Lock className="w-4 h-4" />
             <span>صلاحيات الوصول والشبكة</span>
-          </button>
-          <button
-            onClick={() => setActiveSection('EXCEPTIONS')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-              activeSection === 'EXCEPTIONS'
-                ? 'bg-white text-stone-950 shadow-sm'
-                : 'text-stone-300 hover:bg-stone-800'
-            }`}
-          >
-            <ShieldAlert className="w-4 h-4" />
-            <span>محرك الاستثناءات الحية</span>
           </button>
           <button
             onClick={() => setActiveSection('AUDIT_LOGS')}
@@ -856,179 +742,7 @@ export function AdminConsoleView() {
       )}
 
       {/* ==================================================================== */}
-      {/* SECTION 3: EXCEPTIONS */}
-      {/* ==================================================================== */}
-      {activeSection === 'EXCEPTIONS' && (
-        <div className="space-y-4">
-          <div className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-stone-100">
-              <div>
-                <h2 className="text-base font-bold text-stone-900">محرك تتبع وحل الاستثناءات (Live Exceptions Resolution)</h2>
-                <p className="text-xs text-stone-400 mt-1">تتبع الاستثناءات المعلقة الناتجة عن الأوزان المتعارضة، مخالفة شروط المواد، تعارض الناقلين، وحلها بقرارات موثقة رقابياً.</p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setExceptionStatusFilter('ALL')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${
-                    exceptionStatusFilter === 'ALL'
-                      ? 'bg-stone-900 text-white'
-                      : 'bg-stone-50 text-stone-600 border border-stone-200'
-                  }`}
-                >
-                  الكل
-                </button>
-                <button
-                  onClick={() => setExceptionStatusFilter('OPEN')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${
-                    exceptionStatusFilter === 'OPEN'
-                      ? 'bg-rose-50 border border-rose-200 text-rose-700'
-                      : 'bg-stone-50 text-stone-600 border border-stone-200'
-                  }`}
-                >
-                  معلقة (OPEN)
-                </button>
-                <button
-                  onClick={() => setExceptionStatusFilter('UNDER_REVIEW')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${
-                    exceptionStatusFilter === 'UNDER_REVIEW'
-                      ? 'bg-amber-50 border border-amber-200 text-amber-700'
-                      : 'bg-stone-50 text-stone-600 border border-stone-200'
-                  }`}
-                >
-                  قيد المراجعة (UNDER_REVIEW)
-                </button>
-                <button
-                  onClick={() => setExceptionStatusFilter('RESOLVED')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${
-                    exceptionStatusFilter === 'RESOLVED'
-                      ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
-                      : 'bg-stone-50 text-stone-600 border border-stone-200'
-                  }`}
-                >
-                  تمت المعالجة (RESOLVED)
-                </button>
-                <button
-                  onClick={() => setExceptionStatusFilter('REJECTED')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${
-                    exceptionStatusFilter === 'REJECTED'
-                      ? 'bg-stone-100 border border-stone-300 text-stone-600'
-                      : 'bg-stone-50 text-stone-600 border border-stone-200'
-                  }`}
-                >
-                  مرفوضة (REJECTED)
-                </button>
-              </div>
-            </div>
-
-            {/* Exceptions Grid Layout */}
-            {filteredExceptions.length === 0 ? (
-              <div className="py-16 text-center text-stone-400 font-bold flex flex-col items-center justify-center gap-2">
-                <ShieldCheck className="w-8 h-8 text-emerald-400" />
-                <span>نظام نظيف! لا توجد حالياً أي استثناءات معلقة تطابق الفلاتر.</span>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
-                {filteredExceptions.map(exc => (
-                  <div 
-                    key={exc.exceptionId} 
-                    className={`border rounded-2xl p-5 shadow-3xs flex flex-col justify-between gap-4 transition-all ${
-                      exc.status === 'OPEN' ? 'bg-rose-50/20 border-rose-200' :
-                      exc.status === 'UNDER_REVIEW' ? 'bg-amber-50/20 border-amber-200' :
-                      exc.status === 'RESOLVED' ? 'bg-emerald-50/10 border-emerald-200/80' :
-                      'bg-stone-50/40 border-stone-200'
-                    }`}
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-mono text-xs font-black bg-stone-900 text-white px-2 py-0.5 rounded-md">
-                          {exc.exceptionId}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            exc.severity === 'BLOCKING' || exc.severity === 'CRITICAL' ? 'bg-rose-100 text-rose-800' :
-                            exc.severity === 'HIGH' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {exc.severity}
-                          </span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            exc.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-800' :
-                            exc.status === 'UNDER_REVIEW' ? 'bg-amber-100 text-amber-800' :
-                            exc.status === 'OPEN' ? 'bg-rose-100 text-rose-800' : 'bg-stone-200 text-stone-700'
-                          }`}>
-                            {exc.status}
-                          </span>
-                        </div>
-                      </div>
-
-                      <h4 className="font-bold text-stone-800 text-xs">{exc.type}</h4>
-                      <p className="text-xs text-stone-600 leading-relaxed font-medium mt-1">{exc.description}</p>
-                      
-                      <div className="flex items-center gap-4 text-[10px] text-stone-400 pt-1.5">
-                        <span>المشروع: <strong className="text-stone-600">{exc.projectId}</strong></span>
-                        <span>الرحلة المسببة: <strong className="text-stone-600 font-mono">{exc.tripId}</strong></span>
-                      </div>
-                    </div>
-
-                    {exc.resolutionNote ? (
-                      <div className="mt-2 p-3 bg-stone-50 border border-stone-200/60 rounded-xl text-xs text-stone-700">
-                        <strong className="text-stone-900 block font-bold">ملاحظات المعالجة والاعتماد:</strong>
-                        <p className="mt-1 leading-normal font-semibold">{exc.resolutionNote}</p>
-                        <span className="text-[10px] text-stone-400 block mt-1.5">تمت بواسطة: {exc.reviewedBy || 'مدير النظام'}</span>
-                      </div>
-                    ) : (
-                      <div className="pt-3 border-t border-dashed border-stone-200 flex items-center justify-end gap-2">
-                        {exc.status === 'OPEN' && (
-                          <button
-                            onClick={() => {
-                              exceptionEngine.startReview({
-                                exceptionId: exc.exceptionId,
-                                actorId: authContext.userId,
-                                actorName: authContext.displayName,
-                                actorRole: authContext.role,
-                                notes: 'بدء المراجعة والتحقيق من قبل لوحة الإدارة'
-                              });
-                              showBanner("تم تحويل حالة الاستثناء إلى (قيد المراجعة).");
-                            }}
-                            className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 text-[11px] font-bold rounded-lg cursor-pointer"
-                          >
-                            بدء المراجعة
-                          </button>
-                        )}
-                        {(exc.status === 'OPEN' || exc.status === 'UNDER_REVIEW') && (
-                          <>
-                            <button
-                              onClick={() => {
-                                setClinicalReasonNotes('');
-                                setResolvingException(exc);
-                              }}
-                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-lg transition-all cursor-pointer"
-                            >
-                              حل وقبول الاستثناء
-                            </button>
-                            <button
-                              onClick={() => {
-                                setClinicalReasonNotes('');
-                                setRejectingException(exc);
-                              }}
-                              className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-[11px] font-bold rounded-lg transition-all cursor-pointer"
-                            >
-                              رفض الاستثناء
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ==================================================================== */}
-      {/* SECTION 4: IMMUTABLE AUDIT LOGS */}
+      {/* SECTION 3: IMMUTABLE AUDIT LOGS */}
       {/* ==================================================================== */}
       {activeSection === 'AUDIT_LOGS' && (
         <div className="space-y-4">
@@ -1371,122 +1085,6 @@ export function AdminConsoleView() {
               >
                 <XCircle className="w-4 h-4" />
                 <span>تأكيد رفض طلب الحساب</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ==================================================================== */}
-      {/* EXCEPTIONS RESOLUTION MODAL */}
-      {/* ==================================================================== */}
-      {resolvingException && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-250">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 border border-stone-200 shadow-2xl animate-in slide-in-from-bottom-8 duration-300">
-            <div className="pb-3 border-b border-stone-100 flex items-start justify-between">
-              <div>
-                <h3 className="text-base font-bold text-stone-900">حل وقبول الاستثناء التشغيلي</h3>
-                <p className="text-xs text-stone-400 mt-1">الرجاء إدخال القرار الإداري والتبرير الرقابي لمعالجة هذا الاستثناء.</p>
-              </div>
-              <button 
-                onClick={() => setResolvingException(null)}
-                className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-400 hover:text-stone-700 shrink-0"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div className="p-3 bg-stone-50 border border-stone-200/60 rounded-xl">
-                <span className="text-stone-400 text-[10px] block font-bold">الاستثناء المراد حله</span>
-                <span className="font-bold text-stone-800 block">{resolvingException.exceptionId} | {resolvingException.type}</span>
-                <p className="mt-1 font-semibold text-stone-600 leading-relaxed">{resolvingException.description}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-bold text-stone-700 block">ملاحظات وقرار المعالجة التفصيلية (حقل إلزامي)</label>
-                <textarea
-                  value={clinicalReasonNotes}
-                  onChange={(e) => setClinicalReasonNotes(e.target.value)}
-                  placeholder="اكتب التبرير الفني والقرار الذي تم اتخاذه..."
-                  rows={4}
-                  className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                />
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-stone-100 flex items-center justify-end gap-2.5">
-              <button
-                onClick={() => setResolvingException(null)}
-                className="px-4 py-2 hover:bg-stone-100 border border-stone-200 text-stone-700 rounded-xl text-xs font-bold cursor-pointer"
-              >
-                إلغاء التراجع
-              </button>
-              <button
-                onClick={handleResolveException}
-                disabled={!clinicalReasonNotes.trim()}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
-              >
-                <CheckCheck className="w-4 h-4" />
-                <span>اعتماد حل الاستثناء</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ==================================================================== */}
-      {/* EXCEPTIONS REJECTION MODAL */}
-      {/* ==================================================================== */}
-      {rejectingException && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-250">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 border border-stone-200 shadow-2xl animate-in slide-in-from-bottom-8 duration-300">
-            <div className="pb-3 border-b border-stone-100 flex items-start justify-between">
-              <div>
-                <h3 className="text-base font-bold text-stone-900">رفض معالجة الاستثناء التشغيلي</h3>
-                <p className="text-xs text-stone-400 mt-1">الرجاء إدخال أسباب رفض المعالجة والتبرير الإداري المانع.</p>
-              </div>
-              <button 
-                onClick={() => setRejectingException(null)}
-                className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-400 hover:text-stone-700 shrink-0"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div className="p-3 bg-stone-50 border border-stone-200/60 rounded-xl">
-                <span className="text-stone-400 text-[10px] block font-bold">الاستثناء المراد رفض حله</span>
-                <span className="font-bold text-stone-800 block">{rejectingException.exceptionId} | {rejectingException.type}</span>
-                <p className="mt-1 font-semibold text-stone-600 leading-relaxed">{rejectingException.description}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-bold text-stone-700 block">أسباب الرفض بالتفصيل (حقل إلزامي)</label>
-                <textarea
-                  value={clinicalReasonNotes}
-                  onChange={(e) => setClinicalReasonNotes(e.target.value)}
-                  placeholder="اكتب أسباب رفض المعالجة الفنية..."
-                  rows={4}
-                  className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-rose-500"
-                />
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-stone-100 flex items-center justify-end gap-2.5">
-              <button
-                onClick={() => setRejectingException(null)}
-                className="px-4 py-2 hover:bg-stone-100 border border-stone-200 text-stone-700 rounded-xl text-xs font-bold cursor-pointer"
-              >
-                إلغاء التراجع
-              </button>
-              <button
-                onClick={handleRejectException}
-                disabled={!clinicalReasonNotes.trim()}
-                className="px-5 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
-              >
-                <XCircle className="w-4 h-4" />
-                <span>رفض واعتماد الاستبعاد الإداري</span>
               </button>
             </div>
           </div>

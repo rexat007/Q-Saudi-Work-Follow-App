@@ -123,12 +123,12 @@ describe('Phase 6 — ExceptionEngine Standalone Surface Retirement Verification
     expect(appContent).toContain("activeTab === 'ADMIN_CONSOLE'");
   });
 
-  // 15. AdminConsole exceptionEngine service dependency still exists and is explicitly classified as a future residual
-  it('15. AdminConsole exceptionEngine service dependency still exists and is classified as a future residual', () => {
+  // 15. AdminConsole exceptionEngine service dependency is converged to canonical authority
+  it('15. AdminConsole exceptionEngine service dependency is eliminated', () => {
     const adminContent = fs.readFileSync(adminConsolePath, 'utf-8');
-    expect(adminContent).toContain('exceptionEngine.getAllExceptions');
-    expect(adminContent).toContain('exceptionEngine.resolveException');
-    expect(adminContent).toContain('exceptionEngine.rejectException');
+    expect(adminContent).not.toContain('exceptionEngine.getAllExceptions');
+    expect(adminContent).not.toContain('exceptionEngine.resolveException');
+    expect(adminContent).not.toContain('exceptionEngine.rejectException');
   });
 
   // 16. TripEngine remains retired
