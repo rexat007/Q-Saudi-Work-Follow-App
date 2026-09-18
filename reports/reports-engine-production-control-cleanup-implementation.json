@@ -1,0 +1,37 @@
+{
+  "unitName": "Reports Engine Production Control Cleanup",
+  "status": "CLOSED",
+  "date": "2026-09-18",
+  "autoRunTests": "REMOVED",
+  "developerTestControls": "REMOVED",
+  "businessControls": "PRESERVED",
+  "canonicalDataFlow": "PRESERVED",
+  "reportTypeCountCurrentCode": 16,
+  "defaultViewBusinessControlCount": 31,
+  "beforeControlCount": {
+    "businessControls": 31,
+    "developerVisibleControls": 2,
+    "nonVisibleDiagnosticExecutions": 1
+  },
+  "afterControlCount": {
+    "businessControls": 31,
+    "developerVisibleControls": 0,
+    "nonVisibleDiagnosticExecutions": 0
+  },
+  "filesChanged": [
+    "src/components/reports/ReportsEngineView.tsx",
+    "src/tests/reportsEngineControlCleanup.test.ts",
+    "reports/reports-engine-production-control-cleanup-implementation.md",
+    "reports/reports-engine-production-control-cleanup-implementation.json"
+  ],
+  "verificationResults": {
+    "controlCleanupTests": "18/18 PASSED",
+    "reportsEngineConvergenceTests": "48/48 PASSED",
+    "reportsEngineUnitTests": "12/12 PASSED",
+    "block80DashboardTests": "22/22 PASSED",
+    "pricingEngineTests": "46/46 PASSED",
+    "typecheckAndLint": "PASS (0 errors)",
+    "appletCompilation": "PASS"
+  },
+  "liveFirestoreE2eVerified": "NO"
+}

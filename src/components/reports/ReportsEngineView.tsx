@@ -25,7 +25,8 @@ import {
   Info,
   ShieldCheck,
   TrendingUp,
-  FileSpreadsheet
+  FileSpreadsheet,
+  ShieldAlert
 } from 'lucide-react';
 import { 
   ReportType, 
@@ -44,8 +45,6 @@ import { projectRepository } from '../../repositories/project.repository';
 import { exceptionRepository } from '../../repositories/exception.repository';
 import { TripExceptionEntity } from '../../types/entities';
 import { PrintableReportModal } from './PrintableReportModal';
-import { runReportsEngineTests, ReportsTestCaseResult } from '../../tests/reportsEngine.test';
-import { Play, Check, X, ShieldAlert } from 'lucide-react';
 
 export function computeMergedTripsFromProjects(tripsByProject: Record<string, TripRecord[]>): TripRecord[] {
   const list: TripRecord[] = [];
@@ -90,16 +89,6 @@ export const ReportsEngineView: React.FC = () => {
   // Navigation
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('OPERATIONAL');
   const [selectedReportType, setSelectedReportType] = useState<ReportType>('DAILY_OPERATIONS');
-  
-  // Test suite state
-  const [isTestModalOpen, setIsTestModalOpen] = useState<boolean>(false);
-  const [testResults, setTestResults] = useState<{
-    allPassed: boolean;
-    totalTests: number;
-    passedTests: number;
-    failedTests: number;
-    results: ReportsTestCaseResult[];
-  }>(() => runReportsEngineTests());
   
   // Filter state (BLOCK 39: multi-criteria filter parameters)
   const [filters, setFilters] = useState<ReportFilterParams>({
@@ -533,20 +522,6 @@ export const ReportsEngineView: React.FC = () => {
                 </p>
               </div>
             </div>
-
-            {/* Run Automated Tests Button */}
-            <button
-              id="btn-run-reports-tests"
-              onClick={() => {
-                setTestResults(runReportsEngineTests());
-                setIsTestModalOpen(true);
-              }}
-              className="flex items-center gap-2 px-3.5 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer h-full"
-              title="تشغيل 9 اختبارات امتثال آلية لقواعد التقارير والتسعير"
-            >
-              <Play className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>فحص الامتثال الآلي ({testResults.passedTests}/{testResults.totalTests})</span>
-            </button>
           </div>
         </div>
 
@@ -1207,107 +1182,6 @@ export const ReportsEngineView: React.FC = () => {
           dataset={currentDataset}
           onClose={() => setIsPrintModalOpen(false)}
         />
-      )}
-
-      {/* 6. Automated Test Suite Results Modal */}
-      {isTestModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-stone-200">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 bg-stone-900 text-white">
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck className="w-5 h-5 text-amber-400" />
-                <span className="font-bold text-sm">نتائج فحص الامتثال الآلي لمحرك التقارير (Compliance Test Suite)</span>
-              </div>
-              <button
-                onClick={() => setIsTestModalOpen(false)}
-                className="p-1 text-stone-400 hover:text-white rounded-lg transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Test Summary Banner */}
-            <div className="p-6 overflow-y-auto space-y-4">
-              <div className={`p-4 rounded-xl border flex items-center justify-between ${
-                testResults.allPassed 
-                  ? 'bg-emerald-50 border-emerald-300 text-emerald-950' 
-                  : 'bg-rose-50 border-rose-300 text-rose-950'
-              }`}>
-                <div className="flex items-center gap-3">
-                  {testResults.allPassed ? (
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
-                  ) : (
-                    <ShieldAlert className="w-6 h-6 text-rose-600 shrink-0" />
-                  )}
-                  <div>
-                    <h4 className="font-black text-sm">
-                      {testResults.allPassed ? 'كافة الاختبارات ناجحة بنسبة 100%' : 'توجد إخفاقات في بعض الاختبارات'}
-                    </h4>
-                    <p className="text-xs text-stone-600 mt-0.5">
-                      تم اجتياز {testResults.passedTests} من أصل {testResults.totalTests} اختباراً لسلامة معادلات PER_TRIP، PER_TON، وتوليد التقارير الـ 15 وثبات اللقطة.
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setTestResults(runReportsEngineTests())}
-                  className="px-3.5 py-1.5 bg-white border border-stone-300 text-stone-800 rounded-lg text-xs font-bold hover:bg-stone-50 cursor-pointer flex items-center gap-1.5 shadow-2xs"
-                >
-                  <RotateCw className="w-3.5 h-3.5" />
-                  <span>إعادة الفحص</span>
-                </button>
-              </div>
-
-              {/* Individual Test Cases List */}
-              <div className="space-y-2.5">
-                {testResults.results.map((t) => (
-                  <div 
-                    key={t.id}
-                    className="bg-stone-50 border border-stone-200 rounded-xl p-3.5 flex items-start justify-between gap-3 text-xs"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] bg-stone-200 text-stone-700 px-1.5 py-0.2 rounded font-bold">
-                          {t.id}
-                        </span>
-                        <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded font-bold">
-                          {t.category}
-                        </span>
-                        <h5 className="font-bold text-stone-900">{t.titleAr}</h5>
-                      </div>
-                      <p className="text-[11px] text-stone-600 leading-relaxed">{t.details}</p>
-                    </div>
-
-                    <div className="shrink-0 flex items-center gap-1.5 font-bold">
-                      {t.passed ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-[10px]">
-                          <Check className="w-3 h-3" />
-                          <span>ناجح (PASSED)</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full text-[10px]">
-                          <X className="w-3 h-3" />
-                          <span>فشل (FAILED)</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-3 bg-stone-100 border-t border-stone-200 flex justify-end">
-              <button
-                onClick={() => setIsTestModalOpen(false)}
-                className="px-4 py-2 bg-stone-900 text-white text-xs font-bold rounded-xl hover:bg-stone-800 cursor-pointer"
-              >
-                إغلاق
-              </button>
-            </div>
-          </div>
-        </div>
       )}
 
     </div>
