@@ -1,6 +1,12 @@
-import { buildRelationshipContext } from "../../utils/masterDataUtils";
+import { buildRelationshipContextFromCanonical } from "../../utils/masterDataUtils";
+import { carrierRepository } from "../../repositories/carrier.repository";
+import { driverRepository } from "../../repositories/driver.repository";
+import { truckRepository } from "../../repositories/truck.repository";
+import { materialRepository } from "../../repositories/material.repository";
+import { CarrierEntity, DriverEntity, TruckEntity, MaterialEntity, ProjectEntity } from '../../types/entities';
+import { RelationshipContext } from '../../types/dataQuality';
 import { pricingService } from "../../services/pricing.service";
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   Scale, 
   Truck, 
@@ -26,7 +32,6 @@ import { TripRecord, TripActorRole, TripPricingType } from '../../types/tripEngi
 import { MasterPricingRule } from '../../services/tripEngine.service';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { projectRepository } from '../../repositories/project.repository';
-import { ProjectEntity } from '../../types/entities';
 import { offlineCacheService } from '../../services/offline/offlineCache.service';
 import { outboxService } from '../../services/offline/outbox.service';
 import { indexedDBService } from '../../services/offline/indexedDB.service';
@@ -69,8 +74,25 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     return LOADING_AUTHORIZED_ROLES.includes(authContext.role);
   }, [authContext.role]);
 
-  // Reference Context
-  const context = buildRelationshipContext("ALL");
+  // Canonical Master Data State
+  const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
+  const [drivers, setDrivers] = useState<DriverEntity[]>([]);
+  const [trucks, setTrucks] = useState<TruckEntity[]>([]);
+  const [materials, setMaterials] = useState<MaterialEntity[]>([]);
+
+  const [datasetReadiness, setDatasetReadiness] = useState<{
+    carriers: 'PENDING' | 'READY' | 'ERROR';
+    drivers: 'PENDING' | 'READY' | 'ERROR';
+    trucks: 'PENDING' | 'READY' | 'ERROR';
+    materials: 'PENDING' | 'READY' | 'ERROR';
+  }>({
+    carriers: 'PENDING',
+    drivers: 'PENDING',
+    trucks: 'PENDING',
+    materials: 'PENDING',
+  });
+
+  const generationRef = useRef<number>(0);
 
   const [projectsList, setProjectsList] = useState<ProjectEntity[]>([]);
 
@@ -96,8 +118,12 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     return all.filter(p => authContext.assignedProjectIds!.includes(p.id));
   }, [projectsList, authContext]);
 
-  // Form State: Minimal typing, click-to-select defaults
+  // Form State: Project and Entity Selections (no mock defaults)
   const [projectId, setProjectId] = useState<string>('');
+  const [carrierId, setCarrierId] = useState<string>('');
+  const [truckId, setTruckId] = useState<string>('');
+  const [driverId, setDriverId] = useState<string>('');
+  const [materialId, setMaterialId] = useState<string>('');
 
   useEffect(() => {
     if (availableProjects.length > 0 && !projectId) {
@@ -105,10 +131,142 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     }
   }, [availableProjects, projectId]);
 
-  const [carrierId, setCarrierId] = useState<string>('CAR-ALMAJDOUIE');
-  const [truckId, setTruckId] = useState<string>('TRK-9901');
-  const [driverId, setDriverId] = useState<string>('DRV-101');
-  const [materialId, setMaterialId] = useState<string>('MAT-AGG-01');
+  // Project Switch Isolation & Canonical Subscriptions
+  useEffect(() => {
+    if (!projectId || projectId === 'ALL') {
+      setCarriers([]);
+      setDrivers([]);
+      setTrucks([]);
+      setMaterials([]);
+      setCarrierId('');
+      setTruckId('');
+      setDriverId('');
+      setMaterialId('');
+      setDatasetReadiness({
+        carriers: 'PENDING',
+        drivers: 'PENDING',
+        trucks: 'PENDING',
+        materials: 'PENDING',
+      });
+      return;
+    }
+
+    const currentGen = ++generationRef.current;
+
+    // Immediately flush previous project data and reset selections on project switch
+    setCarriers([]);
+    setDrivers([]);
+    setTrucks([]);
+    setMaterials([]);
+    setCarrierId('');
+    setTruckId('');
+    setDriverId('');
+    setMaterialId('');
+    setDatasetReadiness({
+      carriers: 'PENDING',
+      drivers: 'PENDING',
+      trucks: 'PENDING',
+      materials: 'PENDING',
+    });
+
+    const unsubCarriers = carrierRepository.subscribeByProject(
+      projectId,
+      (list) => {
+        if (currentGen !== generationRef.current) return;
+        setCarriers(list || []);
+        setDatasetReadiness(prev => ({ ...prev, carriers: 'READY' }));
+      },
+      (err) => {
+        if (currentGen !== generationRef.current) return;
+        console.error('Carriers subscription error:', err);
+        setDatasetReadiness(prev => ({ ...prev, carriers: 'ERROR' }));
+      }
+    );
+
+    const unsubDrivers = driverRepository.subscribeByProject(
+      projectId,
+      (list) => {
+        if (currentGen !== generationRef.current) return;
+        setDrivers(list || []);
+        setDatasetReadiness(prev => ({ ...prev, drivers: 'READY' }));
+      },
+      (err) => {
+        if (currentGen !== generationRef.current) return;
+        console.error('Drivers subscription error:', err);
+        setDatasetReadiness(prev => ({ ...prev, drivers: 'ERROR' }));
+      }
+    );
+
+    const unsubTrucks = truckRepository.subscribeByProject(
+      projectId,
+      (list) => {
+        if (currentGen !== generationRef.current) return;
+        setTrucks(list || []);
+        setDatasetReadiness(prev => ({ ...prev, trucks: 'READY' }));
+      },
+      (err) => {
+        if (currentGen !== generationRef.current) return;
+        console.error('Trucks subscription error:', err);
+        setDatasetReadiness(prev => ({ ...prev, trucks: 'ERROR' }));
+      }
+    );
+
+    const unsubMaterials = materialRepository.subscribeByProject(
+      projectId,
+      (list) => {
+        if (currentGen !== generationRef.current) return;
+        setMaterials(list || []);
+        setDatasetReadiness(prev => ({ ...prev, materials: 'READY' }));
+      },
+      (err) => {
+        if (currentGen !== generationRef.current) return;
+        console.error('Materials subscription error:', err);
+        setDatasetReadiness(prev => ({ ...prev, materials: 'ERROR' }));
+      }
+    );
+
+    return () => {
+      unsubCarriers();
+      unsubDrivers();
+      unsubTrucks();
+      unsubMaterials();
+    };
+  }, [projectId]);
+
+  // Dataset Readiness States
+  const isMasterDataReady = useMemo(() => {
+    return Boolean(
+      projectId &&
+      projectId !== 'ALL' &&
+      datasetReadiness.carriers === 'READY' &&
+      datasetReadiness.drivers === 'READY' &&
+      datasetReadiness.trucks === 'READY' &&
+      datasetReadiness.materials === 'READY'
+    );
+  }, [projectId, datasetReadiness]);
+
+  const hasMasterDataError = useMemo(() => {
+    return (
+      datasetReadiness.carriers === 'ERROR' ||
+      datasetReadiness.drivers === 'ERROR' ||
+      datasetReadiness.trucks === 'ERROR' ||
+      datasetReadiness.materials === 'ERROR'
+    );
+  }, [datasetReadiness]);
+
+  // Canonical Relationship Context (Pure deterministic derivation, project-scoped only)
+  const context = useMemo<RelationshipContext | null>(() => {
+    if (!isMasterDataReady || !projectId || projectId === 'ALL') {
+      return null;
+    }
+    return buildRelationshipContextFromCanonical({
+      projectId,
+      carriers,
+      drivers,
+      trucks,
+      materials,
+    });
+  }, [isMasterDataReady, projectId, carriers, drivers, trucks, materials]);
 
   // Weights (kg) - starts empty/zero in production runtime
   const [tareWeight, setTareWeight] = useState<number>(0);
@@ -125,31 +283,53 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
 
   // Carriers authorized for current project
   const availableCarriers = useMemo(() => {
+    if (!context) return [];
     return context.knownCarriers.filter(c => context.authorizedCarrierIds.includes(c.carrierId));
   }, [context]);
 
+  // Sync carrier selection when availableCarriers update
+  useEffect(() => {
+    if (availableCarriers.length > 0 && (!carrierId || !availableCarriers.some(c => c.carrierId === carrierId))) {
+      setCarrierId(availableCarriers[0].carrierId);
+    }
+  }, [availableCarriers, carrierId]);
+
   // Trucks belonging to selected carrier
   const availableTrucks = useMemo(() => {
+    if (!context || !carrierId) return [];
     return context.knownTrucks.filter(t => t.carrierId === carrierId && t.status === 'ACTIVE');
   }, [context, carrierId]);
 
   // Drivers belonging to selected carrier
   const availableDrivers = useMemo(() => {
+    if (!context || !carrierId) return [];
     return context.knownDrivers.filter(d => d.carrierId === carrierId && d.status === 'ACTIVE');
   }, [context, carrierId]);
 
   // Materials authorized in project
   const availableMaterials = useMemo(() => {
+    if (!context) return [];
     return context.knownMaterials.filter(m => context.authorizedMaterialIds.includes(m.materialId));
   }, [context]);
 
-  // Sync selections when carrier changes
+  // Sync material selection when availableMaterials update
   useEffect(() => {
-    if (availableTrucks.length > 0 && !availableTrucks.some(t => t.truckId === truckId)) {
-      setTruckId(availableTrucks[0].truckId);
+    if (availableMaterials.length > 0 && (!materialId || !availableMaterials.some(m => m.materialId === materialId))) {
+      setMaterialId(availableMaterials[0].materialId);
     }
-    if (availableDrivers.length > 0 && !availableDrivers.some(d => d.driverId === driverId)) {
+  }, [availableMaterials, materialId]);
+
+  // Sync truck and driver selections when carrier changes
+  useEffect(() => {
+    if (availableTrucks.length > 0 && (!truckId || !availableTrucks.some(t => t.truckId === truckId))) {
+      setTruckId(availableTrucks[0].truckId);
+    } else if (availableTrucks.length === 0) {
+      setTruckId('');
+    }
+    if (availableDrivers.length > 0 && (!driverId || !availableDrivers.some(d => d.driverId === driverId))) {
       setDriverId(availableDrivers[0].driverId);
+    } else if (availableDrivers.length === 0) {
+      setDriverId('');
     }
   }, [carrierId, availableTrucks, availableDrivers, truckId, driverId]);
 
@@ -207,10 +387,52 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   // Validation Checks: Blocking vs Warnings
   const blockingErrors = useMemo<string[]>(() => {
     const errors: string[] = [];
-    if (!projectId) errors.push('يجب تحديد المشروع التابع له أمر التحميل.');
-    if (!carrierId) errors.push('يجب تحديد شركة النقل المعتمدة.');
-    if (!truckId) errors.push('يجب تحديد الشاحنة المراد وزنها.');
-    if (!driverId) errors.push('يجب تحديد السائق المكلف.');
+    if (!projectId || projectId === 'ALL') {
+      errors.push('يجب تحديد المشروع التابع له أمر التحميل.');
+      return errors;
+    }
+    if (hasMasterDataError) {
+      errors.push('فشل في تحميل البيانات المعتمدة للمشروع من قاعدة البيانات.');
+      return errors;
+    }
+    if (!isMasterDataReady || !context) {
+      errors.push('جاري تحميل وتحديث البيانات المعتمدة للمشروع...');
+      return errors;
+    }
+
+    if (!carrierId) {
+      errors.push('يجب تحديد شركة النقل المعتمدة.');
+    } else {
+      const knownCarrier = context.knownCarriers.find(c => c.carrierId === carrierId);
+      if (!knownCarrier) {
+        errors.push(`شركة النقل (${carrierId}) غير معرفة في بيانات المشروع.`);
+      } else if (!context.authorizedCarrierIds.includes(carrierId)) {
+        errors.push(`شركة النقل (${knownCarrier.name || carrierId}) غير مصرح لها بالعمل في هذا المشروع.`);
+      }
+    }
+
+    if (!truckId) {
+      errors.push('يجب تحديد الشاحنة المراد وزنها.');
+    } else {
+      const knownTruck = context.knownTrucks.find(t => t.truckId === truckId);
+      if (!knownTruck) {
+        errors.push(`الشاحنة (${truckId}) غير معرفة في بيانات المشروع.`);
+      } else if (carrierId && knownTruck.carrierId !== carrierId) {
+        errors.push(`الشاحنة (${knownTruck.plate || truckId}) غير تابعة لشركة النقل المحددة.`);
+      }
+    }
+
+    if (!driverId) {
+      errors.push('يجب تحديد السائق المكلف.');
+    } else {
+      const knownDriver = context.knownDrivers.find(d => d.driverId === driverId);
+      if (!knownDriver) {
+        errors.push(`السائق (${driverId}) غير معرف في بيانات المشروع.`);
+      } else if (carrierId && knownDriver.carrierId !== carrierId) {
+        errors.push(`السائق (${knownDriver.name || driverId}) غير تابع لشركة النقل المحددة.`);
+      }
+    }
+
     if (!materialId || !materialId.trim()) {
       errors.push('يجب تحديد صنف المادة المحملة ومعرف المادة المعتمد.');
     } else {
@@ -221,6 +443,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
         errors.push(`المادة (${(knownMat as any).nameAr || knownMat.name || materialId}) غير مصرح بتوريدها لهذا المشروع.`);
       }
     }
+
     if (grossWeight <= 0) errors.push('يجب تسجيل قراءة الوزن القائم.');
     if (tareWeight <= 0) errors.push('يجب تسجيل قراءة وزن الفارغ.');
     if (grossWeight <= tareWeight) {
@@ -230,7 +453,19 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
       errors.push('لا توجد قاعدة تسعير معتمدة وسارية للربط المختار (مشروع/ناقل/مادة).');
     }
     return errors;
-  }, [projectId, carrierId, truckId, driverId, materialId, grossWeight, tareWeight, activePricingRule]);
+  }, [
+    projectId,
+    hasMasterDataError,
+    isMasterDataReady,
+    context,
+    carrierId,
+    truckId,
+    driverId,
+    materialId,
+    grossWeight,
+    tareWeight,
+    activePricingRule
+  ]);
 
   const regulatoryWarnings = useMemo<string[]>(() => {
     const warnings: string[] = [];
@@ -515,15 +750,15 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             </div>
             <div>
               <span className="text-stone-400 block text-[11px]">الناقل</span>
-              <span className="font-bold text-stone-900">{context.knownCarriers.find(c => c.carrierId === createdTrip.carrierId)?.name || createdTrip.carrierId}</span>
+              <span className="font-bold text-stone-900">{context?.knownCarriers.find(c => c.carrierId === createdTrip.carrierId)?.name || createdTrip.carrierId}</span>
             </div>
             <div>
               <span className="text-stone-400 block text-[11px]">السائق</span>
-              <span className="font-bold text-stone-900">{context.knownDrivers.find(d => d.driverId === createdTrip.driverId)?.name || createdTrip.driverId}</span>
+              <span className="font-bold text-stone-900">{context?.knownDrivers.find(d => d.driverId === createdTrip.driverId)?.name || createdTrip.driverId}</span>
             </div>
             <div>
               <span className="text-stone-400 block text-[11px]">المادة الموردة</span>
-              <span className="font-bold text-stone-900">{context.knownMaterials.find(m => m.materialId === createdTrip.materialId)?.name || createdTrip.materialId}</span>
+              <span className="font-bold text-stone-900">{context?.knownMaterials.find(m => m.materialId === createdTrip.materialId)?.name || createdTrip.materialId}</span>
             </div>
           </div>
 
@@ -663,23 +898,29 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                 <Truck className="w-3.5 h-3.5 text-amber-700" />
                 <span>الناقل المعتمد</span>
               </label>
-              <div className="grid grid-cols-2 gap-2">
-                {availableCarriers.map(c => (
-                  <button
-                    key={c.carrierId}
-                    type="button"
-                    onClick={() => setCarrierId(c.carrierId)}
-                    className={`p-2.5 rounded-xl border text-right transition-all flex flex-col min-h-[48px] justify-center ${
-                      carrierId === c.carrierId
-                        ? 'bg-amber-50/80 border-amber-600 ring-2 ring-amber-500/20 text-amber-950 font-bold'
-                        : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
-                    }`}
-                  >
-                    <span className="text-xs truncate">{c.name}</span>
-                    <span className="text-[10px] text-stone-400 font-mono">{c.carrierId}</span>
-                  </button>
-                ))}
-              </div>
+              {availableCarriers.length === 0 ? (
+                <div className="p-3 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-xs text-stone-400 text-center">
+                  {datasetReadiness.carriers === 'PENDING' ? 'جاري تحميل شركات النقل...' : 'لا توجد شركات نقل معتمدة لهذا المشروع'}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {availableCarriers.map(c => (
+                    <button
+                      key={c.carrierId}
+                      type="button"
+                      onClick={() => setCarrierId(c.carrierId)}
+                      className={`p-2.5 rounded-xl border text-right transition-all flex flex-col min-h-[48px] justify-center ${
+                        carrierId === c.carrierId
+                          ? 'bg-amber-50/80 border-amber-600 ring-2 ring-amber-500/20 text-amber-950 font-bold'
+                          : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                      }`}
+                    >
+                      <span className="text-xs truncate">{c.name || c.carrierId}</span>
+                      <span className="text-[10px] text-stone-400 font-mono">{c.carrierId}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 1.3 Truck Quick Selector */}
@@ -688,26 +929,32 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                 <Truck className="w-3.5 h-3.5 text-amber-700" />
                 <span>الشاحنة المتاحة للناقل</span>
               </label>
-              <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-0.5">
-                {availableTrucks.map(t => (
-                  <button
-                    key={t.truckId}
-                    type="button"
-                    onClick={() => setTruckId(t.truckId)}
-                    className={`p-2.5 rounded-xl border text-right transition-all min-h-[48px] flex items-center justify-between ${
-                      truckId === t.truckId
-                        ? 'bg-amber-50/80 border-amber-600 ring-2 ring-amber-500/20 text-amber-950 font-bold'
-                        : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
-                    }`}
-                  >
-                    <div>
-                      <span className="text-xs font-mono font-bold block">{t.truckId}</span>
-                      <span className="text-[10px] text-stone-500">{t.plate || 'تريلا قلاب'}</span>
-                    </div>
-                    {truckId === t.truckId && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
-                  </button>
-                ))}
-              </div>
+              {availableTrucks.length === 0 ? (
+                <div className="p-3 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-xs text-stone-400 text-center">
+                  {!carrierId ? 'يرجى اختيار شركة النقل أولاً' : datasetReadiness.trucks === 'PENDING' ? 'جاري تحميل الشاحنات...' : 'لا توجد شاحنات نشطة مسجلة لهذا الناقل'}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-0.5">
+                  {availableTrucks.map(t => (
+                    <button
+                      key={t.truckId}
+                      type="button"
+                      onClick={() => setTruckId(t.truckId)}
+                      className={`p-2.5 rounded-xl border text-right transition-all min-h-[48px] flex items-center justify-between ${
+                        truckId === t.truckId
+                          ? 'bg-amber-50/80 border-amber-600 ring-2 ring-amber-500/20 text-amber-950 font-bold'
+                          : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                      }`}
+                    >
+                      <div>
+                        <span className="text-xs font-mono font-bold block">{t.truckId}</span>
+                        <span className="text-[10px] text-stone-500">{t.plate || 'تريلا قلاب'}</span>
+                      </div>
+                      {truckId === t.truckId && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 1.4 Driver & Material Selector */}
@@ -722,8 +969,11 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                   onChange={(e) => setDriverId(e.target.value)}
                   className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                 >
+                  {availableDrivers.length === 0 && (
+                    <option value="">{!carrierId ? 'اختر شركة النقل أولاً' : 'لا يوجد سائقين متاحين'}</option>
+                  )}
                   {availableDrivers.map(d => (
-                    <option key={d.driverId} value={d.driverId}>{d.name} ({d.driverId})</option>
+                    <option key={d.driverId} value={d.driverId}>{d.name || d.driverId} ({d.driverId})</option>
                   ))}
                 </select>
               </div>
@@ -738,8 +988,11 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                   onChange={(e) => setMaterialId(e.target.value)}
                   className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                 >
+                  {availableMaterials.length === 0 && (
+                    <option value="">لا توجد مواد مصرح بها</option>
+                  )}
                   {availableMaterials.map(m => (
-                    <option key={m.materialId} value={m.materialId}>{m.name} ({m.materialId})</option>
+                    <option key={m.materialId} value={m.materialId}>{m.name || m.materialId} ({m.materialId})</option>
                   ))}
                 </select>
               </div>

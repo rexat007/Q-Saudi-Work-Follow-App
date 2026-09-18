@@ -1,0 +1,168 @@
+{
+  "unit": "Loading Operator Canonical Master-Data Resolution",
+  "implementationStatus": "COMPLETE",
+  "finalVerification": "VERIFIED",
+  "productionFilesChanged": [
+    "src/utils/masterDataUtils.ts",
+    "src/repositories/truck.repository.ts",
+    "src/components/field/LoadingOperatorView.tsx"
+  ],
+  "testFile": "src/tests/loadingOperatorConvergence.test.ts",
+  "architecturalResult": {
+    "loadingLegacyMasterAuthority": "REMOVED",
+    "canonicalSources": {
+      "carriers": "carrierRepository.subscribeByProject(selectedProjectId)",
+      "drivers": "driverRepository.subscribeByProject(selectedProjectId)",
+      "trucks": "truckRepository.subscribeByProject(selectedProjectId)",
+      "materials": "materialRepository.subscribeByProject(selectedProjectId)"
+    },
+    "legacyReferences": {
+      "buildRelationshipContextALL": 0,
+      "adminConsoleService": 0
+    }
+  },
+  "pureBuilder": {
+    "helper": "buildRelationshipContextFromCanonical",
+    "isPure": true,
+    "isDeterministic": true,
+    "isSynchronous": true,
+    "repositoryFree": true,
+    "adminConsoleServiceFree": true,
+    "cacheFree": true,
+    "mockFallbackFree": true,
+    "mutationFree": true,
+    "projectIdContract": {
+      "empty": "rejected",
+      "whitespace": "rejected",
+      "ALL": "rejected",
+      "fallbackToGlobalALL": "none"
+    }
+  },
+  "projectScope": {
+    "authorizedCarrierIds": "selected-project canonical carriers",
+    "authorizedMaterialIds": "selected-project canonical materials",
+    "truckRelationship": "truck.carrierId must match selected carrierId",
+    "driverRelationship": "driver.carrierId must match selected carrierId",
+    "crossProjectEntityResolution": "not_permitted"
+  },
+  "truthfulDisplaySemantics": {
+    "idAsLabelSubstitution": false,
+    "carrierNameMissing": "truthful_absence_empty_string",
+    "driverNameMissing": "truthful_absence_empty_string",
+    "truckPlateMissing": "truthful_absence_empty_string",
+    "materialNameMissing": "truthful_absence_empty_string"
+  },
+  "unresolvedEntityContract": {
+    "unresolvedCarrier": "validation_failure_blocks_dispatch",
+    "unresolvedDriver": "validation_failure_blocks_dispatch",
+    "unresolvedTruck": "validation_failure_blocks_dispatch",
+    "unresolvedMaterial": "validation_failure_blocks_dispatch",
+    "mockSubstitution": false,
+    "globalFallback": false,
+    "crossProjectSubstitution": false,
+    "fuzzySubstitute": false
+  },
+  "readinessModel": {
+    "states": ["PENDING", "READY", "ERROR"],
+    "trackedDatasets": ["carriers", "drivers", "trucks", "materials"],
+    "successfulEmptySnapshot": "READY",
+    "repositoryError": "ERROR",
+    "operationalMasterDataReadiness": "all_four_datasets_ready"
+  },
+  "projectSwitchIsolation": {
+    "unsubscribeP1Listeners": true,
+    "clearP1Arrays": true,
+    "clearSelectedIds": true,
+    "resetReadinessToPending": true,
+    "subscribeToP2": true,
+    "generationGuardRejectsStaleP1Callbacks": true
+  },
+  "offlineContract": {
+    "offlineCompatibility": "PASS",
+    "offlineCacheServiceValidateOfflineTripPrerequisites": "intact",
+    "outboxService": "intact",
+    "indexedDBService": "intact",
+    "offlineCacheSecondary": true,
+    "canonicalOnlineAuthoritative": true,
+    "newOfflinePersistenceIntroduced": false
+  },
+  "backwardCompatibility": {
+    "truckRepositorySubscribeByProject": {
+      "onErrorOptional": true,
+      "queryUnchanged": true,
+      "pathUnchanged": true,
+      "businessBehaviorUnchanged": true
+    },
+    "legacyBuildRelationshipContext": {
+      "preserved": true,
+      "callers": ["ImportCenterView", "DataQualityView"]
+    }
+  },
+  "testRecord": [
+    {
+      "command": "npx vitest run src/tests/loadingOperatorConvergence.test.ts",
+      "exitCode": 0,
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "command": "npx tsx src/tests/workspaceConvergence.test.ts",
+      "exitCode": 0,
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "command": "npx tsx src/tests/reportsEngineConvergence.test.ts",
+      "exitCode": 0,
+      "passed": 48,
+      "failed": 0
+    },
+    {
+      "command": "npx vitest run src/tests/fieldSupervisionConvergenceP604.test.ts",
+      "exitCode": 0,
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "command": "npx vitest run src/tests/driverViewConvergenceP603.test.ts",
+      "exitCode": 0,
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "command": "npx tsx src/tests/pricingEngine.test.ts",
+      "exitCode": 0,
+      "passed": 46,
+      "failed": 0
+    },
+    {
+      "command": "npx tsx src/tests/loadingOperatorConvergence.test.ts",
+      "exitCode": 1,
+      "note": "NOT A VALID RUNNER FOR THIS VITEST SUITE (suite requires Vitest)"
+    }
+  ],
+  "qualityGates": {
+    "tscNoEmit": "PASS",
+    "lint": "PASS",
+    "productionBuild": "PASS",
+    "gitDiffCheck": "UNAVAILABLE_NO_GIT",
+    "liveFirestoreE2EVerified": "NO"
+  },
+  "scopePreservation": {
+    "importCenterView": "NOT_MODIFIED",
+    "dataQualityView": "NOT_MODIFIED",
+    "adminConsole": "NOT_MODIFIED",
+    "tripEngineLegacySurfaces": "NOT_MODIFIED",
+    "exceptionEngine": "NOT_MODIFIED",
+    "reportsEngine": "NOT_REOPENED",
+    "workspace": "NOT_REOPENED",
+    "dashboard": "NOT_REOPENED",
+    "fieldSupervision": "NOT_REOPENED",
+    "driverView": "NOT_REOPENED",
+    "unloadingOperator": "NOT_REOPENED",
+    "tripFSM": "NOT_MODIFIED",
+    "importPipeline": "NOT_MODIFIED",
+    "outbox": "NOT_MODIFIED",
+    "pricingCalculations": "NOT_MODIFIED"
+  }
+}

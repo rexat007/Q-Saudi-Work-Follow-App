@@ -115,7 +115,11 @@ export class TruckRepository {
     }
   }
 
-  subscribeByProject(projectId: string, onData: (trucks: TruckEntity[]) => void) {
+  subscribeByProject(
+    projectId: string, 
+    onData: (trucks: TruckEntity[]) => void,
+    onError?: (err: Error) => void
+  ) {
     if (!auth.currentUser) {
       return () => {};
     }
@@ -127,6 +131,9 @@ export class TruckRepository {
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, path);
+        if (onError) {
+          onError(error);
+        }
       }
     );
   }
