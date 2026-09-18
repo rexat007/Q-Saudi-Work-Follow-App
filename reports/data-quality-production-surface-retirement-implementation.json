@@ -1,0 +1,99 @@
+{
+  "unit": "DataQuality Production Surface Retirement",
+  "status": "IMPLEMENTED",
+  "dataQualityRoleBefore": "ADMIN_DIAGNOSTIC_SURFACE",
+  "productNecessity": "DUPLICATE_DIAGNOSTIC_CAPABILITY",
+  "businessMutations": "NONE",
+  "firestoreWrites": "NONE",
+  "repositoryMutations": "NONE",
+  "importCommits": "NONE",
+  "productionReachabilityBefore": {
+    "appStandaloneRoute": true,
+    "importCenterSubTab": true,
+    "systemToolsDrawer": false
+  },
+  "productionReachabilityAfter": {
+    "appStandaloneRoute": false,
+    "importCenterSubTab": false,
+    "systemToolsDrawer": false,
+    "productionUiReachability": "NONE"
+  },
+  "modifications": {
+    "appTsx": {
+      "dataQualityViewImport": "REMOVED",
+      "dataQualityStandaloneRoute": "REMOVED"
+    },
+    "importCenterViewTsx": {
+      "dataQualityViewImport": "REMOVED",
+      "dataQualitySubTabButton": "REMOVED",
+      "dataQualitySubTabRenderBranch": "REMOVED",
+      "centerSubTabUnionType": "REMOVED_DATA_QUALITY"
+    },
+    "navigationServiceTs": {
+      "isTabAuthorizedForRole_DATA_QUALITY": "REMOVED_RETURNS_FALSE"
+    }
+  },
+  "preservedAssets": {
+    "dataQualityViewTsx": "PRESERVED",
+    "dataQualityEngineTs": "PRESERVED",
+    "normalizationUtils": "PRESERVED",
+    "sampleQualityData": "PRESERVED"
+  },
+  "canonicalMasterDataMigration": "NOT_PERFORMED",
+  "importCenterPipelineIntegrity": "PRESERVED",
+  "remainingLegacyBuilderCallers": [
+    "src/components/tripEngine/LoadingStation.tsx",
+    "src/components/TripEngineView.tsx",
+    "src/services/tripEngine.service.ts"
+  ],
+  "verificationResults": {
+    "focusedTests": {
+      "suite": "src/tests/dataQualityRetirement.test.ts",
+      "runner": "vitest",
+      "passed": 14,
+      "failed": 0
+    },
+    "regressionTests": {
+      "importCenterConvergence": {
+        "suite": "src/tests/importCenterConvergence.test.ts",
+        "runner": "vitest",
+        "passed": 27,
+        "failed": 0
+      },
+      "importPipeline": {
+        "suite": "src/tests/importPipeline.test.ts",
+        "runner": "tsx",
+        "status": "PASS"
+      },
+      "importSession": {
+        "suite": "src/tests/importSession.test.ts",
+        "runner": "tsx",
+        "status": "PASS"
+      },
+      "loadingOperatorConvergence": {
+        "suite": "src/tests/loadingOperatorConvergence.test.ts",
+        "runner": "vitest",
+        "passed": 10,
+        "failed": 0
+      },
+      "workspaceConvergence": {
+        "suite": "src/tests/workspaceConvergence.test.ts",
+        "runner": "tsx",
+        "passed": 4,
+        "failed": 0
+      },
+      "reportsEngineConvergence": {
+        "suite": "src/tests/reportsEngineConvergence.test.ts",
+        "runner": "tsx",
+        "passed": 48,
+        "failed": 0
+      }
+    },
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS",
+    "diffCheck": "UNAVAILABLE_IN_SANDBOX_NO_GIT",
+    "liveFirestoreE2EVerified": "NO"
+  },
+  "remainingDefects": []
+}

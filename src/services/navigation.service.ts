@@ -413,8 +413,6 @@ class NavigationService {
     switch (tabId) {
       case 'EXCEPTION_ENGINE':
         return ['SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'SITE_SUPERVISOR'].includes(role);
-      case 'DATA_QUALITY':
-        return ['SUPER_ADMIN', 'PROJECT_ADMIN'].includes(role);
       case 'LEGACY_MIGRATION':
       case 'WORKSPACE_INTEGRATION':
         return ['SUPER_ADMIN', 'PROJECT_ADMIN'].includes(role);

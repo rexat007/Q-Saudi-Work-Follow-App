@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-18T03:20:27.603Z
+**Generated At:** 2026-09-18T13:34:03.255Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,44 +9,44 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **13398** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **13757** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **9042** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **9042** | Domain terminology requiring semantic verification |
-| **Ambiguous Keys Isolated** | **4349** | Short tokens or codes quarantined from auto-translation |
+| **Untranslated Slots (Pending Review)** | **9129** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **9129** | Domain terminology requiring semantic verification |
+| **Ambiguous Keys Isolated** | **4621** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
-| **Interpolation Placeholders** | **227** | Dynamic parameters (e.g. `{count}`) strictly preserved |
+| **Interpolation Placeholders** | **232** | Dynamic parameters (e.g. `{count}`) strictly preserved |
 | **Pluralization Requirements** | **151** | Expressions requiring 6 Arabic plural forms |
-| **Semantic Conflicts Isolated** | **646** | Identical texts split into separate contextual keys |
-| **Duplicate Groups (Type A Sharing)** | **1909** | Safe identical-context key reuse candidates |
+| **Semantic Conflicts Isolated** | **649** | Identical texts split into separate contextual keys |
+| **Duplicate Groups (Type A Sharing)** | **2038** | Safe identical-context key reuse candidates |
 | **Directional Migration Queue** | **271** | Physical Tailwind classes flagged for RTL/LTR migration |
 
 ## 2. Category Distribution & Translation Readiness
 
 | Category | Total Keys | Translated | Untranslated | Review Required | Ambiguous |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `other` | 5470 | 4 | 3895 | 3895 | 1571 |
-| `imports` | 1695 | 0 | 1151 | 1151 | 544 |
+| `other` | 5491 | 4 | 3895 | 3895 | 1592 |
+| `imports` | 1752 | 0 | 1175 | 1175 | 577 |
 | `projects` | 771 | 0 | 551 | 551 | 220 |
-| `reports` | 610 | 0 | 382 | 382 | 227 |
-| `trips` | 584 | 0 | 413 | 413 | 171 |
+| `reports` | 723 | 0 | 396 | 396 | 326 |
+| `trips` | 587 | 0 | 416 | 416 | 171 |
 | `security` | 553 | 0 | 390 | 390 | 163 |
+| `navigation` | 535 | 0 | 310 | 310 | 225 |
 | `pricing` | 514 | 0 | 330 | 330 | 184 |
-| `navigation` | 506 | 0 | 300 | 300 | 206 |
 | `weighbridge` | 418 | 0 | 229 | 229 | 189 |
+| `unloading` | 312 | 0 | 194 | 194 | 118 |
 | `offline` | 302 | 0 | 184 | 184 | 118 |
 | `exceptions` | 295 | 0 | 178 | 178 | 117 |
 | `legacyMigration` | 295 | 0 | 124 | 124 | 171 |
-| `unloading` | 281 | 0 | 192 | 192 | 89 |
+| `loading` | 283 | 0 | 219 | 219 | 64 |
 | `entityResolution` | 279 | 0 | 189 | 189 | 90 |
-| `loading` | 230 | 0 | 194 | 194 | 36 |
-| `dashboard` | 151 | 1 | 90 | 90 | 60 |
+| `dashboard` | 152 | 1 | 90 | 90 | 61 |
 | `authentication` | 115 | 0 | 76 | 76 | 39 |
+| `drivers` | 105 | 0 | 34 | 34 | 71 |
 | `validation` | 83 | 0 | 26 | 26 | 57 |
-| `drivers` | 77 | 0 | 33 | 33 | 44 |
+| `materials` | 73 | 0 | 40 | 40 | 33 |
 | `trucks` | 59 | 0 | 38 | 38 | 21 |
 | `carriers` | 52 | 0 | 40 | 40 | 12 |
-| `materials` | 50 | 0 | 32 | 32 | 18 |
 | `shared` | 8 | 1 | 5 | 5 | 2 |
 
 ## 3. Semantic Conflict Separation (Sample)

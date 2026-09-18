@@ -48,7 +48,6 @@ import { GoogleDriveImportSection } from './GoogleDriveImportSection';
 import { GoogleSheetsImportSection } from './GoogleSheetsImportSection';
 import { WeighbridgeImportSection } from './WeighbridgeImportSection';
 import { EntityResolutionSection } from './EntityResolutionSection';
-import { DataQualityView } from '../dataQuality/DataQualityView';
 import { useI18n } from '../../i18n';
 import { carrierRepository } from '../../repositories/carrier.repository';
 import { driverRepository } from '../../repositories/driver.repository';
@@ -63,8 +62,8 @@ export interface ImportCenterViewProps {
 
 export function ImportCenterView({ selectedProjectId }: ImportCenterViewProps) {
   const { t } = useI18n();
-  // Navigation between Entity Resolution, Weighbridge, Google Sheets, Google Drive, Excel/CSV, Unified Architecture, Data Quality, and Active Batch
-  const [centerSubTab, setCenterSubTab] = useState<'ENTITY_RESOLUTION' | 'WEIGHBRIDGE_IMPORT' | 'GOOGLE_SHEETS_IMPORT' | 'GOOGLE_DRIVE_IMPORT' | 'EXCEL_CSV_IMPORT' | 'UNIFIED_ARCHITECTURE' | 'ACTIVE_BATCH' | 'DATA_QUALITY'>('ENTITY_RESOLUTION');
+  // Navigation between Entity Resolution, Weighbridge, Google Sheets, Google Drive, Excel/CSV, Unified Architecture, and Active Batch
+  const [centerSubTab, setCenterSubTab] = useState<'ENTITY_RESOLUTION' | 'WEIGHBRIDGE_IMPORT' | 'GOOGLE_SHEETS_IMPORT' | 'GOOGLE_DRIVE_IMPORT' | 'EXCEL_CSV_IMPORT' | 'UNIFIED_ARCHITECTURE' | 'ACTIVE_BATCH'>('ENTITY_RESOLUTION');
 
   // Canonical Project Master Data Collections
   const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
@@ -552,18 +551,6 @@ export function ImportCenterView({ selectedProjectId }: ImportCenterViewProps) {
           <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-amber-400 text-stone-950 font-black">10 Stages</span>
         </button>
         <button
-          onClick={() => setCenterSubTab('DATA_QUALITY')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-            centerSubTab === 'DATA_QUALITY'
-              ? 'bg-stone-900 text-white shadow-xs'
-              : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'
-          }`}
-        >
-          <ShieldAlert className="w-3.5 h-3.5 text-rose-500" />
-          <span>محرك جودة البيانات (Data Quality Engine)</span>
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-rose-600 text-white font-black">Quality Engine</span>
-        </button>
-        <button
           onClick={() => setCenterSubTab('ACTIVE_BATCH')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             centerSubTab === 'ACTIVE_BATCH'
@@ -577,8 +564,6 @@ export function ImportCenterView({ selectedProjectId }: ImportCenterViewProps) {
 
       {centerSubTab === 'ENTITY_RESOLUTION' ? (
         <EntityResolutionSection />
-      ) : centerSubTab === 'DATA_QUALITY' ? (
-        <DataQualityView />
       ) : centerSubTab === 'WEIGHBRIDGE_IMPORT' ? (
         <WeighbridgeImportSection projectId="PRJ-NEOM-NORTH-01" />
       ) : centerSubTab === 'GOOGLE_SHEETS_IMPORT' ? (

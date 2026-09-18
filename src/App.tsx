@@ -42,7 +42,6 @@ import { Sidebar } from './components/navigation/Sidebar';
 import { ProjectWorkspaceView } from './components/workspace/ProjectWorkspaceView';
 import { PricingEngineView } from './components/pricing/PricingEngineView';
 import { MasterDataView } from './components/masterData/MasterDataView';
-import { DataQualityView } from './components/dataQuality/DataQualityView';
 import { ImportCenterView } from './components/importCenter/ImportCenterView';
 import { TripEngineView } from './components/TripEngineView';
 import { FieldOperationsView, FieldTab } from './components/field/FieldOperationsView';
@@ -583,11 +582,6 @@ export default function App() {
                 {/* ================= TAB: IMPORT CENTER (12-STAGE PIPELINE) ================= */}
                 {activeTab === 'IMPORT_CENTER' && (
                   <ImportCenterView selectedProjectId={selectedProjectId} />
-                )}
-
-                {/* ================= TAB: DATA QUALITY ENGINE (8-STAGE PIPELINE) ================= */}
-                {activeTab === 'DATA_QUALITY' && (
-                  <DataQualityView />
                 )}
 
                 {/* ================= TAB: PRICING ENGINE & AUTOMATED TESTS ================= */}
