@@ -1,0 +1,13 @@
+{
+  "unit": "Phase 6 — Master Data Legacy Helper Non-Production Deprecation Cleanup",
+  "status": "COMPLETE",
+  "buildRelationshipContextExists": true,
+  "buildRelationshipContextStatus": "DEPRECATED_NON_PRODUCTION_ONLY",
+  "buildRelationshipContextProductionReachability": "ZERO",
+  "buildRelationshipContextFromCanonicalPreserved": true,
+  "projectRelationshipStatus": "COHERENT_AND_CONNECTED",
+  "productionAuthorityDefects": "NONE",
+  "liveFirestoreE2EVerified": false,
+  "nextRequiredGate": "PHASE 6 EXIT VERIFICATION",
+  "unitClosed": false
+}

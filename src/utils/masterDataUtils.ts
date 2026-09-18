@@ -59,6 +59,9 @@ export function buildRelationshipContextFromCanonical(
   };
 }
 
+/**
+ * @deprecated Non-production legacy helper retained only for diagnostic/test compatibility. Production code must use canonical project-scoped repositories or buildRelationshipContextFromCanonical(...).
+ */
 export function buildRelationshipContext(projectId: string): RelationshipContext {
   const project = adminConsoleService.getProjects().find(p => p.projectId === projectId);
   return {
