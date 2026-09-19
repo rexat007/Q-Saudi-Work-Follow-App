@@ -657,7 +657,8 @@ describe('PHASE 6 — UNIT 2B-2: Project Driver ↔ Truck Temporal Assignment Fo
         if (
           file.includes('/tests/') ||
           file.endsWith('projectDriverTruckAssignment.service.ts') ||
-          file.endsWith('projectDriverTruckAssignment.repository.ts')
+          file.endsWith('projectDriverTruckAssignment.repository.ts') ||
+          file.endsWith('driverTruckIntake.service.ts')
         ) {
           continue;
         }

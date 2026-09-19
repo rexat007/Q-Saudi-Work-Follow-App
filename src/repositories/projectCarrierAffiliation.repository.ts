@@ -163,13 +163,25 @@ export class GenericProjectCarrierAffiliationRepository<
    * Set or Reassign Carrier Affiliation
    * Enforces idempotency, preconditions, atomic updates, and audit logging.
    */
+  async createAffiliation(
+    projectId: string,
+    entityId: string,
+    carrierId: string,
+    createdBy: string,
+    transaction?: Transaction,
+    actorContext?: AffiliationAuditActor
+  ): Promise<SetAffiliationResult<TEntity>> {
+    // ... implementation ...
+    return this.setAffiliation(projectId, entityId, carrierId, createdBy, transaction, actorContext);
+  }
+
   async setAffiliation(
     projectId: string,
     entityId: string,
     carrierId: string,
     createdBy: string,
-    actorContext?: AffiliationAuditActor,
-    transaction?: Transaction
+    transaction?: Transaction,
+    actorContext?: AffiliationAuditActor
   ): Promise<SetAffiliationResult<TEntity>> {
     if (!projectId?.trim()) throw new Error('PROJECT_ID_REQUIRED');
     if (!entityId?.trim()) throw new Error('ENTITY_ID_REQUIRED');

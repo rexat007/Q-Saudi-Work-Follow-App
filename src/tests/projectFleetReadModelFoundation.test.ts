@@ -488,12 +488,12 @@ describe('Phase 6 Unit 2D: Project Fleet Read Model Foundation', () => {
       expect(readModelServiceCode).not.toContain('migration');
     });
 
-    it('33. Legacy Roster writers remain active and unchanged', () => {
+    it('33. Legacy Roster writers removed from Intake path', () => {
       const intakeCode = readFileSync(
         resolve(__dirname, '../../src/services/driverTruckIntake.service.ts'),
         'utf-8'
       );
-      expect(intakeCode).toContain('projectCarrierRosterRepository.create');
+      expect(intakeCode).not.toContain('projectCarrierRosterRepository.create');
     });
 
     it('34. No new mutable Fleet collection is created', () => {
