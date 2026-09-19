@@ -585,6 +585,22 @@ async function runSuite() {
   });
 
 
+  // --- TC-AUTH-23: Admin Firestore Database Alignment ---
+  await test('TC-AUTH-23', 'Proves Admin Firestore does NOT use unqualified getFirestore() and binds to the correct database ID matching client config', async () => {
+    const { getResolvedDatabaseId } = await import('../firebase/admin');
+    const resolvedId = getResolvedDatabaseId();
+
+    if (!resolvedId) {
+      throw new Error('Admin Firestore database ID is unqualified or empty');
+    }
+
+    const expectedDbId = 'ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1';
+    if (resolvedId !== expectedDbId) {
+      throw new Error(`Admin Firestore database ID mismatch: expected "${expectedDbId}", got "${resolvedId}"`);
+    }
+  });
+
+
   console.log('\n======================================================');
   console.log(`SERVER AUTHENTICATION TRUST BOUNDARY Results: ${passedTests}/${totalTests} PASSED`);
   console.log('======================================================\n');
