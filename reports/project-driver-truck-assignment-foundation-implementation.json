@@ -1,0 +1,104 @@
+{
+  "unit": "UNIT 2B-2",
+  "name": "Driver ↔ Truck Temporal Assignment Foundation",
+  "status": "COMPLETE",
+  "paths": {
+    "historicalAssignments": "/projects/{projectId}/driver_truck_assignments/{assignmentId}",
+    "activeDriverSlot": "/projects/{projectId}/driver_active_assignments/{driverId}",
+    "activeTruckSlot": "/projects/{projectId}/truck_active_assignments/{truckId}"
+  },
+  "idGeneration": {
+    "format": "ASN-<32-character hex>",
+    "entropyBits": 128,
+    "timestampEmbedding": false,
+    "naturalKeyEmbedding": false
+  },
+  "entitySchema": {
+    "assignmentId": "string",
+    "projectId": "string",
+    "driverId": "string",
+    "truckId": "string",
+    "status": "ACTIVE | CLOSED",
+    "effectiveFrom": "string (ISO 8601)",
+    "effectiveTo": "string | null",
+    "createdAt": "string (ISO 8601)",
+    "createdBy": "string"
+  },
+  "bannedAndOmittedFields": [
+    "carrierId",
+    "materialId",
+    "materialIds",
+    "driverName",
+    "plateNumber",
+    "phone",
+    "nationalId",
+    "closedAt",
+    "closedBy",
+    "updatedAt",
+    "updatedBy",
+    "shiftId",
+    "notes",
+    "reason"
+  ],
+  "cardinality": "ONE_DRIVER_ONE_TRUCK_ACTIVE",
+  "temporalModel": "CONTINUOUS_TEMPORAL_INTERVAL",
+  "preconditions": [
+    "Driver Project Membership exists and is ACTIVE",
+    "Truck Project Membership exists and is ACTIVE",
+    "Driver Carrier Affiliation exists and is ACTIVE",
+    "Truck Carrier Affiliation exists and is ACTIVE",
+    "driverAffiliation.carrierId === truckAffiliation.carrierId"
+  ],
+  "concurrency": {
+    "slotDocuments": "driver_active_assignments, truck_active_assignments",
+    "atomicReassignment": true,
+    "counterpartSlotRelease": true,
+    "corruptionDetection": "ASSIGNMENT_POINTER_INTEGRITY_ERROR",
+    "idempotentNoOpOnIdenticalPair": true
+  },
+  "boundaries": {
+    "globalIdentityMutation": "ZERO",
+    "carrierAffiliationMutation": "ZERO",
+    "unit1Security": "PRESERVED",
+    "unit2AContract": "PRESERVED",
+    "unit2B1Contract": "PRESERVED",
+    "rbacPolicyChange": "ZERO",
+    "rosterProductionFlow": "PRESERVED",
+    "tripBehavior": "UNCHANGED",
+    "importBehavior": "UNCHANGED",
+    "offlineOutbox": "UNCHANGED",
+    "migration": "NOT_EXECUTED",
+    "dualBusinessWrite": "ZERO",
+    "productionAssignmentCallers": "ZERO",
+    "productionUiWiring": "ZERO"
+  },
+  "verification": {
+    "focusedTests": {
+      "file": "src/tests/projectDriverTruckAssignmentFoundation.test.ts",
+      "passed": 20,
+      "failed": 0
+    },
+    "foundationRegressions": {
+      "projectCarrierFleetAffiliationFoundation": 12,
+      "projectMembershipFoundation": 26,
+      "globalIdentityFoundation": 28,
+      "passed": 66,
+      "failed": 0
+    },
+    "generalRegressions": {
+      "projectCreationAtomicValidationBlock100H": 7,
+      "driverViewConvergenceP603": 7,
+      "runtimeHardeningBlock93B": 9,
+      "fieldSupervisionConvergenceP604": 7,
+      "driverTruckIntakeP602A": 7,
+      "materialAuthorityP602B2": 6,
+      "passed": 43,
+      "failed": 0
+    },
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS",
+    "diffCheck": "UNAVAILABLE",
+    "liveFirestoreE2eVerified": "NO"
+  }
+}

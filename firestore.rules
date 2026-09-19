@@ -285,6 +285,96 @@ service cloud.firestore {
         allow delete: if false;
       }
 
+      // =======================================================================
+      // PHASE 6 — UNIT 2B-1: Project Carrier Fleet Affiliation Subcollections
+      // Restricts write authority strictly to PROJECT_ADMIN and SUPER_ADMIN.
+      // Read authority requires active project membership.
+      // Enforces structural projectId, driverId/truckId alignment, carrierId validity, and audit stamps.
+      // =======================================================================
+      match /driver_carrier_affiliations/{driverId} {
+        allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
+        allow create: if isSignedIn() && isValidId(driverId) &&
+                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
+                         isAuditStampedCreate(incoming()) &&
+                         incoming().driverId == driverId &&
+                         incoming().projectId == projectId &&
+                         isValidId(incoming().carrierId) &&
+                         incoming().status in ['ACTIVE', 'INACTIVE'];
+        allow update: if isSignedIn() && isValidId(driverId) &&
+                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
+                         isAuditStampedUpdate(incoming()) &&
+                         incoming().driverId == existing().driverId &&
+                         incoming().projectId == existing().projectId &&
+                         isValidId(incoming().carrierId) &&
+                         incoming().status in ['ACTIVE', 'INACTIVE'];
+        allow delete: if false;
+      }
+
+      match /truck_carrier_affiliations/{truckId} {
+        allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
+        allow create: if isSignedIn() && isValidId(truckId) &&
+                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
+                         isAuditStampedCreate(incoming()) &&
+                         incoming().truckId == truckId &&
+                         incoming().projectId == projectId &&
+                         isValidId(incoming().carrierId) &&
+                         incoming().status in ['ACTIVE', 'INACTIVE'];
+        allow update: if isSignedIn() && isValidId(truckId) &&
+                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
+                         isAuditStampedUpdate(incoming()) &&
+                         incoming().truckId == existing().truckId &&
+                         incoming().projectId == existing().projectId &&
+                         isValidId(incoming().carrierId) &&
+                         incoming().status in ['ACTIVE', 'INACTIVE'];
+        allow delete: if false;
+      }
+
+      // Unit 2B-2: Driver ↔ Truck Temporal Assignment Subcollection
+      match /driver_truck_assignments/{assignmentId} {
+        allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
+        allow create: if isSignedIn() && isValidId(assignmentId) &&
+                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
+                         incoming().assignmentId == assignmentId &&
+                         incoming().projectId == projectId &&
+                         isValidId(incoming().driverId) &&
+                         isValidId(incoming().truckId) &&
+                         incoming().status in ['ACTIVE', 'CLOSED'] &&
+                         incoming().createdBy == request.auth.uid;
+        // Historical assignments can transition from ACTIVE to CLOSED only (fields are immutable once closed)
+        allow update: if isSignedIn() && isValidId(assignmentId) &&
+                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
+                         existing().status == 'ACTIVE' &&
+                         incoming().status == 'CLOSED' &&
+                         incoming().assignmentId == existing().assignmentId &&
+                         incoming().projectId == existing().projectId &&
+                         incoming().driverId == existing().driverId &&
+                         incoming().truckId == existing().truckId &&
+                         incoming().effectiveFrom == existing().effectiveFrom &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().createdBy == existing().createdBy;
+        allow delete: if false;
+      }
+
+      // Unit 2B-2: Active Driver Slot Concurrency Infrastructure
+      match /driver_active_assignments/{driverId} {
+        allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
+        allow create, update: if isSignedIn() && isValidId(driverId) &&
+                                 hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
+                                 isValidId(incoming().assignmentId);
+        allow delete: if isSignedIn() && isValidId(driverId) &&
+                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']);
+      }
+
+      // Unit 2B-2: Active Truck Slot Concurrency Infrastructure
+      match /truck_active_assignments/{truckId} {
+        allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
+        allow create, update: if isSignedIn() && isValidId(truckId) &&
+                                 hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
+                                 isValidId(incoming().assignmentId);
+        allow delete: if isSignedIn() && isValidId(truckId) &&
+                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']);
+      }
+
       // Trips subcollection
       match /trips/{tripId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
