@@ -114,10 +114,19 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
   const fetchCarriers = async () => {
     if (!project) return;
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const user = auth.currentUser;
+      if (!user) {
+        console.warn('Cannot fetch carriers: User not authenticated.');
+        return;
+      }
+      const token = await user.getIdToken();
+      if (!token) {
+        console.warn('Cannot fetch carriers: Missing auth token.');
+        return;
+      }
       const res = await fetch(`/api/projects/${project.projectId}/carriers`, {
         headers: {
-          Authorization: `Bearer ${token || 'system-admin'}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       if (res.ok) {
@@ -134,10 +143,19 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
   const fetchMaterials = async () => {
     if (!project) return;
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const user = auth.currentUser;
+      if (!user) {
+        console.warn('Cannot fetch materials: User not authenticated.');
+        return;
+      }
+      const token = await user.getIdToken();
+      if (!token) {
+        console.warn('Cannot fetch materials: Missing auth token.');
+        return;
+      }
       const res = await fetch(`/api/projects/${project.projectId}/materials`, {
         headers: {
-          Authorization: `Bearer ${token || 'system-admin'}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       if (res.ok) {
@@ -303,12 +321,19 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
     setIsSubmitting(true);
     setErrorMsg(null);
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('فشل إضافة المقاول: المستخدم غير مصدق');
+      }
+      const token = await user.getIdToken();
+      if (!token) {
+        throw new Error('فشل إضافة المقاول: الرمز المميز مفقود');
+      }
       const res = await fetch(`/api/projects/${project.projectId}/setup-carrier`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token || 'system-admin'}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           carrierData: {
@@ -347,12 +372,19 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
     setIsSubmitting(true);
     setErrorMsg(null);
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('فشل إضافة المادة: المستخدم غير مصدق');
+      }
+      const token = await user.getIdToken();
+      if (!token) {
+        throw new Error('فشل إضافة المادة: الرمز المميز مفقود');
+      }
       const res = await fetch(`/api/projects/${project.projectId}/setup-material`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token || 'system-admin'}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           materialData: {

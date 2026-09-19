@@ -65,4 +65,59 @@ describe('ProjectWorkspaceView Material & Carrier Canonical Convergence Static V
     expect(fileContent).not.toContain('ProjectReadinessService');
     expect(fileContent).not.toContain('ProjectActivationService');
   });
+
+  it('13. No system-admin fallback exists in canonical Carrier/Material functions', () => {
+    // Extract specific functions to avoid interference from other unrelated endpoints
+    const fetchCarriersBlock = fileContent.substring(
+      fileContent.indexOf('const fetchCarriers'),
+      fileContent.indexOf('const fetchMaterials')
+    );
+    const fetchMaterialsBlock = fileContent.substring(
+      fileContent.indexOf('const fetchMaterials'),
+      fileContent.indexOf('// Sync details from Firebase')
+    );
+    const handleAddCarrierBlock = fileContent.substring(
+      fileContent.indexOf('const handleAddCarrier'),
+      fileContent.indexOf('const handleAddMaterial')
+    );
+    const handleAddMaterialBlock = fileContent.substring(
+      fileContent.indexOf('const handleAddMaterial'),
+      fileContent.indexOf('const handleAddPricingRule')
+    );
+
+    expect(fetchCarriersBlock).not.toContain('system-admin');
+    expect(fetchMaterialsBlock).not.toContain('system-admin');
+    expect(handleAddCarrierBlock).not.toContain('system-admin');
+    expect(handleAddMaterialBlock).not.toContain('system-admin');
+  });
+
+  it('14. Unauthenticated state is explicitly guarded, preventing setup or fetching without user', () => {
+    const fetchCarriersBlock = fileContent.substring(
+      fileContent.indexOf('const fetchCarriers'),
+      fileContent.indexOf('const fetchMaterials')
+    );
+    const handleAddCarrierBlock = fileContent.substring(
+      fileContent.indexOf('const handleAddCarrier'),
+      fileContent.indexOf('const handleAddMaterial')
+    );
+
+    expect(fetchCarriersBlock).toContain('auth.currentUser');
+    expect(fetchCarriersBlock).toContain('!user');
+    expect(handleAddCarrierBlock).toContain('auth.currentUser');
+    expect(handleAddCarrierBlock).toContain('!user');
+  });
+
+  it('15. Authenticated Firebase token is used properly in Bearer header without backup', () => {
+    const fetchCarriersBlock = fileContent.substring(
+      fileContent.indexOf('const fetchCarriers'),
+      fileContent.indexOf('const fetchMaterials')
+    );
+    const handleAddCarrierBlock = fileContent.substring(
+      fileContent.indexOf('const handleAddCarrier'),
+      fileContent.indexOf('const handleAddMaterial')
+    );
+
+    expect(fetchCarriersBlock).toContain('Authorization: `Bearer ${token}`');
+    expect(handleAddCarrierBlock).toContain('Authorization: `Bearer ${token}`');
+  });
 });
