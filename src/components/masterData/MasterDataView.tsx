@@ -565,76 +565,18 @@ export const MasterDataView: React.FC<{
 
   const handleCreateTruck = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProjectId || !newTruck.plate || !newTruck.carrierId) return;
-
-    try {
-      const activeAuth = {
-        userId: user ? user.uid : MOCK_AUTH_CONTEXT.userId,
-        email: user ? (user.email || MOCK_AUTH_CONTEXT.email) : MOCK_AUTH_CONTEXT.email,
-        displayName: user ? (user.displayName || MOCK_AUTH_CONTEXT.displayName) : MOCK_AUTH_CONTEXT.displayName,
-        role: MOCK_AUTH_CONTEXT.role,
-        assignedProjectIds: [selectedProjectId],
-      };
-
-      const result = await driverTruckIntakeService.processSharedIntake({
-        projectId: selectedProjectId,
-        carrierId: newTruck.carrierId,
-        materialId: overview?.allMaterials[0]?.materialId || 'MAT-GEN',
-        driverName: `سائق الشاحنة ${newTruck.plate}`,
-        plateNumber: newTruck.plate,
-        tareWeightKg: Number(newTruck.tareKg),
-        maxGrossWeightKg: Number(newTruck.grossKg),
-      }, activeAuth);
-
-      setCreateModal({ isOpen: false, entityType: 'TRUCK' });
-      setNewTruck({ truckId: '', plate: '', carrierId: '', tareKg: 14000, grossKg: 45000 });
-      setActionNotice({ type: 'success', message: 'تم تسجيل الشاحنة وتوثيقها في لائحة المشروع بنجاح' });
-      if (!user) {
-        setLocalTrucks([result.truck as any, ...localTrucks]);
-        setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, [result.truck as any, ...localTrucks], localDrivers));
-      } else {
-        await refreshOverview(selectedProjectId);
-      }
-    } catch (err: any) {
-      setActionNotice({ type: 'error', message: err.message || 'خطأ في حفظ الشاحنة' });
-    }
+    setActionNotice({
+      type: 'error',
+      message: 'عملية تسجيل الشاحنة المنفردة معطلة مؤقتاً لحماية سلامة البيانات. يرجى استخدام واجهة التسجيل الموحد (Intake) لتوثيق السائق والشاحنة والمادة والناقل معاً بشكل متكامل.',
+    });
   };
 
   const handleCreateDriver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProjectId || !newDriver.name || !newDriver.carrierId) return;
-
-    try {
-      const activeAuth = {
-        userId: user ? user.uid : MOCK_AUTH_CONTEXT.userId,
-        email: user ? (user.email || MOCK_AUTH_CONTEXT.email) : MOCK_AUTH_CONTEXT.email,
-        displayName: user ? (user.displayName || MOCK_AUTH_CONTEXT.displayName) : MOCK_AUTH_CONTEXT.displayName,
-        role: MOCK_AUTH_CONTEXT.role,
-        assignedProjectIds: [selectedProjectId],
-      };
-
-      const result = await driverTruckIntakeService.processSharedIntake({
-        projectId: selectedProjectId,
-        carrierId: newDriver.carrierId,
-        materialId: overview?.allMaterials[0]?.materialId || 'MAT-GEN',
-        driverName: newDriver.name,
-        plateNumber: `ط ك ل ${Math.floor(1000 + Math.random() * 9000)}`,
-        phone: newDriver.phone,
-        residencyId: newDriver.idNumber,
-      }, activeAuth);
-
-      setCreateModal({ isOpen: false, entityType: 'DRIVER' });
-      setNewDriver({ driverId: '', name: '', phone: '0501234567', idNumber: '1087654321', carrierId: '' });
-      setActionNotice({ type: 'success', message: 'تم تسجيل السائق وتوثيقه في لائحة المشروع بنجاح' });
-      if (!user) {
-        setLocalDrivers([result.driver as any, ...localDrivers]);
-        setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, localTrucks, [result.driver as any, ...localDrivers]));
-      } else {
-        await refreshOverview(selectedProjectId);
-      }
-    } catch (err: any) {
-      setActionNotice({ type: 'error', message: err.message || 'خطأ في حفظ السائق' });
-    }
+    setActionNotice({
+      type: 'error',
+      message: 'عملية تسجيل السائق المنفرد معطلة مؤقتاً لحماية سلامة البيانات. يرجى استخدام واجهة التسجيل الموحد (Intake) لتوثيق السائق والشاحنة والمادة والناقل معاً بشكل متكامل.',
+    });
   };
 
   // --- Drivers & Trucks Import Logic ---

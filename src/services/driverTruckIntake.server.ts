@@ -94,6 +94,19 @@ export class DriverTruckIntakeServer {
 
       const driverRef = driverId ? adminDb.collection('drivers').doc(driverId) : null;
       const truckRef = truckId ? adminDb.collection('trucks').doc(truckId) : null;
+
+      // GET GLOBAL SNAPS
+      const driverSnap = driverRef ? await transaction.get(driverRef) : null;
+      const truckSnap = truckRef ? await transaction.get(truckRef) : null;
+
+      // NATURAL IDENTITY LOOKUP INTEGRITY CHECK
+      if (lookupSnapDriver.exists && (!driverSnap || !driverSnap.exists)) {
+        throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for driver but Global Driver document is missing.');
+      }
+      if (lookupSnapTruck.exists && (!truckSnap || !truckSnap.exists)) {
+        throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for truck but Global Truck document is missing.');
+      }
+
       const driverMemRef = driverId ? adminDb.collection('projects').doc(projectId).collection('driver_memberships').doc(driverId) : null;
       const truckMemRef = truckId ? adminDb.collection('projects').doc(projectId).collection('truck_memberships').doc(truckId) : null;
       const driverAffilRef = driverId ? adminDb.collection('projects').doc(projectId).collection('driver_carrier_affiliations').doc(driverId) : null;
@@ -103,8 +116,6 @@ export class DriverTruckIntakeServer {
       const truckSlotRef = truckId ? adminDb.collection('projects').doc(projectId).collection('truck_active_assignments').doc(truckId) : null;
       const truckAllocSlotRef = truckId ? adminDb.collection('projects').doc(projectId).collection('truck_active_material_allocations').doc(truckId) : null;
 
-      const driverSnap = driverRef ? await transaction.get(driverRef) : null;
-      const truckSnap = truckRef ? await transaction.get(truckRef) : null;
       const driverMemSnap = driverMemRef ? await transaction.get(driverMemRef) : null;
       const truckMemSnap = truckMemRef ? await transaction.get(truckMemRef) : null;
       const driverAffilSnap = driverAffilRef ? await transaction.get(driverAffilRef) : null;
@@ -174,6 +185,8 @@ export class DriverTruckIntakeServer {
           status: 'ACTIVE',
           createdAt: nowIso,
           createdBy: actorId,
+          updatedAt: nowIso,
+          updatedBy: actorId,
         });
 
         transaction.set(lookupRefDriver, {
@@ -188,7 +201,7 @@ export class DriverTruckIntakeServer {
         truckId = `TRK-${hashHex}`;
         const tare = tareWeightKg || 14000;
         const gross = maxGrossWeightKg || 45000;
-        const payloadLimit = gross > tare ? gross - tare : undefined;
+        const legalPayloadLimit = gross > tare ? gross - tare : undefined;
 
         const newTruckRef = adminDb.collection('trucks').doc(truckId);
         transaction.set(newTruckRef, {
@@ -198,10 +211,12 @@ export class DriverTruckIntakeServer {
           truckType: truckType || 'TIPPER_32M3',
           tareWeightKg: tare,
           maxGrossWeightKg: gross,
-          payloadLimitKg: payloadLimit,
+          legalPayloadLimitKg: legalPayloadLimit,
           status: 'ACTIVE',
           createdAt: nowIso,
           createdBy: actorId,
+          updatedAt: nowIso,
+          updatedBy: actorId,
         });
 
         transaction.set(lookupRefTruck, {
@@ -311,7 +326,7 @@ export class DriverTruckIntakeServer {
         }
 
         const hashHex = require('crypto').randomBytes(16).toString('hex');
-        finalAssignmentId = `ASG-${hashHex}`;
+        finalAssignmentId = `ASN-${hashHex}`;
         const newAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(finalAssignmentId);
         transaction.set(newAssignRef, {
           assignmentId: finalAssignmentId,
@@ -342,7 +357,7 @@ export class DriverTruckIntakeServer {
         }
 
         const hashHex = require('crypto').randomBytes(16).toString('hex');
-        finalAllocationId = `ALC-${hashHex}`;
+        finalAllocationId = `TMA-${hashHex}`;
         const newAllocRef = adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(finalAllocationId);
         transaction.set(newAllocRef, {
           allocationId: finalAllocationId,
