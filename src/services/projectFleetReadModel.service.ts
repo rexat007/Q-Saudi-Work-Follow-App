@@ -127,11 +127,15 @@ export class ProjectFleetReadModelService {
               uniqueDriverIds.add(driverId);
 
               // Check carrier alignment if carrierId was established
-              if (assignment.carrierId && carrierId && assignment.carrierId !== carrierId) {
-                issues.push({
-                  code: 'CARRIER_MISMATCH',
-                  message: `Assigned driver ${driverId} carrier (${assignment.carrierId}) mismatches truck carrier (${carrierId})`,
-                });
+              // carrierId is not present on assignment, inferred via driver affiliation
+              if (carrierId && driverId) {
+                const driverAffiliation = await projectDriverCarrierAffiliationRepository.getAffiliation(cleanProjectId, driverId);
+                if (driverAffiliation && driverAffiliation.carrierId !== carrierId) {
+                  issues.push({
+                    code: 'CARRIER_MISMATCH',
+                    message: `Assigned driver ${driverId} carrier (${driverAffiliation.carrierId}) mismatches truck carrier (${carrierId})`,
+                  });
+                }
               }
             }
           }
@@ -200,14 +204,14 @@ export class ProjectFleetReadModelService {
       ...Array.from(uniqueCarrierIds).map(async (cId) => {
         const entity = await globalCarrierRepository.findById(cId);
         if (entity) {
-          carrierMap.set(cId, entity.nameAr || entity.nameEn || cId);
+          carrierMap.set(cId, entity.nameAr || cId);
         }
       }),
       // Drivers
       ...Array.from(uniqueDriverIds).map(async (dId) => {
         const entity = await globalDriverRepository.findById(dId);
         if (entity) {
-          driverMap.set(dId, entity.fullNameAr || entity.fullNameEn || dId);
+          driverMap.set(dId, entity.fullNameAr || dId);
         }
       }),
       // Materials

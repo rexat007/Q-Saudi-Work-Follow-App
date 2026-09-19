@@ -50,21 +50,19 @@ describe('LU-P6-02A Driver/Truck Project Intake & Roster Convergence (Atomicity 
     const result = await driverTruckIntakeService.processSharedIntake(payload, adminAuth);
 
     expect(result).toBeDefined();
-    expect(result.driver).toBeDefined();
-    expect(result.driver.name).toBe('سلطان عبد الله القحطاني');
-    expect(result.driver.idNumber).toBe('1099887766');
+    expect(result.driverId).toBeDefined();
+    const driver = await driverRepository.findById(testProjectId, result.driverId);
+    expect(driver).toBeDefined();
+    expect(driver?.name).toBe('سلطان عبد الله القحطاني');
+    expect(driver?.idNumber).toBe('1099887766');
 
-    expect(result.truck).toBeDefined();
-    expect(result.truck.plate).toBe('أ ب ج 9876');
+    expect(result.truckId).toBeDefined();
+    const truck = await truckRepository.findById(testProjectId, result.truckId);
+    expect(truck).toBeDefined();
+    expect(truck?.plate).toBe('أ ب ج 9876');
 
-    expect(result.roster).toBeDefined();
-    expect(result.roster.globalDriverId).toBe(result.driver.driverId);
-    expect(result.roster.driverName).toBe('سلطان عبد الله القحطاني');
-    expect(result.roster.plateNumber).toBe('أ ب ج 9876');
-
-    // Verify repository persistence
     const savedTrucks = await truckRepository.listByProject(testProjectId);
-    const savedTruck = savedTrucks.find((t) => t.truckId === result.truck.truckId);
+    const savedTruck = savedTrucks.find((t) => t.truckId === result.truckId);
     expect(savedTruck).toBeDefined();
 
     const savedDrivers = await driverRepository.listByProject(testProjectId);

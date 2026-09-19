@@ -6,6 +6,7 @@ import {
   setDoc, 
   updateDoc, 
   deleteDoc,
+  Transaction,
   serverTimestamp, 
   onSnapshot,
   query,
@@ -31,6 +32,12 @@ export class ProjectRepository {
     } catch (error) {
       handleFirestoreError(error, OperationType.GET, path);
     }
+  }
+
+  async findByIdInTransaction(projectId: string, transaction: Transaction): Promise<ProjectEntity | null> {
+    const docRef = doc(db, this.collectionName, projectId);
+    const snap = await transaction.get(docRef);
+    return snap.exists() ? (snap.data() as ProjectEntity) : null;
   }
 
   async listAll(assignedProjectIds?: string[], isSuperAdmin?: boolean): Promise<ProjectEntity[]> {
@@ -105,6 +112,15 @@ export class ProjectRepository {
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, path);
     }
+  }
+
+  async updateInTransaction(projectId: string, updates: Partial<ProjectEntity>, updatedBy: string, transaction: Transaction): Promise<void> {
+    const docRef = doc(db, this.collectionName, projectId);
+    transaction.update(docRef, sanitizeUndefined({
+        ...updates,
+        updatedAt: serverTimestamp(),
+        updatedBy
+    }));
   }
 
   subscribeToProjects(

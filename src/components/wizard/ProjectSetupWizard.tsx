@@ -636,6 +636,23 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
+  const handleActivateProject = async () => {
+    try {
+      const response = await fetch(`/api/projects/${project?.projectId}/activate`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${(await auth.currentUser?.getIdToken())}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error((await response.json()).error);
+      alert('تم تنشيط المشروع بنجاح');
+      // Refresh project state
+    } catch (error: any) {
+      alert(`فشل التنشيط: ${error.message}`);
+    }
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-6 space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* 1. Welcoming Dashboard & Staged List */}
@@ -1726,7 +1743,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                       {(project.status as any) === 'APPROVED' && (
                         <button
-                          onClick={() => handleTransitionStatus('ACTIVE' as any)}
+                          onClick={handleActivateProject}
                           disabled={!isReadinessGreen}
                           className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs flex items-center gap-2 transition-all shadow-lg disabled:opacity-50"
                         >

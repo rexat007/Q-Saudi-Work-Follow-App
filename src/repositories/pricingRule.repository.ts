@@ -6,7 +6,8 @@ import {
   setDoc, 
   updateDoc, 
   serverTimestamp, 
-  onSnapshot 
+  onSnapshot,
+  Transaction,
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
@@ -78,6 +79,12 @@ export class PricingRuleRepository {
       if (cached.length > 0) return cached;
       handleFirestoreError(error, OperationType.LIST, path);
     }
+  }
+
+  async listByProjectInTransaction(projectId: string, transaction: Transaction): Promise<PricingRuleEntity[]> {
+    const colRef = collection(db, 'projects', projectId, 'pricing_rules');
+    const snap = await getDocs(colRef);
+    return snap.docs.map(d => d.data() as PricingRuleEntity);
   }
 
   async create(rule: Omit<PricingRuleEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {

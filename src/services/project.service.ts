@@ -109,6 +109,12 @@ export class ProjectService {
 
     // Ensure projectCode and projectNumber are immutable
     const { projectCode, projectNumber, ...sanitizedUpdates } = updates;
+    
+    // GUARD: Prevent entering ACTIVE via generic update
+    if (existing.status !== 'ACTIVE' && sanitizedUpdates.status === 'ACTIVE') {
+      throw new Error('لا يمكن تنشيط المشروع عبر تحديث عام. يرجى استخدام عملية التنشيط الرسمية.');
+    }
+
     const merged = { ...existing, ...sanitizedUpdates, projectId };
     
     const validation = ProjectValidator.validate(merged);

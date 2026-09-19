@@ -93,7 +93,7 @@ export class ProjectMembershipRepository<
   /**
    * Retrieve a specific membership record
    */
-  async getMembership(projectId: string, entityId: string): Promise<TEntity | null> {
+  async getMembership(projectId: string, entityId: string, transaction?: Transaction): Promise<TEntity | null> {
     if (!projectId || !entityId) return null;
     const compKey = this.getCompositeKey(projectId, entityId);
 
@@ -103,7 +103,13 @@ export class ProjectMembershipRepository<
 
     const path = `projects/${projectId}/${this.subcollectionName}/${entityId}`;
     try {
-      const snap = await getDoc(doc(db, 'projects', projectId, this.subcollectionName, entityId));
+      const docRef = doc(db, 'projects', projectId, this.subcollectionName, entityId);
+      if (transaction) {
+        const snap = await transaction.get(docRef);
+        return snap.exists() ? (snap.data() as TEntity) : null;
+      }
+      
+      const snap = await getDoc(docRef);
       if (!snap.exists()) {
         return this.inMemoryMemberships.get(compKey) || null;
       }
@@ -117,7 +123,7 @@ export class ProjectMembershipRepository<
   /**
    * List all memberships for a project (optionally filter by status)
    */
-  async listMemberships(projectId: string, statusFilter?: MembershipStatus): Promise<TEntity[]> {
+  async listMemberships(projectId: string, statusFilter?: MembershipStatus, transaction?: Transaction): Promise<TEntity[]> {
     if (!projectId) return [];
 
     if (!auth.currentUser) {
@@ -129,6 +135,12 @@ export class ProjectMembershipRepository<
     try {
       const colRef = collection(db, 'projects', projectId, this.subcollectionName);
       const q = statusFilter ? query(colRef, where('status', '==', statusFilter)) : query(colRef);
+      
+      if (transaction) {
+        const snap = await getDocs(q);
+        return snap.docs.map(d => d.data() as TEntity);
+      }
+
       const snap = await getDocs(q);
       const live = snap.docs.map(d => d.data() as TEntity);
       if (live.length === 0) {

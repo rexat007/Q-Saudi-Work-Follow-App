@@ -7,6 +7,7 @@ import {
   where,
   orderBy,
   runTransaction,
+  Transaction,
   serverTimestamp,
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
@@ -105,7 +106,7 @@ export class ProjectDriverTruckAssignmentRepository {
   /**
    * Fetch an assignment document by ID
    */
-  async getAssignment(projectId: string, assignmentId: string): Promise<ProjectDriverTruckAssignmentEntity | null> {
+  async getAssignment(projectId: string, assignmentId: string, transaction?: Transaction): Promise<ProjectDriverTruckAssignmentEntity | null> {
     if (!projectId || !assignmentId) return null;
 
     if (!auth.currentUser) {
@@ -115,6 +116,10 @@ export class ProjectDriverTruckAssignmentRepository {
     const docPath = `projects/${projectId}/driver_truck_assignments/${assignmentId}`;
     try {
       const docRef = doc(db, 'projects', projectId, 'driver_truck_assignments', assignmentId);
+      if (transaction) {
+        const snap = await transaction.get(docRef);
+        return snap.exists() ? snap.data() as ProjectDriverTruckAssignmentEntity : null;
+      }
       const snap = await getDoc(docRef);
       if (!snap.exists()) {
         return this.inMemoryAssignments.get(assignmentId) || null;
@@ -126,10 +131,21 @@ export class ProjectDriverTruckAssignmentRepository {
     }
   }
 
+  async listAssignments(projectId: string, transaction?: Transaction): Promise<ProjectDriverTruckAssignmentEntity[]> {
+    const colRef = collection(db, 'projects', projectId, 'driver_truck_assignments');
+    const q = query(colRef);
+    if (transaction) {
+      const snap = await getDocs(q);
+      return snap.docs.map(d => d.data() as ProjectDriverTruckAssignmentEntity);
+    }
+    const snap = await getDocs(q);
+    return snap.docs.map(d => d.data() as ProjectDriverTruckAssignmentEntity);
+  }
+
   /**
    * Fetch active assignment slot pointer for driver
    */
-  async getActiveDriverSlot(projectId: string, driverId: string): Promise<ActiveAssignmentSlotPayload | null> {
+  async getActiveDriverSlot(projectId: string, driverId: string, transaction?: Transaction): Promise<ActiveAssignmentSlotPayload | null> {
     if (!projectId || !driverId) return null;
 
     const compKey = this.getSlotKey(projectId, driverId);
@@ -140,6 +156,10 @@ export class ProjectDriverTruckAssignmentRepository {
     const docPath = `projects/${projectId}/driver_active_assignments/${driverId}`;
     try {
       const docRef = doc(db, 'projects', projectId, 'driver_active_assignments', driverId);
+      if (transaction) {
+        const snap = await transaction.get(docRef);
+        return snap.exists() ? snap.data() as ActiveAssignmentSlotPayload : null;
+      }
       const snap = await getDoc(docRef);
       if (!snap.exists()) {
         return this.inMemoryDriverSlots.get(compKey) || null;
@@ -154,7 +174,7 @@ export class ProjectDriverTruckAssignmentRepository {
   /**
    * Fetch active assignment slot pointer for truck
    */
-  async getActiveTruckSlot(projectId: string, truckId: string): Promise<ActiveAssignmentSlotPayload | null> {
+  async getActiveTruckSlot(projectId: string, truckId: string, transaction?: Transaction): Promise<ActiveAssignmentSlotPayload | null> {
     if (!projectId || !truckId) return null;
 
     const compKey = this.getSlotKey(projectId, truckId);
@@ -165,6 +185,10 @@ export class ProjectDriverTruckAssignmentRepository {
     const docPath = `projects/${projectId}/truck_active_assignments/${truckId}`;
     try {
       const docRef = doc(db, 'projects', projectId, 'truck_active_assignments', truckId);
+      if (transaction) {
+        const snap = await transaction.get(docRef);
+        return snap.exists() ? snap.data() as ActiveAssignmentSlotPayload : null;
+      }
       const snap = await getDoc(docRef);
       if (!snap.exists()) {
         return this.inMemoryTruckSlots.get(compKey) || null;

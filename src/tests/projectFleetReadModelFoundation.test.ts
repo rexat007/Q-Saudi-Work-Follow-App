@@ -77,7 +77,7 @@ describe('Phase 6 Unit 2D: Project Fleet Read Model Foundation', () => {
       plate,
       tareWeightKg: 12000,
       maxGrossWeightKg: 32000,
-      truckType: 'DUMP_TRUCK_32M3',
+      truckType: 'TIPPER_32M3',
       status: 'ACTIVE',
       createdBy: 'admin-test',
     });

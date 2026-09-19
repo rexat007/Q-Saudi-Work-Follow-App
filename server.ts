@@ -1231,6 +1231,21 @@ app.get('/api/projects/:projectId/carriers', enforceProjectIsolation, async (req
 });
 
 // ----------------------------------------------------
+// 10D. Project Activation (Phase 6)
+// ----------------------------------------------------
+app.post('/api/projects/:projectId/activate', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const user = (req as any).user;
+    const { projectActivationService } = await import('./src/services/projectActivation.service');
+    await projectActivationService.activateProject(projectId, user);
+    res.json({ success: true, message: 'تم تنشيط المشروع بنجاح' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ----------------------------------------------------
 // 11. Security Audit Suite Run Endpoint
 // ----------------------------------------------------
 app.get('/api/security/audit-status', (req, res) => {

@@ -81,7 +81,7 @@ export class GenericProjectCarrierAffiliationRepository<
   /**
    * Fetch current carrier affiliation for an entity in project
    */
-  async getAffiliation(projectId: string, entityId: string): Promise<TEntity | null> {
+  async getAffiliation(projectId: string, entityId: string, transaction?: Transaction): Promise<TEntity | null> {
     if (!projectId || !entityId) return null;
 
     if (!auth.currentUser) {
@@ -91,6 +91,10 @@ export class GenericProjectCarrierAffiliationRepository<
     const docPath = `projects/${projectId}/${this.subcollectionName}/${entityId}`;
     try {
       const docRef = doc(db, 'projects', projectId, this.subcollectionName, entityId);
+      if (transaction) {
+        const snap = await transaction.get(docRef);
+        return snap.exists() ? snap.data() as TEntity : null;
+      }
       const snap = await getDoc(docRef);
       if (!snap.exists()) {
         return null;

@@ -10,6 +10,7 @@ import {
   where,
   orderBy,
   runTransaction,
+  Transaction,
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
@@ -74,7 +75,8 @@ export class ProjectTruckMaterialAllocationRepository {
    */
   async getAllocation(
     projectId: string,
-    allocationId: string
+    allocationId: string,
+    transaction?: Transaction
   ): Promise<ProjectTruckMaterialAllocationEntity | null> {
     if (!projectId || !allocationId) return null;
 
@@ -86,6 +88,10 @@ export class ProjectTruckMaterialAllocationRepository {
     const docPath = `projects/${projectId}/truck_material_allocations/${allocationId}`;
     try {
       const docRef = doc(db, 'projects', projectId, 'truck_material_allocations', allocationId);
+      if (transaction) {
+        const snap = await transaction.get(docRef);
+        return snap.exists() ? snap.data() as ProjectTruckMaterialAllocationEntity : null;
+      }
       const snap = await getDoc(docRef);
       if (!snap.exists()) {
         const mem = this.inMemoryAllocations.get(allocationId);
@@ -104,7 +110,8 @@ export class ProjectTruckMaterialAllocationRepository {
    */
   async getActiveSlot(
     projectId: string,
-    truckId: string
+    truckId: string,
+    transaction?: Transaction
   ): Promise<ActiveTruckMaterialSlotPayload | null> {
     if (!projectId || !truckId) return null;
 
@@ -116,6 +123,10 @@ export class ProjectTruckMaterialAllocationRepository {
     const docPath = `projects/${projectId}/truck_active_material_allocations/${truckId}`;
     try {
       const docRef = doc(db, 'projects', projectId, 'truck_active_material_allocations', truckId);
+      if (transaction) {
+        const snap = await transaction.get(docRef);
+        return snap.exists() ? snap.data() as ActiveTruckMaterialSlotPayload : null;
+      }
       const snap = await getDoc(docRef);
       if (!snap.exists()) {
         return this.inMemoryActiveSlots.get(compKey) || null;
@@ -125,6 +136,17 @@ export class ProjectTruckMaterialAllocationRepository {
       handleFirestoreError(error, OperationType.GET, docPath);
       return this.inMemoryActiveSlots.get(compKey) || null;
     }
+  }
+
+  async listAllocations(projectId: string, transaction?: Transaction): Promise<ProjectTruckMaterialAllocationEntity[]> {
+    const colRef = collection(db, 'projects', projectId, 'truck_material_allocations');
+    const q = query(colRef);
+    if (transaction) {
+      const snap = await getDocs(q);
+      return snap.docs.map(d => d.data() as ProjectTruckMaterialAllocationEntity);
+    }
+    const snap = await getDocs(q);
+    return snap.docs.map(d => d.data() as ProjectTruckMaterialAllocationEntity);
   }
 
   /**
