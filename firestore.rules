@@ -373,5 +373,77 @@ service cloud.firestore {
                         isSuperAdmin());
       allow update, delete: if false; // Strictly Immutable
     }
+
+    // =========================================================================
+    // 4. Global Identity Authorities (Phase 6 Unit 1: Additive Foundation Only)
+    // Interim restricted policy: SUPER_ADMIN and trusted server-authorized execution only.
+    // Zero production consumers wired yet. Ordinary users cannot read arbitrary Driver PII or probe lookup tokens.
+    // =========================================================================
+    match /drivers/{driverId} {
+      allow get, list: if isSuperAdmin() || isServerAuthorized();
+      allow create: if isSignedIn() && isValidId(driverId) &&
+                       isAuditStampedCreate(incoming()) &&
+                       incoming().driverId == driverId &&
+                       (isSuperAdmin() || isServerAuthorized());
+      allow update: if isSignedIn() && isValidId(driverId) &&
+                       isAuditStampedUpdate(incoming()) &&
+                       incoming().driverId == existing().driverId &&
+                       incoming().nationalId == existing().nationalId &&
+                       (isSuperAdmin() || isServerAuthorized());
+      allow delete: if false;
+    }
+
+    match /trucks/{truckId} {
+      allow get, list: if isSuperAdmin() || isServerAuthorized();
+      allow create: if isSignedIn() && isValidId(truckId) &&
+                       isAuditStampedCreate(incoming()) &&
+                       incoming().truckId == truckId &&
+                       (isSuperAdmin() || isServerAuthorized());
+      allow update: if isSignedIn() && isValidId(truckId) &&
+                       isAuditStampedUpdate(incoming()) &&
+                       incoming().truckId == existing().truckId &&
+                       incoming().normalizedPlate == existing().normalizedPlate &&
+                       (isSuperAdmin() || isServerAuthorized());
+      allow delete: if false;
+    }
+
+    match /carriers/{carrierId} {
+      allow get, list: if isSuperAdmin() || isServerAuthorized();
+      allow create: if isSignedIn() && isValidId(carrierId) &&
+                       isAuditStampedCreate(incoming()) &&
+                       incoming().carrierId == carrierId &&
+                       (isSuperAdmin() || isServerAuthorized());
+      allow update: if isSignedIn() && isValidId(carrierId) &&
+                       isAuditStampedUpdate(incoming()) &&
+                       incoming().carrierId == existing().carrierId &&
+                       incoming().commercialRegistrationNo == existing().commercialRegistrationNo &&
+                       (isSuperAdmin() || isServerAuthorized());
+      allow delete: if false;
+    }
+
+    match /materials/{materialId} {
+      // Material catalog is non-sensitive domain master data
+      allow get, list: if isUserActive();
+      allow create: if isSignedIn() && isValidId(materialId) &&
+                       isAuditStampedCreate(incoming()) &&
+                       incoming().materialId == materialId &&
+                       (isSuperAdmin() || isServerAuthorized());
+      allow update: if isSignedIn() && isValidId(materialId) &&
+                       isAuditStampedUpdate(incoming()) &&
+                       incoming().materialId == existing().materialId &&
+                       incoming().code == existing().code &&
+                       (isSuperAdmin() || isServerAuthorized());
+      allow delete: if false;
+    }
+
+    // Natural Identity Atomic Reservation Lookups
+    // Zero ordinary client get/list/write to eliminate low-entropy token enumeration/probing
+    match /natural_identity_lookups/{token} {
+      allow get, list: if isSuperAdmin() || isServerAuthorized();
+      allow create: if isSignedIn() && isValidId(token) &&
+                       (isSuperAdmin() || isServerAuthorized());
+      allow update, delete: if false;
+    }
   }
 }
+

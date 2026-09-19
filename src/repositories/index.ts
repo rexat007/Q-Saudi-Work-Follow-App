@@ -11,3 +11,4 @@ export * from './exception.repository';
 export * from './auditLog.repository';
 export * from './syncOperation.repository';
 export * from './importBatch.repository';
+export * from './globalIdentity.repository';

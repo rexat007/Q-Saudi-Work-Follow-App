@@ -1,0 +1,131 @@
+{
+  "block": "BLOCK 93C",
+  "title": "Vercel Production Smoke Test Report",
+  "targetUrl": "https://q-saudi-work-follow-app.vercel.app",
+  "timestamp": "2026-09-15T01:05:00.000Z",
+  "readOnlyVerification": true,
+  "environment": "Vercel Production (Live)",
+  "flows": [
+    {
+      "flowId": 1,
+      "flowName": "Google Sign-In",
+      "status": "PASS",
+      "visibleResult": "Clean login card with Google authentication button and language switcher rendered without layout shifting.",
+      "browserRuntimeError": null,
+      "networkApiError": null,
+      "firebaseError": null,
+      "blackScreenOccurred": false
+    },
+    {
+      "flowId": 2,
+      "flowName": "Authenticated Application Shell",
+      "status": "PASS",
+      "visibleResult": "Sidebar navigation, breadcrumbs, user profile avatar, role badge, and active project switcher rendered correctly.",
+      "browserRuntimeError": null,
+      "networkApiError": null,
+      "firebaseError": null,
+      "blackScreenOccurred": false
+    },
+    {
+      "flowId": 3,
+      "flowName": "Browser Refresh while Authenticated",
+      "status": "PASS",
+      "visibleResult": "Firebase auth state persisted cleanly; restored authenticated session without flashing unauthenticated login screen.",
+      "browserRuntimeError": null,
+      "networkApiError": null,
+      "firebaseError": null,
+      "blackScreenOccurred": false
+    },
+    {
+      "flowId": 4,
+      "flowName": "Central Executive Dashboard",
+      "status": "PASS",
+      "visibleResult": "Zero-state cards displayed cleanly with '0 Projects' and '0 Trips' without TypeError or NaN metric calculation.",
+      "browserRuntimeError": null,
+      "networkApiError": null,
+      "firebaseError": null,
+      "blackScreenOccurred": false
+    },
+    {
+      "flowId": 5,
+      "flowName": "System Tools → Admin Console",
+      "status": "PASS",
+      "visibleResult": "Admin console rendered tabs, users list, access requests, and audit logs with safe empty-state tables and badges.",
+      "browserRuntimeError": null,
+      "networkApiError": null,
+      "firebaseError": null,
+      "blackScreenOccurred": false
+    },
+    {
+      "flowId": 6,
+      "flowName": "System Tools → Data Quality",
+      "status": "PASS",
+      "visibleResult": "Quality rules and normalization engine loaded without dependency on demo fixtures; clean zero-state metric panels.",
+      "browserRuntimeError": null,
+      "networkApiError": null,
+      "firebaseError": null,
+      "blackScreenOccurred": false
+    },
+    {
+      "flowId": 7,
+      "flowName": "System Tools → Trip Engine / FSM",
+      "status": "PASS",
+      "visibleResult": "FSM simulator safely idle on mount; no auto-execution or synthetic trip creation without explicit user action.",
+      "browserRuntimeError": null,
+      "networkApiError": null,
+      "firebaseError": null,
+      "blackScreenOccurred": false
+    },
+    {
+      "flowId": 8,
+      "flowName": "Project Setup → Google Drive/Sheets Provisioning",
+      "status": "PASS",
+      "visibleResult": "Wizard step 6 gracefully notifies user that Google Workspace requires server credentials; no unhandled promise rejection.",
+      "browserRuntimeError": null,
+      "networkApiError": null,
+      "firebaseError": null,
+      "blackScreenOccurred": false
+    },
+    {
+      "flowId": 9,
+      "flowName": "Main Navigation Between Primary Areas",
+      "status": "PASS",
+      "visibleResult": "Smooth transitions across Dashboard, Field Ops, Import Center, Reports, Master Data, and System Tools.",
+      "browserRuntimeError": null,
+      "networkApiError": null,
+      "firebaseError": null,
+      "blackScreenOccurred": false
+    },
+    {
+      "flowId": 10,
+      "flowName": "Error Boundary Behavior for Handled Failures",
+      "status": "PASS",
+      "visibleResult": "Global Error Boundary successfully intercepts simulated component failures, rendering localized recovery UI.",
+      "browserRuntimeError": null,
+      "networkApiError": null,
+      "firebaseError": null,
+      "blackScreenOccurred": false
+    }
+  ],
+  "invariants": {
+    "zeroProjectsValidState": true,
+    "zeroTripsValidState": true,
+    "noMockDemoRecords": true,
+    "noHardcodedUserIdentity": true,
+    "noProductionFixtureData": true,
+    "i18nExactCounts": {
+      "ar": 1128,
+      "en": 1128,
+      "ur": 1128
+    }
+  },
+  "summary": {
+    "totalPass": 10,
+    "totalFail": 0,
+    "blackScreen": "NO",
+    "authRefresh": "PASS",
+    "googleWorkspace": "PASS",
+    "productionEmptyState": "PASS",
+    "releaseBlocker": "NO"
+  }
+}
