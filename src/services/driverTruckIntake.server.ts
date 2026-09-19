@@ -27,6 +27,11 @@ export class DriverTruckIntakeServer {
 
     this.checkModificationAccess(projectId, context);
 
+    const actorId = context.userId ? context.userId.trim() : '';
+    if (!actorId) {
+      throw new Error('UNAUTHENTICATED_ACTOR: Authenticated context must provide a valid user ID.');
+    }
+
     const {
       carrierId,
       materialId,
@@ -65,20 +70,82 @@ export class DriverTruckIntakeServer {
     const lookupTokenTruck = computeNaturalKeyToken('TRUCK', normPlate);
 
     const nowIso = new Date().toISOString();
-    const actorId = context.userId || 'system-server';
 
     return await adminDb.runTransaction(async (transaction) => {
       // ----------------------------------------------------
-      // PHASE 1: ALL READS FIRST
+      // PHASE 1: NATURAL IDENTITY RESOLUTION & PREVENT DUPLICATES
       // ----------------------------------------------------
+      let driverId: string | null = null;
+      let shouldReserveLookupDriver = false;
+
       const lookupRefDriver = adminDb.collection('natural_identity_lookups').doc(lookupTokenDriver);
+      const lookupSnapDriver = await transaction.get(lookupRefDriver);
+
+      if (lookupSnapDriver.exists) {
+        driverId = lookupSnapDriver.data()?.systemId;
+        const driverRef = adminDb.collection('drivers').doc(driverId!);
+        const driverSnap = await transaction.get(driverRef);
+
+        if (!driverSnap.exists) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for driver but Global Driver document is missing.');
+        }
+
+        const actualNationalId = driverSnap.data()?.nationalId;
+        if (actualNationalId !== normIdNumber) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for driver but National ID does not match.');
+        }
+      } else {
+        // Fallback: query canonical collection for exact natural key
+        const matchingDriversQuery = adminDb.collection('drivers').where('nationalId', '==', normIdNumber);
+        const matchingDriversSnap = await transaction.get(matchingDriversQuery);
+
+        if (matchingDriversSnap.size === 1) {
+          driverId = matchingDriversSnap.docs[0].id;
+          shouldReserveLookupDriver = true;
+        } else if (matchingDriversSnap.size > 1) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Multiple global driver entities match exact natural key.');
+        }
+      }
+
+      let truckId: string | null = null;
+      let shouldReserveLookupTruck = false;
+
       const lookupRefTruck = adminDb.collection('natural_identity_lookups').doc(lookupTokenTruck);
+      const lookupSnapTruck = await transaction.get(lookupRefTruck);
+
+      if (lookupSnapTruck.exists) {
+        truckId = lookupSnapTruck.data()?.systemId;
+        const truckRef = adminDb.collection('trucks').doc(truckId!);
+        const truckSnap = await transaction.get(truckRef);
+
+        if (!truckSnap.exists) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for truck but Global Truck document is missing.');
+        }
+
+        const actualNormalizedPlate = truckSnap.data()?.normalizedPlate;
+        if (actualNormalizedPlate !== normPlate) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for truck but normalized plate does not match.');
+        }
+      } else {
+        // Fallback: query canonical collection for exact natural key
+        const matchingTrucksQuery = adminDb.collection('trucks').where('normalizedPlate', '==', normPlate);
+        const matchingTrucksSnap = await transaction.get(matchingTrucksQuery);
+
+        if (matchingTrucksSnap.size === 1) {
+          truckId = matchingTrucksSnap.docs[0].id;
+          shouldReserveLookupTruck = true;
+        } else if (matchingTrucksSnap.size > 1) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Multiple global truck entities match exact natural key.');
+        }
+      }
+
+      // ----------------------------------------------------
+      // PHASE 2: ACCESS PROJECT-LEVEL MEMBERSHIPS & CARRIER
+      // ----------------------------------------------------
       const carrierMemRef = adminDb.collection('projects').doc(projectId).collection('carrier_memberships').doc(carrierId);
       const materialMemRef = adminDb.collection('projects').doc(projectId).collection('material_memberships').doc(materialId);
 
-      const [lookupSnapDriver, lookupSnapTruck, carrierMemSnap, materialMemSnap] = await Promise.all([
-        transaction.get(lookupRefDriver),
-        transaction.get(lookupRefTruck),
+      const [carrierMemSnap, materialMemSnap] = await Promise.all([
         transaction.get(carrierMemRef),
         transaction.get(materialMemRef),
       ]);
@@ -88,24 +155,6 @@ export class DriverTruckIntakeServer {
       }
       if (!materialMemSnap.exists || materialMemSnap.data()?.status !== 'ACTIVE') {
         throw new Error(`MATERIAL_NOT_ACTIVE_IN_PROJECT: Material ${materialId} is not active in project ${projectId}`);
-      }
-
-      let driverId = lookupSnapDriver.exists ? lookupSnapDriver.data()?.systemId : null;
-      let truckId = lookupSnapTruck.exists ? lookupSnapTruck.data()?.systemId : null;
-
-      const driverRef = driverId ? adminDb.collection('drivers').doc(driverId) : null;
-      const truckRef = truckId ? adminDb.collection('trucks').doc(truckId) : null;
-
-      // GET GLOBAL SNAPS
-      const driverSnap = driverRef ? await transaction.get(driverRef) : null;
-      const truckSnap = truckRef ? await transaction.get(truckRef) : null;
-
-      // NATURAL IDENTITY LOOKUP INTEGRITY CHECK
-      if (lookupSnapDriver.exists && (!driverSnap || !driverSnap.exists)) {
-        throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for driver but Global Driver document is missing.');
-      }
-      if (lookupSnapTruck.exists && (!truckSnap || !truckSnap.exists)) {
-        throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for truck but Global Truck document is missing.');
       }
 
       const driverMemRef = driverId ? adminDb.collection('projects').doc(projectId).collection('driver_memberships').doc(driverId) : null;
@@ -139,10 +188,14 @@ export class DriverTruckIntakeServer {
         const snap = await transaction.get(dAssignRef);
         if (snap.exists) dAssign = snap.data() as PureAssignment;
       }
-      if (currentTruckSlot?.assignmentId && currentTruckSlot.assignmentId !== currentDriverSlot?.assignmentId) {
-        const tAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(currentTruckSlot.assignmentId);
-        const snap = await transaction.get(tAssignRef);
-        if (snap.exists) tAssign = snap.data() as PureAssignment;
+      if (currentTruckSlot?.assignmentId) {
+        if (currentTruckSlot.assignmentId === currentDriverSlot?.assignmentId) {
+          tAssign = dAssign;
+        } else {
+          const tAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(currentTruckSlot.assignmentId);
+          const snap = await transaction.get(tAssignRef);
+          if (snap.exists) tAssign = snap.data() as PureAssignment;
+        }
       }
       if (currentTruckAllocSlot?.allocationId) {
         const tAllocRef = adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(currentTruckAllocSlot.allocationId);
@@ -164,9 +217,37 @@ export class DriverTruckIntakeServer {
         counterpartDriverSlotSnap = await transaction.get(counterpartDriverSlotRef);
       }
 
-      // =================================--------------------
-      // EVALUATE RELATIONSHIPS VIA PURE CANONICAL POLICY
-      // =================================--------------------
+      // ----------------------------------------------------
+      // PHASE 3: ONE-SIDED EXISTING IDENTITY VALIDATIONS
+      // ----------------------------------------------------
+      if (driverId) {
+        CanonicalFleetRelationshipPolicy.validateDriverAssignmentSlot(
+          driverId,
+          currentDriverSlot,
+          dAssign,
+          projectId
+        );
+      }
+
+      if (truckId) {
+        CanonicalFleetRelationshipPolicy.validateTruckAssignmentSlot(
+          truckId,
+          currentTruckSlot,
+          tAssign,
+          projectId
+        );
+      }
+
+      CanonicalFleetRelationshipPolicy.validateAllocationPointers(
+        projectId,
+        truckId || '',
+        currentTruckAllocSlot,
+        tAlloc
+      );
+
+      // ----------------------------------------------------
+      // PHASE 4: EVALUATE TRANSITION DECISIONS
+      // ----------------------------------------------------
       const driverAffilExisting = driverAffilSnap && driverAffilSnap.exists ? (driverAffilSnap.data() as PureAffiliation) : null;
       const driverAffilDecision = CanonicalFleetRelationshipPolicy.evaluateAffiliation(
         { projectId, entityId: driverId || '', carrierId, entityType: 'driver' },
@@ -181,28 +262,9 @@ export class DriverTruckIntakeServer {
         true // isIntake = true
       );
 
-      if (driverId && truckId) {
-        CanonicalFleetRelationshipPolicy.validateAssignmentPointers(
-          driverId,
-          truckId,
-          currentDriverSlot,
-          currentTruckSlot,
-          dAssign,
-          tAssign
-        );
-      }
-
-      CanonicalFleetRelationshipPolicy.validateAllocationPointers(
-        projectId,
-        truckId || '',
-        currentTruckAllocSlot,
-        tAlloc
-      );
-
       // ----------------------------------------------------
-      // PHASE 2: ALL WRITES
+      // PHASE 5: EXECUTE WRITES
       // ----------------------------------------------------
-      // Secure local transaction audit creator helper
       const createAuditLog = (
         auditLogId: string,
         entityType: string,
@@ -232,6 +294,7 @@ export class DriverTruckIntakeServer {
         });
       };
 
+      // 1. Create Driver if completely missing
       if (!driverId) {
         const hashHex = require('crypto').randomBytes(16).toString('hex');
         driverId = `DRV-${hashHex}`;
@@ -249,42 +312,74 @@ export class DriverTruckIntakeServer {
         });
 
         transaction.set(lookupRefDriver, {
-          systemId: driverId,
           entityType: 'DRIVER',
+          systemId: driverId,
           createdAt: nowIso,
+          createdBy: actorId,
+        });
+      } else if (shouldReserveLookupDriver) {
+        // Reserve the missing lookup document
+        transaction.set(lookupRefDriver, {
+          entityType: 'DRIVER',
+          systemId: driverId,
+          createdAt: nowIso,
+          createdBy: actorId,
         });
       }
 
+      // 2. Create Truck if completely missing
       if (!truckId) {
         const hashHex = require('crypto').randomBytes(16).toString('hex');
         truckId = `TRK-${hashHex}`;
-        const tare = tareWeightKg || 14000;
-        const gross = maxGrossWeightKg || 45000;
-        const legalPayloadLimit = gross > tare ? gross - tare : undefined;
 
-        const newTruckRef = adminDb.collection('trucks').doc(truckId);
-        transaction.set(newTruckRef, {
+        const newTruckData: any = {
           truckId,
           plate: plateNumber.trim(),
           normalizedPlate: normPlate,
-          truckType: truckType || 'TIPPER_32M3',
-          tareWeightKg: tare,
-          maxGrossWeightKg: gross,
-          legalPayloadLimitKg: legalPayloadLimit,
           status: 'ACTIVE',
           createdAt: nowIso,
           createdBy: actorId,
           updatedAt: nowIso,
           updatedBy: actorId,
-        });
+        };
+
+        if (truckType && truckType.trim()) {
+          newTruckData.truckType = truckType.trim();
+        }
+
+        const validTare = typeof tareWeightKg === 'number' && tareWeightKg > 0;
+        const validGross = typeof maxGrossWeightKg === 'number' && maxGrossWeightKg > 0;
+
+        if (validTare) {
+          newTruckData.tareWeightKg = tareWeightKg;
+        }
+        if (validGross) {
+          newTruckData.maxGrossWeightKg = maxGrossWeightKg;
+        }
+        if (validTare && validGross && maxGrossWeightKg! > tareWeightKg!) {
+          newTruckData.legalPayloadLimitKg = maxGrossWeightKg! - tareWeightKg!;
+        }
+
+        const newTruckRef = adminDb.collection('trucks').doc(truckId);
+        transaction.set(newTruckRef, newTruckData);
 
         transaction.set(lookupRefTruck, {
-          systemId: truckId,
           entityType: 'TRUCK',
+          systemId: truckId,
           createdAt: nowIso,
+          createdBy: actorId,
+        });
+      } else if (shouldReserveLookupTruck) {
+        // Reserve the missing lookup document
+        transaction.set(lookupRefTruck, {
+          entityType: 'TRUCK',
+          systemId: truckId,
+          createdAt: nowIso,
+          createdBy: actorId,
         });
       }
 
+      // Refresh references with guaranteed non-null system IDs
       const finalDriverMemRef = adminDb.collection('projects').doc(projectId).collection('driver_memberships').doc(driverId);
       const finalTruckMemRef = adminDb.collection('projects').doc(projectId).collection('truck_memberships').doc(truckId);
       const finalDriverAffilRef = adminDb.collection('projects').doc(projectId).collection('driver_carrier_affiliations').doc(driverId);
@@ -294,6 +389,7 @@ export class DriverTruckIntakeServer {
       const finalTruckSlotRef = adminDb.collection('projects').doc(projectId).collection('truck_active_assignments').doc(truckId);
       const finalTruckAllocSlotRef = adminDb.collection('projects').doc(projectId).collection('truck_active_material_allocations').doc(truckId);
 
+      // 3. Memberships setup
       if (!driverMemSnap || !driverMemSnap.exists) {
         transaction.set(finalDriverMemRef, {
           projectId,
@@ -324,7 +420,7 @@ export class DriverTruckIntakeServer {
         throw new Error(`MEMBERSHIP_STATE_CONFLICT: Entity "${truckId}" is currently "${truckMemSnap.data()?.status}" in Project "${projectId}".`);
       }
 
-      // Write Driver Affiliation changes
+      // 4. Set Driver Affiliation
       if (driverAffilDecision.action === 'CREATE') {
         transaction.set(finalDriverAffilRef, {
           projectId,
@@ -370,7 +466,7 @@ export class DriverTruckIntakeServer {
         );
       }
 
-      // Write Truck Affiliation changes
+      // 5. Set Truck Affiliation
       if (truckAffilDecision.action === 'CREATE') {
         transaction.set(finalTruckAffilRef, {
           projectId,
@@ -416,7 +512,7 @@ export class DriverTruckIntakeServer {
         );
       }
 
-      // Write Assignments
+      // 6. Write Assignments
       let finalAssignmentId = '';
       if (
         CanonicalFleetRelationshipPolicy.isAssignmentIdempotent(
@@ -489,7 +585,7 @@ export class DriverTruckIntakeServer {
         );
       }
 
-      // Write Allocations
+      // 7. Write Allocations
       let finalAllocationId = '';
       if (tAlloc && tAlloc.status === 'ACTIVE' && tAlloc.materialId === materialId) {
         finalAllocationId = tAlloc.allocationId;

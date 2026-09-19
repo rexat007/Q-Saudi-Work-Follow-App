@@ -32,21 +32,56 @@ function mockDocRef(paths: string[]): any {
     delete: async () => {
       delete mockStore[pathKey];
     },
-    collection: (col: string) => ({
-      doc: (id: string) => mockDocRef([...paths, col, id]),
-    }),
+    collection: (col: string) => mockCollectionRef([...paths, col]),
+  };
+}
+
+function mockCollectionRef(paths: string[]): any {
+  const colPath = paths.join('/');
+  return {
+    doc: (id: string) => mockDocRef([...paths, id]),
+    where: (field: string, op: string, value: any) => {
+      return {
+        _isQuery: true,
+        col: colPath,
+        field,
+        op,
+        value,
+      };
+    },
   };
 }
 
 vi.mock('../firebase/admin', () => {
   return {
     adminDb: {
-      collection: (col: string) => ({
-        doc: (docId: string) => mockDocRef([col, docId]),
-      }),
+      collection: (col: string) => mockCollectionRef([col]),
       runTransaction: async (cb: any) => {
         const tx = {
-          get: async (ref: any) => ref.get(),
+          get: async (ref: any) => {
+            if (ref && ref._isQuery) {
+              const results: any[] = [];
+              const prefix = `${ref.col}/`;
+              for (const [key, val] of Object.entries(mockStore)) {
+                if (key.startsWith(prefix)) {
+                  const relativeKey = key.slice(prefix.length);
+                  if (!relativeKey.includes('/')) {
+                    if (val && val[ref.field] === ref.value) {
+                      results.push({
+                        id: relativeKey,
+                        data: () => val,
+                      });
+                    }
+                  }
+                }
+              }
+              return {
+                size: results.length,
+                docs: results,
+              };
+            }
+            return ref.get();
+          },
           set: (ref: any, data: any) => ref.set(data),
           update: (ref: any, data: any) => ref.update(data),
           delete: (ref: any) => ref.delete(),
@@ -245,7 +280,7 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     const truckId = 'TRK-REACTIVE-TRUCK-123';
 
     mockStore[`drivers/${driverId}`] = { driverId, nationalId: '1022338899', status: 'ACTIVE' };
-    mockStore[`trucks/${truckId}`] = { truckId, plate: 'أ ب ج 1111', normalizedPlate: 'أ ب ج 1111', status: 'ACTIVE' };
+    mockStore[`trucks/${truckId}`] = { truckId, plate: 'أ ب ج 1111', normalizedPlate: 'ا ب ج 1111', status: 'ACTIVE' };
 
     // Set Natural Lookups
     const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
@@ -288,7 +323,7 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     const truckId = 'TRK-CORRUPT-ALLOC-TRK';
 
     mockStore[`drivers/${driverId}`] = { driverId, nationalId: '1022338822', status: 'ACTIVE' };
-    mockStore[`trucks/${truckId}`] = { truckId, plate: 'أ ب ج 2222', normalizedPlate: 'أ ب ج 2222', status: 'ACTIVE' };
+    mockStore[`trucks/${truckId}`] = { truckId, plate: 'أ ب ج 2222', normalizedPlate: 'ا ب ج 2222', status: 'ACTIVE' };
 
     const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
     const { normalizePlate, normalizeIdNumber } = await import('../utils/normalization');
@@ -322,7 +357,7 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     const truckId = 'TRK-CORRUPT-ASN-TRK';
 
     mockStore[`drivers/${driverId}`] = { driverId, nationalId: '1022338833', status: 'ACTIVE' };
-    mockStore[`trucks/${truckId}`] = { truckId, plate: 'أ ب ج 3333', normalizedPlate: 'أ ب ج 3333', status: 'ACTIVE' };
+    mockStore[`trucks/${truckId}`] = { truckId, plate: 'أ ب ج 3333', normalizedPlate: 'ا ب ج 3333', status: 'ACTIVE' };
 
     const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
     const { normalizePlate, normalizeIdNumber } = await import('../utils/normalization');
@@ -356,5 +391,147 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     await expect(
       driverTruckIntakeServer.processSharedIntake(payload, adminAuth)
     ).rejects.toThrow('ASSIGNMENT_POINTER_INTEGRITY_ERROR');
+  });
+
+  it('10. Reuses Global Driver via natural-key fallback query when natural lookup is missing', async () => {
+    const existingDriverId = 'DRV-FALLBACK-REUSE-D';
+    mockStore[`drivers/${existingDriverId}`] = {
+      driverId: existingDriverId,
+      nationalId: '1033445566',
+      fullNameAr: 'خالد بن محمد',
+      status: 'ACTIVE',
+    };
+
+    const payload = {
+      projectId: testProjectId,
+      carrierId: testCarrierId,
+      materialId: testMaterialId,
+      driverName: 'خالد بن محمد',
+      plateNumber: 'أ ب ج 5555',
+      residencyId: '1033445566',
+    };
+
+    const result = await driverTruckIntakeServer.processSharedIntake(payload, adminAuth);
+
+    expect(result.driverId).toBe(existingDriverId);
+
+    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
+    const { normalizeIdNumber } = await import('../utils/normalization');
+    const lookupKey = `natural_identity_lookups/${computeNaturalKeyToken('DRIVER', normalizeIdNumber('1033445566'))}`;
+    expect(mockStore[lookupKey]).toBeDefined();
+    expect(mockStore[lookupKey].systemId).toBe(existingDriverId);
+  });
+
+  it('11. Reuses Global Truck via natural-key fallback query when natural lookup is missing', async () => {
+    const existingTruckId = 'TRK-FALLBACK-REUSE-T';
+    mockStore[`trucks/${existingTruckId}`] = {
+      truckId: existingTruckId,
+      plate: 'أ ب ج 6666',
+      normalizedPlate: 'ا ب ج 6666',
+      status: 'ACTIVE',
+    };
+
+    const payload = {
+      projectId: testProjectId,
+      carrierId: testCarrierId,
+      materialId: testMaterialId,
+      driverName: 'سعيد القحطاني',
+      plateNumber: 'أ ب ج 6666',
+      residencyId: '1055667788',
+    };
+
+    const result = await driverTruckIntakeServer.processSharedIntake(payload, adminAuth);
+
+    expect(result.truckId).toBe(existingTruckId);
+
+    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
+    const { normalizePlate } = await import('../utils/normalization');
+    const lookupKey = `natural_identity_lookups/${computeNaturalKeyToken('TRUCK', normalizePlate('أ ب ج 6666'))}`;
+    expect(mockStore[lookupKey]).toBeDefined();
+    expect(mockStore[lookupKey].systemId).toBe(existingTruckId);
+  });
+
+  it('12. One-sided existing identity validation: validates existing driver assignment slot even if truck does not exist yet', async () => {
+    const existingDriverId = 'DRV-ONESIDED-EXISTING';
+    mockStore[`drivers/${existingDriverId}`] = {
+      driverId: existingDriverId,
+      nationalId: '1077889900',
+      fullNameAr: 'مساعد الحربي',
+      status: 'ACTIVE',
+    };
+    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
+    const { normalizeIdNumber } = await import('../utils/normalization');
+    mockStore[`natural_identity_lookups/${computeNaturalKeyToken('DRIVER', normalizeIdNumber('1077889900'))}`] = {
+      systemId: existingDriverId,
+      entityType: 'DRIVER',
+    };
+
+    mockStore[`projects/${testProjectId}/driver_memberships/${existingDriverId}`] = { status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${existingDriverId}`] = { status: 'ACTIVE', carrierId: testCarrierId };
+
+    mockStore[`projects/${testProjectId}/driver_active_assignments/${existingDriverId}`] = { assignmentId: 'ASN-CORRUPT-ONESIDED' };
+    mockStore[`projects/${testProjectId}/driver_truck_assignments/ASN-CORRUPT-ONESIDED`] = {
+      assignmentId: 'ASN-CORRUPT-ONESIDED',
+      projectId: testProjectId,
+      driverId: 'DRV-SOME-OTHER-ID',
+      truckId: 'TRK-SOME',
+      status: 'ACTIVE',
+    };
+
+    const payload = {
+      projectId: testProjectId,
+      carrierId: testCarrierId,
+      materialId: testMaterialId,
+      driverName: 'مساعد الحربي',
+      plateNumber: 'س ش ص 7777',
+      residencyId: '1077889900',
+    };
+
+    await expect(
+      driverTruckIntakeServer.processSharedIntake(payload, adminAuth)
+    ).rejects.toThrow('ASSIGNMENT_POINTER_INTEGRITY_ERROR');
+  });
+
+  it('13. Zero fabricated truck master data: newly created global truck stores ONLY supplied weights and truckType', async () => {
+    const payload = {
+      projectId: testProjectId,
+      carrierId: testCarrierId,
+      materialId: testMaterialId,
+      driverName: 'حسن الفيفي',
+      plateNumber: 'أ ب ج 9999',
+      residencyId: '1088776655',
+    };
+
+    const result = await driverTruckIntakeServer.processSharedIntake(payload, adminAuth);
+
+    const truckDoc = mockStore[`trucks/${result.truckId}`];
+    expect(truckDoc).toBeDefined();
+    expect(truckDoc.truckType).toBeUndefined();
+    expect(truckDoc.tareWeightKg).toBeUndefined();
+    expect(truckDoc.maxGrossWeightKg).toBeUndefined();
+    expect(truckDoc.legalPayloadLimitKg).toBeUndefined();
+  });
+
+  it('14. Actor identity constraint: explicitly rejects if actor ID / userId is missing or blank', async () => {
+    const payload = {
+      projectId: testProjectId,
+      carrierId: testCarrierId,
+      materialId: testMaterialId,
+      driverName: 'حمد الرشيد',
+      plateNumber: 'أ ب ج 8888',
+      residencyId: '1099223344',
+    };
+
+    const emptyActorAuth: AuthUserContext = {
+      userId: '',
+      role: 'PROJECT_ADMIN',
+      email: 'admin@p602a.sa',
+      displayName: 'مجهول',
+      assignedProjectIds: [testProjectId],
+    };
+
+    await expect(
+      driverTruckIntakeServer.processSharedIntake(payload, emptyActorAuth)
+    ).rejects.toThrow('UNAUTHENTICATED_ACTOR');
   });
 });

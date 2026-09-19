@@ -79,7 +79,91 @@ export class CanonicalFleetRelationshipPolicy {
   }
 
   /**
-   * Validates Assignment Pointer Integrity
+   * Validates Driver Assignment Pointer Integrity
+   */
+  static validateDriverAssignmentSlot(
+    driverId: string,
+    currentDriverSlot: { assignmentId: string } | null,
+    resolvedDriverAssign: PureAssignment | null,
+    requestedProjectId: string
+  ): void {
+    if (!currentDriverSlot) return;
+
+    if (!resolvedDriverAssign) {
+      throw new Error(
+        `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Driver active slot points to non-existent assignment ${currentDriverSlot.assignmentId}`
+      );
+    }
+
+    if (resolvedDriverAssign.assignmentId !== currentDriverSlot.assignmentId) {
+      throw new Error(
+        `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Driver slot assignmentId mismatch`
+      );
+    }
+
+    if (resolvedDriverAssign.projectId !== requestedProjectId) {
+      throw new Error(
+        `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Driver assignment project mismatch`
+      );
+    }
+
+    if (resolvedDriverAssign.status !== 'ACTIVE' || resolvedDriverAssign.effectiveTo !== null) {
+      throw new Error(
+        `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Driver assignment is closed or inactive`
+      );
+    }
+
+    if (resolvedDriverAssign.driverId !== driverId) {
+      throw new Error(
+        `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Driver slot points to assignment ${resolvedDriverAssign.assignmentId} with mismatched driverId ${resolvedDriverAssign.driverId}`
+      );
+    }
+  }
+
+  /**
+   * Validates Truck Assignment Pointer Integrity
+   */
+  static validateTruckAssignmentSlot(
+    truckId: string,
+    currentTruckSlot: { assignmentId: string } | null,
+    resolvedTruckAssign: PureAssignment | null,
+    requestedProjectId: string
+  ): void {
+    if (!currentTruckSlot) return;
+
+    if (!resolvedTruckAssign) {
+      throw new Error(
+        `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Truck active slot points to non-existent assignment ${currentTruckSlot.assignmentId}`
+      );
+    }
+
+    if (resolvedTruckAssign.assignmentId !== currentTruckSlot.assignmentId) {
+      throw new Error(
+        `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Truck slot assignmentId mismatch`
+      );
+    }
+
+    if (resolvedTruckAssign.projectId !== requestedProjectId) {
+      throw new Error(
+        `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Truck assignment project mismatch`
+      );
+    }
+
+    if (resolvedTruckAssign.status !== 'ACTIVE' || resolvedTruckAssign.effectiveTo !== null) {
+      throw new Error(
+        `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Truck assignment is closed or inactive`
+      );
+    }
+
+    if (resolvedTruckAssign.truckId !== truckId) {
+      throw new Error(
+        `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Truck slot points to assignment ${resolvedTruckAssign.assignmentId} with mismatched truckId ${resolvedTruckAssign.truckId}`
+      );
+    }
+  }
+
+  /**
+   * Validates Assignment Pointer Integrity for both driver and truck
    */
   static validateAssignmentPointers(
     driverId: string,
@@ -87,22 +171,11 @@ export class CanonicalFleetRelationshipPolicy {
     currentDriverSlot: { assignmentId: string } | null,
     currentTruckSlot: { assignmentId: string } | null,
     resolvedDriverAssign: PureAssignment | null,
-    resolvedTruckAssign: PureAssignment | null
+    resolvedTruckAssign: PureAssignment | null,
+    requestedProjectId: string
   ): void {
-    if (currentDriverSlot && resolvedDriverAssign) {
-      if (resolvedDriverAssign.driverId !== driverId) {
-        throw new Error(
-          `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Driver slot points to assignment ${resolvedDriverAssign.assignmentId} with mismatched driverId ${resolvedDriverAssign.driverId}`
-        );
-      }
-    }
-    if (currentTruckSlot && resolvedTruckAssign) {
-      if (resolvedTruckAssign.truckId !== truckId) {
-        throw new Error(
-          `ASSIGNMENT_POINTER_INTEGRITY_ERROR: Truck slot points to assignment ${resolvedTruckAssign.assignmentId} with mismatched truckId ${resolvedTruckAssign.truckId}`
-        );
-      }
-    }
+    this.validateDriverAssignmentSlot(driverId, currentDriverSlot, resolvedDriverAssign, requestedProjectId);
+    this.validateTruckAssignmentSlot(truckId, currentTruckSlot, resolvedTruckAssign, requestedProjectId);
   }
 
   /**
