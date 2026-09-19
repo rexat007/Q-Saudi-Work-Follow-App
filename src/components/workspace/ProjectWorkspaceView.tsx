@@ -25,6 +25,8 @@ import { pricingRuleRepository } from '../../repositories/pricingRule.repository
 import { projectCarrierRosterRepository } from '../../repositories/projectCarrierRoster.repository';
 import { driverTruckIntakeService } from '../../services/driverTruckIntake.service';
 import { userRepository } from '../../repositories/user.repository';
+import { ProjectFleetRowDTO } from '../../types/projectFleetReadModel';
+import { projectFleetReadModelService } from '../../services/projectFleetReadModel.service';
 import { useI18n } from '../../i18n';
 
 interface ProjectWorkspaceViewProps {
@@ -52,6 +54,8 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
   const [materials, setMaterials] = useState<MaterialEntity[]>([]);
   const [pricingRules, setPricingRules] = useState<PricingRuleEntity[]>([]);
   const [roster, setRoster] = useState<ProjectCarrierRosterEntity[]>([]);
+  const [fleetRows, setFleetRows] = useState<ProjectFleetRowDTO[]>([]);
+  const [isFleetLoading, setIsFleetLoading] = useState(false);
   const [users, setUsers] = useState<UserEntity[]>([]);
 
   // Notification states
@@ -150,7 +154,47 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
       setUsers(data);
     });
 
+    // Phase 6 Unit 2D: Fetch Canonical Fleet Read Model
+    let isCancelled = false;
+    const fetchFleetReadModel = async () => {
+      setIsFleetLoading(true);
+      try {
+        // Attempt trusted server endpoint first, fallback to in-memory/direct read model service
+        const res = await fetch(`/api/projects/${project.projectId}/fleet-read-model`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('auth_token') || 'system-admin'}`,
+          },
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (!isCancelled && json.success && json.data) {
+            setFleetRows(json.data.rows || []);
+            setIsFleetLoading(false);
+            return;
+          }
+        }
+      } catch {
+        // Server fetch failed, resolve through local read model service
+      }
+
+      try {
+        const localData = await projectFleetReadModelService.getProjectFleetReadModel(project.projectId);
+        if (!isCancelled) {
+          setFleetRows(localData.rows || []);
+        }
+      } catch (err) {
+        console.error('Failed to resolve fleet read model:', err);
+      } finally {
+        if (!isCancelled) {
+          setIsFleetLoading(false);
+        }
+      }
+    };
+
+    fetchFleetReadModel();
+
     return () => {
+      isCancelled = true;
       unsubCarriers();
       unsubMaterials();
       unsubPricing();
@@ -807,50 +851,74 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/5">
               <h3 className="text-sm font-black text-white flex items-center gap-2">
                 <Truck className="w-4 h-4 text-cyan-400" />
-                <span>{isRtl ? 'اللائحة التشغيلية للسائقين والشاحنات (Project Carrier Roster)' : 'Project Carrier Roster (Drivers & Trucks)'}</span>
+                <span>{isRtl ? 'أسطول الشاحنات المعتمد للمشروع (Project Fleet)' : 'Project Active Fleet (Canonical)'}</span>
               </h3>
               <span className="text-xs text-white/40 bg-white/5 px-2.5 py-1 rounded-full">
-                {roster.length} {isRtl ? 'سائقين مسجلين باللائحة' : 'Drivers Registered'}
+                {fleetRows.length} {isRtl ? 'شاحنة معتمدة' : 'Active Trucks'}
               </span>
             </div>
 
-            {/* Roster Grid */}
-            {roster.length === 0 ? (
+            {/* Fleet Grid */}
+            {isFleetLoading ? (
               <div className="text-center py-10 bg-[#0b0e12] border border-white/5 rounded-xl text-white/40 italic text-xs">
-                {isRtl ? 'لا يوجد سائقين/شاحنات مسجلين في اللائحة التشغيلية للمشروع.' : 'No drivers or trucks enrolled in project active roster.'}
+                {isRtl ? 'جاري تحميل بيانات الأسطول...' : 'Loading project fleet data...'}
+              </div>
+            ) : fleetRows.length === 0 ? (
+              <div className="text-center py-10 bg-[#0b0e12] border border-white/5 rounded-xl text-white/40 italic text-xs">
+                {isRtl ? 'لا توجد شاحنات نشطة في أسطول المشروع.' : 'No active trucks enrolled in project fleet.'}
               </div>
             ) : (
               <div className="overflow-x-auto border border-white/10 rounded-xl">
                 <table className="w-full text-right text-xs">
                   <thead>
                     <tr className="bg-[#0b0e12] text-white/50 border-b border-white/10">
-                      <th className="p-3">{isRtl ? 'اسم السائق' : 'Driver Name'}</th>
                       <th className="p-3">{isRtl ? 'رقم اللوحة' : 'Plate Number'}</th>
-                      <th className="p-3">{isRtl ? 'رقم الجوال' : 'Phone'}</th>
-                      <th className="p-3">{isRtl ? 'رقم الإقامة' : 'Residency ID'}</th>
+                      <th className="p-3">{isRtl ? 'نوع الشاحنة' : 'Truck Type'}</th>
                       <th className="p-3">{isRtl ? 'الناقل' : 'Carrier'}</th>
-                      <th className="p-3 text-center">{isRtl ? 'إجراءات' : 'Actions'}</th>
+                      <th className="p-3">{isRtl ? 'السائق المعين' : 'Assigned Driver'}</th>
+                      <th className="p-3">{isRtl ? 'المادة المخصصة' : 'Allocated Material'}</th>
+                      <th className="p-3 text-center">{isRtl ? 'حالة التعيين' : 'Status'}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {roster.map(r => {
-                      const carName = carriers.find(c => c.carrierId === r.carrierId)?.name || r.carrierId;
+                    {fleetRows.map(r => {
+                      const hasIssues = r.integrityIssues && r.integrityIssues.length > 0;
                       return (
-                        <tr key={r.rosterId} className="border-b border-white/5 hover:bg-white/5 transition-all">
-                          <td className="p-3 text-white font-bold">{r.driverName}</td>
-                          <td className="p-3"><span className="px-2 py-0.5 rounded bg-cyan-950/40 text-cyan-400 border border-cyan-500/10">{r.plateNumber}</span></td>
-                          <td className="p-3 text-white/70">{r.phone}</td>
-                          <td className="p-3 text-white/60">{r.residencyId || 'N/A'}</td>
-                          <td className="p-3 text-white/60 truncate max-w-[140px]">{carName}</td>
+                        <tr key={r.truckId} className="border-b border-white/5 hover:bg-white/5 transition-all">
+                          <td className="p-3">
+                            <span className="px-2 py-0.5 rounded bg-cyan-950/40 text-cyan-400 border border-cyan-500/10 font-bold">
+                              {r.plateNumber}
+                            </span>
+                          </td>
+                          <td className="p-3 text-white/70">{r.truckType}</td>
+                          <td className="p-3 text-white/80 truncate max-w-[140px]">{r.carrierName}</td>
+                          <td className="p-3 text-white font-medium">
+                            {r.driverName ? (
+                              <span>{r.driverName}</span>
+                            ) : (
+                              <span className="text-white/30 italic">{isRtl ? 'غير معين' : 'Unassigned'}</span>
+                            )}
+                          </td>
+                          <td className="p-3 text-white/70">
+                            {r.materialName ? (
+                              <span>{r.materialName}</span>
+                            ) : (
+                              <span className="text-white/30 italic">{isRtl ? 'غير مخصص' : 'Unallocated'}</span>
+                            )}
+                          </td>
                           <td className="p-3 text-center">
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteRoster(r.rosterId)}
-                              className="p-1 hover:bg-red-500/10 text-red-400 hover:text-red-300 rounded transition-colors"
-                              title="حذف من اللائحة"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            {hasIssues ? (
+                              <span
+                                className="px-2 py-0.5 rounded bg-amber-950/40 text-amber-400 border border-amber-500/20 text-[10px]"
+                                title={r.integrityIssues.map(i => i.message).join(' | ')}
+                              >
+                                {isRtl ? 'تنبيه تكاملي' : 'Integrity Issue'}
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded bg-emerald-950/40 text-emerald-400 border border-emerald-500/20 text-[10px]">
+                                {isRtl ? 'نشط' : 'Active'}
+                              </span>
+                            )}
                           </td>
                         </tr>
                       );
@@ -859,6 +927,16 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
                 </table>
               </div>
             )}
+
+            {/* Legacy Roster Enrollment Notice */}
+            <div className="p-3 bg-white/5 border border-white/10 rounded-lg text-white/60 text-xs">
+              <span className="font-bold text-cyan-400">
+                {isRtl ? 'ملاحظة تشغيلية:' : 'Operational Note:'}
+              </span>{' '}
+              {isRtl
+                ? 'يعرض الجدول أعلاه أسطول المشروع الفعلي المشتق خادومياً من العضويات والتعيينات النشطة. نموذج التسجيل أدناه يواصل تسجيل البيانات في لائحة الناقلين.'
+                : 'The table above reflects the canonical active fleet derived from memberships and assignments. The enrollment form below continues legacy roster intake.'}
+            </div>
 
             {/* New Roster Form */}
             <form id="form-enroll-roster" onSubmit={handleAddRoster} className="bg-[#0b0e12] border border-white/5 rounded-xl p-5 space-y-4">

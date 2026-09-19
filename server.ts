@@ -1148,6 +1148,40 @@ app.post(
 );
 
 // ----------------------------------------------------
+// 10b. Project Fleet Read Model (Phase 6 Unit 2D)
+// Pure read composition; project-isolated; trusted-server execution.
+// ----------------------------------------------------
+app.get(
+  '/api/projects/:projectId/fleet-read-model',
+  enforceProjectIsolation,
+  async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      if (!projectId) {
+        return res.status(400).json({
+          success: false,
+          error: 'معرف المشروع مطلوب',
+        });
+      }
+
+      const { projectFleetReadModelService } = await import('./src/services/projectFleetReadModel.service');
+      const data = await projectFleetReadModelService.getProjectFleetReadModel(projectId);
+
+      res.json({
+        success: true,
+        data,
+      });
+    } catch (error: any) {
+      console.error('Error in /api/projects/:projectId/fleet-read-model:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'فشل استعلام نموذج قراءة أسطول المشروع',
+      });
+    }
+  }
+);
+
+// ----------------------------------------------------
 // 11. Security Audit Suite Run Endpoint
 // ----------------------------------------------------
 app.get('/api/security/audit-status', (req, res) => {
