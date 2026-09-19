@@ -90,7 +90,10 @@ export class ProjectProvisioningService {
         materialId: m.materialId,
         name: g?.nameAr || 'غير معروف',
         code: g?.code || '—',
-        membershipStatus: m.status
+        unitOfMeasure: g?.unitOfMeasure || 'TON',
+        membershipStatus: m.status,
+        status: m.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
+        isActive: m.status === 'ACTIVE',
       };
     });
   }
@@ -106,7 +109,11 @@ export class ProjectProvisioningService {
         carrierId: m.carrierId,
         name: g?.nameAr || 'غير معروف',
         commercialRegistrationNo: g?.commercialRegistrationNo || '—',
-        membershipStatus: m.status
+        transportLicenseNo: g?.transportLicenseNo || `TGA-${m.carrierId}`,
+        contactPerson: g?.contactPerson || { name: 'Operations', phone: '—', email: '—' },
+        membershipStatus: m.status,
+        status: m.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
+        isActive: m.status === 'ACTIVE',
       };
     });
   }

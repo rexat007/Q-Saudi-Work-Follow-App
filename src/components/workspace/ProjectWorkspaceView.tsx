@@ -19,8 +19,6 @@ import {
 import { ProjectEntity, CarrierEntity, MaterialEntity, PricingRuleEntity, ProjectCarrierRosterEntity, UserEntity } from '../../types/entities';
 import { AuthUserContext } from '../../types/common';
 import { projectService } from '../../services/project.service';
-import { carrierRepository } from '../../repositories/carrier.repository';
-import { materialRepository } from '../../repositories/material.repository';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
 import { projectCarrierRosterRepository } from '../../repositories/projectCarrierRoster.repository';
 import { driverTruckIntakeService } from '../../services/driverTruckIntake.service';
@@ -28,6 +26,7 @@ import { userRepository } from '../../repositories/user.repository';
 import { ProjectFleetRowDTO } from '../../types/projectFleetReadModel';
 import { projectFleetReadModelService } from '../../services/projectFleetReadModel.service';
 import { useI18n } from '../../i18n';
+import { auth } from '../../firebase/config';
 
 interface ProjectWorkspaceViewProps {
   projects: ProjectEntity[];
@@ -112,6 +111,46 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
   const [driveRootFolder, setDriveRootFolder] = useState('');
   const [driveSpreadsheet, setDriveSpreadsheet] = useState('');
 
+  const fetchCarriers = async () => {
+    if (!project) return;
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api/projects/${project.projectId}/carriers`, {
+        headers: {
+          Authorization: `Bearer ${token || 'system-admin'}`,
+        },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setCarriers(json.data);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch canonical project carriers:', err);
+    }
+  };
+
+  const fetchMaterials = async () => {
+    if (!project) return;
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api/projects/${project.projectId}/materials`, {
+        headers: {
+          Authorization: `Bearer ${token || 'system-admin'}`,
+        },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setMaterials(json.data);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch canonical project materials:', err);
+    }
+  };
+
   // Sync details from Firebase
   useEffect(() => {
     if (!project) return;
@@ -134,13 +173,8 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
   useEffect(() => {
     if (!project) return;
 
-    const unsubCarriers = carrierRepository.subscribeByProject(project.projectId, (data) => {
-      setCarriers(data);
-    });
-
-    const unsubMaterials = materialRepository.subscribeByProject(project.projectId, (data) => {
-      setMaterials(data);
-    });
+    fetchCarriers();
+    fetchMaterials();
 
     const unsubPricing = pricingRuleRepository.subscribeByProject(project.projectId, (data) => {
       setPricingRules(data);
@@ -195,8 +229,6 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
 
     return () => {
       isCancelled = true;
-      unsubCarriers();
-      unsubMaterials();
       unsubPricing();
       unsubRoster();
       unsubUsers();
@@ -271,31 +303,36 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
     setIsSubmitting(true);
     setErrorMsg(null);
     try {
-      const carrierId = `CAR-${Date.now().toString(36).toUpperCase()}`;
-      await carrierRepository.create({
-        carrierId,
-        projectId: project.projectId,
-        name: newCarrierName.trim(),
-        normalizedName: newCarrierName.trim().toUpperCase(),
-        companyNameAr: newCarrierName.trim(),
-        status: 'ACTIVE',
-        isActive: true,
-        commercialRegistrationNo: newCarrierCr.trim() || '1010000000',
-        transportLicenseNo: newCarrierTga.trim() || `TGA-${carrierId}`,
-        contactPerson: {
-          name: 'مسؤول الاتصال',
-          phone: newCarrierPhone.trim() || '+966500000000',
-          email: newCarrierEmail.trim() || 'carrier@q-saudi.sa',
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api/projects/${project.projectId}/setup-carrier`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token || 'system-admin'}`,
         },
-        createdBy: authContext.userId,
-        updatedBy: authContext.userId,
+        body: JSON.stringify({
+          carrierData: {
+            name: newCarrierName.trim(),
+            commercialRegistrationNo: newCarrierCr.trim() || '1010000000',
+            transportLicenseNo: newCarrierTga.trim() || `TGA-${newCarrierCr.trim() || Date.now().toString(36).toUpperCase()}`,
+            contactPersonName: 'مسؤول الاتصال',
+            contactPhone: newCarrierPhone.trim() || '+966500000000',
+            contactEmail: newCarrierEmail.trim() || 'carrier@q-saudi.sa',
+          }
+        })
       });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to setup project carrier');
+      }
+
       setNewCarrierName('');
       setNewCarrierCr('');
       setNewCarrierTga('');
       setNewCarrierPhone('');
       setNewCarrierEmail('');
       showSuccess(isRtl ? 'تمت إضافة المقاول بنجاح' : 'Carrier added successfully');
+      await fetchCarriers();
     } catch (err: any) {
       showError(err.message || 'Error adding carrier');
     } finally {
@@ -310,24 +347,32 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
     setIsSubmitting(true);
     setErrorMsg(null);
     try {
-      const materialId = `MAT-${Date.now().toString(36).toUpperCase()}`;
-      await materialRepository.create({
-        materialId,
-        projectId: project.projectId,
-        name: newMaterialName.trim(),
-        normalizedName: newMaterialName.trim().toUpperCase(),
-        nameAr: newMaterialName.trim(),
-        code: newMaterialCode.trim().toUpperCase(),
-        status: 'ACTIVE',
-        isActive: true,
-        unitOfMeasure: newMaterialUnit,
-        createdBy: authContext.userId,
-        updatedBy: authContext.userId,
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api/projects/${project.projectId}/setup-material`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token || 'system-admin'}`,
+        },
+        body: JSON.stringify({
+          materialData: {
+            name: newMaterialName.trim(),
+            code: newMaterialCode.trim().toUpperCase(),
+            unitOfMeasure: newMaterialUnit,
+            standardDensityTonPerM3: 1.0,
+          }
+        })
       });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to setup project material');
+      }
+
       setNewMaterialName('');
       setNewMaterialCode('');
       setNewMaterialUnit('TON');
       showSuccess(isRtl ? 'تمت إضافة المادة بنجاح' : 'Material added successfully');
+      await fetchMaterials();
     } catch (err: any) {
       showError(err.message || 'Error adding material');
     } finally {
