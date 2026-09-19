@@ -1147,10 +1147,6 @@ app.post(
   }
 );
 
-// ----------------------------------------------------
-// 10b. Project Fleet Read Model (Phase 6 Unit 2D)
-// Pure read composition; project-isolated; trusted-server execution.
-// ----------------------------------------------------
 app.get(
   '/api/projects/:projectId/fleet-read-model',
   enforceProjectIsolation,
@@ -1180,6 +1176,59 @@ app.get(
     }
   }
 );
+
+// ----------------------------------------------------
+// 10C. Project Setup Provisioning (Phase 6)
+// ----------------------------------------------------
+app.post('/api/projects/:projectId/setup-material', enforceProjectIsolation, enforceDispatcherOrAbove, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { materialData } = req.body;
+    const user = (req as any).user;
+    const { projectProvisioningService } = await import('./src/services/projectProvisioning.service');
+    const result = await projectProvisioningService.setupProjectMaterial(projectId, materialData, user);
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/projects/:projectId/setup-carrier', enforceProjectIsolation, enforceDispatcherOrAbove, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { carrierData } = req.body;
+    const user = (req as any).user;
+    const { projectProvisioningService } = await import('./src/services/projectProvisioning.service');
+    const result = await projectProvisioningService.setupProjectCarrier(projectId, carrierData, user);
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Assuming these endpoints list from canonical membership
+app.get('/api/projects/:projectId/materials', enforceProjectIsolation, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    // Implementation of membership-based list
+    const { projectProvisioningService } = await import('./src/services/projectProvisioning.service');
+    const result = await projectProvisioningService.listProjectMaterials(projectId);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/api/projects/:projectId/carriers', enforceProjectIsolation, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { projectProvisioningService } = await import('./src/services/projectProvisioning.service');
+    const result = await projectProvisioningService.listProjectCarriers(projectId);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // ----------------------------------------------------
 // 11. Security Audit Suite Run Endpoint

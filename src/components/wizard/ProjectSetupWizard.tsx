@@ -39,6 +39,7 @@ import { projectCarrierRosterRepository } from '../../repositories/projectCarrie
 import { projectCarrierRosterService } from '../../services/projectCarrierRoster.service';
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
+import { auth } from '../../firebase/config';
 
 export interface ProjectSetupWizardProps {
   projects: ProjectEntity[];
@@ -140,12 +141,25 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       return;
     }
 
-    const unsubM = materialRepository.subscribeByProject(editingProjectId, (list) => {
-      setMaterials(list || []);
-    });
-    const unsubC = carrierRepository.subscribeByProject(editingProjectId, (list) => {
-      setCarriers(list || []);
-    });
+    // Load canonical lists
+    const fetchCanonicalData = async () => {
+      try {
+        const token = await auth.currentUser?.getIdToken();
+        const headers = { 'Authorization': `Bearer ${token}` };
+        
+        const [matRes, carRes] = await Promise.all([
+          fetch(`/api/projects/${editingProjectId}/materials`, { headers }).then(r => r.json()),
+          fetch(`/api/projects/${editingProjectId}/carriers`, { headers }).then(r => r.json())
+        ]);
+        setMaterials(matRes.data || []);
+        setCarriers(carRes.data || []);
+      } catch (err) {
+        console.error('Failed to load canonical data', err);
+      }
+    };
+    
+    fetchCanonicalData();
+
     const unsubP = pricingRuleRepository.subscribeByProject(editingProjectId, (list) => {
       setPricingRules(list || []);
     });
@@ -154,8 +168,6 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     });
 
     return () => {
-      unsubM();
-      unsubC();
       unsubP();
       unsubR();
     };
@@ -325,29 +337,26 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
     try {
       const materialId = `MAT-${project.projectId}-${String(materials.length + 1).padStart(2, '0')}`;
-      const payload: Omit<MaterialEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string } = {
-        materialId,
-        projectId: project.projectId,
+      const payload = {
         name: matName.trim(),
-        normalizedName: matName.trim(),
         code: matCode.trim().toUpperCase(),
-        nameAr: matName.trim(),
-        status: 'ACTIVE',
         unitOfMeasure: matUnit,
-        sortOrder: materials.length + 1,
         standardDensityTonPerM3: Number(matDensity),
-        isActive: true,
-        createdBy: authContext.userId,
-        updatedBy: authContext.userId
       };
 
-      await materialRepository.create(payload);
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch(`/api/projects/${project.projectId}/setup-material`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ materialData: payload })
+      });
+      if (!response.ok) throw new Error('فشل إضافة المادة عبر الخادم');
       
-      // Automatically update authorized materials on project doc
-      const updatedMaterialsList = [...(project.authorizedMaterialIds || []), materialId];
-      await projectService.updateProject(project.projectId, {
-        authorizedMaterialIds: updatedMaterialsList
-      }, authContext);
+      // Automatically update authorized materials on project doc - REMOVED AS PART OF P6 CONVERGENCE
+      // const updatedMaterialsList = [...(project.authorizedMaterialIds || []), materialId];
+      // await projectService.updateProject(project.projectId, {
+      //   authorizedMaterialIds: updatedMaterialsList
+      // }, authContext);
 
       setIsAddingMaterial(false);
       setMatName('');
@@ -363,33 +372,29 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!project || isLocked) return;
 
     try {
-      const carrierId = carCr.trim() || `CAR-${project.projectId}-${String(carriers.length + 1).padStart(2, '0')}`;
-      const payload: Omit<CarrierEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string } = {
-        carrierId,
-        projectId: project.projectId,
+      const payload = {
+        carrierId: carCr.trim(),
         name: carName.trim(),
-        normalizedName: carName.trim(),
-        status: 'ACTIVE',
-        companyNameAr: carName.trim(),
         commercialRegistrationNo: carCr.trim(),
         transportLicenseNo: carLicense.trim(),
-        contactPerson: {
-          name: carContactName.trim(),
-          phone: carContactPhone.trim(),
-          email: carContactEmail.trim()
-        },
-        isActive: true,
-        createdBy: authContext.userId,
-        updatedBy: authContext.userId
+        contactPersonName: carContactName.trim(),
+        contactPhone: carContactPhone.trim(),
+        contactEmail: carContactEmail.trim(),
       };
 
-      await carrierRepository.create(payload);
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch(`/api/projects/${project.projectId}/setup-carrier`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ carrierData: payload })
+      });
+      if (!response.ok) throw new Error('فشل إضافة الناقل عبر الخادم');
 
-      // Automatically update authorized carriers on project doc
-      const updatedCarriersList = [...(project.authorizedCarrierIds || []), carrierId];
-      await projectService.updateProject(project.projectId, {
-        authorizedCarrierIds: updatedCarriersList
-      }, authContext);
+      // Automatically update authorized carriers on project doc - REMOVED AS PART OF P6 CONVERGENCE
+      // const updatedCarriersList = [...(project.authorizedCarrierIds || []), carrierId];
+      // await projectService.updateProject(project.projectId, {
+      //   authorizedCarrierIds: updatedCarriersList
+      // }, authContext);
 
       setIsAddingCarrier(false);
       setCarName('');

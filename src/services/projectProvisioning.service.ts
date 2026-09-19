@@ -8,6 +8,14 @@ import { auditLogService } from './auditLog.service';
 import { ProjectProvisioningValidator } from '../validators/projectProvisioning.validator';
 import { ProjectNumberGenerator } from './projectNumberGenerator';
 import {
+  projectMaterialMembershipRepository,
+  projectCarrierMembershipRepository,
+} from '../repositories/projectMembership.repository';
+import {
+  globalMaterialRepository,
+  globalCarrierRepository,
+} from '../repositories/globalIdentity.repository';
+import {
   ProjectSetupWizardData,
   ProjectProvisioningResult,
   WizardFullValidation,
@@ -27,6 +35,80 @@ export class ProjectProvisioningService {
    */
   validateWizard(data: ProjectSetupWizardData): WizardFullValidation {
     return ProjectProvisioningValidator.validateAll(data);
+  }
+
+  async setupProjectMaterial(projectId: string, materialData: any, context: AuthUserContext): Promise<any> {
+    // 1. Resolve/Create Global Material
+    let globalMat = await globalMaterialRepository.findByCanonicalCode(materialData.code);
+    if (!globalMat) {
+      globalMat = await globalMaterialRepository.createGlobal({
+        code: materialData.code,
+        nameAr: materialData.name,
+        unitOfMeasure: materialData.unitOfMeasure,
+        standardDensityTonPerM3: materialData.standardDensityTonPerM3,
+        createdBy: context.userId
+      });
+    }
+
+    // 2. Attach ProjectMaterialMembership
+    const membership = await projectMaterialMembershipRepository.attachMember(projectId, globalMat.materialId, context.userId);
+
+    return { projectId, materialId: globalMat.materialId, membershipStatus: membership.status };
+  }
+
+  async setupProjectCarrier(projectId: string, carrierData: any, context: AuthUserContext): Promise<any> {
+    // 1. Resolve/Create Global Carrier
+    let globalCar = await globalCarrierRepository.findByLegalIdentity(carrierData.commercialRegistrationNo);
+    if (!globalCar) {
+      globalCar = await globalCarrierRepository.createGlobal({
+        nameAr: carrierData.name,
+        commercialRegistrationNo: carrierData.commercialRegistrationNo,
+        transportLicenseNo: carrierData.transportLicenseNo,
+        contactPerson: {
+          name: carrierData.contactPersonName,
+          phone: carrierData.contactPhone,
+          email: carrierData.contactEmail,
+        },
+        createdBy: context.userId
+      });
+    }
+
+    // 2. Attach ProjectCarrierMembership
+    const membership = await projectCarrierMembershipRepository.attachMember(projectId, globalCar.carrierId, context.userId);
+
+    return { projectId, carrierId: globalCar.carrierId, membershipStatus: membership.status };
+  }
+
+  async listProjectMaterials(projectId: string): Promise<any[]> {
+    const memberships = await projectMaterialMembershipRepository.listMemberships(projectId);
+    const materialIds = memberships.map(m => m.materialId);
+    const globalMaterials = await globalMaterialRepository.listByIds(materialIds);
+    
+    return memberships.map(m => {
+      const g = globalMaterials.find(g => g.materialId === m.materialId);
+      return {
+        materialId: m.materialId,
+        name: g?.nameAr || 'غير معروف',
+        code: g?.code || '—',
+        membershipStatus: m.status
+      };
+    });
+  }
+
+  async listProjectCarriers(projectId: string): Promise<any[]> {
+    const memberships = await projectCarrierMembershipRepository.listMemberships(projectId);
+    const carrierIds = memberships.map(m => m.carrierId);
+    const globalCarriers = await globalCarrierRepository.listByIds(carrierIds);
+    
+    return memberships.map(m => {
+      const g = globalCarriers.find(g => g.carrierId === m.carrierId);
+      return {
+        carrierId: m.carrierId,
+        name: g?.nameAr || 'غير معروف',
+        commercialRegistrationNo: g?.commercialRegistrationNo || '—',
+        membershipStatus: m.status
+      };
+    });
   }
 
   /**
