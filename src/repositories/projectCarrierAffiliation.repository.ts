@@ -25,6 +25,7 @@ import {
   projectCarrierMembershipRepository,
 } from './projectMembership.repository';
 import { auditLogRepository } from './auditLog.repository';
+import { CanonicalFleetRelationshipPolicy, PureAffiliation } from '../utils/canonicalFleetRelationshipPolicy';
 
 export type AffiliationEntityType = 'driver' | 'truck';
 
@@ -200,24 +201,29 @@ export class GenericProjectCarrierAffiliationRepository<
     const timestampOrDate = auth.currentUser ? serverTimestamp() : new Date();
 
     const executeLogic = async (currentSnapData: TEntity | null): Promise<SetAffiliationResult<TEntity>> => {
-      // Check Idempotency: same carrier and currently ACTIVE
-      if (currentSnapData && currentSnapData.carrierId === carrierId && currentSnapData.status === 'ACTIVE') {
+      const decision = CanonicalFleetRelationshipPolicy.evaluateAffiliation(
+        { projectId, entityId, carrierId, entityType: this.entityType },
+        currentSnapData as unknown as PureAffiliation,
+        false
+      );
+
+      if (decision.action === 'IDEMPOTENT') {
         return {
-          affiliation: currentSnapData,
+          affiliation: currentSnapData!,
           reassigned: false,
           previousCarrierId: null,
           idempotent: true,
         };
       }
 
-      const isReassignment = !!currentSnapData && currentSnapData.carrierId !== carrierId;
+      const isReassignment = decision.action === 'REASSIGN';
       const previousCarrierId = currentSnapData ? currentSnapData.carrierId : null;
 
       const recordData = {
         projectId,
         [this.idKey]: entityId,
         carrierId,
-        status: 'ACTIVE' as AffiliationStatus,
+        status: decision.status as AffiliationStatus,
         createdAt: currentSnapData?.createdAt || timestampOrDate,
         createdBy: currentSnapData?.createdBy || createdBy,
         updatedAt: timestampOrDate,
@@ -228,7 +234,7 @@ export class GenericProjectCarrierAffiliationRepository<
       this.inMemoryStore.set(storeKey, recordData);
 
       // Emit Audit Log
-      const auditAction = isReassignment ? 'UPDATE' : 'CREATE';
+      const auditAction = decision.action === 'CREATE' ? 'CREATE' : 'UPDATE';
       const eventCode = isReassignment
         ? (this.entityType === 'driver' ? 'DRIVER_CARRIER_AFFILIATION_CHANGED' : 'TRUCK_CARRIER_AFFILIATION_CHANGED')
         : (this.entityType === 'driver' ? 'DRIVER_CARRIER_AFFILIATION_SET' : 'TRUCK_CARRIER_AFFILIATION_SET');

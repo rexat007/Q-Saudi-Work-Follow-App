@@ -238,4 +238,123 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
       driverTruckIntakeServer.processSharedIntake(payload, unauthorizedAuth)
     ).rejects.toThrow('غير مصرح لك');
   });
+
+  it('7. Handles same-carrier INACTIVE Driver and Truck affiliation, reactivates them to ACTIVE in database, and returns ACTIVE status', async () => {
+    // 1. Pre-exist Driver & Truck IDs and Global entities
+    const driverId = 'DRV-REACTIVE-DRIVER-123';
+    const truckId = 'TRK-REACTIVE-TRUCK-123';
+
+    mockStore[`drivers/${driverId}`] = { driverId, nationalId: '1022338899', status: 'ACTIVE' };
+    mockStore[`trucks/${truckId}`] = { truckId, plate: 'أ ب ج 1111', normalizedPlate: 'أ ب ج 1111', status: 'ACTIVE' };
+
+    // Set Natural Lookups
+    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
+    const { normalizePlate, normalizeIdNumber } = await import('../utils/normalization');
+    mockStore[`natural_identity_lookups/${computeNaturalKeyToken('DRIVER', normalizeIdNumber('1022338899'))}`] = { systemId: driverId, entityType: 'DRIVER' };
+    mockStore[`natural_identity_lookups/${computeNaturalKeyToken('TRUCK', normalizePlate('أ ب ج 1111'))}`] = { systemId: truckId, entityType: 'TRUCK' };
+
+    // Set INACTIVE memberships and same-carrier affiliations
+    mockStore[`projects/${testProjectId}/driver_memberships/${driverId}`] = { status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/truck_memberships/${truckId}`] = { status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`] = { status: 'INACTIVE', carrierId: testCarrierId };
+    mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`] = { status: 'INACTIVE', carrierId: testCarrierId };
+
+    const payload = {
+      projectId: testProjectId,
+      carrierId: testCarrierId,
+      materialId: testMaterialId,
+      driverName: 'سعيد المالكي',
+      plateNumber: 'أ ب ج 1111',
+      residencyId: '1022338899',
+    };
+
+    const result = await driverTruckIntakeServer.processSharedIntake(payload, adminAuth);
+
+    expect(result.driverId).toBe(driverId);
+    expect(result.truckId).toBe(truckId);
+    expect(result.driverCarrierAffiliationStatus).toBe('ACTIVE');
+    expect(result.truckCarrierAffiliationStatus).toBe('ACTIVE');
+
+    // Assert that the database actually updated status to ACTIVE!
+    expect(mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`].status).toBe('ACTIVE');
+    expect(mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`].status).toBe('ACTIVE');
+    expect(driverRepository.create).not.toHaveBeenCalled();
+    expect(truckRepository.create).not.toHaveBeenCalled();
+  });
+
+  it('8. Rejects with ALLOCATION_POINTER_CORRUPTION when corrupt allocation active pointer exists', async () => {
+    // 1. Pre-exist entities
+    const driverId = 'DRV-CORRUPT-ALLOC-DRV';
+    const truckId = 'TRK-CORRUPT-ALLOC-TRK';
+
+    mockStore[`drivers/${driverId}`] = { driverId, nationalId: '1022338822', status: 'ACTIVE' };
+    mockStore[`trucks/${truckId}`] = { truckId, plate: 'أ ب ج 2222', normalizedPlate: 'أ ب ج 2222', status: 'ACTIVE' };
+
+    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
+    const { normalizePlate, normalizeIdNumber } = await import('../utils/normalization');
+    mockStore[`natural_identity_lookups/${computeNaturalKeyToken('DRIVER', normalizeIdNumber('1022338822'))}`] = { systemId: driverId, entityType: 'DRIVER' };
+    mockStore[`natural_identity_lookups/${computeNaturalKeyToken('TRUCK', normalizePlate('أ ب ج 2222'))}`] = { systemId: truckId, entityType: 'TRUCK' };
+
+    mockStore[`projects/${testProjectId}/driver_memberships/${driverId}`] = { status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/truck_memberships/${truckId}`] = { status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`] = { status: 'ACTIVE', carrierId: testCarrierId };
+    mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`] = { status: 'ACTIVE', carrierId: testCarrierId };
+
+    // Set corrupt active allocation slot pointing to non-existent allocation document
+    mockStore[`projects/${testProjectId}/truck_active_material_allocations/${truckId}`] = { allocationId: 'TMA-NONEXISTENT-999' };
+
+    const payload = {
+      projectId: testProjectId,
+      carrierId: testCarrierId,
+      materialId: testMaterialId,
+      driverName: 'عمر القحطاني',
+      plateNumber: 'أ ب ج 2222',
+      residencyId: '1022338822',
+    };
+
+    await expect(
+      driverTruckIntakeServer.processSharedIntake(payload, adminAuth)
+    ).rejects.toThrow('ALLOCATION_POINTER_CORRUPTION');
+  });
+
+  it('9. Rejects with ASSIGNMENT_POINTER_INTEGRITY_ERROR when corrupt assignment pointers exist', async () => {
+    const driverId = 'DRV-CORRUPT-ASN-DRV';
+    const truckId = 'TRK-CORRUPT-ASN-TRK';
+
+    mockStore[`drivers/${driverId}`] = { driverId, nationalId: '1022338833', status: 'ACTIVE' };
+    mockStore[`trucks/${truckId}`] = { truckId, plate: 'أ ب ج 3333', normalizedPlate: 'أ ب ج 3333', status: 'ACTIVE' };
+
+    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
+    const { normalizePlate, normalizeIdNumber } = await import('../utils/normalization');
+    mockStore[`natural_identity_lookups/${computeNaturalKeyToken('DRIVER', normalizeIdNumber('1022338833'))}`] = { systemId: driverId, entityType: 'DRIVER' };
+    mockStore[`natural_identity_lookups/${computeNaturalKeyToken('TRUCK', normalizePlate('أ ب ج 3333'))}`] = { systemId: truckId, entityType: 'TRUCK' };
+
+    mockStore[`projects/${testProjectId}/driver_memberships/${driverId}`] = { status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/truck_memberships/${truckId}`] = { status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`] = { status: 'ACTIVE', carrierId: testCarrierId };
+    mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`] = { status: 'ACTIVE', carrierId: testCarrierId };
+
+    // Set active assignment slot pointing to mismatched assignment
+    mockStore[`projects/${testProjectId}/driver_active_assignments/${driverId}`] = { assignmentId: 'ASN-MISMATCH' };
+    mockStore[`projects/${testProjectId}/driver_truck_assignments/ASN-MISMATCH`] = {
+      assignmentId: 'ASN-MISMATCH',
+      projectId: testProjectId,
+      driverId: 'DRV-OTHER-DANGEROUS', // Mismatched driver!
+      truckId: truckId,
+      status: 'ACTIVE',
+    };
+
+    const payload = {
+      projectId: testProjectId,
+      carrierId: testCarrierId,
+      materialId: testMaterialId,
+      driverName: 'عمر القحطاني',
+      plateNumber: 'أ ب ج 3333',
+      residencyId: '1022338833',
+    };
+
+    await expect(
+      driverTruckIntakeServer.processSharedIntake(payload, adminAuth)
+    ).rejects.toThrow('ASSIGNMENT_POINTER_INTEGRITY_ERROR');
+  });
 });

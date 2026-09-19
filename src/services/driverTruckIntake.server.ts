@@ -1,5 +1,6 @@
 import { AuthUserContext } from '../types/common';
 import { DriverTruckIntakePayload, DriverTruckIntakeResult } from './driverTruckIntake.service';
+import { CanonicalFleetRelationshipPolicy, PureAffiliation, PureAssignment, PureAllocation } from '../utils/canonicalFleetRelationshipPolicy';
 
 export class DriverTruckIntakeServer {
   private checkModificationAccess(projectId: string, context: AuthUserContext) {
@@ -125,35 +126,28 @@ export class DriverTruckIntakeServer {
       const truckSlotSnap = truckSlotRef ? await transaction.get(truckSlotRef) : null;
       const truckAllocSlotSnap = truckAllocSlotRef ? await transaction.get(truckAllocSlotRef) : null;
 
-      if (driverAffilSnap && driverAffilSnap.exists && driverAffilSnap.data()?.status === 'ACTIVE' && driverAffilSnap.data()?.carrierId !== carrierId) {
-        throw new Error(`CARRIER_REASSIGNMENT_CONFLICT: Driver is already affiliated with Carrier ${driverAffilSnap.data()?.carrierId} in Project ${projectId}. Silently reassigning is blocked.`);
-      }
-      if (truckAffilSnap && truckAffilSnap.exists && truckAffilSnap.data()?.status === 'ACTIVE' && truckAffilSnap.data()?.carrierId !== carrierId) {
-        throw new Error(`CARRIER_REASSIGNMENT_CONFLICT: Truck is already affiliated with Carrier ${truckAffilSnap.data()?.carrierId} in Project ${projectId}. Silently reassigning is blocked.`);
-      }
+      const currentDriverSlot = driverSlotSnap && driverSlotSnap.exists ? (driverSlotSnap.data() as { assignmentId: string }) : null;
+      const currentTruckSlot = truckSlotSnap && truckSlotSnap.exists ? (truckSlotSnap.data() as { assignmentId: string }) : null;
+      const currentTruckAllocSlot = truckAllocSlotSnap && truckAllocSlotSnap.exists ? (truckAllocSlotSnap.data() as { allocationId: string }) : null;
 
-      const currentDriverSlot = driverSlotSnap && driverSlotSnap.exists ? driverSlotSnap.data() : null;
-      const currentTruckSlot = truckSlotSnap && truckSlotSnap.exists ? truckSlotSnap.data() : null;
-      const currentTruckAllocSlot = truckAllocSlotSnap && truckAllocSlotSnap.exists ? truckAllocSlotSnap.data() : null;
-
-      let dAssign: any = null;
-      let tAssign: any = null;
-      let tAlloc: any = null;
+      let dAssign: PureAssignment | null = null;
+      let tAssign: PureAssignment | null = null;
+      let tAlloc: PureAllocation | null = null;
 
       if (currentDriverSlot?.assignmentId) {
         const dAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(currentDriverSlot.assignmentId);
         const snap = await transaction.get(dAssignRef);
-        if (snap.exists) dAssign = snap.data();
+        if (snap.exists) dAssign = snap.data() as PureAssignment;
       }
       if (currentTruckSlot?.assignmentId && currentTruckSlot.assignmentId !== currentDriverSlot?.assignmentId) {
         const tAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(currentTruckSlot.assignmentId);
         const snap = await transaction.get(tAssignRef);
-        if (snap.exists) tAssign = snap.data();
+        if (snap.exists) tAssign = snap.data() as PureAssignment;
       }
       if (currentTruckAllocSlot?.allocationId) {
         const tAllocRef = adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(currentTruckAllocSlot.allocationId);
         const snap = await transaction.get(tAllocRef);
-        if (snap.exists) tAlloc = snap.data();
+        if (snap.exists) tAlloc = snap.data() as PureAllocation;
       }
 
       let counterpartTruckSlotSnap: any = null;
@@ -170,9 +164,74 @@ export class DriverTruckIntakeServer {
         counterpartDriverSlotSnap = await transaction.get(counterpartDriverSlotRef);
       }
 
+      // =================================--------------------
+      // EVALUATE RELATIONSHIPS VIA PURE CANONICAL POLICY
+      // =================================--------------------
+      const driverAffilExisting = driverAffilSnap && driverAffilSnap.exists ? (driverAffilSnap.data() as PureAffiliation) : null;
+      const driverAffilDecision = CanonicalFleetRelationshipPolicy.evaluateAffiliation(
+        { projectId, entityId: driverId || '', carrierId, entityType: 'driver' },
+        driverAffilExisting,
+        true // isIntake = true
+      );
+
+      const truckAffilExisting = truckAffilSnap && truckAffilSnap.exists ? (truckAffilSnap.data() as PureAffiliation) : null;
+      const truckAffilDecision = CanonicalFleetRelationshipPolicy.evaluateAffiliation(
+        { projectId, entityId: truckId || '', carrierId, entityType: 'truck' },
+        truckAffilExisting,
+        true // isIntake = true
+      );
+
+      if (driverId && truckId) {
+        CanonicalFleetRelationshipPolicy.validateAssignmentPointers(
+          driverId,
+          truckId,
+          currentDriverSlot,
+          currentTruckSlot,
+          dAssign,
+          tAssign
+        );
+      }
+
+      CanonicalFleetRelationshipPolicy.validateAllocationPointers(
+        projectId,
+        truckId || '',
+        currentTruckAllocSlot,
+        tAlloc
+      );
+
       // ----------------------------------------------------
       // PHASE 2: ALL WRITES
       // ----------------------------------------------------
+      // Secure local transaction audit creator helper
+      const createAuditLog = (
+        auditLogId: string,
+        entityType: string,
+        entityId: string,
+        action: string,
+        changes: any,
+        correlationId: string
+      ) => {
+        const auditLogRef = adminDb.collection('audit_logs').doc(auditLogId);
+        transaction.set(auditLogRef, {
+          auditLogId,
+          projectId,
+          entityType,
+          entityId,
+          action,
+          actor: {
+            userId: actorId,
+            email: context.email || 'system@q-saudi.com',
+            role: context.role || 'PROJECT_ADMIN',
+          },
+          changes,
+          correlationId,
+          createdBy: actorId,
+          updatedBy: actorId,
+          createdAt: nowIso,
+          updatedAt: nowIso,
+        });
+      };
+
       if (!driverId) {
         const hashHex = require('crypto').randomBytes(16).toString('hex');
         driverId = `DRV-${hashHex}`;
@@ -265,7 +324,8 @@ export class DriverTruckIntakeServer {
         throw new Error(`MEMBERSHIP_STATE_CONFLICT: Entity "${truckId}" is currently "${truckMemSnap.data()?.status}" in Project "${projectId}".`);
       }
 
-      if (!driverAffilSnap || !driverAffilSnap.exists) {
+      // Write Driver Affiliation changes
+      if (driverAffilDecision.action === 'CREATE') {
         transaction.set(finalDriverAffilRef, {
           projectId,
           driverId,
@@ -274,10 +334,44 @@ export class DriverTruckIntakeServer {
           statusChangedAt: nowIso,
           createdAt: nowIso,
           createdBy: actorId,
+          updatedAt: nowIso,
+          updatedBy: actorId,
         });
+        createAuditLog(
+          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          'CARRIER',
+          driverId,
+          'CREATE',
+          {
+            before: null,
+            after: { carrierId, status: 'ACTIVE', eventCode: 'DRIVER_CARRIER_AFFILIATION_SET' },
+            deltaFields: ['carrierId', 'status', 'updatedAt', 'updatedBy'],
+          },
+          `AFFIL-${projectId}-${driverId}`
+        );
+      } else if (driverAffilDecision.action === 'REACTIVATE' || driverAffilDecision.action === 'REASSIGN') {
+        transaction.update(finalDriverAffilRef, {
+          status: 'ACTIVE',
+          statusChangedAt: nowIso,
+          updatedAt: nowIso,
+          updatedBy: actorId,
+        });
+        createAuditLog(
+          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          'CARRIER',
+          driverId,
+          'UPDATE',
+          {
+            before: driverAffilExisting ? { carrierId: driverAffilExisting.carrierId, status: driverAffilExisting.status } : null,
+            after: { carrierId, status: 'ACTIVE', eventCode: 'DRIVER_CARRIER_AFFILIATION_CHANGED' },
+            deltaFields: ['carrierId', 'status', 'updatedAt', 'updatedBy'],
+          },
+          `AFFIL-${projectId}-${driverId}`
+        );
       }
 
-      if (!truckAffilSnap || !truckAffilSnap.exists) {
+      // Write Truck Affiliation changes
+      if (truckAffilDecision.action === 'CREATE') {
         transaction.set(finalTruckAffilRef, {
           projectId,
           truckId,
@@ -286,27 +380,64 @@ export class DriverTruckIntakeServer {
           statusChangedAt: nowIso,
           createdAt: nowIso,
           createdBy: actorId,
+          updatedAt: nowIso,
+          updatedBy: actorId,
         });
+        createAuditLog(
+          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          'TRUCK',
+          truckId,
+          'CREATE',
+          {
+            before: null,
+            after: { carrierId, status: 'ACTIVE', eventCode: 'TRUCK_CARRIER_AFFILIATION_SET' },
+            deltaFields: ['carrierId', 'status', 'updatedAt', 'updatedBy'],
+          },
+          `AFFIL-${projectId}-${truckId}`
+        );
+      } else if (truckAffilDecision.action === 'REACTIVATE' || truckAffilDecision.action === 'REASSIGN') {
+        transaction.update(finalTruckAffilRef, {
+          status: 'ACTIVE',
+          statusChangedAt: nowIso,
+          updatedAt: nowIso,
+          updatedBy: actorId,
+        });
+        createAuditLog(
+          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          'TRUCK',
+          truckId,
+          'UPDATE',
+          {
+            before: truckAffilExisting ? { carrierId: truckAffilExisting.carrierId, status: truckAffilExisting.status } : null,
+            after: { carrierId, status: 'ACTIVE', eventCode: 'TRUCK_CARRIER_AFFILIATION_CHANGED' },
+            deltaFields: ['carrierId', 'status', 'updatedAt', 'updatedBy'],
+          },
+          `AFFIL-${projectId}-${truckId}`
+        );
       }
 
+      // Write Assignments
       let finalAssignmentId = '';
       if (
-        currentDriverSlot &&
-        currentTruckSlot &&
-        currentDriverSlot.assignmentId === currentTruckSlot.assignmentId &&
-        dAssign &&
-        dAssign.status === 'ACTIVE' &&
-        dAssign.driverId === driverId &&
-        dAssign.truckId === truckId
+        CanonicalFleetRelationshipPolicy.isAssignmentIdempotent(
+          driverId,
+          truckId,
+          currentDriverSlot,
+          currentTruckSlot,
+          dAssign
+        )
       ) {
-        finalAssignmentId = currentDriverSlot.assignmentId;
+        finalAssignmentId = currentDriverSlot!.assignmentId;
       } else {
+        const closedAssignments: string[] = [];
+
         if (dAssign && dAssign.status === 'ACTIVE') {
           const oldDAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(dAssign.assignmentId);
           transaction.update(oldDAssignRef, {
             status: 'CLOSED',
             effectiveTo: nowIso,
           });
+          closedAssignments.push(dAssign.assignmentId);
 
           if (counterpartTruckSlotRef && counterpartTruckSlotSnap?.exists && counterpartTruckSlotSnap.data()?.assignmentId === dAssign.assignmentId) {
             transaction.delete(counterpartTruckSlotRef);
@@ -319,6 +450,7 @@ export class DriverTruckIntakeServer {
             status: 'CLOSED',
             effectiveTo: nowIso,
           });
+          closedAssignments.push(tAssign.assignmentId);
 
           if (counterpartDriverSlotRef && counterpartDriverSlotSnap?.exists && counterpartDriverSlotSnap.data()?.assignmentId === tAssign.assignmentId) {
             transaction.delete(counterpartDriverSlotRef);
@@ -342,12 +474,27 @@ export class DriverTruckIntakeServer {
 
         transaction.set(finalDriverSlotRef, { assignmentId: finalAssignmentId });
         transaction.set(finalTruckSlotRef, { assignmentId: finalAssignmentId });
+
+        createAuditLog(
+          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          'TRUCK',
+          truckId,
+          closedAssignments.length > 0 ? 'UPDATE' : 'CREATE',
+          {
+            before: { closedAssignments },
+            after: { assignmentId: finalAssignmentId, driverId, truckId, status: 'ACTIVE', carrierId },
+            deltaFields: ['status', 'driverId', 'truckId'],
+          },
+          `ASN-${projectId}-${finalAssignmentId}`
+        );
       }
 
+      // Write Allocations
       let finalAllocationId = '';
       if (tAlloc && tAlloc.status === 'ACTIVE' && tAlloc.materialId === materialId) {
         finalAllocationId = tAlloc.allocationId;
       } else {
+        const reallocated = !!tAlloc && tAlloc.status === 'ACTIVE';
         if (tAlloc && tAlloc.status === 'ACTIVE') {
           const oldAllocRef = adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(tAlloc.allocationId);
           transaction.update(oldAllocRef, {
@@ -372,6 +519,19 @@ export class DriverTruckIntakeServer {
         });
 
         transaction.set(finalTruckAllocSlotRef, { allocationId: finalAllocationId });
+
+        createAuditLog(
+          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          'TRUCK',
+          truckId,
+          reallocated ? 'UPDATE' : 'CREATE',
+          {
+            before: tAlloc && tAlloc.status === 'ACTIVE' ? { allocationId: tAlloc.allocationId, materialId: tAlloc.materialId } : {},
+            after: { allocationId: finalAllocationId, truckId, materialId, status: 'ACTIVE' },
+            deltaFields: ['allocationId', 'truckId', 'materialId', 'status'],
+          },
+          `TMA-${projectId}-${finalAllocationId}`
+        );
       }
 
       return {
