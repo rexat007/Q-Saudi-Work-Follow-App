@@ -354,7 +354,8 @@ export class ProjectDriverTruckAssignmentRepository {
     projectId: string,
     driverId: string,
     truckId: string,
-    actorId: string
+    actorId: string,
+    transaction?: Transaction
   ): Promise<AssignDriverToTruckResult> {
     if (!projectId || !driverId || !truckId) {
       throw new Error('INVALID_ARGUMENT: projectId, driverId, and truckId are required');
@@ -368,7 +369,7 @@ export class ProjectDriverTruckAssignmentRepository {
       return this._assignDriverToTruckInMemory(projectId, driverId, truckId, actorId);
     }
 
-    return this._assignDriverToTruckFirestore(projectId, driverId, truckId, actorId);
+    return this._assignDriverToTruckFirestore(projectId, driverId, truckId, actorId, transaction);
   }
 
   /**
@@ -536,12 +537,12 @@ export class ProjectDriverTruckAssignmentRepository {
     projectId: string,
     driverId: string,
     truckId: string,
-    actorId: string
+    actorId: string,
+    transaction?: Transaction
   ): Promise<AssignDriverToTruckResult> {
     const colPath = `projects/${projectId}/driver_truck_assignments`;
 
-    try {
-      return await runTransaction(db, async (transaction) => {
+    const executeWithTx = async (tx: Transaction) => {
         // 1. Transactional Precondition Reads
         const driverMemRef = doc(db, 'projects', projectId, 'driver_memberships', driverId);
         const truckMemRef = doc(db, 'projects', projectId, 'truck_memberships', truckId);
@@ -549,10 +550,10 @@ export class ProjectDriverTruckAssignmentRepository {
         const truckAffilRef = doc(db, 'projects', projectId, 'truck_carrier_affiliations', truckId);
 
         const [driverMemSnap, truckMemSnap, driverAffilSnap, truckAffilSnap] = await Promise.all([
-          transaction.get(driverMemRef),
-          transaction.get(truckMemRef),
-          transaction.get(driverAffilRef),
-          transaction.get(truckAffilRef),
+          tx.get(driverMemRef),
+          tx.get(truckMemRef),
+          tx.get(driverAffilRef),
+          tx.get(truckAffilRef),
         ]);
 
         if (!driverMemSnap.exists() || driverMemSnap.data()?.status !== 'ACTIVE') {
@@ -579,8 +580,8 @@ export class ProjectDriverTruckAssignmentRepository {
         const truckSlotRef = doc(db, 'projects', projectId, 'truck_active_assignments', truckId);
 
         const [driverSlotSnap, truckSlotSnap] = await Promise.all([
-          transaction.get(driverSlotRef),
-          transaction.get(truckSlotRef),
+          tx.get(driverSlotRef),
+          tx.get(truckSlotRef),
         ]);
 
         const currentDriverSlot = driverSlotSnap.exists() ? (driverSlotSnap.data() as ActiveAssignmentSlotPayload) : null;
@@ -593,7 +594,7 @@ export class ProjectDriverTruckAssignmentRepository {
           currentDriverSlot.assignmentId === currentTruckSlot.assignmentId
         ) {
           const assignRef = doc(db, 'projects', projectId, 'driver_truck_assignments', currentDriverSlot.assignmentId);
-          const assignSnap = await transaction.get(assignRef);
+          const assignSnap = await tx.get(assignRef);
           if (assignSnap.exists()) {
             const existing = assignSnap.data() as ProjectDriverTruckAssignmentEntity;
             if (existing.status === 'ACTIVE' && existing.driverId === driverId && existing.truckId === truckId) {
@@ -614,7 +615,7 @@ export class ProjectDriverTruckAssignmentRepository {
 
         if (currentDriverSlot?.assignmentId) {
           const dRef = doc(db, 'projects', projectId, 'driver_truck_assignments', currentDriverSlot.assignmentId);
-          const dSnap = await transaction.get(dRef);
+          const dSnap = await tx.get(dRef);
           if (dSnap.exists()) {
             dAssign = dSnap.data() as ProjectDriverTruckAssignmentEntity;
             if (dAssign.driverId !== driverId) {
@@ -625,7 +626,7 @@ export class ProjectDriverTruckAssignmentRepository {
 
         if (currentTruckSlot?.assignmentId && currentTruckSlot.assignmentId !== currentDriverSlot?.assignmentId) {
           const tRef = doc(db, 'projects', projectId, 'driver_truck_assignments', currentTruckSlot.assignmentId);
-          const tSnap = await transaction.get(tRef);
+          const tSnap = await tx.get(tRef);
           if (tSnap.exists()) {
             tAssign = tSnap.data() as ProjectDriverTruckAssignmentEntity;
             if (tAssign.truckId !== truckId) {
@@ -639,14 +640,14 @@ export class ProjectDriverTruckAssignmentRepository {
         let counterpartTruckSlotRef: any = null;
         if (dAssign && dAssign.status === 'ACTIVE' && dAssign.truckId !== truckId) {
           counterpartTruckSlotRef = doc(db, 'projects', projectId, 'truck_active_assignments', dAssign.truckId);
-          counterpartTruckSlotSnap = await transaction.get(counterpartTruckSlotRef);
+          counterpartTruckSlotSnap = await tx.get(counterpartTruckSlotRef);
         }
 
         let counterpartDriverSlotSnap: any = null;
         let counterpartDriverSlotRef: any = null;
         if (tAssign && tAssign.status === 'ACTIVE' && tAssign.driverId !== driverId) {
           counterpartDriverSlotRef = doc(db, 'projects', projectId, 'driver_active_assignments', tAssign.driverId);
-          counterpartDriverSlotSnap = await transaction.get(counterpartDriverSlotRef);
+          counterpartDriverSlotSnap = await tx.get(counterpartDriverSlotRef);
         }
 
         // ==========================================
@@ -660,7 +661,7 @@ export class ProjectDriverTruckAssignmentRepository {
         // Close old D ↔ A
         if (dAssign && dAssign.status === 'ACTIVE') {
           const dRef = doc(db, 'projects', projectId, 'driver_truck_assignments', dAssign.assignmentId);
-          transaction.update(dRef, {
+          tx.update(dRef, {
             status: 'CLOSED',
             effectiveTo: now,
           });
@@ -670,7 +671,7 @@ export class ProjectDriverTruckAssignmentRepository {
           // Release counterpart Truck slot if it still points to this assignment
           if (counterpartTruckSlotRef && counterpartTruckSlotSnap?.exists()) {
             if (counterpartTruckSlotSnap.data()?.assignmentId === dAssign.assignmentId) {
-              transaction.delete(counterpartTruckSlotRef);
+              tx.delete(counterpartTruckSlotRef);
             }
           }
         }
@@ -678,7 +679,7 @@ export class ProjectDriverTruckAssignmentRepository {
         // Close old X ↔ B
         if (tAssign && tAssign.status === 'ACTIVE') {
           const tRef = doc(db, 'projects', projectId, 'driver_truck_assignments', tAssign.assignmentId);
-          transaction.update(tRef, {
+          tx.update(tRef, {
             status: 'CLOSED',
             effectiveTo: now,
           });
@@ -688,7 +689,7 @@ export class ProjectDriverTruckAssignmentRepository {
           // Release counterpart Driver slot if it still points to this assignment
           if (counterpartDriverSlotRef && counterpartDriverSlotSnap?.exists()) {
             if (counterpartDriverSlotSnap.data()?.assignmentId === tAssign.assignmentId) {
-              transaction.delete(counterpartDriverSlotRef);
+              tx.delete(counterpartDriverSlotRef);
             }
           }
         }
@@ -708,11 +709,11 @@ export class ProjectDriverTruckAssignmentRepository {
         };
 
         const newAssignRef = doc(db, 'projects', projectId, 'driver_truck_assignments', assignmentId);
-        transaction.set(newAssignRef, newAssignment);
+        tx.set(newAssignRef, newAssignment);
 
         // Update active slot pointers
-        transaction.set(driverSlotRef, { assignmentId });
-        transaction.set(truckSlotRef, { assignmentId });
+        tx.set(driverSlotRef, { assignmentId });
+        tx.set(truckSlotRef, { assignmentId });
 
         return {
           assignment: newAssignment,
@@ -721,6 +722,15 @@ export class ProjectDriverTruckAssignmentRepository {
           reassignedTruck,
           closedAssignments,
         };
+    };
+
+    if (transaction) {
+      return await executeWithTx(transaction);
+    }
+
+    try {
+      return await runTransaction(db, async (tx) => {
+        return await executeWithTx(tx);
       });
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, colPath);

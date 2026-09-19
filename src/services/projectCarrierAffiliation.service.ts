@@ -42,6 +42,7 @@ export class ProjectCarrierFleetAffiliationService {
       driverId,
       carrierId,
       actorId,
+      undefined,
       actorContext
     );
   }
@@ -61,6 +62,7 @@ export class ProjectCarrierFleetAffiliationService {
       truckId,
       carrierId,
       actorId,
+      undefined,
       actorContext
     );
   }

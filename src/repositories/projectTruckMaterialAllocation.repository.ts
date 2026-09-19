@@ -270,7 +270,8 @@ export class ProjectTruckMaterialAllocationRepository {
     projectId: string,
     truckId: string,
     materialId: string,
-    actorId: string
+    actorId: string,
+    transaction?: Transaction
   ): Promise<AllocateTruckToMaterialResult> {
     if (!projectId || !truckId || !materialId) {
       throw new Error('INVALID_ARGUMENT: projectId, truckId, and materialId are required');
@@ -283,7 +284,7 @@ export class ProjectTruckMaterialAllocationRepository {
       return this._allocateTruckToMaterialInMemory(projectId, truckId, materialId, actorId);
     }
 
-    return this._allocateTruckToMaterialFirestore(projectId, truckId, materialId, actorId);
+    return this._allocateTruckToMaterialFirestore(projectId, truckId, materialId, actorId, transaction);
   }
 
   /**
@@ -436,12 +437,12 @@ export class ProjectTruckMaterialAllocationRepository {
     projectId: string,
     truckId: string,
     materialId: string,
-    actorId: string
+    actorId: string,
+    transaction?: Transaction
   ): Promise<AllocateTruckToMaterialResult> {
     const colPath = `projects/${projectId}/truck_material_allocations`;
 
-    try {
-      return await runTransaction(db, async (transaction) => {
+    const executeWithTx = async (tx: Transaction) => {
         // 1. Transactional Precondition Reads BEFORE any writes
         const truckMemRef = doc(db, 'projects', projectId, 'truck_memberships', truckId);
         const truckAffilRef = doc(db, 'projects', projectId, 'truck_carrier_affiliations', truckId);
@@ -449,10 +450,10 @@ export class ProjectTruckMaterialAllocationRepository {
         const truckSlotRef = doc(db, 'projects', projectId, 'truck_active_material_allocations', truckId);
 
         const [truckMemSnap, truckAffilSnap, materialMemSnap, truckSlotSnap] = await Promise.all([
-          transaction.get(truckMemRef),
-          transaction.get(truckAffilRef),
-          transaction.get(materialMemRef),
-          transaction.get(truckSlotRef),
+          tx.get(truckMemRef),
+          tx.get(truckAffilRef),
+          tx.get(materialMemRef),
+          tx.get(truckSlotRef),
         ]);
 
         if (!truckMemSnap.exists() || truckMemSnap.data()?.status !== 'ACTIVE') {
@@ -480,7 +481,7 @@ export class ProjectTruckMaterialAllocationRepository {
             'truck_material_allocations',
             currentSlot.allocationId
           );
-          const assignSnap = await transaction.get(currentAssignRef);
+          const assignSnap = await tx.get(currentAssignRef);
           if (!assignSnap.exists()) {
             throw new Error(
               `ALLOCATION_POINTER_CORRUPTION: Active slot points to non-existent allocation ${currentSlot.allocationId}`
@@ -523,7 +524,7 @@ export class ProjectTruckMaterialAllocationRepository {
             'truck_material_allocations',
             existingAllocation.allocationId
           );
-          transaction.update(oldAssignRef, {
+          tx.update(oldAssignRef, {
             status: 'CLOSED',
             effectiveTo: now,
           });
@@ -546,10 +547,10 @@ export class ProjectTruckMaterialAllocationRepository {
         };
 
         const newAssignRef = doc(db, 'projects', projectId, 'truck_material_allocations', allocationId);
-        transaction.set(newAssignRef, newAllocation);
+        tx.set(newAssignRef, newAllocation);
 
         // Set or update active slot pointer
-        transaction.set(truckSlotRef, { allocationId });
+        tx.set(truckSlotRef, { allocationId });
 
         return {
           allocation: newAllocation,
@@ -557,6 +558,15 @@ export class ProjectTruckMaterialAllocationRepository {
           reallocated,
           closedAllocationId,
         };
+    };
+
+    if (transaction) {
+      return await executeWithTx(transaction);
+    }
+
+    try {
+      return await runTransaction(db, async (tx) => {
+        return await executeWithTx(tx);
       });
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, colPath);

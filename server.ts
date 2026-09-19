@@ -6,6 +6,7 @@ import { db } from './src/firebase/config';
 import { TripService } from './src/services/trip.service';
 import { exceptionService as serverExceptionService } from './src/services/exception.service';
 import { serverWorkspaceService } from './server/workspace.service';
+import { driverTruckIntakeService } from './src/services/driverTruckIntake.service';
 import { 
   WORKSPACE_TABS, 
   OPERATIONS_FULL_COLUMNS, 
@@ -87,6 +88,35 @@ app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, 
     res.status(500).json({
       success: false,
       error: error.message || 'فشلت عملية تهيئة Google Workspace للمشروع',
+    });
+  }
+});
+
+// ----------------------------------------------------
+// Project Driver/Truck Intake Canonical Entry Point
+// ----------------------------------------------------
+app.post('/api/intake/canonical', enforceProjectIsolation, async (req: any, res) => {
+  try {
+    const payload = req.body;
+    const context = req.user; // populated by authenticateUser middleware
+    if (!context) {
+      return res.status(401).json({
+        success: false,
+        error: 'المستخدم غير مصادق عليه',
+      });
+    }
+
+    const result = await driverTruckIntakeService.processSharedIntake(payload, context);
+    res.json({
+      success: true,
+      data: result,
+      message: 'تم تسجيل السائق والشاحنة وتوثيقهما في المشروع بنجاح',
+    });
+  } catch (error: any) {
+    console.error('Error in /api/intake/canonical:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message || 'فشلت عملية التسجيل الموثقة للسائق والشاحنة',
     });
   }
 });

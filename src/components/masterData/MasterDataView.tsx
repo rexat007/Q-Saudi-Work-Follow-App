@@ -590,8 +590,8 @@ export const MasterDataView: React.FC<{
       setNewTruck({ truckId: '', plate: '', carrierId: '', tareKg: 14000, grossKg: 45000 });
       setActionNotice({ type: 'success', message: 'تم تسجيل الشاحنة وتوثيقها في لائحة المشروع بنجاح' });
       if (!user) {
-        setLocalTrucks([result.truck, ...localTrucks]);
-        setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, [result.truck, ...localTrucks], localDrivers));
+        setLocalTrucks([result.truck as any, ...localTrucks]);
+        setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, [result.truck as any, ...localTrucks], localDrivers));
       } else {
         await refreshOverview(selectedProjectId);
       }
@@ -627,8 +627,8 @@ export const MasterDataView: React.FC<{
       setNewDriver({ driverId: '', name: '', phone: '0501234567', idNumber: '1087654321', carrierId: '' });
       setActionNotice({ type: 'success', message: 'تم تسجيل السائق وتوثيقه في لائحة المشروع بنجاح' });
       if (!user) {
-        setLocalDrivers([result.driver, ...localDrivers]);
-        setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, localTrucks, [result.driver, ...localDrivers]));
+        setLocalDrivers([result.driver as any, ...localDrivers]);
+        setOverview(buildLocalOverview(selectedProjectId, localCarriers, localMaterials, localTrucks, [result.driver as any, ...localDrivers]));
       } else {
         await refreshOverview(selectedProjectId);
       }

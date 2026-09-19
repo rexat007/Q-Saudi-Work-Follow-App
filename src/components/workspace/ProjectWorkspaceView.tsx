@@ -469,7 +469,7 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
     setIsSubmitting(true);
     setErrorMsg(null);
     try {
-      await driverTruckIntakeService.processSharedIntake({
+      const payload = {
         projectId: project.projectId,
         carrierId: newRosterCarrier,
         materialId: newRosterMaterial,
@@ -477,7 +477,26 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
         plateNumber: newRosterPlate.trim().toUpperCase(),
         phone: newRosterPhone.trim() || undefined,
         residencyId: newRosterResidency.trim() || undefined,
-      }, authContext);
+      };
+
+      const user = auth.currentUser;
+      if (user) {
+        const token = await user.getIdToken();
+        const res = await fetch('/api/intake/canonical', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const json = await res.json();
+          throw new Error(json.error || 'فشلت عملية التسجيل');
+        }
+      } else {
+        await driverTruckIntakeService.processSharedIntake(payload, authContext);
+      }
 
       setNewRosterDriver('');
       setNewRosterPlate('');

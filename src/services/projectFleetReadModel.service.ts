@@ -18,7 +18,10 @@ import {
 } from '../types/projectFleetReadModel';
 
 import { projectTruckMembershipRepository } from '../repositories/projectMembership.repository';
-import { projectTruckCarrierAffiliationRepository } from '../repositories/projectCarrierAffiliation.repository';
+import {
+  projectTruckCarrierAffiliationRepository,
+  projectDriverCarrierAffiliationRepository,
+} from '../repositories/projectCarrierAffiliation.repository';
 import { projectDriverTruckAssignmentRepository } from '../repositories/projectDriverTruckAssignment.repository';
 import { projectTruckMaterialAllocationRepository } from '../repositories/projectTruckMaterialAllocation.repository';
 import {
@@ -127,15 +130,12 @@ export class ProjectFleetReadModelService {
               uniqueDriverIds.add(driverId);
 
               // Check carrier alignment if carrierId was established
-              // carrierId is not present on assignment, inferred via driver affiliation
-              if (carrierId && driverId) {
-                const driverAffiliation = await projectDriverCarrierAffiliationRepository.getAffiliation(cleanProjectId, driverId);
-                if (driverAffiliation && driverAffiliation.carrierId !== carrierId) {
-                  issues.push({
-                    code: 'CARRIER_MISMATCH',
-                    message: `Assigned driver ${driverId} carrier (${driverAffiliation.carrierId}) mismatches truck carrier (${carrierId})`,
-                  });
-                }
+              const driverAffil = await projectDriverCarrierAffiliationRepository.getAffiliation(cleanProjectId, driverId);
+              if (driverAffil && driverAffil.status === 'ACTIVE' && driverAffil.carrierId && carrierId && driverAffil.carrierId !== carrierId) {
+                issues.push({
+                  code: 'CARRIER_MISMATCH',
+                  message: `Assigned driver ${driverId} carrier (${driverAffil.carrierId}) mismatches truck carrier (${carrierId})`,
+                });
               }
             }
           }
