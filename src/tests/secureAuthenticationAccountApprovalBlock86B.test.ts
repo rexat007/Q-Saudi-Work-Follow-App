@@ -12,6 +12,7 @@ import { authenticateUser } from '../../server/security.middleware';
 import { arTranslations } from '../locales/ar';
 import { enTranslations } from '../locales/en';
 import { urTranslations } from '../locales/ur';
+import { setTestAuthOverride, setTestDbOverride } from '../firebase/admin';
 
 let totalTests = 0;
 let passedTests = 0;
@@ -47,6 +48,71 @@ async function runSuite() {
   console.log('======================================================');
   console.log('🚀 Running BLOCK 86B Secure Authentication & Account Approval Suite...');
   console.log('======================================================\n');
+
+  // Inject real Firebase Admin test boundary mocks so production authenticateUser is tested securely
+  setTestAuthOverride({
+    async verifyIdToken(token: string) {
+      if (token === 'token-pending') return { uid: 'uid-pending', email: 'pending@qsaudi.com' };
+      if (token === 'token-rejected') return { uid: 'uid-rejected', email: 'rejected@qsaudi.com' };
+      if (token === 'token-suspended') return { uid: 'uid-suspended', email: 'suspended@qsaudi.com' };
+      if (token === 'token-supervisor') return { uid: 'uid-supervisor', email: 'supervisor@qsaudi.com' };
+      throw new Error('Invalid token');
+    }
+  });
+
+  setTestDbOverride({
+    collection(colName: string) {
+      return {
+        doc(docId: string) {
+          return {
+            async get() {
+              if (docId === 'uid-pending') {
+                return {
+                  exists: true,
+                  data() {
+                    return { status: 'PENDING_APPROVAL', isActive: false, role: 'VIEWER', userId: 'uid-pending' };
+                  }
+                };
+              }
+              if (docId === 'uid-rejected') {
+                return {
+                  exists: true,
+                  data() {
+                    return { status: 'REJECTED', isActive: false, role: 'VIEWER', userId: 'uid-rejected' };
+                  }
+                };
+              }
+              if (docId === 'uid-suspended') {
+                return {
+                  exists: true,
+                  data() {
+                    return { status: 'SUSPENDED', isActive: false, role: 'VIEWER', userId: 'uid-suspended' };
+                  }
+                };
+              }
+              if (docId === 'uid-supervisor') {
+                return {
+                  exists: true,
+                  data() {
+                    return {
+                      status: 'ACTIVE',
+                      isActive: true,
+                      role: 'SUPERVISOR',
+                      userId: 'USR-SITE-SUPERVISOR-01',
+                      fullName: 'المشرف الميداني',
+                      email: 'supervisor@qsaudi.com',
+                      assignedProjectIds: ['PRJ-NEOM-NORTH-01']
+                    };
+                  }
+                };
+              }
+              return { exists: false };
+            }
+          };
+        }
+      };
+    }
+  });
 
   const testAdminContext: AuthUserContext = {
     userId: 'USR-ADMIN-001',
@@ -245,7 +311,7 @@ async function runSuite() {
   });
 
   // 14. Express backend returns 401 UNAUTHORIZED_ACCESS when no Bearer authorization token is provided
-  test('TC-86B-14', 'Express middleware returns 401 when Authorization Bearer token is missing', () => {
+  test('TC-86B-14', 'Express middleware returns 401 when Authorization Bearer token is missing', async () => {
     const req: any = { headers: {} };
     let statusCode = 0;
     let responseBody: any = null;
@@ -261,17 +327,17 @@ async function runSuite() {
       },
     };
 
-    authenticateUser(req, res, () => {});
+    await authenticateUser(req, res, () => {});
 
     if (statusCode !== 401) throw new Error(`Expected status 401, got ${statusCode}`);
     if (responseBody?.code !== 'UNAUTHORIZED_ACCESS') throw new Error(`Expected code UNAUTHORIZED_ACCESS, got ${responseBody?.code}`);
   });
 
   // 15. Express backend returns 403 ACCOUNT_NOT_ACTIVE for non-ACTIVE users
-  test('TC-86B-15', 'Express middleware returns 403 ACCOUNT_NOT_ACTIVE for non-ACTIVE status tokens', () => {
+  test('TC-86B-15', 'Express middleware returns 403 ACCOUNT_NOT_ACTIVE for non-ACTIVE status tokens', async () => {
     const testCases = ['Bearer token-pending', 'Bearer token-rejected', 'Bearer token-suspended'];
 
-    testCases.forEach(authHeaderValue => {
+    for (const authHeaderValue of testCases) {
       const req: any = { headers: { authorization: authHeaderValue } };
       let statusCode = 0;
       let responseBody: any = null;
@@ -287,15 +353,15 @@ async function runSuite() {
         },
       };
 
-      authenticateUser(req, res, () => {});
+      await authenticateUser(req, res, () => {});
 
       if (statusCode !== 403) throw new Error(`Expected status 403 for ${authHeaderValue}, got ${statusCode}`);
       if (responseBody?.code !== 'ACCOUNT_NOT_ACTIVE') throw new Error(`Expected code ACCOUNT_NOT_ACTIVE, got ${responseBody?.code}`);
-    });
+    }
   });
 
   // 16. Express backend ignores client-supplied x-user-role and x-assigned-projects headers
-  test('TC-86B-16', 'Express middleware ignores client x-user-role privilege escalation attempt', () => {
+  test('TC-86B-16', 'Express middleware ignores client x-user-role privilege escalation attempt', async () => {
     const req: any = {
       headers: {
         authorization: 'Bearer token-supervisor',
@@ -310,7 +376,7 @@ async function runSuite() {
       json() { return this; },
     };
 
-    authenticateUser(req, res, () => { nextCalled = true; });
+    await authenticateUser(req, res, () => { nextCalled = true; });
 
     if (!nextCalled) throw new Error('Expected middleware to call next() for valid supervisor token');
     if (req.user.role !== 'SUPERVISOR') throw new Error(`Expected role SUPERVISOR, got ${req.user.role}`);

@@ -211,10 +211,22 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
     const fetchFleetReadModel = async () => {
       setIsFleetLoading(true);
       try {
+        const user = auth.currentUser;
+        if (!user) {
+          console.warn('Cannot fetch fleet read model: User not authenticated.');
+          setIsFleetLoading(false);
+          return;
+        }
+        const token = await user.getIdToken();
+        if (!token) {
+          console.warn('Cannot fetch fleet read model: Missing auth token.');
+          setIsFleetLoading(false);
+          return;
+        }
         // Attempt trusted server endpoint first, fallback to in-memory/direct read model service
         const res = await fetch(`/api/projects/${project.projectId}/fleet-read-model`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('auth_token') || 'system-admin'}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         if (res.ok) {
@@ -225,8 +237,8 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
             return;
           }
         }
-      } catch {
-        // Server fetch failed, resolve through local read model service
+      } catch (err) {
+        console.error('Server fetch fleet-read-model failed, falling back to local service:', err);
       }
 
       try {

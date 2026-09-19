@@ -1180,7 +1180,7 @@ app.get(
 // ----------------------------------------------------
 // 10C. Project Setup Provisioning (Phase 6)
 // ----------------------------------------------------
-app.post('/api/projects/:projectId/setup-material', enforceProjectIsolation, enforceDispatcherOrAbove, async (req, res) => {
+app.post('/api/projects/:projectId/setup-material', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
     const { projectId } = req.params;
     const { materialData } = req.body;
@@ -1193,7 +1193,7 @@ app.post('/api/projects/:projectId/setup-material', enforceProjectIsolation, enf
   }
 });
 
-app.post('/api/projects/:projectId/setup-carrier', enforceProjectIsolation, enforceDispatcherOrAbove, async (req, res) => {
+app.post('/api/projects/:projectId/setup-carrier', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
     const { projectId } = req.params;
     const { carrierData } = req.body;

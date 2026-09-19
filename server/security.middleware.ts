@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { adminConsoleService } from '../src/services/adminConsole.service';
+import { adminAuth, adminDb } from '../src/firebase/admin';
 
 export interface AuthenticatedUser {
   userId: string;
@@ -109,7 +110,7 @@ mockPricingRules.set('PRC-CONTRACT-2026-v1', {
  * Validates Firebase ID Token (Bearer Token) and resolves server-authoritative account status & role.
  * IGNORES client-supplied x-user-role and x-assigned-projects headers.
  */
-export function authenticateUser(req: Request, res: Response, next: NextFunction) {
+export async function authenticateUser(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -129,133 +130,81 @@ export function authenticateUser(req: Request, res: Response, next: NextFunction
     });
   }
 
-  // Handle explicit status test tokens for unit testing
-  const lowerToken = token.toLowerCase();
-  if (lowerToken.includes('pending')) {
-    return res.status(403).json({
-      success: false,
-      error: 'رفض أمني: حسابك قيد المراجعة والاعتماد (PENDING_APPROVAL). لا يمكنك استخدام الخدمات التشغيلية.',
-      code: 'ACCOUNT_NOT_ACTIVE',
-    });
-  }
-  if (lowerToken.includes('rejected')) {
-    return res.status(403).json({
-      success: false,
-      error: 'رفض أمني: تم رفض طلب الحساب (REJECTED).',
-      code: 'ACCOUNT_NOT_ACTIVE',
-    });
-  }
-  if (lowerToken.includes('suspended')) {
-    return res.status(403).json({
-      success: false,
-      error: 'رفض أمني: تم تعليق هذا الحساب (SUSPENDED).',
-      code: 'ACCOUNT_NOT_ACTIVE',
-    });
-  }
-
-  // Handle mock role test tokens
-  if (lowerToken.includes('supervisor')) {
-    (req as any).user = {
-      userId: 'USR-SITE-SUPERVISOR-01',
-      email: 'supervisor@qsaudi.com',
-      displayName: 'المشرف الميداني',
-      role: 'SUPERVISOR',
-      assignedProjectIds: ['PRJ-NEOM-NORTH-01'],
-    } as AuthenticatedUser;
-    return next();
-  }
-
-  if (lowerToken.includes('unauthorized-project')) {
-    (req as any).user = {
-      userId: 'USR-DISPATCHER-02',
-      email: 'dispatcher.unauth@qsaudi.com',
-      displayName: 'مرحل مشروع آخر',
-      role: 'DISPATCHER',
-      assignedProjectIds: ['PRJ-OTHER-PROJECT'],
-    } as AuthenticatedUser;
-    return next();
-  }
-
-  if (lowerToken.includes('admin') || lowerToken === 'test-token-active' || lowerToken === 'active-admin-token') {
-    (req as any).user = {
-      userId: 'USR-ADMIN-001',
-      email: 'admin@qsaudi.com',
-      displayName: 'مسؤول النظام',
-      role: 'PROJECT_ADMIN',
-      assignedProjectIds: ['PRJ-NEOM-NORTH-01', 'PRJ-REDSEA-RESORT-02'],
-    } as AuthenticatedUser;
-    return next();
-  }
-
-  // Parse JWT or match user from server-authoritative store
   try {
-    let userId = 'USR-SYSTEM-ADMIN';
-    let email = 'admin@qsaudi.com';
-    let displayName = 'مستخدم المصادقة';
-
-    if (token.includes('.')) {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payloadStr = Buffer.from(parts[1], 'base64').toString('utf-8');
-        const payload = JSON.parse(payloadStr);
-        if (payload.exp && payload.exp * 1000 < Date.now()) {
-          return res.status(401).json({
-            success: false,
-            error: 'رمز المصادقة منتهي الصلاحية (Token Expired).',
-            code: 'TOKEN_EXPIRED',
-          });
-        }
-        userId = payload.sub || payload.user_id || payload.uid || userId;
-        email = payload.email || email;
-        displayName = payload.name || displayName;
-      }
+    // C. Verify ID Token using real Firebase Admin verifier
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    
+    // D. Obtain uid ONLY from verified decoded token
+    const uid = decodedToken.uid;
+    if (!uid) {
+      return res.status(401).json({
+        success: false,
+        error: 'رمز مصادقة غير صالح: معرف المستخدم مفقود.',
+        code: 'INVALID_TOKEN',
+      });
     }
 
-    // Lookup user in server store
-    const serverUsers = adminConsoleService.getUsers();
-    const existingUser = serverUsers.find(u => u.userId === userId || u.email === email);
+    // E. Load the canonical user account from Firestore
+    const userDoc = await adminDb.collection('users').doc(uid).get();
 
-    if (existingUser) {
-      if (existingUser.status && existingUser.status !== 'ACTIVE') {
-        return res.status(403).json({
-          success: false,
-          error: `رفض أمني: الحساب ليس بحالة نشطة (${existingUser.status}).`,
-          code: 'ACCOUNT_NOT_ACTIVE',
-        });
-      }
-      if (!existingUser.isActive) {
-        return res.status(403).json({
-          success: false,
-          error: 'رفض أمني: الحساب معطل.',
-          code: 'ACCOUNT_NOT_ACTIVE',
-        });
-      }
-
-      (req as any).user = {
-        userId: existingUser.userId,
-        email: existingUser.email,
-        displayName: existingUser.fullName,
-        role: existingUser.role,
-        assignedProjectIds: existingUser.assignedProjectIds,
-      } as AuthenticatedUser;
-      return next();
+    // F. Reject if user document does not exist
+    if (!userDoc.exists) {
+      return res.status(401).json({
+        success: false,
+        error: 'حساب غير موجود: لم يتم العثور على سجل حساب لهذا المستخدم.',
+        code: 'USER_NOT_FOUND',
+      });
     }
 
-    // Default fallback for recognized system test admin or active tokens
+    const userData = userDoc.data();
+    if (!userData) {
+      return res.status(401).json({
+        success: false,
+        error: 'بيانات الحساب فارغة أو تالفة.',
+        code: 'USER_NOT_FOUND',
+      });
+    }
+
+    // G. Reject account when status !== ACTIVE or isActive === false
+    if (userData.status !== 'ACTIVE') {
+      let arabicStatus = userData.status || 'غير نشط';
+      if (userData.status === 'PENDING_APPROVAL') {
+        arabicStatus = 'قيد المراجعة والاعتماد (PENDING_APPROVAL)';
+      } else if (userData.status === 'REJECTED') {
+        arabicStatus = 'مرفوض (REJECTED)';
+      } else if (userData.status === 'SUSPENDED') {
+        arabicStatus = 'معلق (SUSPENDED)';
+      }
+      return res.status(403).json({
+        success: false,
+        error: `رفض أمني: حسابك ليس بحالة نشطة، حالته الحالية: ${arabicStatus}. لا يمكنك استخدام الخدمات التشغيلية.`,
+        code: 'ACCOUNT_NOT_ACTIVE',
+      });
+    }
+
+    if (userData.isActive === false) {
+      return res.status(403).json({
+        success: false,
+        error: 'رفض أمني: الحساب معطل.',
+        code: 'ACCOUNT_NOT_ACTIVE',
+      });
+    }
+
+    // H. Construct req.user ONLY from canonical server account state
     (req as any).user = {
-      userId,
-      email,
-      displayName,
-      role: 'PROJECT_ADMIN',
-      assignedProjectIds: ['PRJ-NEOM-NORTH-01', 'PRJ-REDSEA-RESORT-02'],
+      userId: userData.userId || uid,
+      email: userData.email || decodedToken.email || '',
+      displayName: userData.fullName || userData.displayName || decodedToken.name || 'مستخدم غير معروف',
+      role: userData.role || 'VIEWER',
+      assignedProjectIds: Array.isArray(userData.assignedProjectIds) ? userData.assignedProjectIds : [],
     } as AuthenticatedUser;
-    next();
 
-  } catch (err) {
+    next();
+  } catch (err: any) {
     console.error('[authenticateUser] Token verification error:', err);
     return res.status(401).json({
       success: false,
-      error: 'رمز المصادقة غير صالح.',
+      error: 'رمز المصادقة غير صالح أو منتهي الصلاحية.',
       code: 'INVALID_TOKEN',
     });
   }
