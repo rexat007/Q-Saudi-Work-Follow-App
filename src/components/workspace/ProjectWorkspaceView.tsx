@@ -480,22 +480,21 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
       };
 
       const user = auth.currentUser;
-      if (user) {
-        const token = await user.getIdToken();
-        const res = await fetch('/api/intake/canonical', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) {
-          const json = await res.json();
-          throw new Error(json.error || 'فشلت عملية التسجيل');
-        }
-      } else {
-        await driverTruckIntakeService.processSharedIntake(payload, authContext);
+      if (!user) {
+        throw new Error('يجب تسجيل الدخول كمسؤول أولاً لإجراء هذه العملية');
+      }
+      const token = await user.getIdToken();
+      const res = await fetch('/api/intake/canonical', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || 'فشلت عملية التسجيل');
       }
 
       setNewRosterDriver('');
