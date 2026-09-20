@@ -16,15 +16,13 @@ import {
   ChevronRight,
   Info
 } from 'lucide-react';
-import { ProjectEntity, CarrierEntity, MaterialEntity, PricingRuleEntity, ProjectCarrierRosterEntity, UserEntity } from '../../types/entities';
+import { ProjectEntity, CarrierEntity, MaterialEntity, PricingRuleEntity, UserEntity } from '../../types/entities';
 import { AuthUserContext } from '../../types/common';
 import { projectService } from '../../services/project.service';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
-import { projectCarrierRosterRepository } from '../../repositories/projectCarrierRoster.repository';
 import { driverTruckIntakeService } from '../../services/driverTruckIntake.service';
 import { userRepository } from '../../repositories/user.repository';
 import { ProjectFleetRowDTO } from '../../types/projectFleetReadModel';
-import { projectFleetReadModelService } from '../../services/projectFleetReadModel.service';
 import { useI18n } from '../../i18n';
 import { auth } from '../../firebase/config';
 
@@ -52,7 +50,7 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
   const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
   const [materials, setMaterials] = useState<MaterialEntity[]>([]);
   const [pricingRules, setPricingRules] = useState<PricingRuleEntity[]>([]);
-  const [roster, setRoster] = useState<ProjectCarrierRosterEntity[]>([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [fleetRows, setFleetRows] = useState<ProjectFleetRowDTO[]>([]);
   const [isFleetLoading, setIsFleetLoading] = useState(false);
   const [users, setUsers] = useState<UserEntity[]>([]);
@@ -198,15 +196,11 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
       setPricingRules(data);
     });
 
-    const unsubRoster = projectCarrierRosterRepository.subscribeByProject(project.projectId, (data) => {
-      setRoster(data);
-    });
-
     const unsubUsers = userRepository.subscribeToUsers((data) => {
       setUsers(data);
     });
 
-    // Phase 6 Unit 2D: Fetch Canonical Fleet Read Model
+    // Phase 6 Unit 2D: Fetch Canonical Fleet Read Model (Server-Only, No Local Fallback)
     let isCancelled = false;
     const fetchFleetReadModel = async () => {
       setIsFleetLoading(true);
@@ -223,31 +217,27 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
           setIsFleetLoading(false);
           return;
         }
-        // Attempt trusted server endpoint first, fallback to in-memory/direct read model service
         const res = await fetch(`/api/projects/${project.projectId}/fleet-read-model`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (res.ok) {
-          const json = await res.json();
-          if (!isCancelled && json.success && json.data) {
-            setFleetRows(json.data.rows || []);
-            setIsFleetLoading(false);
-            return;
-          }
+        if (!res.ok) {
+          throw new Error(`Server returned status ${res.status}`);
         }
-      } catch (err) {
-        console.error('Server fetch fleet-read-model failed, falling back to local service:', err);
-      }
-
-      try {
-        const localData = await projectFleetReadModelService.getProjectFleetReadModel(project.projectId);
+        const json = await res.json();
+        if (!json.success || !json.data) {
+          throw new Error(json.error || 'Failed to fetch fleet read model');
+        }
         if (!isCancelled) {
-          setFleetRows(localData.rows || []);
+          setFleetRows(json.data.rows || []);
         }
-      } catch (err) {
-        console.error('Failed to resolve fleet read model:', err);
+      } catch (err: any) {
+        console.error('Server fetch fleet-read-model failed:', err);
+        if (!isCancelled) {
+          setFleetRows([]);
+          setErrorMsg(isRtl ? 'فشل تحميل بيانات الأسطول من الخادم.' : 'Failed to fetch fleet data from server: ' + err.message);
+        }
       } finally {
         if (!isCancelled) {
           setIsFleetLoading(false);
@@ -260,10 +250,9 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
     return () => {
       isCancelled = true;
       unsubPricing();
-      unsubRoster();
       unsubUsers();
     };
-  }, [project]);
+  }, [project, refreshTrigger]);
 
   if (!project) {
     return (
@@ -503,22 +492,12 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
       setNewRosterResidency('');
       setNewRosterCarrier('');
       setNewRosterMaterial('');
-      showSuccess(isRtl ? 'تم تسجيل وتوثيق السائق والشاحنة في اللائحة والسجلات المركزية بنجاح' : 'Driver and truck enrolled globally & in roster successfully');
+      showSuccess(isRtl ? 'تم تسجيل وتوثيق السائق والشاحنة في الأسطول التشغيلي بنجاح' : 'Driver and truck registered to the Operational Fleet successfully');
+      setRefreshTrigger(prev => prev + 1);
     } catch (err: any) {
-      showError(err.message || 'Error adding to roster');
+      showError(err.message || 'Error adding to fleet');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  // 6. Delete Roster Entry
-  const handleDeleteRoster = async (rosterId: string) => {
-    if (!confirm(isRtl ? 'هل أنت متأكد من حذف هذا السائق/الشاحنة من اللائحة؟' : 'Are you sure you want to remove this driver/truck?')) return;
-    try {
-      await projectCarrierRosterRepository.delete(project.projectId, rosterId);
-      showSuccess(isRtl ? 'تم الحذف من اللائحة' : 'Removed from roster');
-    } catch (err: any) {
-      showError(err.message || 'Error removing roster entry');
     }
   };
 
@@ -644,7 +623,7 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
           switch (tab) {
             case 'data': label = isRtl ? 'البيانات' : 'Data'; break;
             case 'carriers': label = isRtl ? 'الناقلين' : 'Carriers'; break;
-            case 'drivers': label = isRtl ? 'اللائحة' : 'Roster'; break;
+            case 'drivers': label = isRtl ? 'الأسطول التشغيلي' : 'Operational Fleet'; break;
             case 'materials': label = isRtl ? 'المواد' : 'Materials'; break;
             case 'pricing': label = isRtl ? 'التسعير' : 'Pricing'; break;
             case 'access': label = isRtl ? 'الصلاحيات' : 'Access'; break;
@@ -1035,21 +1014,21 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
               </div>
             )}
 
-            {/* Legacy Roster Enrollment Notice */}
+            {/* Operational Fleet Notice */}
             <div className="p-3 bg-white/5 border border-white/10 rounded-lg text-white/60 text-xs">
               <span className="font-bold text-cyan-400">
                 {isRtl ? 'ملاحظة تشغيلية:' : 'Operational Note:'}
               </span>{' '}
               {isRtl
-                ? 'يعرض الجدول أعلاه أسطول المشروع الفعلي المشتق خادومياً من العضويات والتعيينات النشطة. نموذج التسجيل أدناه يواصل تسجيل البيانات في لائحة الناقلين.'
-                : 'The table above reflects the canonical active fleet derived from memberships and assignments. The enrollment form below continues legacy roster intake.'}
+                ? 'يعرض الجدول أعلاه الأسطول التشغيلي المعتمد للمشروع والمشتق من البيانات المركزية النشطة.'
+                : 'The table above reflects the canonical active operational fleet.'}
             </div>
 
             {/* New Roster Form */}
             <form id="form-enroll-roster" onSubmit={handleAddRoster} className="bg-[#0b0e12] border border-white/5 rounded-xl p-5 space-y-4">
               <h4 className="text-xs font-black text-cyan-400 flex items-center gap-1.5">
                 <Plus className="w-4 h-4" />
-                <span>{isRtl ? 'تسجيل وتوثيق سائق وشاحنة جديدة' : 'Enroll New Driver & Truck in Roster'}</span>
+                <span>{isRtl ? 'تسجيل وتوثيق سائق وشاحنة جديدة' : 'Register New Driver & Truck'}</span>
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1138,7 +1117,7 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
                   className="flex items-center gap-1.5 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-[#0f1115] font-bold text-xs rounded transition-all cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>{isRtl ? 'إدراج باللائحة' : 'Enroll Roster'}</span>
+                  <span>{isRtl ? 'تسجيل بالأسطول' : 'Register Fleet Pair'}</span>
                 </button>
               </div>
             </form>

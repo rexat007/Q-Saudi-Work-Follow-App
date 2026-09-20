@@ -6,12 +6,7 @@ import {
   ImportResult, 
   PipelineContext 
 } from '../../types/unifiedImport';
-import { DriverEntity, TruckEntity, ProjectCarrierRosterEntity } from '../../types/entities';
-import { driverRepository } from '../../repositories/driver.repository';
-import { truckRepository } from '../../repositories/truck.repository';
-import { carrierRepository } from '../../repositories/carrier.repository';
-import { projectCarrierRosterRepository } from '../../repositories/projectCarrierRoster.repository';
-import { auditLogService } from '../auditLog.service';
+import { auth } from '../../firebase/config';
 import { 
   normalizeName, 
   normalizePhone, 
@@ -478,146 +473,80 @@ export class DriverTruckImportCommitter {
   public async commit(batch: UnifiedImportBatch, context: PipelineContext): Promise<ImportResult> {
     const activeRows = batch.rows.filter((r) => r.status !== 'REJECTED' && r.reviewStatus !== 'error');
     const committedIds: string[] = [];
+    const importErrors: ImportIssue[] = [];
+    let failedRowsCount = 0;
 
-    // Fetch existing project roster count for sequence calculation
-    const existingRoster = await projectCarrierRosterRepository.listByProject(batch.projectId).catch(() => []);
-    let rosterSeq = (existingRoster?.length || 0) + 1;
+    const token = await auth.currentUser?.getIdToken();
 
     for (const row of activeRows) {
       const canonical = row.canonical || row.raw || {};
       const carrierId = row.entityResolutions?.carrier?.matchedId || context.knownEntities?.carriers?.[0]?.carrierId;
 
-      if (!carrierId) continue;
-
-      let createdTruckId = '';
-      let createdDriverId = '';
-
-      // A. Commit Truck if plate exists
-      if (canonical.truckPlate) {
-        const truckId = row.entityResolutions?.truck?.matchedId || `TRK-${normalizePlate(canonical.truckPlate)}`;
-        createdTruckId = truckId;
-
-        const truckPayload: TruckEntity = {
-          truckId,
-          plate: canonical.truckPlate,
-          normalizedPlate: normalizePlate(canonical.truckPlate),
-          carrierId,
-          projectId: batch.projectId,
-          status: 'ACTIVE',
-          truckType: canonical.truckType || 'TIPPER_32M3',
-          tareWeightKg: canonical.tareWeightKg || 14000,
-          maxGrossWeightKg: canonical.maxGrossWeightKg || 45000,
-          legalPayloadLimitKg: Math.max(0, (canonical.maxGrossWeightKg || 45000) - (canonical.tareWeightKg || 14000)),
-          createdAt: new Date().toISOString() as any,
-          updatedAt: new Date().toISOString() as any,
-          createdBy: context.userId,
-          updatedBy: context.userId,
-        };
-
-        await truckRepository.create(truckPayload);
-        committedIds.push(truckId);
-
-        // Audit Truck Creation
-        await auditLogService.recordLog({
-          projectId: batch.projectId,
-          entityType: 'TRUCK',
-          entityId: truckId,
-          action: 'CREATE',
-          after: truckPayload,
-        }, {
-          userId: context.userId,
-          email: context.userId,
-          displayName: context.userName || context.userId,
-          role: context.role as any,
-          assignedProjectIds: [batch.projectId],
+      if (!carrierId) {
+        failedRowsCount++;
+        importErrors.push({
+          issueId: `ISSUE-${row.rowNumber}-CARRIER-MISSING`,
+          row: row.rowNumber,
+          field: 'carrierName',
+          code: 'MISSING_CARRIER_ID',
+          severity: 'BLOCKING',
+          message: 'فشل الاستيراد لعدم تحديد معرف الناقل.',
+          messageAr: 'فشل الاستيراد لعدم تحديد معرف الناقل.',
+          resolvable: false,
+          blocking: true,
         });
+        continue;
       }
 
-      // B. Commit Driver if name exists
-      if (canonical.driverName) {
-        const globalDriverSeq = String(Math.floor(100000 + Math.random() * 900000));
-        const driverId = row.entityResolutions?.driver?.matchedId || `DRV-${globalDriverSeq}`;
-        createdDriverId = driverId;
-
-        const driverPayload: DriverEntity = {
-          driverId,
-          name: canonical.driverName,
-          normalizedName: normalizeName(canonical.driverName),
-          phone: canonical.driverPhone || '',
-          idNumber: canonical.driverIdentity || '',
-          carrierId,
-          projectId: batch.projectId,
-          status: 'ACTIVE',
-          currentAssignedTruckId: createdTruckId || undefined,
-          createdAt: new Date().toISOString() as any,
-          updatedAt: new Date().toISOString() as any,
-          createdBy: context.userId,
-          updatedBy: context.userId,
-        };
-
-        await driverRepository.create(driverPayload);
-        committedIds.push(driverId);
-
-        // Audit Driver Creation
-        await auditLogService.recordLog({
-          projectId: batch.projectId,
-          entityType: 'DRIVER' as any,
-          entityId: driverId,
-          action: 'CREATE',
-          after: driverPayload,
-        }, {
-          userId: context.userId,
-          email: context.userId,
-          displayName: context.userName || context.userId,
-          role: context.role as any,
-          assignedProjectIds: [batch.projectId],
-        });
-      }
-
-      // C. Safe reassignment of Driver -> Truck relationship if both created/resolved
-      if (createdDriverId && createdTruckId) {
-        await driverRepository.update(batch.projectId, createdDriverId, {
-          currentAssignedTruckId: createdTruckId
-        }, context.userId);
-      }
-
-      // D. Commit Project Carrier Roster Record
-      const rosterId = `${batch.projectId}-DRV-${String(rosterSeq++).padStart(5, '0')}`;
-      const rosterPayload: ProjectCarrierRosterEntity = {
-        rosterId,
+      // Convert canonical import row keys to canonical intake payload
+      const payload = {
         projectId: batch.projectId,
-        carrierId,
-        driverName: canonical.driverName || '',
-        plateNumber: canonical.truckPlate || '',
-        phone: canonical.driverPhone || '',
-        residencyId: canonical.driverIdentity || '',
-        globalDriverId: createdDriverId,
-        materialId: canonical.materialId || '',
-        materialIds: canonical.materialIds || [],
-        status: 'ACTIVE',
-        createdAt: new Date().toISOString() as any,
-        updatedAt: new Date().toISOString() as any,
-        createdBy: context.userId,
-        updatedBy: context.userId,
+        carrierId: carrierId,
+        materialId: canonical.materialId || context.knownEntities?.materials?.[0]?.materialId || 'GENERAL',
+        driverName: (canonical.driverName || '').trim(),
+        plateNumber: (canonical.truckPlate || '').trim().toUpperCase(),
+        phone: (canonical.driverPhone || '').trim() || undefined,
+        residencyId: (canonical.driverIdentity || '').trim() || undefined,
       };
 
-      await projectCarrierRosterRepository.create(rosterPayload);
-      committedIds.push(rosterId);
+      try {
+        const response = await fetch('/api/intake/canonical', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
 
-      // Audit Roster Creation
-      await auditLogService.recordLog({
-        projectId: batch.projectId,
-        entityType: 'ROSTER_ENTRY' as any,
-        entityId: rosterId,
-        action: 'CREATE',
-        after: rosterPayload,
-      }, {
-        userId: context.userId,
-        email: context.userId,
-        displayName: context.userName || context.userId,
-        role: context.role as any,
-        assignedProjectIds: [batch.projectId],
-      });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP ${response.status}`);
+        }
+
+        const resData = await response.json();
+        if (resData.affiliationId) {
+          committedIds.push(resData.affiliationId);
+        } else if (resData.assignmentId) {
+          committedIds.push(resData.assignmentId);
+        } else {
+          committedIds.push(`COM-${row.rowNumber}-${Date.now()}`);
+        }
+      } catch (err: any) {
+        console.error('Import Row commitment failed:', err);
+        failedRowsCount++;
+        importErrors.push({
+          issueId: `ISSUE-${row.rowNumber}-INTAKE-FAIL`,
+          row: row.rowNumber,
+          field: 'driverName',
+          code: 'CANONICAL_INTAKE_FAILED',
+          severity: 'BLOCKING',
+          message: `فشل الحفظ عبر البوابة الموحدة: ${err.message || 'خطأ غير معروف'}`,
+          messageAr: `فشل الحفظ عبر البوابة الموحدة: ${err.message || 'خطأ غير معروف'}`,
+          resolvable: false,
+          blocking: true,
+        });
+      }
     }
 
     return {
@@ -625,12 +554,12 @@ export class DriverTruckImportCommitter {
       projectId: batch.projectId,
       operationId: context.operationId,
       sourceType: batch.source.sourceType,
-      success: true,
+      success: failedRowsCount < activeRows.length,
       totalRows: batch.totalRows,
-      committedRows: activeRows.length,
-      skippedRows: batch.totalRows - activeRows.length,
-      failedRows: 0,
-      issues: batch.issues,
+      committedRows: activeRows.length - failedRowsCount,
+      skippedRows: (batch.totalRows - activeRows.length) + failedRowsCount,
+      failedRows: failedRowsCount,
+      issues: [...(batch.issues || []), ...importErrors],
       committedEntityIds: committedIds,
       executedAt: new Date().toISOString(),
     };

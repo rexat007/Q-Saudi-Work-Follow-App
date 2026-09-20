@@ -126,20 +126,10 @@ service cloud.firestore {
         allow delete: if false;
       }
 
-      // Project Carrier Roster subcollection (BLOCK 87)
+      // Project Carrier Roster subcollection (RETIRED — READ-ONLY)
       match /roster/{rosterId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(rosterId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
-                         isAuditStampedCreate(incoming()) &&
-                         incoming().rosterId == rosterId &&
-                         incoming().projectId == projectId;
-        allow update: if isSignedIn() && isValidId(rosterId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
-                         isAuditStampedUpdate(incoming()) &&
-                         incoming().rosterId == existing().rosterId &&
-                         incoming().projectId == existing().projectId;
-        allow delete: if false;
+        allow create, update, delete: if false;
       }
 
       // Pricing Rules subcollection
@@ -176,39 +166,16 @@ service cloud.firestore {
         allow delete: if false;
       }
 
-      // Trucks subcollection
+      // Trucks subcollection (RETIRED — READ-ONLY)
       match /trucks/{truckId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(truckId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SUPER_ADMIN']) &&
-                         isAuditStampedCreate(incoming()) &&
-                         incoming().truckId == truckId &&
-                         incoming().projectId == projectId &&
-                         incoming().carrierId is string && incoming().carrierId.size() > 0;
-        allow update: if isSignedIn() && isValidId(truckId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SUPER_ADMIN']) &&
-                         isAuditStampedUpdate(incoming()) &&
-                         incoming().truckId == existing().truckId &&
-                         incoming().projectId == existing().projectId &&
-                         incoming().carrierId == existing().carrierId; // Truck cannot be reassigned to another carrier
-        allow delete: if false;
+        allow create, update, delete: if false;
       }
 
-      // Drivers subcollection
+      // Drivers subcollection (RETIRED — READ-ONLY)
       match /drivers/{driverId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(driverId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SUPER_ADMIN']) &&
-                         isAuditStampedCreate(incoming()) &&
-                         incoming().driverId == driverId &&
-                         incoming().projectId == projectId &&
-                         incoming().carrierId is string && incoming().carrierId.size() > 0;
-        allow update: if isSignedIn() && isValidId(driverId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SUPER_ADMIN']) &&
-                         isAuditStampedUpdate(incoming()) &&
-                         incoming().driverId == existing().driverId &&
-                         incoming().projectId == existing().projectId;
-        allow delete: if false;
+        allow create, update, delete: if false;
       }
 
       // =======================================================================

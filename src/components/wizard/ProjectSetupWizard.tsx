@@ -28,15 +28,13 @@ import {
   LayoutDashboard
 } from 'lucide-react';
 import { useI18n } from '../../i18n';
-import { ProjectEntity, MaterialEntity, CarrierEntity, PricingRuleEntity, ProjectCarrierRosterEntity } from '../../types/entities';
+import { ProjectEntity, MaterialEntity, CarrierEntity, PricingRuleEntity } from '../../types/entities';
 import { AuthUserContext } from '../../types/common';
 import { projectService } from '../../services/project.service';
 import { projectRepository } from '../../repositories/project.repository';
 import { materialRepository } from '../../repositories/material.repository';
 import { carrierRepository } from '../../repositories/carrier.repository';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
-import { projectCarrierRosterRepository } from '../../repositories/projectCarrierRoster.repository';
-import { projectCarrierRosterService } from '../../services/projectCarrierRoster.service';
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
 import { auth } from '../../firebase/config';
@@ -73,7 +71,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [materials, setMaterials] = useState<MaterialEntity[]>([]);
   const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
   const [pricingRules, setPricingRules] = useState<PricingRuleEntity[]>([]);
-  const [roster, setRoster] = useState<ProjectCarrierRosterEntity[]>([]);
+  const [fleetRows, setFleetRows] = useState<any[]>([]);
 
   // Editing Forms and Modals
   const [isAddingMaterial, setIsAddingMaterial] = useState(false);
@@ -137,22 +135,24 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setMaterials([]);
       setCarriers([]);
       setPricingRules([]);
-      setRoster([]);
+      setFleetRows([]);
       return;
     }
 
-    // Load canonical lists
+    // Load canonical lists and fleet rows
     const fetchCanonicalData = async () => {
       try {
         const token = await auth.currentUser?.getIdToken();
         const headers = { 'Authorization': `Bearer ${token}` };
         
-        const [matRes, carRes] = await Promise.all([
+        const [matRes, carRes, fleetRes] = await Promise.all([
           fetch(`/api/projects/${editingProjectId}/materials`, { headers }).then(r => r.json()),
-          fetch(`/api/projects/${editingProjectId}/carriers`, { headers }).then(r => r.json())
+          fetch(`/api/projects/${editingProjectId}/carriers`, { headers }).then(r => r.json()),
+          fetch(`/api/projects/${editingProjectId}/fleet-read-model`, { headers }).then(r => r.json())
         ]);
         setMaterials(matRes.data || []);
         setCarriers(carRes.data || []);
+        setFleetRows(fleetRes.data?.rows || []);
       } catch (err) {
         console.error('Failed to load canonical data', err);
       }
@@ -163,13 +163,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const unsubP = pricingRuleRepository.subscribeByProject(editingProjectId, (list) => {
       setPricingRules(list || []);
     });
-    const unsubR = projectCarrierRosterRepository.subscribeByProject(editingProjectId, (list) => {
-      setRoster(list || []);
-    });
 
     return () => {
       unsubP();
-      unsubR();
     };
   }, [editingProjectId]);
 
@@ -232,12 +228,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       { id: 'foundation', text: 'تكوين بيانات التأسيس والعميل', isDone: !!project.nameAr && !!project.clientName },
       { id: 'materials', text: 'إضافة مادة واحدة على الأقل للمشروع', isDone: materials.length > 0 },
       { id: 'carriers', text: 'إضافة ناقل واحد معتمد على الأقل', isDone: carriers.length > 0 },
-      { id: 'roster', text: 'تسجيل سائق واحد على الأقل في سجل التشغيل', isDone: roster.length > 0 },
+      { id: 'roster', text: 'تسجيل شاحنة واحدة نشطة على الأقل في الأسطول التشغيلي', isDone: fleetRows.length > 0 },
       { id: 'pricing', text: 'تهيئة قواعد الأسعار والتعرفة', isDone: pricingRules.length > 0 },
       { id: 'conflicts', text: 'خلو المشروع من تضارب تداخل الأسعار', isDone: pricingConflicts.length === 0 },
       { id: 'google_sync', text: 'مزامنة وتهيئة ملفات Google Workspace', isDone: !!project.settings?.googleSpreadsheetId }
     ];
-  }, [project, materials, carriers, roster, pricingRules, pricingConflicts]);
+  }, [project, materials, carriers, fleetRows, pricingRules, pricingConflicts]);
 
   const isReadinessGreen = useMemo(() => {
     return readinessChecklist.every(item => item.isDone);
@@ -408,33 +404,59 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  // Phase 2: Add Roster Row Manually
+  // Phase 2: Add Fleet Row Manually (Uses canonical intake API)
   const handleAddRosterManual = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!project || isLocked) return;
 
+    if (!rostDriverName.trim() || !rostPlate.trim() || !rostCarrier || !rostMaterial || !rostResidency.trim()) {
+      alert('الرجاء تعبئة جميع الحقول المطلوبة بما في ذلك الهوية الوطنية ورقم اللوحة والناقل والمادة');
+      return;
+    }
+
     try {
-      const rosterId = `ROS-${project.projectId}-${String(roster.length + 1).padStart(3, '0')}`;
-      const payload: Omit<ProjectCarrierRosterEntity, 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'> = {
-        rosterId,
+      const payload = {
         projectId: project.projectId,
         carrierId: rostCarrier,
         materialId: rostMaterial,
         driverName: rostDriverName.trim(),
-        plateNumber: rostPlate.trim(),
-        phone: rostPhone.trim(),
+        plateNumber: rostPlate.trim().toUpperCase(),
+        phone: rostPhone.trim() || undefined,
         residencyId: rostResidency.trim(),
-        status: 'ACTIVE'
       };
 
-      await projectCarrierRosterService.addRosterEntry(payload, authContext);
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch('/api/intake/canonical', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        const errJson = await response.json();
+        throw new Error(errJson.error || 'فشلت عملية التسجيل التشغيلي');
+      }
+
       setIsAddingRosterRow(false);
       setRostDriverName('');
       setRostPlate('');
       setRostPhone('');
       setRostResidency('');
+      setRostCarrier('');
+      setRostMaterial('');
+
+      // Reload canonical lists/fleet model
+      const headers = { 'Authorization': `Bearer ${token}` };
+      const [matRes, carRes, fleetRes] = await Promise.all([
+        fetch(`/api/projects/${project.projectId}/materials`, { headers }).then(r => r.json()),
+        fetch(`/api/projects/${project.projectId}/carriers`, { headers }).then(r => r.json()),
+        fetch(`/api/projects/${project.projectId}/fleet-read-model`, { headers }).then(r => r.json())
+      ]);
+      setMaterials(matRes.data || []);
+      setCarriers(carRes.data || []);
+      setFleetRows(fleetRes.data?.rows || []);
+
     } catch (err: any) {
-      alert(err.message || 'خطأ في إضافة سجل التشغيل');
+      alert(err.message || 'خطأ في إضافة شريك التشغيل');
     }
   };
 
@@ -525,62 +547,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  // Sync Roster from Project's Google Sheets
+  // Sync Roster from Project's Google Sheets (Disabled direct write, directs to reviewed import)
   const handleSyncRosterFromSheet = async () => {
-    if (!project || !project.settings?.googleSpreadsheetId) {
-      alert('الرجاء تهيئة شيت قوقل أولاً في المرحلة الأولى');
-      return;
-    }
-    setIsSyncingGoogle(true);
-
-    try {
-      await clientWorkspaceService.requestGoogleScopes();
-      const res = await clientWorkspaceService.getSpreadsheetValues(
-        project.settings.googleSpreadsheetId,
-        'Trips Log'
-      );
-
-      if (!res.values || res.values.length <= 1) {
-        alert('ورقة العمل Trips Log فارغة أو لا تحتوي على أعمدة');
-        return;
-      }
-
-      // Map rows from spreadsheet to project roster
-      let successCount = 0;
-      for (let i = 1; i < res.values.length; i++) {
-        const row = res.values[i];
-        if (!row[0] || !row[1]) continue; // Skip empty rows
-
-        try {
-          const driverName = String(row[0]).trim();
-          const plate = String(row[1]).trim();
-          const phone = row[2] ? String(row[2]).trim() : '+966500000000';
-          const residency = row[3] ? String(row[3]).trim() : '';
-
-          const rosterId = `ROS-GS-${project.projectId}-${Date.now().toString(36)}-${i}`;
-          await projectCarrierRosterService.addRosterEntry({
-            rosterId,
-            projectId: project.projectId,
-            carrierId: carriers[0]?.carrierId || 'GENERAL',
-            materialId: materials[0]?.materialId || 'GENERAL',
-            driverName,
-            plateNumber: plate,
-            phone,
-            residencyId: residency,
-            status: 'ACTIVE'
-          }, authContext);
-          successCount++;
-        } catch (rowErr) {
-          console.warn('Skipping row due to error:', rowErr);
-        }
-      }
-
-      alert(`تم استيراد ومزامنة ${successCount} سجلات من شيت قوقل بنجاح!`);
-    } catch (err: any) {
-      alert(err.message || 'خطأ أثناء مزامنة شيت قوقل');
-    } finally {
-      setIsSyncingGoogle(false);
-    }
+    alert(isRTL 
+      ? 'تم إيقاف المزامنة المباشرة لأوراق العمل إلى السجلات لحماية البيانات. يرجى استخدام بوابة الاستيراد المعتمدة والمراجعة من لوحة البيانات (Import Center) لمراجعة واعتماد السجلات أولاً.' 
+      : 'Direct Google Sheets sync has been disabled for security and data protection. Please use the Import Center on the dashboard to review and commit records safely.');
   };
 
   // Phase 3: Add Pricing Rule
@@ -1435,40 +1406,36 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                   )}
 
-                  {/* Roster Data Table */}
-                  {roster.length === 0 ? (
-                    <p className="text-center text-stone-500 py-6">سجل التشغيل فارغ حالياً.</p>
+                  {/* Fleet Data Table */}
+                  {fleetRows.length === 0 ? (
+                    <p className="text-center text-stone-500 py-6">الأسطول التشغيلي فارغ حالياً.</p>
                   ) : (
                     <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
                       <table className="w-full text-right">
                         <thead className="sticky top-0 bg-stone-950 z-10">
                           <tr className="border-b border-stone-800 text-stone-500 font-black text-[11px]">
-                            <th className="pb-2">معرف سجل Roster</th>
+                            <th className="pb-2">معرف الشاحنة</th>
                             <th className="pb-2">اسم السائق</th>
-                            <th className="pb-2">رقم الجوال</th>
                             <th className="pb-2">رقم اللوحة</th>
-                            <th className="pb-2">رقم الهوية</th>
                             <th className="pb-2">الناقل</th>
-                            <th className="pb-2">تاريخ الإدراج</th>
+                            <th className="pb-2">المادة المعتمدة</th>
+                            <th className="pb-2">حالة التعيين</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {roster.map((r) => (
-                            <tr key={r.rosterId} className="border-b border-stone-850 text-stone-300 font-semibold">
-                              <td className="py-2.5 font-mono">{r.rosterId}</td>
-                              <td className="py-2.5">{r.driverName}</td>
-                              <td className="py-2.5 font-mono">{r.phone}</td>
+                          {fleetRows.map((r) => (
+                            <tr key={r.truckId} className="border-b border-stone-850 text-stone-300 font-semibold">
+                              <td className="py-2.5 font-mono">{r.truckId}</td>
+                              <td className="py-2.5">{r.driverName || '—'}</td>
                               <td className="py-2.5 font-mono">{r.plateNumber}</td>
-                              <td className="py-2.5 font-mono">{r.residencyId || '—'}</td>
-                              <td className="py-2.5 truncate font-bold">{carriers.find(c => c.carrierId === r.carrierId)?.name || r.carrierId}</td>
-                              <td className="py-2.5 font-mono text-[10px] text-stone-500">
-                                {r.createdAt ? (
-                                  (r.createdAt as any).seconds 
-                                    ? new Date((r.createdAt as any).seconds * 1000).toLocaleDateString()
-                                    : r.createdAt instanceof Date 
-                                      ? r.createdAt.toLocaleDateString()
-                                      : '—'
-                                ) : '—'}
+                              <td className="py-2.5 font-semibold">{r.carrierName}</td>
+                              <td className="py-2.5">{r.materialName || '—'}</td>
+                              <td className="py-2.5">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] ${
+                                  r.assignmentStatus === 'ASSIGNMENT_ACTIVE' ? 'bg-emerald-950 text-emerald-400' : 'bg-stone-900 text-stone-500'
+                                }`}>
+                                  {r.assignmentStatus}
+                                </span>
                               </td>
                             </tr>
                           ))}
