@@ -290,8 +290,17 @@ export const MasterDataView: React.FC<{
       return;
     }
 
+    if (!user) {
+      throw new Error('يجب تسجيل الدخول لتنفيذ هذه العملية');
+    }
+
     try {
-      await masterDataService.setEntityStatus(selectedProjectId, entityType, entityId, newStatus, MOCK_AUTH_CONTEXT);
+      await masterDataService.setEntityStatus(selectedProjectId, entityType, entityId, newStatus, {
+        userId: user.uid,
+        email: user.email || '',
+        displayName: user.displayName || 'User',
+        role: 'PROJECT_ADMIN'
+      });
       setActionNotice({
         type: 'success',
         message: `تم تحديث حالة السجل (${entityId}) بنجاح إلى [${newStatus}].`,
@@ -388,12 +397,21 @@ export const MasterDataView: React.FC<{
       return;
     }
 
+    if (!user) {
+      throw new Error('يجب تسجيل الدخول لتنفيذ هذه العملية');
+    }
+
     try {
       const res = await masterDataService.deleteMasterEntity(
         selectedProjectId,
         deleteModal.entityType,
         deleteModal.entityId,
-        MOCK_AUTH_CONTEXT
+        {
+          userId: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || 'User',
+          role: 'PROJECT_ADMIN'
+        }
       );
       setDeleteModal(prev => ({
         ...prev,
@@ -408,74 +426,6 @@ export const MasterDataView: React.FC<{
         ...prev,
         error: err.message,
       }));
-    }
-  };
-
-  // Authorization toggle for Carrier
-  const handleToggleCarrierAuth = async (carrierId: string, currentAuth: boolean) => {
-    if (!selectedProjectId) return;
-
-    if (!user) {
-      setProjects(prev => prev.map(p => {
-        if (p.projectId !== selectedProjectId) return p;
-        const currentList = p.authorizedCarrierIds || [];
-        const nextList = currentAuth ? currentList.filter(id => id !== carrierId) : [...currentList, carrierId];
-        return { ...p, authorizedCarrierIds: nextList };
-      }));
-      setActionNotice({
-        type: 'success',
-        message: !currentAuth 
-          ? `تم تصريح الناقل (${carrierId}) للعمل في هذا المشروع (وضع المعاينة).`
-          : `تم إلغاء تصريح الناقل (${carrierId}) من هذا المشروع (وضع المعاينة).`,
-      });
-      return;
-    }
-
-    try {
-      await masterDataService.toggleCarrierAuthorization(selectedProjectId, carrierId, !currentAuth, MOCK_AUTH_CONTEXT);
-      setActionNotice({
-        type: 'success',
-        message: !currentAuth 
-          ? `تم تصريح الناقل (${carrierId}) للعمل في هذا المشروع.`
-          : `تم إلغاء تصريح الناقل (${carrierId}) من هذا المشروع.`,
-      });
-      await refreshOverview(selectedProjectId);
-    } catch (err: any) {
-      setActionNotice({ type: 'error', message: err.message });
-    }
-  };
-
-  // Authorization toggle for Material
-  const handleToggleMaterialAuth = async (materialId: string, currentAuth: boolean) => {
-    if (!selectedProjectId) return;
-
-    if (!user) {
-      setProjects(prev => prev.map(p => {
-        if (p.projectId !== selectedProjectId) return p;
-        const currentList = p.authorizedMaterialIds || [];
-        const nextList = currentAuth ? currentList.filter(id => id !== materialId) : [...currentList, materialId];
-        return { ...p, authorizedMaterialIds: nextList };
-      }));
-      setActionNotice({
-        type: 'success',
-        message: !currentAuth 
-          ? `تم اعتماد توريد المادة (${materialId}) في هذا المشروع (وضع المعاينة).`
-          : `تم حظر توريد المادة (${materialId}) من هذا المشروع (وضع المعاينة).`,
-      });
-      return;
-    }
-
-    try {
-      await masterDataService.toggleMaterialAuthorization(selectedProjectId, materialId, !currentAuth, MOCK_AUTH_CONTEXT);
-      setActionNotice({
-        type: 'success',
-        message: !currentAuth 
-          ? `تم اعتماد توريد المادة (${materialId}) في هذا المشروع.`
-          : `تم حظر توريد المادة (${materialId}) من هذا المشروع.`,
-      });
-      await refreshOverview(selectedProjectId);
-    } catch (err: any) {
-      setActionNotice({ type: 'error', message: err.message });
     }
   };
 
@@ -518,9 +468,9 @@ export const MasterDataView: React.FC<{
         contactPhone: '+966500000001',
         contactEmail: 'carrier@q-saudi.sa'
       }, {
-        userId: user?.uid || MOCK_AUTH_CONTEXT.userId,
-        email: user?.email || MOCK_AUTH_CONTEXT.email,
-        displayName: user?.displayName || 'Admin',
+        userId: user.uid,
+        email: user.email || '',
+        displayName: user.displayName || 'Admin',
         role: 'PROJECT_ADMIN'
       });
       setCreateModal({ isOpen: false, entityType: 'CARRIER' });
@@ -568,9 +518,9 @@ export const MasterDataView: React.FC<{
         unitOfMeasure: newMaterial.uom,
         standardDensityTonPerM3: 1.6
       }, {
-        userId: user?.uid || MOCK_AUTH_CONTEXT.userId,
-        email: user?.email || MOCK_AUTH_CONTEXT.email,
-        displayName: user?.displayName || 'Admin',
+        userId: user.uid,
+        email: user.email || '',
+        displayName: user.displayName || 'Admin',
         role: 'PROJECT_ADMIN'
       });
       setCreateModal({ isOpen: false, entityType: 'MATERIAL' });
@@ -734,8 +684,8 @@ export const MasterDataView: React.FC<{
   };
 
   const currentProject = projects.find(p => p.projectId === selectedProjectId);
-  const authCarrierIds = new Set(currentProject?.authorizedCarrierIds || overview?.authorizedCarriers.map(c => c.carrierId) || []);
-  const authMaterialIds = new Set(currentProject?.authorizedMaterialIds || overview?.authorizedMaterials.map(m => m.materialId) || []);
+  const authCarrierIds = new Set(overview?.authorizedCarriers.map(c => c.carrierId) || []);
+  const authMaterialIds = new Set(overview?.authorizedMaterials.map(m => m.materialId) || []);
 
   return (
     <div className="space-y-6">
@@ -1129,12 +1079,11 @@ export const MasterDataView: React.FC<{
                           {carrier.commercialRegistrationNo || '—'}
                         </td>
                         <td className="py-3 px-4">
-                          <button
-                            onClick={() => handleToggleCarrierAuth(carrier.carrierId, isAuthorized)}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
                               isAuthorized
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200'
-                                : 'bg-stone-100 text-stone-500 border border-stone-200 hover:bg-stone-200'
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                : 'bg-stone-100 text-stone-500 border border-stone-200'
                             }`}
                             title={t("other.labels.carrierProject_2")}
                           >
@@ -1149,7 +1098,7 @@ export const MasterDataView: React.FC<{
                                 <span>غير مصرح</span>
                               </>
                             )}
-                          </button>
+                          </span>
                         </td>
                         <td className="py-3 px-4">
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${
@@ -1246,12 +1195,11 @@ export const MasterDataView: React.FC<{
                           {mat.unitOfMeasure === 'TON' ? 'طن (TON)' : mat.unitOfMeasure === 'M3' ? 'متر مكعب (M3)' : 'بالرد (TRIP)'}
                         </td>
                         <td className="py-3 px-4">
-                          <button
-                            onClick={() => handleToggleMaterialAuth(mat.materialId, isAuthorized)}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
                               isAuthorized
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200'
-                                : 'bg-stone-100 text-stone-500 border border-stone-200 hover:bg-stone-200'
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                : 'bg-stone-100 text-stone-500 border border-stone-200'
                             }`}
                             title={t("other.labels.materialProject_3")}
                           >
@@ -1266,7 +1214,7 @@ export const MasterDataView: React.FC<{
                                 <span>غير مصرح</span>
                               </>
                             )}
-                          </button>
+                          </span>
                         </td>
                         <td className="py-3 px-4">
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${

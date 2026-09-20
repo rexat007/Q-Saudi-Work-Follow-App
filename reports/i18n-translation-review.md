@@ -3,7 +3,7 @@
 This document contains domain-specific terminology requiring human verification and professional translation.
 **Instructions:** Review Arabic canonical terminology, provide precise English and Urdu terms, and maintain parameter names.
 
-## Domain: `trips` (713 items requiring review)
+## Domain: `trips` (714 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -19,7 +19,7 @@ This document contains domain-specific terminology requiring human verification 
 | `trips.columns.pricing` | "قاعدة التسعير غير صالحة أو غير نشطة" | call_toThrow | `MEDIUM` | Semantic conflict isolation |
 | `trips.columns.pricing_2` | "قاعدة التسعير منتهية الصلاحية" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
 | `trips.columns.project` | "ليس لديه عضوية نشطة (ACTIVE) في هذا المشروع" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
-| `trips.columns.project_2` | "ليس لديها عضوية نشطة (ACTIVE) في هذا المشروع" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.project_2` | "ليس لديها عضوية نشطة (ACTIVE) في هذا المشروع" | call_toThrow | `MEDIUM` | Semantic conflict isolation |
 | `trips.columns.projects` | "projects" | call_collection | `MEDIUM` | Domain-specific terminology translation |
 | `trips.columns.qPrj0001Trp00001` | "Q-PRJ-0001-TRP-00001" | call_startsWith | `MEDIUM` | Domain-specific terminology translation |
 | `trips.columns.qPrj0025Trp00015` | "Q-PRJ-0025-TRP-00015" | call_startsWith | `MEDIUM` | Domain-specific terminology translation |
@@ -27,7 +27,7 @@ This document contains domain-specific terminology requiring human verification 
 | `trips.columns.truck` | "الشاحنة المحددة غير موجودة في الهوية الموحدة أو غير مصرح لها بالعمل" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
 | `trips.columns.txt_36b28f` | "مخصصة للمادة (MAT-GLOBAL-01) وليس للمادة المختارة (MAT-GLOBAL-02)" | call_toThrow | `HIGH` | Domain-specific terminology translation |
 | `trips.columns.txt_3e5705` | "تابع للناقل (CAR-GLOBAL-01) وليس للناقل المختار (CAR-GLOBAL-02)" | call_toThrow | `HIGH` | Domain-specific terminology translation |
-| ... | *and 693 more items in this domain queue* | | | |
+| ... | *and 694 more items in this domain queue* | | | |
 
 ## Domain: `loading` (279 items requiring review)
 
@@ -237,7 +237,7 @@ This document contains domain-specific terminology requiring human verification 
 | `security.fields.successConfirmTrucksEditPricing` | "اجتاز النظام بنجاح تام كافة الاختبارات الأمنية الـ (${results.length}) بنسبة امتثال 100%. تم رفض محاولات Supervisor غير المصرح بها (carrierId, projectId, pricingRuleId, settlementAmount, status, truckId)، وتأكيد العزل بين المشاريع، وحظر تضارب الشاحنات مع الناقلين، وفرض النسخ عند التعديل (Copy-on-Write) لحماية التسعير التاريخي، وتأمين Idempotency ضد Replay Attacks." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [projectId,carrierId,status,settlementAmount]) |
 | ... | *and 514 more items in this domain queue* | | | |
 
-## Domain: `offline` (302 items requiring review)
+## Domain: `offline` (300 items requiring review)
 
 | Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -261,7 +261,7 @@ This document contains domain-specific terminology requiring human verification 
 | `offline.fields.download_2` | "الخيار القياسي المعتمد: المحافظة على سعر لقطة وثيقة التحميل (Lock Snapshot Rate)" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `offline.fields.edit` | "يتطلب موافقة خطية ومبرراً رسمياً لتعديل سعر التعاقد الأصلي للرحلة." | jsx_text | `MEDIUM` | Domain-specific terminology translation |
 | `offline.fields.editPriceCreateTrip` | "تم تعديل السعر المعتمد على الخادم بعد إنشاء الرحلة Offline" | prop_reasonAr | `MEDIUM` | Domain-specific terminology translation |
-| ... | *and 282 more items in this domain queue* | | | |
+| ... | *and 280 more items in this domain queue* | | | |
 
 ## Domain: `exceptions` (299 items requiring review)
 
