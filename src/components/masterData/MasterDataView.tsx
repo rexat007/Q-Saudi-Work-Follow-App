@@ -41,12 +41,7 @@ import { useI18n } from '../../i18n';
 import { ProjectsDashboard } from '../wizard/ProjectsDashboard';
 
 
-const MOCK_AUTH_CONTEXT = {
-  userId: 'USR-ADMIN-01',
-  role: 'PROJECT_ADMIN' as const,
-  email: 'admin@q-saudi.sa',
-  displayName: 'مدير العمليات اللوجستية',
-};
+
 
 export const MasterDataView: React.FC<{
   projects?: ProjectEntity[];
@@ -434,28 +429,8 @@ export const MasterDataView: React.FC<{
     e.preventDefault();
     if (!selectedProjectId || !newCarrier.carrierId || !newCarrier.name) return;
 
-    const carrierEntity: CarrierEntity = {
-      carrierId: newCarrier.carrierId.trim().toUpperCase(),
-      projectId: selectedProjectId,
-      name: newCarrier.name.trim(),
-      normalizedName: normalizeName(newCarrier.name.trim()),
-      status: 'ACTIVE',
-      companyNameAr: newCarrier.name.trim(),
-      commercialRegistrationNo: newCarrier.crNo,
-      isActive: true,
-      createdAt: new Date(),
-      createdBy: MOCK_AUTH_CONTEXT.userId,
-      updatedAt: new Date(),
-      updatedBy: MOCK_AUTH_CONTEXT.userId,
-    };
-
     if (!user) {
-      const updated = [carrierEntity, ...localCarriers];
-      setLocalCarriers(updated);
-      setCreateModal({ isOpen: false, entityType: 'CARRIER' });
-      setNewCarrier({ carrierId: '', name: '', crNo: '1010000000', phone: '+966500000001' });
-      setOverview(buildLocalOverview(selectedProjectId, updated, localMaterials, localTrucks, localDrivers));
-      setActionNotice({ type: 'success', message: 'تم إضافة الناقل بنجاح مع التطبيع التلقائي للاسم (محلياً).' });
+      setActionNotice({ type: 'error', message: 'يجب تسجيل الدخول لتنفيذ عملية إضافة الناقل (Fail Closed).' });
       return;
     }
 
@@ -486,28 +461,8 @@ export const MasterDataView: React.FC<{
     e.preventDefault();
     if (!selectedProjectId || !newMaterial.materialId || !newMaterial.name) return;
 
-    const matEntity: MaterialEntity = {
-      materialId: newMaterial.materialId.trim().toUpperCase(),
-      projectId: selectedProjectId,
-      name: newMaterial.name.trim(),
-      normalizedName: normalizeName(newMaterial.name.trim()),
-      code: normalizeCode(newMaterial.code),
-      status: 'ACTIVE',
-      unitOfMeasure: newMaterial.uom,
-      isActive: true,
-      createdAt: new Date(),
-      createdBy: MOCK_AUTH_CONTEXT.userId,
-      updatedAt: new Date(),
-      updatedBy: MOCK_AUTH_CONTEXT.userId,
-    };
-
     if (!user) {
-      const updated = [matEntity, ...localMaterials];
-      setLocalMaterials(updated);
-      setCreateModal({ isOpen: false, entityType: 'MATERIAL' });
-      setNewMaterial({ materialId: '', name: '', code: 'AGG-02', uom: 'TON' });
-      setOverview(buildLocalOverview(selectedProjectId, localCarriers, updated, localTrucks, localDrivers));
-      setActionNotice({ type: 'success', message: 'تم إضافة المادة بنجاح وتطبيع الرمز والاسم (محلياً).' });
+      setActionNotice({ type: 'error', message: 'يجب تسجيل الدخول لتنفيذ عملية إضافة المادة (Fail Closed).' });
       return;
     }
 
@@ -584,11 +539,17 @@ export const MasterDataView: React.FC<{
         throw new Error('لم يتم توفير ملف أو مصفوفة بيانات صالحة.');
       }
 
+      if (!user) {
+        setImportErrorMessage('يجب تسجيل الدخول لتنفيذ عمليات الاستيراد (Fail Closed).');
+        setImportProcessing(false);
+        return;
+      }
+
       const pipelineContext = {
         projectId: selectedProjectId,
-        userId: user?.uid || MOCK_AUTH_CONTEXT.userId,
-        userName: user?.displayName || MOCK_AUTH_CONTEXT.displayName,
-        role: (user as any)?.role || MOCK_AUTH_CONTEXT.role,
+        userId: user.uid,
+        userName: user.displayName || 'User',
+        role: (user as any)?.role || 'PROJECT_ADMIN',
         operationId: `OP-IMPORT-${Date.now()}`,
         knownEntities: {
           carriers: overview?.allCarriers || [],
@@ -621,11 +582,17 @@ export const MasterDataView: React.FC<{
     setImportSuccessMessage(null);
 
     try {
+      if (!user) {
+        setImportErrorMessage('يجب تسجيل الدخول لتنفيذ عمليات اعتماد الاستيراد (Fail Closed).');
+        setImportCommitting(false);
+        return;
+      }
+
       const pipelineContext = {
         projectId: selectedProjectId,
-        userId: user?.uid || MOCK_AUTH_CONTEXT.userId,
-        userName: user?.displayName || MOCK_AUTH_CONTEXT.displayName,
-        role: (user as any)?.role || MOCK_AUTH_CONTEXT.role,
+        userId: user.uid,
+        userName: user.displayName || 'User',
+        role: (user as any)?.role || 'PROJECT_ADMIN',
         operationId: `OP-COMMIT-${Date.now()}`,
         knownEntities: {
           carriers: overview?.allCarriers || [],
@@ -1037,7 +1004,7 @@ export const MasterDataView: React.FC<{
           <div className="p-6">
             <ProjectsDashboard
               projects={projects}
-              authContext={authContext || MOCK_AUTH_CONTEXT}
+              authContext={authContext || (user ? { userId: user.uid, role: 'PROJECT_ADMIN', email: user.email || '', displayName: user.displayName || '' } : undefined)}
               onStartCreate={onNavigateToWizard || (() => {})}
             />
           </div>
