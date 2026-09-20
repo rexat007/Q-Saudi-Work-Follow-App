@@ -200,7 +200,7 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
       setUsers(data);
     });
 
-    // Phase 6 Unit 2D: Fetch Canonical Fleet Read Model (Server-Only, No Local Fallback)
+    // Phase 6 Unit 2D: Fetch Canonical Fleet Read Model via projectFleetReadModelService endpoint (Server-Only, No Local Fallback)
     let isCancelled = false;
     const fetchFleetReadModel = async () => {
       setIsFleetLoading(true);

@@ -38,8 +38,122 @@ if (!firestoreDatabaseId) {
   firestoreDatabaseId = 'ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1';
 }
 
+const inMemoryStore: Record<string, any> = {};
+
+function createMockDocRef(paths: string[]): any {
+  const pathKey = paths.join('/');
+  return {
+    id: paths[paths.length - 1],
+    path: pathKey,
+    get: async () => {
+      const val = inMemoryStore[pathKey];
+      return {
+        id: paths[paths.length - 1],
+        exists: val !== undefined,
+        data: () => val,
+      };
+    },
+    set: async (data: any) => {
+      inMemoryStore[pathKey] = data;
+    },
+    update: async (data: any) => {
+      inMemoryStore[pathKey] = {
+        ...inMemoryStore[pathKey],
+        ...data,
+      };
+    },
+    delete: async () => {
+      delete inMemoryStore[pathKey];
+    },
+    collection: (col: string) => createMockCollectionRef([...paths, col]),
+  };
+}
+
+function createMockCollectionRef(paths: string[]): any {
+  const colPath = paths.join('/');
+  return {
+    doc: (id?: string) => {
+      const docId = id || `doc_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      return createMockDocRef([...paths, docId]);
+    },
+    where: (field: string, op: string, value: any) => {
+      return {
+        _isQuery: true,
+        col: colPath,
+        field,
+        op,
+        value,
+      };
+    },
+    get: async () => {
+      const results: any[] = [];
+      const prefix = `${colPath}/`;
+      for (const [key, val] of Object.entries(inMemoryStore)) {
+        if (key.startsWith(prefix)) {
+          const relativeKey = key.slice(prefix.length);
+          if (!relativeKey.includes('/')) {
+            results.push({
+              id: relativeKey,
+              data: () => val,
+            });
+          }
+        }
+      }
+      return {
+        size: results.length,
+        docs: results,
+      };
+    }
+  };
+}
+
+export const createInMemoryAdminDb = (initialStore?: Record<string, any>) => {
+  if (initialStore) {
+    Object.assign(inMemoryStore, initialStore);
+  }
+  return {
+    collection: (col: string) => createMockCollectionRef([col]),
+    runTransaction: async (cb: any) => {
+      const tx = {
+        get: async (ref: any) => {
+          if (ref && ref._isQuery) {
+            const results: any[] = [];
+            const prefix = `${ref.col}/`;
+            for (const [key, val] of Object.entries(inMemoryStore)) {
+              if (key.startsWith(prefix)) {
+                const relativeKey = key.slice(prefix.length);
+                if (!relativeKey.includes('/')) {
+                  if (val && val[ref.field] === ref.value) {
+                    results.push({
+                      id: relativeKey,
+                      data: () => val,
+                    });
+                  }
+                }
+              }
+            }
+            return {
+              size: results.length,
+              docs: results,
+            };
+          }
+          return ref.get();
+        },
+        set: (ref: any, data: any) => ref.set(data),
+        update: (ref: any, data: any) => ref.update(data),
+        delete: (ref: any) => ref.delete(),
+      };
+      return cb(tx);
+    },
+  };
+};
+
+export const inMemoryAdminStore = inMemoryStore;
+
 export let adminAuth = getAuth();
-export let adminDb = getFirestore(firestoreDatabaseId);
+export let adminDb: any = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
+  ? getFirestore(firestoreDatabaseId)
+  : createInMemoryAdminDb();
 
 export const setTestAuthOverride = (override: any) => {
   adminAuth = override;

@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { AuthUserContext } from '../types/common';
 import { DriverTruckIntakePayload, DriverTruckIntakeResult } from './driverTruckIntake.service';
 import { CanonicalFleetRelationshipPolicy, PureAffiliation, PureAssignment, PureAllocation } from '../utils/canonicalFleetRelationshipPolicy';
@@ -296,7 +297,7 @@ export class DriverTruckIntakeServer {
 
       // 1. Create Driver if completely missing
       if (!driverId) {
-        const hashHex = require('crypto').randomBytes(16).toString('hex');
+        const hashHex = crypto.randomBytes(16).toString('hex');
         driverId = `DRV-${hashHex}`;
         const newDriverRef = adminDb.collection('drivers').doc(driverId);
         transaction.set(newDriverRef, {
@@ -329,7 +330,7 @@ export class DriverTruckIntakeServer {
 
       // 2. Create Truck if completely missing
       if (!truckId) {
-        const hashHex = require('crypto').randomBytes(16).toString('hex');
+        const hashHex = crypto.randomBytes(16).toString('hex');
         truckId = `TRK-${hashHex}`;
 
         const newTruckData: any = {
@@ -553,7 +554,7 @@ export class DriverTruckIntakeServer {
           }
         }
 
-        const hashHex = require('crypto').randomBytes(16).toString('hex');
+        const hashHex = crypto.randomBytes(16).toString('hex');
         finalAssignmentId = `ASN-${hashHex}`;
         const newAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(finalAssignmentId);
         transaction.set(newAssignRef, {
@@ -599,7 +600,7 @@ export class DriverTruckIntakeServer {
           });
         }
 
-        const hashHex = require('crypto').randomBytes(16).toString('hex');
+        const hashHex = crypto.randomBytes(16).toString('hex');
         finalAllocationId = `TMA-${hashHex}`;
         const newAllocRef = adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(finalAllocationId);
         transaction.set(newAllocRef, {

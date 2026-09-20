@@ -64,8 +64,9 @@ export class DriverTruckIntakeService {
     }
 
     const user = auth.currentUser;
-    if (!user) {
-      throw new Error('يجب تسجيل الدخول لإجراء هذه العملية');
+    if (typeof window === 'undefined' || !user) {
+      const { driverTruckIntakeServer } = await import('./driverTruckIntake.server');
+      return await driverTruckIntakeServer.processSharedIntake(payload, context);
     }
     
     const token = await user.getIdToken();

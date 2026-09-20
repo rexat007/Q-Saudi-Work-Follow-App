@@ -28,11 +28,11 @@ export type CommitStatus =
   | 'ABORTED';
 
 export interface CommittedDomainEntityRef {
-  entityType: 'TRIP' | 'PROJECT_ROSTER' | 'DRIVER' | 'TRUCK' | 'PRICING_RULE' | 'EXCEPTION';
+  entityType: 'TRIP' | 'DRIVER' | 'TRUCK' | 'PRICING_RULE' | 'EXCEPTION';
   entityId: string;
   projectId: string;
   operation: 'CREATE' | 'UPDATE';
-  canonicalService: 'tripService' | 'projectRosterService' | 'driverTruckIntakeService' | 'pricingService' | 'exceptionService';
+  canonicalService: 'tripService' | 'driverTruckIntakeService' | 'pricingService' | 'exceptionService';
   idempotencyKey?: string;
   committedAt: string;
 }

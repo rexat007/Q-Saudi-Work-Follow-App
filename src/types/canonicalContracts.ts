@@ -71,7 +71,6 @@ export interface PermissionDecision {
 // ==========================================
 
 export type ProjectState = 'DRAFT' | 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED';
-export type ProjectRosterState = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 export type PricingRuleState = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 export type TripState = 
   | 'CREATED' 
@@ -221,16 +220,6 @@ export interface CanonicalMaterial extends VersionedEntity {
   unit: string;
 }
 
-export interface CanonicalProjectRoster extends VersionedEntity {
-  id: string;
-  projectId: string;
-  carrierId: string;
-  driverId: string;
-  truckId: string;
-  materialId: string;
-  state: ProjectRosterState;
-}
-
 export interface CanonicalPricingRule extends VersionedEntity {
   id: string;
   projectId: string;
@@ -341,11 +330,6 @@ export interface CanonicalAuditLog {
 export interface IProjectService {
   getProject(projectId: string, auth: AuthorizationContext): Promise<CanonicalProject>;
   listProjects(auth: AuthorizationContext): Promise<CanonicalProject[]>;
-}
-
-export interface IProjectRosterService {
-  getRoster(rosterId: string, auth: AuthorizationContext): Promise<CanonicalProjectRoster>;
-  assignToRoster(data: Partial<CanonicalProjectRoster>, auth: AuthorizationContext, idempotency: IdempotencyContext): Promise<CanonicalProjectRoster>;
 }
 
 export interface IDriverTruckIntakeService {

@@ -5,7 +5,7 @@
  * 1. Pre-commit verification (Artifact authenticity, ContentHash integrity, Approval currency, Session state, Concurrency, RBAC)
  * 2. Durable idempotency across container restarts / distributed instances (SyncOperation & ImportBatch repositories)
  * 3. Atomic transaction boundary across all multi-entity writes (runTransaction + Repository Transaction Participation)
- * 4. Delegation of business writes to canonical domain services ONLY (tripService, projectRosterService, driverTruckIntakeService, pricingService, exceptionService)
+ * 4. Delegation of business writes to canonical domain services ONLY (tripService, driverTruckIntakeService, pricingService, exceptionService)
  * 5. Zero direct Firestore writes outside canonical repositories/services
  * 6. Deterministic commit record with SHA-256 immutability hash
  * 7. Transaction-safe audit logging (no unsafe side effects inside retryable transaction callbacks)
@@ -29,10 +29,11 @@ import {
   securityService, 
   auditService, 
   tripService, 
-  driverTruckIntakeService, 
   pricingService, 
   exceptionService 
 } from './canonicalServices';
+import { driverTruckIntakeService } from './driverTruckIntake.service';
+import { AuthUserContext, UserRole } from '../types/common';
 import { 
   AuthorizationContext, 
   ConcurrencyContext, 
@@ -255,47 +256,78 @@ export class CanonicalCommitEngineService {
           const rowIdx = i + 1;
 
           if (sourceType.includes('DRIVER') || sourceType.includes('TRUCK') || sourceType.includes('ROSTER')) {
-            // Driver / Truck / Project Roster intake delegation
-            if (row.truckPlate || row.driverName || row.plateNumber) {
-              const rosterId = row.rosterId || `${session.projectId}-ROSTER-${String(rowIdx).padStart(5, '0')}`;
-              
-              if (row.driverName) {
-                const driverId = row.driverId || `DRV-${rowIdx}`;
-                await driverTruckIntakeService.intakeProjectDriver(
-                  { id: driverId, name: row.driverName, phone: row.driverPhone, projectId: session.projectId },
-                  session.projectId,
-                  auth,
-                  transaction
-                );
-                committedEntities.push({
-                  entityType: 'DRIVER',
-                  entityId: driverId,
-                  projectId: session.projectId,
-                  operation: 'CREATE',
-                  canonicalService: 'driverTruckIntakeService',
-                  committedAt: new Date().toISOString()
-                });
-              }
+            // Driver / Truck Fleet intake delegation to canonical DriverTruckIntake authority
+            const driverName = String(row.driverName || row.name || '').trim();
+            const plateNumber = String(row.truckPlate || row.plateNumber || row.plate || row.truckNo || '').trim().toUpperCase();
+            const residencyId = String(row.residencyId || row.driverIdentity || row.nationalId || row.iqama || row.idNumber || '').trim();
+            const carrierId = String(row.carrierId || row.carrier || row.entityResolutions?.carrier?.matchedId || '').trim();
+            const materialId = String(row.materialId || row.materialType || row.material || row.entityResolutions?.material?.matchedId || '').trim();
+            const phone = row.driverPhone || row.phone ? String(row.driverPhone || row.phone).trim() : undefined;
+            const truckType = row.truckType;
+            const tareWeightKg = row.tareWeightKg || row.tareWeight ? Number(row.tareWeightKg || row.tareWeight) : undefined;
+            const maxGrossWeightKg = row.maxGrossWeightKg || row.maxGrossWeight || row.maxCapacity ? Number(row.maxGrossWeightKg || row.maxGrossWeight || row.maxCapacity) : undefined;
 
-              if (row.truckPlate || row.plateNumber) {
-                const truckId = row.truckId || `TRK-${rowIdx}`;
-                const plate = row.truckPlate || row.plateNumber;
-                await driverTruckIntakeService.intakeProjectTruck(
-                  { id: truckId, plate, projectId: session.projectId },
-                  session.projectId,
-                  auth,
-                  transaction
-                );
-                committedEntities.push({
-                  entityType: 'TRUCK',
-                  entityId: truckId,
-                  projectId: session.projectId,
-                  operation: 'CREATE',
-                  canonicalService: 'driverTruckIntakeService',
-                  committedAt: new Date().toISOString()
-                });
-              }
+            // Natural identity requirements must remain authoritative:
+            // Driver: National ID / Iqama
+            // Truck: normalized plate
+            // Missing required identity must fail explicitly. Never fabricate canonical identity.
+            if (!driverName) {
+              throw createDomainError('VALIDATION_ERROR', `Row ${rowIdx}: Driver name is required for fleet intake`);
             }
+            if (!plateNumber) {
+              throw createDomainError('VALIDATION_ERROR', `Row ${rowIdx}: Truck plate number is required for fleet intake`);
+            }
+            if (!residencyId) {
+              throw createDomainError('VALIDATION_ERROR', `Row ${rowIdx}: Saudi National ID or Iqama is required for driver canonical identity`);
+            }
+            if (!carrierId) {
+              throw createDomainError('VALIDATION_ERROR', `Row ${rowIdx}: Carrier ID is required for fleet intake`);
+            }
+            if (!materialId) {
+              throw createDomainError('VALIDATION_ERROR', `Row ${rowIdx}: Material ID is required for fleet intake`);
+            }
+
+            const userContext: AuthUserContext = {
+              userId: auth.userId,
+              email: auth.email,
+              displayName: auth.displayName,
+              role: (auth.globalRole === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : auth.memberships?.[session.projectId]?.role || 'PROJECT_ADMIN') as UserRole,
+              assignedProjectIds: auth.globalRole === 'SUPER_ADMIN' ? undefined : (auth.memberships ? Object.keys(auth.memberships) : [session.projectId])
+            };
+
+            const intakeResult = await driverTruckIntakeService.processSharedIntake(
+              {
+                projectId: session.projectId,
+                carrierId,
+                materialId,
+                driverName,
+                plateNumber,
+                phone,
+                residencyId,
+                truckType,
+                tareWeightKg,
+                maxGrossWeightKg,
+              },
+              userContext
+            );
+
+            committedEntities.push({
+              entityType: 'DRIVER',
+              entityId: intakeResult.driverId,
+              projectId: session.projectId,
+              operation: 'CREATE',
+              canonicalService: 'driverTruckIntakeService',
+              committedAt: new Date().toISOString()
+            });
+
+            committedEntities.push({
+              entityType: 'TRUCK',
+              entityId: intakeResult.truckId,
+              projectId: session.projectId,
+              operation: 'CREATE',
+              canonicalService: 'driverTruckIntakeService',
+              committedAt: new Date().toISOString()
+            });
           } else {
             // Canonical Trip domain delegation
             const tripId = row.tripId || `${session.projectId}-TRP-${String(Date.now() + i).slice(-8)}`;
@@ -398,13 +430,15 @@ export class CanonicalCommitEngineService {
 
       let commitRecord: CanonicalCommitRecord;
 
-      if (firebaseAuth.currentUser) {
-        // Live Firebase Firestore Atomic Transaction
+      const isFleetImport = sourceType.includes('DRIVER') || sourceType.includes('TRUCK') || sourceType.includes('ROSTER');
+
+      if (firebaseAuth.currentUser && !isFleetImport) {
+        // Live Firebase Firestore Atomic Transaction for Trip Imports
         commitRecord = await runTransaction(db, async (transaction) => {
           return await executeTransactionalOperations(transaction);
         });
       } else {
-        // Local / Unit Test In-Memory Atomic Execution Boundary
+        // Fleet Intake executes canonical authority transactions internally (or in-memory test boundary)
         commitRecord = await executeTransactionalOperations();
       }
 

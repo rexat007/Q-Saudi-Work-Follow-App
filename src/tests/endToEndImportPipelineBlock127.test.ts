@@ -30,6 +30,7 @@ import { canonicalReviewApprovalService } from '../services/reviewApproval.servi
 import { canonicalCommitEngineService, computeCommitHash } from '../services/commitEngine.service';
 import { auditService } from '../services/canonicalServices';
 import { AuthorizationContext } from '../types/canonicalContracts';
+import { adminDb } from '../firebase/admin';
 
 async function runEndToEndVerificationGate() {
   console.log('================================================================');
@@ -175,11 +176,22 @@ async function runEndToEndVerificationGate() {
   }
 
   // =========================================================================
-  // TEST 2: Multi-Entity Domain Delegation (Fleet Roster Import)
+  // TEST 2: Multi-Entity Domain Delegation (Fleet Import)
   // =========================================================================
-  console.log('TEST 2: Multi-Entity Domain Delegation (Driver + Truck + Roster)...');
+  console.log('TEST 2: Multi-Entity Domain Delegation (Driver + Truck Fleet Intake)...');
   try {
-    const rosterCsv = `driverName,driverPhone,truckPlate,carrierId,materialId\nKhalid Mansour,0551122334,KSA-9988,CARRIER-1,MAT-AGGREGATE`;
+    await adminDb.collection('projects').doc('proj_alpha').collection('carrier_memberships').doc('CARRIER-1').set({
+      carrierId: 'CARRIER-1',
+      status: 'ACTIVE',
+      projectId: 'proj_alpha',
+    });
+    await adminDb.collection('projects').doc('proj_alpha').collection('material_memberships').doc('MAT-AGGREGATE').set({
+      materialId: 'MAT-AGGREGATE',
+      status: 'ACTIVE',
+      projectId: 'proj_alpha',
+    });
+
+    const rosterCsv = `driverName,driverPhone,truckPlate,carrierId,materialId,residencyId\nKhalid Mansour,0551122334,KSA-9988,CARRIER-1,MAT-AGGREGATE,1098765432`;
     const session = await importSessionManager.createSession('proj_alpha', 'ROSTER_IMPORT', 'op_e2e_roster_001', projectAdminAlpha);
     const parsed = await canonicalImportPipelineService.parseSource(session, rosterCsv, { expectedVersion: 1 }, projectAdminAlpha);
     const norm = await canonicalImportPipelineService.normalizeRows(parsed.session, parsed.rawRows, { expectedVersion: 2 }, projectAdminAlpha);
@@ -193,13 +205,12 @@ async function runEndToEndVerificationGate() {
     const entities = commit.commitRecord.committedEntities;
     const hasDriver = entities.some(e => e.entityType === 'DRIVER' && e.canonicalService === 'driverTruckIntakeService');
     const hasTruck = entities.some(e => e.entityType === 'TRUCK' && e.canonicalService === 'driverTruckIntakeService');
-    const hasRoster = entities.some(e => e.entityType === 'PROJECT_ROSTER' && e.canonicalService === 'projectRosterService');
 
-    if (!hasDriver || !hasTruck || !hasRoster) {
-      throw new Error(`Expected DRIVER, TRUCK, and PROJECT_ROSTER domain delegations, got: ${entities.map(e => e.entityType).join(', ')}`);
+    if (!hasDriver || !hasTruck) {
+      throw new Error(`Expected DRIVER and TRUCK domain delegations, got: ${entities.map(e => e.entityType).join(', ')}`);
     }
 
-    console.log('  ✓ Multi-entity domain delegation verified across Driver, Truck, and Roster.');
+    console.log('  ✓ Multi-entity domain delegation verified across Driver and Truck fleet intake.');
     passedScenarios++;
   } catch (err: any) {
     console.error('  ✗ Multi-entity delegation failed:', err.message);

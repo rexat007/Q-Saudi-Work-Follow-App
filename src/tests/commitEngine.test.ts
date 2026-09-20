@@ -13,6 +13,7 @@ import { canonicalReviewArtifactService } from '../services/reviewArtifact.servi
 import { canonicalReviewApprovalService } from '../services/reviewApproval.service';
 import { canonicalCommitEngineService } from '../services/commitEngine.service';
 import { AuthorizationContext } from '../types/canonicalContracts';
+import { adminDb } from '../firebase/admin';
 
 async function runCommitTests() {
   console.log('--- BLOCK 126 Transactional Commit Engine Test Suite Starting ---');
@@ -218,7 +219,18 @@ async function runCommitTests() {
   }
 
   // 11. Test Driver/Truck/Roster Canonical Domain Delegation
-  const rawRosterCsv = `driverName,driverPhone,truckPlate\nAhmed Ali,0501112233,ABC 1234`;
+  await adminDb.collection('projects').doc('proj_1').collection('carrier_memberships').doc('carrier_1').set({
+    carrierId: 'carrier_1',
+    status: 'ACTIVE',
+    projectId: 'proj_1',
+  });
+  await adminDb.collection('projects').doc('proj_1').collection('material_memberships').doc('mat_1').set({
+    materialId: 'mat_1',
+    status: 'ACTIVE',
+    projectId: 'proj_1',
+  });
+
+  const rawRosterCsv = `driverName,driverPhone,truckPlate,residencyId,carrierId,materialId\nAhmed Ali,0501112233,ABC 1234,1023456789,carrier_1,mat_1`;
   const rosterSession = await importSessionManager.createSession('proj_1', 'ROSTER_IMPORT', 'op_roster_1', adminAuth);
   const rParsed = await canonicalImportPipelineService.parseSource(rosterSession, rawRosterCsv, { expectedVersion: 1 }, adminAuth);
   const rNorm = await canonicalImportPipelineService.normalizeRows(rParsed.session, rParsed.rawRows, { expectedVersion: 2 }, adminAuth);
@@ -228,8 +240,8 @@ async function runCommitTests() {
   const rApp = await canonicalReviewApprovalService.recordApproval(rConf.session, rArt, 'APPROVED', { expectedVersion: 5 }, adminAuth);
 
   const rosterCommit = await canonicalCommitEngineService.executeCommit(rApp.session, rArt, rApp.approval, { expectedVersion: 6 }, adminAuth);
-  if (rosterCommit.commitRecord.committedEntities.length !== 3) { // DRIVER, TRUCK, PROJECT_ROSTER
-    throw new Error(`Expected 3 roster entities, got ${rosterCommit.commitRecord.committedEntities.length}`);
+  if (rosterCommit.commitRecord.committedEntities.length !== 2) { // DRIVER, TRUCK
+    throw new Error(`Expected 2 fleet entities, got ${rosterCommit.commitRecord.committedEntities.length}`);
   }
 
   // 12. Test Cross-Project Isolation

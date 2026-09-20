@@ -8,7 +8,6 @@ import { Transaction } from 'firebase/firestore';
 import { 
   AuthorizationContext, 
   CanonicalProject, 
-  CanonicalProjectRoster, 
   CanonicalPricingRule, 
   CanonicalTrip, 
   CanonicalException, 
@@ -23,7 +22,6 @@ import {
   DomainErrorCode,
   PermissionDecision,
   ProjectState,
-  ProjectRosterState,
   PricingRuleState,
   TripState,
   ExceptionState,
@@ -42,8 +40,6 @@ import {
   auditRepository, 
   storageRepository 
 } from '../repositories/canonicalRepositories';
-import { globalDriverRepository, globalTruckRepository } from '../repositories/globalIdentity.repository';
-import { projectCarrierRosterRepository } from '../repositories/projectCarrierRoster.repository';
 import { tripRepository as canonicalTripDbRepository } from '../repositories/trip.repository';
 
 // Helper error factory
@@ -169,45 +165,6 @@ export class CanonicalProjectService {
     });
 
     return project;
-  }
-}
-
-// ==========================================
-// 5. DRIVER & TRUCK INTAKE SERVICE
-// ==========================================
-export class CanonicalDriverTruckIntakeService {
-  async intakeProjectDriver(driverData: any, projectId: string, auth: AuthorizationContext, transaction?: Transaction): Promise<any> {
-    const perm = securityServiceInstance.evaluatePermission(auth, 'CREATE', 'DRIVER', projectId);
-    if (!perm.allowed) throw createDomainError('AUTHORIZATION_ERROR', perm.reasonCode);
-
-    const driverId = driverData.id || `DRV-${Date.now()}`;
-    await globalDriverRepository.createGlobal({
-      nationalId: driverData.nationalId,
-      fullNameAr: driverData.name,
-      phone: driverData.phone,
-      licenseNumber: driverData.licenseNumber,
-      status: 'ACTIVE',
-      createdBy: auth.userId,
-    }, transaction);
-
-    return { ...driverData, driverId, projectId, status: 'ACTIVE' };
-  }
-
-  async intakeProjectTruck(truckData: any, projectId: string, auth: AuthorizationContext, transaction?: Transaction): Promise<any> {
-    const perm = securityServiceInstance.evaluatePermission(auth, 'CREATE', 'TRUCK', projectId);
-    if (!perm.allowed) throw createDomainError('AUTHORIZATION_ERROR', perm.reasonCode);
-
-    const truckId = truckData.id || `TRK-${Date.now()}`;
-    await globalTruckRepository.createGlobal({
-      plate: truckData.plate || truckData.plateNumber,
-      truckType: truckData.truckType,
-      tareWeightKg: truckData.tareWeight,
-      maxGrossWeightKg: truckData.maxCapacity,
-      status: 'ACTIVE',
-      createdBy: auth.userId,
-    }, transaction);
-
-    return { ...truckData, truckId, projectId, status: 'ACTIVE' };
   }
 }
 
@@ -371,7 +328,6 @@ export class CanonicalStorageService {
 export const securityService = securityServiceInstance;
 export const auditService = auditServiceInstance;
 export const projectService = new CanonicalProjectService();
-export const driverTruckIntakeService = new CanonicalDriverTruckIntakeService();
 export const pricingService = new CanonicalPricingService();
 export const tripService = new CanonicalTripService();
 export const exceptionService = new CanonicalExceptionService();

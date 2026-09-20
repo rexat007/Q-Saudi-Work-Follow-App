@@ -19,7 +19,6 @@ import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { 
   CanonicalProject, 
-  CanonicalProjectRoster, 
   CanonicalPricingRule, 
   CanonicalTrip, 
   CanonicalException, 
@@ -55,33 +54,6 @@ export class CanonicalProjectRepository {
       return snap.docs.map(d => d.data() as CanonicalProject);
     } catch (error) {
       handleFirestoreError(error, OperationType.LIST, this.collectionName);
-      return [];
-    }
-  }
-}
-
-export class CanonicalProjectRosterRepository {
-  async getById(projectId: string, rosterId: string): Promise<CanonicalProjectRoster | null> {
-    if (!auth.currentUser) return null;
-    const path = `projects/${projectId}/roster/${rosterId}`;
-    try {
-      const snap = await getDoc(doc(db, 'projects', projectId, 'roster', rosterId));
-      if (!snap.exists()) return null;
-      return snap.data() as CanonicalProjectRoster;
-    } catch (error) {
-      handleFirestoreError(error, OperationType.GET, path);
-      return null;
-    }
-  }
-
-  async listByProject(projectId: string): Promise<CanonicalProjectRoster[]> {
-    if (!auth.currentUser) return [];
-    const path = `projects/${projectId}/roster`;
-    try {
-      const snap = await getDocs(collection(db, 'projects', projectId, 'roster'));
-      return snap.docs.map(d => d.data() as CanonicalProjectRoster);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.LIST, path);
       return [];
     }
   }
