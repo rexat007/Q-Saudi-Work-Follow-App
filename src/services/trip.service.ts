@@ -4,10 +4,24 @@ import { TripEntity, TripStatus, OperationSourceType, OperationActorType, TripSo
 import { AuthUserContext } from '../types/common';
 import { auditLogService } from './auditLog.service';
 import { tripEventService } from './tripEvent.service';
-import { carrierRepository } from '../repositories/carrier.repository';
-import { truckRepository } from '../repositories/truck.repository';
-import { driverRepository } from '../repositories/driver.repository';
-import { materialRepository } from '../repositories/material.repository';
+import {
+  globalCarrierRepository,
+  globalTruckRepository,
+  globalDriverRepository,
+  globalMaterialRepository,
+} from '../repositories/globalIdentity.repository';
+import {
+  projectCarrierMembershipRepository,
+  projectTruckMembershipRepository,
+  projectDriverMembershipRepository,
+  projectMaterialMembershipRepository,
+} from '../repositories/projectMembership.repository';
+import {
+  projectDriverCarrierAffiliationRepository,
+  projectTruckCarrierAffiliationRepository,
+} from '../repositories/projectCarrierAffiliation.repository';
+import { projectDriverTruckAssignmentRepository } from '../repositories/projectDriverTruckAssignment.repository';
+import { projectTruckMaterialAllocationRepository } from '../repositories/projectTruckMaterialAllocation.repository';
 import { pricingRuleRepository } from '../repositories/pricingRule.repository';
 import { projectRepository } from '../repositories/project.repository';
 import { TripNumberGenerator } from './tripNumberGenerator';
@@ -40,126 +54,229 @@ export class TripService {
   }
 
   /**
-   * Dispatches a new trip, fetching live master entities to form immutable historical snapshots.
-   * Prohibits React from direct business writes.
+   * Dispatches a new trip, strictly enforcing canonical project memberships, global identities,
+   * carrier affiliations, temporal assignments, material allocations, and canonical pricing rules.
+   * Produces an immutable historical snapshot sourced exclusively from canonical authority.
    */
   async dispatchTrip(params: DispatchTripParams, context: AuthUserContext): Promise<TripEntity> {
-    // 0. Enforce canonical materialId authority
+    // 0. Enforce canonical required parameters
+    if (!params.projectId || typeof params.projectId !== 'string' || !params.projectId.trim()) {
+      throw new Error('معرف المشروع (projectId) مطلوب ولا يمكن تركه فارغاً');
+    }
+    if (!params.carrierId || typeof params.carrierId !== 'string' || !params.carrierId.trim()) {
+      throw new Error('معرف الناقل (carrierId) مطلوب ولا يمكن تركه فارغاً');
+    }
+    if (!params.truckId || typeof params.truckId !== 'string' || !params.truckId.trim()) {
+      throw new Error('معرف الشاحنة (truckId) مطلوب ولا يمكن تركه فارغاً');
+    }
+    if (!params.driverId || typeof params.driverId !== 'string' || !params.driverId.trim()) {
+      throw new Error('معرف السائق (driverId) مطلوب ولا يمكن تركه فارغاً');
+    }
     if (!params.materialId || typeof params.materialId !== 'string' || !params.materialId.trim()) {
       throw new Error('معرف المادة (materialId) مطلوب لإتمام عملية الشحن والتفريغ ولا يمكن الاعتماد على النص العابر');
     }
+    if (!params.pricingRuleId || typeof params.pricingRuleId !== 'string' || !params.pricingRuleId.trim()) {
+      throw new Error('معرف قاعدة التسعير (pricingRuleId) مطلوب ولا يمكن تركه فارغاً');
+    }
 
-    // 1. Fetch domain references to take immutable snapshots
-    const [carrier, truck, driver, material, pricingRule, project] = await Promise.all([
-       carrierRepository.findById(params.projectId, params.carrierId),
-       truckRepository.findById(params.projectId, params.truckId),
-       driverRepository.findById(params.projectId, params.driverId),
-       materialRepository.findById(params.projectId, params.materialId),
-       pricingRuleRepository.findById(params.projectId, params.pricingRuleId),
-       projectRepository.findById(params.projectId),
+    const cleanProjectId = params.projectId.trim();
+
+    // 1. Fetch project entity
+    const project = await projectRepository.findById(cleanProjectId);
+    if (!project) {
+      throw new Error('المشروع غير موجود أو غير صالح');
+    }
+    if (project.status === 'ARCHIVED' || project.status === 'SUSPENDED') {
+      throw new Error(`حالة المشروع (${project.status}) لا تسمح بترحيل رحلات تشغيلية`);
+    }
+
+    // 2. Concurrently fetch all required canonical entities, memberships, affiliations, assignments, allocations, and pricing rule
+    const [
+      carrierGlobal,
+      carrierMembership,
+      materialGlobal,
+      materialMembership,
+      driverGlobal,
+      driverMembership,
+      truckGlobal,
+      truckMembership,
+      driverAffiliation,
+      truckAffiliation,
+      driverAssignment,
+      truckAssignment,
+      truckMaterialAllocation,
+      pricingRule,
+    ] = await Promise.all([
+      globalCarrierRepository.findById(params.carrierId),
+      projectCarrierMembershipRepository.getMembership(cleanProjectId, params.carrierId),
+      globalMaterialRepository.findById(params.materialId),
+      projectMaterialMembershipRepository.getMembership(cleanProjectId, params.materialId),
+      globalDriverRepository.findById(params.driverId),
+      projectDriverMembershipRepository.getMembership(cleanProjectId, params.driverId),
+      globalTruckRepository.findById(params.truckId),
+      projectTruckMembershipRepository.getMembership(cleanProjectId, params.truckId),
+      projectDriverCarrierAffiliationRepository.getAffiliation(cleanProjectId, params.driverId),
+      projectTruckCarrierAffiliationRepository.getAffiliation(cleanProjectId, params.truckId),
+      projectDriverTruckAssignmentRepository.getActiveAssignmentByDriver(cleanProjectId, params.driverId),
+      projectDriverTruckAssignmentRepository.getActiveAssignmentByTruck(cleanProjectId, params.truckId),
+      projectTruckMaterialAllocationRepository.getActiveAllocationByTruck(cleanProjectId, params.truckId),
+      pricingRuleRepository.findById(cleanProjectId, params.pricingRuleId),
     ]);
 
-    // Check entity existence and ACTIVE status
-    if (!material || (material.status !== undefined ? material.status !== 'ACTIVE' : !material.isActive)) {
-      throw new Error('المادة المحددة غير مصرح بها أو غير نشطة (INACTIVE)');
+    // 3. Carrier Canonical Validation
+    if (!carrierGlobal || (carrierGlobal.status !== undefined && carrierGlobal.status !== 'ACTIVE')) {
+      throw new Error('الناقل المحدد غير موجود في الهوية الموحدة أو غير نشط (INACTIVE)');
+    }
+    if (!carrierMembership || carrierMembership.status !== 'ACTIVE') {
+      throw new Error(`الناقل (${params.carrierId}) ليس لديه عضوية نشطة (ACTIVE) في هذا المشروع`);
     }
 
-    // Check project authorizations
-    if (project?.authorizedCarrierIds && project.authorizedCarrierIds.length > 0) {
-      if (!project.authorizedCarrierIds.includes(params.carrierId)) {
-        throw new Error(`الناقل (${params.carrierId}) غير مصرح له بالعمل في هذا المشروع`);
-      }
+    // 4. Material Canonical Validation
+    if (!materialGlobal || (materialGlobal.status !== undefined && materialGlobal.status !== 'ACTIVE')) {
+      throw new Error('المادة المحددة غير موجودة في الهوية الموحدة أو غير نشطة (INACTIVE)');
     }
-    if (project?.authorizedMaterialIds && project.authorizedMaterialIds.length > 0) {
-      if (!project.authorizedMaterialIds.includes(params.materialId)) {
-        throw new Error(`المادة (${params.materialId}) غير مصرح بتوريدها في هذا المشروع`);
-      }
-    }
-    if (!carrier || (carrier.status !== undefined ? carrier.status !== 'ACTIVE' : !carrier.isActive)) {
-      throw new Error('الناقل المحدد غير موجود أو غير نشط (INACTIVE)');
-    }
-    if (!truck || (truck.status !== undefined ? truck.status !== 'ACTIVE' : !truck.isActive)) {
-      throw new Error('الشاحنة المحددة غير موجودة أو غير مصرح لها بالعمل (INACTIVE)');
-    }
-    // Enforce relationship: Truck → Carrier
-    if (truck.carrierId !== params.carrierId) {
-      throw new Error(`الشاحنة المحددة (${truck.truckId}) غير تابعة للناقل المختار (${params.carrierId}) [العلاقة: Truck → Carrier]`);
+    if (!materialMembership || materialMembership.status !== 'ACTIVE') {
+      throw new Error(`المادة (${params.materialId}) ليس لديها عضوية نشطة (ACTIVE) في هذا المشروع`);
     }
 
-    if (!driver || (driver.status !== undefined ? driver.status !== 'ACTIVE' : !driver.isActive)) {
-      throw new Error('السائق المحدد غير موجود أو غير نشط (INACTIVE)');
+    // 5. Driver Canonical Validation
+    if (!driverGlobal || (driverGlobal.status !== undefined && driverGlobal.status !== 'ACTIVE')) {
+      throw new Error('السائق المحدد غير موجود في الهوية الموحدة أو غير نشط (INACTIVE)');
     }
-    // Enforce relationship: Driver → Carrier
-    if (driver.carrierId !== params.carrierId) {
-      throw new Error(`السائق المحدد (${driver.driverId}) غير تابع للناقل المختار (${params.carrierId}) [العلاقة: Driver → Carrier]`);
+    if (!driverMembership || driverMembership.status !== 'ACTIVE') {
+      throw new Error(`السائق (${params.driverId}) ليس لديه عضوية نشطة (ACTIVE) في هذا المشروع`);
     }
 
-    if (!pricingRule || (pricingRule.status !== undefined ? pricingRule.status !== 'ACTIVE' : !pricingRule.isActive)) {
+    // 6. Truck Canonical Validation
+    if (!truckGlobal || (truckGlobal.status !== undefined && truckGlobal.status !== 'ACTIVE')) {
+      throw new Error('الشاحنة المحددة غير موجودة في الهوية الموحدة أو غير مصرح لها بالعمل (INACTIVE)');
+    }
+    if (!truckMembership || truckMembership.status !== 'ACTIVE') {
+      throw new Error(`الشاحنة (${params.truckId}) ليس لديها عضوية نشطة (ACTIVE) في هذا المشروع`);
+    }
+
+    // 7. Driver ↔ Truck Active Assignment Validation (Fail-Closed)
+    if (!driverAssignment || !driverAssignment.truckId || !truckAssignment || !truckAssignment.driverId) {
+      throw new Error(`لا يوجد تعيين تشغيلي نشط (Driver ↔ Truck) بين السائق (${params.driverId}) والشاحنة (${params.truckId})`);
+    }
+    if (driverAssignment.truckId !== params.truckId || truckAssignment.driverId !== params.driverId) {
+      throw new Error(`تعارض في التعيين التشغيلي: السائق (${params.driverId}) معين للشاحنة (${driverAssignment.truckId}) بينما الشاحنة (${params.truckId}) معينة للسائق (${truckAssignment.driverId})`);
+    }
+
+    // 8. Driver → Carrier Affiliation Validation
+    if (!driverAffiliation || driverAffiliation.status !== 'ACTIVE') {
+      throw new Error(`السائق (${params.driverId}) ليس لديه تبعية نشطة لناقل (Carrier Affiliation) في هذا المشروع`);
+    }
+    if (driverAffiliation.carrierId !== params.carrierId) {
+      throw new Error(`السائق المحدد (${params.driverId}) تابع للناقل (${driverAffiliation.carrierId}) وليس للناقل المختار (${params.carrierId}) [العلاقة: Driver → Carrier]`);
+    }
+
+    // 9. Truck → Carrier Affiliation Validation
+    if (!truckAffiliation || truckAffiliation.status !== 'ACTIVE') {
+      throw new Error(`الشاحنة (${params.truckId}) ليس لديها تبعية نشطة لناقل (Carrier Affiliation) في هذا المشروع`);
+    }
+    if (truckAffiliation.carrierId !== params.carrierId) {
+      throw new Error(`الشاحنة المحددة (${params.truckId}) تابعة للناقل (${truckAffiliation.carrierId}) وليس للناقل المختار (${params.carrierId}) [العلاقة: Truck → Carrier]`);
+    }
+
+    // 10. Truck ↔ Material Active Allocation Validation
+    if (!truckMaterialAllocation || !truckMaterialAllocation.materialId) {
+      throw new Error(`لا يوجد تخصيص مادة نشط (Truck ↔ Material) للشاحنة (${params.truckId})`);
+    }
+    if (truckMaterialAllocation.materialId !== params.materialId) {
+      throw new Error(`الشاحنة (${params.truckId}) مخصصة للمادة (${truckMaterialAllocation.materialId}) وليس للمادة المختارة (${params.materialId}) [العلاقة: Truck ↔ Material]`);
+    }
+
+    // 11. Pricing Rule Canonical Authority Validation
+    if (!pricingRule || (pricingRule.status !== undefined && pricingRule.status !== 'ACTIVE' && pricingRule.status !== ('ACTIVE' as any)) || (pricingRule.status === undefined && pricingRule.isActive === false)) {
       throw new Error('قاعدة التسعير غير صالحة أو غير نشطة');
     }
+    if (pricingRule.projectId && pricingRule.projectId !== cleanProjectId) {
+      throw new Error('قاعدة التسعير المحددة لا تنتمي لهذا المشروع');
+    }
+    if (pricingRule.carrierId && pricingRule.carrierId !== params.carrierId && pricingRule.carrierId !== 'ALL') {
+      throw new Error(`قاعدة التسعير مخصصة للناقل (${pricingRule.carrierId}) وتتعارض مع الناقل المختار (${params.carrierId})`);
+    }
+    if (pricingRule.materialId && pricingRule.materialId !== params.materialId && pricingRule.materialId !== 'ALL' && pricingRule.materialId !== 'ALL_MATERIALS' && pricingRule.materialId !== 'GENERAL') {
+      throw new Error(`قاعدة التسعير مخصصة للمادة (${pricingRule.materialId}) وتتعارض مع المادة المختارة (${params.materialId})`);
+    }
+    const today = new Date().toISOString().split('T')[0];
+    if (pricingRule.effectiveFrom && today < pricingRule.effectiveFrom.split('T')[0]) {
+      throw new Error(`قاعدة التسعير تبدأ بتاريخ مستقبلي (${pricingRule.effectiveFrom}) وتاريخ اليوم (${today}) يسبقها`);
+    }
+    if (pricingRule.effectiveTo && today > pricingRule.effectiveTo.split('T')[0]) {
+      throw new Error(`قاعدة التسعير منتهية الصلاحية بتاريخ (${pricingRule.effectiveTo})`);
+    }
 
+    // 12. Snapshot Construction & Trip Creation
     const tripId = `TRP-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const tripNumber = await TripNumberGenerator.getNextTripNumber(params.projectId, project?.projectNumber);
+    const tripNumber = await TripNumberGenerator.getNextTripNumber(cleanProjectId, project?.projectNumber);
+
+    const agreedRate = pricingRule.baseRateSAR !== undefined 
+      ? pricingRule.baseRateSAR 
+      : ((pricingRule as any).agreedRate !== undefined 
+          ? (pricingRule as any).agreedRate 
+          : ((pricingRule as any).rate || 0));
+
+    const pricingType = ((pricingRule as any).pricingType === 'PER_TRIP' || pricingRule.pricingModel === 'PER_TRIP') 
+      ? 'PER_TRIP' 
+      : 'PER_TON';
 
     const newTrip: Omit<TripEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string } = {
       tripId,
       tripNumber,
-      projectId: params.projectId,
+      projectId: cleanProjectId,
       carrierId: params.carrierId,
       truckId: params.truckId,
       driverId: params.driverId,
       materialId: params.materialId,
       pricingRuleId: params.pricingRuleId,
 
-      // Immutable snapshots
+      // Immutable snapshots sourced from canonical authority
       projectSnapshot: {
-        projectId: params.projectId,
+        projectId: cleanProjectId,
         projectNumber: project?.projectNumber || 1,
         nameAr: project?.nameAr || '',
         nameEn: project?.nameEn || '',
       },
       carrierSnapshot: {
-        carrierId: carrier.carrierId,
-        companyNameAr: carrier.companyNameAr,
-        commercialRegistrationNo: carrier.commercialRegistrationNo,
+        carrierId: carrierGlobal.carrierId,
+        companyNameAr: carrierGlobal.nameAr || (carrierGlobal as any).companyNameAr || '',
+        commercialRegistrationNo: carrierGlobal.commercialRegistrationNo || '',
       },
       truckSnapshot: {
-        truckId: truck.truckId,
-        plateNumberAr: truck.plateNumberAr,
-        tareWeightKg: truck.tareWeightKg,
-        legalPayloadLimitKg: truck.legalPayloadLimitKg,
+        truckId: truckGlobal.truckId,
+        plateNumberAr: truckGlobal.plate || (truckGlobal as any).plateNumberAr || truckGlobal.normalizedPlate || '',
+        tareWeightKg: truckGlobal.tareWeightKg || 0,
+        legalPayloadLimitKg: truckGlobal.legalPayloadLimitKg || 0,
       },
       driverSnapshot: {
-        driverId: driver.driverId,
-        fullNameAr: driver.fullNameAr,
-        nationalOrIqamaId: driver.nationalOrIqamaId,
-        phone: driver.phone,
+        driverId: driverGlobal.driverId,
+        fullNameAr: driverGlobal.fullNameAr || '',
+        nationalOrIqamaId: driverGlobal.nationalId || (driverGlobal as any).nationalOrIqamaId || '',
+        phone: driverGlobal.phone || '',
       },
       materialSnapshot: {
-        materialId: material.materialId,
-        code: material.code,
-        nameAr: material.nameAr,
-        unitOfMeasure: material.unitOfMeasure,
+        materialId: materialGlobal.materialId,
+        code: materialGlobal.code || '',
+        nameAr: materialGlobal.nameAr || '',
+        unitOfMeasure: materialGlobal.unitOfMeasure || 'TON',
       },
       pricingSnapshot: {
         pricingRuleId: pricingRule.pricingRuleId,
-        pricingType: ((pricingRule as any).pricingType === 'PER_TRIP' || pricingRule.pricingModel === 'PER_TRIP') ? 'PER_TRIP' : 'PER_TON',
-        agreedRate: pricingRule.baseRateSAR !== undefined ? pricingRule.baseRateSAR : ((pricingRule as any).rate || 0),
+        pricingType,
+        agreedRate,
         currency: (pricingRule as any).currency || 'SAR',
-        settlementBase: ((pricingRule as any).pricingType === 'PER_TRIP' || pricingRule.pricingModel === 'PER_TRIP') ? 1 : 0,
-        settlementAmount: ((pricingRule as any).pricingType === 'PER_TRIP' || pricingRule.pricingModel === 'PER_TRIP') 
-          ? (pricingRule.baseRateSAR !== undefined ? pricingRule.baseRateSAR : ((pricingRule as any).rate || 0))
-          : 0,
+        settlementBase: pricingType === 'PER_TRIP' ? 1 : 0,
+        settlementAmount: pricingType === 'PER_TRIP' ? agreedRate : 0,
         pricingSnapshotAt: new Date().toISOString(),
-        pricingModel: pricingRule.pricingModel || 'PER_TON',
-        baseRateSAR: pricingRule.baseRateSAR,
+        pricingModel: pricingRule.pricingModel || pricingType,
+        baseRateSAR: agreedRate,
         vatApplicable: pricingRule.vatApplicable,
         vatRatePercent: 15,
       },
 
-      status: 'DISPATCHED',
-
-      // Operation Source Model (BLOCK 29)
+      clientUUID: params.clientUUID || `CUUID-${Date.now()}`,
       sourceType: params.sourceType || 'MANUAL',
       loadingDataSource: params.loadingDataSource || (params.sourceType === 'WEIGHBRIDGE' ? 'WEIGHBRIDGE' : 'MANUAL'),
       unloadingDataSource: params.unloadingDataSource ?? (params.sourceType === 'WEIGHBRIDGE' ? null : (params.sourceType ? null : 'MANUAL')),
@@ -167,9 +284,17 @@ export class TripService {
       loadingActorId: params.loadingActorId ?? context.userId,
       unloadingActorType: params.unloadingActorType ?? null,
       unloadingActorId: params.unloadingActorId ?? null,
-      sourceMetadata: params.sourceMetadata,
+      sourceMetadata: params.sourceMetadata || {
+        metadata: {
+          deviceTimestamp: new Date().toISOString(),
+        },
+      },
 
-      weights: {},
+      status: 'DISPATCHED',
+
+      weights: {
+        originTareKg: truckGlobal.tareWeightKg || 0,
+      },
 
       financials: {
         baseAmountSAR: 0,
@@ -182,38 +307,38 @@ export class TripService {
         isFinalized: false,
       },
 
-      clientUUID: params.clientUUID || `CUUID-${Date.now()}`,
       syncStatus: 'SYNCED',
       hasExceptions: false,
       activeExceptionCount: 0,
+
       createdBy: context.userId,
       updatedBy: context.userId,
     };
 
-    // 2. Validate
+    // 13. Validate
     const validation = TripValidator.validate(newTrip);
     if (!validation.isValid) {
       throw new Error(`خطأ في إنشاء الرحلة: ${validation.errors.map(e => e.messageAr).join(' | ')}`);
     }
 
-    // 3. Persist via repository
+    // 14. Persist via repository
     await tripRepository.create(newTrip);
 
-    // 4. Record Initial Trip Event
+    // 15. Record Initial Trip Event
     await tripEventService.recordEvent({
       eventId: `EVT-${Date.now()}-DISPATCH`,
       tripId,
-      projectId: params.projectId,
+      projectId: cleanProjectId,
       eventType: 'EVENT_DISPATCHED',
       statusResulting: 'DISPATCHED',
       deviceTimestamp: new Date().toISOString(),
-      payload: { assignedCarrier: carrier.companyNameAr, plate: truck.plateNumberAr },
+      payload: { assignedCarrier: carrierGlobal.nameAr || (carrierGlobal as any).companyNameAr, plate: truckGlobal.plate || truckGlobal.normalizedPlate },
       idempotencyKey: `IDEMP-${tripId}-DISPATCH`,
     }, context);
 
-    // 5. Audit Log
+    // 16. Audit Log
     await auditLogService.recordLog({
-      projectId: params.projectId,
+      projectId: cleanProjectId,
       entityType: 'TRIP',
       entityId: tripId,
       action: 'CREATE',

@@ -1,269 +1,317 @@
-# Professional Translation Human Review Queue (BLOCK 43)
+# Professional Translation Review Queue (BLOCK 42)
 
-**Generated At:** 2026-09-20T07:24:25.272Z
-**Total Catalog Entries Processed:** 14228
-**Total Proposals Requiring Human Review:** 14222 (100.0%)
+This document contains domain-specific terminology requiring human verification and professional translation.
+**Instructions:** Review Arabic canonical terminology, provide precise English and Urdu terms, and maintain parameter names.
 
-## Review Instructions for Translators & Enterprise Auditors
+## Domain: `trips` (713 items requiring review)
 
-1. **Arabic Canonical Invariance:** The Arabic text is the canonical source and must never be altered.
-2. **Parameter Preservation:** Dynamic variables like `{count}` or `{ticketNo}` must appear verbatim with exact casing and brackets.
-3. **Protected Identifiers:** Database fields (e.g. `ticketId`, `truckNo`) and currency codes (`SAR`, `KG`, `TON`) must never be translated as data identifiers.
-4. **Operational Disambiguation:** Terms like "تحميل" must translate to operational "Loading" in station contexts, not "Download".
-
-## Review Summary by Risk Reason
-
-| Review Reason | Queue Count | Architectural Description |
-| :--- | :--- | :--- |
-| `SEMANTIC_CONFLICT` | **1669** | Identical source texts with different operational meanings quarantined to prevent UI/business conflation |
-| `DOMAIN_TERM` | **0** | Domain-specific terminology requiring operational verification by enterprise domain leads |
-| `INTERPOLATION_RISK` | **9** | Complex dynamic placeholders or parameter sequences requiring syntax verification |
-| `PLURALIZATION_RISK` | **132** | Quantities requiring 6 Arabic plural forms aligned with target language plural rules |
-| `REPORT_EXPORT_RISK` | **3561** | Report column or export header requiring separation of internal data key from display label |
-| `BUSINESS_DATA_RISK` | **822** | Formulas, rates, or business calculations requiring strict identifier preservation |
-| `LOW_CONFIDENCE` | **8029** | Ambiguous or composite phrases generated with low statistical confidence |
-| `DIRECTIONAL_RISK` | **0** | Mixed-direction content (Arabic and Latin/numbers) needing directional inspection |
-| `VALIDATION_FAILURE` | **0** | Proposal encountered parameter mismatch, missing tokens, or structural defects |
-| `OTHER` | **0** | General review requirements flagged by migration pipeline |
-
-### 1. Reason: `SEMANTIC_CONFLICT` (1669 items)
-
-> Identical source texts with different operational meanings quarantined to prevent UI/business conflation
-
-| Key | Arabic Source | Proposed English | Proposed Urdu | Recommendation & Context |
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
-| `authentication.labels.txt_1567b8` | "غير محدد" | "غير محدد" | "غير محدد" | Verify context 'literal'. Do NOT merge with other instances of 'غير محدد'. |
-| `authentication.labels.txt_1f05e4` | "البريد الإلكتروني:" | "البريد الإلكتروني:" | "البريد الإلكتروني:" | Verify context 'literal'. Do NOT merge with other instances of 'البريد الإلكتروني:'. |
-| `authentication.labels.txt_2725af` | "مدير النظام" | "مدير النظام" | "مدير النظام" | Verify context 'literal'. Do NOT merge with other instances of 'مدير النظام'. |
-| `authentication.labels.txt_65988f` | "المهندس طارق بن خالد الشمري" | "المهندس طارق بن خالد الشمري" | "المهندس طارق بن خالد الشمري" | Verify context 'prop_displayName'. Do NOT merge with other instances of 'المهندس طارق بن خالد الشمري'. |
-| `authentication.labels.txt_6c67d4` | "مستخدم جديد" | "مستخدم جديد" | "مستخدم جديد" | Verify context 'literal'. Do NOT merge with other instances of 'مستخدم جديد'. |
-| `authentication.labels.txt_b1a849` | "تسجيل الخروج" | "تسجيل الخروج" | "تسجيل الخروج" | Verify context 'literal'. Do NOT merge with other instances of 'تسجيل الخروج'. |
-| `carriers.actions.cancel` | "إلغاء" | "Cancel Trip" | "ٹرپ منسوخ کریں" | Verify context 'jsx_text'. Do NOT merge with other instances of 'إلغاء'. |
-| `carriers.labels.add` | "إضافة ناقل جديد" | "Add ناقل جديد" | "شامل کریں ناقل جديد" | Verify context 'jsx_text'. Do NOT merge with other instances of 'إضافة ناقل جديد'. |
-| `carriers.labels.carrier_2` | "تسجيل الناقل" | "تسجيل Carrier" | "تسجيل کیریئر" | Verify context 'literal'. Do NOT merge with other instances of 'تسجيل الناقل'. |
-| `carriers.labels.carrier_3` | "الناقل غير موجود" | "Carrier غير موجود" | "کیریئر غير موجود" | Verify context 'literal'. Do NOT merge with other instances of 'الناقل غير موجود'. |
-| `carriers.labels.save` | "حفظ التعديلات" | "Save الEditات" | "محفوظ کریں الترمیم کریںات" | Verify context 'literal'. Do NOT merge with other instances of 'حفظ التعديلات'. |
-| `carriers.labels.status` | "الحالة التشغيلية (status)" | "Status التشغيلية (status)" | "حالت التشغيلية (status)" | Verify context 'jsx_text'. Do NOT merge with other instances of 'الحالة التشغيلية (status)'. |
-| `carriers.labels.txt_1f05e4` | "البريد الإلكتروني" | "البريد الإلكتروني" | "البريد الإلكتروني" | Verify context 'jsx_text'. Do NOT merge with other instances of 'البريد الإلكتروني'. |
-| `carriers.labels.txt_252d6d` | "الجوال:" | "الجوال:" | "الجوال:" | Verify context 'jsx_text'. Do NOT merge with other instances of 'الجوال:'. |
-| `carriers.labels.txt_2f889d` | "السجل التجاري:" | "السجل التجاري:" | "السجل التجاري:" | Verify context 'jsx_text'. Do NOT merge with other instances of 'السجل التجاري:'. |
-| `carriers.labels.txt_2f9f86` | "مسؤول العمليات" | "مسؤول Operations" | "مسؤول آپریشنز" | Verify context 'literal'. Do NOT merge with other instances of 'مسؤول العمليات'. |
-| `carriers.labels.txt_38b1a6` | "معطّل (DISABLED)" | "معطّل (DISABLED)" | "معطّل (DISABLED)" | Verify context 'jsx_text'. Do NOT merge with other instances of 'معطّل (DISABLED)'. |
-| `carriers.labels.txt_5b459d` | "معطّل" | "معطّل" | "معطّل" | Verify context 'jsx_text'. Do NOT merge with other instances of 'معطّل'. |
-| `carriers.labels.txt_7f2994` | "المسؤول:" | "المسؤول:" | "المسؤول:" | Verify context 'jsx_text'. Do NOT merge with other instances of 'المسؤول:'. |
-| `carriers.status.active` | "نشط (ACTIVE)" | "Active (ACTIVE)" | "فعال (ACTIVE)" | Verify context 'jsx_text'. Do NOT merge with other instances of 'نشط (ACTIVE)'. |
-| `carriers.status.active_2` | "نشط" | "Active" | "فعال" | Verify context 'jsx_text'. Do NOT merge with other instances of 'نشط'. |
-| `dashboard.fields.trip` | "رقم الرحلة / التذكرة" | "رقم الTrip / التذكرة" | "رقم الٹرپ / التذكرة" | Verify context 'jsx_text'. Do NOT merge with other instances of 'رقم الرحلة / التذكرة'. |
-| `dashboard.labels.carrier` | "الناقل (Carrier)" | "Carrier (Carrier)" | "کیریئر (Carrier)" | Verify context 'jsx_text'. Do NOT merge with other instances of 'الناقل (Carrier)'. |
-| `dashboard.labels.carrier_2` | "الناقل" | "Carrier" | "کیریئر" | Verify context 'jsx_text'. Do NOT merge with other instances of 'الناقل'. |
-| `dashboard.labels.download` | "تم التحميل (LOADED)" | "تم التحميل (LOADED)" | "تم التحميل (LOADED)" | Verify context 'jsx_text'. Do NOT merge with other instances of 'تم التحميل (LOADED)'. |
-| ... | *and 1644 more items in this queue* | | | |
+| `trips.actions.cancel` | "إلغاء" | jsx_text | `MEDIUM` | Semantic conflict isolation |
+| `trips.actions.view` | "عرض" | jsx_text | `MEDIUM` | Semantic conflict isolation |
+| `trips.columns.active` | "لا يوجد تعيين تشغيلي نشط (Driver ↔ Truck)" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.active_2` | "لا يوجد تخصيص مادة نشط (Truck ↔ Material)" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.carrierActive` | "الناقل المحدد غير موجود في الهوية الموحدة أو غير نشط" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.driver` | "تعارض في التعيين التشغيلي: السائق (DRV-GLOBAL-01) معين للشاحنة (TRK-DIFFERENT)" | call_toThrow | `HIGH` | Domain-specific terminology translation |
+| `trips.columns.driverActive` | "السائق المحدد غير موجود في الهوية الموحدة أو غير نشط" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.events` | "events" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.material` | "المادة المحددة غير موجودة في الهوية الموحدة أو غير نشطة" | call_toThrow | `MEDIUM` | Semantic conflict isolation |
+| `trips.columns.pricing` | "قاعدة التسعير غير صالحة أو غير نشطة" | call_toThrow | `MEDIUM` | Semantic conflict isolation |
+| `trips.columns.pricing_2` | "قاعدة التسعير منتهية الصلاحية" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.project` | "ليس لديه عضوية نشطة (ACTIVE) في هذا المشروع" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.project_2` | "ليس لديها عضوية نشطة (ACTIVE) في هذا المشروع" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.projects` | "projects" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.qPrj0001Trp00001` | "Q-PRJ-0001-TRP-00001" | call_startsWith | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.qPrj0025Trp00015` | "Q-PRJ-0025-TRP-00015" | call_startsWith | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.trips` | "trips" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.truck` | "الشاحنة المحددة غير موجودة في الهوية الموحدة أو غير مصرح لها بالعمل" | call_toThrow | `MEDIUM` | Domain-specific terminology translation |
+| `trips.columns.txt_36b28f` | "مخصصة للمادة (MAT-GLOBAL-01) وليس للمادة المختارة (MAT-GLOBAL-02)" | call_toThrow | `HIGH` | Domain-specific terminology translation |
+| `trips.columns.txt_3e5705` | "تابع للناقل (CAR-GLOBAL-01) وليس للناقل المختار (CAR-GLOBAL-02)" | call_toThrow | `HIGH` | Domain-specific terminology translation |
+| ... | *and 693 more items in this domain queue* | | | |
 
-### 1. Reason: `INTERPOLATION_RISK` (9 items)
+## Domain: `loading` (279 items requiring review)
 
-> Complex dynamic placeholders or parameter sequences requiring syntax verification
-
-| Key | Arabic Source | Proposed English | Proposed Urdu | Recommendation & Context |
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
-| `entityResolution.labels.driverCarrier` | "تعارض السائق مع الناقل: السائق [${sourceValue}] مسجل تحت كفالة/تشغيل الناقل (${expCarrier}) وليس الناقل (${provCarrier})." | "تعارض Driver مع Carrier: Driver [${sourceValue}] مسجل تحت كفالة/تشغيل Carrier (${expCarrier}) وليس Carrier (${provCarrier})." | "تعارض ڈرائیور مع کیریئر: ڈرائیور [${sourceValue}] مسجل تحت كفالة/تشغيل کیریئر (${expCarrier}) وليس کیریئر (${provCarrier})." | Ensure parameter(s) [sourceValue, expCarrier, provCarrier] remain unmodified in translation syntax. |
-| `entityResolution.labels.truckCarrierEdit` | "تعارض في ملكية الشاحنة: الشاحنة [${sourceValue}] مقيدة رسمياً للناقل (${expCarrier})، بينما الإدخال يشير إلى الناقل (${provCarrier}). النظام يمنع التعديل التلقائي للعلاقة." | "تعارض في ملكية Truck: Truck [${sourceValue}] Restrictedة رسمياً للناقل (${expCarrier})، بينما الإدخال يشير إلى Carrier (${provCarrier}). النظام يمنع الEdit التلقائي للعلاقة." | "تعارض في ملكية ٹرک: ٹرک [${sourceValue}] پابندة رسمياً للناقل (${expCarrier})، بينما الإدخال يشير إلى کیریئر (${provCarrier}). النظام يمنع الترمیم کریں التلقائي للعلاقة." | Ensure parameter(s) [sourceValue, expCarrier, provCarrier] remain unmodified in translation syntax. |
-| `imports.fields.txt_423cda` | "الوزن الصافي المسجل في التذكرة (${net} كجم) يختلف عن الصافي المحسوب (القائم ${gross} - الفارغ ${tare} = ${calculatedNet} كجم) بفارق ${difference} كجم." | "Net Weight المسجل في التذكرة (${net} kg) يختلف عن الصافي المحسوب (القائم ${gross} - الفارغ ${tare} = ${calculatedNet} kg) بفارق ${difference} kg." | "خالص وزن المسجل في التذكرة (${net} کلوگرام) يختلف عن الصافي المحسوب (القائم ${gross} - الفارغ ${tare} = ${calculatedNet} کلوگرام) بفارق ${difference} کلوگرام." | Ensure parameter(s) [net, gross, tare, calculatedNet, difference] remain unmodified in translation syntax. |
-| `imports.labels.driverCarrier_2` | "تعارض كفالة السائق: السائق (${cleanDriver}) مرتبط بالناقل (${expectedCarrier}) بينما السجل الوارد ينسبه للناقل (${cleanCarrier})." | "تعارض كفالة Driver: Driver (${cleanDriver}) مرتبط بCarrier (${expectedCarrier}) بينما السجل الوارد ينسبه للناقل (${cleanCarrier})." | "تعارض كفالة ڈرائیور: ڈرائیور (${cleanDriver}) مرتبط بکیریئر (${expectedCarrier}) بينما السجل الوارد ينسبه للناقل (${cleanCarrier})." | Ensure parameter(s) [cleanDriver, expectedCarrier, cleanCarrier] remain unmodified in translation syntax. |
-| `imports.labels.truckCarrier_5` | "تعارض في العلاقة: الشاحنة (${cleanTruck}) مرتبطة في السجلات بالناقل (${expectedCarrier}) بينما السجل الوارد ينسبها للناقل (${cleanCarrier})." | "تعارض في العلاقة: Truck (${cleanTruck}) مرتبطة في السجلات بCarrier (${expectedCarrier}) بينما السجل الوارد ينسبها للناقل (${cleanCarrier})." | "تعارض في العلاقة: ٹرک (${cleanTruck}) مرتبطة في السجلات بکیریئر (${expectedCarrier}) بينما السجل الوارد ينسبها للناقل (${cleanCarrier})." | Ensure parameter(s) [cleanTruck, expectedCarrier, cleanCarrier] remain unmodified in translation syntax. |
-| `imports.labels.txt_590dc8` | "اكتملت مراحل التحليل والمعايرة حتى المراجعة (REVIEW). الإجمالي: ${batch.totalRows}، صالح: ${validCount}، تحذيرات: ${warningCount}، أخطاء: ${errorCount}." | "اكتملت مراحل التحليل والمعايرة حتى المراجعة (REVIEW). Total: ${batch.totalRows}، صالح: ${validCount}، تحذيرات: ${warningCount}، أخطاء: ${errorCount}." | "اكتملت مراحل التحليل والمعايرة حتى المراجعة (REVIEW). کل: ${batch.totalRows}، صالح: ${validCount}، تحذيرات: ${warningCount}، أخطاء: ${errorCount}." | Ensure parameter(s) [validCount, warningCount, errorCount] remain unmodified in translation syntax. |
-| `other.fields.txt_713130` | "# Q Saudi Work Follow — نموذج البيانات والمخطط الهيكلي (Data Model & Schema)
+| `loading.fields.0` | "0" | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.carrier` | "الناقل" | prop_label | `MEDIUM` | Semantic conflict isolation |
+| `loading.fields.confirm` | "لا يمكن تأكيد الرحلة: الوزن القائم يجب أن يكون أكبر من وزن الفارغ." | prop_message | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.confirmTruck` | "تم تأكيد وزن الشاحنة وإصدار تذكرة الترحيل" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.createConfirmTrip` | "تم إنشاء وتأكيد الرحلة بنجاح! رقم الرحلة: ${result.trip.tripSerial} - التذكرة: ${result.trip.ticketId} (الحالة: في الطريق IN_TRANSIT)" | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [ticketId]) |
+| `loading.fields.createTrip` | "تم إنشاء الرحلة واحتساب التسعيرة محلياً بوضع عدم الاتصال بانتظار تخصيص الرقم المتسلسل الخادومي" | prop_reason | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.download` | "تحميل ووزن شاحنة جديدة (Next Truck)" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.download_2` | "تسلسل خطوات التحميل والوزن بالمصدر، احتساب صافي الحمولة، والتحقق من التسعيرة قبل الترحيل" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.driver` | "السائق" | prop_label | `MEDIUM` | Semantic conflict isolation |
+| `loading.fields.edit` | ") برمجياً بناءً على صافي الوزن المعتمد وسعر العقد. لا يُسمح بإدخال أو تعديل القيمة من الواجهة لضمان الشفافية المحاسبية." | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.edit_2` | "منع تعديل التسوية أو الوزن الصافي من الواجهة" | prop_name | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.error` | "خطأ وزني مانع: الوزن القائم (${grossWeight.toLocaleString()} كجم) يجب أن يكون أكبر من وزن الفارغ (${tareWeight.toLocaleString()} كجم)." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [grossWeight,tareWeight,KG]) |
+| `loading.fields.material` | "المادة" | prop_label | `MEDIUM` | Semantic conflict isolation |
+| `loading.fields.price` | "السعر المتفق عليه (Agreed Rate)" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.priceConfirm` | "مراجعة صافي الوزن، نوع التسعير، السعر المتفق عليه، والتسوية التقديرية قبل التأكيد" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.pricing` | "المعاينة والتسعير" | prop_label | `MEDIUM` | Domain-specific terminology translation |
+| `loading.fields.pricingConfirm` | "تم تضمين بطاقة حسابية بارزة في خطوة المعاينة (Preview) تعرض اسم العقد، نوع التسعير (PER_TON / PER_TRIP)، وسلسلة العملية الحسابية كاملة قبل الضغط على زر التأكيد والترحيل." | jsx_text | `HIGH` | Domain-specific terminology translation |
+| `loading.fields.pricing_2` | "قاعدة التسعير منتهية الصلاحية أو غير سارية بتاريخ اليوم (${activePricingRule.effectiveFrom} إلى ${activePricingRule.effectiveTo})." | template_literal | `HIGH` | Domain-specific terminology translation |
+| `loading.fields.project` | "المشروع" | prop_label | `MEDIUM` | Semantic conflict isolation |
+| `loading.fields.status` | ": نقل الحالة رسمياً إلى IN_TRANSIT وتوليد رقم التذكرة والنسخة" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| ... | *and 259 more items in this domain queue* | | | |
 
-## 1. فلسفة تخزين البيانات ومصدر الحقيقة
-- Firestore هو قاعدة البيانات الأساسية والمصدر الأوحد للحقيقة (SSOT).
-- تنظيم البيانات بنمط Multi-Tenant Scoped Subcollections (/projects/{projectId}/...).
-- Denormalization استراتيجي للقطات التاريخية (Pricing Snapshot, Truck Snapshot, Driver Snapshot).
+## Domain: `unloading` (312 items requiring review)
 
-## 2. الهيكلية الشجرية
-/projects/{projectId}
-   ├── /carriers/{carrierId}
-   ├── /materials/{materialId}
-   ├── /pricing_rules/{ruleId}
-   ├── /trucks/{truckId}
-   ├── /drivers/{driverId}
-   ├── /trips/{tripId}
-   │      ├── /events/{eventId}
-   │      └── /exceptions/{exceptionId}
-   ├── /sync_operations/{syncOpId}
-   └── /sheet_projections/{projectionId}
-/users/{userId}
-/audit_logs/{auditLogId}" | "# Q Saudi Work Follow — نموذج Data والمخطط الهيكلي (Data Model & Schema)
-
-## 1. فلسفة تخزين Data ومصدر الحقيقة
-- Firestore هو قاعدة Data الأساسية وSource الأوحد للحقيقة (SSOT).
-- تنظيم Data بنمط Multi-Tenant Scoped Subcollections (/projects/{projectId}/...).
-- Denormalization استراتيجي للقطات التاريخية (Pricing Snapshot, Truck Snapshot, Driver Snapshot).
-
-## 2. الهيكلية الشجرية
-/projects/{projectId}
-   ├── /carriers/{carrierId}
-   ├── /materials/{materialId}
-   ├── /pricing_rules/{ruleId}
-   ├── /trucks/{truckId}
-   ├── /drivers/{driverId}
-   ├── /trips/{tripId}
-   │      ├── /events/{eventId}
-   │      └── /exceptions/{exceptionId}
-   ├── /sync_operations/{syncOpId}
-   └── /sheet_projections/{projectionId}
-/users/{userId}
-/audit_logs/{auditLogId}" | "# Q Saudi Work Follow — نموذج ڈیٹا والمخطط الهيكلي (Data Model & Schema)
-
-## 1. فلسفة تخزين ڈیٹا ومصدر الحقيقة
-- Firestore هو قاعدة ڈیٹا الأساسية وماخذ الأوحد للحقيقة (SSOT).
-- تنظيم ڈیٹا بنمط Multi-Tenant Scoped Subcollections (/projects/{projectId}/...).
-- Denormalization استراتيجي للقطات التاريخية (Pricing Snapshot, Truck Snapshot, Driver Snapshot).
-
-## 2. الهيكلية الشجرية
-/projects/{projectId}
-   ├── /carriers/{carrierId}
-   ├── /materials/{materialId}
-   ├── /pricing_rules/{ruleId}
-   ├── /trucks/{truckId}
-   ├── /drivers/{driverId}
-   ├── /trips/{tripId}
-   │      ├── /events/{eventId}
-   │      └── /exceptions/{exceptionId}
-   ├── /sync_operations/{syncOpId}
-   └── /sheet_projections/{projectionId}
-/users/{userId}
-/audit_logs/{auditLogId}" | Ensure parameter(s) [projectId, carrierId, materialId, ruleId, truckId, driverId, tripId, eventId, exceptionId, syncOpId, projectionId, userId, auditLogId] remain unmodified in translation syntax. |
-| `projects.labels.carrier_8` | "تضارب تسعير: الناقل (${carrierDisplay}) لديه قاعدتا تسعير متطابقتان بنموذج (${pricingTypeLabel}) لمادة (${materialDisplay}) في فترتين زمنيتين متداخلتين: [${period1Str}] و [${period2Str}]." | "تضارب تسعير: Carrier (${carrierDisplay}) لديه قاعدتا تسعير متطابقتان بنموذج (${pricingTypeLabel}) لمادة (${materialDisplay}) في فترتين زمنيتين متداخلتين: [${period1Str}] و [${period2Str}]." | "تضارب تسعير: کیریئر (${carrierDisplay}) لديه قاعدتا تسعير متطابقتان بنموذج (${pricingTypeLabel}) لمادة (${materialDisplay}) في فترتين زمنيتين متداخلتين: [${period1Str}] و [${period2Str}]." | Ensure parameter(s) [carrierDisplay, pricingTypeLabel, materialDisplay, period1Str, period2Str] remain unmodified in translation syntax. |
-| `projects.labels.txt_4f29dd` | "تعرفة ${carrierName} - ${modelLabel} (${priceRate} ريال)" | "تعرفة ${carrierName} - ${modelLabel} (${priceRate} SAR)" | "تعرفة ${carrierName} - ${modelLabel} (${priceRate} سعودی ریال)" | Ensure parameter(s) [carrierName, modelLabel, priceRate] remain unmodified in translation syntax. |
-
-### 1. Reason: `PLURALIZATION_RISK` (132 items)
-
-> Quantities requiring 6 Arabic plural forms aligned with target language plural rules
-
-| Key | Arabic Source | Proposed English | Proposed Urdu | Recommendation & Context |
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
-| `dashboard.labels.txt_17805f` | "إجمالي التسويات: ${settMetrics.totalSettlementAmount} ر.س (مقطوعية: ${settMetrics.tripBasedSettlementAmount}، أطنان: ${settMetrics.tonBasedSettlementAmount})." | "إجمالي التسويات: ${settMetrics.totalSettlementAmount} SAR (مقطوعية: ${settMetrics.tripBasedSettlementAmount}، tons: ${settMetrics.tonBasedSettlementAmount})." | "إجمالي التسويات: ${settMetrics.totalSettlementAmount} سعودی ریال (مقطوعية: ${settMetrics.tripBasedSettlementAmount}، ٹن: ${settMetrics.tonBasedSettlementAmount})." | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `dashboard.status.txt_19a7a2` | "إجمالي: ${statusMetrics.totalTrips}, المكتملة: ${statusMetrics.completedTrips}, قيد الترحيل: ${statusMetrics.inTransitTrips}." | "إجمالي: ${statusMetrics.totalTrips}, الCompletedة: ${statusMetrics.completedTrips}, قيد الترحيل: ${statusMetrics.inTransitTrips}." | "إجمالي: ${statusMetrics.totalTrips}, المکملة: ${statusMetrics.completedTrips}, قيد الترحيل: ${statusMetrics.inTransitTrips}." | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `entityResolution.fields.txt_6014d9` | "تذكرة رقم 0123456789" | "تذكرة رقم 0123456789" | "تذكرة رقم 0123456789" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `entityResolution.labels.txt_22771a` | "كجم | إجمالي:" | "kg | إجمالي:" | "کلوگرام | إجمالي:" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `exceptions.fields.refresh` | "تعارض النسخ المتفائلة (Optimistic Concurrency Clash): محاولة تحديث تذكرة الوصول بالنسخة رقم (1) بينما خادم قاعدة البيانات يحتوي النسخة رقم (2)" | "تعارض الCopy المتفائلة (Optimistic Concurrency Clash): محاولة Refresh تذكرة الوصول بالCopyة رقم (1) بينما خادم قاعدة Data يحتوي الCopyة رقم (2)" | "تعارض الکاپی کریں المتفائلة (Optimistic Concurrency Clash): محاولة تازہ کریں تذكرة الوصول بالکاپی کریںة رقم (1) بينما خادم قاعدة ڈیٹا يحتوي الکاپی کریںة رقم (2)" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `exceptions.fields.tripWeighbridge` | "محاولة إدخال رحلة مكررة بنفس الرقم التسلسلي لتذكرة الميزان المحررة (WB-TKT-88091)" | "محاولة إدخال Trip مكررة بنفس الرقم التسلسلي لتذكرة الميزان المحررة (WB-TKT-88091)" | "محاولة إدخال ٹرپ مكررة بنفس الرقم التسلسلي لتذكرة الميزان المحررة (WB-TKT-88091)" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `exceptions.labels.txt_1334ce` | "لا توجد قاعدة تسعير معتمدة وسارية للناقل (CAR-ALBILAD-08) لنقل مادة الصخور البحرية (MAT-ARMOR-ROCK) للمشروع" | "لا توجد قاعدة تسعير معتمدة وسارية للناقل (CAR-ALBILAD-08) لنقل مادة الصخور البحرية (MAT-ARMOR-ROCK) للمشروع" | "لا توجد قاعدة تسعير معتمدة وسارية للناقل (CAR-ALBILAD-08) لنقل مادة الصخور البحرية (MAT-ARMOR-ROCK) للمشروع" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `exceptions.status.createSuccessError` | "تم إنشاء وتحقق سجل استثناء لكل نوع من الأنواع الـ 12 بنجاح دون أي خطأ" | "تم Create وتحقق سجل استثناء لكل نوع من الأنواع الـ 12 بSuccess دون أي Error" | "تم تخلیق کریں وتحقق سجل استثناء لكل نوع من الأنواع الـ 12 بکامیاب دون أي خرابی" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `imports.fields.txt_1eceb7` | "وزن إجمالي" | "وزن إجمالي" | "وزن إجمالي" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `imports.fields.txt_5fedb0` | "إجمالي السجلات يجب أن يكون رقمًا غير سالب" | "إجمالي السجلات يجب أن يكون رقمًا غير سالب" | "إجمالي السجلات يجب أن يكون رقمًا غير سالب" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `imports.labels.truckEditProject` | "تعارض حرج في العلاقة (RELATIONSHIP_CONFLICT): الشاحنة (${matchedTruck.plate}) مقيدة في السجلات المعتمدة للناقل (${registeredCarrier})، بينما الملف الوارد ينسبها للناقل (${claimedCarrier}). يمنع النظام إعادة تعيين الشاحنة أو تعديل سجلات المشروع الأساسية تلقائياً." | "تعارض حرج في العلاقة (RELATIONSHIP_CONFLICT): Truck (${matchedTruck.plate}) Restrictedة في السجلات المعتمدة للناقل (${registeredCarrier})، بينما الملف الوارد ينسبها للناقل (${claimedCarrier}). يمنع النظام إعادة تعيين Truck أو Edit سجلات Project الأساسية تلقائياً." | "تعارض حرج في العلاقة (RELATIONSHIP_CONFLICT): ٹرک (${matchedTruck.plate}) پابندة في السجلات المعتمدة للناقل (${registeredCarrier})، بينما الملف الوارد ينسبها للناقل (${claimedCarrier}). يمنع النظام إعادة تعيين ٹرک أو ترمیم کریں سجلات پروجیکٹ الأساسية تلقائياً." | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `imports.labels.truck_9` | "الشاحنة / اللوحة (${raw}) غير مسجلة في سجلات أسطول المشروع." | "Truck / اللوحة (${raw}) غير مسجلة في سجلات أسطول Project." | "ٹرک / اللوحة (${raw}) غير مسجلة في سجلات أسطول پروجیکٹ." | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `imports.labels.txt_27a67d` | "فارغ: ${tareKg} / إجمالي: ${grossKg}" | "فارغ: ${tareKg} / Total: ${grossKg}" | "فارغ: ${tareKg} / کل: ${grossKg}" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `imports.labels.txt_326cdf` | "تم وسم الصف الثاني كمكرر: ${secondRowDuplicate}، إجمالي المكرر: ${batch.rows.filter((r) => r.duplicateInfo?.isDuplicate).length}" | "تم وسم الصف الثاني كمكرر: ${secondRowDuplicate}، إجمالي المكرر: ${batch.rows.filter((r) => r.duplicateInfo?.isDuplicate).length}" | "تم وسم الصف الثاني كمكرر: ${secondRowDuplicate}، إجمالي المكرر: ${batch.rows.filter((r) => r.duplicateInfo?.isDuplicate).length}" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `imports.labels.txt_342ca6` | "إجمالي السجلات الأصلية المؤرشفة:" | "إجمالي السجلات الأصلية المؤرشفة:" | "إجمالي السجلات الأصلية المؤرشفة:" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `imports.labels.txt_4cde00` | "مؤشر صف الترويسة (${headerRowIdx}) أكبر من عدد صفوف الجدول المتاحة (${values.length})." | "مؤشر صف الترويسة (${headerRowIdx}) أكبر من عدد صفوف الجدول المتاحة (${values.length})." | "مؤشر صف الترويسة (${headerRowIdx}) أكبر من عدد صفوف الجدول المتاحة (${values.length})." | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `imports.labels.txt_513ae4` | "إجمالي الصفوف (rowCount)" | "إجمالي الصفوف (rowCount)" | "إجمالي الصفوف (rowCount)" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `loading.fields.total` | "تنبيه وزن إجمالي مرتفع: الوزن الإجمالي (${(grossWeight / 1000).toFixed(1)} طن) قد يعرض المركبة لمخالفة الموازين المتنقلة." | "تنبيه وزن إجمالي مرتفع: Gross Weight (${(grossWeight / 1000).toFixed(1)} ton) قد يView المركبة لمخالفة الموازين المتنقلة." | "تنبيه وزن إجمالي مرتفع: مجموعی وزن (${(grossWeight / 1000).toFixed(1)} ٹن) قد يدیکھیں المركبة لمخالفة الموازين المتنقلة." | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `loading.fields.txt_5ddea6` | "تنبيه وزن إجمالي مرتفع: الوزن القائم (${(grossWeight / 1000).toFixed(1)} طن) قد يعرض المركبة لمخالفة محطات الوزن المتنقلة." | "تنبيه وزن إجمالي مرتفع: الوزن القائم (${(grossWeight / 1000).toFixed(1)} ton) قد يView المركبة لمخالفة محطات الوزن المتنقلة." | "تنبيه وزن إجمالي مرتفع: الوزن القائم (${(grossWeight / 1000).toFixed(1)} ٹن) قد يدیکھیں المركبة لمخالفة محطات الوزن المتنقلة." | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `loading.labels.txt_1b30bf` | "تنبيه حمولة زائدة: صافي الحمولة (${netWeightTons} طن) يتجاوز الحد النظامي الموصى به (35 طن) وفق لائحة الهيئة العامة للنقل." | "تنبيه حمولة زائدة: صافي الحمولة (${netWeightTons} ton) يتجاوز الحد النظامي الموصى به (35 ton) وفق لائحة الهيئة العامة للنقل." | "تنبيه حمولة زائدة: صافي الحمولة (${netWeightTons} ٹن) يتجاوز الحد النظامي الموصى به (35 ٹن) وفق لائحة الهيئة العامة للنقل." | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `loading.labels.txt_4d6b95` | "من إجمالي" | "من إجمالي" | "من إجمالي" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `loading.labels.txt_56e34f` | "${netWeightTons} طن × ${activePricingRule.agreedRate} = ${total.toFixed(2)} ${activePricingRule.currency || 'SAR'}" | "${netWeightTons} ton × ${activePricingRule.agreedRate} = ${total.toFixed(2)} ${activePricingRule.currency || 'SAR'}" | "${netWeightTons} ٹن × ${activePricingRule.agreedRate} = ${total.toFixed(2)} ${activePricingRule.currency || 'SAR'}" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `loading.messages.downloadPricing` | "تم تحميل سيناريو مثال التسعير بالطن (37.4 طن × 8.5 ر.س = 317.90 ر.س)" | "تم تحميل سيناريو مثال التسعير بالton (37.4 ton × 8.5 SAR = 317.90 SAR)" | "تم تحميل سيناريو مثال التسعير بالٹن (37.4 ٹن × 8.5 سعودی ریال = 317.90 سعودی ریال)" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `navigation.labels.project_13` | "إجمالي الكميات الموردة بالمشروع" | "إجمالي الكميات الموردة بProject" | "إجمالي الكميات الموردة بپروجیکٹ" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| `navigation.labels.txt_19f9d7` | "إجمالي حالات الاستثناء وفروقات الموازين" | "إجمالي حالات الاستثناء وفروقات الموازين" | "إجمالي حالات الاستثناء وفروقات الموازين" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
-| ... | *and 107 more items in this queue* | | | |
+| `unloading.actions.search` | "بحث" | jsx_text | `MEDIUM` | Semantic conflict isolation |
+| `unloading.actions.trk9901` | "TRK-9901" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.actions.trp1002` | "TRP-1002" | call_runExtractedHandleSearchTrip | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.actions.trpNeom8892` | "TRP-NEOM-8892" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.actions.trpUnknown999` | "TRP-UNKNOWN-999" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.actions.txt_5045a4` | "أ ب ج 1234" | call_runExtractedHandleSearchTrip | `HIGH` | Semantic conflict isolation |
+| `unloading.actions.txt_75235b` | "د هـ و 5678" | call_handleSearch | `HIGH` | Semantic conflict isolation |
+| `unloading.actions.wbTkt99106` | "WB-TKT-99106" | call_handleSearch | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.fields.closeTrips` | ") غير مصرح له بإتمام عمليات وزن الاستلام أو إغلاق الرحلات المفرغة. هذه الواجهة مخصصة لمشغلي موازين المواقع ومسؤولي الاستلام (Site Receivers) ومديري المشاريع." | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.fields.create` | "تم إنشاء استثناء رقابي رسمي رقم:" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.fields.create_2` | "تنبيه رقابي صارم: فارق الوزن (${result.varianceWeight.toLocaleString()} كجم) خارج نسبة التسامح المسموحة! تم رسمياً إنشاء كائن استثناء (${result.exceptionCreated.exceptionId}) في قاعدة البيانات وسجل التدقيق." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [varianceWeight,KG]) |
+| `unloading.fields.location` | "صافي وزن الاستلام بميزان الموقع (Dest Net Weight)" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.fields.netWeight` | "الوزن الصافي:" | jsx_text | `MEDIUM` | Semantic conflict isolation |
+| `unloading.fields.recInspector01` | "REC-INSPECTOR-01" | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.fields.refreshStatus` | "تم إكمال التفريغ بنجاح: تم احتساب فارق الوزن خادومياً (${result.varianceWeight.toLocaleString()} كجم) وتحديث الحقول الـ 5 وترقية الحالة إلى [COMPLETED]." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [varianceWeight,KG]) |
+| `unloading.fields.search` | "نجح البحث الأساسي برقم السريال: ${searchResult.trip?.tripSerial} وأرجع حالة CONTINUE" | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [SAR]) |
+| `unloading.fields.searchCreate` | "منظومة استلام وتفريغ الشحنات بالموقع: البحث بالتدرج الإلزامي (tripSerial ➔ ticketId ➔ truckId)، حظر البحث باللوحة المنفردة، التدرج التشغيلي للحالات، واحتساب فارق الوزن خادومياً وإنشاء كائنات الاستثناءات الرسمية عند تجاوز التفاوت." | jsx_text | `MEDIUM` | Domain-specific terminology translation (Protected: [ticketId]) |
+| `unloading.fields.searchTrip` | "البحث الأساسي: المطابقة برقم الرحلة (tripSerial)" | prop_name | `MEDIUM` | Domain-specific terminology translation |
+| `unloading.fields.search_2` | "البحث الثانوي: المطابقة برقم التذكرة (ticketId)" | prop_name | `MEDIUM` | Domain-specific terminology translation (Protected: [ticketId]) |
+| `unloading.fields.status` | "تم إكمال التفريغ بنجاح! تم احتساب فارق الوزن (${varianceWeight.toLocaleString()} كجم) وترقية الحالة إلى [COMPLETED]." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [varianceWeight,KG]) |
+| ... | *and 292 more items in this domain queue* | | | |
 
-### 1. Reason: `REPORT_EXPORT_RISK` (3561 items)
+## Domain: `weighbridge` (418 items requiring review)
 
-> Report column or export header requiring separation of internal data key from display label
-
-| Key | Arabic Source | Proposed English | Proposed Urdu | Recommendation & Context |
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
-| `authentication.columns.bearer` | "Bearer" | "Bearer" | "Bearer" | Ensure internal key 'bearer' remains untranslated; translate presentation label only. |
-| `authentication.columns.cancel` | "تم إلغاء طلب تسجيل الدخول." | "تم Cancel طلب تسجيل الدخول." | "تم منسوخ کریں طلب تسجيل الدخول." | Ensure internal key 'cancel' remains untranslated; translate presentation label only. |
-| `authentication.columns.close` | "تم إغلاق نافذة تسجيل الدخول من قبل المستخدم." | "تم Close نافذة تسجيل الدخول من قبل User." | "تم بند کریں نافذة تسجيل الدخول من قبل صارف." | Ensure internal key 'close' remains untranslated; translate presentation label only. |
-| `authentication.columns.txt_110c51` | "تم حظر النافذة المنبثقة من قِبل المتصفح. يُرجى السماح بالنوافذ المنبثقة." | "تم حظر النافذة المنبثقة من قِبل المتصفح. يُرجى السماح بالنوافذ المنبثقة." | "تم حظر النافذة المنبثقة من قِبل المتصفح. يُرجى السماح بالنوافذ المنبثقة." | Ensure internal key 'txt_110c51' remains untranslated; translate presentation label only. |
-| `authentication.columns.txt_628e01` | "تعذر الاتصال بخدمة المصادقة. يرجى التحقق من اتصالك بالإنترنت." | "تعذر الاتصال بخدمة المصادقة. يرجى Verify اتصالك بالإنترنت." | "تعذر الاتصال بخدمة المصادقة. يرجى تصدیق کریں اتصالك بالإنترنت." | Ensure internal key 'txt_628e01' remains untranslated; translate presentation label only. |
-| `authentication.fields.txt_1fd2a9` | "الاسم الكامل الثلاثي للمستخدم" | "الاسم الكامل الثلاثي للمستخدم" | "الاسم الكامل الثلاثي للمستخدم" | Ensure internal key 'txt_1fd2a9' remains untranslated; translate presentation label only. |
-| `authentication.fields.txt_465327` | "يُرجى إدخال الاسم الكامل." | "يُرجى إدخال الاسم الكامل." | "يُرجى إدخال الاسم الكامل." | Ensure internal key 'txt_465327' remains untranslated; translate presentation label only. |
-| `authentication.fields.txt_7a428f` | "أدخل اسمك بالكامل" | "أدخل اسمك بالكامل" | "أدخل اسمك بالكامل" | Ensure internal key 'txt_7a428f' remains untranslated; translate presentation label only. |
-| `authentication.fields.user` | "اسم المستخدم:" | "اسم User:" | "اسم صارف:" | Ensure internal key 'user' remains untranslated; translate presentation label only. |
-| `carriers.columns.carriers` | "carriers" | "carriers" | "carriers" | Ensure internal key 'carriers' remains untranslated; translate presentation label only. |
-| `carriers.columns.projects` | "projects" | "projects" | "projects" | Ensure internal key 'projects' remains untranslated; translate presentation label only. |
-| `carriers.fields.carrier` | "معرف الناقل (carrierId) مطلوب" | "معرف Carrier (carrierId) Required" | "معرف کیریئر (carrierId) لازمی" | Ensure internal key 'carrier' remains untranslated; translate presentation label only. |
-| `carriers.fields.carrier_2` | "اسم الناقل يجب أن يتكون من 3 أحرف على الأقل" | "Carrier Name يجب أن يتكون من 3 أحرف على الأقل" | "کیریئر کا نام يجب أن يتكون من 3 أحرف على الأقل" | Ensure internal key 'carrier_2' remains untranslated; translate presentation label only. |
-| `carriers.fields.commercialregistrationno` | "commercialRegistrationNo" | "commercialRegistrationNo" | "commercialRegistrationNo" | Ensure internal key 'commercialregistrationno' remains untranslated; translate presentation label only. |
-| `carriers.fields.name` | "name" | "name" | "name" | Ensure internal key 'name' remains untranslated; translate presentation label only. |
-| `carriers.fields.tgaLog12345` | "TGA-LOG-12345" | "TGA-LOG-12345" | "TGA-LOG-12345" | Ensure internal key 'tgaLog12345' remains untranslated; translate presentation label only. |
-| `carriers.fields.txt_13dd75` | "رقم جوال التواصل" | "رقم جوال التواصل" | "رقم جوال التواصل" | Ensure internal key 'txt_13dd75' remains untranslated; translate presentation label only. |
-| `carriers.fields.txt_23aacd` | "رقم السجل التجاري للناقل يجب أن يكون 10 أرقام نظامية سعودية" | "رقم السجل التجاري للناقل يجب أن يكون 10 أرقام نظامية سعودية" | "رقم السجل التجاري للناقل يجب أن يكون 10 أرقام نظامية سعودية" | Ensure internal key 'txt_23aacd' remains untranslated; translate presentation label only. |
-| `carriers.fields.txt_30a77c` | "رقم السجل التجاري يجب أن يتكون من 10 أرقام" | "رقم السجل التجاري يجب أن يتكون من 10 أرقام" | "رقم السجل التجاري يجب أن يتكون من 10 أرقام" | Ensure internal key 'txt_30a77c' remains untranslated; translate presentation label only. |
-| `carriers.fields.txt_4718fe` | "e.g. CAR-A أو CAR-ALRASHID-01" | "e.g. CAR-A أو CAR-ALRASHID-01" | "e.g. CAR-A أو CAR-ALRASHID-01" | Ensure internal key 'txt_4718fe' remains untranslated; translate presentation label only. |
-| `carriers.fields.txt_49c361` | "رقم السجل التجاري (CR 10 أرقام)" | "رقم السجل التجاري (CR 10 أرقام)" | "رقم السجل التجاري (CR 10 أرقام)" | Ensure internal key 'txt_49c361' remains untranslated; translate presentation label only. |
-| `carriers.fields.txt_49e1b2` | "فهد الرشيد" | "فهد الرشيد" | "فهد الرشيد" | Ensure internal key 'txt_49e1b2' remains untranslated; translate presentation label only. |
-| `carriers.fields.txt_521cc9` | "اسم مسؤول العمليات" | "اسم مسؤول Operations" | "اسم مسؤول آپریشنز" | Ensure internal key 'txt_521cc9' remains untranslated; translate presentation label only. |
-| `carriers.fields.txt_558361` | "اسم شركة النقل (carrierName) مطلوب ولا يقل عن 3 أحرف" | "اسم شركة النقل (carrierName) Required ولا يقل عن 3 أحرف" | "اسم شركة النقل (carrierName) لازمی ولا يقل عن 3 أحرف" | Ensure internal key 'txt_558361' remains untranslated; translate presentation label only. |
-| `carriers.fields.txt_599d91` | "contact@carrier.sa" | "contact@carrier.sa" | "contact@carrier.sa" | Ensure internal key 'txt_599d91' remains untranslated; translate presentation label only. |
-| ... | *and 3536 more items in this queue* | | | |
+| `weighbridge.fields.0` | "0" | call_setTareInput | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.120` | "-120" | call_setEvalVarianceInput | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.380` | "-380" | call_setEvalVarianceInput | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.500` | "500" | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.750` | "-750" | call_setEvalVarianceInput | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.carrier` | "الناقل / شركة النقل" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.carrier_2` | "رقم اتفاقية الناقل المعتمدة" | prop_descriptionAr | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.date` | "التاريخ" | prop_'التاريخ' | `HIGH` | Semantic conflict isolation |
+| `weighbridge.fields.dateTruck` | "التاريخ (date)، رقم التذكرة (ticketId)، رقم الشاحنة (truckNo)، الوزن الفارغ (tare)، الوزن القائم (gross)." | jsx_text | `HIGH` | Domain-specific terminology translation (Protected: [ticketId,truckNo]) |
+| `weighbridge.fields.download` | "أنت بصدد اتخاذ قرار رقابي باعتماد وزن صافي المصدر المسجل بميزان التحميل كوزن صافي نهائي لموقع الوصول للشحنة التالية:" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.download_2` | "وزن المصدر غير صالح (${loadedNet} كجم). يجب أن يكون صافي التحميل أكبر من صفر (net > 0)." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {loadedNet}; Protected: [KG]) |
+| `weighbridge.fields.download_3` | "محطة التحميل" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
+| `weighbridge.fields.download_4` | "وقت التحميل" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
+| `weighbridge.fields.driverName` | "اسم السائق" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
+| `weighbridge.fields.errorPricing` | "خطأ في نوع التسعير" | prop_formula | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.location` | "وزن الصافي المستلم بالموقع (receivedNet) مفقود (يجب أن يكون null وليس 0)." | call_push | `HIGH` | Domain-specific terminology translation |
+| `weighbridge.fields.material` | "المادة / الصنف" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.material_2` | "اسم أو رمز المادة المحملة" | prop_descriptionAr | `MEDIUM` | Domain-specific terminology translation |
+| `weighbridge.fields.netWeight` | "الوزن الصافي" | prop_'الوزن الصافي' | `MEDIUM` | Semantic conflict isolation |
+| `weighbridge.fields.null` | "null" | attr_placeholder | `MEDIUM` | Semantic conflict isolation |
+| ... | *and 398 more items in this domain queue* | | | |
 
-### 1. Reason: `BUSINESS_DATA_RISK` (822 items)
+## Domain: `imports` (1755 items requiring review)
 
-> Formulas, rates, or business calculations requiring strict identifier preservation
-
-| Key | Arabic Source | Proposed English | Proposed Urdu | Recommendation & Context |
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
-| `authentication.labels.txt_6e1f8e` | "نطاق التطبيق (${hostname}) غير مدرج في قائمة النطاقات المصرح بها (Authorized Domains) في Firebase Console. يمكنك إضافته عبر: Firebase Console -> Authentication -> Settings -> Authorized domains." | "نطاق الApply (${hostname}) غير مدرج في قائمة النطاقات المصرح بها (Authorized Domains) في Firebase Console. يمكنك إضافته عبر: Firebase Console -> Authentication -> Settings -> Authorized domains." | "نطاق اللاگو کریں (${hostname}) غير مدرج في قائمة النطاقات المصرح بها (Authorized Domains) في Firebase Console. يمكنك إضافته عبر: Firebase Console -> Authentication -> Settings -> Authorized domains." | Protect financial or scale tokens: [hostname]. |
-| `authentication.labels.txt_7a78d9` | "مثال: مهندس موقع بمشروع نيوم لتسجيل موازين الشحنات اليومية" | "مثال: مهندس موقع بمشروع نيوم لتسجيل موازين الشحنات اليومية" | "مثال: مهندس موقع بمشروع نيوم لتسجيل موازين الشحنات اليومية" | Protect financial or scale tokens: []. |
-| `carriers.labels.carrier` | "معرف الناقل (${cleanId}) مسجل مسبقاً في المشروع." | "معرف Carrier (${cleanId}) مسجل مسبقاً في Project." | "معرف کیریئر (${cleanId}) مسجل مسبقاً في پروجیکٹ." | Protect financial or scale tokens: [cleanId]. |
-| `carriers.labels.error` | "خطأ في بيانات الناقل: ${validation.errors.map(e => e.messageAr).join(' | ')}" | "Error في بيانات Carrier: ${validation.errors.map(e => e.messageAr).join(' | ')}" | "خرابی في بيانات کیریئر: ${validation.errors.map(e => e.messageAr).join(' | ')}" | Protect financial or scale tokens: []. |
-| `carriers.labels.errorRefresh` | "خطأ في تحديث الناقل: ${validation.errors.map(e => e.messageAr).join(' | ')}" | "Error في Refresh Carrier: ${validation.errors.map(e => e.messageAr).join(' | ')}" | "خرابی في تازہ کریں کیریئر: ${validation.errors.map(e => e.messageAr).join(' | ')}" | Protect financial or scale tokens: []. |
-| `dashboard.labels.filter` | "تم تصفية البيانات بدقة: حصل مدير نيوم على رحلات نيوم فقط (${neomRes.trips.length} رحلة) وتم حجب مشروع البحر الأحمر نهائياً." | "تم Filter Data بدقة: حصل مدير نيوم على رحلات نيوم فقط (${neomRes.trips.length} Trip) وتم حجب مشروع البحر الأحمر نهائياً." | "تم فلٹر کریں ڈیٹا بدقة: حصل مدير نيوم على رحلات نيوم فقط (${neomRes.trips.length} ٹرپ) وتم حجب مشروع البحر الأحمر نهائياً." | Protect financial or scale tokens: []. |
-| `dashboard.labels.trip_3` | "رحلة بالطن" | "Trip بالton" | "ٹرپ بالٹن" | Protect financial or scale tokens: [TON]. |
-| `dashboard.labels.txt_1bf649` | "أوزان التحميل: ${tonMetrics.totalLoadedTons} طن، الاستلام: ${tonMetrics.totalReceivedTons} طن، الفارق: ${tonMetrics.totalVarianceTons} طن." | "أوزان التحميل: ${tonMetrics.totalLoadedTons} ton، الاستلام: ${tonMetrics.totalReceivedTons} ton، الفارق: ${tonMetrics.totalVarianceTons} ton." | "أوزان التحميل: ${tonMetrics.totalLoadedTons} ٹن، الاستلام: ${tonMetrics.totalReceivedTons} ٹن، الفارق: ${tonMetrics.totalVarianceTons} ٹن." | Protect financial or scale tokens: [TON]. |
-| `dashboard.labels.txt_209b00` | "تم رصد محاولة وصول لمشروع غير مصرح به وإرجاع مصفوفة فارغة مع تفعيل علامة الانتهاك الأمني." | "تم رصد محاولة وصول لمشروع غير مصرح به وإرجاع مصفوفة فارغة مع تفعيل علامة الانتهاك الأمني." | "تم رصد محاولة وصول لمشروع غير مصرح به وإرجاع مصفوفة فارغة مع تفعيل علامة الانتهاك الأمني." | Protect financial or scale tokens: []. |
-| `dashboard.labels.txt_27a436` | "ضمن نسبة التسامح (±1%)" | "ضمن نسبة التسامح (±1%)" | "ضمن نسبة التسامح (±1%)" | Protect financial or scale tokens: []. |
-| `dashboard.labels.txt_368ced` | "ثبات لقطات التسوية ومطابقة PER_TRIP و PER_TON" | "ثبات لقطات التسوية ومطابقة PER_TRIP و PER_TON" | "ثبات لقطات التسوية ومطابقة PER_TRIP و PER_TON" | Protect financial or scale tokens: []. |
-| `dashboard.labels.txt_633cee` | "كافة فحوصات الأمان والعمليات ناجحة بنسبة 100%" | "كافة فحوصات الأمان وOperations ناجحة بنسبة 100%" | "كافة فحوصات الأمان وآپریشنز ناجحة بنسبة 100%" | Protect financial or scale tokens: []. |
-| `dashboard.labels.txt_6ab017` | "عقود الطن المتري (PER_TON)" | "عقود الton المتري (PER_TON)" | "عقود الٹن المتري (PER_TON)" | Protect financial or scale tokens: [TON]. |
-| `dashboard.labels.txt_6cd5a8` | "بطاقات الأوزان (Tonnage & Variance Cards)" | "بطاقات الأوزان (Tonnage & Variance Cards)" | "بطاقات الأوزان (Tonnage & Variance Cards)" | Protect financial or scale tokens: []. |
-| `dashboard.labels.txt_7e36b6` | "بالطن المتري (PER_TON)" | "بالton المتري (PER_TON)" | "بالٹن المتري (PER_TON)" | Protect financial or scale tokens: [TON]. |
-| `dashboard.status.success` | "تم تجميع الأداء بنجاح لـ ${carrierPerf.length} ناقلين." | "تم تجميع الأداء بSuccess لـ ${carrierPerf.length} ناقلين." | "تم تجميع الأداء بکامیاب لـ ${carrierPerf.length} ناقلين." | Protect financial or scale tokens: []. |
-| `dashboard.status.trips` | "تم ترتيب الرحلات النشطة قيد الترحيل في مقدمة لوحة البوابات الحية." | "تم ترتيب Trips الActiveة قيد الترحيل في مقدمة لوحة البوابات الحية." | "تم ترتيب ٹرپس الفعالة قيد الترحيل في مقدمة لوحة البوابات الحية." | Protect financial or scale tokens: []. |
-| `drivers.labels.error` | "خطأ في بيانات السائق: ${validation.errors.map(e => e.messageAr).join(' | ')}" | "Error في بيانات Driver: ${validation.errors.map(e => e.messageAr).join(' | ')}" | "خرابی في بيانات ڈرائیور: ${validation.errors.map(e => e.messageAr).join(' | ')}" | Protect financial or scale tokens: []. |
-| `drivers.labels.errorRefresh` | "خطأ في تحديث السائق: ${validation.errors.map(e => e.messageAr).join(' | ')}" | "Error في Refresh Driver: ${validation.errors.map(e => e.messageAr).join(' | ')}" | "خرابی في تازہ کریں ڈرائیور: ${validation.errors.map(e => e.messageAr).join(' | ')}" | Protect financial or scale tokens: []. |
-| `entityResolution.labels.carrier` | "تم ترخيص الناقل [${resolutionCarrierId}] للمشروع يدوياً." | "تم ترخيص Carrier [${resolutionCarrierId}] للمشروع يدوياً." | "تم ترخيص کیریئر [${resolutionCarrierId}] للمشروع يدوياً." | Protect financial or scale tokens: [resolutionCarrierId]. |
-| `entityResolution.labels.carrier_4` | "الناقل [${candidateValue || candidateId}] غير معتمد أو غير مصرح له في نطاق هذا المشروع." | "Carrier [${candidateValue || candidateId}] غير معتمد أو غير مصرح له في نطاق هذا Project." | "کیریئر [${candidateValue || candidateId}] غير معتمد أو غير مصرح له في نطاق هذا پروجیکٹ." | Protect financial or scale tokens: []. |
-| `entityResolution.labels.closeTrip` | "تم رصد إغلاق الرحلة الخادومي (${targetTrip.tripSerial}) ومنع الكتابة التلقائية" | "تم رصد Close الTrip الخادومي (${targetTrip.tripSerial}) ومنع الكتابة التلقائية" | "تم رصد بند کریں الٹرپ الخادومي (${targetTrip.tripSerial}) ومنع الكتابة التلقائية" | Protect financial or scale tokens: []. |
-| `entityResolution.labels.material_5` | "المادة [${candidateValue || candidateId}] غير مسموح بنقلها أو غير معتمدة في هذا المشروع." | "Material [${candidateValue || candidateId}] غير مسموح بنقلها أو غير معتمدة في هذا Project." | "مٹیریل [${candidateValue || candidateId}] غير مسموح بنقلها أو غير معتمدة في هذا پروجیکٹ." | Protect financial or scale tokens: []. |
-| `entityResolution.labels.material_6` | "تم رصد المادة الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | "تم رصد Material الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | "تم رصد مٹیریل الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | Protect financial or scale tokens: []. |
-| `entityResolution.labels.truckCarrier` | "تم تصحيح تبعية الشاحنة يدوياً إلى الناقل [${resolutionCarrierId}]." | "تم تصحيح تبعية Truck يدوياً إلى Carrier [${resolutionCarrierId}]." | "تم تصحيح تبعية ٹرک يدوياً إلى کیریئر [${resolutionCarrierId}]." | Protect financial or scale tokens: [resolutionCarrierId]. |
-| ... | *and 797 more items in this queue* | | | |
+| `imports.actions.cancel` | "cancel" | call_includes | `MEDIUM` | Domain-specific terminology translation |
+| `imports.actions.download` | "تحميل" | call_includes | `MEDIUM` | Semantic conflict isolation |
+| `imports.columns.authorization` | "Authorization" | prop_'Authorization' | `MEDIUM` | Domain-specific terminology translation |
+| `imports.columns.carrierMemberships` | "carrier_memberships" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `imports.columns.ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff` | "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" | prop_contentHash | `MEDIUM` | Domain-specific terminology translation |
+| `imports.columns.importBatches` | "import_batches" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `imports.columns.materialMemberships` | "material_memberships" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `imports.columns.none` | "NONE" | prop_matchMethod | `MEDIUM` | Domain-specific terminology translation |
+| `imports.columns.post` | "POST" | prop_method | `MEDIUM` | Domain-specific terminology translation |
+| `imports.columns.projects` | "projects" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `imports.columns.tkt` | "TKT-" | call_startsWith | `MEDIUM` | Domain-specific terminology translation |
+| `imports.fields.all` | "ALL" | call_setFormatFilter | `MEDIUM` | Domain-specific terminology translation |
+| `imports.fields.batchtype` | "batchType" | prop_field | `MEDIUM` | Domain-specific terminology translation |
+| `imports.fields.carrier` | "الناقل (Carrier)" | prop_field | `MEDIUM` | Semantic conflict isolation |
+| `imports.fields.carrierMaterialTrip` | "لا توجد اتفاقية تسعير سارية لهذا الناقل والمادة في تاريخ الرحلة" | literal | `HIGH` | Domain-specific terminology translation |
+| `imports.fields.carrierName` | "اسم الناقل" | literal | `MEDIUM` | Semantic conflict isolation |
+| `imports.fields.carrier_2` | "carrier" | prop_fieldKey | `MEDIUM` | Domain-specific terminology translation |
+| `imports.fields.carrier_3` | "اسم الناقل المعتمد" | literal | `MEDIUM` | Domain-specific terminology translation |
+| `imports.fields.carriername` | "carrierName" | prop_field | `MEDIUM` | Domain-specific terminology translation |
+| `imports.fields.completed` | "رقم البوليصة [${rawWaybill}] مسجل مسبقاً في النظام ومكتمل الترحيل." | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {rawWaybill}) |
+| ... | *and 1735 more items in this domain queue* | | | |
 
-### 1. Reason: `LOW_CONFIDENCE` (8029 items)
+## Domain: `entityResolution` (288 items requiring review)
 
-> Ambiguous or composite phrases generated with low statistical confidence
-
-| Key | Arabic Source | Proposed English | Proposed Urdu | Recommendation & Context |
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
 | :--- | :--- | :--- | :--- | :--- |
-| `authentication.labels.44px` | "44px" | "44px" | "44px" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.activeAdminToken` | "active-admin-token" | "active-admin-token" | "active-admin-token" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.activeAuditorToken` | "active-auditor-token" | "active-auditor-token" | "active-auditor-token" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.activeDispatcherToken` | "active-dispatcher-token" | "active-dispatcher-token" | "active-dispatcher-token" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.activeSupervisorToken` | "active-supervisor-token" | "active-supervisor-token" | "active-supervisor-token" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.aiStudioQsaudiworkfollowAb1cba1eAc084099Bc72193202e518f1` | "ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1" | "ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1" | "ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.close` | "إغلاق التنبيه" | "Close التنبيه" | "بند کریں التنبيه" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.create` | "تم رفض طلب إنشاء الحساب" | "تم رفض طلب Create الحساب" | "تم رفض طلب تخلیق کریں الحساب" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.error` | "حدث خطأ أثناء إرسال الطلب. يرجى المحاولة لاحقاً." | "حدث Error أثناء إرسال الطلب. يرجى المحاولة لاحقاً." | "حدث خرابی أثناء إرسال الطلب. يرجى المحاولة لاحقاً." | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.expiredToken` | "expired-token" | "expired-token" | "expired-token" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.express` | "express" | "express" | "express" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.fail` | "FAIL" | "FAIL" | "FAIL" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.googleAuthVerified` | "Google Auth Verified" | "Google Auth Verified" | "Google Auth Verified" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.inactiveFlagToken` | "inactive-flag-token" | "inactive-flag-token" | "inactive-flag-token" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.invalidSigToken` | "invalid-sig-token" | "invalid-sig-token" | "invalid-sig-token" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.lucideReact` | "lucide-react" | "lucide-react" | "lucide-react" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.noReferrer` | "no-referrer" | "no-referrer" | "no-referrer" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.noUidToken` | "no-uid-token" | "no-uid-token" | "no-uid-token" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.nonExistentUserToken` | "non-existent-user-token" | "non-existent-user-token" | "non-existent-user-token" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.pass` | "PASS" | "PASS" | "PASS" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.pendingUserToken` | "pending-user-token" | "pending-user-token" | "pending-user-token" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.prjNeomNorth01` | "PRJ-NEOM-NORTH-01" | "PRJ-NEOM-NORTH-01" | "PRJ-NEOM-NORTH-01" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.prjRedseaResort02` | "PRJ-REDSEA-RESORT-02" | "PRJ-REDSEA-RESORT-02" | "PRJ-REDSEA-RESORT-02" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.project` | "مدير المشروع المشرف (PROJECT_ADMIN)" | "مدير Project المشرف (PROJECT_ADMIN)" | "مدير پروجیکٹ المشرف (PROJECT_ADMIN)" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| `authentication.labels.projects` | "نطاق المشاريع المصرحة:" | "نطاق Projects المصرحة:" | "نطاق پروجیکٹس المصرحة:" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| ... | *and 8004 more items in this queue* | | | |
+| `entityResolution.actions.cancel` | "إلغاء" | jsx_text | `MEDIUM` | Semantic conflict isolation |
+| `entityResolution.columns.05` | "05" | call_startsWith | `MEDIUM` | Domain-specific terminology translation |
+| `entityResolution.columns.9665` | "9665" | call_startsWith | `MEDIUM` | Domain-specific terminology translation |
+| `entityResolution.fields.failedPrice` | "فشل اكتشاف تعارض السعر أو حماية اللقطة" | literal | `MEDIUM` | Domain-specific terminology translation |
+| `entityResolution.fields.price` | "اكتشاف تغير السعر الخادومي مع حماية اللقطة (PRICING_CHANGED)" | prop_nameAr | `MEDIUM` | Domain-specific terminology translation |
+| `entityResolution.fields.priceCreateSuccessTrip` | "تم حماية لقطة السعر وقت الإنشاء بنجاح دون المساس بقيمة الرحلة الأصلية" | literal | `MEDIUM` | Domain-specific terminology translation |
+| `entityResolution.fields.price_2` | "ثبات تسعير الـ Offline وعدم تأثره بتحديثات السعر اللاحقة (Pricing Invariance)" | prop_nameAr | `MEDIUM` | Domain-specific terminology translation |
+| `entityResolution.fields.success` | "تم توثيق التدقيق وسجل الحل الصريح وهوية المسؤول وتاريخ القرار بنجاح" | literal | `HIGH` | Domain-specific terminology translation |
+| `entityResolution.fields.txt_25c8e3` | "- اختلاف في حرف المد/الألف (قد يمثل اسماً أو عائلة مختلفة، لا يجوز الدمج التلقائي)" | literal | `MEDIUM` | Domain-specific terminology translation |
+| `entityResolution.fields.txt_275bd1` | "الوزن الفارغ للشاحنة أكبر من أو يساوي الوزن الإجمالي، وهذا مخالف هندسياً." | call_push | `MEDIUM` | Domain-specific terminology translation |
+| `entityResolution.fields.txt_2ef270` | "خلطة إسفلتية ساخنة درجة 60/70" | call_setSandboxInput | `HIGH` | Semantic conflict isolation |
+| `entityResolution.fields.txt_2f9dc3` | "شركة الفازي للنقل" | call_setSandboxInput | `MEDIUM` | Semantic conflict isolation |
+| `entityResolution.fields.txt_30ba67` | "رقم الجوال غير مطابق للنمط السعودي (+9665xxxxxxx أو 05xxxxxxx)." | call_push | `HIGH` | Domain-specific terminology translation |
+| `entityResolution.fields.txt_3578c7` | "إعادة إصدار تذكرة جديدة برقم معتمد لفك التكرار" | prop_justification | `MEDIUM` | Domain-specific terminology translation |
+| `entityResolution.fields.txt_4bfaca` | "اكتب القيمة المدخلة..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
+| `entityResolution.fields.txt_5045a4` | "أ ب ج 1234" | call_setSandboxInput | `HIGH` | Semantic conflict isolation |
+| `entityResolution.fields.txt_6014d9` | "تذكرة رقم 0123456789" | literal | `HIGH` | Domain-specific terminology translation |
+| `entityResolution.fields.txt_61d881` | "شركة المجدوعي اللوجستية" | call_setSandboxInput | `MEDIUM` | Semantic conflict isolation |
+| `entityResolution.fields.txt_627907` | "خالد عبدالله الشمري" | call_setSandboxInput | `MEDIUM` | Semantic conflict isolation |
+| `entityResolution.fields.txt_774ffb` | "تذكرة رقم ٠١٢٣٤٥٦٧٨٩" | literal | `MEDIUM` | Domain-specific terminology translation |
+| ... | *and 268 more items in this domain queue* | | | |
+
+## Domain: `pricing` (514 items requiring review)
+
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
+| :--- | :--- | :--- | :--- | :--- |
+| `pricing.actions.cancel` | "إلغاء" | jsx_text | `MEDIUM` | Semantic conflict isolation |
+| `pricing.columns.2Digit` | "2-digit" | prop_month | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.columns.adjustments` | "adjustments" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.columns.pricingRules` | "pricing_rules" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.columns.projects` | "projects" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.columns.trips` | "trips" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.fields.active` | "تاريخ نشط (2026-09-09)" | jsx_text | `HIGH` | Domain-specific terminology translation |
+| `pricing.fields.cancelPrice` | "إلغاء بدل الانتظار الثابت المخمن (150 ريال) عند غياب السعر التعاقدي" | call_record | `HIGH` | Domain-specific terminology translation (Protected: [SAR]) |
+| `pricing.fields.carrier` | "يرجى تحديد الناقل المستهدف بالاتفاقية" | call_setFormError | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.fields.carrierMaterialDate` | "يوجد أكثر من قاعدة تسعير متداخلة سارية لنفس الناقل والمادة في هذا التاريخ (${candidatePool.map(c => c.pricingRuleId).join(', ')})" | template_literal | `HIGH` | Domain-specific terminology translation |
+| `pricing.fields.carrierTrip` | "تسعيرة الناقل تبدأ بتاريخ مستقبلي [${futureRules[0].effectiveFrom}] وتاريخ الرحلة [${targetDate}] سابق لها" | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {targetDate}) |
+| `pricing.fields.carrier_2` | "تسعيرة الناقل منتهية الصلاحية بتاريخ ${expiredRules[0].effectiveTo} (تاريخ الرحلة: ${targetDate})" | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {targetDate}) |
+| `pricing.fields.confirmPrice` | "تم تأكيد أن السعر غير المخمن يظل صفراً مع تعليق التسوية" | call_record | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.fields.currency` | "currency" | prop_field | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.fields.date` | "التاريخ المحدد:" | jsx_text | `HIGH` | Semantic conflict isolation |
+| `pricing.fields.date_2` | "تحديد التسعيرة السارية ضمن التاريخ الفعال" | call_record | `HIGH` | Domain-specific terminology translation |
+| `pricing.fields.demurragerateperhoursar` | "demurrageRatePerHourSAR" | prop_field | `MEDIUM` | Domain-specific terminology translation (Protected: [SAR]) |
+| `pricing.fields.edit` | "لا يمكن تعديل المبالغ التاريخية للرحلات المنجزة" | call_record | `HIGH` | Domain-specific terminology translation |
+| `pricing.fields.editPriceCreateTrips` | "تعديل السعر بإنشاء نسخة جديدة لحماية الرحلات السابقة" | attr_title | `MEDIUM` | Domain-specific terminology translation |
+| `pricing.fields.editPriceTrips` | "وفقاً لقواعد النزاهة المالية، لن يتم تعديل السعر القديم مباشرة داخل القاعدة السابقة لحماية الرحلات المنجزة. سيتم تجميد الإصدار" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| ... | *and 494 more items in this domain queue* | | | |
+
+## Domain: `reports` (722 items requiring review)
+
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
+| :--- | :--- | :--- | :--- | :--- |
+| `reports.actions.view` | "عرض" | literal | `MEDIUM` | Semantic conflict isolation |
+| `reports.fields.approver` | "Approver" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.badge` | "badge" | prop_format | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.carrier` | "اسم الناقل اللوجستي" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.carrier_2` | "الناقل التابع" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.carrier_3` | "Carrier" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.carrier_4` | "الناقل" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
+| `reports.fields.carrier_5` | "الناقل المعني" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
+| `reports.fields.carrier_6` | "شركة الناقل التاريخية" | prop_companyNameAr | `HIGH` | Domain-specific terminology translation |
+| `reports.fields.carrier_7` | "معدل إنجاز الناقل" | prop_primaryMetricLabel | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.carriers` | "الناقلون المنفذون" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.carriers_2` | "Carriers" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.completed` | "Completed" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.compliance` | "Compliance" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.currency` | "currency" | prop_format | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.date` | "التاريخ" | prop_labelAr | `HIGH` | Semantic conflict isolation |
+| `reports.fields.date_2` | "Date" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.date_3` | "date" | prop_format | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.description` | "Description" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
+| `reports.fields.exceptions` | "Exceptions" | prop_labelEn | `MEDIUM` | Domain-specific terminology translation |
+| ... | *and 702 more items in this domain queue* | | | |
+
+## Domain: `security` (534 items requiring review)
+
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
+| :--- | :--- | :--- | :--- | :--- |
+| `security.columns.docs` | "DOCS" | call_isTabAuthorizedForRole | `MEDIUM` | Domain-specific terminology translation |
+| `security.columns.trips` | "trips" | prop_targetCollection | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.action` | "action" | prop_field | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.auditlogid` | "auditLogId" | prop_field | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.date` | "رقم القيد والتاريخ" | jsx_text | `HIGH` | Domain-specific terminology translation |
+| `security.fields.edit` | "سجل تدقيق تاريخي غير قابل للحذف أو التعديل لجميع العمليات الحساسة" | prop_desc | `HIGH` | Domain-specific terminology translation |
+| `security.fields.editPricing` | "ممنوع تعديل سعر قاعدة التسعير الحالية مباشرة" | call_includes | `MEDIUM` | Semantic conflict isolation |
+| `security.fields.editPricingTrips` | "فشل: سمح النظام بتعديل سعر قاعدة التسعير الحالية مباشرة مما يهدد الرحلات السابقة!" | literal | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.edit_2` | "حظر التعديل المباشر للسعر وإلزام استخدام النسخ عند التعديل (Copy-on-Write Versioning)" | prop_expectedBehavior | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.edit_3` | "حظر تعديل صافي وزن الوجهة (destNetWeight) مباشرة" | prop_titleAr | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.edit_4` | "حظر تعديل فارق الوزن (varianceWeight) مباشرة" | prop_titleAr | `MEDIUM` | Domain-specific terminology translation (Protected: [varianceWeight]) |
+| `security.fields.entity` | "entity" | prop_field | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.location` | "فارق وزني بين ميزان المقلع وميزان الموقع (-1,450 كجم، بنسبة تفاوت -4.62% بينما الحد الأقصى 1.5%)" | prop_description | `HIGH` | Domain-specific terminology translation (Protected: [KG]) |
+| `security.fields.priceTrips` | "منع تحوير السعر على الرحلات السابقة عبر Copy-on-Write" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.projects` | "مثال: الحساب لا يتبع لأي من مقاولي المشاريع الحالية أو لم يتم التحقق من بطاقته الوظيفية..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.refresh` | "رفض تسجيل قرار قبول وزن المصدر أو رفض الشحنة عبر استدعاء تحديث عادي" | prop_expectedBehavior | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.refreshPrice` | "تحديث السعر إلى النسخة ${newVersion}" | template_literal | `HIGH` | Dynamic interpolation placeholders (Params: {newVersion}) |
+| `security.fields.refresh_2` | "فشل: سمح النظام باعتماد وزن المصدر كوجهة بتحديث عميل عادي!" | literal | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.search` | "البحث بواسطة الاسم، البريد الإلكتروني، أو الرقم التعريفي..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
+| `security.fields.successConfirmTrucksEditPricing` | "اجتاز النظام بنجاح تام كافة الاختبارات الأمنية الـ (${results.length}) بنسبة امتثال 100%. تم رفض محاولات Supervisor غير المصرح بها (carrierId, projectId, pricingRuleId, settlementAmount, status, truckId)، وتأكيد العزل بين المشاريع، وحظر تضارب الشاحنات مع الناقلين، وفرض النسخ عند التعديل (Copy-on-Write) لحماية التسعير التاريخي، وتأمين Idempotency ضد Replay Attacks." | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [projectId,carrierId,status,settlementAmount]) |
+| ... | *and 514 more items in this domain queue* | | | |
+
+## Domain: `offline` (302 items requiring review)
+
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
+| :--- | :--- | :--- | :--- | :--- |
+| `offline.actions.readonly` | "readonly" | call_transaction | `MEDIUM` | Domain-specific terminology translation |
+| `offline.actions.readwrite` | "readwrite" | call_transaction | `MEDIUM` | Domain-specific terminology translation |
+| `offline.columns.conflictid` | "conflictId" | prop_keyPath | `MEDIUM` | Domain-specific terminology translation |
+| `offline.columns.operationid` | "operationId" | prop_keyPath | `MEDIUM` | Domain-specific terminology translation |
+| `offline.columns.post` | "POST" | prop_method | `MEDIUM` | Domain-specific terminology translation |
+| `offline.columns.pricingruleid` | "pricingRuleId" | prop_keyPath | `MEDIUM` | Domain-specific terminology translation |
+| `offline.columns.projects` | "projects" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `offline.columns.storename` | "storeName" | prop_keyPath | `MEDIUM` | Domain-specific terminology translation |
+| `offline.columns.syncOperations` | "sync_operations" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `offline.columns.tripid` | "tripId" | prop_keyPath | `MEDIUM` | Semantic conflict isolation |
+| `offline.columns.trips` | "trips" | prop_targetCollection | `MEDIUM` | Domain-specific terminology translation |
+| `offline.columns.truckid` | "truckId" | prop_keyPath | `MEDIUM` | Semantic conflict isolation |
+| `offline.fields.agreedrate` | "agreedRate" | prop_field | `MEDIUM` | Domain-specific terminology translation |
+| `offline.fields.carrier` | "تعارض الناقل للشاحنة (TRUCK_CARRIER_CONFLICT)" | prop_label | `MEDIUM` | Domain-specific terminology translation |
+| `offline.fields.carrier_2` | "الناقل المفوض" | prop_fieldLabelAr | `MEDIUM` | Domain-specific terminology translation |
+| `offline.fields.clientoperationuuid` | "clientOperationUUID" | prop_field | `MEDIUM` | Domain-specific terminology translation |
+| `offline.fields.download` | "سعر لقطة وثيقة التحميل (Snapshot):" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `offline.fields.download_2` | "الخيار القياسي المعتمد: المحافظة على سعر لقطة وثيقة التحميل (Lock Snapshot Rate)" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `offline.fields.edit` | "يتطلب موافقة خطية ومبرراً رسمياً لتعديل سعر التعاقد الأصلي للرحلة." | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `offline.fields.editPriceCreateTrip` | "تم تعديل السعر المعتمد على الخادم بعد إنشاء الرحلة Offline" | prop_reasonAr | `MEDIUM` | Domain-specific terminology translation |
+| ... | *and 282 more items in this domain queue* | | | |
+
+## Domain: `exceptions` (299 items requiring review)
+
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
+| :--- | :--- | :--- | :--- | :--- |
+| `exceptions.actions.cancel` | "إلغاء" | jsx_text | `MEDIUM` | Semantic conflict isolation |
+| `exceptions.columns.exceptions` | "exceptions" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.columns.projects` | "projects" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.columns.trips` | "trips" | call_collection | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.fields.date` | "تم التحقق من الانتقال السليم من OPEN إلى UNDER_REVIEW ثم إلى RESOLVED مع تسجيل التاريخ والمراجع" | literal | `HIGH` | Domain-specific terminology translation |
+| `exceptions.fields.driverCarrier` | "تعارض السائق مع الناقل" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.fields.exceptionid` | "exceptionId" | prop_field | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.fields.failed` | "فشل المزامنة" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.fields.failed_2` | "فشل مزامنة حزمة بيانات موازين موقعية واردة من جهاز المحطة الطرفية اللاسلكي رقم #04 بسبب انقطاع شبكة 5G" | prop_description | `HIGH` | Domain-specific terminology translation |
+| `exceptions.fields.location` | "تجاوز الفارق بين وزن المصدر والموقع لحدود التفاوت المسموحة" | prop_descAr | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.fields.material` | "فارق وزني غير طبيعي يتجاوز تفاوت المادة المحدد (-1,450 كجم، النسبة -4.6% بينما الحد 1.5%)" | prop_description | `HIGH` | Domain-specific terminology translation (Protected: [KG]) |
+| `exceptions.fields.materialCarrier` | "تعارض في قواعد التسعير: وجود قاعدتي تسعير نشطتين ومتداخلتين في نفس النطاق الزمني لنفس المادة والناقل (سعر الطن 52 ر.س مقابل سعر المقطوعية 1,850 ر.س)" | prop_description | `HIGH` | Domain-specific terminology translation (Protected: [TON,SAR]) |
+| `exceptions.fields.pricing` | "تعارض في قواعد التسعير" | prop_labelAr | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.fields.refresh` | "تعارض النسخ المتفائلة (Optimistic Concurrency Clash): محاولة تحديث تذكرة الوصول بالنسخة رقم (1) بينما خادم قاعدة البيانات يحتوي النسخة رقم (2)" | prop_description | `HIGH` | Domain-specific terminology translation |
+| `exceptions.fields.search` | "بحث برقم الاستثناء، معرف الرحلة، الوصف، أو اسم المراجع..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.fields.severity` | "severity" | prop_field | `MEDIUM` | Domain-specific terminology translation |
+| `exceptions.fields.trip` | "رحلة غامضة أو غير محددة" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
+| `exceptions.fields.tripWeighbridge` | "محاولة إدخال رحلة مكررة بنفس الرقم التسلسلي لتذكرة الميزان المحررة (WB-TKT-88091)" | prop_description | `HIGH` | Domain-specific terminology translation |
+| `exceptions.fields.trip_2` | "رحلة مكررة (Duplicate)" | prop_labelAr | `MEDIUM` | Semantic conflict isolation |
+| `exceptions.fields.trip_3` | "محاولة إدخال رحلة برقم تذكرة ميزان أو مرجع تشغيلي مسجل مسبقاً" | prop_descAr | `MEDIUM` | Domain-specific terminology translation |
+| ... | *and 279 more items in this domain queue* | | | |
+
+## Domain: `legacyMigration` (295 items requiring review)
+
+| Key | Arabic Source | Context | Priority | Reason & Placeholders |
+| :--- | :--- | :--- | :--- | :--- |
+| `legacyMigration.actions.cancel` | "إلغاء" | jsx_text | `MEDIUM` | Semantic conflict isolation |
+| `legacyMigration.fields.carrier` | "لا توجد اتفاقية تسعير سارية لهذا الناقل والمادة. يتم الاحتفاظ بسعر الشيت القديم كمرجع تاريخي فقط." | prop_explanation | `HIGH` | Domain-specific terminology translation |
+| `legacyMigration.fields.carrierName` | "اسم الناقل" | prop_'اسم الناقل' | `MEDIUM` | Semantic conflict isolation |
+| `legacyMigration.fields.carrier_2` | "الناقل غير معتمد أو غير محدد بدقة. يتم الاحتفاظ بسعر الشيت القديم كمرجع تاريخي مع تعليق التسعيرة (PENDING)." | prop_explanation | `HIGH` | Domain-specific terminology translation |
+| `legacyMigration.fields.completed` | "مكتمل -> COMPLETED, وزن أول -> WEIGHED_ORIGIN, unknown -> isUnknown: true" | prop_expected | `MEDIUM` | Domain-specific terminology translation |
+| `legacyMigration.fields.confirm` | "تأكيد واعتماد ترحيل البيانات التاريخية (Admin Commit Confirmation)" | jsx_text | `HIGH` | Domain-specific terminology translation |
+| `legacyMigration.fields.failed` | "فشل اعتماد دفعة الترحيل التاريخي." | literal | `HIGH` | Domain-specific terminology translation |
+| `legacyMigration.fields.search` | "بحث بالتذكرة، السائق، الناقل، اللوحة..." | attr_placeholder | `MEDIUM` | Domain-specific terminology translation |
+| `legacyMigration.fields.ticketNumber` | "رقم التذكرة" | prop_'رقم التذكرة' | `MEDIUM` | Semantic conflict isolation |
+| `legacyMigration.fields.truck` | "رقم الشاحنة" | prop_'رقم الشاحنة' | `MEDIUM` | Semantic conflict isolation |
+| `legacyMigration.fields.txt_104821` | "حزمة الاختبارات الآلية الشاملة للترحيل التاريخي (BLOCK 37)" | jsx_text | `HIGH` | Domain-specific terminology translation |
+| `legacyMigration.fields.txt_1e3802` | "رقم التذكرة والوردية" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `legacyMigration.fields.txt_1f39d7` | "غير مصرح: ترحيل واعتماد البيانات التاريخية يتطلب صلاحية مدير النظام (PROJECT_ADMIN)." | literal | `HIGH` | Domain-specific terminology translation |
+| `legacyMigration.fields.txt_26d31e` | "تم التطابق تلقائياً مع العقد الساري للناقل (${rule.pricingType}) بسعر ${rule.rate} ريال" | template_literal | `HIGH` | Domain-specific terminology translation (Protected: [pricingType,SAR]) |
+| `legacyMigration.fields.txt_31180a` | "وزن أول" | call_mapLegacyStatusToTripStatus | `MEDIUM` | Domain-specific terminology translation |
+| `legacyMigration.fields.txt_38dd8f` | "مكتمل: ${completedRes.tripStatus}, وزن أول: ${weighedRes.tripStatus}, unknown: ${unknownRes.isUnknown}" | template_literal | `HIGH` | Domain-specific terminology translation |
+| `legacyMigration.fields.txt_719b8e` | "تعارض حسابي في الوزن!" | jsx_text | `MEDIUM` | Domain-specific terminology translation |
+| `legacyMigration.fields.txt_75de36` | "تاريخ التوليد:" | jsx_text | `HIGH` | Domain-specific terminology translation |
+| `legacyMigration.fields.txt_7a6555` | "تاريخ الشفت" | prop_'تاريخ الشفت' | `HIGH` | Domain-specific terminology translation |
+| `legacyMigration.fields.txt_7aeb66` | "أداة ترحيل البيانات التاريخية من شيت قوقل القديم (Legacy Migration Tool)" | jsx_text | `HIGH` | Domain-specific terminology translation |
+| ... | *and 275 more items in this domain queue* | | | |
 

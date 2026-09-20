@@ -1,37 +1,37 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-20T06:04:01.620Z
+**Generated At:** 2026-09-20T08:06:11.027Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 400 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 44707 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 10540 | Confirmed visible Arabic and UI texts |
+| **Total Files Scanned** | 405 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 45322 | Total strings and text nodes parsed |
+| **Real User-Facing Texts** | 10663 | Confirmed visible Arabic and UI texts |
 | **Likely User-Facing Texts** | 409 | English UI text in visible elements |
-| **Ambiguous Texts** | 12476 | Short or context-isolated tokens for manual review |
-| **Technical Strings** | 8775 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 12507 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 9209 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 5011 | Sets of identical/normalized recurring texts |
-| **Semantic Conflict Groups** | 663 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 14717 | Entries flagged with special cases or ambiguity |
-| **High / Critical Risk Hotspots** | 2590 | Concatenations, templates, or business data overlaps |
+| **Ambiguous Texts** | 12832 | Short or context-isolated tokens for manual review |
+| **Technical Strings** | 8808 | CSS classes, paths, enums, regexes, operators |
+| **Non-User-Facing Strings** | 12610 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 9304 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Duplicate Groups** | 5079 | Sets of identical/normalized recurring texts |
+| **Semantic Conflict Groups** | 667 | Identical texts requiring distinct contextual keys |
+| **Keys Requiring Review** | 15108 | Entries flagged with special cases or ambiguity |
+| **High / Critical Risk Hotspots** | 2625 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
 
 | Semantic Category | User-Facing Strings | Description |
 | :--- | :--- | :--- |
-| `other` | 4538 | Classified operational domain |
+| `other` | 4547 | Classified operational domain |
 | `imports` | 1613 | Classified operational domain |
-| `projects` | 678 | Classified operational domain |
+| `projects` | 714 | Classified operational domain |
+| `trips` | 542 | Classified operational domain |
 | `reports` | 498 | Classified operational domain |
-| `trips` | 476 | Classified operational domain |
 | `security` | 399 | Classified operational domain |
 | `pricing` | 356 | Classified operational domain |
-| `navigation` | 337 | Classified operational domain |
+| `navigation` | 347 | Classified operational domain |
 | `weighbridge` | 281 | Classified operational domain |
 | `entityResolution` | 266 | Classified operational domain |
 | `loading` | 265 | Classified operational domain |
@@ -42,7 +42,7 @@
 | `dashboard` | 110 | Classified operational domain |
 | `authentication` | 99 | Classified operational domain |
 | `trucks` | 88 | Classified operational domain |
-| `materials` | 45 | Classified operational domain |
+| `materials` | 47 | Classified operational domain |
 | `carriers` | 41 | Classified operational domain |
 | `validation` | 36 | Classified operational domain |
 | `drivers` | 34 | Classified operational domain |
@@ -50,9 +50,9 @@
 
 ## 3. Directional (RTL / LTR) Class Inventory
 
-- **Total Directional Usages Detected:** 394
+- **Total Directional Usages Detected:** 396
 - **Must Migrate (Physical to Logical):** 271 (e.g. `text-left` -> `text-start`, `pl-` -> `ps-`)
-- **Probably Safe / Technical:** 123
+- **Probably Safe / Technical:** 125
 
 ### Directional Classes Sample (First 15 Entries)
 
@@ -94,12 +94,12 @@ Identical visible text appearing across different operational domains with disti
 ## 5. High-Risk Hotspots & Special Cases
 
 - **Concatenated Strings (`+`):** 9
-- **Template Literals (`${...}`):** 726
-- **Interpolation Placeholders (`{...}`):** 295
-- **Mixed Numbers & Units:** 1049
-- **Currency String Usages:** 448
-- **Unit String Usages:** 913
-- **Protected Business Field Matches:** 425
+- **Template Literals (`${...}`):** 742
+- **Interpolation Placeholders (`{...}`):** 297
+- **Mixed Numbers & Units:** 1067
+- **Currency String Usages:** 450
+- **Unit String Usages:** 923
+- **Protected Business Field Matches:** 426
 
 ## 6. Safety & Non-Destructive Invariance Confirmation
 
