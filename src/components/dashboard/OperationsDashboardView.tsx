@@ -40,6 +40,8 @@ import { WidgetFilterBar } from './WidgetFilterBar';
 import { runDashboardSecurityAndMetricsTests, DashboardTestCaseResult } from '../../tests/dashboard.test';
 import { useI18n } from '../../i18n';
 import { offlineCacheService } from '../../services/offline/offlineCache.service';
+import { projectProvisioningService } from '../../services/projectProvisioning.service';
+import { projectFleetReadModelService } from '../../services/projectFleetReadModel.service';
 import { projectRepository } from '../../repositories/project.repository';
 import { indexedDBService } from '../../services/offline/indexedDB.service';
 import { TripRecord } from '../../types/tripEngine';
@@ -64,18 +66,111 @@ export const OperationsDashboardView: React.FC = () => {
     const loadCanonicalData = async () => {
       try {
         // 1. Projects
-        let prjs = await offlineCacheService.getProjects().catch(() => []);
+        let prjs = await projectRepository.listAll().catch(() => []);
         if (!prjs || prjs.length === 0) {
-          prjs = await projectRepository.listAll().catch(() => []);
+          prjs = await offlineCacheService.getProjects().catch(() => []);
         }
 
-        // 2. Carriers, Materials, Trucks, Drivers
-        const [crs, mats, trks, drvs] = await Promise.all([
-          offlineCacheService.getCarriers().catch(() => []),
-          offlineCacheService.getMaterials().catch(() => []),
-          offlineCacheService.getTrucks().catch(() => []),
-          offlineCacheService.getDrivers().catch(() => []),
-        ]);
+        const targetProjects = prjs.map(p => p.projectId);
+        let crs: CarrierEntity[] = [];
+        let mats: MaterialEntity[] = [];
+        let trks: TruckEntity[] = [];
+        let drvs: DriverEntity[] = [];
+
+        try {
+          // ONLINE: Canonical Authority
+          const [carrierLists, materialLists, fleetModels] = await Promise.all([
+            Promise.all(targetProjects.map(pId => projectProvisioningService.listProjectCarriers(pId).catch(() => []))),
+            Promise.all(targetProjects.map(pId => projectProvisioningService.listProjectMaterials(pId).catch(() => []))),
+            Promise.all(targetProjects.map(pId => projectFleetReadModelService.getProjectFleetReadModel(pId).catch(() => null))),
+          ]);
+          crs = carrierLists.flat() as any;
+          mats = materialLists.flat() as any;
+
+          const fleetRows = fleetModels.filter(Boolean).flatMap(f => f!.rows);
+          trks = fleetRows.map(r => ({
+            truckId: r.truckId,
+            plate: r.plateNumber,
+            carrierId: r.carrierId,
+            status: 'ACTIVE',
+            isActive: true,
+          })) as any;
+          drvs = fleetRows.filter(r => r.driverId).map(r => ({
+            driverId: r.driverId!,
+            name: r.driverName || r.driverId!,
+            carrierId: r.carrierId,
+            status: 'ACTIVE',
+            isActive: true,
+          })) as any;
+        } catch {
+          // OFFLINE FALLBACK: Last known canonical IndexedDB snapshot
+          const [cachedCrs, cachedMats, cachedTrks, cachedDrvs] = await Promise.all([
+            offlineCacheService.getCarriers().catch(() => []),
+            offlineCacheService.getMaterials().catch(() => []),
+            offlineCacheService.getTrucks().catch(() => []),
+            offlineCacheService.getDrivers().catch(() => []),
+          ]);
+          crs = cachedCrs.map(c => ({
+            carrierId: c.carrierId,
+            projectId: c.projectId,
+            name: c.name,
+            companyNameAr: c.companyNameAr,
+            commercialRegistrationNo: c.commercialRegistrationNo,
+            transportLicenseNo: c.transportLicenseNo,
+            status: c.status,
+            isActive: c.status === 'ACTIVE',
+            createdAt: new Date(),
+            createdBy: 'SYSTEM',
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          })) as any;
+          mats = cachedMats.map(m => ({
+            materialId: m.materialId,
+            projectId: m.projectId,
+            name: m.name,
+            nameAr: m.nameAr,
+            code: m.code,
+            unitOfMeasure: m.unitOfMeasure,
+            standardDensityTonPerM3: m.standardDensityTonPerM3,
+            status: m.status,
+            isActive: m.status === 'ACTIVE',
+            createdAt: new Date(),
+            createdBy: 'SYSTEM',
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          })) as any;
+          trks = cachedTrks.map(t => ({
+            truckId: t.truckId,
+            carrierId: t.carrierId,
+            projectId: t.projectId,
+            plate: t.plate,
+            plateNumberAr: t.plateNumberAr,
+            truckType: t.truckType,
+            tareWeightKg: t.tareWeightKg,
+            legalPayloadLimitKg: t.legalPayloadLimitKg,
+            status: t.status,
+            isActive: t.status === 'ACTIVE',
+            createdAt: new Date(),
+            createdBy: 'SYSTEM',
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          })) as any;
+          drvs = cachedDrvs.map(d => ({
+            driverId: d.driverId,
+            carrierId: d.carrierId,
+            projectId: d.projectId,
+            name: d.name,
+            fullNameAr: d.fullNameAr,
+            phone: d.phone,
+            idNumber: d.idNumber,
+            status: d.status,
+            isActive: d.status === 'ACTIVE',
+            createdAt: new Date(),
+            createdBy: 'SYSTEM',
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          })) as any;
+        }
 
         // 3. Trips
         const dbTrips = await indexedDBService.getAll<TripRecord>('trips').catch(() => []);

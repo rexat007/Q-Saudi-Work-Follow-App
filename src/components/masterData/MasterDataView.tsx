@@ -25,13 +25,10 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { masterDataService, ProjectMasterDataOverview, MasterEntityType, TripUsageResult } from '../../services/masterData.service';
+import { projectProvisioningService } from '../../services/projectProvisioning.service';
 import { driverTruckIntakeService } from '../../services/driverTruckIntake.service';
 import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
 import { projectRepository } from '../../repositories/project.repository';
-import { carrierRepository } from '../../repositories/carrier.repository';
-import { materialRepository } from '../../repositories/material.repository';
-import { truckRepository } from '../../repositories/truck.repository';
-import { driverRepository } from '../../repositories/driver.repository';
 import { tripRepository } from '../../repositories/trip.repository';
 import { CarrierEntity, MaterialEntity, TruckEntity, DriverEntity, ProjectEntity } from '../../types/entities';
 import { normalizeName, normalizePlate, normalizePhone, normalizeIdNumber, normalizeCode, normalizeArabicText } from '../../utils/normalization';
@@ -513,10 +510,22 @@ export const MasterDataView: React.FC<{
     }
 
     try {
-      await carrierRepository.create(carrierEntity);
+      await projectProvisioningService.setupProjectCarrier(selectedProjectId, {
+        name: newCarrier.name.trim(),
+        commercialRegistrationNo: newCarrier.crNo,
+        transportLicenseNo: `TGA-${newCarrier.carrierId.trim().toUpperCase()}`,
+        contactPersonName: 'Operations',
+        contactPhone: '+966500000001',
+        contactEmail: 'carrier@q-saudi.sa'
+      }, {
+        userId: user?.uid || MOCK_AUTH_CONTEXT.userId,
+        email: user?.email || MOCK_AUTH_CONTEXT.email,
+        displayName: user?.displayName || 'Admin',
+        role: 'PROJECT_ADMIN'
+      });
       setCreateModal({ isOpen: false, entityType: 'CARRIER' });
       setNewCarrier({ carrierId: '', name: '', crNo: '1010000000', phone: '+966500000001' });
-      setActionNotice({ type: 'success', message: 'تم إضافة الناقل بنجاح مع التطبيع التلقائي للاسم.' });
+      setActionNotice({ type: 'success', message: 'تم إضافة الناقل وتفعيل العضوية بالتعاون مع الهوية العامة بنجاح.' });
       await refreshOverview(selectedProjectId);
     } catch (err: any) {
       setActionNotice({ type: 'error', message: err.message });
@@ -553,10 +562,20 @@ export const MasterDataView: React.FC<{
     }
 
     try {
-      await materialRepository.create(matEntity);
+      await projectProvisioningService.setupProjectMaterial(selectedProjectId, {
+        code: normalizeCode(newMaterial.code),
+        name: newMaterial.name.trim(),
+        unitOfMeasure: newMaterial.uom,
+        standardDensityTonPerM3: 1.6
+      }, {
+        userId: user?.uid || MOCK_AUTH_CONTEXT.userId,
+        email: user?.email || MOCK_AUTH_CONTEXT.email,
+        displayName: user?.displayName || 'Admin',
+        role: 'PROJECT_ADMIN'
+      });
       setCreateModal({ isOpen: false, entityType: 'MATERIAL' });
       setNewMaterial({ materialId: '', name: '', code: 'AGG-02', uom: 'TON' });
-      setActionNotice({ type: 'success', message: 'تم إضافة المادة بنجاح وتطبيع الرمز والاسم.' });
+      setActionNotice({ type: 'success', message: 'تم إضافة المادة وتفعيل العضوية بالتعاون مع الهوية العامة بنجاح.' });
       await refreshOverview(selectedProjectId);
     } catch (err: any) {
       setActionNotice({ type: 'error', message: err.message });
