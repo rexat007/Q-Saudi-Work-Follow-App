@@ -50,33 +50,52 @@ export interface OperationsDashboardViewProps {
 
 export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = ({ authContext }) => {
   const { t } = useI18n();
-  // 1. Canonical User Security Profile & Project Authorization derived from session
+
+  // Fail-closed guard: missing or unauthenticated context must never manufacture an operational security profile
+  if (!authContext) {
+    return (
+      <div className="border border-stone-800 bg-[#0f1115] rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl my-12" dir="rtl">
+        <div className="w-16 h-16 bg-stone-900 border border-stone-800 text-stone-500 rounded-full flex items-center justify-center mx-auto">
+          <ShieldAlert className="w-8 h-8 text-rose-500" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-bold text-white uppercase tracking-wider">تسجيل الدخول مطلوب</h3>
+          <p className="text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">
+            لوحة العمليات المركزية تتطلب جلسة مستخدم معتمدة وصلاحية تشغيلية نشطة لمراقبة المشاريع والأسطول.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 1. Canonical User Security Profile & Project Authorization derived from real session
   const activeProfile: UserSecurityProfile = useMemo(() => {
-    if (!authContext) {
-      return {
-        userId: 'USR-OPERATIONS',
-        userNameAr: 'مدير العمليات المركزية',
-        roleTitleAr: 'إدارة العمليات المركزية',
-        role: 'SUPER_ADMIN',
-        authorizedProjectIds: ['ALL'],
-        isRestricted: false,
-      };
-    }
     const isSuperAdmin = authContext.role === 'SUPER_ADMIN' || authContext.email === 'saudiali044@gmail.com';
     const isProjectAdmin = authContext.role === 'PROJECT_ADMIN';
     const isSiteSupervisor = authContext.role === 'SITE_SUPERVISOR';
     const isAuditor = (authContext.role as string) === 'FINANCE_AUDITOR' || (authContext.role as string) === 'AUDITOR';
 
-    let role: UserSecurityProfile['role'] = 'SUPER_ADMIN';
-    if (isSuperAdmin) role = 'SUPER_ADMIN';
-    else if (isProjectAdmin) role = 'PROJECT_ADMIN';
-    else if (isSiteSupervisor) role = 'SITE_SUPERVISOR';
-    else if (isAuditor) role = 'AUDITOR';
-    else role = 'PROJECT_ADMIN';
+    let role: UserSecurityProfile['role'] = 'AUDITOR';
+    let isSupportedRole = false;
+    if (isSuperAdmin) {
+      role = 'SUPER_ADMIN';
+      isSupportedRole = true;
+    } else if (isProjectAdmin) {
+      role = 'PROJECT_ADMIN';
+      isSupportedRole = true;
+    } else if (isSiteSupervisor) {
+      role = 'SITE_SUPERVISOR';
+      isSupportedRole = true;
+    } else if (isAuditor) {
+      role = 'AUDITOR';
+      isSupportedRole = true;
+    }
 
+    // When role is not an operational dashboard role (e.g. unprivileged/unknown), or when project-scoped,
+    // strictly constrain to assignedProjectIds without defaulting to ALL or PROJECT_ADMIN
     const authorizedProjects = isSuperAdmin
       ? ['ALL']
-      : (authContext.assignedProjectIds && authContext.assignedProjectIds.length > 0
+      : (isSupportedRole && authContext.assignedProjectIds && authContext.assignedProjectIds.length > 0
           ? authContext.assignedProjectIds
           : []);
 

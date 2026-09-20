@@ -69,7 +69,7 @@ import {
   SYSTEM_ROLES, 
   ROLE_PROFILES 
 } from './services/navigation.service';
-import { UserRole } from './types/common';
+import { UserRole, AuthUserContext } from './types/common';
 import { useAuth } from './firebase/authContext';
 import { AccountStatusGate } from './components/auth/AccountStatusGate';
 import { projectRepository } from './repositories/project.repository';
@@ -83,10 +83,10 @@ export default function App() {
   // Determine authoritative role from server profile when signed in
   const effectiveRole: UserRole = userProfile 
     ? (userProfile.email === 'saudiali044@gmail.com' ? 'SUPER_ADMIN' : (userProfile.role || 'VIEWER')) 
-    : 'SUPER_ADMIN';
+    : 'VIEWER';
 
   // Role and Navigation state (currentRole acts as visual preview selector when unauthenticated or testing UI layout)
-  const [currentRole, setCurrentRole] = useState<UserRole>('SUPER_ADMIN');
+  const [currentRole, setCurrentRole] = useState<UserRole>('VIEWER');
   const [activeTab, setActiveTab] = useState<NavTabId>('WIZARD');
   const [isSystemToolsOpen, setIsSystemToolsOpen] = useState<boolean>(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
@@ -105,15 +105,16 @@ export default function App() {
     }
   }, [userProfile]);
 
-  // Server-authoritative Auth Context: role comes strictly from effectiveRole when user is signed in
-  const activeAuthContext = {
-    userId: user?.uid || 'USR-ADMIN-01',
-    displayName: userProfile?.fullName || user?.displayName || 'مدير النظام',
-    email: user?.email || 'admin@q-saudi.sa',
-    role: user ? effectiveRole : currentRole,
-    assignedProjectIds: userProfile?.assignedProjectIds || [],
-    isRealProfile: Boolean(userProfile),
-  };
+  // Server-authoritative Auth Context: strictly derived from real authenticated session
+  const activeAuthContext: AuthUserContext | undefined = user
+    ? {
+        userId: user.uid,
+        displayName: userProfile?.fullName || user.displayName || user.email || 'مستخدم النظام',
+        email: user.email || '',
+        role: effectiveRole,
+        assignedProjectIds: userProfile?.assignedProjectIds || [],
+      }
+    : undefined;
 
   useEffect(() => {
     setLoadingProjects(true);
@@ -207,16 +208,18 @@ export default function App() {
   const handleRoleChange = (newRole: UserRole) => {
     // If signed in, currentRole is just a visual override for testing, but real role stays active
     setCurrentRole(newRole);
-    if (!navigationService.isTabAuthorizedForRole(activeTab, user ? activeAuthContext.role : newRole)) {
-      const defaultTab = navigationService.getDefaultTabForRole(user ? activeAuthContext.role : newRole);
+    const targetRole = user ? effectiveRole : newRole;
+    if (!navigationService.isTabAuthorizedForRole(activeTab, targetRole)) {
+      const defaultTab = navigationService.getDefaultTabForRole(targetRole);
       setActiveTab(defaultTab);
     }
   };
 
-  const roleProfile = navigationService.getRoleProfile(activeAuthContext.role);
-  const authorizedPrimaryTabs = navigationService.getAuthorizedPrimaryTabs(activeAuthContext.role);
-  const authorizedTools = navigationService.getAuthorizedSystemTools(activeAuthContext.role);
-  const isCurrentTabAuthorized = navigationService.isTabAuthorizedForRole(activeTab, activeAuthContext.role);
+  const presentationRole: UserRole = user ? effectiveRole : currentRole;
+  const roleProfile = navigationService.getRoleProfile(presentationRole);
+  const authorizedPrimaryTabs = navigationService.getAuthorizedPrimaryTabs(presentationRole);
+  const authorizedTools = navigationService.getAuthorizedSystemTools(presentationRole);
+  const isCurrentTabAuthorized = navigationService.isTabAuthorizedForRole(activeTab, presentationRole);
 
   const selectedEntity = ENTITY_RELATIONS.find(e => e.id === selectedEntityId) || ENTITY_RELATIONS[6]; // Trip by default
   const selectedDoc = ARCHITECTURE_DOCS.find(d => d.id === selectedDocId) || ARCHITECTURE_DOCS[0];
@@ -364,20 +367,20 @@ export default function App() {
               </div>
 
               {/* Active Role Selector / Simulator */}
-              <div className={`relative flex items-center bg-[#1a1d23] rounded px-1 py-0.5 border ${activeAuthContext.isRealProfile ? 'border-[#10b981]/30 opacity-75' : 'border-white/10'}`}>
+              <div className={`relative flex items-center bg-[#1a1d23] rounded px-1 py-0.5 border ${userProfile ? 'border-[#10b981]/30 opacity-75' : 'border-white/10'}`}>
                 <div className="flex items-center gap-1.5 px-2 py-1">
-                  {activeAuthContext.isRealProfile ? (
+                  {userProfile ? (
                     <Lock className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
                   ) : (
                     <UserCheck className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
                   )}
                   <select
                     id="header-role-selector"
-                    value={activeAuthContext.role}
+                    value={presentationRole}
                     onChange={(e) => handleRoleChange(e.target.value as UserRole)}
                     className="bg-transparent text-[#f8fafc] font-bold font-mono text-xs focus:outline-hidden cursor-pointer disabled:cursor-not-allowed"
                     title="تبديل الصلاحية النشطة"
-                    disabled={activeAuthContext.isRealProfile}
+                    disabled={Boolean(userProfile)}
                   >
                     {SYSTEM_ROLES.map((role) => (
                       <option key={role} value={role} className="bg-[#1a1d23] text-[#f8fafc] font-mono">
@@ -439,7 +442,7 @@ export default function App() {
         <Sidebar
           activeTab={activeTab}
           onSelectTab={setActiveTab}
-          currentRole={activeAuthContext.role}
+          currentRole={presentationRole}
           onChangeRole={handleRoleChange}
           projects={projects}
           selectedProjectId={selectedProjectId}
@@ -460,7 +463,7 @@ export default function App() {
                 <span className="flex items-center gap-1 text-white/60">
                   <Lock className="w-3 h-3 text-[#10b981]" />
                   <span className="text-white/40">USER:</span>
-                  <strong className="text-[#f8fafc] font-bold">{activeAuthContext.displayName}</strong>
+                  <strong className="text-[#f8fafc] font-bold">{activeAuthContext?.displayName || 'غير مسجل'}</strong>
                 </span>
                 <span className="text-white/20">•</span>
                 <span className="text-white/60">
@@ -511,8 +514,8 @@ export default function App() {
                 {/* ================= TAB: FIELD OPERATIONS (LOADING, UNLOADING, SUPERVISION, DRIVER) ================= */}
                 {activeTab === 'FIELD_OPERATIONS' && (
                   <FieldOperationsView 
-                    initialTab={getFieldInitialTab(currentRole)}
-                    initialRole={currentRole}
+                    initialTab={getFieldInitialTab(presentationRole)}
+                    initialRole={presentationRole}
                     projects={projects}
                     selectedProjectId={selectedProjectId}
                     setSelectedProjectId={setSelectedProjectId}
@@ -529,12 +532,12 @@ export default function App() {
                       selectedProjectId={selectedProjectId}
                       activeWorkspaceTab={activeWorkspaceTab}
                       onSelectWorkspaceTab={setActiveWorkspaceTab}
-                      authContext={activeAuthContext}
+                      authContext={activeAuthContext!}
                     />
                   ) : (
                     <ProjectSetupWizard 
                       projects={projects}
-                      authContext={activeAuthContext}
+                      authContext={activeAuthContext!}
                     />
                   )
                 )}
@@ -948,7 +951,7 @@ export default function App() {
         onSelectTab={(tabId) => {
           setActiveTab(tabId);
         }}
-        currentRole={activeAuthContext.role}
+        currentRole={presentationRole}
       />
 
       {/* Mobile & Tablet Slide-Over Navigation Drawer */}
@@ -959,7 +962,7 @@ export default function App() {
         onSelectTab={(tabId) => {
           setActiveTab(tabId);
         }}
-        currentRole={activeAuthContext.role}
+        currentRole={presentationRole}
         onChangeRole={handleRoleChange}
         onOpenSystemTools={() => setIsSystemToolsOpen(true)}
         onOpenOutbox={() => setIsOutboxOpen(true)}

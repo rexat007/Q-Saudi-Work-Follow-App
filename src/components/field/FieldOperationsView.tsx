@@ -40,7 +40,6 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
   authContext
 }) => {
   const [activeTab, setActiveTab] = useState<FieldTab>(initialTab);
-  const activeRole: UserRole = authContext?.role || initialRole;
   const [notification, setNotification] = useState<{
     type: 'SUCCESS' | 'ERROR' | 'SECURITY';
     message: string;
@@ -48,14 +47,26 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
 
   const { isOnline, isSimulatedOffline, toggleSimulatedOffline } = useOnlineStatus();
 
-  // Derive active AuthUserContext directly from authenticated session
-  const currentAuthContext: AuthUserContext = authContext || {
-    userId: `USR-${activeRole.slice(0, 8)}`,
-    email: `${activeRole.toLowerCase()}@qsaudi.com`,
-    displayName: getRoleDisplayName(activeRole),
-    role: activeRole,
-    assignedProjectIds: selectedProjectId ? [selectedProjectId] : []
-  };
+  // Fail-closed guard: missing or unauthenticated context must never manufacture operational authority
+  if (!authContext) {
+    return (
+      <div className="border border-stone-800 bg-stone-950 rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl" dir="rtl">
+        <div className="w-16 h-16 bg-stone-900 border border-stone-800 text-stone-500 rounded-full flex items-center justify-center mx-auto">
+          <ShieldAlert className="w-8 h-8 text-rose-500" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-bold text-white uppercase tracking-wider">تسجيل الدخول مطلوب</h3>
+          <p className="text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">
+            منظومة العمليات الميدانية تتطلب جلسة مستخدم معتمدة وصلاحية تشغيلية نشطة لتسجيل الشاحنات وموازين التحميل والاستلام.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Derive role exclusively from real authenticated context
+  const activeRole: UserRole = authContext.role;
+  const currentAuthContext: AuthUserContext = authContext;
 
   if (!projects || projects.length === 0) {
     return (
