@@ -231,7 +231,6 @@ export class CanonicalStorageRepository {
 
 // Export singletons for canonical persistence adapters
 export const projectRepository = new CanonicalProjectRepository();
-export const projectRosterRepository = new CanonicalProjectRosterRepository();
 export const pricingRepository = new CanonicalPricingRepository();
 export const tripRepository = new CanonicalTripRepository();
 export const exceptionRepository = new CanonicalExceptionRepository();

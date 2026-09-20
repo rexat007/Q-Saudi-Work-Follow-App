@@ -33,7 +33,6 @@ import {
 } from '../types/canonicalContracts';
 import { 
   projectRepository, 
-  projectRosterRepository, 
   pricingRepository, 
   tripRepository, 
   exceptionRepository, 
@@ -43,8 +42,7 @@ import {
   auditRepository, 
   storageRepository 
 } from '../repositories/canonicalRepositories';
-import { driverRepository } from '../repositories/driver.repository';
-import { truckRepository } from '../repositories/truck.repository';
+import { globalDriverRepository, globalTruckRepository } from '../repositories/globalIdentity.repository';
 import { projectCarrierRosterRepository } from '../repositories/projectCarrierRoster.repository';
 import { tripRepository as canonicalTripDbRepository } from '../repositories/trip.repository';
 
@@ -175,42 +173,6 @@ export class CanonicalProjectService {
 }
 
 // ==========================================
-// 4. PROJECT ROSTER SERVICE
-// ==========================================
-export class CanonicalProjectRosterService {
-  async getRoster(projectId: string, rosterId: string, auth: AuthorizationContext): Promise<CanonicalProjectRoster> {
-    const perm = securityServiceInstance.evaluatePermission(auth, 'READ' as DomainOperation, 'PROJECT_ROSTER', projectId);
-    if (!perm.allowed) throw createDomainError('AUTHORIZATION_ERROR', perm.reasonCode);
-
-    const roster = await projectRosterRepository.getById(projectId, rosterId);
-    if (!roster) throw createDomainError('NOT_FOUND', `Roster ${rosterId} not found`);
-    return roster;
-  }
-
-  async createOrUpdateRoster(rosterData: any, projectId: string, auth: AuthorizationContext, transaction?: Transaction): Promise<any> {
-    const perm = securityServiceInstance.evaluatePermission(auth, 'CREATE', 'PROJECT_ROSTER', projectId);
-    if (!perm.allowed) throw createDomainError('AUTHORIZATION_ERROR', perm.reasonCode);
-
-    const rosterId = rosterData.rosterId || `${projectId}-ROSTER-${Date.now()}`;
-    await projectCarrierRosterRepository.create({
-      rosterId,
-      projectId,
-      carrierId: rosterData.carrierId || 'DEFAULT',
-      driverName: rosterData.driverName || 'Unknown',
-      plateNumber: rosterData.plateNumber || 'Unknown',
-      phone: rosterData.phone || '0000000000',
-      materialId: rosterData.materialId || 'DEFAULT',
-      residencyId: rosterData.residencyId,
-      globalDriverId: rosterData.globalDriverId,
-      createdBy: auth.userId,
-      updatedBy: auth.userId,
-    } as any, transaction);
-
-    return { ...rosterData, rosterId, projectId };
-  }
-}
-
-// ==========================================
 // 5. DRIVER & TRUCK INTAKE SERVICE
 // ==========================================
 export class CanonicalDriverTruckIntakeService {
@@ -219,19 +181,14 @@ export class CanonicalDriverTruckIntakeService {
     if (!perm.allowed) throw createDomainError('AUTHORIZATION_ERROR', perm.reasonCode);
 
     const driverId = driverData.id || `DRV-${Date.now()}`;
-    await driverRepository.create({
-      driverId,
-      projectId,
-      name: driverData.name || 'Unknown',
-      phone: driverData.phone || '0000000000',
-      nationalId: driverData.nationalId || '0000000000',
-      licenseNumber: driverData.licenseNumber || '0000000000',
+    await globalDriverRepository.createGlobal({
+      nationalId: driverData.nationalId,
+      fullNameAr: driverData.name,
+      phone: driverData.phone,
+      licenseNumber: driverData.licenseNumber,
       status: 'ACTIVE',
-      carrierId: driverData.carrierId || 'DEFAULT',
-      assignedTruckId: driverData.assignedTruckId,
       createdBy: auth.userId,
-      updatedBy: auth.userId,
-    } as any, transaction);
+    }, transaction);
 
     return { ...driverData, driverId, projectId, status: 'ACTIVE' };
   }
@@ -241,18 +198,14 @@ export class CanonicalDriverTruckIntakeService {
     if (!perm.allowed) throw createDomainError('AUTHORIZATION_ERROR', perm.reasonCode);
 
     const truckId = truckData.id || `TRK-${Date.now()}`;
-    await truckRepository.create({
-      truckId,
-      projectId,
-      plateNumber: truckData.plate || truckData.plateNumber || 'Unknown',
-      carrierId: truckData.carrierId || 'DEFAULT',
+    await globalTruckRepository.createGlobal({
+      plate: truckData.plate || truckData.plateNumber,
+      truckType: truckData.truckType,
+      tareWeightKg: truckData.tareWeight,
+      maxGrossWeightKg: truckData.maxCapacity,
       status: 'ACTIVE',
-      truckType: truckData.truckType || 'TIPPER',
-      tareWeight: truckData.tareWeight || 0,
-      maxCapacity: truckData.maxCapacity || 40,
       createdBy: auth.userId,
-      updatedBy: auth.userId,
-    } as any, transaction);
+    }, transaction);
 
     return { ...truckData, truckId, projectId, status: 'ACTIVE' };
   }
@@ -418,7 +371,6 @@ export class CanonicalStorageService {
 export const securityService = securityServiceInstance;
 export const auditService = auditServiceInstance;
 export const projectService = new CanonicalProjectService();
-export const projectRosterService = new CanonicalProjectRosterService();
 export const driverTruckIntakeService = new CanonicalDriverTruckIntakeService();
 export const pricingService = new CanonicalPricingService();
 export const tripService = new CanonicalTripService();

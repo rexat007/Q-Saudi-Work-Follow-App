@@ -29,7 +29,6 @@ import {
   securityService, 
   auditService, 
   tripService, 
-  projectRosterService, 
   driverTruckIntakeService, 
   pricingService, 
   exceptionService 
@@ -296,29 +295,6 @@ export class CanonicalCommitEngineService {
                   committedAt: new Date().toISOString()
                 });
               }
-
-              await projectRosterService.createOrUpdateRoster(
-                {
-                  rosterId,
-                  driverName: row.driverName || 'Unknown',
-                  plateNumber: row.truckPlate || row.plateNumber || 'Unknown',
-                  phone: row.driverPhone || '0000000000',
-                  carrierId: row.carrierId || 'DEFAULT',
-                  materialId: row.materialId || 'DEFAULT'
-                },
-                session.projectId,
-                auth,
-                transaction
-              );
-
-              committedEntities.push({
-                entityType: 'PROJECT_ROSTER',
-                entityId: rosterId,
-                projectId: session.projectId,
-                operation: 'CREATE',
-                canonicalService: 'projectRosterService',
-                committedAt: new Date().toISOString()
-              });
             }
           } else {
             // Canonical Trip domain delegation
