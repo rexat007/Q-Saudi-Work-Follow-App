@@ -498,7 +498,9 @@ export default function App() {
               <>
                 {/* ================= TAB: OPERATIONS DASHBOARD (STRICT AUTHORIZATION, 7 LAYERS) ================= */}
                 {activeTab === 'OPERATIONS_DASHBOARD' && (
-                  <OperationsDashboardView />
+                  <OperationsDashboardView 
+                    authContext={activeAuthContext}
+                  />
                 )}
 
                 {/* ================= TAB: REPORTS ENGINE (OPERATIONAL, WEIGHBRIDGE, SETTLEMENT, INGESTION) ================= */}
@@ -515,6 +517,7 @@ export default function App() {
                     selectedProjectId={selectedProjectId}
                     setSelectedProjectId={setSelectedProjectId}
                     onNavigateToWizard={() => setActiveTab('WIZARD')}
+                    authContext={activeAuthContext}
                   />
                 )}
 

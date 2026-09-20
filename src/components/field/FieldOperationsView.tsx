@@ -27,6 +27,7 @@ export interface FieldOperationsViewProps {
   selectedProjectId?: string;
   setSelectedProjectId?: (id: string) => void;
   onNavigateToWizard?: () => void;
+  authContext?: AuthUserContext;
 }
 
 export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
@@ -35,10 +36,11 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
   projects = [],
   selectedProjectId = '',
   setSelectedProjectId = () => {},
-  onNavigateToWizard
+  onNavigateToWizard,
+  authContext
 }) => {
   const [activeTab, setActiveTab] = useState<FieldTab>(initialTab);
-  const [activeRole, setActiveRole] = useState<UserRole>(initialRole);
+  const activeRole: UserRole = authContext?.role || initialRole;
   const [notification, setNotification] = useState<{
     type: 'SUCCESS' | 'ERROR' | 'SECURITY';
     message: string;
@@ -46,8 +48,8 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
 
   const { isOnline, isSimulatedOffline, toggleSimulatedOffline } = useOnlineStatus();
 
-  // Construct active AuthUserContext based on selected simulator role
-  const currentAuthContext: AuthUserContext = {
+  // Derive active AuthUserContext directly from authenticated session
+  const currentAuthContext: AuthUserContext = authContext || {
     userId: `USR-${activeRole.slice(0, 8)}`,
     email: `${activeRole.toLowerCase()}@qsaudi.com`,
     displayName: getRoleDisplayName(activeRole),
@@ -167,26 +169,6 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
                 </button>
               </div>
             )}
-
-            {/* Role Simulation Selector */}
-            <div className="flex items-center gap-1.5 bg-stone-800 px-3 py-1.5 rounded-xl border border-stone-700/60 text-xs">
-              <UserCheck className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-stone-400 text-[11px]">محاكاة الدور:</span>
-              <select
-                value={activeRole}
-                onChange={(e) => setActiveRole(e.target.value as UserRole)}
-                className="bg-transparent text-white font-bold font-mono focus:outline-hidden text-xs cursor-pointer"
-              >
-                <option value="SCALE_OPERATOR" className="bg-stone-800">SCALE_OPERATOR (مشغل ميزان)</option>
-                <option value="DISPATCHER" className="bg-stone-800">DISPATCHER (مرحل شاحنات)</option>
-                <option value="SITE_SUPERVISOR" className="bg-stone-800">SITE_SUPERVISOR (مشرف موقع تفريغ)</option>
-                <option value="SUPERVISOR" className="bg-stone-800">SUPERVISOR (مشرف ميداني)</option>
-                <option value="PROJECT_ADMIN" className="bg-stone-800">PROJECT_ADMIN (مدير مشروع)</option>
-                <option value="FINANCE_AUDITOR" className="bg-stone-800">FINANCE_AUDITOR (مدقق مالي - غير مصرح)</option>
-                <option value="DRIVER" className="bg-stone-800">DRIVER (سائق - غير مصرح)</option>
-                <option value="SUPER_ADMIN" className="bg-stone-800">SUPER_ADMIN (مشرف عام)</option>
-              </select>
-            </div>
 
             {/* Project Context Selector */}
             <div className="flex items-center gap-1.5 bg-stone-800 px-3 py-1.5 rounded-xl border border-stone-700/60 text-xs">

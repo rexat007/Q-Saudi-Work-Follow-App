@@ -18,14 +18,12 @@ import {
   Scale, 
   Activity, 
   Search, 
-  Play, 
   X, 
   SlidersHorizontal,
   ChevronDown,
   ChevronUp,
   UserCheck,
   TrendingUp,
-  Check,
   Radio
 } from 'lucide-react';
 import { 
@@ -33,11 +31,10 @@ import {
   UserSecurityProfile 
 } from '../../types/dashboard';
 import { 
-  dashboardService, 
-  PREDEFINED_SECURITY_PROFILES 
+  dashboardService
 } from '../../services/dashboard.service';
 import { WidgetFilterBar } from './WidgetFilterBar';
-import { runDashboardSecurityAndMetricsTests, DashboardTestCaseResult } from '../../tests/dashboard.test';
+import { AuthUserContext } from '../../types/common';
 import { useI18n } from '../../i18n';
 import { offlineCacheService } from '../../services/offline/offlineCache.service';
 import { projectProvisioningService } from '../../services/projectProvisioning.service';
@@ -47,11 +44,51 @@ import { indexedDBService } from '../../services/offline/indexedDB.service';
 import { TripRecord } from '../../types/tripEngine';
 import { ProjectEntity, CarrierEntity, MaterialEntity, TruckEntity, DriverEntity } from '../../types/entities';
 
+export interface OperationsDashboardViewProps {
+  authContext?: AuthUserContext;
+}
 
-export const OperationsDashboardView: React.FC = () => {
+export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = ({ authContext }) => {
   const { t } = useI18n();
-  // 1. User Security Profile & Project Authorization
-  const [activeProfile, setActiveProfile] = useState<UserSecurityProfile>(PREDEFINED_SECURITY_PROFILES[0]);
+  // 1. Canonical User Security Profile & Project Authorization derived from session
+  const activeProfile: UserSecurityProfile = useMemo(() => {
+    if (!authContext) {
+      return {
+        userId: 'USR-OPERATIONS',
+        userNameAr: 'مدير العمليات المركزية',
+        roleTitleAr: 'إدارة العمليات المركزية',
+        role: 'SUPER_ADMIN',
+        authorizedProjectIds: ['ALL'],
+        isRestricted: false,
+      };
+    }
+    const isSuperAdmin = authContext.role === 'SUPER_ADMIN' || authContext.email === 'saudiali044@gmail.com';
+    const isProjectAdmin = authContext.role === 'PROJECT_ADMIN';
+    const isSiteSupervisor = authContext.role === 'SITE_SUPERVISOR';
+    const isAuditor = (authContext.role as string) === 'FINANCE_AUDITOR' || (authContext.role as string) === 'AUDITOR';
+
+    let role: UserSecurityProfile['role'] = 'SUPER_ADMIN';
+    if (isSuperAdmin) role = 'SUPER_ADMIN';
+    else if (isProjectAdmin) role = 'PROJECT_ADMIN';
+    else if (isSiteSupervisor) role = 'SITE_SUPERVISOR';
+    else if (isAuditor) role = 'AUDITOR';
+    else role = 'PROJECT_ADMIN';
+
+    const authorizedProjects = isSuperAdmin
+      ? ['ALL']
+      : (authContext.assignedProjectIds && authContext.assignedProjectIds.length > 0
+          ? authContext.assignedProjectIds
+          : []);
+
+    return {
+      userId: authContext.userId,
+      userNameAr: authContext.displayName || 'مستخدم النظام',
+      roleTitleAr: authContext.displayName || authContext.role,
+      role,
+      authorizedProjectIds: authorizedProjects,
+      isRestricted: !isSuperAdmin,
+    };
+  }, [authContext]);
   
   // Canonical State from Repositories / IndexedDB
   const [canonicalProjects, setCanonicalProjects] = useState<ProjectEntity[]>([]);
@@ -272,27 +309,22 @@ export const OperationsDashboardView: React.FC = () => {
     drivers: canonicalDrivers,
   }), [canonicalProjects, canonicalCarriers, canonicalMaterials, canonicalTrucks, canonicalDrivers]);
 
-  // When profile changes, reset any invalid project selection
-  const handleProfileChange = (profile: UserSecurityProfile) => {
-    setActiveProfile(profile);
-    // If current global filter selected a project not authorized in new profile, reset to ALL or first authorized
-    if (globalFilters.projectId !== 'ALL' && !dashboardService.isProjectAuthorized(globalFilters.projectId, profile)) {
+  // Keep project filter within authorized boundaries of the activeProfile
+  useEffect(() => {
+    if (globalFilters.projectId !== 'ALL' && !dashboardService.isProjectAuthorized(globalFilters.projectId, activeProfile)) {
       setGlobalFilters(prev => ({
         ...prev,
-        projectId: profile.isRestricted ? profile.authorizedProjectIds[0] : 'ALL',
+        projectId: activeProfile.isRestricted && activeProfile.authorizedProjectIds.length > 0
+          ? activeProfile.authorizedProjectIds[0]
+          : 'ALL',
       }));
+      setWidgetFilterOverrides({});
     }
-    // Clear all widget overrides when changing profile to prevent lingering unauthorized states
-    setWidgetFilterOverrides({});
-  };
+  }, [activeProfile, globalFilters.projectId]);
 
   // 6. Live Terminal Board Search & Filter
   const [terminalSearch, setTerminalSearch] = useState<string>('');
   const [terminalStatusFilter, setTerminalStatusFilter] = useState<string>('ALL');
-
-  // 7. Automated Test Suite State
-  const [isTestModalOpen, setIsTestModalOpen] = useState<boolean>(false);
-  const [testResults, setTestResults] = useState(() => runDashboardSecurityAndMetricsTests());
 
   // 8. Computations for each widget
   // (A) Trips Volume & Status Cards
@@ -404,44 +436,6 @@ export const OperationsDashboardView: React.FC = () => {
                   {t("dashboard.labels.continue")}</p>
               </div>
             </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            {/* Strict Security Profile Switcher */}
-            <div className="bg-stone-50 border border-stone-200 rounded-xl p-2.5 flex items-center gap-2 text-xs">
-              <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
-              <div className="flex flex-col">
-                <span className="text-[10px] text-stone-500 font-bold">{t("dashboard.labels.userProjects")}</span>
-                <select
-                  value={activeProfile.userId}
-                  onChange={(e) => {
-                    const p = PREDEFINED_SECURITY_PROFILES.find(x => x.userId === e.target.value);
-                    if (p) handleProfileChange(p);
-                  }}
-                  className="bg-white border border-stone-300 rounded-lg px-2 py-1 text-xs font-bold text-stone-800 focus:border-amber-500 outline-none cursor-pointer"
-                >
-                  {PREDEFINED_SECURITY_PROFILES.map((prof) => (
-                    <option key={prof.userId} value={prof.userId}>
-                      {prof.roleTitleAr}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Run Automated Compliance Tests Button */}
-            <button
-              id="btn-run-dashboard-tests"
-              onClick={() => {
-                setTestResults(runDashboardSecurityAndMetricsTests());
-                setIsTestModalOpen(true);
-              }}
-              className="flex items-center gap-2 px-3.5 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
-              title={t("dashboard.labels.projects")}
-            >
-              <Play className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>فحص الأمان والامتثال ({testResults.passedTests}/{testResults.totalTests})</span>
-            </button>
           </div>
         </div>
 
@@ -1335,106 +1329,6 @@ export const OperationsDashboardView: React.FC = () => {
           </table>
         </div>
       </div>
-
-      {/* 9. Automated Test Suite Results Modal */}
-      {isTestModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-stone-200">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 bg-stone-900 text-white">
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck className="w-5 h-5 text-amber-400" />
-                <span className="font-bold text-sm">{t("dashboard.labels.projects_5")}</span>
-              </div>
-              <button
-                onClick={() => setIsTestModalOpen(false)}
-                className="p-1 text-stone-400 hover:text-white rounded-lg transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="p-6 overflow-y-auto space-y-4">
-              <div className={`p-4 rounded-xl border flex items-center justify-between ${
-                testResults.allPassed 
-                  ? 'bg-emerald-50 border-emerald-300 text-emerald-950' 
-                  : 'bg-rose-50 border-rose-300 text-rose-950'
-              }`}>
-                <div className="flex items-center gap-3">
-                  {testResults.allPassed ? (
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
-                  ) : (
-                    <ShieldAlert className="w-6 h-6 text-rose-600 shrink-0" />
-                  )}
-                  <div>
-                    <h4 className="font-black text-sm">
-                      {testResults.allPassed ? 'كافة فحوصات الأمان والعمليات ناجحة بنسبة 100%' : 'توجد إخفاقات'}
-                    </h4>
-                    <p className="text-xs text-stone-600 mt-0.5">
-                      تم اجتياز {testResults.passedTests} من أصل {testResults.totalTests} اختباراً لعزل المشاريع وحسابات الأوزان والتسويات.
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setTestResults(runDashboardSecurityAndMetricsTests())}
-                  className="px-3 py-1.5 bg-white border border-stone-300 text-stone-800 rounded-lg text-xs font-bold hover:bg-stone-50 cursor-pointer flex items-center gap-1.5 shadow-2xs"
-                >
-                  <RotateCw className="w-3.5 h-3.5" />
-                  <span>إعادة الفحص</span>
-                </button>
-              </div>
-
-              <div className="space-y-2.5">
-                {testResults.results.map((t) => (
-                  <div 
-                    key={t.id}
-                    className="bg-stone-50 border border-stone-200 rounded-xl p-3.5 flex items-start justify-between gap-3 text-xs"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] bg-stone-200 text-stone-700 px-1.5 py-0.2 rounded font-bold">
-                          {t.id}
-                        </span>
-                        <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded font-bold">
-                          {t.category}
-                        </span>
-                        <h5 className="font-bold text-stone-900">{t.titleAr}</h5>
-                      </div>
-                      <p className="text-[11px] text-stone-600 leading-relaxed">{t.details}</p>
-                    </div>
-
-                    <div className="shrink-0 flex items-center gap-1.5 font-bold">
-                      {t.passed ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-[10px]">
-                          <Check className="w-3 h-3" />
-                          <span>ناجح (PASSED)</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full text-[10px]">
-                          <X className="w-3 h-3" />
-                          <span>فشل (FAILED)</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-3 bg-stone-100 border-t border-stone-200 flex justify-end">
-              <button
-                onClick={() => setIsTestModalOpen(false)}
-                className="px-4 py-2 bg-stone-900 text-white text-xs font-bold rounded-xl hover:bg-stone-800 cursor-pointer"
-              >
-                إغلاق
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );
