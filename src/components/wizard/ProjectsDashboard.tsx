@@ -123,7 +123,6 @@ export const ProjectsDashboard: React.FC<ProjectsDashboardProps> = ({
         nameAr: editNameAr.trim(),
         clientName: editClientName.trim(),
         description: editDescription.trim(),
-        status: editStatus,
         settings: {
           ...editingProject.settings,
           vatRatePercent: Number(editVatRate),
@@ -138,15 +137,6 @@ export const ProjectsDashboard: React.FC<ProjectsDashboardProps> = ({
       setErrorMsg(err.message || 'Error updating project');
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  // Quick toggle status
-  const handleToggleStatus = async (p: ProjectEntity, nextStatus: ProjectEntity['status']) => {
-    try {
-      await projectService.updateProject(p.projectId, { status: nextStatus }, authContext);
-    } catch (err: any) {
-      alert(err.message || 'Error changing status');
     }
   };
 
@@ -527,17 +517,11 @@ export const ProjectsDashboard: React.FC<ProjectsDashboardProps> = ({
 
               {/* Status */}
               <div className="space-y-1">
-                <label className="block text-stone-400 font-bold">{isRTL ? 'حالة العمل الحالية' : 'Operational Status'}</label>
-                <select
-                  value={editStatus}
-                  onChange={(e) => setEditStatus(e.target.value as ProjectEntity['status'])}
-                  className="w-full bg-stone-950 border border-stone-800 text-white rounded-xl px-3 py-2 focus:border-amber-500 focus:outline-hidden font-bold"
-                >
-                  <option value="ACTIVE">{isRTL ? 'ACTIVE (نشط)' : 'ACTIVE'}</option>
-                  <option value="SUSPENDED">{isRTL ? 'SUSPENDED (معلق مؤقتاً)' : 'SUSPENDED'}</option>
-                  <option value="PLANNING">{isRTL ? 'PLANNING (قيد التخطيط)' : 'PLANNING'}</option>
-                  <option value="ARCHIVED">{isRTL ? 'ARCHIVED (مؤرشف ومغلق)' : 'ARCHIVED'}</option>
-                </select>
+                <label className="block text-stone-400 font-bold">{isRTL ? 'حالة المشروع' : 'Project Status'}</label>
+                <div className="w-full bg-stone-950 border border-stone-800 text-amber-400 rounded-xl px-3 py-2 font-mono font-bold flex items-center justify-between">
+                  <span>{editingProject.status}</span>
+                  <span className="text-[10px] text-stone-500 font-normal">{isRTL ? '(تُدار عبر مسار الحوكمة والتنشيط)' : '(Governed by Lifecycle/Activation)'}</span>
+                </div>
               </div>
 
               {/* ZATCA Tax */}

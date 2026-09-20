@@ -98,7 +98,7 @@ export class ProjectService {
     updates: Partial<ProjectEntity>,
     context: AuthUserContext
   ): Promise<void> {
-    if (context.role !== 'PROJECT_ADMIN') {
+    if (context.role !== 'PROJECT_ADMIN' && context.role !== 'SUPER_ADMIN') {
       throw new Error('غير مصرح لك بتعديل بيانات المشروع');
     }
 
@@ -110,9 +110,12 @@ export class ProjectService {
     // Ensure projectCode and projectNumber are immutable
     const { projectCode, projectNumber, ...sanitizedUpdates } = updates;
     
-    // GUARD: Prevent entering ACTIVE via generic update
-    if (existing.status !== 'ACTIVE' && sanitizedUpdates.status === 'ACTIVE') {
-      throw new Error('لا يمكن تنشيط المشروع عبر تحديث عام. يرجى استخدام عملية التنشيط الرسمية.');
+    // GUARD: Prevent lifecycle/governance status mutation via generic update
+    if (sanitizedUpdates.status !== undefined && sanitizedUpdates.status !== existing.status) {
+      if (sanitizedUpdates.status === 'ACTIVE') {
+        throw new Error('لا يمكن تنشيط المشروع عبر تحديث عام. يرجى استخدام عملية التنشيط الرسمية.');
+      }
+      throw new Error('لا يمكن تعديل حالة دورة حياة المشروع عبر التحديث العام. يرجى استخدام عملية انتقال الحوكمة المعتمدة.');
     }
 
     const merged = { ...existing, ...sanitizedUpdates, projectId };

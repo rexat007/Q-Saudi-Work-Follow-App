@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { 
   Building2, 
   Boxes, 
@@ -38,6 +38,24 @@ import { pricingRuleRepository } from '../../repositories/pricingRule.repository
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
 import { auth } from '../../firebase/config';
+
+export interface ServerReadinessBlocker {
+  code: string;
+  message: string;
+}
+
+export interface ServerReadinessDTO {
+  projectId: string;
+  ready: boolean;
+  evaluatedAt: string;
+  blockers: ServerReadinessBlocker[];
+  candidatePath?: {
+    driverId: string;
+    truckId: string;
+    carrierId: string;
+    materialId: string;
+  } | null;
+}
 
 export interface ProjectSetupWizardProps {
   projects: ProjectEntity[];
@@ -128,6 +146,51 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const isLocked = useMemo(() => {
     return project?.status === 'ACTIVE';
   }, [project]);
+
+  // Canonical Server Readiness States (Phase 6)
+  const [serverReadiness, setServerReadiness] = useState<ServerReadinessDTO | null>(null);
+  const [isLoadingReadiness, setIsLoadingReadiness] = useState<boolean>(false);
+  const [readinessError, setReadinessError] = useState<string | null>(null);
+  const [isActivating, setIsActivating] = useState<boolean>(false);
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+
+  const fetchServerReadiness = useCallback(async (targetProjectId: string) => {
+    setIsLoadingReadiness(true);
+    setReadinessError(null);
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api/projects/${targetProjectId}/readiness`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `خطأ في استعلام الجاهزية (${res.status})`);
+      }
+      const data: ServerReadinessDTO = await res.json();
+      setServerReadiness(data);
+    } catch (err: any) {
+      setReadinessError(err.message || 'خطأ في جلب تقرير الجاهزية التشغيلية من الخادم');
+      setServerReadiness(null);
+    } finally {
+      setIsLoadingReadiness(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (editingProjectId) {
+      fetchServerReadiness(editingProjectId);
+    } else {
+      setServerReadiness(null);
+    }
+  }, [editingProjectId, fetchServerReadiness]);
+
+  useEffect(() => {
+    if (activePhase === 5 && editingProjectId) {
+      fetchServerReadiness(editingProjectId);
+    }
+  }, [activePhase, editingProjectId, fetchServerReadiness]);
 
   // Real-time Subscriptions to Active Project sub-collections
   useEffect(() => {
@@ -221,8 +284,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     return conflicts;
   }, [pricingRules]);
 
-  // Readiness Checklist calculations
-  const readinessChecklist = useMemo(() => {
+  // Setup Progress Checklist calculations (informational progress tracking)
+  const setupChecklist = useMemo(() => {
     if (!project) return [];
     return [
       { id: 'foundation', text: 'تكوين بيانات التأسيس والعميل', isDone: !!project.nameAr && !!project.clientName },
@@ -235,9 +298,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     ];
   }, [project, materials, carriers, fleetRows, pricingRules, pricingConflicts]);
 
-  const isReadinessGreen = useMemo(() => {
-    return readinessChecklist.every(item => item.isDone);
-  }, [readinessChecklist]);
+  const isSetupChecklistComplete = useMemo(() => {
+    return setupChecklist.every(item => item.isDone);
+  }, [setupChecklist]);
 
   // Phase 1: Initialize New Project (Atomic transaction with sequential custom numbering)
   const handleCreateProject = async (e: React.FormEvent) => {
@@ -593,34 +656,55 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  // Phase 5: Transition Project Setup Status (Governance rules)
+  // Phase 5: Transition Project Setup Status (Canonical governance rules)
   const handleTransitionStatus = async (nextStatus: ProjectEntity['status']) => {
     if (!project) return;
-    
+    setIsTransitioning(true);
     try {
-      await projectService.updateProject(project.projectId, {
-        status: nextStatus
-      }, authContext);
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api/projects/${project.projectId}/lifecycle-transition`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ targetStatus: nextStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'خطأ في ترقية حالة المشروع');
+      }
       alert(`تمت ترقية حالة المشروع بنجاح إلى: ${nextStatus}`);
+      await fetchServerReadiness(project.projectId);
     } catch (err: any) {
       alert(err.message || 'خطأ في ترقية حالة المشروع');
+    } finally {
+      setIsTransitioning(false);
     }
   };
 
   const handleActivateProject = async () => {
+    if (!project) return;
+    setIsActivating(true);
     try {
-      const response = await fetch(`/api/projects/${project?.projectId}/activate`, {
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch(`/api/projects/${project.projectId}/activate`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${(await auth.currentUser?.getIdToken())}`,
-          'Content-Type': 'application/json'
-        }
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
-      if (!response.ok) throw new Error((await response.json()).error);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'فشل التنشيط');
+      }
       alert('تم تنشيط المشروع بنجاح');
-      // Refresh project state
+      await fetchServerReadiness(project.projectId);
     } catch (error: any) {
       alert(`فشل التنشيط: ${error.message}`);
+    } finally {
+      setIsActivating(false);
     }
   };
 
@@ -1637,22 +1721,111 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             {/* ================= PHASE 5: REVIEW & ACTIVATE ================= */}
             {activePhase === 5 && project && (
               <div className="space-y-6 text-xs text-stone-300">
-                {/* Readiness summary */}
+                {/* 1. Canonical Server Operational Readiness Authority */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
-                  <h3 className="font-black text-white text-[13px] border-b border-stone-800 pb-2">فحص وجاهزية إعدادات ومستندات المشروع</h3>
+                  <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-5 h-5 text-amber-500" />
+                      <div>
+                        <h3 className="font-black text-white text-[13px]">
+                          الجاهزية التشغيلية الميدانية المعتمدة (مرجعية الخادم)
+                        </h3>
+                        <p className="text-[11px] text-stone-400">
+                          تقييم الربط التشغيلي الفعلي (المواد، الناقلين، السائقين، الشاحنات، والتعرفات السارية)
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {readinessChecklist.map((item) => (
+                    <button
+                      onClick={() => fetchServerReadiness(project.projectId)}
+                      disabled={isLoadingReadiness}
+                      className="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 border border-stone-750 text-stone-300 rounded-lg flex items-center gap-1.5 transition-all text-[11px] disabled:opacity-50"
+                      title="إعادة فحص الجاهزية التشغيلية"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isLoadingReadiness ? 'animate-spin text-amber-500' : 'text-stone-400'}`} />
+                      <span>{isLoadingReadiness ? 'جاري الفحص...' : 'تحديث الفحص'}</span>
+                    </button>
+                  </div>
+
+                  {isLoadingReadiness ? (
+                    <div className="p-6 bg-stone-900/50 border border-stone-800 rounded-xl text-center space-y-2">
+                      <RefreshCw className="w-6 h-6 animate-spin text-amber-500 mx-auto" />
+                      <p className="text-stone-400">جاري تقييم الجاهزية التشغيلية من الخادم بشكل موثق...</p>
+                    </div>
+                  ) : readinessError ? (
+                    <div className="p-4 bg-rose-950/40 border border-rose-800 rounded-xl flex items-center gap-3 text-rose-300">
+                      <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+                      <div>
+                        <span className="font-bold block">تعذر تقييم الجاهزية التشغيلية</span>
+                        <span className="text-[11px] opacity-80">{readinessError}</span>
+                      </div>
+                    </div>
+                  ) : serverReadiness ? (
+                    <div className="space-y-4">
+                      {serverReadiness.ready ? (
+                        <div className="p-4 bg-emerald-950/40 border border-emerald-800/80 rounded-xl space-y-3">
+                          <div className="flex items-center gap-2.5 text-emerald-400 font-black text-xs">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                            <span>المشروع مستوفٍ لجميع متطلبات الجاهزية التشغيلية وجاهز للتفعيل</span>
+                          </div>
+                          <p className="text-[11px] text-emerald-300/80 leading-relaxed">
+                            تم التحقق السيرفري بنجاح: تم العثور على مسار تشغيلي متكامل ومترابط (عضوية سائق نشطة ↔ تعيين شاحنة ↔ تبعية ناقل متطابقة ↔ تخصيص مادة ↔ تعرفة سعر سارية).
+                          </p>
+                          {serverReadiness.candidatePath && (
+                            <div className="bg-stone-950/80 border border-emerald-900/60 p-3 rounded-lg flex flex-wrap gap-4 text-[10px] font-mono text-stone-300">
+                              <div><span className="text-stone-500">سائق: </span>{serverReadiness.candidatePath.driverId}</div>
+                              <div><span className="text-stone-500">شاحنة: </span>{serverReadiness.candidatePath.truckId}</div>
+                              <div><span className="text-stone-500">ناقل: </span>{serverReadiness.candidatePath.carrierId}</div>
+                              <div><span className="text-stone-500">مادة: </span>{serverReadiness.candidatePath.materialId}</div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-rose-950/30 border border-rose-800/70 rounded-xl space-y-3">
+                          <div className="flex items-center gap-2.5 text-rose-400 font-black text-xs">
+                            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+                            <span>المشروع غير جاهز للتشغيل الميداني الفعلي ({serverReadiness.blockers.length} عوائق)</span>
+                          </div>
+                          <div className="space-y-2 pt-1">
+                            {serverReadiness.blockers.map((b, idx) => (
+                              <div key={idx} className="flex items-start gap-2 bg-stone-950/70 border border-rose-900/40 p-2.5 rounded-lg text-rose-200 text-[11px]">
+                                <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                                <div className="space-y-0.5">
+                                  <span className="font-semibold block">{b.message}</span>
+                                  <span className="text-[10px] font-mono text-stone-500 block">رمز العائق: {b.code}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-stone-900 border border-stone-800 rounded-xl text-stone-400 text-center">
+                      اضغط على تحديث الفحص لجلب تقرير الجاهزية التشغيلية من الخادم.
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Informational Setup Progress Checklist */}
+                <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
+                  <div className="border-b border-stone-800 pb-2">
+                    <h3 className="font-black text-white text-[13px]">مؤشرات اكتمال الإعداد والتأسيس (معلوماتية)</h3>
+                    <p className="text-[11px] text-stone-500">متابعة إدخال البيانات المبدئية ومزامنة المستندات</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {setupChecklist.map((item) => (
                       <div key={item.id} className="p-3 bg-stone-900 border border-stone-800 rounded-xl flex items-center justify-between">
-                        <span className="text-stone-300 font-semibold">{item.text}</span>
+                        <span className="text-stone-300 font-semibold text-[11px]">{item.text}</span>
                         {item.isDone ? (
-                          <span className="px-2 py-0.5 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/60 font-bold flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/60 font-bold flex items-center gap-1 text-[10px]">
                             <Check className="w-3 h-3 text-emerald-400" />
                             <span>مستوفى</span>
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded-lg bg-rose-950 text-rose-400 border border-rose-800/60 font-bold flex items-center gap-1">
-                            <X className="w-3 h-3 text-rose-400" />
+                          <span className="px-2 py-0.5 rounded-lg bg-stone-850 text-stone-400 border border-stone-750 font-bold flex items-center gap-1 text-[10px]">
+                            <X className="w-3 h-3 text-stone-500" />
                             <span>غير مكتمل</span>
                           </span>
                         )}
@@ -1661,7 +1834,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   </div>
                 </div>
 
-                {/* Governance and transitions controller */}
+                {/* 3. Governance and Lifecycle Controller */}
                 <div className="bg-stone-950 border border-stone-850 p-6 rounded-2xl text-center space-y-6 max-w-xl mx-auto shadow-lg">
                   <div className="space-y-2">
                     <span className="text-stone-500 font-mono font-bold block">دورة حوكمة حالة المشروع</span>
@@ -1678,16 +1851,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   <div className="space-y-3">
                     <p className="text-stone-400 leading-relaxed text-[11px] max-w-md mx-auto">
-                      يتطلب تحويل المشروع إلى الحالة <span className="font-bold text-white">ACTIVE</span> استيفاء كافة المتطلبات أعلاه. بتفعيل المشروع، يتم قفل تهيئات الفترات والتعرفات ويصبح جاهزاً للتشغيل الفعلي وحقن بيانات الميزان.
+                      يتطلب تحويل المشروع إلى الحالة <span className="font-bold text-white">ACTIVE</span> استيفاء الجاهزية التشغيلية السيرفرية واعتماد الحوكمة (APPROVED). بتفعيل المشروع، يتم قفل التهيئات ويصبح جاهزاً للتشغيل الفعلي.
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-3 pt-2">
                       {(project.status as any) === 'SETUP' && (
                         <button
                           onClick={() => handleTransitionStatus('READY_FOR_REVIEW' as any)}
-                          className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl transition-all shadow-md"
+                          disabled={isTransitioning}
+                          className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl transition-all shadow-md disabled:opacity-50"
                         >
-                          تقديم طلب مراجعة واعتماد الإعدادات
+                          {isTransitioning ? 'جاري التقديم...' : 'تقديم طلب مراجعة واعتماد الإعدادات'}
                         </button>
                       )}
 
@@ -1695,28 +1869,37 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         <>
                           <button
                             onClick={() => handleTransitionStatus('SETUP' as any)}
-                            className="px-4 py-2 bg-rose-900/50 border border-rose-800 text-rose-300 font-black rounded-xl transition-all"
+                            disabled={isTransitioning}
+                            className="px-4 py-2 bg-rose-900/50 border border-rose-800 text-rose-300 font-black rounded-xl transition-all disabled:opacity-50"
                           >
                             رفض للتعديل
                           </button>
                           <button
                             onClick={() => handleTransitionStatus('APPROVED' as any)}
-                            className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl transition-all"
+                            disabled={isTransitioning}
+                            className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl transition-all disabled:opacity-50"
                           >
-                            اعتماد وتصديق جاهزية التهيئة
+                            {isTransitioning ? 'جاري الاعتماد...' : 'اعتماد وتصديق جاهزية التهيئة'}
                           </button>
                         </>
                       )}
 
                       {(project.status as any) === 'APPROVED' && (
-                        <button
-                          onClick={handleActivateProject}
-                          disabled={!isReadinessGreen}
-                          className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs flex items-center gap-2 transition-all shadow-lg disabled:opacity-50"
-                        >
-                          <Unlock className="w-4 h-4" />
-                          <span>تفعيل المشروع وبدء العمليات الميدانية</span>
-                        </button>
+                        <div className="flex flex-col items-center gap-2">
+                          <button
+                            onClick={handleActivateProject}
+                            disabled={!serverReadiness?.ready || isActivating || isLoadingReadiness}
+                            className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs flex items-center gap-2 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Unlock className="w-4 h-4" />
+                            <span>{isActivating ? 'جاري التنشيط...' : 'تفعيل المشروع وبدء العمليات الميدانية'}</span>
+                          </button>
+                          {!serverReadiness?.ready && (
+                            <span className="text-[10px] text-rose-400 font-semibold">
+                              * زر التفعيل مقفل: يتطلب استيفاء الجاهزية التشغيلية السيرفرية أولاً
+                            </span>
+                          )}
+                        </div>
                       )}
 
                       {(project.status as any) === 'ACTIVE' && (
@@ -1724,7 +1907,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                           <CheckCircle2 className="w-10 h-10 text-emerald-400" />
                           <div className="space-y-1">
                             <span className="text-xs block">المشروع نشط للتشغيل الميداني الفعلي</span>
-                            <span className="text-[10px] text-stone-500 font-mono block">جميع متطلبات التأسيس تم قفلها بنجاح</span>
+                            <span className="text-[10px] text-stone-500 font-mono block">جميع متطلبات التأسيس والجاهزية تم قفلها بنجاح</span>
                           </div>
                         </div>
                       )}

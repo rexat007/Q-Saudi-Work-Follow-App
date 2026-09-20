@@ -39,7 +39,7 @@ export class ProjectReadinessService {
     if (carriers.length === 0) blockers.push({ code: 'NO_ACTIVE_CARRIER', message: 'لا يوجد ناقلات نشطة' });
 
     // 3. Operational Path Check
-    const completePath = await this.findCoherentOperationalPath(projectId, effectiveAt, readContext);
+    const completePath = await this.findCoherentOperationalPath(projectId, effectiveAt, readContext, materials, carriers);
     if (!completePath) {
       blockers.push({ code: 'NO_COMPLETE_OPERATIONAL_PATH', message: 'لا يوجد مسار تشغيلي مكتمل' });
     }
@@ -53,7 +53,13 @@ export class ProjectReadinessService {
     };
   }
 
-  private async findCoherentOperationalPath(projectId: string, effectiveAt: Date, readContext: ProjectReadinessReadContext) {
+  private async findCoherentOperationalPath(
+    projectId: string, 
+    effectiveAt: Date, 
+    readContext: ProjectReadinessReadContext,
+    materials?: { materialId: string; status: string }[],
+    carriers?: { carrierId: string; status: string }[]
+  ) {
     // 1. Get all memberships
     const drivers = await readContext.listActiveDriverMemberships(projectId);
     const trucks = await readContext.listActiveTruckMemberships(projectId);
@@ -70,8 +76,14 @@ export class ProjectReadinessService {
         if (!driverAffil || driverAffil.status !== 'ACTIVE' || !truckAffil || truckAffil.status !== 'ACTIVE' || driverAffil.carrierId !== truckAffil.carrierId) continue;
         const carrierId = driverAffil.carrierId;
 
+        // Ensure operational carrier has an active project membership
+        if (carriers && !carriers.some(c => c.carrierId === carrierId && c.status === 'ACTIVE')) continue;
+
         const allocation = await readContext.getActiveTruckAllocation(projectId, truck.truckId);
         if (!allocation || allocation.status !== 'ACTIVE' || allocation.truckId !== truck.truckId) continue;
+
+        // Ensure allocated material has an active project membership
+        if (materials && !materials.some(m => m.materialId === allocation.materialId && m.status === 'ACTIVE')) continue;
 
         // Verify pricing for this path
         const pricing = await readContext.listPricingRules(projectId);

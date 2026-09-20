@@ -15,9 +15,22 @@ import {
 import { ProjectDriverTruckAssignmentEntity, ActiveAssignmentSlotPayload } from '../types/projectDriverTruckAssignment';
 import { ProjectTruckMaterialAllocationEntity, ActiveTruckMaterialSlotPayload } from '../types/projectTruckMaterialAllocation';
 import { ProjectActivationService, NonTransactionReadContext } from '../services/projectActivation.service';
+import { ProjectLifecycleService } from '../services/projectLifecycle.service';
+import { projectService } from '../services/project.service';
 import { AuthUserContext } from '../types/common';
 
 let mockDatabase: Record<string, any> = {};
+
+vi.mock('../firebase/config', () => ({
+  db: {},
+  auth: {
+    currentUser: {
+      uid: 'admin-1',
+      email: 'admin@qsaudi.com',
+      getIdToken: vi.fn().mockResolvedValue('mock-token')
+    }
+  }
+}));
 
 vi.mock('firebase/firestore', async (importOriginal) => {
   const original = await importOriginal<typeof import('firebase/firestore')>();
@@ -30,6 +43,21 @@ vi.mock('firebase/firestore', async (importOriginal) => {
         type: 'document'
       };
     }),
+    getDoc: vi.fn(async (docRef: any) => {
+      const path = docRef.path;
+      const data = mockDatabase[path];
+      return {
+        exists: () => data !== undefined,
+        data: () => data,
+      };
+    }),
+    setDoc: vi.fn(async (docRef: any, data: any) => {
+      mockDatabase[docRef.path] = data;
+    }),
+    updateDoc: vi.fn(async (docRef: any, data: any) => {
+      mockDatabase[docRef.path] = { ...mockDatabase[docRef.path], ...data };
+    }),
+    serverTimestamp: vi.fn(() => new Date().toISOString()),
     runTransaction: vi.fn(async (_db, callback) => {
       const transactionMock = {
         get: vi.fn(async (docRef: any) => {
@@ -40,7 +68,12 @@ vi.mock('firebase/firestore', async (importOriginal) => {
             data: () => data,
           };
         }),
-        update: vi.fn((_docRef, _data) => {}),
+        update: vi.fn((docRef: any, data: any) => {
+          mockDatabase[docRef.path] = { ...mockDatabase[docRef.path], ...data };
+        }),
+        set: vi.fn((docRef: any, data: any) => {
+          mockDatabase[docRef.path] = data;
+        }),
       };
       return await callback(transactionMock);
     }),
@@ -155,7 +188,7 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
     vi.spyOn(NonTransactionReadContext.prototype, 'getProject').mockResolvedValue({
       projectId: 'test-proj',
       nameAr: 'Test Project',
-      status: 'SETUP'
+      status: 'APPROVED'
     } as ProjectEntity);
 
     vi.spyOn(NonTransactionReadContext.prototype, 'listActiveMaterialMemberships').mockResolvedValue([
@@ -222,7 +255,7 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
     ]);
 
     // 2. Populate mockDatabase for transaction re-read matching candidate EXACTLY
-    mockDatabase['projects/test-proj'] = { projectId: 'test-proj', nameAr: 'Test Project', status: 'SETUP' };
+    mockDatabase['projects/test-proj'] = { projectId: 'test-proj', nameAr: 'Test Project', status: 'APPROVED' };
     mockDatabase['projects/test-proj/driver_memberships/d1'] = { driverId: 'd1', status: 'ACTIVE' };
     mockDatabase['projects/test-proj/truck_memberships/t1'] = { truckId: 't1', status: 'ACTIVE' };
     mockDatabase['projects/test-proj/carrier_memberships/c1'] = { carrierId: 'c1', status: 'ACTIVE' };
@@ -237,46 +270,168 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
     mockDatabase['projects/test-proj/pricing_rules/pr1'] = { pricingRuleId: 'pr1', projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' };
   };
 
-  it('A. candidate discovered as ready, then membership changes before transaction -> activation rejected', async () => {
+  it('Scenario A: Attempting activation from SETUP fails (must be APPROVED)', async () => {
     setupMocksForValidDiscovery();
-    // Simulate membership becomes INACTIVE after discovery but before transaction
-    mockDatabase['projects/test-proj/driver_memberships/d1'].status = 'INACTIVE';
+    mockDatabase['projects/test-proj'].status = 'SETUP';
+    vi.spyOn(NonTransactionReadContext.prototype, 'getProject').mockResolvedValue({
+      projectId: 'test-proj',
+      nameAr: 'Test Project',
+      status: 'SETUP'
+    } as ProjectEntity);
+
+    await expect(activationService.activateProject('test-proj', userContext))
+      .rejects.toThrow('لا يمكن تنشيط مشروع ما لم يكن في حالة معتمد (APPROVED)');
+  });
+
+  it('Scenario B: Attempting activation from READY_FOR_REVIEW fails (must be APPROVED)', async () => {
+    setupMocksForValidDiscovery();
+    mockDatabase['projects/test-proj'].status = 'READY_FOR_REVIEW';
+    vi.spyOn(NonTransactionReadContext.prototype, 'getProject').mockResolvedValue({
+      projectId: 'test-proj',
+      nameAr: 'Test Project',
+      status: 'READY_FOR_REVIEW'
+    } as ProjectEntity);
+
+    await expect(activationService.activateProject('test-proj', userContext))
+      .rejects.toThrow('لا يمكن تنشيط مشروع ما لم يكن في حالة معتمد (APPROVED)');
+  });
+
+  it('Scenario C: Attempting activation without server readiness fails', async () => {
+    setupMocksForValidDiscovery();
+    vi.spyOn(NonTransactionReadContext.prototype, 'getActiveDriverAssignment').mockResolvedValue(null);
+
+    await expect(activationService.activateProject('test-proj', userContext))
+      .rejects.toThrow('المشروع غير جاهز للتنشيط');
+  });
+
+  it('Scenario D: Candidate discovered, then carrier membership changes/inactive -> activation rejected', async () => {
+    setupMocksForValidDiscovery();
+    mockDatabase['projects/test-proj/carrier_memberships/c1'].status = 'INACTIVE';
 
     await expect(activationService.activateProject('test-proj', userContext))
       .rejects.toThrow('فشل تنشيط المشروع: عضوية غير نشطة');
   });
 
-  it('B. assignment changes before transaction -> activation rejected', async () => {
+  it('Scenario E: Candidate discovered, then material membership changes/inactive -> activation rejected', async () => {
     setupMocksForValidDiscovery();
-    // Simulate assignment is changed or deactivated
-    mockDatabase['projects/test-proj/driver_truck_assignments/a1'].status = 'INACTIVE';
+    mockDatabase['projects/test-proj/material_memberships/m1'].status = 'INACTIVE';
 
     await expect(activationService.activateProject('test-proj', userContext))
-      .rejects.toThrow('فشل تنشيط المشروع: تفاصيل التعيين غير متطابقة أو غير نشطة');
+      .rejects.toThrow('فشل تنشيط المشروع: عضوية غير نشطة');
   });
 
-  it('C. allocation changes before transaction -> activation rejected', async () => {
+  it('Scenario F: Candidate discovered, then affiliation carrier mismatch -> activation rejected', async () => {
     setupMocksForValidDiscovery();
-    // Simulate allocation closed
-    mockDatabase['projects/test-proj/truck_material_allocations/al1'].status = 'CLOSED';
+    mockDatabase['projects/test-proj/truck_carrier_affiliations/t1'].carrierId = 'c2';
 
     await expect(activationService.activateProject('test-proj', userContext))
-      .rejects.toThrow('فشل تنشيط المشروع: تفاصيل التخصيص غير متطابقة أو غير نشطة');
+      .rejects.toThrow('فشل تنشيط المشروع: انتساب غير نشط أو غير متطابق');
   });
 
-  it('D. PricingRule changes/expires before transaction -> activation rejected', async () => {
+  it('Scenario G: Candidate discovered, then pricing rule expires before transaction -> activation rejected', async () => {
     setupMocksForValidDiscovery();
-    // Simulate PricingRule expired
-    mockDatabase['projects/test-proj/pricing_rules/pr1'].effectiveTo = '2010-01-01'; // Expired relative to current date (e.g. 2026)
+    mockDatabase['projects/test-proj/pricing_rules/pr1'].effectiveTo = '2010-01-01';
 
     await expect(activationService.activateProject('test-proj', userContext))
       .rejects.toThrow('فشل تنشيط المشروع: قاعدة التسعير منتهية الصلاحية أو غير سارية');
   });
 
-  it('E. unchanged candidate -> activation succeeds', async () => {
+  it('Scenario H: Activation from APPROVED with coherent operational path succeeds and sets status to ACTIVE', async () => {
     setupMocksForValidDiscovery();
 
-    await expect(activationService.activateProject('test-proj', userContext))
-      .resolves.not.toThrow();
+    await activationService.activateProject('test-proj', userContext);
+    expect(mockDatabase['projects/test-proj'].status).toBe('ACTIVE');
+    expect(mockDatabase['projects/test-proj'].updatedBy).toBe('admin-1');
+  });
+});
+
+describe('ProjectLifecycleService Governance & Audit Tests', () => {
+  let lifecycleService: ProjectLifecycleService;
+  let userContext: AuthUserContext;
+
+  beforeEach(() => {
+    lifecycleService = new ProjectLifecycleService();
+    userContext = {
+      userId: 'admin-1',
+      email: 'admin@qsaudi.com',
+      displayName: 'Admin User',
+      role: 'SUPER_ADMIN',
+    };
+    mockDatabase = {};
+    vi.restoreAllMocks();
+  });
+
+  it('Scenario I: Lifecycle transition SETUP -> READY_FOR_REVIEW succeeds with audit log', async () => {
+    mockDatabase['projects/test-proj'] = {
+      projectId: 'test-proj',
+      nameAr: 'Test Project',
+      status: 'SETUP'
+    };
+
+    const res = await lifecycleService.transitionStatus('test-proj', 'READY_FOR_REVIEW', userContext, 'Ready for audit');
+    expect(res.success).toBe(true);
+    expect(res.previousStatus).toBe('SETUP');
+    expect(res.newStatus).toBe('READY_FOR_REVIEW');
+    expect(mockDatabase['projects/test-proj'].status).toBe('READY_FOR_REVIEW');
+
+    // Verify audit log created
+    const auditKeys = Object.keys(mockDatabase).filter(k => k.startsWith('audit_logs/'));
+    expect(auditKeys.length).toBeGreaterThan(0);
+    const auditEntry = mockDatabase[auditKeys[0]];
+    expect(auditEntry.projectId).toBe('test-proj');
+    expect(auditEntry.action).toBe('UPDATE');
+  });
+
+  it('Scenario J: Lifecycle transition READY_FOR_REVIEW -> APPROVED succeeds with audit log', async () => {
+    mockDatabase['projects/test-proj'] = {
+      projectId: 'test-proj',
+      nameAr: 'Test Project',
+      status: 'READY_FOR_REVIEW'
+    };
+
+    const res = await lifecycleService.transitionStatus('test-proj', 'APPROVED', userContext, 'Approved by compliance');
+    expect(res.success).toBe(true);
+    expect(res.newStatus).toBe('APPROVED');
+    expect(mockDatabase['projects/test-proj'].status).toBe('APPROVED');
+  });
+
+  it('Scenario K: Lifecycle transition READY_FOR_REVIEW -> SETUP (rejection) succeeds with valid reason', async () => {
+    mockDatabase['projects/test-proj'] = {
+      projectId: 'test-proj',
+      nameAr: 'Test Project',
+      status: 'READY_FOR_REVIEW'
+    };
+
+    const res = await lifecycleService.transitionStatus('test-proj', 'SETUP', userContext, 'Missing weighbridge calibration certificate');
+    expect(res.success).toBe(true);
+    expect(res.newStatus).toBe('SETUP');
+    expect(mockDatabase['projects/test-proj'].status).toBe('SETUP');
+  });
+
+  it('Scenario L: Invalid lifecycle transitions are rejected', async () => {
+    mockDatabase['projects/test-proj'] = {
+      projectId: 'test-proj',
+      nameAr: 'Test Project',
+      status: 'SETUP'
+    };
+
+    // 1. SETUP -> APPROVED (skipping READY_FOR_REVIEW) is forbidden
+    await expect(lifecycleService.transitionStatus('test-proj', 'APPROVED', userContext))
+      .rejects.toThrow('انتقال غير صالح لحالة دورة حياة المشروع');
+
+    // 2. Transition directly to ACTIVE via lifecycle service is strictly forbidden
+    await expect(lifecycleService.transitionStatus('test-proj', 'ACTIVE', userContext))
+      .rejects.toThrow('لا يمكن تنشيط المشروع عبر مسار الانتقال العادي');
+  });
+
+  it('Scenario M: Direct status mutation via projectService.updateProject is blocked and fails', async () => {
+    mockDatabase['projects/test-proj'] = {
+      projectId: 'test-proj',
+      nameAr: 'Test Project',
+      status: 'SETUP'
+    };
+
+    await expect(projectService.updateProject('test-proj', { status: 'APPROVED' as any }, userContext))
+      .rejects.toThrow('لا يمكن تعديل حالة دورة حياة المشروع عبر التحديث العام');
   });
 });

@@ -1278,6 +1278,68 @@ app.post('/api/projects/:projectId/activate', enforceProjectIsolation, enforceAd
 });
 
 // ----------------------------------------------------
+// 10E. Project Readiness Authority (Phase 6)
+// ----------------------------------------------------
+app.get('/api/projects/:projectId/readiness', enforceProjectIsolation, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { ProjectReadinessService } = await import('./src/services/projectReadiness.service');
+    const { NonTransactionReadContext } = await import('./src/services/projectActivation.service');
+    const readinessService = new ProjectReadinessService();
+    const readContext = new NonTransactionReadContext();
+    const result = await readinessService.evaluateProjectReadiness(projectId, new Date(), readContext);
+
+    res.json({
+      success: true,
+      projectId: result.projectId,
+      ready: result.ready,
+      evaluatedAt: result.evaluatedAt,
+      blockers: result.blockers,
+      candidatePath: result.candidatePath ? {
+        driverId: result.candidatePath.driverId,
+        truckId: result.candidatePath.truckId,
+        carrierId: result.candidatePath.carrierId,
+        materialId: result.candidatePath.materialId,
+      } : null,
+    });
+  } catch (error: any) {
+    if (error.message === 'المشروع غير موجود') {
+      res.status(404).json({ success: false, error: error.message });
+      return;
+    }
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ----------------------------------------------------
+// 10F. Project Lifecycle Governance Transition (Phase 6)
+// ----------------------------------------------------
+app.post('/api/projects/:projectId/lifecycle-transition', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { targetStatus, reason } = req.body;
+    const user = (req as any).user;
+
+    if (!targetStatus) {
+      res.status(400).json({ success: false, error: 'targetStatus مطلوب' });
+      return;
+    }
+
+    const { ProjectLifecycleService } = await import('./src/services/projectLifecycle.service');
+    const lifecycleService = new ProjectLifecycleService();
+    const result = await lifecycleService.transitionStatus(projectId, targetStatus, user, reason);
+
+    res.json({
+      success: true,
+      data: result,
+      message: `تم تحويل حالة المشروع إلى ${targetStatus} بنجاح`,
+    });
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+// ----------------------------------------------------
 // 11. Security Audit Suite Run Endpoint
 // ----------------------------------------------------
 app.get('/api/security/audit-status', (req, res) => {

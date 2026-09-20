@@ -111,8 +111,8 @@ export class ProjectActivationService {
         originalProject = project;
 
         // B. Verify source status
-        if (project.status !== 'SETUP') {
-          throw new Error('لا يمكن تنشيط مشروع غير موجود في حالة الإعداد');
+        if (project.status !== 'APPROVED') {
+          throw new Error('لا يمكن تنشيط مشروع ما لم يكن في حالة معتمد (APPROVED)');
         }
 
         const { driverId, truckId, carrierId, materialId, pricingRuleId, assignmentId, allocationId } = path;

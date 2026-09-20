@@ -1,32 +1,32 @@
 # i18n Catalog Extraction & Translation-Key Architecture Report (BLOCK 41)
 
-**Generated At:** 2026-09-19T10:02:55.340Z
+**Generated At:** 2026-09-20T06:04:01.620Z
 **Scope:** Read-only AST catalog analysis for existing application codebase.
 
 ## 1. Executive Summary Metrics
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Files Scanned** | 386 | TypeScript and TSX files analyzed in `src/` |
-| **Total Extracted Candidates** | 43750 | Total strings and text nodes parsed |
-| **Real User-Facing Texts** | 10438 | Confirmed visible Arabic and UI texts |
+| **Total Files Scanned** | 400 | TypeScript and TSX files analyzed in `src/` |
+| **Total Extracted Candidates** | 44707 | Total strings and text nodes parsed |
+| **Real User-Facing Texts** | 10540 | Confirmed visible Arabic and UI texts |
 | **Likely User-Facing Texts** | 409 | English UI text in visible elements |
-| **Ambiguous Texts** | 11945 | Short or context-isolated tokens for manual review |
-| **Technical Strings** | 8773 | CSS classes, paths, enums, regexes, operators |
-| **Non-User-Facing Strings** | 12185 | Internal IDs, collection names, database keys |
-| **Distinct Proposed Keys** | 9136 | Hierarchical keys generated (e.g. `shared.actions.save`) |
-| **Duplicate Groups** | 4917 | Sets of identical/normalized recurring texts |
-| **Semantic Conflict Groups** | 650 | Identical texts requiring distinct contextual keys |
-| **Keys Requiring Review** | 14141 | Entries flagged with special cases or ambiguity |
-| **High / Critical Risk Hotspots** | 2545 | Concatenations, templates, or business data overlaps |
+| **Ambiguous Texts** | 12476 | Short or context-isolated tokens for manual review |
+| **Technical Strings** | 8775 | CSS classes, paths, enums, regexes, operators |
+| **Non-User-Facing Strings** | 12507 | Internal IDs, collection names, database keys |
+| **Distinct Proposed Keys** | 9209 | Hierarchical keys generated (e.g. `shared.actions.save`) |
+| **Duplicate Groups** | 5011 | Sets of identical/normalized recurring texts |
+| **Semantic Conflict Groups** | 663 | Identical texts requiring distinct contextual keys |
+| **Keys Requiring Review** | 14717 | Entries flagged with special cases or ambiguity |
+| **High / Critical Risk Hotspots** | 2590 | Concatenations, templates, or business data overlaps |
 
 ## 2. Category Distribution
 
 | Semantic Category | User-Facing Strings | Description |
 | :--- | :--- | :--- |
-| `other` | 4540 | Classified operational domain |
-| `imports` | 1607 | Classified operational domain |
-| `projects` | 636 | Classified operational domain |
+| `other` | 4538 | Classified operational domain |
+| `imports` | 1613 | Classified operational domain |
+| `projects` | 678 | Classified operational domain |
 | `reports` | 498 | Classified operational domain |
 | `trips` | 476 | Classified operational domain |
 | `security` | 399 | Classified operational domain |
@@ -40,8 +40,8 @@
 | `exceptions` | 188 | Classified operational domain |
 | `legacyMigration` | 173 | Classified operational domain |
 | `dashboard` | 110 | Classified operational domain |
-| `authentication` | 85 | Classified operational domain |
-| `trucks` | 46 | Classified operational domain |
+| `authentication` | 99 | Classified operational domain |
+| `trucks` | 88 | Classified operational domain |
 | `materials` | 45 | Classified operational domain |
 | `carriers` | 41 | Classified operational domain |
 | `validation` | 36 | Classified operational domain |
@@ -93,13 +93,13 @@ Identical visible text appearing across different operational domains with disti
 
 ## 5. High-Risk Hotspots & Special Cases
 
-- **Concatenated Strings (`+`):** 8
-- **Template Literals (`${...}`):** 716
-- **Interpolation Placeholders (`{...}`):** 287
-- **Mixed Numbers & Units:** 1025
+- **Concatenated Strings (`+`):** 9
+- **Template Literals (`${...}`):** 726
+- **Interpolation Placeholders (`{...}`):** 295
+- **Mixed Numbers & Units:** 1049
 - **Currency String Usages:** 448
-- **Unit String Usages:** 904
-- **Protected Business Field Matches:** 413
+- **Unit String Usages:** 913
+- **Protected Business Field Matches:** 425
 
 ## 6. Safety & Non-Destructive Invariance Confirmation
 

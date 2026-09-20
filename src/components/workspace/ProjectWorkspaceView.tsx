@@ -292,7 +292,6 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
         nameAr: nameAr.trim(),
         clientName: clientName.trim(),
         description: description.trim(),
-        status,
         location: {
           ...project.location,
           addressAr: addressAr.trim(),
@@ -690,17 +689,11 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
               </div>
 
               <div>
-                <label className="text-xs text-white/50 block mb-1.5">{isRtl ? 'الحالة اللوجستية' : 'Logistics Status'}</label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
-                  className="w-full bg-[#0b0e12] border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#10b981]"
-                >
-                  <option value="ACTIVE">ACTIVE</option>
-                  <option value="PLANNING">PLANNING</option>
-                  <option value="SUSPENDED">SUSPENDED</option>
-                  <option value="ARCHIVED">ARCHIVED</option>
-                </select>
+                <label className="text-xs text-white/50 block mb-1.5">{isRtl ? 'حالة المشروع الحالية' : 'Project Lifecycle Status'}</label>
+                <div className="w-full bg-[#0b0e12] border border-white/10 rounded px-3 py-2 text-xs text-white/80 flex items-center justify-between">
+                  <span className="font-bold text-[#10b981]">{project.status}</span>
+                  <span className="text-[10px] text-white/40">{isRtl ? '(تخضع لحوكمة دورة الحياة والتنشيط الرسمي)' : '(Governed by Lifecycle & Activation)'}</span>
+                </div>
               </div>
 
               <div>
