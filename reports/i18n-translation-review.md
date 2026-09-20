@@ -1,8 +1,8 @@
 # Professional Translation Human Review Queue (BLOCK 43)
 
-**Generated At:** 2026-09-20T05:45:14.401Z
-**Total Catalog Entries Processed:** 14159
-**Total Proposals Requiring Human Review:** 14153 (100.0%)
+**Generated At:** 2026-09-20T07:02:22.655Z
+**Total Catalog Entries Processed:** 14198
+**Total Proposals Requiring Human Review:** 14192 (100.0%)
 
 ## Review Instructions for Translators & Enterprise Auditors
 
@@ -15,18 +15,18 @@
 
 | Review Reason | Queue Count | Architectural Description |
 | :--- | :--- | :--- |
-| `SEMANTIC_CONFLICT` | **1659** | Identical source texts with different operational meanings quarantined to prevent UI/business conflation |
+| `SEMANTIC_CONFLICT` | **1665** | Identical source texts with different operational meanings quarantined to prevent UI/business conflation |
 | `DOMAIN_TERM` | **0** | Domain-specific terminology requiring operational verification by enterprise domain leads |
 | `INTERPOLATION_RISK` | **9** | Complex dynamic placeholders or parameter sequences requiring syntax verification |
 | `PLURALIZATION_RISK` | **132** | Quantities requiring 6 Arabic plural forms aligned with target language plural rules |
-| `REPORT_EXPORT_RISK` | **3556** | Report column or export header requiring separation of internal data key from display label |
-| `BUSINESS_DATA_RISK` | **820** | Formulas, rates, or business calculations requiring strict identifier preservation |
-| `LOW_CONFIDENCE` | **7977** | Ambiguous or composite phrases generated with low statistical confidence |
+| `REPORT_EXPORT_RISK` | **3561** | Report column or export header requiring separation of internal data key from display label |
+| `BUSINESS_DATA_RISK` | **823** | Formulas, rates, or business calculations requiring strict identifier preservation |
+| `LOW_CONFIDENCE` | **8002** | Ambiguous or composite phrases generated with low statistical confidence |
 | `DIRECTIONAL_RISK` | **0** | Mixed-direction content (Arabic and Latin/numbers) needing directional inspection |
 | `VALIDATION_FAILURE` | **0** | Proposal encountered parameter mismatch, missing tokens, or structural defects |
 | `OTHER` | **0** | General review requirements flagged by migration pipeline |
 
-### 1. Reason: `SEMANTIC_CONFLICT` (1659 items)
+### 1. Reason: `SEMANTIC_CONFLICT` (1665 items)
 
 > Identical source texts with different operational meanings quarantined to prevent UI/business conflation
 
@@ -57,7 +57,7 @@
 | `dashboard.labels.carrier` | "الناقل (Carrier)" | "Carrier (Carrier)" | "کیریئر (Carrier)" | Verify context 'jsx_text'. Do NOT merge with other instances of 'الناقل (Carrier)'. |
 | `dashboard.labels.carrier_2` | "الناقل" | "Carrier" | "کیریئر" | Verify context 'jsx_text'. Do NOT merge with other instances of 'الناقل'. |
 | `dashboard.labels.download` | "تم التحميل (LOADED)" | "تم التحميل (LOADED)" | "تم التحميل (LOADED)" | Verify context 'jsx_text'. Do NOT merge with other instances of 'تم التحميل (LOADED)'. |
-| ... | *and 1634 more items in this queue* | | | |
+| ... | *and 1640 more items in this queue* | | | |
 
 ### 1. Reason: `INTERPOLATION_RISK` (9 items)
 
@@ -168,7 +168,7 @@
 | `navigation.labels.txt_19f9d7` | "إجمالي حالات الاستثناء وفروقات الموازين" | "إجمالي حالات الاستثناء وفروقات الموازين" | "إجمالي حالات الاستثناء وفروقات الموازين" | Validate plural rules for Arabic (zero, one, two, few, many, other) vs English/Urdu (one, other). |
 | ... | *and 107 more items in this queue* | | | |
 
-### 1. Reason: `REPORT_EXPORT_RISK` (3556 items)
+### 1. Reason: `REPORT_EXPORT_RISK` (3561 items)
 
 > Report column or export header requiring separation of internal data key from display label
 
@@ -199,9 +199,9 @@
 | `carriers.fields.txt_521cc9` | "اسم مسؤول العمليات" | "اسم مسؤول Operations" | "اسم مسؤول آپریشنز" | Ensure internal key 'txt_521cc9' remains untranslated; translate presentation label only. |
 | `carriers.fields.txt_558361` | "اسم شركة النقل (carrierName) مطلوب ولا يقل عن 3 أحرف" | "اسم شركة النقل (carrierName) Required ولا يقل عن 3 أحرف" | "اسم شركة النقل (carrierName) لازمی ولا يقل عن 3 أحرف" | Ensure internal key 'txt_558361' remains untranslated; translate presentation label only. |
 | `carriers.fields.txt_599d91` | "contact@carrier.sa" | "contact@carrier.sa" | "contact@carrier.sa" | Ensure internal key 'txt_599d91' remains untranslated; translate presentation label only. |
-| ... | *and 3531 more items in this queue* | | | |
+| ... | *and 3536 more items in this queue* | | | |
 
-### 1. Reason: `BUSINESS_DATA_RISK` (820 items)
+### 1. Reason: `BUSINESS_DATA_RISK` (823 items)
 
 > Formulas, rates, or business calculations requiring strict identifier preservation
 
@@ -232,9 +232,9 @@
 | `entityResolution.labels.material_5` | "المادة [${candidateValue || candidateId}] غير مسموح بنقلها أو غير معتمدة في هذا المشروع." | "Material [${candidateValue || candidateId}] غير مسموح بنقلها أو غير معتمدة في هذا Project." | "مٹیریل [${candidateValue || candidateId}] غير مسموح بنقلها أو غير معتمدة في هذا پروجیکٹ." | Protect financial or scale tokens: []. |
 | `entityResolution.labels.material_6` | "تم رصد المادة الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | "تم رصد Material الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | "تم رصد مٹیریل الموقوفة (MAT-DEACTIVATED) وتجميد العملية" | Protect financial or scale tokens: []. |
 | `entityResolution.labels.truckCarrier` | "تم تصحيح تبعية الشاحنة يدوياً إلى الناقل [${resolutionCarrierId}]." | "تم تصحيح تبعية Truck يدوياً إلى Carrier [${resolutionCarrierId}]." | "تم تصحيح تبعية ٹرک يدوياً إلى کیریئر [${resolutionCarrierId}]." | Protect financial or scale tokens: [resolutionCarrierId]. |
-| ... | *and 795 more items in this queue* | | | |
+| ... | *and 798 more items in this queue* | | | |
 
-### 1. Reason: `LOW_CONFIDENCE` (7977 items)
+### 1. Reason: `LOW_CONFIDENCE` (8002 items)
 
 > Ambiguous or composite phrases generated with low statistical confidence
 
@@ -265,5 +265,5 @@
 | `authentication.labels.prjRedseaResort02` | "PRJ-REDSEA-RESORT-02" | "PRJ-REDSEA-RESORT-02" | "PRJ-REDSEA-RESORT-02" | Review phrasing carefully; replace with verified domain phrase if needed. |
 | `authentication.labels.project` | "مدير المشروع المشرف (PROJECT_ADMIN)" | "مدير Project المشرف (PROJECT_ADMIN)" | "مدير پروجیکٹ المشرف (PROJECT_ADMIN)" | Review phrasing carefully; replace with verified domain phrase if needed. |
 | `authentication.labels.projects` | "نطاق المشاريع المصرحة:" | "نطاق Projects المصرحة:" | "نطاق پروجیکٹس المصرحة:" | Review phrasing carefully; replace with verified domain phrase if needed. |
-| ... | *and 7952 more items in this queue* | | | |
+| ... | *and 7977 more items in this queue* | | | |
 

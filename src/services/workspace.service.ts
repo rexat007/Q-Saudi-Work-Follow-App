@@ -79,6 +79,10 @@ export class ClientWorkspaceService {
    * Requests Google OAuth access token with Spreadsheets and Drive scopes via Firebase Auth.
    */
   public async requestGoogleScopes(): Promise<string> {
+    const isProduction = 
+      (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') ||
+      (typeof import.meta !== 'undefined' && (import.meta as any).env?.PROD === true);
+
     const provider = new GoogleAuthProvider();
     provider.addScope('https://www.googleapis.com/auth/spreadsheets');
     provider.addScope('https://www.googleapis.com/auth/drive.file');
@@ -94,8 +98,12 @@ export class ClientWorkspaceService {
       }
       throw new Error('لم يتم إرجاع رمز الوصول (Access Token) من حساب Google');
     } catch (err: any) {
-      console.warn('Google Auth popup notice:', err);
-      // If running in an environment without active interactive Google popup, provide simulated token
+      if (isProduction) {
+        console.error('[ClientWorkspaceService] Production Google OAuth authentication failed (Fail-Closed):', err);
+        throw new Error(`فشل المصادقة مع Google Workspace: ${err.message || 'تعذر تشغيل نافذة تسجيل الدخول'}`);
+      }
+      console.warn('[ClientWorkspaceService] Google Auth popup notice (Non-Production Dev Fallback):', err);
+      // In non-production testing environment only:
       const fallbackToken = `mock_oauth_token_${Date.now()}`;
       this.setAccessToken(fallbackToken);
       return fallbackToken;

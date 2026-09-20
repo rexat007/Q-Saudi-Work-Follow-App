@@ -52,9 +52,18 @@ import {
 import { ProjectEntity, TripEntity, DriverEntity, CarrierEntity, MaterialEntity, TripExceptionEntity } from '../../types/entities';
 import { projectRepository } from '../../repositories/project.repository';
 import { tripRepository } from '../../repositories/trip.repository';
-import { driverRepository } from '../../repositories/driver.repository';
-import { carrierRepository } from '../../repositories/carrier.repository';
-import { materialRepository } from '../../repositories/material.repository';
+import { 
+  projectDriverMembershipRepository, 
+  projectCarrierMembershipRepository, 
+  projectMaterialMembershipRepository 
+} from '../../repositories/projectMembership.repository';
+import { 
+  globalDriverRepository, 
+  globalCarrierRepository, 
+  globalMaterialRepository 
+} from '../../repositories/globalIdentity.repository';
+import { projectFleetReadModelService } from '../../services/projectFleetReadModel.service';
+import { ProjectFleetReadModelResponse } from '../../types/projectFleetReadModel';
 import { exceptionRepository } from '../../repositories/exception.repository';
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { useAuth } from '../../firebase/authContext';
@@ -69,10 +78,11 @@ export function WorkspaceIntegrationView() {
   
   // Canonical dataset state
   const [trips, setTrips] = useState<TripEntity[]>([]);
-  const [drivers, setDrivers] = useState<DriverEntity[]>([]);
-  const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
-  const [materials, setMaterials] = useState<MaterialEntity[]>([]);
+  const [drivers, setDrivers] = useState<any[]>([]);
+  const [carriers, setCarriers] = useState<any[]>([]);
+  const [materials, setMaterials] = useState<any[]>([]);
   const [exceptions, setExceptions] = useState<TripExceptionEntity[]>([]);
+  const [fleetReadModel, setFleetReadModel] = useState<ProjectFleetReadModelResponse | null>(null);
 
   // Readiness / Error state per dataset
   const [tripsStatus, setTripsStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
@@ -80,6 +90,7 @@ export function WorkspaceIntegrationView() {
   const [carriersStatus, setCarriersStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
   const [materialsStatus, setMaterialsStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
   const [exceptionsStatus, setExceptionsStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
+  const [fleetStatus, setFleetStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
 
   const [activeTabKey, setActiveTabKey] = useState<WorkspaceSheetTab>('OPERATIONS');
   
@@ -185,11 +196,13 @@ export function WorkspaceIntegrationView() {
       setCarriers([]);
       setMaterials([]);
       setExceptions([]);
+      setFleetReadModel(null);
       setTripsStatus('PENDING');
       setDriversStatus('PENDING');
       setCarriersStatus('PENDING');
       setMaterialsStatus('PENDING');
       setExceptionsStatus('PENDING');
+      setFleetStatus('PENDING');
       return;
     }
 
@@ -198,64 +211,151 @@ export function WorkspaceIntegrationView() {
     setCarriers([]);
     setMaterials([]);
     setExceptions([]);
+    setFleetReadModel(null);
     setTripsStatus('PENDING');
     setDriversStatus('PENDING');
     setCarriersStatus('PENDING');
     setMaterialsStatus('PENDING');
     setExceptionsStatus('PENDING');
+    setFleetStatus('PENDING');
 
     const currentSubProjectId = selectedProjectId;
+    let isCancelled = false;
 
+    // 1. Trips: Canonical operational authority via tripRepository
     const unsubTrips = tripRepository.subscribeByProject(
       currentSubProjectId,
       (data) => {
-        setTrips(data);
-        setTripsStatus('READY');
+        if (!isCancelled) {
+          setTrips(data);
+          setTripsStatus('READY');
+        }
       },
-      () => setTripsStatus('ERROR')
+      () => {
+        if (!isCancelled) setTripsStatus('ERROR');
+      }
     );
 
-    const unsubDrivers = driverRepository.subscribeByProject(
-      currentSubProjectId,
-      (data) => {
-        setDrivers(data);
-        setDriversStatus('READY');
-      },
-      () => setDriversStatus('ERROR')
-    );
-
-    const unsubCarriers = carrierRepository.subscribeByProject(
-      currentSubProjectId,
-      (data) => {
-        setCarriers(data);
-        setCarriersStatus('READY');
-      },
-      () => setCarriersStatus('ERROR')
-    );
-
-    const unsubMaterials = materialRepository.subscribeByProject(
-      currentSubProjectId,
-      (data) => {
-        setMaterials(data);
-        setMaterialsStatus('READY');
-      },
-      () => setMaterialsStatus('ERROR')
-    );
-
+    // 2. Exceptions: Canonical operational authority via exceptionRepository
     const unsubExceptions = exceptionRepository.subscribeByProject(
       currentSubProjectId,
       (data) => {
-        setExceptions(data);
-        setExceptionsStatus('READY');
+        if (!isCancelled) {
+          setExceptions(data);
+          setExceptionsStatus('READY');
+        }
       },
-      () => setExceptionsStatus('ERROR')
+      () => {
+        if (!isCancelled) setExceptionsStatus('ERROR');
+      }
     );
 
+    // 3. Canonical Master Data & Fleet Read Model
+    async function loadCanonicalMasterData(pId: string) {
+      // 3A. Canonical Active Project Carrier Memberships + Global Carrier Identity Resolution
+      try {
+        const carrierMemberships = await projectCarrierMembershipRepository.listMemberships(pId, 'ACTIVE');
+        const carrierIds = carrierMemberships.map(m => m.carrierId);
+        const globalCarriers = await globalCarrierRepository.listByIds(carrierIds);
+        const carrierMap = new Map(globalCarriers.map(c => [c.carrierId, c]));
+
+        const resolvedCarriers = carrierMemberships.map(m => {
+          const gc = carrierMap.get(m.carrierId);
+          return {
+            carrierId: m.carrierId,
+            projectId: pId,
+            companyNameAr: gc?.nameAr || m.carrierId,
+            commercialRegistrationNo: gc?.commercialRegistrationNo || '',
+            transportLicenseNo: gc?.transportLicenseNo || '',
+            status: m.status,
+          };
+        });
+
+        if (!isCancelled) {
+          setCarriers(resolvedCarriers);
+          setCarriersStatus('READY');
+        }
+      } catch (err) {
+        console.error('[WorkspaceIntegrationView] Error loading canonical project carriers:', err);
+        if (!isCancelled) setCarriersStatus('ERROR');
+      }
+
+      // 3B. Canonical Active Project Material Memberships + Global Material Identity Resolution
+      try {
+        const matMemberships = await projectMaterialMembershipRepository.listMemberships(pId, 'ACTIVE');
+        const matIds = matMemberships.map(m => m.materialId);
+        const globalMaterials = await globalMaterialRepository.listByIds(matIds);
+        const matMap = new Map(globalMaterials.map(mat => [mat.materialId, mat]));
+
+        const resolvedMaterials = matMemberships.map(m => {
+          const gm = matMap.get(m.materialId);
+          return {
+            materialId: m.materialId,
+            projectId: pId,
+            nameAr: gm?.nameAr || gm?.nameEn || m.materialId,
+            code: gm?.code || '',
+            unitOfMeasure: gm?.unitOfMeasure || 'TON',
+            standardDensityTonPerM3: gm?.standardDensityTonPerM3,
+            status: m.status,
+          };
+        });
+
+        if (!isCancelled) {
+          setMaterials(resolvedMaterials);
+          setMaterialsStatus('READY');
+        }
+      } catch (err) {
+        console.error('[WorkspaceIntegrationView] Error loading canonical project materials:', err);
+        if (!isCancelled) setMaterialsStatus('ERROR');
+      }
+
+      // 3C. Canonical Active Project Driver Memberships + Global Driver Identity Resolution
+      try {
+        const drvMemberships = await projectDriverMembershipRepository.listMemberships(pId, 'ACTIVE');
+        const drvIds = drvMemberships.map(m => m.driverId);
+        const globalDrivers = await globalDriverRepository.listByIds(drvIds);
+        const drvMap = new Map(globalDrivers.map(d => [d.driverId, d]));
+
+        const resolvedDrivers = drvMemberships.map(m => {
+          const gd = drvMap.get(m.driverId);
+          return {
+            driverId: m.driverId,
+            projectId: pId,
+            fullNameAr: gd?.fullNameAr || m.driverId,
+            idNumber: gd?.nationalId || '',
+            phone: gd?.phone || '',
+            licenseNumber: gd?.licenseNumber || '',
+            status: m.status,
+          };
+        });
+
+        if (!isCancelled) {
+          setDrivers(resolvedDrivers);
+          setDriversStatus('READY');
+        }
+      } catch (err) {
+        console.error('[WorkspaceIntegrationView] Error loading canonical project drivers:', err);
+        if (!isCancelled) setDriversStatus('ERROR');
+      }
+
+      // 3D. Canonical Unified Project Fleet Read Model (Fleet Authority)
+      try {
+        const fleetResponse = await projectFleetReadModelService.getProjectFleetReadModel(pId);
+        if (!isCancelled) {
+          setFleetReadModel(fleetResponse);
+          setFleetStatus('READY');
+        }
+      } catch (err) {
+        console.error('[WorkspaceIntegrationView] Error loading canonical project fleet read model:', err);
+        if (!isCancelled) setFleetStatus('ERROR');
+      }
+    }
+
+    loadCanonicalMasterData(currentSubProjectId);
+
     return () => {
+      isCancelled = true;
       unsubTrips();
-      unsubDrivers();
-      unsubCarriers();
-      unsubMaterials();
       unsubExceptions();
     };
   }, [selectedProjectId]);
@@ -265,13 +365,15 @@ export function WorkspaceIntegrationView() {
     driversStatus === 'READY' && 
     carriersStatus === 'READY' && 
     materialsStatus === 'READY' && 
-    exceptionsStatus === 'READY';
+    exceptionsStatus === 'READY' &&
+    fleetStatus === 'READY';
 
   const isSyncError = tripsStatus === 'ERROR' || 
     driversStatus === 'ERROR' || 
     carriersStatus === 'ERROR' || 
     materialsStatus === 'ERROR' || 
-    exceptionsStatus === 'ERROR';
+    exceptionsStatus === 'ERROR' ||
+    fleetStatus === 'ERROR';
 
   const isMigrationReady = selectedProjectId !== '' && tripsStatus === 'READY';
   const isArchiveReady = selectedProjectId !== '' && tripsStatus === 'READY';
