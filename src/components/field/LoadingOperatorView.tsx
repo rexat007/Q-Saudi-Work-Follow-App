@@ -1,9 +1,5 @@
-import { buildRelationshipContextFromCanonical } from "../../utils/masterDataUtils";
-import { carrierRepository } from "../../repositories/carrier.repository";
-import { driverRepository } from "../../repositories/driver.repository";
-import { truckRepository } from "../../repositories/truck.repository";
-import { materialRepository } from "../../repositories/material.repository";
-import { CarrierEntity, DriverEntity, TruckEntity, MaterialEntity, ProjectEntity } from '../../types/entities';
+import { canonicalRelationshipContextService } from "../../services/canonicalRelationshipContext.service";
+import { ProjectEntity } from '../../types/entities';
 import { RelationshipContext } from '../../types/dataQuality';
 import { pricingService } from "../../services/pricing.service";
 import React, { useState, useMemo, useEffect, useRef } from 'react';
@@ -74,23 +70,9 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     return LOADING_AUTHORIZED_ROLES.includes(authContext.role);
   }, [authContext.role]);
 
-  // Canonical Master Data State
-  const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
-  const [drivers, setDrivers] = useState<DriverEntity[]>([]);
-  const [trucks, setTrucks] = useState<TruckEntity[]>([]);
-  const [materials, setMaterials] = useState<MaterialEntity[]>([]);
-
-  const [datasetReadiness, setDatasetReadiness] = useState<{
-    carriers: 'PENDING' | 'READY' | 'ERROR';
-    drivers: 'PENDING' | 'READY' | 'ERROR';
-    trucks: 'PENDING' | 'READY' | 'ERROR';
-    materials: 'PENDING' | 'READY' | 'ERROR';
-  }>({
-    carriers: 'PENDING',
-    drivers: 'PENDING',
-    trucks: 'PENDING',
-    materials: 'PENDING',
-  });
+  // Canonical Relationship Context State
+  const [context, setContext] = useState<RelationshipContext | null>(null);
+  const [readinessStatus, setReadinessStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
 
   const generationRef = useRef<number>(0);
 
@@ -131,106 +113,35 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     }
   }, [availableProjects, projectId]);
 
-  // Project Switch Isolation & Canonical Subscriptions
+  // Project Switch Isolation & Canonical Relationship Loading
   useEffect(() => {
-    if (!projectId || projectId === 'ALL') {
-      setCarriers([]);
-      setDrivers([]);
-      setTrucks([]);
-      setMaterials([]);
-      setCarrierId('');
-      setTruckId('');
-      setDriverId('');
-      setMaterialId('');
-      setDatasetReadiness({
-        carriers: 'PENDING',
-        drivers: 'PENDING',
-        trucks: 'PENDING',
-        materials: 'PENDING',
-      });
-      return;
-    }
-
     const currentGen = ++generationRef.current;
 
-    // Immediately flush previous project data and reset selections on project switch
-    setCarriers([]);
-    setDrivers([]);
-    setTrucks([]);
-    setMaterials([]);
+    // Immediately flush previous context and reset selections on project switch
+    setContext(null);
     setCarrierId('');
     setTruckId('');
     setDriverId('');
     setMaterialId('');
-    setDatasetReadiness({
-      carriers: 'PENDING',
-      drivers: 'PENDING',
-      trucks: 'PENDING',
-      materials: 'PENDING',
-    });
+    setReadinessStatus('PENDING');
 
-    const unsubCarriers = carrierRepository.subscribeByProject(
-      projectId,
-      (list) => {
-        if (currentGen !== generationRef.current) return;
-        setCarriers(list || []);
-        setDatasetReadiness(prev => ({ ...prev, carriers: 'READY' }));
-      },
-      (err) => {
-        if (currentGen !== generationRef.current) return;
-        console.error('Carriers subscription error:', err);
-        setDatasetReadiness(prev => ({ ...prev, carriers: 'ERROR' }));
-      }
-    );
+    if (!projectId || projectId === 'ALL') {
+      return;
+    }
 
-    const unsubDrivers = driverRepository.subscribeByProject(
-      projectId,
-      (list) => {
+    canonicalRelationshipContextService
+      .getProjectRelationshipContext(projectId)
+      .then((ctx) => {
         if (currentGen !== generationRef.current) return;
-        setDrivers(list || []);
-        setDatasetReadiness(prev => ({ ...prev, drivers: 'READY' }));
-      },
-      (err) => {
+        setContext(ctx);
+        setReadinessStatus('READY');
+      })
+      .catch((err) => {
         if (currentGen !== generationRef.current) return;
-        console.error('Drivers subscription error:', err);
-        setDatasetReadiness(prev => ({ ...prev, drivers: 'ERROR' }));
-      }
-    );
-
-    const unsubTrucks = truckRepository.subscribeByProject(
-      projectId,
-      (list) => {
-        if (currentGen !== generationRef.current) return;
-        setTrucks(list || []);
-        setDatasetReadiness(prev => ({ ...prev, trucks: 'READY' }));
-      },
-      (err) => {
-        if (currentGen !== generationRef.current) return;
-        console.error('Trucks subscription error:', err);
-        setDatasetReadiness(prev => ({ ...prev, trucks: 'ERROR' }));
-      }
-    );
-
-    const unsubMaterials = materialRepository.subscribeByProject(
-      projectId,
-      (list) => {
-        if (currentGen !== generationRef.current) return;
-        setMaterials(list || []);
-        setDatasetReadiness(prev => ({ ...prev, materials: 'READY' }));
-      },
-      (err) => {
-        if (currentGen !== generationRef.current) return;
-        console.error('Materials subscription error:', err);
-        setDatasetReadiness(prev => ({ ...prev, materials: 'ERROR' }));
-      }
-    );
-
-    return () => {
-      unsubCarriers();
-      unsubDrivers();
-      unsubTrucks();
-      unsubMaterials();
-    };
+        console.error('Canonical relationship context error:', err);
+        setContext(null);
+        setReadinessStatus('ERROR');
+      });
   }, [projectId]);
 
   // Dataset Readiness States
@@ -238,35 +149,14 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     return Boolean(
       projectId &&
       projectId !== 'ALL' &&
-      datasetReadiness.carriers === 'READY' &&
-      datasetReadiness.drivers === 'READY' &&
-      datasetReadiness.trucks === 'READY' &&
-      datasetReadiness.materials === 'READY'
+      readinessStatus === 'READY' &&
+      context !== null
     );
-  }, [projectId, datasetReadiness]);
+  }, [projectId, readinessStatus, context]);
 
   const hasMasterDataError = useMemo(() => {
-    return (
-      datasetReadiness.carriers === 'ERROR' ||
-      datasetReadiness.drivers === 'ERROR' ||
-      datasetReadiness.trucks === 'ERROR' ||
-      datasetReadiness.materials === 'ERROR'
-    );
-  }, [datasetReadiness]);
-
-  // Canonical Relationship Context (Pure deterministic derivation, project-scoped only)
-  const context = useMemo<RelationshipContext | null>(() => {
-    if (!isMasterDataReady || !projectId || projectId === 'ALL') {
-      return null;
-    }
-    return buildRelationshipContextFromCanonical({
-      projectId,
-      carriers,
-      drivers,
-      trucks,
-      materials,
-    });
-  }, [isMasterDataReady, projectId, carriers, drivers, trucks, materials]);
+    return readinessStatus === 'ERROR';
+  }, [readinessStatus]);
 
   // Weights (kg) - starts empty/zero in production runtime
   const [tareWeight, setTareWeight] = useState<number>(0);
@@ -900,7 +790,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               </label>
               {availableCarriers.length === 0 ? (
                 <div className="p-3 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-xs text-stone-400 text-center">
-                  {datasetReadiness.carriers === 'PENDING' ? 'جاري تحميل شركات النقل...' : 'لا توجد شركات نقل معتمدة لهذا المشروع'}
+                  {readinessStatus === 'PENDING' ? 'جاري تحميل شركات النقل...' : 'لا توجد شركات نقل معتمدة لهذا المشروع'}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
@@ -931,7 +821,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               </label>
               {availableTrucks.length === 0 ? (
                 <div className="p-3 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-xs text-stone-400 text-center">
-                  {!carrierId ? 'يرجى اختيار شركة النقل أولاً' : datasetReadiness.trucks === 'PENDING' ? 'جاري تحميل الشاحنات...' : 'لا توجد شاحنات نشطة مسجلة لهذا الناقل'}
+                  {!carrierId ? 'يرجى اختيار شركة النقل أولاً' : readinessStatus === 'PENDING' ? 'جاري تحميل الشاحنات...' : 'لا توجد شاحنات نشطة مسجلة لهذا الناقل'}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-0.5">

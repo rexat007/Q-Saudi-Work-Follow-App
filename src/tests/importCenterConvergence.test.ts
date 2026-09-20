@@ -171,8 +171,8 @@ describe('ImportCenter Canonical Master-Entity Resolution Convergence Tests', ()
       expect(importCenterContent).not.toContain("buildRelationshipContext('ALL')");
     });
 
-    it('2. ImportCenterView uses buildRelationshipContextFromCanonical', () => {
-      expect(importCenterContent).toContain('buildRelationshipContextFromCanonical');
+    it('2. ImportCenterView uses canonicalRelationshipContextService', () => {
+      expect(importCenterContent).toContain('canonicalRelationshipContextService');
     });
 
     it('3. ImportCenterView does NOT contain hardcoded selectedProjectId state fallback (useState("PRJ-NEOM-001"))', () => {
@@ -186,11 +186,11 @@ describe('ImportCenter Canonical Master-Entity Resolution Convergence Tests', ()
       expect(importCenterContent).toContain('ImportCenterViewProps');
     });
 
-    it('5. ImportCenterView imports all four canonical project repositories', () => {
-      expect(importCenterContent).toContain('carrierRepository');
-      expect(importCenterContent).toContain('driverRepository');
-      expect(importCenterContent).toContain('truckRepository');
-      expect(importCenterContent).toContain('materialRepository');
+    it('5. ImportCenterView does NOT import individual legacy project repositories', () => {
+      expect(importCenterContent).not.toContain("from '../../repositories/carrier.repository'");
+      expect(importCenterContent).not.toContain("from '../../repositories/driver.repository'");
+      expect(importCenterContent).not.toContain("from '../../repositories/truck.repository'");
+      expect(importCenterContent).not.toContain("from '../../repositories/material.repository'");
     });
 
     it('6. ImportCenterView does NOT import adminConsoleService', () => {

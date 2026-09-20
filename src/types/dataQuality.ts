@@ -76,6 +76,8 @@ export interface RelationshipContext {
   knownTrucks: { truckId: string; plate: string; carrierId: string; status: 'ACTIVE' | 'INACTIVE' }[];
   knownDrivers: { driverId: string; name: string; phone?: string; idNumber?: string; carrierId: string; status: 'ACTIVE' | 'INACTIVE' }[];
   knownMaterials: { materialId: string; name: string; code: string; status: 'ACTIVE' | 'INACTIVE' }[];
+  activeDriverByTruck?: Record<string, string>;
+  activeMaterialByTruck?: Record<string, string>;
 }
 
 export interface ImportRecordPayload {

@@ -89,7 +89,6 @@ describe('Loading Operator Canonical Master-Data Resolution Convergence', () => 
 
     expect(content).not.toContain('buildRelationshipContext("ALL")');
     expect(content).not.toContain("buildRelationshipContext('ALL')");
-    expect(content).toContain('buildRelationshipContextFromCanonical');
   });
 
   it('2. LoadingOperatorView does NOT import adminConsoleService', () => {
@@ -99,14 +98,15 @@ describe('Loading Operator Canonical Master-Data Resolution Convergence', () => 
     expect(content).not.toContain('adminConsoleService');
   });
 
-  it('3. LoadingOperatorView imports all four canonical project repositories', () => {
+  it('3. LoadingOperatorView imports canonicalRelationshipContextService and NOT legacy individual master repositories', () => {
     const filePath = path.join(process.cwd(), 'src/components/field/LoadingOperatorView.tsx');
     const content = fs.readFileSync(filePath, 'utf-8');
 
-    expect(content).toContain('carrierRepository');
-    expect(content).toContain('driverRepository');
-    expect(content).toContain('truckRepository');
-    expect(content).toContain('materialRepository');
+    expect(content).toContain('canonicalRelationshipContextService');
+    expect(content).not.toContain('from "../../repositories/carrier.repository"');
+    expect(content).not.toContain('from "../../repositories/driver.repository"');
+    expect(content).not.toContain('from "../../repositories/truck.repository"');
+    expect(content).not.toContain('from "../../repositories/material.repository"');
   });
 
   // 2. Canonical resolution for selected project only

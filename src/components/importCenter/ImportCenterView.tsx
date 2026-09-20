@@ -1,4 +1,3 @@
-import { buildRelationshipContextFromCanonical } from "../../utils/masterDataUtils";
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   FileSpreadsheet, 
@@ -49,11 +48,7 @@ import { GoogleSheetsImportSection } from './GoogleSheetsImportSection';
 import { WeighbridgeImportSection } from './WeighbridgeImportSection';
 import { EntityResolutionSection } from './EntityResolutionSection';
 import { useI18n } from '../../i18n';
-import { carrierRepository } from '../../repositories/carrier.repository';
-import { driverRepository } from '../../repositories/driver.repository';
-import { truckRepository } from '../../repositories/truck.repository';
-import { materialRepository } from '../../repositories/material.repository';
-import { CarrierEntity, DriverEntity, TruckEntity, MaterialEntity } from '../../types/entities';
+import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
 import { RelationshipContext } from '../../types/dataQuality';
 
 export interface ImportCenterViewProps {
@@ -65,24 +60,9 @@ export function ImportCenterView({ selectedProjectId }: ImportCenterViewProps) {
   // Navigation between Entity Resolution, Weighbridge, Google Sheets, Google Drive, Excel/CSV, Unified Architecture, and Active Batch
   const [centerSubTab, setCenterSubTab] = useState<'ENTITY_RESOLUTION' | 'WEIGHBRIDGE_IMPORT' | 'GOOGLE_SHEETS_IMPORT' | 'GOOGLE_DRIVE_IMPORT' | 'EXCEL_CSV_IMPORT' | 'UNIFIED_ARCHITECTURE' | 'ACTIVE_BATCH'>('ENTITY_RESOLUTION');
 
-  // Canonical Project Master Data Collections
-  const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
-  const [drivers, setDrivers] = useState<DriverEntity[]>([]);
-  const [trucks, setTrucks] = useState<TruckEntity[]>([]);
-  const [materials, setMaterials] = useState<MaterialEntity[]>([]);
-
-  // Independent Dataset Readiness Tracking
-  const [datasetReadiness, setDatasetReadiness] = useState<{
-    carriers: 'PENDING' | 'READY' | 'ERROR';
-    drivers: 'PENDING' | 'READY' | 'ERROR';
-    trucks: 'PENDING' | 'READY' | 'ERROR';
-    materials: 'PENDING' | 'READY' | 'ERROR';
-  }>({
-    carriers: 'PENDING',
-    drivers: 'PENDING',
-    trucks: 'PENDING',
-    materials: 'PENDING',
-  });
+  // Canonical Relationship Context & Dataset Readiness Tracking
+  const [canonicalRelationshipContext, setCanonicalRelationshipContext] = useState<RelationshipContext | null>(null);
+  const [readinessStatus, setReadinessStatus] = useState<'PENDING' | 'READY' | 'ERROR'>('PENDING');
 
   // Stale callback protection generation counter
   const generationRef = useRef<number>(0);
@@ -91,22 +71,14 @@ export function ImportCenterView({ selectedProjectId }: ImportCenterViewProps) {
   const [activeBatch, setActiveBatch] = useState<ImportBatch>(createEmptyImportBatch);
   const [batchHistory, setBatchHistory] = useState<ImportBatch[]>([]);
 
-  // Project Switch Isolation and Canonical Subscriptions
+  // Project Switch Isolation and Canonical Relationship Loading
   useEffect(() => {
     // Increment generation to invalidate any in-flight asynchronous callbacks
     const currentGen = ++generationRef.current;
 
     // Immediately flush previous project master data & reset readiness
-    setCarriers([]);
-    setDrivers([]);
-    setTrucks([]);
-    setMaterials([]);
-    setDatasetReadiness({
-      carriers: 'PENDING',
-      drivers: 'PENDING',
-      trucks: 'PENDING',
-      materials: 'PENDING',
-    });
+    setCanonicalRelationshipContext(null);
+    setReadinessStatus('PENDING');
 
     // Invalidate P1 downstream import state
     setActiveBatch(createEmptyImportBatch());
@@ -116,104 +88,29 @@ export function ImportCenterView({ selectedProjectId }: ImportCenterViewProps) {
     setShowAuditTrailModal(false);
     setShowWarningConfirmModal(false);
 
-    // Validate selectedProjectId: treat undefined, null, empty, whitespace-only as NOT READY
+    // Validate selectedProjectId: treat undefined, null, empty, whitespace-only, or ALL as NOT READY
     const normalizedProjectId = selectedProjectId ? selectedProjectId.trim() : '';
-    if (!normalizedProjectId) {
+    if (!normalizedProjectId || normalizedProjectId === 'ALL') {
       return;
     }
 
-    const unsubCarriers = carrierRepository.subscribeByProject(
-      normalizedProjectId,
-      (list) => {
+    canonicalRelationshipContextService
+      .getProjectRelationshipContext(normalizedProjectId)
+      .then((ctx) => {
         if (currentGen !== generationRef.current) return;
-        setCarriers(list || []);
-        setDatasetReadiness(prev => ({ ...prev, carriers: 'READY' }));
-      },
-      (err) => {
+        setCanonicalRelationshipContext(ctx);
+        setReadinessStatus('READY');
+      })
+      .catch((err) => {
         if (currentGen !== generationRef.current) return;
-        console.error('Carriers subscription error:', err);
-        setDatasetReadiness(prev => ({ ...prev, carriers: 'ERROR' }));
-      }
-    );
-
-    const unsubDrivers = driverRepository.subscribeByProject(
-      normalizedProjectId,
-      (list) => {
-        if (currentGen !== generationRef.current) return;
-        setDrivers(list || []);
-        setDatasetReadiness(prev => ({ ...prev, drivers: 'READY' }));
-      },
-      (err) => {
-        if (currentGen !== generationRef.current) return;
-        console.error('Drivers subscription error:', err);
-        setDatasetReadiness(prev => ({ ...prev, drivers: 'ERROR' }));
-      }
-    );
-
-    const unsubTrucks = truckRepository.subscribeByProject(
-      normalizedProjectId,
-      (list) => {
-        if (currentGen !== generationRef.current) return;
-        setTrucks(list || []);
-        setDatasetReadiness(prev => ({ ...prev, trucks: 'READY' }));
-      },
-      (err) => {
-        if (currentGen !== generationRef.current) return;
-        console.error('Trucks subscription error:', err);
-        setDatasetReadiness(prev => ({ ...prev, trucks: 'ERROR' }));
-      }
-    );
-
-    const unsubMaterials = materialRepository.subscribeByProject(
-      normalizedProjectId,
-      (list) => {
-        if (currentGen !== generationRef.current) return;
-        setMaterials(list || []);
-        setDatasetReadiness(prev => ({ ...prev, materials: 'READY' }));
-      },
-      (err) => {
-        if (currentGen !== generationRef.current) return;
-        console.error('Materials subscription error:', err);
-        setDatasetReadiness(prev => ({ ...prev, materials: 'ERROR' }));
-      }
-    );
-
-    return () => {
-      unsubCarriers();
-      unsubDrivers();
-      unsubTrucks();
-      unsubMaterials();
-    };
+        console.error('Canonical relationship context error:', err);
+        setCanonicalRelationshipContext(null);
+        setReadinessStatus('ERROR');
+      });
   }, [selectedProjectId]);
 
-  // Pure RelationshipContext derived strictly from canonical project-scoped master data
-  const canonicalRelationshipContext: RelationshipContext | null = useMemo(() => {
-    const trimmedId = selectedProjectId?.trim();
-    if (!trimmedId) return null;
-    if (
-      datasetReadiness.carriers !== 'READY' ||
-      datasetReadiness.drivers !== 'READY' ||
-      datasetReadiness.trucks !== 'READY' ||
-      datasetReadiness.materials !== 'READY'
-    ) {
-      return null;
-    }
-    return buildRelationshipContextFromCanonical({
-      projectId: trimmedId,
-      carriers,
-      drivers,
-      trucks,
-      materials,
-    });
-  }, [selectedProjectId, datasetReadiness, carriers, drivers, trucks, materials]);
-
-  const isMasterDataReady = Boolean(canonicalRelationshipContext !== null);
-  const hasMasterDataError = Boolean(
-    datasetReadiness.carriers === 'ERROR' ||
-    datasetReadiness.drivers === 'ERROR' ||
-    datasetReadiness.trucks === 'ERROR' ||
-    datasetReadiness.materials === 'ERROR'
-  );
+  const isMasterDataReady = Boolean(canonicalRelationshipContext !== null && readinessStatus === 'READY');
+  const hasMasterDataError = Boolean(readinessStatus === 'ERROR');
 
   const handleLoadDemoBatch = () => {
     if (!canonicalRelationshipContext) return;
@@ -605,10 +502,10 @@ export function ImportCenterView({ selectedProjectId }: ImportCenterViewProps) {
                     <span>لم يتم تحديد مشروع</span>
                   </span>
                 )}
-                {isMasterDataReady ? (
+                {isMasterDataReady && canonicalRelationshipContext ? (
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>البيانات المرجعية جاهزة ({carriers.length} ناقل، {trucks.length} شاحنة، {drivers.length} سائق، {materials.length} مادة)</span>
+                    <span>البيانات المرجعية جاهزة ({canonicalRelationshipContext.knownCarriers.length} ناقل، {canonicalRelationshipContext.knownTrucks.length} شاحنة، {canonicalRelationshipContext.knownDrivers.length} سائق، {canonicalRelationshipContext.knownMaterials.length} مادة)</span>
                   </span>
                 ) : hasMasterDataError ? (
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 flex items-center gap-1">
