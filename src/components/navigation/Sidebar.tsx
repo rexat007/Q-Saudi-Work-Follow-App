@@ -175,7 +175,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 const newRole = e.target.value as UserRole;
                 onChangeRole(newRole);
               }}
-              className="w-full bg-[#0b0e12] border border-white/10 rounded px-2 py-1 text-[11px] font-bold font-mono text-white focus:outline-hidden focus:border-[#10b981]"
+              disabled={Boolean(user)}
+              className="w-full bg-[#0b0e12] border border-white/10 rounded px-2 py-1 text-[11px] font-bold font-mono text-white focus:outline-hidden focus:border-[#10b981] disabled:opacity-55 disabled:cursor-not-allowed"
             >
               <option value="SUPER_ADMIN">SUPER_ADMIN (مشرف عام)</option>
               <option value="PROJECT_ADMIN">PROJECT_ADMIN (مدير مشروع)</option>

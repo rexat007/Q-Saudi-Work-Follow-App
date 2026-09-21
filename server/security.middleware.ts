@@ -149,6 +149,21 @@ export async function authenticateUser(req: Request, res: Response, next: NextFu
 
     // F. Reject if user document does not exist
     if (!userDoc.exists) {
+      const isBootstrapPath = req.path === '/auth/bootstrap' || 
+                              req.path === '/api/auth/bootstrap' || 
+                              (req.originalUrl && req.originalUrl.includes('bootstrap'));
+      
+      if (isBootstrapPath) {
+        (req as any).user = {
+          userId: uid,
+          email: decodedToken.email || '',
+          displayName: decodedToken.name || 'مستخدم جديد',
+          role: 'VIEWER',
+          assignedProjectIds: []
+        };
+        return next();
+      }
+
       return res.status(401).json({
         success: false,
         error: 'حساب غير موجود: لم يتم العثور على سجل حساب لهذا المستخدم.',

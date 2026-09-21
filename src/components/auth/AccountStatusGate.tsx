@@ -44,6 +44,38 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  // First-Admin Bootstrap states
+  const [isBootstrapping, setIsBootstrapping] = useState<boolean>(false);
+  const [bootstrapSuccess, setBootstrapSuccess] = useState<boolean>(false);
+  const { idToken } = useAuth();
+
+  const handleBootstrap = async () => {
+    setIsBootstrapping(true);
+    setFormError(null);
+    try {
+      const response = await fetch('/api/auth/bootstrap', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'فشلت عملية تهيئة النظام.');
+      }
+      setBootstrapSuccess(true);
+      if (onRefresh) {
+        await onRefresh();
+      }
+    } catch (err: any) {
+      console.error('Bootstrap error:', err);
+      setFormError(err.message || 'حدث خطأ أثناء الاتصال بالخادم لتهيئة النظام.');
+    } finally {
+      setIsBootstrapping(false);
+    }
+  };
+
   // Sign in error state handling
   const [isSigningIn, setIsSigningIn] = useState<boolean>(false);
 
@@ -219,6 +251,52 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
             <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3.5 text-xs text-rose-300 font-semibold text-center leading-relaxed">
               ⚠️ {isRTL ? 'المصادقة بمفردها لا تمنح صلاحية الوصول التلقائي للنظام.' : 'Authentication alone does not grant application access.'}
             </div>
+
+            {/* Owner Bootstrap Panel */}
+            {userEmail?.toLowerCase() === 'saudiali044@gmail.com' && (
+              <div className="bg-[#10b981]/5 border border-[#10b981]/20 rounded-xl p-5 space-y-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-[#10b981]/10 rounded-lg border border-[#10b981]/30">
+                    <ShieldCheck className="w-5 h-5 text-[#10b981]" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">
+                      {isRTL ? 'بوابة تهيئة النظام الرئيسية (Bootstrap)' : 'Canonical System Owner Setup'}
+                    </h3>
+                    <p className="text-[10px] text-stone-400 font-mono">
+                      {isRTL ? 'تم رصد بريدك الإلكتروني كمالك معين للنظام.' : 'Detected authorized initial owner identity.'}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-stone-300 leading-relaxed">
+                  {isRTL 
+                    ? 'يمكنك الآن تفعيل حساب المالك الرئيسي كـ (SUPER_ADMIN) بخطوة واحدة آمنة ومشروطة بخلية مستخدمين فارغة.'
+                    : 'You can now bootstrap the primary administrative account as SUPER_ADMIN. This operation is authoritative and only allowed when the system has zero accounts.'}
+                </p>
+
+                {bootstrapSuccess ? (
+                  <div className="flex items-center gap-2 text-[#10b981] font-bold text-xs bg-[#10b981]/10 p-3 rounded-lg border border-[#10b981]/25">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{isRTL ? 'تمت تهيئة حساب المالك بنجاح! جاري تحميل شاشات الإدارة...' : 'System bootstrapped successfully! Redirecting...'}</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleBootstrap}
+                    disabled={isBootstrapping}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#10b981] hover:bg-[#10b981]/90 active:scale-[0.98] text-[#0f1115] font-black text-xs transition-all shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isBootstrapping ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <ShieldCheck className="w-4 h-4" />
+                    )}
+                    <span>{isBootstrapping ? (isRTL ? 'جاري تهيئة الحساب...' : 'Bootstrapping Account...') : (isRTL ? 'تهيئة وتفعيل حساب SUPER_ADMIN' : 'Bootstrap SUPER_ADMIN Profile')}</span>
+                  </button>
+                )}
+              </div>
+            )}
 
             {formError && (
               <div className="p-3 bg-rose-500/15 border border-rose-500/30 text-rose-200 text-xs rounded-xl font-medium">

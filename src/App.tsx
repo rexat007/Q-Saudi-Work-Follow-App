@@ -206,11 +206,11 @@ export default function App() {
 
   // Handle role change and route guard check
   const handleRoleChange = (newRole: UserRole) => {
-    // If signed in, currentRole is just a visual override for testing, but real role stays active
+    // Prevent role mutation for authenticated users
+    if (user) return;
     setCurrentRole(newRole);
-    const targetRole = user ? effectiveRole : newRole;
-    if (!navigationService.isTabAuthorizedForRole(activeTab, targetRole)) {
-      const defaultTab = navigationService.getDefaultTabForRole(targetRole);
+    if (!navigationService.isTabAuthorizedForRole(activeTab, newRole)) {
+      const defaultTab = navigationService.getDefaultTabForRole(newRole);
       setActiveTab(defaultTab);
     }
   };
@@ -380,7 +380,7 @@ export default function App() {
                     onChange={(e) => handleRoleChange(e.target.value as UserRole)}
                     className="bg-transparent text-[#f8fafc] font-bold font-mono text-xs focus:outline-hidden cursor-pointer disabled:cursor-not-allowed"
                     title="تبديل الصلاحية النشطة"
-                    disabled={Boolean(userProfile)}
+                    disabled={Boolean(user)}
                   >
                     {SYSTEM_ROLES.map((role) => (
                       <option key={role} value={role} className="bg-[#1a1d23] text-[#f8fafc] font-mono">
@@ -491,9 +491,9 @@ export default function App() {
             {!isCurrentTabAuthorized ? (
               <UnauthorizedBanner
                 requestedTab={activeTab}
-                currentRole={currentRole}
+                currentRole={presentationRole}
                 onRedirectToDefault={() => {
-                  const defTab = navigationService.getDefaultTabForRole(currentRole);
+                  const defTab = navigationService.getDefaultTabForRole(presentationRole);
                   setActiveTab(defTab);
                 }}
               />
@@ -519,7 +519,10 @@ export default function App() {
                     projects={projects}
                     selectedProjectId={selectedProjectId}
                     setSelectedProjectId={setSelectedProjectId}
-                    onNavigateToWizard={() => setActiveTab('WIZARD')}
+                    onNavigateToWizard={() => {
+                      setSelectedProjectId('');
+                      setActiveTab('WIZARD');
+                    }}
                     authContext={activeAuthContext}
                   />
                 )}
@@ -549,7 +552,10 @@ export default function App() {
                     selectedProjectId={selectedProjectId}
                     setSelectedProjectId={setSelectedProjectId}
                     authContext={activeAuthContext}
-                    onNavigateToWizard={() => setActiveTab('WIZARD')}
+                    onNavigateToWizard={() => {
+                      setSelectedProjectId('');
+                      setActiveTab('WIZARD');
+                    }}
                   />
                 )}
 

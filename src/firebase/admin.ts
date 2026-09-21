@@ -76,6 +76,18 @@ function createMockCollectionRef(paths: string[]): any {
       const docId = id || `doc_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
       return createMockDocRef([...paths, docId]);
     },
+    limit: (n: number) => {
+      return {
+        get: async () => {
+          const res = await createMockCollectionRef(paths).get();
+          return {
+            empty: res.empty,
+            size: Math.min(res.size, n),
+            docs: res.docs.slice(0, n)
+          };
+        }
+      };
+    },
     where: (field: string, op: string, value: any) => {
       return {
         _isQuery: true,
@@ -102,6 +114,7 @@ function createMockCollectionRef(paths: string[]): any {
       return {
         size: results.length,
         docs: results,
+        empty: results.length === 0,
       };
     }
   };

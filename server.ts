@@ -38,6 +38,74 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api', authenticateUser);
 
 // ----------------------------------------------------
+// 0. Canonical First-Admin Bootstrap Endpoint
+// ----------------------------------------------------
+app.post('/api/auth/bootstrap', async (req: any, res) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: 'المستخدم غير مصادق عليه',
+        code: 'UNAUTHENTICATED'
+      });
+    }
+
+    // Verify Google identity matches configured initial owner
+    const targetOwnerEmail = 'saudiali044@gmail.com';
+    if (user.email.toLowerCase() !== targetOwnerEmail.toLowerCase()) {
+      return res.status(403).json({
+        success: false,
+        error: `حساب غير مصرح به: البريد الإلكتروني ${user.email} ليس هو المالك المعين للنظام.`,
+        code: 'UNAUTHORIZED_OWNER'
+      });
+    }
+
+    // Fail-closed transactional check: check if any users exist in Firestore
+    const { adminDb } = await import('./src/firebase/admin');
+    const usersSnapshot = await adminDb.collection('users').limit(1).get();
+
+    if (!usersSnapshot.empty) {
+      return res.status(400).json({
+        success: false,
+        error: 'فشلت عملية التهيئة: تم تهيئة النظام مسبقاً ويوجد مستخدمين مسجلين بالفعل.',
+        code: 'BOOTSTRAP_ALREADY_COMPLETED'
+      });
+    }
+
+    // Create the canonical Super Admin profile
+    const newUserProfile = {
+      userId: user.userId,
+      email: user.email,
+      fullName: user.displayName || 'أبو علي المالك',
+      role: 'SUPER_ADMIN',
+      status: 'ACTIVE',
+      isActive: true,
+      assignedProjectIds: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: 'SYSTEM_BOOTSTRAP',
+      updatedBy: 'SYSTEM_BOOTSTRAP'
+    };
+
+    await adminDb.collection('users').doc(user.userId).set(newUserProfile);
+
+    res.json({
+      success: true,
+      message: 'تم تهيئة النظام بنجاح! تم تعيينك كمدير عام رئيسي (SUPER_ADMIN).',
+      data: newUserProfile
+    });
+  } catch (error: any) {
+    console.error('Bootstrap error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'حدث خطأ غير متوقع أثناء تهيئة النظام.',
+      code: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// ----------------------------------------------------
 // 1. Health Endpoint
 // ----------------------------------------------------
 app.get('/api/health', (req, res) => {
