@@ -70,7 +70,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
 
   // 1. Canonical User Security Profile & Project Authorization derived from real session
   const activeProfile: UserSecurityProfile = useMemo(() => {
-    const isSuperAdmin = authContext.role === 'SUPER_ADMIN' || authContext.email === 'saudiali044@gmail.com';
+    const isSuperAdmin = authContext.role === 'SUPER_ADMIN';
     const isProjectAdmin = authContext.role === 'PROJECT_ADMIN';
     const isSiteSupervisor = authContext.role === 'SITE_SUPERVISOR';
     const isAuditor = (authContext.role as string) === 'FINANCE_AUDITOR' || (authContext.role as string) === 'AUDITOR';

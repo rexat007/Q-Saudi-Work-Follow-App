@@ -11,6 +11,9 @@ import { Request, Response } from 'express';
 import { authenticateUser } from '../../server/security.middleware';
 import { setTestAuthOverride, setTestDbOverride, createInMemoryAdminDb, inMemoryAdminStore } from '../firebase/admin';
 import { UserRole } from '../types/common';
+import { canEditProject, getEffectiveRole } from '../utils/permissions';
+import * as fs from 'fs';
+import * as path from 'path';
 
 let totalTests = 0;
 let passedTests = 0;
@@ -437,44 +440,99 @@ async function runSuite() {
   // SECTION 2: AUTHORITY CONVERGENCE TESTS
   // ----------------------------------------------------
 
-  await test('TC-CONVERGENCE-01', 'Authenticated users cannot mutate client-side presentation roles', () => {
-    // Simulate App.tsx logic
-    const user = { uid: 'uid-owner', email: 'saudiali044@gmail.com' };
-    const userProfile = { email: 'saudiali044@gmail.com', role: 'SUPER_ADMIN' as UserRole };
+  await test('TC-CONVERGENCE-01', 'Existing canonical PROJECT_ADMIN with owner email remains PROJECT_ADMIN', async () => {
+    const user = { uid: 'uid-owner-admin', email: 'saudiali044@gmail.com' };
+    const userProfile = { email: 'saudiali044@gmail.com', role: 'PROJECT_ADMIN' as UserRole };
 
-    // Derived authoritative role
-    const effectiveRole: UserRole = userProfile 
-      ? (userProfile.email === 'saudiali044@gmail.com' ? 'SUPER_ADMIN' : (userProfile.role || 'VIEWER')) 
-      : 'VIEWER';
+    const effectiveRole: UserRole = userProfile ? (userProfile.role || 'VIEWER') : 'VIEWER';
+    if (effectiveRole !== 'PROJECT_ADMIN') {
+      throw new Error(`Expected effectiveRole for saudiali044@gmail.com with PROJECT_ADMIN profile to be PROJECT_ADMIN, got: ${effectiveRole}`);
+    }
+  });
 
-    // Simulated handler
-    let activeTab = 'OPERATIONS_DASHBOARD';
+  await test('TC-CONVERGENCE-02', 'Converged permission helpers reject PROJECT_ADMIN as SUPER_ADMIN regardless of email', () => {
+    const userProfile = { 
+      userId: 'u1', 
+      email: 'saudiali044@gmail.com', 
+      role: 'PROJECT_ADMIN' as UserRole, 
+      assignedProjectIds: ['p1'], 
+      status: 'ACTIVE', 
+      isActive: true, 
+      fullName: 'علي',
+      createdAt: new Date().toISOString() as any,
+      createdBy: 'SYSTEM',
+      updatedAt: new Date().toISOString() as any,
+      updatedBy: 'SYSTEM'
+    };
+    
+    const canEditOtherProject = canEditProject(userProfile as any, 'p2');
+    if (canEditOtherProject === true) {
+      throw new Error(`Expected canEditProject on unassigned project p2 to be false, but it was true (email override still active)`);
+    }
+  });
+
+  await test('TC-CONVERGENCE-03', 'Firestore rules contain NO email-based SUPER_ADMIN bypass', async () => {
+    const rulesContent = fs.readFileSync(path.join(process.cwd(), 'firestore.rules'), 'utf8');
+
+    if (rulesContent.includes("request.auth.token.email == 'saudiali044@gmail.com'") || rulesContent.includes("saudiali044@gmail.com")) {
+      throw new Error(`Security vulnerability: firestore.rules still contains the hardcoded email bypass for saudiali044@gmail.com!`);
+    }
+  });
+
+  await test('TC-CONVERGENCE-04', 'Canonical SUPER_ADMIN remains SUPER_ADMIN without email special case', () => {
+    const userProfile = { 
+      userId: 'u2', 
+      email: 'abbass@qsaudi.com', 
+      role: 'SUPER_ADMIN' as UserRole, 
+      assignedProjectIds: [], 
+      status: 'ACTIVE', 
+      isActive: true, 
+      fullName: 'عباس',
+      createdAt: new Date().toISOString() as any,
+      createdBy: 'SYSTEM',
+      updatedAt: new Date().toISOString() as any,
+      updatedBy: 'SYSTEM'
+    };
+
+    const effective = getEffectiveRole(userProfile as any);
+    if (effective !== 'SUPER_ADMIN') {
+      throw new Error(`Expected SUPER_ADMIN profile to resolve to SUPER_ADMIN, got ${effective}`);
+    }
+  });
+
+  await test('TC-CONVERGENCE-05', 'Missing profile does not receive SUPER_ADMIN', () => {
+    const userProfile = null;
+
+    const effective = getEffectiveRole(userProfile);
+    if (effective === 'SUPER_ADMIN') {
+      throw new Error(`Expected missing profile to resolve to VIEWER, got SUPER_ADMIN`);
+    }
+  });
+
+  await test('TC-CONVERGENCE-06', 'Authenticated role simulation cannot override canonical role', () => {
+    const user = { uid: 'uid-user', email: 'user@qsaudi.com' };
     let currentRole: UserRole = 'VIEWER';
 
     const handleRoleChange = (newRole: UserRole) => {
-      if (user) return; // Disallow mutation when authenticated!
+      if (user) return; 
       currentRole = newRole;
     };
 
     handleRoleChange('SUPER_ADMIN');
-
     if (currentRole !== 'VIEWER') {
-      throw new Error(`Expected role mutation to be ignored when user is authenticated, but got: ${currentRole}`);
+      throw new Error(`Expected authenticated role simulation block to prevent override, but currentRole is ${currentRole}`);
     }
   });
 
-  await test('TC-CONVERGENCE-02', 'Unapproved/Pending users have VIEWER as effective presentation role', () => {
-    const user = { uid: 'uid-pending', email: 'pending@qsaudi.com' };
-    const userProfile = null; // Profile doesn't exist or is not loaded yet
+  await test('TC-CONVERGENCE-07', 'Bootstrap owner email verification remains isolated to bootstrap behavior', async () => {
+    const req = { user: { userId: 'uid-owner', email: 'saudiali044@gmail.com', displayName: 'أبو علي' } };
+    const { res, getStatus, getBody } = createMockResponse();
 
-    const effectiveRole: UserRole = userProfile 
-      ? (userProfile.email === 'saudiali044@gmail.com' ? 'SUPER_ADMIN' : (userProfile.role || 'VIEWER')) 
-      : 'VIEWER';
+    await testDb.collection('users').doc('existing-user').set({ role: 'PROJECT_ADMIN' });
+    await simulateBootstrapEndpoint(req, res);
 
-    const presentationRole: UserRole = user ? effectiveRole : 'SUPER_ADMIN';
-
-    if (presentationRole !== 'VIEWER') {
-      throw new Error(`Expected unapproved user presentationRole to converge to VIEWER, got: ${presentationRole}`);
+    if (getStatus() !== 400) {
+      throw new Error(`Expected bootstrap isolation to block execution when users collection is not empty, got status ${getStatus()}`);
     }
   });
 

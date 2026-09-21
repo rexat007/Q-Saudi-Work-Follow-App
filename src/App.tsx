@@ -82,7 +82,7 @@ export default function App() {
 
   // Determine authoritative role from server profile when signed in
   const effectiveRole: UserRole = userProfile 
-    ? (userProfile.email === 'saudiali044@gmail.com' ? 'SUPER_ADMIN' : (userProfile.role || 'VIEWER')) 
+    ? (userProfile.role || 'VIEWER') 
     : 'VIEWER';
 
   // Role and Navigation state (currentRole acts as visual preview selector when unauthenticated or testing UI layout)
@@ -100,7 +100,7 @@ export default function App() {
   // Sync role when userProfile is loaded
   useEffect(() => {
     if (userProfile) {
-      const realRole = userProfile.email === 'saudiali044@gmail.com' ? 'SUPER_ADMIN' : (userProfile.role || 'VIEWER');
+      const realRole = userProfile.role || 'VIEWER';
       setCurrentRole(realRole);
     }
   }, [userProfile]);

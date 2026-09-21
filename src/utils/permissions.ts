@@ -6,13 +6,13 @@ import { UserRole } from '../types/common';
  * carriers, roster, pricing, or settings for a specific project.
  *
  * Rules:
- * 1. SUPER_ADMIN (or email 'saudiali044@gmail.com') has full administrative authority for all projects.
+ * 1. SUPER_ADMIN has full administrative authority for all projects.
  * 2. PROJECT_ADMIN has administrative authority ONLY IF assigned to the specified projectId.
  * 3. VIEWER, DRIVER, SUPERVISOR, SCALE_OPERATOR, etc. are strictly read-only / non-administrative.
  */
 export function canEditProject(userProfile: UserEntity | null, projectId: string): boolean {
   if (!userProfile) return false;
-  if (userProfile.role === 'SUPER_ADMIN' || userProfile.email === 'saudiali044@gmail.com') {
+  if (userProfile.role === 'SUPER_ADMIN') {
     return true;
   }
   if (userProfile.role === 'PROJECT_ADMIN') {
@@ -29,8 +29,7 @@ export function hasAdminRole(userProfile: UserEntity | null): boolean {
   if (!userProfile) return false;
   return (
     userProfile.role === 'SUPER_ADMIN' ||
-    userProfile.role === 'PROJECT_ADMIN' ||
-    userProfile.email === 'saudiali044@gmail.com'
+    userProfile.role === 'PROJECT_ADMIN'
   );
 }
 
@@ -39,6 +38,5 @@ export function hasAdminRole(userProfile: UserEntity | null): boolean {
  */
 export function getEffectiveRole(userProfile: UserEntity | null, fallbackRole: UserRole = 'VIEWER'): UserRole {
   if (!userProfile) return fallbackRole;
-  if (userProfile.email === 'saudiali044@gmail.com') return 'SUPER_ADMIN';
   return userProfile.role || fallbackRole;
 }
