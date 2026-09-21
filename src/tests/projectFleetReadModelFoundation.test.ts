@@ -154,8 +154,8 @@ describe('Phase 6 Unit 2D: Project Fleet Read Model Foundation', () => {
       expect(rules).toContain('match /natural_identity_lookups/{token}');
     });
 
-    it('5. Trusted-server composition path is established in server.ts', () => {
-      const serverCode = readFileSync(resolve(__dirname, '../../server.ts'), 'utf-8');
+    it('5. Trusted-server composition path is established in server/app.ts', () => {
+      const serverCode = readFileSync(resolve(__dirname, '../../server/app.ts'), 'utf-8');
       expect(serverCode).toContain('/api/projects/:projectId/fleet-read-model');
       expect(serverCode).toContain('enforceProjectIsolation');
     });
