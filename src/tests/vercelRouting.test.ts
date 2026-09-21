@@ -24,8 +24,8 @@ export function runVercelRoutingContractAssertions() {
   const adapterContent = fs.readFileSync(apiIndexPath, 'utf-8');
 
   assert.ok(
-    /import\s*\{\s*app\s*\}\s*from\s*['"]\.\.\/server\/app['"]/.test(adapterContent),
-    'Adapter must import canonical app from server/app'
+    /import\s*\{\s*app\s*\}\s*from\s*['"]\.\.\/server\/app\.js['"]/.test(adapterContent),
+    'Adapter must import canonical app from server/app.js'
   );
   assert.ok(/export\s+default\s+function\s+handler/.test(adapterContent), 'Adapter must export default handler');
   assert.ok(!/app\.listen\s*\(/.test(adapterContent), 'Adapter must NOT call app.listen()');
