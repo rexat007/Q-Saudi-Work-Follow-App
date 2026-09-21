@@ -125,6 +125,10 @@ export default function App() {
         setLoadingProjects(false);
         if (list && list.length > 0) {
           setSelectedProjectId((prev) => {
+            // Guard: If we are intentionally on the WIZARD tab creating a new project, keep selectedProjectId empty
+            if (activeTab === 'WIZARD' && prev === '') {
+              return '';
+            }
             const stillExists = list.some(p => p.projectId === prev);
             return stillExists ? prev : list[0].projectId;
           });
@@ -138,7 +142,7 @@ export default function App() {
       }
     );
     return () => unsubscribe();
-  }, [user]);
+  }, [user, activeTab]);
 
   // Runtime referenced navigation labels to ensure 100% translation coverage
   const _navigationLabels = [

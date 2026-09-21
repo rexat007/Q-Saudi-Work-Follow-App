@@ -131,6 +131,47 @@ app.post('/api/auth/bootstrap', async (req: any, res) => {
 });
 
 // ----------------------------------------------------
+// 0.1 Server-Authoritative Project Creation Endpoint
+// ----------------------------------------------------
+app.post('/api/projects', async (req: any, res) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: 'المستخدم غير مصادق عليه',
+        code: 'UNAUTHENTICATED'
+      });
+    }
+
+    if (user.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({
+        success: false,
+        error: 'غير مصرح لك: إنشاء المشاريع مقتصر فقط على مدير النظام (SUPER_ADMIN)',
+        code: 'FORBIDDEN_ROLE_ACCESS'
+      });
+    }
+
+    const { projectService } = await import('./src/services/project.service');
+    const createdProject = await projectService.createProject(req.body, user);
+
+    return res.status(201).json({
+      success: true,
+      data: createdProject,
+      message: 'تم إنشاء المشروع وتوثيقه بنجاح بنظام ترقيم خادومي موحد'
+    });
+  } catch (error: any) {
+    console.error('Project creation failed:', error);
+    return res.status(error.status || 500).json({
+      success: false,
+      error: error.message || 'فشل إنشاء المشروع في الخادم الرئيسي',
+      code: error.code || 'SERVER_ERROR',
+      errors: error.errors
+    });
+  }
+});
+
+// ----------------------------------------------------
 // 1. Health Endpoint
 // ----------------------------------------------------
 app.get('/api/health', (req, res) => {

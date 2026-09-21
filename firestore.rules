@@ -98,11 +98,7 @@ service cloud.firestore {
         isSuperAdmin() ||
         isProjectMember(projectId)
       );
-      allow create: if isSuperAdmin() && isValidId(projectId) && 
-                       isAuditStampedCreate(incoming()) &&
-                       incoming().projectId == projectId &&
-                       incoming().nameAr is string && incoming().nameAr.size() > 0 &&
-                       incoming().nameAr.size() <= 200;
+      allow create: if false; // Direct client-side creation denied to enforce single server-authoritative path
       allow update: if isSignedIn() && isValidId(projectId) &&
                        hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
                        isAuditStampedUpdate(incoming()) &&
@@ -609,6 +605,12 @@ service cloud.firestore {
       allow create: if isSignedIn() && isValidId(token) &&
                        (isSuperAdmin() || isServerAuthorized());
       allow update, delete: if false;
+    }
+
+    // System Counters (Server-Authoritative Only)
+    match /systemCounters/{counterId} {
+      allow read: if isSuperAdmin() || isServerAuthorized();
+      allow write: if false; // Only manageable via Server Admin transactions
     }
   }
 }

@@ -5,6 +5,7 @@ import { AuthUserContext } from '../types/common';
 import { auditLogService } from './auditLog.service';
 import { ProjectNumberGenerator } from './projectNumberGenerator';
 import { sanitizeUndefined } from '../utils/sanitize';
+import { auth } from '../firebase/config';
 
 export class ProjectService {
   private idempotencyMap = new Map<string, ProjectEntity>();
@@ -27,70 +28,187 @@ export class ProjectService {
     context: AuthUserContext & { operationId?: string }
   ): Promise<ProjectEntity> {
     // 1. Authorization check
-    if (context.role !== 'PROJECT_ADMIN' && context.role !== 'SUPER_ADMIN') {
-      throw new Error('غير مصرح لك: إنشاء المشاريع مقتصر فقط على مديري المشاريع (PROJECT_ADMIN)');
+    if (context.role !== 'SUPER_ADMIN') {
+      const error: any = new Error('غير مصرح لك: إنشاء المشاريع مقتصر فقط على مدير النظام (SUPER_ADMIN)');
+      error.status = 403;
+      error.code = 'FORBIDDEN_ROLE_ACCESS';
+      throw error;
     }
 
-    // 2. Idempotency Check
+    const user = typeof window !== 'undefined' ? auth.currentUser : null;
+    if (typeof window !== 'undefined' && user) {
+      // Browser client path
+      const token = await user.getIdToken();
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...payload,
+          operationId: payload.operationId || context.operationId,
+        }),
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        const error: any = new Error(json.error || 'فشلت عملية إنشاء المشروع');
+        error.status = res.status;
+        error.code = json.code || 'HTTP_ERROR';
+        throw error;
+      }
+
+      const json = await res.json();
+      return json.data;
+    }
+
+    // Server-side / test path (direct Firestore Admin transaction)
+    const {
+      projectId: clientProjectId,
+      projectCode: clientProjectCode,
+      projectNumber: clientProjectNumber,
+      createdAt: clientCreatedAt,
+      updatedAt: clientUpdatedAt,
+      createdBy: clientCreatedBy,
+      updatedBy: clientUpdatedBy,
+      ...filteredPayload
+    } = payload as any;
+
     const operationId = payload.operationId || context.operationId;
-    if (operationId && this.idempotencyMap.has(operationId)) {
-      return this.idempotencyMap.get(operationId)!;
+
+    // Server-side status checks
+    const status = filteredPayload.status || 'SETUP';
+    if (status === 'ACTIVE') {
+      const error: any = new Error('لا يمكن تنشيط المشروع مباشرة عند الإنشاء');
+      error.status = 400;
+      error.code = 'BAD_REQUEST';
+      throw error;
     }
 
-    // 3. Normalize & Sanitize Input BEFORE number allocation
-    const status = payload.status || 'SETUP';
+    const { ProjectValidator } = await import('../validators/project.validator');
+    const { sanitizeUndefined } = await import('../utils/sanitize');
+
     const normalizedInput = sanitizeUndefined({
-      ...payload,
+      ...filteredPayload,
       status,
-      authorizedCarrierIds: payload.authorizedCarrierIds || [],
-      authorizedMaterialIds: payload.authorizedMaterialIds || [],
+      authorizedCarrierIds: filteredPayload.authorizedCarrierIds || [],
+      authorizedMaterialIds: filteredPayload.authorizedMaterialIds || [],
     });
 
-    // 4. Validate Business Fields BEFORE allocating sequence number
-    const candidateForValidation: Partial<ProjectEntity> = {
+    const candidateForValidation = {
       ...normalizedInput,
       projectId: 'Q-PRJ-TEMP-VALIDATION', // Valid ID pattern to test non-ID business fields
     };
 
     const validation = ProjectValidator.validate(candidateForValidation);
     if (!validation.isValid) {
-      throw new Error(`خطأ في التحقق من صحة المشروع: ${validation.errors.map(e => e.messageAr).join(' | ')}`);
+      const errMsg = `خطأ في التحقق من صحة المشروع: ${validation.errors.map(e => e.messageAr).join(' | ')}`;
+      const error: any = new Error(errMsg);
+      error.status = 400;
+      error.code = 'VALIDATION_ERROR';
+      error.errors = validation.errors;
+      throw error;
     }
 
-    // 5. Server-Authoritative Project Number & Code Generation (Only reached if validation passes)
-    const serverProjectNumber = await ProjectNumberGenerator.getNextProjectNumber();
-    const serverProjectCode = `Q-PRJ-${String(serverProjectNumber).padStart(3, '0')}`;
+    const adminModulePath = '../firebase/admin';
+    const { adminDb } = await import(/* @vite-ignore */ adminModulePath);
 
-    // 6. Stamping & Storage (Server overrides any client-supplied projectCode/projectNumber)
-    const newProject: Omit<ProjectEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string } = {
-      ...normalizedInput,
-      projectId: serverProjectCode,
-      projectCode: serverProjectCode,
-      projectNumber: serverProjectNumber,
-      createdBy: context.userId,
-      updatedBy: context.userId,
-    };
+    return await adminDb.runTransaction(async (transaction: any) => {
+      // Check server persistent idempotency
+      if (operationId) {
+        const queryRef = adminDb.collection('projects').where('operationId', '==', operationId);
+        const existingProjectsByOp = await transaction.get(queryRef);
+        if (existingProjectsByOp.docs && existingProjectsByOp.docs.length > 0) {
+          return existingProjectsByOp.docs[0].data() as ProjectEntity;
+        }
+      }
 
-    const sanitizedNewProject = sanitizeUndefined(newProject);
+      // Concurrency-safe project number allocation
+      const counterRef = adminDb.collection('systemCounters').doc('projectNumber');
+      const counterSnap = await transaction.get(counterRef);
 
-    await projectRepository.create(sanitizedNewProject as any);
+      let nextNumber = 1;
+      if (counterSnap.exists) {
+        const data = counterSnap.data();
+        nextNumber = typeof data.nextNumber === 'number' ? data.nextNumber : 1;
+      } else {
+        // Bootstrap counter safely from existing projects if present
+        const projectsSnap = await transaction.get(adminDb.collection('projects'));
+        let maxExisting = 0;
+        projectsSnap.docs.forEach((d: any) => {
+          const data = d.data();
+          if (data && typeof data.projectNumber === 'number') {
+            maxExisting = Math.max(maxExisting, data.projectNumber);
+          }
+        });
+        nextNumber = maxExisting > 0 ? maxExisting + 1 : 1;
+      }
 
-    // 7. Audit Log
-    await auditLogService.recordLog({
-      projectId: serverProjectCode,
-      entityType: 'PROJECT',
-      entityId: serverProjectCode,
-      action: 'CREATE',
-      after: sanitizedNewProject,
-    }, context);
+      const allocatedNumber = nextNumber;
+      const serverProjectCode = `Q-PRJ-${String(allocatedNumber).padStart(3, '0')}`;
+      const serverProjectId = serverProjectCode;
 
-    const finalProject = sanitizedNewProject as ProjectEntity;
+      // Ensure no collision with existing project ID
+      const projectDocRef = adminDb.collection('projects').doc(serverProjectId);
+      const projectSnap = await transaction.get(projectDocRef);
+      if (projectSnap.exists) {
+        throw new Error(`PROJECT_COLLISION_DETECTED: Project ${serverProjectId} already exists.`);
+      }
 
-    if (operationId) {
-      this.idempotencyMap.set(operationId, finalProject);
-    }
+      const newProject = sanitizeUndefined({
+        ...normalizedInput,
+        projectId: serverProjectId,
+        projectCode: serverProjectCode,
+        projectNumber: allocatedNumber,
+        operationId: operationId || null,
+        createdBy: context.userId,
+        updatedBy: context.userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
-    return finalProject;
+      // Write the project document
+      transaction.set(projectDocRef, newProject);
+
+      // Advance/update the counter
+      transaction.set(counterRef, {
+        nextNumber: allocatedNumber + 1,
+        updatedAt: new Date(),
+      });
+
+      // Audit Log write (fully atomic inside transaction)
+      const auditLogId = `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+      const deltaFields = Object.keys(newProject);
+      const logEntry = {
+        auditLogId,
+        projectId: serverProjectId,
+        entityType: 'PROJECT',
+        entityId: serverProjectId,
+        action: 'CREATE',
+        actor: {
+          userId: context.userId,
+          email: context.email,
+          role: context.role,
+          ipAddress: context.ipAddress || 'server',
+          userAgent: context.userAgent || 'server-api',
+        },
+        changes: {
+          before: null,
+          after: newProject,
+          deltaFields,
+        },
+        correlationId: `CORR-${Date.now()}`,
+        createdBy: context.userId,
+        updatedBy: context.userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      transaction.set(adminDb.collection('audit_logs').doc(auditLogId), logEntry);
+
+      return newProject as ProjectEntity;
+    });
   }
 
   async updateProject(

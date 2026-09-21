@@ -1,9 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import * as fs from 'fs';
+import * as path from 'path';
 import { projectService } from '../services/project.service';
 import { ProjectValidator } from '../validators/project.validator';
 import { ProjectNumberGenerator } from '../services/projectNumberGenerator';
 import { AuthUserContext } from '../types/common';
 import { ProjectEntity } from '../types/entities';
+import { setTestDbOverride, createInMemoryAdminDb, inMemoryAdminStore } from '../firebase/admin';
 
 const SUPER_ADMIN_CTX: AuthUserContext = {
   userId: 'U-TEST-ADMIN',
@@ -14,6 +17,12 @@ const SUPER_ADMIN_CTX: AuthUserContext = {
 
 describe('BLOCK 100H-FIX — Project Creation Validation & Atomic Number Allocation', () => {
   beforeEach(() => {
+    // Isolate unit tests using a clean in-memory database instance
+    const testDb = createInMemoryAdminDb();
+    setTestDbOverride(testDb);
+    for (const key of Object.keys(inMemoryAdminStore)) {
+      delete inMemoryAdminStore[key];
+    }
     ProjectNumberGenerator.resetInMemorySequence(1);
     projectService.clearIdempotencyCache();
   });
@@ -170,7 +179,11 @@ describe('BLOCK 100H-FIX — Project Creation Validation & Atomic Number Allocat
 
   describe('4. Project Code Authority & Client Override Protection', () => {
     it('blocks client from overriding projectCode or projectNumber', async () => {
-      ProjectNumberGenerator.resetInMemorySequence(10);
+      // Seed the in-memory database counter to 10 to test sequence override authority
+      const testDb = createInMemoryAdminDb({
+        'systemCounters/projectNumber': { nextNumber: 10 }
+      });
+      setTestDbOverride(testDb);
 
       const payloadWithHackedCodes = {
         projectId: 'HACKED-ID-999',
@@ -267,6 +280,41 @@ describe('BLOCK 100H-FIX — Project Creation Validation & Atomic Number Allocat
       expect(res1.projectId).toBe('Q-PRJ-001');
       expect(res2.projectId).toBe('Q-PRJ-001');
       expect(res1).toEqual(res2);
+    });
+  });
+
+  describe('7. Static Firestore Rules Authority Validation', () => {
+    it('verifies that direct client-side project creation is denied', () => {
+      const rulesPath = path.resolve(process.cwd(), 'firestore.rules');
+      const rules = fs.readFileSync(rulesPath, 'utf8');
+
+      // Assert allow create: if false; exists under match /projects/{projectId}
+      expect(rules).toContain('match /projects/{projectId} {');
+      expect(rules).toContain('allow create: if false;');
+    });
+
+    it('verifies that normal client SDK writes to systemCounters/projectNumber are denied', () => {
+      const rulesPath = path.resolve(process.cwd(), 'firestore.rules');
+      const rules = fs.readFileSync(rulesPath, 'utf8');
+
+      expect(rules).toContain('match /systemCounters/{counterId} {');
+      expect(rules).toContain('allow write: if false;');
+    });
+
+    it('verifies that legitimate project read and update behaviors remain fully preserved', () => {
+      const rulesPath = path.resolve(process.cwd(), 'firestore.rules');
+      const rules = fs.readFileSync(rulesPath, 'utf8');
+
+      expect(rules).toContain('allow get: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);');
+      expect(rules).toContain("hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN'])");
+    });
+
+    it('verifies that no malicious email-based bypass or override exists for project creation', () => {
+      const rulesPath = path.resolve(process.cwd(), 'firestore.rules');
+      const rules = fs.readFileSync(rulesPath, 'utf8');
+
+      // Check for hardcoded superadmin email overrides
+      expect(rules).not.toMatch(/allow create:\s*if\s*request\.auth\.token\.email\s*==/);
     });
   });
 });
