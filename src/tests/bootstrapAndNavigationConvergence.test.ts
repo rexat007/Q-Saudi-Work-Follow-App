@@ -71,17 +71,7 @@ async function simulateBootstrapEndpoint(req: any, res: any) {
       });
     }
 
-    // Fail-closed transactional check: check if any users exist in Firestore
     const { adminDb } = await import('../firebase/admin');
-    const usersSnapshot = await adminDb.collection('users').limit(1).get();
-
-    if (!usersSnapshot.empty) {
-      return res.status(400).json({
-        success: false,
-        error: 'فشلت عملية التهيئة: تم تهيئة النظام مسبقاً ويوجد مستخدمين مسجلين بالفعل.',
-        code: 'BOOTSTRAP_ALREADY_COMPLETED'
-      });
-    }
 
     // Create the canonical Super Admin profile
     const newUserProfile = {
@@ -98,7 +88,35 @@ async function simulateBootstrapEndpoint(req: any, res: any) {
       updatedBy: 'SYSTEM_BOOTSTRAP'
     };
 
-    await adminDb.collection('users').doc(user.userId).set(newUserProfile);
+    // Use Firestore Transaction to atomically lock the bootstrap state
+    await adminDb.runTransaction(async (transaction: any) => {
+      const lockRef = adminDb.collection('system_state').doc('bootstrap');
+      const lockDoc = await transaction.get(lockRef);
+
+      if (lockDoc.exists && lockDoc.data()?.initialized === true) {
+        throw new Error('BOOTSTRAP_ALREADY_COMPLETED');
+      }
+
+      const userDocRef = adminDb.collection('users').doc(user.userId);
+      const userDoc = await transaction.get(userDocRef);
+      if (userDoc.exists) {
+        throw new Error('BOOTSTRAP_ALREADY_COMPLETED');
+      }
+
+      // Check if ANY users exist in Firestore inside the transaction
+      const usersQuery = adminDb.collection('users').limit(1);
+      const usersSnapshot = await transaction.get(usersQuery);
+      if (!usersSnapshot.empty) {
+        throw new Error('BOOTSTRAP_ALREADY_COMPLETED');
+      }
+
+      transaction.set(userDocRef, newUserProfile);
+      transaction.set(lockRef, {
+        initialized: true,
+        initializedAt: new Date().toISOString(),
+        initializedBy: user.userId
+      });
+    });
 
     res.json({
       success: true,
@@ -106,7 +124,13 @@ async function simulateBootstrapEndpoint(req: any, res: any) {
       data: newUserProfile
     });
   } catch (error: any) {
-    console.error('SIMULATE_BOOTSTRAP_ERROR:', error);
+    if (error.message === 'BOOTSTRAP_ALREADY_COMPLETED') {
+      return res.status(400).json({
+        success: false,
+        error: 'فشلت عملية التهيئة: تم تهيئة النظام مسبقاً ويوجد مستخدمين مسجلين بالفعل.',
+        code: 'BOOTSTRAP_ALREADY_COMPLETED'
+      });
+    }
     res.status(500).json({
       success: false,
       error: error.message || 'حدث خطأ غير متوقع أثناء تهيئة النظام.',
@@ -186,7 +210,7 @@ async function runSuite() {
     }
   });
 
-  await test('TC-BOOTSTRAP-03', 'Owner setup success: initializes SUPER_ADMIN and returns 200', async () => {
+  await test('TC-BOOTSTRAP-03', 'Owner setup success: initializes SUPER_ADMIN, ignores client-supplied authority details, returns 200', async () => {
     // Clean database (no users)
     for (const key of Object.keys(inMemoryAdminStore)) {
       delete inMemoryAdminStore[key];
@@ -198,10 +222,17 @@ async function runSuite() {
       }
     });
 
+    // Provide malicious payload pretending client wants to select custom role and status
     const req: any = {
       path: '/auth/bootstrap',
       originalUrl: '/api/auth/bootstrap',
-      headers: { authorization: 'Bearer owner-token' }
+      headers: { authorization: 'Bearer owner-token' },
+      body: {
+        role: 'VIEWER',
+        status: 'PENDING',
+        userId: 'attacker-uid',
+        email: 'attacker@qsaudi.com'
+      }
     };
     const { res: authRes } = createMockResponse();
     let nextCalled = false;
@@ -227,15 +258,28 @@ async function runSuite() {
     if (!record) {
       throw new Error('Super Admin user document was not written to Firestore users collection');
     }
+    // All client-selected inputs MUST be completely ignored in favor of server-vetted parameters
     if (record.role !== 'SUPER_ADMIN') {
-      throw new Error(`Expected role to be SUPER_ADMIN, got ${record.role}`);
+      throw new Error(`Expected role to be SUPER_ADMIN (server-derived), got ${record.role}`);
     }
     if (record.status !== 'ACTIVE' || record.isActive !== true) {
       throw new Error('Expected user profile status to be ACTIVE and isActive to be true');
     }
+    if (record.userId !== 'uid-owner') {
+      throw new Error(`Expected userId to be derived as uid-owner, got ${record.userId}`);
+    }
+    if (record.email !== 'saudiali044@gmail.com') {
+      throw new Error(`Expected email to be derived as saudiali044@gmail.com, got ${record.email}`);
+    }
+
+    // Verify the lock document is written to Firestore
+    const lockDoc = inMemoryAdminStore['system_state/bootstrap'];
+    if (!lockDoc || lockDoc.initialized !== true) {
+      throw new Error('Deterministic lock document system_state/bootstrap was not marked initialized');
+    }
   });
 
-  await test('TC-BOOTSTRAP-04', 'Double execution: rejects bootstrap if users collection is not empty', async () => {
+  await test('TC-BOOTSTRAP-04', 'Double execution (sequential): rejects bootstrap if users collection is not empty', async () => {
     // Seed an existing user
     inMemoryAdminStore['users/existing-uid'] = {
       userId: 'existing-uid',
@@ -264,6 +308,125 @@ async function runSuite() {
 
     if (getStatus() !== 400) {
       throw new Error(`Expected status code 400 for double execution, got ${getStatus()}`);
+    }
+    if (getBody()?.code !== 'BOOTSTRAP_ALREADY_COMPLETED') {
+      throw new Error(`Expected error code BOOTSTRAP_ALREADY_COMPLETED, got ${getBody()?.code}`);
+    }
+  });
+
+  await test('TC-BOOTSTRAP-05', 'Concurrency Invariant: simultaneous bootstrap execution blocks second request atomically via transaction', async () => {
+    // Clean database
+    for (const key of Object.keys(inMemoryAdminStore)) {
+      delete inMemoryAdminStore[key];
+    }
+
+    setTestAuthOverride({
+      async verifyIdToken(token: string) {
+        return { uid: 'uid-owner', email: 'saudiali044@gmail.com', name: 'أبو علي المالك' };
+      }
+    });
+
+    const req1: any = {
+      path: '/auth/bootstrap',
+      originalUrl: '/api/auth/bootstrap',
+      headers: { authorization: 'Bearer owner-token' }
+    };
+    const req2: any = {
+      path: '/auth/bootstrap',
+      originalUrl: '/api/auth/bootstrap',
+      headers: { authorization: 'Bearer owner-token' }
+    };
+
+    const { res: res1, getStatus: getStatus1 } = createMockResponse();
+    const { res: res2, getStatus: getStatus2, getBody: getBody2 } = createMockResponse();
+
+    // Authenticate both requests first
+    await authenticateUser(req1, res1, () => {});
+    await authenticateUser(req2, res2, () => {});
+
+    // Trigger both simultaneously
+    await Promise.all([
+      simulateBootstrapEndpoint(req1, res1),
+      simulateBootstrapEndpoint(req2, res2)
+    ]);
+
+    // One must have succeeded (200) and the other must have rejected (400) via transactional lock document
+    const statuses = [getStatus1(), getStatus2()];
+    if (!statuses.includes(200) || !statuses.includes(400)) {
+      throw new Error(`Expected concurrency to resolve into one 200 and one 400 status. Got: ${statuses}`);
+    }
+  });
+
+  await test('TC-BOOTSTRAP-06', 'Initialized state rejects: bootstrap is blocked if system_state/bootstrap lock document is initialized even if users collection is empty', async () => {
+    // Clean database (no users) but set lock document as initialized
+    for (const key of Object.keys(inMemoryAdminStore)) {
+      delete inMemoryAdminStore[key];
+    }
+    inMemoryAdminStore['system_state/bootstrap'] = {
+      initialized: true,
+      initializedAt: new Date().toISOString(),
+      initializedBy: 'some-previous-uid'
+    };
+
+    setTestAuthOverride({
+      async verifyIdToken(token: string) {
+        return { uid: 'uid-owner', email: 'saudiali044@gmail.com', name: 'أبو علي المالك' };
+      }
+    });
+
+    const req: any = {
+      path: '/auth/bootstrap',
+      originalUrl: '/api/auth/bootstrap',
+      headers: { authorization: 'Bearer owner-token' }
+    };
+    const { res: authRes } = createMockResponse();
+    let nextCalled = false;
+
+    await authenticateUser(req, authRes, () => { nextCalled = true; });
+
+    const { res: endRes, getStatus, getBody } = createMockResponse();
+    await simulateBootstrapEndpoint(req, endRes);
+
+    if (getStatus() !== 400) {
+      throw new Error(`Expected status code 400 due to initialized lock, got ${getStatus()}`);
+    }
+    if (getBody()?.code !== 'BOOTSTRAP_ALREADY_COMPLETED') {
+      throw new Error(`Expected error code BOOTSTRAP_ALREADY_COMPLETED, got ${getBody()?.code}`);
+    }
+  });
+
+  await test('TC-BOOTSTRAP-07', 'Conflicting state fails closed: existing canonical users block bootstrap even if lock document is missing', async () => {
+    // No lock document, but user documents already exist (conflicting/unlocked)
+    for (const key of Object.keys(inMemoryAdminStore)) {
+      delete inMemoryAdminStore[key];
+    }
+    inMemoryAdminStore['users/some-active-admin'] = {
+      userId: 'some-active-admin',
+      email: 'admin@qsaudi.com',
+      role: 'SUPER_ADMIN'
+    };
+
+    setTestAuthOverride({
+      async verifyIdToken(token: string) {
+        return { uid: 'uid-owner', email: 'saudiali044@gmail.com', name: 'أبو علي المالك' };
+      }
+    });
+
+    const req: any = {
+      path: '/auth/bootstrap',
+      originalUrl: '/api/auth/bootstrap',
+      headers: { authorization: 'Bearer owner-token' }
+    };
+    const { res: authRes } = createMockResponse();
+    let nextCalled = false;
+
+    await authenticateUser(req, authRes, () => { nextCalled = true; });
+
+    const { res: endRes, getStatus, getBody } = createMockResponse();
+    await simulateBootstrapEndpoint(req, endRes);
+
+    if (getStatus() !== 400) {
+      throw new Error(`Expected status code 400 due to existing users check, got ${getStatus()}`);
     }
     if (getBody()?.code !== 'BOOTSTRAP_ALREADY_COMPLETED') {
       throw new Error(`Expected error code BOOTSTRAP_ALREADY_COMPLETED, got ${getBody()?.code}`);

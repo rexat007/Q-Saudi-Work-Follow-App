@@ -124,39 +124,44 @@ export const createInMemoryAdminDb = (initialStore?: Record<string, any>) => {
   if (initialStore) {
     Object.assign(inMemoryStore, initialStore);
   }
+  let transactionQueue = Promise.resolve();
   return {
     collection: (col: string) => createMockCollectionRef([col]),
     runTransaction: async (cb: any) => {
-      const tx = {
-        get: async (ref: any) => {
-          if (ref && ref._isQuery) {
-            const results: any[] = [];
-            const prefix = `${ref.col}/`;
-            for (const [key, val] of Object.entries(inMemoryStore)) {
-              if (key.startsWith(prefix)) {
-                const relativeKey = key.slice(prefix.length);
-                if (!relativeKey.includes('/')) {
-                  if (val && val[ref.field] === ref.value) {
-                    results.push({
-                      id: relativeKey,
-                      data: () => val,
-                    });
+      const resultPromise = transactionQueue.then(async () => {
+        const tx = {
+          get: async (ref: any) => {
+            if (ref && ref._isQuery) {
+              const results: any[] = [];
+              const prefix = `${ref.col}/`;
+              for (const [key, val] of Object.entries(inMemoryStore)) {
+                if (key.startsWith(prefix)) {
+                  const relativeKey = key.slice(prefix.length);
+                  if (!relativeKey.includes('/')) {
+                    if (val && val[ref.field] === ref.value) {
+                      results.push({
+                        id: relativeKey,
+                        data: () => val,
+                      });
+                    }
                   }
                 }
               }
+              return {
+                size: results.length,
+                docs: results,
+              };
             }
-            return {
-              size: results.length,
-              docs: results,
-            };
-          }
-          return ref.get();
-        },
-        set: (ref: any, data: any) => ref.set(data),
-        update: (ref: any, data: any) => ref.update(data),
-        delete: (ref: any) => ref.delete(),
-      };
-      return cb(tx);
+            return ref.get();
+          },
+          set: (ref: any, data: any) => ref.set(data),
+          update: (ref: any, data: any) => ref.update(data),
+          delete: (ref: any) => ref.delete(),
+        };
+        return cb(tx);
+      });
+      transactionQueue = resultPromise.then(() => {}, () => {});
+      return resultPromise;
     },
   };
 };

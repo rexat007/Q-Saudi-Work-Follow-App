@@ -61,17 +61,7 @@ app.post('/api/auth/bootstrap', async (req: any, res) => {
       });
     }
 
-    // Fail-closed transactional check: check if any users exist in Firestore
     const { adminDb } = await import('./src/firebase/admin');
-    const usersSnapshot = await adminDb.collection('users').limit(1).get();
-
-    if (!usersSnapshot.empty) {
-      return res.status(400).json({
-        success: false,
-        error: 'فشلت عملية التهيئة: تم تهيئة النظام مسبقاً ويوجد مستخدمين مسجلين بالفعل.',
-        code: 'BOOTSTRAP_ALREADY_COMPLETED'
-      });
-    }
 
     // Create the canonical Super Admin profile
     const newUserProfile = {
@@ -88,7 +78,35 @@ app.post('/api/auth/bootstrap', async (req: any, res) => {
       updatedBy: 'SYSTEM_BOOTSTRAP'
     };
 
-    await adminDb.collection('users').doc(user.userId).set(newUserProfile);
+    // Use Firestore Transaction to atomically lock the bootstrap state
+    await adminDb.runTransaction(async (transaction: any) => {
+      const lockRef = adminDb.collection('system_state').doc('bootstrap');
+      const lockDoc = await transaction.get(lockRef);
+
+      if (lockDoc.exists && lockDoc.data()?.initialized === true) {
+        throw new Error('BOOTSTRAP_ALREADY_COMPLETED');
+      }
+
+      const userDocRef = adminDb.collection('users').doc(user.userId);
+      const userDoc = await transaction.get(userDocRef);
+      if (userDoc.exists) {
+        throw new Error('BOOTSTRAP_ALREADY_COMPLETED');
+      }
+
+      // Check if ANY users exist in Firestore inside the transaction
+      const usersQuery = adminDb.collection('users').limit(1);
+      const usersSnapshot = await transaction.get(usersQuery);
+      if (!usersSnapshot.empty) {
+        throw new Error('BOOTSTRAP_ALREADY_COMPLETED');
+      }
+
+      transaction.set(userDocRef, newUserProfile);
+      transaction.set(lockRef, {
+        initialized: true,
+        initializedAt: new Date().toISOString(),
+        initializedBy: user.userId
+      });
+    });
 
     res.json({
       success: true,
@@ -97,6 +115,13 @@ app.post('/api/auth/bootstrap', async (req: any, res) => {
     });
   } catch (error: any) {
     console.error('Bootstrap error:', error);
+    if (error.message === 'BOOTSTRAP_ALREADY_COMPLETED') {
+      return res.status(400).json({
+        success: false,
+        error: 'فشلت عملية التهيئة: تم تهيئة النظام مسبقاً ويوجد مستخدمين مسجلين بالفعل.',
+        code: 'BOOTSTRAP_ALREADY_COMPLETED'
+      });
+    }
     res.status(500).json({
       success: false,
       error: error.message || 'حدث خطأ غير متوقع أثناء تهيئة النظام.',
