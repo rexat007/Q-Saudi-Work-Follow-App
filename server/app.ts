@@ -1350,8 +1350,9 @@ app.post('/api/projects/:projectId/setup-material', enforceProjectIsolation, enf
     const { projectId } = req.params;
     const { materialData } = req.body;
     const user = (req as any).user;
-    const { projectProvisioningService } = await import('../src/services/projectProvisioning.service');
-    const result = await projectProvisioningService.setupProjectMaterial(projectId, materialData, user);
+    const { ProjectProvisioningAdminService } = await import('../src/services/projectProvisioning.server');
+    const provisioningService = new ProjectProvisioningAdminService();
+    const result = await provisioningService.setupProjectMaterial(projectId, materialData, user);
     res.json({ success: true, ...result });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
@@ -1363,8 +1364,9 @@ app.post('/api/projects/:projectId/setup-carrier', enforceProjectIsolation, enfo
     const { projectId } = req.params;
     const { carrierData } = req.body;
     const user = (req as any).user;
-    const { projectProvisioningService } = await import('../src/services/projectProvisioning.service');
-    const result = await projectProvisioningService.setupProjectCarrier(projectId, carrierData, user);
+    const { ProjectProvisioningAdminService } = await import('../src/services/projectProvisioning.server');
+    const provisioningService = new ProjectProvisioningAdminService();
+    const result = await provisioningService.setupProjectCarrier(projectId, carrierData, user);
     res.json({ success: true, ...result });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
@@ -1375,9 +1377,9 @@ app.post('/api/projects/:projectId/setup-carrier', enforceProjectIsolation, enfo
 app.get('/api/projects/:projectId/materials', enforceProjectIsolation, async (req, res) => {
   try {
     const { projectId } = req.params;
-    // Implementation of membership-based list
-    const { projectProvisioningService } = await import('../src/services/projectProvisioning.service');
-    const result = await projectProvisioningService.listProjectMaterials(projectId);
+    const { ProjectProvisioningAdminService } = await import('../src/services/projectProvisioning.server');
+    const provisioningService = new ProjectProvisioningAdminService();
+    const result = await provisioningService.listProjectMaterials(projectId);
     res.json({ success: true, data: result });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
@@ -1387,8 +1389,9 @@ app.get('/api/projects/:projectId/materials', enforceProjectIsolation, async (re
 app.get('/api/projects/:projectId/carriers', enforceProjectIsolation, async (req, res) => {
   try {
     const { projectId } = req.params;
-    const { projectProvisioningService } = await import('../src/services/projectProvisioning.service');
-    const result = await projectProvisioningService.listProjectCarriers(projectId);
+    const { ProjectProvisioningAdminService } = await import('../src/services/projectProvisioning.server');
+    const provisioningService = new ProjectProvisioningAdminService();
+    const result = await provisioningService.listProjectCarriers(projectId);
     res.json({ success: true, data: result });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
