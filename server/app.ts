@@ -1417,9 +1417,9 @@ app.get('/api/projects/:projectId/readiness', enforceProjectIsolation, async (re
   try {
     const { projectId } = req.params;
     const { ProjectReadinessService } = await import('../src/services/projectReadiness.service');
-    const { NonTransactionReadContext } = await import('../src/services/projectActivation.service');
+    const { ProjectReadinessAdminReadContext } = await import('../src/services/projectReadiness.server');
     const readinessService = new ProjectReadinessService();
-    const readContext = new NonTransactionReadContext();
+    const readContext = new ProjectReadinessAdminReadContext();
     const result = await readinessService.evaluateProjectReadiness(projectId, new Date(), readContext);
 
     res.json({

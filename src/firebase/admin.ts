@@ -95,6 +95,28 @@ function createMockCollectionRef(paths: string[]): any {
         field,
         op,
         value,
+        get: async () => {
+          const results: any[] = [];
+          const prefix = `${colPath}/`;
+          for (const [key, val] of Object.entries(inMemoryStore)) {
+            if (key.startsWith(prefix)) {
+              const relativeKey = key.slice(prefix.length);
+              if (!relativeKey.includes('/')) {
+                if (val && val[field] === value) {
+                  results.push({
+                    id: relativeKey,
+                    data: () => val,
+                  });
+                }
+              }
+            }
+          }
+          return {
+            size: results.length,
+            docs: results,
+            empty: results.length === 0,
+          };
+        }
       };
     },
     get: async () => {
