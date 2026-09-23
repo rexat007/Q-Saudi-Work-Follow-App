@@ -56,6 +56,10 @@ async function runSuite() {
       if (token === 'token-rejected') return { uid: 'uid-rejected', email: 'rejected@qsaudi.com' };
       if (token === 'token-suspended') return { uid: 'uid-suspended', email: 'suspended@qsaudi.com' };
       if (token === 'token-supervisor') return { uid: 'uid-supervisor', email: 'supervisor@qsaudi.com' };
+      if (token === 'token-legacy-active') return { uid: 'uid-legacy-active', email: 'legacyactive@qsaudi.com' };
+      if (token === 'token-legacy-inactive') return { uid: 'uid-legacy-inactive', email: 'legacyinactive@qsaudi.com' };
+      if (token === 'token-explicit-active') return { uid: 'uid-explicit-active', email: 'explicitactive@qsaudi.com' };
+      if (token === 'token-active-inactive') return { uid: 'uid-active-inactive', email: 'activeinactive@qsaudi.com' };
       throw new Error('Invalid token');
     }
   });
@@ -103,6 +107,38 @@ async function runSuite() {
                       email: 'supervisor@qsaudi.com',
                       assignedProjectIds: ['PRJ-NEOM-NORTH-01']
                     };
+                  }
+                };
+              }
+              if (docId === 'uid-legacy-active') {
+                return {
+                  exists: true,
+                  data() {
+                    return { isActive: true, role: 'VIEWER', userId: 'uid-legacy-active' }; // status field missing
+                  }
+                };
+              }
+              if (docId === 'uid-legacy-inactive') {
+                return {
+                  exists: true,
+                  data() {
+                    return { isActive: false, role: 'VIEWER', userId: 'uid-legacy-inactive' }; // status field missing
+                  }
+                };
+              }
+              if (docId === 'uid-explicit-active') {
+                return {
+                  exists: true,
+                  data() {
+                    return { status: 'ACTIVE', isActive: true, role: 'VIEWER', userId: 'uid-explicit-active' };
+                  }
+                };
+              }
+              if (docId === 'uid-active-inactive') {
+                return {
+                  exists: true,
+                  data() {
+                    return { status: 'ACTIVE', isActive: false, role: 'VIEWER', userId: 'uid-active-inactive' };
                   }
                 };
               }
@@ -394,6 +430,66 @@ async function runSuite() {
     if (arKeys !== 1128 || enKeys !== 1128 || urKeys !== 1128) {
       throw new Error(`I18N key count mismatch: AR=${arKeys}, EN=${enKeys}, UR=${urKeys}`);
     }
+  });
+
+  // 18. Legacy active: missing status + isActive === true must PASS as legacy ACTIVE
+  test('TC-86B-18', 'Missing status with isActive === true passes as legacy ACTIVE', async () => {
+    const req: any = { headers: { authorization: 'Bearer token-legacy-active' } };
+    let nextCalled = false;
+    const res: any = {
+      status() { return this; },
+      json() { return this; },
+    };
+
+    await authenticateUser(req, res, () => { nextCalled = true; });
+
+    if (!nextCalled) throw new Error('Expected middleware to call next() for legacy active token');
+  });
+
+  // 19. Legacy inactive: missing status + isActive === false must BLOCK
+  test('TC-86B-19', 'Missing status with isActive === false blocks operational access', async () => {
+    const req: any = { headers: { authorization: 'Bearer token-legacy-inactive' } };
+    let statusCode = 0;
+    let responseBody: any = null;
+    const res: any = {
+      status(code: number) { statusCode = code; return this; },
+      json(body: any) { responseBody = body; return this; },
+    };
+
+    await authenticateUser(req, res, () => {});
+
+    if (statusCode !== 403) throw new Error(`Expected status 403, got ${statusCode}`);
+    if (responseBody?.code !== 'ACCOUNT_NOT_ACTIVE') throw new Error(`Expected code ACCOUNT_NOT_ACTIVE, got ${responseBody?.code}`);
+  });
+
+  // 20. Explicit ACTIVE: status === ACTIVE + isActive === true must PASS
+  test('TC-86B-20', 'Explicit status ACTIVE with isActive === true passes operational access', async () => {
+    const req: any = { headers: { authorization: 'Bearer token-explicit-active' } };
+    let nextCalled = false;
+    const res: any = {
+      status() { return this; },
+      json() { return this; },
+    };
+
+    await authenticateUser(req, res, () => { nextCalled = true; });
+
+    if (!nextCalled) throw new Error('Expected middleware to call next() for explicit active token');
+  });
+
+  // 21. Explicit ACTIVE but inactive flag: status === ACTIVE + isActive === false must BLOCK
+  test('TC-86B-21', 'Explicit status ACTIVE but isActive === false blocks operational access', async () => {
+    const req: any = { headers: { authorization: 'Bearer token-active-inactive' } };
+    let statusCode = 0;
+    let responseBody: any = null;
+    const res: any = {
+      status(code: number) { statusCode = code; return this; },
+      json(body: any) { responseBody = body; return this; },
+    };
+
+    await authenticateUser(req, res, () => {});
+
+    if (statusCode !== 403) throw new Error(`Expected status 403, got ${statusCode}`);
+    if (responseBody?.code !== 'ACCOUNT_NOT_ACTIVE') throw new Error(`Expected code ACCOUNT_NOT_ACTIVE, got ${responseBody?.code}`);
   });
 
   console.log('\n======================================================');

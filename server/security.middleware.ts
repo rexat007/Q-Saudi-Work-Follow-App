@@ -180,14 +180,18 @@ export async function authenticateUser(req: Request, res: Response, next: NextFu
       });
     }
 
-    // G. Reject account when status !== ACTIVE or isActive === false
-    if (userData.status !== 'ACTIVE') {
-      let arabicStatus = userData.status || 'غير نشط';
-      if (userData.status === 'PENDING_APPROVAL') {
+    const effectiveStatus =
+      userData.status ||
+      (userData.isActive ? 'ACTIVE' : 'PENDING_APPROVAL');
+
+    // G. Reject account when effectiveStatus !== ACTIVE or isActive === false
+    if (effectiveStatus !== 'ACTIVE') {
+      let arabicStatus = effectiveStatus || 'غير نشط';
+      if (effectiveStatus === 'PENDING_APPROVAL') {
         arabicStatus = 'قيد المراجعة والاعتماد (PENDING_APPROVAL)';
-      } else if (userData.status === 'REJECTED') {
+      } else if (effectiveStatus === 'REJECTED') {
         arabicStatus = 'مرفوض (REJECTED)';
-      } else if (userData.status === 'SUSPENDED') {
+      } else if (effectiveStatus === 'SUSPENDED') {
         arabicStatus = 'معلق (SUSPENDED)';
       }
       return res.status(403).json({
