@@ -17,19 +17,10 @@ import {
   FleetIntegrityIssue,
 } from '../types/projectFleetReadModel';
 
-import { projectTruckMembershipRepository } from '../repositories/projectMembership.repository';
 import {
-  projectTruckCarrierAffiliationRepository,
-  projectDriverCarrierAffiliationRepository,
-} from '../repositories/projectCarrierAffiliation.repository';
-import { projectDriverTruckAssignmentRepository } from '../repositories/projectDriverTruckAssignment.repository';
-import { projectTruckMaterialAllocationRepository } from '../repositories/projectTruckMaterialAllocation.repository';
-import {
-  globalTruckRepository,
-  globalCarrierRepository,
-  globalDriverRepository,
-  globalMaterialRepository,
-} from '../repositories/globalIdentity.repository';
+  ProjectFleetReadModelReadContext,
+  DefaultProjectFleetReadModelReadContext,
+} from './projectFleetReadModel.context';
 
 export class ProjectFleetReadModelService {
   /**
@@ -37,18 +28,19 @@ export class ProjectFleetReadModelService {
    * Execution must be performed in trusted server context where access to
    * Global Identity display fields is authorized.
    */
-  async getProjectFleetReadModel(projectId: string): Promise<ProjectFleetReadModelResponse> {
+  async getProjectFleetReadModel(
+    projectId: string,
+    context?: ProjectFleetReadModelReadContext
+  ): Promise<ProjectFleetReadModelResponse> {
     if (!projectId || !projectId.trim()) {
       throw new Error('INVALID_ARGUMENT: projectId is required');
     }
 
     const cleanProjectId = projectId.trim();
+    const ctx = context || new DefaultProjectFleetReadModelReadContext();
 
     // 1. Fetch all ACTIVE Truck memberships in this project
-    const activeTruckMemberships = await projectTruckMembershipRepository.listMemberships(
-      cleanProjectId,
-      'ACTIVE'
-    );
+    const activeTruckMemberships = await ctx.listActiveTruckMemberships(cleanProjectId);
 
     if (activeTruckMemberships.length === 0) {
       return {
@@ -84,7 +76,7 @@ export class ProjectFleetReadModelService {
       const issues: FleetIntegrityIssue[] = [];
 
       // Resolve Truck Carrier Affiliation (Unit 2B-1)
-      const truckAffiliation = await projectTruckCarrierAffiliationRepository.getAffiliation(
+      const truckAffiliation = await ctx.getTruckCarrierAffiliation(
         cleanProjectId,
         truckId
       );
@@ -103,7 +95,7 @@ export class ProjectFleetReadModelService {
       // Resolve Active Driver Assignment (Unit 2B-2 via truck active slot)
       let driverId: string | null = null;
       try {
-        const truckSlot = await projectDriverTruckAssignmentRepository.getActiveTruckSlot(
+        const truckSlot = await ctx.getActiveTruckSlot(
           cleanProjectId,
           truckId
         );
@@ -115,7 +107,7 @@ export class ProjectFleetReadModelService {
               message: `Active assignment slot for truck ${truckId} has missing assignmentId`,
             });
           } else {
-            const assignment = await projectDriverTruckAssignmentRepository.getAssignment(
+            const assignment = await ctx.getDriverTruckAssignment(
               cleanProjectId,
               truckSlot.assignmentId
             );
@@ -130,7 +122,7 @@ export class ProjectFleetReadModelService {
               uniqueDriverIds.add(driverId);
 
               // Check carrier alignment if carrierId was established
-              const driverAffil = await projectDriverCarrierAffiliationRepository.getAffiliation(cleanProjectId, driverId);
+              const driverAffil = await ctx.getDriverCarrierAffiliation(cleanProjectId, driverId);
               if (driverAffil && driverAffil.status === 'ACTIVE' && driverAffil.carrierId && carrierId && driverAffil.carrierId !== carrierId) {
                 issues.push({
                   code: 'CARRIER_MISMATCH',
@@ -150,7 +142,7 @@ export class ProjectFleetReadModelService {
       // Resolve Active Material Allocation (Unit 2C via truck active slot)
       let materialId: string | null = null;
       try {
-        const activeAllocation = await projectTruckMaterialAllocationRepository.getActiveAllocationByTruck(
+        const activeAllocation = await ctx.getActiveAllocationByTruck(
           cleanProjectId,
           truckId
         );
@@ -192,7 +184,7 @@ export class ProjectFleetReadModelService {
     await Promise.all([
       // Trucks
       ...Array.from(uniqueTruckIds).map(async (tId) => {
-        const entity = await globalTruckRepository.findById(tId);
+        const entity = await ctx.getGlobalTruck(tId);
         if (entity) {
           truckMap.set(tId, {
             plate: entity.plate || entity.normalizedPlate || tId,
@@ -202,21 +194,21 @@ export class ProjectFleetReadModelService {
       }),
       // Carriers
       ...Array.from(uniqueCarrierIds).map(async (cId) => {
-        const entity = await globalCarrierRepository.findById(cId);
+        const entity = await ctx.getGlobalCarrier(cId);
         if (entity) {
           carrierMap.set(cId, entity.nameAr || cId);
         }
       }),
       // Drivers
       ...Array.from(uniqueDriverIds).map(async (dId) => {
-        const entity = await globalDriverRepository.findById(dId);
+        const entity = await ctx.getGlobalDriver(dId);
         if (entity) {
           driverMap.set(dId, entity.fullNameAr || dId);
         }
       }),
       // Materials
       ...Array.from(uniqueMaterialIds).map(async (mId) => {
-        const entity = await globalMaterialRepository.findById(mId);
+        const entity = await ctx.getGlobalMaterial(mId);
         if (entity) {
           materialMap.set(mId, entity.nameAr || entity.nameEn || mId);
         }

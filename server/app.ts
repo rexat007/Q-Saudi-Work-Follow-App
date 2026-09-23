@@ -1326,7 +1326,9 @@ app.get(
       }
 
       const { projectFleetReadModelService } = await import('../src/services/projectFleetReadModel.service');
-      const data = await projectFleetReadModelService.getProjectFleetReadModel(projectId);
+      const { ProjectFleetReadModelAdminReadContext } = await import('../src/services/projectFleetReadModel.server');
+      const readContext = new ProjectFleetReadModelAdminReadContext();
+      const data = await projectFleetReadModelService.getProjectFleetReadModel(projectId, readContext);
 
       res.json({
         success: true,
