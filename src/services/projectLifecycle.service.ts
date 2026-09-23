@@ -1,11 +1,12 @@
-import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { ProjectEntity } from '../types/entities';
 import { AuthUserContext } from '../types/common';
 import { AuditLogService } from './auditLog.service';
 import { ProjectRepository } from '../repositories/project.repository';
+import { LEGAL_LIFECYCLE_TRANSITIONS, GovernanceProjectStatus } from './projectLifecycle.policy';
 
-export type GovernanceProjectStatus = 'SETUP' | 'READY_FOR_REVIEW' | 'APPROVED';
+export type { GovernanceProjectStatus };
 
 export interface LifecycleTransitionResult {
   success: boolean;
@@ -20,7 +21,7 @@ export class ProjectLifecycleService {
   private auditLogService = new AuditLogService();
 
   /**
-   * Legal governance transitions:
+   * Canonical legal governance transitions sourced from shared policy:
    * SETUP -> READY_FOR_REVIEW
    * READY_FOR_REVIEW -> SETUP
    * READY_FOR_REVIEW -> APPROVED
@@ -29,11 +30,7 @@ export class ProjectLifecycleService {
    * 
    * Note: ACTIVE is exclusively reached via ProjectActivationService.
    */
-  private readonly legalTransitions: Record<string, string[]> = {
-    SETUP: ['READY_FOR_REVIEW'],
-    READY_FOR_REVIEW: ['APPROVED', 'SETUP'],
-    APPROVED: ['READY_FOR_REVIEW', 'SETUP'],
-  };
+  private readonly legalTransitions = LEGAL_LIFECYCLE_TRANSITIONS;
 
   /**
    * Transitions a project's lifecycle status following canonical governance rules.

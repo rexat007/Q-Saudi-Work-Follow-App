@@ -1498,9 +1498,8 @@ app.post('/api/projects/:projectId/lifecycle-transition', enforceProjectIsolatio
       return;
     }
 
-    const { ProjectLifecycleService } = await import('../src/services/projectLifecycle.service');
-    const lifecycleService = new ProjectLifecycleService();
-    const result = await lifecycleService.transitionStatus(projectId, targetStatus, user, reason);
+    const { projectLifecycleServerService } = await import('../src/services/projectLifecycle.server');
+    const result = await projectLifecycleServerService.transitionStatus(projectId, targetStatus, user, reason);
 
     res.json({
       success: true,
