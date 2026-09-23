@@ -647,7 +647,19 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         updatedBy: authContext.userId
       };
 
-      await pricingRuleRepository.create(payload);
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch(`/api/projects/${project.projectId}/pricing-rules`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'خطأ في إضافة تعرفة السعر');
+      }
       setIsAddingPricing(false);
       setPriceRate(0);
       setPriceNotes('');

@@ -130,6 +130,41 @@ app.post('/api/auth/bootstrap', async (req: any, res) => {
 });
 
 // ----------------------------------------------------
+// 0.2 Server-Authoritative Pricing Rule Creation Endpoint
+// ----------------------------------------------------
+app.post(
+  '/api/projects/:projectId/pricing-rules',
+  enforceProjectIsolation,
+  enforceAuditorOrAdmin,
+  async (req: any, res) => {
+    try {
+      const { projectId } = req.params;
+      const user = (req as any).user;
+      const { projectPricingServerService } = await import('../src/services/projectPricing.server');
+
+      const createdRule = await projectPricingServerService.createPricingRule(
+        projectId,
+        req.body,
+        user
+      );
+
+      return res.status(201).json({
+        success: true,
+        data: createdRule,
+        message: 'تم إنشاء قاعدة التسعير خادومياً بنجاح.'
+      });
+    } catch (error: any) {
+      console.error('Pricing creation failed:', error);
+      return res.status(400).json({
+        success: false,
+        error: error.message || 'فشلت عملية إنشاء قاعدة التسعير خادومياً.',
+        code: 'PRICING_CREATION_FAILED'
+      });
+    }
+  }
+);
+
+// ----------------------------------------------------
 // 0.1 Server-Authoritative Project Creation Endpoint
 // ----------------------------------------------------
 app.post('/api/projects', async (req: any, res) => {

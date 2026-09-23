@@ -420,7 +420,7 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
     setErrorMsg(null);
     try {
       const pricingRuleId = `PR-${project.projectId}-${Date.now().toString(36).toUpperCase()}`;
-      await pricingRuleRepository.create({
+      const payload = {
         pricingRuleId,
         projectId: project.projectId,
         name: newPricingName.trim(),
@@ -436,7 +436,23 @@ export const ProjectWorkspaceView: React.FC<ProjectWorkspaceViewProps> = ({
         status: 'ACTIVE',
         createdBy: authContext.userId,
         updatedBy: authContext.userId,
+      };
+
+      const user = auth.currentUser;
+      if (!user) throw new Error('فشل إضافة قاعدة التسعير: المستخدم غير مصدق');
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/projects/${project.projectId}/pricing-rules`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
       });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'فشلت عملية إضافة قاعدة التسعير');
+
       setNewPricingName('');
       setNewPricingRate(0);
       setNewPricingCarrierId('ALL');
