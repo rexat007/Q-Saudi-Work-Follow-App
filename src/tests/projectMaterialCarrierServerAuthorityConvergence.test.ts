@@ -4,6 +4,33 @@ import * as path from 'path';
 import { createInMemoryAdminDb, setTestDbOverride, inMemoryAdminStore, adminDb } from '../firebase/admin';
 import { ProjectProvisioningAdminService } from '../services/projectProvisioning.server';
 
+// Recursive helper to check for any undefined values
+function assertNoUndefinedProperties(obj: any, pathStr: string = ''): void {
+  if (obj === null || obj === undefined) {
+    if (obj === undefined) {
+      throw new Error(`FIRESTORE_UNDEFINED_VALUE: Found undefined value in payload at "${pathStr}"`);
+    }
+    return;
+  }
+  if (Array.isArray(obj)) {
+    obj.forEach((item, index) => assertNoUndefinedProperties(item, `${pathStr}[${index}]`));
+    return;
+  }
+  if (typeof obj === 'object') {
+    // If it's a Firestore Timestamp, Date, or other non-plain-object class, do not recurse
+    if (obj.constructor && obj.constructor.name !== 'Object' && obj.constructor.name !== 'Array') {
+      return;
+    }
+    for (const key of Object.keys(obj)) {
+      const val = obj[key];
+      if (val === undefined) {
+        throw new Error(`FIRESTORE_UNDEFINED_VALUE: Found undefined value in payload at "${pathStr ? pathStr + '.' : ''}${key}"`);
+      }
+      assertNoUndefinedProperties(val, `${pathStr ? pathStr + '.' : ''}${key}`);
+    }
+  }
+}
+
 describe('Project Material/Carrier Server Authority Convergence Test Suite', () => {
   let service: ProjectProvisioningAdminService;
 
@@ -14,8 +41,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     }
     const testDb = createInMemoryAdminDb({});
     
-    // Instrument runTransaction to strictly enforce Firestore's read-before-write sequence rule
-    const originalRunTransaction = testDb.runTransaction;
+    // Instrument runTransaction to strictly enforce Firestore's read-before-write sequence rule AND block undefined writes
     testDb.runTransaction = async (cb: any) => {
       let writeOccurred = false;
       const trackedTx = {
@@ -48,10 +74,12 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
         },
         set: (ref: any, data: any) => {
           writeOccurred = true;
+          assertNoUndefinedProperties(data);
           return ref.set(data);
         },
         update: (ref: any, data: any) => {
           writeOccurred = true;
+          assertNoUndefinedProperties(data);
           return ref.update(data);
         },
         delete: (ref: any) => {
@@ -66,7 +94,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     service = new ProjectProvisioningAdminService();
   });
 
-  // --- META-TEST FOR INTEGRITY GUARD ---
+  // --- META-TESTS FOR INTEGRITY GUARDS ---
 
   it('Proves our transaction validator correctly intercepts read-after-write violation', async () => {
     await expect(
@@ -76,6 +104,33 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
         await tx.get(docRef);
       })
     ).rejects.toThrow('FIRESTORE_TRANSACTION_VIOLATION');
+  });
+
+  it('Proves our transaction validator recursively rejects undefined properties in writes', async () => {
+    await expect(
+      adminDb.runTransaction(async (tx: any) => {
+        const docRef = adminDb.collection('materials').doc('test-mat');
+        tx.set(docRef, { 
+          code: 'TEST',
+          optionalField: undefined 
+        });
+      })
+    ).rejects.toThrow('FIRESTORE_UNDEFINED_VALUE');
+  });
+
+  it('Proves our transaction validator recursively rejects nested undefined properties in writes', async () => {
+    await expect(
+      adminDb.runTransaction(async (tx: any) => {
+        const docRef = adminDb.collection('carriers').doc('test-car');
+        tx.set(docRef, {
+          name: 'Carrier',
+          contact: {
+            name: 'Operations',
+            email: undefined
+          }
+        });
+      })
+    ).rejects.toThrow('FIRESTORE_UNDEFINED_VALUE');
   });
 
   // --- ORIGINAL 6 MATERIAL CONVERGENCE TESTS ---
@@ -460,9 +515,113 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-rem-123'].status).toBe('REMOVED');
   });
 
+  // --- NEW UNDEFINED-VALUE REGRESSION TEST CASES (GAP VERIFICATION) ---
+
+  it('25. New Material write contains ZERO undefined values recursively', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectMaterial('Q-PRJ-006', { 
+      code: 'AGG-ZERO-UNDEF',
+      name: 'مادة تجريبية',
+      unitOfMeasure: 'TON',
+      standardDensityTonPerM3: 1.6
+    }, { userId: 'admin-1' });
+
+    const globalDoc = inMemoryAdminStore[`materials/${result.materialId}`];
+    expect(globalDoc).toBeDefined();
+    // Prove recursively that no property has undefined
+    assertNoUndefinedProperties(globalDoc);
+  });
+
+  it('26. Material absent nameEn is completely omitted from Document', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectMaterial('Q-PRJ-006', { 
+      code: 'AGG-OMIT-NAMEEN',
+      name: 'مادة بدون اسم انجليزي'
+    }, { userId: 'admin-1' });
+
+    const globalDoc = inMemoryAdminStore[`materials/${result.materialId}`];
+    expect(globalDoc).toBeDefined();
+    expect(Object.keys(globalDoc)).not.toContain('nameEn');
+  });
+
+  it('27. Material absent maxAllowableMoisturePercent is completely omitted from Document', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectMaterial('Q-PRJ-006', { 
+      code: 'AGG-OMIT-MOIST',
+      name: 'رطوبة صفر'
+    }, { userId: 'admin-1' });
+
+    const globalDoc = inMemoryAdminStore[`materials/${result.materialId}`];
+    expect(globalDoc).toBeDefined();
+    expect(Object.keys(globalDoc)).not.toContain('maxAllowableMoisturePercent');
+  });
+
+  it('28. New Carrier write contains ZERO undefined values recursively', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectCarrier('Q-PRJ-006', { 
+      name: 'ناقل معقم',
+      commercialRegistrationNo: '1010112233'
+    }, { userId: 'admin-1' });
+
+    const globalDoc = inMemoryAdminStore[`carriers/${result.carrierId}`];
+    expect(globalDoc).toBeDefined();
+    assertNoUndefinedProperties(globalDoc);
+  });
+
+  it('29. Carrier absent transportLicenseNo is completely omitted from Document', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectCarrier('Q-PRJ-006', { 
+      name: 'ناقل بدون رخصة',
+      commercialRegistrationNo: '1010112244'
+    }, { userId: 'admin-1' });
+
+    const globalDoc = inMemoryAdminStore[`carriers/${result.carrierId}`];
+    expect(globalDoc).toBeDefined();
+    expect(Object.keys(globalDoc)).not.toContain('transportLicenseNo');
+  });
+
+  it('30. Carrier absent contactPerson is completely omitted from Document', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectCarrier('Q-PRJ-006', { 
+      name: 'ناقل بدون مسؤول',
+      commercialRegistrationNo: '1010112255'
+    }, { userId: 'admin-1' });
+
+    const globalDoc = inMemoryAdminStore[`carriers/${result.carrierId}`];
+    expect(globalDoc).toBeDefined();
+    expect(Object.keys(globalDoc)).not.toContain('contactPerson');
+  });
+
+  it('31. Nested optional Carrier contact fields cannot reach tx.set as undefined', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectCarrier('Q-PRJ-006', { 
+      name: 'ناقل بمسؤول جزئي',
+      commercialRegistrationNo: '1010112266',
+      contactPerson: {
+        name: 'عبدالله',
+        // phone and email are omitted and thus undefined
+      }
+    }, { userId: 'admin-1' });
+
+    const globalDoc = inMemoryAdminStore[`carriers/${result.carrierId}`];
+    expect(globalDoc).toBeDefined();
+    expect(globalDoc.contactPerson).toBeDefined();
+    expect(globalDoc.contactPerson.name).toBe('عبدالله');
+    expect(Object.keys(globalDoc.contactPerson)).not.toContain('phone');
+    expect(Object.keys(globalDoc.contactPerson)).not.toContain('email');
+    assertNoUndefinedProperties(globalDoc);
+  });
+
   // --- GENERAL COMPLIANCE TESTS ---
 
-  it('25. Material listing resolves from active project memberships + global material catalog', async () => {
+  it('32. Material listing resolves from active project memberships + global material catalog', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
 
     inMemoryAdminStore['projects/Q-PRJ-006/material_memberships/MAT-1'] = { projectId: 'Q-PRJ-006', materialId: 'MAT-1', status: 'ACTIVE' };
@@ -478,7 +637,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(list[0].isActive).toBe(true);
   });
 
-  it('26. Carrier listing resolves from active project memberships + global carrier registry', async () => {
+  it('33. Carrier listing resolves from active project memberships + global carrier registry', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
 
     inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-1'] = { projectId: 'Q-PRJ-006', carrierId: 'CAR-1', status: 'ACTIVE' };
@@ -494,7 +653,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(list[0].isActive).toBe(true);
   });
 
-  it('27. Route implementation static guard validation (enforceProjectIsolation, enforceAdminOnly, ProjectProvisioningAdminService)', () => {
+  it('34. Route implementation static guard validation (enforceProjectIsolation, enforceAdminOnly, ProjectProvisioningAdminService)', () => {
     const appPath = path.resolve(process.cwd(), 'server/app.ts');
     const fileContent = fs.readFileSync(appPath, 'utf8');
 
@@ -503,7 +662,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(fileContent).toContain("ProjectProvisioningAdminService");
   });
 
-  it('28. No auth.currentUser leak inside projectProvisioning.server.ts', () => {
+  it('35. No auth.currentUser leak inside projectProvisioning.server.ts', () => {
     const svcPath = path.resolve(process.cwd(), 'src/services/projectProvisioning.server.ts');
     const fileContent = fs.readFileSync(svcPath, 'utf8');
 

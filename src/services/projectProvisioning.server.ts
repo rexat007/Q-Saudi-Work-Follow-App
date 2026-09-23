@@ -5,6 +5,7 @@ import {
   normalizeArabicText, 
   normalizePhone 
 } from '../utils/normalization';
+import { sanitizeUndefined } from '../utils/sanitize';
 
 /**
  * Generates an opaque, cryptographically robust system ID.
@@ -136,7 +137,7 @@ export class ProjectProvisioningAdminService {
       // --- PHASE 3: ALL TRANSACTION WRITES ---
 
       if (isNewGlobal) {
-        const globalMatData = {
+        const globalMatData = sanitizeUndefined({
           materialId,
           code: canonicalCode,
           nameAr: normalizeArabicText(materialData.nameAr || materialData.name || 'مادة جديدة'),
@@ -149,7 +150,7 @@ export class ProjectProvisioningAdminService {
           createdBy: context.userId,
           updatedAt: new Date(),
           updatedBy: context.userId,
-        };
+        });
 
         const matDocRef = adminDb.collection('materials').doc(materialId);
         tx.set(matDocRef, globalMatData);
@@ -309,7 +310,7 @@ export class ProjectProvisioningAdminService {
           };
         }
 
-        const globalCarData = {
+        const globalCarData = sanitizeUndefined({
           carrierId,
           nameAr: normalizeArabicText(carrierData.name || carrierData.nameAr || 'ناقل جديد'),
           commercialRegistrationNo: crDigits,
@@ -321,7 +322,7 @@ export class ProjectProvisioningAdminService {
           createdBy: context.userId,
           updatedAt: new Date(),
           updatedBy: context.userId,
-        };
+        });
 
         const carDocRef = adminDb.collection('carriers').doc(carrierId);
         tx.set(carDocRef, globalCarData);
