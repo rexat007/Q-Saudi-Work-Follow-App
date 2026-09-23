@@ -3,8 +3,7 @@ import * as crypto from 'crypto';
 import { 
   normalizeCode, 
   normalizeArabicText, 
-  normalizePhone, 
-  normalizeName 
+  normalizePhone 
 } from '../utils/normalization';
 
 /**
@@ -23,7 +22,6 @@ function computeNaturalKeyToken(entityType: 'DRIVER' | 'TRUCK' | 'CARRIER' | 'MA
   if (entityType === 'DRIVER') {
     cleaned = cleaned.replace(/[^0-9]/g, '');
   } else if (entityType === 'TRUCK') {
-    // Saudi plates normalization placeholder/approx
     cleaned = cleaned.replace(/\s+/g, '_');
   } else if (entityType === 'CARRIER') {
     cleaned = cleaned.replace(/[^0-9]/g, '');
@@ -58,36 +56,49 @@ export class ProjectProvisioningAdminService {
       throw new Error(`PROJECT_NOT_FOUND: Project "${projectId}" does not exist.`);
     }
 
-    // 2. Resolve/Create Global Material atomically via Transaction
+    // Resolving natural identity lookup token
     const lookupToken = computeNaturalKeyToken('MATERIAL', canonicalCode);
     const lookupRef = adminDb.collection('natural_identity_lookups').doc(lookupToken);
-    
+
+    // Perform fallback collection query outside the transaction to maintain clean transaction reads/writes
+    let preTransactionMatchedId: string | null = null;
+    const querySnap = await adminDb.collection('materials').where('code', '==', canonicalCode).get();
+    if (!querySnap.empty) {
+      preTransactionMatchedId = querySnap.docs[0].id;
+    }
+
     const result = await adminDb.runTransaction(async (tx: any) => {
+      // --- PHASE 1: ALL TRANSACTION READS (Occur BEFORE any transaction write) ---
+      
+      // Read 1: Read the natural identity lookup
       const lookupSnap = await tx.get(lookupRef);
+      
       let materialId: string;
       let isNewGlobal = false;
-      let globalMatData: any = null;
+      let mustRepairLookup = false;
+      let globalMatRef = null;
+      let globalMatSnap = null;
 
       if (lookupSnap.exists) {
         materialId = lookupSnap.data().systemId;
-        const matSnap = await tx.get(adminDb.collection('materials').doc(materialId));
-        if (matSnap.exists) {
-          globalMatData = matSnap.data();
+        globalMatRef = adminDb.collection('materials').doc(materialId);
+        globalMatSnap = await tx.get(globalMatRef);
+        
+        // Safety: If lookup exists but points to a missing global document, fail closed!
+        if (!globalMatSnap.exists) {
+          throw new Error(`DANGLING_LOOKUP_DETECTED: Material lookup points to non-existent global material ID "${materialId}".`);
         }
       } else {
-        // Fallback: Check collection query for code
-        const querySnap = await adminDb.collection('materials').where('code', '==', canonicalCode).get();
-        if (!querySnap.empty) {
-          const docSnap = querySnap.docs[0];
-          materialId = docSnap.id;
-          globalMatData = docSnap.data();
-          // Write lookup mapping to repair missing lookup
-          tx.set(lookupRef, {
-            entityType: 'MATERIAL',
-            systemId: materialId,
-            createdAt: new Date(),
-            createdBy: context.userId,
-          });
+        // Lookup does not exist
+        if (preTransactionMatchedId) {
+          materialId = preTransactionMatchedId;
+          globalMatRef = adminDb.collection('materials').doc(materialId);
+          globalMatSnap = await tx.get(globalMatRef);
+          
+          if (!globalMatSnap.exists) {
+            throw new Error(`DANGLING_LOOKUP_DETECTED: Fallback query points to non-existent global material ID "${materialId}".`);
+          }
+          mustRepairLookup = true;
         } else {
           // Genuinely new material
           materialId = generateOpaqueGlobalId('MAT');
@@ -95,15 +106,45 @@ export class ProjectProvisioningAdminService {
         }
       }
 
+      // Read 2: Read target Project Membership document
+      const membershipDocRef = adminDb
+        .collection('projects')
+        .doc(projectId)
+        .collection('material_memberships')
+        .doc(materialId);
+
+      const membershipSnap = await tx.get(membershipDocRef);
+
+      // --- PHASE 2: VALIDATION & DECISION MAKING ---
+
+      let membershipStatus = 'ACTIVE';
+      let mustCreateMembership = false;
+
+      if (membershipSnap.exists) {
+        const currentMembership = membershipSnap.data();
+        if (currentMembership.status !== 'ACTIVE') {
+          throw new Error(
+            `MEMBERSHIP_STATE_CONFLICT: Entity "${materialId}" is currently "${currentMembership.status}" in Project "${projectId}". Call setMembershipStatus('ACTIVE') to explicitly reactivate.`
+          );
+        } else {
+          membershipStatus = currentMembership.status;
+        }
+      } else {
+        mustCreateMembership = true;
+      }
+
+      // --- PHASE 3: ALL TRANSACTION WRITES ---
+
       if (isNewGlobal) {
-        globalMatData = {
+        const globalMatData = {
           materialId,
           code: canonicalCode,
-          nameAr: normalizeArabicText(materialData.name || materialData.nameAr || 'مادة جديدة'),
-          nameEn: (materialData.nameEn || '').trim() || undefined,
+          nameAr: normalizeArabicText(materialData.nameAr || materialData.name || 'مادة جديدة'),
+          nameEn: materialData.nameEn ? materialData.nameEn.trim() : undefined,
           unitOfMeasure: materialData.unitOfMeasure || 'TON',
-          standardDensityTonPerM3: materialData.standardDensityTonPerM3 !== undefined ? Number(materialData.standardDensityTonPerM3) : 1.6,
-          status: 'ACTIVE',
+          standardDensityTonPerM3: materialData.standardDensityTonPerM3 !== undefined ? Number(materialData.standardDensityTonPerM3) : undefined,
+          maxAllowableMoisturePercent: materialData.maxAllowableMoisturePercent !== undefined ? Number(materialData.maxAllowableMoisturePercent) : undefined,
+          status: materialData.status || 'ACTIVE',
           createdAt: new Date(),
           createdBy: context.userId,
           updatedAt: new Date(),
@@ -118,19 +159,16 @@ export class ProjectProvisioningAdminService {
           createdAt: new Date(),
           createdBy: context.userId,
         });
+      } else if (mustRepairLookup) {
+        tx.set(lookupRef, {
+          entityType: 'MATERIAL',
+          systemId: materialId,
+          createdAt: new Date(),
+          createdBy: context.userId,
+        });
       }
 
-      // 3. Attach/Reactivate project material membership
-      const membershipDocRef = adminDb
-        .collection('projects')
-        .doc(projectId)
-        .collection('material_memberships')
-        .doc(materialId);
-
-      const membershipSnap = await tx.get(membershipDocRef);
-      let membershipStatus: string = 'ACTIVE';
-
-      if (!membershipSnap.exists) {
+      if (mustCreateMembership) {
         const newMembership = {
           projectId,
           materialId,
@@ -142,15 +180,6 @@ export class ProjectProvisioningAdminService {
           updatedBy: context.userId,
         };
         tx.set(membershipDocRef, newMembership);
-      } else {
-        const currentMembership = membershipSnap.data();
-        if (currentMembership.status !== 'ACTIVE') {
-          throw new Error(
-            `MEMBERSHIP_STATE_CONFLICT: Entity "${materialId}" is currently "${currentMembership.status}" in Project "${projectId}". Call setMembershipStatus('ACTIVE') to explicitly reactivate.`
-          );
-        } else {
-          membershipStatus = currentMembership.status;
-        }
       }
 
       return { materialId, membershipStatus };
@@ -185,36 +214,49 @@ export class ProjectProvisioningAdminService {
       throw new Error(`PROJECT_NOT_FOUND: Project "${projectId}" does not exist.`);
     }
 
-    // 2. Resolve/Create Global Carrier atomically via Transaction
+    // Resolving natural identity lookup token
     const lookupToken = computeNaturalKeyToken('CARRIER', crDigits);
     const lookupRef = adminDb.collection('natural_identity_lookups').doc(lookupToken);
 
+    // Perform fallback collection query outside the transaction to maintain clean transaction reads/writes
+    let preTransactionMatchedId: string | null = null;
+    const querySnap = await adminDb.collection('carriers').where('commercialRegistrationNo', '==', crDigits).get();
+    if (!querySnap.empty) {
+      preTransactionMatchedId = querySnap.docs[0].id;
+    }
+
     const result = await adminDb.runTransaction(async (tx: any) => {
+      // --- PHASE 1: ALL TRANSACTION READS (Occur BEFORE any transaction write) ---
+      
+      // Read 1: Read the natural identity lookup
       const lookupSnap = await tx.get(lookupRef);
+
       let carrierId: string;
       let isNewGlobal = false;
-      let globalCarData: any = null;
+      let mustRepairLookup = false;
+      let globalCarRef = null;
+      let globalCarSnap = null;
 
       if (lookupSnap.exists) {
         carrierId = lookupSnap.data().systemId;
-        const carSnap = await tx.get(adminDb.collection('carriers').doc(carrierId));
-        if (carSnap.exists) {
-          globalCarData = carSnap.data();
+        globalCarRef = adminDb.collection('carriers').doc(carrierId);
+        globalCarSnap = await tx.get(globalCarRef);
+
+        // Safety: If lookup exists but points to a missing global document, fail closed!
+        if (!globalCarSnap.exists) {
+          throw new Error(`DANGLING_LOOKUP_DETECTED: Carrier lookup points to non-existent global carrier ID "${carrierId}".`);
         }
       } else {
-        // Fallback: Check collection query for CR
-        const querySnap = await adminDb.collection('carriers').where('commercialRegistrationNo', '==', crDigits).get();
-        if (!querySnap.empty) {
-          const docSnap = querySnap.docs[0];
-          carrierId = docSnap.id;
-          globalCarData = docSnap.data();
-          // Write lookup mapping to repair missing lookup
-          tx.set(lookupRef, {
-            entityType: 'CARRIER',
-            systemId: carrierId,
-            createdAt: new Date(),
-            createdBy: context.userId,
-          });
+        // Lookup does not exist
+        if (preTransactionMatchedId) {
+          carrierId = preTransactionMatchedId;
+          globalCarRef = adminDb.collection('carriers').doc(carrierId);
+          globalCarSnap = await tx.get(globalCarRef);
+
+          if (!globalCarSnap.exists) {
+            throw new Error(`DANGLING_LOOKUP_DETECTED: Fallback query points to non-existent global carrier ID "${carrierId}".`);
+          }
+          mustRepairLookup = true;
         } else {
           // Genuinely new carrier
           carrierId = generateOpaqueGlobalId('CAR');
@@ -222,19 +264,59 @@ export class ProjectProvisioningAdminService {
         }
       }
 
+      // Read 2: Read target Project Membership document
+      const membershipDocRef = adminDb
+        .collection('projects')
+        .doc(projectId)
+        .collection('carrier_memberships')
+        .doc(carrierId);
+
+      const membershipSnap = await tx.get(membershipDocRef);
+
+      // --- PHASE 2: VALIDATION & DECISION MAKING ---
+
+      let membershipStatus = 'ACTIVE';
+      let mustCreateMembership = false;
+
+      if (membershipSnap.exists) {
+        const currentMembership = membershipSnap.data();
+        if (currentMembership.status !== 'ACTIVE') {
+          throw new Error(
+            `MEMBERSHIP_STATE_CONFLICT: Entity "${carrierId}" is currently "${currentMembership.status}" in Project "${projectId}". Call setMembershipStatus('ACTIVE') to explicitly reactivate.`
+          );
+        } else {
+          membershipStatus = currentMembership.status;
+        }
+      } else {
+        mustCreateMembership = true;
+      }
+
+      // --- PHASE 3: ALL TRANSACTION WRITES ---
+
       if (isNewGlobal) {
-        globalCarData = {
+        let contactPerson = undefined;
+        if (carrierData.contactPerson) {
+          contactPerson = {
+            name: (carrierData.contactPerson.name || '').trim() || undefined,
+            phone: carrierData.contactPerson.phone ? normalizePhone(carrierData.contactPerson.phone) : undefined,
+            email: (carrierData.contactPerson.email || '').trim() || undefined,
+          };
+        } else if (carrierData.contactPersonName || carrierData.contactPhone || carrierData.contactEmail) {
+          contactPerson = {
+            name: (carrierData.contactPersonName || '').trim() || undefined,
+            phone: carrierData.contactPhone ? normalizePhone(carrierData.contactPhone) : undefined,
+            email: (carrierData.contactEmail || '').trim() || undefined,
+          };
+        }
+
+        const globalCarData = {
           carrierId,
           nameAr: normalizeArabicText(carrierData.name || carrierData.nameAr || 'ناقل جديد'),
           commercialRegistrationNo: crDigits,
-          transportLicenseNo: (carrierData.transportLicenseNo || '').trim() || `TGA-${carrierId}`,
-          vatNumber: (carrierData.vatNumber || '').trim() || undefined,
-          contactPerson: {
-            name: (carrierData.contactPersonName || carrierData.contactPerson?.name || 'مسؤول العمليات').trim(),
-            phone: normalizePhone(carrierData.contactPhone || carrierData.contactPerson?.phone || '+966500000000'),
-            email: (carrierData.contactEmail || carrierData.contactPerson?.email || 'carrier@q-saudi.sa').trim(),
-          },
-          status: 'ACTIVE',
+          transportLicenseNo: carrierData.transportLicenseNo ? carrierData.transportLicenseNo.trim() : undefined,
+          vatNumber: carrierData.vatNumber ? carrierData.vatNumber.trim() : undefined,
+          contactPerson,
+          status: carrierData.status || 'ACTIVE',
           createdAt: new Date(),
           createdBy: context.userId,
           updatedAt: new Date(),
@@ -249,19 +331,16 @@ export class ProjectProvisioningAdminService {
           createdAt: new Date(),
           createdBy: context.userId,
         });
+      } else if (mustRepairLookup) {
+        tx.set(lookupRef, {
+          entityType: 'CARRIER',
+          systemId: carrierId,
+          createdAt: new Date(),
+          createdBy: context.userId,
+        });
       }
 
-      // 3. Attach/Reactivate project carrier membership
-      const membershipDocRef = adminDb
-        .collection('projects')
-        .doc(projectId)
-        .collection('carrier_memberships')
-        .doc(carrierId);
-
-      const membershipSnap = await tx.get(membershipDocRef);
-      let membershipStatus: string = 'ACTIVE';
-
-      if (!membershipSnap.exists) {
+      if (mustCreateMembership) {
         const newMembership = {
           projectId,
           carrierId,
@@ -273,15 +352,6 @@ export class ProjectProvisioningAdminService {
           updatedBy: context.userId,
         };
         tx.set(membershipDocRef, newMembership);
-      } else {
-        const currentMembership = membershipSnap.data();
-        if (currentMembership.status !== 'ACTIVE') {
-          throw new Error(
-            `MEMBERSHIP_STATE_CONFLICT: Entity "${carrierId}" is currently "${currentMembership.status}" in Project "${projectId}". Call setMembershipStatus('ACTIVE') to explicitly reactivate.`
-          );
-        } else {
-          membershipStatus = currentMembership.status;
-        }
       }
 
       return { carrierId, membershipStatus };

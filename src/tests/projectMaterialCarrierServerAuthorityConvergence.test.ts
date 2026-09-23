@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { createInMemoryAdminDb, setTestDbOverride, inMemoryAdminStore } from '../firebase/admin';
+import { createInMemoryAdminDb, setTestDbOverride, inMemoryAdminStore, adminDb } from '../firebase/admin';
 import { ProjectProvisioningAdminService } from '../services/projectProvisioning.server';
 
 describe('Project Material/Carrier Server Authority Convergence Test Suite', () => {
@@ -13,11 +13,72 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
       delete inMemoryAdminStore[key];
     }
     const testDb = createInMemoryAdminDb({});
+    
+    // Instrument runTransaction to strictly enforce Firestore's read-before-write sequence rule
+    const originalRunTransaction = testDb.runTransaction;
+    testDb.runTransaction = async (cb: any) => {
+      let writeOccurred = false;
+      const trackedTx = {
+        get: async (ref: any) => {
+          if (writeOccurred) {
+            throw new Error('FIRESTORE_TRANSACTION_VIOLATION: Attempted transaction read (get) AFTER a write (set/update/delete) has already been executed. All reads must occur before any writes.');
+          }
+          if (ref && ref._isQuery) {
+            const results: any[] = [];
+            const prefix = `${ref.col}/`;
+            for (const [key, val] of Object.entries(inMemoryAdminStore)) {
+              if (key.startsWith(prefix)) {
+                const relativeKey = key.slice(prefix.length);
+                if (!relativeKey.includes('/')) {
+                  if (val && val[ref.field] === ref.value) {
+                    results.push({
+                      id: relativeKey,
+                      data: () => val,
+                    });
+                  }
+                }
+              }
+            }
+            return {
+              size: results.length,
+              docs: results,
+            };
+          }
+          return ref.get();
+        },
+        set: (ref: any, data: any) => {
+          writeOccurred = true;
+          return ref.set(data);
+        },
+        update: (ref: any, data: any) => {
+          writeOccurred = true;
+          return ref.update(data);
+        },
+        delete: (ref: any) => {
+          writeOccurred = true;
+          return ref.delete();
+        }
+      };
+      return cb(trackedTx);
+    };
+
     setTestDbOverride(testDb);
     service = new ProjectProvisioningAdminService();
   });
 
-  // --- MATERIAL MEMBERSHIP TESTS ---
+  // --- META-TEST FOR INTEGRITY GUARD ---
+
+  it('Proves our transaction validator correctly intercepts read-after-write violation', async () => {
+    await expect(
+      adminDb.runTransaction(async (tx: any) => {
+        const docRef = adminDb.collection('materials').doc('test-mat');
+        tx.set(docRef, { val: 1 });
+        await tx.get(docRef);
+      })
+    ).rejects.toThrow('FIRESTORE_TRANSACTION_VIOLATION');
+  });
+
+  // --- ORIGINAL 6 MATERIAL CONVERGENCE TESTS ---
 
   it('1. Existing global material is reused by canonical code', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
@@ -51,7 +112,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     const globalDoc = inMemoryAdminStore[`materials/${result.materialId}`];
     expect(globalDoc).toBeDefined();
     expect(globalDoc.code).toBe('NEW-SAND');
-    expect(globalDoc.nameAr).toBe('رمل احمر'); // normalized
+    expect(globalDoc.nameAr).toBe('رمل احمر');
 
     expect(inMemoryAdminStore['natural_identity_lookups/MATERIAL_TkVXLVNBTkQ_']).toBeDefined();
     expect(inMemoryAdminStore['natural_identity_lookups/MATERIAL_TkVXLVNBTkQ_'].systemId).toBe(result.materialId);
@@ -97,12 +158,48 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     ).rejects.toThrow('PROJECT_NOT_FOUND');
   });
 
-  it('7. Existing ACTIVE material membership is idempotent (no writes, returns status ACTIVE)', async () => {
+  // --- MATERIAL REGRESSION PROTECTION & PARITY ---
+
+  it('7. New Material provisioning performs all transaction reads before writes', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectMaterial('Q-PRJ-006', { code: 'AGG-10MM', name: 'بحص' }, { userId: 'admin-1' });
+    expect(result.materialId).toBeDefined();
+    expect(inMemoryAdminStore[`projects/Q-PRJ-006/material_memberships/${result.materialId}`]).toBeDefined();
+  });
+
+  it('8. New Material preserves canonical optional-field semantics (no forced 1.6 density)', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectMaterial('Q-PRJ-006', { code: 'RAW-SAND', name: 'رمل خام' }, { userId: 'admin-1' });
+    const globalDoc = inMemoryAdminStore[`materials/${result.materialId}`];
+    
+    expect(globalDoc).toBeDefined();
+    expect(globalDoc.standardDensityTonPerM3).toBeUndefined();
+    expect(globalDoc.maxAllowableMoisturePercent).toBeUndefined();
+    expect(globalDoc.unitOfMeasure).toBe('TON');
+  });
+
+  it('9. Lookup -> missing Material target fails closed (DANGLING_LOOKUP_DETECTED)', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+    
+    inMemoryAdminStore['natural_identity_lookups/MATERIAL_QUdHLTEwTU0_'] = {
+      entityType: 'MATERIAL',
+      systemId: 'MAT-missing-999',
+    };
+
+    await expect(
+      service.setupProjectMaterial('Q-PRJ-006', { code: 'AGG-10MM', name: 'بحص 10 مم' }, { userId: 'admin-1' })
+    ).rejects.toThrow('DANGLING_LOOKUP_DETECTED');
+
+    expect(inMemoryAdminStore['projects/Q-PRJ-006/material_memberships/MAT-missing-999']).toBeUndefined();
+  });
+
+  it('10. Existing ACTIVE material membership is idempotent (no writes, returns status ACTIVE)', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
     inMemoryAdminStore['materials/MAT-active-123'] = { materialId: 'MAT-active-123', code: 'AGG-10MM', status: 'ACTIVE' };
     inMemoryAdminStore['natural_identity_lookups/MATERIAL_QUdHLTEwTU0_'] = { entityType: 'MATERIAL', systemId: 'MAT-active-123' };
     
-    // Set existing active membership
     inMemoryAdminStore['projects/Q-PRJ-006/material_memberships/MAT-active-123'] = {
       projectId: 'Q-PRJ-006',
       materialId: 'MAT-active-123',
@@ -114,12 +211,11 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(result.materialId).toBe('MAT-active-123');
     expect(result.membershipStatus).toBe('ACTIVE');
     
-    // Prove it was an idempotent no-op (createdAt was not mutated or overwritten)
     const membership = inMemoryAdminStore['projects/Q-PRJ-006/material_memberships/MAT-active-123'];
     expect(membership.createdAt.toISOString()).toBe('2026-09-01T00:00:00.000Z');
   });
 
-  it('8. SUSPENDED material membership is NOT reactivated and throws MEMBERSHIP_STATE_CONFLICT', async () => {
+  it('11. SUSPENDED material membership is NOT reactivated and throws MEMBERSHIP_STATE_CONFLICT', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
     inMemoryAdminStore['materials/MAT-susp-123'] = { materialId: 'MAT-susp-123', code: 'AGG-10MM', status: 'ACTIVE' };
     inMemoryAdminStore['natural_identity_lookups/MATERIAL_QUdHLTEwTU0_'] = { entityType: 'MATERIAL', systemId: 'MAT-susp-123' };
@@ -134,11 +230,10 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
       service.setupProjectMaterial('Q-PRJ-006', { code: 'AGG-10MM' }, { userId: 'admin-1' })
     ).rejects.toThrow('MEMBERSHIP_STATE_CONFLICT');
 
-    // Confirm state was NOT mutated/reactivated
     expect(inMemoryAdminStore['projects/Q-PRJ-006/material_memberships/MAT-susp-123'].status).toBe('SUSPENDED');
   });
 
-  it('9. REMOVED material membership is NOT reactivated and throws MEMBERSHIP_STATE_CONFLICT', async () => {
+  it('12. REMOVED material membership is NOT reactivated and throws MEMBERSHIP_STATE_CONFLICT', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
     inMemoryAdminStore['materials/MAT-rem-123'] = { materialId: 'MAT-rem-123', code: 'AGG-10MM', status: 'ACTIVE' };
     inMemoryAdminStore['natural_identity_lookups/MATERIAL_QUdHLTEwTU0_'] = { entityType: 'MATERIAL', systemId: 'MAT-rem-123' };
@@ -156,10 +251,9 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(inMemoryAdminStore['projects/Q-PRJ-006/material_memberships/MAT-rem-123'].status).toBe('REMOVED');
   });
 
+  // --- ORIGINAL 6 CARRIER CONVERGENCE TESTS ---
 
-  // --- CARRIER MEMBERSHIP TESTS ---
-
-  it('10. Existing global carrier is reused by commercialRegistrationNo', async () => {
+  it('13. Existing global carrier is reused by commercialRegistrationNo', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
 
     inMemoryAdminStore['carriers/CAR-existing-999'] = {
@@ -183,7 +277,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-existing-999']).toBeDefined();
   });
 
-  it('11. New global carrier is created when absent', async () => {
+  it('14. New global carrier is created when absent', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
 
     const result = await service.setupProjectCarrier('Q-PRJ-006', {
@@ -198,12 +292,12 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     const globalDoc = inMemoryAdminStore[`carriers/${result.carrierId}`];
     expect(globalDoc).toBeDefined();
     expect(globalDoc.commercialRegistrationNo).toBe('1010111111');
-    expect(globalDoc.nameAr).toBe('مؤسسه الرياض اللوجستيه'); // normalized
+    expect(globalDoc.nameAr).toBe('مؤسسه الرياض اللوجستيه');
 
     expect(inMemoryAdminStore['natural_identity_lookups/CARRIER_MTAxMDExMTExMQ__']).toBeDefined();
   });
 
-  it('12. Project carrier membership is created ACTIVE', async () => {
+  it('15. Project carrier membership is created ACTIVE', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
 
     const result = await service.setupProjectCarrier('Q-PRJ-006', {
@@ -217,7 +311,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(membership.carrierId).toBe(result.carrierId);
   });
 
-  it('13. Repeated carrier setup is idempotent', async () => {
+  it('16. Repeated carrier setup is idempotent', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
 
     const first = await service.setupProjectCarrier('Q-PRJ-006', {
@@ -236,7 +330,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(keysBefore).toBe(keysAfter);
   });
 
-  it('14. No project-scoped legacy carrier identity is written', async () => {
+  it('17. No project-scoped legacy carrier identity is written', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
 
     await service.setupProjectCarrier('Q-PRJ-006', {
@@ -249,13 +343,58 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     }
   });
 
-  it('15. Missing project fails correctly for carrier setup', async () => {
+  it('18. Missing project fails correctly for carrier setup', async () => {
     await expect(
       service.setupProjectCarrier('Q-PRJ-MISSING', { name: 'ناقل', commercialRegistrationNo: '1010000000' }, { userId: 'admin-1' })
     ).rejects.toThrow('PROJECT_NOT_FOUND');
   });
 
-  it('16. Existing ACTIVE carrier membership is idempotent', async () => {
+  // --- CARRIER REGRESSION PROTECTION & PARITY ---
+
+  it('19. New Carrier provisioning performs all transaction reads before writes', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectCarrier('Q-PRJ-006', {
+      name: 'ناقل سريع مكرر',
+      commercialRegistrationNo: '1010444444',
+    }, { userId: 'admin-1' });
+    expect(result.carrierId).toBeDefined();
+    expect(inMemoryAdminStore[`projects/Q-PRJ-006/carrier_memberships/${result.carrierId}`]).toBeDefined();
+  });
+
+  it('20. New Carrier does not fabricate transport license/contact values', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    const result = await service.setupProjectCarrier('Q-PRJ-006', {
+      name: 'مؤسسة النصر اللوجستية',
+      commercialRegistrationNo: '1010999999',
+    }, { userId: 'admin-1' });
+
+    const globalDoc = inMemoryAdminStore[`carriers/${result.carrierId}`];
+    expect(globalDoc).toBeDefined();
+    expect(globalDoc.transportLicenseNo).toBeUndefined();
+    expect(globalDoc.contactPerson).toBeUndefined();
+  });
+
+  it('21. Lookup -> missing Carrier target fails closed (DANGLING_LOOKUP_DETECTED)', async () => {
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
+
+    inMemoryAdminStore['natural_identity_lookups/CARRIER_MTAxMDExMTExMQ__'] = {
+      entityType: 'CARRIER',
+      systemId: 'CAR-missing-999',
+    };
+
+    await expect(
+      service.setupProjectCarrier('Q-PRJ-006', {
+        name: 'الناقل اللوجستي',
+        commercialRegistrationNo: '1010111111',
+      }, { userId: 'admin-1' })
+    ).rejects.toThrow('DANGLING_LOOKUP_DETECTED');
+
+    expect(inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-missing-999']).toBeUndefined();
+  });
+
+  it('22. Existing ACTIVE carrier membership is idempotent', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
     inMemoryAdminStore['carriers/CAR-active-123'] = { carrierId: 'CAR-active-123', commercialRegistrationNo: '1010111111', status: 'ACTIVE' };
     inMemoryAdminStore['natural_identity_lookups/CARRIER_MTAxMDExMTExMQ__'] = { entityType: 'CARRIER', systemId: 'CAR-active-123' };
@@ -279,7 +418,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(membership.createdAt.toISOString()).toBe('2026-09-01T00:00:00.000Z');
   });
 
-  it('17. SUSPENDED carrier membership is NOT reactivated and throws MEMBERSHIP_STATE_CONFLICT', async () => {
+  it('23. SUSPENDED carrier membership is NOT reactivated and throws MEMBERSHIP_STATE_CONFLICT', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
     inMemoryAdminStore['carriers/CAR-susp-123'] = { carrierId: 'CAR-susp-123', commercialRegistrationNo: '1010111111', status: 'ACTIVE' };
     inMemoryAdminStore['natural_identity_lookups/CARRIER_MTAxMDExMTExMQ__'] = { entityType: 'CARRIER', systemId: 'CAR-susp-123' };
@@ -300,7 +439,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-susp-123'].status).toBe('SUSPENDED');
   });
 
-  it('18. REMOVED carrier membership is NOT reactivated and throws MEMBERSHIP_STATE_CONFLICT', async () => {
+  it('24. REMOVED carrier membership is NOT reactivated and throws MEMBERSHIP_STATE_CONFLICT', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
     inMemoryAdminStore['carriers/CAR-rem-123'] = { carrierId: 'CAR-rem-123', commercialRegistrationNo: '1010111111', status: 'ACTIVE' };
     inMemoryAdminStore['natural_identity_lookups/CARRIER_MTAxMDExMTExMQ__'] = { entityType: 'CARRIER', systemId: 'CAR-rem-123' };
@@ -321,10 +460,9 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-rem-123'].status).toBe('REMOVED');
   });
 
+  // --- GENERAL COMPLIANCE TESTS ---
 
-  // --- READS AND STATIC ANALYSIS ---
-
-  it('19. Material listing resolves from active project memberships + global material identities', async () => {
+  it('25. Material listing resolves from active project memberships + global material catalog', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
 
     inMemoryAdminStore['projects/Q-PRJ-006/material_memberships/MAT-1'] = { projectId: 'Q-PRJ-006', materialId: 'MAT-1', status: 'ACTIVE' };
@@ -340,7 +478,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(list[0].isActive).toBe(true);
   });
 
-  it('20. Carrier listing resolves from active project memberships + global carrier identities', async () => {
+  it('26. Carrier listing resolves from active project memberships + global carrier registry', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
 
     inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-1'] = { projectId: 'Q-PRJ-006', carrierId: 'CAR-1', status: 'ACTIVE' };
@@ -356,19 +494,16 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(list[0].isActive).toBe(true);
   });
 
-  it('21. Route implementation static guard validation (enforceProjectIsolation, enforceAdminOnly, ProjectProvisioningAdminService)', () => {
+  it('27. Route implementation static guard validation (enforceProjectIsolation, enforceAdminOnly, ProjectProvisioningAdminService)', () => {
     const appPath = path.resolve(process.cwd(), 'server/app.ts');
     const fileContent = fs.readFileSync(appPath, 'utf8');
 
-    // Confirm setup-material guards and provisioning service
     expect(fileContent).toContain("app.post('/api/projects/:projectId/setup-material', enforceProjectIsolation, enforceAdminOnly");
     expect(fileContent).toContain("app.post('/api/projects/:projectId/setup-carrier', enforceProjectIsolation, enforceAdminOnly");
-    
-    // Confirm exact admin server usage in endpoints
     expect(fileContent).toContain("ProjectProvisioningAdminService");
   });
 
-  it('22. No auth.currentUser leak inside projectProvisioning.server.ts', () => {
+  it('28. No auth.currentUser leak inside projectProvisioning.server.ts', () => {
     const svcPath = path.resolve(process.cwd(), 'src/services/projectProvisioning.server.ts');
     const fileContent = fs.readFileSync(svcPath, 'utf8');
 
