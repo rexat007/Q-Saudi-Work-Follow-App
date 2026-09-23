@@ -111,8 +111,8 @@ export class ProjectService {
       throw error;
     }
 
-    const adminModulePath = '../firebase/admin';
-    const { adminDb } = await import(/* @vite-ignore */ adminModulePath);
+    // @ts-ignore
+    const { adminDb } = require('../firebase/admin');
 
     return await adminDb.runTransaction(async (transaction: any) => {
       // Check server persistent idempotency

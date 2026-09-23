@@ -65,8 +65,8 @@ export class DriverTruckIntakeService {
 
     const user = auth.currentUser;
     if (typeof window === 'undefined' || !user) {
-      const serverPath = './driverTruckIntake.server';
-      const { driverTruckIntakeServer } = await import(/* @vite-ignore */ serverPath);
+      // @ts-ignore
+      const { driverTruckIntakeServer } = require('./driverTruckIntake.server');
       return await driverTruckIntakeServer.processSharedIntake(payload, context);
     }
     
