@@ -72,6 +72,7 @@ import {
 import { UserRole, AuthUserContext } from './types/common';
 import { useAuth } from './firebase/authContext';
 import { AccountStatusGate } from './components/auth/AccountStatusGate';
+import { BackendHealthProbe } from './components/auth/BackendHealthProbe';
 import { projectRepository } from './repositories/project.repository';
 import { ProjectEntity } from './types/entities';
 
@@ -323,6 +324,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0f1115] text-[#f8fafc] font-sans flex flex-col antialiased selection:bg-[#10b981] selection:text-[#0f1115]" dir={direction}>
+      <BackendHealthProbe />
       {/* Top Application Header */}
       <header className="bg-[#0f1115] border-b-2 border-white/10 sticky top-0 z-30 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
