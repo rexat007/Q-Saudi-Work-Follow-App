@@ -1,11 +1,8 @@
-import { doc, runTransaction } from 'firebase/firestore';
-import { db } from '../firebase/config';
-import { projectRepository } from '../repositories/project.repository';
+import { adminDb } from '../firebase/admin';
 import { ProjectReadinessService } from './projectReadiness.service';
-import { ProjectReadinessReadContext } from './projectReadiness.context';
-import { auditLogService } from './auditLog.service';
+import { ProjectReadinessAdminReadContext } from './projectReadiness.server';
 import { AuthUserContext } from '../types/common';
-import { ProjectEntity, PricingRuleEntity } from '../types/entities';
+import { ProjectEntity, PricingRuleEntity, AuditLogEntity } from '../types/entities';
 import { 
   ProjectMaterialMembershipEntity, 
   ProjectCarrierMembershipEntity, 
@@ -18,234 +15,255 @@ import {
 } from '../types/projectCarrierAffiliation';
 import { ProjectDriverTruckAssignmentEntity, ActiveAssignmentSlotPayload } from '../types/projectDriverTruckAssignment';
 import { ProjectTruckMaterialAllocationEntity, ActiveTruckMaterialSlotPayload } from '../types/projectTruckMaterialAllocation';
+import { sanitizeUndefined } from '../utils/sanitize';
 
-import { 
-  projectMaterialMembershipRepository,
-  projectCarrierMembershipRepository,
-  projectDriverMembershipRepository,
-  projectTruckMembershipRepository,
-} from '../repositories/projectMembership.repository';
-import { 
-  projectDriverCarrierAffiliationRepository,
-  projectTruckCarrierAffiliationRepository,
-} from '../repositories/projectCarrierAffiliation.repository';
-import { projectDriverTruckAssignmentRepository } from '../repositories/projectDriverTruckAssignment.repository';
-import { projectTruckMaterialAllocationRepository } from '../repositories/projectTruckMaterialAllocation.repository';
-import { pricingRuleRepository } from '../repositories/pricingRule.repository';
-
-export class NonTransactionReadContext implements ProjectReadinessReadContext {
-  async getProject(projectId: string): Promise<ProjectEntity | null> {
-    return await projectRepository.findById(projectId);
-  }
-  async listActiveMaterialMemberships(projectId: string): Promise<ProjectMaterialMembershipEntity[]> {
-    return await projectMaterialMembershipRepository.listMemberships(projectId, 'ACTIVE');
-  }
-  async listActiveCarrierMemberships(projectId: string): Promise<ProjectCarrierMembershipEntity[]> {
-    return await projectCarrierMembershipRepository.listMemberships(projectId, 'ACTIVE');
-  }
-  async listActiveDriverMemberships(projectId: string): Promise<ProjectDriverMembershipEntity[]> {
-    return await projectDriverMembershipRepository.listMemberships(projectId, 'ACTIVE');
-  }
-  async listActiveTruckMemberships(projectId: string): Promise<ProjectTruckMembershipEntity[]> {
-    return await projectTruckMembershipRepository.listMemberships(projectId, 'ACTIVE');
-  }
-  async getDriverCarrierAffiliation(projectId: string, driverId: string): Promise<ProjectDriverCarrierAffiliationEntity | null> {
-    return await projectDriverCarrierAffiliationRepository.getAffiliation(projectId, driverId);
-  }
-  async getTruckCarrierAffiliation(projectId: string, truckId: string): Promise<ProjectTruckCarrierAffiliationEntity | null> {
-    return await projectTruckCarrierAffiliationRepository.getAffiliation(projectId, truckId);
-  }
-  async getActiveDriverAssignment(projectId: string, driverId: string): Promise<ProjectDriverTruckAssignmentEntity | null> {
-    const slot = await projectDriverTruckAssignmentRepository.getActiveDriverSlot(projectId, driverId);
-    if (!slot || !slot.assignmentId) return null;
-    const assignment = await projectDriverTruckAssignmentRepository.getAssignment(projectId, slot.assignmentId);
-    return assignment && assignment.status === 'ACTIVE' ? assignment : null;
-  }
-  async getActiveTruckAssignment(projectId: string, truckId: string): Promise<ProjectDriverTruckAssignmentEntity | null> {
-    const slot = await projectDriverTruckAssignmentRepository.getActiveTruckSlot(projectId, truckId);
-    if (!slot || !slot.assignmentId) return null;
-    const assignment = await projectDriverTruckAssignmentRepository.getAssignment(projectId, slot.assignmentId);
-    return assignment && assignment.status === 'ACTIVE' ? assignment : null;
-  }
-  async getActiveTruckAllocation(projectId: string, truckId: string): Promise<ProjectTruckMaterialAllocationEntity | null> {
-    const slot = await projectTruckMaterialAllocationRepository.getActiveSlot(projectId, truckId);
-    if (!slot) return null;
-    const allocation = await projectTruckMaterialAllocationRepository.getAllocation(projectId, slot.allocationId);
-    if (!allocation) return null;
-    if (allocation.projectId !== projectId || allocation.truckId !== truckId || allocation.status !== 'ACTIVE' || allocation.effectiveTo !== null) {
-      return null;
-    }
-    return allocation;
-  }
-  async listPricingRules(projectId: string): Promise<PricingRuleEntity[]> {
-    return await pricingRuleRepository.listByProject(projectId);
-  }
-}
+export class NonTransactionReadContext extends ProjectReadinessAdminReadContext {}
 
 export class ProjectActivationService {
   private readinessService = new ProjectReadinessService();
 
+  /**
+   * Authoritative server-side project activation capability.
+   * Discovers candidate operational path via ProjectReadinessService + ProjectReadinessAdminReadContext,
+   * then revalidates all 13 invariants and atomically transitions status to ACTIVE and writes canonical AuditLogEntity
+   * inside a single adminDb.runTransaction.
+   */
   async activateProject(projectId: string, context: AuthUserContext): Promise<void> {
-    if (context.role !== 'PROJECT_ADMIN' && context.role !== 'SUPER_ADMIN') {
-        throw new Error('غير مصرح لك بتنشيط المشروع');
+    const uid = context?.userId || (context as any)?.uid;
+    if (!context || !uid) {
+      throw new Error('غير مصرح لك بتنشيط المشروع');
     }
 
-    // 1. Candidate Discovery (OUTSIDE the transaction)
+    if (!projectId || !projectId.trim()) {
+      throw new Error('معرّف المشروع مطلوب');
+    }
+
+    // Role check: Only SUPER_ADMIN or PROJECT_ADMIN
+    const userRole = context.role || (context as any)?.roles?.[0];
+    const isSuperAdmin = userRole === 'SUPER_ADMIN' || ((context as any)?.roles && (context as any).roles.includes('SUPER_ADMIN'));
+    const isProjectAdmin = (userRole === 'PROJECT_ADMIN' || ((context as any)?.roles && (context as any).roles.includes('PROJECT_ADMIN'))) &&
+      (!context.assignedProjectIds || context.assignedProjectIds.includes(projectId));
+
+    if (!isSuperAdmin && !isProjectAdmin) {
+      throw new Error('غير مصرح لك بتنشيط المشروع');
+    }
+
+    const projectRef = adminDb.collection('projects').doc(projectId);
+
+    // 1. Preflight status check using Admin DB to guarantee early idempotent success
+    const preflightProjectDoc = await projectRef.get();
+    if (!preflightProjectDoc.exists) {
+      throw new Error('المشروع غير موجود');
+    }
+
+    const preflightProject = preflightProjectDoc.data() as ProjectEntity;
+
+    // Early idempotent success: Already ACTIVE projects return immediately without readiness checks or writes
+    if (preflightProject.status === 'ACTIVE') {
+      return;
+    }
+
+    // Source status precondition: must be APPROVED
+    if (preflightProject.status !== 'APPROVED') {
+      throw new Error('لا يمكن تنشيط مشروع ما لم يكن في حالة معتمد (APPROVED)');
+    }
+
+    // 2. Evaluate readiness using server-safe Admin read context
     const discoveryContext = new NonTransactionReadContext();
     const effectiveAt = new Date();
     const readiness = await this.readinessService.evaluateProjectReadiness(projectId, effectiveAt, discoveryContext);
+
     if (!readiness.ready || !readiness.candidatePath) {
-        throw new Error(`المشروع غير جاهز للتنشيط: ${readiness.blockers.map(b => b.message).join(' | ')}`);
+      throw new Error(`المشروع غير جاهز للتنشيط: ${readiness.blockers.map(b => b.message).join(' | ')}`);
     }
 
     const path = readiness.candidatePath;
-    let originalProject: ProjectEntity | null = null;
+    const { driverId, truckId, carrierId, materialId, pricingRuleId, assignmentId, allocationId } = path;
 
-    // 2. Transactional validation and status update
-    await runTransaction(db, async (transaction) => {
-        // A. Transactional Project Read
-        const project = await projectRepository.findByIdInTransaction(projectId, transaction);
-        if (!project) throw new Error('المشروع غير موجود');
-        if (project.status === 'ACTIVE') return; // Idempotent success
+    const driverMemRef = adminDb.collection('projects').doc(projectId).collection('driver_memberships').doc(driverId);
+    const truckMemRef = adminDb.collection('projects').doc(projectId).collection('truck_memberships').doc(truckId);
+    const carrierMemRef = adminDb.collection('projects').doc(projectId).collection('carrier_memberships').doc(carrierId);
+    const materialMemRef = adminDb.collection('projects').doc(projectId).collection('material_memberships').doc(materialId);
 
-        originalProject = project;
+    const driverAffilRef = adminDb.collection('projects').doc(projectId).collection('driver_carrier_affiliations').doc(driverId);
+    const truckAffilRef = adminDb.collection('projects').doc(projectId).collection('truck_carrier_affiliations').doc(truckId);
 
-        // B. Verify source status
-        if (project.status !== 'APPROVED') {
-          throw new Error('لا يمكن تنشيط مشروع ما لم يكن في حالة معتمد (APPROVED)');
-        }
+    const driverActiveRef = adminDb.collection('projects').doc(projectId).collection('driver_active_assignments').doc(driverId);
+    const truckActiveRef = adminDb.collection('projects').doc(projectId).collection('truck_active_assignments').doc(truckId);
+    const assignmentRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(assignmentId);
 
-        const { driverId, truckId, carrierId, materialId, pricingRuleId, assignmentId, allocationId } = path;
+    const truckActiveAllocRef = adminDb.collection('projects').doc(projectId).collection('truck_active_material_allocations').doc(truckId);
+    const allocationRef = adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(allocationId);
 
-        // Construct exact DocumentReferences
-        const driverMemRef = doc(db, 'projects', projectId, 'driver_memberships', driverId);
-        const truckMemRef = doc(db, 'projects', projectId, 'truck_memberships', truckId);
-        const carrierMemRef = doc(db, 'projects', projectId, 'carrier_memberships', carrierId);
-        const materialMemRef = doc(db, 'projects', projectId, 'material_memberships', materialId);
-        
-        const driverAffilRef = doc(db, 'projects', projectId, 'driver_carrier_affiliations', driverId);
-        const truckAffilRef = doc(db, 'projects', projectId, 'truck_carrier_affiliations', truckId);
-        
-        const driverActiveRef = doc(db, 'projects', projectId, 'driver_active_assignments', driverId);
-        const truckActiveRef = doc(db, 'projects', projectId, 'truck_active_assignments', truckId);
-        const assignmentRef = doc(db, 'projects', projectId, 'driver_truck_assignments', assignmentId);
-        
-        const truckActiveAllocRef = doc(db, 'projects', projectId, 'truck_active_material_allocations', truckId);
-        const allocationRef = doc(db, 'projects', projectId, 'truck_material_allocations', allocationId);
-        
-        const pricingRuleRef = doc(db, 'projects', projectId, 'pricing_rules', pricingRuleId);
+    const pricingRuleRef = adminDb.collection('projects').doc(projectId).collection('pricing_rules').doc(pricingRuleId);
 
-        // Transactional Gets
-        const [
-          driverMemSnap,
-          truckMemSnap,
-          carrierMemSnap,
-          materialMemSnap,
-          driverAffilSnap,
-          truckAffilSnap,
-          driverActiveSnap,
-          truckActiveSnap,
-          assignmentSnap,
-          truckActiveAllocSnap,
-          allocationSnap,
-          pricingRuleSnap
-        ] = await Promise.all([
-          transaction.get(driverMemRef),
-          transaction.get(truckMemRef),
-          transaction.get(carrierMemRef),
-          transaction.get(materialMemRef),
-          transaction.get(driverAffilRef),
-          transaction.get(truckAffilRef),
-          transaction.get(driverActiveRef),
-          transaction.get(truckActiveRef),
-          transaction.get(assignmentRef),
-          transaction.get(truckActiveAllocRef),
-          transaction.get(allocationRef),
-          transaction.get(pricingRuleRef)
-        ]);
+    // 2. Transactional revalidation & atomic update + audit
+    await adminDb.runTransaction(async (transaction: any) => {
+      // READ 1: Get Project Document
+      const projectDoc = await transaction.get(projectRef);
+      if (!projectDoc.exists) {
+        throw new Error('المشروع غير موجود');
+      }
 
-        // Existence checks
-        if (!driverMemSnap.exists() || !truckMemSnap.exists() || !carrierMemSnap.exists() || !materialMemSnap.exists() ||
-            !driverAffilSnap.exists() || !truckAffilSnap.exists() || !driverActiveSnap.exists() || !truckActiveSnap.exists() ||
-            !assignmentSnap.exists() || !truckActiveAllocSnap.exists() || !allocationSnap.exists() || !pricingRuleSnap.exists()) {
-          throw new Error('فشلت مطابقة مستندات المسار التشغيلي: مستند مفقود');
-        }
+      const project = projectDoc.data() as ProjectEntity;
 
-        const driverMem = driverMemSnap.data() as ProjectDriverMembershipEntity;
-        const truckMem = truckMemSnap.data() as ProjectTruckMembershipEntity;
-        const carrierMem = carrierMemSnap.data() as ProjectCarrierMembershipEntity;
-        const materialMem = materialMemSnap.data() as ProjectMaterialMembershipEntity;
-        
-        const driverAffil = driverAffilSnap.data() as ProjectDriverCarrierAffiliationEntity;
-        const truckAffil = truckAffilSnap.data() as ProjectTruckCarrierAffiliationEntity;
-        
-        const driverActive = driverActiveSnap.data() as ActiveAssignmentSlotPayload;
-        const truckActive = truckActiveSnap.data() as ActiveAssignmentSlotPayload;
-        const assignment = assignmentSnap.data() as ProjectDriverTruckAssignmentEntity;
-        
-        const truckActiveAlloc = truckActiveAllocSnap.data() as ActiveTruckMaterialSlotPayload;
-        const allocation = allocationSnap.data() as ProjectTruckMaterialAllocationEntity;
-        
-        const pricingRule = pricingRuleSnap.data() as PricingRuleEntity;
+      // Idempotent success if already ACTIVE
+      if (project.status === 'ACTIVE') {
+        return;
+      }
 
-        // Validations
-        // 1. Memberships must be ACTIVE
-        if (driverMem.status !== 'ACTIVE' || truckMem.status !== 'ACTIVE' || carrierMem.status !== 'ACTIVE' || materialMem.status !== 'ACTIVE') {
-          throw new Error('فشل تنشيط المشروع: عضوية غير نشطة');
-        }
+      // Must be APPROVED
+      if (project.status !== 'APPROVED') {
+        throw new Error('لا يمكن تنشيط مشروع ما لم يكن في حالة معتمد (APPROVED)');
+      }
 
-        // 2. Affiliations must be ACTIVE and match the carrier
-        if (driverAffil.status !== 'ACTIVE' || driverAffil.carrierId !== carrierId ||
-            truckAffil.status !== 'ACTIVE' || truckAffil.carrierId !== carrierId) {
-          throw new Error('فشل تنشيط المشروع: انتساب غير نشط أو غير متطابق');
-        }
+      // Transactional gets for all operational path documents
+      const [
+        driverMemSnap,
+        truckMemSnap,
+        carrierMemSnap,
+        materialMemSnap,
+        driverAffilSnap,
+        truckAffilSnap,
+        driverActiveSnap,
+        truckActiveSnap,
+        assignmentSnap,
+        truckActiveAllocSnap,
+        allocationSnap,
+        pricingRuleSnap,
+      ] = await Promise.all([
+        transaction.get(driverMemRef),
+        transaction.get(truckMemRef),
+        transaction.get(carrierMemRef),
+        transaction.get(materialMemRef),
+        transaction.get(driverAffilRef),
+        transaction.get(truckAffilRef),
+        transaction.get(driverActiveRef),
+        transaction.get(truckActiveRef),
+        transaction.get(assignmentRef),
+        transaction.get(truckActiveAllocRef),
+        transaction.get(allocationRef),
+        transaction.get(pricingRuleRef),
+      ]);
 
-        // 3. Active assignments pointers must be coherent
-        if (driverActive.assignmentId !== assignmentId || truckActive.assignmentId !== assignmentId) {
-          throw new Error('فشل تنشيط المشروع: مؤشر التعيين النشط غير متطابق');
-        }
+      // Existence checks
+      if (
+        !driverMemSnap.exists || !truckMemSnap.exists || !carrierMemSnap.exists || !materialMemSnap.exists ||
+        !driverAffilSnap.exists || !truckAffilSnap.exists || !driverActiveSnap.exists || !truckActiveSnap.exists ||
+        !assignmentSnap.exists || !truckActiveAllocSnap.exists || !allocationSnap.exists || !pricingRuleSnap.exists
+      ) {
+        throw new Error('فشلت مطابقة مستندات المسار التشغيلي: مستند مفقود');
+      }
 
-        // 4. Assignment details must match
-        if (assignment.status !== 'ACTIVE' || assignment.driverId !== driverId || assignment.truckId !== truckId) {
-          throw new Error('فشل تنشيط المشروع: تفاصيل التعيين غير متطابقة أو غير نشطة');
-        }
+      const driverMem = driverMemSnap.data() as ProjectDriverMembershipEntity;
+      const truckMem = truckMemSnap.data() as ProjectTruckMembershipEntity;
+      const carrierMem = carrierMemSnap.data() as ProjectCarrierMembershipEntity;
+      const materialMem = materialMemSnap.data() as ProjectMaterialMembershipEntity;
 
-        // 5. Active allocation pointer must be coherent
-        if (truckActiveAlloc.allocationId !== allocationId) {
-          throw new Error('فشل تنشيط المشروع: مؤشر التخصيص النشط غير متطابق');
-        }
+      const driverAffil = driverAffilSnap.data() as ProjectDriverCarrierAffiliationEntity;
+      const truckAffil = truckAffilSnap.data() as ProjectTruckCarrierAffiliationEntity;
 
-        // 6. Allocation details must match
-        if (allocation.status !== 'ACTIVE' || allocation.truckId !== truckId || allocation.materialId !== materialId || allocation.effectiveTo !== null) {
-          throw new Error('فشل تنشيط المشروع: تفاصيل التخصيص غير متطابقة أو غير نشطة');
-        }
+      const driverActive = driverActiveSnap.data() as ActiveAssignmentSlotPayload;
+      const truckActive = truckActiveSnap.data() as ActiveAssignmentSlotPayload;
+      const assignment = assignmentSnap.data() as ProjectDriverTruckAssignmentEntity;
 
-        // 7. PricingRule validations
-        if (pricingRule.projectId !== projectId || pricingRule.carrierId !== carrierId || pricingRule.materialId !== materialId) {
-          throw new Error('فشل تنشيط المشروع: قاعدة التسعير غير متوافقة');
-        }
-        
-        const ruleEffectiveFrom = pricingRule.effectiveFrom ? new Date(pricingRule.effectiveFrom) : null;
-        const ruleEffectiveTo = pricingRule.effectiveTo ? new Date(pricingRule.effectiveTo) : null;
-        if (!ruleEffectiveFrom || ruleEffectiveFrom > effectiveAt || (ruleEffectiveTo && ruleEffectiveTo < effectiveAt)) {
-          throw new Error('فشل تنشيط المشروع: قاعدة التسعير منتهية الصلاحية أو غير سارية');
-        }
+      const truckActiveAlloc = truckActiveAllocSnap.data() as ActiveTruckMaterialSlotPayload;
+      const allocation = allocationSnap.data() as ProjectTruckMaterialAllocationEntity;
 
-        // 5. Status transition (All validation succeeded, mark as ACTIVE)
-        await projectRepository.updateInTransaction(projectId, { status: 'ACTIVE' }, context.userId, transaction);
+      const pricingRule = pricingRuleSnap.data() as PricingRuleEntity;
+
+      // 1. Memberships must be ACTIVE
+      if (driverMem.status !== 'ACTIVE' || truckMem.status !== 'ACTIVE' || carrierMem.status !== 'ACTIVE' || materialMem.status !== 'ACTIVE') {
+        throw new Error('فشل تنشيط المشروع: عضوية غير نشطة');
+      }
+
+      // 2. Affiliations must be ACTIVE and match candidate carrierId
+      if (driverAffil.status !== 'ACTIVE' || driverAffil.carrierId !== carrierId ||
+          truckAffil.status !== 'ACTIVE' || truckAffil.carrierId !== carrierId) {
+        throw new Error('فشل تنشيط المشروع: انتساب غير نشط أو غير متطابق');
+      }
+
+      // 3. Active assignments pointers must match candidate assignmentId
+      if (driverActive.assignmentId !== assignmentId || truckActive.assignmentId !== assignmentId) {
+        throw new Error('فشل تنشيط المشروع: مؤشر التعيين النشط غير متطابق');
+      }
+
+      // 4. Assignment details must match and be ACTIVE
+      if (assignment.status !== 'ACTIVE' || assignment.driverId !== driverId || assignment.truckId !== truckId) {
+        throw new Error('فشل تنشيط المشروع: تفاصيل التعيين غير متطابقة أو غير نشطة');
+      }
+
+      // 5. Active allocation pointer must match candidate allocationId
+      if (truckActiveAlloc.allocationId !== allocationId) {
+        throw new Error('فشل تنشيط المشروع: مؤشر التخصيص النشط غير متطابق');
+      }
+
+      // 6. Allocation details must match, be ACTIVE and effectiveTo must be null
+      if (allocation.status !== 'ACTIVE' || allocation.truckId !== truckId || allocation.materialId !== materialId || allocation.effectiveTo !== null) {
+        throw new Error('فشل تنشيط المشروع: تفاصيل التخصيص غير متطابقة أو غير نشطة');
+      }
+
+      // 7. PricingRule validations
+      if (pricingRule.projectId !== projectId || pricingRule.carrierId !== carrierId || pricingRule.materialId !== materialId) {
+        throw new Error('فشل تنشيط المشروع: قاعدة التسعير غير متوافقة');
+      }
+
+      const ruleEffectiveFrom = pricingRule.effectiveFrom ? new Date(pricingRule.effectiveFrom) : null;
+      const ruleEffectiveTo = pricingRule.effectiveTo ? new Date(pricingRule.effectiveTo) : null;
+      if (!ruleEffectiveFrom || ruleEffectiveFrom > effectiveAt || (ruleEffectiveTo && ruleEffectiveTo < effectiveAt)) {
+        throw new Error('فشل تنشيط المشروع: قاعدة التسعير منتهية الصلاحية أو غير سارية');
+      }
+
+      // ALL READS & VALIDATIONS COMPLETE.
+      const now = new Date();
+
+      // Prepare updated project snapshot
+      const updatedProjectSnapshot: ProjectEntity = {
+        ...project,
+        status: 'ACTIVE',
+        updatedAt: now,
+        updatedBy: uid,
+      };
+
+      // Prepare Canonical Audit Log
+      const auditLogId = `AUDIT-ACTIVATION-${projectId}-${Date.now()}`;
+      const auditLogData: AuditLogEntity = {
+        auditLogId,
+        projectId,
+        entityType: 'PROJECT',
+        entityId: projectId,
+        action: 'UPDATE',
+        actor: {
+          userId: uid,
+          email: context.email || '',
+          role: userRole,
+          ipAddress: (context as any).ipAddress || undefined,
+          userAgent: (context as any).userAgent || undefined,
+        },
+        changes: {
+          before: sanitizeUndefined(project),
+          after: sanitizeUndefined(updatedProjectSnapshot),
+          deltaFields: ['status', 'updatedAt', 'updatedBy'],
+        },
+        correlationId: (context as any).correlationId || `CORR-${auditLogId}`,
+        createdAt: now,
+        createdBy: uid,
+        updatedAt: now,
+        updatedBy: uid,
+      };
+
+      const auditLogRef = adminDb.collection('audit_logs').doc(auditLogId);
+
+      // WRITE 1: Update project status & audit metadata
+      transaction.update(projectRef, {
+        status: 'ACTIVE',
+        updatedAt: now,
+        updatedBy: uid,
+      });
+
+      // WRITE 2: Write canonical audit log
+      transaction.set(auditLogRef, sanitizeUndefined(auditLogData));
     });
-
-    // 5. Audit log registered AFTER transaction commit
-    if (originalProject) {
-        await auditLogService.recordLog({
-            projectId,
-            entityType: 'PROJECT',
-            entityId: projectId,
-            action: 'UPDATE',
-            before: originalProject,
-            after: { ...originalProject, status: 'ACTIVE' },
-        }, context);
-    }
   }
 }
 

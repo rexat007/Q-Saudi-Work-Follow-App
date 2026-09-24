@@ -18,6 +18,7 @@ import { ProjectActivationService, NonTransactionReadContext } from '../services
 import { ProjectLifecycleService } from '../services/projectLifecycle.service';
 import { projectService } from '../services/project.service';
 import { AuthUserContext } from '../types/common';
+import { createInMemoryAdminDb, setTestDbOverride, inMemoryAdminStore } from '../firebase/admin';
 
 let mockDatabase: Record<string, any> = {};
 
@@ -176,8 +177,13 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
       role: 'PROJECT_ADMIN',
     } as AuthUserContext;
 
-    // Reset mockDatabase
-    mockDatabase = {};
+    // Reset inMemoryAdminStore and bind mockDatabase
+    for (const k of Object.keys(inMemoryAdminStore)) {
+      delete inMemoryAdminStore[k];
+    }
+    const testDb = createInMemoryAdminDb({});
+    setTestDbOverride(testDb);
+    mockDatabase = inMemoryAdminStore;
 
     // Clear spy on NonTransactionReadContext
     vi.restoreAllMocks();
