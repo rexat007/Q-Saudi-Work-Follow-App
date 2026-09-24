@@ -38,6 +38,11 @@ import { pricingRuleRepository } from '../../repositories/pricingRule.repository
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
 import { auth } from '../../firebase/config';
+import { 
+  isProjectOperationallyMutable, 
+  canPerformOperationalMutation, 
+  ACTIVE_PROJECT_OPERATIONAL_NOTICE_AR 
+} from '../../services/projectMutability.policy';
 
 export interface ServerReadinessBlocker {
   code: string;
@@ -142,9 +147,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     return globalProjects.find(p => p.projectId === editingProjectId) || null;
   }, [globalProjects, editingProjectId]);
 
-  // Read-only Lock Indicator for Active Projects
-  const isLocked = useMemo(() => {
+  // Core foundation setup lock for Active Projects (primary identifiers & metadata)
+  const isCoreSetupLocked = useMemo(() => {
     return project?.status === 'ACTIVE';
+  }, [project]);
+
+  // Operational Mutability check (Active projects allow operational additions/mutations under governance)
+  const isOperationallyMutable = useMemo(() => {
+    return isProjectOperationallyMutable(project?.status);
   }, [project]);
 
   // Canonical Server Readiness States (Phase 6)
@@ -392,7 +402,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // Phase 1: Add Material Item
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!project || isLocked) return;
+    if (!project || !canPerformOperationalMutation('ENROLL_MATERIAL', project.status)) return;
 
     try {
       const materialId = `MAT-${project.projectId}-${String(materials.length + 1).padStart(2, '0')}`;
@@ -428,7 +438,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // Phase 2: Add Carrier Item
   const handleAddCarrier = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!project || isLocked) return;
+    if (!project || !canPerformOperationalMutation('ENROLL_CARRIER', project.status)) return;
 
     try {
       const payload = {
@@ -470,7 +480,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // Phase 2: Add Fleet Row Manually (Uses canonical intake API)
   const handleAddRosterManual = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!project || isLocked) return;
+    if (!project || !canPerformOperationalMutation('INTAKE_DRIVER_TRUCK', project.status)) return;
 
     if (!rostDriverName.trim() || !rostPlate.trim() || !rostCarrier || !rostMaterial || !rostResidency.trim()) {
       alert('الرجاء تعبئة جميع الحقول المطلوبة بما في ذلك الهوية الوطنية ورقم اللوحة والناقل والمادة');
@@ -589,7 +599,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // Confirm and Commit the Import Roster Batch
   const handleCommitRosterImport = async () => {
-    if (!project || !importBatch || isLocked) return;
+    if (!project || !importBatch || !canPerformOperationalMutation('COMMIT_ROSTER_BATCH', project.status)) return;
     setIsCommittingImport(true);
 
     try {
@@ -620,7 +630,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // Phase 3: Add Pricing Rule
   const handleAddPricingRule = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!project || isLocked) return;
+    if (!project || !canPerformOperationalMutation('CREATE_PRICING_RULE', project.status)) return;
 
     try {
       const pricingRuleId = `PR-${project.projectId}-${String(pricingRules.length + 1).padStart(2, '0')}`;
@@ -954,10 +964,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             </div>
 
             {/* Locked setup alert */}
-            {isLocked && (
+            {isCoreSetupLocked && (
               <div className="p-3 bg-emerald-950/40 border border-emerald-800 rounded-xl text-emerald-400 text-[10px] font-bold flex items-center gap-2">
                 <Lock className="w-4 h-4 shrink-0" />
-                <span>التهيئة مقفلة حالياً لأن هذا المشروع نشط للعمليات الميدانية</span>
+                <span>{ACTIVE_PROJECT_OPERATIONAL_NOTICE_AR}</span>
               </div>
             )}
 
@@ -1012,14 +1022,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 </h2>
               </div>
 
-              {isLocked && (
+              {isCoreSetupLocked && (
                 <span className="px-2.5 py-1 bg-stone-950 border border-stone-800 text-[10px] text-stone-500 rounded-xl font-bold flex items-center gap-1.5">
                   <Lock className="w-3.5 h-3.5" />
                   <span>تعديل مقفل</span>
                 </span>
               )}
             </div>
-
             {/* ================= PHASE 1: FOUNDATION & MATERIALS ================= */}
             {activePhase === 1 && project && (
               <div className="space-y-6 text-xs text-stone-300">
@@ -1030,7 +1039,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <div className="space-y-1">
                       <label className="text-stone-500 font-bold block">اسم المشروع</label>
                       <input 
-                        type="text" value={project.nameAr} disabled={isLocked}
+                        type="text" value={project.nameAr} disabled={isCoreSetupLocked}
                         onChange={async (e) => {
                           await projectService.updateProject(project.projectId, { nameAr: e.target.value }, authContext);
                         }}
@@ -1040,7 +1049,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <div className="space-y-1">
                       <label className="text-stone-500 font-bold block">العميل المستفيد</label>
                       <input 
-                        type="text" value={project.clientName} disabled={isLocked}
+                        type="text" value={project.clientName} disabled={isCoreSetupLocked}
                         onChange={async (e) => {
                           await projectService.updateProject(project.projectId, { clientName: e.target.value }, authContext);
                         }}
@@ -1048,12 +1057,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       />
                     </div>
                   </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                     <div className="space-y-1">
                       <label className="text-stone-500 font-bold block">الموقع الميداني</label>
                       <input 
-                        type="text" value={project.location?.addressAr || ''} disabled={isLocked}
+                        type="text" value={project.location?.addressAr || ''} disabled={isCoreSetupLocked}
                         onChange={async (e) => {
                           await projectService.updateProject(project.projectId, {
                             location: {
@@ -1070,7 +1078,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <div className="space-y-1">
                       <label className="text-stone-500 font-bold block">الرقم الضريبي ZATCA</label>
                       <input 
-                        type="text" maxLength={15} value={project.settings?.zatcaTaxNumber || ''} disabled={isLocked}
+                        type="text" maxLength={15} value={project.settings?.zatcaTaxNumber || ''} disabled={isCoreSetupLocked}
                         onChange={async (e) => {
                           await projectService.updateProject(project.projectId, {
                             settings: { ...project.settings, zatcaTaxNumber: e.target.value.replace(/\D/g, '') }
@@ -1082,7 +1090,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <div className="space-y-1">
                       <label className="text-stone-500 font-bold block">تاريخ البدء التشغيلي</label>
                       <input 
-                        type="date" value={project.startDate || ''} disabled={isLocked}
+                        type="date" value={project.startDate || ''} disabled={isCoreSetupLocked}
                         onChange={async (e) => {
                           await projectService.updateProject(project.projectId, { startDate: e.target.value }, authContext);
                         }}
@@ -1139,7 +1147,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
                     <h3 className="font-black text-white text-[13px]">قائمة المواد المصرح بها</h3>
-                    {!isLocked && (
+                    {isOperationallyMutable && (
                       <button
                         onClick={() => setIsAddingMaterial(true)}
                         className="text-amber-500 font-bold hover:underline flex items-center gap-1"
@@ -1223,7 +1231,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
                     <h3 className="font-black text-white text-[13px]">الناقلون المعتمدون بالمشروع</h3>
-                    {!isLocked && (
+                    {isOperationallyMutable && (
                       <button
                         onClick={() => setIsAddingCarrier(true)}
                         className="text-amber-500 font-bold hover:underline flex items-center gap-1"
@@ -1323,7 +1331,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <p className="text-[10px] text-stone-500">مزامنة وترخيص السائقين والشاحنات للمشروع لمنع التكرار والحفظ الإقصائي</p>
                     </div>
 
-                    {!isLocked && (
+                    {isOperationallyMutable && (
                       <div className="flex items-center gap-2 self-start sm:self-auto">
                         <button
                           onClick={() => setIsAddingRosterRow(true)}
@@ -1416,7 +1424,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   )}
 
                   {/* Drag and Drop File intake Area */}
-                  {!isLocked && (
+                  {isOperationallyMutable && (
                     <div
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
@@ -1566,7 +1574,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <p className="text-[10px] text-stone-500">تطبيق الفحص المنطقي لمنع الازدواجية في فترات التعاقد وحساب الفروقات الضريبية</p>
                     </div>
 
-                    {!isLocked && (
+                    {isOperationallyMutable && (
                       <button
                         onClick={() => setIsAddingPricing(true)}
                         className="text-amber-500 font-bold hover:underline flex items-center gap-1"
