@@ -309,7 +309,14 @@ describe('Unit 1 Post-Push Remediation: Canonical Semantic Compatibility Suite',
               materialName: 'AGG-20',
             },
             entityResolutions: {
-              material: { entityType: 'MATERIAL', matchedId: 'MAT-001', isAuthorized: true },
+              material: { 
+                entityType: 'MATERIAL', 
+                matchedId: 'MAT-001', 
+                isAuthorized: true,
+                originalValue: 'AGG-20',
+                confidence: 1.0,
+                isExact: true
+              },
             },
             validationIssues: [],
             reviewStatus: 'accepted',
@@ -325,7 +332,14 @@ describe('Unit 1 Post-Push Remediation: Canonical Semantic Compatibility Suite',
               carrierName: 'شركة البدر للنقل',
             },
             entityResolutions: {
-              carrier: { entityType: 'CARRIER', matchedId: 'CAR-001', isAuthorized: true },
+              carrier: { 
+                entityType: 'CARRIER', 
+                matchedId: 'CAR-001', 
+                isAuthorized: true,
+                originalValue: 'شركة البدر للنقل',
+                confidence: 1.0,
+                isExact: true
+              },
             },
             validationIssues: [],
             reviewStatus: 'accepted',
