@@ -51,9 +51,54 @@ export async function runGoogleSheetsImportTests(): Promise<GoogleSheetsTestRepo
   const results: TestCaseResult[] = [];
   const testProjectId = 'PRJ-NEOM-NORTH-01';
 
-  // TC-GSHT-01: Discovery
+  // TC-GSHT-01: Discovery (Deterministic Test Seam)
   try {
-    const listRes = await clientWorkspaceService.listGoogleSpreadsheets(testProjectId);
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const urlStr = String(input);
+      if (urlStr.includes('/api/workspace/sheets/spreadsheets')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            spreadsheets: [
+              {
+                id: `gsheet_weighbridge_neom_${testProjectId.toLowerCase()}`,
+                name: `[Q-Saudi] سجل شحنات الميزان المعتمد - ${testProjectId}`,
+                mimeType: 'application/vnd.google-apps.spreadsheet',
+                modifiedTime: new Date().toISOString(),
+                webViewLink: `https://docs.google.com/spreadsheets/d/test1/edit`,
+                sheets: [
+                  { sheetId: 0, title: 'العمليات', index: 0, rowCount: 15, columnCount: 10 },
+                  { sheetId: 1, title: 'ميزان_التحميل_الشمالي', index: 1, rowCount: 12, columnCount: 8 },
+                ],
+              },
+              {
+                id: `gsheet_weighbridge_origin_only_${testProjectId.toLowerCase()}`,
+                name: `[Q-Saudi] تذاكر ميزان التحميل فقط - ${testProjectId}`,
+                mimeType: 'application/vnd.google-apps.spreadsheet',
+                modifiedTime: new Date().toISOString(),
+                webViewLink: `https://docs.google.com/spreadsheets/d/test2/edit`,
+                sheets: [
+                  { sheetId: 0, title: 'تذاكر_التحميل_اليومية', index: 0, rowCount: 6, columnCount: 6 },
+                ],
+              },
+            ],
+            totalCount: 2,
+            projectId: testProjectId,
+          }),
+        } as Response;
+      }
+      return origFetch(input, init);
+    }) as any;
+
+    let listRes;
+    try {
+      listRes = await clientWorkspaceService.listGoogleSpreadsheets(testProjectId);
+    } finally {
+      globalThis.fetch = origFetch;
+    }
+
     const hasSheets = listRes.spreadsheets.length > 0;
     const allHaveMime = listRes.spreadsheets.every((s) => s.mimeType === 'application/vnd.google-apps.spreadsheet');
     results.push({
@@ -75,9 +120,37 @@ export async function runGoogleSheetsImportTests(): Promise<GoogleSheetsTestRepo
     });
   }
 
-  // TC-GSHT-02: Selection & Tabs
+  // TC-GSHT-02: Selection & Tabs (Deterministic Test Seam)
   try {
-    const meta = await clientWorkspaceService.getSpreadsheetMetadata(`gsheet_weighbridge_neom_${testProjectId.toLowerCase()}`);
+    const origFetch = globalThis.fetch;
+    const targetSheetId = `gsheet_weighbridge_neom_${testProjectId.toLowerCase()}`;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const urlStr = String(input);
+      if (urlStr.includes(`/api/workspace/sheets/${encodeURIComponent(targetSheetId)}/metadata`)) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            spreadsheetId: targetSheetId,
+            title: `[Q-Saudi] سجل شحنات الميزان المعتمد - ${testProjectId}`,
+            sheets: [
+              { sheetId: 0, title: 'العمليات', index: 0, rowCount: 15, columnCount: 10 },
+              { sheetId: 1, title: 'ميزان_التحميل_الشمالي', index: 1, rowCount: 12, columnCount: 8 },
+              { sheetId: 2, title: 'شحنات_الموقع_الجنوبي', index: 2, rowCount: 8, columnCount: 8 },
+            ],
+          }),
+        } as Response;
+      }
+      return origFetch(input, init);
+    }) as any;
+
+    let meta;
+    try {
+      meta = await clientWorkspaceService.getSpreadsheetMetadata(targetSheetId);
+    } finally {
+      globalThis.fetch = origFetch;
+    }
+
     const hasTabs = meta.sheets && meta.sheets.length > 0;
     const tabTitles = (meta.sheets || []).map((t) => t.title);
     results.push({

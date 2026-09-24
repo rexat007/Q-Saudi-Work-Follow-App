@@ -39,19 +39,30 @@ import {
   runGoogleDriveImportTests,
   GoogleDriveTestCaseResult,
 } from '../../tests/googleDriveImport.test';
+import { RelationshipContext } from '../../types/dataQuality';
+import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
+import { AuthUserContext } from '../../types/common';
 
 interface GoogleDriveImportSectionProps {
   currentProjectId?: string;
+  authContext?: AuthUserContext;
   userId?: string;
   userName?: string;
+  userRole?: string;
   onCommitSuccess?: (result: ImportResult) => void;
+  canonicalRelationshipContext?: RelationshipContext | null;
+  pipelineContext?: PipelineContext;
 }
 
 export function GoogleDriveImportSection({
-  currentProjectId = 'PRJ-NEOM-NORTH-01',
-  userId = 'usr_admin_01',
-  userName = 'مدير العمليات (مشروع نيوم)',
+  currentProjectId = '',
+  authContext,
+  userId,
+  userName,
+  userRole,
   onCommitSuccess,
+  canonicalRelationshipContext,
+  pipelineContext,
 }: GoogleDriveImportSectionProps) {
   // Drive browser state
   const [driveFiles, setDriveFiles] = useState<GoogleDriveFileItem[]>([]);
@@ -113,27 +124,40 @@ export function GoogleDriveImportSection({
     }
   };
 
-  const context: PipelineContext = {
-    projectId: currentProjectId,
-    userId,
-    userName,
-    role: 'PROJECT_ADMIN',
-    operationId: `OP-GDRV-${Date.now()}`,
-    allowWarningsCommit: confirmWarnings,
-    knownEntities: {
-      carrierIds: [
-        'CARRIER-01',
-        'الشركة الشرقية للنقل',
-        'مؤسسة الرمال السريعة',
-        'شركة نقليات الرياض',
-        'الناقل العام',
-      ],
-      truckPlates: ['1010-أ ب ج', '2020-د هـ و', '3030-س ص ع', '4040-ق ك ل'],
-      driverIds: ['محمد أحمد', 'علي حسن', 'سعيد الغامدي', 'عمر المطيري'],
-      materialCodes: ['AGG-01', 'ركام ناعم 0-5 مم', 'ركام خشن 10-20 مم', 'دفان معتمد', 'حصى وادي'],
-    },
-    existingKeys: new Set(['TKT-OLD-999', 'TKT-EXISTING-001']),
-  };
+  const effectiveUserId = authContext?.userId || userId || '';
+  const effectiveUserName = authContext?.displayName || userName || '';
+  const effectiveRole = authContext?.role || userRole || '';
+
+  const context: PipelineContext = useMemo(() => {
+    if (pipelineContext) {
+      return {
+        ...pipelineContext,
+        allowWarningsCommit: confirmWarnings,
+      };
+    }
+
+    if (canonicalRelationshipContext && canonicalRelationshipContext.projectId) {
+      return ImportProjectContextAdapter.createPipelineContext({
+        relContext: canonicalRelationshipContext,
+        projectId: canonicalRelationshipContext.projectId,
+        userId: effectiveUserId,
+        userName: effectiveUserName,
+        role: effectiveRole,
+        operationId: `OP-GDRV-${Date.now()}`,
+        allowWarningsCommit: confirmWarnings,
+      });
+    }
+
+    return {
+      projectId: currentProjectId,
+      userId: effectiveUserId,
+      userName: effectiveUserName,
+      role: effectiveRole,
+      operationId: `OP-GDRV-${Date.now()}`,
+      allowWarningsCommit: confirmWarnings,
+      knownEntities: ImportProjectContextAdapter.toPipelineKnownEntities(null),
+    };
+  }, [pipelineContext, canonicalRelationshipContext, currentProjectId, effectiveUserId, effectiveUserName, effectiveRole, confirmWarnings]);
 
   // Fetch Drive Files for current project
   const loadDriveFiles = async () => {

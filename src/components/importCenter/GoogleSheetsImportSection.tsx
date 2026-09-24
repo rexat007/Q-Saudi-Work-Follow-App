@@ -33,17 +33,28 @@ import {
   UNIFIED_IMPORT_PIPELINE_STAGES,
 } from '../../types/unifiedImport';
 import { runGoogleSheetsImportTests, GoogleSheetsTestReport } from '../../tests/googleSheetsImport.test';
+import { RelationshipContext } from '../../types/dataQuality';
+import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
+import { AuthUserContext } from '../../types/common';
 
 interface GoogleSheetsImportSectionProps {
   projectId: string;
+  authContext?: AuthUserContext;
   userId?: string;
+  userName?: string;
   userRole?: string;
+  canonicalRelationshipContext?: RelationshipContext | null;
+  pipelineContext?: PipelineContext;
 }
 
 export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps> = ({
   projectId,
-  userId = 'USR-IMPORT-ADMIN',
-  userRole = 'PROJECT_ADMIN',
+  authContext,
+  userId,
+  userName,
+  userRole,
+  canonicalRelationshipContext,
+  pipelineContext,
 }) => {
   // State for Spreadsheets
   const [spreadsheets, setSpreadsheets] = useState<GoogleSpreadsheetItem[]>([]);
@@ -122,6 +133,10 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
     }
   };
 
+  const effectiveUserId = authContext?.userId || userId || '';
+  const effectiveUserName = authContext?.displayName || userName || '';
+  const effectiveRole = authContext?.role || userRole || '';
+
   // Run Pipeline from Google Sheets to REVIEW Gate
   const handleProcessSheet = async () => {
     if (!selectedSpreadsheet) return;
@@ -142,13 +157,25 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
       );
 
       // 2. Build Pipeline Context
-      const context: PipelineContext = {
-        projectId,
-        userId,
-        role: userRole,
-        operationId: `OP-GSHT-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
-        allowWarningsCommit: true,
-      };
+      const context: PipelineContext = pipelineContext || (canonicalRelationshipContext && canonicalRelationshipContext.projectId
+        ? ImportProjectContextAdapter.createPipelineContext({
+            relContext: canonicalRelationshipContext,
+            projectId: canonicalRelationshipContext.projectId,
+            userId: effectiveUserId,
+            userName: effectiveUserName,
+            role: effectiveRole,
+            operationId: `OP-GSHT-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
+            allowWarningsCommit: true,
+          })
+        : {
+            projectId,
+            userId: effectiveUserId,
+            userName: effectiveUserName,
+            role: effectiveRole,
+            operationId: `OP-GSHT-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
+            allowWarningsCommit: true,
+            knownEntities: ImportProjectContextAdapter.toPipelineKnownEntities(null),
+          });
 
       // 3. Process through 8 pipeline stages up to REVIEW (strictly NO writes before COMMIT)
       const reviewedBatch = await GoogleSheetsPipelineService.processSheetsDataToReview(
@@ -171,8 +198,9 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
     if (!batch) return;
     const context: PipelineContext = {
       projectId,
-      userId,
-      role: userRole,
+      userId: effectiveUserId,
+      userName: effectiveUserName,
+      role: effectiveRole,
       operationId: `OP-REVIEW-${Date.now()}`,
     };
     const updated = GoogleSheetsPipelineService.applyRowReview(batch, rowNumber, action, context);
@@ -187,12 +215,18 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
       return;
     }
 
+    if (!effectiveUserId) {
+      alert('يتطلب الاعتماد مستخدماً مصادقاً عليه (Unauthenticated - Access Denied)');
+      return;
+    }
+
     setIsCommitting(true);
     try {
       const context: PipelineContext = {
         projectId,
-        userId,
-        role: userRole,
+        userId: effectiveUserId,
+        userName: effectiveUserName,
+        role: effectiveRole,
         operationId: `OP-GSHT-COMMIT-${Date.now()}`,
       };
 

@@ -50,12 +50,14 @@ import { EntityResolutionSection } from './EntityResolutionSection';
 import { useI18n } from '../../i18n';
 import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
 import { RelationshipContext } from '../../types/dataQuality';
+import { AuthUserContext } from '../../types/common';
 
 export interface ImportCenterViewProps {
   selectedProjectId?: string;
+  authContext?: AuthUserContext;
 }
 
-export function ImportCenterView({ selectedProjectId }: ImportCenterViewProps) {
+export function ImportCenterView({ selectedProjectId, authContext }: ImportCenterViewProps) {
   const { t } = useI18n();
   // Navigation between Entity Resolution, Weighbridge, Google Sheets, Google Drive, Excel/CSV, Unified Architecture, and Active Batch
   const [centerSubTab, setCenterSubTab] = useState<'ENTITY_RESOLUTION' | 'WEIGHBRIDGE_IMPORT' | 'GOOGLE_SHEETS_IMPORT' | 'GOOGLE_DRIVE_IMPORT' | 'EXCEL_CSV_IMPORT' | 'UNIFIED_ARCHITECTURE' | 'ACTIVE_BATCH'>('ENTITY_RESOLUTION');
@@ -460,15 +462,34 @@ export function ImportCenterView({ selectedProjectId }: ImportCenterViewProps) {
       </div>
 
       {centerSubTab === 'ENTITY_RESOLUTION' ? (
-        <EntityResolutionSection />
+        <EntityResolutionSection 
+          currentProjectId={selectedProjectId || ''} 
+          authContext={authContext}
+        />
       ) : centerSubTab === 'WEIGHBRIDGE_IMPORT' ? (
-        <WeighbridgeImportSection projectId="PRJ-NEOM-NORTH-01" />
+        <WeighbridgeImportSection
+          projectId={selectedProjectId || ''}
+          canonicalRelationshipContext={canonicalRelationshipContext}
+          authContext={authContext}
+        />
       ) : centerSubTab === 'GOOGLE_SHEETS_IMPORT' ? (
-        <GoogleSheetsImportSection projectId="PRJ-NEOM-NORTH-01" />
+        <GoogleSheetsImportSection
+          projectId={selectedProjectId || ''}
+          canonicalRelationshipContext={canonicalRelationshipContext}
+          authContext={authContext}
+        />
       ) : centerSubTab === 'GOOGLE_DRIVE_IMPORT' ? (
-        <GoogleDriveImportSection />
+        <GoogleDriveImportSection
+          currentProjectId={selectedProjectId || ''}
+          canonicalRelationshipContext={canonicalRelationshipContext}
+          authContext={authContext}
+        />
       ) : centerSubTab === 'EXCEL_CSV_IMPORT' ? (
-        <ExcelCsvImportSection />
+        <ExcelCsvImportSection
+          currentProjectId={selectedProjectId || ''}
+          canonicalRelationshipContext={canonicalRelationshipContext}
+          authContext={authContext}
+        />
       ) : centerSubTab === 'UNIFIED_ARCHITECTURE' ? (
         <UnifiedImportArchitectureSection />
       ) : (

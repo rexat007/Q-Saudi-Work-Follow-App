@@ -14,6 +14,8 @@ import {
   normalizePlate 
 } from '../../utils/normalization';
 
+const getApiBase = () => (typeof window !== 'undefined' ? '' : 'http://localhost:3000');
+
 export interface CanonicalDriverTruckRow {
   driverName?: string;
   driverPhone?: string;
@@ -510,7 +512,7 @@ export class DriverTruckImportCommitter {
       };
 
       try {
-        const response = await fetch('/api/intake/canonical', {
+        const response = await fetch(`${getApiBase()}/api/intake/canonical`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

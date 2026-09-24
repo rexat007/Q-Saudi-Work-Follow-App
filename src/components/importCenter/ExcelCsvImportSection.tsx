@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   FileSpreadsheet,
   UploadCloud,
@@ -23,19 +23,30 @@ import {
 import { ExcelCsvPipelineService } from '../../services/import/excelCsvPipeline.service';
 import { UnifiedImportBatch, PipelineContext, ImportResult, ImportRow } from '../../types/unifiedImport';
 import { ColumnMappingMatch } from '../../types/excelCsvImport';
+import { RelationshipContext } from '../../types/dataQuality';
+import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
+import { AuthUserContext } from '../../types/common';
 
 interface ExcelCsvImportSectionProps {
   currentProjectId?: string;
+  authContext?: AuthUserContext;
   userId?: string;
   userName?: string;
+  userRole?: string;
   onCommitSuccess?: (result: ImportResult) => void;
+  canonicalRelationshipContext?: RelationshipContext | null;
+  pipelineContext?: PipelineContext;
 }
 
 export function ExcelCsvImportSection({
-  currentProjectId = 'proj_riyadh_metro',
-  userId = 'usr_admin_01',
-  userName = 'مدير النظام',
+  currentProjectId = '',
+  authContext,
+  userId,
+  userName,
+  userRole,
   onCommitSuccess,
+  canonicalRelationshipContext,
+  pipelineContext,
 }: ExcelCsvImportSectionProps) {
   // File state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -58,21 +69,40 @@ export function ExcelCsvImportSection({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const context: PipelineContext = {
-    projectId: currentProjectId,
-    userId,
-    userName,
-    role: 'PROJECT_ADMIN',
-    operationId: `OP-IMP-${Date.now()}`,
-    allowWarningsCommit: confirmWarnings,
-    knownEntities: {
-      carrierIds: ['CARRIER-01', 'الشركة الشرقية للنقل', 'مؤسسة الرمال السريعة', 'شركة نقليات الرياض', 'الناقل العام'],
-      truckPlates: ['1010-أ ب ج', '2020-د هـ و', '3030-س ص ع', '4040-ق ك ل'],
-      driverIds: ['محمد أحمد', 'علي حسن', 'سعيد الغامدي', 'عمر المطيري'],
-      materialCodes: ['AGG-01', 'ركام ناعم 0-5 مم', 'ركام خشن 10-20 مم', 'دفان معتمد', 'حصى وادي'],
-    },
-    existingKeys: new Set(['TKT-OLD-999', 'TKT-EXISTING-001']),
-  };
+  const effectiveUserId = authContext?.userId || userId || '';
+  const effectiveUserName = authContext?.displayName || userName || '';
+  const effectiveRole = authContext?.role || userRole || '';
+
+  const context: PipelineContext = useMemo(() => {
+    if (pipelineContext) {
+      return {
+        ...pipelineContext,
+        allowWarningsCommit: confirmWarnings,
+      };
+    }
+
+    if (canonicalRelationshipContext && canonicalRelationshipContext.projectId) {
+      return ImportProjectContextAdapter.createPipelineContext({
+        relContext: canonicalRelationshipContext,
+        projectId: canonicalRelationshipContext.projectId,
+        userId: effectiveUserId,
+        userName: effectiveUserName,
+        role: effectiveRole,
+        operationId: `OP-IMP-${Date.now()}`,
+        allowWarningsCommit: confirmWarnings,
+      });
+    }
+
+    return {
+      projectId: currentProjectId,
+      userId: effectiveUserId,
+      userName: effectiveUserName,
+      role: effectiveRole,
+      operationId: `OP-IMP-${Date.now()}`,
+      allowWarningsCommit: confirmWarnings,
+      knownEntities: ImportProjectContextAdapter.toPipelineKnownEntities(null),
+    };
+  }, [pipelineContext, canonicalRelationshipContext, currentProjectId, effectiveUserId, effectiveUserName, effectiveRole, confirmWarnings]);
 
   const handleFileSelect = async (file: File) => {
     setSelectedFile(file);

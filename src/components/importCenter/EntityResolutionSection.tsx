@@ -39,6 +39,7 @@ import { EntityResolutionService } from '../../services/import/entityResolution.
 import { EntityNormalizationService } from '../../services/import/entityNormalization.service';
 import { PipelineContext } from '../../types/unifiedImport';
 import { useI18n } from '../../i18n';
+import { AuthUserContext } from '../../types/common';
 
 
 interface SampleDemoRow {
@@ -94,11 +95,25 @@ const INITIAL_DEMO_ROWS: SampleDemoRow[] = [
   },
 ];
 
-export function EntityResolutionSection() {
+interface EntityResolutionSectionProps {
+  currentProjectId?: string;
+  authContext?: AuthUserContext;
+  userId?: string;
+  userName?: string;
+  userRole?: string;
+}
+
+export function EntityResolutionSection({
+  currentProjectId = '',
+  authContext,
+  userId,
+  userName,
+  userRole,
+}: EntityResolutionSectionProps = {}) {
   const { t } = useI18n();
-  const currentProjectId = 'PRJ-NEOM-NORTH-01';
-  const currentUserId = 'USR-INSPECTOR-09';
-  const currentUserName = 'م. أحمد الشمري (أخصائي ضبط جودة البيانات)';
+  const effectiveProjectId = currentProjectId || authContext?.assignedProjectIds?.[0] || '';
+  const currentUserId = authContext?.userId || userId || '';
+  const currentUserName = authContext?.displayName || userName || '';
 
   // Mock Pipeline Context with Master Data and Relationships
   const [pipelineContext] = useState<PipelineContext>({
@@ -308,6 +323,28 @@ export function EntityResolutionSection() {
   return (
     <div className="space-y-6" dir="rtl">
       {/* Header Banner */}
+      <div className="bg-amber-500/10 border-2 border-amber-500/40 rounded-2xl p-4 mb-2 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-amber-500/20 text-amber-600">
+            <ShieldAlert className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-sm font-black text-amber-900 flex items-center gap-2">
+              <span>عرض توضيحي / بيئة تجريبية غير إنتاجية</span>
+              <span className="text-[11px] font-mono font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded">
+                DEMO / NON-PRODUCTION RESOLUTION VIEW
+              </span>
+            </div>
+            <p className="text-xs text-amber-800/80 mt-0.5">
+              هذه الواجهة مخصصة للاختبار واستعراض خوارزميات حل الكيانات فقط (Demo Sandbox). تعتمد مسارات الاستيراد الإنتاجية الفعلية على سياق المشروع المعتمد وقاعدة بياناته الحقيقية.
+            </p>
+          </div>
+        </div>
+        <span className="text-xs font-mono font-black text-amber-700 bg-amber-100 px-2.5 py-1 rounded-lg shrink-0">
+          NON-PRODUCTION
+        </span>
+      </div>
+
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 rounded-2xl shadow-xl border border-indigo-900/50">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>

@@ -51,6 +51,9 @@ import {
 import { WeighbridgeImportService } from '../../services/import/weighbridgeImport.service';
 import { ExcelCsvTripCommitter } from '../../services/import/tripImportCommitter';
 import { useI18n } from '../../i18n';
+import { RelationshipContext } from '../../types/dataQuality';
+import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
+import { AuthUserContext } from '../../types/common';
 
 
 // Sample Weighbridge Datasets for interactive demonstration
@@ -68,10 +71,22 @@ const SAMPLE_WEIGHBRIDGE_WITH_ERRORS_CSV = `تاريخ,رقم_التذكرة,ر�
 
 interface WeighbridgeImportSectionProps {
   projectId?: string;
+  authContext?: AuthUserContext;
+  userId?: string;
+  userName?: string;
+  userRole?: string;
+  canonicalRelationshipContext?: RelationshipContext | null;
+  pipelineContext?: PipelineContext;
 }
 
 export function WeighbridgeImportSection({
-  projectId = 'PRJ-NEOM-NORTH-01',
+  projectId = '',
+  authContext,
+  userId,
+  userName,
+  userRole,
+  canonicalRelationshipContext,
+  pipelineContext,
 }: WeighbridgeImportSectionProps) {
   const { t } = useI18n();
   // Intake configuration state
@@ -96,32 +111,49 @@ export function WeighbridgeImportSection({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'VALID' | 'WARNING' | 'ERROR'>('ALL');
 
+  const effectiveUserId = authContext?.userId || userId || '';
+  const effectiveUserName = authContext?.displayName || userName || '';
+  const effectiveRole = authContext?.role || userRole || '';
+
   // Context
-  const context: PipelineContext = useMemo(
-    () => ({
+  const context: PipelineContext = useMemo(() => {
+    if (pipelineContext) {
+      return {
+        ...pipelineContext,
+        profile: 'WEIGHBRIDGE',
+        allowWarningsCommit: allowWarnings,
+        warningConfirmationNotes: warningNotes,
+      };
+    }
+
+    if (canonicalRelationshipContext && canonicalRelationshipContext.projectId) {
+      return {
+        ...ImportProjectContextAdapter.createPipelineContext({
+          relContext: canonicalRelationshipContext,
+          projectId: canonicalRelationshipContext.projectId,
+          userId: effectiveUserId,
+          userName: effectiveUserName,
+          role: effectiveRole,
+          operationId: `OP-WB-${Date.now().toString().slice(-6)}`,
+          allowWarningsCommit: allowWarnings,
+          warningConfirmationNotes: warningNotes,
+        }),
+        profile: 'WEIGHBRIDGE',
+      };
+    }
+
+    return {
       projectId,
-      userId: 'USR-OPS-881',
-      userName: 'م. عبدالرحمن السبيعي (مدير حركة النقل)',
-      role: 'ADMIN',
+      userId: effectiveUserId,
+      userName: effectiveUserName,
+      role: effectiveRole,
       operationId: `OP-WB-${Date.now().toString().slice(-6)}`,
       profile: 'WEIGHBRIDGE',
       allowWarningsCommit: allowWarnings,
       warningConfirmationNotes: warningNotes,
-      knownEntities: {
-        carrierIds: ['شركة أجياد لنقل الركام', 'مؤسسة الوفاق اللوجستية', 'شركة النقل السريع للخدمات'],
-        truckPlates: ['7845-أ ب د', '3312-ر س ل', '9910-ح ط ك', '5540-ع ن م'],
-        driverIds: [],
-        materialCodes: ['بحص متدرج 20 ملم', 'رمل أحمر مغسول', 'دفان صخري معتمد', 'ركام أساس A'],
-        truckCarrierMap: {
-          '7845-أ ب د': 'شركة أجياد لنقل الركام',
-          '3312-ر س ل': 'مؤسسة الوفاق اللوجستية',
-          '9910-ح ط ك': 'شركة أجياد لنقل الركام',
-          '5540-ع ن م': 'شركة النقل السريع للخدمات',
-        },
-      },
-    }),
-    [projectId, allowWarnings, warningNotes]
-  );
+      knownEntities: ImportProjectContextAdapter.toPipelineKnownEntities(null),
+    };
+  }, [pipelineContext, canonicalRelationshipContext, projectId, effectiveUserId, effectiveUserName, effectiveRole, allowWarnings, warningNotes]);
 
   // Process data through Unified Pipeline up to Review stage
   const handleExecuteToReview = async (customText?: string, customName?: string) => {

@@ -37,6 +37,8 @@ import { carrierRepository } from '../../repositories/carrier.repository';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
+import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
+import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
 import { auth } from '../../firebase/config';
 import { 
   isProjectOperationallyMutable, 
@@ -570,18 +572,29 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           const data = event.target?.result;
           if (!data) throw new Error('فشلت قراءة ملف البيانات');
 
+          // Fetch canonical relationship context for the project
+          let relContext = null;
+          try {
+            relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+          } catch (relErr) {
+            console.warn('Could not load canonical relationship context for roster intake:', relErr);
+          }
+
+          const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+            relContext,
+            projectId: project.projectId,
+            userId: authContext.userId,
+            role: authContext.role,
+            operationId: `OP-${Date.now()}`
+          });
+
           // Process using our production pipeline
           const batch = await DriverTruckPipelineService.processFileToReview(
             data,
             file.name,
             file.size,
             file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            {
-              projectId: project.projectId,
-              userId: authContext.userId,
-              role: authContext.role,
-              operationId: `OP-${Date.now()}`
-            }
+            pipelineCtx
           );
           setImportBatch(batch);
         } catch (innerErr: any) {
@@ -603,13 +616,24 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setIsCommittingImport(true);
 
     try {
-      // Execute the commit operation via the real pipeline
-      const { result } = await DriverTruckPipelineService.commitBatch(importBatch, {
+      // Fetch canonical relationship context for the project
+      let relContext = null;
+      try {
+        relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      } catch (relErr) {
+        console.warn('Could not load canonical relationship context for roster commit:', relErr);
+      }
+
+      const commitContext = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
         projectId: project.projectId,
         userId: authContext.userId,
         role: authContext.role,
         operationId: `OP-${Date.now()}`
       });
+
+      // Execute the commit operation via the real pipeline
+      const { result } = await DriverTruckPipelineService.commitBatch(importBatch, commitContext);
 
       alert(`تم بنجاح استيراد ${result.committedRows} سجلات تشغيل من الملف!`);
       setImportBatch(null);

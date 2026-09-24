@@ -1,4 +1,6 @@
 import { DriverTruckPipelineService } from '../services/import/driverTruckPipeline.service';
+import { UnifiedImportPipelineService } from '../services/import/unifiedImportPipeline.service';
+import { UnifiedImportValidator } from '../validators/unifiedImport.validator';
 import { ExcelImportParser } from '../services/import/excelParser.service';
 import { GoogleSheetsImportParser } from '../services/import/googleSheetsParser.service';
 import { carrierRepository } from '../repositories/carrier.repository';
@@ -336,13 +338,8 @@ export async function runDriversTrucksImportBlock86DTests(): Promise<TestSuiteRe
       projectId: 'PRJ-NEOM-WRONG', // User does not have access
     };
     
-    let isBlocked = false;
-    try {
-      const pipeline = new (require('../services/import/unifiedImportPipeline.service').UnifiedImportPipelineService)();
-      pipeline.createBatch({ sourceType: 'EXCEL', importBatchId: 'BAT-BAD-1' }, badContext);
-    } catch (e: any) {
-      isBlocked = true;
-    }
+    const isolation = UnifiedImportValidator.enforceProjectIsolation(projectId, badContext);
+    const isBlocked = !isolation.isAllowed;
 
     record(
       12,
@@ -523,8 +520,30 @@ export async function runDriversTrucksImportBlock86DTests(): Promise<TestSuiteRe
       auditTrail: []
     };
 
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const urlStr = String(input);
+      if (urlStr.includes('/api/intake/canonical')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            success: true,
+            affiliationId: 'AFF-TEST-86D-1',
+            assignmentId: 'ASN-TEST-86D-1',
+          }),
+        } as Response;
+      }
+      return origFetch(input, init);
+    }) as any;
+
     const committer = new DriverTruckImportCommitter();
-    const result = await committer.commit(batchToCommit, mockAdminContext);
+    let result;
+    try {
+      result = await committer.commit(batchToCommit, mockAdminContext);
+    } finally {
+      globalThis.fetch = origFetch;
+    }
 
     record(
       16,
