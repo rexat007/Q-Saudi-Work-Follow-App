@@ -162,7 +162,7 @@ export class ImportProjectContextAdapter {
       projectId,
       userId,
       userName,
-      role = 'PROJECT_ADMIN',
+      role,
       operationId = `OP-IMP-${Date.now()}`,
       idempotencyKey,
       allowWarningsCommit = false,

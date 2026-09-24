@@ -20,12 +20,101 @@
 import { IImportValidator } from './contracts';
 import { ImportRow, ImportIssue, PipelineContext } from '../../types/unifiedImport';
 import { CanonicalTripRow } from '../../types/excelCsvImport';
+import { normalizeName, normalizePlate } from '../../utils/normalization';
 
 /**
  * Tolerance for net weight calculation discrepancy (kg).
  * Accounts for standard decimal precision and floating-point representations.
  */
 export const NET_WEIGHT_CALCULATION_TOLERANCE_KG = 0.05;
+
+/**
+ * Resolves an incoming carrier identifier/name to a canonical carrier object.
+ */
+function findCanonicalCarrier(rawCarrier: string, knownEntities?: PipelineContext['knownEntities']) {
+  if (!rawCarrier || !knownEntities) return undefined;
+  const clean = String(rawCarrier).trim();
+  if (!clean) return undefined;
+  const norm = normalizeName(clean);
+
+  // 1. Match structured carriers by ID, normalized Name, or Alias
+  if (knownEntities.carriers && knownEntities.carriers.length > 0) {
+    const found = knownEntities.carriers.find(
+      (c) =>
+        c.carrierId.toLowerCase() === clean.toLowerCase() ||
+        normalizeName(c.name) === norm ||
+        c.aliases?.some((a) => normalizeName(a) === norm)
+    );
+    if (found) return found;
+  }
+
+  // 2. Legacy primitive carrierIds array match
+  if (knownEntities.carrierIds && knownEntities.carrierIds.length > 0) {
+    const idMatch = knownEntities.carrierIds.find((id) => id.toLowerCase() === clean.toLowerCase());
+    if (idMatch) return { carrierId: idMatch, name: idMatch };
+  }
+
+  return undefined;
+}
+
+/**
+ * Resolves an incoming material identifier/code/name to a canonical material object.
+ */
+function findCanonicalMaterial(rawMaterial: string, knownEntities?: PipelineContext['knownEntities']) {
+  if (!rawMaterial || !knownEntities) return undefined;
+  const clean = String(rawMaterial).trim();
+  if (!clean) return undefined;
+  const norm = normalizeName(clean);
+
+  // 1. Match structured materials by materialId, normalized name, or code
+  if (knownEntities.materials && knownEntities.materials.length > 0) {
+    const found = knownEntities.materials.find(
+      (m) =>
+        m.materialId.toLowerCase() === clean.toLowerCase() ||
+        normalizeName(m.name) === norm ||
+        (m.code && m.code.toLowerCase() === clean.toLowerCase()) ||
+        (m.code && normalizeName(m.code) === norm)
+    );
+    if (found) return found;
+  }
+
+  // 2. Legacy primitive materialCodes array match
+  if (knownEntities.materialCodes && knownEntities.materialCodes.length > 0) {
+    const codeMatch = knownEntities.materialCodes.find((c) => c.toLowerCase() === clean.toLowerCase());
+    if (codeMatch) return { materialId: codeMatch, name: codeMatch, code: codeMatch };
+  }
+
+  return undefined;
+}
+
+/**
+ * Resolves an incoming driver identifier/name to a canonical driver object.
+ */
+function findCanonicalDriver(rawDriver: string, knownEntities?: PipelineContext['knownEntities']) {
+  if (!rawDriver || !knownEntities) return undefined;
+  const clean = String(rawDriver).trim();
+  if (!clean) return undefined;
+  const norm = normalizeName(clean);
+
+  // 1. Match structured drivers by driverId, idNumber, or normalized name
+  if (knownEntities.drivers && knownEntities.drivers.length > 0) {
+    const found = knownEntities.drivers.find(
+      (d) =>
+        d.driverId.toLowerCase() === clean.toLowerCase() ||
+        (d.idNumber && d.idNumber === clean) ||
+        normalizeName(d.name) === norm
+    );
+    if (found) return found;
+  }
+
+  // 2. Legacy primitive driverIds array match
+  if (knownEntities.driverIds && knownEntities.driverIds.length > 0) {
+    const idMatch = knownEntities.driverIds.find((id) => id.toLowerCase() === clean.toLowerCase());
+    if (idMatch) return { driverId: idMatch, name: idMatch };
+  }
+
+  return undefined;
+}
 
 export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow> {
   public validateRow(row: ImportRow<any, CanonicalTripRow>, context: PipelineContext): ImportIssue[] {
@@ -341,12 +430,10 @@ export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow>
     }
 
     // 6. Unknown Entity Warnings (WARNING - NON-BLOCKING)
-    if (canonical.carrier && context.knownEntities?.carrierIds) {
+    if (canonical.carrier && (context.knownEntities?.carrierIds?.length || context.knownEntities?.carriers?.length)) {
       const carrierStr = String(canonical.carrier).trim();
-      const match = context.knownEntities.carrierIds.some(
-        (c) => c.toLowerCase() === carrierStr.toLowerCase()
-      );
-      if (!match) {
+      const canonicalCarrier = findCanonicalCarrier(carrierStr, context.knownEntities);
+      if (!canonicalCarrier) {
         issues.push({
           issueId: `WRN-CARRIER-UNK-${rowNum}`,
           row: rowNum,
@@ -362,11 +449,12 @@ export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow>
       }
     }
 
-    if (canonical.truckNo && context.knownEntities?.truckPlates) {
+    if (canonical.truckNo && (context.knownEntities?.truckPlates?.length || context.knownEntities?.trucks?.length)) {
       const truckStr = String(canonical.truckNo).trim();
-      const match = context.knownEntities.truckPlates.some(
-        (t) => t.toLowerCase() === truckStr.toLowerCase()
-      );
+      const normTruck = normalizePlate(truckStr);
+      const match =
+        (context.knownEntities?.truckPlates && context.knownEntities.truckPlates.some((t) => normalizePlate(t) === normTruck || t.toLowerCase() === truckStr.toLowerCase())) ||
+        (context.knownEntities?.trucks && context.knownEntities.trucks.some((t) => normalizePlate(t.plate) === normTruck || t.truckId.toLowerCase() === truckStr.toLowerCase()));
       if (!match) {
         issues.push({
           issueId: `WRN-TRUCK-UNK-${rowNum}`,
@@ -383,12 +471,10 @@ export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow>
       }
     }
 
-    if (canonical.materialType && context.knownEntities?.materialCodes) {
+    if (canonical.materialType && (context.knownEntities?.materialCodes?.length || context.knownEntities?.materials?.length)) {
       const matStr = String(canonical.materialType).trim();
-      const match = context.knownEntities.materialCodes.some(
-        (m) => m.toLowerCase() === matStr.toLowerCase()
-      );
-      if (!match) {
+      const canonicalMat = findCanonicalMaterial(matStr, context.knownEntities);
+      if (!canonicalMat) {
         issues.push({
           issueId: `WRN-MAT-UNK-${rowNum}`,
           row: rowNum,
@@ -407,28 +493,33 @@ export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow>
     // 7. BLOCK 34 & BLOCK 35: Truck-Carrier Association Integrity Check (WARNING - REQUIRES_REVIEW)
     if (canonical.truckNo && canonical.carrier && context.knownEntities?.truckCarrierMap) {
       const cleanTruck = String(canonical.truckNo).trim();
-      // Match case-insensitively across map keys
+      const normTruck = normalizePlate(cleanTruck);
+      // Match across map keys (by exact key or normalized plate)
       const mapKey = Object.keys(context.knownEntities.truckCarrierMap).find(
-        (k) => k.toLowerCase() === cleanTruck.toLowerCase()
+        (k) => k.toLowerCase() === cleanTruck.toLowerCase() || normalizePlate(k) === normTruck
       );
       if (mapKey) {
-        const expectedCarrier = context.knownEntities.truckCarrierMap[mapKey];
-        const cleanCarrier = String(canonical.carrier).trim();
-        if (expectedCarrier && expectedCarrier.toLowerCase() !== cleanCarrier.toLowerCase()) {
+        const expectedCarrierId = context.knownEntities.truckCarrierMap[mapKey];
+        const rowCarrierObj = findCanonicalCarrier(String(canonical.carrier), context.knownEntities);
+        const resolvedRowCarrierId = rowCarrierObj ? rowCarrierObj.carrierId : String(canonical.carrier).trim();
+
+        // Compare canonical carrier ID to canonical carrier ID
+        if (expectedCarrierId && expectedCarrierId.toLowerCase() !== resolvedRowCarrierId.toLowerCase()) {
+          const masterCarrierName = context.knownEntities?.carriers?.find((c) => c.carrierId === expectedCarrierId)?.name || expectedCarrierId;
           issues.push({
             issueId: `WRN-TRUCK-CARRIER-${rowNum}`,
             row: rowNum,
             field: 'carrier',
             code: 'RELATIONSHIP_CONFLICT',
             severity: 'WARNING',
-            message: `Truck (${cleanTruck}) is assigned to carrier (${expectedCarrier}) in master records, but row lists carrier (${cleanCarrier}).`,
-            messageAr: `تعارض في العلاقة: الشاحنة (${cleanTruck}) مرتبطة في السجلات بالناقل (${expectedCarrier}) بينما السجل الوارد ينسبها للناقل (${cleanCarrier}).`,
+            message: `Truck (${cleanTruck}) is assigned to carrier (${masterCarrierName}) in master records, but row lists carrier (${canonical.carrier}).`,
+            messageAr: `تعارض في العلاقة: الشاحنة (${cleanTruck}) مرتبطة في السجلات بالناقل (${masterCarrierName}) بينما السجل الوارد ينسبها للناقل (${canonical.carrier}).`,
             resolvable: true,
             blocking: false,
             originalValue: {
               truckNo: cleanTruck,
-              rowCarrier: cleanCarrier,
-              masterCarrier: expectedCarrier,
+              rowCarrier: canonical.carrier,
+              masterCarrier: expectedCarrierId,
             },
           });
         }
@@ -438,10 +529,11 @@ export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow>
     // 8. BLOCK 35: Truck Matched but Carrier Missing Check
     if (canonical.truckNo && (!canonical.carrier || String(canonical.carrier).trim() === '')) {
       const cleanTruck = String(canonical.truckNo).trim();
+      const normTruck = normalizePlate(cleanTruck);
       const isKnownTruck =
-        (context.knownEntities?.truckPlates && context.knownEntities.truckPlates.includes(cleanTruck)) ||
-        (context.knownEntities?.truckCarrierMap && Object.keys(context.knownEntities.truckCarrierMap).includes(cleanTruck)) ||
-        (context.knownEntities?.trucks && context.knownEntities.trucks.some((t) => t.plate === cleanTruck));
+        (context.knownEntities?.truckPlates && context.knownEntities.truckPlates.some((t) => normalizePlate(t) === normTruck || t.toLowerCase() === cleanTruck.toLowerCase())) ||
+        (context.knownEntities?.truckCarrierMap && Object.keys(context.knownEntities.truckCarrierMap).some((k) => normalizePlate(k) === normTruck || k.toLowerCase() === cleanTruck.toLowerCase())) ||
+        (context.knownEntities?.trucks && context.knownEntities.trucks.some((t) => normalizePlate(t.plate) === normTruck || t.truckId.toLowerCase() === cleanTruck.toLowerCase()));
 
       if (isKnownTruck) {
         issues.push({
@@ -460,29 +552,36 @@ export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow>
     }
 
     // 9. BLOCK 35: Driver-Carrier Relationship Integrity Check
-    if (canonical.driverName && canonical.carrier && context.knownEntities?.driverCarrierMap) {
-      const cleanDriver = String(canonical.driverName).trim();
+    if ((canonical.driverName || canonical.driverId) && canonical.carrier && context.knownEntities?.driverCarrierMap) {
+      const cleanDriver = String(canonical.driverName || canonical.driverId).trim();
+      const driverObj = findCanonicalDriver(cleanDriver, context.knownEntities);
+      const driverKey = driverObj ? driverObj.driverId : cleanDriver;
+
+      // Find driver in driverCarrierMap
       const mapKey = Object.keys(context.knownEntities.driverCarrierMap).find(
-        (k) => k.toLowerCase() === cleanDriver.toLowerCase()
+        (k) => k.toLowerCase() === driverKey.toLowerCase() || k.toLowerCase() === cleanDriver.toLowerCase()
       );
       if (mapKey) {
-        const expectedCarrier = context.knownEntities.driverCarrierMap[mapKey];
-        const cleanCarrier = String(canonical.carrier).trim();
-        if (expectedCarrier && expectedCarrier.toLowerCase() !== cleanCarrier.toLowerCase()) {
+        const expectedCarrierId = context.knownEntities.driverCarrierMap[mapKey];
+        const rowCarrierObj = findCanonicalCarrier(String(canonical.carrier), context.knownEntities);
+        const resolvedRowCarrierId = rowCarrierObj ? rowCarrierObj.carrierId : String(canonical.carrier).trim();
+
+        if (expectedCarrierId && expectedCarrierId.toLowerCase() !== resolvedRowCarrierId.toLowerCase()) {
+          const masterCarrierName = context.knownEntities?.carriers?.find((c) => c.carrierId === expectedCarrierId)?.name || expectedCarrierId;
           issues.push({
             issueId: `WRN-DRIVER-CARRIER-${rowNum}`,
             row: rowNum,
             field: 'carrier',
             code: 'DRIVER_CARRIER_CONFLICT',
             severity: 'WARNING',
-            message: `Driver (${cleanDriver}) is associated with carrier (${expectedCarrier}), but row lists carrier (${cleanCarrier}).`,
-            messageAr: `تعارض كفالة السائق: السائق (${cleanDriver}) مرتبط بالناقل (${expectedCarrier}) بينما السجل الوارد ينسبه للناقل (${cleanCarrier}).`,
+            message: `Driver (${cleanDriver}) is associated with carrier (${masterCarrierName}), but row lists carrier (${canonical.carrier}).`,
+            messageAr: `تعارض كفالة السائق: السائق (${cleanDriver}) مرتبط بالناقل (${masterCarrierName}) بينما السجل الوارد ينسبه للناقل (${canonical.carrier}).`,
             resolvable: true,
             blocking: false,
             originalValue: {
               driverName: cleanDriver,
-              rowCarrier: cleanCarrier,
-              masterCarrier: expectedCarrier,
+              rowCarrier: canonical.carrier,
+              masterCarrier: expectedCarrierId,
             },
           });
         }
@@ -491,9 +590,17 @@ export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow>
 
     // 10. BLOCK 35: Material-Project Scope Validation
     if (canonical.materialType && context.knownEntities?.projectMaterials && context.knownEntities.projectMaterials.length > 0) {
-      const matStr = String(canonical.materialType).trim().toLowerCase();
+      const matStr = String(canonical.materialType).trim();
+      const canonicalMat = findCanonicalMaterial(matStr, context.knownEntities);
+      const resolvedMatId = canonicalMat ? canonicalMat.materialId : matStr;
+      const resolvedMatCode = canonicalMat?.code || matStr;
+
       const isProjectAuth = context.knownEntities.projectMaterials.some(
-        (m) => m.toLowerCase() === matStr
+        (m) =>
+          m.toLowerCase() === resolvedMatId.toLowerCase() ||
+          m.toLowerCase() === resolvedMatCode.toLowerCase() ||
+          m.toLowerCase() === matStr.toLowerCase() ||
+          (canonicalMat && m.toLowerCase() === canonicalMat.name.toLowerCase())
       );
       if (!isProjectAuth) {
         issues.push({

@@ -24,6 +24,9 @@ export interface CanonicalDriverTruckRow {
   truckType?: 'TIPPER_32M3' | 'TRAILER_24M' | 'FLATBED' | 'DUMPER' | string;
   carrierName?: string;
   carrierId?: string;
+  materialName?: string;
+  materialId?: string;
+  materialCode?: string;
   tareWeightKg?: number;
   maxGrossWeightKg?: number;
   [key: string]: any;
@@ -43,7 +46,10 @@ export class DriverTruckImportNormalizer {
     const identity = raw.driverIdentity || raw.idNumber || raw.identity || raw['رقم الهوية'] || raw['الهوية'] || raw['رقم الإقامة'] || raw.national_id || raw.residency_id || raw.identity_id || '';
     const plate = raw.truckPlate || raw.plate || raw.truckNo || raw['رقم اللوحة'] || raw['اللوحة'] || raw.truck_plate || raw.plate_number || '';
     const type = raw.truckType || raw.type || raw['نوع الشاحنة'] || raw['نوع المركبة'] || raw.truck_type || '';
-    const carrier = raw.carrierName || raw.carrier || raw['الناقل'] || raw['شركة النقل'] || raw.carrier_name || '';
+    const carrier = raw.carrierName || raw.carrier || raw['الناقل'] || raw['شركة النقل'] || raw.carrier_name || raw.carrierId || '';
+
+    // Material normalization from explicit conventional keys
+    const material = raw.materialName || raw.material || raw['المادة'] || raw['اسم المادة'] || raw.material_name || raw.materialId || raw.materialCode || '';
 
     canonical.driverName = typeof name === 'string' ? name.trim() : String(name || '');
     canonical.driverPhone = typeof phone === 'string' ? normalizePhone(phone) : normalizePhone(String(phone || ''));
@@ -51,6 +57,16 @@ export class DriverTruckImportNormalizer {
     canonical.truckPlate = typeof plate === 'string' ? normalizePlate(plate) : normalizePlate(String(plate || ''));
     canonical.truckType = typeof type === 'string' ? type.trim() : String(type || '');
     canonical.carrierName = typeof carrier === 'string' ? carrier.trim() : String(carrier || '');
+
+    if (material) {
+      canonical.materialName = typeof material === 'string' ? material.trim() : String(material || '');
+    }
+    if (raw.materialId) {
+      canonical.materialId = typeof raw.materialId === 'string' ? raw.materialId.trim() : String(raw.materialId || '');
+    }
+    if (raw.materialCode) {
+      canonical.materialCode = typeof raw.materialCode === 'string' ? raw.materialCode.trim() : String(raw.materialCode || '');
+    }
 
     if (raw.tareWeightKg !== undefined) canonical.tareWeightKg = Number(raw.tareWeightKg);
     if (raw.maxGrossWeightKg !== undefined) canonical.maxGrossWeightKg = Number(raw.maxGrossWeightKg);
@@ -76,20 +92,18 @@ export class DriverTruckImportEntityResolver {
   ): Promise<Record<string, ImportEntityResolutionInfo>> {
     const resolutions: Record<string, ImportEntityResolutionInfo> = {};
 
-    // 1. Resolve Carrier
-    const selectedCarrierId = context.knownEntities?.carriers?.[0]?.carrierId;
-    const targetCarrierName = mapped.carrierName || '';
+    // 1. Resolve Carrier strictly from row input (No fallback to carriers[0])
+    const targetCarrierName = mapped.carrierName || mapped.carrierId || '';
 
-    // If carrier is selected in UI, it takes priority and bounds the scope
-    let carrierId = selectedCarrierId;
-    let matchedCarrierName = context.knownEntities?.carriers?.[0]?.name;
+    let carrierId: string | undefined = undefined;
+    let matchedCarrierName: string | undefined = undefined;
     let carrierMatched = false;
 
     if (targetCarrierName) {
-      // Find matching carrier in knownEntities (Exact, Normalized, or Alias)
       const normalizedImportCarrier = normalizeName(targetCarrierName);
       const matched = context.knownEntities?.carriers?.find(
         (c) =>
+          c.carrierId.toLowerCase() === targetCarrierName.toLowerCase() ||
           normalizeName(c.name) === normalizedImportCarrier ||
           c.aliases?.some((a) => normalizeName(a) === normalizedImportCarrier)
       );
@@ -98,18 +112,70 @@ export class DriverTruckImportEntityResolver {
         carrierId = matched.carrierId;
         matchedCarrierName = matched.name;
         carrierMatched = true;
+      } else if (context.knownEntities?.carrierIds) {
+        const idMatch = context.knownEntities.carrierIds.find(
+          (id) => id.toLowerCase() === targetCarrierName.toLowerCase()
+        );
+        if (idMatch) {
+          carrierId = idMatch;
+          matchedCarrierName = idMatch;
+          carrierMatched = true;
+        }
       }
     }
 
     resolutions.carrier = {
       entityType: 'CARRIER',
-      originalValue: targetCarrierName || matchedCarrierName || '',
+      originalValue: targetCarrierName,
       matchedId: carrierId,
       matchedName: matchedCarrierName,
-      confidence: carrierMatched ? 100 : selectedCarrierId ? 80 : 0,
+      confidence: carrierMatched ? 100 : 0,
       isExact: carrierMatched,
       isAuthorized: Boolean(carrierId),
       riskLevel: carrierId ? 'LOW' : 'CRITICAL',
+    };
+
+    // 2. Resolve Material strictly from row input (No fallback to materials[0] or GENERAL)
+    const targetMaterial = mapped.materialName || mapped.materialId || mapped.materialCode || '';
+    let materialId: string | undefined = undefined;
+    let matchedMaterialName: string | undefined = undefined;
+    let materialMatched = false;
+
+    if (targetMaterial) {
+      const normMaterial = normalizeName(targetMaterial);
+      const matchedMat = context.knownEntities?.materials?.find(
+        (m) =>
+          m.materialId.toLowerCase() === targetMaterial.toLowerCase() ||
+          normalizeName(m.name) === normMaterial ||
+          (m.code && m.code.toLowerCase() === targetMaterial.toLowerCase()) ||
+          (m.code && normalizeName(m.code) === normMaterial)
+      );
+
+      if (matchedMat) {
+        materialId = matchedMat.materialId;
+        matchedMaterialName = matchedMat.name;
+        materialMatched = true;
+      } else if (context.knownEntities?.materialCodes) {
+        const codeMatch = context.knownEntities.materialCodes.find(
+          (c) => c.toLowerCase() === targetMaterial.toLowerCase()
+        );
+        if (codeMatch) {
+          materialId = codeMatch;
+          matchedMaterialName = codeMatch;
+          materialMatched = true;
+        }
+      }
+    }
+
+    resolutions.material = {
+      entityType: 'MATERIAL',
+      originalValue: targetMaterial,
+      matchedId: materialId,
+      matchedName: matchedMaterialName,
+      confidence: materialMatched ? 100 : 0,
+      isExact: materialMatched,
+      isAuthorized: Boolean(materialId),
+      riskLevel: materialId ? 'LOW' : 'CRITICAL',
     };
 
     // 2. Resolve Driver (using Exact identity search or Normalized name search)
@@ -482,7 +548,8 @@ export class DriverTruckImportCommitter {
 
     for (const row of activeRows) {
       const canonical = row.canonical || row.raw || {};
-      const carrierId = row.entityResolutions?.carrier?.matchedId || context.knownEntities?.carriers?.[0]?.carrierId;
+      const carrierId = row.entityResolutions?.carrier?.matchedId || canonical.carrierId;
+      const materialId = row.entityResolutions?.material?.matchedId || canonical.materialId || canonical.materialCode;
 
       if (!carrierId) {
         failedRowsCount++;
@@ -504,7 +571,7 @@ export class DriverTruckImportCommitter {
       const payload = {
         projectId: batch.projectId,
         carrierId: carrierId,
-        materialId: canonical.materialId || context.knownEntities?.materials?.[0]?.materialId || 'GENERAL',
+        materialId: materialId,
         driverName: (canonical.driverName || '').trim(),
         plateNumber: (canonical.truckPlate || '').trim().toUpperCase(),
         phone: (canonical.driverPhone || '').trim() || undefined,
