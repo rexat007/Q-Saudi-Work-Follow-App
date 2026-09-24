@@ -264,7 +264,26 @@ describe('Unit 1 Post-Push Remediation: Canonical Semantic Compatibility Suite',
       expect(issues.some((i) => i.code === 'UNRESOLVED_CARRIER' && i.blocking)).toBe(true);
     });
 
-    it('14. committer fails row when carrierId is missing and does NOT inject carriers[0]', async () => {
+    it('13.1 blocks row validation with UNRESOLVED_MATERIAL when material is missing or unresolved', () => {
+      const importRow: any = {
+        rowNumber: 1,
+        canonical: {
+          driverName: 'سائق جديد',
+          truckPlate: 'د ر ع 9999',
+          carrierName: 'شركة البدر للنقل',
+        },
+        entityResolutions: {
+          carrier: { entityType: 'CARRIER', matchedId: 'CAR-001', isAuthorized: true },
+          material: { entityType: 'MATERIAL', matchedId: undefined, isAuthorized: false },
+        },
+        validationIssues: [],
+      };
+
+      const issues = dtValidator.validateRow(importRow, pipelineContext);
+      expect(issues.some((i) => i.code === 'UNRESOLVED_MATERIAL' && i.blocking)).toBe(true);
+    });
+
+    it('14. committer fails row when carrierId or materialId is missing and does NOT fallback', async () => {
       const committer = new DriverTruckImportCommitter();
       const batch: UnifiedImportBatch = {
         importBatchId: 'BAT-NO-CARRIER',
@@ -273,8 +292,8 @@ describe('Unit 1 Post-Push Remediation: Canonical Semantic Compatibility Suite',
         currentStage: 'REVIEW',
         validationStatus: 'PASSED',
         commitStatus: 'READY_TO_COMMIT',
-        totalRows: 1,
-        validRows: 1,
+        totalRows: 2,
+        validRows: 2,
         warningRows: 0,
         errorRows: 0,
         requiresReviewRows: 0,
@@ -287,8 +306,27 @@ describe('Unit 1 Post-Push Remediation: Canonical Semantic Compatibility Suite',
               driverName: 'سائق مجهول الناقل',
               driverIdentity: '1099887711',
               truckPlate: 'د ر ع 1122',
+              materialName: 'AGG-20',
             },
-            entityResolutions: {},
+            entityResolutions: {
+              material: { entityType: 'MATERIAL', matchedId: 'MAT-001', isAuthorized: true },
+            },
+            validationIssues: [],
+            reviewStatus: 'accepted',
+            status: 'VALID',
+          },
+          {
+            rowNumber: 2,
+            raw: {},
+            canonical: {
+              driverName: 'سائق مجهول المادة',
+              driverIdentity: '1099887722',
+              truckPlate: 'د ر ع 3344',
+              carrierName: 'شركة البدر للنقل',
+            },
+            entityResolutions: {
+              carrier: { entityType: 'CARRIER', matchedId: 'CAR-001', isAuthorized: true },
+            },
             validationIssues: [],
             reviewStatus: 'accepted',
             status: 'VALID',
@@ -303,8 +341,9 @@ describe('Unit 1 Post-Push Remediation: Canonical Semantic Compatibility Suite',
 
       const res = await committer.commit(batch, pipelineContext);
       expect(res.committedRows).toBe(0);
-      expect(res.failedRows).toBe(1);
+      expect(res.failedRows).toBe(2);
       expect(res.issues.some((i) => i.code === 'MISSING_CARRIER_ID')).toBe(true);
+      expect(res.issues.some((i) => i.code === 'MISSING_MATERIAL_ID')).toBe(true);
     });
   });
 

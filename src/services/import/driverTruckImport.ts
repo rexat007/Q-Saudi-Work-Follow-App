@@ -411,23 +411,38 @@ export class DriverTruckImportValidator {
       });
     }
 
-    // F. Material Scope Validation
-    if (canonical.materialName || canonical.materialId) {
-      const matName = normalizeName(String(canonical.materialName || ''));
-      const matId = String(canonical.materialId || '');
+    // F. Material Scope Validation (Fail-Closed)
+    const materialRes = row.entityResolutions?.material;
+    const hasMaterialInput = Boolean(canonical.materialName || canonical.materialId || canonical.materialCode);
+
+    if (!hasMaterialInput || !materialRes || !materialRes.matchedId || !materialRes.isAuthorized) {
+      issues.push({
+        issueId: `ISSUE-${row.rowNumber}-MAT-UNRESOLVED`,
+        row: row.rowNumber,
+        field: 'materialName',
+        code: 'UNRESOLVED_MATERIAL',
+        severity: 'BLOCKING',
+        message: 'المادة غير معرّفة أو غير مصرح بها في هذا المشروع.',
+        messageAr: 'المادة غير معرّفة أو غير مصرح بها في هذا المشروع.',
+        resolvable: false,
+        blocking: true,
+      });
+    } else {
+      const matName = normalizeName(String(canonical.materialName || canonical.materialCode || canonical.materialId || ''));
+      const matId = String(materialRes.matchedId);
       const knownMaterials = context.knownEntities?.materials || [];
       const matchedMat = knownMaterials.find(
-        (m) => normalizeName(m.name) === matName || m.code === matId || m.materialId === matId
+        (m) => m.materialId === matId || normalizeName(m.name) === matName || (m.code && m.code.toLowerCase() === matName.toLowerCase())
       );
-      if (!matchedMat && knownMaterials.length > 0) {
+      if (!matchedMat) {
         issues.push({
           issueId: `ISSUE-${row.rowNumber}-MAT-UNKNOWN`,
           row: row.rowNumber,
           field: 'materialName',
           code: 'UNRESOLVED_MATERIAL',
           severity: 'BLOCKING',
-          message: `المادة غير معرّفة في المشروع [${canonical.materialName || canonical.materialId}]`,
-          messageAr: `المادة غير معرّفة في المشروع [${canonical.materialName || canonical.materialId}]`,
+          message: `المادة غير معرّفة في المشروع [${canonical.materialName || canonical.materialId || canonical.materialCode}]`,
+          messageAr: `المادة غير معرّفة في المشروع [${canonical.materialName || canonical.materialId || canonical.materialCode}]`,
           resolvable: false,
           blocking: true,
         });
@@ -549,7 +564,7 @@ export class DriverTruckImportCommitter {
     for (const row of activeRows) {
       const canonical = row.canonical || row.raw || {};
       const carrierId = row.entityResolutions?.carrier?.matchedId || canonical.carrierId;
-      const materialId = row.entityResolutions?.material?.matchedId || canonical.materialId || canonical.materialCode;
+      const materialId = row.entityResolutions?.material?.matchedId;
 
       if (!carrierId) {
         failedRowsCount++;
@@ -561,6 +576,22 @@ export class DriverTruckImportCommitter {
           severity: 'BLOCKING',
           message: 'فشل الاستيراد لعدم تحديد معرف الناقل.',
           messageAr: 'فشل الاستيراد لعدم تحديد معرف الناقل.',
+          resolvable: false,
+          blocking: true,
+        });
+        continue;
+      }
+
+      if (!materialId) {
+        failedRowsCount++;
+        importErrors.push({
+          issueId: `ISSUE-${row.rowNumber}-MATERIAL-MISSING`,
+          row: row.rowNumber,
+          field: 'materialName',
+          code: 'MISSING_MATERIAL_ID',
+          severity: 'BLOCKING',
+          message: 'فشل الاستيراد لعدم تحديد معرف المادة المعتمد.',
+          messageAr: 'فشل الاستيراد لعدم تحديد معرف المادة المعتمد.',
           resolvable: false,
           blocking: true,
         });
