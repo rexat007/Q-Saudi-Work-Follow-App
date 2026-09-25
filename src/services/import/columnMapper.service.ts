@@ -35,12 +35,12 @@ const CANONICAL_FIELD_DEFINITIONS: FieldAliasDefinition[] = [
   },
   {
     canonicalField: 'truckNo',
-    exactNames: ['truckno', 'truck_no', 'truckid', 'truck_id', 'plate', 'plateno', 'plate_no', 'رقم_اللوحة', 'اللوحة', 'الشاحنة', 'رقم_الشاحنة', 'vechleno', 'vechle_no'],
-    aliases: ['لوحة', 'شاحنة', 'رأس تريلا', 'رقم اللوحة', 'رقم الشاحنة', 'رقم المركبة', 'المركبة', 'vehicle', 'vehicle_no', 'truck', 'truck_plate', 'رقم لوحة الشاحنة', 'لوحة الشاحنة', 'vechle', 'vechle no', 'vechle_no'],
+    exactNames: ['truckno', 'truck_no', 'truckid', 'truck_id', 'plate', 'plateno', 'plate_no', 'رقم_اللوحة', 'اللوحة', 'الشاحنة', 'رقم_الشاحنة', 'vechleno', 'vechle_no', 'truckplate'],
+    aliases: ['لوحة', 'شاحنة', 'رأس تريلا', 'رقم اللوحة', 'رقم الشاحنة', 'رقم المركبة', 'المركبة', 'vehicle', 'vehicle_no', 'truck', 'truck_plate', 'رقم لوحة الشاحنة', 'لوحة الشاحنة', 'vechle', 'vechle no', 'vechle_no', 'vehicle no', 'Plate عربى'],
   },
   {
     canonicalField: 'carrier',
-    exactNames: ['carrier', 'carrierid', 'carrier_id', 'transporter', 'transporter_id', 'الناقل', 'شركة_النقل', 'اسم_الناقل', 'المقاول'],
+    exactNames: ['carrier', 'carrierid', 'carrier_id', 'transporter', 'transporter_id', 'الناقل', 'شركة_النقل', 'اسم_الناقل', 'المقاول', 'carriername'],
     aliases: ['مؤسسة النقل', 'شركة النقل', 'الناقل', 'اسم الناقل', 'المقاول', 'المورد', 'transport_company', 'carrier_name', 'hauler', 'vendor', 'اسم الناقل المعتمد'],
   },
   {
@@ -50,8 +50,8 @@ const CANONICAL_FIELD_DEFINITIONS: FieldAliasDefinition[] = [
   },
   {
     canonicalField: 'materialType',
-    exactNames: ['material', 'materialtype', 'material_type', 'materialid', 'material_id', 'materialcode', 'المادة', 'نوع_المادة', 'الصنف'],
-    aliases: ['مادة', 'نوع المادة', 'الصنف', 'المنتج', 'اسم المادة', 'نوع الشحنة', 'item', 'item_name', 'cargo', 'product', 'substance'],
+    exactNames: ['material', 'materialtype', 'material_type', 'materialid', 'material_id', 'materialcode', 'المادة', 'نوع_المادة', 'الصنف', 'materialname'],
+    aliases: ['مادة', 'نوع المادة', 'الصنف', 'المنتج', 'اسم المادة', 'نوع الشحنة', 'item', 'item_name', 'cargo', 'product', 'substance', 'material name'],
   },
   {
     canonicalField: 'shiftDate',

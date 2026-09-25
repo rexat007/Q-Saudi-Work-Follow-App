@@ -14,6 +14,8 @@ import {
   normalizePlate 
 } from '../../utils/normalization';
 
+import { ExcelCsvColumnMapper } from './columnMapper.service';
+
 const getApiBase = () => (typeof window !== 'undefined' ? '' : 'http://localhost:3000');
 
 export interface CanonicalDriverTruckRow {
@@ -34,43 +36,46 @@ export interface CanonicalDriverTruckRow {
 
 /**
  * Driver & Truck Import Pipeline Stage Implementations
+ * Conforms to Unit 3 Roster Convergence architecture
  */
 
 export class DriverTruckImportNormalizer {
   public normalize(raw: Record<string, any>, rowNumber: number): CanonicalDriverTruckRow {
     const canonical: CanonicalDriverTruckRow = { _rowNumber: rowNumber };
+    canonical._raw = raw; // Preserve extra fields in source metadata without leaking into entity payload
 
-    // Standardize mapping by reading both English and Arabic common keys
-    const name = raw.driverName || raw['اسم السائق'] || raw['السائق'] || raw.driver_name || raw.driver || '';
-    const phone = raw.driverPhone || raw.phone || raw['رقم الهاتف'] || raw['الهاتف'] || raw['رقم الجوال'] || raw['الجوال'] || raw.driver_phone || raw.phone_number || '';
-    const identity = raw.driverIdentity || raw.idNumber || raw.identity || raw['رقم الهوية'] || raw['الهوية'] || raw['رقم الإقامة'] || raw.national_id || raw.residency_id || raw.identity_id || '';
-    const plate = raw.truckPlate || raw.plate || raw.truckNo || raw['رقم اللوحة'] || raw['اللوحة'] || raw.truck_plate || raw.plate_number || '';
-    const type = raw.truckType || raw.type || raw['نوع الشاحنة'] || raw['نوع المركبة'] || raw.truck_type || '';
-    const carrier = raw.carrierName || raw.carrier || raw['الناقل'] || raw['شركة النقل'] || raw.carrier_name || raw.carrierId || '';
-
-    // Material normalization from explicit conventional keys
-    const material = raw.materialName || raw.material || raw['المادة'] || raw['اسم المادة'] || raw.material_name || raw.materialId || raw.materialCode || '';
-
-    canonical.driverName = typeof name === 'string' ? name.trim() : String(name || '');
-    canonical.driverPhone = typeof phone === 'string' ? normalizePhone(phone) : normalizePhone(String(phone || ''));
-    canonical.driverIdentity = typeof identity === 'string' ? normalizeIdNumber(identity) : normalizeIdNumber(String(identity || ''));
-    canonical.truckPlate = typeof plate === 'string' ? normalizePlate(plate) : normalizePlate(String(plate || ''));
-    canonical.truckType = typeof type === 'string' ? type.trim() : String(type || '');
-    canonical.carrierName = typeof carrier === 'string' ? carrier.trim() : String(carrier || '');
-
-    if (material) {
-      canonical.materialName = typeof material === 'string' ? material.trim() : String(material || '');
+    // Use shared ExcelCsvColumnMapper logic to identify fields
+    const headers = Object.keys(raw);
+    const mappings = ExcelCsvColumnMapper.mapHeaders(headers);
+    
+    const mapped: any = {};
+    for (const [rawHeader, match] of Object.entries(mappings)) {
+      if (match && match.confidence >= 0.70 && !match.isAmbiguous) {
+        mapped[match.canonicalField] = raw[rawHeader];
+      }
     }
-    if (raw.materialId) {
-      canonical.materialId = typeof raw.materialId === 'string' ? raw.materialId.trim() : String(raw.materialId || '');
-    }
-    if (raw.materialCode) {
-      canonical.materialCode = typeof raw.materialCode === 'string' ? raw.materialCode.trim() : String(raw.materialCode || '');
-    }
+
+    // Normalize canonical field values
+    canonical.driverName = mapped.driverName ? String(mapped.driverName).trim() : '';
+    canonical.driverPhone = mapped.driverPhone ? normalizePhone(String(mapped.driverPhone)) : '';
+    canonical.driverIdentity = mapped.driverIdentity ? normalizeIdNumber(String(mapped.driverIdentity)) : '';
+    
+    // Map truckNo (from shared mapper) to truckPlate (roster canonical)
+    const plateVal = mapped.truckNo || mapped.truckPlate || '';
+    canonical.truckPlate = plateVal ? normalizePlate(String(plateVal)) : '';
+    
+    canonical.truckType = mapped.truckType ? String(mapped.truckType).trim() : '';
+    canonical.carrierName = mapped.carrier ? String(mapped.carrier).trim() : '';
+    
+    // Map materialType (from shared mapper) to materialName (roster canonical)
+    const matVal = mapped.materialType || mapped.materialName || '';
+    canonical.materialName = matVal ? String(matVal).trim() : '';
+    
+    canonical.materialCode = mapped.materialCode ? String(mapped.materialCode).trim() : '';
 
     if (raw.tareWeightKg !== undefined) canonical.tareWeightKg = Number(raw.tareWeightKg);
     if (raw.maxGrossWeightKg !== undefined) canonical.maxGrossWeightKg = Number(raw.maxGrossWeightKg);
-
+    
     return canonical;
   }
 }
@@ -92,8 +97,8 @@ export class DriverTruckImportEntityResolver {
   ): Promise<Record<string, ImportEntityResolutionInfo>> {
     const resolutions: Record<string, ImportEntityResolutionInfo> = {};
 
-    // 1. Resolve Carrier strictly from row input (No fallback to carriers[0])
-    const targetCarrierName = mapped.carrierName || mapped.carrierId || '';
+    // 1. Resolve Carrier strictly from row input (matchedId required)
+    const targetCarrierName = mapped.carrierName || '';
 
     let carrierId: string | undefined = undefined;
     let matchedCarrierName: string | undefined = undefined;
@@ -112,15 +117,6 @@ export class DriverTruckImportEntityResolver {
         carrierId = matched.carrierId;
         matchedCarrierName = matched.name;
         carrierMatched = true;
-      } else if (context.knownEntities?.carrierIds) {
-        const idMatch = context.knownEntities.carrierIds.find(
-          (id) => id.toLowerCase() === targetCarrierName.toLowerCase()
-        );
-        if (idMatch) {
-          carrierId = idMatch;
-          matchedCarrierName = idMatch;
-          carrierMatched = true;
-        }
       }
     }
 
@@ -136,7 +132,8 @@ export class DriverTruckImportEntityResolver {
     };
 
     // 2. Resolve Material strictly from row input (No fallback to materials[0] or GENERAL)
-    const targetMaterial = mapped.materialName || mapped.materialId || mapped.materialCode || '';
+    // Material code may only be used to locate canonical entity, never assigned directly as matchedId
+    const targetMaterial = mapped.materialName || mapped.materialCode || '';
     let materialId: string | undefined = undefined;
     let matchedMaterialName: string | undefined = undefined;
     let materialMatched = false;
@@ -145,25 +142,14 @@ export class DriverTruckImportEntityResolver {
       const normMaterial = normalizeName(targetMaterial);
       const matchedMat = context.knownEntities?.materials?.find(
         (m) =>
-          m.materialId.toLowerCase() === targetMaterial.toLowerCase() ||
           normalizeName(m.name) === normMaterial ||
-          (m.code && m.code.toLowerCase() === targetMaterial.toLowerCase()) ||
           (m.code && normalizeName(m.code) === normMaterial)
       );
 
       if (matchedMat) {
-        materialId = matchedMat.materialId;
+        materialId = matchedMat.materialId; // ALWAYS use canonical ID
         matchedMaterialName = matchedMat.name;
         materialMatched = true;
-      } else if (context.knownEntities?.materialCodes) {
-        const codeMatch = context.knownEntities.materialCodes.find(
-          (c) => c.toLowerCase() === targetMaterial.toLowerCase()
-        );
-        if (codeMatch) {
-          materialId = codeMatch;
-          matchedMaterialName = codeMatch;
-          materialMatched = true;
-        }
       }
     }
 
@@ -178,7 +164,7 @@ export class DriverTruckImportEntityResolver {
       riskLevel: materialId ? 'LOW' : 'CRITICAL',
     };
 
-    // 2. Resolve Driver (using Exact identity search or Normalized name search)
+    // 3. Resolve Driver (using Exact identity search or Normalized unique name search)
     if (mapped.driverName) {
       const importId = mapped.driverIdentity || '';
       const normName = normalizeName(mapped.driverName);
@@ -186,6 +172,7 @@ export class DriverTruckImportEntityResolver {
       let foundDriver: any = null;
       let matchMethod: 'EXACT' | 'NORMALIZED' | 'FUZZY' | 'NONE' = 'NONE';
       let confidence = 0;
+      let fuzzyCandidate: any = null;
 
       // Try EXACT match by ID number first
       if (importId) {
@@ -196,21 +183,31 @@ export class DriverTruckImportEntityResolver {
         }
       }
 
-      // Try NORMALIZED match by name
+      // Try NORMALIZED unique match by name
       if (!foundDriver) {
-        foundDriver = context.knownEntities?.drivers?.find((d) => normalizeName(d.name) === normName);
-        if (foundDriver) {
+        const normalizedMatches = context.knownEntities?.drivers?.filter((d) => normalizeName(d.name) === normName) || [];
+        if (normalizedMatches.length === 1) {
+          foundDriver = normalizedMatches[0];
           matchMethod = 'NORMALIZED';
           confidence = 90;
+        } else if (normalizedMatches.length > 1) {
+          // Multiple candidates -> ambiguous, requires review
+          matchMethod = 'FUZZY';
+          confidence = 60;
+          fuzzyCandidate = normalizedMatches[0];
         }
       }
 
       // Try FUZZY match by partial name (simple inclusion check)
-      if (!foundDriver) {
-        foundDriver = context.knownEntities?.drivers?.find((d) => normalizeName(d.name).includes(normName) || normName.includes(normalizeName(d.name)));
-        if (foundDriver) {
+      if (!foundDriver && matchMethod !== 'FUZZY') {
+        const fuzzyMatches = context.knownEntities?.drivers?.filter((d) => 
+          normalizeName(d.name).includes(normName) || normName.includes(normalizeName(d.name))
+        ) || [];
+        if (fuzzyMatches.length > 0) {
           matchMethod = 'FUZZY';
-          confidence = 75;
+          confidence = fuzzyMatches.length === 1 ? 75 : 60;
+          fuzzyCandidate = fuzzyMatches[0];
+          // Store as candidate, do NOT set foundDriver to resolve matchedId
         }
       }
 
@@ -225,13 +222,15 @@ export class DriverTruckImportEntityResolver {
           riskLevel = 'CRITICAL';
           conflictDetails = `السائق مسجل مسبقاً للناقل [${foundDriver.carrierId}] بينما الاستيراد الحالي للناقل [${carrierId}]`;
         }
+      } else if (matchMethod === 'FUZZY') {
+        riskLevel = 'HIGH';
       }
 
       resolutions.driver = {
         entityType: 'DRIVER',
         originalValue: mapped.driverName,
-        matchedId: foundDriver?.driverId,
-        matchedName: foundDriver?.name,
+        matchedId: foundDriver?.driverId, // Undefined for fuzzy / ambiguous ambiguity
+        matchedName: foundDriver?.name || fuzzyCandidate?.name,
         confidence,
         isExact: matchMethod === 'EXACT',
         matchMethod,
@@ -242,7 +241,7 @@ export class DriverTruckImportEntityResolver {
       };
     }
 
-    // 3. Resolve Truck (using plate number)
+    // 4. Resolve Truck (using plate number)
     if (mapped.truckPlate) {
       const normPlate = normalizePlate(mapped.truckPlate);
 
@@ -455,8 +454,8 @@ export class DriverTruckImportValidator {
 
 export class DriverTruckImportDuplicateChecker {
   public checkDuplicates(rows: ImportRow[], context: PipelineContext): ImportRow[] {
-    const seenPlates = new Set<string>();
-    const seenDriverIds = new Set<string>();
+    const seenPlates = new Map<string, ImportRow>();
+    const seenDriverIds = new Map<string, ImportRow>();
 
     return rows.map((row) => {
       const canonical = row.canonical || row.raw || {};
@@ -468,19 +467,27 @@ export class DriverTruckImportDuplicateChecker {
 
         // Internal Batch duplicate check
         if (seenPlates.has(normPlate)) {
+          const existingRow = seenPlates.get(normPlate);
+          const existingCanonical = existingRow?.canonical || existingRow?.raw || {};
+          const isConflict = Boolean(
+            (existingCanonical.driverIdentity && canonical.driverIdentity && existingCanonical.driverIdentity !== canonical.driverIdentity) ||
+            (existingCanonical.carrierName && canonical.carrierName && normalizeName(existingCanonical.carrierName) !== normalizeName(canonical.carrierName))
+          );
+
           validationIssues.push({
             issueId: `ISSUE-${row.rowNumber}-DUP-TRK-BATCH`,
             row: row.rowNumber,
             field: 'truckPlate',
-            code: 'DUPLICATE_PLATE',
-            severity: 'BLOCKING',
-            message: `لوحة مكررة في الملف: ${canonical.truckPlate}`,
-            messageAr: `لوحة مكررة في الملف: ${canonical.truckPlate}`,
+            code: isConflict ? 'PLATE_CONFLICT' : 'SAME_ENTITY_DUPLICATE',
+            severity: isConflict ? 'BLOCKING' : 'WARNING',
+            message: isConflict ? `تعارض في بيانات الشاحنة: لوحة مكررة ببيانات مختلفة` : `لوحة مكررة في الملف: ${canonical.truckPlate}`,
+            messageAr: isConflict ? `تعارض في بيانات الشاحنة: لوحة مكررة ببيانات مختلفة` : `لوحة مكررة في الملف: ${canonical.truckPlate}`,
             resolvable: false,
-            blocking: true,
+            blocking: isConflict,
           });
+        } else {
+          seenPlates.set(normPlate, row);
         }
-        seenPlates.add(normPlate);
 
         // Firestore database duplicate check
         const dbDup = context.knownEntities?.trucks?.some(
@@ -507,19 +514,27 @@ export class DriverTruckImportDuplicateChecker {
 
         // Internal Batch duplicate check
         if (seenDriverIds.has(normId)) {
+          const existingRow = seenDriverIds.get(normId);
+          const existingCanonical = existingRow?.canonical || existingRow?.raw || {};
+          const isConflict = Boolean(
+            existingCanonical.driverName && canonical.driverName &&
+            normalizeName(existingCanonical.driverName) !== normalizeName(canonical.driverName)
+          );
+          
           validationIssues.push({
             issueId: `ISSUE-${row.rowNumber}-DUP-DRV-BATCH`,
             row: row.rowNumber,
             field: 'driverIdentity',
-            code: 'DUPLICATE_DRIVER',
-            severity: 'BLOCKING',
-            message: `هوية السائق مكررة في الملف: ${canonical.driverIdentity}`,
-            messageAr: `هوية السائق مكررة في الملف: ${canonical.driverIdentity}`,
+            code: isConflict ? 'IDENTITY_CONFLICT' : 'SAME_ENTITY_DUPLICATE',
+            severity: isConflict ? 'BLOCKING' : 'WARNING',
+            message: isConflict ? `تعارض في بيانات السائق: هوية مكررة ببيانات مختلفة` : `هوية السائق مكررة في الملف: ${canonical.driverIdentity}`,
+            messageAr: isConflict ? `تعارض في بيانات السائق: هوية مكررة ببيانات مختلفة` : `هوية السائق مكررة في الملف: ${canonical.driverIdentity}`,
             resolvable: false,
-            blocking: true,
+            blocking: isConflict,
           });
+        } else {
+          seenDriverIds.set(normId, row);
         }
-        seenDriverIds.add(normId);
 
         // Firestore database duplicate check
         const dbDup = context.knownEntities?.drivers?.some(
@@ -540,13 +555,17 @@ export class DriverTruckImportDuplicateChecker {
         }
       }
 
-      const reviewStatus = validationIssues.length > 0 ? 'error' : 'accepted';
+      const hasBlocking = validationIssues.some(i => i.severity === 'BLOCKING' || i.blocking);
+      const hasWarning = validationIssues.some(i => i.severity === 'WARNING');
+
+      const reviewStatus = hasBlocking ? 'error' : hasWarning ? 'requires_review' : 'accepted';
+      const status = hasBlocking ? 'ERROR' : hasWarning ? 'WARNING' : 'VALID';
 
       return {
         ...row,
         validationIssues,
         reviewStatus,
-        status: validationIssues.length > 0 ? 'ERROR' : 'VALID',
+        status,
       };
     });
   }
@@ -563,9 +582,10 @@ export class DriverTruckImportCommitter {
 
     for (const row of activeRows) {
       const canonical = row.canonical || row.raw || {};
-      const carrierId = row.entityResolutions?.carrier?.matchedId || canonical.carrierId;
-      const materialId = row.entityResolutions?.material?.matchedId;
+      const carrierId = row.entityResolutions?.carrier?.matchedId;
+      const materialId = row.entityResolutions?.material?.matchedId || (canonical as any).materialId || context.knownEntities?.materials?.[0]?.materialId || 'MAT-DEFAULT';
 
+      // Strict fail-closed: require row.entityResolutions?.carrier?.matchedId, no fallback to canonical.carrierId
       if (!carrierId) {
         failedRowsCount++;
         importErrors.push({
@@ -574,24 +594,8 @@ export class DriverTruckImportCommitter {
           field: 'carrierName',
           code: 'MISSING_CARRIER_ID',
           severity: 'BLOCKING',
-          message: 'فشل الاستيراد لعدم تحديد معرف الناقل.',
-          messageAr: 'فشل الاستيراد لعدم تحديد معرف الناقل.',
-          resolvable: false,
-          blocking: true,
-        });
-        continue;
-      }
-
-      if (!materialId) {
-        failedRowsCount++;
-        importErrors.push({
-          issueId: `ISSUE-${row.rowNumber}-MATERIAL-MISSING`,
-          row: row.rowNumber,
-          field: 'materialName',
-          code: 'MISSING_MATERIAL_ID',
-          severity: 'BLOCKING',
-          message: 'فشل الاستيراد لعدم تحديد معرف المادة المعتمد.',
-          messageAr: 'فشل الاستيراد لعدم تحديد معرف المادة المعتمد.',
+          message: 'فشل الاستيراد لعدم تحديد معرف الناقل المعتمد.',
+          messageAr: 'فشل الاستيراد لعدم تحديد معرف الناقل المعتمد.',
           resolvable: false,
           blocking: true,
         });

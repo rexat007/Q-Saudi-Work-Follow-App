@@ -19,6 +19,8 @@ import {
 import { CanonicalDriverTruckRow } from './driverTruckImport';
 import { smartSourceDiscoveryService } from './smartSourceDiscovery.service';
 
+import { ExcelCsvColumnMapper } from './columnMapper.service';
+
 export interface ProcessDriverTruckFileOptions {
   sheetName?: string;
   headerRowIndex?: number;
@@ -84,7 +86,7 @@ export class DriverTruckPipelineService {
 
     // Use our custom driver/truck stages
     const normalizer = new DriverTruckImportNormalizer();
-    const mapper = new DriverTruckImportMapper();
+    const mapper = new ExcelCsvColumnMapper();
     const entityResolver = new DriverTruckImportEntityResolver();
     const validator = new DriverTruckImportValidator();
     const duplicateChecker = new DriverTruckImportDuplicateChecker();
