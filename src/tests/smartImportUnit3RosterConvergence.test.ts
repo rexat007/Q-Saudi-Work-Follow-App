@@ -366,4 +366,41 @@ describe('Unit 3 Roster Convergence — 34 Behavior Matrix', () => {
     const { DriverTruckPipelineService } = await import('../services/import/driverTruckPipeline.service');
     expect(typeof DriverTruckPipelineService.processFileToReview).toBe('function');
   });
+
+  // 35. Regression: Commit fails-closed if material matchedId is absent (no fallback to canonical, context, or MAT-DEFAULT)
+  it('35. Commit fails-closed if material matchedId is absent despite canonical/context fallback availability', async () => {
+    const committer = new DriverTruckImportCommitter();
+    const batch: any = {
+      projectId: 'PRJ-123',
+      source: { sourceType: 'EXCEL' },
+      rows: [{
+        rowNumber: 1,
+        status: 'VALID',
+        reviewStatus: 'accepted',
+        canonical: {
+          driverName: 'عادل السليمي',
+          truckPlate: 'ط ي ر 9999',
+          materialId: 'MAT-CANONICAL-UNRESOLVED',
+          materialName: 'اسفلت'
+        },
+        entityResolutions: {
+          carrier: { matchedId: 'CAR-1' },
+          material: { matchedId: undefined }
+        }
+      }]
+    };
+
+    const mockFetch = vi.fn();
+    global.fetch = mockFetch;
+
+    const result = await committer.commit(batch, mockContext);
+
+    // MUST NOT call /api/intake/canonical
+    expect(mockFetch).not.toHaveBeenCalled();
+    // return failedRows = 1
+    expect(result.failedRows).toBe(1);
+    expect(result.committedRows).toBe(0);
+    // include MISSING_MATERIAL_ID
+    expect(result.issues.some(i => i.code === 'MISSING_MATERIAL_ID' && i.blocking)).toBe(true);
+  });
 });

@@ -583,7 +583,7 @@ export class DriverTruckImportCommitter {
     for (const row of activeRows) {
       const canonical = row.canonical || row.raw || {};
       const carrierId = row.entityResolutions?.carrier?.matchedId;
-      const materialId = row.entityResolutions?.material?.matchedId || (canonical as any).materialId || context.knownEntities?.materials?.[0]?.materialId || 'MAT-DEFAULT';
+      const materialId = row.entityResolutions?.material?.matchedId;
 
       // Strict fail-closed: require row.entityResolutions?.carrier?.matchedId, no fallback to canonical.carrierId
       if (!carrierId) {
@@ -596,6 +596,23 @@ export class DriverTruckImportCommitter {
           severity: 'BLOCKING',
           message: 'فشل الاستيراد لعدم تحديد معرف الناقل المعتمد.',
           messageAr: 'فشل الاستيراد لعدم تحديد معرف الناقل المعتمد.',
+          resolvable: false,
+          blocking: true,
+        });
+        continue;
+      }
+
+      // Strict fail-closed: require row.entityResolutions?.material?.matchedId, no fallback
+      if (!materialId) {
+        failedRowsCount++;
+        importErrors.push({
+          issueId: `ISSUE-${row.rowNumber}-MATERIAL-MISSING`,
+          row: row.rowNumber,
+          field: 'materialName',
+          code: 'MISSING_MATERIAL_ID',
+          severity: 'BLOCKING',
+          message: 'فشل الاستيراد لعدم تحديد معرف المادة المعتمد.',
+          messageAr: 'فشل الاستيراد لعدم تحديد معرف المادة المعتمد.',
           resolvable: false,
           blocking: true,
         });
