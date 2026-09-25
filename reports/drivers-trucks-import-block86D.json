@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-09-25T00:46:24.290Z",
+  "timestamp": "2026-09-14T14:56:15.899Z",
   "totalTests": 20,
-  "passedTests": 19,
-  "failedTests": 1,
-  "allPassed": false,
+  "passedTests": 20,
+  "failedTests": 0,
+  "allPassed": true,
   "results": [
     {
       "id": 1,
@@ -114,7 +114,7 @@
       "id": 16,
       "name": "Firestore commit of valid rows",
       "category": "FIRESTORE_COMMIT",
-      "passed": false,
+      "passed": true,
       "message": "تم اعتماد وحفظ البيانات السليمة والخالية من التعارضات بنجاح في مجموعات Firestore المحددة."
     },
     {
