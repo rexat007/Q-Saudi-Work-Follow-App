@@ -1,10 +1,10 @@
 # BLOCK 86D — DRIVERS & TRUCKS IMPORT + SMART ENTITY RESOLUTION REPORT
 
-**Timestamp:** 2026-09-14T14:56:15.899Z  
+**Timestamp:** 2026-09-25T00:46:24.290Z  
 **Total Requirements Tested:** 20  
-**Passed:** 20  
-**Failed:** 0  
-**Overall Status:** ✅ PASSED (100% SUCCESS)
+**Passed:** 19  
+**Failed:** 1  
+**Overall Status:** ❌ FAILED
 
 ---
 
@@ -33,7 +33,7 @@ BLOCK 86D implements a robust, production-ready workflow for importing driver an
 | 13 | Carrier scoping verification | `CARRIER_SCOPING` | ✅ PASS | تم التحقق من حظر الاستيراد أو تعليق الاعتماد للناقلين غير النشطين أو غير المصرح بهم في المشروع. |
 | 14 | Preview and mapping before commit (Pre-commit Invariant) | `PRE_COMMIT_INVARIANT` | ✅ PASS | تم فحص توفير واجهة معاينة تفصيلية للمستخدم (Review Model) دون إجراء أي كتابة على قاعدة البيانات. |
 | 15 | Unresolved/Conflict rows blocked from commit | `COMMIT_BLOCKING_GUARD` | ✅ PASS | تم التحقق من حظر وحماية الكتل والصفوف التي تحتوي على أخطاء حرجة أو تعارضات من كتابتها لقاعدة البيانات. |
-| 16 | Firestore commit of valid rows | `FIRESTORE_COMMIT` | ✅ PASS | تم اعتماد وحفظ البيانات السليمة والخالية من التعارضات بنجاح في مجموعات Firestore المحددة. |
+| 16 | Firestore commit of valid rows | `FIRESTORE_COMMIT` | ❌ FAIL | تم اعتماد وحفظ البيانات السليمة والخالية من التعارضات بنجاح في مجموعات Firestore المحددة. |
 | 17 | Real-time UI update triggers | `REAL_TIME_UI_SYNC` | ✅ PASS | تم التحقق من تخطيط المستمعين النشطين (Firestore Snapshots) لتحديث الواجهة ديناميكياً فور نجاح عملية الحفظ. |
 | 18 | Audit log recorded on entity creation | `AUDIT_LOGGING` | ✅ PASS | تم التحقق من تسجيل تفاصيل العمليات (إنشاء، استيراد) مباشرة في سجل التدقيق التاريخي للعمليات اللوجستية. |
 | 19 | RBAC permission enforcement on Import | `RBAC_ENFORCEMENT` | ✅ PASS | تم التحقق من قصر صلاحيات تشغيل واجهة الاستيراد والاعتماد على مديري المشاريع والمدير العام فقط. |

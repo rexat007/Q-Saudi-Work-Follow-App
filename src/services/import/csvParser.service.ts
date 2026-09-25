@@ -12,11 +12,11 @@
  * - Raw data only: NO business rules, NO Trip creation, NO Firestore writes
  */
 
-import { IImportParser } from './contracts';
+import { IImportParser, ImportParserOptions } from './contracts';
 import { ImportSource, RawParsedOutput } from '../../types/unifiedImport';
 import { OperationSourceType } from '../../types/entities';
 
-export interface CsvParseOptions {
+export interface CsvParseOptions extends ImportParserOptions {
   delimiter?: string;
   headerRowIndex?: number;
 }

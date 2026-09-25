@@ -31,11 +31,13 @@ import {
   PipelineContext,
   ImportResult,
   UNIFIED_IMPORT_PIPELINE_STAGES,
+  ImportSource,
 } from '../../types/unifiedImport';
 import { runGoogleSheetsImportTests, GoogleSheetsTestReport } from '../../tests/googleSheetsImport.test';
 import { RelationshipContext } from '../../types/dataQuality';
 import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
 import { AuthUserContext } from '../../types/common';
+import { smartSourceDiscoveryService } from '../../services/import/smartSourceDiscovery.service';
 
 interface GoogleSheetsImportSectionProps {
   projectId: string;
@@ -156,6 +158,16 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         selectedSheetTab || 'Sheet1'
       );
 
+      // Run Smart Source Discovery to automatically detect headerRowIndex and sheet details
+      const importSource: ImportSource = {
+        sourceType: 'GOOGLE_SHEETS',
+        importBatchId: `BAT-${Date.now()}`,
+        sourceFileName: selectedSpreadsheet.name,
+        sourceSheetName: selectedSheetTab || 'Sheet1',
+      };
+      const discovery = await smartSourceDiscoveryService.discover(importSource, sheetData.values);
+      const detectedIdx = discovery.detectedHeaderRowIndex || 0;
+
       // 2. Build Pipeline Context
       const context: PipelineContext = pipelineContext || (canonicalRelationshipContext && canonicalRelationshipContext.projectId
         ? ImportProjectContextAdapter.createPipelineContext({
@@ -182,7 +194,8 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         sheetData.values,
         selectedSpreadsheet,
         selectedSheetTab || 'Sheet1',
-        context
+        context,
+        { headerRowIndex: detectedIdx }
       );
 
       setBatch(reviewedBatch);

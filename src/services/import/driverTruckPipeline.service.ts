@@ -17,6 +17,7 @@ import {
   ImportResult,
 } from '../../types/unifiedImport';
 import { CanonicalDriverTruckRow } from './driverTruckImport';
+import { smartSourceDiscoveryService } from './smartSourceDiscovery.service';
 
 export interface ProcessDriverTruckFileOptions {
   sheetName?: string;
@@ -51,6 +52,33 @@ export class DriverTruckPipelineService {
     const sourceType = intakeValidation.fileType === 'EXCEL' ? 'EXCEL' : 'CSV';
     const importBatchId = `BAT-DT-${sourceType.slice(0, 3)}-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
+    let targetSheetName = options?.sheetName;
+    let targetHeaderRowIndex = options?.headerRowIndex;
+
+    if (targetSheetName === undefined || targetHeaderRowIndex === undefined) {
+      try {
+        const discSource: ImportSource = {
+          sourceType,
+          importBatchId,
+          sourceFileName: fileName,
+        };
+        const discovery = await smartSourceDiscoveryService.discover(discSource, inputData);
+        if (targetSheetName === undefined) {
+          targetSheetName = discovery.selectedSheet || undefined;
+        }
+        if (targetHeaderRowIndex === undefined) {
+          targetHeaderRowIndex = discovery.detectedHeaderRowIndex;
+        }
+      } catch (err) {
+        console.error('Auto-discovery for driver/truck failed, defaulting:', err);
+      }
+    }
+
+    const effectiveOptions: ProcessDriverTruckFileOptions = {
+      sheetName: targetSheetName,
+      headerRowIndex: targetHeaderRowIndex ?? 0,
+    };
+
     // Instantiate appropriate parser
     const parser = sourceType === 'EXCEL' ? new ExcelImportParser() : new CsvImportParser();
 
@@ -78,7 +106,7 @@ export class DriverTruckPipelineService {
       importBatchId,
       sourceFileName: fileName,
       sourceMimeType: mimeType,
-      sourceSheetName: options?.sheetName,
+      sourceSheetName: effectiveOptions.sheetName,
       rawInput: inputData,
     };
 
@@ -86,7 +114,7 @@ export class DriverTruckPipelineService {
     const batch = pipeline.createBatch(source, context);
 
     // 3. Process through stages PARSE -> REVIEW
-    const reviewedBatch = await pipeline.processThroughReview(batch, inputData, context);
+    const reviewedBatch = await pipeline.processThroughReview(batch, inputData, context, effectiveOptions);
 
     // Filter validation issues to count totals properly
     let validRows = 0;

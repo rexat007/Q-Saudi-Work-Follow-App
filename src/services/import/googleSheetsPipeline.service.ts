@@ -105,7 +105,7 @@ export class GoogleSheetsPipelineService {
     const batch = pipeline.createBatch(source, context);
 
     // 5. Process through PARSE -> NORMALIZE -> MAP -> RESOLVE -> VALIDATE -> DUPLICATE_CHECK -> REVIEW
-    const reviewedBatch = await pipeline.processThroughReview(batch, values, context);
+    const reviewedBatch = await pipeline.processThroughReview(batch, values, context, options);
 
     return reviewedBatch;
   }

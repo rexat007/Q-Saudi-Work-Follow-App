@@ -12,11 +12,11 @@
  */
 
 import * as XLSX from 'xlsx';
-import { IImportParser } from './contracts';
+import { IImportParser, ImportParserOptions } from './contracts';
 import { ImportSource, RawParsedOutput } from '../../types/unifiedImport';
 import { OperationSourceType } from '../../types/entities';
 
-export interface ExcelParseOptions {
+export interface ExcelParseOptions extends ImportParserOptions {
   sheetName?: string;
   headerRowIndex?: number;
 }
@@ -95,7 +95,7 @@ export class ExcelImportParser implements IImportParser<ArrayBuffer | Uint8Array
     // Convert sheet to array of arrays
     const rawRows = XLSX.utils.sheet_to_json<any[]>(worksheet, {
       header: 1,
-      blankrows: false,
+      blankrows: true,
       defval: '',
       raw: false,
       dateNF: 'yyyy-mm-dd',

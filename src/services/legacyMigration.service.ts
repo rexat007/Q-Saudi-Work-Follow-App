@@ -15,7 +15,7 @@
  * - Audit Trail at all lifecycle checkpoints
  */
 
-import { IImportParser } from './import/contracts';
+import { IImportParser, ImportParserOptions } from './import/contracts';
 import {
   LegacySheetRow,
   MigrationRowItem,
@@ -87,9 +87,10 @@ export class LegacyMigrationService implements IImportParser<LegacySheetRow[] | 
    */
   public parse(
     source: ImportSource,
-    input?: LegacySheetRow[] | any
+    input?: LegacySheetRow[] | any,
+    options?: ImportParserOptions
   ): RawParsedOutput<Record<string, any>> {
-    return legacyMigrationParserService.parse(source, input);
+    return legacyMigrationParserService.parse(source, input, options);
   }
 
   /**

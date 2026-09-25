@@ -23,6 +23,7 @@ import {
   IImportReviewHandler,
   IImportCommitter,
   IImportAuditor,
+  ImportParserOptions,
 } from './contracts';
 import {
   DefaultImportParser,
@@ -130,7 +131,8 @@ export class UnifiedImportPipelineService {
   public async processThroughReview(
     batch: UnifiedImportBatch,
     inputData: any,
-    context: PipelineContext
+    context: PipelineContext,
+    options?: ImportParserOptions
   ): Promise<UnifiedImportBatch> {
     // Project Isolation Check
     const isolation = UnifiedImportValidator.enforceProjectIsolation(batch.projectId, context);
@@ -142,7 +144,7 @@ export class UnifiedImportPipelineService {
     // STAGE 2: PARSE
     // -------------------------------------------------------------
     batch.currentStage = 'PARSE';
-    const parsedOutput = await this.parser.parse(batch.source, inputData);
+    const parsedOutput = await this.parser.parse(batch.source, inputData, options);
     const rawRows = parsedOutput.rows || [];
     batch.totalRows = rawRows.length;
     batch.commitStatus = 'PARSED';

@@ -21,11 +21,12 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { ExcelCsvPipelineService } from '../../services/import/excelCsvPipeline.service';
-import { UnifiedImportBatch, PipelineContext, ImportResult, ImportRow } from '../../types/unifiedImport';
+import { UnifiedImportBatch, PipelineContext, ImportResult, ImportRow, ImportSource } from '../../types/unifiedImport';
 import { ColumnMappingMatch } from '../../types/excelCsvImport';
 import { RelationshipContext } from '../../types/dataQuality';
 import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
 import { AuthUserContext } from '../../types/common';
+import { smartSourceDiscoveryService } from '../../services/import/smartSourceDiscovery.service';
 
 interface ExcelCsvImportSectionProps {
   currentProjectId?: string;
@@ -53,6 +54,9 @@ export function ExcelCsvImportSection({
   const [fileBuffer, setFileBuffer] = useState<ArrayBuffer | null>(null);
   const [availableSheets, setAvailableSheets] = useState<string[]>([]);
   const [selectedSheet, setSelectedSheet] = useState<string>('');
+  const [discoveryResult, setDiscoveryResult] = useState<any | null>(null);
+  const [headerRowIndex, setHeaderRowIndex] = useState<number>(0);
+  const [showManualOverrides, setShowManualOverrides] = useState<boolean>(false);
   
   // Pipeline Batch State
   const [activeBatch, setActiveBatch] = useState<UnifiedImportBatch | null>(null);
@@ -117,21 +121,26 @@ export function ExcelCsvImportSection({
       setFileBuffer(buffer);
 
       const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
-      let sheets: string[] = [];
-      let defaultSheet = '';
+      const sourceType = (ext === '.xlsx' || ext === '.xls') ? 'EXCEL' : 'CSV';
+      const importSource: ImportSource = {
+        sourceType,
+        importBatchId: `BAT-${Date.now()}`,
+        sourceFileName: file.name,
+      };
 
-      if (ext === '.xlsx' || ext === '.xls') {
-        sheets = ExcelCsvPipelineService.getExcelSheets(buffer);
-        setAvailableSheets(sheets);
-        defaultSheet = sheets.length > 0 ? sheets[0] : '';
-        setSelectedSheet(defaultSheet);
-      } else {
-        setAvailableSheets([]);
-        setSelectedSheet('');
-      }
+      const discovery = await smartSourceDiscoveryService.discover(importSource, buffer);
+      setDiscoveryResult(discovery);
 
-      // Execute pipeline through review stage
-      await runPipeline(buffer, file.name, file.size, file.type, defaultSheet);
+      const sheets = discovery.availableSheets || [];
+      const defaultSheet = discovery.selectedSheet || '';
+      const detectedIdx = discovery.detectedHeaderRowIndex || 0;
+
+      setAvailableSheets(sheets);
+      setSelectedSheet(defaultSheet);
+      setHeaderRowIndex(detectedIdx);
+
+      // Execute pipeline through review stage with discovery choices
+      await runPipeline(buffer, file.name, file.size, file.type, defaultSheet, detectedIdx);
     } catch (err: any) {
       setProcessError(err?.message || 'حدث خطأ أثناء فحص وتحليل الملف');
     } finally {
@@ -144,11 +153,14 @@ export function ExcelCsvImportSection({
     fileName: string,
     fileSize: number,
     mimeType: string,
-    sheetName?: string
+    sheetName?: string,
+    overriddenHeaderRowIndex?: number
   ) => {
     try {
       setIsProcessing(true);
       setProcessError(null);
+
+      const targetHeaderRowIdx = overriddenHeaderRowIndex !== undefined ? overriddenHeaderRowIndex : headerRowIndex;
 
       const batch = await ExcelCsvPipelineService.processFileToReview(
         buffer,
@@ -156,7 +168,10 @@ export function ExcelCsvImportSection({
         fileSize,
         mimeType,
         context,
-        { sheetName }
+        {
+          sheetName,
+          headerRowIndex: targetHeaderRowIdx,
+        }
       );
 
       setActiveBatch(batch);
@@ -176,8 +191,33 @@ export function ExcelCsvImportSection({
 
   const handleSheetChange = async (sheet: string) => {
     setSelectedSheet(sheet);
+    if (selectedFile && fileBuffer && discoveryResult) {
+      const ext = selectedFile.name.toLowerCase().slice(selectedFile.name.lastIndexOf('.'));
+      const sourceType = (ext === '.xlsx' || ext === '.xls') ? 'EXCEL' : 'CSV';
+      const importSource: ImportSource = {
+        sourceType,
+        importBatchId: `BAT-${Date.now()}`,
+        sourceFileName: selectedFile.name,
+        sourceSheetName: sheet,
+      };
+
+      try {
+        const updatedDiscovery = await smartSourceDiscoveryService.discover(importSource, fileBuffer);
+        setDiscoveryResult(updatedDiscovery);
+        const detectedIdx = updatedDiscovery.detectedHeaderRowIndex || 0;
+        setHeaderRowIndex(detectedIdx);
+        await runPipeline(fileBuffer, selectedFile.name, selectedFile.size, selectedFile.type, sheet, detectedIdx);
+      } catch (err: any) {
+        console.error('Sheet change discovery failed, using fallback:', err);
+        await runPipeline(fileBuffer, selectedFile.name, selectedFile.size, selectedFile.type, sheet, headerRowIndex);
+      }
+    }
+  };
+
+  const handleHeaderRowIndexChange = async (index: number) => {
+    setHeaderRowIndex(index);
     if (selectedFile && fileBuffer) {
-      await runPipeline(fileBuffer, selectedFile.name, selectedFile.size, selectedFile.type, sheet);
+      await runPipeline(fileBuffer, selectedFile.name, selectedFile.size, selectedFile.type, selectedSheet, index);
     }
   };
 
@@ -223,6 +263,9 @@ export function ExcelCsvImportSection({
     setFileBuffer(null);
     setAvailableSheets([]);
     setSelectedSheet('');
+    setDiscoveryResult(null);
+    setHeaderRowIndex(0);
+    setShowManualOverrides(false);
     setActiveBatch(null);
     setColumnMappings({});
     setProcessError(null);
@@ -358,6 +401,153 @@ export function ExcelCsvImportSection({
             )}
           </div>
         )}
+
+        {/* Smart Source Discovery Preview Panel */}
+        {selectedFile && discoveryResult && (() => {
+          const isAmbiguous = discoveryResult.requiresReview || discoveryResult.confidence < 80;
+          const shouldShowDetails = isAmbiguous || showManualOverrides;
+
+          return (
+            <div className="mt-4 p-5 rounded-2xl bg-stone-50 border border-stone-200/90 text-right space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200/60 font-semibold">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" />
+                  <h4 className="text-sm font-black text-stone-900">
+                    تحليل الكشف الذكي عن مصدر البيانات (Smart Source Discovery Analysis)
+                  </h4>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-stone-500">مستوى الثقة والموثوقية:</span>
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono ${
+                      discoveryResult.confidence >= 80
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : discoveryResult.confidence >= 60
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-rose-100 text-rose-800'
+                    }`}>
+                      {discoveryResult.confidence}%
+                    </span>
+                  </div>
+                  
+                  {!shouldShowDetails && (
+                    <button
+                      onClick={() => setShowManualOverrides(true)}
+                      className="px-3 py-1 rounded-lg bg-white border border-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-100 transition-colors"
+                    >
+                      تعديل الخيارات يدوياً (Manual Overrides)
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {!shouldShowDetails ? (
+                <div className="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-100 text-emerald-900 text-xs font-bold flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600" />
+                    تم كشف وتطابق المخطط بنجاح وثقة عالية جدّاً (Auto-Discovery Optimal). الملف جاهز للمراجعة والاستيراد.
+                  </span>
+                  <span className="text-stone-400 font-normal">
+                    ترويسة صف {headerRowIndex + 1} | ورقة {selectedSheet || 'N/A'}
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div className="space-y-1.5">
+                      <span className="font-bold text-stone-500 block">نوع الملف ونطاقه</span>
+                      <span className="font-mono font-black text-stone-800 bg-white px-2.5 py-1 rounded border border-stone-200 inline-block">
+                        {discoveryResult.sourceType}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <span className="font-bold text-stone-500 block">ورقة العمل الموصى بها</span>
+                      <span className="font-bold text-stone-800 bg-white px-2.5 py-1 rounded border border-stone-200 inline-block">
+                        {discoveryResult.selectedSheet || 'N/A'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <span className="font-bold text-stone-500 block">صف الترويسة المكتشف (Header Row)</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-black text-stone-800 bg-white px-2.5 py-1 rounded border border-stone-200 inline-block">
+                          الصف {headerRowIndex + 1} (مؤشر: {headerRowIndex})
+                        </span>
+                        <div className="flex items-center gap-1 bg-white border border-stone-200 rounded px-1.5 py-0.5">
+                          <span className="text-[10px] text-stone-500 font-bold">تعديل الترويسة:</span>
+                          <input
+                            type="number"
+                            min="0"
+                            max="10"
+                            value={headerRowIndex}
+                            onChange={(e) => handleHeaderRowIndexChange(parseInt(e.target.value) || 0)}
+                            className="w-12 text-center font-mono font-bold bg-stone-50 border border-stone-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mapped Headers Diagnostics Preview */}
+                  <div className="pt-2">
+                    <span className="font-bold text-stone-700 block mb-2">
+                      تشخيصات تطابق الأعمدة المكتشفة (Detected Header Mapping Diagnostics)
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {discoveryResult.detectedHeaders.map((header: string) => {
+                        const match = discoveryResult.mappingDiagnostics[header];
+                        const isMapped = match && match.confidence >= 0.70 && !String(match.canonicalField).startsWith('unmapped_');
+                        return (
+                          <span
+                            key={header}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold ${
+                              isMapped
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : 'bg-stone-100 text-stone-500 border-stone-200'
+                            }`}
+                          >
+                            <span className="truncate max-w-[120px]">{header}</span>
+                            <span className="text-stone-300">➜</span>
+                            <span className="font-mono font-black text-stone-900">
+                              {isMapped ? match.canonicalField : 'غير مطابَق (Unmapped)'}
+                            </span>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Ambiguity reasons & warning flags */}
+                  {discoveryResult.requiresReview && discoveryResult.ambiguityReasons.length > 0 && (
+                    <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs space-y-1">
+                      <span className="font-black text-amber-900 block flex items-center gap-1.5">
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        تنبيهات وتعارضات كشف المخطط:
+                      </span>
+                      <ul className="list-disc list-inside space-y-0.5 text-amber-800 pr-4">
+                        {discoveryResult.ambiguityReasons.map((reason: string, idx: number) => (
+                          <li key={idx}>{reason}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {showManualOverrides && (
+                    <div className="flex justify-end pt-1">
+                      <button
+                        onClick={() => setShowManualOverrides(false)}
+                        className="text-xs font-bold text-stone-500 hover:text-stone-700"
+                      >
+                        إخفاء خيارات التعديل اليدوي
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Processing Indicator */}
         {isProcessing && (

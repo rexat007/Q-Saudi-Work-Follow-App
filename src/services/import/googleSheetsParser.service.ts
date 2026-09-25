@@ -12,11 +12,11 @@
  * - Strictly NO business logic, Trip creation, or Firestore writes inside parser
  */
 
-import { IImportParser } from './contracts';
+import { IImportParser, ImportParserOptions } from './contracts';
 import { ImportSource, RawParsedOutput } from '../../types/unifiedImport';
 import { OperationSourceType } from '../../types/entities';
 
-export interface GoogleSheetsParseOptions {
+export interface GoogleSheetsParseOptions extends ImportParserOptions {
   sheetName?: string;
   headerRowIndex?: number;
   maxRows?: number;

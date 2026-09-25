@@ -100,7 +100,7 @@ export class ExcelCsvPipelineService {
     const batch = pipeline.createBatch(source, context);
 
     // 3. Process through PARSE -> NORMALIZE -> MAP -> RESOLVE -> VALIDATE -> DUPLICATE_CHECK -> REVIEW
-    const reviewedBatch = await pipeline.processThroughReview(batch, inputData, context);
+    const reviewedBatch = await pipeline.processThroughReview(batch, inputData, context, options);
 
     return reviewedBatch;
   }

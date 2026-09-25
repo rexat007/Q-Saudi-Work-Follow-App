@@ -17,6 +17,13 @@ import {
   PipelineContext,
 } from '../../types/unifiedImport';
 
+export interface ImportParserOptions {
+  sheetName?: string;
+  headerRowIndex?: number;
+  maxRows?: number;
+  delimiter?: string;
+}
+
 /**
  * 1. Parser Contract
  * Every future source (Excel, CSV, Google Sheets, Google Drive, Weighbridge, API, Migration)
@@ -24,7 +31,7 @@ import {
  */
 export interface IImportParser<TInput = any, TRawOutput = Record<string, any>> {
   readonly supportedSourceTypes: readonly OperationSourceType[];
-  parse(source: ImportSource, input?: TInput): Promise<RawParsedOutput<TRawOutput>> | RawParsedOutput<TRawOutput>;
+  parse(source: ImportSource, input?: TInput, options?: ImportParserOptions): Promise<RawParsedOutput<TRawOutput>> | RawParsedOutput<TRawOutput>;
 }
 
 /**

@@ -10,7 +10,7 @@
  * - Strictly read-only
  */
 
-import { IImportParser } from './contracts';
+import { IImportParser, ImportParserOptions } from './contracts';
 import { ImportSource, RawParsedOutput } from '../../types/unifiedImport';
 import { OperationSourceType } from '../../types/entities';
 import { LegacySheetRow } from '../../types/legacyMigration';
@@ -49,7 +49,8 @@ export class LegacyMigrationParserService implements IImportParser<LegacySheetRo
 
   public parse(
     source: ImportSource,
-    input?: LegacySheetRow[] | any
+    input?: LegacySheetRow[] | any,
+    options?: ImportParserOptions
   ): RawParsedOutput<Record<string, any>> {
     const rawData = input ?? source.rawInput ?? SAMPLE_LEGACY_GOOGLE_SHEET_ROWS;
 

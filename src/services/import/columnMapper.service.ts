@@ -35,8 +35,8 @@ const CANONICAL_FIELD_DEFINITIONS: FieldAliasDefinition[] = [
   },
   {
     canonicalField: 'truckNo',
-    exactNames: ['truckno', 'truck_no', 'truckid', 'truck_id', 'plate', 'plateno', 'plate_no', 'رقم_اللوحة', 'اللوحة', 'الشاحنة', 'رقم_الشاحنة'],
-    aliases: ['لوحة', 'شاحنة', 'رأس تريلا', 'رقم اللوحة', 'رقم الشاحنة', 'رقم المركبة', 'المركبة', 'vehicle', 'vehicle_no', 'truck', 'truck_plate', 'رقم لوحة الشاحنة', 'لوحة الشاحنة'],
+    exactNames: ['truckno', 'truck_no', 'truckid', 'truck_id', 'plate', 'plateno', 'plate_no', 'رقم_اللوحة', 'اللوحة', 'الشاحنة', 'رقم_الشاحنة', 'vechleno', 'vechle_no'],
+    aliases: ['لوحة', 'شاحنة', 'رأس تريلا', 'رقم اللوحة', 'رقم الشاحنة', 'رقم المركبة', 'المركبة', 'vehicle', 'vehicle_no', 'truck', 'truck_plate', 'رقم لوحة الشاحنة', 'لوحة الشاحنة', 'vechle', 'vechle no', 'vechle_no'],
   },
   {
     canonicalField: 'carrier',
@@ -133,6 +133,21 @@ const CANONICAL_FIELD_DEFINITIONS: FieldAliasDefinition[] = [
     exactNames: ['note', 'notes', 'remark', 'remarks', 'ملاحظات', 'ملاحظة', 'بيان'],
     aliases: ['تعليق', 'ملاحظات إضافية', 'بيان الرحلة', 'comment', 'comments'],
   },
+  {
+    canonicalField: 'driverIdentity',
+    exactNames: ['driveridentity', 'driver_identity', 'identity', 'idnumber', 'national_id', 'رقم_الهوية', 'الهوية', 'رقم_الإقامة', 'الإقامة', 'iqama_no', 'iqamano'],
+    aliases: ['رقم الهوية', 'الهوية', 'رقم الإقامة', 'إقامة السائق', 'إقامة', 'iqama', 'iqama no', 'iqama_no', 'residency_id', 'identity_id', 'national id', 'iqama number', 'رقم هوية السائق', 'هوية السائق'],
+  },
+  {
+    canonicalField: 'driverPhone',
+    exactNames: ['driverphone', 'driver_phone', 'phone', 'phonenumber', 'mobile', 'رقم_الهاتف', 'الهاتف', 'الجوال', 'رقم_الجوال'],
+    aliases: ['رقم الهاتف', 'الجوال', 'الهاتف', 'رقم الجوال', 'mobile', 'mobile no', 'mobile_no', 'phone number', 'phone_number'],
+  },
+  {
+    canonicalField: 'truckType',
+    exactNames: ['trucktype', 'truck_type', 'type', 'نوع_الشاحنة', 'نوع_المركبة'],
+    aliases: ['نوع الشاحنة', 'نوع المركبة', 'truck type', 'truck_type'],
+  },
 ];
 
 export class ExcelCsvColumnMapper implements IImportMapper<Record<string, any>, CanonicalTripRow> {
@@ -209,8 +224,8 @@ export class ExcelCsvColumnMapper implements IImportMapper<Record<string, any>, 
         }
         // Substring token match
         if (normalized.includes(normAlias) || normAlias.includes(normalized)) {
-          if (!bestAliasMatch || bestAliasMatch.confidence < 0.75) {
-            bestAliasMatch = { field: def.canonicalField, confidence: 0.75 };
+          if (!bestAliasMatch || bestAliasMatch.confidence < 0.68) {
+            bestAliasMatch = { field: def.canonicalField, confidence: 0.68 };
           }
         }
       }

@@ -26,6 +26,7 @@ import {
   IImportReviewHandler,
   IImportCommitter,
   IImportAuditor,
+  ImportParserOptions,
 } from './contracts';
 import { UnifiedImportValidator } from '../../validators/unifiedImport.validator';
 
@@ -36,7 +37,7 @@ import { UnifiedImportValidator } from '../../validators/unifiedImport.validator
 export class DefaultImportParser implements IImportParser {
   public readonly supportedSourceTypes: readonly OperationSourceType[] = VALID_OPERATION_SOURCE_TYPES;
 
-  public parse(source: ImportSource, input?: any): RawParsedOutput {
+  public parse(source: ImportSource, input?: any, options?: ImportParserOptions): RawParsedOutput {
     // If input is provided as rows array
     if (Array.isArray(input)) {
       const headers = input.length > 0 ? Object.keys(input[0]) : [];
