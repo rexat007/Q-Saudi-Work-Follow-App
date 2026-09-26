@@ -3,6 +3,41 @@ import { AuthUserContext } from '../types/common';
 import { DriverTruckIntakePayload, DriverTruckIntakeResult } from './driverTruckIntake.service';
 import { CanonicalFleetRelationshipPolicy, PureAffiliation, PureAssignment, PureAllocation } from '../utils/canonicalFleetRelationshipPolicy';
 
+export interface CreateStandaloneDriverPayload {
+  projectId: string;
+  carrierId: string;
+  driverName: string;
+  residencyId: string;
+  phone?: string;
+}
+
+export interface CreateStandaloneDriverResult {
+  projectId: string;
+  driverId: string;
+  carrierId: string;
+  identityStatus: 'CREATED' | 'EXISTING';
+  membershipStatus: 'CREATED' | 'EXISTING';
+  affiliationStatus: 'CREATED' | 'EXISTING';
+}
+
+export interface CreateStandaloneTruckPayload {
+  projectId: string;
+  carrierId: string;
+  plateNumber: string;
+  truckType?: string;
+  tareWeightKg?: number;
+  maxGrossWeightKg?: number;
+}
+
+export interface CreateStandaloneTruckResult {
+  projectId: string;
+  truckId: string;
+  carrierId: string;
+  identityStatus: 'CREATED' | 'EXISTING';
+  membershipStatus: 'CREATED' | 'EXISTING';
+  affiliationStatus: 'CREATED' | 'EXISTING';
+}
+
 export class DriverTruckIntakeServer {
   private checkModificationAccess(projectId: string, context: AuthUserContext) {
     const isSuperAdmin = context.role === 'SUPER_ADMIN';
@@ -652,6 +687,398 @@ export class DriverTruckIntakeServer {
           truckId,
           plate: plateNumber,
         },
+      };
+    });
+  }
+
+  async createStandaloneDriver(
+    payload: CreateStandaloneDriverPayload,
+    context: AuthUserContext
+  ): Promise<CreateStandaloneDriverResult> {
+    const projectId = payload.projectId ? payload.projectId.trim() : '';
+    if (!projectId) {
+      throw new Error('معرف المشروع مطلوب');
+    }
+
+    this.checkModificationAccess(projectId, context);
+
+    const actorId = context.userId ? context.userId.trim() : '';
+    if (!actorId) {
+      throw new Error('UNAUTHENTICATED_ACTOR: Authenticated context must provide a valid user ID.');
+    }
+
+    const { carrierId, driverName, residencyId, phone: rawPhone } = payload;
+
+    if (!carrierId || !carrierId.trim()) throw new Error('معرف الناقل مطلوب');
+    if (!driverName || !driverName.trim()) throw new Error('اسم السائق مطلوب');
+    if (!residencyId || !residencyId.trim()) {
+      throw new Error('رقم الهوية الوطنية أو الإقامة مطلوب وغير موجود');
+    }
+
+    const { normalizeArabicText, normalizeName, normalizePhone, normalizeIdNumber } = await import('../utils/normalization');
+    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
+    const { adminDb } = await import('../firebase/admin');
+
+    const phone = normalizePhone(rawPhone || '');
+    const normIdNumber = normalizeIdNumber(residencyId);
+
+    if (!normIdNumber || !/^[1-2][0-9]{9}$/.test(normIdNumber)) {
+      throw new Error('رقم الهوية الوطنية أو الإقامة غير صالح. يجب أن يتكون من 10 خانات ويبدأ بـ 1 أو 2');
+    }
+
+    const lookupTokenDriver = computeNaturalKeyToken('DRIVER', normIdNumber);
+    const nowIso = new Date().toISOString();
+
+    return await adminDb.runTransaction(async (transaction) => {
+      let driverId: string | null = null;
+      let shouldReserveLookupDriver = false;
+      let identityStatus: 'CREATED' | 'EXISTING' = 'EXISTING';
+
+      const lookupRefDriver = adminDb.collection('natural_identity_lookups').doc(lookupTokenDriver);
+      const lookupSnapDriver = await transaction.get(lookupRefDriver);
+
+      if (lookupSnapDriver.exists) {
+        driverId = lookupSnapDriver.data()?.systemId;
+        const driverRef = adminDb.collection('drivers').doc(driverId!);
+        const driverSnap = await transaction.get(driverRef);
+
+        if (!driverSnap.exists) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for driver but Global Driver document is missing.');
+        }
+
+        const actualNationalId = driverSnap.data()?.nationalId;
+        if (actualNationalId !== normIdNumber) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for driver but National ID does not match.');
+        }
+        identityStatus = 'EXISTING';
+      } else {
+        const matchingDriversQuery = adminDb.collection('drivers').where('nationalId', '==', normIdNumber);
+        const matchingDriversSnap = await transaction.get(matchingDriversQuery);
+
+        if (matchingDriversSnap.size === 1) {
+          driverId = matchingDriversSnap.docs[0].id;
+          shouldReserveLookupDriver = true;
+          identityStatus = 'EXISTING';
+        } else if (matchingDriversSnap.size > 1) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Multiple global driver entities match exact natural key.');
+        } else {
+          driverId = null;
+          identityStatus = 'CREATED';
+        }
+      }
+
+      const carrierMemRef = adminDb.collection('projects').doc(projectId).collection('carrier_memberships').doc(carrierId);
+      const carrierMemSnap = await transaction.get(carrierMemRef);
+
+      if (!carrierMemSnap.exists || carrierMemSnap.data()?.status !== 'ACTIVE') {
+        throw new Error(`CARRIER_NOT_ACTIVE_IN_PROJECT: Carrier ${carrierId} is not active in project ${projectId}`);
+      }
+
+      const driverMemRef = driverId ? adminDb.collection('projects').doc(projectId).collection('driver_memberships').doc(driverId) : null;
+      const driverAffilRef = driverId ? adminDb.collection('projects').doc(projectId).collection('driver_carrier_affiliations').doc(driverId) : null;
+
+      const driverMemSnap = driverMemRef ? await transaction.get(driverMemRef) : null;
+      const driverAffilSnap = driverAffilRef ? await transaction.get(driverAffilRef) : null;
+
+      let affiliationStatus: 'CREATED' | 'EXISTING' = 'CREATED';
+      if (driverAffilSnap && driverAffilSnap.exists) {
+        const existingAffil = driverAffilSnap.data();
+        if (existingAffil?.status === 'ACTIVE' && existingAffil?.carrierId !== carrierId) {
+          throw new Error(`DRIVER_CARRIER_AFFILIATION_CONFLICT: Driver ${driverId} is already actively affiliated with carrier ${existingAffil.carrierId} in project ${projectId}`);
+        }
+        if (existingAffil?.carrierId === carrierId && existingAffil?.status === 'ACTIVE') {
+          affiliationStatus = 'EXISTING';
+        }
+      }
+
+      let membershipStatus: 'CREATED' | 'EXISTING' = 'CREATED';
+      if (driverMemSnap && driverMemSnap.exists && driverMemSnap.data()?.status === 'ACTIVE') {
+        membershipStatus = 'EXISTING';
+      }
+
+      if (!driverId) {
+        const hashHex = crypto.randomBytes(16).toString('hex');
+        driverId = `DRV-${hashHex}`;
+        const newDriverRef = adminDb.collection('drivers').doc(driverId);
+        transaction.set(newDriverRef, {
+          driverId,
+          nationalId: normIdNumber,
+          fullNameAr: normalizeArabicText(driverName),
+          phone,
+          status: 'ACTIVE',
+          createdAt: nowIso,
+          createdBy: actorId,
+          updatedAt: nowIso,
+          updatedBy: actorId,
+        });
+
+        transaction.set(lookupRefDriver, {
+          entityType: 'DRIVER',
+          systemId: driverId,
+          createdAt: nowIso,
+          createdBy: actorId,
+        });
+      } else if (shouldReserveLookupDriver) {
+        transaction.set(lookupRefDriver, {
+          entityType: 'DRIVER',
+          systemId: driverId,
+          createdAt: nowIso,
+          createdBy: actorId,
+        });
+      }
+
+      const targetDriverMemRef = adminDb.collection('projects').doc(projectId).collection('driver_memberships').doc(driverId);
+      if (membershipStatus === 'CREATED') {
+        transaction.set(targetDriverMemRef, {
+          projectId,
+          driverId,
+          status: 'ACTIVE',
+          createdAt: nowIso,
+          createdBy: actorId,
+          updatedAt: nowIso,
+          updatedBy: actorId,
+        });
+      }
+
+      const targetDriverAffilRef = adminDb.collection('projects').doc(projectId).collection('driver_carrier_affiliations').doc(driverId);
+      if (affiliationStatus === 'CREATED') {
+        transaction.set(targetDriverAffilRef, {
+          projectId,
+          driverId,
+          carrierId,
+          status: 'ACTIVE',
+          createdAt: nowIso,
+          createdBy: actorId,
+          updatedAt: nowIso,
+          updatedBy: actorId,
+        });
+      }
+
+      if (identityStatus === 'CREATED') {
+        const auditLogId = `AUD-${Date.now()}-DRV-${driverId}`;
+        const auditLogRef = adminDb.collection('audit_logs').doc(auditLogId);
+        transaction.set(auditLogRef, {
+          auditLogId,
+          projectId,
+          entityType: 'DRIVER',
+          entityId: driverId,
+          action: 'CREATE',
+          actor: { userId: actorId, email: context.email || 'system@q-saudi.com', role: context.role || 'PROJECT_ADMIN' },
+          changes: { driverId, nationalId: normIdNumber, fullNameAr: normalizeArabicText(driverName) },
+          correlationId: `DRV-STANDALONE-${projectId}-${driverId}`,
+          createdBy: actorId,
+          updatedBy: actorId,
+          createdAt: nowIso,
+          updatedAt: nowIso,
+        });
+      }
+
+      return {
+        projectId,
+        driverId,
+        carrierId,
+        identityStatus,
+        membershipStatus,
+        affiliationStatus,
+      };
+    });
+  }
+
+  async createStandaloneTruck(
+    payload: CreateStandaloneTruckPayload,
+    context: AuthUserContext
+  ): Promise<CreateStandaloneTruckResult> {
+    const projectId = payload.projectId ? payload.projectId.trim() : '';
+    if (!projectId) {
+      throw new Error('معرف المشروع مطلوب');
+    }
+
+    this.checkModificationAccess(projectId, context);
+
+    const actorId = context.userId ? context.userId.trim() : '';
+    if (!actorId) {
+      throw new Error('UNAUTHENTICATED_ACTOR: Authenticated context must provide a valid user ID.');
+    }
+
+    const { carrierId, plateNumber, truckType, tareWeightKg, maxGrossWeightKg } = payload;
+
+    if (!carrierId || !carrierId.trim()) throw new Error('معرف الناقل مطلوب');
+    if (!plateNumber || !plateNumber.trim()) throw new Error('رقم لوحة الشاحنة مطلوب');
+
+    const { normalizePlate } = await import('../utils/normalization');
+    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
+    const { adminDb } = await import('../firebase/admin');
+
+    const normPlate = normalizePlate(plateNumber);
+    const lookupTokenTruck = computeNaturalKeyToken('TRUCK', normPlate);
+    const nowIso = new Date().toISOString();
+
+    return await adminDb.runTransaction(async (transaction) => {
+      let truckId: string | null = null;
+      let shouldReserveLookupTruck = false;
+      let identityStatus: 'CREATED' | 'EXISTING' = 'EXISTING';
+
+      const lookupRefTruck = adminDb.collection('natural_identity_lookups').doc(lookupTokenTruck);
+      const lookupSnapTruck = await transaction.get(lookupRefTruck);
+
+      if (lookupSnapTruck.exists) {
+        truckId = lookupSnapTruck.data()?.systemId;
+        const truckRef = adminDb.collection('trucks').doc(truckId!);
+        const truckSnap = await transaction.get(truckRef);
+
+        if (!truckSnap.exists) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for truck but Global Truck document is missing.');
+        }
+
+        const actualNormalizedPlate = truckSnap.data()?.normalizedPlate;
+        if (actualNormalizedPlate !== normPlate) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for truck but normalized plate does not match.');
+        }
+        identityStatus = 'EXISTING';
+      } else {
+        const matchingTrucksQuery = adminDb.collection('trucks').where('normalizedPlate', '==', normPlate);
+        const matchingTrucksSnap = await transaction.get(matchingTrucksQuery);
+
+        if (matchingTrucksSnap.size === 1) {
+          truckId = matchingTrucksSnap.docs[0].id;
+          shouldReserveLookupTruck = true;
+          identityStatus = 'EXISTING';
+        } else if (matchingTrucksSnap.size > 1) {
+          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Multiple global truck entities match exact natural key.');
+        } else {
+          truckId = null;
+          identityStatus = 'CREATED';
+        }
+      }
+
+      const carrierMemRef = adminDb.collection('projects').doc(projectId).collection('carrier_memberships').doc(carrierId);
+      const carrierMemSnap = await transaction.get(carrierMemRef);
+
+      if (!carrierMemSnap.exists || carrierMemSnap.data()?.status !== 'ACTIVE') {
+        throw new Error(`CARRIER_NOT_ACTIVE_IN_PROJECT: Carrier ${carrierId} is not active in project ${projectId}`);
+      }
+
+      const truckMemRef = truckId ? adminDb.collection('projects').doc(projectId).collection('truck_memberships').doc(truckId) : null;
+      const truckAffilRef = truckId ? adminDb.collection('projects').doc(projectId).collection('truck_carrier_affiliations').doc(truckId) : null;
+
+      const truckMemSnap = truckMemRef ? await transaction.get(truckMemRef) : null;
+      const truckAffilSnap = truckAffilRef ? await transaction.get(truckAffilRef) : null;
+
+      let affiliationStatus: 'CREATED' | 'EXISTING' = 'CREATED';
+      if (truckAffilSnap && truckAffilSnap.exists) {
+        const existingAffil = truckAffilSnap.data();
+        if (existingAffil?.status === 'ACTIVE' && existingAffil?.carrierId !== carrierId) {
+          throw new Error(`TRUCK_CARRIER_AFFILIATION_CONFLICT: Truck ${truckId} is already actively affiliated with carrier ${existingAffil.carrierId} in project ${projectId}`);
+        }
+        if (existingAffil?.carrierId === carrierId && existingAffil?.status === 'ACTIVE') {
+          affiliationStatus = 'EXISTING';
+        }
+      }
+
+      let membershipStatus: 'CREATED' | 'EXISTING' = 'CREATED';
+      if (truckMemSnap && truckMemSnap.exists && truckMemSnap.data()?.status === 'ACTIVE') {
+        membershipStatus = 'EXISTING';
+      }
+
+      if (!truckId) {
+        const hashHex = crypto.randomBytes(16).toString('hex');
+        truckId = `TRK-${hashHex}`;
+
+        const newTruckData: any = {
+          truckId,
+          plate: plateNumber.trim(),
+          normalizedPlate: normPlate,
+          status: 'ACTIVE',
+          createdAt: nowIso,
+          createdBy: actorId,
+          updatedAt: nowIso,
+          updatedBy: actorId,
+        };
+
+        if (truckType && truckType.trim()) {
+          newTruckData.truckType = truckType.trim();
+        }
+        if (tareWeightKg !== undefined && Number(tareWeightKg) > 0) {
+          newTruckData.tareWeightKg = Number(tareWeightKg);
+        }
+        if (maxGrossWeightKg !== undefined && Number(maxGrossWeightKg) > 0) {
+          newTruckData.maxGrossWeightKg = Number(maxGrossWeightKg);
+        }
+        if (tareWeightKg !== undefined && maxGrossWeightKg !== undefined && Number(maxGrossWeightKg) > Number(tareWeightKg)) {
+          newTruckData.legalPayloadLimitKg = Number(maxGrossWeightKg) - Number(tareWeightKg);
+        }
+
+        const newTruckRef = adminDb.collection('trucks').doc(truckId);
+        transaction.set(newTruckRef, newTruckData);
+
+        transaction.set(lookupRefTruck, {
+          entityType: 'TRUCK',
+          systemId: truckId,
+          createdAt: nowIso,
+          createdBy: actorId,
+        });
+      } else if (shouldReserveLookupTruck) {
+        transaction.set(lookupRefTruck, {
+          entityType: 'TRUCK',
+          systemId: truckId,
+          createdAt: nowIso,
+          createdBy: actorId,
+        });
+      }
+
+      const targetTruckMemRef = adminDb.collection('projects').doc(projectId).collection('truck_memberships').doc(truckId);
+      if (membershipStatus === 'CREATED') {
+        transaction.set(targetTruckMemRef, {
+          projectId,
+          truckId,
+          status: 'ACTIVE',
+          createdAt: nowIso,
+          createdBy: actorId,
+          updatedAt: nowIso,
+          updatedBy: actorId,
+        });
+      }
+
+      const targetTruckAffilRef = adminDb.collection('projects').doc(projectId).collection('truck_carrier_affiliations').doc(truckId);
+      if (affiliationStatus === 'CREATED') {
+        transaction.set(targetTruckAffilRef, {
+          projectId,
+          truckId,
+          carrierId,
+          status: 'ACTIVE',
+          createdAt: nowIso,
+          createdBy: actorId,
+          updatedAt: nowIso,
+          updatedBy: actorId,
+        });
+      }
+
+      if (identityStatus === 'CREATED') {
+        const auditLogId = `AUD-${Date.now()}-TRK-${truckId}`;
+        const auditLogRef = adminDb.collection('audit_logs').doc(auditLogId);
+        transaction.set(auditLogRef, {
+          auditLogId,
+          projectId,
+          entityType: 'TRUCK',
+          entityId: truckId,
+          action: 'CREATE',
+          actor: { userId: actorId, email: context.email || 'system@q-saudi.com', role: context.role || 'PROJECT_ADMIN' },
+          changes: { truckId, plate: plateNumber.trim(), normalizedPlate: normPlate },
+          correlationId: `TRK-STANDALONE-${projectId}-${truckId}`,
+          createdBy: actorId,
+          updatedBy: actorId,
+          createdAt: nowIso,
+          updatedAt: nowIso,
+        });
+      }
+
+      return {
+        projectId,
+        truckId,
+        carrierId,
+        identityStatus,
+        membershipStatus,
+        affiliationStatus,
       };
     });
   }

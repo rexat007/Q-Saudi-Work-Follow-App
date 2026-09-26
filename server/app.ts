@@ -1508,6 +1508,76 @@ app.post('/api/projects/:projectId/setup-carrier', enforceProjectIsolation, enfo
   }
 });
 
+app.post('/api/projects/:projectId/setup-driver', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { driverData } = req.body || {};
+    const user = (req as any).user;
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'المستخدم غير مصادق عليه', code: 'UNAUTHENTICATED' });
+    }
+    if (!driverData) {
+      return res.status(400).json({ success: false, error: 'بيانات السائق driverData مطلوبة', code: 'INVALID_ARGUMENT' });
+    }
+    const { driverTruckIntakeServer } = await import('../src/services/driverTruckIntake.server');
+    const result = await driverTruckIntakeServer.createStandaloneDriver(
+      {
+        ...driverData,
+        projectId, // Authoritative path projectId
+      },
+      user
+    );
+    res.json({
+      success: true,
+      data: result,
+      driverId: result.driverId,
+      message: 'تم تسجيل السائق وتوثيقه في المشروع بنجاح',
+    });
+  } catch (error: any) {
+    console.error('Error in /api/projects/:projectId/setup-driver:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message || 'فشلت عملية إنشاء السائق المعتمد',
+      code: error.code || 'DRIVER_SETUP_FAILED',
+    });
+  }
+});
+
+app.post('/api/projects/:projectId/setup-truck', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { truckData } = req.body || {};
+    const user = (req as any).user;
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'المستخدم غير مصادق عليه', code: 'UNAUTHENTICATED' });
+    }
+    if (!truckData) {
+      return res.status(400).json({ success: false, error: 'بيانات الشاحنة truckData مطلوبة', code: 'INVALID_ARGUMENT' });
+    }
+    const { driverTruckIntakeServer } = await import('../src/services/driverTruckIntake.server');
+    const result = await driverTruckIntakeServer.createStandaloneTruck(
+      {
+        ...truckData,
+        projectId, // Authoritative path projectId
+      },
+      user
+    );
+    res.json({
+      success: true,
+      data: result,
+      truckId: result.truckId,
+      message: 'تم تسجيل الشاحنة وتوثيقها في المشروع بنجاح',
+    });
+  } catch (error: any) {
+    console.error('Error in /api/projects/:projectId/setup-truck:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message || 'فشلت عملية إنشاء الشاحنة المعتمدة',
+      code: error.code || 'TRUCK_SETUP_FAILED',
+    });
+  }
+});
+
 // Assuming these endpoints list from canonical membership
 app.get('/api/projects/:projectId/materials', enforceProjectIsolation, async (req, res) => {
   try {
