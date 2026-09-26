@@ -152,10 +152,20 @@ export function ExcelCsvImportSection({
         setRequiresSourceFileReattach(resumedState.requiresSourceFileReattach);
 
         if (resumedState.reviewSnapshot) {
+          const snapshot = resumedState.reviewSnapshot;
+          const rows: ImportRow[] = snapshot.rows || [];
+          const issues = sessionRecord.validationIssues || snapshot.issues || [];
+
+          // Derive counts deterministically from rows/snapshot if missing
+          const totalRows = snapshot.totalRows ?? rows.length;
+          const validRows = snapshot.validRows ?? rows.filter((r) => r.status === 'VALID' || r.reviewStatus === 'accepted').length;
+          const warningRows = snapshot.warningRows ?? rows.filter((r) => r.status === 'WARNING' || r.reviewStatus === 'warning').length;
+          const errorRows = snapshot.errorRows ?? rows.filter((r) => r.status === 'ERROR' || r.reviewStatus === 'error').length;
+          const requiresReviewRows = snapshot.requiresReviewRows ?? rows.filter((r) => r.reviewStatus === 'requires_review').length;
+          const committedRows = snapshot.committedRows ?? 0;
+
           const batch: UnifiedImportBatch = {
-            id: sessionRecord.importBatchId,
             importBatchId: sessionRecord.importBatchId,
-            operationId: sessionRecord.operationId,
             projectId: sessionRecord.projectId,
             source: {
               sourceType: (sessionRecord.sourceType as any) || 'EXCEL_CSV',
@@ -164,21 +174,35 @@ export function ExcelCsvImportSection({
               sourceMimeType: sessionRecord.sourceMetadata?.sourceMimeType,
               sourceSheetName: sessionRecord.sourceMetadata?.sourceSheetName,
             },
-            status: (sessionRecord.lifecycleState as any) || 'REVIEW_REQUIRED',
             currentStage: (sessionRecord.currentStage as any) || 'REVIEW',
-            rows: resumedState.reviewSnapshot.rows || [],
-            summary: resumedState.reviewSnapshot.summary || {
-              totalRows: resumedState.reviewSnapshot.rows?.length || 0,
-              validRows: 0,
-              warningRows: 0,
-              errorRows: 0,
-              requiresReviewRows: 0,
-            },
-            validationIssues: resumedState.validationIssues || [],
-            entityResolutions: resumedState.entityResolutions || [],
+            validationStatus: snapshot.validationStatus || 'PASSED',
+            commitStatus: sessionRecord.lifecycleState === 'COMMITTED' ? 'COMMITTED' : 'AWAITING_REVIEW',
+            totalRows,
+            validRows,
+            warningRows,
+            errorRows,
+            requiresReviewRows,
+            committedRows,
+            rows,
+            issues,
+            operationId: sessionRecord.operationId,
             createdAt: sessionRecord.createdAt,
-            updatedAt: sessionRecord.updatedAt,
+            createdBy: sessionRecord.createdBy,
+            warningConfirmation: sessionRecord.warningConfirmation !== undefined ? {
+              confirmed: Boolean(sessionRecord.warningConfirmation),
+              confirmedBy: sessionRecord.createdBy || 'user',
+              confirmedAt: sessionRecord.updatedAt || sessionRecord.createdAt,
+            } : undefined,
+            auditTrail: [
+              {
+                timestamp: sessionRecord.updatedAt || sessionRecord.createdAt,
+                userId: sessionRecord.createdBy || 'system',
+                action: 'SESSION_RESUMED',
+                details: 'Resumed import session from server persistence',
+              },
+            ],
           };
+
           setActiveBatch(batch);
 
           if (batch.rows.length > 0 && batch.rows[0].raw) {
@@ -221,6 +245,9 @@ export function ExcelCsvImportSection({
       setActiveBatch(null);
     }
 
+    let createdSessionId: string | null = activeSessionId;
+    let createdVersion = sessionVersion;
+
     try {
       setIsProcessing(true);
       const buffer = await file.arrayBuffer();
@@ -229,7 +256,7 @@ export function ExcelCsvImportSection({
       const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
       const sourceType = (ext === '.xlsx' || ext === '.xls') ? 'EXCEL' : 'CSV';
 
-      // Create server session if new flow and projectId is present
+      // Create server session if new flow and currentProjectId is present
       if (!isReattach && currentProjectId) {
         try {
           const sessionRecord = await importSessionClientService.createSession(currentProjectId, {
@@ -243,17 +270,25 @@ export function ExcelCsvImportSection({
               fileSize: file.size,
             },
           });
-          setActiveSessionId(sessionRecord.importSessionId);
-          setSessionVersion(sessionRecord.version);
+
+          createdSessionId = sessionRecord.importSessionId;
+          createdVersion = sessionRecord.version;
+
+          setActiveSessionId(createdSessionId);
+          setSessionVersion(createdVersion);
+
           sessionStorage.setItem(
             `qsaudi_import_session_locator_${currentProjectId}`,
             JSON.stringify({
               projectId: currentProjectId,
-              importSessionId: sessionRecord.importSessionId,
+              importSessionId: createdSessionId,
             })
           );
         } catch (err: any) {
-          console.warn('Failed to create server import session:', err);
+          // ISSUE 2: CREATE SESSION MUST FAIL CLOSED
+          setIsProcessing(false);
+          setProcessError(err?.message || 'فشل في إنشاء جلسة الاستيراد على الخادم. تم إيقاف المعالجة.');
+          return; // STOP! DO NOT proceed to discovery/pipeline!
         }
       }
 
@@ -276,7 +311,7 @@ export function ExcelCsvImportSection({
       setSelectedSheet(defaultSheet);
       setHeaderRowIndex(detectedIdx);
 
-      // Execute pipeline through review stage using stable identities
+      // Execute pipeline through review stage passing local variables explicitly (ISSUE 1 FIX)
       await runPipeline(
         buffer,
         file.name,
@@ -285,7 +320,9 @@ export function ExcelCsvImportSection({
         defaultSheet,
         detectedIdx,
         opId,
-        batchId
+        batchId,
+        createdSessionId,
+        createdVersion
       );
     } catch (err: any) {
       setProcessError(err?.message || 'حدث خطأ أثناء فحص وتحليل الملف');
@@ -302,7 +339,9 @@ export function ExcelCsvImportSection({
     sheetName?: string,
     overriddenHeaderRowIndex?: number,
     overrideOpId?: string,
-    overrideBatchId?: string
+    overrideBatchId?: string,
+    overrideSessionId?: string | null,
+    overrideVersion?: number
   ) => {
     try {
       setIsProcessing(true);
@@ -311,6 +350,8 @@ export function ExcelCsvImportSection({
       const targetHeaderRowIdx = overriddenHeaderRowIndex !== undefined ? overriddenHeaderRowIndex : headerRowIndex;
       const opId = overrideOpId || activeOperationId || `OP-IMP-${Date.now()}`;
       const batchId = overrideBatchId || activeImportBatchId || undefined;
+      const sessionId = overrideSessionId !== undefined ? overrideSessionId : activeSessionId;
+      const currentVer = overrideVersion !== undefined ? overrideVersion : sessionVersion;
 
       const activeContext: PipelineContext = {
         ...context,
@@ -340,10 +381,15 @@ export function ExcelCsvImportSection({
       }
 
       // Save REVIEW checkpoint to server session
-      if (currentProjectId && activeSessionId) {
+      if (currentProjectId && sessionId) {
         try {
           const cleanSnapshot = {
-            summary: batch.summary,
+            totalRows: batch.totalRows,
+            validRows: batch.validRows,
+            warningRows: batch.warningRows,
+            errorRows: batch.errorRows,
+            requiresReviewRows: batch.requiresReviewRows,
+            committedRows: batch.committedRows,
             rows: batch.rows.map((r) => {
               const { rawInput, ...rest } = r as any;
               return rest;
@@ -352,13 +398,12 @@ export function ExcelCsvImportSection({
 
           const updatedSession = await importSessionClientService.updateCheckpoint(
             currentProjectId,
-            activeSessionId,
+            sessionId,
             {
               lifecycleState: 'REVIEW_REQUIRED',
               currentStage: 'REVIEW',
               reviewSnapshot: cleanSnapshot,
-              validationIssues: batch.validationIssues || [],
-              entityResolutions: batch.entityResolutions || [],
+              validationIssues: batch.issues || [],
               warningConfirmation: confirmWarnings,
               sourceMetadata: {
                 sourceFileName: fileName,
@@ -368,7 +413,7 @@ export function ExcelCsvImportSection({
                 headerRowIndex: targetHeaderRowIdx,
               },
             },
-            sessionVersion
+            currentVer
           );
 
           setSessionVersion(updatedSession.version);
@@ -433,7 +478,12 @@ export function ExcelCsvImportSection({
     if (currentProjectId && activeSessionId) {
       try {
         const cleanSnapshot = {
-          summary: updated.summary,
+          totalRows: updated.totalRows,
+          validRows: updated.validRows,
+          warningRows: updated.warningRows,
+          errorRows: updated.errorRows,
+          requiresReviewRows: updated.requiresReviewRows,
+          committedRows: updated.committedRows,
           rows: updated.rows.map((r) => {
             const { rawInput, ...rest } = r as any;
             return rest;
@@ -447,8 +497,7 @@ export function ExcelCsvImportSection({
             lifecycleState: 'REVIEW_REQUIRED',
             currentStage: 'REVIEW',
             reviewSnapshot: cleanSnapshot,
-            validationIssues: updated.validationIssues || [],
-            entityResolutions: updated.entityResolutions || [],
+            validationIssues: updated.issues || [],
             warningConfirmation: confirmWarnings,
             reviewAction: { rowNumber, action },
           },
@@ -852,27 +901,27 @@ export function ExcelCsvImportSection({
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80">
               <div className="text-xs font-bold text-stone-500 mb-1">إجمالي الصفوف</div>
-              <div className="text-lg font-black text-stone-900 font-mono">{activeBatch.summary.totalRows}</div>
+              <div className="text-lg font-black text-stone-900 font-mono">{activeBatch.totalRows}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-200/80">
               <div className="text-xs font-bold text-emerald-700 mb-1">صفوف سليمة</div>
-              <div className="text-lg font-black text-emerald-800 font-mono">{activeBatch.summary.validRows}</div>
+              <div className="text-lg font-black text-emerald-800 font-mono">{activeBatch.validRows}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/80">
               <div className="text-xs font-bold text-amber-700 mb-1">صفوف تتضمن تنبيهات</div>
-              <div className="text-lg font-black text-amber-800 font-mono">{activeBatch.summary.warningRows}</div>
+              <div className="text-lg font-black text-amber-800 font-mono">{activeBatch.warningRows}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-rose-50/60 border border-rose-200/80">
               <div className="text-xs font-bold text-rose-700 mb-1">صفوف تتضمن أخطاء</div>
-              <div className="text-lg font-black text-rose-800 font-mono">{activeBatch.summary.errorRows}</div>
+              <div className="text-lg font-black text-rose-800 font-mono">{activeBatch.errorRows}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-200/80 col-span-2 sm:col-span-1">
               <div className="text-xs font-bold text-blue-700 mb-1">تتطلب مراجعة</div>
-              <div className="text-lg font-black text-blue-800 font-mono">{activeBatch.summary.requiresReviewRows}</div>
+              <div className="text-lg font-black text-blue-800 font-mono">{activeBatch.requiresReviewRows}</div>
             </div>
           </div>
 
@@ -895,7 +944,7 @@ export function ExcelCsvImportSection({
                   filterStatus === 'VALID' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
                 }`}
               >
-                سليمة ({activeBatch.summary.validRows})
+                سليمة ({activeBatch.validRows})
               </button>
 
               <button
@@ -904,7 +953,7 @@ export function ExcelCsvImportSection({
                   filterStatus === 'WARNING' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-800 hover:bg-amber-100'
                 }`}
               >
-                تنبيهات ({activeBatch.summary.warningRows})
+                تنبيهات ({activeBatch.warningRows})
               </button>
 
               <button
@@ -913,7 +962,7 @@ export function ExcelCsvImportSection({
                   filterStatus === 'ERROR' ? 'bg-rose-700 text-white' : 'bg-rose-50 text-rose-800 hover:bg-rose-100'
                 }`}
               >
-                أخطاء ({activeBatch.summary.errorRows})
+                أخطاء ({activeBatch.errorRows})
               </button>
 
               <button
@@ -922,7 +971,7 @@ export function ExcelCsvImportSection({
                   filterStatus === 'REQUIRES_REVIEW' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
                 }`}
               >
-                تتطلب مراجعة ({activeBatch.summary.requiresReviewRows})
+                تتطلب مراجعة ({activeBatch.requiresReviewRows})
               </button>
             </div>
 
@@ -987,7 +1036,7 @@ export function ExcelCsvImportSection({
                   </tr>
                 ) : (
                   displayedRows.map((row: ImportRow) => {
-                    const canonical = row.normalized?.canonicalData || {};
+                    const canonical = (row as any).normalized?.canonicalData || row.canonical || {};
                     const isError = row.status === 'ERROR' || row.reviewStatus === 'error';
                     const isWarning = row.status === 'WARNING' || row.reviewStatus === 'warning';
                     const isAccepted = row.reviewStatus === 'accepted';
@@ -1082,20 +1131,13 @@ export function ExcelCsvImportSection({
                         </td>
 
                         <td className="p-3 max-w-xs">
-                          {row.errors && row.errors.length > 0 && (
+                          {row.validationIssues && row.validationIssues.length > 0 ? (
                             <div className="text-rose-700 text-[11px] font-bold">
-                              {row.errors.map((e) => e.message).join(' | ')}
+                              {row.validationIssues.map((e) => e.message).join(' | ')}
                             </div>
+                          ) : (
+                            <span className="text-stone-400 text-[11px]">لا توجد ملاحظات</span>
                           )}
-                          {row.warnings && row.warnings.length > 0 && (
-                            <div className="text-amber-700 text-[11px]">
-                              {row.warnings.map((w) => w.message).join(' | ')}
-                            </div>
-                          )}
-                          {(!row.errors || row.errors.length === 0) &&
-                            (!row.warnings || row.warnings.length === 0) && (
-                              <span className="text-stone-400 text-[11px]">لا توجد ملاحظات</span>
-                            )}
                         </td>
 
                         <td className="p-3 text-center">
@@ -1153,9 +1195,9 @@ export function ExcelCsvImportSection({
             <div className="flex items-center gap-3 shrink-0">
               <button
                 onClick={handleCommit}
-                disabled={isCommitting || activeBatch.summary.validRows === 0}
+                disabled={isCommitting || activeBatch.validRows === 0}
                 className={`px-6 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-xs cursor-pointer ${
-                  isCommitting || activeBatch.summary.validRows === 0
+                  isCommitting || activeBatch.validRows === 0
                     ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
                     : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                 }`}

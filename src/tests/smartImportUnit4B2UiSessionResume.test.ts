@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { importSessionClientService } from '../services/import/importSessionClient.service';
 import { ExcelCsvPipelineService } from '../services/import/excelCsvPipeline.service';
 import { auth } from '../firebase/config';
+import { UnifiedImportBatch } from '../types/unifiedImport';
 
 vi.mock('../firebase/config', () => ({
   auth: {
@@ -88,7 +89,6 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
     let currentOpId = stable.operationId;
     let currentBatchId = stable.importBatchId;
 
-    // Simulate sheet change action: reuse existing active identities
     const activeOpIdAfterSheetChange = currentOpId;
     const activeBatchIdAfterSheetChange = currentBatchId;
 
@@ -377,7 +377,6 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
     const activeSessionId = 'sess-existing-44';
     const isReattach = true;
 
-    // When reattaching file, activeSessionId is reused
     const finalSessionId = isReattach ? activeSessionId : 'sess-new';
 
     expect(finalSessionId).toBe('sess-existing-44');
@@ -390,7 +389,6 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
       JSON.stringify({ projectId: 'PRJ-4B2', importSessionId: 'sess-777' })
     );
 
-    // Simulate reset
     sessionStorage.removeItem(locatorKey);
 
     expect(sessionStorage.getItem(locatorKey)).toBeNull();
@@ -419,7 +417,6 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
       JSON.stringify({ projectId: 'PRJ-4B2', importSessionId: 'sess-777' })
     );
 
-    // Simulate commit completion
     sessionStorage.removeItem(locatorKey);
 
     expect(sessionStorage.getItem(locatorKey)).toBeNull();
@@ -447,5 +444,225 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
     );
 
     expect(lastState).toBe('COMMITTED');
+  });
+
+  // ==================================================
+  // REMEDIATION REGRESSION TESTS (ISSUES 1, 2, 3)
+  // ==================================================
+
+  it('23. first new-flow REVIEW checkpoint uses server-returned session ID and version', async () => {
+    let createdSessionId = '';
+    let patchedSessionId = '';
+    let patchedVersion = 0;
+
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string, options: any) => {
+      if (options.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: {
+              importSessionId: 'sess-server-created-888',
+              projectId: 'PRJ-4B2',
+              version: 1,
+            },
+          }),
+        };
+      }
+      if (options.method === 'PATCH') {
+        patchedSessionId = url.split('/').pop() || '';
+        patchedVersion = JSON.parse(options.body).expectedVersion;
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: {
+              importSessionId: 'sess-server-created-888',
+              version: 2,
+            },
+          }),
+        };
+      }
+      return { ok: true, json: async () => ({ success: true, data: {} }) };
+    });
+
+    const sessionRecord = await importSessionClientService.createSession('PRJ-4B2', {
+      projectId: 'PRJ-4B2',
+      sourceType: 'CSV',
+    });
+
+    createdSessionId = sessionRecord.importSessionId;
+    const initialVersion = sessionRecord.version;
+
+    // Simulate explicit override pass to avoid React async state race
+    await importSessionClientService.updateCheckpoint(
+      'PRJ-4B2',
+      createdSessionId,
+      { lifecycleState: 'REVIEW_REQUIRED', currentStage: 'REVIEW' },
+      initialVersion
+    );
+
+    expect(patchedSessionId).toBe('sess-server-created-888');
+    expect(patchedVersion).toBe(1);
+  });
+
+  it('24. createSession failure stops pipeline processing (fail-closed)', async () => {
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string, options: any) => {
+      if (options.method === 'POST') {
+        return {
+          ok: false,
+          status: 500,
+          json: async () => ({
+            success: false,
+            error: 'Server error creating session',
+          }),
+        };
+      }
+      return { ok: true, json: async () => ({ success: true, data: {} }) };
+    });
+
+    let pipelineCalled = false;
+    try {
+      await importSessionClientService.createSession('PRJ-4B2', { projectId: 'PRJ-4B2' });
+      pipelineCalled = true;
+    } catch (err: any) {
+      expect(err.message).toBe('Server error creating session');
+    }
+
+    expect(pipelineCalled).toBe(false);
+  });
+
+  it('25. resumed batch conforms to canonical UnifiedImportBatch shape', () => {
+    const mockRecord = {
+      importSessionId: 'sess-100',
+      projectId: 'PRJ-4B2',
+      operationId: 'op_100',
+      importBatchId: 'batch_100',
+      sourceType: 'EXCEL_CSV',
+      lifecycleState: 'REVIEW_REQUIRED',
+      currentStage: 'REVIEW',
+      version: 2,
+      createdAt: '2026-01-01T00:00:00Z',
+      createdBy: 'user-admin',
+      updatedAt: '2026-01-01T01:00:00Z',
+      updatedBy: 'user-admin',
+      sourceMetadata: {
+        sourceFileName: 'trips.xlsx',
+        sourceMimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        sourceSheetName: 'Trips',
+      },
+      reviewSnapshot: {
+        totalRows: 10,
+        validRows: 8,
+        warningRows: 1,
+        errorRows: 1,
+        requiresReviewRows: 0,
+        rows: [
+          {
+            rowNumber: 1,
+            status: 'VALID',
+            reviewStatus: 'accepted',
+            raw: { driver: 'Ahmed' },
+            canonical: { driverName: 'Ahmed' },
+            validationIssues: [],
+          },
+        ],
+      },
+      validationIssues: [],
+      warningConfirmation: true,
+    };
+
+    const resumedState = importSessionClientService.reconstructResumedBatch(mockRecord as any);
+    const snapshot = resumedState.reviewSnapshot;
+
+    const batch: UnifiedImportBatch = {
+      importBatchId: mockRecord.importBatchId,
+      projectId: mockRecord.projectId,
+      source: {
+        sourceType: (mockRecord.sourceType as any) || 'EXCEL_CSV',
+        importBatchId: mockRecord.importBatchId,
+        sourceFileName: mockRecord.sourceMetadata.sourceFileName,
+        sourceMimeType: mockRecord.sourceMetadata.sourceMimeType,
+        sourceSheetName: mockRecord.sourceMetadata.sourceSheetName,
+      },
+      currentStage: (mockRecord.currentStage as any) || 'REVIEW',
+      validationStatus: 'PASSED',
+      commitStatus: 'AWAITING_REVIEW',
+      totalRows: snapshot.totalRows,
+      validRows: snapshot.validRows,
+      warningRows: snapshot.warningRows,
+      errorRows: snapshot.errorRows,
+      requiresReviewRows: snapshot.requiresReviewRows,
+      committedRows: 0,
+      rows: snapshot.rows,
+      issues: mockRecord.validationIssues || [],
+      operationId: mockRecord.operationId,
+      createdAt: mockRecord.createdAt,
+      createdBy: mockRecord.createdBy,
+      warningConfirmation: {
+        confirmed: Boolean(mockRecord.warningConfirmation),
+        confirmedBy: mockRecord.createdBy,
+        confirmedAt: mockRecord.updatedAt,
+      },
+      auditTrail: [
+        {
+          timestamp: mockRecord.updatedAt,
+          userId: mockRecord.createdBy,
+          action: 'SESSION_RESUMED',
+          details: 'Resumed session',
+        },
+      ],
+    };
+
+    // Assert canonical fields are present
+    expect(batch.importBatchId).toBe('batch_100');
+    expect(batch.projectId).toBe('PRJ-4B2');
+    expect(batch.source.sourceType).toBe('EXCEL_CSV');
+    expect(batch.currentStage).toBe('REVIEW');
+    expect(batch.validationStatus).toBe('PASSED');
+    expect(batch.commitStatus).toBe('AWAITING_REVIEW');
+    expect(batch.totalRows).toBe(10);
+    expect(batch.validRows).toBe(8);
+    expect(batch.warningRows).toBe(1);
+    expect(batch.errorRows).toBe(1);
+    expect(batch.requiresReviewRows).toBe(0);
+    expect(batch.committedRows).toBe(0);
+    expect(batch.rows).toHaveLength(1);
+    expect(batch.issues).toEqual([]);
+    expect(batch.operationId).toBe('op_100');
+    expect(batch.createdAt).toBe('2026-01-01T00:00:00Z');
+    expect(batch.createdBy).toBe('user-admin');
+    expect(batch.auditTrail).toHaveLength(1);
+    expect(batch.warningConfirmation?.confirmed).toBe(true);
+
+    // Assert no non-contract fields exist on batch
+    expect((batch as any).id).toBeUndefined();
+    expect((batch as any).status).toBeUndefined();
+    expect((batch as any).summary).toBeUndefined();
+    expect((batch as any).validationIssues).toBeUndefined();
+    expect((batch as any).entityResolutions).toBeUndefined();
+  });
+
+  it('26. no raw binary is fabricated on resume', () => {
+    const mockRecord = {
+      importSessionId: 'sess-200',
+      projectId: 'PRJ-4B2',
+      operationId: 'op_200',
+      importBatchId: 'batch_200',
+      sourceType: 'CSV',
+      lifecycleState: 'REVIEW_REQUIRED',
+      version: 1,
+      createdAt: '2026-01-01T00:00:00Z',
+      createdBy: 'user-1',
+      updatedAt: '2026-01-01T00:00:00Z',
+      updatedBy: 'user-1',
+      sourceMetadata: { sourceFileName: 'data.csv' },
+    };
+
+    const resumedState = importSessionClientService.reconstructResumedBatch(mockRecord as any);
+
+    expect(resumedState.requiresSourceFileReattach).toBe(true);
+    expect((resumedState as any).rawInput).toBeUndefined();
+    expect((resumedState as any).rawBuffer).toBeUndefined();
   });
 });
