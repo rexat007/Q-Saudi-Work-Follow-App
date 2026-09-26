@@ -263,6 +263,48 @@ app.patch(
 
 
 // ----------------------------------------------------
+// 0.4 Global Canonical Snapshot Boundary Endpoint
+// ----------------------------------------------------
+app.post(
+  '/api/projects/:projectId/canonical-snapshot',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req: any, res) => {
+    try {
+      const { projectId } = req.params;
+      const user = req.user;
+      const { carrierId, truckId, driverId, materialId } = req.body;
+
+      const { canonicalSnapshotServerService } = await import('../src/services/canonicalSnapshot.server');
+      const snapshotBundle = await canonicalSnapshotServerService.getTripCanonicalSnapshot(
+        projectId,
+        { carrierId, truckId, driverId, materialId },
+        user
+      );
+
+      return res.json({
+        success: true,
+        data: snapshotBundle,
+      });
+    } catch (error: any) {
+      console.error('Canonical snapshot retrieval failed:', error);
+      const code = error.code || 'CANONICAL_SNAPSHOT_FAILED';
+      let status = 400;
+      if (code === 'UNAUTHENTICATED') status = 401;
+      else if (code.includes('NOT_ACTIVE') || code.includes('CONFLICT') || code === 'FORBIDDEN_PROJECT_ACCESS') status = 403;
+      else if (code.includes('NOT_FOUND')) status = 404;
+
+      return res.status(status).json({
+        success: false,
+        error: error.message || 'فشل استرجاع لقطة الكيان المعتمد',
+        code,
+      });
+    }
+  }
+);
+
+
+// ----------------------------------------------------
 // 0.1 Server-Authoritative Project Creation Endpoint
 // ----------------------------------------------------
 app.post('/api/projects', async (req: any, res) => {

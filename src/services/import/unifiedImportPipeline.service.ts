@@ -328,9 +328,8 @@ export class UnifiedImportPipelineService {
 
     return batch;
   }
-
   /**
-   * Confirms warnings for the batch, enabling commit
+   * Confirms warnings for the batch, enabling commit (D)
    */
   public confirmWarnings(
     batch: UnifiedImportBatch,
@@ -344,21 +343,68 @@ export class UnifiedImportPipelineService {
       notes,
     };
 
-    if (batch.errorRows === 0) {
+    const hasUnresolved = (batch.requiresReviewRows && batch.requiresReviewRows > 0) ||
+                          batch.rows.some((row) => row.reviewStatus === 'requires_review');
+
+    if (batch.errorRows === 0 && !hasUnresolved) {
       batch.commitStatus = 'READY_TO_COMMIT';
+    } else {
+      batch.commitStatus = 'REVIEW_REQUIRED';
     }
 
     return batch;
   }
 
   /**
-   * Executes STAGE 9: COMMIT and STAGE 10: AUDIT
+   * Executes STAGE 9: COMMIT and STAGE 10: AUDIT (D)
    * Performs actual persistent writes and records audit.
    */
   public async executeCommit(
     batch: UnifiedImportBatch,
     context: PipelineContext
   ): Promise<{ batch: UnifiedImportBatch; result: ImportResult }> {
+    const hasUnresolved = (batch.requiresReviewRows && batch.requiresReviewRows > 0) ||
+                          batch.rows.some((row) => row.reviewStatus === 'requires_review');
+
+    if (hasUnresolved) {
+      batch.commitStatus = 'FAILED';
+      const errorMsg = 'لا يمكن تنفيذ الاعتماد: توجد صفوف مراجعة غير مطابقة معلقة (ENTITY_RESOLUTION_REVIEW_REQUIRED)';
+      const result: ImportResult = {
+        importBatchId: batch.importBatchId,
+        projectId: batch.projectId,
+        operationId: context.operationId,
+        sourceType: batch.source.sourceType,
+        success: false,
+        totalRows: batch.totalRows,
+        committedRows: 0,
+        skippedRows: batch.totalRows,
+        failedRows: batch.totalRows,
+        issues: [
+          {
+            issueId: `ERR-UNRESOLVED-COMMIT-BLOCKED-${Date.now()}`,
+            row: 0,
+            field: 'reviewStatus',
+            code: 'ENTITY_RESOLUTION_REVIEW_REQUIRED',
+            severity: 'BLOCKING',
+            message: errorMsg,
+            resolvable: false,
+            blocking: true,
+          }
+        ],
+        executedAt: new Date().toISOString(),
+        error: errorMsg,
+      };
+
+      await this.auditor.recordAudit(
+        batch,
+        'COMMIT_FAILED',
+        `فشل اعتماد الدفعة: ${errorMsg}`,
+        context
+      );
+
+      return { batch, result };
+    }
+
     // 1. Commit Stage
     batch.currentStage = 'COMMIT';
     const result = await this.committer.commit(batch, context);

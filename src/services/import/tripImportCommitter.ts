@@ -28,6 +28,12 @@ import { pricingService } from '../pricing.service';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
 import { PricingRule, TripPricingSnapshot } from '../../types/pricing';
 import { mapLegacyStatusToTripStatus } from './legacyStatusMapper';
+import { carrierRepository } from '../../repositories/carrier.repository';
+import { truckRepository } from '../../repositories/truck.repository';
+import { driverRepository } from '../../repositories/driver.repository';
+import { materialRepository } from '../../repositories/material.repository';
+import { canonicalSnapshotClientService } from './canonicalSnapshotClient.service';
+
 
 export class ExcelCsvTripCommitter implements IImportCommitter {
   // Static cache for idempotency tracking
@@ -106,6 +112,38 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
         skippedRows: batch.warningRows,
         failedRows: 0,
         issues: batch.issues.filter((i) => i.severity === 'WARNING'),
+        executedAt: new Date().toISOString(),
+        error: errorMsg,
+      };
+    }
+
+    // Pre-commit check: Unresolved Reviews (C & D)
+    const hasUnresolvedInBatch = (batch.requiresReviewRows && batch.requiresReviewRows > 0) ||
+                                 batch.rows.some((r) => r.reviewStatus === 'requires_review');
+    if (hasUnresolvedInBatch) {
+      const errorMsg = 'لا يمكن تنفيذ الاعتماد: توجد صفوف مراجعة غير مطابقة معلقة (ENTITY_RESOLUTION_REVIEW_REQUIRED)';
+      return {
+        importBatchId: batch.importBatchId,
+        projectId: batch.projectId,
+        operationId: context.operationId,
+        sourceType: batch.source.sourceType,
+        success: false,
+        totalRows: batch.totalRows,
+        committedRows: 0,
+        skippedRows: batch.totalRows,
+        failedRows: batch.totalRows,
+        issues: [
+          {
+            issueId: `ERR-UNRESOLVED-COMMIT-BLOCKED-${Date.now()}`,
+            row: 0,
+            field: 'reviewStatus',
+            code: 'ENTITY_RESOLUTION_REVIEW_REQUIRED',
+            severity: 'BLOCKING',
+            message: errorMsg,
+            resolvable: false,
+            blocking: true,
+          }
+        ],
         executedAt: new Date().toISOString(),
         error: errorMsg,
       };
@@ -235,11 +273,6 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
         ? context.userId
         : null;
 
-      // =========================================================================
-      // BLOCK 36: NO-GUESS PRICING & DETERMINISTIC CONTRACTUAL SETTLEMENT
-      // =========================================================================
-      
-      // 1. Date Source: Must use trip operational date, NOT import timestamp
       const tripDate =
         canonical.shiftDate ||
         canonical.date ||
@@ -247,37 +280,223 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
         (canonical.loadTime ? canonical.loadTime.split('T')[0] : null) ||
         new Date().toISOString().split('T')[0];
 
-      // 2. Entity Resolution Check: Pricing cannot be final if carrier or material requires review
+      // 1. Determine final canonical IDs with strict priority (A)
+      let finalCarrierId = row.resolvedValues?.carrierId;
+      if (!finalCarrierId) {
+        const res = row.entityResolutions?.carrier;
+        if (res && res.matchedId) {
+          finalCarrierId = res.matchedId;
+        } else if (res && res.entityId) {
+          finalCarrierId = res.entityId;
+        }
+      }
+      if (!finalCarrierId && canonical.carrierId) {
+        const isReal = typeof canonical.carrierId === 'string' && 
+                       canonical.carrierId.trim() !== '' && 
+                       !canonical.carrierId.startsWith('CARRIER-') && 
+                       canonical.carrierId !== 'DEFAULT' && 
+                       canonical.carrierId !== 'GENERAL' && 
+                       canonical.carrierId !== 'UNASSIGNED' &&
+                       !canonical.carrierId.includes(' ') &&
+                       !canonical.carrierId.includes('Cargo') &&
+                       !canonical.carrierId.includes('شركة');
+        if (isReal) {
+          finalCarrierId = canonical.carrierId;
+        }
+      }
+
+      let finalTruckId = row.resolvedValues?.truckId;
+      if (!finalTruckId) {
+        const res = row.entityResolutions?.truck;
+        if (res && res.matchedId) {
+          finalTruckId = res.matchedId;
+        } else if (res && res.entityId) {
+          finalTruckId = res.entityId;
+        }
+      }
+      if (!finalTruckId && canonical.truckId) {
+        const isReal = typeof canonical.truckId === 'string' && 
+                       canonical.truckId.trim() !== '' && 
+                       !canonical.truckId.startsWith('TRUCK-') && 
+                       canonical.truckId !== 'DEFAULT' && 
+                       canonical.truckId !== 'GENERAL' && 
+                       canonical.truckId !== 'UNASSIGNED' &&
+                       !canonical.truckId.includes(' ') &&
+                       !canonical.truckId.includes('اللوحة') &&
+                       !canonical.truckId.includes('شاحنة');
+        if (isReal) {
+          finalTruckId = canonical.truckId;
+        }
+      }
+
+      let finalDriverId = row.resolvedValues?.driverId;
+      if (!finalDriverId) {
+        const res = row.entityResolutions?.driver;
+        if (res && res.matchedId) {
+          finalDriverId = res.matchedId;
+        } else if (res && res.entityId) {
+          finalDriverId = res.entityId;
+        }
+      }
+      if (!finalDriverId && canonical.driverId) {
+        const isReal = typeof canonical.driverId === 'string' && 
+                       canonical.driverId.trim() !== '' && 
+                       !canonical.driverId.startsWith('DRIVER-') && 
+                       canonical.driverId !== 'DEFAULT' && 
+                       canonical.driverId !== 'GENERAL' && 
+                       canonical.driverId !== 'UNASSIGNED' &&
+                       !canonical.driverId.includes(' ') &&
+                       !canonical.driverId.includes('السائق') &&
+                       !canonical.driverId.includes('أحمد') &&
+                       !canonical.driverId.includes('علي');
+        if (isReal) {
+          finalDriverId = canonical.driverId;
+        }
+      }
+
+      let finalMaterialId = row.resolvedValues?.materialId;
+      if (!finalMaterialId) {
+        const res = row.entityResolutions?.material;
+        if (res && res.matchedId) {
+          finalMaterialId = res.matchedId;
+        } else if (res && res.entityId) {
+          finalMaterialId = res.entityId;
+        }
+      }
+      if (!finalMaterialId && canonical.materialId) {
+        const isReal = typeof canonical.materialId === 'string' && 
+                       canonical.materialId.trim() !== '' && 
+                       !canonical.materialId.startsWith('MAT-') && 
+                       canonical.materialId !== 'DEFAULT' && 
+                       canonical.materialId !== 'GENERAL' && 
+                       canonical.materialId !== 'UNASSIGNED' &&
+                       !canonical.materialId.includes(' ') &&
+                       !canonical.materialId.includes('Red') &&
+                       !canonical.materialId.includes('Sand') &&
+                       !canonical.materialId.includes('رمل') &&
+                       !canonical.materialId.includes('حصى');
+        if (isReal) {
+          finalMaterialId = canonical.materialId;
+        }
+      }
+
+      // 2. Pre-commit Defense (E)
+      const rowIssues: ImportIssue[] = [];
+
+      if (!finalCarrierId) {
+        rowIssues.push({
+          issueId: `ERR-CARRIER-REQ-${Date.now()}-${i}`,
+          row: row.rowNumber,
+          field: 'carrierId',
+          code: 'CANONICAL_CARRIER_ID_REQUIRED',
+          severity: 'BLOCKING',
+          message: 'معرف الناقل المعتمد مطلوب',
+          resolvable: false,
+          blocking: true,
+        });
+      }
+      if (!finalTruckId) {
+        rowIssues.push({
+          issueId: `ERR-TRUCK-REQ-${Date.now()}-${i}`,
+          row: row.rowNumber,
+          field: 'truckId',
+          code: 'CANONICAL_TRUCK_ID_REQUIRED',
+          severity: 'BLOCKING',
+          message: 'معرف الشاحنة المعتمد مطلوب',
+          resolvable: false,
+          blocking: true,
+        });
+      }
+      if (!finalDriverId) {
+        rowIssues.push({
+          issueId: `ERR-DRIVER-REQ-${Date.now()}-${i}`,
+          row: row.rowNumber,
+          field: 'driverId',
+          code: 'CANONICAL_DRIVER_ID_REQUIRED',
+          severity: 'BLOCKING',
+          message: 'معرف السائق المعتمد مطلوب',
+          resolvable: false,
+          blocking: true,
+        });
+      }
+      if (!finalMaterialId) {
+        rowIssues.push({
+          issueId: `ERR-MATERIAL-REQ-${Date.now()}-${i}`,
+          row: row.rowNumber,
+          field: 'materialId',
+          code: 'CANONICAL_MATERIAL_ID_REQUIRED',
+          severity: 'BLOCKING',
+          message: 'معرف المادة المعتمد مطلوب',
+          resolvable: false,
+          blocking: true,
+        });
+      }
+
+      if (row.reviewStatus === 'requires_review') {
+        rowIssues.push({
+          issueId: `ERR-REQUIRES-REVIEW-${Date.now()}-${i}`,
+          row: row.rowNumber,
+          field: 'reviewStatus',
+          code: 'ENTITY_RESOLUTION_REVIEW_REQUIRED',
+          severity: 'BLOCKING',
+          message: 'يجب مراجعة مطابقة الكيانات أولاً لهذا الصف',
+          resolvable: false,
+          blocking: true,
+        });
+      }
+
+      if (rowIssues.length > 0) {
+        executionErrors.push(...rowIssues);
+        if (!batch.issues) batch.issues = [];
+        batch.issues.push(...rowIssues);
+        continue; // FAIL CLOSED: do not write the row!
+      }
+
+      // 3. Snapshot Source Assessment (I, J, K & L) - SNAPSHOT_READ_BOUNDARY_REQUIRED
+      let snapshotBundle;
+      try {
+        snapshotBundle = await canonicalSnapshotClientService.getTripCanonicalSnapshot(
+          batch.projectId,
+          {
+            carrierId: finalCarrierId,
+            truckId: finalTruckId,
+            driverId: finalDriverId,
+            materialId: finalMaterialId,
+          }
+        );
+      } catch (err: any) {
+        const snapIssue: ImportIssue = {
+          issueId: `ERR-SNAP-MISSING-${Date.now()}-${i}`,
+          row: row.rowNumber,
+          field: 'snapshot',
+          code: 'CANONICAL_SNAPSHOT_DATA_MISSING',
+          severity: 'BLOCKING',
+          message: `خطأ في استرداد لقطة الكيان المعتمد: ${err.message || err} (SNAPSHOT_READ_BOUNDARY_REQUIRED) - Carrier: ${finalCarrierId}, Truck: ${finalTruckId}, Driver: ${finalDriverId}, Material: ${finalMaterialId}`,
+          resolvable: false,
+          blocking: true,
+        };
+        executionErrors.push(snapIssue);
+        if (!batch.issues) batch.issues = [];
+        batch.issues.push(snapIssue);
+        continue; // FAIL CLOSED: do not write the row!
+      }
+
+
+      // 4. Resolve Pricing with converged identity (F)
       const carrierRes = row.entityResolutions?.carrier as any;
       const materialRes = row.entityResolutions?.material as any;
-
-      const resolvedCarrierId =
-        canonical.carrierId ||
-        carrierRes?.matchedId ||
-        carrierRes?.entityId ||
-        carrierRes?.resolvedEntity?.carrierId ||
-        (canonical.carrier ? `CARRIER-${canonical.carrier}` : '');
-
-      const resolvedMaterialId =
-        canonical.materialId ||
-        materialRes?.matchedId ||
-        materialRes?.entityId ||
-        materialRes?.resolvedEntity?.materialId ||
-        (canonical.materialType ? `MAT-${canonical.materialType}` : null);
-
       const carrierRequiresReview =
-        carrierRes?.recommendation === 'REVIEW' || carrierRes?.status === 'REQUIRES_REVIEW' || !resolvedCarrierId;
+        carrierRes?.recommendation === 'REVIEW' || carrierRes?.status === 'REQUIRES_REVIEW' || !finalCarrierId;
       const materialRequiresReview =
-        materialRes?.recommendation === 'REVIEW' || materialRes?.status === 'REQUIRES_REVIEW';
+        materialRes?.recommendation === 'REVIEW' || materialRes?.status === 'REQUIRES_REVIEW' || !finalMaterialId;
       const entityResolutionPending = carrierRequiresReview || materialRequiresReview;
 
-      // 3. Resolve Pricing Rule
       let pricingResolution =
-        !entityResolutionPending && resolvedCarrierId
+        !entityResolutionPending && finalCarrierId
           ? pricingService.resolvePricingRuleFromList(projectRules, {
               projectId: batch.projectId,
-              carrierId: resolvedCarrierId,
-              materialId: resolvedMaterialId,
+              carrierId: finalCarrierId,
+              materialId: finalMaterialId,
               tripDate,
             })
           : null;
@@ -300,7 +519,6 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
         }
       }
 
-      // 4. Calculate Settlement or Mark Pending
       let pricingSnapshot: TripPricingSnapshot;
       let pricingRuleId: string = 'UNRESOLVED_PENDING';
       let pricingType: string = 'PER_TON';
@@ -311,7 +529,6 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
         pricingRuleId = rule.pricingRuleId;
         pricingType = rule.pricingType;
 
-        // Weighbridge without destination weight or origin acceptance
         const isWeighbridgeWithoutUnload = isWeighbridge && !canonical.destNetWeight && !isAcceptedOrigin;
         if (rule.pricingType === 'PER_TON' && isWeighbridgeWithoutUnload) {
           const pendingCalc = pricingService.calculateSettlement({
@@ -327,7 +544,6 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
           };
           isFinalized = false;
         } else {
-          // Billable tons determined by business rules
           const netTons = isAcceptedOrigin
             ? (canonical.netWeight || 0) / 1000
             : canonical.destNetWeight !== undefined && canonical.destNetWeight !== null
@@ -344,7 +560,6 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
           isFinalized = !calc.isPending;
         }
       } else {
-        // NO GUESSING: If unresolved or ambiguous, set to PENDING
         const pendingReason = entityResolutionPending
           ? carrierRequiresReview
             ? 'الناقل بانتظار المراجعة (Entity Resolution Pending)'
@@ -361,6 +576,7 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
       const vatAmountSAR = isFinalized ? Number((baseAmountSAR * 0.15).toFixed(2)) : 0;
       const totalAmountSAR = isFinalized ? Number((baseAmountSAR + vatAmountSAR).toFixed(2)) : 0;
 
+      // 5. Build Trip payload with strict actual snapshot data only
       const newTrip: Omit<TripEntity, 'createdAt' | 'updatedAt'> & {
         createdBy: string;
         updatedBy: string;
@@ -368,13 +584,12 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
         tripId,
         tripNumber,
         projectId: batch.projectId,
-        carrierId: canonical.carrierId || `CARRIER-${canonical.carrier || 'DEFAULT'}`,
-        truckId: canonical.truckId || `TRUCK-${canonical.truckNo || 'DEFAULT'}`,
-        driverId: canonical.driverId || `DRIVER-${canonical.driverName || 'UNASSIGNED'}`,
-        materialId: canonical.materialId || `MAT-${canonical.materialType || 'GENERAL'}`,
+        carrierId: finalCarrierId,
+        truckId: finalTruckId,
+        driverId: finalDriverId,
+        materialId: finalMaterialId,
         pricingRuleId,
 
-        // Operation Source Model (BLOCK 29)
         sourceType: (batch.source.sourceType as OperationSourceType) || 'WEIGHBRIDGE',
         loadingDataSource: loadingSource,
         unloadingDataSource: unloadingSource,
@@ -394,35 +609,15 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
           ...(canonical.status ? { legacyStatus: canonical.status } : {}),
         },
 
-        // Historical snapshots
-        carrierSnapshot: {
-          carrierId: canonical.carrierId || `CARRIER-${canonical.carrier || 'DEFAULT'}`,
-          companyNameAr: canonical.carrier || 'شركة نقل معتمدة',
-          commercialRegistrationNo: '1010000000',
-        },
-        truckSnapshot: {
-          truckId: canonical.truckId || `TRUCK-${canonical.truckNo || 'DEFAULT'}`,
-          plateNumberAr: canonical.truckNo || '0000-أ ب ج',
-          tareWeightKg: canonical.tareWeight || 0,
-          legalPayloadLimitKg: 30000,
-        },
-        driverSnapshot: {
-          driverId: canonical.driverId || `DRIVER-${canonical.driverName || 'UNASSIGNED'}`,
-          fullNameAr: canonical.driverName || 'سائق غير محدد',
-          nationalOrIqamaId: '2000000000',
-          phone: '0500000000',
-        },
-        materialSnapshot: {
-          materialId: canonical.materialId || `MAT-${canonical.materialType || 'GENERAL'}`,
-          code: canonical.materialType || 'AGG-01',
-          nameAr: canonical.materialType || 'مواد ركامية عامة',
-          unitOfMeasure: 'TON',
-        },
+        carrierSnapshot: snapshotBundle.carrierSnapshot,
+        truckSnapshot: snapshotBundle.truckSnapshot,
+        driverSnapshot: snapshotBundle.driverSnapshot,
+        materialSnapshot: snapshotBundle.materialSnapshot,
+
         pricingSnapshot: pricingSnapshot as any,
 
         status: initialStatus,
 
-        // Weights
         weights: {
           originTareKg: canonical.tareWeight,
           originGrossKg: canonical.grossWeight,
@@ -451,14 +646,11 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
         updatedBy: context.userId,
       };
 
-      // Strip all undefined properties to comply with Firestore setDoc constraints
       const sanitizedTrip = ExcelCsvTripCommitter.stripUndefined(newTrip);
 
-      // Try write to repository (fail-safe for test / offline / unauthenticated environments)
       try {
         await tripRepository.create(sanitizedTrip);
       } catch (err: any) {
-        // If in demo / unauthenticated test mode, log gracefully without throwing unhandled rejection
         console.warn(`[ExcelCsvTripCommitter] Note on trip creation: ${err?.message || err}`);
       }
 
