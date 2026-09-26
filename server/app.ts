@@ -165,6 +165,104 @@ app.post(
 );
 
 // ----------------------------------------------------
+// 0.3 Server-Authoritative Import Session Persistence Endpoints (Unit 4A)
+// ----------------------------------------------------
+app.post(
+  '/api/projects/:projectId/import-sessions',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req: any, res) => {
+    try {
+      const { projectId } = req.params;
+      const user = req.user;
+      const { importSessionServerService } = await import('../src/services/importSession.server');
+      const session = await importSessionServerService.createSession(projectId, req.body, user);
+      return res.status(201).json({
+        success: true,
+        data: session,
+        message: 'تم إنشاء جلسة الاستيراد بنجاح.'
+      });
+    } catch (error: any) {
+      console.error('Create import session failed:', error);
+      const code = error.code || 'IMPORT_SESSION_CREATE_FAILED';
+      const status = code === 'AUTHORIZATION_ERROR' || code === 'UNAUTHENTICATED' ? 403 : 400;
+      return res.status(status).json({
+        success: false,
+        error: error.message || 'فشل إنشاء جلسة الاستيراد.',
+        code
+      });
+    }
+  }
+);
+
+app.get(
+  '/api/projects/:projectId/import-sessions/:importSessionId',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req: any, res) => {
+    try {
+      const { projectId, importSessionId } = req.params;
+      const user = req.user;
+      const { importSessionServerService } = await import('../src/services/importSession.server');
+      const session = await importSessionServerService.getSession(projectId, importSessionId, user);
+      return res.json({
+        success: true,
+        data: session
+      });
+    } catch (error: any) {
+      console.error('Get import session failed:', error);
+      const code = error.code || 'IMPORT_SESSION_GET_FAILED';
+      const status = code === 'IMPORT_SESSION_NOT_FOUND' ? 404 : (code === 'PROJECT_MISMATCH' || code === 'AUTHORIZATION_ERROR' ? 403 : 400);
+      return res.status(status).json({
+        success: false,
+        error: error.message || 'فشل استرجاع جلسة الاستيراد.',
+        code
+      });
+    }
+  }
+);
+
+app.patch(
+  '/api/projects/:projectId/import-sessions/:importSessionId',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req: any, res) => {
+    try {
+      const { projectId, importSessionId } = req.params;
+      const user = req.user;
+      const { expectedVersion, ...updates } = req.body;
+      const { importSessionServerService } = await import('../src/services/importSession.server');
+      const updated = await importSessionServerService.updateCheckpoint(
+        projectId,
+        importSessionId,
+        updates,
+        { expectedVersion },
+        user
+      );
+      return res.json({
+        success: true,
+        data: updated,
+        message: 'تم تحديث نقطة تفتيش جلسة الاستيراد بنجاح.'
+      });
+    } catch (error: any) {
+      console.error('Update import session failed:', error);
+      const code = error.code || 'IMPORT_SESSION_UPDATE_FAILED';
+      let status = 400;
+      if (code === 'VERSION_CONFLICT') status = 409;
+      else if (code === 'IMPORT_SESSION_NOT_FOUND') status = 404;
+      else if (code === 'PROJECT_MISMATCH' || code === 'AUTHORIZATION_ERROR' || code === 'IMMUTABLE_IDENTITY_VIOLATION') status = 403;
+      
+      return res.status(status).json({
+        success: false,
+        error: error.message || 'فشل تحديث جلسة الاستيراد.',
+        code
+      });
+    }
+  }
+);
+
+
+// ----------------------------------------------------
 // 0.1 Server-Authoritative Project Creation Endpoint
 // ----------------------------------------------------
 app.post('/api/projects', async (req: any, res) => {
