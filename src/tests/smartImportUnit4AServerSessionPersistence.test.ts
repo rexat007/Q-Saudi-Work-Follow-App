@@ -287,7 +287,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
         importSessionId: 'ses-119',
         file: { name: 'test.csv' },
       }, adminContext)
-    ).rejects.toThrow('يُحظر تضمين كائنات الملفات');
+    ).rejects.toSatisfy((err: any) => err.code === 'INVALID_PAYLOAD_FORBIDDEN_FIELDS');
   });
 
   it('22. secrets/tokens rejected/sanitized', async () => {
@@ -296,7 +296,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
         importSessionId: 'ses-120',
         token: 'secret-jwt',
       }, adminContext)
-    ).rejects.toThrow('يُحظر تضمين كائنات الملفات (File objects) أو الرموز السرية');
+    ).rejects.toSatisfy((err: any) => err.code === 'INVALID_PAYLOAD_FORBIDDEN_FIELDS');
   });
 
   it('23. authentication required', async () => {
@@ -327,9 +327,89 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
   });
 
   it('26. existing /api/intake/canonical behavior untouched', async () => {
-    // Verify that the import session persistence module does not export or affect intake service
     const { driverTruckIntakeServer } = await import('../services/driverTruckIntake.server');
     expect(driverTruckIntakeServer).toBeDefined();
     expect(typeof driverTruckIntakeServer.processSharedIntake).toBe('function');
+  });
+
+  it('27. nested secret rejection at any depth', async () => {
+    await expect(
+      importSessionServerService.createSession('PRJ-001', {
+        importSessionId: 'ses-sec-nest',
+        reviewSnapshot: {
+          metadata: {
+            token: 'nested-secret-jwt',
+          },
+        },
+      }, adminContext)
+    ).rejects.toSatisfy((err: any) => err.code === 'INVALID_PAYLOAD_FORBIDDEN_FIELDS');
+
+    await importSessionServerService.createSession('PRJ-001', {
+      importSessionId: 'ses-sec-nest2',
+    }, adminContext);
+
+    await expect(
+      importSessionServerService.updateCheckpoint('PRJ-001', 'ses-sec-nest2', {
+        reviewSnapshot: {
+          config: {
+            apiKey: 'nested-key',
+          },
+        },
+      }, { expectedVersion: 1 }, adminContext)
+    ).rejects.toSatisfy((err: any) => err.code === 'INVALID_PAYLOAD_FORBIDDEN_FIELDS');
+  });
+
+  it('28. nested file-like field rejection', async () => {
+    await expect(
+      importSessionServerService.createSession('PRJ-001', {
+        importSessionId: 'ses-file-nest',
+        entityResolutions: [
+          { details: { file: { name: 'nested.csv' } } },
+        ],
+      }, adminContext)
+    ).rejects.toSatisfy((err: any) => err.code === 'INVALID_PAYLOAD_FORBIDDEN_FIELDS');
+  });
+
+  it('29. createdAt / createdBy mutation rejected and preserved', async () => {
+    const session = await importSessionServerService.createSession('PRJ-001', {
+      importSessionId: 'ses-provenance',
+      operationId: 'op-prov',
+      importBatchId: 'batch-prov',
+    }, adminContext);
+
+    await expect(
+      importSessionServerService.updateCheckpoint('PRJ-001', 'ses-provenance', {
+        createdAt: '2000-01-01T00:00:00.000Z',
+      }, { expectedVersion: 1 }, adminContext)
+    ).rejects.toThrow('تغيير تاريخ الإنشاء');
+
+    await expect(
+      importSessionServerService.updateCheckpoint('PRJ-001', 'ses-provenance', {
+        createdBy: 'malicious-user',
+      }, { expectedVersion: 1 }, adminContext)
+    ).rejects.toThrow('تغيير مكوّن الإنشاء');
+
+    const updated = await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-provenance', {
+      currentStage: 'VALIDATING',
+    }, { expectedVersion: 1 }, adminContext);
+
+    expect(updated.createdAt).toBe(session.createdAt);
+    expect(updated.createdBy).toBe(session.createdBy);
+  });
+
+  it('30. caller-supplied version cannot override server version', async () => {
+    await importSessionServerService.createSession('PRJ-001', {
+      importSessionId: 'ses-ver-override',
+    }, adminContext);
+
+    await expect(
+      importSessionServerService.updateCheckpoint('PRJ-001', 'ses-ver-override', {
+        version: 999,
+        currentStage: 'MALICIOUS_OVERRIDE',
+      }, { expectedVersion: 1 }, adminContext)
+    ).rejects.toThrow('تجاوز رقم الإصدار');
+
+    const session = await importSessionServerService.getSession('PRJ-001', 'ses-ver-override', adminContext);
+    expect(session.version).toBe(1);
   });
 });

@@ -1,6 +1,46 @@
 import { adminDb } from '../firebase/admin';
 import { AuthUserContext } from '../types/common';
 
+const FORBIDDEN_KEYS = new Set([
+  'token',
+  'accesstoken',
+  'refreshtoken',
+  'apikey',
+  'secret',
+  'password',
+  'authorization',
+  'credential',
+  'credentials',
+  'privatekey',
+  'file',
+]);
+
+function hasForbiddenFields(obj: any, visited = new WeakSet()): boolean {
+  if (!obj || typeof obj !== 'object') return false;
+  if (visited.has(obj)) return false;
+  visited.add(obj);
+
+  if (Array.isArray(obj)) {
+    for (const item of obj) {
+      if (hasForbiddenFields(item, visited)) return true;
+    }
+    return false;
+  }
+
+  for (const key of Object.keys(obj)) {
+    const lowerKey = key.toLowerCase();
+    if (FORBIDDEN_KEYS.has(lowerKey)) {
+      return true;
+    }
+    const val = obj[key];
+    if (val && typeof val === 'object') {
+      if (hasForbiddenFields(val, visited)) return true;
+    }
+  }
+
+  return false;
+}
+
 export class ImportSessionServerService {
   async createSession(projectId: string, payload: any, context: AuthUserContext) {
     if (!context || !['PROJECT_ADMIN', 'SUPER_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SITE_SUPERVISOR', 'FINANCE_AUDITOR'].includes(context.role)) {
@@ -21,8 +61,8 @@ export class ImportSessionServerService {
       throw err;
     }
 
-    if (payload.file || payload.sourceMetadata?.file || payload.token || payload.secret) {
-      const err: any = new Error('يُحظر تضمين كائنات الملفات (File objects) أو الرموز السرية في جلسة الاستيراد');
+    if (hasForbiddenFields(payload)) {
+      const err: any = new Error('يُحظر تضمين كائنات الملفات (File objects) أو الرموز السرية/الحساسة في جلسة الاستيراد بجميع المستويات');
       err.code = 'INVALID_PAYLOAD_FORBIDDEN_FIELDS';
       throw err;
     }
@@ -115,8 +155,8 @@ export class ImportSessionServerService {
       throw err;
     }
 
-    if (updates.file || updates.sourceMetadata?.file || updates.token || updates.secret) {
-      const err: any = new Error('يُحظر تضمين كائنات الملفات أو الأسرار في التحديث');
+    if (hasForbiddenFields(updates)) {
+      const err: any = new Error('يُحظر تضمين كائنات الملفات (File objects) أو الرموز السرية/الحساسة في تحديث جلسة الاستيراد');
       err.code = 'INVALID_PAYLOAD_FORBIDDEN_FIELDS';
       throw err;
     }
@@ -147,18 +187,38 @@ export class ImportSessionServerService {
         throw err;
       }
 
-      if (updates.importSessionId && updates.importSessionId !== existing.importSessionId) {
+      if (updates.importSessionId !== undefined && updates.importSessionId !== existing.importSessionId) {
         const err: any = new Error('تغيير معرف جلسة الاستيراد (importSessionId) محظور');
         err.code = 'IMMUTABLE_IDENTITY_VIOLATION';
         throw err;
       }
-      if (updates.operationId && updates.operationId !== existing.operationId) {
+      if (updates.projectId !== undefined && updates.projectId !== existing.projectId) {
+        const err: any = new Error('تغيير معرف المشروع (projectId) محظور');
+        err.code = 'IMMUTABLE_IDENTITY_VIOLATION';
+        throw err;
+      }
+      if (updates.operationId !== undefined && updates.operationId !== existing.operationId) {
         const err: any = new Error('تغيير معرف العملية (operationId) محظور');
         err.code = 'IMMUTABLE_IDENTITY_VIOLATION';
         throw err;
       }
-      if (updates.importBatchId && updates.importBatchId !== existing.importBatchId) {
+      if (updates.importBatchId !== undefined && updates.importBatchId !== existing.importBatchId) {
         const err: any = new Error('تغيير معرف دفعة الاستيراد (importBatchId) محظور');
+        err.code = 'IMMUTABLE_IDENTITY_VIOLATION';
+        throw err;
+      }
+      if (updates.createdAt !== undefined && updates.createdAt !== existing.createdAt) {
+        const err: any = new Error('تغيير تاريخ الإنشاء (createdAt) محظور');
+        err.code = 'IMMUTABLE_IDENTITY_VIOLATION';
+        throw err;
+      }
+      if (updates.createdBy !== undefined && updates.createdBy !== existing.createdBy) {
+        const err: any = new Error('تغيير مكوّن الإنشاء (createdBy) محظور');
+        err.code = 'IMMUTABLE_IDENTITY_VIOLATION';
+        throw err;
+      }
+      if (updates.version !== undefined && updates.version !== existing.version) {
+        const err: any = new Error('تجاوز رقم الإصدار بدلاً من التسلسل السيرفري محظور');
         err.code = 'IMMUTABLE_IDENTITY_VIOLATION';
         throw err;
       }
@@ -172,6 +232,8 @@ export class ImportSessionServerService {
         projectId: existing.projectId,
         operationId: existing.operationId,
         importBatchId: existing.importBatchId,
+        createdAt: existing.createdAt,
+        createdBy: existing.createdBy,
         version: existing.version + 1,
         updatedAt: now,
         updatedBy: context.userId,
