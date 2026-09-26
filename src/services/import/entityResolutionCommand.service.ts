@@ -9,11 +9,8 @@
  * Canonical Server Routes Reused:
  * - Carrier Setup: POST /api/projects/:projectId/setup-carrier
  * - Material Setup: POST /api/projects/:projectId/setup-material
- * 
- * DRIVER and TRUCK Standalone Creation:
- * - Audited: POST /api/intake/canonical is a joint intake requiring carrierId, materialId, driverName, plateNumber, residencyId simultaneously.
- * - Single-entity create for DRIVER/TRUCK without counterpart mutations is NOT supported by current server routes.
- * - Rejects safely with PRECONDITION_BOUNDARY_CHANGE_REQUIRED.
+ * - Standalone Driver Setup: POST /api/projects/:projectId/setup-driver
+ * - Standalone Truck Setup: POST /api/projects/:projectId/setup-truck
  */
 
 import { auth } from '../../firebase/config';
@@ -68,6 +65,7 @@ export interface CreateDriverParams {
   projectId: string;
   sourceValue: string;
   driverData: {
+    carrierId: string;
     driverName: string;
     residencyId: string;
     phone?: string;
@@ -79,9 +77,11 @@ export interface CreateTruckParams {
   projectId: string;
   sourceValue: string;
   truckData: {
+    carrierId: string;
     plateNumber: string;
     truckType?: string;
     tareWeightKg?: number;
+    maxGrossWeightKg?: number;
     [key: string]: any;
   };
 }
@@ -254,31 +254,162 @@ export class EntityResolutionCommandService {
   }
 
   /**
-   * Command D: createDriver (PRECONDITION_BLOCKED)
-   * Audited: POST /api/intake/canonical requires joint carrierId + materialId + plateNumber + residencyId.
-   * Single-entity DRIVER creation without counterpart mutations is not supported by current server routes.
+   * Command D: createDriver
+   * Calls server endpoint POST /api/projects/:projectId/setup-driver
    */
-  public async createDriver(_params: CreateDriverParams): Promise<NormalizedEntityResolutionResult> {
-    const err: any = new Error(
-      'إنشاء السائق المنفرد غير مدعوم على الخادم بدون تسجيل الأسطول المشترك (POST /api/intake/canonical)'
-    );
-    err.code = 'PRECONDITION_BOUNDARY_CHANGE_REQUIRED';
-    err.details = 'Requires standalone POST /api/projects/:projectId/setup-driver endpoint on server';
-    throw err;
+  public async createDriver(params: CreateDriverParams): Promise<NormalizedEntityResolutionResult> {
+    if (!params.projectId || !params.projectId.trim()) {
+      const err: any = new Error('معرف المشروع مطلوب');
+      err.code = 'PROJECT_ID_REQUIRED';
+      throw err;
+    }
+
+    if (!params.driverData) {
+      const err: any = new Error('بيانات السائق (driverData) مطلوبة');
+      err.code = 'INVALID_DRIVER_DATA';
+      throw err;
+    }
+
+    if (!params.driverData.carrierId || !params.driverData.carrierId.trim()) {
+      const err: any = new Error('معرف الناقل (carrierId) مطلوب للسائق');
+      err.code = 'CARRIER_ID_REQUIRED';
+      throw err;
+    }
+
+    if (!params.driverData.driverName || !params.driverData.driverName.trim()) {
+      const err: any = new Error('اسم السائق (driverName) مطلوب');
+      err.code = 'DRIVER_NAME_REQUIRED';
+      throw err;
+    }
+
+    if (!params.driverData.residencyId || !params.driverData.residencyId.trim()) {
+      const err: any = new Error('رقم الهوية الوطنية أو الإقامة (residencyId) مطلوب');
+      err.code = 'RESIDENCY_ID_REQUIRED';
+      throw err;
+    }
+
+    const authHeader = await this.getAuthBearerToken();
+
+    const response = await fetch(`/api/projects/${encodeURIComponent(params.projectId)}/setup-driver`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: authHeader,
+      },
+      body: JSON.stringify({
+        driverData: {
+          carrierId: params.driverData.carrierId,
+          driverName: params.driverData.driverName,
+          residencyId: params.driverData.residencyId,
+          ...(params.driverData.phone ? { phone: params.driverData.phone } : {}),
+        },
+      }),
+    });
+
+    const resJson = await response.json().catch(() => null);
+
+    if (!response.ok || !resJson?.success) {
+      const err: any = new Error(resJson?.error || 'فشلت عملية إنشاء السائق على الخادم');
+      err.code = resJson?.code || 'DRIVER_CREATE_FAILED';
+      throw err;
+    }
+
+    const driverId = resJson.driverId || resJson.data?.driverId;
+    if (!driverId) {
+      const err: any = new Error('لم يتضمن رد الخادم معرف السائق المعتمد (driverId)');
+      err.code = 'CANONICAL_ID_MISSING';
+      throw err;
+    }
+
+    return {
+      entityType: 'DRIVER',
+      sourceValue: params.sourceValue || params.driverData.driverName,
+      matchedId: driverId,
+      matchedName: params.driverData.driverName || driverId,
+      matchMethod: 'EXACT',
+      confidence: 1.0,
+      isExact: true,
+      isAuthorized: true,
+      riskLevel: 'LOW',
+      relationshipStatus: 'VALID',
+    };
   }
 
   /**
-   * Command D: createTruck (PRECONDITION_BLOCKED)
-   * Audited: POST /api/intake/canonical requires joint carrierId + materialId + driverName + residencyId + plateNumber.
-   * Single-entity TRUCK creation without counterpart mutations is not supported by current server routes.
+   * Command E: createTruck
+   * Calls server endpoint POST /api/projects/:projectId/setup-truck
    */
-  public async createTruck(_params: CreateTruckParams): Promise<NormalizedEntityResolutionResult> {
-    const err: any = new Error(
-      'إنشاء الشاحنة المنفردة غير مدعوم على الخادم بدون تسجيل الأسطول المشترك (POST /api/intake/canonical)'
-    );
-    err.code = 'PRECONDITION_BOUNDARY_CHANGE_REQUIRED';
-    err.details = 'Requires standalone POST /api/projects/:projectId/setup-truck endpoint on server';
-    throw err;
+  public async createTruck(params: CreateTruckParams): Promise<NormalizedEntityResolutionResult> {
+    if (!params.projectId || !params.projectId.trim()) {
+      const err: any = new Error('معرف المشروع مطلوب');
+      err.code = 'PROJECT_ID_REQUIRED';
+      throw err;
+    }
+
+    if (!params.truckData) {
+      const err: any = new Error('بيانات الشاحنة (truckData) مطلوبة');
+      err.code = 'INVALID_TRUCK_DATA';
+      throw err;
+    }
+
+    if (!params.truckData.carrierId || !params.truckData.carrierId.trim()) {
+      const err: any = new Error('معرف الناقل (carrierId) مطلوب للشاحنة');
+      err.code = 'CARRIER_ID_REQUIRED';
+      throw err;
+    }
+
+    if (!params.truckData.plateNumber || !params.truckData.plateNumber.trim()) {
+      const err: any = new Error('رقم لوحة الشاحنة (plateNumber) مطلوب');
+      err.code = 'PLATE_NUMBER_REQUIRED';
+      throw err;
+    }
+
+    const authHeader = await this.getAuthBearerToken();
+
+    const response = await fetch(`/api/projects/${encodeURIComponent(params.projectId)}/setup-truck`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: authHeader,
+      },
+      body: JSON.stringify({
+        truckData: {
+          carrierId: params.truckData.carrierId,
+          plateNumber: params.truckData.plateNumber,
+          ...(params.truckData.truckType ? { truckType: params.truckData.truckType } : {}),
+          ...(params.truckData.tareWeightKg !== undefined ? { tareWeightKg: params.truckData.tareWeightKg } : {}),
+          ...(params.truckData.maxGrossWeightKg !== undefined ? { maxGrossWeightKg: params.truckData.maxGrossWeightKg } : {}),
+        },
+      }),
+    });
+
+    const resJson = await response.json().catch(() => null);
+
+    if (!response.ok || !resJson?.success) {
+      const err: any = new Error(resJson?.error || 'فشلت عملية إنشاء الشاحنة على الخادم');
+      err.code = resJson?.code || 'TRUCK_CREATE_FAILED';
+      throw err;
+    }
+
+    const truckId = resJson.truckId || resJson.data?.truckId;
+    if (!truckId) {
+      const err: any = new Error('لم يتضمن رد الخادم معرف الشاحنة المعتمد (truckId)');
+      err.code = 'CANONICAL_ID_MISSING';
+      throw err;
+    }
+
+    return {
+      entityType: 'TRUCK',
+      sourceValue: params.sourceValue || params.truckData.plateNumber,
+      matchedId: truckId,
+      matchedName: params.truckData.plateNumber || truckId,
+      matchMethod: 'EXACT',
+      confidence: 1.0,
+      isExact: true,
+      isAuthorized: true,
+      riskLevel: 'LOW',
+      relationshipStatus: 'VALID',
+    };
   }
 }
 

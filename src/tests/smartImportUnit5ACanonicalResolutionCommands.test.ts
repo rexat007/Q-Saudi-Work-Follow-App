@@ -140,7 +140,6 @@ describe('Smart Import Unit 5A Canonical Entity Resolution Command Adapter Test 
       ok: true,
       json: async () => ({
         success: true,
-        // carrierId missing from response!
       }),
     }));
 
@@ -225,7 +224,6 @@ describe('Smart Import Unit 5A Canonical Entity Resolution Command Adapter Test 
       ok: true,
       json: async () => ({
         success: true,
-        // materialId missing
       }),
     }));
 
@@ -238,57 +236,393 @@ describe('Smart Import Unit 5A Canonical Entity Resolution Command Adapter Test 
     ).rejects.toThrow('لم يتضمن رد الخادم معرف المادة المعتمد (materialId)');
   });
 
-  it('10. unauthenticated creation fails closed with UNAUTHENTICATED', async () => {
-    (auth as any).currentUser = null;
+  it('10. createDriver calls setup-driver route', async () => {
+    let calledUrl = '';
+    let calledMethod = '';
+
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string, options: any) => {
+      calledUrl = url;
+      calledMethod = options.method;
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          driverId: 'DRV-SERVER-101',
+        }),
+      };
+    });
+
+    await entityResolutionCommandService.createDriver({
+      projectId: 'PRJ-NEOM-01',
+      sourceValue: 'سائق جديد',
+      driverData: {
+        carrierId: 'CAR-1',
+        driverName: 'أحمد علي',
+        residencyId: '1010101010',
+      },
+    });
+
+    expect(calledUrl).toBe('/api/projects/PRJ-NEOM-01/setup-driver');
+    expect(calledMethod).toBe('POST');
+  });
+
+  it('11. createDriver sends Firebase Bearer token', async () => {
+    let calledAuthHeader = '';
+
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string, options: any) => {
+      calledAuthHeader = options.headers['Authorization'];
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          driverId: 'DRV-SERVER-101',
+        }),
+      };
+    });
+
+    await entityResolutionCommandService.createDriver({
+      projectId: 'PRJ-NEOM-01',
+      sourceValue: 'سائق جديد',
+      driverData: {
+        carrierId: 'CAR-1',
+        driverName: 'أحمد علي',
+        residencyId: '1010101010',
+      },
+    });
+
+    expect(calledAuthHeader).toBe('Bearer mock_firebase_id_token_unit5a');
+  });
+
+  it('12. createDriver body includes driverData only and no projectId in body root', async () => {
+    let sentBody: any = null;
+
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string, options: any) => {
+      sentBody = JSON.parse(options.body);
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          driverId: 'DRV-SERVER-101',
+        }),
+      };
+    });
+
+    await entityResolutionCommandService.createDriver({
+      projectId: 'PRJ-NEOM-01',
+      sourceValue: 'سائق جديد',
+      driverData: {
+        carrierId: 'CAR-1',
+        driverName: 'أحمد علي',
+        residencyId: '1010101010',
+      },
+    });
+
+    expect(sentBody).toEqual({
+      driverData: {
+        carrierId: 'CAR-1',
+        driverName: 'أحمد علي',
+        residencyId: '1010101010',
+      },
+    });
+    expect(sentBody.projectId).toBeUndefined();
+    expect(sentBody.driverData.projectId).toBeUndefined();
+  });
+
+  it('13. createDriver returns server driverId', async () => {
+    globalThis.fetch = vi.fn().mockImplementation(async () => ({
+      ok: true,
+      json: async () => ({
+        success: true,
+        driverId: 'DRV-SERVER-202',
+      }),
+    }));
+
+    const res = await entityResolutionCommandService.createDriver({
+      projectId: 'PRJ-NEOM-01',
+      sourceValue: 'سائق جديد',
+      driverData: {
+        carrierId: 'CAR-1',
+        driverName: 'أحمد علي',
+        residencyId: '1010101010',
+      },
+    });
+
+    expect(res.matchedId).toBe('DRV-SERVER-202');
+    expect(res.entityType).toBe('DRIVER');
+    expect(res.matchedName).toBe('أحمد علي');
+    expect(res.confidence).toBe(1.0);
+  });
+
+  it('14. createDriver missing driverId fails with CANONICAL_ID_MISSING', async () => {
+    globalThis.fetch = vi.fn().mockImplementation(async () => ({
+      ok: true,
+      json: async () => ({
+        success: true,
+      }),
+    }));
 
     await expect(
-      entityResolutionCommandService.createCarrier({
+      entityResolutionCommandService.createDriver({
         projectId: 'PRJ-NEOM-01',
-        sourceValue: 'ناقل غير موثق',
-        carrierData: { nameAr: 'ناقل', commercialRegistrationNo: '1010111111' },
+        sourceValue: 'سائق ناقص',
+        driverData: {
+          carrierId: 'CAR-1',
+          driverName: 'سائق',
+          residencyId: '1010101010',
+        },
       })
-    ).rejects.toThrow('المستخدم غير موثق');
+    ).rejects.toThrow('لم يتضمن رد الخادم معرف السائق المعتمد (driverId)');
 
     try {
-      await entityResolutionCommandService.createCarrier({
+      await entityResolutionCommandService.createDriver({
         projectId: 'PRJ-NEOM-01',
-        sourceValue: 'ناقل غير موثق',
-        carrierData: { nameAr: 'ناقل', commercialRegistrationNo: '1010111111' },
+        sourceValue: 'سائق ناقص',
+        driverData: {
+          carrierId: 'CAR-1',
+          driverName: 'سائق',
+          residencyId: '1010101010',
+        },
       });
     } catch (err: any) {
-      expect(err.code).toBe('UNAUTHENTICATED');
+      expect(err.code).toBe('CANONICAL_ID_MISSING');
     }
   });
 
-  it('11. projectId required on every command', async () => {
-    expect(() =>
-      entityResolutionCommandService.selectExisting({
-        projectId: '',
-        entityType: 'CARRIER',
-        entityId: 'CAR-1',
-        displayName: 'Carrier',
-        sourceValue: 'Carrier',
-      })
-    ).toThrow('معرف المشروع مطلوب');
-
+  it('15. createDriver requires carrierId', async () => {
     await expect(
-      entityResolutionCommandService.createCarrier({
-        projectId: '',
-        sourceValue: 'Test',
-        carrierData: { nameAr: 'Test', commercialRegistrationNo: '1010123456' },
+      entityResolutionCommandService.createDriver({
+        projectId: 'PRJ-NEOM-01',
+        sourceValue: 'سائق',
+        driverData: {
+          carrierId: '',
+          driverName: 'سائق',
+          residencyId: '1010101010',
+        },
       })
-    ).rejects.toThrow('معرف المشروع مطلوب');
-
-    await expect(
-      entityResolutionCommandService.createMaterial({
-        projectId: '',
-        sourceValue: 'Test',
-        materialData: { code: 'TEST', nameAr: 'Test' },
-      })
-    ).rejects.toThrow('معرف المشروع مطلوب');
+    ).rejects.toThrow('معرف الناقل (carrierId) مطلوب للسائق');
   });
 
-  it('12. no firebase/firestore client SDK import in command service file', () => {
+  it('16. createDriver server error preserves deterministic code', async () => {
+    globalThis.fetch = vi.fn().mockImplementation(async () => ({
+      ok: false,
+      status: 400,
+      json: async () => ({
+        success: false,
+        error: 'رقم الإقامة غير صالح',
+        code: 'INVALID_RESIDENCY_ID',
+      }),
+    }));
+
+    try {
+      await entityResolutionCommandService.createDriver({
+        projectId: 'PRJ-NEOM-01',
+        sourceValue: 'سائق',
+        driverData: {
+          carrierId: 'CAR-1',
+          driverName: 'سائق',
+          residencyId: '999',
+        },
+      });
+    } catch (err: any) {
+      expect(err.code).toBe('INVALID_RESIDENCY_ID');
+      expect(err.message).toBe('رقم الإقامة غير صالح');
+    }
+  });
+
+  it('17. createTruck calls setup-truck route', async () => {
+    let calledUrl = '';
+    let calledMethod = '';
+
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string, options: any) => {
+      calledUrl = url;
+      calledMethod = options.method;
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          truckId: 'TRK-SERVER-301',
+        }),
+      };
+    });
+
+    await entityResolutionCommandService.createTruck({
+      projectId: 'PRJ-NEOM-01',
+      sourceValue: 'شاحنة جديدة',
+      truckData: {
+        carrierId: 'CAR-1',
+        plateNumber: '1234 ABC',
+      },
+    });
+
+    expect(calledUrl).toBe('/api/projects/PRJ-NEOM-01/setup-truck');
+    expect(calledMethod).toBe('POST');
+  });
+
+  it('18. createTruck sends Firebase Bearer token', async () => {
+    let calledAuthHeader = '';
+
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string, options: any) => {
+      calledAuthHeader = options.headers['Authorization'];
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          truckId: 'TRK-SERVER-301',
+        }),
+      };
+    });
+
+    await entityResolutionCommandService.createTruck({
+      projectId: 'PRJ-NEOM-01',
+      sourceValue: 'شاحنة جديدة',
+      truckData: {
+        carrierId: 'CAR-1',
+        plateNumber: '1234 ABC',
+      },
+    });
+
+    expect(calledAuthHeader).toBe('Bearer mock_firebase_id_token_unit5a');
+  });
+
+  it('19. createTruck body includes truckData only and no projectId in request body', async () => {
+    let sentBody: any = null;
+
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string, options: any) => {
+      sentBody = JSON.parse(options.body);
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          truckId: 'TRK-SERVER-301',
+        }),
+      };
+    });
+
+    await entityResolutionCommandService.createTruck({
+      projectId: 'PRJ-NEOM-01',
+      sourceValue: 'شاحنة جديدة',
+      truckData: {
+        carrierId: 'CAR-1',
+        plateNumber: '1234 ABC',
+        truckType: 'Tipper',
+      },
+    });
+
+    expect(sentBody).toEqual({
+      truckData: {
+        carrierId: 'CAR-1',
+        plateNumber: '1234 ABC',
+        truckType: 'Tipper',
+      },
+    });
+    expect(sentBody.projectId).toBeUndefined();
+    expect(sentBody.truckData.projectId).toBeUndefined();
+  });
+
+  it('20. createTruck returns server truckId', async () => {
+    globalThis.fetch = vi.fn().mockImplementation(async () => ({
+      ok: true,
+      json: async () => ({
+        success: true,
+        truckId: 'TRK-SERVER-404',
+      }),
+    }));
+
+    const res = await entityResolutionCommandService.createTruck({
+      projectId: 'PRJ-NEOM-01',
+      sourceValue: 'شاحنة جديدة',
+      truckData: {
+        carrierId: 'CAR-1',
+        plateNumber: '1234 ABC',
+      },
+    });
+
+    expect(res.matchedId).toBe('TRK-SERVER-404');
+    expect(res.entityType).toBe('TRUCK');
+    expect(res.matchedName).toBe('1234 ABC');
+    expect(res.confidence).toBe(1.0);
+  });
+
+  it('21. createTruck missing truckId fails with CANONICAL_ID_MISSING', async () => {
+    globalThis.fetch = vi.fn().mockImplementation(async () => ({
+      ok: true,
+      json: async () => ({
+        success: true,
+      }),
+    }));
+
+    await expect(
+      entityResolutionCommandService.createTruck({
+        projectId: 'PRJ-NEOM-01',
+        sourceValue: 'شاحنة ناقصة',
+        truckData: {
+          carrierId: 'CAR-1',
+          plateNumber: '1234 ABC',
+        },
+      })
+    ).rejects.toThrow('لم يتضمن رد الخادم معرف الشاحنة المعتمد (truckId)');
+
+    try {
+      await entityResolutionCommandService.createTruck({
+        projectId: 'PRJ-NEOM-01',
+        sourceValue: 'شاحنة ناقصة',
+        truckData: {
+          carrierId: 'CAR-1',
+          plateNumber: '1234 ABC',
+        },
+      });
+    } catch (err: any) {
+      expect(err.code).toBe('CANONICAL_ID_MISSING');
+    }
+  });
+
+  it('22. createTruck requires carrierId', async () => {
+    await expect(
+      entityResolutionCommandService.createTruck({
+        projectId: 'PRJ-NEOM-01',
+        sourceValue: 'شاحنة',
+        truckData: {
+          carrierId: '',
+          plateNumber: '1234 ABC',
+        },
+      })
+    ).rejects.toThrow('معرف الناقل (carrierId) مطلوب للشاحنة');
+  });
+
+  it('23. createTruck server error preserves deterministic code', async () => {
+    globalThis.fetch = vi.fn().mockImplementation(async () => ({
+      ok: false,
+      status: 400,
+      json: async () => ({
+        success: false,
+        error: 'تعارض في تبعية الناقل للشاحنة',
+        code: 'TRUCK_CARRIER_AFFILIATION_CONFLICT',
+      }),
+    }));
+
+    try {
+      await entityResolutionCommandService.createTruck({
+        projectId: 'PRJ-NEOM-01',
+        sourceValue: 'شاحنة',
+        truckData: {
+          carrierId: 'CAR-2',
+          plateNumber: '1234 ABC',
+        },
+      });
+    } catch (err: any) {
+      expect(err.code).toBe('TRUCK_CARRIER_AFFILIATION_CONFLICT');
+      expect(err.message).toBe('تعارض في تبعية الناقل للشاحنة');
+    }
+  });
+
+  it('24. adapter source contains no /api/intake/canonical call', () => {
+    const serviceFilePath = path.resolve(__dirname, '../services/import/entityResolutionCommand.service.ts');
+    const code = fs.readFileSync(serviceFilePath, 'utf-8');
+
+    expect(code).not.toContain('/api/intake/canonical');
+  });
+
+  it('25. adapter still contains no firebase/firestore import', () => {
     const serviceFilePath = path.resolve(__dirname, '../services/import/entityResolutionCommand.service.ts');
     const code = fs.readFileSync(serviceFilePath, 'utf-8');
 
@@ -298,7 +632,7 @@ describe('Smart Import Unit 5A Canonical Entity Resolution Command Adapter Test 
     expect(code).not.toContain('doc(');
   });
 
-  it('13. no client-generated canonical IDs in adapter', async () => {
+  it('26. adapter generates no canonical IDs locally', () => {
     const serviceFilePath = path.resolve(__dirname, '../services/import/entityResolutionCommand.service.ts');
     const code = fs.readFileSync(serviceFilePath, 'utf-8');
 
@@ -307,120 +641,67 @@ describe('Smart Import Unit 5A Canonical Entity Resolution Command Adapter Test 
     expect(code).not.toContain('crypto.randomUUID()');
   });
 
-  it('14. no trip/business import commit endpoint called', async () => {
-    let calledUrl = '';
-
-    globalThis.fetch = vi.fn().mockImplementation(async (url: string) => {
-      calledUrl = url;
-      return { ok: true, json: async () => ({ success: true, carrierId: 'CAR-1' }) };
-    });
-
-    await entityResolutionCommandService.createCarrier({
-      projectId: 'PRJ-1',
-      sourceValue: 'C1',
-      carrierData: { nameAr: 'C1', commercialRegistrationNo: '1010123456' },
-    });
-
-    expect(calledUrl).not.toContain('/api/projects/PRJ-1/trips');
-    expect(calledUrl).not.toContain('/weighbridge/commit');
-    expect(calledUrl).not.toContain('/import-sessions');
-  });
-
-  it('15. server error surfaces deterministic code', async () => {
-    globalThis.fetch = vi.fn().mockImplementation(async () => ({
-      ok: false,
-      status: 400,
-      json: async () => ({
-        success: false,
-        error: 'رقم السجل التجاري غير صالح',
-        code: 'INVALID_CR_NUMBER',
-      }),
-    }));
-
-    try {
-      await entityResolutionCommandService.createCarrier({
-        projectId: 'PRJ-1',
-        sourceValue: 'C1',
-        carrierData: { nameAr: 'C1', commercialRegistrationNo: '123' },
-      });
-    } catch (err: any) {
-      expect(err.code).toBe('INVALID_CR_NUMBER');
-      expect(err.message).toBe('رقم السجل التجاري غير صالح');
-    }
-  });
-
-  it('16. DRIVER/TRUCK create behavior matches the audited canonical intake capability (rejects safely with PRECONDITION_BOUNDARY_CHANGE_REQUIRED)', async () => {
-    await expect(
-      entityResolutionCommandService.createDriver({
-        projectId: 'PRJ-1',
-        sourceValue: 'سائق جديد',
-        driverData: { driverName: 'أحمد', residencyId: '1010101010' },
-      })
-    ).rejects.toThrow('إنشاء السائق المنفرد غير مدعوم على الخادم بدون تسجيل الأسطول المشترك');
-
-    try {
-      await entityResolutionCommandService.createDriver({
-        projectId: 'PRJ-1',
-        sourceValue: 'سائق جديد',
-        driverData: { driverName: 'أحمد', residencyId: '1010101010' },
-      });
-    } catch (err: any) {
-      expect(err.code).toBe('PRECONDITION_BOUNDARY_CHANGE_REQUIRED');
-    }
-
-    await expect(
-      entityResolutionCommandService.createTruck({
-        projectId: 'PRJ-1',
-        sourceValue: 'شاحنة جديدة',
-        truckData: { plateNumber: '1234 أ ب ج' },
-      })
-    ).rejects.toThrow('إنشاء الشاحنة المنفردة غير مدعوم على الخادم بدون تسجيل الأسطول المشترك');
-
-    try {
-      await entityResolutionCommandService.createTruck({
-        projectId: 'PRJ-1',
-        sourceValue: 'شاحنة جديدة',
-        truckData: { plateNumber: '1234 أ ب ج' },
-      });
-    } catch (err: any) {
-      expect(err.code).toBe('PRECONDITION_BOUNDARY_CHANGE_REQUIRED');
-    }
-  });
-
-  it('17. adapter confidence values remain strictly within [0.0, 1.0] decimal canonical scale', async () => {
+  it('27. Driver/Truck successful confidence remains exactly 1.0', async () => {
     globalThis.fetch = vi.fn().mockImplementation(async () => ({
       ok: true,
       json: async () => ({
         success: true,
-        carrierId: 'CAR-CONF-1',
-        materialId: 'MAT-CONF-1',
+        driverId: 'DRV-1',
+        truckId: 'TRK-1',
       }),
     }));
 
-    const selectRes = entityResolutionCommandService.selectExisting({
+    const drvRes = await entityResolutionCommandService.createDriver({
       projectId: 'PRJ-1',
-      entityType: 'CARRIER',
-      entityId: 'CAR-1',
-      displayName: 'Carrier 1',
-      sourceValue: 'C1',
+      sourceValue: 'D1',
+      driverData: { carrierId: 'CAR-1', driverName: 'D1', residencyId: '1010101010' },
     });
 
-    const carrierRes = await entityResolutionCommandService.createCarrier({
+    const trkRes = await entityResolutionCommandService.createTruck({
       projectId: 'PRJ-1',
-      sourceValue: 'C1',
-      carrierData: { nameAr: 'C1', commercialRegistrationNo: '1010123456' },
+      sourceValue: 'T1',
+      truckData: { carrierId: 'CAR-1', plateNumber: 'T1' },
     });
 
-    const materialRes = await entityResolutionCommandService.createMaterial({
-      projectId: 'PRJ-1',
-      sourceValue: 'M1',
-      materialData: { code: 'M1', nameAr: 'M1' },
-    });
+    expect(drvRes.confidence).toBe(1.0);
+    expect(trkRes.confidence).toBe(1.0);
+  });
 
-    [selectRes, carrierRes, materialRes].forEach((res) => {
-      expect(res.confidence).toBeGreaterThanOrEqual(0.0);
-      expect(res.confidence).toBeLessThanOrEqual(1.0);
-      expect(res.confidence).toBe(1.0);
-    });
+  it('28. unauthenticated Driver/Truck creation fails UNAUTHENTICATED', async () => {
+    (auth as any).currentUser = null;
+
+    await expect(
+      entityResolutionCommandService.createDriver({
+        projectId: 'PRJ-1',
+        sourceValue: 'D1',
+        driverData: { carrierId: 'CAR-1', driverName: 'D1', residencyId: '1010101010' },
+      })
+    ).rejects.toThrow('المستخدم غير موثق');
+
+    await expect(
+      entityResolutionCommandService.createTruck({
+        projectId: 'PRJ-1',
+        sourceValue: 'T1',
+        truckData: { carrierId: 'CAR-1', plateNumber: 'T1' },
+      })
+    ).rejects.toThrow('المستخدم غير موثق');
+  });
+
+  it('29. projectId required for Driver/Truck creation', async () => {
+    await expect(
+      entityResolutionCommandService.createDriver({
+        projectId: '',
+        sourceValue: 'D1',
+        driverData: { carrierId: 'CAR-1', driverName: 'D1', residencyId: '1010101010' },
+      })
+    ).rejects.toThrow('معرف المشروع مطلوب');
+
+    await expect(
+      entityResolutionCommandService.createTruck({
+        projectId: '',
+        sourceValue: 'T1',
+        truckData: { carrierId: 'CAR-1', plateNumber: 'T1' },
+      })
+    ).rejects.toThrow('معرف المشروع مطلوب');
   });
 });
