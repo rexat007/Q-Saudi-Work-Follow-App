@@ -78,6 +78,7 @@ export function ExcelCsvImportSection({
   const [isCommitting, setIsCommitting] = useState<boolean>(false);
   const [commitResult, setCommitResult] = useState<ImportResult | null>(null);
   const [showMappingDrawer, setShowMappingDrawer] = useState<boolean>(false);
+  const [expandedReviewRowNumber, setExpandedReviewRowNumber] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -511,6 +512,67 @@ export function ExcelCsvImportSection({
         } else {
           setProcessError(err?.message || 'فشل في حفظ إجراء المراجعة في جلسة الخادم');
         }
+      }
+    }
+  };
+
+  const handleResolutionDecision = async (
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
+    candidate?: { selectedEntityId?: string; selectedDisplayName?: string }
+  ) => {
+    if (!activeBatch) return;
+
+    try {
+      setProcessError(null);
+      const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
+        activeBatch,
+        rowNumber,
+        entityTypeKey,
+        decision,
+        candidate || {},
+        context,
+        effectiveUserId || 'user'
+      );
+
+      setActiveBatch({ ...updated });
+
+      if (currentProjectId && activeSessionId) {
+        const cleanSnapshot = {
+          totalRows: updated.totalRows,
+          validRows: updated.validRows,
+          warningRows: updated.warningRows,
+          errorRows: updated.errorRows,
+          requiresReviewRows: updated.requiresReviewRows,
+          committedRows: updated.committedRows,
+          rows: updated.rows.map((r) => {
+            const { rawInput, ...rest } = r as any;
+            return rest;
+          }),
+        };
+
+        const updatedSession = await importSessionClientService.updateCheckpoint(
+          currentProjectId,
+          activeSessionId,
+          {
+            lifecycleState: 'REVIEW_REQUIRED',
+            currentStage: 'REVIEW',
+            reviewSnapshot: cleanSnapshot,
+            validationIssues: updated.issues || [],
+            warningConfirmation: confirmWarnings,
+            reviewAction: { rowNumber, action: decision as any },
+          },
+          sessionVersion
+        );
+
+        setSessionVersion(updatedSession.version);
+      }
+    } catch (err: any) {
+      if (err?.code === 'VERSION_CONFLICT') {
+        setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ قرار المطابقة');
+      } else {
+        setProcessError(err?.message || 'فشل في حفظ قرار المطابقة في جلسة الخادم');
       }
     }
   };
@@ -1044,132 +1106,254 @@ export function ExcelCsvImportSection({
                     const isError = row.status === 'ERROR' || row.reviewStatus === 'error';
                     const isWarning = row.status === 'WARNING' || row.reviewStatus === 'warning';
                     const isAccepted = row.reviewStatus === 'accepted';
-                    const isRejected = row.reviewStatus === 'rejected';
+                    const isRejected = row.reviewStatus === 'error';
+                    const needsResolution = ExcelCsvPipelineService.rowRequiresEntityResolution(row);
 
                     return (
-                      <tr
-                        key={row.rowNumber}
-                        className={`hover:bg-stone-50/80 transition-colors ${
-                          isRejected
-                            ? 'bg-stone-100/80 line-through text-stone-400'
-                            : isError
-                            ? 'bg-rose-50/40'
-                            : isWarning && !isAccepted
-                            ? 'bg-amber-50/40'
-                            : isAccepted
-                            ? 'bg-emerald-50/30'
-                            : ''
-                        }`}
-                      >
-                        <td className="p-3 text-center font-mono font-bold text-stone-600">
-                          {row.rowNumber}
-                        </td>
+                      <React.Fragment key={row.rowNumber}>
+                        <tr
+                          className={`hover:bg-stone-50/80 transition-colors ${
+                            isRejected
+                              ? 'bg-stone-100/80 line-through text-stone-400'
+                              : isError
+                              ? 'bg-rose-50/40'
+                              : isWarning && !isAccepted
+                              ? 'bg-amber-50/40'
+                              : isAccepted
+                              ? 'bg-emerald-50/30'
+                              : ''
+                          }`}
+                        >
+                          <td className="p-3 text-center font-mono font-bold text-stone-600">
+                            {row.rowNumber}
+                          </td>
 
-                        <td className="p-3">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono inline-flex items-center gap-1 ${
-                              isRejected
-                                ? 'bg-stone-200 text-stone-700'
-                                : isError
-                                ? 'bg-rose-100 text-rose-800'
-                                : isWarning && !isAccepted
-                                ? 'bg-amber-100 text-amber-800'
-                                : 'bg-emerald-100 text-emerald-800'
-                            }`}
-                          >
-                            {isRejected ? (
-                              <>
-                                <XCircle className="w-3 h-3 text-stone-500" /> مستبعد
-                              </>
-                            ) : isError ? (
-                              <>
-                                <XCircle className="w-3 h-3 text-rose-600" /> خطأ
-                              </>
-                            ) : isWarning && !isAccepted ? (
-                              <>
-                                <AlertTriangle className="w-3 h-3 text-amber-600" /> تنبيه
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> مقبول
-                              </>
-                            )}
-                          </span>
-                        </td>
-
-                        <td className="p-3 font-mono">
-                          {canonical.tripDate || <span className="text-stone-300">-</span>}
-                        </td>
-
-                        <td className="p-3">
-                          <div className="font-bold">{canonical.driverName || '-'}</div>
-                          {canonical.residencyId && (
-                            <div className="text-[10px] text-stone-500 font-mono">
-                              هوية: {canonical.residencyId}
-                            </div>
-                          )}
-                        </td>
-
-                        <td className="p-3 font-mono font-bold">
-                          {canonical.plateNumber || <span className="text-stone-300 font-normal">-</span>}
-                        </td>
-
-                        <td className="p-3">
-                          {canonical.carrierName || <span className="text-stone-300">-</span>}
-                        </td>
-
-                        <td className="p-3">
-                          {canonical.materialName || <span className="text-stone-300">-</span>}
-                        </td>
-
-                        <td className="p-3 text-center font-mono font-bold text-stone-800">
-                          {canonical.grossWeightKg ? canonical.grossWeightKg.toLocaleString() : '-'}
-                        </td>
-
-                        <td className="p-3 text-center font-mono text-stone-600">
-                          {canonical.tareWeightKg ? canonical.tareWeightKg.toLocaleString() : '-'}
-                        </td>
-
-                        <td className="p-3 text-center font-mono font-black text-emerald-800">
-                          {canonical.netWeightKg ? canonical.netWeightKg.toLocaleString() : '-'}
-                        </td>
-
-                        <td className="p-3 max-w-xs">
-                          {row.validationIssues && row.validationIssues.length > 0 ? (
-                            <div className="text-rose-700 text-[11px] font-bold">
-                              {row.validationIssues.map((e) => e.message).join(' | ')}
-                            </div>
-                          ) : (
-                            <span className="text-stone-400 text-[11px]">لا توجد ملاحظات</span>
-                          )}
-                        </td>
-
-                        <td className="p-3 text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            {isWarning && !isAccepted && !isRejected && (
-                              <button
-                                onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
-                                className="p-1 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-800 transition-colors cursor-pointer"
-                                title="قبول التنبيه"
+                          <td className="p-3">
+                            <div className="flex flex-col gap-1 items-start">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono inline-flex items-center gap-1 ${
+                                  isRejected
+                                    ? 'bg-stone-200 text-stone-700'
+                                    : isError
+                                    ? 'bg-rose-100 text-rose-800'
+                                    : isWarning && !isAccepted
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : 'bg-emerald-100 text-emerald-800'
+                                }`}
                               >
-                                <Check className="w-3.5 h-3.5" />
-                              </button>
-                            )}
+                                {isRejected ? (
+                                  <>
+                                    <XCircle className="w-3 h-3 text-stone-500" /> مستبعد
+                                  </>
+                                ) : isError ? (
+                                  <>
+                                    <XCircle className="w-3 h-3 text-rose-600" /> خطأ
+                                  </>
+                                ) : isWarning && !isAccepted ? (
+                                  <>
+                                    <AlertTriangle className="w-3 h-3 text-amber-600" /> تنبيه
+                                  </>
+                                ) : (
+                                  <>
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> مقبول
+                                  </>
+                                )}
+                              </span>
 
-                            {!isRejected ? (
-                              <button
-                                onClick={() => handleRowAction(row.rowNumber, 'REJECT_ROW')}
-                                className="p-1 rounded bg-stone-100 hover:bg-rose-100 text-stone-600 hover:text-rose-700 transition-colors cursor-pointer"
-                                title="استبعاد الصف"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <span className="text-[10px] text-stone-400 font-bold">مستبعد</span>
+                              {needsResolution && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 inline-flex items-center gap-1">
+                                  <Sparkles className="w-3 h-3 text-blue-600" /> تحتاج مطابقة
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          <td className="p-3 font-mono">
+                            {canonical.tripDate || <span className="text-stone-300">-</span>}
+                          </td>
+
+                          <td className="p-3">
+                            <div className="font-bold">{canonical.driverName || '-'}</div>
+                            {canonical.residencyId && (
+                              <div className="text-[10px] text-stone-500 font-mono">
+                                هوية: {canonical.residencyId}
+                              </div>
                             )}
-                          </div>
-                        </td>
-                      </tr>
+                          </td>
+
+                          <td className="p-3 font-mono font-bold">
+                            {canonical.plateNumber || <span className="text-stone-300 font-normal">-</span>}
+                          </td>
+
+                          <td className="p-3">
+                            {canonical.carrierName || <span className="text-stone-300">-</span>}
+                          </td>
+
+                          <td className="p-3">
+                            {canonical.materialName || <span className="text-stone-300">-</span>}
+                          </td>
+
+                          <td className="p-3 text-center font-mono font-bold text-stone-800">
+                            {canonical.grossWeightKg ? canonical.grossWeightKg.toLocaleString() : '-'}
+                          </td>
+
+                          <td className="p-3 text-center font-mono text-stone-600">
+                            {canonical.tareWeightKg ? canonical.tareWeightKg.toLocaleString() : '-'}
+                          </td>
+
+                          <td className="p-3 text-center font-mono font-black text-emerald-800">
+                            {canonical.netWeightKg ? canonical.netWeightKg.toLocaleString() : '-'}
+                          </td>
+
+                          <td className="p-3 max-w-xs">
+                            {row.validationIssues && row.validationIssues.length > 0 ? (
+                              <div className="text-rose-700 text-[11px] font-bold">
+                                {row.validationIssues.map((e) => e.message).join(' | ')}
+                              </div>
+                            ) : (
+                              <span className="text-stone-400 text-[11px]">لا توجد ملاحظات</span>
+                            )}
+                          </td>
+
+                          <td className="p-3 text-center">
+                            <div className="flex flex-col items-center justify-center gap-1">
+                              {needsResolution && (
+                                <button
+                                  onClick={() => setExpandedReviewRowNumber(expandedReviewRowNumber === row.rowNumber ? null : row.rowNumber)}
+                                  className="px-2 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-[10px] transition-colors cursor-pointer flex items-center gap-1"
+                                  title="مراجعة المطابقة"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                  <span>مراجعة المطابقة</span>
+                                </button>
+                              )}
+
+                              <div className="flex items-center gap-1">
+                                {isWarning && !isAccepted && !isRejected && (
+                                  <button
+                                    onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
+                                    className="p-1 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-800 transition-colors cursor-pointer"
+                                    title="قبول التنبيه"
+                                  >
+                                    <Check className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+
+                                {!isRejected ? (
+                                  <button
+                                    onClick={() => handleRowAction(row.rowNumber, 'REJECT_ROW')}
+                                    className="p-1 rounded bg-stone-100 hover:bg-rose-100 text-stone-600 hover:text-rose-700 transition-colors cursor-pointer"
+                                    title="استبعاد الصف"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                ) : (
+                                  <span className="text-[10px] text-stone-400 font-bold">مستبعد</span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+
+                        {expandedReviewRowNumber === row.rowNumber && (
+                          <tr className="bg-blue-50/30 border-b border-blue-200/80">
+                            <td colSpan={12} className="p-4">
+                              <div className="p-4 rounded-xl bg-white border border-blue-200/90 shadow-2xs space-y-4">
+                                <div className="flex items-center justify-between border-b border-stone-100 pb-2">
+                                  <div className="font-bold text-xs text-blue-900 flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4 text-blue-600" />
+                                    <span>مراجعة مطابقة الكيانات للصف رقم {row.rowNumber} (Existing Candidate Resolution)</span>
+                                  </div>
+                                  <button
+                                    onClick={() => setExpandedReviewRowNumber(null)}
+                                    className="text-stone-400 hover:text-stone-600 p-1 cursor-pointer"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {(['carrier', 'truck', 'driver', 'material'] as const)
+                                    .filter((k) => ExcelCsvPipelineService.checkResolutionRequiresAttention(row.entityResolutions?.[k]))
+                                    .map((entityKey) => {
+                                      const res = row.entityResolutions![entityKey]!;
+                                      const labelAr = entityKey === 'carrier' ? 'الناقل' : entityKey === 'truck' ? 'الشاحنة' : entityKey === 'driver' ? 'السائق' : 'المادة';
+                                      const candidates = res.candidates || [];
+
+                                      return (
+                                        <div key={entityKey} className="p-3.5 rounded-lg bg-stone-50 border border-stone-200 space-y-3">
+                                          <div className="flex items-center justify-between">
+                                            <span className="font-black text-xs text-stone-900">{labelAr}</span>
+                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                              res.riskLevel === 'CRITICAL' || res.riskLevel === 'HIGH'
+                                                ? 'bg-rose-100 text-rose-800'
+                                                : 'bg-amber-100 text-amber-800'
+                                            }`}>
+                                              مستوى المخاطرة: {res.riskLevel}
+                                            </span>
+                                          </div>
+
+                                          <div className="text-xs space-y-1">
+                                            <div><span className="text-stone-500 font-bold">القيمة المستوردة: </span><span className="font-mono font-bold text-stone-800">{res.sourceValue || res.originalValue || '-'}</span></div>
+                                            {res.matchedName && (
+                                              <div><span className="text-stone-500 font-bold">المطابق الحالي: </span><span className="font-bold text-emerald-800">{res.matchedName}</span> <span className="text-[10px] text-stone-400 font-mono">({(res.confidence * 100).toFixed(0)}%)</span></div>
+                                            )}
+                                            {res.conflictDetails && (
+                                              <div className="text-rose-700 text-[11px] font-bold bg-rose-50 p-1.5 rounded border border-rose-100 mt-1">
+                                                {res.conflictDetails}
+                                              </div>
+                                            )}
+                                          </div>
+
+                                          {/* Candidates */}
+                                          {candidates.length > 0 && (
+                                            <div className="space-y-1.5 pt-1">
+                                              <span className="text-[11px] font-bold text-stone-600 block">المرشحون المتاحون للمطابقة:</span>
+                                              <div className="space-y-1">
+                                                {candidates.map((cand) => (
+                                                  <div key={cand.candidateEntityId} className="flex items-center justify-between p-2 rounded bg-white border border-stone-200 text-xs">
+                                                    <div>
+                                                      <span className="font-bold text-stone-900">{cand.candidateDisplayName}</span>
+                                                      <span className="text-[10px] text-stone-400 font-mono pr-2">({(cand.confidence * 100).toFixed(0)}%)</span>
+                                                    </div>
+                                                    <button
+                                                      onClick={() => handleResolutionDecision(row.rowNumber, entityKey, 'SELECT_ALTERNATE', { selectedEntityId: cand.candidateEntityId, selectedDisplayName: cand.candidateDisplayName })}
+                                                      className="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition-colors cursor-pointer"
+                                                    >
+                                                      تحديد المقترح
+                                                    </button>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
+
+                                          {/* Actions */}
+                                          <div className="flex items-center gap-2 pt-2 border-t border-stone-200">
+                                            {(res.matchedId || res.entityId) && (
+                                              <button
+                                                onClick={() => handleResolutionDecision(row.rowNumber, entityKey, 'ACCEPT_CANDIDATE', { selectedEntityId: res.matchedId || res.entityId, selectedDisplayName: res.matchedName || res.matchedValue })}
+                                                className="px-3 py-1.5 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs transition-colors cursor-pointer"
+                                              >
+                                                قبول المرشح الحالي
+                                              </button>
+                                            )}
+                                            <button
+                                              onClick={() => handleResolutionDecision(row.rowNumber, entityKey, 'LEAVE_UNRESOLVED')}
+                                              className="px-3 py-1.5 rounded bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold text-xs transition-colors cursor-pointer"
+                                            >
+                                              ترك غير مطابق
+                                            </button>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     );
                   })
                 )}
@@ -1229,10 +1413,10 @@ export function ExcelCsvImportSection({
                 <span>تم اعتماد وتحفيظ الشحنات بنجاح في سجلات المشروع!</span>
               </div>
               <div className="text-xs text-emerald-800 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono">
-                <div>تم إنشاء: {commitResult.createdCount}</div>
-                <div>تم تحديث: {commitResult.updatedCount}</div>
-                <div>تم التجاوز: {commitResult.skippedCount}</div>
-                <div>فشل: {commitResult.failedCount}</div>
+                <div>تم إنشاء: {(commitResult as any).createdCount ?? (commitResult as any).committedTripsCount ?? 0}</div>
+                <div>تم تحديث: {(commitResult as any).updatedCount ?? 0}</div>
+                <div>تم التجاوز: {(commitResult as any).skippedCount ?? 0}</div>
+                <div>فشل: {(commitResult as any).failedCount ?? 0}</div>
               </div>
             </div>
           )}

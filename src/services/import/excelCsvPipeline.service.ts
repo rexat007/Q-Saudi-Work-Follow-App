@@ -18,12 +18,14 @@ import { ExcelCsvTripEntityResolver } from './tripEntityResolver';
 import { ExcelCsvTripValidator } from './tripImportValidator';
 import { ExcelCsvTripDuplicateChecker } from './tripDuplicateChecker';
 import { ExcelCsvTripCommitter } from './tripImportCommitter';
+import { EntityResolutionService } from './entityResolution.service';
 import { FileIntakeValidator } from './fileIntake.validator';
 import {
   UnifiedImportBatch,
   ImportSource,
   PipelineContext,
   ImportResult,
+  ImportRow,
 } from '../../types/unifiedImport';
 import { CanonicalTripRow, ColumnMappingMatch } from '../../types/excelCsvImport';
 
@@ -134,5 +136,155 @@ export class ExcelCsvPipelineService {
     });
 
     return pipeline.executeCommit(batch, context);
+  }
+
+  /**
+   * Detects if an entity resolution item requires manual review attention.
+   */
+  public static checkResolutionRequiresAttention(item?: any): boolean {
+    if (!item) return false;
+    if (item.recommendation === 'REVIEW' || item.recommendation === 'REJECT') return true;
+    if (item.ambiguous === true) return true;
+    if (!item.matchedId && !item.entityId) return true;
+    if (item.riskLevel === 'HIGH' || item.riskLevel === 'CRITICAL') return true;
+    if (item.relationshipStatus && item.relationshipStatus !== 'VALID' && item.relationshipStatus !== 'NOT_APPLICABLE') return true;
+    return false;
+  }
+
+  /**
+   * Detects if an import row has any entity resolutions requiring manual attention.
+   */
+  public static rowRequiresEntityResolution(row: ImportRow): boolean {
+    if (!row.entityResolutions) return false;
+    const keys: Array<'carrier' | 'truck' | 'driver' | 'material'> = ['carrier', 'truck', 'driver', 'material'];
+    return keys.some((k) => this.checkResolutionRequiresAttention(row.entityResolutions?.[k]));
+  }
+
+  /**
+   * Applies an interactive entity resolution decision on an existing candidate
+   * and updates row entityResolutions, resolvedValues, and reviewStatus.
+   */
+  public static applyEntityResolutionDecision(
+    batch: UnifiedImportBatch,
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
+    candidate: { selectedEntityId?: string; selectedDisplayName?: string },
+    context: PipelineContext,
+    actorId: string
+  ): UnifiedImportBatch {
+    const rowIdx = batch.rows.findIndex((r) => r.rowNumber === rowNumber);
+    if (rowIdx === -1) {
+      throw new Error(`Row ${rowNumber} not found in import batch`);
+    }
+
+    const row = batch.rows[rowIdx];
+    const targetEntityType = entityTypeKey.toUpperCase() as any;
+    const currentRes = row.entityResolutions?.[entityTypeKey];
+
+    if (!currentRes) {
+      throw new Error(`No entity resolution found for ${entityTypeKey} on row ${rowNumber}`);
+    }
+
+    const { updatedResolution } = EntityResolutionService.applyUserDecision({
+      projectId: context.projectId,
+      importBatchId: batch.importBatchId,
+      operationId: context.operationId,
+      rowNumber,
+      entityType: targetEntityType,
+      decision,
+      selectedEntityId: candidate.selectedEntityId,
+      selectedDisplayName: candidate.selectedDisplayName,
+      currentRowResolution: currentRes as any,
+      context,
+      actorId,
+    });
+
+    const updatedRow: ImportRow = {
+      ...row,
+      entityResolutions: {
+        ...row.entityResolutions,
+        [entityTypeKey]: updatedResolution,
+      },
+      resolvedValues: {
+        ...(row.resolvedValues || {}),
+      },
+    };
+
+    const resolvedId = updatedResolution.matchedId || updatedResolution.entityId;
+    if (resolvedId && (decision === 'ACCEPT_CANDIDATE' || decision === 'SELECT_ALTERNATE')) {
+      switch (entityTypeKey) {
+        case 'carrier':
+          updatedRow.resolvedValues!.carrierId = resolvedId;
+          break;
+        case 'truck':
+          updatedRow.resolvedValues!.truckId = resolvedId;
+          break;
+        case 'driver':
+          updatedRow.resolvedValues!.driverId = resolvedId;
+          break;
+        case 'material':
+          updatedRow.resolvedValues!.materialId = resolvedId;
+          break;
+      }
+    }
+
+    const stillNeedsResolution = this.rowRequiresEntityResolution(updatedRow);
+    const hasErrors = updatedRow.status === 'ERROR' || (updatedRow.validationIssues && updatedRow.validationIssues.some((i) => i.severity === 'BLOCKING' || (i.severity as any) === 'ERROR' || (i.severity as any) === 'FATAL'));
+    const hasWarnings = updatedRow.status === 'WARNING' || (updatedRow.validationIssues && updatedRow.validationIssues.some((i) => i.severity === 'WARNING'));
+
+    if (stillNeedsResolution) {
+      updatedRow.reviewStatus = 'requires_review';
+    } else if (hasErrors) {
+      updatedRow.reviewStatus = 'requires_review';
+    } else if (hasWarnings && !batch.warningConfirmation?.confirmed) {
+      updatedRow.reviewStatus = 'warning';
+    } else {
+      updatedRow.reviewStatus = 'accepted';
+    }
+
+    const updatedRows = [...batch.rows];
+    updatedRows[rowIdx] = updatedRow;
+
+    const updatedBatch: UnifiedImportBatch = {
+      ...batch,
+      rows: updatedRows,
+    };
+
+    return this.recalculateBatchCounts(updatedBatch);
+  }
+
+  /**
+   * Recalculates summary KPIs for the import batch based on updated row reviewStatuses
+   */
+  public static recalculateBatchCounts(batch: UnifiedImportBatch): UnifiedImportBatch {
+    let validRows = 0;
+    let warningRows = 0;
+    let errorRows = 0;
+    let requiresReviewRows = 0;
+
+    for (const r of batch.rows) {
+      if (r.reviewStatus === 'requires_review') {
+        requiresReviewRows++;
+      } else if (r.reviewStatus === 'error') {
+        errorRows++;
+      } else if (r.status === 'ERROR') {
+        errorRows++;
+      } else if (r.reviewStatus === 'accepted' || r.status === 'VALID') {
+        validRows++;
+      } else if (r.reviewStatus === 'warning' || r.status === 'WARNING') {
+        warningRows++;
+      } else {
+        validRows++;
+      }
+    }
+
+    return {
+      ...batch,
+      validRows,
+      warningRows,
+      errorRows,
+      requiresReviewRows,
+    };
   }
 }
