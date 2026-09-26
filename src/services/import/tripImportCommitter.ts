@@ -156,6 +156,7 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
 
     const committedTripIds: string[] = [];
     const executionErrors: ImportIssue[] = [];
+    let persistenceErrorsCount = 0;
 
     // BLOCK 36: Load project pricing rules for deterministic contractual settlement resolution
     let projectRules: PricingRule[] = [];
@@ -650,12 +651,29 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
 
       try {
         await tripRepository.create(sanitizedTrip);
+        committedTripIds.push(tripId);
+        row.status = 'COMMITTED';
       } catch (err: any) {
-        console.warn(`[ExcelCsvTripCommitter] Note on trip creation: ${err?.message || err}`);
+        persistenceErrorsCount++;
+        console.error(`[ExcelCsvTripCommitter] Trip creation failed for row ${row.rowNumber}, tripId ${tripId}: ${err?.message || err}`);
+        const errMsg = err?.message || String(err);
+        const failIssue: ImportIssue = {
+          issueId: `ERR-PERSIST-${Date.now()}-${i}`,
+          row: row.rowNumber,
+          field: 'tripId',
+          code: 'TRIP_PERSISTENCE_FAILED',
+          severity: 'BLOCKING',
+          message: `فشل حفظ الرحلة ${tripId} في قاعدة البيانات للصف ${row.rowNumber}: ${errMsg}`,
+          resolvable: false,
+          blocking: true,
+        };
+        executionErrors.push(failIssue);
+        if (!batch.issues) {
+          batch.issues = [];
+        }
+        batch.issues.push(failIssue);
+        continue;
       }
-
-      committedTripIds.push(tripId);
-      row.status = 'COMMITTED';
     }
 
     // 7. Record Audit Log
@@ -685,16 +703,28 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
       // Audit fail-safe in disconnected environments
     }
 
+    const committedRowsCount = committedTripIds.length;
+    const failedRowsCount = executionErrors.length;
+    const skippedRowsCount = Math.max(0, batch.totalRows - committedRowsCount - failedRowsCount);
+
+    const eligibleCommitRowsCount = activeRows.length;
+    let success = true;
+    if (eligibleCommitRowsCount > 0) {
+      success = committedRowsCount > 0;
+    } else {
+      success = failedRowsCount === 0;
+    }
+
     const result: ImportResult = {
       importBatchId: batch.importBatchId,
       projectId: batch.projectId,
       operationId: context.operationId,
       sourceType: batch.source.sourceType,
-      success: true,
+      success,
       totalRows: batch.totalRows,
-      committedRows: committedTripIds.length,
-      skippedRows: batch.totalRows - committedTripIds.length,
-      failedRows: executionErrors.length,
+      committedRows: committedRowsCount,
+      skippedRows: skippedRowsCount,
+      failedRows: failedRowsCount,
       issues: batch.issues,
       committedEntityIds: committedTripIds,
       executedAt: new Date().toISOString(),

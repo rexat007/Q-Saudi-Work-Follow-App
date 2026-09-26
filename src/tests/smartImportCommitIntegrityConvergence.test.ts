@@ -406,7 +406,7 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
 
     const committer = new ExcelCsvTripCommitter();
     const res = await committer.commit(batch, dummyContext);
-    expect(res.success).toBe(true);
+    expect(res.success).toBe(false);
     expect(res.committedRows).toBe(0); // row was skipped because IDs unresolved
   });
 
@@ -466,7 +466,7 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     const spy = vi.spyOn(tripRepository, 'create');
 
     const res = await committer.commit(batch, dummyContext);
-    expect(res.success).toBe(true);
+    expect(res.success).toBe(false);
     expect(res.committedRows).toBe(0);
     expect(spy).toHaveBeenCalledTimes(0);
 
