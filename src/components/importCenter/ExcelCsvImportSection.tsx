@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   FileSpreadsheet,
   UploadCloud,
@@ -21,6 +21,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { ExcelCsvPipelineService } from '../../services/import/excelCsvPipeline.service';
+import { importSessionClientService } from '../../services/import/importSessionClient.service';
 import { UnifiedImportBatch, PipelineContext, ImportResult, ImportRow, ImportSource } from '../../types/unifiedImport';
 import { ColumnMappingMatch } from '../../types/excelCsvImport';
 import { RelationshipContext } from '../../types/dataQuality';
@@ -58,6 +59,13 @@ export function ExcelCsvImportSection({
   const [headerRowIndex, setHeaderRowIndex] = useState<number>(0);
   const [showManualOverrides, setShowManualOverrides] = useState<boolean>(false);
   
+  // Pipeline & Import Session Active Identity State
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [activeOperationId, setActiveOperationId] = useState<string | null>(null);
+  const [activeImportBatchId, setActiveImportBatchId] = useState<string | null>(null);
+  const [sessionVersion, setSessionVersion] = useState<number>(0);
+  const [requiresSourceFileReattach, setRequiresSourceFileReattach] = useState<boolean>(false);
+
   // Pipeline Batch State
   const [activeBatch, setActiveBatch] = useState<UnifiedImportBatch | null>(null);
   const [columnMappings, setColumnMappings] = useState<Record<string, ColumnMappingMatch>>({});
@@ -78,9 +86,11 @@ export function ExcelCsvImportSection({
   const effectiveRole = authContext?.role || userRole || '';
 
   const context: PipelineContext = useMemo(() => {
+    const opId = activeOperationId || `OP-IMP-${Date.now()}`;
     if (pipelineContext) {
       return {
         ...pipelineContext,
+        operationId: opId,
         allowWarningsCommit: confirmWarnings,
       };
     }
@@ -92,7 +102,7 @@ export function ExcelCsvImportSection({
         userId: effectiveUserId,
         userName: effectiveUserName,
         role: effectiveRole,
-        operationId: `OP-IMP-${Date.now()}`,
+        operationId: opId,
         allowWarningsCommit: confirmWarnings,
       });
     }
@@ -102,18 +112,114 @@ export function ExcelCsvImportSection({
       userId: effectiveUserId,
       userName: effectiveUserName,
       role: effectiveRole,
-      operationId: `OP-IMP-${Date.now()}`,
+      operationId: opId,
       allowWarningsCommit: confirmWarnings,
       knownEntities: ImportProjectContextAdapter.toPipelineKnownEntities(null),
     };
-  }, [pipelineContext, canonicalRelationshipContext, currentProjectId, effectiveUserId, effectiveUserName, effectiveRole, confirmWarnings]);
+  }, [pipelineContext, canonicalRelationshipContext, currentProjectId, effectiveUserId, effectiveUserName, effectiveRole, confirmWarnings, activeOperationId]);
+
+  // Resume active import session on mount if locator exists
+  useEffect(() => {
+    let isMounted = true;
+
+    const resumeSession = async () => {
+      if (!currentProjectId) return;
+      const locatorKey = `qsaudi_import_session_locator_${currentProjectId}`;
+      const rawLocator = sessionStorage.getItem(locatorKey);
+      if (!rawLocator) return;
+
+      try {
+        const locator = JSON.parse(rawLocator);
+        if (!locator || locator.projectId !== currentProjectId || !locator.importSessionId) {
+          sessionStorage.removeItem(locatorKey);
+          return;
+        }
+
+        const sessionRecord = await importSessionClientService.getSession(currentProjectId, locator.importSessionId);
+        if (!sessionRecord || sessionRecord.lifecycleState === 'COMMITTED') {
+          sessionStorage.removeItem(locatorKey);
+          return;
+        }
+
+        const resumedState = importSessionClientService.reconstructResumedBatch(sessionRecord);
+        if (!isMounted) return;
+
+        setActiveSessionId(sessionRecord.importSessionId);
+        setActiveOperationId(sessionRecord.operationId);
+        setActiveImportBatchId(sessionRecord.importBatchId);
+        setSessionVersion(sessionRecord.version);
+        setConfirmWarnings(Boolean(sessionRecord.warningConfirmation));
+        setRequiresSourceFileReattach(resumedState.requiresSourceFileReattach);
+
+        if (resumedState.reviewSnapshot) {
+          const batch: UnifiedImportBatch = {
+            id: sessionRecord.importBatchId,
+            importBatchId: sessionRecord.importBatchId,
+            operationId: sessionRecord.operationId,
+            projectId: sessionRecord.projectId,
+            source: {
+              sourceType: (sessionRecord.sourceType as any) || 'EXCEL_CSV',
+              importBatchId: sessionRecord.importBatchId,
+              sourceFileName: sessionRecord.sourceMetadata?.sourceFileName || 'resumed_file.xlsx',
+              sourceMimeType: sessionRecord.sourceMetadata?.sourceMimeType,
+              sourceSheetName: sessionRecord.sourceMetadata?.sourceSheetName,
+            },
+            status: (sessionRecord.lifecycleState as any) || 'REVIEW_REQUIRED',
+            currentStage: (sessionRecord.currentStage as any) || 'REVIEW',
+            rows: resumedState.reviewSnapshot.rows || [],
+            summary: resumedState.reviewSnapshot.summary || {
+              totalRows: resumedState.reviewSnapshot.rows?.length || 0,
+              validRows: 0,
+              warningRows: 0,
+              errorRows: 0,
+              requiresReviewRows: 0,
+            },
+            validationIssues: resumedState.validationIssues || [],
+            entityResolutions: resumedState.entityResolutions || [],
+            createdAt: sessionRecord.createdAt,
+            updatedAt: sessionRecord.updatedAt,
+          };
+          setActiveBatch(batch);
+
+          if (batch.rows.length > 0 && batch.rows[0].raw) {
+            const rawHeaders = Object.keys(batch.rows[0].raw).filter((k) => !k.startsWith('_'));
+            const mappings = ExcelCsvPipelineService.inspectColumnMappings(rawHeaders);
+            setColumnMappings(mappings);
+          }
+        }
+      } catch {
+        sessionStorage.removeItem(locatorKey);
+      }
+    };
+
+    resumeSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentProjectId]);
 
   const handleFileSelect = async (file: File) => {
     setSelectedFile(file);
     setProcessError(null);
-    setActiveBatch(null);
     setCommitResult(null);
-    setConfirmWarnings(false);
+
+    let opId = activeOperationId;
+    let batchId = activeImportBatchId;
+
+    // Is this a reattach for an existing resumed session?
+    const isReattach = Boolean(requiresSourceFileReattach && activeSessionId && opId && batchId);
+
+    if (!isReattach) {
+      // Generate stable identities ONCE for a brand new flow
+      const stable = importSessionClientService.generateStableIdentities();
+      opId = stable.operationId;
+      batchId = stable.importBatchId;
+      setActiveOperationId(opId);
+      setActiveImportBatchId(batchId);
+      setConfirmWarnings(false);
+      setActiveBatch(null);
+    }
 
     try {
       setIsProcessing(true);
@@ -122,9 +228,40 @@ export function ExcelCsvImportSection({
 
       const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
       const sourceType = (ext === '.xlsx' || ext === '.xls') ? 'EXCEL' : 'CSV';
+
+      // Create server session if new flow and projectId is present
+      if (!isReattach && currentProjectId) {
+        try {
+          const sessionRecord = await importSessionClientService.createSession(currentProjectId, {
+            projectId: currentProjectId,
+            operationId: opId,
+            importBatchId: batchId,
+            sourceType,
+            sourceMetadata: {
+              sourceFileName: file.name,
+              sourceMimeType: file.type,
+              fileSize: file.size,
+            },
+          });
+          setActiveSessionId(sessionRecord.importSessionId);
+          setSessionVersion(sessionRecord.version);
+          sessionStorage.setItem(
+            `qsaudi_import_session_locator_${currentProjectId}`,
+            JSON.stringify({
+              projectId: currentProjectId,
+              importSessionId: sessionRecord.importSessionId,
+            })
+          );
+        } catch (err: any) {
+          console.warn('Failed to create server import session:', err);
+        }
+      }
+
+      setRequiresSourceFileReattach(false);
+
       const importSource: ImportSource = {
         sourceType,
-        importBatchId: `BAT-${Date.now()}`,
+        importBatchId: batchId,
         sourceFileName: file.name,
       };
 
@@ -139,8 +276,17 @@ export function ExcelCsvImportSection({
       setSelectedSheet(defaultSheet);
       setHeaderRowIndex(detectedIdx);
 
-      // Execute pipeline through review stage with discovery choices
-      await runPipeline(buffer, file.name, file.size, file.type, defaultSheet, detectedIdx);
+      // Execute pipeline through review stage using stable identities
+      await runPipeline(
+        buffer,
+        file.name,
+        file.size,
+        file.type,
+        defaultSheet,
+        detectedIdx,
+        opId,
+        batchId
+      );
     } catch (err: any) {
       setProcessError(err?.message || 'حدث خطأ أثناء فحص وتحليل الملف');
     } finally {
@@ -154,23 +300,33 @@ export function ExcelCsvImportSection({
     fileSize: number,
     mimeType: string,
     sheetName?: string,
-    overriddenHeaderRowIndex?: number
+    overriddenHeaderRowIndex?: number,
+    overrideOpId?: string,
+    overrideBatchId?: string
   ) => {
     try {
       setIsProcessing(true);
       setProcessError(null);
 
       const targetHeaderRowIdx = overriddenHeaderRowIndex !== undefined ? overriddenHeaderRowIndex : headerRowIndex;
+      const opId = overrideOpId || activeOperationId || `OP-IMP-${Date.now()}`;
+      const batchId = overrideBatchId || activeImportBatchId || undefined;
+
+      const activeContext: PipelineContext = {
+        ...context,
+        operationId: opId,
+      };
 
       const batch = await ExcelCsvPipelineService.processFileToReview(
         buffer,
         fileName,
         fileSize,
         mimeType,
-        context,
+        activeContext,
         {
           sheetName,
           headerRowIndex: targetHeaderRowIdx,
+          importBatchId: batchId,
         }
       );
 
@@ -181,6 +337,48 @@ export function ExcelCsvImportSection({
         const rawHeaders = Object.keys(batch.rows[0].raw).filter((k) => !k.startsWith('_'));
         const mappings = ExcelCsvPipelineService.inspectColumnMappings(rawHeaders);
         setColumnMappings(mappings);
+      }
+
+      // Save REVIEW checkpoint to server session
+      if (currentProjectId && activeSessionId) {
+        try {
+          const cleanSnapshot = {
+            summary: batch.summary,
+            rows: batch.rows.map((r) => {
+              const { rawInput, ...rest } = r as any;
+              return rest;
+            }),
+          };
+
+          const updatedSession = await importSessionClientService.updateCheckpoint(
+            currentProjectId,
+            activeSessionId,
+            {
+              lifecycleState: 'REVIEW_REQUIRED',
+              currentStage: 'REVIEW',
+              reviewSnapshot: cleanSnapshot,
+              validationIssues: batch.validationIssues || [],
+              entityResolutions: batch.entityResolutions || [],
+              warningConfirmation: confirmWarnings,
+              sourceMetadata: {
+                sourceFileName: fileName,
+                sourceMimeType: mimeType,
+                fileSize,
+                sourceSheetName: sheetName,
+                headerRowIndex: targetHeaderRowIdx,
+              },
+            },
+            sessionVersion
+          );
+
+          setSessionVersion(updatedSession.version);
+        } catch (err: any) {
+          if (err?.code === 'VERSION_CONFLICT') {
+            setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): يرجى تحديث الصفحة');
+          } else {
+            console.warn('Failed to update session checkpoint:', err);
+          }
+        }
       }
     } catch (err: any) {
       setProcessError(err?.message || 'فشل في تشغيل مسار الاستيراد الموحد');
@@ -196,7 +394,7 @@ export function ExcelCsvImportSection({
       const sourceType = (ext === '.xlsx' || ext === '.xls') ? 'EXCEL' : 'CSV';
       const importSource: ImportSource = {
         sourceType,
-        importBatchId: `BAT-${Date.now()}`,
+        importBatchId: activeImportBatchId || `BAT-${Date.now()}`,
         sourceFileName: selectedFile.name,
         sourceSheetName: sheet,
       };
@@ -221,7 +419,7 @@ export function ExcelCsvImportSection({
     }
   };
 
-  const handleRowAction = (rowNumber: number, action: 'ACCEPT_WARNING' | 'REJECT_ROW') => {
+  const handleRowAction = async (rowNumber: number, action: 'ACCEPT_WARNING' | 'REJECT_ROW') => {
     if (!activeBatch) return;
     const updated = ExcelCsvPipelineService.applyRowReview(
       activeBatch,
@@ -231,6 +429,64 @@ export function ExcelCsvImportSection({
       action === 'ACCEPT_WARNING' ? 'تمت الموافقة اليدوية على التنبيه' : 'تم استبعاد الصف يدوياً'
     );
     setActiveBatch({ ...updated });
+
+    if (currentProjectId && activeSessionId) {
+      try {
+        const cleanSnapshot = {
+          summary: updated.summary,
+          rows: updated.rows.map((r) => {
+            const { rawInput, ...rest } = r as any;
+            return rest;
+          }),
+        };
+
+        const updatedSession = await importSessionClientService.updateCheckpoint(
+          currentProjectId,
+          activeSessionId,
+          {
+            lifecycleState: 'REVIEW_REQUIRED',
+            currentStage: 'REVIEW',
+            reviewSnapshot: cleanSnapshot,
+            validationIssues: updated.validationIssues || [],
+            entityResolutions: updated.entityResolutions || [],
+            warningConfirmation: confirmWarnings,
+            reviewAction: { rowNumber, action },
+          },
+          sessionVersion
+        );
+
+        setSessionVersion(updatedSession.version);
+      } catch (err: any) {
+        if (err?.code === 'VERSION_CONFLICT') {
+          setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ إجراء المراجعة');
+        } else {
+          setProcessError(err?.message || 'فشل في حفظ إجراء المراجعة في جلسة الخادم');
+        }
+      }
+    }
+  };
+
+  const handleConfirmWarningsChange = async (checked: boolean) => {
+    setConfirmWarnings(checked);
+    if (currentProjectId && activeSessionId) {
+      try {
+        const updatedSession = await importSessionClientService.updateCheckpoint(
+          currentProjectId,
+          activeSessionId,
+          {
+            warningConfirmation: checked,
+          },
+          sessionVersion
+        );
+        setSessionVersion(updatedSession.version);
+      } catch (err: any) {
+        if (err?.code === 'VERSION_CONFLICT') {
+          setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT)');
+        } else {
+          console.warn('Failed to update warning confirmation:', err);
+        }
+      }
+    }
   };
 
   const handleCommit = async () => {
@@ -248,6 +504,24 @@ export function ExcelCsvImportSection({
       setActiveBatch({ ...batch });
       setCommitResult(result);
 
+      if (currentProjectId && activeSessionId) {
+        try {
+          const updatedSession = await importSessionClientService.updateCheckpoint(
+            currentProjectId,
+            activeSessionId,
+            {
+              lifecycleState: 'COMMITTED',
+              currentStage: 'COMMITTED',
+            },
+            sessionVersion
+          );
+          setSessionVersion(updatedSession.version);
+          sessionStorage.removeItem(`qsaudi_import_session_locator_${currentProjectId}`);
+        } catch {
+          // Commit succeeded on business domain; ignore session close error
+        }
+      }
+
       if (result.success && onCommitSuccess) {
         onCommitSuccess(result);
       }
@@ -259,6 +533,9 @@ export function ExcelCsvImportSection({
   };
 
   const handleReset = () => {
+    if (currentProjectId) {
+      sessionStorage.removeItem(`qsaudi_import_session_locator_${currentProjectId}`);
+    }
     setSelectedFile(null);
     setFileBuffer(null);
     setAvailableSheets([]);
@@ -271,6 +548,11 @@ export function ExcelCsvImportSection({
     setProcessError(null);
     setCommitResult(null);
     setConfirmWarnings(false);
+    setActiveSessionId(null);
+    setActiveOperationId(null);
+    setActiveImportBatchId(null);
+    setSessionVersion(0);
+    setRequiresSourceFileReattach(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -288,6 +570,22 @@ export function ExcelCsvImportSection({
 
   return (
     <div className="space-y-6" dir="rtl">
+      {/* Reattach Source File Banner */}
+      {requiresSourceFileReattach && !fileBuffer && (
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+            <span>تم استئناف جلسة المراجعة المحفوظة. يُرجى إعادة ربط ملف المصدر الأصلي لتسهيل إعادة التحليل عند الحاجة.</span>
+          </div>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors shadow-xs shrink-0 cursor-pointer"
+          >
+            إعادة ربط الملف
+          </button>
+        </div>
+      )}
+
       {/* 1. File Intake & Selection Header */}
       <div className="bg-white border border-stone-200/80 rounded-2xl p-6 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -306,6 +604,11 @@ export function ExcelCsvImportSection({
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900">
                   Weighbridge Compatible
                 </span>
+                {activeSessionId && (
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-900 font-mono">
+                    Session Active ({sessionVersion})
+                  </span>
+                )}
               </div>
               <p className="text-xs sm:text-sm text-stone-600 mt-1">
                 استقبال ومعالجة ملفات جداول البيانات (.xlsx, .xls, .csv) بالاعتماد المباشر على معمارية الاستيراد الموحد (المراحل العشر) دون كتابة مسبقة في Firestore.
@@ -313,7 +616,7 @@ export function ExcelCsvImportSection({
             </div>
           </div>
 
-          {selectedFile && (
+          {(selectedFile || activeBatch) && (
             <div className="flex items-center gap-2">
               <button
                 onClick={handleReset}
@@ -327,7 +630,7 @@ export function ExcelCsvImportSection({
         </div>
 
         {/* Drag & Drop Zone */}
-        {!selectedFile && (
+        {!selectedFile && !activeBatch && (
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
@@ -433,7 +736,7 @@ export function ExcelCsvImportSection({
                   {!shouldShowDetails && (
                     <button
                       onClick={() => setShowManualOverrides(true)}
-                      className="px-3 py-1 rounded-lg bg-white border border-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-100 transition-colors"
+                      className="px-3 py-1 rounded-lg bg-white border border-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-100 transition-colors cursor-pointer"
                     >
                       تعديل الخيارات يدوياً (Manual Overrides)
                     </button>
@@ -495,426 +798,399 @@ export function ExcelCsvImportSection({
                       تشخيصات تطابق الأعمدة المكتشفة (Detected Header Mapping Diagnostics)
                     </span>
                     <div className="flex flex-wrap gap-2">
-                      {discoveryResult.detectedHeaders.map((header: string) => {
-                        const match = discoveryResult.mappingDiagnostics[header];
+                      {discoveryResult.detectedHeaders?.map((header: string) => {
+                        const match = discoveryResult.mappingDiagnostics?.[header];
                         const isMapped = match && match.confidence >= 0.70 && !String(match.canonicalField).startsWith('unmapped_');
+
                         return (
-                          <span
+                          <div
                             key={header}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold ${
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border flex items-center gap-1.5 ${
                               isMapped
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                                : 'bg-stone-100 text-stone-500 border-stone-200'
+                                ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                                : 'bg-stone-100 text-stone-600 border-stone-200'
                             }`}
                           >
-                            <span className="truncate max-w-[120px]">{header}</span>
-                            <span className="text-stone-300">➜</span>
-                            <span className="font-mono font-black text-stone-900">
-                              {isMapped ? match.canonicalField : 'غير مطابَق (Unmapped)'}
+                            <span>{header}</span>
+                            <ArrowRight className="w-3 h-3 text-stone-400 rotate-180" />
+                            <span className="font-mono text-[10px]">
+                              {isMapped ? String(match.canonicalField) : 'unmapped'}
                             </span>
-                          </span>
+                          </div>
                         );
                       })}
                     </div>
                   </div>
-
-                  {/* Ambiguity reasons & warning flags */}
-                  {discoveryResult.requiresReview && discoveryResult.ambiguityReasons.length > 0 && (
-                    <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs space-y-1">
-                      <span className="font-black text-amber-900 block flex items-center gap-1.5">
-                        <AlertTriangle className="w-4 h-4 text-amber-600" />
-                        تنبيهات وتعارضات كشف المخطط:
-                      </span>
-                      <ul className="list-disc list-inside space-y-0.5 text-amber-800 pr-4">
-                        {discoveryResult.ambiguityReasons.map((reason: string, idx: number) => (
-                          <li key={idx}>{reason}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {showManualOverrides && (
-                    <div className="flex justify-end pt-1">
-                      <button
-                        onClick={() => setShowManualOverrides(false)}
-                        className="text-xs font-bold text-stone-500 hover:text-stone-700"
-                      >
-                        إخفاء خيارات التعديل اليدوي
-                      </button>
-                    </div>
-                  )}
                 </>
               )}
             </div>
           );
         })()}
 
-        {/* Processing Indicator */}
-        {isProcessing && (
-          <div className="mt-6 p-6 rounded-xl bg-emerald-50/50 border border-emerald-200 text-center flex flex-col items-center justify-center gap-2">
-            <RefreshCw className="w-6 h-6 text-emerald-600 animate-spin" />
-            <span className="text-xs font-bold text-emerald-900">
-              جاري معالجة الملف عبر مراحل الـ Pipeline العشر (Normalize, Map, Resolve, Validate, Duplicate Check)...
-            </span>
-          </div>
-        )}
-
-        {/* Process Error Banner */}
+        {/* Errors Display */}
         {processError && (
-          <div className="mt-4 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2">
+          <div className="mt-4 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold flex items-center gap-2">
             <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
             <span>{processError}</span>
           </div>
         )}
+
+        {/* Processing Indicator */}
+        {isProcessing && (
+          <div className="mt-6 p-8 text-center bg-stone-50 rounded-2xl border border-stone-200">
+            <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-3" />
+            <div className="text-sm font-bold text-stone-900">جاري تحليل ومعالجة ملف الاستيراد عبر المراحل العشر...</div>
+            <div className="text-xs text-stone-500 mt-1">يتم الفحص والتطابق الذكي في الذاكرة دون حفظ مسبق</div>
+          </div>
+        )}
       </div>
 
-      {/* 2. Pipeline Results & Stats */}
-      {activeBatch && (
-        <>
-          {/* Stats Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div className="bg-white border border-stone-200/80 rounded-xl p-4 shadow-xs">
-              <span className="text-[11px] font-bold text-stone-500 block">إجمالي الصفوف</span>
-              <span className="text-xl font-black text-stone-900 font-mono">{activeBatch.totalRows}</span>
+      {/* 2. Review & Resolution Stage */}
+      {activeBatch && !isProcessing && (
+        <div className="bg-white border border-stone-200/80 rounded-2xl p-6 shadow-xs space-y-6">
+          {/* Summary KPIs */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80">
+              <div className="text-xs font-bold text-stone-500 mb-1">إجمالي الصفوف</div>
+              <div className="text-lg font-black text-stone-900 font-mono">{activeBatch.summary.totalRows}</div>
             </div>
 
-            <div className="bg-emerald-50/50 border border-emerald-200/80 rounded-xl p-4 shadow-xs">
-              <span className="text-[11px] font-bold text-emerald-700 block">صفوف سليمة</span>
-              <span className="text-xl font-black text-emerald-700 font-mono">{activeBatch.validRows}</span>
+            <div className="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-200/80">
+              <div className="text-xs font-bold text-emerald-700 mb-1">صفوف سليمة</div>
+              <div className="text-lg font-black text-emerald-800 font-mono">{activeBatch.summary.validRows}</div>
             </div>
 
-            <div className="bg-amber-50/50 border border-amber-200/80 rounded-xl p-4 shadow-xs">
-              <span className="text-[11px] font-bold text-amber-800 block">تنبيهات (تحذير)</span>
-              <span className="text-xl font-black text-amber-800 font-mono">{activeBatch.warningRows}</span>
+            <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/80">
+              <div className="text-xs font-bold text-amber-700 mb-1">صفوف تتضمن تنبيهات</div>
+              <div className="text-lg font-black text-amber-800 font-mono">{activeBatch.summary.warningRows}</div>
             </div>
 
-            <div className="bg-rose-50/50 border border-rose-200/80 rounded-xl p-4 shadow-xs">
-              <span className="text-[11px] font-bold text-rose-700 block">أخطاء مانعة</span>
-              <span className="text-xl font-black text-rose-700 font-mono">{activeBatch.errorRows}</span>
+            <div className="p-3.5 rounded-xl bg-rose-50/60 border border-rose-200/80">
+              <div className="text-xs font-bold text-rose-700 mb-1">صفوف تتضمن أخطاء</div>
+              <div className="text-lg font-black text-rose-800 font-mono">{activeBatch.summary.errorRows}</div>
             </div>
 
-            <div className="bg-sky-50/50 border border-sky-200/80 rounded-xl p-4 shadow-xs">
-              <span className="text-[11px] font-bold text-sky-800 block">تتطلب مراجعة</span>
-              <span className="text-xl font-black text-sky-800 font-mono">{activeBatch.requiresReviewRows}</span>
-            </div>
-
-            <div className="bg-purple-50/50 border border-purple-200/80 rounded-xl p-4 shadow-xs">
-              <span className="text-[11px] font-bold text-purple-800 block">المرحلة الحالية</span>
-              <span className="text-xs font-black text-purple-900 font-mono block mt-1">
-                {activeBatch.currentStage}
-              </span>
+            <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-200/80 col-span-2 sm:col-span-1">
+              <div className="text-xs font-bold text-blue-700 mb-1">تتطلب مراجعة</div>
+              <div className="text-lg font-black text-blue-800 font-mono">{activeBatch.summary.requiresReviewRows}</div>
             </div>
           </div>
 
-          {/* Column Mapping Review Accordion */}
-          <div className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal className="w-4 h-4 text-stone-600" />
-                <h3 className="text-sm font-bold text-stone-900">
-                  خريطة مطابقة الأعمدة الذكية (Intelligent Column Mapping)
-                </h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-stone-100 text-stone-700 font-bold">
-                  {Object.keys(columnMappings).length} أعمدة مكتشفة
-                </span>
-              </div>
+          {/* Table Toolbar & Filtering */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-stone-100">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+              <Filter className="w-4 h-4 text-stone-400 shrink-0" />
               <button
-                onClick={() => setShowMappingDrawer(!showMappingDrawer)}
-                className="text-xs font-bold text-emerald-700 hover:text-emerald-800 cursor-pointer"
+                onClick={() => setFilterStatus('ALL')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  filterStatus === 'ALL' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                }`}
               >
-                {showMappingDrawer ? 'إخفاء التفاصيل' : 'استعراض خريطة الأعمدة'}
+                الكل ({activeBatch.rows.length})
+              </button>
+
+              <button
+                onClick={() => setFilterStatus('VALID')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  filterStatus === 'VALID' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                }`}
+              >
+                سليمة ({activeBatch.summary.validRows})
+              </button>
+
+              <button
+                onClick={() => setFilterStatus('WARNING')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  filterStatus === 'WARNING' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-800 hover:bg-amber-100'
+                }`}
+              >
+                تنبيهات ({activeBatch.summary.warningRows})
+              </button>
+
+              <button
+                onClick={() => setFilterStatus('ERROR')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  filterStatus === 'ERROR' ? 'bg-rose-700 text-white' : 'bg-rose-50 text-rose-800 hover:bg-rose-100'
+                }`}
+              >
+                أخطاء ({activeBatch.summary.errorRows})
+              </button>
+
+              <button
+                onClick={() => setFilterStatus('REQUIRES_REVIEW')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  filterStatus === 'REQUIRES_REVIEW' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
+                }`}
+              >
+                تتطلب مراجعة ({activeBatch.summary.requiresReviewRows})
               </button>
             </div>
 
-            {showMappingDrawer && (
-              <div className="mt-4 pt-4 border-t border-stone-100 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => setShowMappingDrawer(!showMappingDrawer)}
+                className="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <span>تكتيكات الربط والتطابق</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mapped Headers Drawer */}
+          {showMappingDrawer && (
+            <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/90 space-y-3">
+              <div className="text-xs font-bold text-stone-900 border-b border-stone-200 pb-2">
+                تطابق الأعمدة المكتشفة مع حقول الشحنات القانونية (Canonical Trip Schema Mappings)
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 text-xs">
                 {Object.entries(columnMappings).map(([rawHeader, match]) => (
-                  <div
-                    key={rawHeader}
-                    className={`p-2.5 rounded-xl border text-xs flex items-center justify-between ${
-                      match.confidence >= 0.85
-                        ? 'bg-emerald-50/40 border-emerald-200/70'
-                        : match.confidence >= 0.70
-                        ? 'bg-amber-50/40 border-amber-200/70'
-                        : 'bg-stone-50 border-stone-200'
-                    }`}
-                  >
-                    <div className="truncate">
-                      <span className="font-bold text-stone-900 block truncate">{rawHeader}</span>
-                      <span className="text-[10px] text-stone-500 font-mono">
-                        ➜ {match.canonicalField}
-                      </span>
+                  <div key={rawHeader} className="p-2 rounded-lg bg-white border border-stone-200/80 shadow-2xs">
+                    <div className="text-[10px] text-stone-500 font-bold truncate">{rawHeader}</div>
+                    <div className="font-mono text-xs font-bold text-emerald-800 truncate mt-0.5">
+                      {match.canonicalField}
                     </div>
-                    <div className="shrink-0 flex items-center gap-1.5">
-                      <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
-                          match.confidence >= 0.85
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : match.confidence >= 0.70
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-stone-200 text-stone-700'
-                        }`}
-                      >
-                        {Math.round(match.confidence * 100)}%
-                      </span>
-                      <span className="text-[10px] font-mono text-stone-500">{match.matchType}</span>
+                    <div className="text-[9px] text-stone-400 mt-0.5 font-mono">
+                      ثقة التطابق: {(match.confidence * 100).toFixed(0)}%
                     </div>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-
-          {/* 3. Review Table & Gate */}
-          <div className="bg-white border border-stone-200/80 rounded-2xl shadow-xs overflow-hidden">
-            {/* Table Header & Controls */}
-            <div className="p-4 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-stone-600" />
-                <h3 className="text-sm font-bold text-stone-900">
-                  جدول معاينة وتدقيق الصفوف (Review Table)
-                </h3>
-              </div>
-
-              {/* Status Filter */}
-              <div className="flex items-center gap-1.5">
-                {(['ALL', 'VALID', 'WARNING', 'ERROR', 'REQUIRES_REVIEW'] as const).map((st) => (
-                  <button
-                    key={st}
-                    onClick={() => setFilterStatus(st)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
-                      filterStatus === st
-                        ? 'bg-stone-900 text-white shadow-xs'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                    }`}
-                  >
-                    {st === 'ALL' && 'الكل'}
-                    {st === 'VALID' && 'سليم'}
-                    {st === 'WARNING' && 'تنبيه'}
-                    {st === 'ERROR' && 'خطأ مانع'}
-                    {st === 'REQUIRES_REVIEW' && 'مراجعة'}
-                  </button>
-                ))}
-              </div>
             </div>
+          )}
 
-            {/* Table */}
-            <div className="overflow-x-auto max-h-96">
-              <table className="w-full text-right text-xs">
-                <thead className="bg-stone-50/80 text-stone-600 font-bold border-b border-stone-200 sticky top-0 z-10">
+          {/* Review Rows Table */}
+          <div className="overflow-x-auto border border-stone-200/80 rounded-xl">
+            <table className="w-full text-right text-xs">
+              <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold">
+                <tr>
+                  <th className="p-3 w-12 text-center">#</th>
+                  <th className="p-3">حالة الصف</th>
+                  <th className="p-3">تاريخ الشحنة</th>
+                  <th className="p-3">السائق الهوية</th>
+                  <th className="p-3">الشاحنة / اللوحة</th>
+                  <th className="p-3">الناقل / المقاول</th>
+                  <th className="p-3">المادة / الحمولة</th>
+                  <th className="p-3 text-center">الوزن القائم (كجم)</th>
+                  <th className="p-3 text-center">الوزن فارغ (كجم)</th>
+                  <th className="p-3 text-center">الوزن الصافي (كجم)</th>
+                  <th className="p-3">ملاحظات والتنبيهات</th>
+                  <th className="p-3 text-center">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-200/70">
+                {displayedRows.length === 0 ? (
                   <tr>
-                    <th className="py-2.5 px-3">#</th>
-                    <th className="py-2.5 px-3">التذكرة / البوليصة</th>
-                    <th className="py-2.5 px-3">اللوحة / الشاحنة</th>
-                    <th className="py-2.5 px-3">الناقل</th>
-                    <th className="py-2.5 px-3">المادة</th>
-                    <th className="py-2.5 px-3">التاريخ</th>
-                    <th className="py-2.5 px-3 font-mono">فارغ (كجم)</th>
-                    <th className="py-2.5 px-3 font-mono">قائم (كجم)</th>
-                    <th className="py-2.5 px-3 font-mono">صافي (كجم)</th>
-                    <th className="py-2.5 px-3">حالة الصف</th>
-                    <th className="py-2.5 px-3">إجراءات المراجعة</th>
+                    <td colSpan={12} className="p-8 text-center text-stone-500 font-bold">
+                      لا توجد صفوف تطابق الفلتر المحدد
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-100">
-                  {displayedRows.length === 0 ? (
-                    <tr>
-                      <td colSpan={11} className="py-8 text-center text-stone-400 font-medium">
-                        لا توجد صفوف تطابق الفلتر المحدد
-                      </td>
-                    </tr>
-                  ) : (
-                    displayedRows.map((row) => {
-                      const canonical = row.mapped || row.canonical || {};
-                      const isRejected = row.status === 'REJECTED';
-                      const hasBlocking = row.validationIssues.some((i) => i.blocking);
-                      const hasWarning = row.validationIssues.some((i) => i.severity === 'WARNING');
+                ) : (
+                  displayedRows.map((row: ImportRow) => {
+                    const canonical = row.normalized?.canonicalData || {};
+                    const isError = row.status === 'ERROR' || row.reviewStatus === 'error';
+                    const isWarning = row.status === 'WARNING' || row.reviewStatus === 'warning';
+                    const isAccepted = row.reviewStatus === 'accepted';
+                    const isRejected = row.reviewStatus === 'rejected';
 
-                      return (
-                        <tr
-                          key={row.rowNumber}
-                          className={`hover:bg-stone-50/60 transition-colors ${
-                            isRejected
-                              ? 'bg-stone-100/60 opacity-60 line-through'
-                              : hasBlocking
-                              ? 'bg-rose-50/30'
-                              : hasWarning
-                              ? 'bg-amber-50/20'
-                              : ''
-                          }`}
-                        >
-                          <td className="py-2.5 px-3 font-mono text-stone-500">{row.rowNumber}</td>
-                          <td className="py-2.5 px-3 font-bold text-stone-900 font-mono">
-                            {canonical.ticketId || '-'}
-                          </td>
-                          <td className="py-2.5 px-3 font-mono text-stone-800">
-                            {canonical.truckNo || '-'}
-                          </td>
-                          <td className="py-2.5 px-3 text-stone-700">{canonical.carrier || '-'}</td>
-                          <td className="py-2.5 px-3 text-stone-700">{canonical.materialType || '-'}</td>
-                          <td className="py-2.5 px-3 font-mono text-stone-600">
-                            {canonical.shiftDate || '-'}
-                          </td>
-                          <td className="py-2.5 px-3 font-mono text-stone-800">
-                            {canonical.tareWeight !== undefined ? canonical.tareWeight : '-'}
-                          </td>
-                          <td className="py-2.5 px-3 font-mono text-stone-800">
-                            {canonical.grossWeight !== undefined ? canonical.grossWeight : '-'}
-                          </td>
-                          <td className="py-2.5 px-3 font-mono font-bold text-emerald-700">
-                            {canonical.netWeight !== undefined ? canonical.netWeight : '-'}
-                          </td>
-                          <td className="py-2.5 px-3">
-                            {row.duplicateInfo?.isDuplicate ? (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">
-                                مكرر (Duplicate)
-                              </span>
-                            ) : hasBlocking ? (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">
-                                خطأ مانع
-                              </span>
-                            ) : hasWarning ? (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
-                                تحذير
-                              </span>
+                    return (
+                      <tr
+                        key={row.rowNumber}
+                        className={`hover:bg-stone-50/80 transition-colors ${
+                          isRejected
+                            ? 'bg-stone-100/80 line-through text-stone-400'
+                            : isError
+                            ? 'bg-rose-50/40'
+                            : isWarning && !isAccepted
+                            ? 'bg-amber-50/40'
+                            : isAccepted
+                            ? 'bg-emerald-50/30'
+                            : ''
+                        }`}
+                      >
+                        <td className="p-3 text-center font-mono font-bold text-stone-600">
+                          {row.rowNumber}
+                        </td>
+
+                        <td className="p-3">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono inline-flex items-center gap-1 ${
+                              isRejected
+                                ? 'bg-stone-200 text-stone-700'
+                                : isError
+                                ? 'bg-rose-100 text-rose-800'
+                                : isWarning && !isAccepted
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-emerald-100 text-emerald-800'
+                            }`}
+                          >
+                            {isRejected ? (
+                              <>
+                                <XCircle className="w-3 h-3 text-stone-500" /> مستبعد
+                              </>
+                            ) : isError ? (
+                              <>
+                                <XCircle className="w-3 h-3 text-rose-600" /> خطأ
+                              </>
+                            ) : isWarning && !isAccepted ? (
+                              <>
+                                <AlertTriangle className="w-3 h-3 text-amber-600" /> تنبيه
+                              </>
                             ) : (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                                سليم
-                              </span>
+                              <>
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> مقبول
+                              </>
+                            )}
+                          </span>
+                        </td>
+
+                        <td className="p-3 font-mono">
+                          {canonical.tripDate || <span className="text-stone-300">-</span>}
+                        </td>
+
+                        <td className="p-3">
+                          <div className="font-bold">{canonical.driverName || '-'}</div>
+                          {canonical.residencyId && (
+                            <div className="text-[10px] text-stone-500 font-mono">
+                              هوية: {canonical.residencyId}
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="p-3 font-mono font-bold">
+                          {canonical.plateNumber || <span className="text-stone-300 font-normal">-</span>}
+                        </td>
+
+                        <td className="p-3">
+                          {canonical.carrierName || <span className="text-stone-300">-</span>}
+                        </td>
+
+                        <td className="p-3">
+                          {canonical.materialName || <span className="text-stone-300">-</span>}
+                        </td>
+
+                        <td className="p-3 text-center font-mono font-bold text-stone-800">
+                          {canonical.grossWeightKg ? canonical.grossWeightKg.toLocaleString() : '-'}
+                        </td>
+
+                        <td className="p-3 text-center font-mono text-stone-600">
+                          {canonical.tareWeightKg ? canonical.tareWeightKg.toLocaleString() : '-'}
+                        </td>
+
+                        <td className="p-3 text-center font-mono font-black text-emerald-800">
+                          {canonical.netWeightKg ? canonical.netWeightKg.toLocaleString() : '-'}
+                        </td>
+
+                        <td className="p-3 max-w-xs">
+                          {row.errors && row.errors.length > 0 && (
+                            <div className="text-rose-700 text-[11px] font-bold">
+                              {row.errors.map((e) => e.message).join(' | ')}
+                            </div>
+                          )}
+                          {row.warnings && row.warnings.length > 0 && (
+                            <div className="text-amber-700 text-[11px]">
+                              {row.warnings.map((w) => w.message).join(' | ')}
+                            </div>
+                          )}
+                          {(!row.errors || row.errors.length === 0) &&
+                            (!row.warnings || row.warnings.length === 0) && (
+                              <span className="text-stone-400 text-[11px]">لا توجد ملاحظات</span>
+                            )}
+                        </td>
+
+                        <td className="p-3 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            {isWarning && !isAccepted && !isRejected && (
+                              <button
+                                onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
+                                className="p-1 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-800 transition-colors cursor-pointer"
+                                title="قبول التنبيه"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                              </button>
                             )}
 
-                            {/* Issues subtitle */}
-                            {row.validationIssues.length > 0 && (
-                              <div className="text-[10px] text-stone-500 mt-1">
-                                {row.validationIssues.map((iss) => (
-                                  <div key={iss.issueId} className="truncate max-w-xs">
-                                    • {iss.messageAr || iss.message}
-                                  </div>
-                                ))}
-                              </div>
+                            {!isRejected ? (
+                              <button
+                                onClick={() => handleRowAction(row.rowNumber, 'REJECT_ROW')}
+                                className="p-1 rounded bg-stone-100 hover:bg-rose-100 text-stone-600 hover:text-rose-700 transition-colors cursor-pointer"
+                                title="استبعاد الصف"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <span className="text-[10px] text-stone-400 font-bold">مستبعد</span>
                             )}
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <div className="flex items-center gap-1.5">
-                              {hasWarning && !isRejected && (
-                                <button
-                                  onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
-                                  title="قبول التحذير وتمرير الصف"
-                                  className="p-1 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-800 transition-colors cursor-pointer"
-                                >
-                                  <Check className="w-3.5 h-3.5" />
-                                </button>
-                              )}
-                              {!isRejected ? (
-                                <button
-                                  onClick={() => handleRowAction(row.rowNumber, 'REJECT_ROW')}
-                                  title="استبعاد هذا الصف من الاستيراد"
-                                  className="p-1 rounded bg-rose-100 hover:bg-rose-200 text-rose-800 transition-colors cursor-pointer"
-                                >
-                                  <X className="w-3.5 h-3.5" />
-                                </button>
-                              ) : (
-                                <span className="text-[10px] text-stone-400 font-bold">مستبعد</span>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Warning Confirmation Checkbox & Commit Action */}
+          <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200/90 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={confirmWarnings}
+                  onChange={(e) => handleConfirmWarningsChange(e.target.checked)}
+                  className="w-4 h-4 text-emerald-600 rounded border-stone-300 focus:ring-emerald-500 cursor-pointer"
+                />
+                <span className="text-xs font-black text-stone-900">
+                  أقرّ بالموافقة على اعتماد الصفوف التي تتضمن تنبيهات قابلة لتجاوز المراجعة (Allow Warnings Commit)
+                </span>
+              </label>
+              <p className="text-[11px] text-stone-500 pr-6">
+                تنبيه: لن يتم اعتماد أي شحنة تحتوي على أخطاء قاتلة (Fatal Errors). الشحنات السليمة والموافق عليها فقط هي التي سيتم اعتمادها وحفظها في Firestore.
+              </p>
             </div>
 
-            {/* 4. Pre-Commit Gate & Actions */}
-            <div className="p-5 bg-stone-50 border-t border-stone-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-stone-700" />
-                  <span className="text-xs font-bold text-stone-900">
-                    بوابة الاعتماد الصارمة (Pre-Commit Gate):
-                  </span>
-                  {activeBatch.errorRows === 0 ? (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                      خالٍ من الأخطاء المانعة
-                    </span>
-                  ) : (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">
-                      يوجد {activeBatch.errorRows} أخطاء مانعة
-                    </span>
-                  )}
-                </div>
-
-                {activeBatch.warningRows > 0 && (
-                  <label className="flex items-center gap-2 cursor-pointer mt-1">
-                    <input
-                      type="checkbox"
-                      checked={confirmWarnings}
-                      onChange={(e) => setConfirmWarnings(e.target.checked)}
-                      className="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4"
-                    />
-                    <span className="text-xs text-stone-700 font-medium">
-                      أؤكد مراجعة كافة التنبيهات ({activeBatch.warningRows} تنبيه) والموافقة على استيراد الشحنات بهذه الحالة.
-                    </span>
-                  </label>
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                onClick={handleCommit}
+                disabled={isCommitting || activeBatch.summary.validRows === 0}
+                className={`px-6 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-xs cursor-pointer ${
+                  isCommitting || activeBatch.summary.validRows === 0
+                    ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                }`}
+              >
+                {isCommitting ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>جاري اعتماد الشحنات...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>اعتماد وتحفيظ الشحنات الرسمية</span>
+                  </>
                 )}
-              </div>
-
-              {/* Commit Button */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleCommit}
-                  disabled={
-                    isCommitting ||
-                    activeBatch.errorRows > 0 ||
-                    (activeBatch.warningRows > 0 && !confirmWarnings) ||
-                    commitResult?.success === true
-                  }
-                  className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer ${
-                    activeBatch.errorRows > 0 || (activeBatch.warningRows > 0 && !confirmWarnings)
-                      ? 'bg-stone-300 text-stone-500 cursor-not-allowed'
-                      : commitResult?.success
-                      ? 'bg-emerald-600 text-white cursor-default'
-                      : 'bg-stone-900 hover:bg-stone-800 text-white'
-                  }`}
-                >
-                  {isCommitting ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>جاري الاعتماد وحفظ الرحلات...</span>
-                    </>
-                  ) : commitResult?.success ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>تم الاعتماد بنجاح</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>اعتماد واستيراد الشحنات (Commit Trips)</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              </button>
             </div>
           </div>
 
-          {/* Success Banner */}
-          {commitResult?.success && (
-            <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 shadow-xs flex items-start gap-3.5">
-              <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <h4 className="text-sm font-bold">اكتمل الاستيراد والاعتماد بنجاح في قاعدة البيانات</h4>
-                <p className="text-xs text-emerald-800">
-                  تم اعتماد وحفظ ({commitResult.committedRows}) شحنة رسمية من ملف ({activeBatch.source.sourceFileName}) وربطها بمصدر العمليات ({activeBatch.source.sourceType}) وسجل التدقيق.
-                </p>
-                <div className="text-[11px] font-mono text-emerald-700 pt-1">
-                  Operation ID: {commitResult.operationId} | Batch ID: {commitResult.importBatchId}
-                </div>
+          {/* Commit Success Banner */}
+          {commitResult && commitResult.success && (
+            <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-2">
+              <div className="flex items-center gap-2 text-sm font-black">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <span>تم اعتماد وتحفيظ الشحنات بنجاح في سجلات المشروع!</span>
+              </div>
+              <div className="text-xs text-emerald-800 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono">
+                <div>تم إنشاء: {commitResult.createdCount}</div>
+                <div>تم تحديث: {commitResult.updatedCount}</div>
+                <div>تم التجاوز: {commitResult.skippedCount}</div>
+                <div>فشل: {commitResult.failedCount}</div>
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

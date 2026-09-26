@@ -31,6 +31,7 @@ export interface ProcessFileOptions {
   sheetName?: string;
   headerRowIndex?: number;
   customMappings?: Record<string, keyof CanonicalTripRow>;
+  importBatchId?: string;
 }
 
 export class ExcelCsvPipelineService {
@@ -67,7 +68,7 @@ export class ExcelCsvPipelineService {
     }
 
     const sourceType = intakeValidation.fileType === 'EXCEL' ? 'EXCEL' : 'CSV';
-    const importBatchId = `BAT-${sourceType.slice(0, 3)}-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const importBatchId = options?.importBatchId || `BAT-${sourceType.slice(0, 3)}-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
     const parser = sourceType === 'EXCEL' ? new ExcelImportParser() : new CsvImportParser();
     const normalizer = new ExcelCsvNormalizer();
