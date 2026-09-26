@@ -553,26 +553,30 @@ export function ExcelCsvImportSection({
       setActiveBatch({ ...batch });
       setCommitResult(result);
 
-      if (currentProjectId && activeSessionId) {
-        try {
-          const updatedSession = await importSessionClientService.updateCheckpoint(
-            currentProjectId,
-            activeSessionId,
-            {
-              lifecycleState: 'COMMITTED',
-              currentStage: 'COMMITTED',
-            },
-            sessionVersion
-          );
-          setSessionVersion(updatedSession.version);
-          sessionStorage.removeItem(`qsaudi_import_session_locator_${currentProjectId}`);
-        } catch {
-          // Commit succeeded on business domain; ignore session close error
+      if (result.success) {
+        if (currentProjectId && activeSessionId) {
+          try {
+            const updatedSession = await importSessionClientService.updateCheckpoint(
+              currentProjectId,
+              activeSessionId,
+              {
+                lifecycleState: 'COMMITTED',
+                currentStage: 'COMMITTED',
+              },
+              sessionVersion
+            );
+            setSessionVersion(updatedSession.version);
+            sessionStorage.removeItem(`qsaudi_import_session_locator_${currentProjectId}`);
+          } catch {
+            // Commit succeeded on business domain; ignore session close error
+          }
         }
-      }
 
-      if (result.success && onCommitSuccess) {
-        onCommitSuccess(result);
+        if (onCommitSuccess) {
+          onCommitSuccess(result);
+        }
+      } else if (result.error) {
+        setProcessError(result.error);
       }
     } catch (err: any) {
       setProcessError(err?.message || 'فشل في تنفيذ الاعتماد وحفظ الشحنات');

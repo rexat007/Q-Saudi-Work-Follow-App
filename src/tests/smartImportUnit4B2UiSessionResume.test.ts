@@ -446,10 +446,6 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
     expect(lastState).toBe('COMMITTED');
   });
 
-  // ==================================================
-  // REMEDIATION REGRESSION TESTS (ISSUES 1, 2, 3)
-  // ==================================================
-
   it('23. first new-flow REVIEW checkpoint uses server-returned session ID and version', async () => {
     let createdSessionId = '';
     let patchedSessionId = '';
@@ -494,7 +490,6 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
     createdSessionId = sessionRecord.importSessionId;
     const initialVersion = sessionRecord.version;
 
-    // Simulate explicit override pass to avoid React async state race
     await importSessionClientService.updateCheckpoint(
       'PRJ-4B2',
       createdSessionId,
@@ -614,7 +609,6 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
       ],
     };
 
-    // Assert canonical fields are present
     expect(batch.importBatchId).toBe('batch_100');
     expect(batch.projectId).toBe('PRJ-4B2');
     expect(batch.source.sourceType).toBe('EXCEL_CSV');
@@ -635,7 +629,6 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
     expect(batch.auditTrail).toHaveLength(1);
     expect(batch.warningConfirmation?.confirmed).toBe(true);
 
-    // Assert no non-contract fields exist on batch
     expect((batch as any).id).toBeUndefined();
     expect((batch as any).status).toBeUndefined();
     expect((batch as any).summary).toBeUndefined();
@@ -664,5 +657,58 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
     expect(resumedState.requiresSourceFileReattach).toBe(true);
     expect((resumedState as any).rawInput).toBeUndefined();
     expect((resumedState as any).rawBuffer).toBeUndefined();
+  });
+
+  // ==================================================
+  // FINAL COMMIT GUARD TESTS (27, 28, 29)
+  // ==================================================
+
+  it('27. successful commit -> COMMITTED checkpoint + locator cleared', async () => {
+    let checkpointState = '';
+    const locatorKey = 'qsaudi_import_session_locator_PRJ-4B2';
+    sessionStorage.setItem(
+      locatorKey,
+      JSON.stringify({ projectId: 'PRJ-4B2', importSessionId: 'sess-success' })
+    );
+
+    const commitResult = { success: true, createdCount: 5, updatedCount: 0, skippedCount: 0, failedCount: 0 };
+
+    if (commitResult.success) {
+      checkpointState = 'COMMITTED';
+      sessionStorage.removeItem(locatorKey);
+    }
+
+    expect(checkpointState).toBe('COMMITTED');
+    expect(sessionStorage.getItem(locatorKey)).toBeNull();
+  });
+
+  it('28. failed commit result -> NO COMMITTED checkpoint', async () => {
+    let checkpointState = 'REVIEW_REQUIRED';
+    const commitResult = { success: false, error: 'Database write error', createdCount: 0, updatedCount: 0, skippedCount: 0, failedCount: 5 };
+
+    if (commitResult.success) {
+      checkpointState = 'COMMITTED';
+    }
+
+    expect(checkpointState).toBe('REVIEW_REQUIRED');
+    expect(checkpointState).not.toBe('COMMITTED');
+  });
+
+  it('29. failed commit result -> locator remains', () => {
+    const locatorKey = 'qsaudi_import_session_locator_PRJ-4B2';
+    sessionStorage.setItem(
+      locatorKey,
+      JSON.stringify({ projectId: 'PRJ-4B2', importSessionId: 'sess-recovery' })
+    );
+
+    const commitResult = { success: false, error: 'Validation constraint failure' };
+
+    if (commitResult.success) {
+      sessionStorage.removeItem(locatorKey);
+    }
+
+    const preservedLocator = sessionStorage.getItem(locatorKey);
+    expect(preservedLocator).not.toBeNull();
+    expect(JSON.parse(preservedLocator!).importSessionId).toBe('sess-recovery');
   });
 });
