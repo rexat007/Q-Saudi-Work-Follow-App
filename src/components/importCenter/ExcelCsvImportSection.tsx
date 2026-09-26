@@ -19,8 +19,10 @@ import {
   Sparkles,
   HelpCircle,
   SlidersHorizontal,
+  PlusCircle,
 } from 'lucide-react';
 import { ExcelCsvPipelineService } from '../../services/import/excelCsvPipeline.service';
+import { entityResolutionCommandService, NormalizedEntityResolutionResult } from '../../services/import/entityResolutionCommand.service';
 import { importSessionClientService } from '../../services/import/importSessionClient.service';
 import { UnifiedImportBatch, PipelineContext, ImportResult, ImportRow, ImportSource } from '../../types/unifiedImport';
 import { ColumnMappingMatch } from '../../types/excelCsvImport';
@@ -79,6 +81,9 @@ export function ExcelCsvImportSection({
   const [commitResult, setCommitResult] = useState<ImportResult | null>(null);
   const [showMappingDrawer, setShowMappingDrawer] = useState<boolean>(false);
   const [expandedReviewRowNumber, setExpandedReviewRowNumber] = useState<number | null>(null);
+  const [activeCreateFormKey, setActiveCreateFormKey] = useState<string | null>(null);
+  const [isCreatingEntity, setIsCreatingEntity] = useState<boolean>(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -574,6 +579,183 @@ export function ExcelCsvImportSection({
       } else {
         setProcessError(err?.message || 'فشل في حفظ قرار المطابقة في جلسة الخادم');
       }
+    }
+  };
+
+  const handleCreateCanonicalEntity = async (
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    formData: {
+      nameAr?: string;
+      commercialRegistrationNo?: string;
+      transportLicenseNo?: string;
+      code?: string;
+      driverName?: string;
+      residencyId?: string;
+      phone?: string;
+      plateNumber?: string;
+      truckType?: string;
+      tareWeightKg?: number;
+      maxGrossWeightKg?: number;
+    }
+  ) => {
+    if (!activeBatch || !currentProjectId) return;
+
+    const row = activeBatch.rows.find((r) => r.rowNumber === rowNumber);
+    if (!row) return;
+
+    setProcessError(null);
+    setCreateError(null);
+    setIsCreatingEntity(true);
+
+    try {
+      let result: NormalizedEntityResolutionResult;
+      const resItem = row.entityResolutions?.[entityTypeKey];
+      const sourceVal = resItem?.sourceValue || resItem?.originalValue || formData.nameAr || formData.driverName || formData.plateNumber || formData.code || '';
+
+      if (entityTypeKey === 'carrier') {
+        if (!formData.commercialRegistrationNo || !formData.commercialRegistrationNo.trim()) {
+          throw new Error('رقم السجل التجاري للناقل مطلوب');
+        }
+
+        result = await entityResolutionCommandService.createCarrier({
+          projectId: currentProjectId,
+          sourceValue: sourceVal,
+          carrierData: {
+            nameAr: (formData.nameAr && formData.nameAr.trim()) ? formData.nameAr.trim() : sourceVal,
+            commercialRegistrationNo: formData.commercialRegistrationNo.trim(),
+            ...(formData.transportLicenseNo?.trim() ? { transportLicenseNo: formData.transportLicenseNo.trim() } : {}),
+          },
+        });
+      } else if (entityTypeKey === 'material') {
+        if (!formData.code || !formData.code.trim()) {
+          throw new Error('رمز المادة (code) مطلوب');
+        }
+
+        result = await entityResolutionCommandService.createMaterial({
+          projectId: currentProjectId,
+          sourceValue: sourceVal,
+          materialData: {
+            code: formData.code.trim(),
+            nameAr: (formData.nameAr && formData.nameAr.trim()) ? formData.nameAr.trim() : sourceVal,
+          },
+        });
+      } else if (entityTypeKey === 'driver') {
+        let carrierId = row.resolvedValues?.carrierId;
+        if (!carrierId) {
+          const carrierRes = row.entityResolutions?.carrier;
+          if (carrierRes && !ExcelCsvPipelineService.checkResolutionRequiresAttention(carrierRes)) {
+            carrierId = carrierRes.matchedId || carrierRes.entityId;
+          }
+        }
+
+        if (!carrierId) {
+          throw new Error('يجب حسم الناقل أولاً قبل إنشاء السائق');
+        }
+
+        if (!formData.residencyId || !formData.residencyId.trim()) {
+          throw new Error('رقم الهوية الوطنية أو الإقامة (residencyId) مطلوب');
+        }
+
+        result = await entityResolutionCommandService.createDriver({
+          projectId: currentProjectId,
+          sourceValue: sourceVal,
+          driverData: {
+            carrierId,
+            driverName: (formData.driverName && formData.driverName.trim()) ? formData.driverName.trim() : sourceVal,
+            residencyId: formData.residencyId.trim(),
+            ...(formData.phone?.trim() ? { phone: formData.phone.trim() } : {}),
+          },
+        });
+      } else if (entityTypeKey === 'truck') {
+        let carrierId = row.resolvedValues?.carrierId;
+        if (!carrierId) {
+          const carrierRes = row.entityResolutions?.carrier;
+          if (carrierRes && !ExcelCsvPipelineService.checkResolutionRequiresAttention(carrierRes)) {
+            carrierId = carrierRes.matchedId || carrierRes.entityId;
+          }
+        }
+
+        if (!carrierId) {
+          throw new Error('يجب حسم الناقل أولاً قبل إنشاء الشاحنة');
+        }
+
+        if (!formData.plateNumber || !formData.plateNumber.trim()) {
+          throw new Error('رقم لوحة الشاحنة (plateNumber) مطلوب');
+        }
+
+        result = await entityResolutionCommandService.createTruck({
+          projectId: currentProjectId,
+          sourceValue: sourceVal,
+          truckData: {
+            carrierId,
+            plateNumber: formData.plateNumber.trim(),
+            ...(formData.truckType?.trim() ? { truckType: formData.truckType.trim() } : {}),
+            ...(formData.tareWeightKg !== undefined ? { tareWeightKg: formData.tareWeightKg } : {}),
+            ...(formData.maxGrossWeightKg !== undefined ? { maxGrossWeightKg: formData.maxGrossWeightKg } : {}),
+          },
+        });
+      } else {
+        throw new Error('نوع الكيان غير مدعوم');
+      }
+
+      const updated = ExcelCsvPipelineService.applyCreatedEntityResolution(
+        activeBatch,
+        rowNumber,
+        entityTypeKey,
+        result
+      );
+
+      setActiveBatch({ ...updated });
+      setActiveCreateFormKey(null);
+
+      if (currentProjectId && activeSessionId) {
+        try {
+          const cleanSnapshot = {
+            totalRows: updated.totalRows,
+            validRows: updated.validRows,
+            warningRows: updated.warningRows,
+            errorRows: updated.errorRows,
+            requiresReviewRows: updated.requiresReviewRows,
+            committedRows: updated.committedRows,
+            rows: updated.rows.map((r) => {
+              const { rawInput, ...rest } = r as any;
+              return rest;
+            }),
+          };
+
+          const updatedSession = await importSessionClientService.updateCheckpoint(
+            currentProjectId,
+            activeSessionId,
+            {
+              lifecycleState: 'REVIEW_REQUIRED',
+              currentStage: 'REVIEW',
+              reviewSnapshot: cleanSnapshot,
+              validationIssues: updated.issues || [],
+              warningConfirmation: confirmWarnings,
+              reviewAction: {
+                rowNumber,
+                action: 'CREATE_CANONICAL_ENTITY',
+                entityType: entityTypeKey,
+                canonicalId: result.matchedId,
+              },
+            },
+            sessionVersion
+          );
+
+          setSessionVersion(updatedSession.version);
+        } catch (err: any) {
+          if (err?.code === 'VERSION_CONFLICT') {
+            setProcessError('تم إنشاء الكيان بنجاح على الخادم، ولكن حدث تعارض في إصدار الجلسة أثناء حفظ نقطة المراجعة (VERSION_CONFLICT)');
+          } else {
+            setProcessError(`تم إنشاء الكيان بنجاح على الخادم (${result.matchedId})، ولكن تعذر حفظ نقطة المراجعة: ${err?.message || 'خطأ غير معروف'}`);
+          }
+        }
+      }
+    } catch (err: any) {
+      setCreateError(err?.message || 'فشلت عملية إنشاء الكيان المعتمد');
+    } finally {
+      setIsCreatingEntity(false);
     }
   };
 
@@ -1329,7 +1511,7 @@ export function ExcelCsvImportSection({
                                           )}
 
                                           {/* Actions */}
-                                          <div className="flex items-center gap-2 pt-2 border-t border-stone-200">
+                                          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-200">
                                             {(res.matchedId || res.entityId) && (
                                               <button
                                                 onClick={() => handleResolutionDecision(row.rowNumber, entityKey, 'ACCEPT_CANDIDATE', { selectedEntityId: res.matchedId || res.entityId, selectedDisplayName: res.matchedName || res.matchedValue })}
@@ -1344,7 +1526,32 @@ export function ExcelCsvImportSection({
                                             >
                                               ترك غير مطابق
                                             </button>
+                                            {ExcelCsvPipelineService.checkResolutionRequiresAttention(res) && (
+                                              <button
+                                                onClick={() => {
+                                                  setCreateError(null);
+                                                  setActiveCreateFormKey(activeCreateFormKey === `${row.rowNumber}_${entityKey}` ? null : `${row.rowNumber}_${entityKey}`);
+                                                }}
+                                                className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1"
+                                              >
+                                                <PlusCircle className="w-3.5 h-3.5" />
+                                                <span>إنشاء سجل جديد</span>
+                                              </button>
+                                            )}
                                           </div>
+
+                                          {/* Inline Creation Form */}
+                                          {activeCreateFormKey === `${row.rowNumber}_${entityKey}` && (
+                                            <InlineEntityCreateForm
+                                              row={row}
+                                              entityKey={entityKey}
+                                              res={res}
+                                              isCreatingEntity={isCreatingEntity}
+                                              createError={createError}
+                                              onSubmit={(formData) => handleCreateCanonicalEntity(row.rowNumber, entityKey, formData)}
+                                              onCancel={() => setActiveCreateFormKey(null)}
+                                            />
+                                          )}
                                         </div>
                                       );
                                     })}
@@ -1423,5 +1630,276 @@ export function ExcelCsvImportSection({
         </div>
       )}
     </div>
+  );
+}
+
+interface InlineEntityCreateFormProps {
+  row: ImportRow;
+  entityKey: 'carrier' | 'truck' | 'driver' | 'material';
+  res: any;
+  isCreatingEntity: boolean;
+  createError: string | null;
+  onSubmit: (formData: any) => void;
+  onCancel: () => void;
+}
+
+function InlineEntityCreateForm({
+  row,
+  entityKey,
+  res,
+  isCreatingEntity,
+  createError,
+  onSubmit,
+  onCancel,
+}: InlineEntityCreateFormProps) {
+  const canonical = (row as any).normalized?.canonicalData || row.canonical || {};
+  const raw = row.raw || {};
+
+  // Carrier prefill
+  const [carrierNameAr, setCarrierNameAr] = useState(res.sourceValue || res.originalValue || canonical.carrierName || '');
+  const [commercialRegistrationNo, setCommercialRegistrationNo] = useState(canonical.commercialRegistrationNo || raw.commercialRegistrationNo || raw.crNumber || '');
+  const [transportLicenseNo, setTransportLicenseNo] = useState(canonical.transportLicenseNo || raw.transportLicenseNo || '');
+
+  // Material prefill
+  const [materialNameAr, setMaterialNameAr] = useState(res.sourceValue || res.originalValue || canonical.materialName || '');
+  const [materialCode, setMaterialCode] = useState(canonical.materialCode || raw.materialCode || raw.code || '');
+
+  // Driver prefill
+  const [driverName, setDriverName] = useState(canonical.driverName || res.sourceValue || res.originalValue || '');
+  const [residencyId, setResidencyId] = useState(
+    canonical.residencyId || canonical.driverIdentity || canonical.nationalOrIqamaId || raw.residencyId || raw.driverIdentity || raw.nationalOrIqamaId || raw.idNumber || ''
+  );
+  const [driverPhone, setDriverPhone] = useState(canonical.driverPhone || canonical.phone || raw.phone || '');
+
+  // Truck prefill
+  const [plateNumber, setPlateNumber] = useState(canonical.plateNumber || canonical.truckNo || canonical.truckPlate || res.sourceValue || res.originalValue || '');
+  const [truckType, setTruckType] = useState(canonical.truckType || raw.truckType || '');
+  const [tareWeightKg, setTareWeightKg] = useState<string>(canonical.tareWeightKg ? String(canonical.tareWeightKg) : (raw.tareWeightKg ? String(raw.tareWeightKg) : ''));
+  const [maxGrossWeightKg, setMaxGrossWeightKg] = useState<string>(
+    canonical.maxGrossWeightKg ? String(canonical.maxGrossWeightKg) : (raw.maxGrossWeightKg ? String(raw.maxGrossWeightKg) : '')
+  );
+
+  // Check carrier dependency for Driver and Truck
+  let carrierId = row.resolvedValues?.carrierId;
+  if (!carrierId) {
+    const carrierRes = row.entityResolutions?.carrier;
+    if (carrierRes && !ExcelCsvPipelineService.checkResolutionRequiresAttention(carrierRes)) {
+      carrierId = carrierRes.matchedId || carrierRes.entityId;
+    }
+  }
+
+  const isDriverOrTruckBlocked = (entityKey === 'driver' || entityKey === 'truck') && !carrierId;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (entityKey === 'carrier') {
+      onSubmit({
+        nameAr: carrierNameAr,
+        commercialRegistrationNo,
+        transportLicenseNo,
+      });
+    } else if (entityKey === 'material') {
+      onSubmit({
+        nameAr: materialNameAr,
+        code: materialCode,
+      });
+    } else if (entityKey === 'driver') {
+      onSubmit({
+        driverName,
+        residencyId,
+        phone: driverPhone,
+      });
+    } else if (entityKey === 'truck') {
+      onSubmit({
+        plateNumber,
+        truckType,
+        tareWeightKg: tareWeightKg ? Number(tareWeightKg) : undefined,
+        maxGrossWeightKg: maxGrossWeightKg ? Number(maxGrossWeightKg) : undefined,
+      });
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="p-3 bg-blue-50/60 rounded-lg border border-blue-200 mt-2 space-y-3">
+      <div className="font-bold text-xs text-blue-900 border-b border-blue-200/80 pb-1.5 flex items-center justify-between">
+        <span>نموذج إنشاء سجل معتمد ({entityKey === 'carrier' ? 'ناقل' : entityKey === 'material' ? 'مادة' : entityKey === 'driver' ? 'سائق' : 'شاحنة'})</span>
+        <button type="button" onClick={onCancel} className="text-stone-400 hover:text-stone-600 text-xs cursor-pointer">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {createError && (
+        <div className="p-2 rounded bg-rose-100 text-rose-800 text-[11px] font-bold border border-rose-200">
+          {createError}
+        </div>
+      )}
+
+      {isDriverOrTruckBlocked ? (
+        <div className="p-2.5 rounded bg-rose-50 text-rose-800 border border-rose-200 text-xs font-bold">
+          {entityKey === 'driver' ? 'يجب حسم الناقل أولاً قبل إنشاء السائق' : 'يجب حسم الناقل أولاً قبل إنشاء الشاحنة'}
+        </div>
+      ) : (
+        <>
+          {entityKey === 'carrier' && (
+            <div className="space-y-2 text-xs">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">اسم الناقل (العربية)</label>
+                <input
+                  type="text"
+                  value={carrierNameAr}
+                  onChange={(e) => setCarrierNameAr(e.target.value)}
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-bold focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رقم السجل التجاري <span className="text-rose-600">*</span></label>
+                <input
+                  type="text"
+                  value={commercialRegistrationNo}
+                  onChange={(e) => setCommercialRegistrationNo(e.target.value)}
+                  placeholder="مثال: 1010123456"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رقم ترخيص النقل (اختياري)</label>
+                <input
+                  type="text"
+                  value={transportLicenseNo}
+                  onChange={(e) => setTransportLicenseNo(e.target.value)}
+                  placeholder="مثال: 01-123456"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {entityKey === 'material' && (
+            <div className="space-y-2 text-xs">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">اسم المادة (العربية)</label>
+                <input
+                  type="text"
+                  value={materialNameAr}
+                  onChange={(e) => setMaterialNameAr(e.target.value)}
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-bold focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رمز المادة <span className="text-rose-600">*</span></label>
+                <input
+                  type="text"
+                  value={materialCode}
+                  onChange={(e) => setMaterialCode(e.target.value)}
+                  placeholder="مثال: MAT-SAND-01"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            </div>
+          )}
+
+          {entityKey === 'driver' && (
+            <div className="space-y-2 text-xs">
+              <div className="text-[11px] text-emerald-800 bg-emerald-50 p-1.5 rounded border border-emerald-200 font-bold">
+                الناقل المرتبط: <span className="font-mono">{carrierId}</span>
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">اسم السائق</label>
+                <input
+                  type="text"
+                  value={driverName}
+                  onChange={(e) => setDriverName(e.target.value)}
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-bold focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رقم الهوية / الإقامة <span className="text-rose-600">*</span></label>
+                <input
+                  type="text"
+                  value={residencyId}
+                  onChange={(e) => setResidencyId(e.target.value)}
+                  placeholder="مثال: 1098765432"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رقم الهاتف (اختياري)</label>
+                <input
+                  type="text"
+                  value={driverPhone}
+                  onChange={(e) => setDriverPhone(e.target.value)}
+                  placeholder="05xxxxxxxx"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {entityKey === 'truck' && (
+            <div className="space-y-2 text-xs">
+              <div className="text-[11px] text-emerald-800 bg-emerald-50 p-1.5 rounded border border-emerald-200 font-bold">
+                الناقل المرتبط: <span className="font-mono">{carrierId}</span>
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رقم اللوحة <span className="text-rose-600">*</span></label>
+                <input
+                  type="text"
+                  value={plateNumber}
+                  onChange={(e) => setPlateNumber(e.target.value)}
+                  placeholder="مثال: 1234 أ ب ج"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono font-bold focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">نوع الشاحنة (اختياري)</label>
+                  <input
+                    type="text"
+                    value={truckType}
+                    onChange={(e) => setTruckType(e.target.value)}
+                    className="w-full p-1.5 rounded border border-stone-300 bg-white focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">الوزن الفارغ (كجم)</label>
+                  <input
+                    type="number"
+                    value={tareWeightKg}
+                    onChange={(e) => setTareWeightKg(e.target.value)}
+                    className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 pt-2 border-t border-blue-200">
+            <button
+              type="submit"
+              disabled={isCreatingEntity}
+              className="px-3 py-1.5 rounded bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1"
+            >
+              {isCreatingEntity ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+              <span>تأكيد وحفظ السجل المعتمد</span>
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-3 py-1.5 rounded bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold text-xs transition-colors cursor-pointer"
+            >
+              إلغاء
+            </button>
+          </div>
+        </>
+      )}
+    </form>
   );
 }

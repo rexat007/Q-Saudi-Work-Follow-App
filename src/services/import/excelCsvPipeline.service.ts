@@ -26,6 +26,7 @@ import {
   PipelineContext,
   ImportResult,
   ImportRow,
+  ImportEntityResolutionInfo,
 } from '../../types/unifiedImport';
 import { CanonicalTripRow, ColumnMappingMatch } from '../../types/excelCsvImport';
 
@@ -228,6 +229,114 @@ export class ExcelCsvPipelineService {
           break;
       }
     }
+
+    const stillNeedsResolution = this.rowRequiresEntityResolution(updatedRow);
+    const hasErrors = updatedRow.status === 'ERROR' || (updatedRow.validationIssues && updatedRow.validationIssues.some((i) => i.severity === 'BLOCKING' || (i.severity as any) === 'ERROR' || (i.severity as any) === 'FATAL'));
+    const hasWarnings = updatedRow.status === 'WARNING' || (updatedRow.validationIssues && updatedRow.validationIssues.some((i) => i.severity === 'WARNING'));
+
+    if (stillNeedsResolution) {
+      updatedRow.reviewStatus = 'requires_review';
+    } else if (hasErrors) {
+      updatedRow.reviewStatus = 'requires_review';
+    } else if (hasWarnings && !batch.warningConfirmation?.confirmed) {
+      updatedRow.reviewStatus = 'warning';
+    } else {
+      updatedRow.reviewStatus = 'accepted';
+    }
+
+    const updatedRows = [...batch.rows];
+    updatedRows[rowIdx] = updatedRow;
+
+    const updatedBatch: UnifiedImportBatch = {
+      ...batch,
+      rows: updatedRows,
+    };
+
+    return this.recalculateBatchCounts(updatedBatch);
+  }
+
+  /**
+   * Applies a newly created server-authoritative canonical entity result to an import batch row.
+   * Section F:
+   * - entityId / matchedId = server matchedId
+   * - matchedValue / matchedName = server matchedName
+   * - confidence = 1.0
+   * - matchMethod = 'EXACT'
+   * - isExact = true
+   * - isAuthorized = true
+   * - riskLevel = 'LOW'
+   * - relationshipStatus = 'VALID'
+   * - recommendation = 'ACCEPT'
+   * - ambiguous = false
+   * - conflictDetails cleared
+   * - Preserve sourceValue, originalValue, normalizedValue
+   * - Do NOT change row.raw
+   */
+  public static applyCreatedEntityResolution(
+    batch: UnifiedImportBatch,
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    result: {
+      matchedId: string;
+      matchedName: string;
+      sourceValue?: string;
+      [key: string]: any;
+    }
+  ): UnifiedImportBatch {
+    const rowIdx = batch.rows.findIndex((r) => r.rowNumber === rowNumber);
+    if (rowIdx === -1) {
+      throw new Error(`Row ${rowNumber} not found in import batch`);
+    }
+
+    const row = batch.rows[rowIdx];
+    const currentRes = row.entityResolutions?.[entityTypeKey] || {};
+
+    const updatedResolution: ImportEntityResolutionInfo = {
+      ...currentRes,
+      entityType: entityTypeKey.toUpperCase() as any,
+      sourceValue: currentRes.sourceValue || result.sourceValue || result.matchedName,
+      originalValue: currentRes.originalValue || currentRes.sourceValue || result.sourceValue || result.matchedName,
+      normalizedValue: currentRes.normalizedValue || result.matchedName,
+      matchedId: result.matchedId,
+      matchedName: result.matchedName,
+      confidence: 1.0,
+      matchMethod: 'EXACT',
+      isExact: true,
+      isAuthorized: true,
+      recommendation: 'ACCEPT' as any,
+      riskLevel: 'LOW' as any,
+      relationshipStatus: 'VALID' as any,
+      ambiguous: false,
+      conflictDetails: undefined,
+    };
+
+    const updatedResolvedValues = {
+      ...(row.resolvedValues || {}),
+    };
+
+    switch (entityTypeKey) {
+      case 'carrier':
+        updatedResolvedValues.carrierId = result.matchedId;
+        break;
+      case 'truck':
+        updatedResolvedValues.truckId = result.matchedId;
+        break;
+      case 'driver':
+        updatedResolvedValues.driverId = result.matchedId;
+        break;
+      case 'material':
+        updatedResolvedValues.materialId = result.matchedId;
+        break;
+    }
+
+    const updatedRow: ImportRow = {
+      ...row,
+      entityResolutions: {
+        ...row.entityResolutions,
+        [entityTypeKey]: updatedResolution,
+      },
+      resolvedValues: updatedResolvedValues,
+    };
 
     const stillNeedsResolution = this.rowRequiresEntityResolution(updatedRow);
     const hasErrors = updatedRow.status === 'ERROR' || (updatedRow.validationIssues && updatedRow.validationIssues.some((i) => i.severity === 'BLOCKING' || (i.severity as any) === 'ERROR' || (i.severity as any) === 'FATAL'));
