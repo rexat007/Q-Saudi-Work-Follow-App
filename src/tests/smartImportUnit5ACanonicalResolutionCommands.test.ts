@@ -38,7 +38,7 @@ describe('Smart Import Unit 5A Canonical Entity Resolution Command Adapter Test 
     expect(res.matchedId).toBe('CAR-12345');
     expect(res.matchedName).toBe('شركة الناقل المعتمد');
     expect(res.entityType).toBe('CARRIER');
-    expect(res.confidence).toBe(100);
+    expect(res.confidence).toBe(1.0);
     expect(res.isExact).toBe(true);
     expect(res.isAuthorized).toBe(true);
   });
@@ -385,5 +385,42 @@ describe('Smart Import Unit 5A Canonical Entity Resolution Command Adapter Test 
     } catch (err: any) {
       expect(err.code).toBe('PRECONDITION_BOUNDARY_CHANGE_REQUIRED');
     }
+  });
+
+  it('17. adapter confidence values remain strictly within [0.0, 1.0] decimal canonical scale', async () => {
+    globalThis.fetch = vi.fn().mockImplementation(async () => ({
+      ok: true,
+      json: async () => ({
+        success: true,
+        carrierId: 'CAR-CONF-1',
+        materialId: 'MAT-CONF-1',
+      }),
+    }));
+
+    const selectRes = entityResolutionCommandService.selectExisting({
+      projectId: 'PRJ-1',
+      entityType: 'CARRIER',
+      entityId: 'CAR-1',
+      displayName: 'Carrier 1',
+      sourceValue: 'C1',
+    });
+
+    const carrierRes = await entityResolutionCommandService.createCarrier({
+      projectId: 'PRJ-1',
+      sourceValue: 'C1',
+      carrierData: { nameAr: 'C1', commercialRegistrationNo: '1010123456' },
+    });
+
+    const materialRes = await entityResolutionCommandService.createMaterial({
+      projectId: 'PRJ-1',
+      sourceValue: 'M1',
+      materialData: { code: 'M1', nameAr: 'M1' },
+    });
+
+    [selectRes, carrierRes, materialRes].forEach((res) => {
+      expect(res.confidence).toBeGreaterThanOrEqual(0.0);
+      expect(res.confidence).toBeLessThanOrEqual(1.0);
+      expect(res.confidence).toBe(1.0);
+    });
   });
 });
