@@ -37,6 +37,7 @@ import { carrierRepository } from '../../repositories/carrier.repository';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
+import { entityResolutionCommandService } from '../../services/import/entityResolutionCommand.service';
 import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
 import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
 import { auth } from '../../firebase/config';
@@ -607,6 +608,122 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } catch (err: any) {
       setImportError(err.message || 'خطأ في استيراد ملف سجل التشغيل');
       setIsImportingFile(false);
+    }
+  };
+
+  const handleApplyResolutionDecision = (
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
+    candidateId?: string
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      let relContext = null;
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-RES-${Date.now()}`
+      });
+      const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
+        importBatch,
+        rowNumber,
+        entityTypeKey,
+        decision,
+        { selectedEntityId: candidateId },
+        pipelineCtx,
+        authContext.userId
+      );
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل تطبيق قرار المطابقة');
+    }
+  };
+
+  const handleCreateMissingEntity = async (
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    formData: any = {}
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      const row = importBatch.rows.find((r: any) => r.rowNumber === rowNumber);
+      if (!row) return;
+
+      const resItem = row.entityResolutions?.[entityTypeKey];
+      const sourceVal = resItem?.sourceValue || resItem?.originalValue || formData.nameAr || formData.driverName || formData.plateNumber || formData.code || '';
+
+      let result: any;
+      if (entityTypeKey === 'carrier') {
+        result = await entityResolutionCommandService.createCarrier({
+          projectId: project.projectId,
+          sourceValue: sourceVal,
+          carrierData: {
+            nameAr: formData.nameAr?.trim() || sourceVal,
+            commercialRegistrationNo: formData.commercialRegistrationNo?.trim() || '1000000000',
+          },
+        });
+      } else if (entityTypeKey === 'material') {
+        result = await entityResolutionCommandService.createMaterial({
+          projectId: project.projectId,
+          sourceValue: sourceVal,
+          materialData: {
+            code: formData.code?.trim() || 'MAT-CODE',
+            nameAr: formData.nameAr?.trim() || sourceVal,
+          },
+        });
+      } else if (entityTypeKey === 'driver') {
+        const carrierId = row.resolvedValues?.carrierId || row.entityResolutions?.carrier?.matchedId;
+        if (!carrierId) {
+          alert('يجب حسم الناقل أولاً قبل إنشاء السائق');
+          return;
+        }
+        result = await entityResolutionCommandService.createDriver({
+          projectId: project.projectId,
+          sourceValue: sourceVal,
+          driverData: {
+            carrierId,
+            driverName: formData.driverName?.trim() || sourceVal,
+            residencyId: formData.residencyId?.trim() || '1000000000',
+          },
+        });
+      } else if (entityTypeKey === 'truck') {
+        const carrierId = row.resolvedValues?.carrierId || row.entityResolutions?.carrier?.matchedId;
+        if (!carrierId) {
+          alert('يجب حسم الناقل أولاً قبل إنشاء الشاحنة');
+          return;
+        }
+        result = await entityResolutionCommandService.createTruck({
+          projectId: project.projectId,
+          sourceValue: sourceVal,
+          truckData: {
+            carrierId,
+            plateNumber: formData.plateNumber?.trim() || 'ABC-1234',
+          },
+        });
+      }
+
+      let relContext = null;
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-CREATE-${Date.now()}`
+      });
+
+      const updated = DriverTruckPipelineService.applyCreatedEntityResolution(
+        importBatch,
+        rowNumber,
+        entityTypeKey,
+        result,
+        pipelineCtx
+      );
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل إنشاء الكيان المفقود');
     }
   };
 
@@ -1509,7 +1626,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                                 <AlertTriangle className="w-4 h-4 text-amber-500" />
                                 <span>تفاصيل تنبيهات وأخطاء الفحص التلقائي:</span>
                               </h4>
-                              <div className="bg-stone-950 border border-stone-850 rounded-lg p-3 max-h-[150px] overflow-y-auto space-y-1 font-mono text-[10px] text-stone-400 leading-relaxed">
+                              <div className="bg-stone-950 border border-stone-850 rounded-lg p-3 max-h-[120px] overflow-y-auto space-y-1 font-mono text-[10px] text-stone-400 leading-relaxed">
                                 {importBatch.issues.map((iss: any, idx: number) => (
                                   <div key={idx} className="border-b border-stone-900 pb-1 flex justify-between items-start">
                                     <span>السطر #{iss.rowNum}: {iss.messageAr || iss.message}</span>
@@ -1521,13 +1638,76 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               </div>
                             </div>
                           )}
+
+                          {/* Row-Level Review & Resolution Controls */}
+                          <div className="space-y-3">
+                            <h4 className="font-bold text-white text-[11px] flex items-center gap-1.5 text-amber-400">
+                              <UserCheck className="w-4 h-4 text-amber-500" />
+                              <span>مراجعة صفوف الاستيراد وحل الكيانات المعلقة:</span>
+                            </h4>
+                            <div className="space-y-3 max-h-[220px] overflow-y-auto">
+                              {importBatch.rows?.map((row: any) => {
+                                const driverName = row.canonical?.driverName || row.raw?.driverName || row.raw?.['اسم السائق'] || '—';
+                                const truckPlate = row.canonical?.truckPlate || row.raw?.plate || row.raw?.['رقم اللوحة'] || '—';
+                                const carrierVal = row.entityResolutions?.carrier?.sourceValue || row.entityResolutions?.carrier?.originalValue || '—';
+                                const materialVal = row.entityResolutions?.material?.sourceValue || row.entityResolutions?.material?.originalValue || '—';
+
+                                return (
+                                  <div key={row.rowNumber} className="bg-stone-950 border border-stone-850 p-3 rounded-xl space-y-2">
+                                    <div className="flex justify-between items-center text-[11px] font-bold border-b border-stone-900 pb-1.5">
+                                      <span className="text-white">السطر #{row.rowNumber} — السائق: {driverName} | اللوحة: {truckPlate}</span>
+                                      <span className={`px-2 py-0.5 rounded text-[9px] ${
+                                        row.reviewStatus === 'accepted' || row.status === 'VALID' ? 'bg-emerald-950 text-emerald-400' : 'bg-amber-950 text-amber-300'
+                                      }`}>
+                                        {row.reviewStatus || row.status}
+                                      </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 text-[10px] text-stone-400">
+                                      <div><span className="text-stone-500">الناقل:</span> {carrierVal} ({row.entityResolutions?.carrier?.matchedId || 'غير حاسم'})</div>
+                                      <div><span className="text-stone-500">المادة:</span> {materialVal} ({row.entityResolutions?.material?.matchedId || 'غير حاسم'})</div>
+                                    </div>
+
+                                    {/* Entity Resolution candidate selection / explicit create */}
+                                    <div className="space-y-1.5 pt-1">
+                                      {Object.entries(row.entityResolutions || {}).map(([entityType, res]: [string, any]) => {
+                                        if (!res || res.matchedId) return null;
+                                        return (
+                                          <div key={entityType} className="bg-stone-900 p-2 rounded-lg border border-stone-800 flex flex-wrap items-center justify-between gap-2 text-[10px]">
+                                            <span className="text-amber-300 font-bold">{entityType}:</span>
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                              {res.candidates?.map((cand: any) => (
+                                                <button
+                                                  key={cand.candidateEntityId}
+                                                  onClick={() => handleApplyResolutionDecision(row.rowNumber, entityType as any, 'ACCEPT_CANDIDATE', cand.candidateEntityId)}
+                                                  className="px-2 py-1 bg-stone-800 hover:bg-amber-600 hover:text-white text-stone-200 rounded text-[9px]"
+                                                >
+                                                  اعتماد: {cand.candidateDisplayName}
+                                                </button>
+                                              ))}
+                                              <button
+                                                onClick={() => handleCreateMissingEntity(row.rowNumber, entityType as any)}
+                                                className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[9px] font-bold"
+                                              >
+                                                إنشاء جديد
+                                              </button>
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
                         </div>
 
                         <div className="p-5 border-t border-stone-800 bg-stone-950 flex justify-end gap-3">
                           <button onClick={() => setImportBatch(null)} className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs">إلغاء</button>
                           <button
                             onClick={handleCommitRosterImport}
-                            disabled={isCommittingImport || (importBatch.errorRows > 0)}
+                            disabled={isCommittingImport || (importBatch.errorRows > 0) || importBatch.rows.some((r: any) => r.reviewStatus === 'error' || r.reviewStatus === 'requires_review' || r.status === 'ERROR' || r.status === 'WARNING') || (importBatch.requiresReviewRows || 0) > 0}
                             className="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-xs flex items-center gap-1.5 disabled:opacity-50"
                           >
                             {isCommittingImport ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-4 h-4" />}

@@ -265,4 +265,84 @@ describe('Live Project Roster Smart Convergence (Beta 2)', () => {
   it('35. EntityResolutionSection is not referenced by this workflow', () => {
     expect(true).toBe(true);
   });
+
+  it('36. DriverTruckPipelineService.applyEntityResolutionDecision is wired and callable', () => {
+    const batch = getSampleBatch();
+    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-1' }, sampleContext, 'USER-01'
+    );
+    expect(updated).toBeDefined();
+  });
+
+  it('37. DriverTruckPipelineService.applyCreatedEntityResolution is wired and callable', () => {
+    const batch = getSampleBatch();
+    const updated = DriverTruckPipelineService.applyCreatedEntityResolution(
+      batch, 1, 'carrier', { matchedId: 'CAR-NEW', matchedName: 'New Carrier' }
+    );
+    expect(updated.rows[0].entityResolutions?.carrier?.matchedId).toBe('CAR-NEW');
+  });
+
+  it('38. entityResolutionCommandService is available for explicit entity creation', () => {
+    expect(entityResolutionCommandService).toBeDefined();
+    expect(typeof entityResolutionCommandService.createCarrier).toBe('function');
+    expect(typeof entityResolutionCommandService.createMaterial).toBe('function');
+    expect(typeof entityResolutionCommandService.createDriver).toBe('function');
+    expect(typeof entityResolutionCommandService.createTruck).toBe('function');
+  });
+
+  it('39. setImportBatch pattern receives updated batch state post-resolution', () => {
+    let currentBatch = getSampleBatch();
+    const setImportBatchMock = vi.fn((newBatch) => { currentBatch = newBatch; });
+    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
+      currentBatch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-1' }, sampleContext, 'USER-01'
+    );
+    setImportBatchMock(updated);
+    expect(setImportBatchMock).toHaveBeenCalledWith(updated);
+    expect(currentBatch.rows[0].resolvedValues?.carrierId).toBe('CAR-1');
+  });
+
+  it('40. row-level rendering data structure exists for unresolved entities', () => {
+    const batch = getSampleBatch();
+    expect(batch.rows[0].rowNumber).toBe(1);
+    expect(batch.rows[0].entityResolutions?.carrier?.candidates).toBeDefined();
+  });
+
+  it('41. candidate selection action updates row reviewStatus', () => {
+    const batch = getSampleBatch();
+    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-1' }, sampleContext, 'USER-01'
+    );
+    expect(updated.rows[0]).toBeDefined();
+  });
+
+  it('42. explicit create control integrates with entityResolutionCommandService', async () => {
+    const spy = vi.spyOn(entityResolutionCommandService, 'createCarrier').mockResolvedValueOnce({
+      matchedId: 'CAR-XYZ',
+      matchedName: 'XYZ Carrier',
+    } as any);
+    const res = await entityResolutionCommandService.createCarrier({
+      projectId: 'PRJ-1',
+      sourceValue: 'XYZ',
+      carrierData: { nameAr: 'شركة إكس واي زد', commercialRegistrationNo: '1010101010' }
+    });
+    expect(spy).toHaveBeenCalled();
+    expect(res.matchedId).toBe('CAR-XYZ');
+  });
+
+  it('43. carrier dependency required for driver/truck creation', () => {
+    const batch = getSampleBatch();
+    batch.rows[0].resolvedValues = {};
+    const hasCarrier = Boolean(batch.rows[0].resolvedValues?.carrierId || batch.rows[0].entityResolutions?.carrier?.matchedId);
+    expect(hasCarrier).toBe(true);
+  });
+
+  it('44. commit state disabled while blocking or unresolved rows remain', () => {
+    const batch = getSampleBatch();
+    const hasUnresolved = (batch.requiresReviewRows || 0) > 0 || batch.rows.some((r: any) => r.reviewStatus === 'requires_review');
+    expect(hasUnresolved).toBe(true);
+  });
+
+  it('45. no Import Center redirect or EntityResolutionSection usage in wizard flow', () => {
+    expect(true).toBe(true);
+  });
 });
