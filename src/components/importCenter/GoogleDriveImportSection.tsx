@@ -24,9 +24,11 @@ import {
   Folder,
   Lock,
   Database,
+  PlusCircle,
 } from 'lucide-react';
 import { GoogleDrivePipelineService } from '../../services/import/googleDrivePipeline.service';
 import { clientWorkspaceService } from '../../services/workspace.service';
+import { entityResolutionCommandService, NormalizedEntityResolutionResult } from '../../services/import/entityResolutionCommand.service';
 import {
   UnifiedImportBatch,
   PipelineContext,
@@ -87,6 +89,10 @@ export function GoogleDriveImportSection({
 
   // Review & Commit state
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'VALID' | 'WARNING' | 'ERROR' | 'REQUIRES_REVIEW'>('ALL');
+  const [expandedReviewRowNumber, setExpandedReviewRowNumber] = useState<number | null>(null);
+  const [activeCreateFormKey, setActiveCreateFormKey] = useState<string | null>(null);
+  const [isCreatingEntity, setIsCreatingEntity] = useState<boolean>(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const [confirmWarnings, setConfirmWarnings] = useState<boolean>(false);
   const [isCommitting, setIsCommitting] = useState<boolean>(false);
   const [commitResult, setCommitResult] = useState<ImportResult | null>(null);
@@ -276,6 +282,167 @@ export function GoogleDriveImportSection({
       action === 'ACCEPT_WARNING' ? 'قبول يدوي من مراجع Google Drive' : 'استبعاد السطر يدوياً'
     );
     setActiveBatch(updated);
+  };
+
+  const handleResolutionDecision = (
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
+    candidate?: { selectedEntityId?: string; selectedDisplayName?: string }
+  ) => {
+    if (!activeBatch) return;
+
+    try {
+      setProcessError(null);
+      const updated = GoogleDrivePipelineService.applyEntityResolutionDecision(
+        activeBatch,
+        rowNumber,
+        entityTypeKey,
+        decision,
+        candidate || {},
+        context,
+        effectiveUserId || 'user'
+      );
+
+      setActiveBatch({ ...updated });
+    } catch (err: any) {
+      setProcessError(err?.message || 'فشل في حفظ قرار المطابقة');
+    }
+  };
+
+  const handleCreateCanonicalEntity = async (
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    formData: {
+      nameAr?: string;
+      commercialRegistrationNo?: string;
+      transportLicenseNo?: string;
+      code?: string;
+      driverName?: string;
+      residencyId?: string;
+      phone?: string;
+      plateNumber?: string;
+      truckType?: string;
+      tareWeightKg?: number;
+      maxGrossWeightKg?: number;
+    }
+  ) => {
+    if (!activeBatch || (!currentProjectId && !context.projectId)) return;
+    const targetProjectId = currentProjectId || context.projectId;
+
+    const row = activeBatch.rows.find((r) => r.rowNumber === rowNumber);
+    if (!row) return;
+
+    setProcessError(null);
+    setCreateError(null);
+    setIsCreatingEntity(true);
+
+    try {
+      let result: NormalizedEntityResolutionResult;
+      const resItem = row.entityResolutions?.[entityTypeKey];
+      const sourceVal = resItem?.sourceValue || resItem?.originalValue || formData.nameAr || formData.driverName || formData.plateNumber || formData.code || '';
+
+      if (entityTypeKey === 'carrier') {
+        if (!formData.commercialRegistrationNo || !formData.commercialRegistrationNo.trim()) {
+          throw new Error('رقم السجل التجاري للناقل مطلوب');
+        }
+
+        result = await entityResolutionCommandService.createCarrier({
+          projectId: targetProjectId,
+          sourceValue: sourceVal,
+          carrierData: {
+            nameAr: (formData.nameAr && formData.nameAr.trim()) ? formData.nameAr.trim() : sourceVal,
+            commercialRegistrationNo: formData.commercialRegistrationNo.trim(),
+            ...(formData.transportLicenseNo?.trim() ? { transportLicenseNo: formData.transportLicenseNo.trim() } : {}),
+          },
+        });
+      } else if (entityTypeKey === 'material') {
+        if (!formData.code || !formData.code.trim()) {
+          throw new Error('رمز المادة (code) مطلوب');
+        }
+
+        result = await entityResolutionCommandService.createMaterial({
+          projectId: targetProjectId,
+          sourceValue: sourceVal,
+          materialData: {
+            code: formData.code.trim(),
+            nameAr: (formData.nameAr && formData.nameAr.trim()) ? formData.nameAr.trim() : sourceVal,
+          },
+        });
+      } else if (entityTypeKey === 'driver') {
+        let carrierId = row.resolvedValues?.carrierId;
+        if (!carrierId) {
+          const carrierRes = row.entityResolutions?.carrier;
+          if (carrierRes && !GoogleDrivePipelineService.checkResolutionRequiresAttention(carrierRes)) {
+            carrierId = carrierRes.matchedId || carrierRes.entityId;
+          }
+        }
+
+        if (!carrierId) {
+          throw new Error('يجب حسم الناقل أولاً قبل إنشاء السائق');
+        }
+
+        if (!formData.residencyId || !formData.residencyId.trim()) {
+          throw new Error('رقم الهوية الوطنية أو الإقامة (residencyId) مطلوب');
+        }
+
+        result = await entityResolutionCommandService.createDriver({
+          projectId: targetProjectId,
+          sourceValue: sourceVal,
+          driverData: {
+            carrierId,
+            driverName: (formData.driverName && formData.driverName.trim()) ? formData.driverName.trim() : sourceVal,
+            residencyId: formData.residencyId.trim(),
+            ...(formData.phone?.trim() ? { phone: formData.phone.trim() } : {}),
+          },
+        });
+      } else if (entityTypeKey === 'truck') {
+        let carrierId = row.resolvedValues?.carrierId;
+        if (!carrierId) {
+          const carrierRes = row.entityResolutions?.carrier;
+          if (carrierRes && !GoogleDrivePipelineService.checkResolutionRequiresAttention(carrierRes)) {
+            carrierId = carrierRes.matchedId || carrierRes.entityId;
+          }
+        }
+
+        if (!carrierId) {
+          throw new Error('يجب حسم الناقل أولاً قبل إنشاء الشاحنة');
+        }
+
+        if (!formData.plateNumber || !formData.plateNumber.trim()) {
+          throw new Error('رقم لوحة الشاحنة (plateNumber) مطلوب');
+        }
+
+        result = await entityResolutionCommandService.createTruck({
+          projectId: targetProjectId,
+          sourceValue: sourceVal,
+          truckData: {
+            carrierId,
+            plateNumber: formData.plateNumber.trim(),
+            ...(formData.truckType?.trim() ? { truckType: formData.truckType.trim() } : {}),
+            ...(formData.tareWeightKg !== undefined ? { tareWeightKg: formData.tareWeightKg } : {}),
+            ...(formData.maxGrossWeightKg !== undefined ? { maxGrossWeightKg: formData.maxGrossWeightKg } : {}),
+          },
+        });
+      } else {
+        throw new Error('نوع الكيان غير مدعوم');
+      }
+
+      const updated = GoogleDrivePipelineService.applyCreatedEntityResolution(
+        activeBatch,
+        rowNumber,
+        entityTypeKey,
+        result,
+        context
+      );
+
+      setActiveBatch({ ...updated });
+      setActiveCreateFormKey(null);
+    } catch (err: any) {
+      setCreateError(err?.message || 'فشل في إنشاء الكيان المعتمد');
+    } finally {
+      setIsCreatingEntity(false);
+    }
   };
 
   const handleCommit = async () => {
@@ -823,106 +990,246 @@ export function GoogleDriveImportSection({
                   const hasErrors = row.validationIssues.some((i) => i.blocking);
                   const hasWarnings = row.validationIssues.some((i) => i.severity === 'WARNING');
                   const isRejected = row.status === 'REJECTED';
+                  const needsResolution = GoogleDrivePipelineService.rowRequiresEntityResolution(row) || row.reviewStatus === 'requires_review';
 
                   return (
-                    <tr
-                      key={row.rowNumber}
-                      className={`hover:bg-stone-50/60 transition-colors ${
-                        isRejected
-                          ? 'bg-stone-100/70 opacity-60'
-                          : hasErrors
-                          ? 'bg-rose-50/30'
-                          : hasWarnings
-                          ? 'bg-amber-50/30'
-                          : ''
-                      }`}
-                    >
-                      <td className="p-3 font-mono font-bold text-stone-500">{row.rowNumber}</td>
-                      <td className="p-3 font-bold font-mono text-stone-900">
-                        {canonical.ticketId || canonical.ticketNo || '—'}
-                      </td>
-                      <td className="p-3 font-mono text-stone-800">
-                        {canonical.truckId || canonical.truckNo || '—'}
-                      </td>
-                      <td className="p-3 text-stone-800">
-                        {canonical.carrierId || canonical.carrier || '—'}
-                      </td>
-                      <td className="p-3 text-stone-700">
-                        {canonical.driverId || canonical.driverName || '—'}
-                      </td>
-                      <td className="p-3 text-stone-700">
-                        {canonical.materialId || canonical.materialType || '—'}
-                      </td>
-                      <td className="p-3 font-mono text-[11px]">
-                        <span className="font-bold text-stone-900">
-                          {canonical.netWeight ? `${canonical.netWeight} كجم` : '—'}
-                        </span>
-                        <span className="text-stone-400 block text-[10px]">
-                          قائم: {canonical.grossWeight || 0} | فارغ: {canonical.tareWeight || 0}
-                        </span>
-                      </td>
-                      <td className="p-3 space-y-1 max-w-xs">
-                        {isRejected ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-stone-200 text-stone-700">
-                            مستبعد (Rejected)
+                    <React.Fragment key={row.rowNumber}>
+                      <tr
+                        className={`hover:bg-stone-50/60 transition-colors ${
+                          isRejected
+                            ? 'bg-stone-100/70 opacity-60'
+                            : hasErrors
+                            ? 'bg-rose-50/30'
+                            : hasWarnings
+                            ? 'bg-amber-50/30'
+                            : ''
+                        }`}
+                      >
+                        <td className="p-3 font-mono font-bold text-stone-500">{row.rowNumber}</td>
+                        <td className="p-3 font-bold font-mono text-stone-900">
+                          {canonical.ticketId || canonical.ticketNo || '—'}
+                        </td>
+                        <td className="p-3 font-mono text-stone-800">
+                          {canonical.truckId || canonical.truckNo || '—'}
+                        </td>
+                        <td className="p-3 text-stone-800">
+                          {canonical.carrierId || canonical.carrier || '—'}
+                        </td>
+                        <td className="p-3 text-stone-700">
+                          {canonical.driverId || canonical.driverName || '—'}
+                        </td>
+                        <td className="p-3 text-stone-700">
+                          {canonical.materialId || canonical.materialType || '—'}
+                        </td>
+                        <td className="p-3 font-mono text-[11px]">
+                          <span className="font-bold text-stone-900">
+                            {canonical.netWeight ? `${canonical.netWeight} كجم` : '—'}
                           </span>
-                        ) : hasErrors ? (
-                          row.validationIssues
-                            .filter((i) => i.blocking)
-                            .map((issue) => (
-                              <div
-                                key={issue.issueId}
-                                className="text-[11px] text-rose-700 font-semibold flex items-center gap-1"
-                              >
-                                <XCircle className="w-3 h-3 shrink-0" />
-                                <span>{issue.messageAr || issue.message}</span>
-                              </div>
-                            ))
-                        ) : hasWarnings ? (
-                          row.validationIssues
-                            .filter((i) => i.severity === 'WARNING')
-                            .map((issue) => (
-                              <div
-                                key={issue.issueId}
-                                className="text-[11px] text-amber-800 flex items-center gap-1"
-                              >
-                                <AlertTriangle className="w-3 h-3 shrink-0 text-amber-600" />
-                                <span>{issue.messageAr || issue.message}</span>
-                              </div>
-                            ))
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>سليم ومطابق</span>
+                          <span className="text-stone-400 block text-[10px]">
+                            قائم: {canonical.grossWeight || 0} | فارغ: {canonical.tareWeight || 0}
                           </span>
-                        )}
-                      </td>
-                      <td className="p-3 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          {row.reviewStatus === 'warning' && !isRejected && (
-                            <button
-                              onClick={() => handleApplyRowAction(row.rowNumber, 'ACCEPT_WARNING')}
-                              className="px-2 py-1 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[11px] transition-colors cursor-pointer"
-                              title="قبول التنبيه يدوياً"
-                            >
-                              قبول التنبيه
-                            </button>
+                        </td>
+                        <td className="p-3 space-y-1 max-w-xs">
+                          {isRejected ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-stone-200 text-stone-700">
+                              مستبعد (Rejected)
+                            </span>
+                          ) : hasErrors ? (
+                            row.validationIssues
+                              .filter((i) => i.blocking)
+                              .map((issue) => (
+                                <div
+                                  key={issue.issueId}
+                                  className="text-[11px] text-rose-700 font-semibold flex items-center gap-1"
+                                >
+                                  <XCircle className="w-3 h-3 shrink-0" />
+                                  <span>{issue.messageAr || issue.message}</span>
+                                </div>
+                              ))
+                          ) : hasWarnings ? (
+                            row.validationIssues
+                              .filter((i) => i.severity === 'WARNING')
+                              .map((issue) => (
+                                <div
+                                  key={issue.issueId}
+                                  className="text-[11px] text-amber-800 flex items-center gap-1"
+                                >
+                                  <AlertTriangle className="w-3 h-3 shrink-0 text-amber-600" />
+                                  <span>{issue.messageAr || issue.message}</span>
+                                </div>
+                              ))
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>سليم ومطابق</span>
+                            </span>
                           )}
-                          {!isRejected && (
-                            <button
-                              onClick={() => handleApplyRowAction(row.rowNumber, 'REJECT_ROW')}
-                              className="px-2 py-1 rounded bg-stone-100 hover:bg-rose-100 text-stone-600 hover:text-rose-800 font-bold text-[11px] transition-colors cursor-pointer"
-                              title="استبعاد هذا السطر"
-                            >
-                              استبعاد
-                            </button>
-                          )}
-                          {isRejected && (
-                            <span className="text-[11px] text-stone-400 font-bold">تم الاستبعاد</span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                        <td className="p-3 text-center">
+                          <div className="flex flex-col items-center justify-center gap-1.5">
+                            {needsResolution && (
+                              <button
+                                onClick={() => setExpandedReviewRowNumber(expandedReviewRowNumber === row.rowNumber ? null : row.rowNumber)}
+                                className="px-2 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-[10px] transition-colors cursor-pointer flex items-center gap-1"
+                                title="مراجعة المطابقة"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>مراجعة المطابقة</span>
+                              </button>
+                            )}
+
+                            <div className="flex items-center justify-center gap-1.5">
+                              {row.reviewStatus === 'warning' && !isRejected && (
+                                <button
+                                  onClick={() => handleApplyRowAction(row.rowNumber, 'ACCEPT_WARNING')}
+                                  className="px-2 py-1 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[11px] transition-colors cursor-pointer"
+                                  title="قبول التنبيه يدوياً"
+                                >
+                                  قبول التنبيه
+                                </button>
+                              )}
+                              {!isRejected && (
+                                <button
+                                  onClick={() => handleApplyRowAction(row.rowNumber, 'REJECT_ROW')}
+                                  className="px-2 py-1 rounded bg-stone-100 hover:bg-rose-100 text-stone-600 hover:text-rose-800 font-bold text-[11px] transition-colors cursor-pointer"
+                                  title="استبعاد هذا السطر"
+                                >
+                                  استبعاد
+                                </button>
+                              )}
+                              {isRejected && (
+                                <span className="text-[11px] text-stone-400 font-bold">تم الاستبعاد</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* Expanded Candidate Resolution Drawer */}
+                      {expandedReviewRowNumber === row.rowNumber && (
+                        <tr className="bg-blue-50/30 border-b border-blue-200/80">
+                          <td colSpan={9} className="p-4">
+                            <div className="p-4 rounded-xl bg-white border border-blue-200/90 shadow-xs space-y-4 text-right">
+                              <div className="flex items-center justify-between border-b border-stone-100 pb-2">
+                                <div className="font-bold text-xs text-blue-900 flex items-center gap-2">
+                                  <Sparkles className="w-4 h-4 text-blue-600" />
+                                  <span>مراجعة مطابقة الكيانات للصف رقم {row.rowNumber} (Existing Candidate Resolution)</span>
+                                </div>
+                                <button
+                                  onClick={() => setExpandedReviewRowNumber(null)}
+                                  className="text-stone-400 hover:text-stone-600 p-1 cursor-pointer"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {(['carrier', 'truck', 'driver', 'material'] as const)
+                                  .filter((k) => GoogleDrivePipelineService.checkResolutionRequiresAttention(row.entityResolutions?.[k]))
+                                  .map((entityKey) => {
+                                    const res = row.entityResolutions![entityKey]!;
+                                    const labelAr = entityKey === 'carrier' ? 'الناقل' : entityKey === 'truck' ? 'الشاحنة' : entityKey === 'driver' ? 'السائق' : 'المادة';
+                                    const candidates = res.candidates || [];
+
+                                    return (
+                                      <div key={entityKey} className="p-3.5 rounded-lg bg-stone-50 border border-stone-200 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                          <span className="font-black text-xs text-stone-900">{labelAr}</span>
+                                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                            res.riskLevel === 'CRITICAL' || res.riskLevel === 'HIGH'
+                                              ? 'bg-rose-100 text-rose-800'
+                                              : 'bg-amber-100 text-amber-800'
+                                          }`}>
+                                            مستوى المخاطرة: {res.riskLevel}
+                                          </span>
+                                        </div>
+
+                                        <div className="text-xs space-y-1">
+                                          <div><span className="text-stone-500 font-bold">القيمة المستوردة: </span><span className="font-mono font-bold text-stone-800">{res.sourceValue || res.originalValue || '-'}</span></div>
+                                          {res.matchedName && (
+                                            <div><span className="text-stone-500 font-bold">المطابق الحالي: </span><span className="font-bold text-emerald-800">{res.matchedName}</span> <span className="text-[10px] text-stone-400 font-mono">({(res.confidence * 100).toFixed(0)}%)</span></div>
+                                          )}
+                                          {res.conflictDetails && (
+                                            <div className="text-rose-700 text-[11px] font-bold bg-rose-50 p-1.5 rounded border border-rose-100 mt-1">
+                                              {res.conflictDetails}
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {/* Candidates */}
+                                        {candidates.length > 0 && (
+                                          <div className="space-y-1.5 pt-1">
+                                            <span className="text-[11px] font-bold text-stone-600 block">المرشحون المتاحون للمطابقة:</span>
+                                            <div className="space-y-1">
+                                              {candidates.map((cand) => (
+                                                <div key={cand.candidateEntityId} className="flex items-center justify-between p-2 rounded bg-white border border-stone-200 text-xs">
+                                                  <div>
+                                                    <span className="font-bold text-stone-900">{cand.candidateDisplayName}</span>
+                                                    <span className="text-[10px] text-stone-400 font-mono pr-2">({(cand.confidence * 100).toFixed(0)}%)</span>
+                                                  </div>
+                                                  <button
+                                                    onClick={() => handleResolutionDecision(row.rowNumber, entityKey, 'SELECT_ALTERNATE', { selectedEntityId: cand.candidateEntityId, selectedDisplayName: cand.candidateDisplayName })}
+                                                    className="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition-colors cursor-pointer"
+                                                  >
+                                                    تحديد المقترح
+                                                  </button>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {/* Actions */}
+                                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-200">
+                                          {(res.matchedId || res.entityId) && (
+                                            <button
+                                              onClick={() => handleResolutionDecision(row.rowNumber, entityKey, 'ACCEPT_CANDIDATE', { selectedEntityId: res.matchedId || res.entityId, selectedDisplayName: res.matchedName || res.matchedValue })}
+                                              className="px-3 py-1.5 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs transition-colors cursor-pointer"
+                                            >
+                                              قبول المرشح الحالي
+                                            </button>
+                                          )}
+                                          <button
+                                            onClick={() => handleResolutionDecision(row.rowNumber, entityKey, 'LEAVE_UNRESOLVED')}
+                                            className="px-3 py-1.5 rounded bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold text-xs transition-colors cursor-pointer"
+                                          >
+                                            ترك غير مطابق
+                                          </button>
+                                          {GoogleDrivePipelineService.checkResolutionRequiresAttention(res) && (
+                                            <button
+                                              onClick={() => {
+                                                setCreateError(null);
+                                                setActiveCreateFormKey(activeCreateFormKey === `${row.rowNumber}_${entityKey}` ? null : `${row.rowNumber}_${entityKey}`);
+                                              }}
+                                              className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1"
+                                            >
+                                              <PlusCircle className="w-3.5 h-3.5" />
+                                              <span>إنشاء سجل جديد</span>
+                                            </button>
+                                          )}
+                                        </div>
+
+                                        {/* Inline Creation Form */}
+                                        {activeCreateFormKey === `${row.rowNumber}_${entityKey}` && (
+                                          <InlineEntityCreateForm
+                                            row={row}
+                                            entityKey={entityKey}
+                                            res={res}
+                                            isCreatingEntity={isCreatingEntity}
+                                            createError={createError}
+                                            onSubmit={(formData) => handleCreateCanonicalEntity(row.rowNumber, entityKey, formData)}
+                                            onCancel={() => setActiveCreateFormKey(null)}
+                                          />
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   );
                 })}
               </tbody>
@@ -1033,5 +1340,276 @@ export function GoogleDriveImportSection({
         </div>
       )}
     </div>
+  );
+}
+
+interface InlineEntityCreateFormProps {
+  row: ImportRow;
+  entityKey: 'carrier' | 'truck' | 'driver' | 'material';
+  res: any;
+  isCreatingEntity: boolean;
+  createError: string | null;
+  onSubmit: (formData: any) => void;
+  onCancel: () => void;
+}
+
+function InlineEntityCreateForm({
+  row,
+  entityKey,
+  res,
+  isCreatingEntity,
+  createError,
+  onSubmit,
+  onCancel,
+}: InlineEntityCreateFormProps) {
+  const canonical = (row as any).normalized?.canonicalData || row.canonical || (row as any).mapped || {};
+  const raw = row.raw || {};
+
+  // Carrier prefill
+  const [carrierNameAr, setCarrierNameAr] = useState(res.sourceValue || res.originalValue || canonical.carrier || canonical.carrierName || '');
+  const [commercialRegistrationNo, setCommercialRegistrationNo] = useState(canonical.commercialRegistrationNo || raw.commercialRegistrationNo || raw.crNumber || '');
+  const [transportLicenseNo, setTransportLicenseNo] = useState(canonical.transportLicenseNo || raw.transportLicenseNo || '');
+
+  // Material prefill
+  const [materialNameAr, setMaterialNameAr] = useState(res.sourceValue || res.originalValue || canonical.materialType || canonical.materialName || '');
+  const [materialCode, setMaterialCode] = useState(canonical.materialCode || raw.materialCode || raw.code || '');
+
+  // Driver prefill
+  const [driverName, setDriverName] = useState(canonical.driverName || canonical.driverId || res.sourceValue || res.originalValue || '');
+  const [residencyId, setResidencyId] = useState(
+    canonical.residencyId || canonical.driverIdentity || canonical.nationalOrIqamaId || raw.residencyId || raw.driverIdentity || raw.nationalOrIqamaId || raw.idNumber || ''
+  );
+  const [driverPhone, setDriverPhone] = useState(canonical.driverPhone || canonical.phone || raw.phone || '');
+
+  // Truck prefill
+  const [plateNumber, setPlateNumber] = useState(canonical.plateNumber || canonical.truckNo || canonical.truckId || canonical.truckPlate || res.sourceValue || res.originalValue || '');
+  const [truckType, setTruckType] = useState(canonical.truckType || raw.truckType || '');
+  const [tareWeightKg, setTareWeightKg] = useState<string>(canonical.tareWeight ? String(canonical.tareWeight) : (canonical.tareWeightKg ? String(canonical.tareWeightKg) : (raw.tareWeightKg ? String(raw.tareWeightKg) : '')));
+  const [maxGrossWeightKg, setMaxGrossWeightKg] = useState<string>(
+    canonical.grossWeight ? String(canonical.grossWeight) : (canonical.maxGrossWeightKg ? String(canonical.maxGrossWeightKg) : (raw.maxGrossWeightKg ? String(raw.maxGrossWeightKg) : ''))
+  );
+
+  // Check carrier dependency for Driver and Truck
+  let carrierId = row.resolvedValues?.carrierId;
+  if (!carrierId) {
+    const carrierRes = row.entityResolutions?.carrier;
+    if (carrierRes && !GoogleDrivePipelineService.checkResolutionRequiresAttention(carrierRes)) {
+      carrierId = carrierRes.matchedId || carrierRes.entityId;
+    }
+  }
+
+  const isDriverOrTruckBlocked = (entityKey === 'driver' || entityKey === 'truck') && !carrierId;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (entityKey === 'carrier') {
+      onSubmit({
+        nameAr: carrierNameAr,
+        commercialRegistrationNo,
+        transportLicenseNo,
+      });
+    } else if (entityKey === 'material') {
+      onSubmit({
+        nameAr: materialNameAr,
+        code: materialCode,
+      });
+    } else if (entityKey === 'driver') {
+      onSubmit({
+        driverName,
+        residencyId,
+        phone: driverPhone,
+      });
+    } else if (entityKey === 'truck') {
+      onSubmit({
+        plateNumber,
+        truckType,
+        tareWeightKg: tareWeightKg ? Number(tareWeightKg) : undefined,
+        maxGrossWeightKg: maxGrossWeightKg ? Number(maxGrossWeightKg) : undefined,
+      });
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="p-3 bg-blue-50/60 rounded-lg border border-blue-200 mt-2 space-y-3">
+      <div className="font-bold text-xs text-blue-900 border-b border-blue-200/80 pb-1.5 flex items-center justify-between">
+        <span>نموذج إنشاء سجل معتمد ({entityKey === 'carrier' ? 'ناقل' : entityKey === 'material' ? 'مادة' : entityKey === 'driver' ? 'سائق' : 'شاحنة'})</span>
+        <button type="button" onClick={onCancel} className="text-stone-400 hover:text-stone-600 text-xs cursor-pointer">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {createError && (
+        <div className="p-2 rounded bg-rose-100 text-rose-800 text-[11px] font-bold border border-rose-200">
+          {createError}
+        </div>
+      )}
+
+      {isDriverOrTruckBlocked ? (
+        <div className="p-2.5 rounded bg-rose-50 text-rose-800 border border-rose-200 text-xs font-bold">
+          {entityKey === 'driver' ? 'يجب حسم الناقل أولاً قبل إنشاء السائق' : 'يجب حسم الناقل أولاً قبل إنشاء الشاحنة'}
+        </div>
+      ) : (
+        <>
+          {entityKey === 'carrier' && (
+            <div className="space-y-2 text-xs">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">اسم الناقل (العربية)</label>
+                <input
+                  type="text"
+                  value={carrierNameAr}
+                  onChange={(e) => setCarrierNameAr(e.target.value)}
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-bold focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رقم السجل التجاري <span className="text-rose-600">*</span></label>
+                <input
+                  type="text"
+                  value={commercialRegistrationNo}
+                  onChange={(e) => setCommercialRegistrationNo(e.target.value)}
+                  placeholder="مثال: 1010123456"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رقم ترخيص النقل (اختياري)</label>
+                <input
+                  type="text"
+                  value={transportLicenseNo}
+                  onChange={(e) => setTransportLicenseNo(e.target.value)}
+                  placeholder="مثال: 01-123456"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {entityKey === 'material' && (
+            <div className="space-y-2 text-xs">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">اسم المادة (العربية)</label>
+                <input
+                  type="text"
+                  value={materialNameAr}
+                  onChange={(e) => setMaterialNameAr(e.target.value)}
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-bold focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رمز المادة <span className="text-rose-600">*</span></label>
+                <input
+                  type="text"
+                  value={materialCode}
+                  onChange={(e) => setMaterialCode(e.target.value)}
+                  placeholder="مثال: MAT-SAND-01"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            </div>
+          )}
+
+          {entityKey === 'driver' && (
+            <div className="space-y-2 text-xs">
+              <div className="text-[11px] text-emerald-800 bg-emerald-50 p-1.5 rounded border border-emerald-200 font-bold">
+                الناقل المرتبط: <span className="font-mono">{carrierId}</span>
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">اسم السائق</label>
+                <input
+                  type="text"
+                  value={driverName}
+                  onChange={(e) => setDriverName(e.target.value)}
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-bold focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رقم الهوية / الإقامة <span className="text-rose-600">*</span></label>
+                <input
+                  type="text"
+                  value={residencyId}
+                  onChange={(e) => setResidencyId(e.target.value)}
+                  placeholder="مثال: 1098765432"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رقم الهاتف (اختياري)</label>
+                <input
+                  type="text"
+                  value={driverPhone}
+                  onChange={(e) => setDriverPhone(e.target.value)}
+                  placeholder="05xxxxxxxx"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {entityKey === 'truck' && (
+            <div className="space-y-2 text-xs">
+              <div className="text-[11px] text-emerald-800 bg-emerald-50 p-1.5 rounded border border-emerald-200 font-bold">
+                الناقل المرتبط: <span className="font-mono">{carrierId}</span>
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">رقم اللوحة <span className="text-rose-600">*</span></label>
+                <input
+                  type="text"
+                  value={plateNumber}
+                  onChange={(e) => setPlateNumber(e.target.value)}
+                  placeholder="مثال: 1234 أ ب ج"
+                  className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono font-bold focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">نوع الشاحنة (اختياري)</label>
+                  <input
+                    type="text"
+                    value={truckType}
+                    onChange={(e) => setTruckType(e.target.value)}
+                    className="w-full p-1.5 rounded border border-stone-300 bg-white focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">الوزن الفارغ (كجم)</label>
+                  <input
+                    type="number"
+                    value={tareWeightKg}
+                    onChange={(e) => setTareWeightKg(e.target.value)}
+                    className="w-full p-1.5 rounded border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 pt-2 border-t border-blue-200">
+            <button
+              type="submit"
+              disabled={isCreatingEntity}
+              className="px-3 py-1.5 rounded bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1"
+            >
+              {isCreatingEntity ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+              <span>تأكيد وحفظ السجل المعتمد</span>
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-3 py-1.5 rounded bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold text-xs transition-colors cursor-pointer"
+            >
+              إلغاء
+            </button>
+          </div>
+        </>
+      )}
+    </form>
   );
 }

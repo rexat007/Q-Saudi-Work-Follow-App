@@ -22,8 +22,10 @@ import { ExcelCsvTripValidator } from './tripImportValidator';
 import { ExcelCsvTripDuplicateChecker } from './tripDuplicateChecker';
 import { ExcelCsvTripCommitter } from './tripImportCommitter';
 import { FileIntakeValidator } from './fileIntake.validator';
+import { ExcelCsvPipelineService } from './excelCsvPipeline.service';
 import {
   UnifiedImportBatch,
+  ImportRow,
   ImportSource,
   PipelineContext,
   ImportResult,
@@ -162,5 +164,68 @@ export class GoogleDrivePipelineService {
     });
 
     return pipeline.executeCommit(batch, context);
+  }
+
+  /**
+   * Delegates checking if a specific entity resolution item requires manual review attention.
+   */
+  public static checkResolutionRequiresAttention(item?: any): boolean {
+    return ExcelCsvPipelineService.checkResolutionRequiresAttention(item);
+  }
+
+  /**
+   * Delegates checking if an import row has any entity resolutions requiring manual attention.
+   */
+  public static rowRequiresEntityResolution(row: ImportRow): boolean {
+    return ExcelCsvPipelineService.rowRequiresEntityResolution(row);
+  }
+
+  /**
+   * Thin wrapper delegating to ExcelCsvPipelineService.applyEntityResolutionDecision
+   * Preserves canonical contract with mandatory context for post-resolution revalidation.
+   */
+  public static applyEntityResolutionDecision(
+    batch: UnifiedImportBatch,
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
+    candidate: { selectedEntityId?: string; selectedDisplayName?: string },
+    context: PipelineContext,
+    actorId: string
+  ): UnifiedImportBatch {
+    return ExcelCsvPipelineService.applyEntityResolutionDecision(
+      batch,
+      rowNumber,
+      entityTypeKey,
+      decision,
+      candidate,
+      context,
+      actorId
+    );
+  }
+
+  /**
+   * Thin wrapper delegating to ExcelCsvPipelineService.applyCreatedEntityResolution
+   * Passes PipelineContext when available so post-resolution revalidation runs.
+   */
+  public static applyCreatedEntityResolution(
+    batch: UnifiedImportBatch,
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    result: {
+      matchedId: string;
+      matchedName: string;
+      sourceValue?: string;
+      [key: string]: any;
+    },
+    context?: PipelineContext
+  ): UnifiedImportBatch {
+    return ExcelCsvPipelineService.applyCreatedEntityResolution(
+      batch,
+      rowNumber,
+      entityTypeKey,
+      result,
+      context
+    );
   }
 }
