@@ -439,7 +439,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
   // COMMIT INTEGRATION TESTS (38-48)
   // ==========================================
 
-  const sampleBatch: UnifiedImportBatch = {
+  const createSampleBatch = (): UnifiedImportBatch => ({
     importBatchId: 'BCH-TEST-001',
     projectId: 'PRJ-1',
     batchType: 'WEIGHBRIDGE_IMPORT',
@@ -481,7 +481,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     createdBy: 'USER-1',
     updatedAt: '2026-01-01',
     updatedBy: 'USER-1',
-  };
+  });
 
   const sampleContext: PipelineContext = {
     userId: 'USER-DISPATCHER-01',
@@ -505,7 +505,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
 
     const committer = new ExcelCsvTripCommitter();
-    const result = await committer.commit(sampleBatch, sampleContext);
+    const result = await committer.commit(createSampleBatch(), sampleContext);
     console.log('COMMITTER_RESULT:', JSON.stringify(result, null, 2));
 
 
@@ -531,7 +531,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
 
     const committer = new ExcelCsvTripCommitter();
-    await committer.commit(sampleBatch, sampleContext);
+    await committer.commit(createSampleBatch(), sampleContext);
 
     expect(spyCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -553,7 +553,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
 
     const committer = new ExcelCsvTripCommitter();
-    await committer.commit(sampleBatch, sampleContext);
+    await committer.commit(createSampleBatch(), sampleContext);
 
     expect(spyCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -575,7 +575,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
 
     const committer = new ExcelCsvTripCommitter();
-    await committer.commit(sampleBatch, sampleContext);
+    await committer.commit(createSampleBatch(), sampleContext);
 
     expect(spyCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -597,7 +597,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
 
     const committer = new ExcelCsvTripCommitter();
-    await committer.commit(sampleBatch, sampleContext);
+    await committer.commit(createSampleBatch(), sampleContext);
 
     expect(spyCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -611,7 +611,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
 
     const committer = new ExcelCsvTripCommitter();
-    const result = await committer.commit(sampleBatch, sampleContext);
+    const result = await committer.commit(createSampleBatch(), sampleContext);
 
     expect(spyCreate).not.toHaveBeenCalled();
     expect(result.committedRows).toBe(0);
@@ -625,7 +625,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
 
     const committer = new ExcelCsvTripCommitter();
-    const result = await committer.commit(sampleBatch, sampleContext);
+    const result = await committer.commit(createSampleBatch(), sampleContext);
 
     expect(spyCreate).not.toHaveBeenCalled();
     expect(result.committedRows).toBe(0);
@@ -644,7 +644,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
 
     const committer = new ExcelCsvTripCommitter();
-    const result = await committer.commit(sampleBatch, sampleContext);
+    const result = await committer.commit(createSampleBatch(), sampleContext);
 
     expect(spyCreate).toHaveBeenCalled();
     expect(result.committedRows).toBe(1);
@@ -664,7 +664,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
 
     const committer = new ExcelCsvTripCommitter();
-    await committer.commit(sampleBatch, sampleContext);
+    await committer.commit(createSampleBatch(), sampleContext);
 
     expect(spyCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -695,7 +695,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
     const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
 
     const committer = new ExcelCsvTripCommitter();
-    await committer.commit(sampleBatch, sampleContext);
+    await committer.commit(createSampleBatch(), sampleContext);
 
     const tripWritten = spyCreate.mock.calls[0][0];
     expect(tripWritten.carrierSnapshot.companyNameAr).not.toBe('');

@@ -29,6 +29,7 @@ import {
 import { GoogleDrivePipelineService } from '../../services/import/googleDrivePipeline.service';
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { entityResolutionCommandService, NormalizedEntityResolutionResult } from '../../services/import/entityResolutionCommand.service';
+import { importSessionClientService } from '../../services/import/importSessionClient.service';
 import {
   UnifiedImportBatch,
   PipelineContext,
@@ -80,6 +81,13 @@ export function GoogleDriveImportSection({
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [availableSheets, setAvailableSheets] = useState<string[]>([]);
   const [selectedSheet, setSelectedSheet] = useState<string>('');
+
+  // Pipeline & Import Session Active Identity State
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [activeOperationId, setActiveOperationId] = useState<string | null>(null);
+  const [activeImportBatchId, setActiveImportBatchId] = useState<string | null>(null);
+  const [sessionVersion, setSessionVersion] = useState<number>(0);
+  const [requiresSourceFileReattach, setRequiresSourceFileReattach] = useState<boolean>(false);
 
   // Pipeline Batch state
   const [activeBatch, setActiveBatch] = useState<UnifiedImportBatch | null>(null);
@@ -135,9 +143,11 @@ export function GoogleDriveImportSection({
   const effectiveRole = authContext?.role || userRole || '';
 
   const context: PipelineContext = useMemo(() => {
+    const opId = activeOperationId || `OP-GDRV-${Date.now()}`;
     if (pipelineContext) {
       return {
         ...pipelineContext,
+        operationId: opId,
         allowWarningsCommit: confirmWarnings,
       };
     }
@@ -149,7 +159,7 @@ export function GoogleDriveImportSection({
         userId: effectiveUserId,
         userName: effectiveUserName,
         role: effectiveRole,
-        operationId: `OP-GDRV-${Date.now()}`,
+        operationId: opId,
         allowWarningsCommit: confirmWarnings,
       });
     }
@@ -159,11 +169,116 @@ export function GoogleDriveImportSection({
       userId: effectiveUserId,
       userName: effectiveUserName,
       role: effectiveRole,
-      operationId: `OP-GDRV-${Date.now()}`,
+      operationId: opId,
       allowWarningsCommit: confirmWarnings,
       knownEntities: ImportProjectContextAdapter.toPipelineKnownEntities(null),
     };
-  }, [pipelineContext, canonicalRelationshipContext, currentProjectId, effectiveUserId, effectiveUserName, effectiveRole, confirmWarnings]);
+  }, [pipelineContext, canonicalRelationshipContext, currentProjectId, effectiveUserId, effectiveUserName, effectiveRole, confirmWarnings, activeOperationId]);
+
+  // Resume active import session on mount if locator exists
+  useEffect(() => {
+    let isMounted = true;
+
+    const resumeSession = async () => {
+      if (!currentProjectId) return;
+      const locatorKey = `qsaudi_import_session_locator_${currentProjectId}`;
+      const rawLocator = sessionStorage.getItem(locatorKey);
+      if (!rawLocator) return;
+
+      try {
+        const locator = JSON.parse(rawLocator);
+        if (!locator || locator.projectId !== currentProjectId || !locator.importSessionId) {
+          sessionStorage.removeItem(locatorKey);
+          return;
+        }
+
+        const sessionRecord = await importSessionClientService.getSession(currentProjectId, locator.importSessionId);
+        if (!sessionRecord || sessionRecord.lifecycleState === 'COMMITTED') {
+          sessionStorage.removeItem(locatorKey);
+          return;
+        }
+
+        const resumedState = importSessionClientService.reconstructResumedBatch(sessionRecord);
+        if (!isMounted) return;
+
+        setActiveSessionId(sessionRecord.importSessionId);
+        setActiveOperationId(sessionRecord.operationId);
+        setActiveImportBatchId(sessionRecord.importBatchId);
+        setSessionVersion(sessionRecord.version);
+        setConfirmWarnings(Boolean(sessionRecord.warningConfirmation));
+        setRequiresSourceFileReattach(resumedState.requiresSourceFileReattach);
+
+        if (resumedState.reviewSnapshot) {
+          const snapshot = resumedState.reviewSnapshot;
+          const rows: ImportRow[] = snapshot.rows || [];
+          const issues = sessionRecord.validationIssues || snapshot.issues || [];
+
+          // Derive counts deterministically from rows/snapshot if missing
+          const totalRows = snapshot.totalRows ?? rows.length;
+          const validRows = snapshot.validRows ?? rows.filter((r) => r.status === 'VALID' || r.reviewStatus === 'accepted').length;
+          const warningRows = snapshot.warningRows ?? rows.filter((r) => r.status === 'WARNING' || r.reviewStatus === 'warning').length;
+          const errorRows = snapshot.errorRows ?? rows.filter((r) => r.status === 'ERROR' || r.reviewStatus === 'error').length;
+          const requiresReviewRows = snapshot.requiresReviewRows ?? rows.filter((r) => r.reviewStatus === 'requires_review').length;
+          const committedRows = snapshot.committedRows ?? 0;
+
+          const reconstructedBatch: UnifiedImportBatch = {
+            importBatchId: sessionRecord.importBatchId,
+            projectId: sessionRecord.projectId,
+            source: {
+              sourceType: (sessionRecord.sourceType as any) || 'GOOGLE_DRIVE',
+              importBatchId: sessionRecord.importBatchId,
+              sourceFileName: sessionRecord.sourceMetadata?.sourceFileName || 'resumed_drive_file',
+              sourceMimeType: sessionRecord.sourceMetadata?.sourceMimeType,
+              sourceSheetName: sessionRecord.sourceMetadata?.sourceSheetName,
+            },
+            currentStage: (sessionRecord.currentStage as any) || 'REVIEW',
+            validationStatus: snapshot.validationStatus || 'PASSED',
+            commitStatus: sessionRecord.lifecycleState === 'COMMITTED' ? 'COMMITTED' : 'AWAITING_REVIEW',
+            totalRows,
+            validRows,
+            warningRows,
+            errorRows,
+            requiresReviewRows,
+            committedRows,
+            rows,
+            issues,
+            operationId: sessionRecord.operationId,
+            createdAt: sessionRecord.createdAt,
+            createdBy: sessionRecord.createdBy,
+            warningConfirmation: sessionRecord.warningConfirmation !== undefined ? {
+              confirmed: Boolean(sessionRecord.warningConfirmation),
+              confirmedBy: sessionRecord.createdBy || 'user',
+              confirmedAt: sessionRecord.updatedAt || sessionRecord.createdAt,
+            } : undefined,
+            auditTrail: [
+              {
+                timestamp: sessionRecord.updatedAt || sessionRecord.createdAt,
+                userId: sessionRecord.createdBy || 'system',
+                action: 'SESSION_RESUMED',
+                details: 'Resumed Google Drive import session from server persistence',
+              },
+            ],
+          };
+
+          setActiveBatch(reconstructedBatch);
+
+          if (reconstructedBatch.rows.length > 0 && reconstructedBatch.rows[0].raw) {
+            const rawHeaders = Object.keys(reconstructedBatch.rows[0].raw).filter((k) => !k.startsWith('_'));
+            const mappings = GoogleDrivePipelineService.inspectColumnMappings(rawHeaders);
+            setColumnMappings(mappings);
+          }
+        }
+      } catch {
+        sessionStorage.removeItem(locatorKey);
+      }
+    };
+
+    resumeSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentProjectId]);
 
   // Fetch Drive Files for current project
   const loadDriveFiles = async () => {
@@ -203,6 +318,57 @@ export function GoogleDriveImportSection({
     setActiveBatch(null);
     setCommitResult(null);
     setConfirmWarnings(false);
+
+    const targetProjectId = currentProjectId || context.projectId;
+
+    // Generate stable identities ONCE for new Drive import flow
+    const stable = importSessionClientService.generateStableIdentities();
+    const opId = stable.operationId;
+    const batchId = stable.importBatchId;
+    setActiveOperationId(opId);
+    setActiveImportBatchId(batchId);
+
+    let createdSessionId: string | null = null;
+    let createdVersion = 0;
+
+    if (targetProjectId) {
+      try {
+        const sessionRecord = await importSessionClientService.createSession(targetProjectId, {
+          projectId: targetProjectId,
+          operationId: opId,
+          importBatchId: batchId,
+          sourceType: 'GOOGLE_DRIVE',
+          sourceMetadata: {
+            sourceFileId: file.id,
+            sourceFileName: file.name,
+            sourceMimeType: file.mimeType,
+            fileSize: file.size,
+            folderName: folderName,
+          },
+        });
+
+        createdSessionId = sessionRecord.importSessionId;
+        createdVersion = sessionRecord.version;
+        setActiveSessionId(createdSessionId);
+        setSessionVersion(createdVersion);
+
+        sessionStorage.setItem(
+          `qsaudi_import_session_locator_${targetProjectId}`,
+          JSON.stringify({
+            projectId: targetProjectId,
+            importSessionId: createdSessionId,
+          })
+        );
+      } catch (err: any) {
+        // FAIL CLOSED: STOP! DO NOT proceed to download or pipeline
+        setIsDownloading(false);
+        setIsProcessing(false);
+        setProcessError(err?.message || 'فشل في إنشاء جلسة الاستيراد على الخادم. تم إيقاف المعالجة.');
+        return;
+      }
+    }
+
+    setRequiresSourceFileReattach(false);
     setIsDownloading(true);
 
     try {
@@ -223,7 +389,7 @@ export function GoogleDriveImportSection({
       }
 
       // Execute pipeline intake
-      await runPipeline(buffer, file, defaultSheet);
+      await runPipeline(buffer, file, defaultSheet, opId, batchId, createdSessionId, createdVersion);
     } catch (err: any) {
       setProcessError(err?.message || 'فشل في تحميل ومعالجة ملف Google Drive');
     } finally {
@@ -234,17 +400,33 @@ export function GoogleDriveImportSection({
   const runPipeline = async (
     buffer: ArrayBuffer,
     fileMeta: GoogleDriveFileItem,
-    sheetName?: string
+    sheetName?: string,
+    overrideOpId?: string,
+    overrideBatchId?: string,
+    overrideSessionId?: string | null,
+    overrideVersion?: number
   ) => {
     try {
       setIsProcessing(true);
       setProcessError(null);
 
+      const opId = overrideOpId || activeOperationId || `OP-GDRV-${Date.now()}`;
+      const batchId = overrideBatchId || activeImportBatchId || undefined;
+      const sessionId = overrideSessionId !== undefined ? overrideSessionId : activeSessionId;
+      const currentVer = overrideVersion !== undefined ? overrideVersion : sessionVersion;
+      const targetProjectId = currentProjectId || context.projectId;
+
+      const activeContext: PipelineContext = {
+        ...context,
+        projectId: targetProjectId,
+        operationId: opId,
+      };
+
       const batch = await GoogleDrivePipelineService.processDriveFileToReview(
         buffer,
         fileMeta,
-        context,
-        { sheetName }
+        activeContext,
+        { sheetName, importBatchId: batchId }
       );
 
       setActiveBatch(batch);
@@ -254,6 +436,53 @@ export function GoogleDriveImportSection({
         const rawHeaders = Object.keys(batch.rows[0].raw).filter((k) => !k.startsWith('_'));
         const mappings = GoogleDrivePipelineService.inspectColumnMappings(rawHeaders);
         setColumnMappings(mappings);
+      }
+
+      // Save REVIEW checkpoint to server session
+      if (targetProjectId && sessionId) {
+        try {
+          const cleanSnapshot = {
+            totalRows: batch.totalRows,
+            validRows: batch.validRows,
+            warningRows: batch.warningRows,
+            errorRows: batch.errorRows,
+            requiresReviewRows: batch.requiresReviewRows,
+            committedRows: batch.committedRows,
+            rows: batch.rows.map((r) => {
+              const { rawInput, ...rest } = r as any;
+              return rest;
+            }),
+          };
+
+          const updatedSession = await importSessionClientService.updateCheckpoint(
+            targetProjectId,
+            sessionId,
+            {
+              lifecycleState: 'REVIEW_REQUIRED',
+              currentStage: 'REVIEW',
+              reviewSnapshot: cleanSnapshot,
+              validationIssues: batch.issues || [],
+              warningConfirmation: confirmWarnings,
+              sourceMetadata: {
+                sourceFileId: fileMeta.id,
+                sourceFileName: fileMeta.name,
+                sourceMimeType: fileMeta.mimeType,
+                fileSize: fileMeta.size,
+                sourceSheetName: sheetName,
+                folderName: folderName,
+              },
+            },
+            currentVer
+          );
+
+          setSessionVersion(updatedSession.version);
+        } catch (err: any) {
+          if (err?.code === 'VERSION_CONFLICT') {
+            setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): يرجى تحديث الصفحة');
+          } else {
+            console.warn('Failed to update session checkpoint:', err);
+          }
+        }
       }
     } catch (err: any) {
       setProcessError(err?.message || 'حدث خطأ أثناء فحص وتحليل الملف');
@@ -269,44 +498,131 @@ export function GoogleDriveImportSection({
     }
   };
 
-  const handleApplyRowAction = (
+  const handleApplyRowAction = async (
     rowNumber: number,
     action: 'ACCEPT_WARNING' | 'REJECT_ROW'
   ) => {
     if (!activeBatch) return;
+    const targetProjectId = currentProjectId || context.projectId;
+    const activeContext: PipelineContext = {
+      ...context,
+      projectId: targetProjectId,
+      operationId: activeOperationId || `OP-REVIEW-${Date.now()}`,
+    };
+
     const updated = GoogleDrivePipelineService.applyRowReview(
       activeBatch,
       rowNumber,
       action,
-      context,
+      activeContext,
       action === 'ACCEPT_WARNING' ? 'قبول يدوي من مراجع Google Drive' : 'استبعاد السطر يدوياً'
     );
     setActiveBatch(updated);
+
+    if (targetProjectId && activeSessionId) {
+      try {
+        const cleanSnapshot = {
+          totalRows: updated.totalRows,
+          validRows: updated.validRows,
+          warningRows: updated.warningRows,
+          errorRows: updated.errorRows,
+          requiresReviewRows: updated.requiresReviewRows,
+          committedRows: updated.committedRows,
+          rows: updated.rows.map((r) => {
+            const { rawInput, ...rest } = r as any;
+            return rest;
+          }),
+        };
+
+        const updatedSession = await importSessionClientService.updateCheckpoint(
+          targetProjectId,
+          activeSessionId,
+          {
+            lifecycleState: 'REVIEW_REQUIRED',
+            currentStage: 'REVIEW',
+            reviewSnapshot: cleanSnapshot,
+            validationIssues: updated.issues || [],
+            warningConfirmation: confirmWarnings,
+            reviewAction: { rowNumber, action },
+          },
+          sessionVersion
+        );
+
+        setSessionVersion(updatedSession.version);
+      } catch (err: any) {
+        if (err?.code === 'VERSION_CONFLICT') {
+          setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ إجراء المراجعة');
+        } else {
+          setProcessError(err?.message || 'فشل في حفظ إجراء المراجعة في جلسة الخادم');
+        }
+      }
+    }
   };
 
-  const handleResolutionDecision = (
+  const handleResolutionDecision = async (
     rowNumber: number,
     entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
     candidate?: { selectedEntityId?: string; selectedDisplayName?: string }
   ) => {
     if (!activeBatch) return;
+    const targetProjectId = currentProjectId || context.projectId;
 
     try {
       setProcessError(null);
+      const activeContext: PipelineContext = {
+        ...context,
+        projectId: targetProjectId,
+        operationId: activeOperationId || context.operationId,
+      };
       const updated = GoogleDrivePipelineService.applyEntityResolutionDecision(
         activeBatch,
         rowNumber,
         entityTypeKey,
         decision,
         candidate || {},
-        context,
+        activeContext,
         effectiveUserId || 'user'
       );
 
       setActiveBatch({ ...updated });
+
+      if (targetProjectId && activeSessionId) {
+        const cleanSnapshot = {
+          totalRows: updated.totalRows,
+          validRows: updated.validRows,
+          warningRows: updated.warningRows,
+          errorRows: updated.errorRows,
+          requiresReviewRows: updated.requiresReviewRows,
+          committedRows: updated.committedRows,
+          rows: updated.rows.map((r) => {
+            const { rawInput, ...rest } = r as any;
+            return rest;
+          }),
+        };
+
+        const updatedSession = await importSessionClientService.updateCheckpoint(
+          targetProjectId,
+          activeSessionId,
+          {
+            lifecycleState: 'REVIEW_REQUIRED',
+            currentStage: 'REVIEW',
+            reviewSnapshot: cleanSnapshot,
+            validationIssues: updated.issues || [],
+            warningConfirmation: confirmWarnings,
+            reviewAction: { rowNumber, action: decision as any, entityType: entityTypeKey },
+          },
+          sessionVersion
+        );
+
+        setSessionVersion(updatedSession.version);
+      }
     } catch (err: any) {
-      setProcessError(err?.message || 'فشل في حفظ قرار المطابقة');
+      if (err?.code === 'VERSION_CONFLICT') {
+        setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ قرار المطابقة');
+      } else {
+        setProcessError(err?.message || 'فشل في حفظ قرار المطابقة في جلسة الخادم');
+      }
     }
   };
 
@@ -438,6 +754,50 @@ export function GoogleDriveImportSection({
 
       setActiveBatch({ ...updated });
       setActiveCreateFormKey(null);
+
+      if (targetProjectId && activeSessionId) {
+        try {
+          const cleanSnapshot = {
+            totalRows: updated.totalRows,
+            validRows: updated.validRows,
+            warningRows: updated.warningRows,
+            errorRows: updated.errorRows,
+            requiresReviewRows: updated.requiresReviewRows,
+            committedRows: updated.committedRows,
+            rows: updated.rows.map((r) => {
+              const { rawInput, ...rest } = r as any;
+              return rest;
+            }),
+          };
+
+          const updatedSession = await importSessionClientService.updateCheckpoint(
+            targetProjectId,
+            activeSessionId,
+            {
+              lifecycleState: 'REVIEW_REQUIRED',
+              currentStage: 'REVIEW',
+              reviewSnapshot: cleanSnapshot,
+              validationIssues: updated.issues || [],
+              warningConfirmation: confirmWarnings,
+              reviewAction: {
+                rowNumber,
+                action: 'CREATE_CANONICAL_ENTITY',
+                entityType: entityTypeKey,
+                canonicalId: result.matchedId,
+              },
+            },
+            sessionVersion
+          );
+
+          setSessionVersion(updatedSession.version);
+        } catch (err: any) {
+          if (err?.code === 'VERSION_CONFLICT') {
+            setProcessError('تم إنشاء الكيان بنجاح على الخادم، ولكن حدث تعارض في إصدار الجلسة أثناء حفظ نقطة المراجعة (VERSION_CONFLICT)');
+          } else {
+            setProcessError(`تم إنشاء الكيان بنجاح على الخادم (${result.matchedId})، ولكن تعذر حفظ نقطة المراجعة: ${err?.message || 'خطأ غير معروف'}`);
+          }
+        }
+      }
     } catch (err: any) {
       setCreateError(err?.message || 'فشل في إنشاء الكيان المعتمد');
     } finally {
@@ -445,8 +805,33 @@ export function GoogleDriveImportSection({
     }
   };
 
+  const handleConfirmWarningsChange = async (checked: boolean) => {
+    setConfirmWarnings(checked);
+    const targetProjectId = currentProjectId || context.projectId;
+    if (targetProjectId && activeSessionId) {
+      try {
+        const updatedSession = await importSessionClientService.updateCheckpoint(
+          targetProjectId,
+          activeSessionId,
+          {
+            warningConfirmation: checked,
+          },
+          sessionVersion
+        );
+        setSessionVersion(updatedSession.version);
+      } catch (err: any) {
+        if (err?.code === 'VERSION_CONFLICT') {
+          setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT)');
+        } else {
+          console.warn('Failed to update warning confirmation:', err);
+        }
+      }
+    }
+  };
+
   const handleCommit = async () => {
     if (!activeBatch) return;
+    const targetProjectId = currentProjectId || context.projectId;
 
     try {
       setIsCommitting(true);
@@ -456,6 +841,7 @@ export function GoogleDriveImportSection({
         activeBatch,
         {
           ...context,
+          operationId: activeOperationId || context.operationId,
           allowWarningsCommit: confirmWarnings,
         }
       );
@@ -463,8 +849,69 @@ export function GoogleDriveImportSection({
       setActiveBatch(finalBatch);
       setCommitResult(result);
 
-      if (result.success && onCommitSuccess) {
-        onCommitSuccess(result);
+      const isFullSuccess = result.success && (result.failedRows === undefined || result.failedRows === 0);
+
+      if (isFullSuccess) {
+        if (targetProjectId && activeSessionId) {
+          try {
+            const updatedSession = await importSessionClientService.updateCheckpoint(
+              targetProjectId,
+              activeSessionId,
+              {
+                lifecycleState: 'COMMITTED',
+                currentStage: 'COMMITTED',
+              },
+              sessionVersion
+            );
+            setSessionVersion(updatedSession.version);
+            sessionStorage.removeItem(`qsaudi_import_session_locator_${targetProjectId}`);
+          } catch {
+            // Commit succeeded on business domain; ignore session close error
+          }
+        }
+
+        if (onCommitSuccess) {
+          onCommitSuccess(result);
+        }
+      } else {
+        // Partial or failed commit: keep session active as REVIEW_REQUIRED, checkpoint updated batch, keep locator
+        if (targetProjectId && activeSessionId) {
+          try {
+            const cleanSnapshot = {
+              totalRows: finalBatch.totalRows,
+              validRows: finalBatch.validRows,
+              warningRows: finalBatch.warningRows,
+              errorRows: finalBatch.errorRows,
+              requiresReviewRows: finalBatch.requiresReviewRows,
+              committedRows: finalBatch.committedRows,
+              rows: finalBatch.rows.map((r) => {
+                const { rawInput, ...rest } = r as any;
+                return rest;
+              }),
+            };
+
+            const updatedSession = await importSessionClientService.updateCheckpoint(
+              targetProjectId,
+              activeSessionId,
+              {
+                lifecycleState: 'REVIEW_REQUIRED',
+                currentStage: 'REVIEW',
+                reviewSnapshot: cleanSnapshot,
+                validationIssues: finalBatch.issues || [],
+                warningConfirmation: confirmWarnings,
+                reviewAction: { action: 'PARTIAL_COMMIT_ATTEMPT' },
+              },
+              sessionVersion
+            );
+            setSessionVersion(updatedSession.version);
+          } catch (err: any) {
+            if (err?.code === 'VERSION_CONFLICT') {
+              setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر تحديث حالة الاعتماد الجزئي');
+            } else {
+              console.warn('Failed to update partial commit checkpoint:', err);
+            }
+          }
+        }
       }
     } catch (err: any) {
       setProcessError(err?.message || 'حدث خطأ أثناء اعتماد الدفعة');
@@ -1259,7 +1706,7 @@ export function GoogleDriveImportSection({
                   <input
                     type="checkbox"
                     checked={confirmWarnings}
-                    onChange={(e) => setConfirmWarnings(e.target.checked)}
+                    onChange={(e) => handleConfirmWarningsChange(e.target.checked)}
                     className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400"
                   />
                   <span>أؤكد مراجعة كافة التنبيهات وموافقتي على تسجيل الرحلات</span>

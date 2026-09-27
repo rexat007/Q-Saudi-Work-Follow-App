@@ -24,6 +24,7 @@ import {
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { GoogleSheetsPipelineService } from '../../services/import/googleSheetsPipeline.service';
 import { entityResolutionCommandService, NormalizedEntityResolutionResult } from '../../services/import/entityResolutionCommand.service';
+import { importSessionClientService } from '../../services/import/importSessionClient.service';
 import {
   GoogleSpreadsheetItem,
   GoogleSheetTabItem,
@@ -71,6 +72,13 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
   const [selectedSpreadsheet, setSelectedSpreadsheet] = useState<GoogleSpreadsheetItem | null>(null);
   const [selectedSheetTab, setSelectedSheetTab] = useState<string>('');
 
+  // Pipeline & Import Session Active Identity State
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [activeOperationId, setActiveOperationId] = useState<string | null>(null);
+  const [activeImportBatchId, setActiveImportBatchId] = useState<string | null>(null);
+  const [sessionVersion, setSessionVersion] = useState<number>(0);
+  const [confirmWarnings, setConfirmWarnings] = useState<boolean>(false);
+
   // Processing & Pipeline
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [processError, setProcessError] = useState<string | null>(null);
@@ -103,6 +111,104 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // Resume active import session on mount if locator exists
+  useEffect(() => {
+    let isMounted = true;
+
+    const resumeSession = async () => {
+      if (!projectId) return;
+      const locatorKey = `qsaudi_import_session_locator_${projectId}`;
+      const rawLocator = sessionStorage.getItem(locatorKey);
+      if (!rawLocator) return;
+
+      try {
+        const locator = JSON.parse(rawLocator);
+        if (!locator || locator.projectId !== projectId || !locator.importSessionId) {
+          sessionStorage.removeItem(locatorKey);
+          return;
+        }
+
+        const sessionRecord = await importSessionClientService.getSession(projectId, locator.importSessionId);
+        if (!sessionRecord || sessionRecord.lifecycleState === 'COMMITTED') {
+          sessionStorage.removeItem(locatorKey);
+          return;
+        }
+
+        const resumedState = importSessionClientService.reconstructResumedBatch(sessionRecord);
+        if (!isMounted) return;
+
+        setActiveSessionId(sessionRecord.importSessionId);
+        setActiveOperationId(sessionRecord.operationId);
+        setActiveImportBatchId(sessionRecord.importBatchId);
+        setSessionVersion(sessionRecord.version);
+        setConfirmWarnings(Boolean(sessionRecord.warningConfirmation));
+
+        if (resumedState.reviewSnapshot) {
+          const snapshot = resumedState.reviewSnapshot;
+          const rows: ImportRow[] = snapshot.rows || [];
+          const issues = sessionRecord.validationIssues || snapshot.issues || [];
+
+          // Derive counts deterministically from rows/snapshot if missing
+          const totalRows = snapshot.totalRows ?? rows.length;
+          const validRows = snapshot.validRows ?? rows.filter((r) => r.status === 'VALID' || r.reviewStatus === 'accepted').length;
+          const warningRows = snapshot.warningRows ?? rows.filter((r) => r.status === 'WARNING' || r.reviewStatus === 'warning').length;
+          const errorRows = snapshot.errorRows ?? rows.filter((r) => r.status === 'ERROR' || r.reviewStatus === 'error').length;
+          const requiresReviewRows = snapshot.requiresReviewRows ?? rows.filter((r) => r.reviewStatus === 'requires_review').length;
+          const committedRows = snapshot.committedRows ?? 0;
+
+          const reconstructedBatch: UnifiedImportBatch = {
+            importBatchId: sessionRecord.importBatchId,
+            projectId: sessionRecord.projectId,
+            source: {
+              sourceType: (sessionRecord.sourceType as any) || 'GOOGLE_SHEETS',
+              importBatchId: sessionRecord.importBatchId,
+              sourceFileName: sessionRecord.sourceMetadata?.sourceFileName || sessionRecord.sourceMetadata?.spreadsheetTitle || 'resumed_sheet',
+              sourceMimeType: sessionRecord.sourceMetadata?.sourceMimeType,
+              sourceSheetName: sessionRecord.sourceMetadata?.sourceSheetName || sessionRecord.sourceMetadata?.sheetTitle,
+            },
+            currentStage: (sessionRecord.currentStage as any) || 'REVIEW',
+            validationStatus: snapshot.validationStatus || 'PASSED',
+            commitStatus: sessionRecord.lifecycleState === 'COMMITTED' ? 'COMMITTED' : 'AWAITING_REVIEW',
+            totalRows,
+            validRows,
+            warningRows,
+            errorRows,
+            requiresReviewRows,
+            committedRows,
+            rows,
+            issues,
+            operationId: sessionRecord.operationId,
+            createdAt: sessionRecord.createdAt,
+            createdBy: sessionRecord.createdBy,
+            warningConfirmation: sessionRecord.warningConfirmation !== undefined ? {
+              confirmed: Boolean(sessionRecord.warningConfirmation),
+              confirmedBy: sessionRecord.createdBy || 'user',
+              confirmedAt: sessionRecord.updatedAt || sessionRecord.createdAt,
+            } : undefined,
+            auditTrail: [
+              {
+                timestamp: sessionRecord.updatedAt || sessionRecord.createdAt,
+                userId: sessionRecord.createdBy || 'system',
+                action: 'SESSION_RESUMED',
+                details: 'Resumed Google Sheets import session from server persistence',
+              },
+            ],
+          };
+
+          setBatch(reconstructedBatch);
+        }
+      } catch {
+        sessionStorage.removeItem(locatorKey);
+      }
+    };
+
+    resumeSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [projectId]);
 
   const loadSpreadsheets = async () => {
     if (!isOnline) {
@@ -158,6 +264,56 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
     setProcessError(null);
     setCommitResult(null);
 
+    // Generate stable identities ONCE for brand new import flow
+    const stable = importSessionClientService.generateStableIdentities();
+    const opId = stable.operationId;
+    const batchId = stable.importBatchId;
+    setActiveOperationId(opId);
+    setActiveImportBatchId(batchId);
+    setConfirmWarnings(false);
+
+    let createdSessionId: string | null = null;
+    let createdVersion = 0;
+
+    // Create server session BEFORE processing source to REVIEW (FAIL CLOSED)
+    if (projectId) {
+      try {
+        const sessionRecord = await importSessionClientService.createSession(projectId, {
+          projectId,
+          operationId: opId,
+          importBatchId: batchId,
+          sourceType: 'GOOGLE_SHEETS',
+          sourceMetadata: {
+            spreadsheetId: selectedSpreadsheet.id,
+            spreadsheetTitle: selectedSpreadsheet.name,
+            sheetTitle: selectedSheetTab || 'Sheet1',
+            modifiedTime: selectedSpreadsheet.modifiedTime,
+            sourceMimeType: 'application/vnd.google-apps.spreadsheet',
+            sourceFileName: selectedSpreadsheet.name,
+            sourceSheetName: selectedSheetTab || 'Sheet1',
+          },
+        });
+
+        createdSessionId = sessionRecord.importSessionId;
+        createdVersion = sessionRecord.version;
+        setActiveSessionId(createdSessionId);
+        setSessionVersion(createdVersion);
+
+        sessionStorage.setItem(
+          `qsaudi_import_session_locator_${projectId}`,
+          JSON.stringify({
+            projectId,
+            importSessionId: createdSessionId,
+          })
+        );
+      } catch (err: any) {
+        // FAIL CLOSED: STOP! DO NOT proceed to discovery/pipeline!
+        setIsProcessing(false);
+        setProcessError(err?.message || 'فشل في إنشاء جلسة الاستيراد على الخادم. تم إيقاف المعالجة.');
+        return;
+      }
+    }
+
     try {
       // 1. Fetch 2D values from server API
       const sheetData = await clientWorkspaceService.getSpreadsheetValues(
@@ -168,7 +324,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
       // Run Smart Source Discovery to automatically detect headerRowIndex and sheet details
       const importSource: ImportSource = {
         sourceType: 'GOOGLE_SHEETS',
-        importBatchId: `BAT-${Date.now()}`,
+        importBatchId: batchId,
         sourceFileName: selectedSpreadsheet.name,
         sourceSheetName: selectedSheetTab || 'Sheet1',
       };
@@ -183,16 +339,16 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             userId: effectiveUserId,
             userName: effectiveUserName,
             role: effectiveRole,
-            operationId: `OP-GSHT-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
-            allowWarningsCommit: true,
+            operationId: opId,
+            allowWarningsCommit: confirmWarnings,
           })
         : {
             projectId,
             userId: effectiveUserId,
             userName: effectiveUserName,
             role: effectiveRole,
-            operationId: `OP-GSHT-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
-            allowWarningsCommit: true,
+            operationId: opId,
+            allowWarningsCommit: confirmWarnings,
             knownEntities: ImportProjectContextAdapter.toPipelineKnownEntities(null),
           });
 
@@ -202,10 +358,59 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         selectedSpreadsheet,
         selectedSheetTab || 'Sheet1',
         context,
-        { headerRowIndex: detectedIdx }
+        { headerRowIndex: detectedIdx, importBatchId: batchId }
       );
 
       setBatch(reviewedBatch);
+
+      // 4. Save initial REVIEW checkpoint to server session
+      if (projectId && createdSessionId) {
+        try {
+          const cleanSnapshot = {
+            totalRows: reviewedBatch.totalRows,
+            validRows: reviewedBatch.validRows,
+            warningRows: reviewedBatch.warningRows,
+            errorRows: reviewedBatch.errorRows,
+            requiresReviewRows: reviewedBatch.requiresReviewRows,
+            committedRows: reviewedBatch.committedRows,
+            rows: reviewedBatch.rows.map((r) => {
+              const { rawInput, ...rest } = r as any;
+              return rest;
+            }),
+          };
+
+          const updatedSession = await importSessionClientService.updateCheckpoint(
+            projectId,
+            createdSessionId,
+            {
+              lifecycleState: 'REVIEW_REQUIRED',
+              currentStage: 'REVIEW',
+              reviewSnapshot: cleanSnapshot,
+              validationIssues: reviewedBatch.issues || [],
+              warningConfirmation: confirmWarnings,
+              sourceMetadata: {
+                spreadsheetId: selectedSpreadsheet.id,
+                spreadsheetTitle: selectedSpreadsheet.name,
+                sheetTitle: selectedSheetTab || 'Sheet1',
+                modifiedTime: selectedSpreadsheet.modifiedTime,
+                sourceMimeType: 'application/vnd.google-apps.spreadsheet',
+                sourceFileName: selectedSpreadsheet.name,
+                sourceSheetName: selectedSheetTab || 'Sheet1',
+                headerRowIndex: detectedIdx,
+              },
+            },
+            createdVersion
+          );
+
+          setSessionVersion(updatedSession.version);
+        } catch (err: any) {
+          if (err?.code === 'VERSION_CONFLICT') {
+            setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): يرجى تحديث الصفحة');
+          } else {
+            console.warn('Failed to update session checkpoint:', err);
+          }
+        }
+      }
     } catch (err: any) {
       setProcessError(err.message || 'فشل في معالجة بيانات ورقة العمل عبر مسار الاستيراد الموحد');
     } finally {
@@ -233,17 +438,62 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
   }, [pipelineContext, projectId, effectiveUserId, effectiveUserName, effectiveRole]);
 
   // Row Review Actions
-  const handleRowAction = (rowNumber: number, action: 'ACCEPT_WARNING' | 'REJECT_ROW') => {
+  const handleRowAction = async (rowNumber: number, action: 'ACCEPT_WARNING' | 'REJECT_ROW') => {
     if (!batch) return;
     const context: PipelineContext = {
       ...effectivePipelineContext,
-      operationId: `OP-REVIEW-${Date.now()}`,
+      operationId: activeOperationId || `OP-REVIEW-${Date.now()}`,
     };
-    const updated = GoogleSheetsPipelineService.applyRowReview(batch, rowNumber, action, context);
+    const updated = GoogleSheetsPipelineService.applyRowReview(
+      batch,
+      rowNumber,
+      action,
+      context,
+      action === 'ACCEPT_WARNING' ? 'تمت الموافقة اليدوية على التنبيه' : 'تم استبعاد الصف يدوياً'
+    );
     setBatch({ ...updated });
+
+    if (projectId && activeSessionId) {
+      try {
+        const cleanSnapshot = {
+          totalRows: updated.totalRows,
+          validRows: updated.validRows,
+          warningRows: updated.warningRows,
+          errorRows: updated.errorRows,
+          requiresReviewRows: updated.requiresReviewRows,
+          committedRows: updated.committedRows,
+          rows: updated.rows.map((r) => {
+            const { rawInput, ...rest } = r as any;
+            return rest;
+          }),
+        };
+
+        const updatedSession = await importSessionClientService.updateCheckpoint(
+          projectId,
+          activeSessionId,
+          {
+            lifecycleState: 'REVIEW_REQUIRED',
+            currentStage: 'REVIEW',
+            reviewSnapshot: cleanSnapshot,
+            validationIssues: updated.issues || [],
+            warningConfirmation: confirmWarnings,
+            reviewAction: { rowNumber, action },
+          },
+          sessionVersion
+        );
+
+        setSessionVersion(updatedSession.version);
+      } catch (err: any) {
+        if (err?.code === 'VERSION_CONFLICT') {
+          setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ إجراء المراجعة');
+        } else {
+          setProcessError(err?.message || 'فشل في حفظ إجراء المراجعة في جلسة الخادم');
+        }
+      }
+    }
   };
 
-  const handleResolutionDecision = (
+  const handleResolutionDecision = async (
     rowNumber: number,
     entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
@@ -253,19 +503,58 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
 
     try {
       setProcessError(null);
+      const context: PipelineContext = {
+        ...effectivePipelineContext,
+        operationId: activeOperationId || effectivePipelineContext.operationId,
+      };
       const updated = GoogleSheetsPipelineService.applyEntityResolutionDecision(
         batch,
         rowNumber,
         entityTypeKey,
         decision,
         candidate || {},
-        effectivePipelineContext,
+        context,
         effectiveUserId || 'user'
       );
 
       setBatch({ ...updated });
+
+      if (projectId && activeSessionId) {
+        const cleanSnapshot = {
+          totalRows: updated.totalRows,
+          validRows: updated.validRows,
+          warningRows: updated.warningRows,
+          errorRows: updated.errorRows,
+          requiresReviewRows: updated.requiresReviewRows,
+          committedRows: updated.committedRows,
+          rows: updated.rows.map((r) => {
+            const { rawInput, ...rest } = r as any;
+            return rest;
+          }),
+        };
+
+        const updatedSession = await importSessionClientService.updateCheckpoint(
+          projectId,
+          activeSessionId,
+          {
+            lifecycleState: 'REVIEW_REQUIRED',
+            currentStage: 'REVIEW',
+            reviewSnapshot: cleanSnapshot,
+            validationIssues: updated.issues || [],
+            warningConfirmation: confirmWarnings,
+            reviewAction: { rowNumber, action: decision as any, entityType: entityTypeKey },
+          },
+          sessionVersion
+        );
+
+        setSessionVersion(updatedSession.version);
+      }
     } catch (err: any) {
-      setProcessError(err?.message || 'فشل في حفظ قرار المطابقة');
+      if (err?.code === 'VERSION_CONFLICT') {
+        setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ قرار المطابقة');
+      } else {
+        setProcessError(err?.message || 'فشل في حفظ قرار المطابقة في جلسة الخادم');
+      }
     }
   };
 
@@ -396,10 +685,77 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
 
       setBatch({ ...updated });
       setActiveCreateFormKey(null);
+
+      if (projectId && activeSessionId) {
+        try {
+          const cleanSnapshot = {
+            totalRows: updated.totalRows,
+            validRows: updated.validRows,
+            warningRows: updated.warningRows,
+            errorRows: updated.errorRows,
+            requiresReviewRows: updated.requiresReviewRows,
+            committedRows: updated.committedRows,
+            rows: updated.rows.map((r) => {
+              const { rawInput, ...rest } = r as any;
+              return rest;
+            }),
+          };
+
+          const updatedSession = await importSessionClientService.updateCheckpoint(
+            projectId,
+            activeSessionId,
+            {
+              lifecycleState: 'REVIEW_REQUIRED',
+              currentStage: 'REVIEW',
+              reviewSnapshot: cleanSnapshot,
+              validationIssues: updated.issues || [],
+              warningConfirmation: confirmWarnings,
+              reviewAction: {
+                rowNumber,
+                action: 'CREATE_CANONICAL_ENTITY',
+                entityType: entityTypeKey,
+                canonicalId: result.matchedId,
+              },
+            },
+            sessionVersion
+          );
+
+          setSessionVersion(updatedSession.version);
+        } catch (err: any) {
+          if (err?.code === 'VERSION_CONFLICT') {
+            setProcessError('تم إنشاء الكيان بنجاح على الخادم، ولكن حدث تعارض في إصدار الجلسة أثناء حفظ نقطة المراجعة (VERSION_CONFLICT)');
+          } else {
+            setProcessError(`تم إنشاء الكيان بنجاح على الخادم (${result.matchedId})، ولكن تعذر حفظ نقطة المراجعة: ${err?.message || 'خطأ غير معروف'}`);
+          }
+        }
+      }
     } catch (err: any) {
       setCreateError(err?.message || 'فشل في إنشاء الكيان المعتمد');
     } finally {
       setIsCreatingEntity(false);
+    }
+  };
+
+  const handleConfirmWarningsChange = async (checked: boolean) => {
+    setConfirmWarnings(checked);
+    if (projectId && activeSessionId) {
+      try {
+        const updatedSession = await importSessionClientService.updateCheckpoint(
+          projectId,
+          activeSessionId,
+          {
+            warningConfirmation: checked,
+          },
+          sessionVersion
+        );
+        setSessionVersion(updatedSession.version);
+      } catch (err: any) {
+        if (err?.code === 'VERSION_CONFLICT') {
+          setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT)');
+        } else {
+          console.warn('Failed to update warning confirmation:', err);
+        }
+      }
     }
   };
 
@@ -423,12 +779,74 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         userId: effectiveUserId,
         userName: effectiveUserName,
         role: effectiveRole,
-        operationId: `OP-GSHT-COMMIT-${Date.now()}`,
+        operationId: activeOperationId || `OP-GSHT-COMMIT-${Date.now()}`,
+        allowWarningsCommit: confirmWarnings,
       };
 
       const { batch: committedBatch, result } = await GoogleSheetsPipelineService.commitBatch(batch, context);
       setBatch(committedBatch);
       setCommitResult(result);
+
+      const isFullSuccess = result.success && (result.failedRows === undefined || result.failedRows === 0);
+
+      if (isFullSuccess) {
+        if (projectId && activeSessionId) {
+          try {
+            const updatedSession = await importSessionClientService.updateCheckpoint(
+              projectId,
+              activeSessionId,
+              {
+                lifecycleState: 'COMMITTED',
+                currentStage: 'COMMITTED',
+              },
+              sessionVersion
+            );
+            setSessionVersion(updatedSession.version);
+            sessionStorage.removeItem(`qsaudi_import_session_locator_${projectId}`);
+          } catch {
+            // Commit succeeded on business domain; ignore session close error
+          }
+        }
+      } else {
+        // Partial or failed commit: keep session active as REVIEW_REQUIRED, checkpoint updated batch, keep locator
+        if (projectId && activeSessionId) {
+          try {
+            const cleanSnapshot = {
+              totalRows: committedBatch.totalRows,
+              validRows: committedBatch.validRows,
+              warningRows: committedBatch.warningRows,
+              errorRows: committedBatch.errorRows,
+              requiresReviewRows: committedBatch.requiresReviewRows,
+              committedRows: committedBatch.committedRows,
+              rows: committedBatch.rows.map((r) => {
+                const { rawInput, ...rest } = r as any;
+                return rest;
+              }),
+            };
+
+            const updatedSession = await importSessionClientService.updateCheckpoint(
+              projectId,
+              activeSessionId,
+              {
+                lifecycleState: 'REVIEW_REQUIRED',
+                currentStage: 'REVIEW',
+                reviewSnapshot: cleanSnapshot,
+                validationIssues: committedBatch.issues || [],
+                warningConfirmation: confirmWarnings,
+                reviewAction: { action: 'PARTIAL_COMMIT_ATTEMPT' },
+              },
+              sessionVersion
+            );
+            setSessionVersion(updatedSession.version);
+          } catch (err: any) {
+            if (err?.code === 'VERSION_CONFLICT') {
+              setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر تحديث حالة الاعتماد الجزئي');
+            } else {
+              console.warn('Failed to update partial commit checkpoint:', err);
+            }
+          }
+        }
+      }
     } catch (err: any) {
       alert(`فشل الاعتماد: ${err.message}`);
     } finally {

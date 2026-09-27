@@ -149,9 +149,9 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
       };
     }
 
-    // 5. Filter active non-rejected rows
+    // 5. Filter active non-rejected rows (exclude already COMMITTED rows on retry)
     const activeRows = batch.rows.filter(
-      (r) => r.status !== 'REJECTED' && r.reviewStatus !== 'error'
+      (r) => r.status !== 'REJECTED' && r.status !== 'COMMITTED' && r.reviewStatus !== 'error'
     );
 
     const committedTripIds: string[] = [];
@@ -710,7 +710,7 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
     const eligibleCommitRowsCount = activeRows.length;
     let success = true;
     if (eligibleCommitRowsCount > 0) {
-      success = committedRowsCount > 0;
+      success = failedRowsCount === 0 && committedRowsCount === eligibleCommitRowsCount;
     } else {
       success = failedRowsCount === 0;
     }
@@ -730,8 +730,8 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
       executedAt: new Date().toISOString(),
     };
 
-    // Cache result for idempotency
-    if (context.operationId) {
+    // Cache result for idempotency ONLY on full success to avoid poisoning retries of partial/failed operations
+    if (context.operationId && success) {
       ExcelCsvTripCommitter.committedOperations.set(context.operationId, result);
     }
 

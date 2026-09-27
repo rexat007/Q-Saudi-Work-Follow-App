@@ -219,7 +219,7 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
     expect(result.success).toBe(false);
   });
 
-  it('9. two rows: one succeeds, one fails -> committedRows === 1', async () => {
+  it('9. two rows: one succeeds, one fails -> committedRows === 1 and success === false', async () => {
     const spyCreate = vi.spyOn(tripRepository, 'create')
       .mockResolvedValueOnce({} as any)
       .mockRejectedValueOnce(new Error('FIRESTORE_WRITE_ERROR'));
@@ -230,7 +230,7 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
 
     expect(result.committedRows).toBe(1);
     expect(result.failedRows).toBe(1);
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 
   it('10. failed row is not in committedEntityIds', async () => {
@@ -297,12 +297,9 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
     const writeIndex = committerCode.indexOf('tripRepository.create(');
     expect(writeIndex).toBeGreaterThan(-1);
     
-    // Ensure that committedTripIds.push or row.status = 'COMMITTED' is NOT located outside of the successful try block.
-    // In our implementation, they are inside the try block immediately following tripRepository.create()
     const catchIndex = committerCode.indexOf('catch (err: any) {', writeIndex);
     const commitedPushIndex = committerCode.indexOf('committedTripIds.push(tripId);', writeIndex);
     
-    // The push to committedTripIds must occur BEFORE the catch block is opened, proving it's inside the try block.
     expect(commitedPushIndex).toBeLessThan(catchIndex);
   });
 
@@ -337,5 +334,70 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   it('17. ZERO production references to PRJ-NEOM-CONVERGE in tripImportCommitter.ts', () => {
     const committerCode = fs.readFileSync(path.resolve(__dirname, '../services/import/tripImportCommitter.ts'), 'utf8');
     expect(committerCode).not.toContain('PRJ-NEOM-CONVERGE');
+  });
+
+  it('18. partial failure marks only successfully written row COMMITTED and leaves failed row uncommitted', async () => {
+    const spyCreate = vi.spyOn(tripRepository, 'create')
+      .mockResolvedValueOnce({} as any)
+      .mockRejectedValueOnce(new Error('NETWORK_TIMEOUT'));
+
+    const committer = new ExcelCsvTripCommitter();
+    const batch = getTwoRowBatch();
+    const result = await committer.commit(batch, sampleContext);
+
+    expect(batch.rows[0].status).toBe('COMMITTED');
+    expect(batch.rows[1].status).not.toBe('COMMITTED');
+    expect(result.success).toBe(false);
+    expect(result.committedRows).toBe(1);
+    expect(result.failedRows).toBe(1);
+  });
+
+  it('19. retry after partial failure excludes already COMMITTED rows from re-creation', async () => {
+    const spyCreate = vi.spyOn(tripRepository, 'create')
+      .mockResolvedValueOnce({} as any) // first call: row 1 succeeds
+      .mockRejectedValueOnce(new Error('NETWORK_TIMEOUT')) // first call: row 2 fails
+      .mockResolvedValueOnce({} as any); // second call (retry): row 2 succeeds
+
+    const committer = new ExcelCsvTripCommitter();
+    const batch = getTwoRowBatch();
+
+    // First attempt (partial failure)
+    const result1 = await committer.commit(batch, sampleContext);
+    expect(result1.success).toBe(false);
+    expect(batch.rows[0].status).toBe('COMMITTED');
+    expect(batch.rows[1].status).not.toBe('COMMITTED');
+    expect(spyCreate).toHaveBeenCalledTimes(2);
+
+    // Second attempt (retry on same batch with row 0 already COMMITTED)
+    const result2 = await committer.commit(batch, sampleContext);
+    expect(result2.success).toBe(true);
+    expect(result2.committedRows).toBe(1); // row 2 committed
+    expect(result2.failedRows).toBe(0);
+    expect(batch.rows[1].status).toBe('COMMITTED');
+    // spyCreate called 1 additional time for row 2 only, NOT for row 1
+    expect(spyCreate).toHaveBeenCalledTimes(3);
+  });
+
+  it('20. partial result does not poison idempotency cache and allows subsequent retry to succeed', async () => {
+    const spyCreate = vi.spyOn(tripRepository, 'create')
+      .mockRejectedValueOnce(new Error('TRANSIENT_DB_ERROR'))
+      .mockResolvedValueOnce({} as any);
+
+    const committer = new ExcelCsvTripCommitter();
+    const batch = getSingleRowBatch();
+
+    // 1st attempt: fails
+    const res1 = await committer.commit(batch, sampleContext);
+    expect(res1.success).toBe(false);
+
+    // 2nd attempt: does NOT return cached res1; retries and succeeds!
+    const res2 = await committer.commit(batch, sampleContext);
+    expect(res2.success).toBe(true);
+    expect(res2.committedRows).toBe(1);
+
+    // 3rd attempt: fully successful result IS cached and idempotent
+    const res3 = await committer.commit(batch, sampleContext);
+    expect(res3.success).toBe(true);
+    expect(spyCreate).toHaveBeenCalledTimes(2); // not called a 3rd time
   });
 });
