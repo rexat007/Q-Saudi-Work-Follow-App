@@ -119,7 +119,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   it('4. applyEntityResolutionDecision (ACCEPT_CANDIDATE) triggers revalidation', () => {
     const batch = createBaseBatch([unresolvedRow]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     // UNKNOWN_CARRIER warning should be gone
     expect(updated.rows[0].validationIssues.some(i => i.code === 'UNKNOWN_CARRIER')).toBe(false);
@@ -130,7 +130,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   it('5. applyEntityResolutionDecision (SELECT_ALTERNATE) triggers revalidation', () => {
     const batch = createBaseBatch([unresolvedRow]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'SELECT_ALTERNATE', { selectedEntityId: 'CAR-200' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'SELECT_ALTERNATE', { selectedEntityId: 'CAR-200' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'UNKNOWN_CARRIER')).toBe(false);
     // CAR-200 conflicts with TRK-100 (which expects CAR-100). This proves revalidation ran.
@@ -167,7 +167,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     const batch = createBaseBatch([row]);
     
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     
     expect(updated.rows[0].validationIssues.some(i => i.code === 'TARE_WEIGHT_NON_POSITIVE')).toBe(true);
@@ -182,7 +182,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     const batch = createBaseBatch([rowWithBlocking]);
     
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     
     expect(updated.rows[0].reviewStatus).toBe('requires_review');
@@ -206,7 +206,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'truck', 'ACCEPT_CANDIDATE', { selectedEntityId: 'TRK-100' }, 'user-1', dummyContext
+      batch, 1, 'truck', 'ACCEPT_CANDIDATE', { selectedEntityId: 'TRK-100' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'UNKNOWN_TRUCK')).toBe(false);
   });
@@ -223,7 +223,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'material', 'ACCEPT_CANDIDATE', { selectedEntityId: 'MAT-100' }, 'user-1', dummyContext
+      batch, 1, 'material', 'ACCEPT_CANDIDATE', { selectedEntityId: 'MAT-100' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'UNKNOWN_MATERIAL')).toBe(false);
   });
@@ -247,7 +247,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     const batch = createBaseBatch([row]);
     // Resolve carrier to CAR-200, which conflicts with DRV-100 (expects CAR-100)
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'SELECT_ALTERNATE', { selectedEntityId: 'CAR-200' }, 'user-1', contextWithDriverMap
+      batch, 1, 'carrier', 'SELECT_ALTERNATE', { selectedEntityId: 'CAR-200' }, contextWithDriverMap, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'DRIVER_CARRIER_CONFLICT')).toBe(true);
   });
@@ -258,7 +258,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     expect(batch.validRows).toBe(0);
     
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     
     expect(updated.requiresReviewRows).toBe(0);
@@ -283,7 +283,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     };
     const batch = createBaseBatch([row]);
     const step1 = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     // Still needs truck resolution
     expect(step1.rows[0].reviewStatus).toBe('requires_review');
@@ -299,10 +299,10 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     };
     const batch = createBaseBatch([row]);
     const step1 = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     const step2 = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      step1, 1, 'truck', 'ACCEPT_CANDIDATE', { selectedEntityId: 'TRK-100' }, 'user-1', dummyContext
+      step1, 1, 'truck', 'ACCEPT_CANDIDATE', { selectedEntityId: 'TRK-100' }, dummyContext, 'user-1'
     );
     expect(step2.rows[0].reviewStatus).toBe('accepted');
   });
@@ -315,7 +315,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'NET_WEIGHT_CALCULATION_MISMATCH')).toBe(true);
   });
@@ -371,7 +371,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   it('24. LEAVE_UNRESOLVED keeps reviewStatus', () => {
     const batch = createBaseBatch([unresolvedRow]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'LEAVE_UNRESOLVED', {}, 'user-1', dummyContext
+      batch, 1, 'carrier', 'LEAVE_UNRESOLVED', {}, dummyContext, 'user-1'
     );
     expect(updated.rows[0].reviewStatus).toBe('requires_review');
   });
@@ -403,7 +403,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'truck', 'ACCEPT_CANDIDATE', { selectedEntityId: 'TRK-100' }, 'user-1', dummyContext
+      batch, 1, 'truck', 'ACCEPT_CANDIDATE', { selectedEntityId: 'TRK-100' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'MISSING_IDENTIFICATION')).toBe(false);
   });
@@ -416,7 +416,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'GROSS_LESS_THAN_TARE')).toBe(true);
     expect(updated.rows[0].reviewStatus).toBe('requires_review');
@@ -433,7 +433,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     const batch = createBaseBatch([unresolvedRow]);
     // Resolve material to MAT-100, which is not in the allowed project list
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'material', 'ACCEPT_CANDIDATE', { selectedEntityId: 'MAT-100' }, 'user-1', contextWithMatScope
+      batch, 1, 'material', 'ACCEPT_CANDIDATE', { selectedEntityId: 'MAT-100' }, contextWithMatScope, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'MATERIAL_PROJECT_CONFLICT')).toBe(true);
   });
@@ -446,7 +446,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'driver', 'ACCEPT_CANDIDATE', { selectedEntityId: 'DRV-100' }, 'user-1', dummyContext
+      batch, 1, 'driver', 'ACCEPT_CANDIDATE', { selectedEntityId: 'DRV-100' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'MISSING_OPTIONAL_DRIVER')).toBe(false);
   });
@@ -465,7 +465,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     const row = { ...unresolvedRow, resolvedValues: { truckId: 'TRK-100' } };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].resolvedValues?.truckId).toBe('TRK-100');
     expect(updated.rows[0].resolvedValues?.carrierId).toBe('CAR-100');
@@ -482,7 +482,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     const batch = createBaseBatch([row]);
     // Simulate resolving something else, but weights still missing
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', wbContext as any
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, wbContext as any, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'MISSING_GROSS_WEIGHT')).toBe(true);
   });
@@ -534,7 +534,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].entityResolutions?.carrier?.ambiguous).toBe(false);
   });
@@ -556,9 +556,9 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
       }
     };
     const batch = createBaseBatch([row]);
-    let b = ExcelCsvPipelineService.applyEntityResolutionDecision(batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext);
-    b = ExcelCsvPipelineService.applyEntityResolutionDecision(b, 1, 'truck', 'ACCEPT_CANDIDATE', { selectedEntityId: 'TRK-100' }, 'user-1', dummyContext);
-    b = ExcelCsvPipelineService.applyEntityResolutionDecision(b, 1, 'material', 'ACCEPT_CANDIDATE', { selectedEntityId: 'MAT-100' }, 'user-1', dummyContext);
+    let b = ExcelCsvPipelineService.applyEntityResolutionDecision(batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1');
+    b = ExcelCsvPipelineService.applyEntityResolutionDecision(b, 1, 'truck', 'ACCEPT_CANDIDATE', { selectedEntityId: 'TRK-100' }, dummyContext, 'user-1');
+    b = ExcelCsvPipelineService.applyEntityResolutionDecision(b, 1, 'material', 'ACCEPT_CANDIDATE', { selectedEntityId: 'MAT-100' }, dummyContext, 'user-1');
     
     expect(b.rows[0].reviewStatus).toBe('accepted');
     expect(b.validRows).toBe(1);
@@ -574,7 +574,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     const batch = createBaseBatch([row]);
     // 123 ABC belongs to CAR-100. Select CAR-200.
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-200' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-200' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'RELATIONSHIP_CONFLICT')).toBe(true);
   });
@@ -589,7 +589,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     const batch = createBaseBatch([row]);
     // Fix carrier to CAR-100 (which 123 ABC belongs to)
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'SELECT_ALTERNATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'SELECT_ALTERNATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'RELATIONSHIP_CONFLICT')).toBe(false);
   });
@@ -605,7 +605,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'material', 'SELECT_ALTERNATE', { selectedEntityId: 'MAT-100' }, 'user-1', contextWithScope
+      batch, 1, 'material', 'SELECT_ALTERNATE', { selectedEntityId: 'MAT-100' }, contextWithScope, 'user-1'
     );
     expect(updated.rows[0].validationIssues.some(i => i.code === 'MATERIAL_PROJECT_CONFLICT')).toBe(false);
   });
@@ -614,7 +614,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     const batch = createBaseBatch([unresolvedRow]);
     expect(batch.requiresReviewRows).toBe(1);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, 'user-1', dummyContext
+      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
     );
     expect(updated.requiresReviewRows).toBe(0);
     expect(updated.validRows).toBe(1);

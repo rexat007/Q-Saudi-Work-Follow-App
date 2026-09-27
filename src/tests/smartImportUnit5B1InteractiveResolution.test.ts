@@ -2,36 +2,22 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ExcelCsvPipelineService } from '../services/import/excelCsvPipeline.service';
 import { EntityResolutionService } from '../services/import/entityResolution.service';
 import { EntityResolutionItem } from '../types/entityResolution';
-import { UnifiedImportBatch, ImportRow } from '../types/unifiedImport';
+import { UnifiedImportBatch, ImportRow, PipelineContext } from '../types/unifiedImport';
 import * as fs from 'fs';
 import * as path from 'path';
 
 describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test Suite', () => {
-
   const dummyContext: PipelineContext = {
     projectId: 'PRJ-NEOM-01',
     userId: 'user-admin-1',
-    userName: 'Admin',
+    userName: 'Admin User',
     role: 'PROJECT_ADMIN',
     operationId: 'OP-5B1-TEST',
     knownEntities: {
-      carriers: [
-        { carrierId: 'CAR-100', name: 'الناقل الأول', projectId: 'PRJ-NEOM-01' },
-      ],
-      trucks: [
-        { truckId: 'TRK-200', plate: '1234 A B C', carrierId: 'CAR-100', projectId: 'PRJ-NEOM-01' },
-      ],
-      truckCarrierMap: {
-        '1234 A B C': 'CAR-100',
-      },
-      drivers: [
-        { driverId: 'DRV-100', name: 'Driver One', projectId: 'PRJ-NEOM-01' },
-        { driverId: 'DRV-300', name: 'أحمد علي', projectId: 'PRJ-NEOM-01' },
-      ],
-      materials: [
-        { materialId: 'MAT-100', name: 'Material One', code: 'M1', projectId: 'PRJ-NEOM-01' },
-        { materialId: 'MAT-400', name: 'رمل', code: 'M400', projectId: 'PRJ-NEOM-01' },
-      ],
+      carriers: [{ carrierId: 'CAR-100', name: 'الناقل الأول', projectId: 'PRJ-NEOM-01' }],
+      trucks: [{ truckId: 'TRK-200', plate: '1234 A B C', projectId: 'PRJ-NEOM-01' }],
+      drivers: [{ driverId: 'DRV-300', name: 'أحمد علي', projectId: 'PRJ-NEOM-01' }],
+      materials: [{ materialId: 'MAT-400', name: 'رمل', code: 'SAND', projectId: 'PRJ-NEOM-01' }],
     },
   };
 
@@ -54,8 +40,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
         rowNumber: 1,
         status: 'WARNING',
         reviewStatus: 'requires_review',
-        raw: { 'الناقل': 'ناقل غير مؤكد', 'الشاحنة': '1234 A B C', 'السائق': 'Driver One', 'التاريخ': '2024-01-01', 'الوزن القائم': 100, 'الوزن الفارغ': 50, 'الوزن الصافي': 50, 'صافي الوصول': 50 },
-        canonical: { carrier: 'ناقل غير مؤكد', truckNo: '1234 A B C', driverName: 'Driver One', shiftDate: '2024-01-01', grossWeight: 100, tareWeight: 50, netWeight: 50, destNetWeight: 50 },
+        raw: { 'الناقل': 'ناقل غير مؤكد', 'الشاحنة': '1234 A B C' },
+        canonical: { carrierName: 'ناقل غير مؤكد', plateNumber: '1234 A B C' },
         validationIssues: [],
         resolvedValues: {},
         entityResolutions: {
@@ -202,8 +188,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'ACCEPT_CANDIDATE',
       { selectedEntityId: 'CAR-100', selectedDisplayName: 'الناقل الأول' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(spy).toHaveBeenCalledWith(
@@ -225,8 +211,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'CAR-100', selectedDisplayName: 'الناقل المختار' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(spy).toHaveBeenCalledWith(
@@ -247,8 +233,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'LEAVE_UNRESOLVED',
       {},
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(spy).toHaveBeenCalledWith(
@@ -266,8 +252,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'CAR-100', selectedDisplayName: 'الناقل الأول' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(res.rows[0].resolvedValues?.carrierId).toBe('CAR-100');
@@ -297,8 +283,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'truck',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'TRK-200', selectedDisplayName: '1234 A B C' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(res.rows[0].resolvedValues?.truckId).toBe('TRK-200');
@@ -327,8 +313,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'driver',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'DRV-300', selectedDisplayName: 'أحمد علي' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(res.rows[0].resolvedValues?.driverId).toBe('DRV-300');
@@ -357,8 +343,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'material',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'MAT-400', selectedDisplayName: 'رمل' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(res.rows[0].resolvedValues?.materialId).toBe('MAT-400');
@@ -374,8 +360,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'CAR-100', selectedDisplayName: 'الناقل المختار' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(res.rows[0].raw).toEqual(originalRaw);
@@ -389,8 +375,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'CAR-100', selectedDisplayName: 'الناقل المختار' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(res.rows[0].entityResolutions?.carrier?.sourceValue).toBe('ناقل غير مؤكد');
@@ -433,8 +419,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'CAR-100', selectedDisplayName: 'الناقل الأول' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     // Truck is still unresolved -> row MUST remain requires_review
@@ -452,8 +438,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'CAR-100', selectedDisplayName: 'الناقل الأول' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(res.rows[0].reviewStatus).not.toBe('accepted');
@@ -471,11 +457,23 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'CAR-100', selectedDisplayName: 'الناقل الأول' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
-    expect(res.rows[0].reviewStatus).toBe('accepted');
+    // Entity resolution is complete and row no longer requires entity-resolution attention
+    expect(res.rows[0].entityResolutions?.carrier?.recommendation).toBe('ACCEPT');
+    expect(res.rows[0].resolvedValues?.carrierId).toBe('CAR-100');
+    expect(ExcelCsvPipelineService.rowRequiresEntityResolution(res.rows[0])).toBe(false);
+
+    // Fresh validation warnings are preserved and row transitions out of requires_review
+    expect(res.rows[0].status).toBe('WARNING');
+    expect(res.rows[0].reviewStatus).toBe('warning');
+
+    // Validation issues contain the legitimate warnings
+    const issueCodes = res.rows[0].validationIssues?.map((i) => i.code) ?? [];
+    expect(issueCodes).toContain('MISSING_OPTIONAL_DRIVER');
+    expect(issueCodes).toContain('MISSING_UNLOAD_DATA');
   });
 
   it('19. resolution decision updates REVIEW snapshot and recalculates KPIs', () => {
@@ -488,12 +486,15 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'SELECT_ALTERNATE',
       { selectedEntityId: 'CAR-100', selectedDisplayName: 'الناقل الأول' },
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
+    expect(res.rows[0].status).toBe('WARNING');
+    expect(res.rows[0].reviewStatus).toBe('warning');
     expect(res.requiresReviewRows).toBe(0);
-    expect(res.validRows).toBe(1);
+    expect(res.validRows).toBe(0);
+    expect(res.warningRows).toBe(1);
   });
 
   it('20. LEAVE_UNRESOLVED decision keeps riskLevel HIGH and recommendation REVIEW', () => {
@@ -504,8 +505,8 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
       'carrier',
       'LEAVE_UNRESOLVED',
       {},
-      'user-admin-1',
-      dummyContext
+      dummyContext,
+      'user-admin-1'
     );
 
     expect(res.rows[0].entityResolutions?.carrier?.recommendation).toBe('REVIEW');

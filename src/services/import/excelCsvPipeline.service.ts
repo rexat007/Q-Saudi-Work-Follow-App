@@ -171,8 +171,8 @@ export class ExcelCsvPipelineService {
     entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
     candidate: { selectedEntityId?: string; selectedDisplayName?: string },
-    actorId: string,
-    context: PipelineContext
+    context: PipelineContext,
+    actorId: string
   ): UnifiedImportBatch {
     const rowIdx = batch.rows.findIndex((r) => r.rowNumber === rowNumber);
     if (rowIdx === -1) {

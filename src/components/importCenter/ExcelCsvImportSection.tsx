@@ -537,8 +537,8 @@ export function ExcelCsvImportSection({
         entityTypeKey,
         decision,
         candidate || {},
-        effectiveUserId || 'user',
-        context
+        context,
+        effectiveUserId || 'user'
       );
 
       setActiveBatch({ ...updated });

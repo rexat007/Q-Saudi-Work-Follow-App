@@ -2,11 +2,24 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ExcelCsvPipelineService } from '../services/import/excelCsvPipeline.service';
 import { entityResolutionCommandService } from '../services/import/entityResolutionCommand.service';
 import { importSessionClientService } from '../services/import/importSessionClient.service';
-import { UnifiedImportBatch } from '../types/unifiedImport';
+import { UnifiedImportBatch, PipelineContext } from '../types/unifiedImport';
 import * as fs from 'fs';
 import * as path from 'path';
 
 describe('Smart Import Unit 5B-2 Create Missing Canonical Entity Test Suite', () => {
+  const dummyContext: PipelineContext = {
+    projectId: 'PRJ-NEOM-5B2',
+    userId: 'user-admin-1',
+    userName: 'Admin User',
+    role: 'PROJECT_ADMIN',
+    operationId: 'OP-5B2-TEST',
+    knownEntities: {
+      carriers: [{ carrierId: 'CAR-100', name: 'الناقل الأول', projectId: 'PRJ-NEOM-5B2' }],
+      trucks: [{ truckId: 'TRK-200', plate: '1234 A B C', projectId: 'PRJ-NEOM-5B2' }],
+      drivers: [{ driverId: 'DRV-300', name: 'أحمد علي', projectId: 'PRJ-NEOM-5B2' }],
+      materials: [{ materialId: 'MAT-400', name: 'رمل', code: 'SAND', projectId: 'PRJ-NEOM-5B2' }],
+    },
+  };
 
   const createSampleUnresolvedBatch = (): UnifiedImportBatch => ({
     importBatchId: 'BAT-5B2-001',
