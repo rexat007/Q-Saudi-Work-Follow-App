@@ -38,6 +38,7 @@ import { pricingRuleRepository } from '../../repositories/pricingRule.repository
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
 import { entityResolutionCommandService } from '../../services/import/entityResolutionCommand.service';
+import { RosterBatchReviewService, ReviewGroupEntityType } from '../../services/import/rosterBatchReview.service';
 import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
 import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
 import { auth } from '../../firebase/config';
@@ -639,6 +640,137 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setImportBatch({ ...updated });
     } catch (err: any) {
       alert(err.message || 'فشل تطبيق قرار المطابقة');
+    }
+  };
+
+  const handleApplyGroupedResolutionDecision = (
+    entityTypeKey: ReviewGroupEntityType,
+    normalizedSourceKey: string,
+    decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
+    candidateId?: string
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      let relContext = null;
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-RES-${Date.now()}`
+      });
+      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+        importBatch,
+        entityTypeKey,
+        normalizedSourceKey,
+        decision,
+        { selectedEntityId: candidateId },
+        pipelineCtx,
+        authContext.userId
+      );
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل تطبيق قرار المطابقة الجماعي');
+    }
+  };
+
+  const handleGroupedCreateMissingEntity = async (
+    group: any
+  ) => {
+    if (!importBatch || !project) return;
+    const { entityType, normalizedSourceKey, sourceValue } = group;
+    try {
+      let result: any;
+      if (entityType === 'carrier') {
+        const crNo = prompt('أدخل رقم السجل التجاري للناقل (إلزامي):');
+        if (!crNo || !crNo.trim()) {
+          alert('رقم السجل التجاري إلزامي لإنشاء الناقل');
+          return;
+        }
+        result = await entityResolutionCommandService.createCarrier({
+          projectId: project.projectId,
+          sourceValue: sourceValue,
+          carrierData: {
+            nameAr: sourceValue,
+            commercialRegistrationNo: crNo.trim(),
+          },
+        });
+      } else if (entityType === 'material') {
+        const matCode = prompt('أدخل رمز المادة (Code) (إلزامي):');
+        if (!matCode || !matCode.trim()) {
+          alert('رمز المادة إلزامي لإنشاء المادة');
+          return;
+        }
+        result = await entityResolutionCommandService.createMaterial({
+          projectId: project.projectId,
+          sourceValue: sourceValue,
+          materialData: {
+            code: matCode.trim(),
+            nameAr: sourceValue,
+          },
+        });
+      } else if (entityType === 'driver') {
+        const sampleRow = importBatch.rows.find((r: any) => group.rowNumbers?.includes(r.rowNumber));
+        const carrierId = sampleRow?.resolvedValues?.carrierId || sampleRow?.entityResolutions?.carrier?.matchedId;
+        if (!carrierId) {
+          alert('يجب حسم الناقل أولاً قبل إنشاء السائق');
+          return;
+        }
+        const residency = prompt('أدخل رقم الهوية الوطنية أو الإقامة للسائق (إلزامي):');
+        if (!residency || !residency.trim()) {
+          alert('رقم الهوية/الإقامة إلزامي لإنشاء السائق');
+          return;
+        }
+        result = await entityResolutionCommandService.createDriver({
+          projectId: project.projectId,
+          sourceValue: sourceValue,
+          driverData: {
+            carrierId,
+            driverName: sourceValue,
+            residencyId: residency.trim(),
+          },
+        });
+      } else if (entityType === 'truck') {
+        const sampleRow = importBatch.rows.find((r: any) => group.rowNumbers?.includes(r.rowNumber));
+        const carrierId = sampleRow?.resolvedValues?.carrierId || sampleRow?.entityResolutions?.carrier?.matchedId;
+        if (!carrierId) {
+          alert('يجب حسم الناقل أولاً قبل إنشاء الشاحنة');
+          return;
+        }
+        const plate = prompt('أدخل رقم لوحة الشاحنة (إلزامي):');
+        if (!plate || !plate.trim()) {
+          alert('رقم اللوحة إلزامي لإنشاء الشاحنة');
+          return;
+        }
+        result = await entityResolutionCommandService.createTruck({
+          projectId: project.projectId,
+          sourceValue: sourceValue,
+          truckData: {
+            carrierId,
+            plateNumber: plate.trim().toUpperCase(),
+          },
+        });
+      }
+
+      let relContext = null;
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-CREATE-${Date.now()}`
+      });
+
+      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+        importBatch,
+        entityType,
+        normalizedSourceKey,
+        result,
+        pipelineCtx
+      );
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل إنشاء الكيان المفقود للجماعة');
     }
   };
 
@@ -1704,76 +1836,115 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             </div>
                           )}
 
-                          {/* Row-Level Review & Resolution Controls */}
-                          <div className="space-y-3">
-                            <h4 className="font-bold text-white text-[11px] flex items-center gap-1.5 text-amber-400">
-                              <UserCheck className="w-4 h-4 text-amber-500" />
-                              <span>مراجعة صفوف الاستيراد وحل الكيانات المعلقة:</span>
-                            </h4>
-                            <div className="space-y-3 max-h-[220px] overflow-y-auto">
-                              {importBatch.rows?.map((row: any) => {
-                                const driverName = getSourceVal(row, 'driver');
-                                const truckPlate = getSourceVal(row, 'truck');
-                                const carrierVal = getSourceVal(row, 'carrier');
-                                const materialVal = getSourceVal(row, 'material');
+                          {/* Batch Intelligence Review Groups */}
+                          {(() => {
+                            const batchGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
+                            const rowExceptions = RosterBatchReviewService.getRowExceptions(importBatch);
+                            const entityTypesList: ReviewGroupEntityType[] = ['carrier', 'material', 'driver', 'truck'];
 
-                                return (
-                                  <div key={row.rowNumber} className="bg-stone-950 border border-stone-850 p-3 rounded-xl space-y-2">
-                                    <div className="flex justify-between items-center text-[11px] font-bold border-b border-stone-900 pb-1.5">
-                                      <span className="text-white">السطر #{row.rowNumber} — السائق: {driverName} | اللوحة: {truckPlate}</span>
-                                      <span className={`px-2 py-0.5 rounded text-[9px] ${
-                                        row.reviewStatus === 'accepted' || row.status === 'VALID' ? 'bg-emerald-950 text-emerald-400' : 'bg-amber-950 text-amber-300'
-                                      }`}>
-                                        {row.reviewStatus || row.status}
-                                      </span>
-                                    </div>
+                            return (
+                              <div className="space-y-4">
+                                <h4 className="font-bold text-white text-[11px] flex items-center gap-1.5 text-amber-400">
+                                  <UserCheck className="w-4 h-4 text-amber-500" />
+                                  <span>مراجعة الكيانات الموحدة وحل المجموعات (Smart Batch Review):</span>
+                                </h4>
 
-                                    <div className="grid grid-cols-2 gap-2 text-[10px] text-stone-400">
-                                      <div><span className="text-stone-500">الناقل:</span> {carrierVal} ({row.entityResolutions?.carrier?.matchedId || 'غير حاسم'})</div>
-                                      <div><span className="text-stone-500">المادة:</span> {materialVal} ({row.entityResolutions?.material?.matchedId || 'غير حاسم'})</div>
-                                    </div>
+                                <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+                                  {entityTypesList.map((typeKey) => {
+                                    const groups = batchGroups[typeKey] || [];
+                                    if (groups.length === 0) return null;
+                                    const localizedLabel = getLocalizedEntityLabel(typeKey);
 
-                                    {/* Entity Resolution candidate selection / explicit create */}
-                                    <div className="space-y-1.5 pt-1">
-                                      {Object.entries(row.entityResolutions || {}).map(([entityType, res]: [string, any]) => {
-                                        if (!res || res.matchedId) return null;
-                                        const localizedLabel = getLocalizedEntityLabel(entityType);
-                                        return (
-                                          <div key={entityType} className="bg-stone-900 p-2 rounded-lg border border-stone-800 flex flex-wrap items-center justify-between gap-2 text-[10px]">
-                                            <span className="text-amber-300 font-bold">{localizedLabel}:</span>
-                                            <div className="flex items-center gap-1.5 flex-wrap">
-                                              {res.candidates?.map((cand: any) => (
-                                                <button
-                                                  key={cand.candidateEntityId}
-                                                  onClick={() => handleApplyResolutionDecision(row.rowNumber, entityType as any, 'ACCEPT_CANDIDATE', cand.candidateEntityId)}
-                                                  className="px-2 py-1 bg-stone-800 hover:bg-amber-600 hover:text-white text-stone-200 rounded text-[9px]"
-                                                >
-                                                  اعتماد: {cand.candidateDisplayName}
-                                                </button>
-                                              ))}
-                                              <button
-                                                onClick={() => handleCreateMissingEntity(row.rowNumber, entityType as any)}
-                                                className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[9px] font-bold"
-                                              >
-                                                إنشاء جديد
-                                              </button>
-                                            </div>
+                                    return (
+                                      <div key={typeKey} className="bg-stone-950 border border-stone-850 p-3 rounded-xl space-y-2">
+                                        <div className="flex justify-between items-center text-[11px] font-bold border-b border-stone-900 pb-1.5 text-amber-300">
+                                          <span>مجموعة {localizedLabel} ({groups.length} عناصر فريدة)</span>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                          {groups.map((group) => {
+                                            const isResolved = group.status === 'AUTO_RESOLVED';
+                                            return (
+                                              <div key={group.normalizedSourceKey} className="bg-stone-900 p-2.5 rounded-lg border border-stone-800 flex flex-wrap items-center justify-between gap-2 text-[10px]">
+                                                <div className="space-y-0.5">
+                                                  <span className="text-white font-bold block">{group.sourceValue}</span>
+                                                  <span className="text-stone-400 text-[9px] block">
+                                                    تكرار: {group.occurrenceCount} صفوف (الصفوف: #{group.rowNumbers.slice(0, 5).join(', ')}{group.rowNumbers.length > 5 ? '...' : ''})
+                                                  </span>
+                                                  {group.matchedName && (
+                                                    <span className="text-emerald-400 text-[9px] block font-mono">مطابق لـ: {group.matchedName} ({group.matchedId})</span>
+                                                  )}
+                                                </div>
+
+                                                <div>
+                                                  {isResolved ? (
+                                                    <span className="px-2 py-0.5 bg-emerald-950 text-emerald-400 rounded text-[9px] font-bold border border-emerald-800">
+                                                      مطابق تلقائياً
+                                                    </span>
+                                                  ) : (
+                                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                                      {group.candidates?.map((cand: any) => (
+                                                        <button
+                                                          key={cand.candidateEntityId}
+                                                          onClick={() => handleApplyGroupedResolutionDecision(typeKey, group.normalizedSourceKey, 'ACCEPT_CANDIDATE', cand.candidateEntityId)}
+                                                          className="px-2 py-1 bg-stone-800 hover:bg-amber-600 hover:text-white text-stone-200 rounded text-[9px]"
+                                                        >
+                                                          اعتماد للكل: {cand.candidateDisplayName}
+                                                        </button>
+                                                      ))}
+                                                      <button
+                                                        onClick={() => handleGroupedCreateMissingEntity(group)}
+                                                        className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[9px] font-bold"
+                                                      >
+                                                        إنشاء جديد للكل
+                                                      </button>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+
+                                  {/* Row-Level Exceptions Only */}
+                                  {rowExceptions.length > 0 && (
+                                    <div className="bg-rose-950/30 border border-rose-900/50 p-3 rounded-xl space-y-2">
+                                      <h5 className="text-rose-300 font-bold text-[10px] flex items-center gap-1">
+                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+                                        <span>استثناءات الصفوف الفردية المتبقية ({rowExceptions.length} صفوف):</span>
+                                      </h5>
+                                      <div className="space-y-1 max-h-[120px] overflow-y-auto">
+                                        {rowExceptions.map((exRow) => (
+                                          <div key={exRow.rowNumber} className="bg-stone-900/80 p-1.5 rounded text-[9px] font-mono text-stone-300 flex justify-between items-center">
+                                            <span>السطر #{exRow.rowNumber}: {exRow.validationIssues?.[0]?.messageAr || exRow.validationIssues?.[0]?.message || 'مشكلة في بيانات الصف'}</span>
+                                            <span className="text-rose-400 font-bold">{exRow.status}</span>
                                           </div>
-                                        );
-                                      })}
+                                        ))}
+                                      </div>
                                     </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </div>
 
                         <div className="p-5 border-t border-stone-800 bg-stone-950 flex justify-end gap-3">
                           <button onClick={() => setImportBatch(null)} className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs">إلغاء</button>
                           <button
                             onClick={handleCommitRosterImport}
-                            disabled={isCommittingImport || (importBatch.errorRows > 0) || importBatch.rows.some((r: any) => r.reviewStatus === 'error' || r.reviewStatus === 'requires_review' || r.status === 'ERROR' || r.status === 'WARNING') || (importBatch.requiresReviewRows || 0) > 0}
+                            disabled={
+                              isCommittingImport ||
+                              (importBatch.errorRows > 0) ||
+                              (importBatch.requiresReviewRows || 0) > 0 ||
+                              Object.values(RosterBatchReviewService.getBatchReviewGroups(importBatch)).some(groups =>
+                                groups.some(g => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT')
+                              ) ||
+                              RosterBatchReviewService.getRowExceptions(importBatch).length > 0
+                            }
                             className="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-xs flex items-center gap-1.5 disabled:opacity-50"
                           >
                             {isCommittingImport ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-4 h-4" />}

@@ -21,6 +21,7 @@ import { smartSourceDiscoveryService } from './smartSourceDiscovery.service';
 
 import { ExcelCsvColumnMapper } from './columnMapper.service';
 import { ExcelCsvPipelineService } from './excelCsvPipeline.service';
+import { normalizeName } from '../../utils/normalization';
 
 export interface ProcessDriverTruckFileOptions {
   sheetName?: string;
@@ -175,6 +176,46 @@ export class DriverTruckPipelineService {
   }
 
   /**
+   * Applies an interactive entity resolution decision across ALL rows matching a unique group
+   */
+  public static applyGroupedEntityResolutionDecision(
+    batch: UnifiedImportBatch,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    normalizedSourceKey: string,
+    decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
+    candidate: { selectedEntityId?: string; selectedDisplayName?: string },
+    context: PipelineContext,
+    actorId: string
+  ): UnifiedImportBatch {
+    let updatedBatch = { ...batch };
+
+    const matchingRowNumbers = batch.rows
+      .filter((row) => {
+        const res = row.entityResolutions?.[entityTypeKey];
+        const rawVal = res?.sourceValue || res?.originalValue || row.canonical?.[entityTypeKey === 'carrier' ? 'carrierName' : entityTypeKey === 'material' ? 'materialName' : entityTypeKey === 'driver' ? 'driverName' : 'truckPlate'] || '';
+        const normKey = normalizeName(rawVal) || rawVal.trim().toUpperCase();
+        return normKey === normalizedSourceKey;
+      })
+      .map((r) => r.rowNumber);
+
+    const rowsToUpdate = matchingRowNumbers.length > 0 ? matchingRowNumbers : batch.rows.map(r => r.rowNumber);
+
+    rowsToUpdate.forEach((rowNumber) => {
+      updatedBatch = this.applyEntityResolutionDecision(
+        updatedBatch,
+        rowNumber,
+        entityTypeKey,
+        decision,
+        candidate,
+        context,
+        actorId
+      );
+    });
+
+    return updatedBatch;
+  }
+
+  /**
    * Applies a newly created server-authoritative canonical entity result to an import batch row.
    */
   public static applyCreatedEntityResolution(
@@ -196,6 +237,47 @@ export class DriverTruckPipelineService {
       result,
       context
     );
+  }
+
+  /**
+   * Applies a newly created server-authoritative canonical entity result across ALL matching group rows.
+   */
+  public static applyGroupedCreatedEntityResolution(
+    batch: UnifiedImportBatch,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    normalizedSourceKey: string,
+    result: {
+      matchedId: string;
+      matchedName: string;
+      sourceValue?: string;
+      [key: string]: any;
+    },
+    context?: PipelineContext
+  ): UnifiedImportBatch {
+    let updatedBatch = { ...batch };
+
+    const matchingRowNumbers = batch.rows
+      .filter((row) => {
+        const res = row.entityResolutions?.[entityTypeKey];
+        const rawVal = res?.sourceValue || res?.originalValue || row.canonical?.[entityTypeKey === 'carrier' ? 'carrierName' : entityTypeKey === 'material' ? 'materialName' : entityTypeKey === 'driver' ? 'driverName' : 'truckPlate'] || '';
+        const normKey = normalizeName(rawVal) || rawVal.trim().toUpperCase();
+        return normKey === normalizedSourceKey;
+      })
+      .map((r) => r.rowNumber);
+
+    const rowsToUpdate = matchingRowNumbers.length > 0 ? matchingRowNumbers : batch.rows.map(r => r.rowNumber);
+
+    rowsToUpdate.forEach((rowNumber) => {
+      updatedBatch = this.applyCreatedEntityResolution(
+        updatedBatch,
+        rowNumber,
+        entityTypeKey,
+        result,
+        context
+      );
+    });
+
+    return updatedBatch;
   }
 
   /**

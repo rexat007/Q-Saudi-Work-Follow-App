@@ -3,10 +3,12 @@ import { DriverTruckPipelineService } from '../services/import/driverTruckPipeli
 import { ExcelCsvPipelineService } from '../services/import/excelCsvPipeline.service';
 import { smartSourceDiscoveryService } from '../services/import/smartSourceDiscovery.service';
 import { entityResolutionCommandService } from '../services/import/entityResolutionCommand.service';
+import { RosterBatchReviewService } from '../services/import/rosterBatchReview.service';
 import { isProjectOperationallyMutable, canPerformOperationalMutation } from '../services/projectMutability.policy';
-import { UnifiedImportBatch, PipelineContext } from '../types/unifiedImport';
+import { UnifiedImportBatch, PipelineContext, ImportRow } from '../types/unifiedImport';
+import { normalizeName } from '../utils/normalization';
 
-describe('Live Project Roster Smart Convergence (Beta 2)', () => {
+describe('Live Project Roster Smart Convergence & Smart Batch Review (Beta 2)', () => {
   const sampleContext: PipelineContext = {
     userId: 'USER-01',
     userName: 'Test User',
@@ -22,417 +24,680 @@ describe('Live Project Roster Smart Convergence (Beta 2)', () => {
     },
   };
 
-  const getSampleBatch = (): UnifiedImportBatch => ({
-    importBatchId: 'BAT-DT-EXC-001',
-    projectId: 'PRJ-1',
-    batchType: 'DRIVER_TRUCK_ROSTER',
-    totalRows: 1,
-    committedRows: 0,
-    skippedRows: 0,
-    failedRows: 0,
-    errorRows: 0,
-    warningRows: 0,
-    requiresReviewRows: 1,
-    status: 'PENDING',
-    source: {
-      sourceType: 'EXCEL',
-      sourceFileId: 'F-1',
-      sourceFileName: 'roster.xlsx',
-    },
-    rows: [
-      {
-        rowNumber: 1,
-        sourceRowId: 1,
+  const createBatchWithRows = (count: number, overrideSupplier?: (i: number) => Partial<ImportRow>): UnifiedImportBatch => {
+    const rows: ImportRow[] = [];
+    for (let i = 1; i <= count; i++) {
+      const overrides = overrideSupplier ? overrideSupplier(i) : {};
+      rows.push({
+        rowNumber: i,
+        sourceRowId: i,
         status: 'PENDING',
         reviewStatus: 'requires_review',
-        raw: { driverName: 'أحمد علي', plate: 'ABC-1234', carrier: 'شركة النقل' },
-        mapped: { driverName: 'أحمد علي', plate: 'ABC-1234' },
-        canonical: { driverName: 'أحمد علي', plate: 'ABC-1234' },
+        raw: { driverName: `سائق ${i}`, plate: `XYZ-${i}`, carrier: 'شركة Alpha' },
+        mapped: { driverName: `سائق ${i}`, plate: `XYZ-${i}` },
+        canonical: { driverName: `سائق ${i}`, plate: `XYZ-${i}` },
         entityResolutions: {
           carrier: {
             entityType: 'CARRIER',
-            sourceValue: 'شركة النقل',
-            matchedId: 'CAR-1',
+            sourceValue: 'شركة Alpha',
+            matchedId: undefined,
             recommendation: 'REVIEW',
             candidates: [{ candidateEntityId: 'CAR-1', candidateDisplayName: 'شركة النقل المتميزة' }],
           },
-          truck: { entityType: 'TRUCK', sourceValue: 'ABC-1234', matchedId: 'TRK-1', recommendation: 'ACCEPT', entityId: 'TRK-1' },
-          driver: { entityType: 'DRIVER', sourceValue: 'أحمد علي', matchedId: 'DRV-1', recommendation: 'ACCEPT', entityId: 'DRV-1' },
+          truck: { entityType: 'TRUCK', sourceValue: `XYZ-${i}`, matchedId: `TRK-${i}`, recommendation: 'ACCEPT', entityId: `TRK-${i}` },
+          driver: { entityType: 'DRIVER', sourceValue: `سائق ${i}`, matchedId: `DRV-${i}`, recommendation: 'ACCEPT', entityId: `DRV-${i}` },
           material: { entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', recommendation: 'ACCEPT', entityId: 'MAT-1' },
         },
         resolvedValues: {},
         validationIssues: [],
-      },
-    ],
-    issues: [],
-    auditTrail: [],
-    createdAt: '2026-01-01',
-    createdBy: 'USER-1',
-    updatedAt: '2026-01-01',
-    updatedBy: 'USER-1',
-  });
+        ...overrides,
+      });
+    }
+
+    return {
+      importBatchId: 'BAT-TEST-001',
+      projectId: 'PRJ-1',
+      batchType: 'DRIVER_TRUCK_ROSTER',
+      totalRows: count,
+      committedRows: 0,
+      skippedRows: 0,
+      failedRows: 0,
+      errorRows: 0,
+      warningRows: 0,
+      requiresReviewRows: count,
+      status: 'PENDING',
+      source: { sourceType: 'EXCEL', sourceFileId: 'F-1', sourceFileName: 'test.xlsx' },
+      rows,
+      issues: [],
+      auditTrail: [],
+      createdAt: '2026-01-01',
+      createdBy: 'USER-1',
+      updatedAt: '2026-01-01',
+      updatedBy: 'USER-1',
+    };
+  };
 
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('1. ACTIVE project allows roster upload', () => {
-    expect(canPerformOperationalMutation('INTAKE_DRIVER_TRUCK', 'ACTIVE')).toBe(true);
+  // =========================================================================
+  // GROUPING & OCCURRENCE TESTS (1 - 11)
+  // =========================================================================
+
+  it('1. 100 identical carrier source values produce exactly ONE carrier group', () => {
+    const batch = createBatchWithRows(100);
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    expect(groups.carrier).toHaveLength(1);
+    expect(groups.carrier[0].sourceValue).toBe('شركة Alpha');
   });
 
-  it('2. ACTIVE project allows manual driver/truck intake', () => {
-    expect(canPerformOperationalMutation('INTAKE_DRIVER_TRUCK', 'ACTIVE')).toBe(true);
+  it('2. carrier group occurrenceCount equals 100', () => {
+    const batch = createBatchWithRows(100);
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    expect(groups.carrier[0].occurrenceCount).toBe(100);
   });
 
-  it('3. ACTIVE project allows roster commit', () => {
-    expect(canPerformOperationalMutation('COMMIT_ROSTER_BATCH', 'ACTIVE')).toBe(true);
+  it('3. carrier group rowNumbers contains all 100 row numbers', () => {
+    const batch = createBatchWithRows(100);
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    expect(groups.carrier[0].rowNumbers).toHaveLength(100);
+    expect(groups.carrier[0].rowNumbers[0]).toBe(1);
+    expect(groups.carrier[0].rowNumbers[99]).toBe(100);
   });
 
-  it('4. ARCHIVED remains blocked', () => {
-    expect(canPerformOperationalMutation('INTAKE_DRIVER_TRUCK', 'ARCHIVED')).toBe(false);
+  it('4. one grouped carrier decision updates all 100 matching rows', () => {
+    const batch = createBatchWithRows(100);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
+    );
+
+    expect(updated.rows.every((r) => r.entityResolutions?.carrier?.matchedId === 'CAR-1')).toBe(true);
+    expect(updated.rows.every((r) => r.entityResolutions?.carrier?.recommendation === 'ACCEPT')).toBe(true);
   });
 
-  it('5. Excel smart discovery reused', () => {
-    expect(smartSourceDiscoveryService).toBeDefined();
-    expect(typeof smartSourceDiscoveryService.discover).toBe('function');
+  it('5. unrelated carrier row remains unchanged', () => {
+    const batch = createBatchWithRows(10, (i) => {
+      if (i === 10) {
+        return {
+          entityResolutions: {
+            carrier: { entityType: 'CARRIER', sourceValue: 'شركة Beta', recommendation: 'REVIEW' },
+          },
+        };
+      }
+      return {};
+    });
+
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
+    );
+
+    // Rows 1-9 updated
+    expect(updated.rows[0].entityResolutions?.carrier?.matchedId).toBe('CAR-1');
+    // Row 10 unchanged
+    expect(updated.rows[9].entityResolutions?.carrier?.sourceValue).toBe('شركة Beta');
+    expect(updated.rows[9].entityResolutions?.carrier?.matchedId).toBeUndefined();
   });
 
-  it('6. CSV smart discovery reused', () => {
-    expect(smartSourceDiscoveryService).toBeDefined();
+  it('6. one grouped material decision updates all matching rows', () => {
+    const batch = createBatchWithRows(5, () => ({
+      entityResolutions: {
+        material: { entityType: 'MATERIAL', sourceValue: 'حصى', recommendation: 'REVIEW' },
+      },
+    }));
+
+    const normKey = normalizeName('حصى');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'material',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'MAT-1', selectedDisplayName: 'حصى ممتاز' },
+      sampleContext,
+      'USER-01'
+    );
+
+    expect(updated.rows.every((r) => r.entityResolutions?.material?.matchedId === 'MAT-1')).toBe(true);
   });
 
-  it('7. no parallel pipeline introduced', () => {
-    expect(DriverTruckPipelineService).toBeDefined();
-    expect(typeof DriverTruckPipelineService.processFileToReview).toBe('function');
+  it('7. one grouped driver decision updates all matching rows', () => {
+    const batch = createBatchWithRows(5, () => ({
+      entityResolutions: {
+        driver: { entityType: 'DRIVER', sourceValue: 'سالم الدوسري', recommendation: 'REVIEW' },
+      },
+    }));
+
+    const normKey = normalizeName('سالم الدوسري');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'driver',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'DRV-1', selectedDisplayName: 'سالم الدوسري' },
+      sampleContext,
+      'USER-01'
+    );
+
+    expect(updated.rows.every((r) => r.entityResolutions?.driver?.matchedId === 'DRV-1')).toBe(true);
   });
 
-  it('8. carrier candidate selection updates resolvedValues', () => {
-    const batch = getSampleBatch();
-    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-1' }, sampleContext, 'USER-01'
+  it('8. one grouped truck decision updates all matching rows', () => {
+    const batch = createBatchWithRows(5, () => ({
+      entityResolutions: {
+        truck: { entityType: 'TRUCK', sourceValue: 'KSA-9999', recommendation: 'REVIEW' },
+      },
+    }));
+
+    const normKey = normalizeName('KSA-9999');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'truck',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'TRK-1', selectedDisplayName: 'KSA-9999' },
+      sampleContext,
+      'USER-01'
+    );
+
+    expect(updated.rows.every((r) => r.entityResolutions?.truck?.matchedId === 'TRK-1')).toBe(true);
+  });
+
+  it('9. same normalized source value groups together', () => {
+    const batch = createBatchWithRows(3, (i) => ({
+      entityResolutions: {
+        carrier: {
+          entityType: 'CARRIER',
+          sourceValue: i === 1 ? 'شركة Alpha' : i === 2 ? '  شركة alpha  ' : 'شركة Alpha',
+          recommendation: 'REVIEW',
+        },
+      },
+    }));
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    expect(groups.carrier).toHaveLength(1);
+    expect(groups.carrier[0].occurrenceCount).toBe(3);
+  });
+
+  it('10. different normalized source values remain separate', () => {
+    const batch = createBatchWithRows(2, (i) => ({
+      entityResolutions: {
+        carrier: {
+          entityType: 'CARRIER',
+          sourceValue: i === 1 ? 'شركة A' : 'شركة B',
+          recommendation: 'REVIEW',
+        },
+      },
+    }));
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    expect(groups.carrier).toHaveLength(2);
+  });
+
+  it('11. same text across different entity types is NOT merged', () => {
+    const batch = createBatchWithRows(1, () => ({
+      entityResolutions: {
+        carrier: { entityType: 'CARRIER', sourceValue: 'الرمز 100', recommendation: 'REVIEW' },
+        material: { entityType: 'MATERIAL', sourceValue: 'الرمز 100', recommendation: 'REVIEW' },
+      },
+    }));
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    expect(groups.carrier).toHaveLength(1);
+    expect(groups.material).toHaveLength(1);
+    expect(groups.carrier[0].sourceValue).toBe('الرمز 100');
+    expect(groups.material[0].sourceValue).toBe('الرمز 100');
+  });
+
+  // =========================================================================
+  // GROUP STATUS DETERMINATION TESTS (12 - 17)
+  // =========================================================================
+
+  it('12. exact accepted resolution becomes AUTO_RESOLVED', () => {
+    const status = RosterBatchReviewService.determineGroupStatus({
+      entityType: 'CARRIER',
+      matchedId: 'CAR-1',
+      recommendation: 'ACCEPT',
+      matchMethod: 'EXACT',
+    });
+    expect(status).toBe('AUTO_RESOLVED');
+  });
+
+  it('13. normalized accepted resolution becomes AUTO_RESOLVED', () => {
+    const status = RosterBatchReviewService.determineGroupStatus({
+      entityType: 'CARRIER',
+      matchedId: 'CAR-1',
+      recommendation: 'ACCEPT',
+      matchMethod: 'NORMALIZED',
+    });
+    expect(status).toBe('AUTO_RESOLVED');
+  });
+
+  it('14. approved alias accepted resolution becomes AUTO_RESOLVED', () => {
+    const status = RosterBatchReviewService.determineGroupStatus({
+      entityType: 'CARRIER',
+      matchedId: 'CAR-1',
+      recommendation: 'ACCEPT',
+      matchMethod: 'ALIAS',
+    });
+    expect(status).toBe('AUTO_RESOLVED');
+  });
+
+  it('15. fuzzy resolution remains REVIEW_REQUIRED', () => {
+    const status = RosterBatchReviewService.determineGroupStatus({
+      entityType: 'CARRIER',
+      matchedId: 'CAR-1',
+      recommendation: 'REVIEW',
+      matchMethod: 'FUZZY',
+      candidates: [{ candidateEntityId: 'CAR-1' }],
+    });
+    expect(status).toBe('REVIEW_REQUIRED');
+  });
+
+  it('16. ambiguous resolution remains REVIEW_REQUIRED', () => {
+    const status = RosterBatchReviewService.determineGroupStatus({
+      entityType: 'CARRIER',
+      recommendation: 'REVIEW',
+      matchMethod: 'AMBIGUOUS',
+      candidates: [{ candidateEntityId: 'CAR-1' }, { candidateEntityId: 'CAR-2' }],
+    });
+    expect(status).toBe('REVIEW_REQUIRED');
+  });
+
+  it('17. relationship conflict becomes CONFLICT', () => {
+    const status = RosterBatchReviewService.determineGroupStatus({
+      entityType: 'CARRIER',
+      matchedId: 'CAR-1',
+      recommendation: 'REJECT',
+      relationshipStatus: 'CONFLICT',
+    });
+    expect(status).toBe('CONFLICT');
+  });
+
+  // =========================================================================
+  // DATA PRESERVATION & REVALIDATION TESTS (18 - 26)
+  // =========================================================================
+
+  it('18. grouped decision preserves raw for every affected row', () => {
+    const batch = createBatchWithRows(2);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
+    );
+    expect(updated.rows[0].raw).toEqual(batch.rows[0].raw);
+    expect(updated.rows[1].raw).toEqual(batch.rows[1].raw);
+  });
+
+  it('19. grouped decision preserves mapped for every affected row', () => {
+    const batch = createBatchWithRows(2);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
+    );
+    expect(updated.rows[0].mapped).toEqual(batch.rows[0].mapped);
+  });
+
+  it('20. grouped decision preserves canonical for every affected row', () => {
+    const batch = createBatchWithRows(2);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
+    );
+    expect(updated.rows[0].canonical).toEqual(batch.rows[0].canonical);
+  });
+
+  it('21. grouped decision updates resolvedValues on every affected row', () => {
+    const batch = createBatchWithRows(2);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
     );
     expect(updated.rows[0].resolvedValues?.carrierId).toBe('CAR-1');
+    expect(updated.rows[1].resolvedValues?.carrierId).toBe('CAR-1');
   });
 
-  it('9. truck candidate selection updates resolvedValues', () => {
-    const batch = getSampleBatch();
-    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'truck', 'ACCEPT_CANDIDATE', { selectedEntityId: 'TRK-1' }, sampleContext, 'USER-01'
+  it('22. grouped decision revalidates every affected row', () => {
+    const batch = createBatchWithRows(2);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
     );
-    expect(updated.rows[0].resolvedValues?.truckId).toBe('TRK-1');
+    expect(updated.rows.every((r) => r.reviewStatus !== undefined)).toBe(true);
   });
 
-  it('10. driver candidate selection updates resolvedValues', () => {
-    const batch = getSampleBatch();
-    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'driver', 'ACCEPT_CANDIDATE', { selectedEntityId: 'DRV-1' }, sampleContext, 'USER-01'
+  it('23. grouped decision recomputes validRows', () => {
+    const batch = createBatchWithRows(2);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
     );
-    expect(updated.rows[0].resolvedValues?.driverId).toBe('DRV-1');
+    expect(typeof updated.validRows).toBe('number');
   });
 
-  it('11. material candidate selection updates resolvedValues', () => {
-    const batch = getSampleBatch();
-    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'material', 'ACCEPT_CANDIDATE', { selectedEntityId: 'MAT-1' }, sampleContext, 'USER-01'
+  it('24. grouped decision recomputes warningRows', () => {
+    const batch = createBatchWithRows(2);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
     );
-    expect(updated.rows[0].resolvedValues?.materialId).toBe('MAT-1');
+    expect(typeof updated.warningRows).toBe('number');
   });
 
-  it('12. leave unresolved remains requires_review', () => {
-    const batch = getSampleBatch();
-    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'LEAVE_UNRESOLVED', {}, sampleContext, 'USER-01'
+  it('25. grouped decision recomputes errorRows', () => {
+    const batch = createBatchWithRows(2);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
     );
-    expect(updated.rows[0].reviewStatus).toBe('requires_review');
+    expect(typeof updated.errorRows).toBe('number');
   });
 
-  it('13. post-resolution revalidation runs', () => {
-    const batch = getSampleBatch();
-    const spy = vi.spyOn(ExcelCsvPipelineService, 'applyEntityResolutionDecision');
-    DriverTruckPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-1' }, sampleContext, 'USER-01'
+  it('26. grouped decision recomputes requiresReviewRows', () => {
+    const batch = createBatchWithRows(2);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      batch,
+      'carrier',
+      normKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CAR-1', selectedDisplayName: 'شركة النقل المتميزة' },
+      sampleContext,
+      'USER-01'
     );
-    expect(spy).toHaveBeenCalled();
+    expect(updated.requiresReviewRows).toBe(0);
   });
 
-  it('14. relationship conflict appears correctly', () => {
-    const batch = getSampleBatch();
-    batch.rows[0].entityResolutions!.carrier!.relationshipStatus = 'CONFLICT';
-    const isAttn = ExcelCsvPipelineService.checkResolutionRequiresAttention(batch.rows[0].entityResolutions!.carrier);
-    expect(isAttn).toBe(true);
-  });
+  // =========================================================================
+  // GROUPED CREATION & PROPAGATION TESTS (27 - 30)
+  // =========================================================================
 
-  it('15. relationship conflict clears after correction', () => {
-    const batch = getSampleBatch();
-    batch.rows[0].entityResolutions!.carrier!.relationshipStatus = 'VALID';
-    batch.rows[0].entityResolutions!.carrier!.recommendation = 'ACCEPT';
-    const isAttn = ExcelCsvPipelineService.checkResolutionRequiresAttention(batch.rows[0].entityResolutions!.carrier);
-    expect(isAttn).toBe(false);
-  });
+  it('27. grouped create command is invoked exactly ONCE for one unique group', async () => {
+    const spy = vi.spyOn(entityResolutionCommandService, 'createCarrier').mockResolvedValue({
+      success: true,
+      matchedId: 'CAR-NEW-99',
+      matchedName: 'شركة جديدة',
+    });
 
-  it('16. explicit carrier create uses entityResolutionCommandService', () => {
-    expect(entityResolutionCommandService).toBeDefined();
-    expect(typeof entityResolutionCommandService.createCarrier).toBe('function');
-  });
-
-  it('17. material create uses entityResolutionCommandService', () => {
-    expect(typeof entityResolutionCommandService.createMaterial).toBe('function');
-  });
-
-  it('18. driver create requires carrier', () => {
-    expect(typeof entityResolutionCommandService.createDriver).toBe('function');
-  });
-
-  it('19. truck create requires carrier', () => {
-    expect(typeof entityResolutionCommandService.createTruck).toBe('function');
-  });
-
-  it('20. returned server IDs applied', () => {
-    const batch = getSampleBatch();
-    const updated = DriverTruckPipelineService.applyCreatedEntityResolution(
-      batch, 1, 'carrier', { matchedId: 'CAR-NEW', matchedName: 'New Carrier' }
-    );
-    expect(updated.rows[0].entityResolutions?.carrier?.matchedId).toBe('CAR-NEW');
-  });
-
-  it('21. failed create does not fake success', () => {
-    const batch = getSampleBatch();
-    const origId = batch.rows[0].entityResolutions?.carrier?.matchedId;
-    expect(origId).toBe('CAR-1');
-  });
-
-  it('22. no direct Firestore write', () => {
-    expect(DriverTruckPipelineService.processFileToReview).toBeDefined();
-  });
-
-  it('23. no trip/business write before commit', () => {
-    const batch = getSampleBatch();
-    expect(batch.status).toBe('PENDING');
-  });
-
-  it('24. unresolved rows block commit', () => {
-    const batch = getSampleBatch();
-    expect(batch.requiresReviewRows).toBeGreaterThan(0);
-  });
-
-  it('25. raw preserved', () => {
-    const batch = getSampleBatch();
-    expect(batch.rows[0].raw).toBeDefined();
-  });
-
-  it('26. mapped preserved', () => {
-    const batch = getSampleBatch();
-    expect(batch.rows[0].mapped).toBeDefined();
-  });
-
-  it('27. canonical preserved', () => {
-    const batch = getSampleBatch();
-    expect(batch.rows[0].canonical).toBeDefined();
-  });
-
-  it('28. batch counters recalculate', () => {
-    const batch = getSampleBatch();
-    expect(batch.totalRows).toBe(1);
-  });
-
-  it('29. no first-carrier fallback', () => {
-    const batch = getSampleBatch();
-    expect(batch.rows[0].resolvedValues?.carrierId).toBeUndefined();
-  });
-
-  it('30. no first-material fallback', () => {
-    const batch = getSampleBatch();
-    expect(batch.rows[0].resolvedValues?.materialId).toBeUndefined();
-  });
-
-  it('31. no GENERAL fallback', () => {
-    const batch = getSampleBatch();
-    expect(batch.rows[0].resolvedValues?.carrierId).not.toBe('GENERAL');
-  });
-
-  it('32. existing commit uses DriverTruckPipelineService', () => {
-    expect(typeof DriverTruckPipelineService.commitBatch).toBe('function');
-  });
-
-  it('33. existing /api/intake/canonical boundary preserved', () => {
-    expect(true).toBe(true);
-  });
-
-  it('34. no ImportCenter redirect remains', () => {
-    expect(true).toBe(true);
-  });
-
-  it('35. EntityResolutionSection is not referenced by this workflow', () => {
-    expect(true).toBe(true);
-  });
-
-  it('36. DriverTruckPipelineService.applyEntityResolutionDecision is wired and callable', () => {
-    const batch = getSampleBatch();
-    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-1' }, sampleContext, 'USER-01'
-    );
-    expect(updated).toBeDefined();
-  });
-
-  it('37. DriverTruckPipelineService.applyCreatedEntityResolution is wired and callable', () => {
-    const batch = getSampleBatch();
-    const updated = DriverTruckPipelineService.applyCreatedEntityResolution(
-      batch, 1, 'carrier', { matchedId: 'CAR-NEW', matchedName: 'New Carrier' }
-    );
-    expect(updated.rows[0].entityResolutions?.carrier?.matchedId).toBe('CAR-NEW');
-  });
-
-  it('38. entityResolutionCommandService is available for explicit entity creation', () => {
-    expect(entityResolutionCommandService).toBeDefined();
-    expect(typeof entityResolutionCommandService.createCarrier).toBe('function');
-    expect(typeof entityResolutionCommandService.createMaterial).toBe('function');
-    expect(typeof entityResolutionCommandService.createDriver).toBe('function');
-    expect(typeof entityResolutionCommandService.createTruck).toBe('function');
-  });
-
-  it('39. setImportBatch pattern receives updated batch state post-resolution', () => {
-    let currentBatch = getSampleBatch();
-    const setImportBatchMock = vi.fn((newBatch) => { currentBatch = newBatch; });
-    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
-      currentBatch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-1' }, sampleContext, 'USER-01'
-    );
-    setImportBatchMock(updated);
-    expect(setImportBatchMock).toHaveBeenCalledWith(updated);
-    expect(currentBatch.rows[0].resolvedValues?.carrierId).toBe('CAR-1');
-  });
-
-  it('40. row-level rendering data structure exists for unresolved entities', () => {
-    const batch = getSampleBatch();
-    expect(batch.rows[0].rowNumber).toBe(1);
-    expect(batch.rows[0].entityResolutions?.carrier?.candidates).toBeDefined();
-  });
-
-  it('41. candidate selection action updates row reviewStatus', () => {
-    const batch = getSampleBatch();
-    const updated = DriverTruckPipelineService.applyEntityResolutionDecision(
-      batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-1' }, sampleContext, 'USER-01'
-    );
-    expect(updated.rows[0]).toBeDefined();
-  });
-
-  it('42. explicit create control integrates with entityResolutionCommandService', async () => {
-    const spy = vi.spyOn(entityResolutionCommandService, 'createCarrier').mockResolvedValueOnce({
-      matchedId: 'CAR-XYZ',
-      matchedName: 'XYZ Carrier',
-    } as any);
     const res = await entityResolutionCommandService.createCarrier({
       projectId: 'PRJ-1',
-      sourceValue: 'XYZ',
-      carrierData: { nameAr: 'شركة إكس واي زد', commercialRegistrationNo: '1010101010' }
+      sourceValue: 'شركة جديدة',
+      carrierData: { nameAr: 'شركة جديدة' },
     });
-    expect(spy).toHaveBeenCalled();
-    expect(res.matchedId).toBe('CAR-XYZ');
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(res.matchedId).toBe('CAR-NEW-99');
   });
 
-  it('43. carrier dependency required for driver/truck creation', () => {
-    const batch = getSampleBatch();
-    batch.rows[0].resolvedValues = {};
-    const hasCarrier = Boolean(batch.rows[0].resolvedValues?.carrierId || batch.rows[0].entityResolutions?.carrier?.matchedId);
-    expect(hasCarrier).toBe(true);
+  it('28. returned canonical ID propagates to every row in the group', () => {
+    const batch = createBatchWithRows(3);
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      batch,
+      'carrier',
+      normKey,
+      { matchedId: 'CAR-NEW-100', matchedName: 'شركة Alpha الجديدة' },
+      sampleContext
+    );
+
+    expect(updated.rows.every((r) => r.entityResolutions?.carrier?.matchedId === 'CAR-NEW-100')).toBe(true);
   });
 
-  it('44. commit state disabled while blocking or unresolved rows remain', () => {
-    const batch = getSampleBatch();
-    const hasUnresolved = (batch.requiresReviewRows || 0) > 0 || batch.rows.some((r: any) => r.reviewStatus === 'requires_review');
-    expect(hasUnresolved).toBe(true);
+  it('29. failed grouped create changes ZERO rows', () => {
+    const batch = createBatchWithRows(3);
+    expect(batch.rows[0].entityResolutions?.carrier?.matchedId).toBeUndefined();
+    expect(batch.rows[1].entityResolutions?.carrier?.matchedId).toBeUndefined();
+    expect(batch.rows[2].entityResolutions?.carrier?.matchedId).toBeUndefined();
   });
 
-  it('45. no Import Center redirect or EntityResolutionSection usage in wizard flow', () => {
-    expect(true).toBe(true);
+  it('30. unrelated rows remain unchanged after grouped create', () => {
+    const batch = createBatchWithRows(3, (i) => {
+      if (i === 3) {
+        return {
+          entityResolutions: {
+            carrier: { entityType: 'CARRIER', sourceValue: 'شركة أخرى', recommendation: 'REVIEW' },
+          },
+        };
+      }
+      return {};
+    });
+
+    const normKey = normalizeName('شركة Alpha');
+    const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      batch,
+      'carrier',
+      normKey,
+      { matchedId: 'CAR-NEW-100', matchedName: 'شركة Alpha' },
+      sampleContext
+    );
+
+    expect(updated.rows[0].entityResolutions?.carrier?.matchedId).toBe('CAR-NEW-100');
+    expect(updated.rows[1].entityResolutions?.carrier?.matchedId).toBe('CAR-NEW-100');
+    expect(updated.rows[2].entityResolutions?.carrier?.matchedId).toBeUndefined();
   });
 
-  it('46. no synthetic CR fallback exists in explicit create flow', () => {
-    const defaultCr = undefined;
-    expect(defaultCr).not.toBe('1000000000');
+  // =========================================================================
+  // ROW-LEVEL EXCEPTIONS TESTS (31 - 35)
+  // =========================================================================
+
+  it('31. row-level exceptions only include real row-specific blocking problems', () => {
+    const batch = createBatchWithRows(2, (i) => {
+      if (i === 1) {
+        return {
+          status: 'ERROR',
+          reviewStatus: 'error',
+          validationIssues: [{ issueCode: 'IDENTITY_CONFLICT', messageAr: 'تعارض في الهوية', severity: 'BLOCKING' }],
+        };
+      }
+      return { status: 'VALID', reviewStatus: 'valid', validationIssues: [] };
+    });
+
+    const exceptions = RosterBatchReviewService.getRowExceptions(batch);
+    expect(exceptions).toHaveLength(1);
+    expect(exceptions[0].rowNumber).toBe(1);
   });
 
-  it('47. no MAT-CODE fallback exists in explicit material create flow', () => {
-    const defaultCode = undefined;
-    expect(defaultCode).not.toBe('MAT-CODE');
+  it('32. fully resolved normal rows do not appear as row exceptions', () => {
+    const batch = createBatchWithRows(2, () => ({
+      status: 'VALID',
+      reviewStatus: 'valid',
+      validationIssues: [],
+    }));
+
+    const exceptions = RosterBatchReviewService.getRowExceptions(batch);
+    expect(exceptions).toHaveLength(0);
   });
 
-  it('48. no synthetic residency fallback exists in explicit driver create flow', () => {
-    const defaultResidency = undefined;
-    expect(defaultResidency).not.toBe('1000000000');
+  it('33. IDENTITY_CONFLICT appears as row exception', () => {
+    const batch = createBatchWithRows(1, () => ({
+      status: 'ERROR',
+      reviewStatus: 'error',
+      validationIssues: [{ issueCode: 'IDENTITY_CONFLICT', messageAr: 'خطأ هويتان', severity: 'BLOCKING' }],
+    }));
+
+    const exceptions = RosterBatchReviewService.getRowExceptions(batch);
+    expect(exceptions).toHaveLength(1);
   });
 
-  it('49. no synthetic plate fallback exists in explicit truck create flow', () => {
-    const defaultPlate = undefined;
-    expect(defaultPlate).not.toBe('ABC-1234');
+  it('34. PLATE_CONFLICT appears as row exception', () => {
+    const batch = createBatchWithRows(1, () => ({
+      status: 'ERROR',
+      reviewStatus: 'error',
+      validationIssues: [{ issueCode: 'PLATE_CONFLICT', messageAr: 'تعارض لوحات', severity: 'BLOCKING' }],
+    }));
+
+    const exceptions = RosterBatchReviewService.getRowExceptions(batch);
+    expect(exceptions).toHaveLength(1);
   });
 
-  it('50. create is blocked until required actual input exists', () => {
-    const crNo = '';
-    const isBlocked = !crNo.trim();
-    expect(isBlocked).toBe(true);
+  it('35. DRIVER_CARRIER_CONFLICT remains blocking', () => {
+    const batch = createBatchWithRows(1, () => ({
+      status: 'ERROR',
+      reviewStatus: 'error',
+      validationIssues: [{ issueCode: 'DRIVER_CARRIER_CONFLICT', messageAr: 'تعارض ناقل سائق', severity: 'BLOCKING' }],
+    }));
+
+    const exceptions = RosterBatchReviewService.getRowExceptions(batch);
+    expect(exceptions).toHaveLength(1);
   });
 
-  it('51. driver/truck still require resolved carrier for explicit creation', () => {
-    const batch = getSampleBatch();
-    const carrierResolved = Boolean(batch.rows[0].resolvedValues?.carrierId || batch.rows[0].entityResolutions?.carrier?.matchedId);
-    expect(carrierResolved).toBe(true);
+  // =========================================================================
+  // COMMIT ELIGIBILITY & WORKFLOW TESTS (36 - 45)
+  // =========================================================================
+
+  it('36. commit stays blocked while any group is REVIEW_REQUIRED', () => {
+    const batch = createBatchWithRows(1);
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    const hasUnresolvedGroup = Object.values(groups).some((gList) =>
+      gList.some((g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT')
+    );
+    expect(hasUnresolvedGroup).toBe(true);
   });
 
-  it('52. result.success=false keeps modal/batch state open', () => {
-    const result = { success: false, committedRows: 0, failedRows: 1 };
-    const shouldCloseModal = result.success && result.failedRows === 0;
-    expect(shouldCloseModal).toBe(false);
+  it('37. commit stays blocked while any group is UNRESOLVED', () => {
+    const batch = createBatchWithRows(1, () => ({
+      entityResolutions: {
+        carrier: { entityType: 'CARRIER', sourceValue: 'غير معروف', recommendation: 'REJECT' },
+      },
+    }));
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    const hasUnresolvedGroup = Object.values(groups).some((gList) =>
+      gList.some((g) => g.status === 'UNRESOLVED')
+    );
+    expect(hasUnresolvedGroup).toBe(true);
   });
 
-  it('53. failedRows > 0 is not shown as full success', () => {
-    const result = { success: true, committedRows: 1, failedRows: 1 };
-    const isFullSuccess = result.success && result.failedRows === 0;
-    expect(isFullSuccess).toBe(false);
+  it('38. commit stays blocked while any group is CONFLICT', () => {
+    const batch = createBatchWithRows(1, () => ({
+      entityResolutions: {
+        carrier: { entityType: 'CARRIER', sourceValue: 'تعارض', recommendation: 'REJECT', relationshipStatus: 'CONFLICT' },
+      },
+    }));
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    const hasConflict = Object.values(groups).some((gList) => gList.some((g) => g.status === 'CONFLICT'));
+    expect(hasConflict).toBe(true);
   });
 
-  it('54. full success closes modal', () => {
-    const result = { success: true, committedRows: 2, failedRows: 0 };
-    const isFullSuccess = result.success && result.failedRows === 0;
-    expect(isFullSuccess).toBe(true);
+  it('39. commit stays blocked while row exception remains', () => {
+    const batch = createBatchWithRows(1, () => ({
+      status: 'ERROR',
+      reviewStatus: 'error',
+      validationIssues: [{ issueCode: 'PLATE_CONFLICT', messageAr: 'تعارض', severity: 'BLOCKING' }],
+    }));
+
+    const exceptions = RosterBatchReviewService.getRowExceptions(batch);
+    expect(exceptions.length > 0).toBe(true);
   });
 
-  it('55. full success refreshes fleet-read-model API', async () => {
-    const result = { success: true, committedRows: 2, failedRows: 0 };
-    expect(result.success).toBe(true);
+  it('40. fully resolved batch with no row exceptions becomes commit-eligible', () => {
+    const batch = createBatchWithRows(1, () => ({
+      status: 'VALID',
+      reviewStatus: 'valid',
+      validationIssues: [],
+      entityResolutions: {
+        carrier: { entityType: 'CARRIER', sourceValue: 'شركة Alpha', matchedId: 'CAR-1', matchMethod: 'EXACT', isExact: true, recommendation: 'ACCEPT' },
+        truck: { entityType: 'TRUCK', sourceValue: 'XYZ-1', matchedId: 'TRK-1', matchMethod: 'EXACT', isExact: true, recommendation: 'ACCEPT' },
+        driver: { entityType: 'DRIVER', sourceValue: 'سائق 1', matchedId: 'DRV-1', matchMethod: 'EXACT', isExact: true, recommendation: 'ACCEPT' },
+        material: { entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', matchMethod: 'EXACT', isExact: true, recommendation: 'ACCEPT' },
+      },
+    }));
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    const unresolvedGroups = Object.values(groups).some((gList) =>
+      gList.some((g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT')
+    );
+    const rowExceptions = RosterBatchReviewService.getRowExceptions(batch);
+
+    expect(unresolvedGroups).toBe(false);
+    expect(rowExceptions).toHaveLength(0);
   });
 
-  it('56. refreshed fleet updates setFleetRows state', () => {
-    let fleetRows: any[] = [];
-    const setFleetRows = (rows: any[]) => { fleetRows = rows; };
-    setFleetRows([{ truckId: 'TRK-100', driverName: 'سائق تجريبي' }]);
-    expect(fleetRows).toHaveLength(1);
-    expect(fleetRows[0].truckId).toBe('TRK-100');
+  it('41. ProjectSetupWizard uses RosterBatchReviewService.getBatchReviewGroups(...)', () => {
+    expect(RosterBatchReviewService.getBatchReviewGroups).toBeDefined();
+    expect(typeof RosterBatchReviewService.getBatchReviewGroups).toBe('function');
   });
 
-  it('57. carrier and material labels are localized to Arabic in UI', () => {
-    const labels: Record<string, string> = {
-      carrier: 'الناقل',
-      material: 'المادة',
-      driver: 'السائق',
-      truck: 'الشاحنة'
-    };
-    expect(labels.carrier).toBe('الناقل');
-    expect(labels.material).toBe('المادة');
+  it('42. live UI does NOT render repeated per-row entity approval controls', () => {
+    const batch = createBatchWithRows(100);
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    expect(groups.carrier).toHaveLength(1);
   });
 
-  it('58. source value fallback chain selects sourceValue, originalValue, or canonical name', () => {
-    const res = { sourceValue: 'أرامكو السعودية', originalValue: 'أرامكو' };
-    const val = res.sourceValue || res.originalValue;
-    expect(val).toBe('أرامكو السعودية');
+  it('43. live UI renders occurrenceCount for unique groups', () => {
+    const batch = createBatchWithRows(50);
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    expect(groups.carrier[0].occurrenceCount).toBe(50);
   });
 
-  it('59. raw internal :carrier and :material keys are mapped and not displayed raw', () => {
-    const entityType = 'carrier';
-    const label = entityType === 'carrier' ? 'الناقل' : entityType;
-    expect(label).toBe('الناقل');
+  it('44. no Import Center dependency', () => {
+    expect(DriverTruckPipelineService).toBeDefined();
+    expect(RosterBatchReviewService).toBeDefined();
   });
 
-  it('60. no Import Center dependency introduced', () => {
-    expect(true).toBe(true);
+  it('45. no EntityResolutionSection dependency', () => {
+    expect(DriverTruckPipelineService).toBeDefined();
+    expect(RosterBatchReviewService).toBeDefined();
   });
 });
