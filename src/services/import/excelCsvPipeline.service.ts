@@ -171,8 +171,8 @@ export class ExcelCsvPipelineService {
     entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
     candidate: { selectedEntityId?: string; selectedDisplayName?: string },
-    context: PipelineContext,
-    actorId: string
+    actorId: string,
+    context: PipelineContext
   ): UnifiedImportBatch {
     const rowIdx = batch.rows.findIndex((r) => r.rowNumber === rowNumber);
     if (rowIdx === -1) {
@@ -187,10 +187,10 @@ export class ExcelCsvPipelineService {
       throw new Error(`No entity resolution found for ${entityTypeKey} on row ${rowNumber}`);
     }
 
-    const { updatedResolution } = EntityResolutionService.applyUserDecision({
+    const decisionResult = EntityResolutionService.applyUserDecision({
       projectId: context.projectId,
       importBatchId: batch.importBatchId,
-      operationId: context.operationId,
+      operationId: context.operationId || batch.operationId || 'OP-COMPAT',
       rowNumber,
       entityType: targetEntityType,
       decision,
@@ -201,11 +201,13 @@ export class ExcelCsvPipelineService {
       actorId,
     });
 
+    const updatedResolution = decisionResult.updatedResolution;
+
     const updatedRow: ImportRow = {
       ...row,
       entityResolutions: {
         ...row.entityResolutions,
-        [entityTypeKey]: updatedResolution,
+        [entityTypeKey]: { ...updatedResolution, ambiguous: false },
       },
       resolvedValues: {
         ...(row.resolvedValues || {}),
@@ -252,7 +254,7 @@ export class ExcelCsvPipelineService {
       rows: updatedRows,
     };
 
-    return this.recalculateBatchCounts(updatedBatch);
+    return this.revalidateRow(updatedBatch, updatedRow, context);
   }
 
   /**
@@ -281,7 +283,8 @@ export class ExcelCsvPipelineService {
       matchedName: string;
       sourceValue?: string;
       [key: string]: any;
-    }
+    },
+    context?: PipelineContext
   ): UnifiedImportBatch {
     const rowIdx = batch.rows.findIndex((r) => r.rowNumber === rowNumber);
     if (rowIdx === -1) {
@@ -338,20 +341,6 @@ export class ExcelCsvPipelineService {
       resolvedValues: updatedResolvedValues,
     };
 
-    const stillNeedsResolution = this.rowRequiresEntityResolution(updatedRow);
-    const hasErrors = updatedRow.status === 'ERROR' || (updatedRow.validationIssues && updatedRow.validationIssues.some((i) => i.severity === 'BLOCKING' || (i.severity as any) === 'ERROR' || (i.severity as any) === 'FATAL'));
-    const hasWarnings = updatedRow.status === 'WARNING' || (updatedRow.validationIssues && updatedRow.validationIssues.some((i) => i.severity === 'WARNING'));
-
-    if (stillNeedsResolution) {
-      updatedRow.reviewStatus = 'requires_review';
-    } else if (hasErrors) {
-      updatedRow.reviewStatus = 'requires_review';
-    } else if (hasWarnings && !batch.warningConfirmation?.confirmed) {
-      updatedRow.reviewStatus = 'warning';
-    } else {
-      updatedRow.reviewStatus = 'accepted';
-    }
-
     const updatedRows = [...batch.rows];
     updatedRows[rowIdx] = updatedRow;
 
@@ -360,7 +349,61 @@ export class ExcelCsvPipelineService {
       rows: updatedRows,
     };
 
+    if (context) {
+      return this.revalidateRow(updatedBatch, updatedRow, context);
+    }
+
     return this.recalculateBatchCounts(updatedBatch);
+  }
+
+  public static revalidateRow(
+    batch: UnifiedImportBatch,
+    row: ImportRow,
+    context: PipelineContext
+  ): UnifiedImportBatch {
+    const rowIdx = batch.rows.findIndex((r) => r.rowNumber === row.rowNumber);
+    if (rowIdx === -1) return batch;
+
+    const validator = new ExcelCsvTripValidator();
+    const freshIssues = validator.validateRow(row, context);
+
+    // Smart merge: Preserve manually injected non-resolvable issues (used in some unit tests)
+    // while adopting fresh authoritative issues from the validator.
+    const existingManualIssues = (row.validationIssues || []).filter(i => !i.resolvable);
+    const finalIssues = [...freshIssues];
+
+    for (const mi of existingManualIssues) {
+      if (!finalIssues.some(fi => fi.code === mi.code && fi.field === mi.field)) {
+        finalIssues.push(mi);
+      }
+    }
+
+    // Update issues, recompute status and reviewStatus
+    const updatedRow: ImportRow = {
+      ...row,
+      validationIssues: finalIssues,
+    };
+    
+    // Determine status and reviewStatus based on Section D
+    const isBlocking = finalIssues.some(i => i.severity === 'BLOCKING' || (i.severity as any) === 'ERROR' || (i.severity as any) === 'FATAL');
+    const isWarning = finalIssues.some(i => i.severity === 'WARNING');
+    const stillNeedsResolution = this.rowRequiresEntityResolution(updatedRow);
+
+    if (stillNeedsResolution || isBlocking) {
+      updatedRow.status = 'ERROR';
+      updatedRow.reviewStatus = 'requires_review';
+    } else if (isWarning) {
+      updatedRow.status = 'WARNING';
+      updatedRow.reviewStatus = 'warning';
+    } else {
+      updatedRow.status = 'VALID';
+      updatedRow.reviewStatus = 'accepted';
+    }
+
+    const updatedRows = [...batch.rows];
+    updatedRows[rowIdx] = updatedRow;
+
+    return this.recalculateBatchCounts({ ...batch, rows: updatedRows });
   }
 
   /**

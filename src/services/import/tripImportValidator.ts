@@ -119,9 +119,31 @@ function findCanonicalDriver(rawDriver: string, knownEntities?: PipelineContext[
 export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow> {
   public validateRow(row: ImportRow<any, CanonicalTripRow>, context: PipelineContext): ImportIssue[] {
     const issues: ImportIssue[] = [];
-    const canonical: Partial<CanonicalTripRow> = (row.mapped as any) || (row.canonical as any) || {};
+    const resolved = row.resolvedValues || {};
+    const sourceCanonical: Partial<CanonicalTripRow> = (row.mapped as any) || (row.canonical as any) || {};
 
     const rowNum = row.rowNumber;
+    const getResolvedId = (key: 'carrier' | 'truck' | 'driver' | 'material') => {
+      const resolvedValue = (row.resolvedValues as any)?.[`${key}Id`];
+      if (resolvedValue) return resolvedValue;
+
+      const res = row.entityResolutions?.[key];
+      // Precedence 2: accepted entity resolution
+      if (res && (res.recommendation === 'ACCEPT' || res.isAuthorized || res.isExact)) {
+        return res.matchedId || res.entityId;
+      }
+      return undefined;
+    };
+
+    const effectiveCanonical: Partial<CanonicalTripRow> = {
+      ...sourceCanonical,
+      carrier: getResolvedId('carrier') || sourceCanonical.carrier,
+      truckNo: getResolvedId('truck') || sourceCanonical.truckNo,
+      driverName: getResolvedId('driver') || sourceCanonical.driverName,
+      materialType: getResolvedId('material') || sourceCanonical.materialType
+    };
+
+    const canonical = effectiveCanonical;
 
     // 1. Weighbridge Profile vs Standard Intake Checks
     const isWeighbridge =
@@ -490,21 +512,31 @@ export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow>
       }
     }
 
-    // 7. BLOCK 34 & BLOCK 35: Truck-Carrier Association Integrity Check (WARNING - REQUIRES_REVIEW)
-    if (canonical.truckNo && canonical.carrier && context.knownEntities?.truckCarrierMap) {
+    if (canonical.truckNo && canonical.carrier && context.knownEntities) {
       const cleanTruck = String(canonical.truckNo).trim();
       const normTruck = normalizePlate(cleanTruck);
-      // Match across map keys (by exact key or normalized plate)
-      const mapKey = Object.keys(context.knownEntities.truckCarrierMap).find(
-        (k) => k.toLowerCase() === cleanTruck.toLowerCase() || normalizePlate(k) === normTruck
+      
+      // Look up truck object to get authoritative plate and carrier info
+      const truckObj = context.knownEntities.trucks?.find(t => 
+        t.truckId === cleanTruck || t.plate === cleanTruck || normalizePlate(t.plate) === normTruck
       );
-      if (mapKey) {
-        const expectedCarrierId = context.knownEntities.truckCarrierMap[mapKey];
+      
+      const plateToUse = truckObj?.plate || cleanTruck;
+      const normPlateToUse = normalizePlate(plateToUse);
+
+      // Find driver in truckCarrierMap (by plate or ID as key)
+      const mapKey = Object.keys(context.knownEntities.truckCarrierMap || {}).find(
+        (k) => k.toLowerCase() === plateToUse.toLowerCase() || normalizePlate(k) === normPlateToUse || k.toLowerCase() === cleanTruck.toLowerCase()
+      );
+      
+      const expectedCarrierId = truckObj?.carrierId || (mapKey ? context.knownEntities.truckCarrierMap![mapKey] : undefined);
+
+      if (expectedCarrierId) {
         const rowCarrierObj = findCanonicalCarrier(String(canonical.carrier), context.knownEntities);
         const resolvedRowCarrierId = rowCarrierObj ? rowCarrierObj.carrierId : String(canonical.carrier).trim();
 
         // Compare canonical carrier ID to canonical carrier ID
-        if (expectedCarrierId && expectedCarrierId.toLowerCase() !== resolvedRowCarrierId.toLowerCase()) {
+        if (expectedCarrierId.toLowerCase() !== resolvedRowCarrierId.toLowerCase()) {
           const masterCarrierName = context.knownEntities?.carriers?.find((c) => c.carrierId === expectedCarrierId)?.name || expectedCarrierId;
           issues.push({
             issueId: `WRN-TRUCK-CARRIER-${rowNum}`,
@@ -512,12 +544,12 @@ export class ExcelCsvTripValidator implements IImportValidator<CanonicalTripRow>
             field: 'carrier',
             code: 'RELATIONSHIP_CONFLICT',
             severity: 'WARNING',
-            message: `Truck (${cleanTruck}) is assigned to carrier (${masterCarrierName}) in master records, but row lists carrier (${canonical.carrier}).`,
-            messageAr: `تعارض في العلاقة: الشاحنة (${cleanTruck}) مرتبطة في السجلات بالناقل (${masterCarrierName}) بينما السجل الوارد ينسبها للناقل (${canonical.carrier}).`,
+            message: `Truck (${plateToUse}) is assigned to carrier (${masterCarrierName}) in master records, but row lists carrier (${canonical.carrier}).`,
+            messageAr: `تعارض في العلاقة: الشاحنة (${plateToUse}) مرتبطة في السجلات بالناقل (${masterCarrierName}) بينما السجل الوارد ينسبها للناقل (${canonical.carrier}).`,
             resolvable: true,
             blocking: false,
             originalValue: {
-              truckNo: cleanTruck,
+              truckNo: plateToUse,
               rowCarrier: canonical.carrier,
               masterCarrier: expectedCarrierId,
             },
