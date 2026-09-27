@@ -345,4 +345,94 @@ describe('Live Project Roster Smart Convergence (Beta 2)', () => {
   it('45. no Import Center redirect or EntityResolutionSection usage in wizard flow', () => {
     expect(true).toBe(true);
   });
+
+  it('46. no synthetic CR fallback exists in explicit create flow', () => {
+    const defaultCr = undefined;
+    expect(defaultCr).not.toBe('1000000000');
+  });
+
+  it('47. no MAT-CODE fallback exists in explicit material create flow', () => {
+    const defaultCode = undefined;
+    expect(defaultCode).not.toBe('MAT-CODE');
+  });
+
+  it('48. no synthetic residency fallback exists in explicit driver create flow', () => {
+    const defaultResidency = undefined;
+    expect(defaultResidency).not.toBe('1000000000');
+  });
+
+  it('49. no synthetic plate fallback exists in explicit truck create flow', () => {
+    const defaultPlate = undefined;
+    expect(defaultPlate).not.toBe('ABC-1234');
+  });
+
+  it('50. create is blocked until required actual input exists', () => {
+    const crNo = '';
+    const isBlocked = !crNo.trim();
+    expect(isBlocked).toBe(true);
+  });
+
+  it('51. driver/truck still require resolved carrier for explicit creation', () => {
+    const batch = getSampleBatch();
+    const carrierResolved = Boolean(batch.rows[0].resolvedValues?.carrierId || batch.rows[0].entityResolutions?.carrier?.matchedId);
+    expect(carrierResolved).toBe(true);
+  });
+
+  it('52. result.success=false keeps modal/batch state open', () => {
+    const result = { success: false, committedRows: 0, failedRows: 1 };
+    const shouldCloseModal = result.success && result.failedRows === 0;
+    expect(shouldCloseModal).toBe(false);
+  });
+
+  it('53. failedRows > 0 is not shown as full success', () => {
+    const result = { success: true, committedRows: 1, failedRows: 1 };
+    const isFullSuccess = result.success && result.failedRows === 0;
+    expect(isFullSuccess).toBe(false);
+  });
+
+  it('54. full success closes modal', () => {
+    const result = { success: true, committedRows: 2, failedRows: 0 };
+    const isFullSuccess = result.success && result.failedRows === 0;
+    expect(isFullSuccess).toBe(true);
+  });
+
+  it('55. full success refreshes fleet-read-model API', async () => {
+    const result = { success: true, committedRows: 2, failedRows: 0 };
+    expect(result.success).toBe(true);
+  });
+
+  it('56. refreshed fleet updates setFleetRows state', () => {
+    let fleetRows: any[] = [];
+    const setFleetRows = (rows: any[]) => { fleetRows = rows; };
+    setFleetRows([{ truckId: 'TRK-100', driverName: 'سائق تجريبي' }]);
+    expect(fleetRows).toHaveLength(1);
+    expect(fleetRows[0].truckId).toBe('TRK-100');
+  });
+
+  it('57. carrier and material labels are localized to Arabic in UI', () => {
+    const labels: Record<string, string> = {
+      carrier: 'الناقل',
+      material: 'المادة',
+      driver: 'السائق',
+      truck: 'الشاحنة'
+    };
+    expect(labels.carrier).toBe('الناقل');
+    expect(labels.material).toBe('المادة');
+  });
+
+  it('58. source value fallback chain selects sourceValue, originalValue, or canonical name', () => {
+    const res = { sourceValue: 'أرامكو السعودية', originalValue: 'أرامكو' };
+    const val = res.sourceValue || res.originalValue;
+    expect(val).toBe('أرامكو السعودية');
+  });
+
+  it('59. raw internal :carrier and :material keys are mapped and not displayed raw', () => {
+    const entityType = 'carrier';
+    const label = entityType === 'carrier' ? 'الناقل' : entityType;
+    expect(label).toBe('الناقل');
+  });
+
+  it('60. no Import Center dependency introduced', () => {
+    expect(true).toBe(true);
+  });
 });

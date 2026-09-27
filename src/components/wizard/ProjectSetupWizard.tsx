@@ -642,36 +642,87 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
+  const getSourceVal = (row: any, entityType: string) => {
+    const res = row.entityResolutions?.[entityType];
+    if (res?.sourceValue) return res.sourceValue;
+    if (res?.originalValue) return res.originalValue;
+    if (entityType === 'carrier') return row.canonical?.carrierName || row.mapped?.carrier || row.raw?.carrier || row.raw?.['الناقل'] || 'غير متوفر في المصدر';
+    if (entityType === 'material') return row.canonical?.materialName || row.canonical?.materialCode || row.mapped?.materialType || row.mapped?.materialName || row.raw?.material || row.raw?.['المادة'] || 'غير متوفر في المصدر';
+    if (entityType === 'driver') return row.canonical?.driverName || row.mapped?.driverName || row.raw?.driverName || row.raw?.['اسم السائق'] || 'غير متوفر في المصدر';
+    if (entityType === 'truck') return row.canonical?.truckPlate || row.mapped?.truckNo || row.mapped?.truckPlate || row.raw?.plate || row.raw?.['رقم اللوحة'] || 'غير متوفر في المصدر';
+    return 'غير متوفر في المصدر';
+  };
+
+  const getLocalizedEntityLabel = (entityType: string) => {
+    switch (entityType) {
+      case 'carrier': return 'الناقل';
+      case 'material': return 'المادة';
+      case 'driver': return 'السائق';
+      case 'truck': return 'الشاحنة';
+      default: return entityType;
+    }
+  };
+
+  const reloadProjectCanonicalData = async () => {
+    if (!project) return;
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const headers = { 'Authorization': `Bearer ${token}` };
+      const [matRes, carRes, fleetRes] = await Promise.all([
+        fetch(`/api/projects/${project.projectId}/materials`, { headers }).then(r => r.json()),
+        fetch(`/api/projects/${project.projectId}/carriers`, { headers }).then(r => r.json()),
+        fetch(`/api/projects/${project.projectId}/fleet-read-model`, { headers }).then(r => r.json())
+      ]);
+      setMaterials(matRes.data || []);
+      setCarriers(carRes.data || []);
+      setFleetRows(fleetRes.data?.rows || []);
+    } catch (err) {
+      console.warn('Failed reloading project canonical data:', err);
+    }
+  };
+
   const handleCreateMissingEntity = async (
     rowNumber: number,
-    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
-    formData: any = {}
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material'
   ) => {
     if (!importBatch || !project) return;
     try {
       const row = importBatch.rows.find((r: any) => r.rowNumber === rowNumber);
       if (!row) return;
 
-      const resItem = row.entityResolutions?.[entityTypeKey];
-      const sourceVal = resItem?.sourceValue || resItem?.originalValue || formData.nameAr || formData.driverName || formData.plateNumber || formData.code || '';
+      const sourceVal = getSourceVal(row, entityTypeKey);
+      if (!sourceVal || sourceVal === 'غير متوفر في المصدر') {
+        alert('القيمة الأصلية من المصدر غير متوفرة لإنشاء الكيان');
+        return;
+      }
 
       let result: any;
       if (entityTypeKey === 'carrier') {
+        const crNo = prompt('أدخل رقم السجل التجاري للناقل (إلزامي):');
+        if (!crNo || !crNo.trim()) {
+          alert('رقم السجل التجاري إلزامي لإنشاء الناقل');
+          return;
+        }
         result = await entityResolutionCommandService.createCarrier({
           projectId: project.projectId,
           sourceValue: sourceVal,
           carrierData: {
-            nameAr: formData.nameAr?.trim() || sourceVal,
-            commercialRegistrationNo: formData.commercialRegistrationNo?.trim() || '1000000000',
+            nameAr: sourceVal,
+            commercialRegistrationNo: crNo.trim(),
           },
         });
       } else if (entityTypeKey === 'material') {
+        const matCode = prompt('أدخل رمز المادة (Code) (إلزامي):');
+        if (!matCode || !matCode.trim()) {
+          alert('رمز المادة إلزامي لإنشاء المادة');
+          return;
+        }
         result = await entityResolutionCommandService.createMaterial({
           projectId: project.projectId,
           sourceValue: sourceVal,
           materialData: {
-            code: formData.code?.trim() || 'MAT-CODE',
-            nameAr: formData.nameAr?.trim() || sourceVal,
+            code: matCode.trim(),
+            nameAr: sourceVal,
           },
         });
       } else if (entityTypeKey === 'driver') {
@@ -680,13 +731,18 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           alert('يجب حسم الناقل أولاً قبل إنشاء السائق');
           return;
         }
+        const residency = prompt('أدخل رقم الهوية الوطنية أو الإقامة للسائق (إلزامي):');
+        if (!residency || !residency.trim()) {
+          alert('رقم الهوية/الإقامة إلزامي لإنشاء السائق');
+          return;
+        }
         result = await entityResolutionCommandService.createDriver({
           projectId: project.projectId,
           sourceValue: sourceVal,
           driverData: {
             carrierId,
-            driverName: formData.driverName?.trim() || sourceVal,
-            residencyId: formData.residencyId?.trim() || '1000000000',
+            driverName: sourceVal,
+            residencyId: residency.trim(),
           },
         });
       } else if (entityTypeKey === 'truck') {
@@ -695,12 +751,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           alert('يجب حسم الناقل أولاً قبل إنشاء الشاحنة');
           return;
         }
+        const plate = prompt('أدخل رقم لوحة الشاحنة (إلزامي):');
+        if (!plate || !plate.trim()) {
+          alert('رقم اللوحة إلزامي لإنشاء الشاحنة');
+          return;
+        }
         result = await entityResolutionCommandService.createTruck({
           projectId: project.projectId,
           sourceValue: sourceVal,
           truckData: {
             carrierId,
-            plateNumber: formData.plateNumber?.trim() || 'ABC-1234',
+            plateNumber: plate.trim().toUpperCase(),
           },
         });
       }
@@ -730,14 +791,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // Confirm and Commit the Import Roster Batch
   const handleCommitRosterImport = async () => {
     if (!project || !importBatch || !canPerformOperationalMutation('COMMIT_ROSTER_BATCH', project.status)) return;
-    if ((importBatch.requiresReviewRows || 0) > 0 || importBatch.rows.some((r: any) => r.reviewStatus === 'requires_review')) {
+    if ((importBatch.requiresReviewRows || 0) > 0 || importBatch.rows.some((r: any) => r.reviewStatus === 'requires_review' || r.reviewStatus === 'error')) {
       alert(isRTL ? 'لا يمكن اعتماد الاستيراد: توجد صفوف تتطلب مراجعة أو حل كيانات معلقة' : 'Cannot commit: import batch contains unresolved review rows');
       return;
     }
     setIsCommittingImport(true);
 
     try {
-      // Fetch canonical relationship context for the project
       let relContext = null;
       try {
         relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
@@ -753,13 +813,18 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         operationId: `OP-${Date.now()}`
       });
 
-      // Execute the commit operation via the real pipeline
-      const { result } = await DriverTruckPipelineService.commitBatch(importBatch, commitContext);
+      const { batch: committedBatch, result } = await DriverTruckPipelineService.commitBatch(importBatch, commitContext);
 
-      alert(`تم بنجاح استيراد ${result.committedRows} سجلات تشغيل من الملف!`);
-      setImportBatch(null);
+      if (result.success && result.failedRows === 0) {
+        alert(isRTL ? `تم تأكيد واستيراد سجل التشغيل بنجاح (${result.committedRows} صفوف)` : `Successfully committed batch (${result.committedRows} rows)`);
+        setImportBatch(null);
+        await reloadProjectCanonicalData();
+      } else {
+        alert(isRTL ? `فشل جزئي أو كلي في اعتماد الاستيراد. تم اعتماد: ${result.committedRows}, فشل: ${result.failedRows}` : `Partial or failed commit. Committed: ${result.committedRows}, Failed: ${result.failedRows}`);
+        setImportBatch({ ...committedBatch });
+      }
     } catch (err: any) {
-      alert(err.message || 'فشلت عملية حفظ وحقن السجلات');
+      alert(err.message || 'خطأ في اعتماد واستيراد السجل');
     } finally {
       setIsCommittingImport(false);
     }
@@ -1647,10 +1712,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             </h4>
                             <div className="space-y-3 max-h-[220px] overflow-y-auto">
                               {importBatch.rows?.map((row: any) => {
-                                const driverName = row.canonical?.driverName || row.raw?.driverName || row.raw?.['اسم السائق'] || '—';
-                                const truckPlate = row.canonical?.truckPlate || row.raw?.plate || row.raw?.['رقم اللوحة'] || '—';
-                                const carrierVal = row.entityResolutions?.carrier?.sourceValue || row.entityResolutions?.carrier?.originalValue || '—';
-                                const materialVal = row.entityResolutions?.material?.sourceValue || row.entityResolutions?.material?.originalValue || '—';
+                                const driverName = getSourceVal(row, 'driver');
+                                const truckPlate = getSourceVal(row, 'truck');
+                                const carrierVal = getSourceVal(row, 'carrier');
+                                const materialVal = getSourceVal(row, 'material');
 
                                 return (
                                   <div key={row.rowNumber} className="bg-stone-950 border border-stone-850 p-3 rounded-xl space-y-2">
@@ -1672,9 +1737,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                                     <div className="space-y-1.5 pt-1">
                                       {Object.entries(row.entityResolutions || {}).map(([entityType, res]: [string, any]) => {
                                         if (!res || res.matchedId) return null;
+                                        const localizedLabel = getLocalizedEntityLabel(entityType);
                                         return (
                                           <div key={entityType} className="bg-stone-900 p-2 rounded-lg border border-stone-800 flex flex-wrap items-center justify-between gap-2 text-[10px]">
-                                            <span className="text-amber-300 font-bold">{entityType}:</span>
+                                            <span className="text-amber-300 font-bold">{localizedLabel}:</span>
                                             <div className="flex items-center gap-1.5 flex-wrap">
                                               {res.candidates?.map((cand: any) => (
                                                 <button
