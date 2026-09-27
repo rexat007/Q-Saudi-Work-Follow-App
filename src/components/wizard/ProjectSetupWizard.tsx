@@ -613,6 +613,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // Confirm and Commit the Import Roster Batch
   const handleCommitRosterImport = async () => {
     if (!project || !importBatch || !canPerformOperationalMutation('COMMIT_ROSTER_BATCH', project.status)) return;
+    if ((importBatch.requiresReviewRows || 0) > 0 || importBatch.rows.some((r: any) => r.reviewStatus === 'requires_review')) {
+      alert(isRTL ? 'لا يمكن اعتماد الاستيراد: توجد صفوف تتطلب مراجعة أو حل كيانات معلقة' : 'Cannot commit: import batch contains unresolved review rows');
+      return;
+    }
     setIsCommittingImport(true);
 
     try {
@@ -644,11 +648,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  // Sync Roster from Project's Google Sheets (Disabled direct write, directs to reviewed import)
+  // Sync Roster from Project's Google Sheets (Non-destructive pending convergence message)
   const handleSyncRosterFromSheet = async () => {
     alert(isRTL 
-      ? 'تم إيقاف المزامنة المباشرة لأوراق العمل إلى السجلات لحماية البيانات. يرجى استخدام بوابة الاستيراد المعتمدة والمراجعة من لوحة البيانات (Import Center) لمراجعة واعتماد السجلات أولاً.' 
-      : 'Direct Google Sheets sync has been disabled for security and data protection. Please use the Import Center on the dashboard to review and commit records safely.');
+      ? 'تكامل جداول بيانات جوجل (Google Sheets) لهذا المشروع قيد الإنجاز والتوافق' 
+      : 'Google Sheets integration for this project workspace is pending convergence');
   };
 
   // Phase 3: Add Pricing Rule

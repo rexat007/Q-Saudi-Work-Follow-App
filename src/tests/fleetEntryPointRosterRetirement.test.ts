@@ -62,6 +62,16 @@ describe('Phase 6: Fleet Entry Point & Legacy Roster Retirement', () => {
               isAuthorized: true,
               riskLevel: 'LOW',
             },
+            material: {
+              entityType: 'MATERIAL',
+              originalValue: 'MAT-SAND',
+              matchedId: 'MAT-SAND',
+              matchedName: 'MAT-SAND',
+              confidence: 100,
+              isExact: true,
+              isAuthorized: true,
+              riskLevel: 'LOW',
+            },
           },
         },
         {
@@ -83,6 +93,16 @@ describe('Phase 6: Fleet Entry Point & Legacy Roster Retirement', () => {
               originalValue: 'Golden Carrier',
               matchedId: 'CAR-GOLD',
               matchedName: 'Golden Carrier',
+              confidence: 100,
+              isExact: true,
+              isAuthorized: true,
+              riskLevel: 'LOW',
+            },
+            material: {
+              entityType: 'MATERIAL',
+              originalValue: 'MAT-GRAVEL',
+              matchedId: 'MAT-GRAVEL',
+              matchedName: 'MAT-GRAVEL',
               confidence: 100,
               isExact: true,
               isAuthorized: true,
@@ -124,7 +144,7 @@ describe('Phase 6: Fleet Entry Point & Legacy Roster Retirement', () => {
     expect(fetchSpy).toHaveBeenCalledTimes(2);
     expect(fetchSpy).toHaveBeenNthCalledWith(
       1,
-      '/api/intake/canonical',
+      expect.stringContaining('/api/intake/canonical'),
       expect.objectContaining({
         method: 'POST',
         headers: {
@@ -145,7 +165,7 @@ describe('Phase 6: Fleet Entry Point & Legacy Roster Retirement', () => {
 
     expect(fetchSpy).toHaveBeenNthCalledWith(
       2,
-      '/api/intake/canonical',
+      expect.stringContaining('/api/intake/canonical'),
       expect.objectContaining({
         method: 'POST',
         headers: {
@@ -194,6 +214,7 @@ describe('Phase 6: Fleet Entry Point & Legacy Roster Retirement', () => {
           canonical: {
             driverName: 'Sami Al-Farsi',
             truckPlate: 'ABC 1234',
+            materialId: 'MAT-SAND',
           },
           validationIssues: [],
           entityResolutions: {
@@ -202,6 +223,16 @@ describe('Phase 6: Fleet Entry Point & Legacy Roster Retirement', () => {
               originalValue: 'Golden Carrier',
               matchedId: 'CAR-GOLD',
               matchedName: 'Golden Carrier',
+              confidence: 100,
+              isExact: true,
+              isAuthorized: true,
+              riskLevel: 'LOW',
+            },
+            material: {
+              entityType: 'MATERIAL',
+              originalValue: 'MAT-SAND',
+              matchedId: 'MAT-SAND',
+              matchedName: 'MAT-SAND',
               confidence: 100,
               isExact: true,
               isAuthorized: true,

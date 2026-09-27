@@ -20,6 +20,7 @@ import { CanonicalDriverTruckRow } from './driverTruckImport';
 import { smartSourceDiscoveryService } from './smartSourceDiscovery.service';
 
 import { ExcelCsvColumnMapper } from './columnMapper.service';
+import { ExcelCsvPipelineService } from './excelCsvPipeline.service';
 
 export interface ProcessDriverTruckFileOptions {
   sheetName?: string;
@@ -151,6 +152,53 @@ export class DriverTruckPipelineService {
   }
 
   /**
+   * Applies an interactive entity resolution decision on an existing candidate
+   */
+  public static applyEntityResolutionDecision(
+    batch: UnifiedImportBatch,
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
+    candidate: { selectedEntityId?: string; selectedDisplayName?: string },
+    context: PipelineContext,
+    actorId: string
+  ): UnifiedImportBatch {
+    return ExcelCsvPipelineService.applyEntityResolutionDecision(
+      batch,
+      rowNumber,
+      entityTypeKey,
+      decision,
+      candidate,
+      context,
+      actorId
+    );
+  }
+
+  /**
+   * Applies a newly created server-authoritative canonical entity result to an import batch row.
+   */
+  public static applyCreatedEntityResolution(
+    batch: UnifiedImportBatch,
+    rowNumber: number,
+    entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
+    result: {
+      matchedId: string;
+      matchedName: string;
+      sourceValue?: string;
+      [key: string]: any;
+    },
+    context?: PipelineContext
+  ): UnifiedImportBatch {
+    return ExcelCsvPipelineService.applyCreatedEntityResolution(
+      batch,
+      rowNumber,
+      entityTypeKey,
+      result,
+      context
+    );
+  }
+
+  /**
    * Commits the reviewed batch into Firestore
    */
   public static async commitBatch(
@@ -165,3 +213,4 @@ export class DriverTruckPipelineService {
     return pipeline.executeCommit(batch, context);
   }
 }
+
