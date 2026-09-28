@@ -33,8 +33,6 @@ interface SidebarProps {
   projects: ProjectEntity[];
   selectedProjectId: string;
   setSelectedProjectId: (id: string) => void;
-  activeWorkspaceTab: string;
-  onSelectWorkspaceTab: (tab: string) => void;
   onOpenSystemTools: () => void;
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
@@ -48,8 +46,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   projects,
   selectedProjectId,
   setSelectedProjectId,
-  activeWorkspaceTab,
-  onSelectWorkspaceTab,
   onOpenSystemTools,
   isCollapsed,
   setIsCollapsed,
@@ -76,33 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  const getWorkspaceTabIcon = (tabId: string, className = "w-3.5 h-3.5") => {
-    switch (tabId) {
-      case 'data': return <Database className={`${className} text-indigo-400`} />;
-      case 'carriers': return <Building2 className={`${className} text-amber-400`} />;
-      case 'drivers': return <Truck className={`${className} text-cyan-400`} />;
-      case 'materials': return <Boxes className={`${className} text-orange-400`} />;
-      case 'pricing': return <CircleDollarSign className={`${className} text-emerald-400`} />;
-      case 'access': return <Users className={`${className} text-purple-400`} />;
-      case 'google': return <FolderSync className={`${className} text-[#4285F4]`} />;
-      default: return <Database className={`${className} text-stone-400`} />;
-    }
-  };
 
-  const getWorkspaceTabLabel = (tabId: string) => {
-    switch (tabId) {
-      case 'data': return isRtl ? 'بيانات المشروع' : 'Project Data';
-      case 'carriers': return isRtl ? 'المقاولين والناقلين' : 'Project Carriers';
-      case 'drivers': return isRtl ? 'السائقين والشاحنات' : 'Drivers & Trucks Roster';
-      case 'materials': return isRtl ? 'المواد المعتمدة' : 'Approved Materials';
-      case 'pricing': return isRtl ? 'اتفاقيات الأسعار' : 'Pricing Rules';
-      case 'access': return isRtl ? 'صلاحيات الوصول' : 'Project Access';
-      case 'google': return isRtl ? 'تكامل Google Workspace' : 'Google Integration';
-      default: return '';
-    }
-  };
-
-  const workspaceTabs = ['data', 'carriers', 'drivers', 'materials', 'pricing', 'access', 'google'];
 
   // Safe navigation switch
   const handleSelectTab = (tabId: NavTabId) => {
@@ -303,31 +273,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {/* Active Selected Project Workspace Sub-Tree */}
                     {selectedProject && (
                       <div className="space-y-1 border-l border-white/10 pl-2 ml-1 rtl:border-l-0 rtl:border-r rtl:pl-0 rtl:pr-2 rtl:mr-1 rtl:ml-0 mt-2">
-                        <div className="px-1.5 py-1 text-[10px] text-[#10b981] font-mono tracking-widest font-black uppercase truncate bg-[#10b981]/5 border border-[#10b981]/15 mb-2">
+                        <div className="px-1.5 py-1 text-[10px] text-[#10b981] font-mono tracking-widest font-black uppercase truncate bg-[#10b981]/5 border border-[#10b981]/15 mb-1 text-center">
                           #{selectedProject.projectCode || selectedProject.projectId}
                         </div>
-
-                        {workspaceTabs.map((tab) => {
-                          const isTabSelected = activeTab === 'WIZARD' && selectedProjectId !== '' && activeWorkspaceTab === tab;
-                          return (
-                            <button
-                              key={tab}
-                              id={`sidebar-subtab-${tab}`}
-                              onClick={() => {
-                                handleSelectTab('WIZARD');
-                                onSelectWorkspaceTab(tab);
-                              }}
-                              className={`w-full text-right px-2 py-1.5 rounded-md text-[11px] font-mono transition-all flex items-center gap-2 ${
-                                isTabSelected 
-                                  ? 'bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/25 font-bold shadow-xs' 
-                                  : 'text-white/50 hover:bg-white/5 hover:text-white border border-transparent'
-                              }`}
-                            >
-                              {getWorkspaceTabIcon(tab)}
-                              <span className="truncate">{getWorkspaceTabLabel(tab)}</span>
-                            </button>
-                          );
-                        })}
                       </div>
                     )}
                   </div>

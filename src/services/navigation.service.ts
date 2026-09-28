@@ -20,15 +20,9 @@ export type NavTabId =
   | 'REPORTS_ENGINE'
   | 'FIELD_OPERATIONS'
   | 'WIZARD'
-  | 'MASTER_DATA'
   | 'SECURITY_AUDIT'
   | 'LEGACY_MIGRATION'
   | 'ADMIN_CONSOLE'
-  | 'TRIP_ENGINE'
-  | 'WORKSPACE_INTEGRATION'
-  | 'EXCEPTION_ENGINE'
-  | 'IMPORT_CENTER'
-  | 'DATA_QUALITY'
   | 'PRICING_ENGINE'
   | 'FIRESTORE_ARCH'
   | 'RELATIONS'
@@ -358,8 +352,8 @@ class NavigationService {
   /**
    * Checks if a specific tab is authorized for the given role.
    */
-  public isTabAuthorizedForRole(tabId: NavTabId, role: UserRole): boolean {
-    if (['IMPORT_CENTER', 'MASTER_DATA', 'WORKSPACE_INTEGRATION'].includes(tabId)) {
+  public isTabAuthorizedForRole(tabId: NavTabId | string, role: UserRole): boolean {
+    if (['IMPORT_CENTER', 'MASTER_DATA', 'WORKSPACE_INTEGRATION', 'TRIP_ENGINE', 'EXCEPTION_ENGINE', 'DATA_QUALITY'].includes(tabId)) {
       return false;
     }
 

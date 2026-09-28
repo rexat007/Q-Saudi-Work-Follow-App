@@ -40,12 +40,9 @@ import FirestoreArchitectureView from './components/FirestoreArchitectureView';
 import { ProjectSetupWizard } from './components/wizard/ProjectSetupWizard';
 import { Sidebar } from './components/navigation/Sidebar';
 import { PricingEngineView } from './components/pricing/PricingEngineView';
-import { MasterDataView } from './components/masterData/MasterDataView';
-import { ImportCenterView } from './components/importCenter/ImportCenterView';
 import { FieldOperationsView, FieldTab } from './components/field/FieldOperationsView';
 import { ReportsEngineView } from './components/reports/ReportsEngineView';
 import { OperationsDashboardView } from './components/dashboard/OperationsDashboardView';
-import { WorkspaceIntegrationView } from './components/workspace/WorkspaceIntegrationView';
 import { AdminConsoleView } from './components/admin/AdminConsoleView';
 import { LegacyMigrationView } from './components/migration/LegacyMigrationView';
 import { SecurityAuditView } from './components/security/SecurityAuditView';
@@ -93,7 +90,6 @@ export default function App() {
   const [projects, setProjects] = useState<ProjectEntity[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [loadingProjects, setLoadingProjects] = useState<boolean>(true);
-  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<string>('data');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
   // Sync role when userProfile is loaded
@@ -450,8 +446,6 @@ export default function App() {
           projects={projects}
           selectedProjectId={selectedProjectId}
           setSelectedProjectId={setSelectedProjectId}
-          activeWorkspaceTab={activeWorkspaceTab}
-          onSelectWorkspaceTab={setActiveWorkspaceTab}
           onOpenSystemTools={() => setIsSystemToolsOpen(true)}
           isCollapsed={isSidebarCollapsed}
           setIsCollapsed={setIsSidebarCollapsed}
