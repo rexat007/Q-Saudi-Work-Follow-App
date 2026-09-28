@@ -25,17 +25,17 @@ describe('Step 3C — Trip Ingestion Entry Convergence', () => {
   const wizardFilePath = path.resolve(process.cwd(), 'src/components/wizard/ProjectSetupWizard.tsx');
   const sectionFilePath = path.resolve(process.cwd(), 'src/components/importCenter/ExcelCsvImportSection.tsx');
 
-  it('1. Exposes exactly ONE Trip Data Import entry under Phase 6 in ProjectSetupWizard', () => {
+  it('1. Exposes NO Trip Data Import entry under Phase 6 in ProjectSetupWizard', () => {
     const fileContent = fs.readFileSync(wizardFilePath, 'utf-8');
     
-    // Verify that Phase 6 exists in selector array
-    expect(fileContent).toContain("phase: 6");
-    expect(fileContent).toContain("label: 'استيراد بيانات الرحلات'");
-    expect(fileContent).toContain("sub: 'Phase 6: Trip Ingestion'");
+    // Verify that Phase 6 does NOT exist in selector array
+    expect(fileContent).not.toContain("phase: 6");
+    expect(fileContent).not.toContain("label: 'استيراد بيانات الرحلات'");
+    expect(fileContent).not.toContain("sub: 'Phase 6: Trip Ingestion'");
 
-    // Verify there is exactly one header and one content rendering branch for Phase 6
+    // Verify there are no activePhase === 6 rendering branches
     const phase6Matches = fileContent.match(/activePhase === 6/g) || [];
-    expect(phase6Matches.length).toBe(2);
+    expect(phase6Matches.length).toBe(0);
   });
 
   it('2. Phase 4 Governance remains 100% unchanged', () => {
@@ -106,26 +106,16 @@ describe('Step 3C — Trip Ingestion Entry Convergence', () => {
     expect(files).not.toContain('excelParserDuplicate.service.ts');
   });
 
-  it('12. No duplicate project selector is rendered inside the integrated ExcelCsvImportSection flow', () => {
-    const wizardContent = fs.readFileSync(wizardFilePath, 'utf-8');
-    const sectionContent = fs.readFileSync(sectionFilePath, 'utf-8');
-    
-    // Wizard provides single canonical project id to section
-    expect(wizardContent).toContain("currentProjectId={project.projectId}");
-    // Section does not render its own project list selector dropdown
-    expect(sectionContent).not.toContain("projects.map");
-  });
-
-  it('13. No duplicate upload control exists elsewhere in the ProjectSetupWizard for trip intake intent', () => {
+  it('12. No duplicate upload control exists elsewhere in the ProjectSetupWizard for trip intake intent', () => {
     const wizardContent = fs.readFileSync(wizardFilePath, 'utf-8');
     
-    // Upload controls in wizard are restricted to Phase 2 (Roster upload) and Phase 6 (Trips upload via Section)
+    // Upload controls in wizard are restricted to Phase 2 (Roster upload). Phase 6 is retired.
     const uploadCloudCount = (wizardContent.match(/<UploadCloud/g) || []).length;
     // Wizard uses native files dropzone only in Phase 2
     expect(wizardContent).toContain("Phase 2: Roster");
   });
 
-  it('14. No duplicate commit control exists outside the canonical ExcelCsvImportSection flow for trips', () => {
+  it('13. No duplicate commit control exists outside the canonical ExcelCsvImportSection flow for trips', () => {
     const wizardContent = fs.readFileSync(wizardFilePath, 'utf-8');
     
     // Wizard does not have an inline "Commit Trips" action of its own

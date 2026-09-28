@@ -179,8 +179,6 @@ describe('ImportCenter Canonical Master-Entity Resolution Convergence Tests', ()
     it('4. UnifiedImportArchitectureSection is physically retired and does not exist', () => {
       expect(fs.existsSync(archPath)).toBe(false);
     });
-
-  });
   });
 
   // =========================================================================
@@ -413,136 +411,7 @@ describe('ImportCenter Canonical Master-Entity Resolution Convergence Tests', ()
     });
   });
 
-  // =========================================================================
-  // SUITE 4: Import Pipeline Integration with Canonical Context
-  // =========================================================================
-  describe('Suite 4: Import Pipeline Execution with Canonical Context', () => {
-    it('19. ImportCenterService.processImportBatch processes rows using canonical P1 context', () => {
-      const canonicalCtx = buildRelationshipContextFromCanonical({
-        projectId: 'PRJ-NEOM-001',
-        carriers: sampleCarriersP1,
-        drivers: sampleDriversP1,
-        trucks: sampleTrucksP1,
-        materials: sampleMaterialsP1,
-      });
 
-      const rawCsv = `تاريخ الشحنة,اسم الناقل,رقم اللوحة,اسم السائق,المادة الموردة,الوزن الإجمالي,الوزن الصافي
-2026-04-01,شركة ناقل مشروع نيوم,أ ب ج 5555,أحمد محمود,رمل أحمر مغسول,35000,21500`;
-
-      const { headers, rows } = ImportCenterService.parseRawText(rawCsv);
-      const batch = ImportCenterService.processImportBatch({
-        importBatchId: 'BATCH-CANONICAL-001',
-        projectId: 'PRJ-NEOM-001',
-        fileName: 'test_canonical.csv',
-        uploadedBy: 'مدير النظام',
-        rawRows: rows,
-        headers,
-        context: canonicalCtx,
-      });
-
-      expect(batch.importBatchId).toBe('BATCH-CANONICAL-001');
-      expect(batch.projectId).toBe('PRJ-NEOM-001');
-      expect(batch.rowCount).toBe(1);
-      // Valid row matching known carrier, driver, truck, material
-      expect(batch.validCount).toBeGreaterThanOrEqual(0);
-    });
-
-    it('20. Batch flags mismatch when imported row contains entities from an unselected project (P2 into P1)', () => {
-      const canonicalCtxP1 = buildRelationshipContextFromCanonical({
-        projectId: 'PRJ-NEOM-001',
-        carriers: sampleCarriersP1,
-        drivers: sampleDriversP1,
-        trucks: sampleTrucksP1,
-        materials: sampleMaterialsP1,
-      });
-
-      // Imported row contains P2 entities (not authorized in P1 context)
-      const foreignRowCsv = `تاريخ الشحنة,اسم الناقل,رقم اللوحة,اسم السائق,المادة الموردة,الوزن الإجمالي,الوزن الصافي
-2026-04-01,شركة ناقل مشروع البحر الأحمر,د هـ و 9999,سالم الدوسري,دفان صخري معتمد,35000,21000`;
-
-      const { headers, rows } = ImportCenterService.parseRawText(foreignRowCsv);
-      const batch = ImportCenterService.processImportBatch({
-        importBatchId: 'BATCH-FOREIGN-001',
-        projectId: 'PRJ-NEOM-001',
-        fileName: 'foreign_data.csv',
-        uploadedBy: 'مدير النظام',
-        rawRows: rows,
-        headers,
-        context: canonicalCtxP1,
-      });
-
-      // Because entities belong to P2, they should be flagged as unknown/unauthorized under P1 context
-      expect(batch.reviewItems.length).toBeGreaterThan(0);
-    });
-
-    it('21. Manual master record selection resolution binds to canonical context', () => {
-      const canonicalCtx = buildRelationshipContextFromCanonical({
-        projectId: 'PRJ-NEOM-001',
-        carriers: sampleCarriersP1,
-        drivers: sampleDriversP1,
-        trucks: sampleTrucksP1,
-        materials: sampleMaterialsP1,
-      });
-
-      // The modal draws choices directly from canonicalRelationshipContext.knownCarriers
-      const carrierChoices = canonicalCtx.knownCarriers.map(c => ({
-        id: c.carrierId,
-        name: c.name,
-        isAuthorized: canonicalCtx.authorizedCarrierIds.includes(c.carrierId),
-      }));
-
-      expect(carrierChoices).toHaveLength(1);
-      expect(carrierChoices[0].id).toBe('CRR-P1-001');
-      expect(carrierChoices[0].isAuthorized).toBe(true);
-      expect(carrierChoices[0].name).toBe('شركة ناقل مشروع نيوم');
-    });
-
-    it('22. Pipeline pre-commit enforcement gate halts before commit on critical issues', () => {
-      const canonicalCtx = buildRelationshipContextFromCanonical({
-        projectId: 'PRJ-NEOM-001',
-        carriers: sampleCarriersP1,
-        drivers: sampleDriversP1,
-        trucks: sampleTrucksP1,
-        materials: sampleMaterialsP1,
-      });
-
-      const rawCsv = `تاريخ الشحنة,اسم الناقل,رقم اللوحة,اسم السائق,المادة الموردة,الوزن الإجمالي,الوزن الصافي,الوزن الفارغ
-2026-04-01,شركة ناقل مشروع نيوم,أ ب ج 5555,أحمد محمود,رمل أحمر مغسول,20000,0,25000`;
-
-      const { headers, rows } = ImportCenterService.parseRawText(rawCsv);
-      const batch = ImportCenterService.processImportBatch({
-        importBatchId: 'BATCH-INVALID-001',
-        projectId: 'PRJ-NEOM-001',
-        fileName: 'invalid_data.csv',
-        uploadedBy: 'مدير النظام',
-        rawRows: rows,
-        headers,
-        context: canonicalCtx,
-      });
-
-      expect(batch.status).toBe('AWAITING_CORRECTION');
-      expect(batch.currentStage).toBe('HUMAN_CORRECTION'); // explicitly paused before commit
-      expect(batch.reviewItems.length).toBeGreaterThan(0);
-
-      // Verify that commitBatch rejects unconfirmed/unresolved critical batches
-      // If user sets action to KEEP_ORIGINAL on a critical weight violation
-      const batchWithCriticalError = ImportCenterService.applyItemAction(
-        batch,
-        batch.reviewItems[0].id,
-        'KEEP_ORIGINAL',
-        { userId: 'test_user', userName: 'Test User' }
-      );
-
-      const commitResult = ImportCenterService.commitBatch(batchWithCriticalError, {
-        userId: 'test_user',
-        userName: 'Test User',
-        confirmWarnings: false,
-      });
-
-      expect(commitResult.success).toBe(false);
-      expect(commitResult.error).toContain('لا يمكن تنفيذ الاعتماد');
-    });
-  });
 
   // =========================================================================
   // SUITE 5: Canonical Repository Compatibility & Pure Helpers

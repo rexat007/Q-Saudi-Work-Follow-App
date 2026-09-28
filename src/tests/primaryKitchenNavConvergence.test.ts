@@ -102,12 +102,15 @@ describe('Step 3A — Primary Kitchen Navigation Convergence', () => {
     expect(files).toContain('rosterBatchReview.service.ts');
   });
 
-  it('10. No component physical file deletion occurred', () => {
+  it('10. Physical file status audit (Retired vs Canonical)', () => {
     const importCenterPath = path.resolve(process.cwd(), 'src/components/importCenter/ImportCenterView.tsx');
     const masterDataPath = path.resolve(process.cwd(), 'src/components/masterData/MasterDataView.tsx');
     const workspaceIntegrationPath = path.resolve(process.cwd(), 'src/components/workspace/WorkspaceIntegrationView.tsx');
 
-    expect(fs.existsSync(importCenterPath)).toBe(true);
+    // ImportCenterView is physically retired
+    expect(fs.existsSync(importCenterPath)).toBe(false);
+    
+    // Others remain present on disk but retired from navigation (checked in other tests)
     expect(fs.existsSync(masterDataPath)).toBe(true);
     expect(fs.existsSync(workspaceIntegrationPath)).toBe(true);
   });
