@@ -52,13 +52,10 @@ async function executeTestSuite() {
     assert(content.includes("!isDriverRole"), "Should hide workstation tabs container for DRIVER role");
   });
 
-  // Test 2: P3-02 Master Data Empty State CTA
-  await runTest('FIX-02', 'MasterDataView displays primary CTA button inside empty state card', () => {
+  // Test 2: P3-02 Master Data Empty State CTA - Retired
+  await runTest('FIX-02', 'MasterDataView is physically retired from codebase', () => {
     const filePath = path.join(process.cwd(), 'src/components/masterData/MasterDataView.tsx');
-    const content = fs.readFileSync(filePath, 'utf-8');
-
-    assert(content.includes('إضافة كيان جديد (إعداد البيانات)'), "Should display primary CTA button text in empty state card");
-    assert(content.includes('setCreateModal({ isOpen: true, entityType: \'CARRIER\' })'), "Should open creation modal from empty state button");
+    assert(fs.existsSync(filePath) === false, "MasterDataView must be physically retired");
   });
 
   // Test 3: P3-03 Reports Mobile Filter Accordion

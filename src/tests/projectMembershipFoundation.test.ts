@@ -298,8 +298,8 @@ describe('PHASE 6 — UNIT 2A: Project Membership Foundation Test Suite', () => 
     const importResolver = fs.readFileSync(path.resolve(__dirname, '../services/import/driverTruckImport.ts'), 'utf-8');
     expect(importResolver).not.toContain('projectDriverMembershipRepository');
 
-    const masterDataView = fs.readFileSync(path.resolve(__dirname, '../components/masterData/MasterDataView.tsx'), 'utf-8');
-    expect(masterDataView).not.toContain('projectDriverMembershipRepository');
+    const masterDataPath = path.resolve(__dirname, '../components/masterData/MasterDataView.tsx');
+    expect(fs.existsSync(masterDataPath)).toBe(false);
   });
 
   // ==========================================================================

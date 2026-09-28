@@ -107,11 +107,11 @@ describe('Step 3A — Primary Kitchen Navigation Convergence', () => {
     const masterDataPath = path.resolve(process.cwd(), 'src/components/masterData/MasterDataView.tsx');
     const workspaceIntegrationPath = path.resolve(process.cwd(), 'src/components/workspace/WorkspaceIntegrationView.tsx');
 
-    // ImportCenterView is physically retired
+    // ImportCenterView and MasterDataView are physically retired
     expect(fs.existsSync(importCenterPath)).toBe(false);
+    expect(fs.existsSync(masterDataPath)).toBe(false);
     
-    // Others remain present on disk but retired from navigation (checked in other tests)
-    expect(fs.existsSync(masterDataPath)).toBe(true);
+    // WorkspaceIntegrationView remains present on disk but retired from navigation
     expect(fs.existsSync(workspaceIntegrationPath)).toBe(true);
   });
 });

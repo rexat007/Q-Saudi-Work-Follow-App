@@ -50,8 +50,6 @@ const jsonReportPath = path.resolve(process.cwd(), 'reports/uiux-block74-p2-fixe
 const mdReportPath = path.resolve(process.cwd(), 'reports/uiux-block74-p2-fixes.md');
 
 const langSwitcherSource = fs.readFileSync(langSwitcherPath, 'utf-8');
-const masterDataSource = fs.readFileSync(masterDataPath, 'utf-8');
-const importCenterSource = fs.readFileSync(importCenterPath, 'utf-8');
 const reportsEngineSource = fs.readFileSync(reportsEnginePath, 'utf-8');
 const pricingEngineSource = fs.readFileSync(pricingEnginePath, 'utf-8');
 const appSource = fs.readFileSync(appPath, 'utf-8');
@@ -87,21 +85,15 @@ test('B74-T03', 'LanguageSwitcher preserves locale selection options and click h
 // -------------------------------------------------------------
 // Section 2: AUDIT-72-04 — Search Inputs
 // -------------------------------------------------------------
-test('B74-T04', 'MasterDataView search input has direction-aware icon and padding', () => {
-  if (!masterDataSource.includes('rtl:right-3') || !masterDataSource.includes('ltr:left-3')) {
-    throw new Error('MasterDataView search icon must mirror between RTL (right-3) and LTR (left-3)');
-  }
-  if (!masterDataSource.includes('rtl:pr-9') || !masterDataSource.includes('ltr:pl-9')) {
-    throw new Error('MasterDataView search input must mirror padding (rtl:pr-9, ltr:pl-9)');
+test('B74-T04', 'MasterDataView is physically retired from codebase', () => {
+  if (fs.existsSync(masterDataPath)) {
+    throw new Error('MasterDataView must be physically retired');
   }
 });
 
-test('B74-T05', 'ImportCenterView search input has direction-aware icon and padding', () => {
-  if (!importCenterSource.includes('rtl:right-3') || !importCenterSource.includes('ltr:left-3')) {
-    throw new Error('ImportCenterView search icon must mirror between RTL (right-3) and LTR (left-3)');
-  }
-  if (!importCenterSource.includes('rtl:pr-9') || !importCenterSource.includes('ltr:pl-9')) {
-    throw new Error('ImportCenterView search input must mirror padding (rtl:pr-9, ltr:pl-9)');
+test('B74-T05', 'ImportCenterView is physically retired from codebase', () => {
+  if (fs.existsSync(importCenterPath)) {
+    throw new Error('ImportCenterView must be physically retired');
   }
 });
 
@@ -126,10 +118,9 @@ test('B74-T07', 'PricingEngineView test search input has direction-aware icon an
 // -------------------------------------------------------------
 // Section 3: AUDIT-72-05 — Tables
 // -------------------------------------------------------------
-test('B74-T08', 'MasterDataView all 4 module tables use direction-aware text alignment', () => {
-  const matches = masterDataSource.match(/<table className="[^"]*rtl:text-right ltr:text-left[^"]*"/g);
-  if (!matches || matches.length < 4) {
-    throw new Error(`MasterDataView must have at least 4 tables with rtl:text-right ltr:text-left, found ${matches?.length || 0}`);
+test('B74-T08', 'MasterDataView tables are retired with component', () => {
+  if (fs.existsSync(masterDataPath)) {
+    throw new Error('MasterDataView must be physically retired');
   }
 });
 
