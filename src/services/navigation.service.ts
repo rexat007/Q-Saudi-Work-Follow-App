@@ -138,19 +138,6 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     descriptionAr: 'معالج إنشاء وتهيئة المشاريع الكبرى وسلاسل الإمداد',
     isPrimary: true,
   },
-  {
-    id: 'MASTER_DATA',
-    area: 'PROJECTS',
-    titleAr: 'البيانات الأساسية (Master Data)',
-    titleEn: 'Master Data',
-    badgeAr: '4 وحدات',
-    badgeEn: '4 Units',
-    badgeVariant: 'amber',
-    icon: 'Boxes',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN'],
-    descriptionAr: 'إدارة الناقلين، الشاحنات، السائقين، وقوائم المواد المعتمدة',
-    isPrimary: true,
-  },
 
   // 2. FIELD OPERATIONS (OPERATE)
   {
@@ -195,7 +182,7 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     isPrimary: true,
   },
 
-  // 4. PRODUCTION SYSTEM TOOLS (CONSOLIDATED REBUILD - EXACTLY 3 TOOLS)
+  // 4. PRODUCTION SYSTEM TOOLS (CONSOLIDATED REBUILD - EXACTLY 2 TOOLS)
   {
     id: 'ADMIN_CONSOLE',
     area: 'SYSTEM_TOOLS',
@@ -223,21 +210,6 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     icon: 'ShieldCheck',
     allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'FINANCE_AUDITOR'],
     descriptionAr: 'لوحة الحوكمة، فحص مصفوفة الصلاحيات، سياسات وصول قواعد البيانات، ومؤشرات الخطورة المرتفعة',
-    isPrimary: false,
-    isHighRisk: true,
-  },
-  {
-    id: 'IMPORT_CENTER',
-    area: 'SYSTEM_TOOLS',
-    category: 'OPERATIONS_SUPPORT',
-    titleAr: 'مركز الاستيراد والبيانات (Import & Data Operations)',
-    titleEn: 'Import & Data Operations',
-    badgeAr: 'التكامل الموحد',
-    badgeEn: 'Consolidated Ops',
-    badgeVariant: 'rose',
-    icon: 'FileSpreadsheet',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN'],
-    descriptionAr: 'استيراد الملفات، معالجة الدفعات، جودة البيانات، استبعاد التكرار، والتحقق والمزامنة المباشرة',
     isPrimary: false,
     isHighRisk: true,
   },
@@ -387,6 +359,10 @@ class NavigationService {
    * Checks if a specific tab is authorized for the given role.
    */
   public isTabAuthorizedForRole(tabId: NavTabId, role: UserRole): boolean {
+    if (['IMPORT_CENTER', 'MASTER_DATA', 'WORKSPACE_INTEGRATION'].includes(tabId)) {
+      return false;
+    }
+
     const item = NAV_ITEMS_REGISTRY.find(item => item.id === tabId);
     if (item) return item.allowedRoles.includes(role);
 
@@ -396,7 +372,6 @@ class NavigationService {
     // Sub-views / Retired standalone routes preserve role authorization
     switch (tabId) {
       case 'LEGACY_MIGRATION':
-      case 'WORKSPACE_INTEGRATION':
         return ['SUPER_ADMIN', 'PROJECT_ADMIN'].includes(role);
       case 'FIRESTORE_ARCH':
       case 'PRINCIPLES':

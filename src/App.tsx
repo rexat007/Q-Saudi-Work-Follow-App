@@ -549,20 +549,6 @@ export default function App() {
                   )
                 )}
 
-                {/* ================= TAB: MASTER DATA MODULES (CARRIERS, TRUCKS, DRIVERS, MATERIALS) ================= */}
-                {activeTab === 'MASTER_DATA' && (
-                  <MasterDataView 
-                    projects={projects}
-                    selectedProjectId={selectedProjectId}
-                    setSelectedProjectId={setSelectedProjectId}
-                    authContext={activeAuthContext}
-                    onNavigateToWizard={() => {
-                      setSelectedProjectId('');
-                      setActiveTab('WIZARD');
-                    }}
-                  />
-                )}
-
                 {/* ================= TAB: SECURITY AUDIT & COMPLIANCE (16 DOMAINS & EXHAUSTIVE RBAC) ================= */}
                 {activeTab === 'SECURITY_AUDIT' && (
                   <SecurityAuditView />
@@ -576,16 +562,6 @@ export default function App() {
                 {/* ================= TAB: ADMIN CONSOLE (11 SECTIONS & VERSIONED PRICING RULES) ================= */}
                 {activeTab === 'ADMIN_CONSOLE' && (
                   <AdminConsoleView />
-                )}
-
-                {/* ================= TAB: GOOGLE WORKSPACE (SHEETS & DRIVE PROJECTION) ================= */}
-                {activeTab === 'WORKSPACE_INTEGRATION' && (
-                  <WorkspaceIntegrationView />
-                )}
-
-                {/* ================= TAB: IMPORT CENTER (12-STAGE PIPELINE) ================= */}
-                {activeTab === 'IMPORT_CENTER' && (
-                  <ImportCenterView selectedProjectId={selectedProjectId} authContext={activeAuthContext} />
                 )}
 
                 {/* ================= TAB: PRICING ENGINE & AUTOMATED TESTS ================= */}
