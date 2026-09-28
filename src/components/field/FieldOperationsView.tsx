@@ -258,6 +258,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
         <FieldSupervisionView
           authContext={currentAuthContext}
           onNotification={handleNotification}
+          selectedProjectId={selectedProjectId}
         />
       ) : (
         <DriverView

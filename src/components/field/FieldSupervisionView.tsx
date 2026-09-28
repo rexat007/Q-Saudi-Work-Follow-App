@@ -15,7 +15,8 @@ import {
 import { AuthUserContext } from '../../types/common';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { useI18n } from '../../i18n';
-import { ImportCenterView } from '../importCenter/ImportCenterView';
+import { ExcelCsvImportSection } from '../importCenter/ExcelCsvImportSection';
+import { GoogleSheetsImportSection } from '../importCenter/GoogleSheetsImportSection';
 import { indexedDBService } from '../../services/offline/indexedDB.service';
 import { tripRepository } from '../../repositories/trip.repository';
 import { exceptionEngine } from '../../services/exceptionEngine.service';
@@ -23,15 +24,43 @@ import { exceptionEngine } from '../../services/exceptionEngine.service';
 export interface FieldSupervisionViewProps {
   authContext: AuthUserContext;
   onNotification?: (notif: { type: 'SUCCESS' | 'ERROR' | 'SECURITY'; message: string }) => void;
+  selectedProjectId?: string;
 }
 
-export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ authContext, onNotification }) => {
+export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ 
+  authContext, 
+  onNotification,
+  selectedProjectId
+}) => {
   const { isOnline, isSimulatedOffline } = useOnlineStatus();
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'LIVE' | 'EXCEPTIONS' | 'IMPORTS' | 'UNRESOLVED'>('LIVE');
+  const [importSource, setImportSource] = useState<'EXCEL_CSV' | 'GOOGLE_SHEETS'>('EXCEL_CSV');
 
-  // Dynamic trip and exception resolution from canonical store
-  const targetProjectId = authContext.assignedProjectIds?.[0] === 'ALL' ? undefined : authContext.assignedProjectIds?.[0];
+  // Safe project-scope fail-closed derivation
+  const targetProjectId = useMemo(() => {
+    // 1. Explicit selectedProjectId wins if operator is authorized for it
+    if (selectedProjectId && selectedProjectId !== '') {
+      const isGlobalScope = authContext.assignedProjectIds?.includes('ALL');
+      const isAuthorized = isGlobalScope || authContext.assignedProjectIds?.includes(selectedProjectId);
+      if (isAuthorized) {
+        return selectedProjectId;
+      }
+    }
+
+    // 2. Otherwise collect assigned project IDs, excluding ALL and empty
+    const validAssignedProjects = (authContext.assignedProjectIds || []).filter(
+      (pid) => pid && pid !== '' && pid !== 'ALL'
+    );
+
+    // 3. Exactly one assigned project may be safely inferred
+    if (validAssignedProjects.length === 1) {
+      return validAssignedProjects[0];
+    }
+
+    // 4. Zero or more than one assigned project -> unresolved (fail closed)
+    return undefined;
+  }, [selectedProjectId, authContext.assignedProjectIds]);
   const [trips, setTrips] = useState<any[]>([]);
 
   useEffect(() => {
@@ -310,18 +339,90 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({ auth
       )}
 
       {activeTab === 'IMPORTS' && (
-        <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-stone-200 bg-stone-50">
-            <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-              <Scale className="w-4 h-4 text-emerald-600" />
-              عمليات موازين الاستيراد (Weighbridge Import Supervision)
-            </h3>
-            <p className="text-xs text-stone-500 mt-1">يتم استخدام محرك الاستيراد الموحد لمعالجة الملفات تلقائياً.</p>
-          </div>
-          {/* Re-use the existing Import Center View */}
-          <div className="p-2">
-            <ImportCenterView />
-          </div>
+        <div className="space-y-6">
+          {!targetProjectId ? (
+            /* Unresolved project UX - Fail Closed */
+            <div className="bg-amber-50 border border-amber-200 p-8 rounded-2xl flex flex-col items-center justify-center text-center space-y-3">
+              <ShieldAlert className="w-10 h-10 text-amber-500" />
+              <h3 className="text-sm font-bold text-amber-900">تحديد نطاق المشروع مطلوب (Project Selection Required)</h3>
+              <p className="text-xs text-amber-600 max-w-md">
+                برجاء اختيار مشروع محدد من قائمة المشاريع في شريط التنقل للتمكن من استيراد تذاكر النقل البري وموازين التحميل. لا يمكن الاستيراد بدون نطاق مشروع نشط ومعزول.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Smart Ingestion Source Header & Selection Control */}
+              <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
+                      <Scale className="w-5 h-5 text-emerald-600" />
+                      <span>مركز الاستيراد التشغيلي الذكي</span>
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-1">
+                      استيراد وتحليل تذاكر موازين النقل وإجراء مطابقة الكيانات والتحقق من وزن المصدر والوجهة تلقائياً.
+                    </p>
+                  </div>
+
+                  {/* Source Choice Selector Button Group */}
+                  <div className="flex items-center gap-2 bg-stone-100 p-1 rounded-xl self-start md:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => setImportSource('EXCEL_CSV')}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                        importSource === 'EXCEL_CSV'
+                          ? 'bg-white shadow-xs text-indigo-700'
+                          : 'text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >
+                      <FileSpreadsheet className="w-4 h-4" />
+                      <span>ملفات Excel / CSV</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setImportSource('GOOGLE_SHEETS')}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                        importSource === 'GOOGLE_SHEETS'
+                          ? 'bg-white shadow-xs text-emerald-700'
+                          : 'text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      <span>جداول Google Sheets</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Project Context Isolation Scope Metadata Ribbon */}
+                <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-stone-400">نطاق المشروع النشط (Active Project Scope):</span>
+                    <span className="bg-stone-50 px-2 py-0.5 rounded-md border border-stone-200 font-mono text-stone-700">
+                      {targetProjectId}
+                    </span>
+                  </div>
+                  <div className="font-mono text-stone-400">
+                    ROLE: {authContext.role}
+                  </div>
+                </div>
+              </div>
+
+              {/* Conditional rendering of selected child import section */}
+              <div className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden p-4">
+                {importSource === 'EXCEL_CSV' ? (
+                  <ExcelCsvImportSection
+                    currentProjectId={targetProjectId}
+                    authContext={authContext}
+                  />
+                ) : (
+                  <GoogleSheetsImportSection
+                    projectId={targetProjectId}
+                    authContext={authContext}
+                  />
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
 
