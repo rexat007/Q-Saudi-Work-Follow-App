@@ -42,6 +42,7 @@ import { RosterBatchReviewService, ReviewGroupEntityType } from '../../services/
 import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
 import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
 import { auth } from '../../firebase/config';
+import { ExcelCsvImportSection } from '../importCenter/ExcelCsvImportSection';
 import { 
   isProjectOperationallyMutable, 
   canPerformOperationalMutation, 
@@ -1365,7 +1366,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 { phase: 2, label: 'الناقلون وسجل التشغيل', sub: 'Phase 2: Roster & Carriers', icon: Truck },
                 { phase: 3, label: 'قواعد الأسعار والتعرفة', sub: 'Phase 3: Pricing Rules', icon: CircleDollarSign },
                 { phase: 4, label: 'إدارة وتصاريح المستخدمين', sub: 'Phase 4: Governance', icon: Users },
-                { phase: 5, label: 'مراجعة المتطلبات والتفعيل', sub: 'Phase 5: Activation', icon: ShieldCheck }
+                { phase: 5, label: 'مراجعة المتطلبات والتفعيل', sub: 'Phase 5: Activation', icon: ShieldCheck },
+                { phase: 6, label: 'استيراد بيانات الرحلات', sub: 'Phase 6: Trip Ingestion', icon: FileSpreadsheet }
               ].map((p) => {
                 const isActive = activePhase === p.phase;
                 const Icon = p.icon;
@@ -1405,6 +1407,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     {activePhase === 3 && 'هيكل قواعد الأسعار والاتفاقيات المجدولة'}
                     {activePhase === 4 && 'تصاريح وصلاحيات مستخدمي المشروع'}
                     {activePhase === 5 && 'مراجعة الجاهزية واعتماد وتفعيل العمليات الميدانية'}
+                    {activePhase === 6 && 'استيراد وتدقيق بيانات الرحلات والتشغيل لوجستي'}
                   </span>
                 </h2>
               </div>
@@ -2424,6 +2427,16 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* ================= PHASE 6: TRIP DATA IMPORT ================= */}
+            {activePhase === 6 && project && (
+              <div className="space-y-6">
+                <ExcelCsvImportSection 
+                  currentProjectId={project.projectId}
+                  authContext={authContext}
+                />
               </div>
             )}
           </div>
