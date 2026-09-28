@@ -39,7 +39,6 @@ import { ARCHITECTURE_DOCS, DocItem } from './docsData';
 import FirestoreArchitectureView from './components/FirestoreArchitectureView';
 import { ProjectSetupWizard } from './components/wizard/ProjectSetupWizard';
 import { Sidebar } from './components/navigation/Sidebar';
-import { ProjectWorkspaceView } from './components/workspace/ProjectWorkspaceView';
 import { PricingEngineView } from './components/pricing/PricingEngineView';
 import { MasterDataView } from './components/masterData/MasterDataView';
 import { ImportCenterView } from './components/importCenter/ImportCenterView';
@@ -533,20 +532,12 @@ export default function App() {
 
                 {/* ================= TAB: PROJECT SETUP WIZARD (7 STEPS) / UNIFIED WORKSPACE ================= */}
                 {activeTab === 'WIZARD' && (
-                  selectedProjectId ? (
-                    <ProjectWorkspaceView
-                      projects={projects}
-                      selectedProjectId={selectedProjectId}
-                      activeWorkspaceTab={activeWorkspaceTab}
-                      onSelectWorkspaceTab={setActiveWorkspaceTab}
-                      authContext={activeAuthContext!}
-                    />
-                  ) : (
-                    <ProjectSetupWizard 
-                      projects={projects}
-                      authContext={activeAuthContext!}
-                    />
-                  )
+                  <ProjectSetupWizard 
+                    projects={projects}
+                    authContext={activeAuthContext!}
+                    selectedProjectId={selectedProjectId}
+                    onSelectProject={(projId) => setSelectedProjectId(projId || '')}
+                  />
                 )}
 
                 {/* ================= TAB: SECURITY AUDIT & COMPLIANCE (16 DOMAINS & EXHAUSTIVE RBAC) ================= */}

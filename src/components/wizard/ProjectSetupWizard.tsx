@@ -69,14 +69,28 @@ export interface ServerReadinessDTO {
 export interface ProjectSetupWizardProps {
   projects: ProjectEntity[];
   authContext: AuthUserContext;
+  selectedProjectId?: string;
+  onSelectProject?: (projectId: string | null) => void;
 }
 
 export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   projects: globalProjects,
-  authContext
+  authContext,
+  selectedProjectId,
+  onSelectProject
 }) => {
   const { t, isRTL, locale } = useI18n();
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+
+  // Synchronize editingProjectId with prop selectedProjectId
+  useEffect(() => {
+    if (selectedProjectId) {
+      setEditingProjectId(selectedProjectId);
+    } else {
+      setEditingProjectId(null);
+    }
+  }, [selectedProjectId]);
+
   const [activePhase, setActivePhase] = useState<number>(1); // 1 to 5
   
   // Dashboard view search & filtering
@@ -361,6 +375,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       const createdProject = await projectService.createProject(payload, authContext);
       setIsCreatingNew(false);
       setEditingProjectId(createdProject.projectId);
+      onSelectProject?.(createdProject.projectId);
       setActivePhase(1);
       
       // Clean creation fields
@@ -1298,6 +1313,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <button
                         onClick={() => {
                           setEditingProjectId(p.projectId);
+                          onSelectProject?.(p.projectId);
                           setActivePhase(1);
                         }}
                         className="px-3.5 py-1.5 bg-stone-800 hover:bg-stone-750 text-white font-bold text-[11px] rounded-lg border border-stone-700 flex items-center gap-1 transition-all"
@@ -1319,7 +1335,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           <div className="lg:col-span-3 bg-stone-900 border border-stone-800 p-4 rounded-2xl space-y-4">
             <div className="p-3 border-b border-stone-800 space-y-1 text-center lg:text-right">
               <button
-                onClick={() => setEditingProjectId(null)}
+                onClick={() => {
+                  setEditingProjectId(null);
+                  onSelectProject?.(null);
+                }}
                 className="text-[10px] font-bold text-amber-500 hover:underline flex items-center gap-1 mx-auto lg:mx-0"
               >
                 <ArrowRight className="w-3.5 h-3.5 text-amber-500" />
