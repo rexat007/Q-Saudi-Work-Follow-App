@@ -11,8 +11,6 @@ import { driverRepository } from '../repositories/driver.repository';
 import { truckRepository } from '../repositories/truck.repository';
 import { materialRepository } from '../repositories/material.repository';
 import { CarrierEntity, DriverEntity, TruckEntity, MaterialEntity } from '../types/entities';
-import { ImportCenterService } from '../services/dataQuality/importCenterService';
-import { createEmptyImportBatch } from '../data/sampleImportBatches';
 
 describe('ImportCenter Canonical Master-Entity Resolution Convergence Tests', () => {
   const dummyDate = new Date();
@@ -162,49 +160,27 @@ describe('ImportCenter Canonical Master-Entity Resolution Convergence Tests', ()
   // =========================================================================
   describe('Suite 1: Static Code Audits & Authority Elimination', () => {
     const importCenterPath = path.join(process.cwd(), 'src/components/importCenter/ImportCenterView.tsx');
-    const appPath = path.join(process.cwd(), 'src/App.tsx');
-    const importCenterContent = fs.readFileSync(importCenterPath, 'utf-8');
-    const appContent = fs.readFileSync(appPath, 'utf-8');
+    const wbPath = path.join(process.cwd(), 'src/components/importCenter/WeighbridgeImportSection.tsx');
+    const resPath = path.join(process.cwd(), 'src/components/importCenter/EntityResolutionSection.tsx');
+    const archPath = path.join(process.cwd(), 'src/components/importCenter/UnifiedImportArchitectureSection.tsx');
 
-    it('1. ImportCenterView does NOT contain buildRelationshipContext("ALL")', () => {
-      expect(importCenterContent).not.toContain('buildRelationshipContext("ALL")');
-      expect(importCenterContent).not.toContain("buildRelationshipContext('ALL')");
+    it('1. ImportCenterView is physically retired and does not exist', () => {
+      expect(fs.existsSync(importCenterPath)).toBe(false);
     });
 
-    it('2. ImportCenterView uses canonicalRelationshipContextService', () => {
-      expect(importCenterContent).toContain('canonicalRelationshipContextService');
+    it('2. WeighbridgeImportSection is physically retired and does not exist', () => {
+      expect(fs.existsSync(wbPath)).toBe(false);
     });
 
-    it('3. ImportCenterView does NOT contain hardcoded selectedProjectId state fallback (useState("PRJ-NEOM-001"))', () => {
-      expect(importCenterContent).not.toContain("useState<string>('PRJ-NEOM-001')");
-      expect(importCenterContent).not.toContain('useState<string>("PRJ-NEOM-001")');
-      expect(importCenterContent).not.toContain("useState('PRJ-NEOM-001')");
+    it('3. EntityResolutionSection is physically retired and does not exist', () => {
+      expect(fs.existsSync(resPath)).toBe(false);
     });
 
-    it('4. ImportCenterView exports ImportCenterViewProps interface accepting selectedProjectId', () => {
-      expect(importCenterContent).toContain('selectedProjectId?: string');
-      expect(importCenterContent).toContain('ImportCenterViewProps');
+    it('4. UnifiedImportArchitectureSection is physically retired and does not exist', () => {
+      expect(fs.existsSync(archPath)).toBe(false);
     });
 
-    it('5. ImportCenterView does NOT import individual legacy project repositories', () => {
-      expect(importCenterContent).not.toContain("from '../../repositories/carrier.repository'");
-      expect(importCenterContent).not.toContain("from '../../repositories/driver.repository'");
-      expect(importCenterContent).not.toContain("from '../../repositories/truck.repository'");
-      expect(importCenterContent).not.toContain("from '../../repositories/material.repository'");
-    });
-
-    it('6. ImportCenterView does NOT import adminConsoleService', () => {
-      expect(importCenterContent).not.toContain('adminConsoleService');
-    });
-
-    it('7. App.tsx passes canonical selectedProjectId prop to ImportCenterView', () => {
-      expect(appContent).toContain('<ImportCenterView selectedProjectId={selectedProjectId}');
-    });
-
-    it('8. ImportCenterView implements generation-ref pattern for async race-condition protection', () => {
-      expect(importCenterContent).toContain('generationRef');
-      expect(importCenterContent).toContain('currentGen');
-    });
+  });
   });
 
   // =========================================================================
