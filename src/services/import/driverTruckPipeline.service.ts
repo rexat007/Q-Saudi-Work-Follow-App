@@ -31,142 +31,126 @@ export interface ProcessDriverTruckFileOptions {
 
 export class DriverTruckPipelineService {
   /**
-   * Universal File Intake & Full Processing for Driver/Truck Roster files.
+   * Helper to inspect workbook sheets before full parsing
    */
-  public static async processFileIntake(
-    file: File | Blob,
-    filename: string,
-    context: PipelineContext,
-    options: ProcessDriverTruckFileOptions = {}
-  ): Promise<UnifiedImportBatch> {
-    const fileValidator = new FileIntakeValidator();
-    const fileValidation = fileValidator.validateFile(filename, file.size);
-    if (!fileValidation.valid) {
-      throw new Error(fileValidation.errorMessage || 'ملف غير صالِح للاستيراد');
-    }
-
-    const discoveryResult = await smartSourceDiscoveryService.discover(file, filename, {
-      sheetName: options.sheetName,
-      headerRowIndex: options.headerRowIndex,
-    });
-
-    if (!discoveryResult.parsedRows || discoveryResult.parsedRows.length === 0) {
-      throw new Error('الملف فارغ أو لا يحتوي على صفوف قابلة للقراءة');
-    }
-
-    const isCsv = filename.toLowerCase().endsWith('.csv');
-    const sourceType: ImportSource['sourceType'] = isCsv ? 'CSV' : 'EXCEL';
-
-    const source: ImportSource = {
-      sourceType,
-      sourceFileId: `FILE-${Date.now()}`,
-      sourceFileName: filename,
-      sheetName: options.sheetName || discoveryResult.sheetName,
-      headerRowIndex: discoveryResult.headerRowIndex ?? (options.headerRowIndex || 0),
-    };
-
-    const initialBatch = UnifiedImportPipelineService.createInitialBatch({
-      projectId: context.projectId,
-      batchType: 'DRIVER_TRUCK_ROSTER',
-      source,
-      actorId: context.userId || 'SYSTEM',
-    });
-
-    let rawRows = discoveryResult.parsedRows;
-    if (discoveryResult.headerRowIndex !== undefined && discoveryResult.headerRowIndex > 0) {
-      rawRows = rawRows.slice(discoveryResult.headerRowIndex + 1);
-    }
-
-    const columnMap = discoveryResult.columnMap || {};
-    const autoMappedRows = rawRows.map((raw) => {
-      const mappedRow: Record<string, any> = {};
-      Object.entries(columnMap).forEach(([rawColHeader, canonicalField]) => {
-        if (canonicalField && raw[rawColHeader] !== undefined) {
-          mappedRow[canonicalField] = raw[rawColHeader];
-        }
-      });
-      return mappedRow;
-    });
-
-    const normalizer = new DriverTruckImportNormalizer();
-    const mapper = new DriverTruckImportMapper();
-    const entityResolver = new DriverTruckImportEntityResolver();
-    const validator = new DriverTruckImportValidator();
-    const duplicateChecker = new DriverTruckImportDuplicateChecker();
-
-    const normalizedBatch = await normalizer.normalize(initialBatch, autoMappedRows, context);
-    const mappedBatch = await mapper.map(normalizedBatch, context);
-
-    const resolvedRows = await Promise.all(
-      mappedBatch.rows.map(async (row) => {
-        const entityResolutions = await entityResolver.resolveEntities(
-          row.mapped as CanonicalDriverTruckRow,
-          row.rowNumber,
-          context
-        );
-        return {
-          ...row,
-          entityResolutions: {
-            ...(row.entityResolutions || {}),
-            ...entityResolutions,
-          },
-        };
-      })
-    );
-
-    const batchWithResolutions: UnifiedImportBatch = {
-      ...mappedBatch,
-      rows: resolvedRows,
-    };
-
-    const validatedBatch = await validator.validate(batchWithResolutions, context);
-
-    let validRows = 0;
-    let warningRows = 0;
-    let errorRows = 0;
-
-    const reviewedRows = validatedBatch.rows.map((row) => {
-      const hasErrors = row.validationIssues?.some((i) => i.severity === 'BLOCKING' || i.blocking) || row.status === 'ERROR';
-      const hasWarnings = row.validationIssues?.some((i) => i.severity === 'WARNING' && !i.blocking) || row.status === 'WARNING';
-
-      if (hasErrors) {
-        errorRows++;
-        return { ...row, status: 'ERROR' as const, reviewStatus: 'error' as const };
-      }
-      if (hasWarnings) {
-        warningRows++;
-        return { ...row, status: 'WARNING' as const, reviewStatus: 'requires_review' as const };
-      }
-      validRows++;
-      return { ...row, status: 'VALID' as const, reviewStatus: 'valid' as const };
-    });
-
-    const reviewedBatch: UnifiedImportBatch = {
-      ...validatedBatch,
-      rows: reviewedRows,
-      validRows,
-      warningRows,
-      errorRows,
-      requiresReviewRows: warningRows + errorRows,
-      updatedAt: new Date().toISOString(),
-      updatedBy: context.userId || 'SYSTEM',
-    };
-
-    reviewedBatch.validationStatus = errorRows > 0 ? 'FAILED' : warningRows > 0 ? 'WARNING' : 'PASSED';
-
-    return reviewedBatch;
+  public static getExcelSheets(data: ArrayBuffer | Uint8Array | string): string[] {
+    return ExcelImportParser.getWorkbookSheetNames(data);
   }
 
   /**
-   * Alias for processFileIntake for backward compatibility
+   * Initializes and executes a Driver/Truck list file through the pipeline up to the REVIEW stage
    */
   public static async processFileToReview(
-    file: File | Blob,
-    filename: string,
+    inputData: ArrayBuffer | Uint8Array | string,
+    fileName: string,
+    fileSize: number,
+    mimeType: string | undefined,
     context: PipelineContext,
-    options: ProcessDriverTruckFileOptions = {}
+    options?: ProcessDriverTruckFileOptions
   ): Promise<UnifiedImportBatch> {
-    return this.processFileIntake(file, filename, context, options);
+    // 1. File Intake Validation
+    const intakeValidation = FileIntakeValidator.validate(fileName, fileSize, mimeType);
+    if (!intakeValidation.isValid) {
+      throw new Error(`خطأ في فحص الملف: ${intakeValidation.errors.join(' | ')}`);
+    }
+
+    const sourceType = intakeValidation.fileType === 'EXCEL' ? 'EXCEL' : 'CSV';
+    const importBatchId = `BAT-DT-${sourceType.slice(0, 3)}-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+    let targetSheetName = options?.sheetName;
+    let targetHeaderRowIndex = options?.headerRowIndex;
+
+    if (targetSheetName === undefined || targetHeaderRowIndex === undefined) {
+      try {
+        const discSource: ImportSource = {
+          sourceType,
+          importBatchId,
+          sourceFileName: fileName,
+        };
+        const discovery = await smartSourceDiscoveryService.discover(discSource, inputData);
+        if (targetSheetName === undefined) {
+          targetSheetName = discovery.selectedSheet || undefined;
+        }
+        if (targetHeaderRowIndex === undefined) {
+          targetHeaderRowIndex = discovery.detectedHeaderRowIndex;
+        }
+      } catch (err) {
+        console.error('Auto-discovery for driver/truck failed, defaulting:', err);
+      }
+    }
+
+    const effectiveOptions: ProcessDriverTruckFileOptions = {
+      sheetName: targetSheetName,
+      headerRowIndex: targetHeaderRowIndex ?? 0,
+    };
+
+    // Instantiate appropriate parser
+    const parser = sourceType === 'EXCEL' ? new ExcelImportParser() : new CsvImportParser();
+
+    // Use our custom driver/truck stages
+    const normalizer = new DriverTruckImportNormalizer();
+    const mapper = new ExcelCsvColumnMapper();
+    const entityResolver = new DriverTruckImportEntityResolver();
+    const validator = new DriverTruckImportValidator();
+    const duplicateChecker = new DriverTruckImportDuplicateChecker();
+    const committer = new DriverTruckImportCommitter();
+
+    // Custom pipeline construction
+    const pipeline = new UnifiedImportPipelineService({
+      parser,
+      normalizer: normalizer as any,
+      mapper: mapper as any,
+      entityResolver: entityResolver as any,
+      validator: validator as any,
+      duplicateChecker: duplicateChecker as any,
+      committer: committer as any,
+    });
+
+    const source: ImportSource = {
+      sourceType,
+      importBatchId,
+      sourceFileName: fileName,
+      sourceMimeType: mimeType,
+      sourceSheetName: effectiveOptions.sheetName,
+      rawInput: inputData,
+    };
+
+    // 2. Create batch (Stage: SOURCE)
+    const batch = pipeline.createBatch(source, context);
+
+    // 3. Process through stages PARSE -> REVIEW
+    const reviewedBatch = await pipeline.processThroughReview(batch, inputData, context, effectiveOptions);
+
+    // Filter validation issues to count totals properly
+    let validRows = 0;
+    let errorRows = 0;
+    let warningRows = 0;
+
+    reviewedBatch.rows.forEach((row) => {
+      const hasBlocking = row.validationIssues.some((issue) => issue.severity === 'BLOCKING' || issue.blocking);
+      const hasWarning = row.validationIssues.some((issue) => issue.severity === 'WARNING');
+      if (hasBlocking) {
+        errorRows++;
+        row.status = 'ERROR';
+        row.reviewStatus = 'error';
+      } else if (hasWarning) {
+        warningRows++;
+        row.status = 'WARNING';
+        row.reviewStatus = 'requires_review';
+      } else {
+        validRows++;
+        row.status = 'VALID';
+        row.reviewStatus = 'accepted';
+      }
+    });
+
+    reviewedBatch.validRows = validRows;
+    reviewedBatch.errorRows = errorRows;
+    reviewedBatch.warningRows = warningRows;
+    reviewedBatch.issues = reviewedBatch.rows.flatMap((r) => r.validationIssues);
+    reviewedBatch.validationStatus = errorRows > 0 ? 'FAILED' : warningRows > 0 ? 'WARNING' : 'PASSED';
+
+    return reviewedBatch;
   }
 
   /**
