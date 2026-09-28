@@ -7,7 +7,7 @@ import {
   ACTIVE_PROJECT_OPERATIONAL_NOTICE_AR,
   ACTIVE_PROJECT_OPERATIONAL_NOTICE_EN
 } from '../services/projectMutability.policy';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 describe('Project Mutability Policy (Block 103)', () => {
@@ -115,9 +115,9 @@ describe('Project Mutability Policy (Block 103)', () => {
     expect(ACTIVE_PROJECT_OPERATIONAL_NOTICE_EN).toContain('Project is active');
   });
 
-  it('24. no duplicate controls introduced and workspace intact', () => {
-    const workspaceCode = readFileSync(join(process.cwd(), 'src/components/workspace/ProjectWorkspaceView.tsx'), 'utf-8');
-    expect(workspaceCode.length).toBeGreaterThan(100);
+  it('24. no duplicate controls introduced and workspace view physically retired', () => {
+    const workspacePath = join(process.cwd(), 'src/components/workspace/ProjectWorkspaceView.tsx');
+    expect(existsSync(workspacePath)).toBe(false);
   });
 
   it('25. direct Google Sheets Roster sync remains unchanged/disabled', () => {

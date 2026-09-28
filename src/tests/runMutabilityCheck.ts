@@ -6,7 +6,7 @@ import {
   ACTIVE_PROJECT_OPERATIONAL_NOTICE_AR,
   ACTIVE_PROJECT_OPERATIONAL_NOTICE_EN
 } from '../services/projectMutability.policy';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 console.log('Running Project Mutability Policy Checks...');
@@ -35,8 +35,7 @@ assert(appCode.includes('/api/projects/:projectId/setup-material'), '16. Server 
 assert(appCode.includes('/api/intake/canonical'), '17. Server canonical intake endpoint intact');
 assert(appCode.includes('/api/projects/:projectId/pricing-rules'), '18. Server pricing rules endpoint intact');
 
-const workspaceCode = readFileSync(join(process.cwd(), 'src/components/workspace/ProjectWorkspaceView.tsx'), 'utf-8');
-assert(workspaceCode.length > 100, '19. Workspace view intact');
+assert(existsSync(join(process.cwd(), 'src/components/workspace/ProjectWorkspaceView.tsx')) === false, '19. Workspace view physically retired');
 
 const pipelineCode = readFileSync(join(process.cwd(), 'src/services/import/driverTruckPipeline.service.ts'), 'utf-8');
 assert(pipelineCode.includes('DriverTruckPipelineService'), '20. Pipeline untouched');

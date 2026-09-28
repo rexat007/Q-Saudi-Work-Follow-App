@@ -14,7 +14,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 
 import { projectFleetReadModelService } from '../services/projectFleetReadModel.service';
@@ -458,25 +458,14 @@ describe('Phase 6 Unit 2D: Project Fleet Read Model Foundation', () => {
   // SECTION G: Roster Convergence
   // =========================================================================
   describe('G. Roster Convergence Boundary', () => {
-    it('30. ProjectWorkspaceView Fleet table reads from canonical fleet read model', () => {
-      const wsCode = readFileSync(
-        resolve(__dirname, '../../src/components/workspace/ProjectWorkspaceView.tsx'),
-        'utf-8'
-      );
-      expect(wsCode).toContain('projectFleetReadModelService');
-      expect(wsCode).toContain('setFleetRows');
+    it('30. ProjectWorkspaceView is physically retired', () => {
+      const workspacePath = resolve(__dirname, '../../src/components/workspace/ProjectWorkspaceView.tsx');
+      expect(existsSync(workspacePath)).toBe(false);
     });
 
-    it('31. Canonical Fleet table contains no legacy row delete button', () => {
-      const wsCode = readFileSync(
-        resolve(__dirname, '../../src/components/workspace/ProjectWorkspaceView.tsx'),
-        'utf-8'
-      );
-      const fleetTableSection = wsCode.slice(
-        wsCode.indexOf("activeWorkspaceTab === 'drivers'"),
-        wsCode.indexOf('form-enroll-roster')
-      );
-      expect(fleetTableSection).not.toContain('handleDeleteRoster');
+    it('31. Canonical Fleet table legacy ProjectWorkspaceView path is retired', () => {
+      const workspacePath = resolve(__dirname, '../../src/components/workspace/ProjectWorkspaceView.tsx');
+      expect(existsSync(workspacePath)).toBe(false);
     });
 
     it('32. Legacy Roster documents are NOT deleted or migrated', () => {

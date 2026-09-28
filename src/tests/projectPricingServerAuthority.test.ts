@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createInMemoryAdminDb, setTestDbOverride, inMemoryAdminStore } from '../firebase/admin';
 import { projectPricingServerService } from '../services/projectPricing.server';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 describe('Project Pricing Server Authority Test Suite', () => {
@@ -553,12 +553,9 @@ describe('Project Pricing Server Authority Test Suite', () => {
     expect(wizardContent).not.toMatch(/pricingRuleRepository\s*\.\s*create\s*\(/);
   });
 
-  it('23. Workspace uses same POST endpoint', () => {
-    const workspaceContent = readFileSync(join(process.cwd(), 'src/components/workspace/ProjectWorkspaceView.tsx'), 'utf-8');
-    expect(workspaceContent).toContain('/api/projects/${project.projectId}/pricing-rules');
-    expect(workspaceContent).toContain("method: 'POST'");
-    // Verify it does NOT call browser repository create
-    expect(workspaceContent).not.toMatch(/pricingRuleRepository\s*\.\s*create\s*\(/);
+  it('23. Workspace uses same POST endpoint - ProjectWorkspaceView is physically retired', () => {
+    const workspacePath = join(process.cwd(), 'src/components/workspace/ProjectWorkspaceView.tsx');
+    expect(existsSync(workspacePath)).toBe(false);
   });
 
   it('24. production mutation path has no auth.currentUser/browser repository dependency', () => {

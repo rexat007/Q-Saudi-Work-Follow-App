@@ -91,9 +91,9 @@ describe('Step 3B-0 — Project Selection Route Convergence', () => {
     expect(propsKeys).toContain('onSelectProject');
   });
 
-  it('3. ProjectWorkspaceView remains present on disk but is unreachable from App.tsx via selectedProjectId', () => {
+  it('3. ProjectWorkspaceView is physically retired and unreachable from App.tsx via selectedProjectId', () => {
     const workspaceViewPath = path.resolve(process.cwd(), 'src/components/workspace/ProjectWorkspaceView.tsx');
-    expect(fs.existsSync(workspaceViewPath)).toBe(true);
+    expect(fs.existsSync(workspaceViewPath)).toBe(false);
 
     const appFileContent = fs.readFileSync(path.resolve(process.cwd(), 'src/App.tsx'), 'utf-8');
     expect(appFileContent).not.toContain('import { ProjectWorkspaceView }');
