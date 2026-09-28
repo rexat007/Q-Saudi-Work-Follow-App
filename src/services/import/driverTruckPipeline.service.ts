@@ -21,6 +21,7 @@ import { smartSourceDiscoveryService } from './smartSourceDiscovery.service';
 
 import { ExcelCsvColumnMapper } from './columnMapper.service';
 import { ExcelCsvPipelineService } from './excelCsvPipeline.service';
+import { RosterBatchReviewService } from './rosterBatchReview.service';
 import { normalizeName } from '../../utils/normalization';
 
 export interface ProcessDriverTruckFileOptions {
@@ -30,126 +31,142 @@ export interface ProcessDriverTruckFileOptions {
 
 export class DriverTruckPipelineService {
   /**
-   * Helper to inspect workbook sheets before full parsing
+   * Universal File Intake & Full Processing for Driver/Truck Roster files.
    */
-  public static getExcelSheets(data: ArrayBuffer | Uint8Array | string): string[] {
-    return ExcelImportParser.getWorkbookSheetNames(data);
-  }
-
-  /**
-   * Initializes and executes a Driver/Truck list file through the pipeline up to the REVIEW stage
-   */
-  public static async processFileToReview(
-    inputData: ArrayBuffer | Uint8Array | string,
-    fileName: string,
-    fileSize: number,
-    mimeType: string | undefined,
+  public static async processFileIntake(
+    file: File | Blob,
+    filename: string,
     context: PipelineContext,
-    options?: ProcessDriverTruckFileOptions
+    options: ProcessDriverTruckFileOptions = {}
   ): Promise<UnifiedImportBatch> {
-    // 1. File Intake Validation
-    const intakeValidation = FileIntakeValidator.validate(fileName, fileSize, mimeType);
-    if (!intakeValidation.isValid) {
-      throw new Error(`خطأ في فحص الملف: ${intakeValidation.errors.join(' | ')}`);
+    const fileValidator = new FileIntakeValidator();
+    const fileValidation = fileValidator.validateFile(filename, file.size);
+    if (!fileValidation.valid) {
+      throw new Error(fileValidation.errorMessage || 'ملف غير صالِح للاستيراد');
     }
 
-    const sourceType = intakeValidation.fileType === 'EXCEL' ? 'EXCEL' : 'CSV';
-    const importBatchId = `BAT-DT-${sourceType.slice(0, 3)}-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-
-    let targetSheetName = options?.sheetName;
-    let targetHeaderRowIndex = options?.headerRowIndex;
-
-    if (targetSheetName === undefined || targetHeaderRowIndex === undefined) {
-      try {
-        const discSource: ImportSource = {
-          sourceType,
-          importBatchId,
-          sourceFileName: fileName,
-        };
-        const discovery = await smartSourceDiscoveryService.discover(discSource, inputData);
-        if (targetSheetName === undefined) {
-          targetSheetName = discovery.selectedSheet || undefined;
-        }
-        if (targetHeaderRowIndex === undefined) {
-          targetHeaderRowIndex = discovery.detectedHeaderRowIndex;
-        }
-      } catch (err) {
-        console.error('Auto-discovery for driver/truck failed, defaulting:', err);
-      }
-    }
-
-    const effectiveOptions: ProcessDriverTruckFileOptions = {
-      sheetName: targetSheetName,
-      headerRowIndex: targetHeaderRowIndex ?? 0,
-    };
-
-    // Instantiate appropriate parser
-    const parser = sourceType === 'EXCEL' ? new ExcelImportParser() : new CsvImportParser();
-
-    // Use our custom driver/truck stages
-    const normalizer = new DriverTruckImportNormalizer();
-    const mapper = new ExcelCsvColumnMapper();
-    const entityResolver = new DriverTruckImportEntityResolver();
-    const validator = new DriverTruckImportValidator();
-    const duplicateChecker = new DriverTruckImportDuplicateChecker();
-    const committer = new DriverTruckImportCommitter();
-
-    // Custom pipeline construction
-    const pipeline = new UnifiedImportPipelineService({
-      parser,
-      normalizer: normalizer as any,
-      mapper: mapper as any,
-      entityResolver: entityResolver as any,
-      validator: validator as any,
-      duplicateChecker: duplicateChecker as any,
-      committer: committer as any,
+    const discoveryResult = await smartSourceDiscoveryService.discover(file, filename, {
+      sheetName: options.sheetName,
+      headerRowIndex: options.headerRowIndex,
     });
+
+    if (!discoveryResult.parsedRows || discoveryResult.parsedRows.length === 0) {
+      throw new Error('الملف فارغ أو لا يحتوي على صفوف قابلة للقراءة');
+    }
+
+    const isCsv = filename.toLowerCase().endsWith('.csv');
+    const sourceType: ImportSource['sourceType'] = isCsv ? 'CSV' : 'EXCEL';
 
     const source: ImportSource = {
       sourceType,
-      importBatchId,
-      sourceFileName: fileName,
-      sourceMimeType: mimeType,
-      sourceSheetName: effectiveOptions.sheetName,
-      rawInput: inputData,
+      sourceFileId: `FILE-${Date.now()}`,
+      sourceFileName: filename,
+      sheetName: options.sheetName || discoveryResult.sheetName,
+      headerRowIndex: discoveryResult.headerRowIndex ?? (options.headerRowIndex || 0),
     };
 
-    // 2. Create batch (Stage: SOURCE)
-    const batch = pipeline.createBatch(source, context);
-
-    // 3. Process through stages PARSE -> REVIEW
-    const reviewedBatch = await pipeline.processThroughReview(batch, inputData, context, effectiveOptions);
-
-    // Filter validation issues to count totals properly
-    let validRows = 0;
-    let errorRows = 0;
-    let warningRows = 0;
-
-    reviewedBatch.rows.forEach((row) => {
-      const hasBlocking = row.validationIssues.some((issue) => issue.severity === 'BLOCKING' || issue.blocking);
-      const hasWarning = row.validationIssues.some((issue) => issue.severity === 'WARNING');
-      if (hasBlocking) {
-        errorRows++;
-        row.status = 'ERROR';
-        row.reviewStatus = 'error';
-      } else if (hasWarning) {
-        warningRows++;
-        row.status = 'WARNING';
-        row.reviewStatus = 'requires_review';
-      } else {
-        validRows++;
-        row.status = 'VALID';
-        row.reviewStatus = 'accepted';
-      }
+    const initialBatch = UnifiedImportPipelineService.createInitialBatch({
+      projectId: context.projectId,
+      batchType: 'DRIVER_TRUCK_ROSTER',
+      source,
+      actorId: context.userId || 'SYSTEM',
     });
 
-    reviewedBatch.validRows = validRows;
-    reviewedBatch.errorRows = errorRows;
-    reviewedBatch.warningRows = warningRows;
-    reviewedBatch.issues = reviewedBatch.rows.flatMap((r) => r.validationIssues);
+    let rawRows = discoveryResult.parsedRows;
+    if (discoveryResult.headerRowIndex !== undefined && discoveryResult.headerRowIndex > 0) {
+      rawRows = rawRows.slice(discoveryResult.headerRowIndex + 1);
+    }
+
+    const columnMap = discoveryResult.columnMap || {};
+    const autoMappedRows = rawRows.map((raw) => {
+      const mappedRow: Record<string, any> = {};
+      Object.entries(columnMap).forEach(([rawColHeader, canonicalField]) => {
+        if (canonicalField && raw[rawColHeader] !== undefined) {
+          mappedRow[canonicalField] = raw[rawColHeader];
+        }
+      });
+      return mappedRow;
+    });
+
+    const normalizer = new DriverTruckImportNormalizer();
+    const mapper = new DriverTruckImportMapper();
+    const entityResolver = new DriverTruckImportEntityResolver();
+    const validator = new DriverTruckImportValidator();
+    const duplicateChecker = new DriverTruckImportDuplicateChecker();
+
+    const normalizedBatch = await normalizer.normalize(initialBatch, autoMappedRows, context);
+    const mappedBatch = await mapper.map(normalizedBatch, context);
+
+    const resolvedRows = await Promise.all(
+      mappedBatch.rows.map(async (row) => {
+        const entityResolutions = await entityResolver.resolveEntities(
+          row.mapped as CanonicalDriverTruckRow,
+          row.rowNumber,
+          context
+        );
+        return {
+          ...row,
+          entityResolutions: {
+            ...(row.entityResolutions || {}),
+            ...entityResolutions,
+          },
+        };
+      })
+    );
+
+    const batchWithResolutions: UnifiedImportBatch = {
+      ...mappedBatch,
+      rows: resolvedRows,
+    };
+
+    const validatedBatch = await validator.validate(batchWithResolutions, context);
+
+    let validRows = 0;
+    let warningRows = 0;
+    let errorRows = 0;
+
+    const reviewedRows = validatedBatch.rows.map((row) => {
+      const hasErrors = row.validationIssues?.some((i) => i.severity === 'BLOCKING' || i.blocking) || row.status === 'ERROR';
+      const hasWarnings = row.validationIssues?.some((i) => i.severity === 'WARNING' && !i.blocking) || row.status === 'WARNING';
+
+      if (hasErrors) {
+        errorRows++;
+        return { ...row, status: 'ERROR' as const, reviewStatus: 'error' as const };
+      }
+      if (hasWarnings) {
+        warningRows++;
+        return { ...row, status: 'WARNING' as const, reviewStatus: 'requires_review' as const };
+      }
+      validRows++;
+      return { ...row, status: 'VALID' as const, reviewStatus: 'valid' as const };
+    });
+
+    const reviewedBatch: UnifiedImportBatch = {
+      ...validatedBatch,
+      rows: reviewedRows,
+      validRows,
+      warningRows,
+      errorRows,
+      requiresReviewRows: warningRows + errorRows,
+      updatedAt: new Date().toISOString(),
+      updatedBy: context.userId || 'SYSTEM',
+    };
+
     reviewedBatch.validationStatus = errorRows > 0 ? 'FAILED' : warningRows > 0 ? 'WARNING' : 'PASSED';
 
     return reviewedBatch;
+  }
+
+  /**
+   * Alias for processFileIntake for backward compatibility
+   */
+  public static async processFileToReview(
+    file: File | Blob,
+    filename: string,
+    context: PipelineContext,
+    options: ProcessDriverTruckFileOptions = {}
+  ): Promise<UnifiedImportBatch> {
+    return this.processFileIntake(file, filename, context, options);
   }
 
   /**
@@ -164,7 +181,7 @@ export class DriverTruckPipelineService {
     context: PipelineContext,
     actorId: string
   ): UnifiedImportBatch {
-    return ExcelCsvPipelineService.applyEntityResolutionDecision(
+    const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
       batch,
       rowNumber,
       entityTypeKey,
@@ -173,10 +190,12 @@ export class DriverTruckPipelineService {
       context,
       actorId
     );
+
+    return this.revalidateRosterBatch(updated, context);
   }
 
   /**
-   * Applies an interactive entity resolution decision across ALL rows matching a unique group
+   * Applies an interactive entity resolution decision across ALL rows matching an EXACT unique group key
    */
   public static applyGroupedEntityResolutionDecision(
     batch: UnifiedImportBatch,
@@ -187,21 +206,21 @@ export class DriverTruckPipelineService {
     context: PipelineContext,
     actorId: string
   ): UnifiedImportBatch {
-    let updatedBatch = { ...batch };
-
     const matchingRowNumbers = batch.rows
       .filter((row) => {
-        const res = row.entityResolutions?.[entityTypeKey];
-        const rawVal = res?.sourceValue || res?.originalValue || row.canonical?.[entityTypeKey === 'carrier' ? 'carrierName' : entityTypeKey === 'material' ? 'materialName' : entityTypeKey === 'driver' ? 'driverName' : 'truckPlate'] || '';
-        const normKey = normalizeName(rawVal) || rawVal.trim().toUpperCase();
-        return normKey === normalizedSourceKey;
+        const key = RosterBatchReviewService.getGroupKey(row, entityTypeKey);
+        return key === normalizedSourceKey;
       })
       .map((r) => r.rowNumber);
 
-    const rowsToUpdate = matchingRowNumbers.length > 0 ? matchingRowNumbers : batch.rows.map(r => r.rowNumber);
+    if (matchingRowNumbers.length === 0) {
+      throw new Error(`Zero matching rows found for group key: ${normalizedSourceKey}`);
+    }
 
-    rowsToUpdate.forEach((rowNumber) => {
-      updatedBatch = this.applyEntityResolutionDecision(
+    let updatedBatch = { ...batch };
+
+    matchingRowNumbers.forEach((rowNumber) => {
+      updatedBatch = ExcelCsvPipelineService.applyEntityResolutionDecision(
         updatedBatch,
         rowNumber,
         entityTypeKey,
@@ -212,7 +231,7 @@ export class DriverTruckPipelineService {
       );
     });
 
-    return updatedBatch;
+    return this.revalidateRosterBatch(updatedBatch, context);
   }
 
   /**
@@ -230,17 +249,23 @@ export class DriverTruckPipelineService {
     },
     context?: PipelineContext
   ): UnifiedImportBatch {
-    return ExcelCsvPipelineService.applyCreatedEntityResolution(
+    const updated = ExcelCsvPipelineService.applyCreatedEntityResolution(
       batch,
       rowNumber,
       entityTypeKey,
       result,
       context
     );
+
+    if (context) {
+      return this.revalidateRosterBatch(updated, context);
+    }
+
+    return updated;
   }
 
   /**
-   * Applies a newly created server-authoritative canonical entity result across ALL matching group rows.
+   * Applies a newly created server-authoritative canonical entity result across ALL rows matching an EXACT group key.
    */
   public static applyGroupedCreatedEntityResolution(
     batch: UnifiedImportBatch,
@@ -254,21 +279,21 @@ export class DriverTruckPipelineService {
     },
     context?: PipelineContext
   ): UnifiedImportBatch {
-    let updatedBatch = { ...batch };
-
     const matchingRowNumbers = batch.rows
       .filter((row) => {
-        const res = row.entityResolutions?.[entityTypeKey];
-        const rawVal = res?.sourceValue || res?.originalValue || row.canonical?.[entityTypeKey === 'carrier' ? 'carrierName' : entityTypeKey === 'material' ? 'materialName' : entityTypeKey === 'driver' ? 'driverName' : 'truckPlate'] || '';
-        const normKey = normalizeName(rawVal) || rawVal.trim().toUpperCase();
-        return normKey === normalizedSourceKey;
+        const key = RosterBatchReviewService.getGroupKey(row, entityTypeKey);
+        return key === normalizedSourceKey;
       })
       .map((r) => r.rowNumber);
 
-    const rowsToUpdate = matchingRowNumbers.length > 0 ? matchingRowNumbers : batch.rows.map(r => r.rowNumber);
+    if (matchingRowNumbers.length === 0) {
+      throw new Error(`Zero matching rows found for group key: ${normalizedSourceKey}`);
+    }
 
-    rowsToUpdate.forEach((rowNumber) => {
-      updatedBatch = this.applyCreatedEntityResolution(
+    let updatedBatch = { ...batch };
+
+    matchingRowNumbers.forEach((rowNumber) => {
+      updatedBatch = ExcelCsvPipelineService.applyCreatedEntityResolution(
         updatedBatch,
         rowNumber,
         entityTypeKey,
@@ -277,7 +302,122 @@ export class DriverTruckPipelineService {
       );
     });
 
+    if (context) {
+      updatedBatch = this.revalidateRosterBatch(updatedBatch, context);
+    }
+
     return updatedBatch;
+  }
+
+  /**
+   * Revalidates roster batch rows using DriverTruckImportValidator and current PipelineContext.
+   * Preserves non-resolution issues and updates row and batch warning/error counters correctly.
+   */
+  public static revalidateRosterBatch(
+    batch: UnifiedImportBatch,
+    context: PipelineContext
+  ): UnifiedImportBatch {
+    const validator = new DriverTruckImportValidator();
+    let validRows = 0;
+    let warningRows = 0;
+    let errorRows = 0;
+    let requiresReviewRows = 0;
+
+    const rosterOwnedCodes = new Set([
+      'EMPTY_ROW_DATA',
+      'MISSING_DRIVER_NAME',
+      'INVALID_ID_FORMAT',
+      'MISSING_PLATE',
+      'UNRESOLVED_CARRIER',
+      'DRIVER_CARRIER_CONFLICT',
+      'RELATIONSHIP_CONFLICT',
+      'UNRESOLVED_MATERIAL',
+      'UNAUTHORIZED_MATERIAL',
+    ]);
+
+    const unresolvedCodes = new Set(['UNRESOLVED_CARRIER', 'UNRESOLVED_MATERIAL']);
+
+    const updatedRows = batch.rows.map((row) => {
+      const freshRosterIssues = validator.validateRow(row, context);
+
+      const preservedIssues = (row.validationIssues || []).filter(
+        (issue) => !rosterOwnedCodes.has(issue.code)
+      );
+
+      const issueMap = new Map<string, any>();
+      preservedIssues.forEach((i) => {
+        const key = `${i.code}_${i.field}_${i.issueId || ''}`;
+        issueMap.set(key, i);
+      });
+      freshRosterIssues.forEach((i) => {
+        const key = `${i.code}_${i.field}_${i.issueId || ''}`;
+        issueMap.set(key, i);
+      });
+
+      const mergedIssues = Array.from(issueMap.values());
+
+      const blockingErrorIssues = mergedIssues.filter(
+        (i) => (i.severity === 'BLOCKING' || i.blocking) && !unresolvedCodes.has(i.code)
+      );
+      const hasBlocking = blockingErrorIssues.length > 0;
+
+      const carrierUnresolved = !row.entityResolutions?.carrier?.matchedId;
+      const materialUnresolved = !row.entityResolutions?.material?.matchedId;
+      const driverUnresolved = Boolean(row.canonical?.driverName) && !row.entityResolutions?.driver?.matchedId;
+      const truckUnresolved = Boolean(row.canonical?.truckPlate) && !row.entityResolutions?.truck?.matchedId;
+
+      const isUnresolved = carrierUnresolved || materialUnresolved || driverUnresolved || truckUnresolved;
+      const hasWarningOnly = !hasBlocking && !isUnresolved && mergedIssues.some((i) => i.severity === 'WARNING');
+
+      let rowStatus: 'VALID' | 'WARNING' | 'ERROR' | 'PENDING' = 'VALID';
+      let reviewStatus: 'valid' | 'requires_review' | 'warning' | 'error' = 'valid';
+
+      if (hasBlocking) {
+        rowStatus = 'ERROR';
+        reviewStatus = 'error';
+        errorRows++;
+      } else if (isUnresolved) {
+        rowStatus = 'PENDING';
+        reviewStatus = 'requires_review';
+        requiresReviewRows++;
+      } else if (hasWarningOnly) {
+        rowStatus = 'WARNING';
+        reviewStatus = 'warning';
+        warningRows++;
+      } else {
+        rowStatus = 'VALID';
+        reviewStatus = 'valid';
+        validRows++;
+      }
+
+      return {
+        ...row,
+        validationIssues: mergedIssues,
+        status: rowStatus,
+        reviewStatus,
+      };
+    });
+
+    let batchStatus: 'FAILED' | 'PENDING' | 'WARNING' | 'READY' = 'READY';
+    if (errorRows > 0) {
+      batchStatus = 'FAILED';
+    } else if (requiresReviewRows > 0) {
+      batchStatus = 'PENDING';
+    } else if (warningRows > 0) {
+      batchStatus = 'WARNING';
+    } else {
+      batchStatus = 'READY';
+    }
+
+    return {
+      ...batch,
+      rows: updatedRows,
+      validRows,
+      warningRows,
+      errorRows,
+      requiresReviewRows,
+      status: batchStatus,
+    };
   }
 
   /**
@@ -295,4 +435,3 @@ export class DriverTruckPipelineService {
     return pipeline.executeCommit(batch, context);
   }
 }
-

@@ -1,5 +1,5 @@
 import { UnifiedImportBatch, ImportRow, ImportEntityResolutionInfo } from '../../types/unifiedImport';
-import { normalizeName } from '../../utils/normalization';
+import { normalizeName, normalizePlate } from '../../utils/normalization';
 
 export type ReviewGroupEntityType = 'carrier' | 'material' | 'driver' | 'truck';
 
@@ -22,6 +22,29 @@ export interface RosterEntityReviewGroup {
 }
 
 export class RosterBatchReviewService {
+  /**
+   * Derives deterministic group key for a given row and entity type.
+   * Enforces carrier-dependency context on driver and truck groups.
+   */
+  public static getGroupKey(row: ImportRow, entityType: ReviewGroupEntityType): string {
+    const rawValue = this.extractSourceValue(row, entityType);
+    if (!rawValue || rawValue === 'غير متوفر في المصدر') return '';
+
+    const normValue = entityType === 'truck' ? normalizePlate(rawValue) : normalizeName(rawValue);
+    if (!normValue) return '';
+
+    if (entityType === 'carrier' || entityType === 'material') {
+      return `${entityType}:${normValue}`;
+    }
+
+    // Driver and truck groups must preserve carrier context
+    const carrierRes = row.entityResolutions?.carrier;
+    const resolvedCarrierId = row.resolvedValues?.carrierId || carrierRes?.matchedId;
+    const carrierContext = resolvedCarrierId || 'UNRESOLVED_CARRIER';
+
+    return `${entityType}:${normValue}::carrier:${carrierContext}`;
+  }
+
   /**
    * Derives unique entity review groups from an import batch without mutating rows.
    */
@@ -47,14 +70,14 @@ export class RosterBatchReviewService {
         const rawValue = this.extractSourceValue(row, entityType);
         if (!rawValue || rawValue === 'غير متوفر في المصدر') return;
 
-        const normKey = normalizeName(rawValue) || rawValue.trim().toUpperCase();
-        if (!normKey) return;
+        const groupKey = this.getGroupKey(row, entityType);
+        if (!groupKey) return;
 
-        if (!groupMap.has(normKey)) {
+        if (!groupMap.has(groupKey)) {
           const groupStatus = this.determineGroupStatus(res);
-          groupMap.set(normKey, {
+          groupMap.set(groupKey, {
             entityType,
-            normalizedSourceKey: normKey,
+            normalizedSourceKey: groupKey,
             sourceValue: res?.sourceValue || res?.originalValue || rawValue,
             rowNumbers: [row.rowNumber],
             occurrenceCount: 1,
@@ -68,7 +91,7 @@ export class RosterBatchReviewService {
             relationshipStatus: res?.relationshipStatus,
           });
         } else {
-          const group = groupMap.get(normKey)!;
+          const group = groupMap.get(groupKey)!;
           group.rowNumbers.push(row.rowNumber);
           group.occurrenceCount++;
 
@@ -82,7 +105,6 @@ export class RosterBatchReviewService {
             group.status = 'REVIEW_REQUIRED';
           }
 
-          // Keep candidates if present
           if (res?.candidates && res.candidates.length > group.candidates.length) {
             group.candidates = res.candidates;
           }
@@ -100,32 +122,29 @@ export class RosterBatchReviewService {
   }
 
   /**
-   * Helper to determine group resolution status safely
+   * Helper to determine group resolution status safely.
+   * Enforces strict safety rules for AUTO_RESOLVED status.
    */
   public static determineGroupStatus(res?: ImportEntityResolutionInfo): ReviewGroupStatus {
     if (!res) return 'UNRESOLVED';
 
-    if (
-      res.relationshipStatus === 'CONFLICT' ||
-      res.relationshipStatus === 'DRIVER_CARRIER_CONFLICT' ||
-      res.riskLevel === 'CRITICAL'
-    ) {
-      return 'CONFLICT';
-    }
+    const relStatus = res.relationshipStatus || 'VALID';
+    const isConflict =
+      relStatus === 'CONFLICT' ||
+      relStatus === 'DRIVER_CARRIER_CONFLICT' ||
+      relStatus === 'RELATIONSHIP_CONFLICT' ||
+      relStatus === 'TRUCK_MATCHED_CARRIER_UNKNOWN' ||
+      relStatus === 'MATERIAL_PROJECT_CONFLICT' ||
+      res.riskLevel === 'CRITICAL';
 
-    if (
-      res.matchedId &&
-      (res.recommendation === 'ACCEPT' || res.isExact || res.confidence === 100) &&
-      res.relationshipStatus !== 'DRIVER_CARRIER_CONFLICT' &&
-      res.isAuthorized !== false
-    ) {
-      return 'AUTO_RESOLVED';
+    if (isConflict) {
+      return 'CONFLICT';
     }
 
     if (
       res.candidates &&
       res.candidates.length > 0 &&
-      (res.recommendation === 'REVIEW' || res.recommendation === 'FUZZY' || !res.matchedId)
+      (res.recommendation === 'REVIEW' || res.recommendation === 'FUZZY' || res.matchMethod === 'FUZZY' || res.matchMethod === 'AMBIGUOUS' || !res.matchedId)
     ) {
       return 'REVIEW_REQUIRED';
     }
@@ -134,7 +153,31 @@ export class RosterBatchReviewService {
       return 'UNRESOLVED';
     }
 
-    return 'AUTO_RESOLVED';
+    // Safety checks for AUTO_RESOLVED
+    const isSafeMethod = res.matchMethod === 'EXACT' || res.matchMethod === 'NORMALIZED' || res.matchMethod === 'ALIAS';
+    const isSafeRelationship = relStatus === 'VALID' || relStatus === 'NOT_APPLICABLE' || !relStatus;
+    const isSafeRisk = res.riskLevel !== 'HIGH' && res.riskLevel !== 'CRITICAL';
+    const isSafeRecommendation = res.recommendation === 'ACCEPT';
+    const isAuthorized = res.isAuthorized !== false;
+    const notAmbiguous = res.ambiguous !== true;
+
+    if (
+      res.matchedId &&
+      isSafeRecommendation &&
+      isSafeMethod &&
+      isSafeRelationship &&
+      isSafeRisk &&
+      isAuthorized &&
+      notAmbiguous
+    ) {
+      return 'AUTO_RESOLVED';
+    }
+
+    if (res.matchMethod === 'FUZZY' || res.recommendation === 'REVIEW') {
+      return 'REVIEW_REQUIRED';
+    }
+
+    return 'REVIEW_REQUIRED';
   }
 
   /**
@@ -172,8 +215,8 @@ export class RosterBatchReviewService {
     if (!batch || !batch.rows) return [];
     return batch.rows.filter((row) => {
       const hasBlocking = row.validationIssues?.some((i) => i.severity === 'BLOCKING' || i.blocking);
-      const isRequiresReview = row.reviewStatus === 'requires_review' || row.reviewStatus === 'error' || row.status === 'ERROR' || row.status === 'WARNING';
-      return hasBlocking || isRequiresReview;
+      const isError = row.status === 'ERROR' || row.reviewStatus === 'error';
+      return hasBlocking || isError;
     });
   }
 }

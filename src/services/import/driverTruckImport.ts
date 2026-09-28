@@ -97,12 +97,15 @@ export class DriverTruckImportEntityResolver {
   ): Promise<Record<string, ImportEntityResolutionInfo>> {
     const resolutions: Record<string, ImportEntityResolutionInfo> = {};
 
-    // 1. Resolve Carrier strictly from row input (matchedId required)
+    // 1. Resolve Carrier strictly from row input
     const targetCarrierName = mapped.carrierName || '';
 
     let carrierId: string | undefined = undefined;
     let matchedCarrierName: string | undefined = undefined;
     let carrierMatched = false;
+    let carrierCandidates: any[] = [];
+    let carrierRecommendation: 'ACCEPT' | 'REVIEW' | 'REJECT' = 'REVIEW';
+    let carrierMatchMethod: 'EXACT' | 'NORMALIZED' | 'FUZZY' | 'NONE' = 'NONE';
 
     if (targetCarrierName) {
       const normalizedImportCarrier = normalizeName(targetCarrierName);
@@ -117,26 +120,49 @@ export class DriverTruckImportEntityResolver {
         carrierId = matched.carrierId;
         matchedCarrierName = matched.name;
         carrierMatched = true;
+        carrierMatchMethod = 'EXACT';
+        carrierRecommendation = 'ACCEPT';
+      } else {
+        const fuzzyCandidates = context.knownEntities?.carriers?.filter((c) => {
+          const norm = normalizeName(c.name);
+          return norm.includes(normalizedImportCarrier) || normalizedImportCarrier.includes(norm);
+        }) || [];
+
+        if (fuzzyCandidates.length > 0) {
+          carrierCandidates = fuzzyCandidates.map((c) => ({
+            candidateEntityId: c.carrierId,
+            candidateDisplayName: c.name,
+            confidence: 70,
+          }));
+          carrierMatchMethod = 'FUZZY';
+          carrierRecommendation = 'REVIEW';
+        }
       }
     }
 
     resolutions.carrier = {
       entityType: 'CARRIER',
       originalValue: targetCarrierName,
+      sourceValue: targetCarrierName,
       matchedId: carrierId,
       matchedName: matchedCarrierName,
-      confidence: carrierMatched ? 100 : 0,
+      confidence: carrierMatched ? 100 : carrierCandidates.length > 0 ? 70 : 0,
       isExact: carrierMatched,
+      matchMethod: carrierMatchMethod,
+      recommendation: carrierRecommendation,
+      candidates: carrierCandidates,
       isAuthorized: Boolean(carrierId),
-      riskLevel: carrierId ? 'LOW' : 'CRITICAL',
+      riskLevel: carrierId ? 'LOW' : carrierCandidates.length > 0 ? 'HIGH' : 'CRITICAL',
     };
 
-    // 2. Resolve Material strictly from row input (No fallback to materials[0] or GENERAL)
-    // Material code may only be used to locate canonical entity, never assigned directly as matchedId
+    // 2. Resolve Material strictly from row input
     const targetMaterial = mapped.materialName || mapped.materialCode || '';
     let materialId: string | undefined = undefined;
     let matchedMaterialName: string | undefined = undefined;
     let materialMatched = false;
+    let matCandidates: any[] = [];
+    let matRecommendation: 'ACCEPT' | 'REVIEW' | 'REJECT' = 'REVIEW';
+    let matMatchMethod: 'EXACT' | 'NORMALIZED' | 'FUZZY' | 'NONE' = 'NONE';
 
     if (targetMaterial) {
       const normMaterial = normalizeName(targetMaterial);
@@ -147,21 +173,42 @@ export class DriverTruckImportEntityResolver {
       );
 
       if (matchedMat) {
-        materialId = matchedMat.materialId; // ALWAYS use canonical ID
+        materialId = matchedMat.materialId;
         matchedMaterialName = matchedMat.name;
         materialMatched = true;
+        matMatchMethod = 'EXACT';
+        matRecommendation = 'ACCEPT';
+      } else {
+        const fuzzyMats = context.knownEntities?.materials?.filter((m) => {
+          const norm = normalizeName(m.name);
+          return norm.includes(normMaterial) || normMaterial.includes(norm);
+        }) || [];
+
+        if (fuzzyMats.length > 0) {
+          matCandidates = fuzzyMats.map((m) => ({
+            candidateEntityId: m.materialId,
+            candidateDisplayName: m.name,
+            confidence: 70,
+          }));
+          matMatchMethod = 'FUZZY';
+          matRecommendation = 'REVIEW';
+        }
       }
     }
 
     resolutions.material = {
       entityType: 'MATERIAL',
       originalValue: targetMaterial,
+      sourceValue: targetMaterial,
       matchedId: materialId,
       matchedName: matchedMaterialName,
-      confidence: materialMatched ? 100 : 0,
+      confidence: materialMatched ? 100 : matCandidates.length > 0 ? 70 : 0,
       isExact: materialMatched,
+      matchMethod: matMatchMethod,
+      recommendation: matRecommendation,
+      candidates: matCandidates,
       isAuthorized: Boolean(materialId),
-      riskLevel: materialId ? 'LOW' : 'CRITICAL',
+      riskLevel: materialId ? 'LOW' : matCandidates.length > 0 ? 'HIGH' : 'CRITICAL',
     };
 
     // 3. Resolve Driver (using Exact identity search or Normalized unique name search)

@@ -612,7 +612,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  const handleApplyResolutionDecision = (
+  const handleApplyResolutionDecision = async (
     rowNumber: number,
     entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
@@ -620,7 +620,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   ) => {
     if (!importBatch || !project) return;
     try {
-      let relContext = null;
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (!relContext || !relContext.knownEntities) {
+        alert('عفواً، تعذر تحميل سياق العلاقات المصرح به للمشروع');
+        return;
+      }
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
         projectId: project.projectId,
@@ -643,7 +647,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  const handleApplyGroupedResolutionDecision = (
+  const handleApplyGroupedResolutionDecision = async (
     entityTypeKey: ReviewGroupEntityType,
     normalizedSourceKey: string,
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
@@ -651,7 +655,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   ) => {
     if (!importBatch || !project) return;
     try {
-      let relContext = null;
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (!relContext || !relContext.knownEntities) {
+        alert('عفواً، تعذر تحميل سياق العلاقات المصرح به للمشروع');
+        return;
+      }
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
         projectId: project.projectId,
@@ -680,6 +688,28 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!importBatch || !project) return;
     const { entityType, normalizedSourceKey, sourceValue } = group;
     try {
+      // 1. Fetch & validate canonical relationship context FIRST before prompt or create
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (
+        !relContext ||
+        !relContext.knownEntities ||
+        !Array.isArray(relContext.knownEntities.carriers) ||
+        !Array.isArray(relContext.knownEntities.materials) ||
+        !Array.isArray(relContext.knownEntities.drivers) ||
+        !Array.isArray(relContext.knownEntities.trucks)
+      ) {
+        alert('عفواً، تعذر تحميل سياق العلاقات المصرح به للمشروع');
+        return;
+      }
+
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-CREATE-${Date.now()}`
+      });
+
       let result: any;
       if (entityType === 'carrier') {
         const crNo = prompt('أدخل رقم السجل التجاري للناقل (إلزامي):');
@@ -752,14 +782,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         });
       }
 
-      let relContext = null;
-      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext,
-        projectId: project.projectId,
-        userId: authContext.userId,
-        role: authContext.role,
-        operationId: `OP-CREATE-${Date.now()}`
-      });
+      if (!result || !result.matchedId) {
+        alert('فشل إنشاء الكيان على الخادم');
+        return;
+      }
 
       const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
         importBatch,
