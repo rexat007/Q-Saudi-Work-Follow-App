@@ -116,9 +116,20 @@ describe('Step 4A-RECOVERY — Smart Trip Import Operational Convergence', () =>
     expect(fs.existsSync(sheetsPipelinePath)).toBe(true);
   });
 
-  it('15. ProjectSetupWizard Phase 6 remains untouched', () => {
+  it('15. ProjectSetupWizard Phase 6 is removed; FieldSupervisionView contains canonical operational path', () => {
     const wizardContent = fs.readFileSync(wizardFilePath, 'utf-8');
-    expect(wizardContent).toContain("phase: 6, label: 'استيراد بيانات الرحلات'");
+    const supervisionContent = fs.readFileSync(supervisionFilePath, 'utf-8');
+
+    // 1. Verify ProjectSetupWizard cleanup
+    expect(wizardContent).not.toContain("phase: 6");
+    expect(wizardContent).not.toContain("Trip Ingestion");
+    expect(wizardContent).not.toContain("استيراد بيانات الرحلات");
+    expect(wizardContent).not.toContain("ExcelCsvImportSection");
+
+    // 2. Verify FieldSupervisionView still contains the canonical operational import path
+    expect(supervisionContent).toContain("IMPORTS");
+    expect(supervisionContent).toContain("ExcelCsvImportSection");
+    expect(supervisionContent).toContain("GoogleSheetsImportSection");
   });
 
 
