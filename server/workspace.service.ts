@@ -6,6 +6,7 @@ import {
   OPERATIONS_PRICING_COLUMNS, 
   OPERATIONS_AUDIT_COLUMNS,
   OPERATIONS_FULL_COLUMNS,
+  FLEET_ROSTER_COLUMNS,
   WorkspaceSheetTab,
   SchemaMigrationPlan,
   GoogleDriveProjectStructure,
@@ -253,6 +254,14 @@ export class ServerWorkspaceService {
         spreadsheetId,
         WORKSPACE_TABS.MATERIALS.tabTitleAr,
         ['materialId', 'projectId', 'nameAr', 'code', 'unitOfMeasure', 'standardDensityTonPerM3', 'status', 'lastSyncedAt']
+      );
+
+      // 4b. Fleet Roster tab
+      await this.ensureSheetTabWithHeaders(
+        sheets,
+        spreadsheetId,
+        WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr,
+        [...FLEET_ROSTER_COLUMNS]
       );
 
       // 5. Exceptions tab

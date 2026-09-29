@@ -10,7 +10,8 @@ import {
   WORKSPACE_TABS, 
   OPERATIONS_FULL_COLUMNS, 
   WorkspaceSyncSummary, 
-  UpsertResult 
+  UpsertResult,
+  FLEET_ROSTER_COLUMNS
 } from '../src/types/workspace';
 import {
   authenticateUser,
@@ -491,7 +492,7 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
       carriers = [], 
       materials = [], 
       exceptions = [], 
-      reports = [] 
+      reports = []
     } = req.body;
 
     if (!spreadsheetId) {
@@ -500,6 +501,30 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
         error: 'معرف الشيت spreadsheetId مطلوب من سجل المشروع Project Registry',
       });
     }
+
+    // Server-Authoritative Project Fleet Roster extraction
+    const { projectFleetReadModelService } = await import('../src/services/projectFleetReadModel.service');
+    const { ProjectFleetReadModelAdminReadContext } = await import('../src/services/projectFleetReadModel.server');
+    const readContext = new ProjectFleetReadModelAdminReadContext();
+    const fleetData = await projectFleetReadModelService.getProjectFleetReadModel(projectId, readContext);
+
+    const mappedFleetRows = (fleetData.rows || []).map((row: any) => ({
+      truckId: row.truckId,
+      projectId,
+      plateNumber: row.plateNumber,
+      truckType: row.truckType,
+      carrierId: row.carrierId,
+      carrierName: row.carrierName,
+      driverId: row.driverId,
+      driverName: row.driverName,
+      materialId: row.materialId,
+      materialName: row.materialName,
+      assignmentStatus: row.assignmentStatus,
+      allocationStatus: row.allocationStatus,
+      integrityStatus: (row.integrityIssues && row.integrityIssues.length > 0) ? 'ISSUE' : 'CLEAN',
+      integrityIssueCount: row.integrityIssues ? row.integrityIssues.length : 0,
+      lastSyncedAt: new Date().toISOString()
+    }));
 
     const upsertResults: UpsertResult[] = [];
 
@@ -553,6 +578,19 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
         bearerToken
       );
       upsertResults.push(matResult);
+    }
+
+    // 4b. Fleet Roster (سجل الأسطول والتشغيل) - Primary Key: truckId
+    if (mappedFleetRows.length > 0) {
+      const fleetResult = await serverWorkspaceService.upsertTabRecords(
+        spreadsheetId,
+        WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr,
+        'truckId',
+        mappedFleetRows,
+        [...FLEET_ROSTER_COLUMNS],
+        bearerToken
+      );
+      upsertResults.push(fleetResult);
     }
 
     // 5. Exceptions (الاستثناءات) - Primary Key: exceptionId

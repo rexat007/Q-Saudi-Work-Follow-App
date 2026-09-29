@@ -235,6 +235,7 @@ export class ClientWorkspaceService {
       exceptions = [];
     }
 
+
     const token = this.getAccessToken();
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;

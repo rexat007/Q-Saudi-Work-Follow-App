@@ -15,6 +15,7 @@ export type WorkspaceSheetTab =
   | 'DRIVERS'
   | 'CARRIERS'
   | 'MATERIALS'
+  | 'FLEET_ROSTER'
   | 'EXCEPTIONS'
   | 'REPORTS';
 
@@ -55,6 +56,13 @@ export const WORKSPACE_TABS: Record<WorkspaceSheetTab, WorkspaceTabConfig> = {
     primaryKey: 'materialId',
     descriptionAr: 'قائمة المواد المصرح بها ووحدات القياس والكثافة المعيارية',
   },
+  FLEET_ROSTER: {
+    tabKey: 'FLEET_ROSTER',
+    tabTitleAr: 'سجل الأسطول والتشغيل',
+    tabTitleEn: 'Fleet Roster & Operations',
+    primaryKey: 'truckId',
+    descriptionAr: 'سجل الأسطول والتشغيل يمثل الحالة التشغيلية للشاحنات والناقلين والمواد الموزعة والسائقين ومطابقتها',
+  },
   EXCEPTIONS: {
     tabKey: 'EXCEPTIONS',
     tabTitleAr: 'الاستثناءات',
@@ -70,6 +78,25 @@ export const WORKSPACE_TABS: Record<WorkspaceSheetTab, WorkspaceTabConfig> = {
     descriptionAr: 'مؤشرات الأداء التشغيلية ومجاميع التوريد والتسويات المالية',
   },
 };
+
+export const FLEET_ROSTER_COLUMNS = [
+  'truckId',
+  'projectId',
+  'plateNumber',
+  'truckType',
+  'carrierId',
+  'carrierName',
+  'driverId',
+  'driverName',
+  'materialId',
+  'materialName',
+  'assignmentStatus',
+  'allocationStatus',
+  'integrityStatus',
+  'integrityIssueCount',
+  'lastSyncedAt'
+] as const;
+
 
 /**
  * 20 Legacy Operational Columns (strictly preserved for backward compatibility)
@@ -284,6 +311,24 @@ export interface DestinationValidationResult {
 
 import { ProjectEntity, TripEntity, DriverEntity, CarrierEntity, MaterialEntity, TripExceptionEntity } from './entities';
 
+export interface WorkspaceFleetRowDTO {
+  truckId: string;
+  projectId: string;
+  plateNumber: string;
+  truckType: string;
+  carrierId: string;
+  carrierName: string;
+  driverId: string | null;
+  driverName: string | null;
+  materialId: string | null;
+  materialName: string | null;
+  assignmentStatus: string;
+  allocationStatus: string;
+  integrityStatus: 'CLEAN' | 'ISSUE';
+  integrityIssueCount: number;
+  lastSyncedAt: string;
+}
+
 export interface WorkspaceProjectionInput {
   projectId: string;
   spreadsheetId: string;
@@ -293,6 +338,8 @@ export interface WorkspaceProjectionInput {
   materials: MaterialEntity[];
   exceptions: TripExceptionEntity[];
 }
+
+
 
 export interface WorkspaceTripProjectionDTO {
   tripId: string;
