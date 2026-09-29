@@ -263,7 +263,7 @@ export class DefaultImportReviewHandler implements IImportReviewHandler {
         ...row,
         status: 'VALID',
         reviewStatus: 'accepted',
-        resolvedValues: resolution,
+        resolvedValues: row.resolvedValues,
       };
     }
 

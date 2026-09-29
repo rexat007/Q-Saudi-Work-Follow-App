@@ -1387,13 +1387,8 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                                       <X className="w-3.5 h-3.5" />
                                     </button>
                                   ) : (
-                                    <button
-                                      onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
-                                      className="text-[10px] text-slate-500 hover:underline cursor-pointer"
-                                    >
-                                      استعادة
-                                    </button>
-                                  )}
+                                     <span className="text-[10px] text-slate-400 font-bold">مستبعد</span>
+                                   )}
                                 </div>
                               )}
                             </td>

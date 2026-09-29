@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { DefaultImportReviewHandler } from '../services/import/defaultStages';
 import * as XLSX from 'xlsx';
 import { smartSourceDiscoveryService } from '../services/import/smartSourceDiscovery.service';
 import { ImportSource } from '../types/unifiedImport';
@@ -337,6 +338,31 @@ describe('Unit 2 - Smart Source Discovery and Option Propagation', () => {
     expect(result.detectedHeaders).toContain('رقم اللوحة');
     expect(result.mappingDiagnostics['اسم السائق'].canonicalField).toBe('driverName');
     expect(result.mappingDiagnostics['رقم اللوحة'].canonicalField).toBe('truckNo');
+  });
+
+  // 26. ACCEPT_WARNING preserves canonical resolvedValues
+  it("26. should preserve existing resolvedValues when ACCEPT_WARNING action is applied", () => {
+    const handler = new DefaultImportReviewHandler();
+    const initialResolvedValues = {
+      carrierId: "CARRIER-101",
+      driverId: "DRIVER-202",
+      truckId: "TRUCK-303",
+      materialId: "MAT-404"
+    };
+    const row: any = {
+      rowNumber: 1,
+      status: "WARNING",
+      reviewStatus: "requires_review",
+      resolvedValues: { ...initialResolvedValues },
+      validationIssues: [{ severity: "WARNING", message: "تنبيه بسيط" }]
+    };
+
+    const updated = handler.applyAction(row, "ACCEPT_WARNING", { notes: "موافق على التنبيه" });
+
+    expect(updated.status).toBe("VALID");
+    expect(updated.reviewStatus).toBe("accepted");
+    expect(updated.resolvedValues).toEqual(initialResolvedValues);
+    expect(updated.resolvedValues.notes).toBeUndefined();
   });
 
   // 25. existing Trip import compatibility
