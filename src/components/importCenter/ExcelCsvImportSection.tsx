@@ -86,6 +86,8 @@ export function ExcelCsvImportSection({
   const [isCreatingEntity, setIsCreatingEntity] = useState<boolean>(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
+  const [showFullBatchTable, setShowFullBatchTable] = useState<boolean>(false);
+
   const reviewGroups = useMemo(() => {
     if (!activeBatch) return { carrier: [], material: [], driver: [], truck: [] };
     return RosterBatchReviewService.getBatchReviewGroups(activeBatch);
@@ -95,6 +97,11 @@ export function ExcelCsvImportSection({
     const all = [...reviewGroups.carrier, ...reviewGroups.material, ...reviewGroups.driver, ...reviewGroups.truck];
     return all.filter(g => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT');
   }, [reviewGroups]);
+
+  const rowExceptions = useMemo(() => {
+    if (!activeBatch) return [];
+    return RosterBatchReviewService.getRowExceptions(activeBatch);
+  }, [activeBatch]);
 
   const handleGroupResolutionDecision = async (
     entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
@@ -1167,7 +1174,148 @@ export function ExcelCsvImportSection({
             </div>
           </div>
 
-          {/* Table Toolbar & Filtering */}
+          {/* True Exception Queue Section */}
+          <div className="p-5 rounded-2xl bg-amber-50/40 border border-amber-200/80 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-amber-200/60">
+              <div>
+                <h3 className="text-base font-black text-amber-900 flex items-center gap-2">
+                  <ShieldAlert className="w-5 h-5 text-amber-600" />
+                  <span>طابور الاستثناءات الفعلي (True Exception Queue)</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-200 text-amber-900">
+                    {rowExceptions.length} استثناء
+                  </span>
+                </h3>
+                <p className="text-xs text-amber-800/80 mt-1">
+                  يعرض فقط الصفوف المعلقة التي تتطلب اتخاذ قرار أو معالجة (أخطاء، تنبيهات معلقة، أو بيانات مكررة).
+                </p>
+              </div>
+            </div>
+
+            {rowExceptions.length === 0 ? (
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <span>ممتاز! لا توجد أي صفوف استثنائية معلقة. جميع الصفوف إما سليمة، تم قبول تنبيهاتها، أو تم استبعادها رسمياً.</span>
+              </div>
+            ) : (
+              <div className="overflow-x-auto border border-amber-200/80 rounded-xl bg-white">
+                <table className="w-full text-right text-xs">
+                  <thead className="bg-amber-100/50 border-b border-amber-200 text-amber-950 font-bold">
+                    <tr>
+                      <th className="p-3 w-12 text-center">#</th>
+                      <th className="p-3">نوع الاستثناء</th>
+                      <th className="p-3">بيانات الشحنة التعريفية</th>
+                      <th className="p-3">أسباب الاستثناء والملاحظات</th>
+                      <th className="p-3 text-center">الإجراءات المتاحة</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-amber-100">
+                    {rowExceptions.map((row: ImportRow) => {
+                      const canonical = (row as any).normalized?.canonicalData || row.canonical || {};
+                      const hasBlocking = row.validationIssues?.some((i) => i.severity === 'BLOCKING' || i.blocking);
+                      const isError = row.status === 'ERROR' || row.reviewStatus === 'error';
+                      const isWarning = row.status === 'WARNING' || row.reviewStatus === 'requires_review';
+                      const isDuplicate = Boolean(row.duplicateInfo?.isDuplicate);
+
+                      return (
+                        <tr key={row.rowNumber} className="hover:bg-amber-50/50 transition-colors">
+                          <td className="p-3 text-center font-mono font-bold text-stone-700">
+                            {row.rowNumber}
+                          </td>
+
+                          <td className="p-3">
+                            <div className="flex flex-col gap-1 items-start">
+                              {hasBlocking || isError ? (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 inline-flex items-center gap-1">
+                                  <XCircle className="w-3 h-3 text-rose-600" /> خطأ مانع
+                                </span>
+                              ) : isDuplicate ? (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 inline-flex items-center gap-1">
+                                  <AlertTriangle className="w-3 h-3 text-blue-600" /> صف مكرر
+                                </span>
+                              ) : isWarning ? (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 inline-flex items-center gap-1">
+                                  <AlertTriangle className="w-3 h-3 text-amber-600" /> تنبيه يتطلب مراجعة
+                                </span>
+                              ) : null}
+                            </div>
+                          </td>
+
+                          <td className="p-3">
+                            <div className="font-bold text-stone-900">
+                              {canonical.carrierName || canonical.carrier || 'ناقل غير محدد'} | {canonical.materialName || canonical.materialType || 'مادة غير محددة'}
+                            </div>
+                            <div className="text-[11px] text-stone-600 mt-0.5 font-mono">
+                              تاريخ: {canonical.tripDate || '—'} | اللوحة: {canonical.plateNumber || canonical.truckNo || '—'} | السائق: {canonical.driverName || '—'}
+                            </div>
+                          </td>
+
+                          <td className="p-3 max-w-md">
+                            {row.validationIssues && row.validationIssues.length > 0 ? (
+                              <div className="text-rose-800 text-[11px] font-bold space-y-0.5">
+                                {row.validationIssues.map((e, idx) => (
+                                  <div key={idx}>• {e.messageAr || e.message}</div>
+                                ))}
+                              </div>
+                            ) : isDuplicate ? (
+                              <div className="text-blue-800 text-[11px] font-bold">
+                                {row.duplicateInfo?.reason || 'تم اكتشاف تكرار لبيانات هذه الشحنة'}
+                              </div>
+                            ) : (
+                              <span className="text-stone-500 text-[11px]">يتطلب اتخاذ قرار مراجعة</span>
+                            )}
+                          </td>
+
+                          <td className="p-3 text-center">
+                            <div className="flex items-center justify-center gap-1.5">
+                              {!hasBlocking && !isError && (
+                                <button
+                                  onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
+                                  className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
+                                  title="قبول التنبيه واعتماد الصف"
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>قبول التنبيه</span>
+                                </button>
+                              )}
+
+                              <button
+                                onClick={() => handleRowAction(row.rowNumber, 'REJECT_ROW')}
+                                className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-rose-100 text-stone-700 hover:text-rose-800 text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                                title="استبعاد الصف"
+                              >
+                                <X className="w-3.5 h-3.5 text-rose-600" />
+                                <span>استبعاد</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Collapsible Full Batch Reference Table Control */}
+          <div className="pt-2 border-t border-stone-200">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setShowFullBatchTable(!showFullBatchTable)}
+                className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold transition-colors flex items-center gap-2 cursor-pointer"
+              >
+                <Eye className="w-4 h-4 text-stone-600" />
+                <span>
+                  {showFullBatchTable
+                    ? 'إخفاء جدول مرجع جميع الصفوف'
+                    : `عرض جميع صفوف الدفعة الكاملة (Full Batch Reference Table - ${activeBatch.rows.length} صف)`}
+                </span>
+              </button>
+            </div>
+
+            {showFullBatchTable && (
+              <div className="mt-4 space-y-4">
+                {/* Table Toolbar & Filtering */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-stone-100">
             <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
               <Filter className="w-4 h-4 text-stone-400 shrink-0" />
@@ -1425,49 +1573,142 @@ export function ExcelCsvImportSection({
             </table>
           </div>
 
-          {/* Warning Confirmation Checkbox & Commit Action */}
-          <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200/90 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1.5">
-              <label className="flex items-center gap-2.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={confirmWarnings}
-                  onChange={(e) => handleConfirmWarningsChange(e.target.checked)}
-                  className="w-4 h-4 text-emerald-600 rounded border-stone-300 focus:ring-emerald-500 cursor-pointer"
-                />
-                <span className="text-xs font-black text-stone-900">
-                  أقرّ بالموافقة على اعتماد الصفوف التي تتضمن تنبيهات قابلة لتجاوز المراجعة (Allow Warnings Commit)
-                </span>
-              </label>
-              <p className="text-[11px] text-stone-500 pr-6">
-                تنبيه: لن يتم اعتماد أي شحنة تحتوي على أخطاء قاتلة (Fatal Errors). الشحنات السليمة والموافق عليها فقط هي التي سيتم اعتمادها وحفظها في Firestore.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3 shrink-0">
-              <button
-                onClick={handleCommit}
-                disabled={isCommitting || activeBatch.requiresReviewRows > 0 || unresolvedGroups.length > 0 || activeBatch.validRows === 0}
-                className={`px-6 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-xs cursor-pointer ${
-                  isCommitting || activeBatch.requiresReviewRows > 0 || unresolvedGroups.length > 0 || activeBatch.validRows === 0
-                    ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                    : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                }`}
-              >
-                {isCommitting ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>جاري اعتماد الشحنات...</span>
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>اعتماد وتحفيظ الشحنات الرسمية</span>
-                  </>
-                )}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
+
+          {/* Final Review & Pre-Commit Summary Section */}
+          {(() => {
+            const readyValidCount = activeBatch.rows.filter(
+              (r) => (r.status === 'VALID' || r.reviewStatus === 'accepted') && r.status !== 'REJECTED' && r.status !== 'COMMITTED'
+            ).length;
+            const pendingWarningCount = activeBatch.rows.filter(
+              (r) => (r.status === 'WARNING' || r.reviewStatus === 'requires_review') && r.status !== 'REJECTED' && r.status !== 'COMMITTED'
+            ).length;
+            const blockingErrorCount = activeBatch.rows.filter(
+              (r) => (r.status === 'ERROR' || r.reviewStatus === 'error' || r.validationIssues?.some((i) => i.blocking)) && r.status !== 'REJECTED' && r.status !== 'COMMITTED'
+            ).length;
+            const rejectedCount = activeBatch.rows.filter((r) => r.status === 'REJECTED').length;
+            const eligibleCommitCount = activeBatch.rows.filter(
+              (r) => (r.status === 'VALID' || r.reviewStatus === 'accepted' || (r.status === 'WARNING' && confirmWarnings)) && r.status !== 'REJECTED' && r.status !== 'COMMITTED'
+            ).length;
+
+            const cannotCommitReason =
+              unresolvedGroups.length > 0
+                ? `توجد (${unresolvedGroups.length}) مجموعات كائنات غير مطابقة تتطلب حسم القرار أولاً`
+                : blockingErrorCount > 0
+                ? `توجد (${blockingErrorCount}) صفوف تتضمن أخطاء مانعة يجب معالجتها أو استبعادها`
+                : rowExceptions.length > 0 && !confirmWarnings && pendingWarningCount > 0
+                ? `توجد (${pendingWarningCount}) تنبيهات معلقة، يلزم قبول التنبيهات أو تفعيل إقرار الموافقة على التنبيهات`
+                : eligibleCommitCount === 0
+                ? 'لا توجد أي صفوف صالحة جاهزة للاعتماد'
+                : null;
+
+            return (
+              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200/90 space-y-5">
+                <div className="border-b border-stone-200 pb-3">
+                  <h4 className="font-black text-stone-900 text-sm flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                    <span>ملخص المراجعة النهائية قبل الاعتماد (Pre-Commit Breakdown)</span>
+                  </h4>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    توضيح دقيق لتوزيع الصفوف والقرارات قبل التنفيذ النهائي في قاعدة البيانات.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 text-center">
+                  <div className="p-2.5 rounded-xl bg-white border border-stone-200">
+                    <div className="text-[10px] font-bold text-stone-500">إجمالي الدفعة</div>
+                    <div className="text-sm font-black text-stone-900 font-mono mt-0.5">{activeBatch.totalRows}</div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
+                    <div className="text-[10px] font-bold text-emerald-800">سليمة وجاهزة</div>
+                    <div className="text-sm font-black text-emerald-900 font-mono mt-0.5">{readyValidCount}</div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+                    <div className="text-[10px] font-bold text-amber-800">تنبيهات معلقة</div>
+                    <div className="text-sm font-black text-amber-900 font-mono mt-0.5">{pendingWarningCount}</div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200">
+                    <div className="text-[10px] font-bold text-rose-800">أخطاء مانعة</div>
+                    <div className="text-sm font-black text-rose-900 font-mono mt-0.5">{blockingErrorCount}</div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-stone-100 border border-stone-200">
+                    <div className="text-[10px] font-bold text-stone-600">صفوف مستبعدة</div>
+                    <div className="text-sm font-black text-stone-700 font-mono mt-0.5">{rejectedCount}</div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200">
+                    <div className="text-[10px] font-bold text-blue-800">كائنات معلقة</div>
+                    <div className="text-sm font-black text-blue-900 font-mono mt-0.5">{unresolvedGroups.length}</div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-amber-100/60 border border-amber-300">
+                    <div className="text-[10px] font-bold text-amber-900">استثناءات معلقة</div>
+                    <div className="text-sm font-black text-amber-950 font-mono mt-0.5">{rowExceptions.length}</div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-emerald-600 text-white border border-emerald-700 shadow-2xs">
+                    <div className="text-[10px] font-bold opacity-90">جاهز للاعتماد</div>
+                    <div className="text-sm font-black font-mono mt-0.5">{eligibleCommitCount}</div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-3 border-t border-stone-200">
+                  <div className="space-y-1.5 max-w-xl">
+                    <label className="flex items-center gap-2.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={confirmWarnings}
+                        onChange={(e) => handleConfirmWarningsChange(e.target.checked)}
+                        className="w-4 h-4 text-emerald-600 rounded border-stone-300 focus:ring-emerald-500 cursor-pointer"
+                      />
+                      <span className="text-xs font-black text-stone-900">
+                        أقرّ بالموافقة على اعتماد الصفوف التي تتضمن تنبيهات قابلة لتجاوز المراجعة (Allow Warnings Commit)
+                      </span>
+                    </label>
+                    <p className="text-[11px] text-stone-500 pr-6">
+                      تنبيه: لن يتم اعتماد أي شحنة مستبعدة أو تحتوي على أخطاء قاتلة (Fatal Errors).
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    <button
+                      onClick={handleCommit}
+                      disabled={isCommitting || Boolean(cannotCommitReason)}
+                      className={`px-6 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-xs cursor-pointer ${
+                        isCommitting || Boolean(cannotCommitReason)
+                          ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                      }`}
+                    >
+                      {isCommitting ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>جاري اعتماد الشحنات...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-4 h-4" />
+                          <span>اعتماد وتحفيظ الشحنات الرسمية ({eligibleCommitCount})</span>
+                        </>
+                      )}
+                    </button>
+
+                    {cannotCommitReason && (
+                      <span className="text-[11px] text-rose-700 font-bold max-w-xs text-left">
+                        {cannotCommitReason}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Commit Success Banner */}
           {commitResult && commitResult.success && (

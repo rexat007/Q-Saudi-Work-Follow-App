@@ -11,6 +11,7 @@ import { GoogleSheetsImportParser } from '../services/import/googleSheetsParser.
 import { DriverTruckPipelineService } from '../services/import/driverTruckPipeline.service';
 import { ImportProjectContextAdapter } from '../services/import/importProjectContext.adapter';
 import { RelationshipContext } from '../types/dataQuality';
+import { RosterBatchReviewService } from '../services/import/rosterBatchReview.service';
 
 describe('Unit 2 - Smart Source Discovery and Option Propagation', () => {
   const mockRelContext: RelationshipContext = {
@@ -377,5 +378,77 @@ describe('Unit 2 - Smart Source Discovery and Option Propagation', () => {
     );
     expect(batch.totalRows).toBe(1);
     expect(batch.rows[0].raw['رقم التذكرة']).toBe('T-606');
+  });
+
+  // 27. RosterBatchReviewService.getRowExceptions contract tests
+  it('27. should correctly classify true active row exceptions according to canonical contract', () => {
+    const mockBatch: any = {
+      importBatchId: 'BAT-TEST-EXCEPTIONS',
+      rows: [
+        // 1. Blocking error row -> INCLUDED
+        {
+          rowNumber: 1,
+          status: 'ERROR',
+          reviewStatus: 'error',
+          validationIssues: [{ severity: 'BLOCKING', message: 'خطأ مانع' }]
+        },
+        // 2. Requires review warning row -> INCLUDED
+        {
+          rowNumber: 2,
+          status: 'WARNING',
+          reviewStatus: 'requires_review',
+          validationIssues: [{ severity: 'WARNING', message: 'تنبيه' }]
+        },
+        // 3. Duplicate row -> INCLUDED
+        {
+          rowNumber: 3,
+          status: 'VALID',
+          reviewStatus: 'accepted',
+          duplicateInfo: { isDuplicate: true, duplicateKey: 'DUP-1' },
+          validationIssues: []
+        },
+        // 4. Clean VALID / accepted row -> EXCLUDED
+        {
+          rowNumber: 4,
+          status: 'VALID',
+          reviewStatus: 'accepted',
+          validationIssues: []
+        },
+        // 5. ACCEPT_WARNING resulting VALID / accepted row -> EXCLUDED
+        {
+          rowNumber: 5,
+          status: 'VALID',
+          reviewStatus: 'accepted',
+          reviewAction: 'ACCEPT_WARNING',
+          validationIssues: [{ severity: 'WARNING', message: 'تم قبوله' }]
+        },
+        // 6. REJECTED row -> EXCLUDED
+        {
+          rowNumber: 6,
+          status: 'REJECTED',
+          reviewStatus: 'error',
+          validationIssues: [{ severity: 'BLOCKING', message: 'مستبعد' }]
+        },
+        // 7. COMMITTED row -> EXCLUDED
+        {
+          rowNumber: 7,
+          status: 'COMMITTED',
+          reviewStatus: 'accepted',
+          validationIssues: []
+        }
+      ]
+    };
+
+    const exceptions = RosterBatchReviewService.getRowExceptions(mockBatch);
+    const exceptionRowNumbers = exceptions.map((r) => r.rowNumber);
+
+    expect(exceptionRowNumbers).toContain(1);
+    expect(exceptionRowNumbers).toContain(2);
+    expect(exceptionRowNumbers).toContain(3);
+
+    expect(exceptionRowNumbers).not.toContain(4);
+    expect(exceptionRowNumbers).not.toContain(5);
+    expect(exceptionRowNumbers).not.toContain(6);
+    expect(exceptionRowNumbers).not.toContain(7);
   });
 });

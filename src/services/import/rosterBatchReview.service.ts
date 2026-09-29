@@ -209,14 +209,24 @@ export class RosterBatchReviewService {
   }
 
   /**
-   * Returns row-level blocking exceptions only (excluding auto-resolved rows)
+   * Returns active row exceptions requiring human attention.
+   * Includes non-rejected, non-committed rows with blocking errors, requires_review, warning, or duplicate status.
    */
   public static getRowExceptions(batch: UnifiedImportBatch): ImportRow[] {
     if (!batch || !batch.rows) return [];
     return batch.rows.filter((row) => {
+      // Explicitly exclude REJECTED and COMMITTED rows
+      if (row.status === 'REJECTED' || row.status === 'COMMITTED') {
+        return false;
+      }
+
       const hasBlocking = row.validationIssues?.some((i) => i.severity === 'BLOCKING' || i.blocking);
       const isError = row.status === 'ERROR' || row.reviewStatus === 'error';
-      return hasBlocking || isError;
+      const isRequiresReview = row.reviewStatus === 'requires_review';
+      const isWarning = row.status === 'WARNING';
+      const isDuplicate = Boolean(row.duplicateInfo?.isDuplicate);
+
+      return hasBlocking || isError || isRequiresReview || isWarning || isDuplicate;
     });
   }
 }
