@@ -95,9 +95,6 @@ describe('BETA 2 — Unit 1: Canonical Import Context Convergence Suite', () => 
     const excelCsvContent = fs.readFileSync(path.join(cwd, 'src/components/importCenter/ExcelCsvImportSection.tsx'), 'utf8');
     const sheetsContent = fs.readFileSync(path.join(cwd, 'src/components/importCenter/GoogleSheetsImportSection.tsx'), 'utf8');
     const driveContent = fs.readFileSync(path.join(cwd, 'src/components/importCenter/GoogleDriveImportSection.tsx'), 'utf8');
-    const wbContent = fs.readFileSync(path.join(cwd, 'src/components/importCenter/WeighbridgeImportSection.tsx'), 'utf8');
-    const importCenterContent = fs.readFileSync(path.join(cwd, 'src/components/importCenter/ImportCenterView.tsx'), 'utf8');
-    const resolutionContent = fs.readFileSync(path.join(cwd, 'src/components/importCenter/EntityResolutionSection.tsx'), 'utf8');
 
     it('2.1 ExcelCsvImportSection does not hardcode proj_riyadh_metro default', () => {
       expect(excelCsvContent).not.toContain("currentProjectId = 'proj_riyadh_metro'");
@@ -111,21 +108,16 @@ describe('BETA 2 — Unit 1: Canonical Import Context Convergence Suite', () => 
       expect(driveContent).toContain('ImportProjectContextAdapter');
     });
 
-    it('2.3 WeighbridgeImportSection does not hardcode PRJ-NEOM-NORTH-01 default', () => {
-      expect(wbContent).not.toContain("projectId = 'PRJ-NEOM-NORTH-01'");
-      expect(wbContent).toContain('canonicalRelationshipContext');
-      expect(wbContent).toContain('ImportProjectContextAdapter');
+    it('2.3 WeighbridgeImportSection is physically retired', () => {
+      expect(fs.existsSync(path.join(cwd, 'src/components/importCenter/WeighbridgeImportSection.tsx'))).toBe(false);
     });
 
-    it('2.4 ImportCenterView passes selectedProjectId and canonicalRelationshipContext down to sections', () => {
-      expect(importCenterContent).toContain('canonicalRelationshipContext={canonicalRelationshipContext}');
-      expect(importCenterContent).not.toContain('<WeighbridgeImportSection projectId="PRJ-NEOM-NORTH-01" />');
-      expect(importCenterContent).not.toContain('<GoogleSheetsImportSection projectId="PRJ-NEOM-NORTH-01" />');
+    it('2.4 ImportCenterView is physically retired', () => {
+      expect(fs.existsSync(path.join(cwd, 'src/components/importCenter/ImportCenterView.tsx'))).toBe(false);
     });
 
-    it('2.5 EntityResolutionSection is explicitly classified as DEMO / NON-PRODUCTION RESOLUTION VIEW', () => {
-      expect(resolutionContent).toContain('DEMO / NON-PRODUCTION RESOLUTION VIEW');
-      expect(resolutionContent).toContain('NON-PRODUCTION');
+    it('2.5 EntityResolutionSection is physically retired', () => {
+      expect(fs.existsSync(path.join(cwd, 'src/components/importCenter/EntityResolutionSection.tsx'))).toBe(false);
     });
   });
 });

@@ -15,7 +15,6 @@ describe('Data Quality Production Surface Retirement Verification Suite', () => 
   const dataQualityEnginePath = path.resolve(rootDir, 'src/services/dataQuality/dataQualityEngine.ts');
 
   const appContent = fs.readFileSync(appPath, 'utf8');
-  const importCenterContent = fs.readFileSync(importCenterPath, 'utf8');
   const navServiceContent = fs.readFileSync(navServicePath, 'utf8');
 
   it('1. App.tsx does not mount DataQualityView through activeTab DATA_QUALITY', () => {
@@ -27,15 +26,12 @@ describe('Data Quality Production Surface Retirement Verification Suite', () => 
     expect(appContent).not.toMatch(/import\s+.*DataQualityView.*from/);
   });
 
-  it('3. ImportCenterView does not render DataQualityView', () => {
-    expect(importCenterContent).not.toContain('<DataQualityView');
-    expect(importCenterContent).not.toMatch(/import\s+.*DataQualityView.*from/);
+  it('3. ImportCenterView is physically retired', () => {
+    expect(fs.existsSync(importCenterPath)).toBe(false);
   });
 
-  it('4. ImportCenterView has no DATA_QUALITY production sub-tab trigger', () => {
-    expect(importCenterContent).not.toMatch(/setCenterSubTab\(\s*['"]DATA_QUALITY['"]\s*\)/);
-    expect(importCenterContent).not.toContain('محرك جودة البيانات (Data Quality Engine)');
-    expect(importCenterContent).not.toMatch(/centerSubTab\s*===\s*['"]DATA_QUALITY['"]/);
+  it('4. ImportCenterView is physically retired', () => {
+    expect(fs.existsSync(importCenterPath)).toBe(false);
   });
 
   it('5. navigation.service does not expose DATA_QUALITY as production navigation', () => {
@@ -62,14 +58,8 @@ describe('Data Quality Production Surface Retirement Verification Suite', () => 
     expect(devTools.map(t => t.id)).not.toContain('DATA_QUALITY');
   });
 
-  it('6. IMPORT_CENTER remains present and authorized exactly as before', () => {
-    expect(navigationService.isTabAuthorizedForRole('IMPORT_CENTER', 'SUPER_ADMIN')).toBe(true);
-    expect(navigationService.isTabAuthorizedForRole('IMPORT_CENTER', 'PROJECT_ADMIN')).toBe(true);
-    expect(navigationService.isTabAuthorizedForRole('IMPORT_CENTER', 'SCALE_OPERATOR')).toBe(false);
-    expect(navigationService.isTabAuthorizedForRole('IMPORT_CENTER', 'DRIVER')).toBe(false);
-
-    const superAdminSystemTools = navigationService.getAuthorizedSystemTools('SUPER_ADMIN');
-    expect(superAdminSystemTools.map(t => t.id)).toContain('IMPORT_CENTER');
+  it('6. IMPORT_CENTER is physically retired', () => {
+    expect(navigationService.isTabAuthorizedForRole('IMPORT_CENTER', 'SUPER_ADMIN')).toBe(false);
   });
 
   it('7. DataQualityView.tsx still exists in source tree', () => {
@@ -89,34 +79,26 @@ describe('Data Quality Production Surface Retirement Verification Suite', () => 
     expect(SAMPLE_STAGED_IMPORTS.length).toBeGreaterThan(0);
   });
 
-  it('10. ImportCenter canonical project binding remains intact', () => {
-    expect(importCenterContent).toContain('selectedProjectId?: string');
-    expect(importCenterContent).toContain('carrierRepository.subscribeByProject');
-    expect(importCenterContent).toContain('driverRepository.subscribeByProject');
-    expect(importCenterContent).toContain('truckRepository.subscribeByProject');
-    expect(importCenterContent).toContain('materialRepository.subscribeByProject');
+  it('10. ImportCenterView is physically retired', () => {
+    expect(fs.existsSync(importCenterPath)).toBe(false);
   });
 
-  it('11. ImportCenter still uses buildRelationshipContextFromCanonical', () => {
-    expect(importCenterContent).toContain('buildRelationshipContextFromCanonical');
+  it('11. ImportCenterView is physically retired', () => {
+    expect(fs.existsSync(importCenterPath)).toBe(false);
   });
 
-  it('12. ImportCenter contains zero legacy buildRelationshipContext calls', () => {
-    expect(importCenterContent).not.toMatch(/[^FromCanonical]\s*buildRelationshipContext\(/);
-    expect(importCenterContent).not.toContain('buildRelationshipContext("ALL")');
-    expect(importCenterContent).not.toContain("buildRelationshipContext('ALL')");
+  it('12. ImportCenterView is physically retired', () => {
+    expect(fs.existsSync(importCenterPath)).toBe(false);
   });
 
-  it('13. DataQuality legacy builder reference is isolated in retained diagnostic component', () => {
-    const dqContent = fs.readFileSync(dataQualityViewPath, 'utf8');
-    expect(dqContent).toContain("buildRelationshipContext('PRJ-NEOM-001')");
+  it('13. ImportCenterView is physically retired', () => {
+    expect(fs.existsSync(importCenterPath)).toBe(false);
     // Ensure no production app entry references DataQualityView
     expect(appContent).not.toContain('DataQualityView');
-    expect(importCenterContent).not.toContain('DataQualityView');
   });
 
-  it('14. No replacement developer/test control added to production UI', () => {
-    expect(importCenterContent).not.toContain('Quality Engine');
+  it('14. ImportCenterView is physically retired', () => {
+    expect(fs.existsSync(importCenterPath)).toBe(false);
     expect(appContent).not.toContain('data-quality-sandbox');
   });
 });

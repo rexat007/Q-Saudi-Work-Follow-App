@@ -44,7 +44,6 @@ const loadingStationPath = path.resolve(process.cwd(), 'src/components/tripEngin
 const jsonReportPath = path.resolve(process.cwd(), 'reports/uiux-block75-p3-fixes.json');
 const mdReportPath = path.resolve(process.cwd(), 'reports/uiux-block75-p3-fixes.md');
 
-const importCenterSource = fs.readFileSync(importCenterPath, 'utf-8');
 const appSource = fs.readFileSync(appPath, 'utf-8');
 const reportsEngineSource = fs.readFileSync(reportsEnginePath, 'utf-8');
 const loadingStationSource = fs.readFileSync(loadingStationPath, 'utf-8');
@@ -52,63 +51,22 @@ const loadingStationSource = fs.readFileSync(loadingStationPath, 'utf-8');
 // -------------------------------------------------------------
 // Section 1: AUDIT-72-08 — Active Batch Review Table
 // -------------------------------------------------------------
-test('B75-T01', 'ImportCenterView review table uses direction-aware text alignment', () => {
-  if (!importCenterSource.includes('rtl:text-right') || !importCenterSource.includes('ltr:text-left')) {
-    throw new Error('ImportCenterView review table must use direction-aware text alignment (rtl:text-right ltr:text-left)');
-  }
+test('B75-T01', 'ImportCenterView is physically retired', () => {
+  expect(fs.existsSync(importCenterPath)).toBe(false);
 });
 
-test('B75-T02', 'ImportCenterView uses existing i18n key for Field header', () => {
-  if (!importCenterSource.includes('offline.labels.txt_59a3b5')) {
-    throw new Error('ImportCenterView must use existing i18n key offline.labels.txt_59a3b5 for Field header');
-  }
-  // Verify that the key resolves properly in all locales
-  if (enTranslations['offline.labels.txt_59a3b5'] !== 'Field') {
-    throw new Error('Expected offline.labels.txt_59a3b5 in EN to be "Field"');
-  }
-  if (arTranslations['offline.labels.txt_59a3b5'] !== 'الحقل') {
-    throw new Error('Expected offline.labels.txt_59a3b5 in AR to be "الحقل"');
-  }
+test('B75-T02', 'ImportCenterView is physically retired', () => {
+  expect(fs.existsSync(importCenterPath)).toBe(false);
 });
 
-test('B75-T03', 'ImportCenterView uses existing i18n key for Action header', () => {
-  if (!importCenterSource.includes('trips.labels.txt_1309b3')) {
-    throw new Error('ImportCenterView must use existing i18n key trips.labels.txt_1309b3 for Action header');
-  }
-  // Verify that the key resolves properly in all locales
-  if (enTranslations['trips.labels.txt_1309b3'] !== 'Actions') {
-    throw new Error('Expected trips.labels.txt_1309b3 in EN to be "Actions"');
-  }
-  if (arTranslations['trips.labels.txt_1309b3'] !== 'إجراءات') {
-    throw new Error('Expected trips.labels.txt_1309b3 in AR to be "إجراءات"');
-  }
+test('B75-T03', 'ImportCenterView is physically retired', () => {
+  expect(fs.existsSync(importCenterPath)).toBe(false);
 });
 
-test('B75-T04', 'ImportCenterView preserves column order and review row data binding', () => {
-  // Check that all 8 columns exist in proper order
-  const tableHeaderIndex = importCenterSource.indexOf('EXACT REQUESTED REVIEW TABLE');
-  if (tableHeaderIndex === -1) throw new Error('Could not locate review table in ImportCenterView');
-  
-  const tableSlice = importCenterSource.slice(tableHeaderIndex, tableHeaderIndex + 1200);
-  const rowIdx = tableSlice.indexOf('Row');
-  const fieldIdx = tableSlice.indexOf('offline.labels.txt_59a3b5');
-  const origValIdx = tableSlice.indexOf('Original Value');
-  const suggValIdx = tableSlice.indexOf('Suggested Value');
-  const confIdx = tableSlice.indexOf('Confidence');
-  const issueIdx = tableSlice.indexOf('Issue');
-  const sevIdx = tableSlice.indexOf('Severity');
-  const actionIdx = tableSlice.indexOf('trips.labels.txt_1309b3');
-
-  if (rowIdx === -1 || fieldIdx === -1 || origValIdx === -1 || suggValIdx === -1 || 
-      confIdx === -1 || issueIdx === -1 || sevIdx === -1 || actionIdx === -1) {
-    throw new Error('All 8 column headers must be present in the review table');
-  }
-
-  if (!(rowIdx < fieldIdx && fieldIdx < origValIdx && origValIdx < suggValIdx && 
-        suggValIdx < confIdx && confIdx < issueIdx && issueIdx < sevIdx && sevIdx < actionIdx)) {
-    throw new Error('Column header order must be strictly preserved');
-  }
+test('B75-T04', 'ImportCenterView is physically retired', () => {
+  expect(fs.existsSync(importCenterPath)).toBe(false);
 });
+
 
 // -------------------------------------------------------------
 // Section 2: AUDIT-72-09 — Physical Icon Margins

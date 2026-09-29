@@ -147,10 +147,10 @@ describe('Phase 6 — ExceptionEngine Standalone Surface Retirement Verification
     expect(navigationService.isTabAuthorizedForRole('DATA_QUALITY', 'SUPER_ADMIN')).toBe(false);
   });
 
-  // 18. ImportCenter remains canonical
-  it('18. ImportCenter remains canonical', () => {
-    expect(fs.existsSync(importCenterPath)).toBe(true);
+  // 18. ImportCenterView is physically retired
+  it('18. ImportCenterView is physically retired', () => {
+    expect(fs.existsSync(importCenterPath)).toBe(false);
     const appContent = fs.readFileSync(appPath, 'utf-8');
-    expect(appContent).toContain("activeTab === 'IMPORT_CENTER'");
+    expect(appContent).not.toContain("activeTab === 'IMPORT_CENTER'");
   });
 });

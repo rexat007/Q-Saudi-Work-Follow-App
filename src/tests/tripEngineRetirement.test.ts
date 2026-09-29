@@ -108,7 +108,7 @@ describe('Phase 6 — TripEngine Production Surface Retirement Verification', ()
   it('12. canonical LoadingOperator remains present', () => {
     expect(fs.existsSync(loadingOperatorPath)).toBe(true);
     const content = fs.readFileSync(loadingOperatorPath, 'utf-8');
-    expect(content).toContain('buildRelationshipContextFromCanonical');
+    expect(content).toContain('canonicalRelationshipContextService');
   });
 
   // 13. canonical UnloadingOperator remains present
@@ -162,12 +162,9 @@ describe('Phase 6 — TripEngine Production Surface Retirement Verification', ()
     expect(appContent).not.toMatch(/import\s+.*UnloadingStation/);
   });
 
-  // 19. ImportCenter remains canonical and untouched
-  it('19. ImportCenter remains canonical and untouched', () => {
-    expect(fs.existsSync(importCenterPath)).toBe(true);
-    const content = fs.readFileSync(importCenterPath, 'utf-8');
-    expect(content).toContain('buildRelationshipContextFromCanonical');
-    expect(content).not.toContain('DataQualityView');
+  // 19. ImportCenterView is physically retired
+  it('19. ImportCenterView is physically retired', () => {
+    expect(fs.existsSync(importCenterPath)).toBe(false);
   });
 
   // 20. DataQuality remains retired from production

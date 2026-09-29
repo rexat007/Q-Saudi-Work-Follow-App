@@ -202,16 +202,9 @@ describe('Canonical Relationship Context Convergence Tests', () => {
       expect(content).not.toContain('buildRelationshipContextFromCanonical');
     });
 
-    it('5. ImportCenterView does not import legacy repositories', () => {
+    it('5. ImportCenterView is physically retired from codebase', () => {
       const filePath = path.join(process.cwd(), 'src/components/importCenter/ImportCenterView.tsx');
-      const content = fs.readFileSync(filePath, 'utf-8');
-
-      expect(content).toContain('canonicalRelationshipContextService');
-      expect(content).not.toContain("from '../../repositories/carrier.repository'");
-      expect(content).not.toContain("from '../../repositories/driver.repository'");
-      expect(content).not.toContain("from '../../repositories/truck.repository'");
-      expect(content).not.toContain("from '../../repositories/material.repository'");
-      expect(content).not.toContain('buildRelationshipContextFromCanonical');
+      expect(fs.existsSync(filePath)).toBe(false);
     });
   });
 });

@@ -141,14 +141,10 @@ export async function runMetadataHooksTestSuite(): Promise<{ passed: number; fai
     }
   });
 
-  test('B52-MIG-04', 'Candidate 4 (WeighbridgeImportSection.tsx) uses alert(t("weighbridge.messages.txt_5d74e2"))', () => {
+  test('B52-MIG-04', 'WeighbridgeImportSection.tsx is physically retired', () => {
     const filePath = path.join(process.cwd(), 'src/components/importCenter/WeighbridgeImportSection.tsx');
-    const content = fs.readFileSync(filePath, 'utf-8');
-    if (!content.includes("alert(t('weighbridge.messages.txt_5d74e2'))")) {
-      throw new Error("WeighbridgeImportSection.tsx does not contain alert(t('weighbridge.messages.txt_5d74e2'))");
-    }
-    if (content.includes("alert('تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.')")) {
-      throw new Error("WeighbridgeImportSection.tsx still contains unmigrated alert string");
+    if (fs.existsSync(filePath)) {
+      throw new Error('WeighbridgeImportSection.tsx must be physically retired');
     }
   });
 
@@ -209,7 +205,6 @@ export async function runMetadataHooksTestSuite(): Promise<{ passed: number; fai
     const files = [
       'src/components/offline/OutboxDrawer.tsx',
       'src/components/tripEngine/StateMachineController.tsx',
-      'src/components/importCenter/WeighbridgeImportSection.tsx',
     ];
     for (const f of files) {
       const c = fs.readFileSync(path.join(process.cwd(), f), 'utf-8');
