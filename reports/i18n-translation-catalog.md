@@ -1,6 +1,6 @@
 # Production Translation Catalog & Semantic Review Report (BLOCK 42)
 
-**Generated At:** 2026-09-29T11:16:36.692Z
+**Generated At:** 2026-09-20T10:59:47.525Z
 **Catalog Version:** 1.0.0-block42
 **Canonical Source Language:** Arabic (`ar`) — 100% Preserved Invariance
 **Target Languages:** English (`en`), Urdu (`ur`)
@@ -9,39 +9,39 @@
 
 | Metric | Count | Description |
 | :--- | :--- | :--- |
-| **Total Unique Catalog Keys** | **14712** | Distinct semantic translation keys generated |
+| **Total Unique Catalog Keys** | **14356** | Distinct semantic translation keys generated |
 | **Translated Keys (Phase 1 Foundation)** | **6** | Approved canonical terms (ar, en, ur verified) |
-| **Untranslated Slots (Pending Review)** | **8948** | Explicitly flagged for professional human review |
-| **Review Required Keys** | **8948** | Domain terminology requiring semantic verification |
-| **Ambiguous Keys Isolated** | **5757** | Short tokens or codes quarantined from auto-translation |
+| **Untranslated Slots (Pending Review)** | **9283** | Explicitly flagged for professional human review |
+| **Review Required Keys** | **9283** | Domain terminology requiring semantic verification |
+| **Ambiguous Keys Isolated** | **5066** | Short tokens or codes quarantined from auto-translation |
 | **Protected Business Tokens** | **1** | Database identifiers, formulas, units, currencies |
-| **Interpolation Placeholders** | **218** | Dynamic parameters (e.g. `{count}`) strictly preserved |
-| **Pluralization Requirements** | **155** | Expressions requiring 6 Arabic plural forms |
-| **Semantic Conflicts Isolated** | **646** | Identical texts split into separate contextual keys |
-| **Duplicate Groups (Type A Sharing)** | **2671** | Safe identical-context key reuse candidates |
-| **Directional Migration Queue** | **201** | Physical Tailwind classes flagged for RTL/LTR migration |
+| **Interpolation Placeholders** | **229** | Dynamic parameters (e.g. `{count}`) strictly preserved |
+| **Pluralization Requirements** | **154** | Expressions requiring 6 Arabic plural forms |
+| **Semantic Conflicts Isolated** | **668** | Identical texts split into separate contextual keys |
+| **Duplicate Groups (Type A Sharing)** | **2253** | Safe identical-context key reuse candidates |
+| **Directional Migration Queue** | **271** | Physical Tailwind classes flagged for RTL/LTR migration |
 
 ## 2. Category Distribution & Translation Readiness
 
 | Category | Total Keys | Translated | Untranslated | Review Required | Ambiguous |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `other` | 5456 | 4 | 3778 | 3778 | 1674 |
-| `imports` | 2170 | 0 | 1139 | 1139 | 1031 |
-| `projects` | 1100 | 0 | 603 | 603 | 497 |
+| `other` | 5559 | 4 | 3904 | 3904 | 1651 |
+| `imports` | 1755 | 0 | 1176 | 1176 | 579 |
+| `projects` | 1016 | 0 | 638 | 638 | 378 |
 | `reports` | 723 | 0 | 396 | 396 | 326 |
-| `trips` | 722 | 0 | 469 | 469 | 253 |
-| `pricing` | 590 | 0 | 350 | 350 | 240 |
-| `security` | 565 | 0 | 359 | 359 | 206 |
-| `navigation` | 442 | 0 | 203 | 203 | 239 |
-| `weighbridge` | 359 | 0 | 175 | 175 | 184 |
+| `trips` | 714 | 0 | 467 | 467 | 247 |
+| `navigation` | 554 | 0 | 313 | 313 | 241 |
+| `security` | 534 | 0 | 355 | 355 | 179 |
+| `pricing` | 514 | 0 | 330 | 330 | 184 |
+| `weighbridge` | 418 | 0 | 229 | 229 | 189 |
 | `unloading` | 312 | 0 | 194 | 194 | 118 |
-| `exceptions` | 300 | 1 | 178 | 178 | 121 |
 | `offline` | 300 | 0 | 184 | 184 | 116 |
+| `exceptions` | 299 | 0 | 178 | 178 | 121 |
 | `legacyMigration` | 295 | 0 | 124 | 124 | 171 |
-| `entityResolution` | 286 | 0 | 189 | 189 | 97 |
+| `entityResolution` | 288 | 0 | 190 | 190 | 98 |
 | `loading` | 279 | 0 | 219 | 219 | 60 |
-| `authentication` | 202 | 0 | 92 | 92 | 110 |
-| `dashboard` | 146 | 0 | 84 | 84 | 62 |
+| `authentication` | 179 | 0 | 84 | 84 | 95 |
+| `dashboard` | 152 | 1 | 90 | 90 | 61 |
 | `trucks` | 128 | 0 | 65 | 65 | 63 |
 | `drivers` | 105 | 0 | 34 | 34 | 71 |
 | `materials` | 89 | 0 | 42 | 42 | 47 |
@@ -75,8 +75,8 @@ Identical Arabic terms separated into distinct keys based on operational context
 
 | File | Line | Physical Class | Recommended Logical Class | Risk |
 | :--- | :--- | :--- | :--- | :--- |
-| `src/App.tsx` | 720 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
-| `src/App.tsx` | 745 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
+| `src/App.tsx` | 743 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
+| `src/App.tsx` | 768 | `ChevronLeft` | `Logical directional flip required (e.g. rtl:rotate-180)` | `MUST_MIGRATE` |
 | `src/components/FirestoreArchitectureView.tsx` | 471 | `text-left` | `text-start` | `MUST_MIGRATE` |
 | `src/components/FirestoreArchitectureView.tsx` | 529 | `pr-1` | `pe-1` | `MUST_MIGRATE` |
 | `src/components/TripEngineView.tsx` | 611 | `mr-1` | `me-1` | `MUST_MIGRATE` |
