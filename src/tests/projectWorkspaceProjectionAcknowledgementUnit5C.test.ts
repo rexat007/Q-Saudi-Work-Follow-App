@@ -326,72 +326,71 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     expect(matches!.length).toBe(1);
   });
 
-  // 20. DRIVERS acknowledged only after successful non-empty Drivers upsert
-  it('20. DRIVERS acknowledged only after successful non-empty Drivers upsert', () => {
+  // 20. DRIVERS acknowledged after successful Drivers reconciliation (Unit 5D)
+  it('20. DRIVERS acknowledged after successful Drivers reconciliation', () => {
     const appTsPath = path.resolve(__dirname, '../../server/app.ts');
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
     const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
 
-    expect(routeSnippet).toContain('if (snapshot.drivers.length > 0)');
+    expect(routeSnippet).toContain("reconcileTabSnapshot(\n      cleanSpreadsheetId,\n      WORKSPACE_TABS.DRIVERS.tabTitleAr");
     expect(routeSnippet).toContain("successfullyProjectedTabs.push('DRIVERS')");
   });
 
-  // 21. empty Drivers snapshot is NOT acknowledged
-  it('21. empty Drivers snapshot is NOT acknowledged', async () => {
-    // When drivers array is empty, successfullyProjectedTabs won't have DRIVERS
-    // Tested via logic trace in route code and projection state ack
-    const projectedTabs: any[] = ['FLEET_ROSTER']; // no DRIVERS
+  // 21. empty Drivers reconciliation is acknowledged (Unit 5D)
+  it('21. empty Drivers reconciliation is acknowledged', async () => {
+    // In Unit 5D, empty Drivers reconciliation executes and is included in successfullyProjectedTabs
+    const projectedTabs: any[] = ['DRIVERS', 'FLEET_ROSTER'];
     await markDirty(TEST_PROJECT_ID, ['DRIVERS', 'FLEET_ROSTER']);
 
     const ack = await markProjectionSuccessful(TEST_PROJECT_ID, projectedTabs, undefined, 1);
-    expect(ack.dirtyTabs).toContain('DRIVERS');
-    expect(ack.dirtyTabs).not.toContain('FLEET_ROSTER');
+    expect(ack.dirtyTabs).toEqual([]);
+    expect(ack.lastSuccessfulProjectionTabs).toEqual(['DRIVERS', 'FLEET_ROSTER']);
   });
 
-  // 22. CARRIERS acknowledged only after successful non-empty Carriers upsert
-  it('22. CARRIERS acknowledged only after successful non-empty Carriers upsert', () => {
+  // 22. CARRIERS acknowledged after successful Carriers reconciliation (Unit 5D)
+  it('22. CARRIERS acknowledged after successful Carriers reconciliation', () => {
     const appTsPath = path.resolve(__dirname, '../../server/app.ts');
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
     const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
 
-    expect(routeSnippet).toContain('if (snapshot.carriers.length > 0)');
+    expect(routeSnippet).toContain("reconcileTabSnapshot(\n      cleanSpreadsheetId,\n      WORKSPACE_TABS.CARRIERS.tabTitleAr");
     expect(routeSnippet).toContain("successfullyProjectedTabs.push('CARRIERS')");
   });
 
-  // 23. empty Carriers snapshot is NOT acknowledged
-  it('23. empty Carriers snapshot is NOT acknowledged', async () => {
-    const projectedTabs: any[] = ['FLEET_ROSTER'];
+  // 23. empty Carriers reconciliation is acknowledged (Unit 5D)
+  it('23. empty Carriers reconciliation is acknowledged', async () => {
+    const projectedTabs: any[] = ['CARRIERS', 'FLEET_ROSTER'];
     await markDirty(TEST_PROJECT_ID, ['CARRIERS', 'FLEET_ROSTER']);
 
     const ack = await markProjectionSuccessful(TEST_PROJECT_ID, projectedTabs, undefined, 1);
-    expect(ack.dirtyTabs).toContain('CARRIERS');
-    expect(ack.dirtyTabs).not.toContain('FLEET_ROSTER');
+    expect(ack.dirtyTabs).toEqual([]);
+    expect(ack.lastSuccessfulProjectionTabs).toEqual(['CARRIERS', 'FLEET_ROSTER']);
   });
 
-  // 24. MATERIALS acknowledged only after successful non-empty Materials upsert
-  it('24. MATERIALS acknowledged only after successful non-empty Materials upsert', () => {
+  // 24. MATERIALS acknowledged after successful Materials reconciliation (Unit 5D)
+  it('24. MATERIALS acknowledged after successful Materials reconciliation', () => {
     const appTsPath = path.resolve(__dirname, '../../server/app.ts');
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
     const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
 
-    expect(routeSnippet).toContain('if (snapshot.materials.length > 0)');
+    expect(routeSnippet).toContain("reconcileTabSnapshot(\n      cleanSpreadsheetId,\n      WORKSPACE_TABS.MATERIALS.tabTitleAr");
     expect(routeSnippet).toContain("successfullyProjectedTabs.push('MATERIALS')");
   });
 
-  // 25. empty Materials snapshot is NOT acknowledged
-  it('25. empty Materials snapshot is NOT acknowledged', async () => {
-    const projectedTabs: any[] = ['FLEET_ROSTER'];
+  // 25. empty Materials reconciliation is acknowledged (Unit 5D)
+  it('25. empty Materials reconciliation is acknowledged', async () => {
+    const projectedTabs: any[] = ['MATERIALS', 'FLEET_ROSTER'];
     await markDirty(TEST_PROJECT_ID, ['MATERIALS', 'FLEET_ROSTER']);
 
     const ack = await markProjectionSuccessful(TEST_PROJECT_ID, projectedTabs, undefined, 1);
-    expect(ack.dirtyTabs).toContain('MATERIALS');
-    expect(ack.dirtyTabs).not.toContain('FLEET_ROSTER');
+    expect(ack.dirtyTabs).toEqual([]);
+    expect(ack.lastSuccessfulProjectionTabs).toEqual(['MATERIALS', 'FLEET_ROSTER']);
   });
 
   // 26. FLEET_ROSTER acknowledged after successful reconciliation

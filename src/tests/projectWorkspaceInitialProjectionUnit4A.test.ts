@@ -302,18 +302,20 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
     reconcileSpy.mockRestore();
   });
 
-  // Test 11: Drivers, Carriers, and Materials use upsertTabRecords
-  it('11. Drivers, Carriers, and Materials use upsertTabRecords', async () => {
-    const upsertSpy = vi.spyOn(serverWorkspaceService, 'upsertTabRecords').mockResolvedValue({
+  // Test 11: Drivers, Carriers, Materials, and Fleet use reconcileTabSnapshot (Unit 5D authoritative reconciliation)
+  it('11. Drivers, Carriers, Materials, and Fleet use reconcileTabSnapshot', async () => {
+    const reconcileSpy = vi.spyOn(serverWorkspaceService, 'reconcileTabSnapshot').mockResolvedValue({
       tabKey: 'DRIVERS',
       tabTitle: WORKSPACE_TABS.DRIVERS.tabTitleAr,
       primaryKey: 'driverId',
       processedCount: 1,
       insertedCount: 1,
       updatedCount: 0,
+      deletedCount: 0,
+      unchangedCount: 0,
     });
 
-    await serverWorkspaceService.upsertTabRecords(
+    await serverWorkspaceService.reconcileTabSnapshot(
       testSpreadsheetId,
       WORKSPACE_TABS.DRIVERS.tabTitleAr,
       'driverId',
@@ -322,7 +324,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
       'mock-token'
     );
 
-    expect(upsertSpy).toHaveBeenCalledWith(
+    expect(reconcileSpy).toHaveBeenCalledWith(
       testSpreadsheetId,
       WORKSPACE_TABS.DRIVERS.tabTitleAr,
       'driverId',
@@ -331,7 +333,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
       'mock-token'
     );
 
-    upsertSpy.mockRestore();
+    reconcileSpy.mockRestore();
   });
 
   // Test 12 & 13: Dual-token separation: Firebase ID token in Authorization, Google token in X-Google-Access-Token

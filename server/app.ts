@@ -568,47 +568,41 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
     const upsertResults: UpsertResult[] = [];
     const successfullyProjectedTabs: WorkspaceSheetTab[] = [];
 
-    // 2. DRIVERS Master: Primary Key: driverId
-    if (snapshot.drivers.length > 0) {
-      const drvResult = await serverWorkspaceService.upsertTabRecords(
-        cleanSpreadsheetId,
-        WORKSPACE_TABS.DRIVERS.tabTitleAr,
-        'driverId',
-        snapshot.drivers,
-        ['driverId', 'projectId', 'fullNameAr', 'idNumber', 'phone', 'licenseType', 'status', 'lastSyncedAt'],
-        googleToken
-      );
-      upsertResults.push(drvResult);
-      successfullyProjectedTabs.push('DRIVERS');
-    }
+    // 2. DRIVERS Master: Primary Key: driverId (Authoritative Snapshot Reconciliation)
+    const drvResult = await serverWorkspaceService.reconcileTabSnapshot(
+      cleanSpreadsheetId,
+      WORKSPACE_TABS.DRIVERS.tabTitleAr,
+      'driverId',
+      snapshot.drivers,
+      ['driverId', 'projectId', 'fullNameAr', 'idNumber', 'phone', 'licenseType', 'status', 'lastSyncedAt'],
+      googleToken
+    );
+    upsertResults.push(drvResult);
+    successfullyProjectedTabs.push('DRIVERS');
 
-    // 3. CARRIERS Master: Primary Key: carrierId
-    if (snapshot.carriers.length > 0) {
-      const carResult = await serverWorkspaceService.upsertTabRecords(
-        cleanSpreadsheetId,
-        WORKSPACE_TABS.CARRIERS.tabTitleAr,
-        'carrierId',
-        snapshot.carriers,
-        ['carrierId', 'projectId', 'companyNameAr', 'commercialRegistrationNo', 'transportLicenseNo', 'status', 'lastSyncedAt'],
-        googleToken
-      );
-      upsertResults.push(carResult);
-      successfullyProjectedTabs.push('CARRIERS');
-    }
+    // 3. CARRIERS Master: Primary Key: carrierId (Authoritative Snapshot Reconciliation)
+    const carResult = await serverWorkspaceService.reconcileTabSnapshot(
+      cleanSpreadsheetId,
+      WORKSPACE_TABS.CARRIERS.tabTitleAr,
+      'carrierId',
+      snapshot.carriers,
+      ['carrierId', 'projectId', 'companyNameAr', 'commercialRegistrationNo', 'transportLicenseNo', 'status', 'lastSyncedAt'],
+      googleToken
+    );
+    upsertResults.push(carResult);
+    successfullyProjectedTabs.push('CARRIERS');
 
-    // 4. MATERIALS Master: Primary Key: materialId
-    if (snapshot.materials.length > 0) {
-      const matResult = await serverWorkspaceService.upsertTabRecords(
-        cleanSpreadsheetId,
-        WORKSPACE_TABS.MATERIALS.tabTitleAr,
-        'materialId',
-        snapshot.materials,
-        ['materialId', 'projectId', 'nameAr', 'code', 'unitOfMeasure', 'standardDensityTonPerM3', 'status', 'lastSyncedAt'],
-        googleToken
-      );
-      upsertResults.push(matResult);
-      successfullyProjectedTabs.push('MATERIALS');
-    }
+    // 4. MATERIALS Master: Primary Key: materialId (Authoritative Snapshot Reconciliation)
+    const matResult = await serverWorkspaceService.reconcileTabSnapshot(
+      cleanSpreadsheetId,
+      WORKSPACE_TABS.MATERIALS.tabTitleAr,
+      'materialId',
+      snapshot.materials,
+      ['materialId', 'projectId', 'nameAr', 'code', 'unitOfMeasure', 'standardDensityTonPerM3', 'status', 'lastSyncedAt'],
+      googleToken
+    );
+    upsertResults.push(matResult);
+    successfullyProjectedTabs.push('MATERIALS');
 
     // 5. FLEET_ROSTER: Reconciled Snapshot (Always called, even if fleetRows is empty, preserving Unit 2 stale-row reconciliation)
     const fleetResult = await serverWorkspaceService.reconcileTabSnapshot(
