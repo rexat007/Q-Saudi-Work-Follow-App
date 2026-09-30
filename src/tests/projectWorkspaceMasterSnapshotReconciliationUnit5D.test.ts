@@ -524,16 +524,42 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
   // ==========================================
 
   // 36. /sync/sheets behavior remains unchanged
-  it('36. /sync/sheets behavior remains unchanged and still uses legacy upsertTabRecords', () => {
+  it('36. /sync/sheets behavior remains unchanged (legacy master paths remain upsert-only, exactly one reconcileTabSnapshot for FLEET_ROSTER)', () => {
     const appTsPath = path.resolve(__dirname, '../../server/app.ts');
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
-    const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/sheets'");
-    expect(routeIndex).toBeGreaterThan(-1);
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 3000);
+    const routeStart = appTsContent.indexOf("app.post('/api/workspace/sync/sheets'");
+    expect(routeStart).toBeGreaterThan(-1);
+    const nextRouteStart = appTsContent.indexOf("app.post('/api/workspace/upload'", routeStart);
+    expect(nextRouteStart).toBeGreaterThan(routeStart);
 
+    const routeSnippet = appTsContent.slice(routeStart, nextRouteStart);
+
+    // 1. /sync/sheets still uses upsertTabRecords for legacy client-provided domains
     expect(routeSnippet).toContain('serverWorkspaceService.upsertTabRecords');
-    expect(routeSnippet).not.toContain('reconcileTabSnapshot');
+
+    // 2. /sync/sheets still has exactly ONE reconcileTabSnapshot call
+    const reconcileMatches = routeSnippet.match(/serverWorkspaceService\.reconcileTabSnapshot/g) || [];
+    expect(reconcileMatches.length).toBe(1);
+
+    // 3. That reconciliation call belongs ONLY to FLEET_ROSTER
+    expect(routeSnippet).toContain('WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr');
+    const fleetReconcileIdx = routeSnippet.indexOf('reconcileTabSnapshot');
+    const fleetTabIdx = routeSnippet.indexOf('WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr', fleetReconcileIdx - 200);
+    expect(fleetTabIdx).toBeGreaterThan(-1);
+
+    // 4. DRIVERS / CARRIERS / MATERIALS remain upsert-only in /sync/sheets (not converted by Unit 5D)
+    const drvUpsertIdx = routeSnippet.indexOf('WORKSPACE_TABS.DRIVERS.tabTitleAr');
+    const carUpsertIdx = routeSnippet.indexOf('WORKSPACE_TABS.CARRIERS.tabTitleAr');
+    const matUpsertIdx = routeSnippet.indexOf('WORKSPACE_TABS.MATERIALS.tabTitleAr');
+
+    expect(drvUpsertIdx).toBeGreaterThan(-1);
+    expect(carUpsertIdx).toBeGreaterThan(-1);
+    expect(matUpsertIdx).toBeGreaterThan(-1);
+
+    const masterUpsertSection = routeSnippet.slice(drvUpsertIdx - 100, matUpsertIdx + 300);
+    expect(masterUpsertSection).toContain('serverWorkspaceService.upsertTabRecords');
+    expect(masterUpsertSection).not.toContain('reconcileTabSnapshot');
   });
 
   // 37. /sync/trips remains unchanged
