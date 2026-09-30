@@ -119,6 +119,7 @@ export interface ProjectWorkspaceProjectionState {
   lastMutationReason?: string | null;
   lastSuccessfulProjectionAt: string | null;
   lastSuccessfulProjectionTabs: WorkspaceSheetTab[];
+  mutationRevision: number;
   updatedAt: string;
 }
 

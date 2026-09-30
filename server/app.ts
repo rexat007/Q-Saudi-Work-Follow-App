@@ -8,11 +8,16 @@ import { serverWorkspaceService } from './workspace.service';
 import { driverTruckIntakeService } from '../src/services/driverTruckIntake.service';
 import { projectWorkspaceInitialProjectionServer } from '../src/services/projectWorkspaceInitialProjection.server';
 import { 
+  getState as getWorkspaceProjectionState, 
+  markProjectionSuccessful as markWorkspaceProjectionSuccessful 
+} from '../src/services/projectWorkspaceProjectionState.server';
+import { 
   WORKSPACE_TABS, 
   OPERATIONS_FULL_COLUMNS, 
   WorkspaceSyncSummary, 
   UpsertResult,
-  FLEET_ROSTER_COLUMNS
+  FLEET_ROSTER_COLUMNS,
+  WorkspaceSheetTab
 } from '../src/types/workspace';
 import {
   authenticateUser,
@@ -553,10 +558,15 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
     const cleanProjectId = projectId.trim();
     const cleanSpreadsheetId = spreadsheetId.trim();
 
+    // Read freshness state to capture expected mutation revision BEFORE building snapshot
+    const freshnessState = await getWorkspaceProjectionState(cleanProjectId);
+    const expectedMutationRevision = freshnessState.mutationRevision;
+
     // 1. Build server-authoritative canonical initial snapshot (Drivers, Carriers, Materials, Fleet)
     const snapshot = await projectWorkspaceInitialProjectionServer.buildInitialProjectionSnapshot(cleanProjectId);
 
     const upsertResults: UpsertResult[] = [];
+    const successfullyProjectedTabs: WorkspaceSheetTab[] = [];
 
     // 2. DRIVERS Master: Primary Key: driverId
     if (snapshot.drivers.length > 0) {
@@ -569,6 +579,7 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
         googleToken
       );
       upsertResults.push(drvResult);
+      successfullyProjectedTabs.push('DRIVERS');
     }
 
     // 3. CARRIERS Master: Primary Key: carrierId
@@ -582,6 +593,7 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
         googleToken
       );
       upsertResults.push(carResult);
+      successfullyProjectedTabs.push('CARRIERS');
     }
 
     // 4. MATERIALS Master: Primary Key: materialId
@@ -595,6 +607,7 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
         googleToken
       );
       upsertResults.push(matResult);
+      successfullyProjectedTabs.push('MATERIALS');
     }
 
     // 5. FLEET_ROSTER: Reconciled Snapshot (Always called, even if fleetRows is empty, preserving Unit 2 stale-row reconciliation)
@@ -607,6 +620,19 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
       googleToken
     );
     upsertResults.push(fleetResult);
+    successfullyProjectedTabs.push('FLEET_ROSTER');
+
+    const projectionCompletedAt = new Date().toISOString();
+
+    // 6. Concurrency-safe successful projection acknowledgement
+    if (successfullyProjectedTabs.length > 0) {
+      await markWorkspaceProjectionSuccessful(
+        cleanProjectId,
+        successfullyProjectedTabs,
+        projectionCompletedAt,
+        expectedMutationRevision
+      );
+    }
 
     const totalRecords = upsertResults.reduce((acc, curr) => acc + curr.processedCount, 0);
 
@@ -614,7 +640,7 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
       projectId: cleanProjectId,
       spreadsheetId: cleanSpreadsheetId,
       spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${cleanSpreadsheetId}/edit`,
-      syncedAt: new Date().toISOString(),
+      syncedAt: projectionCompletedAt,
       sourceOfTruth: 'Firestore',
       status: 'SUCCESS',
       upsertResults,

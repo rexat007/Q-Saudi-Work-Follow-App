@@ -20,6 +20,7 @@ export function createCleanProjectionState(projectId: string): ProjectWorkspaceP
     lastMutationReason: null,
     lastSuccessfulProjectionAt: null,
     lastSuccessfulProjectionTabs: [],
+    mutationRevision: 0,
     updatedAt: new Date().toISOString(),
   };
 }
@@ -65,6 +66,10 @@ export async function getState(projectId: string): Promise<ProjectWorkspaceProje
     lastMutationReason: data.lastMutationReason || null,
     lastSuccessfulProjectionAt: data.lastSuccessfulProjectionAt || null,
     lastSuccessfulProjectionTabs: normalizeWorkspaceDirtyTabs(data.lastSuccessfulProjectionTabs || []),
+    mutationRevision:
+      typeof data.mutationRevision === 'number' && Number.isFinite(data.mutationRevision)
+        ? data.mutationRevision
+        : 0,
     updatedAt: data.updatedAt || new Date().toISOString(),
   };
 }
@@ -88,6 +93,10 @@ export function computeNextDirtyState(
   const existingLastSuccessfulProjectionTabs = rawData?.lastSuccessfulProjectionTabs
     ? normalizeWorkspaceDirtyTabs(rawData.lastSuccessfulProjectionTabs)
     : [];
+  const currentRevision =
+    typeof rawData?.mutationRevision === 'number' && Number.isFinite(rawData.mutationRevision)
+      ? rawData.mutationRevision
+      : 0;
 
   // UNION new dirty tabs with existing dirty tabs in canonical order
   const newDirtyTabs = normalizeWorkspaceDirtyTabs([
@@ -115,6 +124,7 @@ export function computeNextDirtyState(
     lastMutationReason: reason !== undefined ? (reason || null) : (rawData?.lastMutationReason || null),
     lastSuccessfulProjectionAt: existingLastSuccessfulProjectionAt,
     lastSuccessfulProjectionTabs: existingLastSuccessfulProjectionTabs,
+    mutationRevision: currentRevision + 1,
     updatedAt: now,
   };
 }
@@ -159,6 +169,7 @@ export async function markDirtyInTransaction(
  * - Preserves the existing dirtySince if the state was already dirty.
  * - Updates lastMutationAt and optionally lastMutationReason.
  * - Preserves lastSuccessfulProjectionAt and lastSuccessfulProjectionTabs.
+ * - Increments mutationRevision by 1.
  */
 export async function markDirty(
   projectId: string,
@@ -177,16 +188,20 @@ export async function markDirty(
 
 /**
  * Atomically marks specific Workspace domains as successfully projected.
+ * - When expectedMutationRevision is provided, validates that current revision matches expected revision.
+ * - If revision mismatch is detected, throws a 409 conflict error and makes NO state changes.
  * - Removes ONLY the successfully projected tabs from dirtyTabs.
  * - Preserves dirty tabs not included in the successful projection.
  * - Updates lastSuccessfulProjectionAt and lastSuccessfulProjectionTabs.
+ * - Preserves mutationRevision unchanged.
  * - If dirtyTabs becomes empty, dirtySince becomes null.
  * - If dirty tabs remain, preserves original dirtySince.
  */
 export async function markProjectionSuccessful(
   projectId: string,
   projectedTabs: (string | WorkspaceSheetTab)[],
-  projectedAt?: string
+  projectedAt?: string,
+  expectedMutationRevision?: number
 ): Promise<ProjectWorkspaceProjectionState> {
   const docRef = getProjectionStateDocRef(projectId);
   const cleanProjectId = projectId.trim();
@@ -196,6 +211,20 @@ export async function markProjectionSuccessful(
     const snap = await transaction.get(docRef);
     const exists = snap.exists;
     const rawData = exists ? snap.data() : null;
+
+    const currentRevision =
+      typeof rawData?.mutationRevision === 'number' && Number.isFinite(rawData.mutationRevision)
+        ? rawData.mutationRevision
+        : 0;
+
+    if (typeof expectedMutationRevision === 'number' && currentRevision !== expectedMutationRevision) {
+      const conflictError: any = new Error(
+        `Workspace projection revision conflict: current revision is ${currentRevision} but expected ${expectedMutationRevision}`
+      );
+      conflictError.code = 'WORKSPACE_PROJECTION_REVISION_CONFLICT';
+      conflictError.statusCode = 409;
+      throw conflictError;
+    }
 
     const existingDirtyTabs = rawData?.dirtyTabs
       ? normalizeWorkspaceDirtyTabs(rawData.dirtyTabs)
@@ -227,6 +256,7 @@ export async function markProjectionSuccessful(
       lastMutationReason: rawData?.lastMutationReason || null,
       lastSuccessfulProjectionAt: successTimestamp,
       lastSuccessfulProjectionTabs: normalizedProjected,
+      mutationRevision: currentRevision,
       updatedAt: now,
     };
 
