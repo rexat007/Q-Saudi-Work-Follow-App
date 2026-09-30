@@ -109,6 +109,52 @@ export function ExcelCsvImportSection({
   const [createError, setCreateError] = useState<string | null>(null);
 
   const [showFullBatchTable, setShowFullBatchTable] = useState<boolean>(false);
+  const [activeCategoryTab, setActiveCategoryTab] = useState<'carrier' | 'material' | 'driver' | 'truck'>('carrier');
+  const [selectedAlternateCandidates, setSelectedAlternateCandidates] = useState<Record<string, string>>({});
+  const [createFormData, setCreateFormData] = useState<{
+    nameAr?: string;
+    commercialRegistrationNo?: string;
+    transportLicenseNo?: string;
+    code?: string;
+    driverName?: string;
+    residencyId?: string;
+    phone?: string;
+    plateNumber?: string;
+    truckType?: string;
+    tareWeightKg?: number;
+    maxGrossWeightKg?: number;
+  }>({});
+
+  const handleOpenCreateForm = (group: RosterEntityReviewGroup) => {
+    setActiveCreateGroupKey(group.normalizedSourceKey);
+    setCreateError(null);
+    const sourceVal = group.sourceValue || '';
+    if (group.entityType === 'carrier') {
+      setCreateFormData({
+        nameAr: sourceVal,
+        commercialRegistrationNo: '',
+        transportLicenseNo: '',
+      });
+    } else if (group.entityType === 'material') {
+      setCreateFormData({
+        nameAr: sourceVal,
+        code: '',
+      });
+    } else if (group.entityType === 'driver') {
+      setCreateFormData({
+        driverName: sourceVal,
+        residencyId: '',
+        phone: '',
+      });
+    } else if (group.entityType === 'truck') {
+      setCreateFormData({
+        plateNumber: sourceVal,
+        truckType: '',
+        tareWeightKg: undefined,
+        maxGrossWeightKg: undefined,
+      });
+    }
+  };
 
   const reviewGroups = useMemo(() => {
     if (!activeBatch) return { carrier: [], material: [], driver: [], truck: [] };
@@ -1317,8 +1363,593 @@ export function ExcelCsvImportSection({
             </div>
           </div>
 
+          {/* STEP 5: Grouped Entity Review Workspace */}
+          <div className="p-6 rounded-2xl bg-stone-50/80 border border-stone-200/90 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-stone-200">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-md text-xs font-black bg-blue-700 text-white font-mono">
+                    الخطوة 5
+                  </span>
+                  <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-blue-600" />
+                    <span>مساحة مراجعة ومطابقة الكيانات (Entity Review Workspace)</span>
+                  </h3>
+                </div>
+                <p className="text-xs text-stone-600 mt-1">
+                  حسم وتأكيد مطابقة الكيانات المجمعة (الناقلون، المواد، السائقون، الشاحنات) قبل معالجة استثناءات الصفوف الفردية.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {unresolvedGroups.length > 0 ? (
+                  <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    <span>توجد ({unresolvedGroups.length}) مجموعات معلقة</span>
+                  </span>
+                ) : (
+                  <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>تم حسم مطابقة الكيانات — الانتقال إلى مراجعة الصفوف</span>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Category Navigation Tabs */}
+            {(() => {
+              const categories: Array<{
+                key: 'carrier' | 'material' | 'driver' | 'truck';
+                titleAr: string;
+                titleEn: string;
+                groups: RosterEntityReviewGroup[];
+              }> = [
+                { key: 'carrier', titleAr: '1. الناقلون', titleEn: 'Carriers', groups: reviewGroups.carrier },
+                { key: 'material', titleAr: '2. المواد والأصناف', titleEn: 'Materials', groups: reviewGroups.material },
+                { key: 'driver', titleAr: '3. السائقون', titleEn: 'Drivers', groups: reviewGroups.driver },
+                { key: 'truck', titleAr: '4. الشاحنات والمركبات', titleEn: 'Trucks', groups: reviewGroups.truck },
+              ];
+
+              return (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    {categories.map((cat) => {
+                      const pendingCount = cat.groups.filter(
+                        (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+                      ).length;
+                      const isActive = activeCategoryTab === cat.key;
+
+                      return (
+                        <button
+                          key={cat.key}
+                          onClick={() => setActiveCategoryTab(cat.key)}
+                          className={`p-3 rounded-xl border text-right transition-all cursor-pointer flex flex-col justify-between gap-1.5 ${
+                            isActive
+                              ? 'bg-white border-blue-600 shadow-xs ring-1 ring-blue-600'
+                              : 'bg-white/60 hover:bg-white border-stone-200 text-stone-700'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-stone-900">{cat.titleAr}</span>
+                            {pendingCount > 0 ? (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 text-amber-900">
+                                {pendingCount} معلق
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800">
+                                مكتمل
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-stone-500 font-mono">
+                            {cat.groups.length} مجموعات ({cat.groups.reduce((acc, g) => acc + g.occurrenceCount, 0)} صف)
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Active Category Groups Panel */}
+                  {(() => {
+                    const currentCat = categories.find((c) => c.key === activeCategoryTab) || categories[0];
+                    const groups = currentCat.groups;
+
+                    const autoCount = groups.filter((g) => g.status === 'AUTO_RESOLVED').length;
+                    const reviewCount = groups.filter((g) => g.status === 'REVIEW_REQUIRED').length;
+                    const unresolvedCount = groups.filter((g) => g.status === 'UNRESOLVED').length;
+                    const conflictCount = groups.filter((g) => g.status === 'CONFLICT').length;
+
+                    return (
+                      <div className="bg-white rounded-xl border border-stone-200 p-4 space-y-4">
+                        {/* Category Stats Summary */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 text-xs border-b border-stone-100 pb-3">
+                          <div className="font-bold text-stone-800">
+                            مجموعات {currentCat.titleAr} ({groups.length} مجموعة فريدة)
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap font-mono text-[11px]">
+                            <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                              مطابقة تلقائية: {autoCount}
+                            </span>
+                            <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
+                              تتطلب مراجعة: {reviewCount}
+                            </span>
+                            <span className="px-2 py-0.5 rounded bg-stone-100 text-stone-700 border border-stone-200">
+                              غير مطابقة: {unresolvedCount}
+                            </span>
+                            {conflictCount > 0 && (
+                              <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-800 border border-rose-200">
+                                تعارض: {conflictCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Group Cards List */}
+                        {groups.length === 0 ? (
+                          <div className="p-6 text-center text-stone-400 text-xs font-bold">
+                            لا توجد أي بيانات خاصة بفئة {currentCat.titleAr} في الملف المصدر
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {groups.map((group) => {
+                              const isAuto = group.status === 'AUTO_RESOLVED';
+                              const isReview = group.status === 'REVIEW_REQUIRED';
+                              const isUnresolved = group.status === 'UNRESOLVED';
+                              const isConflict = group.status === 'CONFLICT';
+                              const isCreateOpen = activeCreateGroupKey === group.normalizedSourceKey;
+
+                              const repRowNumber = group.rowNumbers[0];
+                              const repRow = activeBatch.rows.find((r) => r.rowNumber === repRowNumber);
+                              const carrierRes = repRow?.entityResolutions?.carrier;
+                              const resolvedCarrierId = repRow?.resolvedValues?.carrierId || carrierRes?.matchedId;
+                              const isCarrierBlocked =
+                                (group.entityType === 'driver' || group.entityType === 'truck') && !resolvedCarrierId;
+
+                              return (
+                                <div
+                                  key={group.normalizedSourceKey}
+                                  className={`p-4 rounded-xl border transition-all ${
+                                    isAuto
+                                      ? 'bg-emerald-50/30 border-emerald-200/70'
+                                      : isConflict
+                                      ? 'bg-rose-50/40 border-rose-200'
+                                      : isReview
+                                      ? 'bg-amber-50/40 border-amber-200'
+                                      : 'bg-stone-50 border-stone-200'
+                                  }`}
+                                >
+                                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                    <div className="space-y-1">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="font-black text-sm text-stone-900 font-mono">
+                                          {group.sourceValue}
+                                        </span>
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-stone-200/80 text-stone-700">
+                                          تكرار: {group.occurrenceCount} صفوف ({group.rowNumbers.slice(0, 3).join(', ')}
+                                          {group.rowNumbers.length > 3 ? '...' : ''})
+                                        </span>
+                                        {isAuto && (
+                                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 inline-flex items-center gap-1">
+                                            <Check className="w-3 h-3 text-emerald-600" /> مطابقة تلقائية مؤكدة
+                                          </span>
+                                        )}
+                                        {isReview && (
+                                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 inline-flex items-center gap-1">
+                                            <AlertTriangle className="w-3 h-3 text-amber-600" /> مقترح يتطلب مراجعة
+                                          </span>
+                                        )}
+                                        {isUnresolved && (
+                                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-200 text-stone-700 inline-flex items-center gap-1">
+                                            <HelpCircle className="w-3 h-3 text-stone-500" /> غير مطابق
+                                          </span>
+                                        )}
+                                        {isConflict && (
+                                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 inline-flex items-center gap-1">
+                                            <XCircle className="w-3 h-3 text-rose-600" /> تعارض في العلاقات
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      {/* Match Details */}
+                                      <div className="text-xs text-stone-600">
+                                        {group.matchedName || group.matchedId ? (
+                                          <div className="flex items-center gap-2 flex-wrap mt-1">
+                                            <span className="font-bold text-stone-800">
+                                              الكيان المعتمد المطابق:
+                                            </span>
+                                            <span className="font-mono font-bold text-emerald-800 bg-white px-2 py-0.5 rounded border border-stone-200">
+                                              {group.matchedName || group.matchedId}
+                                            </span>
+                                            {group.currentResolution?.confidence !== undefined && (
+                                              <span className="text-[11px] text-stone-400 font-mono">
+                                                (ثقة: {Math.round((group.currentResolution.confidence ?? 1) * 100)}%)
+                                              </span>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <div className="text-stone-500 mt-1">
+                                            لم يتم العثور على مطابقة تلقائية مؤكدة في قاعدة بيانات المشروع.
+                                          </div>
+                                        )}
+
+                                        {group.relationshipStatus && group.relationshipStatus !== 'VALID' && (
+                                          <div className="text-rose-700 font-bold text-[11px] mt-1">
+                                            حالة العلاقة: {group.relationshipStatus}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="flex items-center gap-2 flex-wrap shrink-0">
+                                      {/* Accept Suggestion (Review Required) */}
+                                      {isReview && group.matchedId && (
+                                        <button
+                                          onClick={() =>
+                                            handleGroupResolutionDecision(
+                                              group.entityType,
+                                              group.normalizedSourceKey,
+                                              'ACCEPT_CANDIDATE',
+                                              { selectedEntityId: group.matchedId, selectedDisplayName: group.matchedName }
+                                            )
+                                          }
+                                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
+                                        >
+                                          <Check className="w-3.5 h-3.5" />
+                                          <span>قبول المقترح</span>
+                                        </button>
+                                      )}
+
+                                      {/* Select Alternate Candidate */}
+                                      {group.candidates && group.candidates.length > 0 && (
+                                        <div className="flex items-center gap-1">
+                                          <select
+                                            value={
+                                              selectedAlternateCandidates[group.normalizedSourceKey] ||
+                                              group.candidates[0]?.entityId ||
+                                              group.candidates[0]?.id ||
+                                              ''
+                                            }
+                                            onChange={(e) =>
+                                              setSelectedAlternateCandidates((prev) => ({
+                                                ...prev,
+                                                [group.normalizedSourceKey]: e.target.value,
+                                              }))
+                                            }
+                                            className="px-2 py-1 rounded-lg border border-stone-300 text-xs bg-white text-stone-800 font-bold max-w-[140px]"
+                                          >
+                                            {group.candidates.map((c) => (
+                                              <option key={c.entityId || c.id} value={c.entityId || c.id}>
+                                                {c.displayName || c.name || c.entityId || c.id}
+                                              </option>
+                                            ))}
+                                          </select>
+                                          <button
+                                            onClick={() => {
+                                              const candId =
+                                                selectedAlternateCandidates[group.normalizedSourceKey] ||
+                                                group.candidates[0]?.entityId ||
+                                                group.candidates[0]?.id;
+                                              const cand = group.candidates.find(
+                                                (c) => (c.entityId || c.id) === candId
+                                              );
+                                              handleGroupResolutionDecision(
+                                                group.entityType,
+                                                group.normalizedSourceKey,
+                                                'SELECT_ALTERNATE',
+                                                { selectedEntityId: candId, selectedDisplayName: cand?.displayName || cand?.name }
+                                              );
+                                            }}
+                                            className="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                                          >
+                                            اختيار بديل
+                                          </button>
+                                        </div>
+                                      )}
+
+                                      {/* Create Canonical Entity Button */}
+                                      {!isAuto && (
+                                        <button
+                                          onClick={() => handleOpenCreateForm(group)}
+                                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer border ${
+                                            isCreateOpen
+                                              ? 'bg-stone-900 text-white border-stone-900'
+                                              : 'bg-white hover:bg-stone-100 text-stone-800 border-stone-300'
+                                          }`}
+                                        >
+                                          <PlusCircle className="w-3.5 h-3.5 text-emerald-600" />
+                                          <span>إنشاء كيان جديد</span>
+                                        </button>
+                                      )}
+
+                                      {/* Leave Unresolved Button */}
+                                      {!isAuto && (
+                                        <button
+                                          onClick={() =>
+                                            handleGroupResolutionDecision(
+                                              group.entityType,
+                                              group.normalizedSourceKey,
+                                              'LEAVE_UNRESOLVED'
+                                            )
+                                          }
+                                          className="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600 text-xs font-bold transition-colors cursor-pointer"
+                                        >
+                                          ترك بدون حسم
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Creation Form Panel */}
+                                  {isCreateOpen && (
+                                    <div className="mt-4 pt-4 border-t border-stone-200/80 bg-white p-4 rounded-xl space-y-4 shadow-2xs">
+                                      <div className="flex items-center justify-between">
+                                        <h5 className="text-xs font-black text-stone-900 flex items-center gap-1.5">
+                                          <PlusCircle className="w-4 h-4 text-emerald-600" />
+                                          <span>إنشاء كيان معتمد جديد في المشروع ({group.entityType})</span>
+                                        </h5>
+                                        <button
+                                          onClick={() => setActiveCreateGroupKey(null)}
+                                          className="text-stone-400 hover:text-stone-600 text-xs font-bold cursor-pointer"
+                                        >
+                                          إلغاء
+                                        </button>
+                                      </div>
+
+                                      {isCarrierBlocked ? (
+                                        <div className="p-3 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold flex items-center gap-2">
+                                          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                                          <span>
+                                            يجب حسم مطابقة الناقل أولاً قبل إنشاء{' '}
+                                            {group.entityType === 'driver' ? 'السائق' : 'الشاحنة'}. يُرجى تأكيد الناقل
+                                            في تبويب الناقلين أولاً.
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                                          {group.entityType === 'carrier' && (
+                                            <>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">اسم الناقل (بالعربية)</label>
+                                                <input
+                                                  type="text"
+                                                  value={createFormData.nameAr ?? group.sourceValue}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({ ...prev, nameAr: e.target.value }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900"
+                                                />
+                                              </div>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">
+                                                  رقم السجل التجاري <span className="text-rose-600">*</span>
+                                                </label>
+                                                <input
+                                                  type="text"
+                                                  placeholder="مثال: 1010123456"
+                                                  value={createFormData.commercialRegistrationNo || ''}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({
+                                                      ...prev,
+                                                      commercialRegistrationNo: e.target.value,
+                                                    }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                />
+                                              </div>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">ترخيص هيئة النقل (اختياري)</label>
+                                                <input
+                                                  type="text"
+                                                  placeholder="اختياري"
+                                                  value={createFormData.transportLicenseNo || ''}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({
+                                                      ...prev,
+                                                      transportLicenseNo: e.target.value,
+                                                    }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                />
+                                              </div>
+                                            </>
+                                          )}
+
+                                          {group.entityType === 'material' && (
+                                            <>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">اسم المادة / الصنف</label>
+                                                <input
+                                                  type="text"
+                                                  value={createFormData.nameAr ?? group.sourceValue}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({ ...prev, nameAr: e.target.value }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900"
+                                                />
+                                              </div>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">
+                                                  رمز المادة (code) <span className="text-rose-600">*</span>
+                                                </label>
+                                                <input
+                                                  type="text"
+                                                  placeholder="مثال: MAT-AGG-20"
+                                                  value={createFormData.code || ''}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({ ...prev, code: e.target.value }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                />
+                                              </div>
+                                            </>
+                                          )}
+
+                                          {group.entityType === 'driver' && (
+                                            <>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">اسم السائق</label>
+                                                <input
+                                                  type="text"
+                                                  value={createFormData.driverName ?? group.sourceValue}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({ ...prev, driverName: e.target.value }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900"
+                                                />
+                                              </div>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">
+                                                  رقم الهوية / الإقامة <span className="text-rose-600">*</span>
+                                                </label>
+                                                <input
+                                                  type="text"
+                                                  placeholder="مثال: 2412345678"
+                                                  value={createFormData.residencyId || ''}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({
+                                                      ...prev,
+                                                      residencyId: e.target.value,
+                                                    }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                />
+                                              </div>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">رقم الجوال (اختياري)</label>
+                                                <input
+                                                  type="text"
+                                                  placeholder="05xxxxxxxx"
+                                                  value={createFormData.phone || ''}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({ ...prev, phone: e.target.value }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                />
+                                              </div>
+                                            </>
+                                          )}
+
+                                          {group.entityType === 'truck' && (
+                                            <>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">
+                                                  رقم اللوحة <span className="text-rose-600">*</span>
+                                                </label>
+                                                <input
+                                                  type="text"
+                                                  value={createFormData.plateNumber ?? group.sourceValue}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({
+                                                      ...prev,
+                                                      plateNumber: e.target.value,
+                                                    }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                />
+                                              </div>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">نوع الشاحنة (اختياري)</label>
+                                                <input
+                                                  type="text"
+                                                  placeholder="مثال: قلاب ثلاثي"
+                                                  value={createFormData.truckType || ''}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({ ...prev, truckType: e.target.value }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900"
+                                                />
+                                              </div>
+                                              <div className="space-y-1">
+                                                <label className="font-bold text-stone-700 block">الوزن الفارغ كجم (اختياري)</label>
+                                                <input
+                                                  type="number"
+                                                  placeholder="مثال: 14500"
+                                                  value={createFormData.tareWeightKg || ''}
+                                                  onChange={(e) =>
+                                                    setCreateFormData((prev) => ({
+                                                      ...prev,
+                                                      tareWeightKg: parseFloat(e.target.value) || undefined,
+                                                    }))
+                                                  }
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                />
+                                              </div>
+                                            </>
+                                          )}
+                                        </div>
+                                      )}
+
+                                      {createError && (
+                                        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold">
+                                          {createError}
+                                        </div>
+                                      )}
+
+                                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                                        <button
+                                          onClick={() => setActiveCreateGroupKey(null)}
+                                          className="px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold cursor-pointer"
+                                        >
+                                          إلغاء
+                                        </button>
+                                        <button
+                                          onClick={() => handleGroupCreateCanonicalEntity(group, createFormData)}
+                                          disabled={isCreatingEntity || isCarrierBlocked}
+                                          className={`px-4 py-1.5 rounded-lg text-xs font-black text-white flex items-center gap-1.5 shadow-xs cursor-pointer ${
+                                            isCreatingEntity || isCarrierBlocked
+                                              ? 'bg-stone-300 cursor-not-allowed'
+                                              : 'bg-emerald-600 hover:bg-emerald-700'
+                                          }`}
+                                        >
+                                          {isCreatingEntity ? (
+                                            <>
+                                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                              <span>جاري إنشاء الكيان...</span>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Check className="w-3.5 h-3.5" />
+                                              <span>حفظ وإنشاء الكيان وإسقاطه على الدفعة</span>
+                                            </>
+                                          )}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Gate Banner between Entity Review and Row Review */}
+          {unresolvedGroups.length > 0 ? (
+            <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold flex items-center justify-between gap-3 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                <span>
+                  مراجعة الصفوف والاستثناءات (طابور الاستثناءات) مقفلة مؤقتاً حتى اكتمال حسم مطابقة الكيانات أعلاه (
+                  {unresolvedGroups.length} مجموعات معلقة تتطلب اتخاذ قرار).
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center gap-2 shadow-2xs">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <span>تم حسم مطابقة الكيانات — الانتقال إلى مراجعة الصفوف والاستثناءات</span>
+            </div>
+          )}
+
           {/* True Exception Queue Section */}
-          <div className="p-5 rounded-2xl bg-amber-50/40 border border-amber-200/80 space-y-4">
+          <div className={`p-5 rounded-2xl bg-amber-50/40 border border-amber-200/80 space-y-4 ${unresolvedGroups.length > 0 ? 'opacity-60 pointer-events-none' : ''}`}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-amber-200/60">
               <div>
                 <h3 className="text-base font-black text-amber-900 flex items-center gap-2">
