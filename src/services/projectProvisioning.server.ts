@@ -6,6 +6,7 @@ import {
   normalizePhone 
 } from '../utils/normalization';
 import { sanitizeUndefined } from '../utils/sanitize';
+import { markDirtyInTransaction } from './projectWorkspaceProjectionState.server';
 
 /**
  * Generates an opaque, cryptographically robust system ID.
@@ -135,6 +136,14 @@ export class ProjectProvisioningAdminService {
       }
 
       // --- PHASE 3: ALL TRANSACTION WRITES ---
+      if (isNewGlobal || mustCreateMembership) {
+        await markDirtyInTransaction(
+          tx,
+          projectId,
+          ['MATERIALS'],
+          'PROJECT_MATERIAL_SETUP_CHANGED'
+        );
+      }
 
       if (isNewGlobal) {
         const globalMatData = sanitizeUndefined({
@@ -293,6 +302,14 @@ export class ProjectProvisioningAdminService {
       }
 
       // --- PHASE 3: ALL TRANSACTION WRITES ---
+      if (isNewGlobal || mustCreateMembership) {
+        await markDirtyInTransaction(
+          tx,
+          projectId,
+          ['CARRIERS'],
+          'PROJECT_CARRIER_SETUP_CHANGED'
+        );
+      }
 
       if (isNewGlobal) {
         let contactPerson = undefined;

@@ -2,6 +2,8 @@ import crypto from 'crypto';
 import { AuthUserContext } from '../types/common';
 import { DriverTruckIntakePayload, DriverTruckIntakeResult } from './driverTruckIntake.service';
 import { CanonicalFleetRelationshipPolicy, PureAffiliation, PureAssignment, PureAllocation } from '../utils/canonicalFleetRelationshipPolicy';
+import { markDirtyInTransaction } from './projectWorkspaceProjectionState.server';
+import { WorkspaceSheetTab } from '../types/workspace';
 
 export interface CreateStandaloneDriverPayload {
   projectId: string;
@@ -298,6 +300,61 @@ export class DriverTruckIntakeServer {
         true // isIntake = true
       );
 
+      // Evaluate assignment decision
+      const isAssignmentIdempotent = CanonicalFleetRelationshipPolicy.isAssignmentIdempotent(
+        driverId,
+        truckId,
+        currentDriverSlot,
+        currentTruckSlot,
+        dAssign
+      );
+
+      // Evaluate allocation decision
+      const isAllocationIdempotent = !!(tAlloc && tAlloc.status === 'ACTIVE' && tAlloc.materialId === materialId);
+
+      // Evaluate Workspace projection invalidation domains
+      const isNewDriver = !driverId;
+      const isNewDriverMem = !driverMemSnap || !driverMemSnap.exists;
+      const isNewTruck = !truckId;
+      const isNewTruckMem = !truckMemSnap || !truckMemSnap.exists;
+
+      const isDriverAffilChanged =
+        driverAffilDecision.action === 'CREATE' ||
+        driverAffilDecision.action === 'REACTIVATE' ||
+        driverAffilDecision.action === 'REASSIGN';
+
+      const isTruckAffilChanged =
+        truckAffilDecision.action === 'CREATE' ||
+        truckAffilDecision.action === 'REACTIVATE' ||
+        truckAffilDecision.action === 'REASSIGN';
+
+      const isAssignmentChanged = !isAssignmentIdempotent;
+      const isAllocationChanged = !isAllocationIdempotent;
+
+      const intakeDirtyTabs: WorkspaceSheetTab[] = [];
+      if (isNewDriver || isNewDriverMem) {
+        intakeDirtyTabs.push('DRIVERS');
+      }
+      if (
+        isNewTruck ||
+        isNewTruckMem ||
+        isDriverAffilChanged ||
+        isTruckAffilChanged ||
+        isAssignmentChanged ||
+        isAllocationChanged
+      ) {
+        intakeDirtyTabs.push('FLEET_ROSTER');
+      }
+
+      if (intakeDirtyTabs.length > 0) {
+        await markDirtyInTransaction(
+          transaction,
+          projectId,
+          intakeDirtyTabs,
+          'CANONICAL_SHARED_INTAKE_CHANGED'
+        );
+      }
+
       // ----------------------------------------------------
       // PHASE 5: EXECUTE WRITES
       // ----------------------------------------------------
@@ -550,15 +607,7 @@ export class DriverTruckIntakeServer {
 
       // 6. Write Assignments
       let finalAssignmentId = '';
-      if (
-        CanonicalFleetRelationshipPolicy.isAssignmentIdempotent(
-          driverId,
-          truckId,
-          currentDriverSlot,
-          currentTruckSlot,
-          dAssign
-        )
-      ) {
+      if (isAssignmentIdempotent) {
         finalAssignmentId = currentDriverSlot!.assignmentId;
       } else {
         const closedAssignments: string[] = [];
@@ -623,8 +672,8 @@ export class DriverTruckIntakeServer {
 
       // 7. Write Allocations
       let finalAllocationId = '';
-      if (tAlloc && tAlloc.status === 'ACTIVE' && tAlloc.materialId === materialId) {
-        finalAllocationId = tAlloc.allocationId;
+      if (isAllocationIdempotent) {
+        finalAllocationId = tAlloc!.allocationId;
       } else {
         const reallocated = !!tAlloc && tAlloc.status === 'ACTIVE';
         if (tAlloc && tAlloc.status === 'ACTIVE') {
@@ -794,6 +843,15 @@ export class DriverTruckIntakeServer {
       let membershipStatus: 'CREATED' | 'EXISTING' = 'CREATED';
       if (driverMemSnap && driverMemSnap.exists && driverMemSnap.data()?.status === 'ACTIVE') {
         membershipStatus = 'EXISTING';
+      }
+
+      if (identityStatus === 'CREATED' || membershipStatus === 'CREATED') {
+        await markDirtyInTransaction(
+          transaction,
+          projectId,
+          ['DRIVERS'],
+          'PROJECT_DRIVER_SETUP_CHANGED'
+        );
       }
 
       if (!driverId) {
@@ -978,6 +1036,15 @@ export class DriverTruckIntakeServer {
       let membershipStatus: 'CREATED' | 'EXISTING' = 'CREATED';
       if (truckMemSnap && truckMemSnap.exists && truckMemSnap.data()?.status === 'ACTIVE') {
         membershipStatus = 'EXISTING';
+      }
+
+      if (identityStatus === 'CREATED' || membershipStatus === 'CREATED' || affiliationStatus === 'CREATED') {
+        await markDirtyInTransaction(
+          transaction,
+          projectId,
+          ['FLEET_ROSTER'],
+          'PROJECT_TRUCK_SETUP_CHANGED'
+        );
       }
 
       if (!truckId) {

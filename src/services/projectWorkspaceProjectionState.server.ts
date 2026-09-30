@@ -70,6 +70,89 @@ export async function getState(projectId: string): Promise<ProjectWorkspaceProje
 }
 
 /**
+ * Pure transition helper to compute next ProjectWorkspaceProjectionState from existing raw data.
+ */
+export function computeNextDirtyState(
+  cleanProjectId: string,
+  rawData: any,
+  tabs: (string | WorkspaceSheetTab)[],
+  reason?: string | null,
+  timestamp?: string
+): ProjectWorkspaceProjectionState {
+  const normalizedIncomingTabs = normalizeWorkspaceDirtyTabs(tabs);
+  const existingDirtyTabs = rawData?.dirtyTabs
+    ? normalizeWorkspaceDirtyTabs(rawData.dirtyTabs)
+    : [];
+  const existingDirtySince = rawData?.dirtySince || null;
+  const existingLastSuccessfulProjectionAt = rawData?.lastSuccessfulProjectionAt || null;
+  const existingLastSuccessfulProjectionTabs = rawData?.lastSuccessfulProjectionTabs
+    ? normalizeWorkspaceDirtyTabs(rawData.lastSuccessfulProjectionTabs)
+    : [];
+
+  // UNION new dirty tabs with existing dirty tabs in canonical order
+  const newDirtyTabs = normalizeWorkspaceDirtyTabs([
+    ...existingDirtyTabs,
+    ...normalizedIncomingTabs,
+  ]);
+
+  const now = timestamp || new Date().toISOString();
+
+  // dirtySince semantics:
+  // - set dirtySince only when transitioning from clean -> dirty
+  // - preserve original dirtySince while already dirty
+  let newDirtySince: string | null = existingDirtySince;
+  if (existingDirtyTabs.length === 0 && newDirtyTabs.length > 0) {
+    newDirtySince = now;
+  } else if (newDirtyTabs.length === 0) {
+    newDirtySince = null;
+  }
+
+  return {
+    projectId: cleanProjectId,
+    dirtyTabs: newDirtyTabs,
+    dirtySince: newDirtySince,
+    lastMutationAt: now,
+    lastMutationReason: reason !== undefined ? (reason || null) : (rawData?.lastMutationReason || null),
+    lastSuccessfulProjectionAt: existingLastSuccessfulProjectionAt,
+    lastSuccessfulProjectionTabs: existingLastSuccessfulProjectionTabs,
+    updatedAt: now,
+  };
+}
+
+/**
+ * Atomically marks one or more Workspace sheet tabs as dirty using an existing Firestore transaction.
+ * MUST be called AFTER canonical reads/decisions and BEFORE canonical transaction writes.
+ * 1. Reads projects/{projectId}/workspace_projection_state/current via transaction.get()
+ * 2. Computes next dirty state
+ * 3. Schedules write via transaction.set()
+ * Returns the computed next state.
+ */
+export async function markDirtyInTransaction(
+  transaction: any,
+  projectId: string,
+  tabs: (string | WorkspaceSheetTab)[],
+  reason?: string | null,
+  timestamp?: string
+): Promise<ProjectWorkspaceProjectionState> {
+  if (!transaction || typeof transaction.get !== 'function' || typeof transaction.set !== 'function') {
+    throw new Error('A valid Firestore transaction is required for markDirtyInTransaction');
+  }
+  const cleanProjectId = projectId?.trim();
+  if (!cleanProjectId) {
+    throw new Error('projectId is required and must be a non-empty string');
+  }
+
+  const docRef = getProjectionStateDocRef(cleanProjectId);
+  const snap = await transaction.get(docRef);
+  const exists = snap.exists;
+  const rawData = exists ? snap.data() : null;
+
+  const nextState = computeNextDirtyState(cleanProjectId, rawData, tabs, reason, timestamp);
+  transaction.set(docRef, nextState);
+  return nextState;
+}
+
+/**
  * Atomically marks one or more Workspace sheet tabs as dirty in Firestore.
  * - Unions new dirty tabs with existing dirty tabs in deterministic canonical order.
  * - Sets dirtySince only when transitioning from clean to dirty.
@@ -82,55 +165,13 @@ export async function markDirty(
   tabs: (string | WorkspaceSheetTab)[],
   reason?: string | null
 ): Promise<ProjectWorkspaceProjectionState> {
-  const docRef = getProjectionStateDocRef(projectId);
-  const cleanProjectId = projectId.trim();
-  const normalizedIncomingTabs = normalizeWorkspaceDirtyTabs(tabs);
+  const cleanProjectId = projectId?.trim();
+  if (!cleanProjectId) {
+    throw new Error('projectId is required and must be a non-empty string');
+  }
 
   return await adminDb.runTransaction(async (transaction: any) => {
-    const snap = await transaction.get(docRef);
-    const exists = snap.exists;
-    const rawData = exists ? snap.data() : null;
-
-    const existingDirtyTabs = rawData?.dirtyTabs
-      ? normalizeWorkspaceDirtyTabs(rawData.dirtyTabs)
-      : [];
-    const existingDirtySince = rawData?.dirtySince || null;
-    const existingLastSuccessfulProjectionAt = rawData?.lastSuccessfulProjectionAt || null;
-    const existingLastSuccessfulProjectionTabs = rawData?.lastSuccessfulProjectionTabs
-      ? normalizeWorkspaceDirtyTabs(rawData.lastSuccessfulProjectionTabs)
-      : [];
-
-    // UNION new dirty tabs with existing dirty tabs in canonical order
-    const newDirtyTabs = normalizeWorkspaceDirtyTabs([
-      ...existingDirtyTabs,
-      ...normalizedIncomingTabs,
-    ]);
-
-    const now = new Date().toISOString();
-
-    // dirtySince semantics:
-    // - set dirtySince only when transitioning from clean -> dirty
-    // - preserve original dirtySince while already dirty
-    let newDirtySince: string | null = existingDirtySince;
-    if (existingDirtyTabs.length === 0 && newDirtyTabs.length > 0) {
-      newDirtySince = now;
-    } else if (newDirtyTabs.length === 0) {
-      newDirtySince = null;
-    }
-
-    const nextState: ProjectWorkspaceProjectionState = {
-      projectId: cleanProjectId,
-      dirtyTabs: newDirtyTabs,
-      dirtySince: newDirtySince,
-      lastMutationAt: now,
-      lastMutationReason: reason !== undefined ? (reason || null) : (rawData?.lastMutationReason || null),
-      lastSuccessfulProjectionAt: existingLastSuccessfulProjectionAt,
-      lastSuccessfulProjectionTabs: existingLastSuccessfulProjectionTabs,
-      updatedAt: now,
-    };
-
-    transaction.set(docRef, nextState);
-    return nextState;
+    return await markDirtyInTransaction(transaction, cleanProjectId, tabs, reason);
   });
 }
 
@@ -198,6 +239,8 @@ export const projectWorkspaceProjectionStateServer = {
   createCleanProjectionState,
   getProjectionStateDocRef,
   getState,
+  computeNextDirtyState,
+  markDirtyInTransaction,
   markDirty,
   markProjectionSuccessful,
 };
