@@ -79,6 +79,49 @@ export const WORKSPACE_TABS: Record<WorkspaceSheetTab, WorkspaceTabConfig> = {
   },
 };
 
+/**
+ * Canonical order of Workspace sheet tabs:
+ * OPERATIONS, DRIVERS, CARRIERS, MATERIALS, FLEET_ROSTER, EXCEPTIONS, REPORTS
+ */
+export const CANONICAL_WORKSPACE_SHEET_TABS: WorkspaceSheetTab[] = [
+  'OPERATIONS',
+  'DRIVERS',
+  'CARRIERS',
+  'MATERIALS',
+  'FLEET_ROSTER',
+  'EXCEPTIONS',
+  'REPORTS',
+];
+
+/**
+ * Deterministic normalization helper for workspace dirty tabs:
+ * - removes duplicates
+ * - preserves only valid WorkspaceSheetTab values
+ * - enforces canonical order defined in CANONICAL_WORKSPACE_SHEET_TABS
+ */
+export function normalizeWorkspaceDirtyTabs(tabs: (string | WorkspaceSheetTab)[]): WorkspaceSheetTab[] {
+  if (!Array.isArray(tabs) || tabs.length === 0) {
+    return [];
+  }
+  const tabSet = new Set(tabs);
+  return CANONICAL_WORKSPACE_SHEET_TABS.filter((tab) => tabSet.has(tab));
+}
+
+/**
+ * Server-authoritative projection state stored at:
+ * projects/{projectId}/workspace_projection_state/current
+ */
+export interface ProjectWorkspaceProjectionState {
+  projectId: string;
+  dirtyTabs: WorkspaceSheetTab[];
+  dirtySince: string | null;
+  lastMutationAt: string | null;
+  lastMutationReason?: string | null;
+  lastSuccessfulProjectionAt: string | null;
+  lastSuccessfulProjectionTabs: WorkspaceSheetTab[];
+  updatedAt: string;
+}
+
 export const FLEET_ROSTER_COLUMNS = [
   'truckId',
   'projectId',
