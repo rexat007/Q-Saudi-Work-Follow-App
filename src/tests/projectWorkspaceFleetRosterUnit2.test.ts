@@ -189,25 +189,51 @@ describe('Project Workspace Fleet Roster Unit 2: Stale-Row Reconciliation Tests'
     expect(typeof result.deletedCount).toBe('number');
   });
 
-  // Test 11: non-Fleet tabs remain upsert-only
-  it('11. non-Fleet tabs remain upsert-only: app.ts only invokes reconcileTabSnapshot for FLEET_ROSTER', () => {
+  // Test 11: non-Fleet tabs remain upsert-only within POST /api/workspace/sync/sheets
+  it('11. non-Fleet tabs remain upsert-only: app.ts only invokes reconcileTabSnapshot for FLEET_ROSTER within sync/sheets route', () => {
     const appTsPath = path.resolve(__dirname, '../../server/app.ts');
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
-    // Find occurrences of reconcileTabSnapshot
-    const reconcileCalls = appTsContent.match(/reconcileTabSnapshot/g) || [];
+    // 1. Extract/scope specifically to the POST /api/workspace/sync/sheets route handler
+    const syncSheetsRouteStartIndex = appTsContent.indexOf("app.post('/api/workspace/sync/sheets'");
+    expect(syncSheetsRouteStartIndex).toBeGreaterThan(-1);
+
+    const nextRouteIndex = appTsContent.indexOf("app.post('/api/workspace/upload'", syncSheetsRouteStartIndex);
+    const syncSheetsRouteContent = nextRouteIndex !== -1
+      ? appTsContent.slice(syncSheetsRouteStartIndex, nextRouteIndex)
+      : appTsContent.slice(syncSheetsRouteStartIndex);
+
+    // 2. Invariant: Exactly one reconcileTabSnapshot call exists within POST /api/workspace/sync/sheets
+    const reconcileCalls = syncSheetsRouteContent.match(/reconcileTabSnapshot/g) || [];
     expect(reconcileCalls.length).toBe(1);
 
-    // Verify it is specifically associated with FLEET_ROSTER
-    expect(appTsContent).toContain('WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr');
-    
-    // Verify other tabs use upsertTabRecords
-    expect(appTsContent).toContain("WORKSPACE_TABS.OPERATIONS.tabTitleAr,\n        'tripId'");
-    expect(appTsContent).toContain("WORKSPACE_TABS.DRIVERS.tabTitleAr,\n        'driverId'");
-    expect(appTsContent).toContain("WORKSPACE_TABS.CARRIERS.tabTitleAr,\n        'carrierId'");
-    expect(appTsContent).toContain("WORKSPACE_TABS.MATERIALS.tabTitleAr,\n        'materialId'");
-    expect(appTsContent).toContain("WORKSPACE_TABS.EXCEPTIONS.tabTitleAr,\n        'exceptionId'");
-    expect(appTsContent).toContain("WORKSPACE_TABS.REPORTS.tabTitleAr,\n        'reportCode'");
+    // 3. Invariant: That single reconcileTabSnapshot call is strictly associated with FLEET_ROSTER
+    const fleetReconcileMatch = syncSheetsRouteContent.match(/reconcileTabSnapshot\s*\(\s*[^,]+,\s*([^,]+),/);
+    expect(fleetReconcileMatch).toBeTruthy();
+    expect(fleetReconcileMatch![1].trim()).toBe('WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr');
+
+    // 4. Invariant: All non-Fleet tabs in this route strictly use upsertTabRecords
+    expect(syncSheetsRouteContent).toContain("WORKSPACE_TABS.OPERATIONS.tabTitleAr,\n        'tripId'");
+    expect(syncSheetsRouteContent).toContain("WORKSPACE_TABS.DRIVERS.tabTitleAr,\n        'driverId'");
+    expect(syncSheetsRouteContent).toContain("WORKSPACE_TABS.CARRIERS.tabTitleAr,\n        'carrierId'");
+    expect(syncSheetsRouteContent).toContain("WORKSPACE_TABS.MATERIALS.tabTitleAr,\n        'materialId'");
+    expect(syncSheetsRouteContent).toContain("WORKSPACE_TABS.EXCEPTIONS.tabTitleAr,\n        'exceptionId'");
+    expect(syncSheetsRouteContent).toContain("WORKSPACE_TABS.REPORTS.tabTitleAr,\n        'reportCode'");
+
+    // 5. Invariant: No non-Fleet tab in that route uses reconcileTabSnapshot
+    const nonFleetTabs = [
+      'WORKSPACE_TABS.OPERATIONS.tabTitleAr',
+      'WORKSPACE_TABS.DRIVERS.tabTitleAr',
+      'WORKSPACE_TABS.CARRIERS.tabTitleAr',
+      'WORKSPACE_TABS.MATERIALS.tabTitleAr',
+      'WORKSPACE_TABS.EXCEPTIONS.tabTitleAr',
+      'WORKSPACE_TABS.REPORTS.tabTitleAr',
+    ];
+    for (const tab of nonFleetTabs) {
+      expect(syncSheetsRouteContent).not.toMatch(
+        new RegExp(`reconcileTabSnapshot\\s*\\([\\s\\S]{1,100}?${tab.replace('.', '\\.')}`)
+      );
+    }
   });
 
   // Test 12: no whole-sheet clear/wipe logic introduced

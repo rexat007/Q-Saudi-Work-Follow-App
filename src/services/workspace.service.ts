@@ -250,6 +250,39 @@ export class ClientWorkspaceService {
   }
 
   /**
+   * Server-Authoritative Initial Project Setup Projection
+   * Sends only projectId and spreadsheetId to trigger server-authoritative loading
+   * and projection of Drivers, Carriers, Materials, and Fleet Roster into Google Sheets.
+   */
+  public async syncInitialProjectWorkspace(
+    projectId: string,
+    spreadsheetId: string
+  ): Promise<WorkspaceSyncSummary> {
+    if (!projectId || !spreadsheetId) {
+      throw new Error('معرف المشروع وشيت المزامنة مطلوبان لإتمام الإسقاط الأولي');
+    }
+
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
+
+    const res = await fetch('/api/workspace/sync/initial', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        projectId: projectId.trim(),
+        spreadsheetId: spreadsheetId.trim(),
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      throw new Error(err.error || 'فشلت المزامنة والإسقاط الأولي لمساحة العمل');
+    }
+
+    const data = await res.json();
+    return data.data;
+  }
+
+  /**
    * Syncs Firestore projection to Google Sheets with idempotent upsert.
    */
   public async syncProjectionToSheets(input: WorkspaceProjectionInput | string, legacySpreadsheetId?: string): Promise<WorkspaceSyncSummary> {

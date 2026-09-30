@@ -6,6 +6,7 @@ import { TripService } from '../src/services/trip.service';
 import { exceptionService as serverExceptionService } from '../src/services/exception.service';
 import { serverWorkspaceService } from './workspace.service';
 import { driverTruckIntakeService } from '../src/services/driverTruckIntake.service';
+import { projectWorkspaceInitialProjectionServer } from '../src/services/projectWorkspaceInitialProjection.server';
 import { 
   WORKSPACE_TABS, 
   OPERATIONS_FULL_COLUMNS, 
@@ -520,6 +521,118 @@ app.post('/api/workspace/sync/trips', enforceProjectIsolation, enforceDispatcher
     res.status(statusCode).json({
       success: false,
       error: error.message || 'فشلت عملية إسقاط وتحديث العمليات في Google Sheets',
+      code: error.code,
+    });
+  }
+});
+
+// ----------------------------------------------------
+// 4b. Server-Authoritative Initial Project Setup Projection
+// ----------------------------------------------------
+app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    const googleToken = getGoogleAccessToken(req, true);
+    const { projectId, spreadsheetId } = req.body;
+
+    if (!projectId || typeof projectId !== 'string' || !projectId.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: 'معرف المشروع projectId مطلوب لإتمام الإسقاط الأولي',
+        code: 'PROJECT_ID_REQUIRED',
+      });
+    }
+
+    if (!spreadsheetId || typeof spreadsheetId !== 'string' || !spreadsheetId.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: 'معرف الشيت spreadsheetId مطلوب لإتمام الإسقاط الأولي',
+        code: 'SPREADSHEET_ID_REQUIRED',
+      });
+    }
+
+    const cleanProjectId = projectId.trim();
+    const cleanSpreadsheetId = spreadsheetId.trim();
+
+    // 1. Build server-authoritative canonical initial snapshot (Drivers, Carriers, Materials, Fleet)
+    const snapshot = await projectWorkspaceInitialProjectionServer.buildInitialProjectionSnapshot(cleanProjectId);
+
+    const upsertResults: UpsertResult[] = [];
+
+    // 2. DRIVERS Master: Primary Key: driverId
+    if (snapshot.drivers.length > 0) {
+      const drvResult = await serverWorkspaceService.upsertTabRecords(
+        cleanSpreadsheetId,
+        WORKSPACE_TABS.DRIVERS.tabTitleAr,
+        'driverId',
+        snapshot.drivers,
+        ['driverId', 'projectId', 'fullNameAr', 'idNumber', 'phone', 'licenseType', 'status', 'lastSyncedAt'],
+        googleToken
+      );
+      upsertResults.push(drvResult);
+    }
+
+    // 3. CARRIERS Master: Primary Key: carrierId
+    if (snapshot.carriers.length > 0) {
+      const carResult = await serverWorkspaceService.upsertTabRecords(
+        cleanSpreadsheetId,
+        WORKSPACE_TABS.CARRIERS.tabTitleAr,
+        'carrierId',
+        snapshot.carriers,
+        ['carrierId', 'projectId', 'companyNameAr', 'commercialRegistrationNo', 'transportLicenseNo', 'status', 'lastSyncedAt'],
+        googleToken
+      );
+      upsertResults.push(carResult);
+    }
+
+    // 4. MATERIALS Master: Primary Key: materialId
+    if (snapshot.materials.length > 0) {
+      const matResult = await serverWorkspaceService.upsertTabRecords(
+        cleanSpreadsheetId,
+        WORKSPACE_TABS.MATERIALS.tabTitleAr,
+        'materialId',
+        snapshot.materials,
+        ['materialId', 'projectId', 'nameAr', 'code', 'unitOfMeasure', 'standardDensityTonPerM3', 'status', 'lastSyncedAt'],
+        googleToken
+      );
+      upsertResults.push(matResult);
+    }
+
+    // 5. FLEET_ROSTER: Reconciled Snapshot (Always called, even if fleetRows is empty, preserving Unit 2 stale-row reconciliation)
+    const fleetResult = await serverWorkspaceService.reconcileTabSnapshot(
+      cleanSpreadsheetId,
+      WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr,
+      'truckId',
+      snapshot.fleetRows,
+      [...FLEET_ROSTER_COLUMNS],
+      googleToken
+    );
+    upsertResults.push(fleetResult);
+
+    const totalRecords = upsertResults.reduce((acc, curr) => acc + curr.processedCount, 0);
+
+    const summary: WorkspaceSyncSummary = {
+      projectId: cleanProjectId,
+      spreadsheetId: cleanSpreadsheetId,
+      spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${cleanSpreadsheetId}/edit`,
+      syncedAt: new Date().toISOString(),
+      sourceOfTruth: 'Firestore',
+      status: 'SUCCESS',
+      upsertResults,
+      totalRecordsUpserted: totalRecords,
+      auditMessage: `تمت المزامنة والإسقاط الأولي لبيانات تهيئة المشروع (${totalRecords} سجلاً على مستوى السائقين والناقلين والمواد وسجل الأسطول)`,
+    };
+
+    res.json({
+      success: true,
+      data: summary,
+      message: summary.auditMessage,
+    });
+  } catch (error: any) {
+    console.error('Error in /api/workspace/sync/initial:', error);
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
+      success: false,
+      error: error.message || 'فشلت عملية المزامنة والإسقاط الأولي لجداول مساحة العمل',
       code: error.code,
     });
   }
