@@ -61,10 +61,12 @@ export class ClientWorkspaceService {
 
   public setAccessToken(token: string | null): void {
     this.currentAccessToken = token;
-    if (token) {
-      sessionStorage.setItem('q_saudi_google_token', token);
-    } else {
-      sessionStorage.removeItem('q_saudi_google_token');
+    if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
+      if (token) {
+        sessionStorage.setItem('q_saudi_google_token', token);
+      } else {
+        sessionStorage.removeItem('q_saudi_google_token');
+      }
     }
   }
 
@@ -73,6 +75,50 @@ export class ClientWorkspaceService {
       const saved = sessionStorage.getItem('q_saudi_google_token');
       if (saved) this.currentAccessToken = saved;
     }
+  }
+
+  /**
+   * Builds the dual-token headers for Google Workspace requests:
+   * 1. Authorization: Bearer <Firebase ID Token> (for application auth, RBAC, project isolation)
+   * 2. X-Google-Access-Token: <Google OAuth Access Token> (for Google Drive & Sheets APIs)
+   *
+   * @param extraHeaders - Optional additional headers (e.g. Content-Type)
+   * @param requireAuth - If true, fails closed if Firebase user is not signed in or token retrieval fails.
+   */
+  public async getWorkspaceHeaders(
+    extraHeaders: Record<string, string> = {},
+    requireAuth: boolean = true
+  ): Promise<Record<string, string>> {
+    const headers: Record<string, string> = { ...extraHeaders };
+
+    // 1. Firebase Application Identity (Authorization: Bearer <Firebase ID Token>)
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      if (requireAuth) {
+        throw new Error('غير مصرح: يجب تسجيل الدخول بحساب المستخدم لتنفيذ عمليات مساحة العمل (Firebase Authentication required)');
+      }
+    } else {
+      try {
+        const idToken = await currentUser.getIdToken();
+        if (idToken) {
+          headers['Authorization'] = `Bearer ${idToken}`;
+        } else if (requireAuth) {
+          throw new Error('فشل استخراج رمز تعريف المستخدم (Firebase ID Token missing)');
+        }
+      } catch (err: any) {
+        if (requireAuth) {
+          throw new Error(`فشل استخراج رمز تعريف المستخدم: ${err.message || 'Firebase ID Token retrieval failed'}`);
+        }
+      }
+    }
+
+    // 2. Google OAuth Access Token (X-Google-Access-Token: <Google OAuth Token>)
+    const googleToken = this.getAccessToken();
+    if (googleToken) {
+      headers['X-Google-Access-Token'] = googleToken;
+    }
+
+    return headers;
   }
 
   /**
@@ -151,9 +197,7 @@ export class ClientWorkspaceService {
    * Provisions Google Drive folders and Google Sheets for a project via server.
    */
   public async provisionProjectDrive(project: ProjectEntity): Promise<GoogleDriveProjectStructure> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
     const res = await fetch('/api/workspace/provision', {
       method: 'POST',
@@ -236,9 +280,7 @@ export class ClientWorkspaceService {
     }
 
 
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
     const projectTrips = trips.map(mapTripToWorkspaceProjection);
 
@@ -362,9 +404,7 @@ export class ClientWorkspaceService {
     mimeType: string,
     content: string
   ): Promise<{ fileId: string; webViewLink: string; uploadedAt: string }> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
     const res = await fetch('/api/workspace/upload', {
       method: 'POST',
@@ -394,9 +434,7 @@ export class ClientWorkspaceService {
     projectId: string,
     folderId?: string
   ): Promise<{ files: GoogleDriveFileItem[]; folderId: string; folderName: string }> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({}, true);
 
     const params = new URLSearchParams({ projectId });
     if (folderId) params.append('folderId', folderId);
@@ -425,9 +463,7 @@ export class ClientWorkspaceService {
   public async downloadDriveFileContent(
     fileId: string
   ): Promise<{ buffer: ArrayBuffer; fileName: string; mimeType: string; size: number }> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({}, true);
 
     const res = await fetch(`/api/workspace/drive/files/${encodeURIComponent(fileId)}/content`, {
       headers,
@@ -471,9 +507,7 @@ export class ClientWorkspaceService {
     totalCount: number;
     projectId: string;
   }> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({}, true);
 
     const res = await fetch(`${getApiBase()}/api/workspace/sheets/spreadsheets?projectId=${encodeURIComponent(projectId)}`, {
       headers,
@@ -501,9 +535,7 @@ export class ClientWorkspaceService {
     title: string;
     sheets: Array<{ sheetId: number; title: string; index: number; rowCount?: number; columnCount?: number }>;
   }> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({}, true);
 
     const res = await fetch(`${getApiBase()}/api/workspace/sheets/${encodeURIComponent(spreadsheetId)}/metadata`, {
       headers,
@@ -532,9 +564,7 @@ export class ClientWorkspaceService {
     totalRows: number;
     totalColumns: number;
   }> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({}, true);
 
     const url = `${getApiBase()}/api/workspace/sheets/${encodeURIComponent(spreadsheetId)}/values?sheetName=${encodeURIComponent(sheetName)}`;
     const res = await fetch(url, { headers });
@@ -561,9 +591,7 @@ export class ClientWorkspaceService {
     currentFolderId?: string,
     sharedDriveId?: string
   ): Promise<DestinationValidationResult> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
     const res = await fetch(`${getApiBase()}/api/workspace/validate-destination`, {
       method: 'POST',
@@ -610,9 +638,7 @@ export class ClientWorkspaceService {
     pricingRules?: any[];
     exceptions?: any[];
   }): Promise<{ success: boolean; job: MigrationJob }> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
     const res = await fetch(`${getApiBase()}/api/workspace/migrate/start`, {
       method: 'POST',
@@ -642,9 +668,7 @@ export class ClientWorkspaceService {
     auditLogs?: any[];
     storageProfile?: ProjectStorageProfile | null;
   }): Promise<void> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
     const res = await fetch(`${getApiBase()}/api/workspace/archive/download`, {
       method: 'POST',
@@ -680,9 +704,7 @@ export class ClientWorkspaceService {
     fileId: string,
     historyRecords?: StorageHistoryRecord[]
   ): Promise<{ resolvedFileId: string; isHistorical: boolean; sourceHistoryId?: string }> {
-    const token = this.getAccessToken();
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
     const res = await fetch(`${getApiBase()}/api/workspace/resolve-file`, {
       method: 'POST',

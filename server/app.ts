@@ -371,11 +371,54 @@ app.get('/api/workspace/migration-plan', (req, res) => {
 });
 
 // ----------------------------------------------------
+// Google Workspace Dual-Token Authentication Helper
+// ----------------------------------------------------
+/**
+ * Safely extracts the Google OAuth Access Token from the X-Google-Access-Token header.
+ * Strictly decoupled from req.headers.authorization (which carries Firebase ID tokens).
+ * In production mode, fails closed if the token is missing for routes requiring Google APIs.
+ */
+export function getGoogleAccessToken(req: express.Request, enforceInProduction: boolean = false): string | undefined {
+  const header = req.headers['x-google-access-token'];
+  let token: string | undefined = undefined;
+
+  if (typeof header === 'string' && header.trim()) {
+    token = header.trim();
+  } else if (Array.isArray(header) && typeof header[0] === 'string' && header[0].trim()) {
+    token = header[0].trim();
+  }
+
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (enforceInProduction && isProduction && !token) {
+    const error: any = new Error('رمز الوصول لخدمات Google Workspace مطلوب في بيئة الإنتاج (X-Google-Access-Token header is required)');
+    error.statusCode = 401;
+    error.code = 'GOOGLE_ACCESS_TOKEN_REQUIRED';
+    throw error;
+  }
+
+  return token;
+}
+
+/**
+ * Safely resolves an HTTP status code from a Workspace error.
+ * Ensures custom status codes are within the valid 400-599 range and defaults to 500.
+ */
+export function resolveWorkspaceErrorStatusCode(error: any): number {
+  if (typeof error?.statusCode === 'number' && error.statusCode >= 400 && error.statusCode <= 599) {
+    return error.statusCode;
+  }
+  if (typeof error?.code === 'number' && error.code >= 400 && error.code <= 599) {
+    return error.code;
+  }
+  return 500;
+}
+
+// ----------------------------------------------------
 // 3. Provision Google Drive & Sheets for Project
 // ----------------------------------------------------
 app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const { project } = req.body;
 
     if (!project || !project.projectId || !project.nameAr) {
@@ -385,7 +428,7 @@ app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, 
       });
     }
 
-    const structure = await serverWorkspaceService.provisionProjectDrive(project, bearerToken);
+    const structure = await serverWorkspaceService.provisionProjectDrive(project, googleToken);
 
     res.json({
       success: true,
@@ -394,9 +437,11 @@ app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, 
     });
   } catch (error: any) {
     console.error('Error in /api/workspace/provision:', error);
-    res.status(500).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشلت عملية تهيئة Google Workspace للمشروع',
+      code: error.code,
     });
   }
 });
@@ -437,7 +482,7 @@ app.post('/api/intake/canonical', enforceProjectIsolation, enforceAdminOnly, asy
 // ----------------------------------------------------
 app.post('/api/workspace/sync/trips', enforceProjectIsolation, enforceDispatcherOrAbove, async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const { spreadsheetId, trips } = req.body;
 
     if (!spreadsheetId) {
@@ -461,7 +506,7 @@ app.post('/api/workspace/sync/trips', enforceProjectIsolation, enforceDispatcher
       'tripId',
       trips,
       OPERATIONS_FULL_COLUMNS,
-      bearerToken
+      googleToken
     );
 
     res.json({
@@ -471,9 +516,11 @@ app.post('/api/workspace/sync/trips', enforceProjectIsolation, enforceDispatcher
     });
   } catch (error: any) {
     console.error('Error in /api/workspace/sync/trips:', error);
-    res.status(500).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشلت عملية إسقاط وتحديث العمليات في Google Sheets',
+      code: error.code,
     });
   }
 });
@@ -483,7 +530,7 @@ app.post('/api/workspace/sync/trips', enforceProjectIsolation, enforceDispatcher
 // ----------------------------------------------------
 app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatcherOrAbove, async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const { 
       projectId, 
       spreadsheetId, 
@@ -536,7 +583,7 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
         'tripId',
         trips,
         OPERATIONS_FULL_COLUMNS,
-        bearerToken
+        googleToken
       );
       upsertResults.push(opResult);
     }
@@ -549,7 +596,7 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
         'driverId',
         drivers,
         ['driverId', 'projectId', 'fullNameAr', 'idNumber', 'phone', 'licenseType', 'status', 'lastSyncedAt'],
-        bearerToken
+        googleToken
       );
       upsertResults.push(drvResult);
     }
@@ -562,7 +609,7 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
         'carrierId',
         carriers,
         ['carrierId', 'projectId', 'companyNameAr', 'commercialRegistrationNo', 'transportLicenseNo', 'status', 'lastSyncedAt'],
-        bearerToken
+        googleToken
       );
       upsertResults.push(carResult);
     }
@@ -575,7 +622,7 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
         'materialId',
         materials,
         ['materialId', 'projectId', 'nameAr', 'code', 'unitOfMeasure', 'standardDensityTonPerM3', 'status', 'lastSyncedAt'],
-        bearerToken
+        googleToken
       );
       upsertResults.push(matResult);
     }
@@ -587,7 +634,7 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
       'truckId',
       mappedFleetRows,
       [...FLEET_ROSTER_COLUMNS],
-      bearerToken
+      googleToken
     );
     upsertResults.push(fleetResult);
 
@@ -599,7 +646,7 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
         'exceptionId',
         exceptions,
         ['exceptionId', 'projectId', 'tripId', 'type', 'severity', 'status', 'description', 'openedAt', 'resolvedAt', 'resolutionNote', 'lastSyncedAt'],
-        bearerToken
+        googleToken
       );
       upsertResults.push(excResult);
     }
@@ -612,7 +659,7 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
         'reportCode',
         reports,
         ['reportCode', 'reportNameAr', 'metricValue', 'metricUnit', 'period', 'calculatedAt', 'notes'],
-        bearerToken
+        googleToken
       );
       upsertResults.push(repResult);
     }
@@ -638,9 +685,11 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
     });
   } catch (error: any) {
     console.error('Error in /api/workspace/sync/sheets:', error);
-    res.status(500).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشلت عملية المزامنة والإسقاط لجداول Google Sheets',
+      code: error.code,
     });
   }
 });
@@ -650,7 +699,7 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
 // ----------------------------------------------------
 app.post('/api/workspace/upload', enforceProjectIsolation, enforceFileUploadSecurity, async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const { subfolderId, fileName, mimeType, fileContentBase64 } = req.body;
 
     if (!subfolderId || !fileName) {
@@ -669,7 +718,7 @@ app.post('/api/workspace/upload', enforceProjectIsolation, enforceFileUploadSecu
       fileName,
       mimeType || 'application/octet-stream',
       buffer,
-      bearerToken
+      googleToken
     );
 
     res.json({
@@ -679,9 +728,11 @@ app.post('/api/workspace/upload', enforceProjectIsolation, enforceFileUploadSecu
     });
   } catch (error: any) {
     console.error('Error in /api/workspace/upload:', error);
-    res.status(500).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشل رفع الملف إلى Google Drive',
+      code: error.code,
     });
   }
 });
@@ -691,11 +742,11 @@ app.post('/api/workspace/upload', enforceProjectIsolation, enforceFileUploadSecu
 // ----------------------------------------------------
 app.get('/api/workspace/drive/files', enforceProjectIsolation, async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const projectId = (req.query.projectId as string) || 'PRJ-NEOM-NORTH-01';
     const folderId = req.query.folderId as string | undefined;
 
-    const result = await serverWorkspaceService.listProjectDriveFiles(projectId, folderId, bearerToken);
+    const result = await serverWorkspaceService.listProjectDriveFiles(projectId, folderId, googleToken);
 
     res.json({
       success: true,
@@ -706,9 +757,11 @@ app.get('/api/workspace/drive/files', enforceProjectIsolation, async (req, res) 
     });
   } catch (error: any) {
     console.error('Error in /api/workspace/drive/files:', error);
-    res.status(500).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشل استعراض ملفات Google Drive للمشروع',
+      code: error.code,
     });
   }
 });
@@ -724,7 +777,7 @@ app.get('/api/workspace/drive/files', enforceProjectIsolation, async (req, res) 
 // 1. Validate Destination Folder
 app.post('/api/workspace/validate-destination', enforceAdminOnly, async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const { projectId, targetFolderId, targetProvider, currentFolderId, sharedDriveId } = req.body;
 
     const result = await serverWorkspaceService.validateDestinationFolder(
@@ -733,7 +786,7 @@ app.post('/api/workspace/validate-destination', enforceAdminOnly, async (req, re
       targetProvider || 'SHARED_DRIVE',
       currentFolderId,
       sharedDriveId,
-      bearerToken
+      googleToken
     );
 
     res.json({
@@ -741,9 +794,11 @@ app.post('/api/workspace/validate-destination', enforceAdminOnly, async (req, re
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشل التحقق من المجلد المستهدف',
+      code: error.code,
     });
   }
 });
@@ -751,7 +806,7 @@ app.post('/api/workspace/validate-destination', enforceAdminOnly, async (req, re
 // 2. Start Storage Migration
 app.post('/api/workspace/migrate/start', enforceAdminOnly, async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const { 
       projectId, 
       projectCode, 
@@ -788,7 +843,7 @@ app.post('/api/workspace/migrate/start', enforceAdminOnly, async (req, res) => {
         pricingRules,
         exceptions
       },
-      bearerToken
+      googleToken
     );
 
     res.json({
@@ -796,9 +851,11 @@ app.post('/api/workspace/migrate/start', enforceAdminOnly, async (req, res) => {
       job,
     });
   } catch (error: any) {
-    res.status(500).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشلت عملية النقل إلى المكان المستهدف',
+      code: error.code,
     });
   }
 });
@@ -806,7 +863,7 @@ app.post('/api/workspace/migrate/start', enforceAdminOnly, async (req, res) => {
 // 3. Download Standalone Project Archive (.ZIP)
 app.post('/api/workspace/archive/download', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, false);
     const { project, trips, carriers, trucks, drivers, materials, pricingRules, exceptions, auditLogs, storageProfile } = req.body;
 
     const zipBuffer = await serverWorkspaceService.generateProjectArchive(
@@ -822,7 +879,7 @@ app.post('/api/workspace/archive/download', enforceProjectIsolation, enforceAdmi
         auditLogs,
         storageProfile,
       },
-      bearerToken
+      googleToken
     );
 
     const projectCode = project?.projectCode || project?.projectId || 'Q-PRJ-001';
@@ -833,9 +890,11 @@ app.post('/api/workspace/archive/download', enforceProjectIsolation, enforceAdmi
     res.send(zipBuffer);
   } catch (error: any) {
     console.error('Error generating project archive:', error);
-    res.status(500).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشل إنشاء وإعداد ملف الأرشيف الكامل',
+      code: error.code,
     });
   }
 });
@@ -859,7 +918,7 @@ app.post('/api/workspace/resolve-file', enforceProjectIsolation, async (req, res
 
 app.get('/api/workspace/drive/files/:fileId/content', async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const { fileId } = req.params;
 
     if (!fileId) {
@@ -871,7 +930,7 @@ app.get('/api/workspace/drive/files/:fileId/content', async (req, res) => {
 
     const { buffer, fileName, mimeType, size } = await serverWorkspaceService.getDriveFileContent(
       fileId,
-      bearerToken
+      googleToken
     );
 
     res.json({
@@ -884,9 +943,11 @@ app.get('/api/workspace/drive/files/:fileId/content', async (req, res) => {
     });
   } catch (error: any) {
     console.error('Error in /api/workspace/drive/files/:fileId/content:', error);
-    res.status(500).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشل تحميل محتوى الملف من Google Drive',
+      code: error.code,
     });
   }
 });
@@ -896,10 +957,10 @@ app.get('/api/workspace/drive/files/:fileId/content', async (req, res) => {
 // ----------------------------------------------------
 app.get('/api/workspace/sheets/spreadsheets', enforceProjectIsolation, async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const projectId = (req.query.projectId as string) || 'PRJ-NEOM-NORTH-01';
 
-    const result = await serverWorkspaceService.listProjectSpreadsheets(projectId, bearerToken);
+    const result = await serverWorkspaceService.listProjectSpreadsheets(projectId, googleToken);
 
     res.json({
       success: true,
@@ -909,10 +970,11 @@ app.get('/api/workspace/sheets/spreadsheets', enforceProjectIsolation, async (re
     });
   } catch (error: any) {
     console.error('Error in /api/workspace/sheets/spreadsheets:', error);
-    const status = error.code === 401 ? 401 : error.code === 403 ? 403 : error.code === 404 ? 404 : 500;
-    res.status(status).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشل استعراض جداول بيانات Google Sheets للمشروع',
+      code: error.code,
     });
   }
 });
@@ -922,7 +984,7 @@ app.get('/api/workspace/sheets/spreadsheets', enforceProjectIsolation, async (re
 // ----------------------------------------------------
 app.get('/api/workspace/sheets/:spreadsheetId/metadata', async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const { spreadsheetId } = req.params;
 
     if (!spreadsheetId) {
@@ -932,7 +994,7 @@ app.get('/api/workspace/sheets/:spreadsheetId/metadata', async (req, res) => {
       });
     }
 
-    const metadata = await serverWorkspaceService.getSpreadsheetMetadata(spreadsheetId, bearerToken);
+    const metadata = await serverWorkspaceService.getSpreadsheetMetadata(spreadsheetId, googleToken);
 
     res.json({
       success: true,
@@ -940,10 +1002,11 @@ app.get('/api/workspace/sheets/:spreadsheetId/metadata', async (req, res) => {
     });
   } catch (error: any) {
     console.error('Error in /api/workspace/sheets/:spreadsheetId/metadata:', error);
-    const status = error.code === 401 ? 401 : error.code === 403 ? 403 : error.code === 404 ? 404 : 500;
-    res.status(status).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشل استخراج معلومات وأوراق جدول البيانات',
+      code: error.code,
     });
   }
 });
@@ -953,7 +1016,7 @@ app.get('/api/workspace/sheets/:spreadsheetId/metadata', async (req, res) => {
 // ----------------------------------------------------
 app.get('/api/workspace/sheets/:spreadsheetId/values', async (req, res) => {
   try {
-    const bearerToken = req.headers.authorization;
+    const googleToken = getGoogleAccessToken(req, true);
     const { spreadsheetId } = req.params;
     const sheetName = (req.query.sheetName as string) || 'Sheet1';
 
@@ -964,7 +1027,7 @@ app.get('/api/workspace/sheets/:spreadsheetId/values', async (req, res) => {
       });
     }
 
-    const data = await serverWorkspaceService.getSpreadsheetValues(spreadsheetId, sheetName, bearerToken);
+    const data = await serverWorkspaceService.getSpreadsheetValues(spreadsheetId, sheetName, googleToken);
 
     res.json({
       success: true,
@@ -972,10 +1035,11 @@ app.get('/api/workspace/sheets/:spreadsheetId/values', async (req, res) => {
     });
   } catch (error: any) {
     console.error('Error in /api/workspace/sheets/:spreadsheetId/values:', error);
-    const status = error.code === 401 ? 401 : error.code === 403 ? 403 : error.code === 404 ? 404 : 500;
-    res.status(status).json({
+    const statusCode = resolveWorkspaceErrorStatusCode(error);
+    res.status(statusCode).json({
       success: false,
       error: error.message || 'فشل قراءة بيانات ورقة العمل من جدول البيانات',
+      code: error.code,
     });
   }
 });
