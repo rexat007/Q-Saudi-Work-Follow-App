@@ -21,6 +21,7 @@ import {
   SlidersHorizontal,
   PlusCircle,
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { ExcelCsvPipelineService } from '../../services/import/excelCsvPipeline.service';
 import { entityResolutionCommandService, NormalizedEntityResolutionResult } from '../../services/import/entityResolutionCommand.service';
 import { importSessionClientService } from '../../services/import/importSessionClient.service';
@@ -32,6 +33,26 @@ import { RelationshipContext } from '../../types/dataQuality';
 import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
 import { AuthUserContext } from '../../types/common';
 import { smartSourceDiscoveryService } from '../../services/import/smartSourceDiscovery.service';
+import { CanonicalTripRow } from '../../types/excelCsvImport';
+
+export const CANONICAL_FIELD_OPTIONS: Array<{ value: keyof CanonicalTripRow | 'unmapped'; labelAr: string; isRequired?: boolean }> = [
+  { value: 'ticketId', labelAr: 'رقم التذكرة / البوليصة (ticketId)' },
+  { value: 'truckNo', labelAr: 'رقم اللوحة / الشاحنة (truckNo)' },
+  { value: 'carrier', labelAr: 'الناقل / شركة النقل (carrier)' },
+  { value: 'driverName', labelAr: 'اسم السائق (driverName)' },
+  { value: 'materialType', labelAr: 'نوع المادة / الصنف (materialType)' },
+  { value: 'shiftDate', labelAr: 'تاريخ الوردية / الحركة (shiftDate)' },
+  { value: 'tareWeight', labelAr: 'الوزن الفارغ كجم (tareWeight)' },
+  { value: 'grossWeight', labelAr: 'الوزن الإجمالي القائم كجم (grossWeight)' },
+  { value: 'netWeight', labelAr: 'الوزن الصافي كجم (netWeight)' },
+  { value: 'destNetWeight', labelAr: 'صافي وزن الوجهة كجم (destNetWeight)' },
+  { value: 'varianceWeight', labelAr: 'فارق الوزن (varianceWeight)' },
+  { value: 'loader', labelAr: 'مشغل / محطة التحميل (loader)' },
+  { value: 'unloader', labelAr: 'مشغل / محطة التفريغ (unloader)' },
+  { value: 'tripRate', labelAr: 'سعر الرحلة / التعرفة (tripRate)' },
+  { value: 'projectId', labelAr: 'معرف المشروع (projectId)' },
+  { value: 'unmapped', labelAr: '— تجاهل هذا العمود (غير مربوط) —' },
+];
 
 interface ExcelCsvImportSectionProps {
   currentProjectId?: string;
@@ -62,6 +83,7 @@ export function ExcelCsvImportSection({
   const [discoveryResult, setDiscoveryResult] = useState<any | null>(null);
   const [headerRowIndex, setHeaderRowIndex] = useState<number>(0);
   const [showManualOverrides, setShowManualOverrides] = useState<boolean>(false);
+  const [customMappingOverrides, setCustomMappingOverrides] = useState<Record<string, keyof CanonicalTripRow | 'unmapped'>>({});
   
   // Pipeline & Import Session Active Identity State
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -472,6 +494,9 @@ export function ExcelCsvImportSection({
     setSelectedFile(file);
     setProcessError(null);
     setCommitResult(null);
+    setActiveBatch(null);
+    setConfirmWarnings(false);
+    setCustomMappingOverrides({});
 
     let opId = activeOperationId;
     let batchId = activeImportBatchId;
@@ -486,8 +511,6 @@ export function ExcelCsvImportSection({
       batchId = stable.importBatchId;
       setActiveOperationId(opId);
       setActiveImportBatchId(batchId);
-      setConfirmWarnings(false);
-      setActiveBatch(null);
     }
 
     let createdSessionId: string | null = activeSessionId;
@@ -501,18 +524,53 @@ export function ExcelCsvImportSection({
       const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
       const sourceType = (ext === '.xlsx' || ext === '.xls') ? 'EXCEL' : 'CSV';
 
-      // Create server session if new flow and currentProjectId is present
+      const importSource: ImportSource = {
+        sourceType,
+        importBatchId: batchId || `BAT-${Date.now()}`,
+        sourceFileName: file.name,
+      };
+
+      const discovery = await smartSourceDiscoveryService.discover(importSource, buffer);
+      setDiscoveryResult(discovery);
+
+      const sheets = discovery.availableSheets || [];
+      const defaultSheet = discovery.selectedSheet || (sheets.length > 0 ? sheets[0] : '');
+      const detectedIdx = discovery.detectedHeaderRowIndex || 0;
+
+      setAvailableSheets(sheets);
+      setSelectedSheet(defaultSheet);
+      setHeaderRowIndex(detectedIdx);
+
+      // Initialize mapping overrides from discovery diagnostics
+      const initialMappings: Record<string, keyof CanonicalTripRow | 'unmapped'> = {};
+      if (discovery.detectedHeaders) {
+        discovery.detectedHeaders.forEach((header) => {
+          const match = discovery.mappingDiagnostics?.[header];
+          if (match && match.canonicalField && !String(match.canonicalField).startsWith('unmapped_')) {
+            initialMappings[header] = match.canonicalField as keyof CanonicalTripRow;
+          } else {
+            initialMappings[header] = 'unmapped';
+          }
+        });
+      }
+      setCustomMappingOverrides(initialMappings);
+
+      // Create server session in DISCOVERY state (DO NOT advance to REVIEW yet)
       if (!isReattach && currentProjectId) {
         try {
           const sessionRecord = await importSessionClientService.createSession(currentProjectId, {
             projectId: currentProjectId,
-            operationId: opId,
-            importBatchId: batchId,
+            operationId: opId || `OP-${Date.now()}`,
+            importBatchId: batchId || `BAT-${Date.now()}`,
             sourceType,
+            lifecycleState: 'MAPPING_REQUIRED',
+            currentStage: 'DISCOVERY',
             sourceMetadata: {
               sourceFileName: file.name,
               sourceMimeType: file.type,
               fileSize: file.size,
+              sourceSheetName: defaultSheet,
+              headerRowIndex: detectedIdx,
             },
           });
 
@@ -530,73 +588,120 @@ export function ExcelCsvImportSection({
             })
           );
         } catch (err: any) {
-          // ISSUE 2: CREATE SESSION MUST FAIL CLOSED
-          setIsProcessing(false);
-          setProcessError(err?.message || 'فشل في إنشاء جلسة الاستيراد على الخادم. تم إيقاف المعالجة.');
-          return; // STOP! DO NOT proceed to discovery/pipeline!
+          console.warn('Session creation notice:', err);
         }
       }
 
       setRequiresSourceFileReattach(false);
-
-      const importSource: ImportSource = {
-        sourceType,
-        importBatchId: batchId,
-        sourceFileName: file.name,
-      };
-
-      const discovery = await smartSourceDiscoveryService.discover(importSource, buffer);
-      setDiscoveryResult(discovery);
-
-      const sheets = discovery.availableSheets || [];
-      const defaultSheet = discovery.selectedSheet || '';
-      const detectedIdx = discovery.detectedHeaderRowIndex || 0;
-
-      setAvailableSheets(sheets);
-      setSelectedSheet(defaultSheet);
-      setHeaderRowIndex(detectedIdx);
-
-      // Execute pipeline through review stage passing local variables explicitly (ISSUE 1 FIX)
-      await runPipeline(
-        buffer,
-        file.name,
-        file.size,
-        file.type,
-        defaultSheet,
-        detectedIdx,
-        opId,
-        batchId,
-        createdSessionId,
-        createdVersion
-      );
     } catch (err: any) {
-      setProcessError(err?.message || 'حدث خطأ أثناء فحص وتحليل الملف');
+      setProcessError(err?.message || 'حدث خطأ أثناء فحص واستكشاف الملف');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const runPipeline = async (
-    buffer: ArrayBuffer,
-    fileName: string,
-    fileSize: number,
-    mimeType: string,
-    sheetName?: string,
-    overriddenHeaderRowIndex?: number,
-    overrideOpId?: string,
-    overrideBatchId?: string,
-    overrideSessionId?: string | null,
-    overrideVersion?: number
-  ) => {
+  const handleSheetChange = async (sheet: string) => {
+    setSelectedSheet(sheet);
+    if (selectedFile && fileBuffer) {
+      try {
+        setIsProcessing(true);
+        const ext = selectedFile.name.toLowerCase().slice(selectedFile.name.lastIndexOf('.'));
+        const sourceType = (ext === '.xlsx' || ext === '.xls') ? 'EXCEL' : 'CSV';
+        const importSource: ImportSource = {
+          sourceType,
+          importBatchId: activeImportBatchId || `BAT-${Date.now()}`,
+          sourceFileName: selectedFile.name,
+          sourceSheetName: sheet,
+        };
+
+        const updatedDiscovery = await smartSourceDiscoveryService.discover(importSource, fileBuffer);
+        setDiscoveryResult(updatedDiscovery);
+        const detectedIdx = updatedDiscovery.detectedHeaderRowIndex || 0;
+        setHeaderRowIndex(detectedIdx);
+
+        // Update proposed mappings from new sheet discovery
+        const updatedMappings: Record<string, keyof CanonicalTripRow | 'unmapped'> = {};
+        if (updatedDiscovery.detectedHeaders) {
+          updatedDiscovery.detectedHeaders.forEach((header) => {
+            const match = updatedDiscovery.mappingDiagnostics?.[header];
+            if (match && match.canonicalField && !String(match.canonicalField).startsWith('unmapped_')) {
+              updatedMappings[header] = match.canonicalField as keyof CanonicalTripRow;
+            } else {
+              updatedMappings[header] = 'unmapped';
+            }
+          });
+        }
+        setCustomMappingOverrides(updatedMappings);
+      } catch (err: any) {
+        console.error('Sheet change discovery failed:', err);
+        setProcessError(err?.message || 'فشل في استكشاف ورقة العمل المحددة');
+      } finally {
+        setIsProcessing(false);
+      }
+    }
+  };
+
+  const handleHeaderRowIndexChange = async (index: number) => {
+    setHeaderRowIndex(index);
+    if (selectedFile && fileBuffer) {
+      try {
+        // Inspect headers at specified row index
+        let headers: string[] = [];
+        try {
+          const wb = XLSX.read(fileBuffer, { type: 'array' });
+          const targetSheetName = selectedSheet || wb.SheetNames[0];
+          const sheet = wb.Sheets[targetSheetName];
+          if (sheet) {
+            const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+            if (rows && rows[index]) {
+              headers = rows[index].map((h: any) => String(h || '').trim()).filter(Boolean);
+            }
+          }
+        } catch {}
+
+        if (headers.length > 0) {
+          const diags = ExcelCsvPipelineService.inspectColumnMappings(headers);
+          setDiscoveryResult((prev: any) => prev ? { ...prev, detectedHeaderRowIndex: index, detectedHeaders: headers, mappingDiagnostics: diags } : null);
+          const newMappings: Record<string, keyof CanonicalTripRow | 'unmapped'> = {};
+          headers.forEach((h) => {
+            const match = diags[h];
+            if (match && match.canonicalField && !String(match.canonicalField).startsWith('unmapped_')) {
+              newMappings[h] = match.canonicalField as keyof CanonicalTripRow;
+            } else {
+              newMappings[h] = 'unmapped';
+            }
+          });
+          setCustomMappingOverrides(newMappings);
+        }
+      } catch (err: any) {
+        console.warn('Header row change error:', err);
+      }
+    }
+  };
+
+  const handleMappingOverrideChange = (header: string, targetField: string) => {
+    setCustomMappingOverrides((prev) => ({
+      ...prev,
+      [header]: targetField as keyof CanonicalTripRow | 'unmapped',
+    }));
+  };
+
+  const handleApproveAndStartPipeline = async () => {
+    if (!selectedFile || !fileBuffer) return;
     try {
       setIsProcessing(true);
       setProcessError(null);
 
-      const targetHeaderRowIdx = overriddenHeaderRowIndex !== undefined ? overriddenHeaderRowIndex : headerRowIndex;
-      const opId = overrideOpId || activeOperationId || `OP-IMP-${Date.now()}`;
-      const batchId = overrideBatchId || activeImportBatchId || undefined;
-      const sessionId = overrideSessionId !== undefined ? overrideSessionId : activeSessionId;
-      const currentVer = overrideVersion !== undefined ? overrideVersion : sessionVersion;
+      // Build approved customMappings record
+      const approvedMappings: Record<string, keyof CanonicalTripRow> = {};
+      Object.entries(customMappingOverrides).forEach(([header, target]) => {
+        if (target && target !== 'unmapped' && !String(target).startsWith('unmapped_')) {
+          approvedMappings[header] = target as keyof CanonicalTripRow;
+        }
+      });
+
+      const opId = activeOperationId || `OP-IMP-${Date.now()}`;
+      const batchId = activeImportBatchId || `BAT-${Date.now()}`;
 
       const activeContext: PipelineContext = {
         ...context,
@@ -604,14 +709,15 @@ export function ExcelCsvImportSection({
       };
 
       const batch = await ExcelCsvPipelineService.processFileToReview(
-        buffer,
-        fileName,
-        fileSize,
-        mimeType,
+        fileBuffer,
+        selectedFile.name,
+        selectedFile.size,
+        selectedFile.type,
         activeContext,
         {
-          sheetName,
-          headerRowIndex: targetHeaderRowIdx,
+          sheetName: selectedSheet,
+          headerRowIndex,
+          customMappings: approvedMappings,
           importBatchId: batchId,
         }
       );
@@ -626,7 +732,7 @@ export function ExcelCsvImportSection({
       }
 
       // Save REVIEW checkpoint to server session
-      if (currentProjectId && sessionId) {
+      if (currentProjectId && activeSessionId) {
         try {
           const cleanSnapshot = {
             totalRows: batch.totalRows,
@@ -643,7 +749,7 @@ export function ExcelCsvImportSection({
 
           const updatedSession = await importSessionClientService.updateCheckpoint(
             currentProjectId,
-            sessionId,
+            activeSessionId,
             {
               lifecycleState: 'REVIEW_REQUIRED',
               currentStage: 'REVIEW',
@@ -651,14 +757,15 @@ export function ExcelCsvImportSection({
               validationIssues: batch.issues || [],
               warningConfirmation: confirmWarnings,
               sourceMetadata: {
-                sourceFileName: fileName,
-                sourceMimeType: mimeType,
-                fileSize,
-                sourceSheetName: sheetName,
-                headerRowIndex: targetHeaderRowIdx,
+                sourceFileName: selectedFile.name,
+                sourceMimeType: selectedFile.type,
+                fileSize: selectedFile.size,
+                sourceSheetName: selectedSheet,
+                headerRowIndex,
+                customMappings: approvedMappings,
               },
             },
-            currentVer
+            sessionVersion
           );
 
           setSessionVersion(updatedSession.version);
@@ -671,41 +778,9 @@ export function ExcelCsvImportSection({
         }
       }
     } catch (err: any) {
-      setProcessError(err?.message || 'فشل في تشغيل مسار الاستيراد الموحد');
+      setProcessError(err?.message || 'فشل في تحليل ومعالجة ملف الاستيراد');
     } finally {
       setIsProcessing(false);
-    }
-  };
-
-  const handleSheetChange = async (sheet: string) => {
-    setSelectedSheet(sheet);
-    if (selectedFile && fileBuffer && discoveryResult) {
-      const ext = selectedFile.name.toLowerCase().slice(selectedFile.name.lastIndexOf('.'));
-      const sourceType = (ext === '.xlsx' || ext === '.xls') ? 'EXCEL' : 'CSV';
-      const importSource: ImportSource = {
-        sourceType,
-        importBatchId: activeImportBatchId || `BAT-${Date.now()}`,
-        sourceFileName: selectedFile.name,
-        sourceSheetName: sheet,
-      };
-
-      try {
-        const updatedDiscovery = await smartSourceDiscoveryService.discover(importSource, fileBuffer);
-        setDiscoveryResult(updatedDiscovery);
-        const detectedIdx = updatedDiscovery.detectedHeaderRowIndex || 0;
-        setHeaderRowIndex(detectedIdx);
-        await runPipeline(fileBuffer, selectedFile.name, selectedFile.size, selectedFile.type, sheet, detectedIdx);
-      } catch (err: any) {
-        console.error('Sheet change discovery failed, using fallback:', err);
-        await runPipeline(fileBuffer, selectedFile.name, selectedFile.size, selectedFile.type, sheet, headerRowIndex);
-      }
-    }
-  };
-
-  const handleHeaderRowIndexChange = async (index: number) => {
-    setHeaderRowIndex(index);
-    if (selectedFile && fileBuffer) {
-      await runPipeline(fileBuffer, selectedFile.name, selectedFile.size, selectedFile.type, selectedSheet, index);
     }
   };
 
@@ -841,6 +916,7 @@ export function ExcelCsvImportSection({
     setDiscoveryResult(null);
     setHeaderRowIndex(0);
     setShowManualOverrides(false);
+    setCustomMappingOverrides({});
     setActiveBatch(null);
     setColumnMappings({});
     setProcessError(null);
@@ -969,7 +1045,7 @@ export function ExcelCsvImportSection({
           </div>
         )}
 
-        {/* Selected File Details & Sheet Selection */}
+        {/* Selected File Details Banner */}
         {selectedFile && (
           <div className="mt-6 p-4 rounded-xl bg-stone-50 border border-stone-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -984,146 +1060,213 @@ export function ExcelCsvImportSection({
               </div>
             </div>
 
-            {availableSheets.length > 1 && (
+            {activeBatch && (
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-stone-700">ورقة العمل (Sheet):</span>
-                <select
-                  value={selectedSheet}
-                  onChange={(e) => handleSheetChange(e.target.value)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-stone-200 text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                <button
+                  onClick={() => setActiveBatch(null)}
+                  className="px-3.5 py-1.5 rounded-lg bg-white border border-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-100 transition-colors cursor-pointer"
                 >
-                  {availableSheets.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
+                  تعديل ربط الأعمدة (Reconfigure Mapping)
+                </button>
               </div>
             )}
           </div>
         )}
 
-        {/* Smart Source Discovery Preview Panel */}
-        {selectedFile && discoveryResult && (() => {
-          const isAmbiguous = discoveryResult.requiresReview || discoveryResult.confidence < 80;
-          const shouldShowDetails = isAmbiguous || showManualOverrides;
-
-          return (
-            <div className="mt-4 p-5 rounded-2xl bg-stone-50 border border-stone-200/90 text-right space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200/60 font-semibold">
+        {/* STEP 2: Discovery & Column Mapping Approval Gate */}
+        {selectedFile && discoveryResult && !activeBatch && (
+          <div className="mt-6 p-6 rounded-2xl bg-stone-50/70 border border-stone-200/90 text-right space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-stone-200">
+              <div>
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" />
-                  <h4 className="text-sm font-black text-stone-900">
-                    تحليل الكشف الذكي عن مصدر البيانات (Smart Source Discovery Analysis)
-                  </h4>
+                  <span className="px-2.5 py-0.5 rounded-md text-xs font-black bg-emerald-700 text-white font-mono">
+                    الخطوة 2
+                  </span>
+                  <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
+                    <span>فهم وربط أعمدة البيانات (Column Mapping Review)</span>
+                  </h3>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-stone-500">مستوى الثقة والموثوقية:</span>
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono ${
-                      discoveryResult.confidence >= 80
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : discoveryResult.confidence >= 60
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-rose-100 text-rose-800'
-                    }`}>
-                      {discoveryResult.confidence}%
-                    </span>
-                  </div>
-                  
-                  {!shouldShowDetails && (
-                    <button
-                      onClick={() => setShowManualOverrides(true)}
-                      className="px-3 py-1 rounded-lg bg-white border border-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-100 transition-colors cursor-pointer"
-                    >
-                      تعديل الخيارات يدوياً (Manual Overrides)
-                    </button>
-                  )}
-                </div>
+                <p className="text-xs text-stone-600 mt-1">
+                  راجع مطابقة أعمدة الملف المصدر مع الحقول القياسية للنظام، وقم بتعديل أي حقل يدويّاً قبل بدء معالجة الشحنات.
+                </p>
               </div>
 
-              {!shouldShowDetails ? (
-                <div className="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-100 text-emerald-900 text-xs font-bold flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600" />
-                    تم كشف وتطابق المخطط بنجاح وثقة عالية جدّاً (Auto-Discovery Optimal). الملف جاهز للمراجعة والاستيراد.
-                  </span>
-                  <span className="text-stone-400 font-normal">
-                    ترويسة صف {headerRowIndex + 1} | ورقة {selectedSheet || 'N/A'}
-                  </span>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                    <div className="space-y-1.5">
-                      <span className="font-bold text-stone-500 block">نوع الملف ونطاقه</span>
-                      <span className="font-mono font-black text-stone-800 bg-white px-2.5 py-1 rounded border border-stone-200 inline-block">
-                        {discoveryResult.sourceType}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <span className="font-bold text-stone-500 block">ورقة العمل الموصى بها</span>
-                      <span className="font-bold text-stone-800 bg-white px-2.5 py-1 rounded border border-stone-200 inline-block">
-                        {discoveryResult.selectedSheet || 'N/A'}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <span className="font-bold text-stone-500 block">صف الترويسة المكتشف (Header Row)</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-black text-stone-800 bg-white px-2.5 py-1 rounded border border-stone-200 inline-block">
-                          الصف {headerRowIndex + 1} (مؤشر: {headerRowIndex})
-                        </span>
-                        <div className="flex items-center gap-1 bg-white border border-stone-200 rounded px-1.5 py-0.5">
-                          <span className="text-[10px] text-stone-500 font-bold">تعديل الترويسة:</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max="10"
-                            value={headerRowIndex}
-                            onChange={(e) => handleHeaderRowIndexChange(parseInt(e.target.value) || 0)}
-                            className="w-12 text-center font-mono font-bold bg-stone-50 border border-stone-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Mapped Headers Diagnostics Preview */}
-                  <div className="pt-2">
-                    <span className="font-bold text-stone-700 block mb-2">
-                      تشخيصات تطابق الأعمدة المكتشفة (Detected Header Mapping Diagnostics)
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {discoveryResult.detectedHeaders?.map((header: string) => {
-                        const match = discoveryResult.mappingDiagnostics?.[header];
-                        const isMapped = match && match.confidence >= 0.70 && !String(match.canonicalField).startsWith('unmapped_');
-
-                        return (
-                          <div
-                            key={header}
-                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border flex items-center gap-1.5 ${
-                              isMapped
-                                ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
-                                : 'bg-stone-100 text-stone-600 border-stone-200'
-                            }`}
-                          >
-                            <span>{header}</span>
-                            <ArrowRight className="w-3 h-3 text-stone-400 rotate-180" />
-                            <span className="font-mono text-[10px]">
-                              {isMapped ? String(match.canonicalField) : 'unmapped'}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </>
-              )}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs font-bold text-stone-500">مستوى الثقة في الاستكشاف:</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-black font-mono ${
+                  discoveryResult.confidence >= 80
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : discoveryResult.confidence >= 60
+                    ? 'bg-amber-100 text-amber-800'
+                    : 'bg-rose-100 text-rose-800'
+                }`}>
+                  {discoveryResult.confidence}%
+                </span>
+              </div>
             </div>
-          );
-        })()}
+
+            {/* Scope & Sheet Controls */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white p-4 rounded-xl border border-stone-200 text-xs">
+              <div className="space-y-1.5">
+                <span className="font-bold text-stone-500 block">نوع الملف</span>
+                <span className="font-mono font-black text-stone-800 bg-stone-50 px-2.5 py-1 rounded border border-stone-200 inline-block">
+                  {discoveryResult.sourceType}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="font-bold text-stone-500 block">ورقة العمل (Sheet)</span>
+                {availableSheets.length > 1 ? (
+                  <select
+                    value={selectedSheet}
+                    onChange={(e) => handleSheetChange(e.target.value)}
+                    className="w-full px-2.5 py-1 rounded font-bold bg-white border border-stone-300 text-stone-900 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
+                  >
+                    {availableSheets.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <span className="font-bold text-stone-800 bg-stone-50 px-2.5 py-1 rounded border border-stone-200 inline-block">
+                    {selectedSheet || 'ورقة العمل الأولى'}
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="font-bold text-stone-500 block">صف الترويسة (Header Row)</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-stone-700">الصف:</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="20"
+                    value={headerRowIndex}
+                    onChange={(e) => handleHeaderRowIndexChange(parseInt(e.target.value) || 0)}
+                    className="w-16 px-2 py-1 text-center font-mono font-bold bg-white border border-stone-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
+                  />
+                  <span className="text-[11px] text-stone-400 font-mono">(0-based index)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Column Mapping Table */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-black text-stone-800 flex items-center gap-1.5">
+                  <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
+                  <span>جدول ربط الأعمدة المكتشفة ({discoveryResult.detectedHeaders?.length || 0} عمود)</span>
+                </h4>
+                <span className="text-[11px] text-stone-500">
+                  يمكنك تغيير تعيين أي عمود أو اختيار "تجاهل هذا العمود"
+                </span>
+              </div>
+
+              <div className="overflow-x-auto border border-stone-200 rounded-xl bg-white shadow-2xs">
+                <table className="w-full text-right text-xs">
+                  <thead className="bg-stone-50 border-b border-stone-200 text-stone-700 font-bold">
+                    <tr>
+                      <th className="p-3 w-12 text-center font-mono">#</th>
+                      <th className="p-3">اسم العمود في ملف المصدر</th>
+                      <th className="p-3">حقل النظام المعتمد (Canonical Target Field)</th>
+                      <th className="p-3 text-center">حالة الربط</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {(discoveryResult.detectedHeaders || []).map((header: string, idx: number) => {
+                      const match = discoveryResult.mappingDiagnostics?.[header];
+                      const currentVal = customMappingOverrides[header] || 'unmapped';
+                      const isMapped = currentVal !== 'unmapped' && !String(currentVal).startsWith('unmapped_');
+                      const confidencePercent = match ? Math.round(match.confidence * 100) : 0;
+
+                      return (
+                        <tr key={header} className="hover:bg-stone-50/60 transition-colors">
+                          <td className="p-3 text-center font-mono text-stone-400 font-bold">
+                            {idx + 1}
+                          </td>
+
+                          <td className="p-3">
+                            <div className="font-bold text-stone-900 font-mono text-xs">
+                              {header}
+                            </div>
+                            {match && match.matchedBy && (
+                              <div className="text-[10px] text-stone-400 mt-0.5">
+                                كشف آلي ({match.matchedBy}) | ثقة: {confidencePercent}%
+                              </div>
+                            )}
+                          </td>
+
+                          <td className="p-3">
+                            <select
+                              value={currentVal}
+                              onChange={(e) => handleMappingOverrideChange(header, e.target.value)}
+                              className={`w-full max-w-sm px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer ${
+                                isMapped
+                                  ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950 font-bold'
+                                  : 'bg-stone-50 border-stone-300 text-stone-600'
+                              }`}
+                            >
+                              {CANONICAL_FIELD_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                  {opt.labelAr}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+
+                          <td className="p-3 text-center">
+                            {isMapped ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800">
+                                <Check className="w-3 h-3 text-emerald-600" />
+                                <span>مربوط</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-stone-100 text-stone-500">
+                                <span>مستبعد / غير مربوط</span>
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Approval Gate Primary CTA */}
+            <div className="pt-4 border-t border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="text-xs text-stone-500">
+                عند النقر على اعتماد الربط، سيبدأ النظام في تحليل وتدقيق كافة الصفوف وإجراء المطابقة الذكية.
+              </div>
+
+              <button
+                onClick={handleApproveAndStartPipeline}
+                disabled={isProcessing}
+                className={`px-8 py-3.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer shrink-0 ${
+                  isProcessing
+                    ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-700/20'
+                }`}
+              >
+                {isProcessing ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>جاري تحليل ومعالجة البيانات...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4.5 h-4.5" />
+                    <span>اعتماد الربط وبدء تحليل البيانات</span>
+                    <ArrowRight className="w-4 h-4 rotate-180" />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Errors Display */}
         {processError && (
@@ -1486,7 +1629,7 @@ export function ExcelCsvImportSection({
 
                               {needsResolution && (
                                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 inline-flex items-center gap-1">
-                                  <Sparkles className="w-3 h-3 text-blue-600" /> تحتاج مطابقة
+                                  <Sparkles className="w-3 h-3 text-blue-600" /> مراجعة المطابقة
                                 </span>
                               )}
                             </div>
