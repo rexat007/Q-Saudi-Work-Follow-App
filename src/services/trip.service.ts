@@ -44,13 +44,99 @@ export interface DispatchTripParams {
   sourceMetadata?: TripSourceMetadata;
 }
 
+export interface TripPersistenceContext {
+  tripRepository: {
+    findById(projectId: string, tripId: string): Promise<TripEntity | null>;
+    listByProject(projectId: string, maxLimit?: number): Promise<TripEntity[]>;
+    create(trip: Omit<TripEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void>;
+    update(projectId: string, tripId: string, updates: Partial<TripEntity>, updatedBy: string): Promise<void>;
+  };
+  projectRepository: {
+    findById(projectId: string): Promise<any>;
+  };
+  globalCarrierRepository: {
+    findById(carrierId: string): Promise<any>;
+  };
+  globalTruckRepository: {
+    findById(truckId: string): Promise<any>;
+  };
+  globalDriverRepository: {
+    findById(driverId: string): Promise<any>;
+  };
+  globalMaterialRepository: {
+    findById(materialId: string): Promise<any>;
+  };
+  projectCarrierMembershipRepository: {
+    getMembership(projectId: string, carrierId: string): Promise<any>;
+  };
+  projectTruckMembershipRepository: {
+    getMembership(projectId: string, truckId: string): Promise<any>;
+  };
+  projectDriverMembershipRepository: {
+    getMembership(projectId: string, driverId: string): Promise<any>;
+  };
+  projectMaterialMembershipRepository: {
+    getMembership(projectId: string, materialId: string): Promise<any>;
+  };
+  projectDriverCarrierAffiliationRepository: {
+    getAffiliation(projectId: string, driverId: string): Promise<any>;
+  };
+  projectTruckCarrierAffiliationRepository: {
+    getAffiliation(projectId: string, truckId: string): Promise<any>;
+  };
+  projectDriverTruckAssignmentRepository: {
+    getActiveAssignmentByDriver(projectId: string, driverId: string): Promise<any>;
+    getActiveAssignmentByTruck(projectId: string, truckId: string): Promise<any>;
+  };
+  projectTruckMaterialAllocationRepository: {
+    getActiveAllocationByTruck(projectId: string, truckId: string): Promise<any>;
+  };
+  pricingRuleRepository: {
+    findById(projectId: string, pricingRuleId: string): Promise<any>;
+  };
+  tripNumberGenerator: {
+    getNextTripNumber(projectId: string, projectNumberVal?: number): Promise<string>;
+  };
+  tripEventService: {
+    recordEvent(payload: any, context: AuthUserContext): Promise<any>;
+  };
+  auditLogService: {
+    recordLog(params: any, context: AuthUserContext): Promise<any>;
+  };
+}
+
 export class TripService {
+  private persistence: TripPersistenceContext;
+
+  constructor(persistence?: Partial<TripPersistenceContext>) {
+    this.persistence = {
+      tripRepository: persistence?.tripRepository || tripRepository,
+      projectRepository: persistence?.projectRepository || projectRepository,
+      globalCarrierRepository: persistence?.globalCarrierRepository || globalCarrierRepository,
+      globalTruckRepository: persistence?.globalTruckRepository || globalTruckRepository,
+      globalDriverRepository: persistence?.globalDriverRepository || globalDriverRepository,
+      globalMaterialRepository: persistence?.globalMaterialRepository || globalMaterialRepository,
+      projectCarrierMembershipRepository: persistence?.projectCarrierMembershipRepository || projectCarrierMembershipRepository,
+      projectTruckMembershipRepository: persistence?.projectTruckMembershipRepository || projectTruckMembershipRepository,
+      projectDriverMembershipRepository: persistence?.projectDriverMembershipRepository || projectDriverMembershipRepository,
+      projectMaterialMembershipRepository: persistence?.projectMaterialMembershipRepository || projectMaterialMembershipRepository,
+      projectDriverCarrierAffiliationRepository: persistence?.projectDriverCarrierAffiliationRepository || projectDriverCarrierAffiliationRepository,
+      projectTruckCarrierAffiliationRepository: persistence?.projectTruckCarrierAffiliationRepository || projectTruckCarrierAffiliationRepository,
+      projectDriverTruckAssignmentRepository: persistence?.projectDriverTruckAssignmentRepository || projectDriverTruckAssignmentRepository,
+      projectTruckMaterialAllocationRepository: persistence?.projectTruckMaterialAllocationRepository || projectTruckMaterialAllocationRepository,
+      pricingRuleRepository: persistence?.pricingRuleRepository || pricingRuleRepository,
+      tripNumberGenerator: persistence?.tripNumberGenerator || TripNumberGenerator,
+      tripEventService: persistence?.tripEventService || tripEventService,
+      auditLogService: persistence?.auditLogService || auditLogService,
+    };
+  }
+
   async getTrip(projectId: string, tripId: string): Promise<TripEntity | null> {
-    return tripRepository.findById(projectId, tripId);
+    return this.persistence.tripRepository.findById(projectId, tripId);
   }
 
   async getTripsByProject(projectId: string, maxLimit = 100): Promise<TripEntity[]> {
-    return tripRepository.listByProject(projectId, maxLimit);
+    return this.persistence.tripRepository.listByProject(projectId, maxLimit);
   }
 
   /**
@@ -82,7 +168,7 @@ export class TripService {
     const cleanProjectId = params.projectId.trim();
 
     // 1. Fetch project entity
-    const project = await projectRepository.findById(cleanProjectId);
+    const project = await this.persistence.projectRepository.findById(cleanProjectId);
     if (!project) {
       throw new Error('المشروع غير موجود أو غير صالح');
     }
@@ -107,20 +193,20 @@ export class TripService {
       truckMaterialAllocation,
       pricingRule,
     ] = await Promise.all([
-      globalCarrierRepository.findById(params.carrierId),
-      projectCarrierMembershipRepository.getMembership(cleanProjectId, params.carrierId),
-      globalMaterialRepository.findById(params.materialId),
-      projectMaterialMembershipRepository.getMembership(cleanProjectId, params.materialId),
-      globalDriverRepository.findById(params.driverId),
-      projectDriverMembershipRepository.getMembership(cleanProjectId, params.driverId),
-      globalTruckRepository.findById(params.truckId),
-      projectTruckMembershipRepository.getMembership(cleanProjectId, params.truckId),
-      projectDriverCarrierAffiliationRepository.getAffiliation(cleanProjectId, params.driverId),
-      projectTruckCarrierAffiliationRepository.getAffiliation(cleanProjectId, params.truckId),
-      projectDriverTruckAssignmentRepository.getActiveAssignmentByDriver(cleanProjectId, params.driverId),
-      projectDriverTruckAssignmentRepository.getActiveAssignmentByTruck(cleanProjectId, params.truckId),
-      projectTruckMaterialAllocationRepository.getActiveAllocationByTruck(cleanProjectId, params.truckId),
-      pricingRuleRepository.findById(cleanProjectId, params.pricingRuleId),
+      this.persistence.globalCarrierRepository.findById(params.carrierId),
+      this.persistence.projectCarrierMembershipRepository.getMembership(cleanProjectId, params.carrierId),
+      this.persistence.globalMaterialRepository.findById(params.materialId),
+      this.persistence.projectMaterialMembershipRepository.getMembership(cleanProjectId, params.materialId),
+      this.persistence.globalDriverRepository.findById(params.driverId),
+      this.persistence.projectDriverMembershipRepository.getMembership(cleanProjectId, params.driverId),
+      this.persistence.globalTruckRepository.findById(params.truckId),
+      this.persistence.projectTruckMembershipRepository.getMembership(cleanProjectId, params.truckId),
+      this.persistence.projectDriverCarrierAffiliationRepository.getAffiliation(cleanProjectId, params.driverId),
+      this.persistence.projectTruckCarrierAffiliationRepository.getAffiliation(cleanProjectId, params.truckId),
+      this.persistence.projectDriverTruckAssignmentRepository.getActiveAssignmentByDriver(cleanProjectId, params.driverId),
+      this.persistence.projectDriverTruckAssignmentRepository.getActiveAssignmentByTruck(cleanProjectId, params.truckId),
+      this.persistence.projectTruckMaterialAllocationRepository.getActiveAllocationByTruck(cleanProjectId, params.truckId),
+      this.persistence.pricingRuleRepository.findById(cleanProjectId, params.pricingRuleId),
     ]);
 
     // 3. Carrier Canonical Validation
@@ -210,7 +296,7 @@ export class TripService {
 
     // 12. Snapshot Construction & Trip Creation
     const tripId = `TRP-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const tripNumber = await TripNumberGenerator.getNextTripNumber(cleanProjectId, project?.projectNumber);
+    const tripNumber = await this.persistence.tripNumberGenerator.getNextTripNumber(cleanProjectId, project?.projectNumber);
 
     const agreedRate = pricingRule.baseRateSAR !== undefined 
       ? pricingRule.baseRateSAR 
@@ -322,10 +408,10 @@ export class TripService {
     }
 
     // 14. Persist via repository
-    await tripRepository.create(newTrip);
+    await this.persistence.tripRepository.create(newTrip);
 
     // 15. Record Initial Trip Event
-    await tripEventService.recordEvent({
+    await this.persistence.tripEventService.recordEvent({
       eventId: `EVT-${Date.now()}-DISPATCH`,
       tripId,
       projectId: cleanProjectId,
@@ -337,7 +423,7 @@ export class TripService {
     }, context);
 
     // 16. Audit Log
-    await auditLogService.recordLog({
+    await this.persistence.auditLogService.recordLog({
       projectId: cleanProjectId,
       entityType: 'TRIP',
       entityId: tripId,
@@ -358,7 +444,7 @@ export class TripService {
     payload: Record<string, any>,
     context: AuthUserContext
   ): Promise<TripEntity> {
-    const existing = await tripRepository.findById(projectId, tripId);
+    const existing = await this.persistence.tripRepository.findById(projectId, tripId);
     if (!existing) throw new Error('الرحلة غير موجودة');
 
     if (existing.financials.isFinalized) {
@@ -444,10 +530,10 @@ export class TripService {
       };
     }
 
-    await tripRepository.update(projectId, tripId, updates, context.userId);
+    await this.persistence.tripRepository.update(projectId, tripId, updates, context.userId);
 
     // Record Event
-    await tripEventService.recordEvent({
+    await this.persistence.tripEventService.recordEvent({
       eventId: `EVT-${Date.now()}-${targetStatus}`,
       tripId,
       projectId,
@@ -458,7 +544,7 @@ export class TripService {
       idempotencyKey: `IDEMP-${tripId}-${targetStatus}-${Date.now()}`,
     }, context);
 
-    await auditLogService.recordLog({
+    await this.persistence.auditLogService.recordLog({
       projectId,
       entityType: 'TRIP',
       entityId: tripId,
@@ -563,7 +649,7 @@ export class TripService {
 
     let existing: TripEntity | null = null;
     try {
-      existing = await tripRepository.findById(projectId, tripId);
+      existing = await this.persistence.tripRepository.findById(projectId, tripId);
     } catch {
       existing = null;
     }
@@ -596,9 +682,9 @@ export class TripService {
       throw new Error(`خطأ في بيانات الرحلة: ${validation.errors.map(e => e.messageAr).join(' | ')}`);
     }
 
-    await tripRepository.update(projectId, tripId, updates, context.userId);
+    await this.persistence.tripRepository.update(projectId, tripId, updates, context.userId);
 
-    await auditLogService.recordLog({
+    await this.persistence.auditLogService.recordLog({
       projectId,
       entityType: 'TRIP',
       entityId: tripId,

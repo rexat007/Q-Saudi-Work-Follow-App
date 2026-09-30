@@ -1,13 +1,37 @@
 import { exceptionRepository } from '../repositories/exception.repository';
 import { ExceptionValidator } from '../validators/exception.validator';
-import { TripExceptionEntity } from '../types/entities';
+import { TripExceptionEntity, TripEntity } from '../types/entities';
 import { AuthUserContext } from '../types/common';
 import { auditLogService } from './auditLog.service';
 import { tripRepository } from '../repositories/trip.repository';
 
+export interface ExceptionPersistenceContext {
+  exceptionRepository: {
+    listByTrip(projectId: string, tripId: string): Promise<TripExceptionEntity[]>;
+    create(exception: Omit<TripExceptionEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void>;
+    update(projectId: string, tripId: string | null, exceptionId: string, updates: Partial<TripExceptionEntity>, updatedBy: string): Promise<void>;
+  };
+  tripRepository: {
+    update(projectId: string, tripId: string, updates: Partial<TripEntity>, updatedBy: string): Promise<void>;
+  };
+  auditLogService: {
+    recordLog(params: any, context: AuthUserContext): Promise<any>;
+  };
+}
+
 export class ExceptionService {
+  private persistence: ExceptionPersistenceContext;
+
+  constructor(persistence?: Partial<ExceptionPersistenceContext>) {
+    this.persistence = {
+      exceptionRepository: persistence?.exceptionRepository || exceptionRepository,
+      tripRepository: persistence?.tripRepository || tripRepository,
+      auditLogService: persistence?.auditLogService || auditLogService,
+    };
+  }
+
   async getTripExceptions(projectId: string, tripId: string): Promise<TripExceptionEntity[]> {
-    return exceptionRepository.listByTrip(projectId, tripId);
+    return this.persistence.exceptionRepository.listByTrip(projectId, tripId);
   }
 
   async raiseException(
@@ -29,14 +53,16 @@ export class ExceptionService {
       throw new Error(`خطأ في بيانات الاستثناء: ${validation.errors.map(e => e.messageAr).join(' | ')}`);
     }
 
-    await exceptionRepository.create(newException);
+    await this.persistence.exceptionRepository.create(newException);
 
     // Update trip hasExceptions flag
-    await tripRepository.update(payload.projectId, payload.tripId, {
-      hasExceptions: true,
-    }, context.userId);
+    if (payload.tripId && payload.tripId !== '_general') {
+      await this.persistence.tripRepository.update(payload.projectId, payload.tripId, {
+        hasExceptions: true,
+      }, context.userId);
+    }
 
-    await auditLogService.recordLog({
+    await this.persistence.auditLogService.recordLog({
       projectId: payload.projectId,
       entityType: 'EXCEPTION',
       entityId: payload.exceptionId,
@@ -61,9 +87,9 @@ export class ExceptionService {
       resolutionNote: note
     };
 
-    await exceptionRepository.update(projectId, tripId, exceptionId, updates, context.userId);
+    await this.persistence.exceptionRepository.update(projectId, tripId, exceptionId, updates, context.userId);
 
-    await auditLogService.recordLog({
+    await this.persistence.auditLogService.recordLog({
       projectId,
       entityType: 'EXCEPTION',
       entityId: exceptionId,
@@ -102,9 +128,9 @@ export class ExceptionService {
       },
     };
 
-    await exceptionRepository.update(projectId, tripId, exceptionId, updates, context.userId);
+    await this.persistence.exceptionRepository.update(projectId, tripId, exceptionId, updates, context.userId);
 
-    await auditLogService.recordLog({
+    await this.persistence.auditLogService.recordLog({
       projectId,
       entityType: 'EXCEPTION',
       entityId: exceptionId,
@@ -131,9 +157,9 @@ export class ExceptionService {
       resolutionNote: rejection.notes
     };
 
-    await exceptionRepository.update(projectId, tripId, exceptionId, updates, context.userId);
+    await this.persistence.exceptionRepository.update(projectId, tripId, exceptionId, updates, context.userId);
 
-    await auditLogService.recordLog({
+    await this.persistence.auditLogService.recordLog({
       projectId,
       entityType: 'EXCEPTION',
       entityId: exceptionId,

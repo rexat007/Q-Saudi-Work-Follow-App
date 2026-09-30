@@ -1,9 +1,7 @@
 import express from 'express';
 import path from 'path';
-import { collection, query, where, getDocs, limit, doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../src/firebase/config';
-import { TripService } from '../src/services/trip.service';
-import { exceptionService as serverExceptionService } from '../src/services/exception.service';
+import { adminDb } from '../src/firebase/admin';
+import { serverTripService, serverExceptionService } from '../src/services/canonicalTripPersistence.server';
 import { serverWorkspaceService } from './workspace.service';
 import { driverTruckIntakeService } from '../src/services/driverTruckIntake.service';
 import { projectWorkspaceInitialProjectionServer } from '../src/services/projectWorkspaceInitialProjection.server';
@@ -1318,10 +1316,8 @@ app.get(
   }
 );
 
-const serverTripService = new TripService();
-
 // ----------------------------------------------------
-// 9f. Server-Authoritative Trip Creation (BLOCK 89B)
+// 9f. Server-Authoritative Trip Creation (BLOCK 89B / UNIT 6A)
 // ----------------------------------------------------
 app.post(
   '/api/projects/:projectId/trips',
@@ -1366,14 +1362,18 @@ app.post(
         });
       }
 
-      // Idempotency Check (operationId or clientUUID)
+      // Idempotency Check via Admin SDK (operationId or clientUUID)
       const operationId = req.body.operationId || req.body.clientUUID;
       if (operationId) {
-        const tripsRef = collection(db, 'projects', projectId, 'trips');
-        const q = query(tripsRef, where('clientUUID', '==', operationId), limit(1));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          const existingTrip = querySnapshot.docs[0].data();
+        const tripsQuery = await adminDb
+          .collection('projects')
+          .doc(projectId)
+          .collection('trips')
+          .where('clientUUID', '==', operationId)
+          .limit(1)
+          .get();
+        if (!tripsQuery.empty) {
+          const existingTrip = tripsQuery.docs[0].data();
           console.log(`[Idempotency Hit] Replaying trip creation for clientUUID: ${operationId}`);
           return res.json({
             success: true,
@@ -1383,7 +1383,7 @@ app.post(
         }
       }
 
-      // Dispatch/Create trip authoritatively on the server
+      // Dispatch/Create trip authoritatively on the server via Admin SDK
       const params = {
         ...req.body,
         projectId, // override/force matching project ID
@@ -1416,7 +1416,7 @@ app.post(
 );
 
 // ----------------------------------------------------
-// 9g. Server-Authoritative Trip Status Transition (GAP-P5-04)
+// 9g. Server-Authoritative Trip Status Transition (GAP-P5-04 / UNIT 6A)
 // ----------------------------------------------------
 app.patch(
   '/api/projects/:projectId/trips/:tripId/status',
@@ -1442,14 +1442,12 @@ app.patch(
         });
       }
 
-      // Idempotency check via sync_operations
+      // Idempotency check via Admin SDK sync_operations
       if (operationId) {
-        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
-        const opSnap = await getDoc(opRef);
-        if (opSnap.exists()) {
-          const tripRef = doc(db, 'projects', projectId, 'trips', tripId);
-          const tripSnap = await getDoc(tripRef);
-          if (tripSnap.exists()) {
+        const opSnap = await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).get();
+        if (opSnap.exists) {
+          const tripSnap = await adminDb.collection('projects').doc(projectId).collection('trips').doc(tripId).get();
+          if (tripSnap.exists) {
             console.log(`[Idempotency Hit] Replaying status transition for operation: ${operationId}`);
             return res.json({
               success: true,
@@ -1470,10 +1468,9 @@ app.patch(
 
       const updatedTrip = await serverTripService.transitionTripStatus(projectId, tripId, status, payload, context);
 
-      // Save sync_operation ledger
+      // Save sync_operation ledger via Admin SDK
       if (operationId) {
-        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
-        await setDoc(opRef, {
+        await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).set({
           operationId,
           projectId,
           clientOperationUUID: operationId,
@@ -1508,7 +1505,7 @@ app.patch(
 );
 
 // ----------------------------------------------------
-// 9h. Server-Authoritative Record Receipt (GAP-P5-04)
+// 9h. Server-Authoritative Record Receipt (GAP-P5-04 / UNIT 6A)
 // ----------------------------------------------------
 app.post(
   '/api/projects/:projectId/trips/:tripId/receipt',
@@ -1527,14 +1524,12 @@ app.post(
         });
       }
 
-      // Idempotency check via sync_operations
+      // Idempotency check via Admin SDK sync_operations
       if (operationId) {
-        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
-        const opSnap = await getDoc(opRef);
-        if (opSnap.exists()) {
-          const tripRef = doc(db, 'projects', projectId, 'trips', tripId);
-          const tripSnap = await getDoc(tripRef);
-          if (tripSnap.exists()) {
+        const opSnap = await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).get();
+        if (opSnap.exists) {
+          const tripSnap = await adminDb.collection('projects').doc(projectId).collection('trips').doc(tripId).get();
+          if (tripSnap.exists) {
             console.log(`[Idempotency Hit] Replaying record receipt for operation: ${operationId}`);
             return res.json({
               success: true,
@@ -1565,10 +1560,9 @@ app.post(
         context
       );
 
-      // Save sync_operation ledger
+      // Save sync_operation ledger via Admin SDK
       if (operationId) {
-        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
-        await setDoc(opRef, {
+        await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).set({
           operationId,
           projectId,
           clientOperationUUID: operationId,
@@ -1602,7 +1596,7 @@ app.post(
 );
 
 // ----------------------------------------------------
-// 9i. Server-Authoritative Report Exception (GAP-P5-04)
+// 9i. Server-Authoritative Report Exception (GAP-P5-04 / UNIT 6A)
 // ----------------------------------------------------
 app.post(
   '/api/projects/:projectId/trips/:tripId/exceptions',
@@ -1628,15 +1622,13 @@ app.post(
         });
       }
 
-      // Idempotency check via sync_operations
+      // Idempotency check via Admin SDK sync_operations
       if (operationId) {
-        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
-        const opSnap = await getDoc(opRef);
-        if (opSnap.exists()) {
+        const opSnap = await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).get();
+        if (opSnap.exists) {
           const safeTrip = tripId || '_general';
-          const excRef = doc(db, 'projects', projectId, 'trips', safeTrip, 'exceptions', exceptionId);
-          const excSnap = await getDoc(excRef);
-          if (excSnap.exists()) {
+          const excSnap = await adminDb.collection('projects').doc(projectId).collection('trips').doc(safeTrip).collection('exceptions').doc(exceptionId).get();
+          if (excSnap.exists) {
             console.log(`[Idempotency Hit] Replaying report exception for operation: ${operationId}`);
             return res.json({
               success: true,
@@ -1666,10 +1658,9 @@ app.post(
         status: 'OPEN',
       }, context);
 
-      // Save sync_operation ledger
+      // Save sync_operation ledger via Admin SDK
       if (operationId) {
-        const opRef = doc(db, 'projects', projectId, 'sync_operations', operationId);
-        await setDoc(opRef, {
+        await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).set({
           operationId,
           projectId,
           clientOperationUUID: operationId,
