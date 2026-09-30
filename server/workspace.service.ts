@@ -35,6 +35,88 @@ export interface ProjectRegistryInfo {
   };
 }
 
+/**
+ * Pure reconciliation planner:
+ * Evaluates existing sheet rows against primaryKey index and authoritative key set.
+ * Returns 1-based sheet row numbers to delete, sorted in DESCENDING order (bottom-to-top).
+ *
+ * Rules:
+ * 1. blank primary key row = unmanaged → preserve
+ * 2. key absent from authoritative set = stale → delete
+ * 3. duplicate existing key: preserve FIRST occurrence, delete later duplicates
+ * 4. return deletion row numbers in DESCENDING order
+ * Header row 1 is strictly protected and never returned for deletion.
+ */
+export function planReconciliationDeletions(
+  existingRows: any[][],
+  primaryKeyIndex: number,
+  authoritativeKeys: Set<string> | string[],
+  startRowNumber: number = 2
+): number[] {
+  const authSet = authoritativeKeys instanceof Set ? authoritativeKeys : new Set(authoritativeKeys);
+  const seenKeys = new Set<string>();
+  const rowsToDelete: number[] = [];
+
+  for (let i = 0; i < existingRows.length; i++) {
+    const sheetRowNumber = startRowNumber + i;
+    // Header row 1 must NEVER be deleted
+    if (sheetRowNumber <= 1) continue;
+
+    const row = existingRows[i];
+    const rawVal = row ? row[primaryKeyIndex] : undefined;
+    const key = rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : '';
+
+    // Rule 1: Blank primary key row = unmanaged → preserve
+    if (!key) {
+      continue;
+    }
+
+    // Rule 3: Duplicate existing key: preserve FIRST occurrence, delete later duplicates
+    if (seenKeys.has(key)) {
+      rowsToDelete.push(sheetRowNumber);
+      continue;
+    }
+
+    seenKeys.add(key);
+
+    // Rule 2: Key absent from authoritative set = stale → delete
+    if (!authSet.has(key)) {
+      rowsToDelete.push(sheetRowNumber);
+    }
+  }
+
+  // Rule 4: Return deletion row numbers in DESCENDING order
+  return rowsToDelete.sort((a, b) => b - a);
+}
+
+/**
+ * Maps 1-based sheet row numbers to 0-based Google Sheets deleteDimension requests.
+ * Formula:
+ * startIndex = sheetRowNumber - 1
+ * endIndex = sheetRowNumber
+ * Header row 1 is strictly protected.
+ */
+export function buildDeleteDimensionRequests(
+  numericSheetId: number,
+  descendingRowNumbers: number[]
+) {
+  return descendingRowNumbers.map(rowNum => {
+    if (rowNum <= 1) {
+      throw new Error(`Header row 1 or invalid row number (${rowNum}) cannot be deleted`);
+    }
+    return {
+      deleteDimension: {
+        range: {
+          sheetId: numericSheetId,
+          dimension: 'ROWS',
+          startIndex: rowNum - 1,
+          endIndex: rowNum,
+        },
+      },
+    };
+  });
+}
+
 export class ServerWorkspaceService {
   /**
    * Initializes an authorized OAuth2 client using a Bearer token received from the client.
@@ -504,6 +586,138 @@ export class ServerWorkspaceService {
       updatedCount,
       unchangedCount,
       columnsCount: currentHeaders.length,
+      durationMs: Date.now() - startTime,
+    };
+  }
+
+  /**
+   * Plans stale and duplicate row deletions for reconciliation.
+   */
+  public planReconciliationDeletions(
+    existingRows: any[][],
+    primaryKeyIndex: number,
+    authoritativeKeys: Set<string> | string[],
+    startRowNumber: number = 2
+  ): number[] {
+    return planReconciliationDeletions(existingRows, primaryKeyIndex, authoritativeKeys, startRowNumber);
+  }
+
+  /**
+   * Reconciles a sheet tab snapshot:
+   * 1. Ensure tab and headers exist
+   * 2. Resolve numeric sheetId
+   * 3. Read current headers
+   * 4. Locate primaryKeyName index
+   * 5. Fail closed if primary key header missing
+   * 6. Read current data rows
+   * 7. Build authoritative key set
+   * 8. Plan stale/duplicate deletions
+   * 9. Issue deleteDimension requests bottom-to-top
+   * 10. Only after successful deletion, call existing upsertTabRecords
+   * 11. Return result including deletedCount
+   */
+  public async reconcileTabSnapshot(
+    spreadsheetId: string,
+    tabTitle: string,
+    primaryKeyName: string,
+    authoritativeRecords: Record<string, any>[],
+    expectedColumns: readonly string[] | string[],
+    bearerToken?: string
+  ): Promise<UpsertResult> {
+    const startTime = Date.now();
+    const auth = this.getAuthClient(bearerToken);
+
+    if (!auth) {
+      // In simulated / no-auth environment: do not execute external Google Sheets deletion
+      const upsertResult = await this.upsertTabRecords(
+        spreadsheetId,
+        tabTitle,
+        primaryKeyName,
+        authoritativeRecords,
+        expectedColumns,
+        bearerToken
+      );
+      return {
+        ...upsertResult,
+        deletedCount: 0,
+        durationMs: Date.now() - startTime,
+      };
+    }
+
+    const sheets = google.sheets({ version: 'v4', auth });
+
+    // 1. Ensure tab and headers exist
+    await this.ensureSheetTabWithHeaders(sheets, spreadsheetId, tabTitle, [...expectedColumns]);
+
+    // 2. Resolve numeric sheetId from spreadsheet metadata
+    const meta = await sheets.spreadsheets.get({ spreadsheetId });
+    const sheetObj = meta.data.sheets?.find(s => s.properties?.title === tabTitle);
+    if (!sheetObj || sheetObj.properties?.sheetId === undefined || sheetObj.properties?.sheetId === null) {
+      throw new Error(`تعذر العثور على المعرف الرقمي sheetId للتاب (${tabTitle}) في الشيت ${spreadsheetId}`);
+    }
+    const numericSheetId = sheetObj.properties.sheetId;
+
+    // 3. Read current headers
+    const headerRange = `${tabTitle}!1:1`;
+    const headerRes = await sheets.spreadsheets.values.get({ spreadsheetId, range: headerRange });
+    const currentHeaders: string[] = (headerRes.data.values?.[0] as string[]) || [...expectedColumns];
+
+    // 4. Locate primaryKeyName index
+    const pkIndex = currentHeaders.indexOf(primaryKeyName);
+
+    // 5. Fail closed if primary key header missing
+    if (pkIndex === -1) {
+      throw new Error(`لم يتم العثور على عمود المفتاح الأساسي (${primaryKeyName}) في شيت ${tabTitle}`);
+    }
+
+    // 6. Read current data rows
+    const allDataRes = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${tabTitle}!A2:ZZ`,
+    });
+    const existingRows: any[][] = allDataRes.data.values || [];
+
+    // 7. Build authoritative key set
+    const authoritativeKeys = new Set<string>();
+    for (const rec of authoritativeRecords) {
+      const rawVal = rec[primaryKeyName];
+      if (rawVal !== undefined && rawVal !== null) {
+        const strVal = String(rawVal).trim();
+        if (strVal) {
+          authoritativeKeys.add(strVal);
+        }
+      }
+    }
+
+    // 8. Plan stale/duplicate deletions
+    const rowsToDelete = planReconciliationDeletions(existingRows, pkIndex, authoritativeKeys, 2);
+    const deletedCount = rowsToDelete.length;
+
+    // 9. Issue deleteDimension requests bottom-to-top (descending row order)
+    if (rowsToDelete.length > 0) {
+      const deleteRequests = buildDeleteDimensionRequests(numericSheetId, rowsToDelete);
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId,
+        requestBody: {
+          requests: deleteRequests,
+        },
+      });
+    }
+
+    // 10. ONLY AFTER successful deletion: call existing upsertTabRecords(authoritativeRecords)
+    const upsertRes = await this.upsertTabRecords(
+      spreadsheetId,
+      tabTitle,
+      primaryKeyName,
+      authoritativeRecords,
+      expectedColumns,
+      bearerToken
+    );
+
+    // 11. Return result including deletedCount
+    return {
+      ...upsertRes,
+      deletedCount,
       durationMs: Date.now() - startTime,
     };
   }

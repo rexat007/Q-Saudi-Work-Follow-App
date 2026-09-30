@@ -205,6 +205,7 @@ export interface UpsertResult {
   unchangedCount: number;
   columnsCount: number;
   durationMs: number;
+  deletedCount?: number;
 }
 
 export interface WorkspaceSyncSummary {

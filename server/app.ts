@@ -580,18 +580,16 @@ app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatche
       upsertResults.push(matResult);
     }
 
-    // 4b. Fleet Roster (سجل الأسطول والتشغيل) - Primary Key: truckId
-    if (mappedFleetRows.length > 0) {
-      const fleetResult = await serverWorkspaceService.upsertTabRecords(
-        spreadsheetId,
-        WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr,
-        'truckId',
-        mappedFleetRows,
-        [...FLEET_ROSTER_COLUMNS],
-        bearerToken
-      );
-      upsertResults.push(fleetResult);
-    }
+    // 4b. Fleet Roster (سجل الأسطول والتشغيل) - Primary Key: truckId (Reconciled Snapshot)
+    const fleetResult = await serverWorkspaceService.reconcileTabSnapshot(
+      spreadsheetId,
+      WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr,
+      'truckId',
+      mappedFleetRows,
+      [...FLEET_ROSTER_COLUMNS],
+      bearerToken
+    );
+    upsertResults.push(fleetResult);
 
     // 5. Exceptions (الاستثناءات) - Primary Key: exceptionId
     if (exceptions.length > 0) {
