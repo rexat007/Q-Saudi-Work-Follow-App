@@ -404,12 +404,37 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
     expect(content).not.toContain('/api/workspace/sync/initial');
   });
 
-  // Test 19: ProjectSetupWizard does not invoke initial sync yet
-  it('19. ProjectSetupWizard does not invoke initial sync yet', () => {
+  // Test 19: Project activation remains uncoupled from Workspace projection, while explicit Google Workspace Wizard action may invoke initial projection
+  it('19. Project activation remains uncoupled from Workspace projection, while explicit Google Workspace Wizard action may invoke initial projection', () => {
     const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
     const content = fs.readFileSync(wizardPath, 'utf-8');
-    expect(content).not.toContain('syncInitialProjectWorkspace');
-    expect(content).not.toContain('/api/workspace/sync/initial');
+
+    // 1. Explicit user Google Workspace action is ALLOWED to contain syncInitialProjectWorkspace
+    const workspaceActionMatch = content.match(
+      /(?:function\s+executeProjectWorkspaceSyncOrchestration|const\s+handleSyncGoogleWorkspace)[\s\S]*?(?=\n(?:export\s+)?(?:const|function)\s+[a-zA-Z0-9_]+|\n\s*const\s+handleAddMaterial)/
+    );
+    expect(workspaceActionMatch).toBeTruthy();
+    expect(workspaceActionMatch![0]).toContain('syncInitialProjectWorkspace');
+
+    // 2. Project activation handler remains strictly UNCOUPLED (FORBIDDEN to invoke Workspace projection)
+    const activationHandlerMatch = content.match(
+      /const\s+handleActivateProject\s*=\s*async\s*\(\)\s*=>\s*\{[\s\S]*?(?=\n\s*\};)/
+    );
+    expect(activationHandlerMatch).toBeTruthy();
+    const activationContent = activationHandlerMatch![0];
+    expect(activationContent).not.toContain('syncInitialProjectWorkspace');
+    expect(activationContent).not.toContain('provisionProjectDrive');
+    expect(activationContent).not.toContain('requestGoogleScopes');
+    expect(activationContent).not.toContain('/api/workspace/sync/initial');
+
+    // 3. Wizard does not automatically invoke initial Workspace projection from useEffect hooks
+    const useEffectMatches = content.match(/useEffect\(\s*(?:\(\)\s*=>|async\s*\(\)\s*=>)\s*\{[\s\S]*?\}\s*,\s*\[[^\]]*\]\)/g) || [];
+    for (const hookContent of useEffectMatches) {
+      expect(hookContent).not.toContain('syncInitialProjectWorkspace');
+      expect(hookContent).not.toContain('provisionProjectDrive');
+      expect(hookContent).not.toContain('requestGoogleScopes');
+      expect(hookContent).not.toContain('/api/workspace/sync/initial');
+    }
   });
 
   // Test 20: No continuous sync added

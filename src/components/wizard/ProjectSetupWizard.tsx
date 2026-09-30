@@ -73,6 +73,126 @@ export interface ProjectSetupWizardProps {
   onSelectProject?: (projectId: string | null) => void;
 }
 
+export interface ProjectWorkspaceSyncParams {
+  project: {
+    projectId: string;
+    projectCode?: string;
+    nameAr?: string;
+    nameEn?: string;
+    clientName?: string;
+    settings?: {
+      googleDriveFolderId?: string;
+      googleSpreadsheetId?: string;
+    };
+    [key: string]: any;
+  } | null;
+  isSyncingGoogle: boolean;
+  setIsSyncingGoogle: (val: boolean) => void;
+  setSyncNotice: (notice: { type: 'success' | 'error'; text: string } | null) => void;
+  workspaceService?: typeof clientWorkspaceService;
+}
+
+export async function executeProjectWorkspaceSyncOrchestration(
+  params: ProjectWorkspaceSyncParams
+): Promise<void> {
+  const {
+    project,
+    isSyncingGoogle,
+    setIsSyncingGoogle,
+    setSyncNotice,
+    workspaceService = clientWorkspaceService,
+  } = params;
+
+  if (!project || isSyncingGoogle) return;
+
+  const hasFolderId = Boolean(project.settings?.googleDriveFolderId);
+  const hasSpreadsheetId = Boolean(project.settings?.googleSpreadsheetId);
+
+  // Inconsistent Workspace ID State: Fail closed if exactly one Workspace identifier exists
+  if ((hasFolderId && !hasSpreadsheetId) || (!hasFolderId && hasSpreadsheetId)) {
+    setSyncNotice({
+      type: 'error',
+      text: 'معرفات Google Workspace للمشروع غير مكتملة أو غير متطابقة (يلزم توفر معرف المجلد ومعرف الشيت معاً)',
+    });
+    return;
+  }
+
+  setIsSyncingGoogle(true);
+  setSyncNotice(null);
+
+  // Flow B: Existing Workspace (Both IDs already exist)
+  if (hasFolderId && hasSpreadsheetId) {
+    try {
+      // 1. Request Google OAuth scopes
+      await workspaceService.requestGoogleScopes();
+
+      // 2. DO NOT call provisionProjectDrive() - perform initial projection against existing spreadsheet
+      await workspaceService.syncInitialProjectWorkspace(
+        project.projectId,
+        project.settings!.googleSpreadsheetId!
+      );
+
+      setSyncNotice({
+        type: 'success',
+        text: 'تم تحديث وإسقاط بيانات المشروع في جدول البيانات بنجاح دون إعادة تهيئة مساحة العمل',
+      });
+    } catch (err: any) {
+      setSyncNotice({
+        type: 'error',
+        text: `فشل تحديث وإسقاط البيانات في جدول البيانات: ${err.message || 'خطأ غير معروف'}`,
+      });
+    } finally {
+      setIsSyncingGoogle(false);
+    }
+    return;
+  }
+
+  // Flow A: First-time Workspace (Neither ID exists)
+  let provisionedSpreadsheetId: string | null = null;
+  let provisionSucceeded = false;
+
+  try {
+    // 1. Request Google OAuth scopes
+    await workspaceService.requestGoogleScopes();
+
+    // 2. Provision Drive folders and spreadsheet
+    const syncResult = await workspaceService.provisionProjectDrive(project as any);
+    if (!syncResult?.spreadsheetId || !syncResult?.projectFolderId) {
+      throw new Error('فشلت تهيئة مساحة العمل: لم يتم إرجاع معرفات المجلد أو جدول البيانات');
+    }
+
+    provisionedSpreadsheetId = syncResult.spreadsheetId;
+    provisionSucceeded = true;
+
+    // 3. Initial projection using returned spreadsheetId directly (never waiting for React state)
+    await workspaceService.syncInitialProjectWorkspace(
+      project.projectId,
+      provisionedSpreadsheetId
+    );
+
+    setSyncNotice({
+      type: 'success',
+      text: 'تمت تهيئة مساحة العمل في Google بنجاح وإسقاط بيانات المشروع الأولية في جدول البيانات',
+    });
+  } catch (err: any) {
+    if (provisionSucceeded && provisionedSpreadsheetId) {
+      // Partial failure: Provisioning succeeded, but initial projection failed
+      setSyncNotice({
+        type: 'error',
+        text: `تمت تهيئة مساحة العمل في Google Drive بنجاح، ولكن تعذر إكمال إسقاط البيانات الأولية: ${err.message || 'خطأ غير معروف'}`,
+      });
+    } else {
+      // OAuth or Provisioning failure
+      setSyncNotice({
+        type: 'error',
+        text: err.message || 'فشلت عملية تهيئة مجلدات ومساحة عمل Google',
+      });
+    }
+  } finally {
+    setIsSyncingGoogle(false);
+  }
+}
+
 export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   projects: globalProjects,
   authContext,
@@ -391,31 +511,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  // Trigger Google Workspace Sync asynchronously with Retry logic
+  // Trigger Google Workspace Sync & Initial Projection asynchronously
   const handleSyncGoogleWorkspace = async () => {
-    if (!project) return;
-    setIsSyncingGoogle(true);
-    setSyncNotice(null);
-
-    try {
-      // 1. Trigger OAuth Popup to retrieve Google Credentials
-      await clientWorkspaceService.requestGoogleScopes();
-      
-      // 2. Perform Provisioning
-      const syncResult = await clientWorkspaceService.provisionProjectDrive(project);
-      
-      setSyncNotice({
-        type: 'success',
-        text: `تمت تهيئة مجلدات Google Drive وجدول البيانات بنجاح: ${syncResult.projectFolderName}`
-      });
-    } catch (err: any) {
-      setSyncNotice({
-        type: 'error',
-        text: err.message || 'فشلت عملية تهيئة مجلدات Google'
-      });
-    } finally {
-      setIsSyncingGoogle(false);
-    }
+    await executeProjectWorkspaceSyncOrchestration({
+      project,
+      isSyncingGoogle,
+      setIsSyncingGoogle,
+      setSyncNotice,
+      workspaceService: clientWorkspaceService,
+    });
   };
 
   // Phase 1: Add Material Item
@@ -1525,7 +1629,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-4 py-2 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50"
                     >
                       {isSyncingGoogle ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <FolderSync className="w-4 h-4" />}
-                      <span>{project.settings?.googleSpreadsheetId ? 'إعادة مزامنة وتهيئة الملفات' : 'مزامنة وتوليد مجلدات قوقل شيت'}</span>
+                      <span>{project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId ? 'تحديث مزامنة Google Workspace' : 'تهيئة ومزامنة Google Workspace'}</span>
                     </button>
                   </div>
                 </div>
