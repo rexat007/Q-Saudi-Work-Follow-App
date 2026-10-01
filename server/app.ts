@@ -1416,6 +1416,123 @@ app.post(
 );
 
 // ----------------------------------------------------
+// 9f-2. Server-Authoritative Imported Trip Creation (C1)
+// ----------------------------------------------------
+app.post(
+  '/api/projects/:projectId/trips/import',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const user = (req as any).user;
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'غير مصرح: سياق المستخدم مفقود.',
+        });
+      }
+
+      // Security Rejection Checks
+      if (req.body.tripId !== undefined) {
+        return res.status(400).json({
+          success: false,
+          error: 'محاولة غير مصرح بها: معرّف الرحلة (tripId) يتم إنشاؤه خادومياً ولا يمكن للعميل تحديده يدوياً.',
+        });
+      }
+
+      if (req.body.tripNumber !== undefined) {
+        return res.status(400).json({
+          success: false,
+          error: 'محاولة غير مصرح بها: لا يمكن للعميل تحديد رقم الرحلة (tripNumber) يدوياً.',
+        });
+      }
+
+      if (
+        req.body.pricingSnapshot !== undefined ||
+        req.body.settlementAmount !== undefined ||
+        req.body.financials !== undefined
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: 'تعارض أمني: يُحظر تحديد لقطات الأسعار أو مبالغ التسوية والماليات يدوياً من قِبل العميل.',
+        });
+      }
+
+      if (
+        req.body.carrierSnapshot !== undefined ||
+        req.body.truckSnapshot !== undefined ||
+        req.body.driverSnapshot !== undefined ||
+        req.body.materialSnapshot !== undefined
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: 'تعارض أمني: يُحظر تحديد لقطات الكيانات المعتمدة يدوياً من قِبل العميل.',
+        });
+      }
+
+      if (req.body.projectId && req.body.projectId !== projectId) {
+        return res.status(400).json({
+          success: false,
+          error: 'تعارض أمني: معرف المشروع غير متطابق بين الطلب ورابط الخدمة.',
+        });
+      }
+
+      // Idempotency Check via Admin SDK (operationId or clientUUID)
+      const operationId = req.body.clientUUID || req.body.operationId;
+      if (operationId) {
+        const tripsQuery = await adminDb
+          .collection('projects')
+          .doc(projectId)
+          .collection('trips')
+          .where('clientUUID', '==', operationId)
+          .limit(1)
+          .get();
+        if (!tripsQuery.empty) {
+          const existingTrip = tripsQuery.docs[0].data();
+          return res.json({
+            success: true,
+            trip: existingTrip,
+            idempotentReplay: true,
+            message: 'تم تأكيد المعالجة السابقة بنجاح (Idempotency Hit)',
+          });
+        }
+      }
+
+      const params = {
+        ...req.body,
+        projectId,
+        clientUUID: operationId,
+      };
+
+      const context = {
+        userId: user.userId,
+        email: user.email,
+        displayName: user.displayName || user.email || 'Import Committer',
+        role: user.role,
+        assignedProjectIds: user.assignedProjectIds,
+      };
+
+      const newTrip = await serverTripService.dispatchImportedTrip(params, context);
+
+      res.status(201).json({
+        success: true,
+        trip: newTrip,
+        idempotentReplay: false,
+        message: 'تم إنشاء وتأكيد الرحلة المستوردة خادومياً بنجاح.',
+      });
+    } catch (error: any) {
+      console.error('Error in secure imported trip creation:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'فشلت عملية إنشاء الرحلة المستوردة الخادومية المعتمدة.',
+      });
+    }
+  }
+);
+
+// ----------------------------------------------------
 // 9g. Server-Authoritative Trip Status Transition (GAP-P5-04 / UNIT 6A)
 // ----------------------------------------------------
 app.patch(
