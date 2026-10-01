@@ -292,7 +292,7 @@ export class ExcelCsvPipelineService {
     }
 
     const row = batch.rows[rowIdx];
-    const currentRes = row.entityResolutions?.[entityTypeKey] || {};
+    const currentRes: Partial<ImportEntityResolutionInfo> = row.entityResolutions?.[entityTypeKey] || {};
 
     const updatedResolution: ImportEntityResolutionInfo = {
       ...currentRes,
@@ -365,7 +365,7 @@ export class ExcelCsvPipelineService {
     if (rowIdx === -1) return batch;
 
     const validator = new ExcelCsvTripValidator();
-    const freshIssues = validator.validateRow(row, context);
+    const freshIssues = validator.validateRow(row as ImportRow<any, CanonicalTripRow>, context);
 
     // Smart merge: Preserve manually injected non-resolvable issues (used in some unit tests)
     // while adopting fresh authoritative issues from the validator.
@@ -418,14 +418,19 @@ export class ExcelCsvPipelineService {
     for (const r of batch.rows) {
       if (r.reviewStatus === 'requires_review') {
         requiresReviewRows++;
-      } else if (r.reviewStatus === 'error') {
-        errorRows++;
-      } else if (r.status === 'ERROR') {
-        errorRows++;
-      } else if (r.reviewStatus === 'accepted' || r.status === 'VALID') {
+      }
+
+      if (r.status === 'REJECTED' || (r.reviewStatus as string) === 'rejected') {
+        // Excluded from valid/warning/error tallies
+        continue;
+      } else if (r.reviewStatus === 'accepted') {
         validRows++;
-      } else if (r.reviewStatus === 'warning' || r.status === 'WARNING') {
+      } else if (r.status === 'ERROR' || r.reviewStatus === 'error') {
+        errorRows++;
+      } else if (r.status === 'WARNING' || r.reviewStatus === 'warning') {
         warningRows++;
+      } else if (r.status === 'VALID') {
+        validRows++;
       } else {
         validRows++;
       }
@@ -438,5 +443,148 @@ export class ExcelCsvPipelineService {
       errorRows,
       requiresReviewRows,
     };
+  }
+
+  /**
+   * Applies operational field corrections to a specific row in the batch,
+   * preserving raw historical source input, rejecting protected identity modifications,
+   * revalidating against domain constraints, and re-running batch-wide duplicate detection.
+   */
+  public static applyRowCorrection(
+    batch: UnifiedImportBatch,
+    rowNumber: number,
+    corrections: Partial<CanonicalTripRow>,
+    context: PipelineContext
+  ): UnifiedImportBatch {
+    const rowIdx = batch.rows.findIndex((r) => r.rowNumber === rowNumber);
+    if (rowIdx === -1) {
+      throw new Error(`Row ${rowNumber} not found in import batch`);
+    }
+
+    const row = batch.rows[rowIdx];
+
+    // Reject modifications to protected identity ID fields
+    const protectedKeys = ['carrierId', 'materialId', 'driverId', 'truckId', 'projectId'];
+    for (const key of protectedKeys) {
+      if (
+        (corrections as any)[key] !== undefined &&
+        (corrections as any)[key] !== ((row.resolvedValues as any)?.[key] || (row.canonical as any)?.[key])
+      ) {
+        throw new Error(`Modification of protected identity field '${key}' is prohibited in row correction.`);
+      }
+    }
+
+    // Filter out undefined and extract safe operational updates
+    const safeCorrections: Record<string, any> = {};
+    for (const [k, v] of Object.entries(corrections)) {
+      if (!protectedKeys.includes(k) && v !== undefined) {
+        safeCorrections[k] = v;
+      }
+    }
+
+    // Update canonical and mapped data models (preserving raw historical source evidence)
+    const existingCanonical = (row.canonical as any) || {};
+    const existingMapped = (row.mapped as any) || {};
+
+    const updatedCanonical: CanonicalTripRow = {
+      ...existingCanonical,
+      ...safeCorrections,
+    };
+
+    const updatedMapped: CanonicalTripRow = {
+      ...existingMapped,
+      ...safeCorrections,
+    };
+
+    // Auto-calculate net weight if tare and gross were provided and net wasn't explicitly supplied
+    if (safeCorrections.grossWeight !== undefined || safeCorrections.tareWeight !== undefined) {
+      const g = updatedCanonical.grossWeight;
+      const t = updatedCanonical.tareWeight;
+      if (typeof g === 'number' && typeof t === 'number' && !isNaN(g) && !isNaN(t) && safeCorrections.netWeight === undefined) {
+        const net = g - t;
+        updatedCanonical.netWeight = net;
+        updatedMapped.netWeight = net;
+      }
+    }
+
+    let updatedRow: ImportRow = {
+      ...row,
+      canonical: updatedCanonical,
+      mapped: updatedMapped,
+    };
+
+    // Revalidate row with ExcelCsvTripValidator
+    const validator = new ExcelCsvTripValidator();
+    const freshIssues = validator.validateRow(updatedRow as ImportRow<any, CanonicalTripRow>, context);
+
+    updatedRow.validationIssues = freshIssues;
+
+    // Determine status based on validation issues and entity resolution requirements
+    const isBlocking = freshIssues.some(
+      (i) => i.severity === 'BLOCKING' || (i.severity as any) === 'ERROR' || (i.severity as any) === 'FATAL'
+    );
+    const isWarning = freshIssues.some((i) => i.severity === 'WARNING');
+    const stillNeedsResolution = this.rowRequiresEntityResolution(updatedRow);
+
+    if (stillNeedsResolution || isBlocking) {
+      updatedRow.status = 'ERROR';
+      updatedRow.reviewStatus = 'requires_review';
+    } else if (isWarning) {
+      updatedRow.status = 'WARNING';
+      updatedRow.reviewStatus = batch.warningConfirmation?.confirmed ? 'accepted' : 'warning';
+    } else {
+      updatedRow.status = 'VALID';
+      updatedRow.reviewStatus = 'accepted';
+    }
+
+    // Replace updated row in batch rows array
+    const updatedRows = [...batch.rows];
+    updatedRows[rowIdx] = updatedRow;
+
+    // Rerun duplicate detection batch-wide across all rows
+    const duplicateChecker = new ExcelCsvTripDuplicateChecker();
+    const checkedRows = duplicateChecker.checkDuplicates(updatedRows, context);
+
+    // Finalize row statuses taking batch-wide duplicate detection results into account
+    const finalizedRows: ImportRow[] = checkedRows.map((r) => {
+      const hasDup = Boolean(r.duplicateInfo?.isDuplicate);
+      const rowBlocking = r.validationIssues?.some(
+        (i) => i.severity === 'BLOCKING' || (i.severity as any) === 'ERROR' || (i.severity as any) === 'FATAL'
+      );
+      const rowWarn = r.validationIssues?.some((i) => i.severity === 'WARNING');
+      const rowNeedsRes = this.rowRequiresEntityResolution(r);
+
+      let status: ImportRow['status'] = r.status;
+      let reviewStatus: ImportRow['reviewStatus'] = r.reviewStatus;
+
+      if (r.status === 'REJECTED') {
+        return r;
+      } else if (hasDup || rowNeedsRes || rowBlocking) {
+        status = rowBlocking ? 'ERROR' : (r.status === 'ERROR' ? 'ERROR' : 'WARNING');
+        reviewStatus = 'requires_review';
+      } else if (rowWarn) {
+        status = 'WARNING';
+        reviewStatus = (r.reviewStatus === 'accepted' || batch.warningConfirmation?.confirmed)
+          ? 'accepted'
+          : 'warning';
+      } else {
+        status = 'VALID';
+        reviewStatus = 'accepted';
+      }
+
+      return {
+        ...r,
+        status,
+        reviewStatus,
+      };
+    });
+
+    const updatedBatch: UnifiedImportBatch = {
+      ...batch,
+      rows: finalizedRows,
+      issues: finalizedRows.flatMap((r) => r.validationIssues || []),
+    };
+
+    return this.recalculateBatchCounts(updatedBatch);
   }
 }

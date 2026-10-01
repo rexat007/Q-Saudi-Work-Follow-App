@@ -26,6 +26,10 @@ export class ExcelCsvTripDuplicateChecker implements IImportDuplicateChecker {
       const dupKeys = this.extractDuplicateKeys(canonical);
 
       if (dupKeys.length === 0) {
+        if (row.duplicateInfo) {
+          const { duplicateInfo, ...cleanRow } = row;
+          return cleanRow as ImportRow;
+        }
         return row;
       }
 
@@ -71,6 +75,11 @@ export class ExcelCsvTripDuplicateChecker implements IImportDuplicateChecker {
             reviewStatus: 'requires_review',
           };
         }
+      }
+
+      if (row.duplicateInfo) {
+        const { duplicateInfo, ...cleanRow } = row;
+        return cleanRow as ImportRow;
       }
 
       return row;

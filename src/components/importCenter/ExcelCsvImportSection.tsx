@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect, Fragment } from 'react';
 import {
   FileSpreadsheet,
   UploadCloud,
@@ -111,6 +111,9 @@ export function ExcelCsvImportSection({
   const [showFullBatchTable, setShowFullBatchTable] = useState<boolean>(false);
   const [activeCategoryTab, setActiveCategoryTab] = useState<'carrier' | 'material' | 'driver' | 'truck'>('carrier');
   const [selectedAlternateCandidates, setSelectedAlternateCandidates] = useState<Record<string, string>>({});
+  const [activeCorrectionRowNumber, setActiveCorrectionRowNumber] = useState<number | null>(null);
+  const [correctionDraft, setCorrectionDraft] = useState<Partial<CanonicalTripRow>>({});
+  const [correctionError, setCorrectionError] = useState<string | null>(null);
   const [createFormData, setCreateFormData] = useState<{
     nameAr?: string;
     commercialRegistrationNo?: string;
@@ -124,6 +127,123 @@ export function ExcelCsvImportSection({
     tareWeightKg?: number;
     maxGrossWeightKg?: number;
   }>({});
+
+  const handleStartRowCorrection = (row: ImportRow) => {
+    setActiveCorrectionRowNumber(row.rowNumber);
+    setCorrectionError(null);
+    const canonical: Partial<CanonicalTripRow> = (row.mapped as any) || (row.canonical as any) || {};
+    setCorrectionDraft({
+      ticketId: canonical.ticketId || '',
+      tripSerial: canonical.tripSerial !== undefined ? canonical.tripSerial : '',
+      shiftDate: canonical.shiftDate || canonical.date || '',
+      truckNo: canonical.truckNo || canonical.plateNumber || '',
+      tareWeight: canonical.tareWeight !== undefined ? canonical.tareWeight : (canonical.tareWeightKg !== undefined ? canonical.tareWeightKg : undefined),
+      grossWeight: canonical.grossWeight !== undefined ? canonical.grossWeight : (canonical.grossWeightKg !== undefined ? canonical.grossWeightKg : undefined),
+      netWeight: canonical.netWeight !== undefined ? canonical.netWeight : (canonical.netWeightKg !== undefined ? canonical.netWeightKg : undefined),
+      destNetWeight: canonical.destNetWeight !== undefined ? canonical.destNetWeight : undefined,
+      varianceWeight: canonical.varianceWeight !== undefined ? canonical.varianceWeight : undefined,
+      weighTime: canonical.weighTime || '',
+      loadTime: canonical.loadTime || '',
+      unloadTime: canonical.unloadTime || '',
+      note: canonical.note || '',
+    });
+  };
+
+  const handleSaveRowCorrection = async (rowNumber: number) => {
+    if (!activeBatch) return;
+    try {
+      setCorrectionError(null);
+      setProcessError(null);
+
+      // Parse & validate numbers safely
+      const parsedCorrections: Partial<CanonicalTripRow> = { ...correctionDraft };
+
+      const numFields: Array<keyof CanonicalTripRow> = [
+        'tareWeight',
+        'grossWeight',
+        'netWeight',
+        'destNetWeight',
+        'varianceWeight',
+      ];
+
+      for (const field of numFields) {
+        const raw = (correctionDraft as any)[field];
+        if (raw === '' || raw === null || raw === undefined) {
+          parsedCorrections[field] = undefined;
+        } else if (typeof raw === 'string') {
+          const trimmed = raw.trim();
+          if (trimmed === '') {
+            parsedCorrections[field] = undefined;
+          } else {
+            const num = Number(trimmed);
+            if (isNaN(num)) {
+              throw new Error(`القيمة المدخلة في حقل (${field}) غير صالحة، يجب أن تكون رقماً صحيحاً.`);
+            }
+            parsedCorrections[field] = num;
+          }
+        }
+      }
+
+      const updated = ExcelCsvPipelineService.applyRowCorrection(
+        activeBatch,
+        rowNumber,
+        parsedCorrections,
+        context
+      );
+
+      setActiveBatch({ ...updated });
+      setActiveCorrectionRowNumber(null);
+
+      const correctedFields = Object.keys(parsedCorrections).filter(
+        (k) => (parsedCorrections as any)[k] !== undefined
+      );
+
+      if (currentProjectId && activeSessionId) {
+        try {
+          const cleanSnapshot = {
+            totalRows: updated.totalRows,
+            validRows: updated.validRows,
+            warningRows: updated.warningRows,
+            errorRows: updated.errorRows,
+            requiresReviewRows: updated.requiresReviewRows,
+            committedRows: updated.committedRows,
+            rows: updated.rows.map((r) => {
+              const { rawInput, ...rest } = r as any;
+              return rest;
+            }),
+          };
+
+          const updatedSession = await importSessionClientService.updateCheckpoint(
+            currentProjectId,
+            activeSessionId,
+            {
+              lifecycleState: 'REVIEW_REQUIRED',
+              currentStage: 'REVIEW',
+              reviewSnapshot: cleanSnapshot,
+              validationIssues: updated.issues || [],
+              warningConfirmation: confirmWarnings,
+              reviewAction: {
+                rowNumber,
+                action: 'CORRECT_ROW' as any,
+                correctedFields,
+              },
+            },
+            sessionVersion
+          );
+
+          setSessionVersion(updatedSession.version);
+        } catch (err: any) {
+          if (err?.code === 'VERSION_CONFLICT') {
+            setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ تصحيح الصف');
+          } else {
+            console.warn('Failed to update session checkpoint:', err);
+          }
+        }
+      }
+    } catch (err: any) {
+      setCorrectionError(err?.message || 'فشل في حفظ تصحيح بيانات الصف');
+    }
+  };
 
   const handleOpenCreateForm = (group: RosterEntityReviewGroup) => {
     setActiveCreateGroupKey(group.normalizedSourceKey);
@@ -973,6 +1093,9 @@ export function ExcelCsvImportSection({
     setActiveImportBatchId(null);
     setSessionVersion(0);
     setRequiresSourceFileReattach(false);
+    setActiveCorrectionRowNumber(null);
+    setCorrectionDraft({});
+    setCorrectionError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -1991,7 +2114,8 @@ export function ExcelCsvImportSection({
                       const isDuplicate = Boolean(row.duplicateInfo?.isDuplicate);
 
                       return (
-                        <tr key={row.rowNumber} className="hover:bg-amber-50/50 transition-colors">
+                        <Fragment key={row.rowNumber}>
+                          <tr className="hover:bg-amber-50/50 transition-colors">
                           <td className="p-3 text-center font-mono font-bold text-stone-700">
                             {row.rowNumber}
                           </td>
@@ -2041,6 +2165,19 @@ export function ExcelCsvImportSection({
 
                           <td className="p-3 text-center">
                             <div className="flex items-center justify-center gap-1.5">
+                              <button
+                                onClick={() => handleStartRowCorrection(row)}
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer shadow-2xs ${
+                                  activeCorrectionRowNumber === row.rowNumber
+                                    ? 'bg-blue-700 text-white'
+                                    : 'bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200'
+                                }`}
+                                title="تصحيح بيانات الشحنة التشغيلية"
+                              >
+                                <SlidersHorizontal className="w-3.5 h-3.5" />
+                                <span>تصحيح البيانات</span>
+                              </button>
+
                               {!hasBlocking && !isError && (
                                 <button
                                   onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
@@ -2063,8 +2200,135 @@ export function ExcelCsvImportSection({
                             </div>
                           </td>
                         </tr>
-                      );
-                    })}
+
+                        {activeCorrectionRowNumber === row.rowNumber && (
+                          <tr className="bg-stone-50/90">
+                            <td colSpan={5} className="p-4 border-t border-b border-stone-200">
+                              <div className="space-y-4">
+                                <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+                                  <span className="font-bold text-xs text-stone-900 flex items-center gap-1.5">
+                                    <SlidersHorizontal className="w-4 h-4 text-blue-600" />
+                                    <span>تصحيح البيانات التشغيلية للصف رقم ({row.rowNumber})</span>
+                                  </span>
+                                  <button
+                                    onClick={() => setActiveCorrectionRowNumber(null)}
+                                    className="text-stone-400 hover:text-stone-600 text-xs font-bold cursor-pointer"
+                                  >
+                                    إلغاء
+                                  </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                                  <div className="space-y-1">
+                                    <label className="font-bold text-stone-700 block">رقم التذكرة / البوليصة (ticketId)</label>
+                                    <input
+                                      type="text"
+                                      value={correctionDraft.ticketId || ''}
+                                      onChange={(e) => setCorrectionDraft((prev) => ({ ...prev, ticketId: e.target.value }))}
+                                      className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold bg-white text-stone-900"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label className="font-bold text-stone-700 block">الرقم التسلسلي (tripSerial)</label>
+                                    <input
+                                      type="text"
+                                      value={correctionDraft.tripSerial || ''}
+                                      onChange={(e) => setCorrectionDraft((prev) => ({ ...prev, tripSerial: e.target.value }))}
+                                      className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold bg-white text-stone-900"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label className="font-bold text-stone-700 block">تاريخ الوردية / الحركة (shiftDate)</label>
+                                    <input
+                                      type="text"
+                                      placeholder="YYYY-MM-DD"
+                                      value={correctionDraft.shiftDate || ''}
+                                      onChange={(e) => setCorrectionDraft((prev) => ({ ...prev, shiftDate: e.target.value }))}
+                                      className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold bg-white text-stone-900"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label className="font-bold text-stone-700 block">رقم اللوحة / الشاحنة (truckNo)</label>
+                                    <input
+                                      type="text"
+                                      value={correctionDraft.truckNo || ''}
+                                      onChange={(e) => setCorrectionDraft((prev) => ({ ...prev, truckNo: e.target.value }))}
+                                      className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold bg-white text-stone-900"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label className="font-bold text-stone-700 block">الوزن الإجمالي القائم كجم (grossWeight)</label>
+                                    <input
+                                      type="number"
+                                      value={correctionDraft.grossWeight !== undefined ? correctionDraft.grossWeight : ''}
+                                      onChange={(e) => setCorrectionDraft((prev) => ({ ...prev, grossWeight: e.target.value as any }))}
+                                      className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold bg-white text-stone-900"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label className="font-bold text-stone-700 block">الوزن الفارغ كجم (tareWeight)</label>
+                                    <input
+                                      type="number"
+                                      value={correctionDraft.tareWeight !== undefined ? correctionDraft.tareWeight : ''}
+                                      onChange={(e) => setCorrectionDraft((prev) => ({ ...prev, tareWeight: e.target.value as any }))}
+                                      className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold bg-white text-stone-900"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label className="font-bold text-stone-700 block">الوزن الصافي كجم (netWeight)</label>
+                                    <input
+                                      type="number"
+                                      value={correctionDraft.netWeight !== undefined ? correctionDraft.netWeight : ''}
+                                      onChange={(e) => setCorrectionDraft((prev) => ({ ...prev, netWeight: e.target.value as any }))}
+                                      className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold bg-white text-stone-900"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label className="font-bold text-stone-700 block">صافي وزن الوجهة كجم (destNetWeight)</label>
+                                    <input
+                                      type="number"
+                                      value={correctionDraft.destNetWeight !== undefined ? correctionDraft.destNetWeight : ''}
+                                      onChange={(e) => setCorrectionDraft((prev) => ({ ...prev, destNetWeight: e.target.value as any }))}
+                                      className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold bg-white text-stone-900"
+                                    />
+                                  </div>
+                                </div>
+
+                                {correctionError && (
+                                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold">
+                                    {correctionError}
+                                  </div>
+                                )}
+
+                                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-200">
+                                  <button
+                                    onClick={() => setActiveCorrectionRowNumber(null)}
+                                    className="px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold cursor-pointer"
+                                  >
+                                    إلغاء
+                                  </button>
+                                  <button
+                                    onClick={() => handleSaveRowCorrection(row.rowNumber)}
+                                    className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                  >
+                                    <Check className="w-3.5 h-3.5" />
+                                    <span>حفظ التصحيح وإعادة الفحص</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    );
+                  })}
                   </tbody>
                 </table>
               </div>
