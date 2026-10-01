@@ -1,13 +1,14 @@
 import { UnifiedImportPipelineService } from './unifiedImportPipeline.service';
 import { ExcelImportParser } from './excelParser.service';
 import { CsvImportParser } from './csvParser.service';
-import { 
+import {
   DriverTruckImportNormalizer,
   DriverTruckImportMapper,
   DriverTruckImportEntityResolver,
   DriverTruckImportValidator,
   DriverTruckImportDuplicateChecker,
-  DriverTruckImportCommitter
+  DriverTruckImportCommitter,
+  DriverTruckCanonicalMappingTarget,
 } from './driverTruckImport';
 import { FileIntakeValidator } from './fileIntake.validator';
 import {
@@ -27,6 +28,7 @@ import { normalizeName } from '../../utils/normalization';
 export interface ProcessDriverTruckFileOptions {
   sheetName?: string;
   headerRowIndex?: number;
+  customMappings?: Record<string, DriverTruckCanonicalMappingTarget>;
 }
 
 export class DriverTruckPipelineService {
@@ -82,13 +84,14 @@ export class DriverTruckPipelineService {
     const effectiveOptions: ProcessDriverTruckFileOptions = {
       sheetName: targetSheetName,
       headerRowIndex: targetHeaderRowIndex ?? 0,
+      customMappings: options?.customMappings,
     };
 
     // Instantiate appropriate parser
     const parser = sourceType === 'EXCEL' ? new ExcelImportParser() : new CsvImportParser();
 
-    // Use our custom driver/truck stages
-    const normalizer = new DriverTruckImportNormalizer();
+    // Use our custom driver/truck stages with approved customMappings
+    const normalizer = new DriverTruckImportNormalizer(effectiveOptions.customMappings);
     const mapper = new ExcelCsvColumnMapper();
     const entityResolver = new DriverTruckImportEntityResolver();
     const validator = new DriverTruckImportValidator();

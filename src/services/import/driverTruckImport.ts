@@ -34,47 +34,159 @@ export interface CanonicalDriverTruckRow {
   [key: string]: any;
 }
 
+export type DriverTruckCanonicalMappingTarget =
+  | 'driverName'
+  | 'driverPhone'
+  | 'driverIdentity'
+  | 'truckPlate'
+  | 'truckType'
+  | 'carrierName'
+  | 'materialName'
+  | 'materialCode'
+  | 'tareWeightKg'
+  | 'maxGrossWeightKg';
+
+export interface RosterCanonicalFieldOption {
+  value: DriverTruckCanonicalMappingTarget | 'unmapped';
+  labelAr: string;
+  labelEn: string;
+}
+
+export const ROSTER_CANONICAL_FIELD_OPTIONS: RosterCanonicalFieldOption[] = [
+  { value: 'unmapped', labelAr: 'تجاهل / غير مرتبط', labelEn: 'Ignore / Unmapped' },
+  { value: 'driverName', labelAr: 'اسم السائق', labelEn: 'Driver Name' },
+  { value: 'driverPhone', labelAr: 'رقم الجوال', labelEn: 'Driver Phone' },
+  { value: 'driverIdentity', labelAr: 'رقم الهوية / الإقامة', labelEn: 'Driver Identity / Iqama' },
+  { value: 'truckPlate', labelAr: 'رقم اللوحة', labelEn: 'Truck Plate' },
+  { value: 'truckType', labelAr: 'نوع الشاحنة', labelEn: 'Truck Type' },
+  { value: 'carrierName', labelAr: 'اسم الناقل', labelEn: 'Carrier' },
+  { value: 'materialName', labelAr: 'اسم المادة', labelEn: 'Material' },
+  { value: 'materialCode', labelAr: 'كود المادة', labelEn: 'Material Code' },
+  { value: 'tareWeightKg', labelAr: 'الوزن الفارغ (كجم)', labelEn: 'Tare Weight (kg)' },
+  { value: 'maxGrossWeightKg', labelAr: 'الوزن الإجمالي الأقصى (كجم)', labelEn: 'Maximum Gross Weight (kg)' },
+];
+
+export function translateDiscoveryToRosterTarget(
+  canonicalField?: string
+): DriverTruckCanonicalMappingTarget | 'unmapped' {
+  if (!canonicalField || String(canonicalField).startsWith('unmapped_')) {
+    return 'unmapped';
+  }
+  switch (canonicalField) {
+    case 'driverName':
+      return 'driverName';
+    case 'driverPhone':
+      return 'driverPhone';
+    case 'driverIdentity':
+      return 'driverIdentity';
+    case 'truckNo':
+    case 'truckPlate':
+      return 'truckPlate';
+    case 'truckType':
+      return 'truckType';
+    case 'carrier':
+    case 'carrierName':
+      return 'carrierName';
+    case 'materialType':
+    case 'materialName':
+      return 'materialName';
+    case 'materialCode':
+      return 'materialCode';
+    case 'tareWeight':
+    case 'tareWeightKg':
+      return 'tareWeightKg';
+    case 'grossWeight':
+    case 'maxGrossWeightKg':
+      return 'maxGrossWeightKg';
+    default:
+      return 'unmapped';
+  }
+}
+
 /**
  * Driver & Truck Import Pipeline Stage Implementations
  * Conforms to Unit 3 Roster Convergence architecture
  */
 
 export class DriverTruckImportNormalizer {
-  public normalize(raw: Record<string, any>, rowNumber: number): CanonicalDriverTruckRow {
+  public customMappings?: Record<string, DriverTruckCanonicalMappingTarget>;
+
+  constructor(customMappings?: Record<string, DriverTruckCanonicalMappingTarget>) {
+    this.customMappings = customMappings;
+  }
+
+  public normalize(
+    raw: Record<string, any>,
+    rowNumber: number,
+    _context?: any,
+    runtimeCustomMappings?: Record<string, DriverTruckCanonicalMappingTarget>
+  ): CanonicalDriverTruckRow {
     const canonical: CanonicalDriverTruckRow = { _rowNumber: rowNumber };
     canonical._raw = raw; // Preserve extra fields in source metadata without leaking into entity payload
 
-    // Use shared ExcelCsvColumnMapper logic to identify fields
-    const headers = Object.keys(raw);
-    const mappings = ExcelCsvColumnMapper.mapHeaders(headers);
-    
-    const mapped: any = {};
-    for (const [rawHeader, match] of Object.entries(mappings)) {
-      if (match && match.confidence >= 0.70 && !match.isAmbiguous) {
-        mapped[match.canonicalField] = raw[rawHeader];
+    const effectiveMappings = runtimeCustomMappings || this.customMappings;
+
+    if (effectiveMappings && Object.keys(effectiveMappings).length > 0) {
+      // Manual approved mappings take precedence deterministically
+      const mapped: Partial<Record<DriverTruckCanonicalMappingTarget, any>> = {};
+
+      for (const [rawHeader, targetField] of Object.entries(effectiveMappings)) {
+        if (targetField && targetField !== ('unmapped' as any) && raw[rawHeader] !== undefined && raw[rawHeader] !== null) {
+          mapped[targetField] = raw[rawHeader];
+        }
       }
+
+      // Explicit target extraction only - unmapped / extra fields in raw do not leak into canonical payload fields
+      canonical.driverName = mapped.driverName !== undefined ? String(mapped.driverName).trim() : '';
+      canonical.driverPhone = mapped.driverPhone !== undefined ? normalizePhone(String(mapped.driverPhone)) : '';
+      canonical.driverIdentity = mapped.driverIdentity !== undefined ? normalizeIdNumber(String(mapped.driverIdentity)) : '';
+      canonical.truckPlate = mapped.truckPlate !== undefined ? normalizePlate(String(mapped.truckPlate)) : '';
+      canonical.truckType = mapped.truckType !== undefined ? String(mapped.truckType).trim() : '';
+      canonical.carrierName = mapped.carrierName !== undefined ? String(mapped.carrierName).trim() : '';
+      canonical.materialName = mapped.materialName !== undefined ? String(mapped.materialName).trim() : '';
+      canonical.materialCode = mapped.materialCode !== undefined ? String(mapped.materialCode).trim() : '';
+
+      if (mapped.tareWeightKg !== undefined && mapped.tareWeightKg !== '') {
+        const tareVal = Number(mapped.tareWeightKg);
+        if (!isNaN(tareVal)) canonical.tareWeightKg = tareVal;
+      }
+      if (mapped.maxGrossWeightKg !== undefined && mapped.maxGrossWeightKg !== '') {
+        const grossVal = Number(mapped.maxGrossWeightKg);
+        if (!isNaN(grossVal)) canonical.maxGrossWeightKg = grossVal;
+      }
+    } else {
+      // Use shared ExcelCsvColumnMapper logic to identify fields (backward-compatible fallback)
+      const headers = Object.keys(raw);
+      const mappings = ExcelCsvColumnMapper.mapHeaders(headers);
+      
+      const mapped: any = {};
+      for (const [rawHeader, match] of Object.entries(mappings)) {
+        if (match && match.confidence >= 0.70 && !match.isAmbiguous) {
+          mapped[match.canonicalField] = raw[rawHeader];
+        }
+      }
+
+      // Normalize canonical field values
+      canonical.driverName = mapped.driverName ? String(mapped.driverName).trim() : '';
+      canonical.driverPhone = mapped.driverPhone ? normalizePhone(String(mapped.driverPhone)) : '';
+      canonical.driverIdentity = mapped.driverIdentity ? normalizeIdNumber(String(mapped.driverIdentity)) : '';
+      
+      // Map truckNo (from shared mapper) to truckPlate (roster canonical)
+      const plateVal = mapped.truckNo || mapped.truckPlate || '';
+      canonical.truckPlate = plateVal ? normalizePlate(String(plateVal)) : '';
+      
+      canonical.truckType = mapped.truckType ? String(mapped.truckType).trim() : '';
+      canonical.carrierName = mapped.carrier ? String(mapped.carrier).trim() : (mapped.carrierName ? String(mapped.carrierName).trim() : '');
+      
+      // Map materialType (from shared mapper) to materialName (roster canonical)
+      const matVal = mapped.materialType || mapped.materialName || '';
+      canonical.materialName = matVal ? String(matVal).trim() : '';
+      
+      canonical.materialCode = mapped.materialCode ? String(mapped.materialCode).trim() : '';
+
+      if (raw.tareWeightKg !== undefined) canonical.tareWeightKg = Number(raw.tareWeightKg);
+      if (raw.maxGrossWeightKg !== undefined) canonical.maxGrossWeightKg = Number(raw.maxGrossWeightKg);
     }
-
-    // Normalize canonical field values
-    canonical.driverName = mapped.driverName ? String(mapped.driverName).trim() : '';
-    canonical.driverPhone = mapped.driverPhone ? normalizePhone(String(mapped.driverPhone)) : '';
-    canonical.driverIdentity = mapped.driverIdentity ? normalizeIdNumber(String(mapped.driverIdentity)) : '';
-    
-    // Map truckNo (from shared mapper) to truckPlate (roster canonical)
-    const plateVal = mapped.truckNo || mapped.truckPlate || '';
-    canonical.truckPlate = plateVal ? normalizePlate(String(plateVal)) : '';
-    
-    canonical.truckType = mapped.truckType ? String(mapped.truckType).trim() : '';
-    canonical.carrierName = mapped.carrier ? String(mapped.carrier).trim() : '';
-    
-    // Map materialType (from shared mapper) to materialName (roster canonical)
-    const matVal = mapped.materialType || mapped.materialName || '';
-    canonical.materialName = matVal ? String(matVal).trim() : '';
-    
-    canonical.materialCode = mapped.materialCode ? String(mapped.materialCode).trim() : '';
-
-    if (raw.tareWeightKg !== undefined) canonical.tareWeightKg = Number(raw.tareWeightKg);
-    if (raw.maxGrossWeightKg !== undefined) canonical.maxGrossWeightKg = Number(raw.maxGrossWeightKg);
     
     return canonical;
   }

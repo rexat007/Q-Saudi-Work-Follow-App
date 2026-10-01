@@ -41,6 +41,15 @@ import { entityResolutionCommandService } from '../../services/import/entityReso
 import { RosterBatchReviewService, ReviewGroupEntityType } from '../../services/import/rosterBatchReview.service';
 import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
 import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
+import { smartSourceDiscoveryService, DiscoveryResult } from '../../services/import/smartSourceDiscovery.service';
+import { 
+  DriverTruckCanonicalMappingTarget, 
+  ROSTER_CANONICAL_FIELD_OPTIONS, 
+  translateDiscoveryToRosterTarget 
+} from '../../services/import/driverTruckImport';
+import { ExcelCsvColumnMapper } from '../../services/import/columnMapper.service';
+import { ImportSource } from '../../types/unifiedImport';
+import * as XLSX from 'xlsx';
 import { auth } from '../../firebase/config';
 import { 
   isProjectOperationallyMutable, 
@@ -274,6 +283,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [importBatch, setImportBatch] = useState<any | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [isCommittingImport, setIsCommittingImport] = useState(false);
+
+  // DT-01 Roster Smart Import Discovery & Mapping Approval State
+  const [rosterSelectedFile, setRosterSelectedFile] = useState<File | null>(null);
+  const [rosterBuffer, setRosterBuffer] = useState<ArrayBuffer | null>(null);
+  const [rosterDiscoveryResult, setRosterDiscoveryResult] = useState<DiscoveryResult | null>(null);
+  const [rosterSelectedSheet, setRosterSelectedSheet] = useState<string>('');
+  const [rosterHeaderRowIndex, setRosterHeaderRowIndex] = useState<number>(0);
+  const [rosterCustomMappings, setRosterCustomMappings] = useState<Record<string, DriverTruckCanonicalMappingTarget | 'unmapped'>>({});
+  const [isRosterMappingApproved, setIsRosterMappingApproved] = useState<boolean>(false);
+  const [isDiscoveringRoster, setIsDiscoveringRoster] = useState<boolean>(false);
+  const [rosterDiscoveryError, setRosterDiscoveryError] = useState<string | null>(null);
 
   // Google Sync Action state
   const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
@@ -683,52 +703,198 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   const processRosterFile = async (file: File) => {
     setIsImportingFile(true);
+    setIsDiscoveringRoster(true);
     setImportError(null);
+    setRosterDiscoveryError(null);
     setImportBatch(null);
+    setIsRosterMappingApproved(false);
+    setRosterCustomMappings({});
+    setRosterDiscoveryResult(null);
+    setRosterSelectedFile(file);
 
     try {
       const reader = new FileReader();
       reader.onload = async (event) => {
         try {
-          const data = event.target?.result;
+          const data = event.target?.result as ArrayBuffer;
           if (!data) throw new Error('فشلت قراءة ملف البيانات');
+          setRosterBuffer(data);
 
-          // Fetch canonical relationship context for the project
-          let relContext = null;
-          try {
-            relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
-          } catch (relErr) {
-            console.warn('Could not load canonical relationship context for roster intake:', relErr);
-          }
+          const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+          const sourceType = (ext === '.xlsx' || ext === '.xls') ? 'EXCEL' : 'CSV';
+          const discSource: ImportSource = {
+            sourceType,
+            importBatchId: `BAT-DISC-ROSTER-${Date.now()}`,
+            sourceFileName: file.name,
+          };
 
-          const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-            relContext,
-            projectId: project.projectId,
-            userId: authContext.userId,
-            role: authContext.role,
-            operationId: `OP-${Date.now()}`
+          const discovery = await smartSourceDiscoveryService.discover(discSource, data);
+          setRosterDiscoveryResult(discovery);
+          const defaultSheet = discovery.selectedSheet || (discovery.availableSheets && discovery.availableSheets[0]) || '';
+          setRosterSelectedSheet(defaultSheet);
+          const headerIdx = discovery.detectedHeaderRowIndex ?? 0;
+          setRosterHeaderRowIndex(headerIdx);
+
+          const initialMappings: Record<string, DriverTruckCanonicalMappingTarget | 'unmapped'> = {};
+          (discovery.detectedHeaders || []).forEach((h) => {
+            const diag = discovery.mappingDiagnostics?.[h];
+            initialMappings[h] = translateDiscoveryToRosterTarget(diag?.canonicalField);
           });
-
-          // Process using our production pipeline
-          const batch = await DriverTruckPipelineService.processFileToReview(
-            data,
-            file.name,
-            file.size,
-            file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            pipelineCtx
-          );
-          setImportBatch(batch);
+          setRosterCustomMappings(initialMappings);
         } catch (innerErr: any) {
-          setImportError(innerErr.message || 'خطأ أثناء تحليل ملف سجل التشغيل');
+          setRosterDiscoveryError(innerErr.message || 'خطأ أثناء استكشاف ملف سجل التشغيل');
         } finally {
           setIsImportingFile(false);
+          setIsDiscoveringRoster(false);
         }
       };
       reader.readAsArrayBuffer(file);
     } catch (err: any) {
-      setImportError(err.message || 'خطأ في استيراد ملف سجل التشغيل');
+      setRosterDiscoveryError(err.message || 'خطأ في استيراد ملف سجل التشغيل');
+      setIsImportingFile(false);
+      setIsDiscoveringRoster(false);
+    }
+  };
+
+  const handleRosterSheetChange = async (sheet: string) => {
+    setRosterSelectedSheet(sheet);
+    if (rosterSelectedFile && rosterBuffer) {
+      try {
+        setIsDiscoveringRoster(true);
+        const ext = rosterSelectedFile.name.toLowerCase().slice(rosterSelectedFile.name.lastIndexOf('.'));
+        const sourceType = (ext === '.xlsx' || ext === '.xls') ? 'EXCEL' : 'CSV';
+        const discSource: ImportSource = {
+          sourceType,
+          importBatchId: `BAT-DISC-ROSTER-${Date.now()}`,
+          sourceFileName: rosterSelectedFile.name,
+          sourceSheetName: sheet,
+        };
+
+        const updatedDiscovery = await smartSourceDiscoveryService.discover(discSource, rosterBuffer);
+        setRosterDiscoveryResult(updatedDiscovery);
+        const detectedIdx = updatedDiscovery.detectedHeaderRowIndex ?? 0;
+        setRosterHeaderRowIndex(detectedIdx);
+
+        const updatedMappings: Record<string, DriverTruckCanonicalMappingTarget | 'unmapped'> = {};
+        (updatedDiscovery.detectedHeaders || []).forEach((h) => {
+          const diag = updatedDiscovery.mappingDiagnostics?.[h];
+          updatedMappings[h] = translateDiscoveryToRosterTarget(diag?.canonicalField);
+        });
+        setRosterCustomMappings(updatedMappings);
+      } catch (err: any) {
+        console.error('Roster sheet change discovery error:', err);
+        setRosterDiscoveryError(err?.message || 'فشل في استكشاف ورقة العمل المحددة');
+      } finally {
+        setIsDiscoveringRoster(false);
+      }
+    }
+  };
+
+  const handleRosterHeaderRowIndexChange = (index: number) => {
+    setRosterHeaderRowIndex(index);
+    if (rosterBuffer && rosterSelectedFile) {
+      try {
+        let headers: string[] = [];
+        const wb = XLSX.read(rosterBuffer, { type: 'array' });
+        const targetSheetName = rosterSelectedSheet || wb.SheetNames[0];
+        const ws = wb.Sheets[targetSheetName];
+        if (ws) {
+          const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1 });
+          if (rows && rows[index]) {
+            headers = rows[index].map((h: any) => String(h || '').trim()).filter(Boolean);
+          }
+        }
+
+        if (headers.length > 0) {
+          const diags = ExcelCsvColumnMapper.mapHeaders(headers);
+          setRosterDiscoveryResult((prev) => prev ? {
+            ...prev,
+            detectedHeaderRowIndex: index,
+            detectedHeaders: headers,
+            mappingDiagnostics: diags,
+          } : null);
+
+          const newMappings: Record<string, DriverTruckCanonicalMappingTarget | 'unmapped'> = {};
+          headers.forEach((h) => {
+            const match = diags[h];
+            newMappings[h] = translateDiscoveryToRosterTarget(match?.canonicalField);
+          });
+          setRosterCustomMappings(newMappings);
+        }
+      } catch (err) {
+        console.warn('Roster header row change error:', err);
+      }
+    }
+  };
+
+  const handleRosterMappingChange = (header: string, target: DriverTruckCanonicalMappingTarget | 'unmapped') => {
+    setRosterCustomMappings((prev) => ({
+      ...prev,
+      [header]: target,
+    }));
+  };
+
+  const handleApproveRosterMappingAndStartPipeline = async () => {
+    if (!rosterSelectedFile || !rosterBuffer || !project) return;
+    setIsImportingFile(true);
+    setImportError(null);
+
+    try {
+      // Build exact approved customMappings excluding unmapped
+      const approvedCustomMappings: Record<string, DriverTruckCanonicalMappingTarget> = {};
+      for (const [header, target] of Object.entries(rosterCustomMappings)) {
+        if (target && target !== 'unmapped') {
+          approvedCustomMappings[header] = target;
+        }
+      }
+
+      let relContext = null;
+      try {
+        relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      } catch (relErr) {
+        console.warn('Could not load canonical relationship context for roster intake:', relErr);
+      }
+
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-ROSTER-${Date.now()}`
+      });
+
+      const batch = await DriverTruckPipelineService.processFileToReview(
+        rosterBuffer,
+        rosterSelectedFile.name,
+        rosterSelectedFile.size,
+        rosterSelectedFile.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        pipelineCtx,
+        {
+          sheetName: rosterSelectedSheet || undefined,
+          headerRowIndex: rosterHeaderRowIndex,
+          customMappings: approvedCustomMappings,
+        }
+      );
+
+      setImportBatch(batch);
+      setIsRosterMappingApproved(true);
+    } catch (err: any) {
+      setImportError(err?.message || 'خطأ أثناء تحليل ملف سجل التشغيل');
+    } finally {
       setIsImportingFile(false);
     }
+  };
+
+  const handleResetRosterImport = () => {
+    setRosterSelectedFile(null);
+    setRosterBuffer(null);
+    setRosterDiscoveryResult(null);
+    setRosterCustomMappings({});
+    setIsRosterMappingApproved(false);
+    setImportBatch(null);
+    setImportError(null);
+    setRosterDiscoveryError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleApplyResolutionDecision = async (
@@ -1915,7 +2081,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   )}
 
                   {/* Drag and Drop File intake Area */}
-                  {isOperationallyMutable && (
+                  {isOperationallyMutable && !rosterSelectedFile && (
                     <div
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
@@ -1932,6 +2098,184 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       >
                         أو تصفح الملفات يدوياً
                       </button>
+                    </div>
+                  )}
+
+                  {/* Discovery / Loading State */}
+                  {isDiscoveringRoster && (
+                    <div className="bg-stone-900 border border-stone-800 p-6 rounded-2xl text-center space-y-2">
+                      <RefreshCw className="w-6 h-6 text-amber-500 animate-spin mx-auto" />
+                      <p className="text-xs text-white font-bold">جاري استكشاف وتحليل هيكل ملف سجل التشغيل...</p>
+                      <p className="text-[10px] text-stone-400">قراءة أوراق العمل والأعمدة والربط الذكي</p>
+                    </div>
+                  )}
+
+                  {/* Errors */}
+                  {(importError || rosterDiscoveryError) && !importBatch && (
+                    <div className="bg-rose-950/60 border border-rose-800/80 p-3 rounded-xl flex items-center justify-between text-xs text-rose-200">
+                      <span>{importError || rosterDiscoveryError}</span>
+                      <button onClick={() => { setImportError(null); setRosterDiscoveryError(null); }} className="text-rose-400 hover:text-white p-1">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Roster Smart Discovery & Mapping Approval Gate */}
+                  {rosterSelectedFile && rosterDiscoveryResult && !importBatch && !isRosterMappingApproved && (
+                    <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 space-y-4 shadow-xl">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-800 pb-3">
+                        <div className="flex items-center gap-2.5">
+                          <FileSpreadsheet className="w-5 h-5 text-amber-500" />
+                          <div>
+                            <h4 className="font-bold text-white text-xs">فحص هيكل الملف وربط الأعمدة (Source Discovery & Mapping)</h4>
+                            <p className="text-[10px] text-stone-400 font-mono">
+                              {rosterSelectedFile.name} ({(rosterSelectedFile.size / 1024).toFixed(1)} KB)
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleResetRosterImport}
+                          className="px-2.5 py-1 text-stone-400 hover:text-white bg-stone-950 border border-stone-850 rounded-lg text-[10px] font-semibold flex items-center gap-1"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          <span>تغيير الملف</span>
+                        </button>
+                      </div>
+
+                      {/* Sheet and Header row selectors */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 bg-stone-950 p-3 rounded-xl border border-stone-850">
+                        {rosterDiscoveryResult.availableSheets && rosterDiscoveryResult.availableSheets.length > 0 && (
+                          <div className="space-y-1">
+                            <label className="text-stone-400 text-[10px] font-bold block">ورقة العمل (Sheet)</label>
+                            <select
+                              value={rosterSelectedSheet}
+                              onChange={(e) => handleRosterSheetChange(e.target.value)}
+                              disabled={isDiscoveringRoster}
+                              className="w-full bg-stone-900 border border-stone-800 text-white px-2 py-1.5 rounded-lg text-xs font-semibold focus:outline-hidden"
+                            >
+                              {rosterDiscoveryResult.availableSheets.map((s) => (
+                                <option key={s} value={s}>{s}</option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        <div className="space-y-1">
+                          <label className="text-stone-400 text-[10px] font-bold block">سطر العناوين (Header Row)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="20"
+                            value={rosterHeaderRowIndex}
+                            onChange={(e) => handleRosterHeaderRowIndexChange(parseInt(e.target.value, 10) || 0)}
+                            disabled={isDiscoveringRoster}
+                            className="w-full bg-stone-900 border border-stone-800 text-white px-2 py-1.5 rounded-lg text-xs font-mono font-semibold focus:outline-hidden"
+                          />
+                        </div>
+
+                        <div className="space-y-1 sm:col-span-2 lg:col-span-1 flex flex-col justify-end">
+                          <div className="flex items-center gap-2 text-[10px] bg-stone-900/60 p-2 rounded-lg border border-stone-850">
+                            <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                            <span className="text-stone-300">
+                              نسبة التوافق الذكي: <strong className="text-amber-400 font-mono">{rosterDiscoveryResult.confidence}%</strong>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Detected Source Columns Table */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-[11px] font-bold text-stone-300">
+                          <span>مراجعة وتعديل ربط الأعمدة المصدرية بالبيانات القياسية:</span>
+                          <span className="text-[10px] text-stone-500 font-mono">({rosterDiscoveryResult.detectedHeaders?.length || 0} عمود مكتشف)</span>
+                        </div>
+
+                        <div className="border border-stone-800 rounded-xl overflow-hidden bg-stone-950">
+                          <table className="w-full text-right text-[11px]">
+                            <thead className="bg-stone-900/90 text-stone-400 font-bold border-b border-stone-800">
+                              <tr>
+                                <th className="py-2.5 px-3">العمود المصدر</th>
+                                <th className="py-2.5 px-3">المعنى المقترح</th>
+                                <th className="py-2.5 px-3">الحالة</th>
+                                <th className="py-2.5 px-3">الربط المعتمد</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-stone-850">
+                              {(rosterDiscoveryResult.detectedHeaders || []).map((header) => {
+                                const diag = rosterDiscoveryResult.mappingDiagnostics?.[header];
+                                const proposedTarget = translateDiscoveryToRosterTarget(diag?.canonicalField);
+                                const currentTarget = rosterCustomMappings[header] || proposedTarget;
+                                const proposedOption = ROSTER_CANONICAL_FIELD_OPTIONS.find((o) => o.value === proposedTarget);
+
+                                const isIgnored = currentTarget === 'unmapped';
+                                const isConfident = Boolean(diag && diag.confidence >= 0.70 && !diag.isAmbiguous);
+
+                                return (
+                                  <tr key={header} className="hover:bg-stone-900/40 transition-colors">
+                                    <td className="py-2 px-3 font-mono font-bold text-white text-xs">
+                                      {header}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      <span className="text-stone-300 font-medium">
+                                        {proposedOption?.labelAr || 'تجاهل / غير مرتبط'}
+                                      </span>
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      {isIgnored ? (
+                                        <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-stone-850 text-stone-400">
+                                          تجاهل
+                                        </span>
+                                      ) : isConfident ? (
+                                        <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-850">
+                                          مطابق
+                                        </span>
+                                      ) : (
+                                        <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-950 text-amber-300 border border-amber-850">
+                                          تنبيه
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      <select
+                                        value={currentTarget}
+                                        onChange={(e) => handleRosterMappingChange(header, e.target.value as any)}
+                                        className="bg-stone-900 border border-stone-800 text-stone-200 text-[10px] font-semibold px-2 py-1 rounded-lg focus:outline-hidden focus:border-amber-500 max-w-[200px]"
+                                      >
+                                        {ROSTER_CANONICAL_FIELD_OPTIONS.map((opt) => (
+                                          <option key={opt.value} value={opt.value}>
+                                            {opt.labelAr} ({opt.labelEn})
+                                          </option>
+                                        ))}
+                                      </select>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* Primary Approval Action Button */}
+                      <div className="flex justify-between items-center pt-2">
+                        <button
+                          type="button"
+                          onClick={handleResetRosterImport}
+                          className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs"
+                        >
+                          إلغاء
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleApproveRosterMappingAndStartPipeline}
+                          disabled={isImportingFile}
+                          className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40"
+                        >
+                          <Check className="w-4 h-4" />
+                          <span>اعتماد الربط وبدء تحليل سجل التشغيل</span>
+                        </button>
+                      </div>
                     </div>
                   )}
 
