@@ -1,43 +1,9 @@
+import { describe, test, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { AuthUserContext } from '../types/common';
 
-let passedTests = 0;
-let totalTests = 0;
-
-function test(id: string, description: string, fn: () => void | Promise<void>) {
-  totalTests++;
-  try {
-    const result = fn();
-    if (result && typeof (result as any).then === 'function') {
-      throw new Error(`Test ${id} returned a Promise. Use synchronous execution.`);
-    }
-    passedTests++;
-    console.log(`✅ [${id}] ${description}`);
-  } catch (err: any) {
-    console.error(`❌ [${id}] ${description}`);
-    console.error(`   ${err.message}`);
-  }
-}
-
-function expect(actual: any) {
-  return {
-    toBe: (expected: any) => {
-      if (actual !== expected) {
-        throw new Error(`Expected ${expected}, but got ${actual}`);
-      }
-    },
-    toContain: (expected: any) => {
-      if (!actual.includes(expected)) {
-        throw new Error(`Expected array to contain ${expected}, but got ${actual}`);
-      }
-    }
-  };
-}
-
-console.log('======================================================');
-console.log('🚀 Running BLOCK 78 Field Supervision & Driver Test Suite...');
-console.log('======================================================');
+describe('BLOCK 78 Field Supervision & Driver Test Suite', () => {
 
 test('BLOCK78-TEST-01', 'Supervision access allowed for SUPERVISOR', () => {
   const context: AuthUserContext = { userId: '1', email: 'test@test.com', role: 'SUPERVISOR', displayName: 'Sup' };
@@ -131,9 +97,4 @@ test('BLOCK78-TEST-20', 'responsive field interface integrity', () => {
   expect(true).toBe(true);
 });
 
-console.log('======================================================');
-console.log(`BLOCK 78: Field Supervision & Driver Test Results: ${passedTests}/${totalTests} PASSED`);
-console.log('======================================================');
-if (passedTests !== totalTests) {
-  process.exit(1);
-}
+});

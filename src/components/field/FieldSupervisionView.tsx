@@ -41,10 +41,13 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
   const targetProjectId = useMemo(() => {
     // 1. Explicit selectedProjectId wins if operator is authorized for it
     if (selectedProjectId && selectedProjectId !== '') {
-      const isGlobalScope = authContext.assignedProjectIds?.includes('ALL');
+      const isGlobalScope = authContext.role === 'SUPER_ADMIN' || authContext.assignedProjectIds?.includes('ALL');
       const isAuthorized = isGlobalScope || authContext.assignedProjectIds?.includes(selectedProjectId);
       if (isAuthorized) {
         return selectedProjectId;
+      } else {
+        // Explicitly selected but unauthorized -> fail closed
+        return undefined;
       }
     }
 
@@ -60,7 +63,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
 
     // 4. Zero or more than one assigned project -> unresolved (fail closed)
     return undefined;
-  }, [selectedProjectId, authContext.assignedProjectIds]);
+  }, [selectedProjectId, authContext.assignedProjectIds, authContext.role]);
   const [trips, setTrips] = useState<any[]>([]);
 
   useEffect(() => {
