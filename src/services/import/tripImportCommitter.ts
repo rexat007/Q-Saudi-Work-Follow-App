@@ -22,17 +22,17 @@ import {
 import { TripEntity, TripStatus, OperationSourceType, OperationActorType } from '../../types/entities';
 import { CanonicalTripRow } from '../../types/excelCsvImport';
 import { UnifiedImportValidator } from '../../validators/unifiedImport.validator';
-import { tripRepository } from '../../repositories/trip.repository';
 import { auditLogService } from '../auditLog.service';
 import { pricingService } from '../pricing.service';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
-import { PricingRule, TripPricingSnapshot } from '../../types/pricing';
+import { PricingRule } from '../../types/pricing';
 import { mapLegacyStatusToTripStatus } from './legacyStatusMapper';
 import { carrierRepository } from '../../repositories/carrier.repository';
 import { truckRepository } from '../../repositories/truck.repository';
 import { driverRepository } from '../../repositories/driver.repository';
 import { materialRepository } from '../../repositories/material.repository';
-import { canonicalSnapshotClientService } from './canonicalSnapshotClient.service';
+import { importedTripClientService } from './importedTripClient.service';
+import { ImportedTripDispatchParams } from '../trip.service';
 
 
 export class ExcelCsvTripCommitter implements IImportCommitter {
@@ -453,37 +453,7 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
         continue; // FAIL CLOSED: do not write the row!
       }
 
-      // 3. Snapshot Source Assessment (I, J, K & L) - SNAPSHOT_READ_BOUNDARY_REQUIRED
-      let snapshotBundle;
-      try {
-        snapshotBundle = await canonicalSnapshotClientService.getTripCanonicalSnapshot(
-          batch.projectId,
-          {
-            carrierId: finalCarrierId,
-            truckId: finalTruckId,
-            driverId: finalDriverId,
-            materialId: finalMaterialId,
-          }
-        );
-      } catch (err: any) {
-        const snapIssue: ImportIssue = {
-          issueId: `ERR-SNAP-MISSING-${Date.now()}-${i}`,
-          row: row.rowNumber,
-          field: 'snapshot',
-          code: 'CANONICAL_SNAPSHOT_DATA_MISSING',
-          severity: 'BLOCKING',
-          message: `خطأ في استرداد لقطة الكيان المعتمد: ${err.message || err} (SNAPSHOT_READ_BOUNDARY_REQUIRED) - Carrier: ${finalCarrierId}, Truck: ${finalTruckId}, Driver: ${finalDriverId}, Material: ${finalMaterialId}`,
-          resolvable: false,
-          blocking: true,
-        };
-        executionErrors.push(snapIssue);
-        if (!batch.issues) batch.issues = [];
-        batch.issues.push(snapIssue);
-        continue; // FAIL CLOSED: do not write the row!
-      }
-
-
-      // 4. Resolve Pricing with converged identity (F)
+      // 3. Determine Pricing Intent Candidate (RESOLVED vs PENDING)
       const carrierRes = row.entityResolutions?.carrier as any;
       const materialRes = row.entityResolutions?.material as any;
       const carrierRequiresReview =
@@ -502,7 +472,6 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
             })
           : null;
 
-      // Check if row has an explicit verified pricing rule matching project
       if (!pricingResolution?.selectedRule && canonical.pricingRule) {
         const explicitMatch = projectRules.find(
           (r) => r.pricingRuleId === canonical.pricingRule && r.projectId === batch.projectId
@@ -512,85 +481,28 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
             status: 'RESOLVED',
             selectedRule: explicitMatch,
             rule: explicitMatch,
-            reason: 'تم استخدام قاعدة التسعير التعاقدية المحددة صراحة في بيانات الاستيراد',
-            reasonAr: 'تم استخدام قاعدة التسعير التعاقدية المحددة صراحة في بيانات الاستيراد',
+            reason: 'Explicit rule matched',
+            reasonAr: 'تم استخدام قاعدة التسعير التعاقدية المحددة صراحة',
             reasonCode: 'EXPLICIT_RULE_APPLIED',
             candidates: [explicitMatch],
           };
         }
       }
 
-      let pricingSnapshot: TripPricingSnapshot;
-      let pricingRuleId: string = 'UNRESOLVED_PENDING';
-      let pricingType: string = 'PER_TON';
-      let isFinalized = false;
+      const hasResolvedRule = Boolean(pricingResolution && pricingResolution.status === 'RESOLVED' && pricingResolution.selectedRule);
+      const targetPricingRuleId = hasResolvedRule ? pricingResolution!.selectedRule!.pricingRuleId : null;
+      const pricingMode = hasResolvedRule ? 'RESOLVED' : 'PENDING';
 
-      if (pricingResolution && pricingResolution.status === 'RESOLVED' && pricingResolution.selectedRule) {
-        const rule = pricingResolution.selectedRule;
-        pricingRuleId = rule.pricingRuleId;
-        pricingType = rule.pricingType;
-
-        const isWeighbridgeWithoutUnload = isWeighbridge && !canonical.destNetWeight && !isAcceptedOrigin;
-        if (rule.pricingType === 'PER_TON' && isWeighbridgeWithoutUnload) {
-          const pendingCalc = pricingService.calculateSettlement({
-            pricingRule: rule,
-            allowMissingWeight: true,
-            netWeightTon: 0,
-          });
-          pricingSnapshot = {
-            ...pendingCalc.snapshot,
-            isPending: true,
-            pendingReason: 'تسعيرة معلقة: بانتظار استكمال إجراءات التنزيل وتسجيل وزن المقصد المعتمد',
-            settlementAmount: 0,
-          };
-          isFinalized = false;
-        } else {
-          const netTons = isAcceptedOrigin
-            ? (canonical.netWeight || 0) / 1000
-            : canonical.destNetWeight !== undefined && canonical.destNetWeight !== null
-            ? canonical.destNetWeight / 1000
-            : (canonical.netWeight || 0) / 1000;
-
-          const calc = pricingService.calculateSettlement({
-            pricingRule: rule,
-            netWeightTon: netTons,
-            unitsCount: 1,
-          });
-
-          pricingSnapshot = calc.snapshot;
-          isFinalized = !calc.isPending;
-        }
-      } else {
-        const pendingReason = entityResolutionPending
-          ? carrierRequiresReview
-            ? 'الناقل بانتظار المراجعة (Entity Resolution Pending)'
-            : 'مادة التوريد بانتظار المراجعة'
-          : pricingResolution?.reasonAr || 'لا توجد اتفاقية تسعير سارية لهذا الناقل والمادة في تاريخ الرحلة';
-
-        pricingSnapshot = pricingService.createPendingSnapshot(pendingReason);
-        pricingRuleId = 'UNRESOLVED_PENDING';
-        pricingType = 'PER_TON';
-        isFinalized = false;
-      }
-
-      const baseAmountSAR = pricingSnapshot.settlementAmount;
-      const vatAmountSAR = isFinalized ? Number((baseAmountSAR * 0.15).toFixed(2)) : 0;
-      const totalAmountSAR = isFinalized ? Number((baseAmountSAR + vatAmountSAR).toFixed(2)) : 0;
-
-      // 5. Build Trip payload with strict actual snapshot data only
-      const newTrip: Omit<TripEntity, 'createdAt' | 'updatedAt'> & {
-        createdBy: string;
-        updatedBy: string;
-      } = {
-        tripId,
-        tripNumber,
+      // 4. Construct Server-Authoritative Request Contract (C1/C2)
+      const dispatchParams: ImportedTripDispatchParams = {
         projectId: batch.projectId,
         carrierId: finalCarrierId,
         truckId: finalTruckId,
         driverId: finalDriverId,
         materialId: finalMaterialId,
-        pricingRuleId,
-
+        pricingRuleId: targetPricingRuleId,
+        pricingMode,
+        clientUUID: `CUUID-IMP-${batch.importBatchId}-${row.rowNumber}`,
         sourceType: (batch.source.sourceType as OperationSourceType) || 'WEIGHBRIDGE',
         loadingDataSource: loadingSource,
         unloadingDataSource: unloadingSource,
@@ -609,53 +521,30 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
           ...(canonical.tripRate !== undefined && canonical.tripRate !== null ? { legacyRate: canonical.tripRate } : {}),
           ...(canonical.status ? { legacyStatus: canonical.status } : {}),
         },
-
-        carrierSnapshot: snapshotBundle.carrierSnapshot,
-        truckSnapshot: snapshotBundle.truckSnapshot,
-        driverSnapshot: snapshotBundle.driverSnapshot,
-        materialSnapshot: snapshotBundle.materialSnapshot,
-
-        pricingSnapshot: pricingSnapshot as any,
-
-        status: initialStatus,
-
-        weights: {
-          originTareKg: canonical.tareWeight,
-          originGrossKg: canonical.grossWeight,
-          originNetKg: canonical.netWeight,
-          originTicketNo: canonical.ticketId,
-          destinationNetKg: canonical.destNetWeight,
-          billableWeightKg: canonical.destNetWeight || canonical.netWeight,
+        operationalData: {
+          shiftDate: tripDate,
+          ticketId: canonical.ticketId,
+          tareWeightKg: canonical.tareWeight,
+          grossWeightKg: canonical.grossWeight,
+          netWeightKg: canonical.netWeight,
+          destinationNetWeightKg: canonical.destNetWeight,
+          weighTime: canonical.weighTime,
+          loadTime: canonical.loadTime,
+          unloadTime: canonical.unloadTime,
+          legacyStatus: canonical.status || canonical.legacyStatus,
+          tripSerial: canonical.tripSerial,
+          note: canonical.note,
         },
-
-        financials: {
-          baseAmountSAR,
-          demurrageAmountSAR: 0,
-          deductionsAmountSAR: 0,
-          subtotalSAR: baseAmountSAR,
-          vatAmountSAR,
-          totalAmountSAR,
-          currency: 'SAR',
-          isFinalized,
-        },
-
-        clientUUID: `CUUID-IMP-${batch.importBatchId}-${row.rowNumber}`,
-        syncStatus: 'SYNCED',
-        hasExceptions: !isFinalized,
-        activeExceptionCount: isFinalized ? 0 : 1,
-        createdBy: context.userId,
-        updatedBy: context.userId,
       };
 
-      const sanitizedTrip = ExcelCsvTripCommitter.stripUndefined(newTrip);
-
+      // 5. Dispatch to Server-Authoritative Import Endpoint
       try {
-        await tripRepository.create(sanitizedTrip);
-        committedTripIds.push(tripId);
+        const { trip: serverTrip } = await importedTripClientService.dispatchImportedTrip(batch.projectId, dispatchParams);
+        committedTripIds.push(serverTrip.tripId);
         row.status = 'COMMITTED';
       } catch (err: any) {
         persistenceErrorsCount++;
-        console.error(`[ExcelCsvTripCommitter] Trip creation failed for row ${row.rowNumber}, tripId ${tripId}: ${err?.message || err}`);
+        console.error(`[ExcelCsvTripCommitter] Server trip creation failed for row ${row.rowNumber}: ${err?.message || err}`);
         const errMsg = err?.message || String(err);
         const failIssue: ImportIssue = {
           issueId: `ERR-PERSIST-${Date.now()}-${i}`,
@@ -663,14 +552,12 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
           field: 'tripId',
           code: 'TRIP_PERSISTENCE_FAILED',
           severity: 'BLOCKING',
-          message: `فشل حفظ الرحلة ${tripId} في قاعدة البيانات للصف ${row.rowNumber}: ${errMsg}`,
+          message: `فشل حفظ الرحلة في الخادم للصف ${row.rowNumber}: ${errMsg}`,
           resolvable: false,
           blocking: true,
         };
         executionErrors.push(failIssue);
-        if (!batch.issues) {
-          batch.issues = [];
-        }
+        if (!batch.issues) batch.issues = [];
         batch.issues.push(failIssue);
         continue;
       }

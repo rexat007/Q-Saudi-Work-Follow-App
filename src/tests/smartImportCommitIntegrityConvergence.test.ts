@@ -6,6 +6,7 @@ import { truckRepository } from '../repositories/truck.repository';
 import { driverRepository } from '../repositories/driver.repository';
 import { materialRepository } from '../repositories/material.repository';
 import { tripRepository } from '../repositories/trip.repository';
+import { importedTripClientService } from '../services/import/importedTripClient.service';
 import { UnifiedImportBatch, PipelineContext } from '../types/unifiedImport';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -74,6 +75,7 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
 
   // Priorities 1-4
   it('1. resolvedValues.carrierId overrides stale canonical.carrierId', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({ trip: { tripId: 'TRP-1' } as any });
     const batch = createValidRowBatch();
     batch.rows[0].canonical.carrierId = 'CAR-STALE';
     batch.rows[0].resolvedValues = {
@@ -84,12 +86,14 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     };
 
     const committer = new ExcelCsvTripCommitter();
-    const res = await committer.commit(batch, dummyContext);
-    const issue = res.issues?.find(i => i.code === 'CANONICAL_SNAPSHOT_DATA_MISSING');
-    expect(issue?.message).toContain('Carrier: CAR-FRESH');
+    await committer.commit(batch, dummyContext);
+    expect(spy).toHaveBeenCalledWith('PRJ-NEOM-CONVERGE', expect.objectContaining({
+      carrierId: 'CAR-FRESH',
+    }));
   });
 
   it('2. resolvedValues.truckId overrides stale canonical.truckId', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({ trip: { tripId: 'TRP-1' } as any });
     const batch = createValidRowBatch();
     batch.rows[0].canonical.truckId = 'TRK-STALE';
     batch.rows[0].resolvedValues = {
@@ -100,12 +104,14 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     };
 
     const committer = new ExcelCsvTripCommitter();
-    const res = await committer.commit(batch, dummyContext);
-    const issue = res.issues?.find(i => i.code === 'CANONICAL_SNAPSHOT_DATA_MISSING');
-    expect(issue?.message).toContain('Truck: TRK-FRESH');
+    await committer.commit(batch, dummyContext);
+    expect(spy).toHaveBeenCalledWith('PRJ-NEOM-CONVERGE', expect.objectContaining({
+      truckId: 'TRK-FRESH',
+    }));
   });
 
   it('3. resolvedValues.driverId overrides stale canonical.driverId', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({ trip: { tripId: 'TRP-1' } as any });
     const batch = createValidRowBatch();
     batch.rows[0].canonical.driverId = 'DRV-STALE';
     batch.rows[0].resolvedValues = {
@@ -116,12 +122,14 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     };
 
     const committer = new ExcelCsvTripCommitter();
-    const res = await committer.commit(batch, dummyContext);
-    const issue = res.issues?.find(i => i.code === 'CANONICAL_SNAPSHOT_DATA_MISSING');
-    expect(issue?.message).toContain('Driver: DRV-FRESH');
+    await committer.commit(batch, dummyContext);
+    expect(spy).toHaveBeenCalledWith('PRJ-NEOM-CONVERGE', expect.objectContaining({
+      driverId: 'DRV-FRESH',
+    }));
   });
 
   it('4. resolvedValues.materialId overrides stale canonical.materialId', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({ trip: { tripId: 'TRP-1' } as any });
     const batch = createValidRowBatch();
     batch.rows[0].canonical.materialId = 'MAT-STALE';
     batch.rows[0].resolvedValues = {
@@ -132,13 +140,15 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     };
 
     const committer = new ExcelCsvTripCommitter();
-    const res = await committer.commit(batch, dummyContext);
-    const issue = res.issues?.find(i => i.code === 'CANONICAL_SNAPSHOT_DATA_MISSING');
-    expect(issue?.message).toContain('Material: MAT-FRESH');
+    await committer.commit(batch, dummyContext);
+    expect(spy).toHaveBeenCalledWith('PRJ-NEOM-CONVERGE', expect.objectContaining({
+      materialId: 'MAT-FRESH',
+    }));
   });
 
   // accepted & real IDs 5-10
   it('5. accepted entity resolution ID is used when resolvedValues absent', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({ trip: { tripId: 'TRP-1' } as any });
     const batch = createValidRowBatch();
     batch.rows[0].resolvedValues = {};
     batch.rows[0].entityResolutions!.carrier = {
@@ -149,12 +159,14 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     } as any;
 
     const committer = new ExcelCsvTripCommitter();
-    const res = await committer.commit(batch, dummyContext);
-    const issue = res.issues?.find(i => i.code === 'CANONICAL_SNAPSHOT_DATA_MISSING');
-    expect(issue?.message).toContain('Carrier: CAR-ACCEPTED');
+    await committer.commit(batch, dummyContext);
+    expect(spy).toHaveBeenCalledWith('PRJ-NEOM-CONVERGE', expect.objectContaining({
+      carrierId: 'CAR-ACCEPTED',
+    }));
   });
 
   it('6. canonical real ID may be used only when already present (non-synthetic format)', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({ trip: { tripId: 'TRP-1' } as any });
     const batch = createValidRowBatch();
     batch.rows[0].resolvedValues = {
       truckId: 'TRK-200',
@@ -169,9 +181,10 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     batch.rows[0].canonical.carrierId = 'CAR-REAL-123';
 
     const committer = new ExcelCsvTripCommitter();
-    const res = await committer.commit(batch, dummyContext);
-    const issue = res.issues?.find(i => i.code === 'CANONICAL_SNAPSHOT_DATA_MISSING');
-    expect(issue?.message).toContain('Carrier: CAR-REAL-123');
+    await committer.commit(batch, dummyContext);
+    expect(spy).toHaveBeenCalledWith('PRJ-NEOM-CONVERGE', expect.objectContaining({
+      carrierId: 'CAR-REAL-123',
+    }));
   });
 
   it('7. name text never becomes carrierId', async () => {
@@ -380,53 +393,52 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
 
   // Pricing 26-28
   it('26. pricing uses final resolved carrierId', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({ trip: { tripId: 'TRP-1' } as any });
     const batch = createValidRowBatch();
     batch.rows[0].resolvedValues!.carrierId = 'CAR-RESOLVED-VAL';
 
     const committer = new ExcelCsvTripCommitter();
-    const res = await committer.commit(batch, dummyContext);
-    const issue = res.issues?.find(i => i.code === 'CANONICAL_SNAPSHOT_DATA_MISSING');
-    expect(issue?.message).toContain('Carrier: CAR-RESOLVED-VAL');
+    await committer.commit(batch, dummyContext);
+    expect(spy).toHaveBeenCalledWith('PRJ-NEOM-CONVERGE', expect.objectContaining({ carrierId: 'CAR-RESOLVED-VAL' }));
   });
 
   it('27. pricing uses final resolved materialId', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({ trip: { tripId: 'TRP-1' } as any });
     const batch = createValidRowBatch();
     batch.rows[0].resolvedValues!.materialId = 'MAT-RESOLVED-VAL';
 
     const committer = new ExcelCsvTripCommitter();
-    const res = await committer.commit(batch, dummyContext);
-    const issue = res.issues?.find(i => i.code === 'CANONICAL_SNAPSHOT_DATA_MISSING');
-    expect(issue?.message).toContain('Material: MAT-RESOLVED-VAL');
+    await committer.commit(batch, dummyContext);
+    expect(spy).toHaveBeenCalledWith('PRJ-NEOM-CONVERGE', expect.objectContaining({ materialId: 'MAT-RESOLVED-VAL' }));
   });
 
   it('28. pricing never derives ID from carrier/material source text', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip');
     const batch = createValidRowBatch();
     batch.rows[0].resolvedValues = {};
     batch.rows[0].entityResolutions = {};
 
     const committer = new ExcelCsvTripCommitter();
     const res = await committer.commit(batch, dummyContext);
+    expect(spy).not.toHaveBeenCalled();
     expect(res.success).toBe(false);
     expect(res.committedRows).toBe(0); // row was skipped because IDs unresolved
   });
 
   // Trip properties 29-30
-  it('29. successful Trip payload is NOT written because of snapshot data missing (0 writes)', async () => {
-    const batch = createValidRowBatch();
-    const committer = new ExcelCsvTripCommitter();
-    const spy = vi.spyOn(tripRepository, 'create');
-
-    const res = await committer.commit(batch, dummyContext);
-    expect(spy).not.toHaveBeenCalled();
-    expect(res.committedRows).toBe(0);
+  it('29. client committer does not perform direct tripRepository.create writes', async () => {
+    const committerCode = fs.readFileSync(path.resolve(__dirname, '../services/import/tripImportCommitter.ts'), 'utf-8');
+    expect(committerCode).not.toContain('tripRepository.create');
   });
 
   it('30. rejected row remains excluded without new canonical-ID errors', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip');
     const batch = createValidRowBatch();
     batch.rows[0].status = 'REJECTED';
 
     const committer = new ExcelCsvTripCommitter();
     const res = await committer.commit(batch, dummyContext);
+    expect(spy).not.toHaveBeenCalled();
     expect(res.success).toBe(true);
     expect(res.committedRows).toBe(0);
     expect(res.failedRows).toBe(0);
@@ -460,23 +472,14 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     expect(spyMaterial).not.toHaveBeenCalled();
   });
 
-  it('38. valid canonical IDs + unavailable global snapshot read boundary => CANONICAL_SNAPSHOT_DATA_MISSING', async () => {
-    const batch = createValidRowBatch();
-    const committer = new ExcelCsvTripCommitter();
-    const spy = vi.spyOn(tripRepository, 'create');
-
-    const res = await committer.commit(batch, dummyContext);
-    expect(res.success).toBe(false);
-    expect(res.committedRows).toBe(0);
-    expect(spy).toHaveBeenCalledTimes(0);
-
-    const issues = res.issues || [];
-    expect(issues.some(i => i.code === 'CANONICAL_SNAPSHOT_DATA_MISSING')).toBe(true);
+  it('38. server endpoint is authoritative for snapshot creation', async () => {
+    const committerCode = fs.readFileSync(path.resolve(__dirname, '../services/import/tripImportCommitter.ts'), 'utf-8');
+    expect(committerCode).not.toContain('canonicalSnapshotClientService');
   });
 
-  it('39. report states SNAPSHOT_READ_BOUNDARY_REQUIRED holds true', () => {
-    const code = fs.readFileSync(path.resolve(__dirname, '../services/import/tripImportCommitter.ts'), 'utf-8');
-    expect(code).toContain('SNAPSHOT_READ_BOUNDARY_REQUIRED');
+  it('39. report states server canonical snapshot authority holds true', () => {
+    const appCode = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf-8');
+    expect(appCode).toContain("serverTripService.dispatchImportedTrip");
   });
 
   it('40. no Unit 5B behavior is modified', () => {

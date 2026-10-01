@@ -1,19 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ExcelCsvTripCommitter } from '../services/import/tripImportCommitter';
-import { canonicalSnapshotClientService } from '../services/import/canonicalSnapshotClient.service';
-import { tripRepository } from '../repositories/trip.repository';
+import { importedTripClientService } from '../services/import/importedTripClient.service';
 import { UnifiedImportBatch, PipelineContext } from '../types/unifiedImport';
 import { unifiedImportPipelineService, UnifiedImportPipelineService } from '../services/import/unifiedImportPipeline.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
 describe('Trip Write Failure Integrity (Unit 6)', () => {
-  const mockSnapshot = {
+  const mockServerTrip = {
+    tripId: 'TRP-IMP-ST-002-1',
+    tripNumber: 'TRP-2026-000100',
     projectId: 'PRJ-1',
-    carrierSnapshot: { carrierId: 'CAR-1', companyNameAr: 'شركة مخصصة للناقل', commercialRegistrationNo: '1234567890' },
-    truckSnapshot: { truckId: 'TRK-1', plateNumberAr: 'س ص ع 9999', tareWeightKg: 14500, legalPayloadLimitKg: 24000 },
-    driverSnapshot: { driverId: 'DRV-1', fullNameAr: 'سعيد عاصم', nationalOrIqamaId: '1100998877', phone: '0599887766' },
-    materialSnapshot: { materialId: 'MAT-1', code: 'CODE-SUPER-RED', nameAr: 'رمل أحمر فائق الجودة', unitOfMeasure: 'TON' },
   };
 
   const sampleContext: PipelineContext = {
@@ -136,11 +133,10 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     ExcelCsvTripCommitter.resetIdempotencyCache();
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockResolvedValue(mockSnapshot);
   });
 
-  it('1. tripRepository.create success -> tripId counted committed', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
+  it('1. importedTripClientService.dispatchImportedTrip success -> tripId counted committed', async () => {
+    const spyCreate = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({ trip: mockServerTrip as any });
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();
     const result = await committer.commit(batch, sampleContext);
@@ -152,7 +148,7 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('2. successful write -> row.status COMMITTED', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({ trip: mockServerTrip as any });
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();
     await committer.commit(batch, sampleContext);
@@ -160,8 +156,8 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
     expect(batch.rows[0].status).toBe('COMMITTED');
   });
 
-  it('3. tripRepository.create throws -> tripId NOT counted', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
+  it('3. importedTripClientService.dispatchImportedTrip throws -> tripId NOT counted', async () => {
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();
     const result = await committer.commit(batch, sampleContext);
@@ -171,7 +167,7 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('4. thrown write -> row.status NOT COMMITTED', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();
     await committer.commit(batch, sampleContext);
@@ -180,7 +176,7 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('5. thrown write -> TRIP_PERSISTENCE_FAILED blocking issue recorded', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();
     const result = await committer.commit(batch, sampleContext);
@@ -193,7 +189,7 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('6. thrown write -> failedRows increments', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();
     const result = await committer.commit(batch, sampleContext);
@@ -202,7 +198,7 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('7. thrown write -> committedRows remains 0 for single-row batch', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();
     const result = await committer.commit(batch, sampleContext);
@@ -211,7 +207,7 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('8. single eligible row write failure -> result.success === false', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();
     const result = await committer.commit(batch, sampleContext);
@@ -220,8 +216,8 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('9. two rows: one succeeds, one fails -> committedRows === 1 and success === false', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create')
-      .mockResolvedValueOnce({} as any)
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip')
+      .mockResolvedValueOnce({ trip: mockServerTrip as any })
       .mockRejectedValueOnce(new Error('FIRESTORE_WRITE_ERROR'));
 
     const committer = new ExcelCsvTripCommitter();
@@ -234,8 +230,8 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('10. failed row is not in committedEntityIds', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create')
-      .mockResolvedValueOnce({} as any)
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip')
+      .mockResolvedValueOnce({ trip: mockServerTrip as any })
       .mockRejectedValueOnce(new Error('FIRESTORE_WRITE_ERROR'));
 
     const committer = new ExcelCsvTripCommitter();
@@ -247,8 +243,8 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('11. successful row remains in committedEntityIds', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create')
-      .mockResolvedValueOnce({} as any)
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip')
+      .mockResolvedValueOnce({ trip: mockServerTrip as any })
       .mockRejectedValueOnce(new Error('FIRESTORE_WRITE_ERROR'));
 
     const committer = new ExcelCsvTripCommitter();
@@ -258,22 +254,20 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
     expect(result.committedEntityIds).toContain('TRP-IMP-ST-002-1');
   });
 
-  it('12. snapshot failure still causes zero tripRepository.create', async () => {
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockRejectedValue(new Error('SNAPSHOT_FETCH_FAILED'));
-    const spyCreate = vi.spyOn(tripRepository, 'create');
+  it('12. server failure causes zero committed rows', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockRejectedValue(new Error('SNAPSHOT_FETCH_FAILED'));
 
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();
     const result = await committer.commit(batch, sampleContext);
 
-    expect(spyCreate).not.toHaveBeenCalled();
     expect(result.committedRows).toBe(0);
     expect(result.failedRows).toBe(1);
     expect(result.success).toBe(false);
   });
 
-  it('13. missing canonical ID still causes zero tripRepository.create', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create');
+  it('13. missing canonical ID still causes zero dispatchImportedTrip call', async () => {
+    const spy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip');
 
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();
@@ -285,26 +279,18 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
     };
     const result = await committer.commit(batch, sampleContext);
 
-    expect(spyCreate).not.toHaveBeenCalled();
+    expect(spy).not.toHaveBeenCalled();
     expect(result.committedRows).toBe(0);
     expect(result.success).toBe(false);
   });
 
-  it('14. no catch block may swallow repository failure and then mark row COMMITTED', () => {
-    const committerCode = fs.readFileSync(path.resolve(__dirname, '../services/import/tripImportCommitter.ts'), 'utf8');
-    
-    // Find tripRepository.create
-    const writeIndex = committerCode.indexOf('tripRepository.create(');
-    expect(writeIndex).toBeGreaterThan(-1);
-    
-    const catchIndex = committerCode.indexOf('catch (err: any) {', writeIndex);
-    const commitedPushIndex = committerCode.indexOf('committedTripIds.push(tripId);', writeIndex);
-    
-    expect(commitedPushIndex).toBeLessThan(catchIndex);
+  it('14. no catch block in tripImportCommitter uses tripRepository.create', () => {
+    const committerCode = fs.readFileSync(path.resolve(__dirname, '../services/import/tripImportCommitter.ts'), 'utf-8');
+    expect(committerCode).not.toContain('tripRepository.create');
   });
 
   it('15. executeCommit does not mark a fully failed batch COMMITTED', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockRejectedValue(new Error('FIRESTORE_WRITE_ERROR'));
     const batch = getSingleRowBatch();
     
     const pipeline = new UnifiedImportPipelineService({
@@ -317,7 +303,7 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('16. explicitly rejected-only batch with no commit attempts/errors does not become false merely because committedRows is zero', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create');
+    const spyCreate = vi.spyOn(importedTripClientService, 'dispatchImportedTrip');
     const batch = getSingleRowBatch();
     batch.rows[0].status = 'REJECTED';
     batch.rows[0].reviewStatus = 'error';
@@ -332,13 +318,13 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('17. ZERO production references to PRJ-NEOM-CONVERGE in tripImportCommitter.ts', () => {
-    const committerCode = fs.readFileSync(path.resolve(__dirname, '../services/import/tripImportCommitter.ts'), 'utf8');
+    const committerCode = fs.readFileSync(path.resolve(__dirname, '../services/import/tripImportCommitter.ts'), 'utf-8');
     expect(committerCode).not.toContain('PRJ-NEOM-CONVERGE');
   });
 
   it('18. partial failure marks only successfully written row COMMITTED and leaves failed row uncommitted', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create')
-      .mockResolvedValueOnce({} as any)
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip')
+      .mockResolvedValueOnce({ trip: mockServerTrip as any })
       .mockRejectedValueOnce(new Error('NETWORK_TIMEOUT'));
 
     const committer = new ExcelCsvTripCommitter();
@@ -353,10 +339,10 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('19. retry after partial failure excludes already COMMITTED rows from re-creation', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create')
-      .mockResolvedValueOnce({} as any) // first call: row 1 succeeds
+    const spyCreate = vi.spyOn(importedTripClientService, 'dispatchImportedTrip')
+      .mockResolvedValueOnce({ trip: mockServerTrip as any }) // first call: row 1 succeeds
       .mockRejectedValueOnce(new Error('NETWORK_TIMEOUT')) // first call: row 2 fails
-      .mockResolvedValueOnce({} as any); // second call (retry): row 2 succeeds
+      .mockResolvedValueOnce({ trip: mockServerTrip as any }); // second call (retry): row 2 succeeds
 
     const committer = new ExcelCsvTripCommitter();
     const batch = getTwoRowBatch();
@@ -379,9 +365,9 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
   });
 
   it('20. partial result does not poison idempotency cache and allows subsequent retry to succeed', async () => {
-    const spyCreate = vi.spyOn(tripRepository, 'create')
+    const spyCreate = vi.spyOn(importedTripClientService, 'dispatchImportedTrip')
       .mockRejectedValueOnce(new Error('TRANSIENT_DB_ERROR'))
-      .mockResolvedValueOnce({} as any);
+      .mockResolvedValueOnce({ trip: mockServerTrip as any });
 
     const committer = new ExcelCsvTripCommitter();
     const batch = getSingleRowBatch();

@@ -16,6 +16,7 @@ import { ExcelCsvTripCommitter } from '../services/import/tripImportCommitter';
 import { UnifiedImportBatch, PipelineContext, ImportRow, ImportResult } from '../types/unifiedImport';
 import { tripRepository } from '../repositories/trip.repository';
 import { canonicalSnapshotClientService } from '../services/import/canonicalSnapshotClient.service';
+import { importedTripClientService } from '../services/import/importedTripClient.service';
 
 describe('SMART IMPORT R4 — Final Preview & Commit Readiness', () => {
   const sampleContext: PipelineContext = {
@@ -549,15 +550,10 @@ describe('SMART IMPORT R4 — Final Preview & Commit Readiness', () => {
     expect(createSpy).not.toHaveBeenCalled();
   });
 
-  it('27. tripImportCommitter behavior remains unchanged and fail-closed', async () => {
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockResolvedValue({
-      carrierSnapshot: { carrierId: 'CAR-ALMAJDOUIE', nameAr: 'Al Majdouie', commercialRegistrationNo: '123' } as any,
-      truckSnapshot: { truckId: 'TRK-1234', plateNumber: '1234-XYZ', carrierId: 'CAR-ALMAJDOUIE' } as any,
-      driverSnapshot: { driverId: 'DRV-5678', driverName: 'Ahmed Ali', residencyId: '101010', carrierId: 'CAR-ALMAJDOUIE' } as any,
-      materialSnapshot: { materialId: 'MAT-SAND-01', code: 'S01', nameAr: 'Red Sand' } as any,
+  it('27. tripImportCommitter behavior uses importedTripClientService and remains fail-closed', async () => {
+    const createSpy = vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockResolvedValue({
+      trip: { tripId: 'TRP-IMP-001-1', tripNumber: 'TRP-2026-000001', projectId: 'PRJ-1' } as any,
     });
-
-    const createSpy = vi.spyOn(tripRepository, 'create').mockResolvedValue('TRP-IMP-001-1' as any);
 
     const r1 = validResolvedRow(1);
     const batch = createBaseBatch([r1]);

@@ -14,6 +14,8 @@ import { pricingRuleRepository } from '../repositories/pricingRule.repository';
 import { projectRepository } from '../repositories/project.repository';
 import { tripRepository } from '../repositories/trip.repository';
 import { AuthUserContext } from '../types/common';
+import { app } from '../../server/app';
+import { serverTripService } from '../services/canonicalTripPersistence.server';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -229,10 +231,58 @@ describe('SMART IMPORT C1 — Server-Authoritative Imported Trip Creation Contra
   // =========================================================================
   // Contracts 17–24: Server Authority Security & Output Generation
   // =========================================================================
-  it('17a. Server app route rejects client tripId with HTTP 400', async () => {
+  it('17a. Server app route rejects client tripId with HTTP 400 and prevents dispatch/persistence', async () => {
     const appContent = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf-8');
     expect(appContent).toContain("req.body.tripId !== undefined");
     expect(appContent).toContain("معرّف الرحلة (tripId) يتم إنشاؤه خادومياً ولا يمكن للعميل تحديده يدوياً.");
+
+    const dispatchImportedTripSpy = vi.spyOn(serverTripService, 'dispatchImportedTrip');
+    const tripRepoCreateSpy = vi.spyOn(tripRepository, 'create');
+
+    const importRoute = (app as any)._router.stack.find(
+      (layer: any) => layer.route && layer.route.path === '/api/projects/:projectId/trips/import'
+    );
+    expect(importRoute).toBeDefined();
+
+    const routeHandler = importRoute.route.stack[importRoute.route.stack.length - 1].handle;
+
+    let statusCode: number | null = null;
+    let jsonResult: any = null;
+
+    const mockReq = {
+      params: { projectId: 'PRJ-C1-TEST' },
+      user: mockAuthContext,
+      body: {
+        ...validImportParams,
+        tripId: 'TRIP-CLIENT-SUPPLIED-REJECT-ME',
+      },
+    };
+
+    const mockRes = {
+      status: (code: number) => {
+        statusCode = code;
+        return mockRes;
+      },
+      json: (data: any) => {
+        jsonResult = data;
+        return mockRes;
+      },
+    };
+
+    await routeHandler(mockReq, mockRes);
+
+    // 1. Request containing client tripId is rejected
+    expect(jsonResult?.success).toBe(false);
+    expect(jsonResult?.error).toContain('tripId');
+
+    // 2. HTTP status = 400
+    expect(statusCode).toBe(400);
+
+    // 3. serverTripService.dispatchImportedTrip is not invoked for that request
+    expect(dispatchImportedTripSpy).not.toHaveBeenCalled();
+
+    // 4. No persistence attempt occurs
+    expect(tripRepoCreateSpy).not.toHaveBeenCalled();
   });
 
   it('17b. Server app route rejects client tripNumber', async () => {
@@ -396,10 +446,10 @@ describe('SMART IMPORT C1 — Server-Authoritative Imported Trip Creation Contra
     expect(normalTrip.status).toBe('DISPATCHED');
   });
 
-  it('43. No changes made to tripImportCommitter.ts in C1', async () => {
+  it('43. Committer cut over to server endpoint in C2', async () => {
     const committerPath = path.resolve(__dirname, '../services/import/tripImportCommitter.ts');
     const content = fs.readFileSync(committerPath, 'utf-8');
-    expect(content).toContain('tripRepository.create(sanitizedTrip)');
+    expect(content).toContain('importedTripClientService.dispatchImportedTrip');
   });
 
   it('44. Endpoint defined in server app.ts in C1', async () => {
