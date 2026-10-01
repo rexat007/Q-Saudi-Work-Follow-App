@@ -587,4 +587,132 @@ export class ExcelCsvPipelineService {
 
     return this.recalculateBatchCounts(updatedBatch);
   }
+
+  public static getFinalPreview(batch: UnifiedImportBatch, allowWarningsCommit: boolean = false) {
+    const isWarningsConfirmed = Boolean(batch.warningConfirmation?.confirmed || allowWarningsCommit);
+    const totalRows = batch.totalRows || batch.rows.length;
+
+    const readyRows: ImportRow[] = [];
+    const warningRows: ImportRow[] = [];
+    const pendingWarningRows: ImportRow[] = [];
+    const rejectedRows: ImportRow[] = [];
+    const blockedRows: ImportRow[] = [];
+    const alreadyCommittedRows: ImportRow[] = [];
+    const commitEligibleRows: ImportRow[] = [];
+    const blockers: string[] = [];
+
+    let blockingCount = 0;
+    let unresolvedReviewCount = 0;
+    let pendingWarningCount = 0;
+    let rejectedCount = 0;
+    let alreadyCommittedCount = 0;
+
+    for (const r of batch.rows) {
+      const isRejected = r.status === 'REJECTED';
+      const isCommitted = r.status === 'COMMITTED';
+      const isReviewError = r.reviewStatus === 'error';
+      const hasBlocking = r.validationIssues?.some(
+        (i) => i.severity === 'BLOCKING' || (i.severity as any) === 'ERROR' || (i.severity as any) === 'FATAL'
+      );
+      const isUnresolvedReview = r.reviewStatus === 'requires_review' || this.rowRequiresEntityResolution(r);
+
+      // Verify availability of 4 canonical IDs (carrier, truck, driver, material)
+      const canonical = (r.mapped as any) || (r.canonical as any) || {};
+      const hasCarrier = Boolean(
+        r.resolvedValues?.carrierId ||
+        r.entityResolutions?.carrier?.matchedId ||
+        r.entityResolutions?.carrier?.entityId ||
+        (canonical.carrierId && typeof canonical.carrierId === 'string' && canonical.carrierId.trim() !== '' && !canonical.carrierId.startsWith('CARRIER-') && canonical.carrierId !== 'DEFAULT' && canonical.carrierId !== 'GENERAL' && canonical.carrierId !== 'UNASSIGNED' && !canonical.carrierId.includes(' '))
+      );
+      const hasTruck = Boolean(
+        r.resolvedValues?.truckId ||
+        r.entityResolutions?.truck?.matchedId ||
+        r.entityResolutions?.truck?.entityId ||
+        (canonical.truckId && typeof canonical.truckId === 'string' && canonical.truckId.trim() !== '' && !canonical.truckId.startsWith('TRUCK-') && canonical.truckId !== 'DEFAULT' && canonical.truckId !== 'GENERAL' && canonical.truckId !== 'UNASSIGNED' && !canonical.truckId.includes(' '))
+      );
+      const hasDriver = Boolean(
+        r.resolvedValues?.driverId ||
+        r.entityResolutions?.driver?.matchedId ||
+        r.entityResolutions?.driver?.entityId ||
+        (canonical.driverId && typeof canonical.driverId === 'string' && canonical.driverId.trim() !== '' && !canonical.driverId.startsWith('DRIVER-') && canonical.driverId !== 'DEFAULT' && canonical.driverId !== 'GENERAL' && canonical.driverId !== 'UNASSIGNED' && !canonical.driverId.includes(' '))
+      );
+      const hasMaterial = Boolean(
+        r.resolvedValues?.materialId ||
+        r.entityResolutions?.material?.matchedId ||
+        r.entityResolutions?.material?.entityId ||
+        (canonical.materialId && typeof canonical.materialId === 'string' && canonical.materialId.trim() !== '' && !canonical.materialId.startsWith('MAT-') && canonical.materialId !== 'DEFAULT' && canonical.materialId !== 'GENERAL' && canonical.materialId !== 'UNASSIGNED' && !canonical.materialId.includes(' '))
+      );
+
+      const isMissingCanonicalId = !hasCarrier || !hasTruck || !hasDriver || !hasMaterial;
+      const hasWarning = r.validationIssues?.some((i) => i.severity === 'WARNING') || r.status === 'WARNING';
+
+      if (isRejected) {
+        rejectedRows.push(r);
+        rejectedCount++;
+        continue;
+      }
+      if (isCommitted) {
+        alreadyCommittedRows.push(r);
+        alreadyCommittedCount++;
+        continue;
+      }
+      if (isReviewError || hasBlocking || isMissingCanonicalId) {
+        blockedRows.push(r);
+        blockingCount++;
+        continue;
+      }
+      if (isUnresolvedReview) {
+        blockedRows.push(r);
+        unresolvedReviewCount++;
+        continue;
+      }
+
+      if (hasWarning) {
+        warningRows.push(r);
+        if (!isWarningsConfirmed) {
+          pendingWarningRows.push(r);
+          pendingWarningCount++;
+        } else {
+          readyRows.push(r);
+          commitEligibleRows.push(r);
+        }
+      } else {
+        readyRows.push(r);
+        commitEligibleRows.push(r);
+      }
+    }
+
+    if (batch.errorRows > 0 || blockingCount > 0) {
+      blockers.push(`توجد (${batch.errorRows || blockingCount}) صفوف تتضمن أخطاء مانعة`);
+    }
+    if (unresolvedReviewCount > 0 || (batch.requiresReviewRows && batch.requiresReviewRows > 0)) {
+      blockers.push(`توجد (${unresolvedReviewCount || batch.requiresReviewRows}) مجموعات كائنات أو مراجعات معلقة`);
+    }
+    if (pendingWarningCount > 0) {
+      blockers.push(`توجد (${pendingWarningCount}) تنبيهات معلقة تتطلب تأكيد بشري صريح`);
+    }
+    if (commitEligibleRows.length === 0 && totalRows > alreadyCommittedCount) {
+      blockers.push('لا توجد أي صفوف صالحة جاهزة للاعتماد');
+    }
+
+    const canCommit = blockers.length === 0 && commitEligibleRows.length > 0;
+
+    return {
+      totalRows,
+      readyRows,
+      warningRows,
+      pendingWarningRows,
+      rejectedRows,
+      blockedRows,
+      alreadyCommittedRows,
+      commitEligibleRows,
+      canCommit,
+      blockers,
+      blockingCount,
+      unresolvedReviewCount,
+      pendingWarningCount,
+      rejectedCount,
+      alreadyCommittedCount,
+    };
+  }
 }

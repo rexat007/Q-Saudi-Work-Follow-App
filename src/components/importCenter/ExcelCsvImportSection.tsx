@@ -1061,8 +1061,49 @@ export function ExcelCsvImportSection({
         if (onCommitSuccess) {
           onCommitSuccess(result);
         }
-      } else if (result.error) {
-        setProcessError(result.error);
+      } else {
+        if (result.error) {
+          setProcessError(result.error);
+        }
+
+        // Persist updated post-commit batch checkpoint on partial commit
+        if (result.committedRows > 0 && currentProjectId && activeSessionId) {
+          try {
+            const cleanSnapshot = {
+              totalRows: batch.totalRows,
+              validRows: batch.validRows,
+              warningRows: batch.warningRows,
+              errorRows: batch.errorRows,
+              requiresReviewRows: batch.requiresReviewRows,
+              committedRows: batch.committedRows,
+              rows: batch.rows.map((r) => {
+                const { rawInput, ...rest } = r as any;
+                return rest;
+              }),
+            };
+
+            const updatedSession = await importSessionClientService.updateCheckpoint(
+              currentProjectId,
+              activeSessionId,
+              {
+                lifecycleState: 'REVIEW_REQUIRED',
+                currentStage: 'REVIEW',
+                reviewSnapshot: cleanSnapshot,
+                validationIssues: result.issues || batch.issues || [],
+                warningConfirmation: confirmWarnings,
+                reviewAction: {
+                  action: 'PARTIAL_COMMIT_CHECKPOINT' as any,
+                  committedRows: result.committedRows,
+                },
+              },
+              sessionVersion
+            );
+
+            setSessionVersion(updatedSession.version);
+          } catch (err: any) {
+            console.warn('Failed to update session checkpoint on partial commit:', err);
+          }
+        }
       }
     } catch (err: any) {
       setProcessError(err?.message || 'فشل في تنفيذ الاعتماد وحفظ الشحنات');
@@ -2615,87 +2656,196 @@ export function ExcelCsvImportSection({
             )}
           </div>
 
-          {/* Final Review & Pre-Commit Summary Section */}
+          {/* R4 Final Human Preview & Commit Readiness Section */}
           {(() => {
-            const readyValidCount = activeBatch.rows.filter(
-              (r) => (r.status === 'VALID' || r.reviewStatus === 'accepted') && r.status !== 'REJECTED' && r.status !== 'COMMITTED'
-            ).length;
-            const pendingWarningCount = activeBatch.rows.filter(
-              (r) => (r.status === 'WARNING' || r.reviewStatus === 'requires_review') && r.status !== 'REJECTED' && r.status !== 'COMMITTED'
-            ).length;
-            const blockingErrorCount = activeBatch.rows.filter(
-              (r) => (r.status === 'ERROR' || r.reviewStatus === 'error' || r.validationIssues?.some((i) => i.blocking)) && r.status !== 'REJECTED' && r.status !== 'COMMITTED'
-            ).length;
-            const rejectedCount = activeBatch.rows.filter((r) => r.status === 'REJECTED').length;
-            const eligibleCommitCount = activeBatch.rows.filter(
-              (r) => (r.status === 'VALID' || r.reviewStatus === 'accepted' || (r.status === 'WARNING' && confirmWarnings)) && r.status !== 'REJECTED' && r.status !== 'COMMITTED'
-            ).length;
-
+            const preview = ExcelCsvPipelineService.getFinalPreview(activeBatch, confirmWarnings);
             const cannotCommitReason =
               unresolvedGroups.length > 0
                 ? `توجد (${unresolvedGroups.length}) مجموعات كائنات غير مطابقة تتطلب حسم القرار أولاً`
-                : blockingErrorCount > 0
-                ? `توجد (${blockingErrorCount}) صفوف تتضمن أخطاء مانعة يجب معالجتها أو استبعادها`
-                : rowExceptions.length > 0 && !confirmWarnings && pendingWarningCount > 0
-                ? `توجد (${pendingWarningCount}) تنبيهات معلقة، يلزم قبول التنبيهات أو تفعيل إقرار الموافقة على التنبيهات`
-                : eligibleCommitCount === 0
-                ? 'لا توجد أي صفوف صالحة جاهزة للاعتماد'
+                : preview.blockers.length > 0
+                ? preview.blockers[0]
                 : null;
 
             return (
-              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200/90 space-y-5">
+              <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200/90 space-y-6">
                 <div className="border-b border-stone-200 pb-3">
-                  <h4 className="font-black text-stone-900 text-sm flex items-center gap-2">
+                  <h4 className="font-black text-stone-900 text-base flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                    <span>ملخص المراجعة النهائية قبل الاعتماد (Pre-Commit Breakdown)</span>
+                    <span>المراجعة النهائية والتحقق قبل الاعتماد (R4 Final Human Preview)</span>
                   </h4>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    توضيح دقيق لتوزيع الصفوف والقرارات قبل التنفيذ النهائي في قاعدة البيانات.
+                  <p className="text-xs text-stone-500 mt-1">
+                    الاستعراض الشامل والدقيق للصفوف الجاهزة، المستبعدة، والتنبيهات المقبولة قبل الاعتماد الرسمي في المشروع.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 text-center">
-                  <div className="p-2.5 rounded-xl bg-white border border-stone-200">
+                {/* Aggregate Metrics Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 text-center">
+                  <div className="p-3 rounded-xl bg-white border border-stone-200">
                     <div className="text-[10px] font-bold text-stone-500">إجمالي الدفعة</div>
-                    <div className="text-sm font-black text-stone-900 font-mono mt-0.5">{activeBatch.totalRows}</div>
+                    <div className="text-base font-black text-stone-900 font-mono mt-0.5">{preview.totalRows}</div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
-                    <div className="text-[10px] font-bold text-emerald-800">سليمة وجاهزة</div>
-                    <div className="text-sm font-black text-emerald-900 font-mono mt-0.5">{readyValidCount}</div>
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                    <div className="text-[10px] font-bold text-emerald-800">جاهز للاعتماد</div>
+                    <div className="text-base font-black text-emerald-900 font-mono mt-0.5">{preview.commitEligibleRows.length}</div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
                     <div className="text-[10px] font-bold text-amber-800">تنبيهات معلقة</div>
-                    <div className="text-sm font-black text-amber-900 font-mono mt-0.5">{pendingWarningCount}</div>
+                    <div className="text-base font-black text-amber-900 font-mono mt-0.5">{preview.pendingWarningCount}</div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200">
-                    <div className="text-[10px] font-bold text-rose-800">أخطاء مانعة</div>
-                    <div className="text-sm font-black text-rose-900 font-mono mt-0.5">{blockingErrorCount}</div>
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200">
+                    <div className="text-[10px] font-bold text-rose-800">صفوف محظورة/أخطاء</div>
+                    <div className="text-base font-black text-rose-900 font-mono mt-0.5">{preview.blockedRows.length}</div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-stone-100 border border-stone-200">
+                  <div className="p-3 rounded-xl bg-stone-100 border border-stone-200">
                     <div className="text-[10px] font-bold text-stone-600">صفوف مستبعدة</div>
-                    <div className="text-sm font-black text-stone-700 font-mono mt-0.5">{rejectedCount}</div>
+                    <div className="text-base font-black text-stone-700 font-mono mt-0.5">{preview.rejectedRows.length}</div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200">
-                    <div className="text-[10px] font-bold text-blue-800">كائنات معلقة</div>
-                    <div className="text-sm font-black text-blue-900 font-mono mt-0.5">{unresolvedGroups.length}</div>
+                  <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
+                    <div className="text-[10px] font-bold text-blue-800">مفعلة مسبقاً (Committed)</div>
+                    <div className="text-base font-black text-blue-900 font-mono mt-0.5">{preview.alreadyCommittedCount}</div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-amber-100/60 border border-amber-300">
-                    <div className="text-[10px] font-bold text-amber-900">استثناءات معلقة</div>
-                    <div className="text-sm font-black text-amber-950 font-mono mt-0.5">{rowExceptions.length}</div>
-                  </div>
-
-                  <div className="p-2.5 rounded-xl bg-emerald-600 text-white border border-emerald-700 shadow-2xs">
-                    <div className="text-[10px] font-bold opacity-90">جاهز للاعتماد</div>
-                    <div className="text-sm font-black font-mono mt-0.5">{eligibleCommitCount}</div>
+                  <div className="p-3 rounded-xl bg-blue-100/70 border border-blue-300">
+                    <div className="text-[10px] font-bold text-blue-900">مجموعات معلقة</div>
+                    <div className="text-base font-black text-blue-950 font-mono mt-0.5">{unresolvedGroups.length}</div>
                   </div>
                 </div>
 
+                {/* A. Ready to Commit Exact Row List */}
+                <div className="space-y-3">
+                  <h5 className="font-bold text-xs text-emerald-900 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>أ. الصفوف الجاهزة للاعتماد الفعلي ({preview.commitEligibleRows.length} صف)</span>
+                  </h5>
+                  {preview.commitEligibleRows.length === 0 ? (
+                    <div className="p-4 rounded-xl bg-stone-100 text-stone-600 text-xs font-bold">
+                      لا توجد صفوف جاهزة للاعتماد حالياً.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto border border-emerald-200 rounded-xl bg-white">
+                      <table className="w-full text-right text-xs">
+                        <thead className="bg-emerald-50 border-b border-emerald-200 text-emerald-950 font-bold">
+                          <tr>
+                            <th className="p-2.5 w-10 text-center">#</th>
+                            <th className="p-2.5">رقم التذكرة</th>
+                            <th className="p-2.5">التاريخ</th>
+                            <th className="p-2.5">الشحنة / المادة</th>
+                            <th className="p-2.5">الناقل</th>
+                            <th className="p-2.5">السائق والشاحنة</th>
+                            <th className="p-2.5 text-center">الصافي (كجم)</th>
+                            <th className="p-2.5 text-center">الحالة</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-emerald-100">
+                          {preview.commitEligibleRows.map((r) => {
+                            const data = r.mapped || r.canonical || {};
+                            return (
+                              <tr key={r.rowNumber} className="hover:bg-emerald-50/40">
+                                <td className="p-2.5 text-center font-mono font-bold">{r.rowNumber}</td>
+                                <td className="p-2.5 font-mono font-bold text-stone-900">{data.ticketId || data.tripSerial || '—'}</td>
+                                <td className="p-2.5 font-mono text-stone-700">{data.tripDate || data.shiftDate || '—'}</td>
+                                <td className="p-2.5 font-bold text-stone-800">{data.materialName || data.material || '—'}</td>
+                                <td className="p-2.5 text-stone-800">{data.carrierName || data.carrier || '—'}</td>
+                                <td className="p-2.5 text-stone-700">
+                                  {data.driverName || '—'} ({data.plateNumber || data.truckNo || '—'})
+                                </td>
+                                <td className="p-2.5 text-center font-mono font-bold text-emerald-800">
+                                  {data.netWeightKg || data.netWeight ? Number(data.netWeightKg || data.netWeight).toLocaleString() : '—'}
+                                </td>
+                                <td className="p-2.5 text-center">
+                                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                                    {r.status === 'WARNING' ? 'مقبول بتنبيه' : 'سليم'}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* B. Excluded / Skipped Row List */}
+                {(preview.rejectedRows.length > 0 || preview.blockedRows.length > 0 || preview.alreadyCommittedRows.length > 0) && (
+                  <div className="space-y-3">
+                    <h5 className="font-bold text-xs text-stone-900 flex items-center gap-1.5">
+                      <XCircle className="w-4 h-4 text-rose-600" />
+                      <span>ب. الصفوف المستبعدة أو المحظورة ولن يتم اعتمادها</span>
+                    </h5>
+                    <div className="overflow-x-auto border border-stone-200 rounded-xl bg-white">
+                      <table className="w-full text-right text-xs">
+                        <thead className="bg-stone-100 border-b border-stone-200 text-stone-700 font-bold">
+                          <tr>
+                            <th className="p-2.5 w-10 text-center">#</th>
+                            <th className="p-2.5">سبب الاستبعاد / الحظر</th>
+                            <th className="p-2.5">بيانات الشحنة</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-100">
+                          {preview.rejectedRows.map((r) => (
+                            <tr key={r.rowNumber} className="hover:bg-stone-50">
+                              <td className="p-2.5 text-center font-mono font-bold">{r.rowNumber}</td>
+                              <td className="p-2.5 font-bold text-stone-600">مستبعد يدوياً (Manually Rejected)</td>
+                              <td className="p-2.5 font-mono text-stone-500">التذكرة: {r.canonical?.ticketId || r.raw?.ticketId || '—'}</td>
+                            </tr>
+                          ))}
+                          {preview.blockedRows.map((r) => (
+                            <tr key={r.rowNumber} className="hover:bg-rose-50/40">
+                              <td className="p-2.5 text-center font-mono font-bold">{r.rowNumber}</td>
+                              <td className="p-2.5 font-bold text-rose-800">
+                                {r.validationIssues?.map(i => i.messageAr || i.message).join(' | ') || 'أخطاء مانعة أو مراجعة معلقة'}
+                              </td>
+                              <td className="p-2.5 font-mono text-stone-500">التذكرة: {r.canonical?.ticketId || r.raw?.ticketId || '—'}</td>
+                            </tr>
+                          ))}
+                          {preview.alreadyCommittedRows.map((r) => (
+                            <tr key={r.rowNumber} className="hover:bg-blue-50/40">
+                              <td className="p-2.5 text-center font-mono font-bold">{r.rowNumber}</td>
+                              <td className="p-2.5 font-bold text-blue-800">تم اعتمادها مسبقاً في الدفعات السابقة (Already Committed)</td>
+                              <td className="p-2.5 font-mono text-stone-500">التذكرة: {r.canonical?.ticketId || r.raw?.ticketId || '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* C. Warnings Preview */}
+                {preview.warningRows.length > 0 && (
+                  <div className="space-y-2">
+                    <h5 className="font-bold text-xs text-amber-900 flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4 text-amber-600" />
+                      <span>ج. التنبيهات التشغيلية ({preview.warningRows.length} صف تتطلب الموافقة أو تمت الموافقة عليها)</span>
+                    </h5>
+                    <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+                      <div>حالة الاعتماد للبلاغات والتنبيهات: {confirmWarnings ? '✔ تم تفعيل إقرار الموافقة (جاهزة للاعتماد)' : '⏳ بانتظار تفعيل إقرار الموافقة أدناه'}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* D. Blockers Presentation */}
+                {preview.blockers.length > 0 && (
+                  <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold space-y-1">
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" />
+                      <span>موانع الاعتماد الحالية (Commit Blockers):</span>
+                    </div>
+                    <ul className="list-disc list-inside pr-5 space-y-0.5 font-normal text-rose-800">
+                      {preview.blockers.map((b, idx) => (
+                        <li key={idx}>{b}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Final Confirmation & CTA */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-3 border-t border-stone-200">
                   <div className="space-y-1.5 max-w-xl">
                     <label className="flex items-center gap-2.5 cursor-pointer">
@@ -2710,16 +2860,16 @@ export function ExcelCsvImportSection({
                       </span>
                     </label>
                     <p className="text-[11px] text-stone-500 pr-6">
-                      تنبيه: لن يتم اعتماد أي شحنة مستبعدة أو تحتوي على أخطاء قاتلة (Fatal Errors).
+                      تنبيه: لن يتم اعتماد أي شحنة مستبعدة أو تحتوي على أخطاء قاتلة.
                     </p>
                   </div>
 
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <button
                       onClick={handleCommit}
-                      disabled={isCommitting || Boolean(cannotCommitReason)}
+                      disabled={isCommitting || !preview.canCommit || Boolean(cannotCommitReason)}
                       className={`px-6 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-xs cursor-pointer ${
-                        isCommitting || Boolean(cannotCommitReason)
+                        isCommitting || !preview.canCommit || Boolean(cannotCommitReason)
                           ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
                           : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                       }`}
@@ -2732,7 +2882,7 @@ export function ExcelCsvImportSection({
                       ) : (
                         <>
                           <ShieldCheck className="w-4 h-4" />
-                          <span>اعتماد وتحفيظ الشحنات الرسمية ({eligibleCommitCount})</span>
+                          <span>اعتماد وإضافة {preview.commitEligibleRows.length} رحلة إلى المشروع</span>
                         </>
                       )}
                     </button>
@@ -2748,19 +2898,68 @@ export function ExcelCsvImportSection({
             );
           })()}
 
-          {/* Commit Success Banner */}
-          {commitResult && commitResult.success && (
-            <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-2">
+          {/* Post-Commit Result Banner — Contract Aligned */}
+          {commitResult && (
+            <div className={`p-5 rounded-2xl border space-y-3 ${
+              commitResult.success
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                : commitResult.committedRows > 0
+                ? 'bg-amber-50 border-amber-300 text-amber-950'
+                : 'bg-rose-50 border-rose-200 text-rose-900'
+            }`}>
               <div className="flex items-center gap-2 text-sm font-black">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                <span>تم اعتماد وتحفيظ الشحنات بنجاح في سجلات المشروع!</span>
+                {commitResult.success ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    <span>تم اعتماد الدفعة بنجاح كامل في سجلات المشروع!</span>
+                  </>
+                ) : commitResult.committedRows > 0 ? (
+                  <>
+                    <AlertTriangle className="w-5 h-5 text-amber-600" />
+                    <span>نتيجة جزئية (Partial Success / Failure): تم اعتماد بعض الرحلات وبقيت رحلات أخرى معلقة أو مرفوضة.</span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-5 h-5 text-rose-600" />
+                    <span>فشل اعتماد الدفعة: لم يتم اعتماد أي رحلة.</span>
+                  </>
+                )}
               </div>
-              <div className="text-xs text-emerald-800 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono">
-                <div>تم إنشاء: {(commitResult as any).createdCount ?? (commitResult as any).committedTripsCount ?? 0}</div>
-                <div>تم تحديث: {(commitResult as any).updatedCount ?? 0}</div>
-                <div>تم التجاوز: {(commitResult as any).skippedCount ?? 0}</div>
-                <div>فشل: {(commitResult as any).failedCount ?? 0}</div>
+
+              {commitResult.error && (
+                <div className="text-xs font-bold text-rose-800 bg-white/80 p-2.5 rounded-lg border border-rose-200">
+                  خطأ التنفيذ: {commitResult.error}
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-xs font-mono font-bold">
+                <div className="p-2 bg-white/70 rounded-lg border border-stone-200">
+                  إجمالي الدفعة: {commitResult.totalRows}
+                </div>
+                <div className="p-2 bg-emerald-100/70 text-emerald-900 rounded-lg border border-emerald-200">
+                  تم الاعتماد (committedRows): {commitResult.committedRows}
+                </div>
+                <div className="p-2 bg-stone-100 text-stone-800 rounded-lg border border-stone-200">
+                  تم التجاوز (skippedRows): {commitResult.skippedRows}
+                </div>
+                <div className="p-2 bg-rose-100 text-rose-900 rounded-lg border border-rose-200">
+                  فشل (failedRows): {commitResult.failedRows}
+                </div>
               </div>
+
+              {commitResult.issues && commitResult.issues.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-stone-200/60 space-y-1.5">
+                  <div className="text-xs font-bold text-stone-800">ملاحظات ومشاكل التنفيذ المرتبطة بالصفوف:</div>
+                  <div className="max-h-40 overflow-y-auto space-y-1 pr-1">
+                    {commitResult.issues.map((issue, idx) => (
+                      <div key={idx} className="p-2 rounded bg-white/90 border border-stone-200 text-[11px] text-stone-800 flex items-start gap-2 font-mono">
+                        <span className="font-bold text-rose-700 shrink-0">صف {issue.row}:</span>
+                        <span>{issue.messageAr || issue.message} ({issue.code})</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
