@@ -115,18 +115,18 @@ const CANONICAL_FIELD_DEFINITIONS: FieldAliasDefinition[] = [
   },
   {
     canonicalField: 'loadTime',
-    exactNames: ['loadtime', 'load_time', 'weightime', 'weigh_time', 'time', 'الوقت', 'وقت_التحميل', 'وقت_الوزن'],
-    aliases: ['ساعة الوزن', 'وقت الحركة', 'زمن التحميل', 'وقت التحميل', 'time_in', 'ساعة التحميل', 'loading time', 'dispatch time', 'وقت الارسال'],
+    exactNames: ['loadtime', 'load_time', 'وقت_التحميل', 'زمن_التحميل', 'ساعة_التحميل'],
+    aliases: ['load time', 'loading time', 'load_time', 'وقت التحميل', 'زمن التحميل', 'ساعة التحميل', 'dispatch time', 'loading_time'],
   },
   {
     canonicalField: 'weighTime',
-    exactNames: ['time', 'weightime', 'weigh_time', 'الوقت', 'وقت_الوزن'],
-    aliases: ['ساعة الوزن', 'وقت الحركة', 'زمن التحميل', 'time_in'],
+    exactNames: ['weightime', 'weigh_time', 'وقت_الوزن', 'زمن_الوزن', 'ساعة_الوزن'],
+    aliases: ['weigh time', 'weigh_time', 'weight time', 'وقت الوزن', 'زمن الوزن', 'ساعة الوزن'],
   },
   {
     canonicalField: 'unloadTime',
-    exactNames: ['unloadtime', 'unload_time', 'وقت_التفريغ'],
-    aliases: ['ساعة التفريغ', 'زمن الوصول', 'time_out', 'unloading time', 'offload time', 'وقت التنزيل'],
+    exactNames: ['unloadtime', 'unload_time', 'وقت_التفريغ', 'زمن_التفريغ', 'ساعة_التفريغ', 'وقت_التنزيل'],
+    aliases: ['unload time', 'unloading time', 'offload time', 'unload_time', 'وقت التفريغ', 'زمن التفريغ', 'ساعة التفريغ', 'وقت التنزيل', 'unloading_time'],
   },
   {
     canonicalField: 'note',
