@@ -455,7 +455,16 @@ describe('Smart Import R3 — Row Correction & Exception Review Test Suite', () 
 
   // 22. rejected rows remain excluded from commit eligibility
   it('22. rejected rows remain excluded from commit eligibility', () => {
-    expect(sectionContent).toContain("r.status !== 'REJECTED'");
+    const sampleBatch = createSampleBatchWithErrorsAndDuplicates();
+    sampleBatch.rows[1].status = 'REJECTED';
+
+    const preview = ExcelCsvPipelineService.getFinalPreview(sampleBatch, true);
+
+    const isRow2Eligible = preview.commitEligibleRows.some(r => r.rowNumber === 2);
+    expect(isRow2Eligible).toBe(false);
+
+    const isRow2Rejected = preview.rejectedRows.some(r => r.rowNumber === 2);
+    expect(isRow2Rejected).toBe(true);
   });
 
   // 23. correction checkpoint is persisted
