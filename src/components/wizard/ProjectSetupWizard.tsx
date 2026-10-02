@@ -935,7 +935,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     // 4. Construct resolution payload
     const resolutionPayload = {
       matchedId: result.carrierId,
-      matchedName: result.carrier?.nameAr || smartImportPendingCarrierGroup.sourceValue,
+      matchedName: smartImportPendingCarrierGroup.sourceValue,
       sourceValue: smartImportPendingCarrierGroup.sourceValue,
     };
 
@@ -2445,7 +2445,6 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         setSmartImportPendingCarrierGroup(group);
                         setIsSmartImportCarrierModalOpen(true);
                       }}
-                      onClose={() => setImportBatch(null)}
                     />
                   )}
 

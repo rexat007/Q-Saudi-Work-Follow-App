@@ -4,6 +4,7 @@ import * as path from 'path';
 import { RosterBatchReviewService } from '../services/import/rosterBatchReview.service';
 import { UnifiedImportBatch } from '../types/unifiedImport';
 import { ROSTER_SMART_IMPORT_STAGES } from '../services/import/rosterSmartImportWorkflow.service';
+import { CarrierCreationResult } from '../services/carrierManagementClient.service';
 
 describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
   const layerPath = path.resolve(__dirname, '../components/import/RosterCarrierResolutionLayer.tsx');
@@ -154,5 +155,73 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
     expect(wizardContent).toContain('rosterDiscoveryResult');
     expect(wizardContent).toContain('rosterCustomMappings');
     expect(wizardContent).toContain('isRosterMappingApproved');
+  });
+
+  it('9. Closing/dismissing Carrier layer does NOT clear importBatch or cause stage/batch desync', () => {
+    // In ProjectSetupWizard.tsx, RosterCarrierResolutionLayer must NOT have onClose={() => setImportBatch(null)}
+    const mountIdx = wizardContent.indexOf('<RosterCarrierResolutionLayer');
+    const mountBlock = wizardContent.slice(mountIdx, mountIdx + 500);
+    expect(mountBlock).not.toContain('setImportBatch(null)');
+    expect(mountBlock).not.toContain('onClose={() => setImportBatch(null)}');
+  });
+
+  it('10. Destructive import session clearing occurs ONLY through handleResetRosterImport()', () => {
+    const resetIdx = wizardContent.indexOf('const handleResetRosterImport = () => {');
+    const resetBody = wizardContent.slice(
+      resetIdx,
+      wizardContent.indexOf('};', resetIdx) + 2
+    );
+
+    expect(resetBody).toContain('setRosterSelectedFile(null)');
+    expect(resetBody).toContain('setRosterBuffer(null)');
+    expect(resetBody).toContain('setRosterDiscoveryResult(null)');
+    expect(resetBody).toContain('setImportBatch(null)');
+    expect(resetBody).toContain("setRosterImportStage('SOURCE_DISCOVERY')");
+    expect(resetBody).toContain('setIsSmartImportCarrierModalOpen(false)');
+    expect(resetBody).toContain('setSmartImportPendingCarrierGroup(null)');
+  });
+
+  it('11. handleSmartImportCarrierCreated adheres strictly to CarrierCreationResult type contract', () => {
+    const handlerIdx = wizardContent.indexOf('const handleSmartImportCarrierCreated = async (result: CarrierCreationResult) => {');
+    const handlerBody = wizardContent.slice(
+      handlerIdx,
+      wizardContent.indexOf('};', handlerIdx) + 500
+    );
+
+    // Must NOT access result.carrier
+    expect(handlerBody).not.toContain('result.carrier?.');
+    expect(handlerBody).not.toContain('result.carrier.');
+
+    // Must use result.carrierId and smartImportPendingCarrierGroup.sourceValue
+    expect(handlerBody).toContain('matchedId: result.carrierId');
+    expect(handlerBody).toContain('matchedName: smartImportPendingCarrierGroup.sourceValue');
+    expect(handlerBody).toContain('sourceValue: smartImportPendingCarrierGroup.sourceValue');
+  });
+
+  it('12. CarrierCreationResult type contract remains authoritative and unmodified', () => {
+    // Verify CarrierCreationResult structure compatibility
+    const sampleResult: CarrierCreationResult = {
+      success: true,
+      projectId: 'PRJ-100',
+      carrierId: 'CAR-100',
+      membershipStatus: 'ACTIVE',
+    };
+    expect(sampleResult.carrierId).toBe('CAR-100');
+    expect(sampleResult.success).toBe(true);
+  });
+
+  it('13. Created Carrier grouped resolution uses result.carrierId and pending group context', () => {
+    const handlerIdx = wizardContent.indexOf('const handleSmartImportCarrierCreated = async (result: CarrierCreationResult) => {');
+    const handlerBody = wizardContent.slice(
+      handlerIdx,
+      wizardContent.indexOf('};', handlerIdx) + 500
+    );
+
+    expect(handlerBody).toContain('DriverTruckPipelineService.applyGroupedCreatedEntityResolution(');
+    expect(handlerBody).toContain('importBatch');
+    expect(handlerBody).toContain("'carrier'");
+    expect(handlerBody).toContain('smartImportPendingCarrierGroup.normalizedSourceKey');
+    expect(handlerBody).toContain('resolutionPayload');
+    expect(handlerBody).toContain('pipelineCtx');
   });
 });
