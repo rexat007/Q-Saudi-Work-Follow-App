@@ -53,6 +53,12 @@ import * as XLSX from 'xlsx';
 import { auth } from '../../firebase/config';
 import { CarrierEditorModal } from '../masterData/CarrierEditorModal';
 import { MaterialEditorModal } from '../masterData/MaterialEditorModal';
+import { 
+  RosterSmartImportStage, 
+  ROSTER_STAGE_DEFINITIONS, 
+  RosterSmartImportWorkflowService,
+  RosterWorkflowContext
+} from '../../services/import/rosterSmartImportWorkflow.service';
 import { projectCanonicalRefreshService, ProjectCanonicalRefreshSnapshot } from '../../services/projectCanonicalRefresh.service';
 import { 
   isProjectOperationallyMutable, 
@@ -289,6 +295,18 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [isRosterMappingApproved, setIsRosterMappingApproved] = useState<boolean>(false);
   const [isDiscoveringRoster, setIsDiscoveringRoster] = useState<boolean>(false);
   const [rosterDiscoveryError, setRosterDiscoveryError] = useState<string | null>(null);
+
+  // C1 Layered Smart Import Stage Controller
+  const [rosterImportStage, setRosterImportStage] = useState<RosterSmartImportStage>('SOURCE_DISCOVERY');
+
+  const rosterWorkflowContext: RosterWorkflowContext = useMemo(() => ({
+    hasSource: Boolean(rosterSelectedFile && rosterBuffer),
+    hasDiscovery: Boolean(rosterDiscoveryResult),
+    hasDetectedHeaders: Boolean(rosterDiscoveryResult?.detectedHeaders && rosterDiscoveryResult.detectedHeaders.length > 0),
+    isMappingApproved: Boolean(isRosterMappingApproved),
+    hasImportBatch: Boolean(importBatch),
+    isCommitAttemptedOrCompleted: Boolean(importBatch && (importBatch.committedRows !== undefined || importBatch.status === 'COMMITTED')),
+  }), [rosterSelectedFile, rosterBuffer, rosterDiscoveryResult, isRosterMappingApproved, importBatch]);
 
   // Google Sync Action state
   const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
@@ -658,6 +676,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             initialMappings[h] = translateDiscoveryToRosterTarget(diag?.canonicalField);
           });
           setRosterCustomMappings(initialMappings);
+          setRosterImportStage('MAPPING_APPROVAL');
         } catch (innerErr: any) {
           setRosterDiscoveryError(innerErr.message || 'خطأ أثناء استكشاف ملف سجل التشغيل');
         } finally {
@@ -795,6 +814,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       setImportBatch(batch);
       setIsRosterMappingApproved(true);
+      setRosterImportStage('CARRIER_RESOLUTION');
     } catch (err: any) {
       setImportError(err?.message || 'خطأ أثناء تحليل ملف سجل التشغيل');
     } finally {
@@ -806,11 +826,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setRosterSelectedFile(null);
     setRosterBuffer(null);
     setRosterDiscoveryResult(null);
+    setRosterSelectedSheet('');
+    setRosterHeaderRowIndex(0);
     setRosterCustomMappings({});
     setIsRosterMappingApproved(false);
     setImportBatch(null);
     setImportError(null);
     setRosterDiscoveryError(null);
+    setRosterImportStage('SOURCE_DISCOVERY');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -2024,8 +2047,56 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </form>
                   )}
 
-                  {/* Drag and Drop File intake Area */}
-                  {isOperationallyMutable && !rosterSelectedFile && (
+                  {/* C1 Layered Smart Import Stage Indicator Stepper (Orientation & Progress Indicator) */}
+                  <div className="bg-stone-900/90 border border-stone-800 rounded-2xl p-3 shadow-lg mb-4">
+                    <div className="flex items-center justify-between mb-2 px-1">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-amber-500" />
+                        <span className="text-xs font-black text-white">مسار الاستيراد الذكي التراكمي (Smart Import Workflow)</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-amber-400 font-bold bg-amber-950/60 border border-amber-900/50 px-2 py-0.5 rounded-full">
+                        المرحلة {RosterSmartImportWorkflowService.getStageIndex(rosterImportStage) + 1} من 7: {ROSTER_STAGE_DEFINITIONS.find(d => d.stage === rosterImportStage)?.labelAr}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1.5 pt-1">
+                      {ROSTER_STAGE_DEFINITIONS.map((def, idx) => {
+                        const currentIdx = RosterSmartImportWorkflowService.getStageIndex(rosterImportStage);
+                        const isCurrent = def.stage === rosterImportStage;
+                        const isPast = idx < currentIdx;
+
+                        return (
+                          <div
+                            key={def.stage}
+                            className={`flex items-center gap-1.5 p-2 rounded-xl text-right transition-all border ${
+                              isCurrent
+                                ? 'bg-amber-500/10 border-amber-500/80 text-amber-300 font-black shadow-sm ring-1 ring-amber-500/30'
+                                : isPast
+                                ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-400 font-bold'
+                                : 'bg-stone-950/50 border-stone-850/80 text-stone-500 font-medium opacity-60 select-none'
+                            }`}
+                            title={`${def.stepNumber}. ${def.labelAr} - ${def.descriptionAr}`}
+                          >
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-black shrink-0 ${
+                              isCurrent
+                                ? 'bg-amber-500 text-stone-950'
+                                : isPast
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-stone-800 text-stone-500'
+                            }`}>
+                              {isPast ? <Check className="w-3 h-3" /> : def.stepNumber}
+                            </div>
+                            <div className="min-w-0 flex-1 truncate">
+                              <div className="text-[10px] truncate leading-tight">{def.labelAr}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Drag and Drop File intake Area (SOURCE_DISCOVERY) */}
+                  {isOperationallyMutable && !rosterSelectedFile && rosterImportStage === 'SOURCE_DISCOVERY' && (
                     <div
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
@@ -2064,8 +2135,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                   )}
 
-                  {/* Roster Smart Discovery & Mapping Approval Gate */}
-                  {rosterSelectedFile && rosterDiscoveryResult && !importBatch && !isRosterMappingApproved && (
+                  {/* Roster Smart Discovery & Mapping Approval Gate (MAPPING_APPROVAL) */}
+                  {rosterSelectedFile && rosterDiscoveryResult && !importBatch && !isRosterMappingApproved && rosterImportStage === 'MAPPING_APPROVAL' && (
                     <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 space-y-4 shadow-xl">
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-800 pb-3">
                         <div className="flex items-center gap-2.5">
@@ -2223,8 +2294,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                   )}
 
-                  {/* File Review popup modal for Unified Import Pipeline */}
-                  {importBatch && (
+                  {/*
+                    C1 COMPATIBILITY BRIDGE:
+                    Current monolithic review workspace remains temporarily mounted under
+                    CARRIER_RESOLUTION until C2 introduces true carrier-only resolution.
+                  */}
+                  {importBatch && rosterImportStage === 'CARRIER_RESOLUTION' && (
                     <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
                       <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
                         <div className="p-5 border-b border-stone-800 bg-stone-950 flex justify-between items-center">
