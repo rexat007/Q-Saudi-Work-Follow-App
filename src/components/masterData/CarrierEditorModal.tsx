@@ -4,31 +4,60 @@ import {
   carrierManagementClientService,
   CarrierCreateInput,
   CarrierCreationResult,
+  CarrierUpdateInput,
+  CarrierUpdateResult,
 } from '../../services/carrierManagementClient.service';
 
 export interface CarrierEditorModalProps {
   open: boolean;
   projectId: string;
+  mode?: 'CREATE' | 'EDIT';
   initialName?: string;
+  initialCarrier?: {
+    carrierId: string;
+    name: string;
+    commercialRegistrationNo?: string;
+    transportLicenseNo?: string | null;
+    contactPersonName?: string | null;
+    contactPhone?: string | null;
+    contactEmail?: string | null;
+    contactPerson?: {
+      name?: string;
+      phone?: string;
+      email?: string;
+    } | null;
+  } | null;
   onClose: () => void;
-  onCreated: (result: CarrierCreationResult) => void | Promise<void>;
+  onCreated?: (result: CarrierCreationResult) => void | Promise<void>;
+  onUpdated?: (result: CarrierUpdateResult) => void | Promise<void>;
   clientService?: {
     createProjectCarrier: (
       projectId: string,
       input: CarrierCreateInput,
       overrideToken?: string
     ) => Promise<CarrierCreationResult>;
+    updateProjectCarrier?: (
+      projectId: string,
+      carrierId: string,
+      input: CarrierUpdateInput,
+      overrideToken?: string
+    ) => Promise<CarrierUpdateResult>;
   };
 }
 
 export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   open,
   projectId,
+  mode = 'CREATE',
   initialName = '',
+  initialCarrier = null,
   onClose,
   onCreated,
+  onUpdated,
   clientService = carrierManagementClientService,
 }) => {
+  const isEditMode = mode === 'EDIT' || (initialCarrier !== null && initialCarrier !== undefined);
+
   const [name, setName] = useState('');
   const [commercialRegistrationNo, setCommercialRegistrationNo] = useState('');
   const [transportLicenseNo, setTransportLicenseNo] = useState('');
@@ -40,26 +69,44 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // A1.1: State for mutation-succeeded / refresh-failed distinction & non-duplicating retry
+  // Stored results for mutation-succeeded / refresh-failed recovery
   const [createdCarrierResult, setCreatedCarrierResult] = useState<CarrierCreationResult | null>(null);
+  const [updatedCarrierResult, setUpdatedCarrierResult] = useState<CarrierUpdateResult | null>(null);
   const [refreshFailed, setRefreshFailed] = useState(false);
 
-  // Synchronize form when opened or initialName changes
+  // Synchronize form when opened or initial values change
   useEffect(() => {
     if (open) {
-      setName(initialName || '');
-      setCommercialRegistrationNo('');
-      setTransportLicenseNo('');
-      setContactPersonName('');
-      setContactPhone('');
-      setContactEmail('');
+      if (isEditMode && initialCarrier) {
+        setName(initialCarrier.name || '');
+        setCommercialRegistrationNo(initialCarrier.commercialRegistrationNo || '');
+        setTransportLicenseNo(initialCarrier.transportLicenseNo || '');
+        setContactPersonName(
+          initialCarrier.contactPersonName || initialCarrier.contactPerson?.name || ''
+        );
+        setContactPhone(
+          initialCarrier.contactPhone || initialCarrier.contactPerson?.phone || ''
+        );
+        setContactEmail(
+          initialCarrier.contactEmail || initialCarrier.contactPerson?.email || ''
+        );
+      } else {
+        setName(initialName || '');
+        setCommercialRegistrationNo('');
+        setTransportLicenseNo('');
+        setContactPersonName('');
+        setContactPhone('');
+        setContactEmail('');
+      }
+
       setFieldErrors({});
       setSubmitError(null);
       setIsSubmitting(false);
       setCreatedCarrierResult(null);
+      setUpdatedCarrierResult(null);
       setRefreshFailed(false);
     }
-  }, [open, initialName]);
+  }, [open, isEditMode, initialCarrier, initialName]);
 
   if (!open) return null;
 
@@ -73,12 +120,15 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       errors.name = 'اسم الناقل يجب أن يتكون من 3 أحرف على الأقل';
     }
 
-    const trimmedCr = commercialRegistrationNo.trim();
-    const crDigits = trimmedCr.replace(/[^0-9]/g, '');
-    if (!trimmedCr) {
-      errors.commercialRegistrationNo = 'رقم السجل التجاري (CR) مطلوب';
-    } else if (crDigits.length !== 10 || crDigits !== trimmedCr) {
-      errors.commercialRegistrationNo = 'رقم السجل التجاري يجب أن يتكون من 10 أرقام بالضبط';
+    // In CREATE mode, CR is strictly validated. In EDIT mode, CR is read-only.
+    if (!isEditMode) {
+      const trimmedCr = commercialRegistrationNo.trim();
+      const crDigits = trimmedCr.replace(/[^0-9]/g, '');
+      if (!trimmedCr) {
+        errors.commercialRegistrationNo = 'رقم السجل التجاري (CR) مطلوب';
+      } else if (crDigits.length !== 10 || crDigits !== trimmedCr) {
+        errors.commercialRegistrationNo = 'رقم السجل التجاري يجب أن يتكون من 10 أرقام بالضبط';
+      }
     }
 
     if (contactPhone.trim()) {
@@ -102,7 +152,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
     e.preventDefault();
     setSubmitError(null);
 
-    if (refreshFailed && createdCarrierResult) {
+    if (refreshFailed) {
       await handleRetryRefresh();
       return;
     }
@@ -112,62 +162,120 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
     }
 
     setIsSubmitting(true);
-    let result = createdCarrierResult;
 
-    if (!result) {
-      try {
-        const payload: CarrierCreateInput = {
-          name: name.trim(),
-          commercialRegistrationNo: commercialRegistrationNo.trim(),
-        };
+    if (!isEditMode) {
+      // CREATE MODE
+      let result = createdCarrierResult;
 
-        if (transportLicenseNo.trim()) {
-          payload.transportLicenseNo = transportLicenseNo.trim();
-        }
-        if (contactPersonName.trim()) {
-          payload.contactPersonName = contactPersonName.trim();
-        }
-        if (contactPhone.trim()) {
-          payload.contactPhone = contactPhone.trim();
-        }
-        if (contactEmail.trim()) {
-          payload.contactEmail = contactEmail.trim();
-        }
+      if (!result) {
+        try {
+          const payload: CarrierCreateInput = {
+            name: name.trim(),
+            commercialRegistrationNo: commercialRegistrationNo.trim(),
+          };
 
-        result = await clientService.createProjectCarrier(projectId, payload);
-        setCreatedCarrierResult(result);
-      } catch (err: any) {
-        setSubmitError(err.message || 'حدث خطأ أثناء حفظ الناقل');
-        setIsSubmitting(false);
-        return;
+          if (transportLicenseNo.trim()) {
+            payload.transportLicenseNo = transportLicenseNo.trim();
+          }
+          if (contactPersonName.trim()) {
+            payload.contactPersonName = contactPersonName.trim();
+          }
+          if (contactPhone.trim()) {
+            payload.contactPhone = contactPhone.trim();
+          }
+          if (contactEmail.trim()) {
+            payload.contactEmail = contactEmail.trim();
+          }
+
+          result = await clientService.createProjectCarrier(projectId, payload);
+          setCreatedCarrierResult(result);
+        } catch (err: any) {
+          setSubmitError(err.message || 'حدث خطأ أثناء حفظ الناقل');
+          setIsSubmitting(false);
+          return;
+        }
       }
-    }
 
-    // Authoritative post-mutation canonical refresh barrier
-    try {
-      await onCreated(result);
-      onClose();
-    } catch (refreshErr: any) {
-      setRefreshFailed(true);
-      setSubmitError(
-        'تم حفظ الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
-      );
-    } finally {
-      setIsSubmitting(false);
+      // Authoritative post-mutation canonical refresh barrier
+      try {
+        if (onCreated) {
+          await onCreated(result);
+        }
+        onClose();
+      } catch (refreshErr: any) {
+        setRefreshFailed(true);
+        setSubmitError(
+          'تم حفظ الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      // EDIT MODE
+      let result = updatedCarrierResult;
+
+      if (!result) {
+        try {
+          const payload: CarrierUpdateInput = {
+            name: name.trim(),
+            transportLicenseNo: transportLicenseNo.trim() ? transportLicenseNo.trim() : null,
+            contactPersonName: contactPersonName.trim() ? contactPersonName.trim() : null,
+            contactPhone: contactPhone.trim() ? contactPhone.trim() : null,
+            contactEmail: contactEmail.trim() ? contactEmail.trim() : null,
+          };
+
+          const targetCarrierId = initialCarrier?.carrierId || '';
+          const updater =
+            clientService.updateProjectCarrier ||
+            carrierManagementClientService.updateProjectCarrier.bind(carrierManagementClientService);
+
+          result = await updater(projectId, targetCarrierId, payload);
+          setUpdatedCarrierResult(result);
+        } catch (err: any) {
+          setSubmitError(err.message || 'حدث خطأ أثناء تعديل بيانات الناقل');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // Authoritative post-mutation canonical refresh barrier
+      try {
+        if (onUpdated) {
+          await onUpdated(result);
+        }
+        onClose();
+      } catch (refreshErr: any) {
+        setRefreshFailed(true);
+        setSubmitError(
+          'تم حفظ تعديلات الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
   const handleRetryRefresh = async () => {
-    if (!createdCarrierResult) return;
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      await onCreated(createdCarrierResult);
-      onClose();
+      if (isEditMode) {
+        if (updatedCarrierResult && onUpdated) {
+          await onUpdated(updatedCarrierResult);
+          onClose();
+        }
+      } else {
+        if (createdCarrierResult && onCreated) {
+          await onCreated(createdCarrierResult);
+          onClose();
+        }
+      }
     } catch (refreshErr: any) {
       setRefreshFailed(true);
       setSubmitError(
-        'تم حفظ الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+        isEditMode
+          ? 'تم حفظ تعديلات الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+          : 'تم حفظ الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
       );
     } finally {
       setIsSubmitting(false);
@@ -187,8 +295,14 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
               <Truck className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-white">إضافة ناقل للمشروع</h3>
-              <p className="text-[11px] text-stone-400">تسجيل واعتماد شريك نقل رسمي للمشروع</p>
+              <h3 className="text-sm font-black text-white">
+                {isEditMode ? 'تعديل بيانات الناقل' : 'إضافة ناقل للمشروع'}
+              </h3>
+              <p className="text-[11px] text-stone-400">
+                {isEditMode
+                  ? 'تعديل البيانات الأساسية والتواصل للناقل المعتمد'
+                  : 'تسجيل واعتماد شريك نقل رسمي للمشروع'}
+              </p>
             </div>
           </div>
           <button
@@ -224,7 +338,9 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                 placeholder="مثال: شركة اليمامة للمقاولات والنقل"
                 disabled={isSubmitting || refreshFailed}
                 className={`w-full bg-stone-950 border ${
-                  fieldErrors.name ? 'border-rose-500 focus:border-rose-500' : 'border-stone-800 focus:border-amber-500'
+                  fieldErrors.name
+                    ? 'border-rose-500 focus:border-rose-500'
+                    : 'border-stone-800 focus:border-amber-500'
                 } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60`}
               />
               {fieldErrors.name && (
@@ -233,24 +349,33 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="text-stone-300 font-bold block">
-                السجل التجاري (CR) <span className="text-amber-500">*</span>
-              </label>
+              <div className="flex justify-between items-center">
+                <label className="text-stone-300 font-bold block">
+                  السجل التجاري (CR) <span className="text-amber-500">*</span>
+                </label>
+                {isEditMode && (
+                  <span className="text-[10px] text-stone-500 font-mono">
+                    (رقم الهوية ثابت وغير قابل للتعديل)
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
                 maxLength={10}
                 value={commercialRegistrationNo}
                 onChange={(e) => setCommercialRegistrationNo(e.target.value)}
                 placeholder="10 أرقام (مثال: 1010123456)"
-                disabled={isSubmitting || refreshFailed}
+                disabled={isSubmitting || refreshFailed || isEditMode}
                 className={`w-full bg-stone-950 border font-mono ${
                   fieldErrors.commercialRegistrationNo
                     ? 'border-rose-500 focus:border-rose-500'
                     : 'border-stone-800 focus:border-amber-500'
-                } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60`}
+                } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60 disabled:bg-stone-950/40`}
               />
               {fieldErrors.commercialRegistrationNo && (
-                <p className="text-[11px] text-rose-400 font-semibold">{fieldErrors.commercialRegistrationNo}</p>
+                <p className="text-[11px] text-rose-400 font-semibold">
+                  {fieldErrors.commercialRegistrationNo}
+                </p>
               )}
             </div>
           </div>
@@ -351,7 +476,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                 className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40 transition-colors"
               >
                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>حفظ واعتماد الناقل</span>
+                <span>{isEditMode ? 'حفظ التعديلات' : 'حفظ واعتماد الناقل'}</span>
               </button>
             )}
           </div>

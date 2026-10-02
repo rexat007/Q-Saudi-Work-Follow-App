@@ -450,15 +450,224 @@ export class ProjectProvisioningAdminService {
 
     return activeMemberships.map((m: any) => {
       const g = globalCarriers.find((g: any) => g.carrierId === m.carrierId);
-      return {
+      const carrierItem: any = {
         carrierId: m.carrierId,
-        name: g?.nameAr || 'غير معروف',
+        name: g?.nameAr || g?.name || 'غير معروف',
         commercialRegistrationNo: g?.commercialRegistrationNo || '—',
-        transportLicenseNo: g?.transportLicenseNo || `TGA-${m.carrierId}`,
-        contactPerson: g?.contactPerson || { name: 'Operations', phone: '—', email: '—' },
         membershipStatus: m.status,
         status: m.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
         isActive: m.status === 'ACTIVE',
+      };
+
+      if (g?.transportLicenseNo) {
+        carrierItem.transportLicenseNo = g.transportLicenseNo;
+      }
+      if (g?.contactPerson && (g.contactPerson.name || g.contactPerson.phone || g.contactPerson.email)) {
+        carrierItem.contactPerson = g.contactPerson;
+      }
+
+      return carrierItem;
+    });
+  }
+
+  /**
+   * Update Project Carrier canonical profile server-authoritatively using adminDb transactions.
+   */
+  async updateProjectCarrier(
+    projectId: string,
+    carrierId: string,
+    carrierData: any,
+    context: { userId: string }
+  ): Promise<any> {
+    if (!projectId || !projectId.trim()) {
+      throw new Error('INVALID_ARGUMENT: projectId is required');
+    }
+    if (!carrierId || !carrierId.trim()) {
+      throw new Error('INVALID_ARGUMENT: carrierId is required');
+    }
+    if (!carrierData) {
+      throw new Error('INVALID_ARGUMENT: carrierData is required');
+    }
+
+    const cleanProjectId = projectId.trim();
+    const cleanCarrierId = carrierId.trim();
+
+    // 1. Verify immutable carrierId
+    if (carrierData.carrierId && carrierData.carrierId.trim() !== cleanCarrierId) {
+      throw new Error('IMMUTABLE_CARRIER_ID: carrierId cannot be changed');
+    }
+
+    // 2. Validate Carrier Name
+    if (carrierData.name !== undefined || carrierData.nameAr !== undefined) {
+      const nameVal = (carrierData.name || carrierData.nameAr || '').trim();
+      if (!nameVal || nameVal.length < 3) {
+        throw new Error('INVALID_CARRIER_NAME: Carrier name must be at least 3 characters');
+      }
+    }
+
+    // 3. Validate Phone if supplied
+    const checkPhone = carrierData.contactPhone !== undefined 
+      ? carrierData.contactPhone 
+      : carrierData.contactPerson?.phone;
+    if (checkPhone && checkPhone.trim()) {
+      const cleanP = checkPhone.trim().replace(/[\s-]/g, '');
+      if (!/^\+?[0-9]{9,15}$/.test(cleanP)) {
+        throw new Error('INVALID_CARRIER_PHONE: Invalid contact phone format');
+      }
+    }
+
+    // 4. Validate Email if supplied
+    const checkEmail = carrierData.contactEmail !== undefined 
+      ? carrierData.contactEmail 
+      : carrierData.contactPerson?.email;
+    if (checkEmail && checkEmail.trim()) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkEmail.trim())) {
+        throw new Error('INVALID_CARRIER_EMAIL: Invalid contact email format');
+      }
+    }
+
+    return await adminDb.runTransaction(async (tx: any) => {
+      // --- PHASE 1: ALL TRANSACTION READS ---
+      const projectRef = adminDb.collection('projects').doc(cleanProjectId);
+      const projectSnap = await tx.get(projectRef);
+      if (!projectSnap.exists) {
+        throw new Error('PROJECT_NOT_FOUND: Project does not exist');
+      }
+
+      const membershipRef = adminDb
+        .collection('projects')
+        .doc(cleanProjectId)
+        .collection('carrier_memberships')
+        .doc(cleanCarrierId);
+      const membershipSnap = await tx.get(membershipRef);
+      if (!membershipSnap.exists) {
+        throw new Error('CARRIER_NOT_ACTIVE_IN_PROJECT: Carrier is not affiliated with this project');
+      }
+      const membershipData = membershipSnap.data();
+      if (membershipData.status !== 'ACTIVE') {
+        throw new Error('CARRIER_NOT_ACTIVE_IN_PROJECT: Carrier membership is not ACTIVE');
+      }
+
+      // ARCHITECTURAL RULE: ProjectCarrierMembershipEntity represents ONLY project participation.
+      // Global profile duplication is ZERO.
+      // The membership document is strictly READ-ONLY during profile editing.
+      // ZERO writes are performed on membershipRef (not even updatedAt/updatedBy).
+
+      const carrierRef = adminDb.collection('carriers').doc(cleanCarrierId);
+      const carrierSnap = await tx.get(carrierRef);
+      if (!carrierSnap.exists) {
+        throw new Error('CARRIER_NOT_FOUND: Global carrier record not found');
+      }
+      const existingGlobal = carrierSnap.data();
+
+      // Check CR immutability
+      if (carrierData.commercialRegistrationNo !== undefined) {
+        const inCr = carrierData.commercialRegistrationNo.replace(/[^0-9]/g, '');
+        const exCr = (existingGlobal.commercialRegistrationNo || '').replace(/[^0-9]/g, '');
+        if (inCr && inCr !== exCr) {
+          throw new Error('IMMUTABLE_CARRIER_CR: commercialRegistrationNo is immutable');
+        }
+      }
+
+      // --- PHASE 2: ALL TRANSACTION WRITES ---
+      await markDirtyInTransaction(
+        tx,
+        cleanProjectId,
+        ['CARRIERS'],
+        'PROJECT_CARRIER_UPDATED'
+      );
+
+      const updatedGlobal: Record<string, any> = {
+        ...existingGlobal,
+        carrierId: cleanCarrierId,
+        commercialRegistrationNo: existingGlobal.commercialRegistrationNo,
+        updatedAt: new Date(),
+        updatedBy: context.userId,
+      };
+
+      if (existingGlobal.createdAt) updatedGlobal.createdAt = existingGlobal.createdAt;
+      if (existingGlobal.createdBy) updatedGlobal.createdBy = existingGlobal.createdBy;
+
+      // Update Name
+      if (carrierData.name !== undefined || carrierData.nameAr !== undefined) {
+        const newName = (carrierData.name || carrierData.nameAr).trim();
+        updatedGlobal.nameAr = newName;
+        updatedGlobal.name = newName;
+      }
+
+      // Update/Clear Transport License
+      if (carrierData.transportLicenseNo !== undefined) {
+        const lic = carrierData.transportLicenseNo ? carrierData.transportLicenseNo.trim() : null;
+        if (lic) {
+          updatedGlobal.transportLicenseNo = lic;
+        } else {
+          delete updatedGlobal.transportLicenseNo;
+        }
+      }
+
+      // Update/Clear Contact Person
+      const incomingName = carrierData.contactPersonName !== undefined
+        ? carrierData.contactPersonName
+        : carrierData.contactPerson?.name;
+      const incomingPhone = carrierData.contactPhone !== undefined
+        ? carrierData.contactPhone
+        : carrierData.contactPerson?.phone;
+      const incomingEmail = carrierData.contactEmail !== undefined
+        ? carrierData.contactEmail
+        : carrierData.contactPerson?.email;
+
+      const hasContactFieldUpdate =
+        incomingName !== undefined ||
+        incomingPhone !== undefined ||
+        incomingEmail !== undefined ||
+        carrierData.contactPerson !== undefined;
+
+      if (hasContactFieldUpdate) {
+        const contactName = (
+          incomingName !== undefined ? incomingName : existingGlobal.contactPerson?.name || ''
+        )?.trim();
+        const contactPhoneRaw = (
+          incomingPhone !== undefined ? incomingPhone : existingGlobal.contactPerson?.phone || ''
+        )?.trim();
+        const contactEmailRaw = (
+          incomingEmail !== undefined ? incomingEmail : existingGlobal.contactPerson?.email || ''
+        )?.trim();
+
+        const normalizedPhone = contactPhoneRaw ? normalizePhone(contactPhoneRaw) : '';
+        const newContactObj: Record<string, any> = {};
+
+        if (contactName) newContactObj.name = contactName;
+        if (normalizedPhone) newContactObj.phone = normalizedPhone;
+        if (contactEmailRaw) newContactObj.email = contactEmailRaw;
+
+        if (Object.keys(newContactObj).length > 0) {
+          updatedGlobal.contactPerson = newContactObj;
+          if (newContactObj.name) updatedGlobal.contactPersonName = newContactObj.name;
+          else delete updatedGlobal.contactPersonName;
+          if (newContactObj.phone) updatedGlobal.contactPhone = newContactObj.phone;
+          else delete updatedGlobal.contactPhone;
+          if (newContactObj.email) updatedGlobal.contactEmail = newContactObj.email;
+          else delete updatedGlobal.contactEmail;
+        } else {
+          delete updatedGlobal.contactPerson;
+          delete updatedGlobal.contactPersonName;
+          delete updatedGlobal.contactPhone;
+          delete updatedGlobal.contactEmail;
+        }
+      }
+
+      tx.set(carrierRef, updatedGlobal);
+
+      return {
+        projectId: cleanProjectId,
+        carrierId: cleanCarrierId,
+        carrier: {
+          carrierId: cleanCarrierId,
+          name: updatedGlobal.nameAr || updatedGlobal.name,
+          commercialRegistrationNo: updatedGlobal.commercialRegistrationNo,
+          transportLicenseNo: updatedGlobal.transportLicenseNo || null,
+          contactPerson: updatedGlobal.contactPerson || null,
+        },
       };
     });
   }

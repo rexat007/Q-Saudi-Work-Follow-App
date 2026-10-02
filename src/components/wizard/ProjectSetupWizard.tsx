@@ -253,6 +253,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [matDensity, setMatDensity] = useState(1.6);
 
   const [isCarrierEditorOpen, setIsCarrierEditorOpen] = useState(false);
+  const [editingCarrier, setEditingCarrier] = useState<CarrierEntity | null>(null);
 
   const [isAddingPricing, setIsAddingPricing] = useState(false);
   const [priceCarrierId, setPriceCarrierId] = useState('ALL');
@@ -1853,6 +1854,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   <CarrierEditorModal
                     open={isCarrierEditorOpen}
+                    mode="CREATE"
                     projectId={project.projectId}
                     onClose={() => setIsCarrierEditorOpen(false)}
                     onCreated={async (result) => {
@@ -1864,6 +1866,36 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       setIsCarrierEditorOpen(false);
                     }}
                   />
+
+                  {editingCarrier && (
+                    <CarrierEditorModal
+                      open={!!editingCarrier}
+                      mode="EDIT"
+                      projectId={project.projectId}
+                      initialCarrier={editingCarrier}
+                      onClose={() => setEditingCarrier(null)}
+                      onUpdated={async (result) => {
+                        const snapshot = await projectCanonicalRefreshService.refresh(
+                          project.projectId,
+                          {
+                            expect: {
+                              carrierId: result.carrierId,
+                              carrierProfile: {
+                                carrierId: result.carrierId,
+                                name: result.carrier.name,
+                                transportLicenseNo: result.carrier.transportLicenseNo,
+                                contactPersonName: result.carrier.contactPerson?.name || null,
+                                contactPhone: result.carrier.contactPerson?.phone || null,
+                                contactEmail: result.carrier.contactPerson?.email || null,
+                              },
+                            },
+                          }
+                        );
+                        applyCanonicalSnapshot(snapshot);
+                        setEditingCarrier(null);
+                      }}
+                    />
+                  )}
 
                   {carriers.length === 0 ? (
                     <p className="text-center text-stone-500 py-6">لم يتم تسجيل أي ناقلين معتمدين للمشروع بعد.</p>
@@ -1877,6 +1909,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             <th className="pb-2">السجل التجاري</th>
                             <th className="pb-2">رقم التصريح TGA</th>
                             <th className="pb-2">البريد الإلكتروني</th>
+                            <th className="pb-2 text-center">إجراءات</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1885,8 +1918,20 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="py-2.5 font-mono">{c.carrierId}</td>
                               <td className="py-2.5">{c.name}</td>
                               <td className="py-2.5 font-mono">{c.commercialRegistrationNo}</td>
-                              <td className="py-2.5 font-mono">{c.transportLicenseNo}</td>
+                              <td className="py-2.5 font-mono">{c.transportLicenseNo || '—'}</td>
                               <td className="py-2.5 truncate font-mono">{c.contactPerson?.email || '—'}</td>
+                              <td className="py-2.5 text-center">
+                                {isOperationallyMutable && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingCarrier(c)}
+                                    className="p-1 px-2 text-stone-400 hover:text-amber-500 hover:bg-stone-800 rounded transition-colors inline-flex items-center gap-1 text-[11px]"
+                                  >
+                                    <Edit3 className="w-3.5 h-3.5" />
+                                    <span>تعديل</span>
+                                  </button>
+                                )}
+                              </td>
                             </tr>
                           ))}
                         </tbody>

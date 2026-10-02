@@ -1891,6 +1891,20 @@ app.post('/api/projects/:projectId/setup-carrier', enforceProjectIsolation, enfo
   }
 });
 
+app.patch('/api/projects/:projectId/carriers/:carrierId', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    const { projectId, carrierId } = req.params;
+    const { carrierData } = req.body;
+    const user = (req as any).user;
+    const { ProjectProvisioningAdminService } = await import('../src/services/projectProvisioning.server');
+    const provisioningService = new ProjectProvisioningAdminService();
+    const result = await provisioningService.updateProjectCarrier(projectId, carrierId, carrierData, user);
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
 app.post('/api/projects/:projectId/setup-driver', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
     const { projectId } = req.params;
