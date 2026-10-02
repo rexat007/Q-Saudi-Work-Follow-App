@@ -613,9 +613,9 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
     expect(wizardContent).toContain('DriverTruckPipelineService');
   });
 
-  // 55. Material flow remains untouched
-  it('55. Material flow remains untouched', () => {
-    expect(wizardContent).toContain('handleAddMaterial');
+  // 55. Material flow presence
+  it('55. Material flow presence', () => {
+    expect(wizardContent).toContain('MaterialEditorModal');
     expect(wizardContent).toContain('isAddingMaterial');
   });
 

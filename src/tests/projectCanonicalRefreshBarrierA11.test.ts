@@ -498,8 +498,8 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
   // 32. Material creation uses refresh service
   it('32. Material creation uses refresh service', () => {
     const handleMatSection = wizardFileContent.slice(
-      wizardFileContent.indexOf('const handleAddMaterial ='),
-      wizardFileContent.indexOf('// Phase 2:', wizardFileContent.indexOf('const handleAddMaterial ='))
+      wizardFileContent.indexOf('<MaterialEditorModal'),
+      wizardFileContent.indexOf('/>', wizardFileContent.indexOf('<MaterialEditorModal')) + 2
     );
     expect(handleMatSection).toContain('projectCanonicalRefreshService.refresh(');
   });
@@ -507,21 +507,23 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
   // 33. Material creation passes returned materialId
   it('33. Material creation passes returned materialId', () => {
     const handleMatSection = wizardFileContent.slice(
-      wizardFileContent.indexOf('const handleAddMaterial ='),
-      wizardFileContent.indexOf('// Phase 2:', wizardFileContent.indexOf('const handleAddMaterial ='))
+      wizardFileContent.indexOf('<MaterialEditorModal'),
+      wizardFileContent.indexOf('/>', wizardFileContent.indexOf('<MaterialEditorModal')) + 2
     );
-    expect(handleMatSection).toContain('expect: { materialId: createdMaterialId }');
+    expect(handleMatSection).toContain('expect: { materialId: result.materialId }');
   });
 
   // 34. Material form closes only after successful refresh
   it('34. Material form closes only after successful refresh', () => {
-    const handleMatSection = wizardFileContent.slice(
-      wizardFileContent.indexOf('const handleAddMaterial ='),
-      wizardFileContent.indexOf('// Phase 2:', wizardFileContent.indexOf('const handleAddMaterial ='))
+    const matModalPath = path.resolve(__dirname, '../components/masterData/MaterialEditorModal.tsx');
+    const matModalFileContent = fs.readFileSync(matModalPath, 'utf-8');
+    const submitSection = matModalFileContent.slice(
+      matModalFileContent.indexOf('const handleSubmit ='),
+      matModalFileContent.indexOf('const handleRetryRefresh')
     );
-    expect(handleMatSection.indexOf('projectCanonicalRefreshService.refresh')).toBeLessThan(
-      handleMatSection.indexOf('setIsAddingMaterial(false)')
-    );
+    expect(submitSection).toContain('await onCreated(result);');
+    expect(submitSection).toContain('onClose();');
+    expect(submitSection.indexOf('await onCreated(result);')).toBeLessThan(submitSection.indexOf('onClose();'));
   });
 
   // 35. No page reload is used
@@ -533,8 +535,8 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
   // 36. No navigation away/re-entry is required
   it('36. No navigation away/re-entry is required', () => {
     const handleMatSection = wizardFileContent.slice(
-      wizardFileContent.indexOf('const handleAddMaterial ='),
-      wizardFileContent.indexOf('// Phase 2:', wizardFileContent.indexOf('const handleAddMaterial ='))
+      wizardFileContent.indexOf('<MaterialEditorModal'),
+      wizardFileContent.indexOf('/>', wizardFileContent.indexOf('<MaterialEditorModal')) + 2
     );
     expect(handleMatSection).not.toContain('setActivePhase');
   });

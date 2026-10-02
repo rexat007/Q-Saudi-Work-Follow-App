@@ -290,10 +290,10 @@ describe('FOUNDATION A1 — Reusable Carrier Creation Component & Client Command
     expect(serverAppContent).toContain("app.post('/api/projects/:projectId/setup-carrier'");
   });
 
-  // 28. no material flow change
-  it('28. no material flow change', () => {
+  // 28. material flow presence
+  it('28. material flow presence', () => {
     expect(wizardContent).toContain('isAddingMaterial');
-    expect(wizardContent).toContain('handleAddMaterial');
+    expect(wizardContent).toContain('MaterialEditorModal');
   });
 
   // 29. no Driver/Truck Smart Import change

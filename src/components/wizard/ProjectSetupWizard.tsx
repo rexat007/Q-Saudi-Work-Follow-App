@@ -52,6 +52,7 @@ import { ImportSource } from '../../types/unifiedImport';
 import * as XLSX from 'xlsx';
 import { auth } from '../../firebase/config';
 import { CarrierEditorModal } from '../masterData/CarrierEditorModal';
+import { MaterialEditorModal } from '../masterData/MaterialEditorModal';
 import { projectCanonicalRefreshService, ProjectCanonicalRefreshSnapshot } from '../../services/projectCanonicalRefresh.service';
 import { 
   isProjectOperationallyMutable, 
@@ -247,10 +248,6 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // Editing Forms and Modals
   const [isAddingMaterial, setIsAddingMaterial] = useState(false);
-  const [matName, setMatName] = useState('');
-  const [matCode, setMatCode] = useState('');
-  const [matUnit, setMatUnit] = useState<'TON' | 'M3' | 'TRIP'>('TON');
-  const [matDensity, setMatDensity] = useState(1.6);
 
   const [isCarrierEditorOpen, setIsCarrierEditorOpen] = useState(false);
   const [editingCarrier, setEditingCarrier] = useState<CarrierEntity | null>(null);
@@ -536,49 +533,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     });
   };
 
-  // Phase 1: Add Material Item
-  const handleAddMaterial = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!project || !canPerformOperationalMutation('ENROLL_MATERIAL', project.status)) return;
 
-    let createdMaterialId: string | null = null;
-    try {
-      const payload = {
-        name: matName.trim(),
-        code: matCode.trim().toUpperCase(),
-        unitOfMeasure: matUnit,
-        standardDensityTonPerM3: Number(matDensity),
-      };
-
-      const token = await auth.currentUser?.getIdToken();
-      const response = await fetch(`/api/projects/${project.projectId}/setup-material`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ materialData: payload })
-      });
-      if (!response.ok) throw new Error('فشل إضافة المادة عبر الخادم');
-      
-      const resJson = await response.json();
-      createdMaterialId = resJson.materialId || null;
-
-      // Authoritative canonical refresh barrier with expected entity verification
-      const snapshot = await projectCanonicalRefreshService.refresh(
-        project.projectId,
-        createdMaterialId ? { expect: { materialId: createdMaterialId } } : undefined
-      );
-
-      applyCanonicalSnapshot(snapshot);
-      setIsAddingMaterial(false);
-      setMatName('');
-      setMatCode('');
-    } catch (err: any) {
-      if (createdMaterialId) {
-        alert('تم حفظ المادة بنجاح في الخادم، لكن تعذر تحديث بيانات المشروع فوراً. يرجى إعادة محاولة تحديث البيانات.');
-      } else {
-        alert(err.message || 'خطأ في إضافة المادة');
-      }
-    }
-  };
 
 
   // Phase 2: Add Fleet Row Manually (Uses canonical intake API)
@@ -1768,39 +1723,19 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     )}
                   </div>
 
-                  {isAddingMaterial && (
-                    <form onSubmit={handleAddMaterial} className="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-3">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">اسم المادة</label>
-                          <input type="text" required value={matName} onChange={(e) => setMatName(e.target.value)}
-                            className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">رمز الكود</label>
-                          <input type="text" required value={matCode} onChange={(e) => setMatCode(e.target.value)}
-                            className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">وحدة القياس</label>
-                          <select value={matUnit} onChange={(e) => setMatUnit(e.target.value as any)}
-                            className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
-                          >
-                            <option value="TON">TON (طن)</option>
-                            <option value="M3">M3 (متر مكعب)</option>
-                            <option value="TRIP">TRIP (رد)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" onClick={() => setIsAddingMaterial(false)} className="px-3 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg">إلغاء</button>
-                        <button type="submit" className="px-4 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">حفظ المادة</button>
-                      </div>
-                    </form>
-                  )}
+                  {/* Reusable Material Creation Modal */}
+                  <MaterialEditorModal
+                    open={isAddingMaterial}
+                    projectId={project.projectId}
+                    onClose={() => setIsAddingMaterial(false)}
+                    onCreated={async (result) => {
+                      const snapshot = await projectCanonicalRefreshService.refresh(
+                        project.projectId,
+                        { expect: { materialId: result.materialId } }
+                      );
+                      applyCanonicalSnapshot(snapshot);
+                    }}
+                  />
 
                   {materials.length === 0 ? (
                     <p className="text-center text-stone-500 py-6">لم يتم تسجيل أي مواد لهذا المشروع بعد.</p>
