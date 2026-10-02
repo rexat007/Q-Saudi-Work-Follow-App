@@ -54,7 +54,9 @@ import { auth } from '../../firebase/config';
 import { CarrierEditorModal } from '../masterData/CarrierEditorModal';
 import { MaterialEditorModal } from '../masterData/MaterialEditorModal';
 import { RosterCarrierResolutionLayer } from '../import/RosterCarrierResolutionLayer';
+import { RosterMaterialResolutionLayer } from '../import/RosterMaterialResolutionLayer';
 import { CarrierCreationResult } from '../../services/carrierManagementClient.service';
+import { MaterialCreationResult } from '../../services/materialManagementClient.service';
 import { 
   RosterSmartImportStage, 
   ROSTER_STAGE_DEFINITIONS, 
@@ -305,6 +307,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // C2 Smart Import Carrier Resolution State
   const [smartImportPendingCarrierGroup, setSmartImportPendingCarrierGroup] = useState<RosterEntityReviewGroup | null>(null);
   const [isSmartImportCarrierModalOpen, setIsSmartImportCarrierModalOpen] = useState<boolean>(false);
+
+  // C3 Smart Import Material Resolution State
+  const [smartImportPendingMaterialGroup, setSmartImportPendingMaterialGroup] = useState<RosterEntityReviewGroup | null>(null);
+  const [isSmartImportMaterialModalOpen, setIsSmartImportMaterialModalOpen] = useState<boolean>(false);
 
   const rosterWorkflowContext: RosterWorkflowContext = useMemo(() => ({
     hasSource: Boolean(rosterSelectedFile && rosterBuffer),
@@ -843,7 +849,24 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setRosterImportStage('SOURCE_DISCOVERY');
     setSmartImportPendingCarrierGroup(null);
     setIsSmartImportCarrierModalOpen(false);
+    setSmartImportPendingMaterialGroup(null);
+    setIsSmartImportMaterialModalOpen(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // C3 Smart Import: Progression Gate from CARRIER_RESOLUTION to MATERIAL_RESOLUTION
+  const handleSmartImportContinueToMaterials = () => {
+    if (!importBatch) return;
+    const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
+    const carrierGroups = reviewGroups.carrier || [];
+    const hasUnresolvedCarriers = carrierGroups.some(
+      (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+    );
+    if (hasUnresolvedCarriers) {
+      alert('يرجى حسم جميع مجموعات الناقلين قبل الانتقال إلى مراجعة المواد');
+      return;
+    }
+    setRosterImportStage('MATERIAL_RESOLUTION');
   };
 
   // C2 Smart Import: Accept Carrier Candidate
@@ -954,6 +977,116 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     // 7. Close modal and clean up pending group
     setIsSmartImportCarrierModalOpen(false);
     setSmartImportPendingCarrierGroup(null);
+  };
+
+  // C3 Smart Import: Accept Material Candidate
+  const handleSmartImportMaterialAcceptCandidate = async (
+    group: RosterEntityReviewGroup,
+    candidateEntityId: string
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-MATERIAL-RES-${Date.now()}`
+      });
+
+      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+        importBatch,
+        'material',
+        group.normalizedSourceKey,
+        'ACCEPT_CANDIDATE',
+        { selectedEntityId: candidateEntityId },
+        pipelineCtx,
+        authContext.userId
+      );
+
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل تطبيق قرار مطابقة المادة');
+    }
+  };
+
+  // C3 Smart Import: Select Alternate Material
+  const handleSmartImportMaterialSelectAlternate = async (
+    group: RosterEntityReviewGroup,
+    materialId: string
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-MATERIAL-ALT-${Date.now()}`
+      });
+
+      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+        importBatch,
+        'material',
+        group.normalizedSourceKey,
+        'SELECT_ALTERNATE',
+        { selectedEntityId: materialId },
+        pipelineCtx,
+        authContext.userId
+      );
+
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل تعيين المادة البديلة');
+    }
+  };
+
+  // C3 Smart Import: Material Creation via Authoritative MaterialEditorModal
+  const handleSmartImportMaterialCreated = async (result: MaterialCreationResult) => {
+    if (!project || !importBatch || !smartImportPendingMaterialGroup) return;
+
+    // 1. Refresh canonical project data expecting the created materialId
+    const snapshot = await projectCanonicalRefreshService.refresh(
+      project.projectId,
+      { expect: { materialId: result.materialId } }
+    );
+
+    // 2. Apply canonical snapshot to local wizard state
+    applyCanonicalSnapshot(snapshot);
+
+    // 3. Convert snapshot relationship context into pipeline context via adapter
+    const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+      relContext: snapshot.relationshipContext,
+      projectId: project.projectId,
+      userId: authContext.userId,
+      role: authContext.role,
+      operationId: `OP-MATERIAL-CREATE-${Date.now()}`
+    });
+
+    // 4. Construct resolution payload
+    const resolutionPayload = {
+      matchedId: result.materialId,
+      matchedName: smartImportPendingMaterialGroup.sourceValue,
+      sourceValue: smartImportPendingMaterialGroup.sourceValue,
+    };
+
+    // 5. Apply grouped created material resolution to the SAME importBatch
+    const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      importBatch,
+      'material',
+      smartImportPendingMaterialGroup.normalizedSourceKey,
+      resolutionPayload,
+      pipelineCtx
+    );
+
+    // 6. Update local batch state in place
+    setImportBatch({ ...updated });
+
+    // 7. Close modal and clean up pending group
+    setIsSmartImportMaterialModalOpen(false);
+    setSmartImportPendingMaterialGroup(null);
   };
 
   const handleApplyResolutionDecision = async (
@@ -1880,6 +2013,21 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     }}
                   />
 
+                  {/* Smart Import Dedicated Material Creation Modal */}
+                  {project && isSmartImportMaterialModalOpen && (
+                    <MaterialEditorModal
+                      open={isSmartImportMaterialModalOpen}
+                      mode="CREATE"
+                      projectId={project.projectId}
+                      initialName={smartImportPendingMaterialGroup ? smartImportPendingMaterialGroup.sourceValue : ''}
+                      onClose={() => {
+                        setIsSmartImportMaterialModalOpen(false);
+                        setSmartImportPendingMaterialGroup(null);
+                      }}
+                      onCreated={handleSmartImportMaterialCreated}
+                    />
+                  )}
+
                   {editingMaterial && (
                     <MaterialEditorModal
                       open={!!editingMaterial}
@@ -2444,6 +2592,24 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       onCreateCarrier={(group) => {
                         setSmartImportPendingCarrierGroup(group);
                         setIsSmartImportCarrierModalOpen(true);
+                      }}
+                      onContinueToMaterials={handleSmartImportContinueToMaterials}
+                    />
+                  )}
+
+                  {/*
+                    C3: True Material-Only Resolution Layer
+                    Only Material review groups are resolved here before future layers.
+                  */}
+                  {importBatch && rosterImportStage === 'MATERIAL_RESOLUTION' && (
+                    <RosterMaterialResolutionLayer
+                      importBatch={importBatch}
+                      projectMaterials={materials}
+                      onAcceptCandidate={handleSmartImportMaterialAcceptCandidate}
+                      onSelectAlternate={handleSmartImportMaterialSelectAlternate}
+                      onCreateMaterial={(group) => {
+                        setSmartImportPendingMaterialGroup(group);
+                        setIsSmartImportMaterialModalOpen(true);
                       }}
                     />
                   )}
