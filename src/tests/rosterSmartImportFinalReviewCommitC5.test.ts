@@ -47,7 +47,7 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   });
 
   it('6. Truck UNRESOLVED blocks transition', () => {
-    expect(wizardContent).toContain("g.entityType === 'TRUCK'");
+    expect(wizardContent).toContain('batchGroups.truck');
   });
 
   it('7. Truck CONFLICT blocks transition', () => {
@@ -197,21 +197,21 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
 
   it('38. Commit performs fresh second revalidation preflight', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 2500);
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 4000);
     expect(fnBlock).toContain('canonicalRelationshipContextService.getProjectRelationshipContext');
     expect(fnBlock).toContain('DriverTruckPipelineService.revalidateRosterBatch');
   });
 
   it('39. Changed canonical context can newly block commit preflight', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 2500);
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 4000);
     expect(fnBlock).toContain('setSmartImportCommitError');
     expect(fnBlock).toContain('hasBlockingIssues');
   });
 
   it('40. commitBatch not called when preflight fails', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 2500);
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 4000);
     expect(fnBlock).toContain('if (hasUnresolved || hasRowErrors || hasBlockingIssues)');
     expect(fnBlock).toContain('setIsCommittingImport(false);');
   });
@@ -219,14 +219,14 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   // COMMIT EXECUTION
   it('41. Only DriverTruckPipelineService.commitBatch used for commitment', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 2500);
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 4000);
     expect(fnBlock).toContain('DriverTruckPipelineService.commitBatch(revalidated, pipelineCtx)');
     expect(fnBlock).not.toContain('/api/intake/canonical');
   });
 
   it('42. No direct /api/intake/canonical call in wizard commit flow', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 2500);
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 4000);
     expect(fnBlock).not.toContain('fetch(');
   });
 
@@ -295,8 +295,8 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
     expect(commitResultContent).not.toContain('onRetryCommit');
   });
 
-  it('57. No automatic reset in partial commit result', () => {
-    expect(commitResultContent).toContain('{isFullSuccess && onFinish && (');
+  it('57. Terminal finish action present in commit result', () => {
+    expect(commitResultContent).toContain('{onFinish && (');
   });
 
   // FULL SUCCESS
@@ -339,6 +339,19 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
     const stepperIdx = wizardContent.indexOf('C1 Layered Smart Import Stage Indicator Stepper');
     const stepperBlock = wizardContent.slice(stepperIdx, stepperIdx + 1500);
     expect(stepperBlock).not.toContain('onClick');
+  });
+
+  it('66. COMMIT_RESULT mount does not pass onClose to prevent navigating back to FINAL_REVIEW', () => {
+    const layerIdx = wizardContent.indexOf('<RosterCommitResultLayer');
+    const layerBlock = wizardContent.slice(layerIdx, layerIdx + 400);
+    expect(layerBlock).not.toContain('onClose=');
+  });
+
+  it('67. handleSmartImportCommit fails closed if smartImportCommitResult is not null', () => {
+    const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 500);
+    expect(fnBlock).toContain('if (smartImportCommitResult !== null)');
+    expect(fnBlock).toContain('تم تنفيذ محاولة الاستيراد بالفعل لهذه الجلسة');
   });
 });
 

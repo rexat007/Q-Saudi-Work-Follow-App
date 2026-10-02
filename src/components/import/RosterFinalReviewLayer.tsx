@@ -14,6 +14,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { UnifiedImportBatch } from '../../types/import';
+import { RosterBatchReviewService } from '../../services/import/rosterBatchReview.service';
 
 export interface RosterFinalReviewLayerProps {
   importBatch: UnifiedImportBatch;
@@ -22,6 +23,54 @@ export interface RosterFinalReviewLayerProps {
   commitError?: string | null;
   onClose?: () => void;
 }
+
+export const classifyFinalReviewBlocker = (batch: UnifiedImportBatch): 'CARRIER' | 'MATERIAL' | 'DRIVER_TRUCK' => {
+  const batchGroups = RosterBatchReviewService.getBatchReviewGroups(batch);
+  const issues = batch.issues || [];
+  const rows = batch.rows || [];
+  const activeRows = rows.filter((r) => r.status !== 'REJECTED');
+
+  // Check Carrier
+  const unresolvedCarriers = (batchGroups.carrier || []).some(
+    (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+  );
+  const carrierIssues = issues.some(
+    (iss) => (iss.severity === 'BLOCKING' || iss.blocking) &&
+      iss.code !== 'DRIVER_CARRIER_CONFLICT' &&
+      (iss.field === 'carrierId' || iss.code === 'UNRESOLVED_CARRIER' || String(iss.code).startsWith('CARRIER_'))
+  );
+  const carrierRowBlock = activeRows.some(
+    (r) => !r.entityResolutions?.carrier?.matchedId ||
+      r.entityResolutions?.carrier?.status === 'UNRESOLVED' ||
+      r.entityResolutions?.carrier?.status === 'CONFLICT' ||
+      r.entityResolutions?.carrier?.status === 'REVIEW_REQUIRED'
+  );
+
+  if (unresolvedCarriers || carrierIssues || carrierRowBlock) {
+    return 'CARRIER';
+  }
+
+  // Check Material
+  const unresolvedMaterials = (batchGroups.material || []).some(
+    (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+  );
+  const materialIssues = issues.some(
+    (iss) => (iss.severity === 'BLOCKING' || iss.blocking) &&
+      (iss.field === 'materialId' || String(iss.code).includes('MATERIAL'))
+  );
+  const materialRowBlock = activeRows.some(
+    (r) => !r.entityResolutions?.material?.matchedId ||
+      r.entityResolutions?.material?.status === 'UNRESOLVED' ||
+      r.entityResolutions?.material?.status === 'CONFLICT' ||
+      r.entityResolutions?.material?.status === 'REVIEW_REQUIRED'
+  );
+
+  if (unresolvedMaterials || materialIssues || materialRowBlock) {
+    return 'MATERIAL';
+  }
+
+  return 'DRIVER_TRUCK';
+};
 
 export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
   importBatch,
@@ -34,14 +83,16 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
   const activeRows = rows.filter((r) => r.status !== 'REJECTED');
   const totalRows = rows.length;
 
-  const reviewGroups = importBatch.reviewGroups || [];
+  const batchGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
   const issues = importBatch.issues || [];
 
+  const blockerType = classifyFinalReviewBlocker(importBatch);
+
   // Group stats
-  const carrierGroups = reviewGroups.filter((g) => g.entityType === 'CARRIER');
-  const materialGroups = reviewGroups.filter((g) => g.entityType === 'MATERIAL');
-  const driverGroups = reviewGroups.filter((g) => g.entityType === 'DRIVER');
-  const truckGroups = reviewGroups.filter((g) => g.entityType === 'TRUCK');
+  const carrierGroups = batchGroups.carrier || [];
+  const materialGroups = batchGroups.material || [];
+  const driverGroups = batchGroups.driver || [];
+  const truckGroups = batchGroups.truck || [];
 
   const unresolvedCarrierCount = carrierGroups.filter(
     (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
@@ -103,16 +154,6 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
               </p>
             </div>
           </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              disabled={isCommitting}
-              className="p-1.5 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition-colors"
-              title="إغلاق النافذة"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
         </div>
 
         {/* Content Body */}
@@ -141,7 +182,9 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
                     الدفعة غير جاهزة للاعتماد (توجد {blockedRows.length} صفوف محجوبة / {unresolvedGroupCount} عناصر غير محسومة)
                   </span>
                   <span className="text-xs text-rose-300/80">
-                    يجب معالجة الكيانات المعلقة والصفوف غير المطابقة قبل البدء بإنشاء السجلات في المشروع.
+                    {blockerType === 'CARRIER'
+                      ? 'تغيّر أو تعذر اعتماد بيانات الناقل بعد المراجعة النهائية. لأن بيانات السائقين والشاحنات مرتبطة بالناقل، يجب إعادة تحليل جلسة الاستيراد.'
+                      : 'يجب معالجة الكيانات المعلقة والصفوف غير المطابقة قبل البدء بإنشاء السجلات في المشروع.'}
                   </span>
                 </div>
               </div>
@@ -385,7 +428,7 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
                 disabled={isCommitting}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
               >
-                العودة
+                {blockerType === 'CARRIER' ? 'إعادة بدء الاستيراد' : 'العودة لمعالجة البيانات'}
               </button>
             )}
 

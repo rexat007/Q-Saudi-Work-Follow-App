@@ -311,6 +311,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [importBatch, setImportBatch] = useState<any | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [isCommittingImport, setIsCommittingImport] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const rosterImportSessionGenerationRef = useRef(0);
 
   // DT-01 Roster Smart Import Discovery & Mapping Approval State
   const [rosterSelectedFile, setRosterSelectedFile] = useState<File | null>(null);
@@ -674,16 +676,42 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     await processRosterFile(file);
   };
 
-  const processRosterFile = async (file: File) => {
-    setIsImportingFile(true);
-    setIsDiscoveringRoster(true);
+  const handleResetRosterImport = () => {
+    rosterImportSessionGenerationRef.current += 1;
+    setIsProcessing(false);
+    setIsImportingFile(false);
+    setIsDiscoveringRoster(false);
+    setIsCommittingImport(false);
+    setRosterSelectedFile(null);
+    setRosterBuffer(null);
+    setRosterDiscoveryResult(null);
+    setRosterSelectedSheet('');
+    setRosterHeaderRowIndex(0);
+    setRosterCustomMappings({});
+    setIsRosterMappingApproved(false);
+    setImportBatch(null);
     setImportError(null);
     setRosterDiscoveryError(null);
-    setImportBatch(null);
-    setIsRosterMappingApproved(false);
-    setRosterCustomMappings({});
-    setRosterDiscoveryResult(null);
+    setSmartImportCommitResult(null);
+    setSmartImportCommitError(null);
+    setRosterImportStage('SOURCE_DISCOVERY');
+    setSmartImportPendingCarrierGroup(null);
+    setIsSmartImportCarrierModalOpen(false);
+    setSmartImportPendingMaterialGroup(null);
+    setIsSmartImportMaterialModalOpen(false);
+    setCachedSuccessfulDriverResult(null);
+    setCachedSuccessfulTruckResult(null);
+    setDriverConvergenceError(null);
+    setTruckConvergenceError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const processRosterFile = async (file: File) => {
+    handleResetRosterImport();
+    const currentGen = rosterImportSessionGenerationRef.current;
     setRosterSelectedFile(file);
+    setIsImportingFile(true);
+    setIsDiscoveringRoster(true);
 
     try {
       const reader = new FileReader();
@@ -691,6 +719,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         try {
           const data = event.target?.result as ArrayBuffer;
           if (!data) throw new Error('فشلت قراءة ملف البيانات');
+          if (currentGen !== rosterImportSessionGenerationRef.current) return;
           setRosterBuffer(data);
 
           const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
@@ -702,6 +731,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           };
 
           const discovery = await smartSourceDiscoveryService.discover(discSource, data);
+          if (currentGen !== rosterImportSessionGenerationRef.current) return;
           setRosterDiscoveryResult(discovery);
           const defaultSheet = discovery.selectedSheet || (discovery.availableSheets && discovery.availableSheets[0]) || '';
           setRosterSelectedSheet(defaultSheet);
@@ -716,14 +746,18 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           setRosterCustomMappings(initialMappings);
           setRosterImportStage('MAPPING_APPROVAL');
         } catch (innerErr: any) {
+          if (currentGen !== rosterImportSessionGenerationRef.current) return;
           setRosterDiscoveryError(innerErr.message || 'خطأ أثناء استكشاف ملف سجل التشغيل');
         } finally {
-          setIsImportingFile(false);
-          setIsDiscoveringRoster(false);
+          if (currentGen === rosterImportSessionGenerationRef.current) {
+            setIsImportingFile(false);
+            setIsDiscoveringRoster(false);
+          }
         }
       };
       reader.readAsArrayBuffer(file);
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       setRosterDiscoveryError(err.message || 'خطأ في استيراد ملف سجل التشغيل');
       setIsImportingFile(false);
       setIsDiscoveringRoster(false);
@@ -733,6 +767,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const handleRosterSheetChange = async (sheet: string) => {
     setRosterSelectedSheet(sheet);
     if (rosterSelectedFile && rosterBuffer) {
+      const currentGen = rosterImportSessionGenerationRef.current;
       try {
         setIsDiscoveringRoster(true);
         const ext = rosterSelectedFile.name.toLowerCase().slice(rosterSelectedFile.name.lastIndexOf('.'));
@@ -745,6 +780,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         };
 
         const updatedDiscovery = await smartSourceDiscoveryService.discover(discSource, rosterBuffer);
+        if (currentGen !== rosterImportSessionGenerationRef.current) return;
         setRosterDiscoveryResult(updatedDiscovery);
         const detectedIdx = updatedDiscovery.detectedHeaderRowIndex ?? 0;
         setRosterHeaderRowIndex(detectedIdx);
@@ -756,10 +792,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         });
         setRosterCustomMappings(updatedMappings);
       } catch (err: any) {
+        if (currentGen !== rosterImportSessionGenerationRef.current) return;
         console.error('Roster sheet change discovery error:', err);
         setRosterDiscoveryError(err?.message || 'فشل في استكشاف ورقة العمل المحددة');
       } finally {
-        setIsDiscoveringRoster(false);
+        if (currentGen === rosterImportSessionGenerationRef.current) {
+          setIsDiscoveringRoster(false);
+        }
       }
     }
   };
@@ -809,12 +848,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   };
 
   const handleApproveRosterMappingAndStartPipeline = async () => {
-    if (!rosterSelectedFile || !rosterBuffer || !project) return;
+    if (isProcessing || isImportingFile || !rosterSelectedFile || !rosterBuffer || !project) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    setIsProcessing(true);
     setIsImportingFile(true);
     setImportError(null);
 
     try {
-      // Build exact approved customMappings excluding unmapped
       const approvedCustomMappings: Record<string, DriverTruckCanonicalMappingTarget> = {};
       for (const [header, target] of Object.entries(rosterCustomMappings)) {
         if (target && target !== 'unmapped') {
@@ -828,6 +868,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       } catch (relErr) {
         console.warn('Could not load canonical relationship context for roster intake:', relErr);
       }
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
 
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
@@ -850,35 +891,20 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         }
       );
 
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
+
       setImportBatch(batch);
       setIsRosterMappingApproved(true);
       setRosterImportStage('CARRIER_RESOLUTION');
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       setImportError(err?.message || 'خطأ أثناء تحليل ملف سجل التشغيل');
     } finally {
-      setIsImportingFile(false);
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsImportingFile(false);
+        setIsProcessing(false);
+      }
     }
-  };
-
-  const handleResetRosterImport = () => {
-    setRosterSelectedFile(null);
-    setRosterBuffer(null);
-    setRosterDiscoveryResult(null);
-    setRosterSelectedSheet('');
-    setRosterHeaderRowIndex(0);
-    setRosterCustomMappings({});
-    setIsRosterMappingApproved(false);
-    setImportBatch(null);
-    setImportError(null);
-    setRosterDiscoveryError(null);
-    setSmartImportCommitResult(null);
-    setSmartImportCommitError(null);
-    setRosterImportStage('SOURCE_DISCOVERY');
-    setSmartImportPendingCarrierGroup(null);
-    setIsSmartImportCarrierModalOpen(false);
-    setSmartImportPendingMaterialGroup(null);
-    setIsSmartImportMaterialModalOpen(false);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   // C3 Smart Import: Progression Gate from CARRIER_RESOLUTION to MATERIAL_RESOLUTION
@@ -886,6 +912,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!importBatch) return;
     const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
     const carrierGroups = reviewGroups.carrier || [];
+    if (carrierGroups.length === 0) {
+      alert('لم يتم اكتشاف أي مجموعات ناقلين في الملف. الناقل مطلوب لكل سجل تشغيل.');
+      return;
+    }
     const hasUnresolvedCarriers = carrierGroups.some(
       (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
     );
@@ -920,9 +950,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     candidateEntityId: string
   ) => {
-    if (!importBatch || !project) return;
+    if (isProcessing || !importBatch || !project) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
     try {
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
         projectId: project.projectId,
@@ -941,9 +976,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         authContext.userId
       );
 
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
       setImportBatch({ ...updated });
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       alert(err.message || 'فشل تطبيق قرار مطابقة السائق');
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -952,9 +993,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     driverId: string
   ) => {
-    if (!importBatch || !project) return;
+    if (isProcessing || !importBatch || !project) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
     try {
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
         projectId: project.projectId,
@@ -973,9 +1019,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         authContext.userId
       );
 
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
       setImportBatch({ ...updated });
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       alert(err.message || 'فشل تعيين السائق البديل');
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -984,79 +1036,94 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     data: { driverName: string; residencyId: string; phone?: string }
   ) => {
-    if (!project || !importBatch) return;
-    const carrierId = extractGroupCarrierContext(group);
-    if (!carrierId) {
-      throw new Error('تعذر استخراج معرف الناقل التابع له السائق');
-    }
+    if (isProcessing || !project || !importBatch) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
 
-    let result: { matchedId: string; matchedName: string; sourceValue: string };
+    try {
+      const carrierId = extractGroupCarrierContext(group);
+      if (!carrierId) {
+        throw new Error('تعذر استخراج معرف الناقل التابع له السائق');
+      }
 
-    if (cachedSuccessfulDriverResult?.groupKey === group.normalizedSourceKey) {
-      result = cachedSuccessfulDriverResult.result;
-    } else {
-      setDriverConvergenceError(null);
-      const apiRes = await entityResolutionCommandService.createDriver({
-        projectId: project.projectId,
-        sourceValue: group.sourceValue,
-        driverData: {
+      let result: { matchedId: string; matchedName: string; sourceValue: string };
+
+      if (cachedSuccessfulDriverResult?.groupKey === group.normalizedSourceKey) {
+        result = cachedSuccessfulDriverResult.result;
+      } else {
+        setDriverConvergenceError(null);
+        const apiRes = await entityResolutionCommandService.createDriver({
+          projectId: project.projectId,
+          sourceValue: group.sourceValue,
+          driverData: {
+            carrierId,
+            driverName: data.driverName,
+            residencyId: data.residencyId,
+            phone: data.phone,
+          },
+        });
+        if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
+        result = {
+          matchedId: apiRes.matchedId,
+          matchedName: apiRes.matchedName || group.sourceValue,
+          sourceValue: group.sourceValue,
+        };
+        setCachedSuccessfulDriverResult({
+          groupKey: group.normalizedSourceKey,
           carrierId,
-          driverName: data.driverName,
-          residencyId: data.residencyId,
-          phone: data.phone,
-        },
+          result,
+        });
+      }
+
+      // Canonical Refresh & Explicit Visibility Proof
+      const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
+      const foundDriver = snapshot.relationshipContext?.knownDrivers?.find(
+        (d) => d.driverId === result.matchedId && d.carrierId === carrierId
+      );
+
+      if (!foundDriver) {
+        setDriverConvergenceError('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السائق بنجاح، لكن تعذر تحديث البيانات الموثوقة. أعد محاولة التحديث دون إنشاء سجل جديد.');
+        throw new Error('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN');
+      }
+
+      setDriverConvergenceError(null);
+      applyCanonicalSnapshot(snapshot);
+
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext: snapshot.relationshipContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-DRIVER-CREATE-${Date.now()}`
       });
-      result = {
-        matchedId: apiRes.matchedId,
-        matchedName: apiRes.matchedName || group.sourceValue,
-        sourceValue: group.sourceValue,
+
+      const resolutionPayload = {
+        matchedId: result.matchedId,
+        matchedName: result.matchedName,
+        sourceValue: result.sourceValue,
       };
-      setCachedSuccessfulDriverResult({
-        groupKey: group.normalizedSourceKey,
-        carrierId,
-        result,
-      });
+
+      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+        importBatch,
+        'driver',
+        group.normalizedSourceKey,
+        resolutionPayload,
+        pipelineCtx
+      );
+
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
+      setImportBatch({ ...updated });
+      setCachedSuccessfulDriverResult(null);
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
-
-    // Canonical Refresh & Explicit Visibility Proof
-    const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
-
-    const foundDriver = snapshot.relationshipContext?.knownDrivers?.find(
-      (d) => d.driverId === result.matchedId && d.carrierId === carrierId
-    );
-
-    if (!foundDriver) {
-      setDriverConvergenceError('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السائق بنجاح، لكن تعذر تحديث البيانات الموثوقة. أعد محاولة التحديث دون إنشاء سجل جديد.');
-      throw new Error('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN');
-    }
-
-    setDriverConvergenceError(null);
-    applyCanonicalSnapshot(snapshot);
-
-    const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-      relContext: snapshot.relationshipContext,
-      projectId: project.projectId,
-      userId: authContext.userId,
-      role: authContext.role,
-      operationId: `OP-DRIVER-CREATE-${Date.now()}`
-    });
-
-    const resolutionPayload = {
-      matchedId: result.matchedId,
-      matchedName: result.matchedName,
-      sourceValue: result.sourceValue,
-    };
-
-    const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
-      importBatch,
-      'driver',
-      group.normalizedSourceKey,
-      resolutionPayload,
-      pipelineCtx
-    );
-
-    setImportBatch({ ...updated });
-    setCachedSuccessfulDriverResult(null);
   };
 
   // C4 Smart Import: Accept Truck Candidate
@@ -1064,9 +1131,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     candidateEntityId: string
   ) => {
-    if (!importBatch || !project) return;
+    if (isProcessing || !importBatch || !project) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
     try {
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
         projectId: project.projectId,
@@ -1085,9 +1157,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         authContext.userId
       );
 
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
       setImportBatch({ ...updated });
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       alert(err.message || 'فشل تطبيق قرار مطابقة الشاحنة');
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -1096,9 +1174,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     truckId: string
   ) => {
-    if (!importBatch || !project) return;
+    if (isProcessing || !importBatch || !project) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
     try {
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
         projectId: project.projectId,
@@ -1117,9 +1200,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         authContext.userId
       );
 
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
       setImportBatch({ ...updated });
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       alert(err.message || 'فشل تعيين الشاحنة البديلة');
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -1128,86 +1217,106 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     data: { plateNumber: string; truckType?: string; tareWeightKg?: number; maxGrossWeightKg?: number }
   ) => {
-    if (!project || !importBatch) return;
-    const carrierId = extractGroupCarrierContext(group);
-    if (!carrierId) {
-      throw new Error('تعذر استخراج معرف الناقل التابع له الشاحنة');
-    }
+    if (isProcessing || !project || !importBatch) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
 
-    let result: { matchedId: string; matchedName: string; sourceValue: string };
+    try {
+      const carrierId = extractGroupCarrierContext(group);
+      if (!carrierId) {
+        throw new Error('تعذر استخراج معرف الناقل التابع له الشاحنة');
+      }
 
-    if (cachedSuccessfulTruckResult?.groupKey === group.normalizedSourceKey) {
-      result = cachedSuccessfulTruckResult.result;
-    } else {
-      setTruckConvergenceError(null);
-      const apiRes = await entityResolutionCommandService.createTruck({
-        projectId: project.projectId,
-        sourceValue: group.sourceValue,
-        truckData: {
+      let result: { matchedId: string; matchedName: string; sourceValue: string };
+
+      if (cachedSuccessfulTruckResult?.groupKey === group.normalizedSourceKey) {
+        result = cachedSuccessfulTruckResult.result;
+      } else {
+        setTruckConvergenceError(null);
+        const apiRes = await entityResolutionCommandService.createTruck({
+          projectId: project.projectId,
+          sourceValue: group.sourceValue,
+          truckData: {
+            carrierId,
+            plateNumber: data.plateNumber,
+            truckType: data.truckType,
+            tareWeightKg: data.tareWeightKg,
+            maxGrossWeightKg: data.maxGrossWeightKg,
+          },
+        });
+        if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
+        result = {
+          matchedId: apiRes.matchedId,
+          matchedName: apiRes.matchedName || group.sourceValue,
+          sourceValue: group.sourceValue,
+        };
+        setCachedSuccessfulTruckResult({
+          groupKey: group.normalizedSourceKey,
           carrierId,
-          plateNumber: data.plateNumber,
-          truckType: data.truckType,
-          tareWeightKg: data.tareWeightKg,
-          maxGrossWeightKg: data.maxGrossWeightKg,
-        },
+          result,
+        });
+      }
+
+      const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
+      const foundTruck = snapshot.relationshipContext?.knownTrucks?.some(
+        (t) => t.truckId === result.matchedId && t.carrierId === carrierId
+      );
+
+      if (!foundTruck) {
+        setTruckConvergenceError('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة. أعد محاولة التحديث دون إنشاء سجل جديد.');
+        throw new Error('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN');
+      }
+
+      setTruckConvergenceError(null);
+      applyCanonicalSnapshot(snapshot);
+
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext: snapshot.relationshipContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-TRUCK-CREATE-${Date.now()}`
       });
-      result = {
-        matchedId: apiRes.matchedId,
-        matchedName: apiRes.matchedName || group.sourceValue,
-        sourceValue: group.sourceValue,
+
+      const resolutionPayload = {
+        matchedId: result.matchedId,
+        matchedName: result.matchedName,
+        sourceValue: result.sourceValue,
       };
-      setCachedSuccessfulTruckResult({
-        groupKey: group.normalizedSourceKey,
-        carrierId,
-        result,
-      });
+
+      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+        importBatch,
+        'truck',
+        group.normalizedSourceKey,
+        resolutionPayload,
+        pipelineCtx
+      );
+
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
+      setImportBatch({ ...updated });
+      setCachedSuccessfulTruckResult(null);
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
-
-    const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
-
-    const foundTruck = snapshot.relationshipContext?.knownTrucks?.some(
-      (t) => t.truckId === result.matchedId && t.carrierId === carrierId
-    );
-
-    if (!foundTruck) {
-      setTruckConvergenceError('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة. أعد محاولة التحديث دون إنشاء سجل جديد.');
-      throw new Error('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN');
-    }
-
-    setTruckConvergenceError(null);
-    applyCanonicalSnapshot(snapshot);
-
-    const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-      relContext: snapshot.relationshipContext,
-      projectId: project.projectId,
-      userId: authContext.userId,
-      role: authContext.role,
-      operationId: `OP-TRUCK-CREATE-${Date.now()}`
-    });
-
-    const resolutionPayload = {
-      matchedId: result.matchedId,
-      matchedName: result.matchedName,
-      sourceValue: result.sourceValue,
-    };
-
-    const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
-      importBatch,
-      'truck',
-      group.normalizedSourceKey,
-      resolutionPayload,
-      pipelineCtx
-    );
-
-    setImportBatch({ ...updated });
-    setCachedSuccessfulTruckResult(null);
   };
 
   const handleRetryDriverConvergence = async () => {
-    if (!project || !importBatch || !cachedSuccessfulDriverResult) return;
+    if (isProcessing || !project || !importBatch || !cachedSuccessfulDriverResult) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
     try {
       setDriverConvergenceError(null);
       const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       const foundDriver = snapshot.relationshipContext?.knownDrivers?.some(
         (d) => d.driverId === cachedSuccessfulDriverResult.result.matchedId && d.carrierId === cachedSuccessfulDriverResult.carrierId
       );
@@ -1231,18 +1340,29 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         cachedSuccessfulDriverResult.result,
         pipelineCtx
       );
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
       setImportBatch({ ...updated });
       setCachedSuccessfulDriverResult(null);
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       setDriverConvergenceError(err.message || 'فشلت إعادة محاولة تحديث البيانات');
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
   const handleRetryTruckConvergence = async () => {
-    if (!project || !importBatch || !cachedSuccessfulTruckResult) return;
+    if (isProcessing || !project || !importBatch || !cachedSuccessfulTruckResult) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
     try {
       setTruckConvergenceError(null);
       const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       const foundTruck = snapshot.relationshipContext?.knownTrucks?.some(
         (t) => t.truckId === cachedSuccessfulTruckResult.result.matchedId && t.carrierId === cachedSuccessfulTruckResult.carrierId
       );
@@ -1266,30 +1386,35 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         cachedSuccessfulTruckResult.result,
         pipelineCtx
       );
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
       setImportBatch({ ...updated });
       setCachedSuccessfulTruckResult(null);
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       setTruckConvergenceError(err.message || 'فشلت إعادة محاولة تحديث البيانات');
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
   // C5 Smart Import: Progression from Driver/Truck Resolution to Final Review
   const handleSmartImportContinueToFinalReview = async () => {
-    if (!project || !importBatch) return;
+    if (isProcessing || !project || !importBatch) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
 
-    // 1. Independent Re-check of CURRENT importBatch
-    const reviewGroups = importBatch.reviewGroups || [];
-    const driverTruckGroups = reviewGroups.filter(
-      (g) => g.entityType === 'DRIVER' || g.entityType === 'TRUCK'
-    );
+    // 1. Independent Re-check of CURRENT importBatch using RosterBatchReviewService
+    const batchGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
+    const driverGroups = batchGroups.driver || [];
+    const truckGroups = batchGroups.truck || [];
+    const driverTruckGroups = [...driverGroups, ...truckGroups];
 
     if (driverTruckGroups.length === 0) {
-      console.error('Cannot proceed to Final Review: No Driver/Truck groups exist');
+      alert('تعذر الانتقال للمراجعة النهائية: لا توجد مجموعات سائقين أو شاحنات لتقييمها.');
       return;
     }
-
-    const driverGroups = reviewGroups.filter((g) => g.entityType === 'DRIVER');
-    const truckGroups = reviewGroups.filter((g) => g.entityType === 'TRUCK');
 
     const hasUnresolvedDrivers = driverGroups.some(
       (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
@@ -1315,7 +1440,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       driverConvergenceError !== null ||
       truckConvergenceError !== null
     ) {
-      console.error('Cannot proceed to Final Review: Unresolved Driver/Truck issues or pending convergence exist');
+      alert('تعذر الانتقال للمراجعة النهائية: توجد بيانات سائقين/شاحنات معلقة أو أخطاء تطابق قيد المعالجة.');
       return;
     }
 
@@ -1323,6 +1448,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setIsProcessing(true);
     try {
       const freshContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       setProjectRelationshipContext(freshContext);
 
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
@@ -1334,26 +1461,43 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       });
 
       const revalidated = await DriverTruckPipelineService.revalidateRosterBatch(importBatch, pipelineCtx);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
       setImportBatch({ ...revalidated });
       setRosterImportStage('FINAL_REVIEW');
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       console.error('Final review revalidation error:', err);
+      alert(err.message || 'حدث خطأ أثناء إجراء الفحص النهائي قبل المراجعة.');
     } finally {
-      setIsProcessing(false);
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
   // C5 Smart Import: Pre-flight Recheck & Guarded Commit Execution
   const handleSmartImportCommit = async () => {
-    if (!project || !importBatch) return;
+    if (isProcessing || isCommittingImport || !project || !importBatch) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+
+    if (smartImportCommitResult !== null) {
+      setSmartImportCommitError(
+        'تم تنفيذ محاولة الاستيراد بالفعل لهذه الجلسة. لا يمكن إعادة التنفيد.'
+      );
+      return;
+    }
 
     setIsCommittingImport(true);
+    setIsProcessing(true);
     setSmartImportCommitError(null);
 
     try {
       // 1. Fetch fresh canonical RelationshipContext
       const freshContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       setProjectRelationshipContext(freshContext);
 
       // 2. Build fresh PipelineContext
@@ -1367,10 +1511,18 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       // 3. Revalidate SAME importBatch again (Preflight)
       const revalidated = await DriverTruckPipelineService.revalidateRosterBatch(importBatch, pipelineCtx);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
-      // 4. Inspect row-level readiness again
+      // 4. Inspect row-level readiness again using RosterBatchReviewService
       const activeRows = revalidated.rows.filter((r) => r.status !== 'REJECTED');
-      const hasUnresolved = (revalidated.reviewGroups || []).some(
+      const revalidatedGroups = RosterBatchReviewService.getBatchReviewGroups(revalidated);
+      const allRevalidatedGroups = [
+        ...(revalidatedGroups.carrier || []),
+        ...(revalidatedGroups.material || []),
+        ...(revalidatedGroups.driver || []),
+        ...(revalidatedGroups.truck || [])
+      ];
+      const hasUnresolved = allRevalidatedGroups.some(
         (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
       );
       const hasRowErrors = activeRows.some(
@@ -1389,6 +1541,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       // 5. Execute Commit via DriverTruckPipelineService.commitBatch ONLY
       const { batch: committedBatch, result } = await DriverTruckPipelineService.commitBatch(revalidated, pipelineCtx);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
       // 6. Store result and batch without clearing
       setImportBatch({ ...committedBatch });
@@ -1396,11 +1549,77 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setRosterImportStage('COMMIT_RESULT');
 
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       console.error('Commit execution error:', err);
       setSmartImportCommitError(err.message || 'حدث خطأ أثناء تنفيذ عملية الاعتماد');
     } finally {
-      setIsCommittingImport(false);
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsCommittingImport(false);
+        setIsProcessing(false);
+      }
     }
+  };
+
+  // C5 Smart Import: Final Review Blocker / Back Navigation Strategy
+  const handleFinalReviewBack = () => {
+    if (!importBatch) {
+      setRosterImportStage('DRIVER_TRUCK_RESOLUTION');
+      return;
+    }
+
+    const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
+    const issues = importBatch.issues || [];
+    const rows = importBatch.rows || [];
+    const activeRows = rows.filter((r) => r.status !== 'REJECTED');
+
+    // CARRIER OWNED BLOCKER
+    const unresolvedCarriers = (reviewGroups.carrier || []).some(
+      (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+    );
+    const carrierIssues = issues.some(
+      (iss) => (iss.severity === 'BLOCKING' || iss.blocking) &&
+        iss.code !== 'DRIVER_CARRIER_CONFLICT' &&
+        (iss.field === 'carrierId' || iss.code === 'UNRESOLVED_CARRIER' || String(iss.code).startsWith('CARRIER_'))
+    );
+    const carrierRowBlock = activeRows.some(
+      (r) => !r.entityResolutions?.carrier?.matchedId ||
+        r.entityResolutions?.carrier?.status === 'UNRESOLVED' ||
+        r.entityResolutions?.carrier?.status === 'CONFLICT' ||
+        r.entityResolutions?.carrier?.status === 'REVIEW_REQUIRED'
+    );
+
+    if (unresolvedCarriers || carrierIssues || carrierRowBlock) {
+      const confirmed = window.confirm(
+        'تغيّر أو تعذر اعتماد بيانات الناقل بعد المراجعة النهائية. لأن بيانات السائقين والشاحنات مرتبطة بالناقل، يجب إعادة تحليل جلسة الاستيراد. هل تريد المتابعة؟'
+      );
+      if (confirmed) {
+        handleResetRosterImport();
+      }
+      return;
+    }
+
+    // MATERIAL OWNED BLOCKER
+    const unresolvedMaterials = (reviewGroups.material || []).some(
+      (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+    );
+    const materialIssues = issues.some(
+      (iss) => (iss.severity === 'BLOCKING' || iss.blocking) &&
+        (iss.field === 'materialId' || String(iss.code).includes('MATERIAL'))
+    );
+    const materialRowBlock = activeRows.some(
+      (r) => !r.entityResolutions?.material?.matchedId ||
+        r.entityResolutions?.material?.status === 'UNRESOLVED' ||
+        r.entityResolutions?.material?.status === 'CONFLICT' ||
+        r.entityResolutions?.material?.status === 'REVIEW_REQUIRED'
+    );
+
+    if (unresolvedMaterials || materialIssues || materialRowBlock) {
+      setRosterImportStage('MATERIAL_RESOLUTION');
+      return;
+    }
+
+    // DRIVER/TRUCK OWNED BLOCKER OR NORMAL BACK
+    setRosterImportStage('DRIVER_TRUCK_RESOLUTION');
   };
 
   // C2 Smart Import: Accept Carrier Candidate
@@ -1408,9 +1627,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     candidateEntityId: string
   ) => {
-    if (!importBatch || !project) return;
+    if (isProcessing || !importBatch || !project) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
     try {
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
         projectId: project.projectId,
@@ -1429,9 +1653,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         authContext.userId
       );
 
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
       setImportBatch({ ...updated });
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       alert(err.message || 'فشل تطبيق قرار مطابقة الناقل');
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -1440,9 +1670,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     carrierId: string
   ) => {
-    if (!importBatch || !project) return;
+    if (isProcessing || !importBatch || !project) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
     try {
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
         projectId: project.projectId,
@@ -1461,56 +1696,66 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         authContext.userId
       );
 
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
       setImportBatch({ ...updated });
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       alert(err.message || 'فشل تعيين الناقل البديل');
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
   // C2 Smart Import: Carrier Creation via Authoritative CarrierEditorModal
   const handleSmartImportCarrierCreated = async (result: CarrierCreationResult) => {
-    if (!project || !importBatch || !smartImportPendingCarrierGroup) return;
+    if (isProcessing || !project || !importBatch || !smartImportPendingCarrierGroup) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
 
-    // 1. Refresh canonical project data expecting the created carrierId
-    const snapshot = await projectCanonicalRefreshService.refresh(
-      project.projectId,
-      { expect: { carrierId: result.carrierId } }
-    );
+    try {
+      const snapshot = await projectCanonicalRefreshService.refresh(
+        project.projectId,
+        { expect: { carrierId: result.carrierId } }
+      );
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
-    // 2. Apply canonical snapshot to local wizard state
-    applyCanonicalSnapshot(snapshot);
+      applyCanonicalSnapshot(snapshot);
 
-    // 3. Convert snapshot relationship context into pipeline context via adapter
-    const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-      relContext: snapshot.relationshipContext,
-      projectId: project.projectId,
-      userId: authContext.userId,
-      role: authContext.role,
-      operationId: `OP-CARRIER-CREATE-${Date.now()}`
-    });
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext: snapshot.relationshipContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-CARRIER-CREATE-${Date.now()}`
+      });
 
-    // 4. Construct resolution payload
-    const resolutionPayload = {
-      matchedId: result.carrierId,
-      matchedName: smartImportPendingCarrierGroup.sourceValue,
-      sourceValue: smartImportPendingCarrierGroup.sourceValue,
-    };
+      const resolutionPayload = {
+        matchedId: result.carrierId,
+        matchedName: smartImportPendingCarrierGroup.sourceValue,
+        sourceValue: smartImportPendingCarrierGroup.sourceValue,
+      };
 
-    // 5. Apply grouped created carrier resolution to the SAME importBatch
-    const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
-      importBatch,
-      'carrier',
-      smartImportPendingCarrierGroup.normalizedSourceKey,
-      resolutionPayload,
-      pipelineCtx
-    );
+      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+        importBatch,
+        'carrier',
+        smartImportPendingCarrierGroup.normalizedSourceKey,
+        resolutionPayload,
+        pipelineCtx
+      );
 
-    // 6. Update local batch state in place
-    setImportBatch({ ...updated });
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
-    // 7. Close modal and clean up pending group
-    setIsSmartImportCarrierModalOpen(false);
-    setSmartImportPendingCarrierGroup(null);
+      setImportBatch({ ...updated });
+      setIsSmartImportCarrierModalOpen(false);
+      setSmartImportPendingCarrierGroup(null);
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
+    }
   };
 
   // C3 Smart Import: Accept Material Candidate
@@ -1518,9 +1763,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     candidateEntityId: string
   ) => {
-    if (!importBatch || !project) return;
+    if (isProcessing || !importBatch || !project) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
     try {
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
         projectId: project.projectId,
@@ -1539,9 +1789,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         authContext.userId
       );
 
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
       setImportBatch({ ...updated });
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       alert(err.message || 'فشل تطبيق قرار مطابقة المادة');
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -1550,9 +1806,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     materialId: string
   ) => {
-    if (!importBatch || !project) return;
+    if (isProcessing || !importBatch || !project) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
     try {
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
         relContext,
         projectId: project.projectId,
@@ -1571,56 +1832,74 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         authContext.userId
       );
 
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
       setImportBatch({ ...updated });
     } catch (err: any) {
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
       alert(err.message || 'فشل تعيين المادة البديلة');
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
   // C3 Smart Import: Material Creation via Authoritative MaterialEditorModal
   const handleSmartImportMaterialCreated = async (result: MaterialCreationResult) => {
-    if (!project || !importBatch || !smartImportPendingMaterialGroup) return;
+    if (isProcessing || !project || !importBatch || !smartImportPendingMaterialGroup) return;
+    const currentGen = rosterImportSessionGenerationRef.current;
+    const currentBatchId = importBatch.importBatchId;
+    setIsProcessing(true);
 
-    // 1. Refresh canonical project data expecting the created materialId
-    const snapshot = await projectCanonicalRefreshService.refresh(
-      project.projectId,
-      { expect: { materialId: result.materialId } }
-    );
+    try {
+      // 1. Refresh canonical project data expecting the created materialId
+      const snapshot = await projectCanonicalRefreshService.refresh(
+        project.projectId,
+        { expect: { materialId: result.materialId } }
+      );
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
-    // 2. Apply canonical snapshot to local wizard state
-    applyCanonicalSnapshot(snapshot);
+      // 2. Apply canonical snapshot to local wizard state
+      applyCanonicalSnapshot(snapshot);
 
-    // 3. Convert snapshot relationship context into pipeline context via adapter
-    const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-      relContext: snapshot.relationshipContext,
-      projectId: project.projectId,
-      userId: authContext.userId,
-      role: authContext.role,
-      operationId: `OP-MATERIAL-CREATE-${Date.now()}`
-    });
+      // 3. Convert snapshot relationship context into pipeline context via adapter
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext: snapshot.relationshipContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-MATERIAL-CREATE-${Date.now()}`
+      });
 
-    // 4. Construct resolution payload
-    const resolutionPayload = {
-      matchedId: result.materialId,
-      matchedName: smartImportPendingMaterialGroup.sourceValue,
-      sourceValue: smartImportPendingMaterialGroup.sourceValue,
-    };
+      // 4. Construct resolution payload
+      const resolutionPayload = {
+        matchedId: result.materialId,
+        matchedName: smartImportPendingMaterialGroup.sourceValue,
+        sourceValue: smartImportPendingMaterialGroup.sourceValue,
+      };
 
-    // 5. Apply grouped created material resolution to the SAME importBatch
-    const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
-      importBatch,
-      'material',
-      smartImportPendingMaterialGroup.normalizedSourceKey,
-      resolutionPayload,
-      pipelineCtx
-    );
+      // 5. Apply grouped created material resolution to the SAME importBatch
+      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+        importBatch,
+        'material',
+        smartImportPendingMaterialGroup.normalizedSourceKey,
+        resolutionPayload,
+        pipelineCtx
+      );
 
-    // 6. Update local batch state in place
-    setImportBatch({ ...updated });
+      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
-    // 7. Close modal and clean up pending group
-    setIsSmartImportMaterialModalOpen(false);
-    setSmartImportPendingMaterialGroup(null);
+      // 6. Update local batch state in place
+      setImportBatch({ ...updated });
+
+      // 7. Close modal and clean up pending group
+      setIsSmartImportMaterialModalOpen(false);
+      setSmartImportPendingMaterialGroup(null);
+    } finally {
+      if (currentGen === rosterImportSessionGenerationRef.current) {
+        setIsProcessing(false);
+      }
+    }
   };
 
   const handleApplyResolutionDecision = async (
@@ -3098,7 +3377,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                           onClick={handleResetRosterImport}
                           className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs"
                         >
-                          إلغاء
+                          تغيير الملف
                         </button>
                         <button
                           type="button"
@@ -3128,6 +3407,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         setIsSmartImportCarrierModalOpen(true);
                       }}
                       onContinueToMaterials={handleSmartImportContinueToMaterials}
+                      onCancelImport={handleResetRosterImport}
+                      isProcessing={isProcessing}
                     />
                   )}
 
@@ -3146,6 +3427,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         setIsSmartImportMaterialModalOpen(true);
                       }}
                       onContinueToDriverTruck={handleSmartImportContinueToDriverTruck}
+                      onCancelImport={handleResetRosterImport}
+                      isProcessing={isProcessing}
                     />
                   )}
 
@@ -3167,6 +3450,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       onRetryDriverConvergence={handleRetryDriverConvergence}
                       onRetryTruckConvergence={handleRetryTruckConvergence}
                       onContinueToFinalReview={handleSmartImportContinueToFinalReview}
+                      onCancelImport={handleResetRosterImport}
+                      isProcessing={isProcessing}
                     />
                   )}
 
@@ -3180,7 +3465,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       onCommit={handleSmartImportCommit}
                       isCommitting={isCommittingImport}
                       commitError={smartImportCommitError}
-                      onClose={() => setRosterImportStage('DRIVER_TRUCK_RESOLUTION')}
+                      onClose={handleFinalReviewBack}
                     />
                   )}
 
@@ -3196,7 +3481,6 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         handleResetRosterImport();
                         await reloadProjectCanonicalData();
                       }}
-                      onClose={() => setRosterImportStage('FINAL_REVIEW')}
                     />
                   )}
 

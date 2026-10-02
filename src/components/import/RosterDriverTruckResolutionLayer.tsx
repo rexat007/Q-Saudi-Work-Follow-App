@@ -48,6 +48,7 @@ export interface RosterDriverTruckResolutionLayerProps {
   onRetryDriverConvergence?: () => Promise<void> | void;
   onRetryTruckConvergence?: () => Promise<void> | void;
   onContinueToFinalReview?: () => void;
+  onCancelImport?: () => void;
 }
 
 /**
@@ -79,6 +80,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   onRetryDriverConvergence,
   onRetryTruckConvergence,
   onContinueToFinalReview,
+  onCancelImport,
 }) => {
   const [selectedAlternateDriver, setSelectedAlternateDriver] = useState<Record<string, string>>({});
   const [selectedAlternateTruck, setSelectedAlternateTruck] = useState<Record<string, string>>({});
@@ -208,16 +210,6 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               </p>
             </div>
           </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              disabled={isProcessing}
-              className="p-1.5 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition-colors"
-              title="إغلاق النافذة"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
         </div>
 
         {/* Content Body */}
@@ -664,7 +656,20 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
             )}
           </div>
           <div className="flex items-center gap-2">
-            {onClose && (
+            {onCancelImport ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('سيتم إلغاء جلسة الاستيراد الحالية وفقدان القرارات غير المنفذة. هل تريد المتابعة؟')) {
+                    onCancelImport();
+                  }
+                }}
+                disabled={isProcessing}
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
+              >
+                إلغاء الاستيراد
+              </button>
+            ) : onClose ? (
               <button
                 type="button"
                 onClick={onClose}
@@ -673,7 +678,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               >
                 إغلاق
               </button>
-            )}
+            ) : null}
 
             {onContinueToFinalReview && (
               <button

@@ -59,7 +59,7 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
   // 5. from MAPPING_APPROVAL: only CARRIER_RESOLUTION can become next active stage after pipeline execution
   it('5. from MAPPING_APPROVAL: only CARRIER_RESOLUTION becomes next active stage after pipeline execution', () => {
     const pipelineCallIdx = wizardContent.indexOf('DriverTruckPipelineService.processFileToReview');
-    const followingLines = wizardContent.slice(pipelineCallIdx, pipelineCallIdx + 600);
+    const followingLines = wizardContent.slice(pipelineCallIdx, pipelineCallIdx + 1000);
     expect(followingLines).toContain("setRosterImportStage('CARRIER_RESOLUTION')");
     expect(followingLines).not.toContain("setRosterImportStage('MATERIAL_RESOLUTION')");
     expect(followingLines).not.toContain("setRosterImportStage('FINAL_REVIEW')");
@@ -216,7 +216,7 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
   // 27. reset cannot leave stale isRosterMappingApproved/importBatch/stage mismatch
   it('27. reset cannot leave stale isRosterMappingApproved/importBatch/stage mismatch', () => {
     const resetIdx = wizardContent.indexOf('handleResetRosterImport = () =>');
-    const resetBody = wizardContent.slice(resetIdx, resetIdx + 500);
+    const resetBody = wizardContent.slice(resetIdx, resetIdx + 1000);
     expect(resetBody).toContain("setRosterImportStage('SOURCE_DISCOVERY')");
     expect(resetBody).toContain('setIsRosterMappingApproved(false)');
     expect(resetBody).toContain('setImportBatch(null)');

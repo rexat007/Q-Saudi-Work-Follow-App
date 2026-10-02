@@ -16,6 +16,7 @@ export interface RosterCarrierResolutionLayerProps {
   onSelectAlternate?: (group: RosterEntityReviewGroup, carrierId: string) => Promise<void> | void;
   onCreateCarrier: (group: RosterEntityReviewGroup) => void;
   onContinueToMaterials?: () => void;
+  onCancelImport?: () => void;
   onClose?: () => void;
   isProcessing?: boolean;
 }
@@ -27,6 +28,7 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
   onSelectAlternate,
   onCreateCarrier,
   onContinueToMaterials,
+  onCancelImport,
   onClose,
   isProcessing = false,
 }) => {
@@ -69,16 +71,6 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
               </p>
             </div>
           </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              disabled={isProcessing}
-              className="p-1.5 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition-colors"
-              title="إغلاق النافذة"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
         </div>
 
         {/* Content Body */}
@@ -295,15 +287,29 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
                 <ChevronLeft className="w-4 h-4" />
               </button>
             )}
-            {onClose && (
+            {onCancelImport ? (
               <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('سيتم إلغاء جلسة الاستيراد الحالية وفقدان القرارات غير المنفذة. هل تريد المتابعة؟')) {
+                    onCancelImport();
+                  }
+                }}
+                disabled={isProcessing}
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
+              >
+                إلغاء الاستيراد
+              </button>
+            ) : onClose ? (
+              <button
+                type="button"
                 onClick={onClose}
                 disabled={isProcessing}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
               >
                 إغلاق
               </button>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

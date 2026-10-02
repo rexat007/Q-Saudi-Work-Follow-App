@@ -185,7 +185,7 @@ export const RosterCommitResultLayer: React.FC<RosterCommitResultLayerProps> = (
               </button>
             )}
 
-            {isFullSuccess && onFinish && (
+            {onFinish && (
               <button
                 type="button"
                 onClick={onFinish}
