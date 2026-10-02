@@ -409,7 +409,15 @@ export class UnifiedImportPipelineService {
     batch.currentStage = 'COMMIT';
     const result = await this.committer.commit(batch, context);
 
-    if (result.success) {
+    const failedRowNumbers = new Set(
+      (result.issues || [])
+        .filter((iss) => (iss.severity === 'BLOCKING' || iss.blocking) && typeof iss.row === 'number' && iss.row > 0)
+        .map((iss) => iss.row)
+    );
+
+    const isFullSuccess = result.committedRows > 0 && result.failedRows === 0;
+
+    if (isFullSuccess) {
       batch.commitStatus = 'COMMITTED';
       batch.committedRows = result.committedRows;
       batch.committedAt = result.executedAt;
@@ -422,6 +430,8 @@ export class UnifiedImportPipelineService {
           : r
       );
 
+      batch.issues = result.issues || batch.issues;
+
       // 2. Audit Stage
       batch.currentStage = 'AUDIT';
       await this.auditor.recordAudit(
@@ -432,10 +442,34 @@ export class UnifiedImportPipelineService {
       );
     } else {
       batch.commitStatus = 'FAILED';
+      batch.committedRows = result.committedRows;
+
+      // Truthful row status mapping
+      batch.rows = batch.rows.map((r) => {
+        if (r.status === 'VALID' || r.status === 'WARNING') {
+          if (failedRowNumbers.has(r.rowNumber)) {
+            return {
+              ...r,
+              status: 'ERROR' as const,
+              reviewStatus: 'error' as const,
+            };
+          } else if (result.committedRows > 0) {
+            return {
+              ...r,
+              status: 'COMMITTED' as const,
+            };
+          }
+        }
+        return r;
+      });
+
+      batch.issues = result.issues || batch.issues;
+
+      batch.currentStage = 'AUDIT';
       await this.auditor.recordAudit(
         batch,
         'COMMIT_FAILED',
-        `فشل اعتماد الدفعة: ${result.error}`,
+        `فشل اعتماد الدفعة (تم اعتماد: ${result.committedRows}، فشل: ${result.failedRows}): ${result.error || 'أخطاء أثناء تنفيذ عملية الاعتماد'}`,
         context
       );
     }

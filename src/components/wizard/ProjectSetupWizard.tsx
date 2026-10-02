@@ -56,6 +56,9 @@ import { MaterialEditorModal } from '../masterData/MaterialEditorModal';
 import { RosterCarrierResolutionLayer } from '../import/RosterCarrierResolutionLayer';
 import { RosterMaterialResolutionLayer } from '../import/RosterMaterialResolutionLayer';
 import { RosterDriverTruckResolutionLayer, extractGroupCarrierContext } from '../import/RosterDriverTruckResolutionLayer';
+import { RosterFinalReviewLayer } from '../import/RosterFinalReviewLayer';
+import { RosterCommitResultLayer } from '../import/RosterCommitResultLayer';
+import { ImportResult } from '../../types/unifiedImport';
 import { RelationshipContext } from '../../types/dataQuality';
 import { CarrierCreationResult } from '../../services/carrierManagementClient.service';
 import { MaterialCreationResult } from '../../services/materialManagementClient.service';
@@ -271,6 +274,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   } | null>(null);
   const [driverConvergenceError, setDriverConvergenceError] = useState<string | null>(null);
   const [truckConvergenceError, setTruckConvergenceError] = useState<string | null>(null);
+
+  // C5 Smart Import Final Review & Commit Result State
+  const [smartImportCommitResult, setSmartImportCommitResult] = useState<ImportResult | null>(null);
+  const [smartImportCommitError, setSmartImportCommitError] = useState<string | null>(null);
 
   // Editing Forms and Modals
   const [isAddingMaterial, setIsAddingMaterial] = useState(false);
@@ -864,6 +871,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setImportBatch(null);
     setImportError(null);
     setRosterDiscoveryError(null);
+    setSmartImportCommitResult(null);
+    setSmartImportCommitError(null);
     setRosterImportStage('SOURCE_DISCOVERY');
     setSmartImportPendingCarrierGroup(null);
     setIsSmartImportCarrierModalOpen(false);
@@ -1261,6 +1270,136 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setCachedSuccessfulTruckResult(null);
     } catch (err: any) {
       setTruckConvergenceError(err.message || 'فشلت إعادة محاولة تحديث البيانات');
+    }
+  };
+
+  // C5 Smart Import: Progression from Driver/Truck Resolution to Final Review
+  const handleSmartImportContinueToFinalReview = async () => {
+    if (!project || !importBatch) return;
+
+    // 1. Independent Re-check of CURRENT importBatch
+    const reviewGroups = importBatch.reviewGroups || [];
+    const driverTruckGroups = reviewGroups.filter(
+      (g) => g.entityType === 'DRIVER' || g.entityType === 'TRUCK'
+    );
+
+    if (driverTruckGroups.length === 0) {
+      console.error('Cannot proceed to Final Review: No Driver/Truck groups exist');
+      return;
+    }
+
+    const driverGroups = reviewGroups.filter((g) => g.entityType === 'DRIVER');
+    const truckGroups = reviewGroups.filter((g) => g.entityType === 'TRUCK');
+
+    const hasUnresolvedDrivers = driverGroups.some(
+      (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+    );
+    const hasUnresolvedTrucks = truckGroups.some(
+      (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+    );
+
+    const driverTruckBlockingIssues = (importBatch.issues || []).filter(
+      (iss) =>
+        iss.severity === 'BLOCKING' &&
+        iss.blocking &&
+        (iss.field === 'driverName' ||
+          iss.field === 'truckPlate' ||
+          iss.code === 'DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN' ||
+          iss.code === 'TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN')
+    );
+
+    if (
+      hasUnresolvedDrivers ||
+      hasUnresolvedTrucks ||
+      driverTruckBlockingIssues.length > 0 ||
+      driverConvergenceError !== null ||
+      truckConvergenceError !== null
+    ) {
+      console.error('Cannot proceed to Final Review: Unresolved Driver/Truck issues or pending convergence exist');
+      return;
+    }
+
+    // 2. Fresh Revalidation before entering FINAL_REVIEW
+    setIsProcessing(true);
+    try {
+      const freshContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      setProjectRelationshipContext(freshContext);
+
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext: freshContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-FINAL-REVIEW-INIT-${Date.now()}`
+      });
+
+      const revalidated = await DriverTruckPipelineService.revalidateRosterBatch(importBatch, pipelineCtx);
+
+      setImportBatch({ ...revalidated });
+      setRosterImportStage('FINAL_REVIEW');
+    } catch (err: any) {
+      console.error('Final review revalidation error:', err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // C5 Smart Import: Pre-flight Recheck & Guarded Commit Execution
+  const handleSmartImportCommit = async () => {
+    if (!project || !importBatch) return;
+
+    setIsCommittingImport(true);
+    setSmartImportCommitError(null);
+
+    try {
+      // 1. Fetch fresh canonical RelationshipContext
+      const freshContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      setProjectRelationshipContext(freshContext);
+
+      // 2. Build fresh PipelineContext
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext: freshContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-COMMIT-${Date.now()}`
+      });
+
+      // 3. Revalidate SAME importBatch again (Preflight)
+      const revalidated = await DriverTruckPipelineService.revalidateRosterBatch(importBatch, pipelineCtx);
+
+      // 4. Inspect row-level readiness again
+      const activeRows = revalidated.rows.filter((r) => r.status !== 'REJECTED');
+      const hasUnresolved = (revalidated.reviewGroups || []).some(
+        (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+      );
+      const hasRowErrors = activeRows.some(
+        (r) => r.reviewStatus === 'requires_review' || r.reviewStatus === 'error' || r.status === 'ERROR'
+      );
+      const hasBlockingIssues = (revalidated.issues || []).some(
+        (iss) => (iss.severity === 'BLOCKING' || iss.blocking) && iss.code !== 'WARNING'
+      );
+
+      if (hasUnresolved || hasRowErrors || hasBlockingIssues) {
+        setImportBatch({ ...revalidated });
+        setSmartImportCommitError('تعذر الاعتماد: أظهر الفحص المسبق وجود بيانات معلقة أو غير مطابقة مجدداً.');
+        setIsCommittingImport(false);
+        return;
+      }
+
+      // 5. Execute Commit via DriverTruckPipelineService.commitBatch ONLY
+      const { batch: committedBatch, result } = await DriverTruckPipelineService.commitBatch(revalidated, pipelineCtx);
+
+      // 6. Store result and batch without clearing
+      setImportBatch({ ...committedBatch });
+      setSmartImportCommitResult(result);
+      setRosterImportStage('COMMIT_RESULT');
+
+    } catch (err: any) {
+      console.error('Commit execution error:', err);
+      setSmartImportCommitError(err.message || 'حدث خطأ أثناء تنفيذ عملية الاعتماد');
+    } finally {
+      setIsCommittingImport(false);
     }
   };
 
@@ -3027,6 +3166,37 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       truckConvergenceError={truckConvergenceError}
                       onRetryDriverConvergence={handleRetryDriverConvergence}
                       onRetryTruckConvergence={handleRetryTruckConvergence}
+                      onContinueToFinalReview={handleSmartImportContinueToFinalReview}
+                    />
+                  )}
+
+                  {/*
+                    C5: Final Review Layer
+                    Read-only pre-flight inspection and guarded commit.
+                  */}
+                  {importBatch && rosterImportStage === 'FINAL_REVIEW' && (
+                    <RosterFinalReviewLayer
+                      importBatch={importBatch}
+                      onCommit={handleSmartImportCommit}
+                      isCommitting={isCommittingImport}
+                      commitError={smartImportCommitError}
+                      onClose={() => setRosterImportStage('DRIVER_TRUCK_RESOLUTION')}
+                    />
+                  )}
+
+                  {/*
+                    C5: Commit Result Layer
+                    Truthful post-commit execution summary and outcome inspection.
+                  */}
+                  {importBatch && smartImportCommitResult && rosterImportStage === 'COMMIT_RESULT' && (
+                    <RosterCommitResultLayer
+                      importBatch={importBatch}
+                      commitResult={smartImportCommitResult}
+                      onFinish={async () => {
+                        handleResetRosterImport();
+                        await reloadProjectCanonicalData();
+                      }}
+                      onClose={() => setRosterImportStage('FINAL_REVIEW')}
                     />
                   )}
 

@@ -91,12 +91,12 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
   // 9. monolithic review workspace renders ONLY under CARRIER_RESOLUTION
   it('9. monolithic review workspace renders ONLY under CARRIER_RESOLUTION', () => {
     expect(wizardContent).toContain("importBatch && rosterImportStage === 'CARRIER_RESOLUTION'");
-    expect(wizardContent).not.toContain("rosterImportStage === 'FINAL_REVIEW'");
+    expect(wizardContent).not.toContain("rosterImportStage === 'FINAL_REVIEW' && (\n                    <RosterCarrierResolutionLayer");
   });
 
   // 10. FINAL_REVIEW does not render the compatibility review workspace
   it('10. FINAL_REVIEW does not render the compatibility review workspace', () => {
-    expect(wizardContent).not.toContain("rosterImportStage === 'FINAL_REVIEW' && (");
+    expect(wizardContent).not.toContain("rosterImportStage === 'FINAL_REVIEW' && (\n                    <RosterCarrierResolutionLayer");
   });
 
   // 11. Carrier resolution layer is explicitly present under CARRIER_RESOLUTION

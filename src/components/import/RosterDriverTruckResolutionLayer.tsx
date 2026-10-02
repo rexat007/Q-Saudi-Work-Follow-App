@@ -47,6 +47,7 @@ export interface RosterDriverTruckResolutionLayerProps {
   truckConvergenceError?: string | null;
   onRetryDriverConvergence?: () => Promise<void> | void;
   onRetryTruckConvergence?: () => Promise<void> | void;
+  onContinueToFinalReview?: () => void;
 }
 
 /**
@@ -77,6 +78,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   truckConvergenceError,
   onRetryDriverConvergence,
   onRetryTruckConvergence,
+  onContinueToFinalReview,
 }) => {
   const [selectedAlternateDriver, setSelectedAlternateDriver] = useState<Record<string, string>>({});
   const [selectedAlternateTruck, setSelectedAlternateTruck] = useState<Record<string, string>>({});
@@ -661,15 +663,30 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               </span>
             )}
           </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              disabled={isProcessing}
-              className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
-            >
-              إغلاق
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isProcessing}
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
+              >
+                إغلاق
+              </button>
+            )}
+
+            {onContinueToFinalReview && (
+              <button
+                type="button"
+                onClick={onContinueToFinalReview}
+                disabled={!isLayerComplete || isProcessing || Boolean(driverConvergenceError) || Boolean(truckConvergenceError)}
+                className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 text-white font-black rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/50 transition-colors"
+              >
+                <span>متابعة إلى المراجعة النهائية</span>
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
