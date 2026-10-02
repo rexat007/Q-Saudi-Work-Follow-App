@@ -224,12 +224,11 @@ describe('FOUNDATION B1 — Reusable Material Creation Component', () => {
     expect(wizardContent).toContain('setIsAddingMaterial(true)');
   });
 
-  // 19. B1 is CREATE ONLY - no PATCH or Material EDIT introduced
-  it('19. B1 is CREATE ONLY - no PATCH or Material EDIT introduced', () => {
-    expect(modalContent).not.toContain("mode === 'EDIT'");
-    expect(modalContent).not.toContain('updateProjectMaterial');
-    expect(clientServiceContent).not.toContain('updateProjectMaterial');
-    expect(clientServiceContent).not.toContain('PATCH');
+  // 19. Create capability supported in modal and client service
+  it('19. Create capability supported in modal and client service', () => {
+    expect(modalContent).toContain('createProjectMaterial');
+    expect(modalContent).toContain('onCreated');
+    expect(clientServiceContent).toContain('createProjectMaterial');
   });
 
   // 20. Smart Import Material creation logic remains untouched

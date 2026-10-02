@@ -1877,6 +1877,20 @@ app.post('/api/projects/:projectId/setup-material', enforceProjectIsolation, enf
   }
 });
 
+app.patch('/api/projects/:projectId/materials/:materialId', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    const { projectId, materialId } = req.params;
+    const { materialData } = req.body;
+    const user = (req as any).user;
+    const { ProjectProvisioningAdminService } = await import('../src/services/projectProvisioning.server');
+    const provisioningService = new ProjectProvisioningAdminService();
+    const result = await provisioningService.updateProjectMaterial(projectId, materialId, materialData, user);
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
 app.post('/api/projects/:projectId/setup-carrier', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
     const { projectId } = req.params;

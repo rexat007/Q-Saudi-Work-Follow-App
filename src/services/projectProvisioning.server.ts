@@ -412,9 +412,10 @@ export class ProjectProvisioningAdminService {
       const g = globalMaterials.find((g: any) => g.materialId === m.materialId);
       return {
         materialId: m.materialId,
-        name: g?.nameAr || 'غير معروف',
-        code: g?.code || '—',
-        unitOfMeasure: g?.unitOfMeasure || 'TON',
+        name: g?.nameAr || g?.name || null,
+        code: g?.code || null,
+        unitOfMeasure: g?.unitOfMeasure || null,
+        standardDensityTonPerM3: g?.standardDensityTonPerM3 !== undefined ? g.standardDensityTonPerM3 : null,
         membershipStatus: m.status,
         status: m.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
         isActive: m.status === 'ACTIVE',
@@ -667,6 +668,156 @@ export class ProjectProvisioningAdminService {
           commercialRegistrationNo: updatedGlobal.commercialRegistrationNo,
           transportLicenseNo: updatedGlobal.transportLicenseNo || null,
           contactPerson: updatedGlobal.contactPerson || null,
+        },
+      };
+    });
+  }
+
+  /**
+   * Authoritative Canonical Material Profile Update (Foundation B2)
+   * PATCH /api/projects/:projectId/materials/:materialId
+   */
+  async updateProjectMaterial(
+    projectId: string,
+    materialId: string,
+    materialData: any,
+    context: { userId: string }
+  ): Promise<any> {
+    const cleanProjectId = (projectId || '').trim();
+    if (!cleanProjectId) {
+      throw new Error('INVALID_ARGUMENT: projectId is required');
+    }
+
+    const cleanMaterialId = (materialId || '').trim();
+    if (!cleanMaterialId) {
+      throw new Error('INVALID_ARGUMENT: materialId is required');
+    }
+
+    if (!materialData || typeof materialData !== 'object') {
+      throw new Error('INVALID_ARGUMENT: materialData is required');
+    }
+
+    if (materialData.materialId !== undefined && materialData.materialId.trim() !== cleanMaterialId) {
+      throw new Error('IMMUTABLE_MATERIAL_ID: materialId cannot be changed');
+    }
+
+    // 1. Validate Material Name
+    if (materialData.name !== undefined || materialData.nameAr !== undefined) {
+      const nameVal = (materialData.name || materialData.nameAr || '').trim();
+      if (!nameVal || nameVal.length < 2) {
+        throw new Error('INVALID_MATERIAL_NAME: Material name must be at least 2 characters');
+      }
+    }
+
+    // 2. Validate Unit of Measure
+    if (materialData.unitOfMeasure !== undefined) {
+      if (!['TON', 'M3', 'TRIP'].includes(materialData.unitOfMeasure)) {
+        throw new Error('INVALID_UNIT_OF_MEASURE: unitOfMeasure must be TON, M3, or TRIP');
+      }
+    }
+
+    // 3. Validate Standard Density
+    if (materialData.standardDensityTonPerM3 !== undefined && materialData.standardDensityTonPerM3 !== null) {
+      const num = Number(materialData.standardDensityTonPerM3);
+      if (isNaN(num) || !isFinite(num) || num <= 0) {
+        throw new Error('INVALID_MATERIAL_DENSITY: standardDensityTonPerM3 must be a positive finite number');
+      }
+    }
+
+    return await adminDb.runTransaction(async (tx: any) => {
+      // --- PHASE 1: ALL TRANSACTION READS ---
+      const projectRef = adminDb.collection('projects').doc(cleanProjectId);
+      const projectSnap = await tx.get(projectRef);
+      if (!projectSnap.exists) {
+        throw new Error('PROJECT_NOT_FOUND: Project does not exist');
+      }
+
+      const membershipRef = adminDb
+        .collection('projects')
+        .doc(cleanProjectId)
+        .collection('material_memberships')
+        .doc(cleanMaterialId);
+      const membershipSnap = await tx.get(membershipRef);
+      if (!membershipSnap.exists) {
+        throw new Error('MATERIAL_NOT_ACTIVE_IN_PROJECT: Material is not affiliated with this project');
+      }
+      const membershipData = membershipSnap.data();
+      if (membershipData.status !== 'ACTIVE') {
+        throw new Error('MATERIAL_NOT_ACTIVE_IN_PROJECT: Material membership is not ACTIVE');
+      }
+
+      // ARCHITECTURAL RULE: ProjectMaterialMembershipEntity represents ONLY project participation.
+      // Global profile duplication is ZERO.
+      // The membership document is strictly READ-ONLY during profile editing.
+      // ZERO writes are performed on membershipRef (not even updatedAt/updatedBy).
+
+      const materialRef = adminDb.collection('materials').doc(cleanMaterialId);
+      const materialSnap = await tx.get(materialRef);
+      if (!materialSnap.exists) {
+        throw new Error('MATERIAL_NOT_FOUND: Global material record not found');
+      }
+      const existingGlobal = materialSnap.data();
+
+      // Check Code immutability
+      if (materialData.code !== undefined) {
+        const inCode = normalizeCode(materialData.code);
+        const exCode = normalizeCode(existingGlobal.code);
+        if (inCode && inCode !== exCode) {
+          throw new Error('IMMUTABLE_MATERIAL_CODE: Material code is immutable');
+        }
+      }
+
+      // --- PHASE 2: ALL TRANSACTION WRITES ---
+      await markDirtyInTransaction(
+        tx,
+        cleanProjectId,
+        ['MATERIALS'],
+        'PROJECT_MATERIAL_UPDATED'
+      );
+
+      const updatedGlobal: Record<string, any> = {
+        ...existingGlobal,
+        materialId: cleanMaterialId,
+        code: existingGlobal.code,
+        updatedAt: new Date(),
+        updatedBy: context.userId,
+      };
+
+      if (existingGlobal.createdAt) updatedGlobal.createdAt = existingGlobal.createdAt;
+      if (existingGlobal.createdBy) updatedGlobal.createdBy = existingGlobal.createdBy;
+
+      // Update Name
+      if (materialData.name !== undefined || materialData.nameAr !== undefined) {
+        const newName = (materialData.name || materialData.nameAr).trim();
+        updatedGlobal.nameAr = normalizeArabicText(newName);
+        updatedGlobal.name = newName;
+      }
+
+      // Update Unit of Measure
+      if (materialData.unitOfMeasure !== undefined) {
+        updatedGlobal.unitOfMeasure = materialData.unitOfMeasure;
+      }
+
+      // Update Standard Density
+      if (materialData.standardDensityTonPerM3 !== undefined) {
+        if (materialData.standardDensityTonPerM3 === null) {
+          delete updatedGlobal.standardDensityTonPerM3;
+        } else {
+          updatedGlobal.standardDensityTonPerM3 = Number(materialData.standardDensityTonPerM3);
+        }
+      }
+
+      tx.set(materialRef, updatedGlobal);
+
+      return {
+        projectId: cleanProjectId,
+        materialId: cleanMaterialId,
+        material: {
+          materialId: cleanMaterialId,
+          name: updatedGlobal.nameAr || updatedGlobal.name,
+          code: updatedGlobal.code,
+          unitOfMeasure: updatedGlobal.unitOfMeasure,
+          standardDensityTonPerM3: updatedGlobal.standardDensityTonPerM3 !== undefined ? updatedGlobal.standardDensityTonPerM3 : null,
         },
       };
     });

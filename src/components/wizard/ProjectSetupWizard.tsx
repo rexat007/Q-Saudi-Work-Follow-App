@@ -248,6 +248,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // Editing Forms and Modals
   const [isAddingMaterial, setIsAddingMaterial] = useState(false);
+  const [editingMaterial, setEditingMaterial] = useState<MaterialEntity | null>(null);
 
   const [isCarrierEditorOpen, setIsCarrierEditorOpen] = useState(false);
   const [editingCarrier, setEditingCarrier] = useState<CarrierEntity | null>(null);
@@ -1737,6 +1738,40 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     }}
                   />
 
+                  {editingMaterial && (
+                    <MaterialEditorModal
+                      open={!!editingMaterial}
+                      mode="EDIT"
+                      projectId={project.projectId}
+                      initialMaterial={{
+                        materialId: editingMaterial.materialId,
+                        name: editingMaterial.nameAr || (editingMaterial as any).name || '',
+                        code: editingMaterial.code || '',
+                        unitOfMeasure: editingMaterial.unitOfMeasure,
+                        standardDensityTonPerM3: editingMaterial.standardDensityTonPerM3,
+                      }}
+                      onClose={() => setEditingMaterial(null)}
+                      onUpdated={async (result) => {
+                        const snapshot = await projectCanonicalRefreshService.refresh(
+                          project.projectId,
+                          {
+                            expect: {
+                              materialProfile: {
+                                materialId: result.materialId,
+                                name: result.material.name,
+                                code: result.material.code,
+                                unitOfMeasure: result.material.unitOfMeasure,
+                                standardDensityTonPerM3: result.material.standardDensityTonPerM3,
+                              },
+                            },
+                          }
+                        );
+                        applyCanonicalSnapshot(snapshot);
+                        setEditingMaterial(null);
+                      }}
+                    />
+                  )}
+
                   {materials.length === 0 ? (
                     <p className="text-center text-stone-500 py-6">لم يتم تسجيل أي مواد لهذا المشروع بعد.</p>
                   ) : (
@@ -1749,16 +1784,30 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             <th className="pb-2">رمز الكود</th>
                             <th className="pb-2">الوحدة</th>
                             <th className="pb-2">الكثافة الافتراضية</th>
+                            <th className="pb-2 text-center">الإجراءات</th>
                           </tr>
                         </thead>
                         <tbody>
                           {materials.map((m) => (
                             <tr key={m.materialId} className="border-b border-stone-850 text-stone-300 font-semibold">
                               <td className="py-2.5 font-mono">{m.materialId}</td>
-                              <td className="py-2.5">{m.nameAr}</td>
+                              <td className="py-2.5">{m.nameAr || (m as any).name}</td>
                               <td className="py-2.5 font-mono">{m.code}</td>
                               <td className="py-2.5">{m.unitOfMeasure}</td>
                               <td className="py-2.5 font-mono">{m.standardDensityTonPerM3 || 1.6} طن/م³</td>
+                              <td className="py-2.5 text-center">
+                                {isOperationallyMutable && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingMaterial(m)}
+                                    className="p-1 px-2 text-stone-400 hover:text-amber-500 hover:bg-stone-800 rounded transition-colors inline-flex items-center gap-1 text-[11px]"
+                                    title="تعديل بيانات المادة"
+                                  >
+                                    <Edit3 className="w-3.5 h-3.5" />
+                                    <span>تعديل</span>
+                                  </button>
+                                )}
+                              </td>
                             </tr>
                           ))}
                         </tbody>

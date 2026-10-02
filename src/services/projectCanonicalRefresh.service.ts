@@ -12,10 +12,19 @@ export interface ProjectCanonicalRefreshCarrierProfileExpectation {
   contactEmail?: string | null;
 }
 
+export interface ProjectCanonicalRefreshMaterialProfileExpectation {
+  materialId: string;
+  name?: string;
+  code?: string;
+  unitOfMeasure?: string;
+  standardDensityTonPerM3?: number | null;
+}
+
 export interface ProjectCanonicalRefreshExpectation {
   carrierId?: string;
   materialId?: string;
   carrierProfile?: ProjectCanonicalRefreshCarrierProfileExpectation;
+  materialProfile?: ProjectCanonicalRefreshMaterialProfileExpectation;
 }
 
 export interface ProjectCanonicalRefreshSnapshot {
@@ -202,6 +211,74 @@ export class ProjectCanonicalRefreshService {
             if (expEmail !== actualEmail) {
               throw new Error(
                 `CANONICAL_REFRESH_NOT_CONVERGED: Carrier contactEmail mismatch (expected "${expEmail}", got "${actualEmail}")`
+              );
+            }
+          }
+        }
+
+        // B2: Detailed Material Profile Convergence Check
+        if (expect?.materialProfile) {
+          const profileExpect = expect.materialProfile;
+          const targetMaterialId = profileExpect.materialId;
+
+          const materialItem = materials.find((m: any) => m.materialId === targetMaterialId);
+          const inAuthMaterials = (relationshipContext.authorizedMaterialIds || []).includes(targetMaterialId);
+          const knownMaterialItem = (relationshipContext.knownMaterials || []).find(
+            (m: any) => m.materialId === targetMaterialId
+          );
+
+          if (!materialItem || !inAuthMaterials || !knownMaterialItem) {
+            throw new Error(
+              `CANONICAL_REFRESH_NOT_CONVERGED: Material "${targetMaterialId}" not visible across canonical surfaces (list=${!!materialItem}, auth=${inAuthMaterials}, known=${!!knownMaterialItem})`
+            );
+          }
+
+          // Verify updated name across materials list and relationshipContext.knownMaterials
+          if (profileExpect.name !== undefined) {
+            const expName = profileExpect.name.trim();
+            if (materialItem.name !== expName && materialItem.nameAr !== expName) {
+              throw new Error(
+                `CANONICAL_REFRESH_NOT_CONVERGED: Material name mismatch in materials list (expected "${expName}", got "${materialItem.name}")`
+              );
+            }
+            if (knownMaterialItem.name !== expName && (knownMaterialItem as any).nameAr !== expName) {
+              throw new Error(
+                `CANONICAL_REFRESH_NOT_CONVERGED: Material name mismatch in knownMaterials (expected "${expName}", got "${knownMaterialItem.name}")`
+              );
+            }
+          }
+
+          // Verify immutable code
+          if (profileExpect.code !== undefined) {
+            const expCode = profileExpect.code.trim().toUpperCase();
+            const actualCode = (materialItem.code || '').trim().toUpperCase();
+            if (expCode !== actualCode) {
+              throw new Error(
+                `CANONICAL_REFRESH_NOT_CONVERGED: Material code mismatch (expected "${expCode}", got "${actualCode}")`
+              );
+            }
+          }
+
+          // Verify unitOfMeasure
+          if (profileExpect.unitOfMeasure !== undefined) {
+            const expUnit = profileExpect.unitOfMeasure.trim().toUpperCase();
+            const actualUnit = (materialItem.unitOfMeasure || '').trim().toUpperCase();
+            if (expUnit !== actualUnit) {
+              throw new Error(
+                `CANONICAL_REFRESH_NOT_CONVERGED: Material unitOfMeasure mismatch (expected "${expUnit}", got "${actualUnit}")`
+              );
+            }
+          }
+
+          // Verify standardDensityTonPerM3
+          if (profileExpect.standardDensityTonPerM3 !== undefined) {
+            const expDensity = profileExpect.standardDensityTonPerM3 !== null ? Number(profileExpect.standardDensityTonPerM3) : null;
+            const actualDensity = materialItem.standardDensityTonPerM3 !== undefined && materialItem.standardDensityTonPerM3 !== null
+              ? Number(materialItem.standardDensityTonPerM3)
+              : null;
+            if (expDensity !== actualDensity) {
+              throw new Error(
+                `CANONICAL_REFRESH_NOT_CONVERGED: Material standardDensityTonPerM3 mismatch (expected "${expDensity}", got "${actualDensity}")`
               );
             }
           }
