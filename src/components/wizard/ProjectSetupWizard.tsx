@@ -51,6 +51,7 @@ import { ExcelCsvColumnMapper } from '../../services/import/columnMapper.service
 import { ImportSource } from '../../types/unifiedImport';
 import * as XLSX from 'xlsx';
 import { auth } from '../../firebase/config';
+import { CarrierEditorModal } from '../masterData/CarrierEditorModal';
 import { 
   isProjectOperationallyMutable, 
   canPerformOperationalMutation, 
@@ -250,13 +251,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [matUnit, setMatUnit] = useState<'TON' | 'M3' | 'TRIP'>('TON');
   const [matDensity, setMatDensity] = useState(1.6);
 
-  const [isAddingCarrier, setIsAddingCarrier] = useState(false);
-  const [carName, setCarName] = useState('');
-  const [carCr, setCarCr] = useState('');
-  const [carLicense, setCarLicense] = useState('');
-  const [carContactName, setCarContactName] = useState('');
-  const [carContactPhone, setCarContactPhone] = useState('');
-  const [carContactEmail, setCarContactEmail] = useState('');
+  const [isCarrierEditorOpen, setIsCarrierEditorOpen] = useState(false);
 
   const [isAddingPricing, setIsAddingPricing] = useState(false);
   const [priceCarrierId, setPriceCarrierId] = useState('ALL');
@@ -578,47 +573,6 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  // Phase 2: Add Carrier Item
-  const handleAddCarrier = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!project || !canPerformOperationalMutation('ENROLL_CARRIER', project.status)) return;
-
-    try {
-      const payload = {
-        carrierId: carCr.trim(),
-        name: carName.trim(),
-        commercialRegistrationNo: carCr.trim(),
-        transportLicenseNo: carLicense.trim(),
-        contactPersonName: carContactName.trim(),
-        contactPhone: carContactPhone.trim(),
-        contactEmail: carContactEmail.trim(),
-      };
-
-      const token = await auth.currentUser?.getIdToken();
-      const response = await fetch(`/api/projects/${project.projectId}/setup-carrier`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ carrierData: payload })
-      });
-      if (!response.ok) throw new Error('فشل إضافة الناقل عبر الخادم');
-
-      // Automatically update authorized carriers on project doc - REMOVED AS PART OF P6 CONVERGENCE
-      // const updatedCarriersList = [...(project.authorizedCarrierIds || []), carrierId];
-      // await projectService.updateProject(project.projectId, {
-      //   authorizedCarrierIds: updatedCarriersList
-      // }, authContext);
-
-      setIsAddingCarrier(false);
-      setCarName('');
-      setCarCr('');
-      setCarLicense('');
-      setCarContactName('');
-      setCarContactPhone('');
-      setCarContactEmail('');
-    } catch (err: any) {
-      alert(err.message || 'خطأ في إضافة الناقل');
-    }
-  };
 
   // Phase 2: Add Fleet Row Manually (Uses canonical intake API)
   const handleAddRosterManual = async (e: React.FormEvent) => {
@@ -1890,7 +1844,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <h3 className="font-black text-white text-[13px]">الناقلون المعتمدون بالمشروع</h3>
                     {isOperationallyMutable && (
                       <button
-                        onClick={() => setIsAddingCarrier(true)}
+                        onClick={() => setIsCarrierEditorOpen(true)}
                         className="text-amber-500 font-bold hover:underline flex items-center gap-1"
                       >
                         <Plus className="w-3.5 h-3.5" />
@@ -1899,56 +1853,22 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     )}
                   </div>
 
-                  {isAddingCarrier && (
-                    <form onSubmit={handleAddCarrier} className="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-3">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">اسم الناقل / الشركة</label>
-                          <input type="text" required value={carName} onChange={(e) => setCarName(e.target.value)}
-                            className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">السجل التجاري (CR)</label>
-                          <input type="text" required value={carCr} onChange={(e) => setCarCr(e.target.value)}
-                            className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">رقم تصريح هيئة النقل</label>
-                          <input type="text" required value={carLicense} onChange={(e) => setCarLicense(e.target.value)}
-                            className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">المسؤول التشغيلي</label>
-                          <input type="text" value={carContactName} onChange={(e) => setCarContactName(e.target.value)}
-                            className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">الهاتف</label>
-                          <input type="text" value={carContactPhone} onChange={(e) => setCarContactPhone(e.target.value)}
-                            className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">البريد الإلكتروني</label>
-                          <input type="email" value={carContactEmail} onChange={(e) => setCarContactEmail(e.target.value)}
-                            className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" onClick={() => setIsAddingCarrier(false)} className="px-3 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg">إلغاء</button>
-                        <button type="submit" className="px-4 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">حفظ الناقل</button>
-                      </div>
-                    </form>
-                  )}
+                  <CarrierEditorModal
+                    open={isCarrierEditorOpen}
+                    projectId={project.projectId}
+                    onClose={() => setIsCarrierEditorOpen(false)}
+                    onCreated={async () => {
+                      setIsCarrierEditorOpen(false);
+                      try {
+                        const token = await auth.currentUser?.getIdToken();
+                        const headers = { 'Authorization': `Bearer ${token}` };
+                        const res = await fetch(`/api/projects/${project.projectId}/carriers`, { headers }).then(r => r.json());
+                        setCarriers(res.data || []);
+                      } catch (err) {
+                        console.error('Failed to reload carriers', err);
+                      }
+                    }}
+                  />
 
                   {carriers.length === 0 ? (
                     <p className="text-center text-stone-500 py-6">لم يتم تسجيل أي ناقلين معتمدين للمشروع بعد.</p>
