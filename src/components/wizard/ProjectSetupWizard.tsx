@@ -55,6 +55,8 @@ import { CarrierEditorModal } from '../masterData/CarrierEditorModal';
 import { MaterialEditorModal } from '../masterData/MaterialEditorModal';
 import { RosterCarrierResolutionLayer } from '../import/RosterCarrierResolutionLayer';
 import { RosterMaterialResolutionLayer } from '../import/RosterMaterialResolutionLayer';
+import { RosterDriverTruckResolutionLayer, extractGroupCarrierContext } from '../import/RosterDriverTruckResolutionLayer';
+import { RelationshipContext } from '../../types/dataQuality';
 import { CarrierCreationResult } from '../../services/carrierManagementClient.service';
 import { MaterialCreationResult } from '../../services/materialManagementClient.service';
 import { 
@@ -256,6 +258,19 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
   const [pricingRules, setPricingRules] = useState<PricingRuleEntity[]>([]);
   const [fleetRows, setFleetRows] = useState<any[]>([]);
+  const [projectRelationshipContext, setProjectRelationshipContext] = useState<RelationshipContext | null>(null);
+  const [cachedSuccessfulDriverResult, setCachedSuccessfulDriverResult] = useState<{
+    groupKey: string;
+    carrierId: string;
+    result: { matchedId: string; matchedName: string; sourceValue: string };
+  } | null>(null);
+  const [cachedSuccessfulTruckResult, setCachedSuccessfulTruckResult] = useState<{
+    groupKey: string;
+    carrierId: string;
+    result: { matchedId: string; matchedName: string; sourceValue: string };
+  } | null>(null);
+  const [driverConvergenceError, setDriverConvergenceError] = useState<string | null>(null);
+  const [truckConvergenceError, setTruckConvergenceError] = useState<string | null>(null);
 
   // Editing Forms and Modals
   const [isAddingMaterial, setIsAddingMaterial] = useState(false);
@@ -390,6 +405,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setMaterials(snapshot.materials || []);
     setCarriers(snapshot.carriers || []);
     setFleetRows(snapshot.fleetRows || []);
+    if (snapshot.relationshipContext) {
+      setProjectRelationshipContext(snapshot.relationshipContext);
+    }
   }, []);
 
   // Real-time Subscriptions to Active Project sub-collections
@@ -867,6 +885,383 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       return;
     }
     setRosterImportStage('MATERIAL_RESOLUTION');
+  };
+
+  // C4 Smart Import: Progression Gate from MATERIAL_RESOLUTION to DRIVER_TRUCK_RESOLUTION
+  const handleSmartImportContinueToDriverTruck = () => {
+    if (!importBatch) return;
+    const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
+    const materialGroups = reviewGroups.material || [];
+    if (materialGroups.length === 0) {
+      alert('لم يتم اكتشاف أي مجموعات مواد في الملف. المادة مطلوبة لكل سجل تشغيل.');
+      return;
+    }
+    const hasUnresolvedMaterials = materialGroups.some(
+      (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+    );
+    if (hasUnresolvedMaterials) {
+      alert('يرجى حسم جميع مجموعات المواد قبل الانتقال إلى مراجعة السائقين والشاحنات');
+      return;
+    }
+    setRosterImportStage('DRIVER_TRUCK_RESOLUTION');
+  };
+
+  // C4 Smart Import: Accept Driver Candidate
+  const handleSmartImportDriverAcceptCandidate = async (
+    group: RosterEntityReviewGroup,
+    candidateEntityId: string
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-DRIVER-RES-${Date.now()}`
+      });
+
+      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+        importBatch,
+        'driver',
+        group.normalizedSourceKey,
+        'ACCEPT_CANDIDATE',
+        { selectedEntityId: candidateEntityId },
+        pipelineCtx,
+        authContext.userId
+      );
+
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل تطبيق قرار مطابقة السائق');
+    }
+  };
+
+  // C4 Smart Import: Select Alternate Driver
+  const handleSmartImportDriverSelectAlternate = async (
+    group: RosterEntityReviewGroup,
+    driverId: string
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-DRIVER-ALT-${Date.now()}`
+      });
+
+      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+        importBatch,
+        'driver',
+        group.normalizedSourceKey,
+        'SELECT_ALTERNATE',
+        { selectedEntityId: driverId },
+        pipelineCtx,
+        authContext.userId
+      );
+
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل تعيين السائق البديل');
+    }
+  };
+
+  // C4 Smart Import: Create New Driver with Mutation-Success Cache and Explicit Visibility Proof
+  const handleSmartImportDriverCreate = async (
+    group: RosterEntityReviewGroup,
+    data: { driverName: string; residencyId: string; phone?: string }
+  ) => {
+    if (!project || !importBatch) return;
+    const carrierId = extractGroupCarrierContext(group);
+    if (!carrierId) {
+      throw new Error('تعذر استخراج معرف الناقل التابع له السائق');
+    }
+
+    let result: { matchedId: string; matchedName: string; sourceValue: string };
+
+    if (cachedSuccessfulDriverResult?.groupKey === group.normalizedSourceKey) {
+      result = cachedSuccessfulDriverResult.result;
+    } else {
+      setDriverConvergenceError(null);
+      const apiRes = await entityResolutionCommandService.createDriver({
+        projectId: project.projectId,
+        sourceValue: group.sourceValue,
+        driverData: {
+          carrierId,
+          driverName: data.driverName,
+          residencyId: data.residencyId,
+          phone: data.phone,
+        },
+      });
+      result = {
+        matchedId: apiRes.matchedId,
+        matchedName: apiRes.matchedName || group.sourceValue,
+        sourceValue: group.sourceValue,
+      };
+      setCachedSuccessfulDriverResult({
+        groupKey: group.normalizedSourceKey,
+        carrierId,
+        result,
+      });
+    }
+
+    // Canonical Refresh & Explicit Visibility Proof
+    const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+
+    const foundDriver = snapshot.relationshipContext?.knownDrivers?.find(
+      (d) => d.driverId === result.matchedId && d.carrierId === carrierId
+    );
+
+    if (!foundDriver) {
+      setDriverConvergenceError('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السائق بنجاح، لكن تعذر تحديث البيانات الموثوقة. أعد محاولة التحديث دون إنشاء سجل جديد.');
+      throw new Error('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN');
+    }
+
+    setDriverConvergenceError(null);
+    applyCanonicalSnapshot(snapshot);
+
+    const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+      relContext: snapshot.relationshipContext,
+      projectId: project.projectId,
+      userId: authContext.userId,
+      role: authContext.role,
+      operationId: `OP-DRIVER-CREATE-${Date.now()}`
+    });
+
+    const resolutionPayload = {
+      matchedId: result.matchedId,
+      matchedName: result.matchedName,
+      sourceValue: result.sourceValue,
+    };
+
+    const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      importBatch,
+      'driver',
+      group.normalizedSourceKey,
+      resolutionPayload,
+      pipelineCtx
+    );
+
+    setImportBatch({ ...updated });
+    setCachedSuccessfulDriverResult(null);
+  };
+
+  // C4 Smart Import: Accept Truck Candidate
+  const handleSmartImportTruckAcceptCandidate = async (
+    group: RosterEntityReviewGroup,
+    candidateEntityId: string
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-TRUCK-RES-${Date.now()}`
+      });
+
+      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+        importBatch,
+        'truck',
+        group.normalizedSourceKey,
+        'ACCEPT_CANDIDATE',
+        { selectedEntityId: candidateEntityId },
+        pipelineCtx,
+        authContext.userId
+      );
+
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل تطبيق قرار مطابقة الشاحنة');
+    }
+  };
+
+  // C4 Smart Import: Select Alternate Truck
+  const handleSmartImportTruckSelectAlternate = async (
+    group: RosterEntityReviewGroup,
+    truckId: string
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-TRUCK-ALT-${Date.now()}`
+      });
+
+      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+        importBatch,
+        'truck',
+        group.normalizedSourceKey,
+        'SELECT_ALTERNATE',
+        { selectedEntityId: truckId },
+        pipelineCtx,
+        authContext.userId
+      );
+
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل تعيين الشاحنة البديلة');
+    }
+  };
+
+  // C4 Smart Import: Create New Truck with Mutation-Success Cache and Explicit Visibility Proof
+  const handleSmartImportTruckCreate = async (
+    group: RosterEntityReviewGroup,
+    data: { plateNumber: string; truckType?: string; tareWeightKg?: number; maxGrossWeightKg?: number }
+  ) => {
+    if (!project || !importBatch) return;
+    const carrierId = extractGroupCarrierContext(group);
+    if (!carrierId) {
+      throw new Error('تعذر استخراج معرف الناقل التابع له الشاحنة');
+    }
+
+    let result: { matchedId: string; matchedName: string; sourceValue: string };
+
+    if (cachedSuccessfulTruckResult?.groupKey === group.normalizedSourceKey) {
+      result = cachedSuccessfulTruckResult.result;
+    } else {
+      setTruckConvergenceError(null);
+      const apiRes = await entityResolutionCommandService.createTruck({
+        projectId: project.projectId,
+        sourceValue: group.sourceValue,
+        truckData: {
+          carrierId,
+          plateNumber: data.plateNumber,
+          truckType: data.truckType,
+          tareWeightKg: data.tareWeightKg,
+          maxGrossWeightKg: data.maxGrossWeightKg,
+        },
+      });
+      result = {
+        matchedId: apiRes.matchedId,
+        matchedName: apiRes.matchedName || group.sourceValue,
+        sourceValue: group.sourceValue,
+      };
+      setCachedSuccessfulTruckResult({
+        groupKey: group.normalizedSourceKey,
+        carrierId,
+        result,
+      });
+    }
+
+    const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+
+    const foundTruck = snapshot.relationshipContext?.knownTrucks?.some(
+      (t) => t.truckId === result.matchedId && t.carrierId === carrierId
+    );
+
+    if (!foundTruck) {
+      setTruckConvergenceError('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة. أعد محاولة التحديث دون إنشاء سجل جديد.');
+      throw new Error('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN');
+    }
+
+    setTruckConvergenceError(null);
+    applyCanonicalSnapshot(snapshot);
+
+    const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+      relContext: snapshot.relationshipContext,
+      projectId: project.projectId,
+      userId: authContext.userId,
+      role: authContext.role,
+      operationId: `OP-TRUCK-CREATE-${Date.now()}`
+    });
+
+    const resolutionPayload = {
+      matchedId: result.matchedId,
+      matchedName: result.matchedName,
+      sourceValue: result.sourceValue,
+    };
+
+    const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      importBatch,
+      'truck',
+      group.normalizedSourceKey,
+      resolutionPayload,
+      pipelineCtx
+    );
+
+    setImportBatch({ ...updated });
+    setCachedSuccessfulTruckResult(null);
+  };
+
+  const handleRetryDriverConvergence = async () => {
+    if (!project || !importBatch || !cachedSuccessfulDriverResult) return;
+    try {
+      setDriverConvergenceError(null);
+      const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+      const foundDriver = snapshot.relationshipContext?.knownDrivers?.some(
+        (d) => d.driverId === cachedSuccessfulDriverResult.result.matchedId && d.carrierId === cachedSuccessfulDriverResult.carrierId
+      );
+      if (!foundDriver) {
+        setDriverConvergenceError('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة.');
+        throw new Error('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN');
+      }
+      setDriverConvergenceError(null);
+      applyCanonicalSnapshot(snapshot);
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext: snapshot.relationshipContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-DRIVER-RETRY-${Date.now()}`
+      });
+      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+        importBatch,
+        'driver',
+        cachedSuccessfulDriverResult.groupKey,
+        cachedSuccessfulDriverResult.result,
+        pipelineCtx
+      );
+      setImportBatch({ ...updated });
+      setCachedSuccessfulDriverResult(null);
+    } catch (err: any) {
+      setDriverConvergenceError(err.message || 'فشلت إعادة محاولة تحديث البيانات');
+    }
+  };
+
+  const handleRetryTruckConvergence = async () => {
+    if (!project || !importBatch || !cachedSuccessfulTruckResult) return;
+    try {
+      setTruckConvergenceError(null);
+      const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+      const foundTruck = snapshot.relationshipContext?.knownTrucks?.some(
+        (t) => t.truckId === cachedSuccessfulTruckResult.result.matchedId && t.carrierId === cachedSuccessfulTruckResult.carrierId
+      );
+      if (!foundTruck) {
+        setTruckConvergenceError('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة.');
+        throw new Error('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN');
+      }
+      setTruckConvergenceError(null);
+      applyCanonicalSnapshot(snapshot);
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext: snapshot.relationshipContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-TRUCK-RETRY-${Date.now()}`
+      });
+      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+        importBatch,
+        'truck',
+        cachedSuccessfulTruckResult.groupKey,
+        cachedSuccessfulTruckResult.result,
+        pipelineCtx
+      );
+      setImportBatch({ ...updated });
+      setCachedSuccessfulTruckResult(null);
+    } catch (err: any) {
+      setTruckConvergenceError(err.message || 'فشلت إعادة محاولة تحديث البيانات');
+    }
   };
 
   // C2 Smart Import: Accept Carrier Candidate
@@ -2611,6 +3006,27 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         setSmartImportPendingMaterialGroup(group);
                         setIsSmartImportMaterialModalOpen(true);
                       }}
+                      onContinueToDriverTruck={handleSmartImportContinueToDriverTruck}
+                    />
+                  )}
+
+                  {/*
+                    C4: True Driver & Truck Resolution Layer
+                    Only Driver & Truck review groups are resolved here.
+                  */}
+                  {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && (
+                    <RosterDriverTruckResolutionLayer
+                      importBatch={importBatch}
+                      projectDrivers={projectRelationshipContext?.knownDrivers || []}
+                      projectTrucks={projectRelationshipContext?.knownTrucks || []}
+                      onAcceptCandidate={handleSmartImportDriverAcceptCandidate}
+                      onSelectAlternate={handleSmartImportDriverSelectAlternate}
+                      onCreateDriver={handleSmartImportDriverCreate}
+                      onCreateTruck={handleSmartImportTruckCreate}
+                      driverConvergenceError={driverConvergenceError}
+                      truckConvergenceError={truckConvergenceError}
+                      onRetryDriverConvergence={handleRetryDriverConvergence}
+                      onRetryTruckConvergence={handleRetryTruckConvergence}
                     />
                   )}
 

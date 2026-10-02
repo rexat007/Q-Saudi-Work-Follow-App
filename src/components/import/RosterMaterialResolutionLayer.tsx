@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Layers, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck } from 'lucide-react';
+import { Layers, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { UnifiedImportBatch } from '../../types/unifiedImport';
 import { RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
 
@@ -17,6 +17,7 @@ export interface RosterMaterialResolutionLayerProps {
   onAcceptCandidate: (group: RosterEntityReviewGroup, candidateEntityId: string) => Promise<void> | void;
   onSelectAlternate?: (group: RosterEntityReviewGroup, materialId: string) => Promise<void> | void;
   onCreateMaterial: (group: RosterEntityReviewGroup) => void;
+  onContinueToDriverTruck?: () => void;
   onClose?: () => void;
   isProcessing?: boolean;
 }
@@ -27,6 +28,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
   onAcceptCandidate,
   onSelectAlternate,
   onCreateMaterial,
+  onContinueToDriverTruck,
   onClose,
   isProcessing = false,
 }) => {
@@ -101,12 +103,25 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
 
           {/* Completion Notice Banner */}
           {isMaterialLayerComplete && (
-            <div className="bg-emerald-950/40 border border-emerald-800/60 p-3.5 rounded-xl flex items-center gap-3 text-emerald-200">
-              <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
-              <div className="text-xs">
-                <span className="font-bold block">تم حسم جميع المواد بنجاح ({materialGroups.length} مجموعات مواد معتمدة)</span>
-                <span className="text-[11px] text-emerald-300/80">طبقة السائقين والشاحنات ستُفتح في المرحلة التالية (C4)</span>
+            <div className="bg-emerald-950/40 border border-emerald-800/60 p-3.5 rounded-xl flex items-center justify-between gap-3 text-emerald-200">
+              <div className="flex items-center gap-3">
+                <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+                <div className="text-xs">
+                  <span className="font-bold block">تم حسم جميع المواد بنجاح ({materialGroups.length} مجموعات مواد معتمدة)</span>
+                  <span className="text-[11px] text-emerald-300/80">طبقة السائقين والشاحنات ستُفتح في المرحلة التالية (C4)</span>
+                </div>
               </div>
+              {onContinueToDriverTruck && (
+                <button
+                  type="button"
+                  onClick={onContinueToDriverTruck}
+                  disabled={isProcessing}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-emerald-950/50 transition-colors shrink-0"
+                >
+                  <span>متابعة إلى مراجعة السائقين والشاحنات</span>
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+              )}
             </div>
           )}
 
@@ -270,15 +285,28 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
               </span>
             )}
           </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              disabled={isProcessing}
-              className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
-            >
-              إغلاق
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {isMaterialLayerComplete && onContinueToDriverTruck && (
+              <button
+                type="button"
+                onClick={onContinueToDriverTruck}
+                disabled={isProcessing}
+                className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors"
+              >
+                <span>متابعة إلى مراجعة السائقين والشاحنات</span>
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                disabled={isProcessing}
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
+              >
+                إغلاق
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
