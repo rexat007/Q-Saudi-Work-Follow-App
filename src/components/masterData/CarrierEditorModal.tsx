@@ -40,6 +40,10 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // A1.1: State for mutation-succeeded / refresh-failed distinction & non-duplicating retry
+  const [createdCarrierResult, setCreatedCarrierResult] = useState<CarrierCreationResult | null>(null);
+  const [refreshFailed, setRefreshFailed] = useState(false);
+
   // Synchronize form when opened or initialName changes
   useEffect(() => {
     if (open) {
@@ -52,6 +56,8 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       setFieldErrors({});
       setSubmitError(null);
       setIsSubmitting(false);
+      setCreatedCarrierResult(null);
+      setRefreshFailed(false);
     }
   }, [open, initialName]);
 
@@ -96,35 +102,73 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
     e.preventDefault();
     setSubmitError(null);
 
+    if (refreshFailed && createdCarrierResult) {
+      await handleRetryRefresh();
+      return;
+    }
+
     if (!validate()) {
       return;
     }
 
     setIsSubmitting(true);
+    let result = createdCarrierResult;
+
+    if (!result) {
+      try {
+        const payload: CarrierCreateInput = {
+          name: name.trim(),
+          commercialRegistrationNo: commercialRegistrationNo.trim(),
+        };
+
+        if (transportLicenseNo.trim()) {
+          payload.transportLicenseNo = transportLicenseNo.trim();
+        }
+        if (contactPersonName.trim()) {
+          payload.contactPersonName = contactPersonName.trim();
+        }
+        if (contactPhone.trim()) {
+          payload.contactPhone = contactPhone.trim();
+        }
+        if (contactEmail.trim()) {
+          payload.contactEmail = contactEmail.trim();
+        }
+
+        result = await clientService.createProjectCarrier(projectId, payload);
+        setCreatedCarrierResult(result);
+      } catch (err: any) {
+        setSubmitError(err.message || 'حدث خطأ أثناء حفظ الناقل');
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    // Authoritative post-mutation canonical refresh barrier
     try {
-      const payload: CarrierCreateInput = {
-        name: name.trim(),
-        commercialRegistrationNo: commercialRegistrationNo.trim(),
-      };
-
-      if (transportLicenseNo.trim()) {
-        payload.transportLicenseNo = transportLicenseNo.trim();
-      }
-      if (contactPersonName.trim()) {
-        payload.contactPersonName = contactPersonName.trim();
-      }
-      if (contactPhone.trim()) {
-        payload.contactPhone = contactPhone.trim();
-      }
-      if (contactEmail.trim()) {
-        payload.contactEmail = contactEmail.trim();
-      }
-
-      const result = await clientService.createProjectCarrier(projectId, payload);
       await onCreated(result);
       onClose();
-    } catch (err: any) {
-      setSubmitError(err.message || 'حدث خطأ أثناء حفظ الناقل');
+    } catch (refreshErr: any) {
+      setRefreshFailed(true);
+      setSubmitError(
+        'تم حفظ الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRetryRefresh = async () => {
+    if (!createdCarrierResult) return;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      await onCreated(createdCarrierResult);
+      onClose();
+    } catch (refreshErr: any) {
+      setRefreshFailed(true);
+      setSubmitError(
+        'تم حفظ الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -178,10 +222,10 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="مثال: شركة اليمامة للمقاولات والنقل"
-                disabled={isSubmitting}
+                disabled={isSubmitting || refreshFailed}
                 className={`w-full bg-stone-950 border ${
                   fieldErrors.name ? 'border-rose-500 focus:border-rose-500' : 'border-stone-800 focus:border-amber-500'
-                } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs`}
+                } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60`}
               />
               {fieldErrors.name && (
                 <p className="text-[11px] text-rose-400 font-semibold">{fieldErrors.name}</p>
@@ -198,12 +242,12 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                 value={commercialRegistrationNo}
                 onChange={(e) => setCommercialRegistrationNo(e.target.value)}
                 placeholder="10 أرقام (مثال: 1010123456)"
-                disabled={isSubmitting}
+                disabled={isSubmitting || refreshFailed}
                 className={`w-full bg-stone-950 border font-mono ${
                   fieldErrors.commercialRegistrationNo
                     ? 'border-rose-500 focus:border-rose-500'
                     : 'border-stone-800 focus:border-amber-500'
-                } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs`}
+                } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60`}
               />
               {fieldErrors.commercialRegistrationNo && (
                 <p className="text-[11px] text-rose-400 font-semibold">{fieldErrors.commercialRegistrationNo}</p>
@@ -223,8 +267,8 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                   value={transportLicenseNo}
                   onChange={(e) => setTransportLicenseNo(e.target.value)}
                   placeholder="رقم الترخيص"
-                  disabled={isSubmitting}
-                  className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors font-mono text-xs"
+                  disabled={isSubmitting || refreshFailed}
+                  className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors font-mono text-xs disabled:opacity-60"
                 />
               </div>
 
@@ -235,8 +279,8 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                   value={contactPersonName}
                   onChange={(e) => setContactPersonName(e.target.value)}
                   placeholder="اسم الشخص المسؤول"
-                  disabled={isSubmitting}
-                  className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs"
+                  disabled={isSubmitting || refreshFailed}
+                  className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60"
                 />
               </div>
 
@@ -247,12 +291,12 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
                   placeholder="05xxxxxxxx أو +966..."
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || refreshFailed}
                   className={`w-full bg-stone-950 border font-mono ${
                     fieldErrors.contactPhone
                       ? 'border-rose-500 focus:border-rose-500'
                       : 'border-stone-800 focus:border-amber-500'
-                  } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs`}
+                  } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60`}
                 />
                 {fieldErrors.contactPhone && (
                   <p className="text-[11px] text-rose-400 font-semibold">{fieldErrors.contactPhone}</p>
@@ -266,12 +310,12 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
                   placeholder="name@company.com"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || refreshFailed}
                   className={`w-full bg-stone-950 border ${
                     fieldErrors.contactEmail
                       ? 'border-rose-500 focus:border-rose-500'
                       : 'border-stone-800 focus:border-amber-500'
-                  } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs`}
+                  } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60`}
                 />
                 {fieldErrors.contactEmail && (
                   <p className="text-[11px] text-rose-400 font-semibold">{fieldErrors.contactEmail}</p>
@@ -290,14 +334,26 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
             >
               إلغاء
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40 transition-colors"
-            >
-              {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>حفظ واعتماد الناقل</span>
-            </button>
+            {refreshFailed ? (
+              <button
+                type="button"
+                onClick={handleRetryRefresh}
+                disabled={isSubmitting}
+                className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40 transition-colors"
+              >
+                {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>إعادة تحديث البيانات</span>
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40 transition-colors"
+              >
+                {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>حفظ واعتماد الناقل</span>
+              </button>
+            )}
           </div>
         </form>
       </div>

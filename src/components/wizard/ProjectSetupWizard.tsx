@@ -52,6 +52,7 @@ import { ImportSource } from '../../types/unifiedImport';
 import * as XLSX from 'xlsx';
 import { auth } from '../../firebase/config';
 import { CarrierEditorModal } from '../masterData/CarrierEditorModal';
+import { projectCanonicalRefreshService, ProjectCanonicalRefreshSnapshot } from '../../services/projectCanonicalRefresh.service';
 import { 
   isProjectOperationallyMutable, 
   canPerformOperationalMutation, 
@@ -355,6 +356,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   }, [activePhase, editingProjectId, fetchServerReadiness]);
 
+  const applyCanonicalSnapshot = useCallback((snapshot: ProjectCanonicalRefreshSnapshot) => {
+    setMaterials(snapshot.materials || []);
+    setCarriers(snapshot.carriers || []);
+    setFleetRows(snapshot.fleetRows || []);
+  }, []);
+
   // Real-time Subscriptions to Active Project sub-collections
   useEffect(() => {
     if (!editingProjectId) {
@@ -365,20 +372,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       return;
     }
 
-    // Load canonical lists and fleet rows
+    // Load canonical lists and fleet rows via canonical refresh barrier
     const fetchCanonicalData = async () => {
       try {
-        const token = await auth.currentUser?.getIdToken();
-        const headers = { 'Authorization': `Bearer ${token}` };
-        
-        const [matRes, carRes, fleetRes] = await Promise.all([
-          fetch(`/api/projects/${editingProjectId}/materials`, { headers }).then(r => r.json()),
-          fetch(`/api/projects/${editingProjectId}/carriers`, { headers }).then(r => r.json()),
-          fetch(`/api/projects/${editingProjectId}/fleet-read-model`, { headers }).then(r => r.json())
-        ]);
-        setMaterials(matRes.data || []);
-        setCarriers(carRes.data || []);
-        setFleetRows(fleetRes.data?.rows || []);
+        const snapshot = await projectCanonicalRefreshService.refresh(editingProjectId);
+        applyCanonicalSnapshot(snapshot);
       } catch (err) {
         console.error('Failed to load canonical data', err);
       }
@@ -542,8 +540,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     e.preventDefault();
     if (!project || !canPerformOperationalMutation('ENROLL_MATERIAL', project.status)) return;
 
+    let createdMaterialId: string | null = null;
     try {
-      const materialId = `MAT-${project.projectId}-${String(materials.length + 1).padStart(2, '0')}`;
       const payload = {
         name: matName.trim(),
         code: matCode.trim().toUpperCase(),
@@ -559,17 +557,25 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       });
       if (!response.ok) throw new Error('فشل إضافة المادة عبر الخادم');
       
-      // Automatically update authorized materials on project doc - REMOVED AS PART OF P6 CONVERGENCE
-      // const updatedMaterialsList = [...(project.authorizedMaterialIds || []), materialId];
-      // await projectService.updateProject(project.projectId, {
-      //   authorizedMaterialIds: updatedMaterialsList
-      // }, authContext);
+      const resJson = await response.json();
+      createdMaterialId = resJson.materialId || null;
 
+      // Authoritative canonical refresh barrier with expected entity verification
+      const snapshot = await projectCanonicalRefreshService.refresh(
+        project.projectId,
+        createdMaterialId ? { expect: { materialId: createdMaterialId } } : undefined
+      );
+
+      applyCanonicalSnapshot(snapshot);
       setIsAddingMaterial(false);
       setMatName('');
       setMatCode('');
     } catch (err: any) {
-      alert(err.message || 'خطأ في إضافة المادة');
+      if (createdMaterialId) {
+        alert('تم حفظ المادة بنجاح في الخادم، لكن تعذر تحديث بيانات المشروع فوراً. يرجى إعادة محاولة تحديث البيانات.');
+      } else {
+        alert(err.message || 'خطأ في إضافة المادة');
+      }
     }
   };
 
@@ -1063,16 +1069,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const reloadProjectCanonicalData = async () => {
     if (!project) return;
     try {
-      const token = await auth.currentUser?.getIdToken();
-      const headers = { 'Authorization': `Bearer ${token}` };
-      const [matRes, carRes, fleetRes] = await Promise.all([
-        fetch(`/api/projects/${project.projectId}/materials`, { headers }).then(r => r.json()),
-        fetch(`/api/projects/${project.projectId}/carriers`, { headers }).then(r => r.json()),
-        fetch(`/api/projects/${project.projectId}/fleet-read-model`, { headers }).then(r => r.json())
-      ]);
-      setMaterials(matRes.data || []);
-      setCarriers(carRes.data || []);
-      setFleetRows(fleetRes.data?.rows || []);
+      const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+      applyCanonicalSnapshot(snapshot);
     } catch (err) {
       console.warn('Failed reloading project canonical data:', err);
     }
@@ -1857,16 +1855,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     open={isCarrierEditorOpen}
                     projectId={project.projectId}
                     onClose={() => setIsCarrierEditorOpen(false)}
-                    onCreated={async () => {
+                    onCreated={async (result) => {
+                      const snapshot = await projectCanonicalRefreshService.refresh(
+                        project.projectId,
+                        { expect: { carrierId: result.carrierId } }
+                      );
+                      applyCanonicalSnapshot(snapshot);
                       setIsCarrierEditorOpen(false);
-                      try {
-                        const token = await auth.currentUser?.getIdToken();
-                        const headers = { 'Authorization': `Bearer ${token}` };
-                        const res = await fetch(`/api/projects/${project.projectId}/carriers`, { headers }).then(r => r.json());
-                        setCarriers(res.data || []);
-                      } catch (err) {
-                        console.error('Failed to reload carriers', err);
-                      }
                     }}
                   />
 

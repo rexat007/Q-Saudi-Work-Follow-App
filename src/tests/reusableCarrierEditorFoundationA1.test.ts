@@ -235,16 +235,19 @@ describe('FOUNDATION A1 — Reusable Carrier Creation Component & Client Command
     expect(wizardContent).toContain('إضافة ناقل جديد');
   });
 
-  // 21. successful creation reloads project carrier list
-  it('21. successful creation reloads project carrier list', () => {
+  // 21. successful creation completes through canonical refresh barrier
+  it('21. successful creation completes through canonical refresh barrier', () => {
     const modalInvocation = wizardContent.slice(
       wizardContent.indexOf('<CarrierEditorModal'),
       wizardContent.indexOf('</CarrierEditorModal>') !== -1
         ? wizardContent.indexOf('</CarrierEditorModal>') + 21
         : wizardContent.indexOf('/>', wizardContent.indexOf('<CarrierEditorModal')) + 2
     );
-    expect(modalInvocation).toContain('/api/projects/${project.projectId}/carriers');
-    expect(modalInvocation).toContain('setCarriers');
+    expect(modalInvocation).toContain('projectCanonicalRefreshService.refresh(');
+    expect(modalInvocation).toContain('applyCanonicalSnapshot(');
+    expect(modalInvocation).toContain('expect: { carrierId: result.carrierId }');
+    expect(modalInvocation).not.toContain('/api/projects/${project.projectId}/carriers');
+    expect(modalInvocation).not.toContain('setCarriers(');
   });
 
   // 22. wizard phase is preserved
