@@ -53,12 +53,15 @@ import * as XLSX from 'xlsx';
 import { auth } from '../../firebase/config';
 import { CarrierEditorModal } from '../masterData/CarrierEditorModal';
 import { MaterialEditorModal } from '../masterData/MaterialEditorModal';
+import { RosterCarrierResolutionLayer } from '../import/RosterCarrierResolutionLayer';
+import { CarrierCreationResult } from '../../services/carrierManagementClient.service';
 import { 
   RosterSmartImportStage, 
   ROSTER_STAGE_DEFINITIONS, 
   RosterSmartImportWorkflowService,
   RosterWorkflowContext
 } from '../../services/import/rosterSmartImportWorkflow.service';
+import { RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
 import { projectCanonicalRefreshService, ProjectCanonicalRefreshSnapshot } from '../../services/projectCanonicalRefresh.service';
 import { 
   isProjectOperationallyMutable, 
@@ -298,6 +301,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // C1 Layered Smart Import Stage Controller
   const [rosterImportStage, setRosterImportStage] = useState<RosterSmartImportStage>('SOURCE_DISCOVERY');
+
+  // C2 Smart Import Carrier Resolution State
+  const [smartImportPendingCarrierGroup, setSmartImportPendingCarrierGroup] = useState<RosterEntityReviewGroup | null>(null);
+  const [isSmartImportCarrierModalOpen, setIsSmartImportCarrierModalOpen] = useState<boolean>(false);
 
   const rosterWorkflowContext: RosterWorkflowContext = useMemo(() => ({
     hasSource: Boolean(rosterSelectedFile && rosterBuffer),
@@ -834,7 +841,119 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setImportError(null);
     setRosterDiscoveryError(null);
     setRosterImportStage('SOURCE_DISCOVERY');
+    setSmartImportPendingCarrierGroup(null);
+    setIsSmartImportCarrierModalOpen(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // C2 Smart Import: Accept Carrier Candidate
+  const handleSmartImportCarrierAcceptCandidate = async (
+    group: RosterEntityReviewGroup,
+    candidateEntityId: string
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-CARRIER-RES-${Date.now()}`
+      });
+
+      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+        importBatch,
+        'carrier',
+        group.normalizedSourceKey,
+        'ACCEPT_CANDIDATE',
+        { selectedEntityId: candidateEntityId },
+        pipelineCtx,
+        authContext.userId
+      );
+
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل تطبيق قرار مطابقة الناقل');
+    }
+  };
+
+  // C2 Smart Import: Select Alternate Carrier
+  const handleSmartImportCarrierSelectAlternate = async (
+    group: RosterEntityReviewGroup,
+    carrierId: string
+  ) => {
+    if (!importBatch || !project) return;
+    try {
+      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+        relContext,
+        projectId: project.projectId,
+        userId: authContext.userId,
+        role: authContext.role,
+        operationId: `OP-CARRIER-ALT-${Date.now()}`
+      });
+
+      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+        importBatch,
+        'carrier',
+        group.normalizedSourceKey,
+        'SELECT_ALTERNATE',
+        { selectedEntityId: carrierId },
+        pipelineCtx,
+        authContext.userId
+      );
+
+      setImportBatch({ ...updated });
+    } catch (err: any) {
+      alert(err.message || 'فشل تعيين الناقل البديل');
+    }
+  };
+
+  // C2 Smart Import: Carrier Creation via Authoritative CarrierEditorModal
+  const handleSmartImportCarrierCreated = async (result: CarrierCreationResult) => {
+    if (!project || !importBatch || !smartImportPendingCarrierGroup) return;
+
+    // 1. Refresh canonical project data expecting the created carrierId
+    const snapshot = await projectCanonicalRefreshService.refresh(
+      project.projectId,
+      { expect: { carrierId: result.carrierId } }
+    );
+
+    // 2. Apply canonical snapshot to local wizard state
+    applyCanonicalSnapshot(snapshot);
+
+    // 3. Convert snapshot relationship context into pipeline context via adapter
+    const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
+      relContext: snapshot.relationshipContext,
+      projectId: project.projectId,
+      userId: authContext.userId,
+      role: authContext.role,
+      operationId: `OP-CARRIER-CREATE-${Date.now()}`
+    });
+
+    // 4. Construct resolution payload
+    const resolutionPayload = {
+      matchedId: result.carrierId,
+      matchedName: result.carrier?.nameAr || smartImportPendingCarrierGroup.sourceValue,
+      sourceValue: smartImportPendingCarrierGroup.sourceValue,
+    };
+
+    // 5. Apply grouped created carrier resolution to the SAME importBatch
+    const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      importBatch,
+      'carrier',
+      smartImportPendingCarrierGroup.normalizedSourceKey,
+      resolutionPayload,
+      pipelineCtx
+    );
+
+    // 6. Update local batch state in place
+    setImportBatch({ ...updated });
+
+    // 7. Close modal and clean up pending group
+    setIsSmartImportCarrierModalOpen(false);
+    setSmartImportPendingCarrierGroup(null);
   };
 
   const handleApplyResolutionDecision = async (
@@ -1874,6 +1993,24 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     }}
                   />
 
+                  {/* Smart Import Dedicated Carrier Creation Modal */}
+                  {project && isSmartImportCarrierModalOpen && (
+                    <CarrierEditorModal
+                      open={isSmartImportCarrierModalOpen}
+                      mode="CREATE"
+                      projectId={project.projectId}
+                      initialCarrier={smartImportPendingCarrierGroup ? {
+                        name: smartImportPendingCarrierGroup.sourceValue,
+                        nameAr: smartImportPendingCarrierGroup.sourceValue,
+                      } as any : undefined}
+                      onClose={() => {
+                        setIsSmartImportCarrierModalOpen(false);
+                        setSmartImportPendingCarrierGroup(null);
+                      }}
+                      onCreated={handleSmartImportCarrierCreated}
+                    />
+                  )}
+
                   {editingCarrier && (
                     <CarrierEditorModal
                       open={!!editingCarrier}
@@ -2295,176 +2432,21 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   )}
 
                   {/*
-                    C1 COMPATIBILITY BRIDGE:
-                    Current monolithic review workspace remains temporarily mounted under
-                    CARRIER_RESOLUTION until C2 introduces true carrier-only resolution.
+                    C2: True Carrier-Only Resolution Layer
+                    Only Carrier review groups are resolved here before future layers.
                   */}
                   {importBatch && rosterImportStage === 'CARRIER_RESOLUTION' && (
-                    <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-                      <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
-                        <div className="p-5 border-b border-stone-800 bg-stone-950 flex justify-between items-center">
-                          <h3 className="text-sm font-black text-white flex items-center gap-2">
-                            <ShieldCheck className="w-5 h-5 text-amber-500" />
-                            <span>مراجعة وفحص ملف سجل التشغيل الموحد</span>
-                          </h3>
-                          <button onClick={() => setImportBatch(null)} className="p-1 text-stone-400 hover:text-white rounded-lg">
-                            <X className="w-5 h-5" />
-                          </button>
-                        </div>
-
-                        <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto text-xs text-stone-300">
-                          <div className="grid grid-cols-3 gap-3 bg-stone-950 p-3 rounded-xl border border-stone-850 text-center font-bold">
-                            <div className="text-emerald-400">
-                              <span className="block text-stone-500 text-[10px]">صفوف جاهزة للاستيراد</span>
-                              <span className="text-base font-mono">{importBatch.validRows || 0}</span>
-                            </div>
-                            <div className="text-amber-400">
-                              <span className="block text-stone-500 text-[10px]">تحذيرات تحتاج تدقيق</span>
-                              <span className="text-base font-mono">{importBatch.warningRows || 0}</span>
-                            </div>
-                            <div className="text-rose-400">
-                              <span className="block text-stone-500 text-[10px]">صفوف تحتوي أخطاء</span>
-                              <span className="text-base font-mono">{importBatch.errorRows || 0}</span>
-                            </div>
-                          </div>
-
-                          {/* Issues table */}
-                          {importBatch.issues && importBatch.issues.length > 0 && (
-                            <div className="space-y-2">
-                              <h4 className="font-bold text-white text-[11px] flex items-center gap-1.5 text-amber-400">
-                                <AlertTriangle className="w-4 h-4 text-amber-500" />
-                                <span>تفاصيل تنبيهات وأخطاء الفحص التلقائي:</span>
-                              </h4>
-                              <div className="bg-stone-950 border border-stone-850 rounded-lg p-3 max-h-[120px] overflow-y-auto space-y-1 font-mono text-[10px] text-stone-400 leading-relaxed">
-                                {importBatch.issues.map((iss: any, idx: number) => (
-                                  <div key={idx} className="border-b border-stone-900 pb-1 flex justify-between items-start">
-                                    <span>السطر #{iss.rowNum}: {iss.messageAr || iss.message}</span>
-                                    <span className={`px-1.5 py-0.2 rounded-md ${iss.severity === 'BLOCKING' ? 'bg-rose-950 text-rose-300' : 'bg-amber-950 text-amber-300'}`}>
-                                      {iss.severity}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Batch Intelligence Review Groups */}
-                          {(() => {
-                            const batchGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
-                            const rowExceptions = RosterBatchReviewService.getRowExceptions(importBatch);
-                            const entityTypesList: ReviewGroupEntityType[] = ['carrier', 'material', 'driver', 'truck'];
-
-                            return (
-                              <div className="space-y-4">
-                                <h4 className="font-bold text-white text-[11px] flex items-center gap-1.5 text-amber-400">
-                                  <UserCheck className="w-4 h-4 text-amber-500" />
-                                  <span>مراجعة الكيانات الموحدة وحل المجموعات (Smart Batch Review):</span>
-                                </h4>
-
-                                <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
-                                  {entityTypesList.map((typeKey) => {
-                                    const groups = batchGroups[typeKey] || [];
-                                    if (groups.length === 0) return null;
-                                    const localizedLabel = getLocalizedEntityLabel(typeKey);
-
-                                    return (
-                                      <div key={typeKey} className="bg-stone-950 border border-stone-850 p-3 rounded-xl space-y-2">
-                                        <div className="flex justify-between items-center text-[11px] font-bold border-b border-stone-900 pb-1.5 text-amber-300">
-                                          <span>مجموعة {localizedLabel} ({groups.length} عناصر فريدة)</span>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                          {groups.map((group) => {
-                                            const isResolved = group.status === 'AUTO_RESOLVED';
-                                            return (
-                                              <div key={group.normalizedSourceKey} className="bg-stone-900 p-2.5 rounded-lg border border-stone-800 flex flex-wrap items-center justify-between gap-2 text-[10px]">
-                                                <div className="space-y-0.5">
-                                                  <span className="text-white font-bold block">{group.sourceValue}</span>
-                                                  <span className="text-stone-400 text-[9px] block">
-                                                    تكرار: {group.occurrenceCount} صفوف (الصفوف: #{group.rowNumbers.slice(0, 5).join(', ')}{group.rowNumbers.length > 5 ? '...' : ''})
-                                                  </span>
-                                                  {group.matchedName && (
-                                                    <span className="text-emerald-400 text-[9px] block font-mono">مطابق لـ: {group.matchedName} ({group.matchedId})</span>
-                                                  )}
-                                                </div>
-
-                                                <div>
-                                                  {isResolved ? (
-                                                    <span className="px-2 py-0.5 bg-emerald-950 text-emerald-400 rounded text-[9px] font-bold border border-emerald-800">
-                                                      مطابق تلقائياً
-                                                    </span>
-                                                  ) : (
-                                                    <div className="flex items-center gap-1.5 flex-wrap">
-                                                      {group.candidates?.map((cand: any) => (
-                                                        <button
-                                                          key={cand.candidateEntityId}
-                                                          onClick={() => handleApplyGroupedResolutionDecision(typeKey, group.normalizedSourceKey, 'ACCEPT_CANDIDATE', cand.candidateEntityId)}
-                                                          className="px-2 py-1 bg-stone-800 hover:bg-amber-600 hover:text-white text-stone-200 rounded text-[9px]"
-                                                        >
-                                                          اعتماد للكل: {cand.candidateDisplayName}
-                                                        </button>
-                                                      ))}
-                                                      <button
-                                                        onClick={() => handleGroupedCreateMissingEntity(group)}
-                                                        className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[9px] font-bold"
-                                                      >
-                                                        إنشاء جديد للكل
-                                                      </button>
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            );
-                                          })}
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-
-                                  {/* Row-Level Exceptions Only */}
-                                  {rowExceptions.length > 0 && (
-                                    <div className="bg-rose-950/30 border border-rose-900/50 p-3 rounded-xl space-y-2">
-                                      <h5 className="text-rose-300 font-bold text-[10px] flex items-center gap-1">
-                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-                                        <span>استثناءات الصفوف الفردية المتبقية ({rowExceptions.length} صفوف):</span>
-                                      </h5>
-                                      <div className="space-y-1 max-h-[120px] overflow-y-auto">
-                                        {rowExceptions.map((exRow) => (
-                                          <div key={exRow.rowNumber} className="bg-stone-900/80 p-1.5 rounded text-[9px] font-mono text-stone-300 flex justify-between items-center">
-                                            <span>السطر #{exRow.rowNumber}: {exRow.validationIssues?.[0]?.messageAr || exRow.validationIssues?.[0]?.message || 'مشكلة في بيانات الصف'}</span>
-                                            <span className="text-rose-400 font-bold">{exRow.status}</span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })()}
-                        </div>
-
-                        <div className="p-5 border-t border-stone-800 bg-stone-950 flex justify-end gap-3">
-                          <button onClick={() => setImportBatch(null)} className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs">إلغاء</button>
-                          <button
-                            onClick={handleCommitRosterImport}
-                            disabled={
-                              isCommittingImport ||
-                              (importBatch.errorRows > 0) ||
-                              (importBatch.requiresReviewRows || 0) > 0 ||
-                              Object.values(RosterBatchReviewService.getBatchReviewGroups(importBatch)).some(groups =>
-                                groups.some(g => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT')
-                              ) ||
-                              RosterBatchReviewService.getRowExceptions(importBatch).length > 0
-                            }
-                            className="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-xs flex items-center gap-1.5 disabled:opacity-50"
-                          >
-                            {isCommittingImport ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-4 h-4" />}
-                            <span>حقن وتأكيد الاستيراد</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                    <RosterCarrierResolutionLayer
+                      importBatch={importBatch}
+                      projectCarriers={carriers}
+                      onAcceptCandidate={handleSmartImportCarrierAcceptCandidate}
+                      onSelectAlternate={handleSmartImportCarrierSelectAlternate}
+                      onCreateCarrier={(group) => {
+                        setSmartImportPendingCarrierGroup(group);
+                        setIsSmartImportCarrierModalOpen(true);
+                      }}
+                      onClose={() => setImportBatch(null)}
+                    />
                   )}
 
                   {/* Fleet Data Table */}

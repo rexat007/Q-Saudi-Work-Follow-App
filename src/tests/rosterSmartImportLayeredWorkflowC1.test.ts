@@ -99,12 +99,11 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
     expect(wizardContent).not.toContain("rosterImportStage === 'FINAL_REVIEW' && (");
   });
 
-  // 11. C1 compatibility bridge comment is explicitly present
-  it('11. C1 compatibility bridge comment is explicitly present', () => {
-    expect(wizardContent).toContain('C1 COMPATIBILITY BRIDGE:');
+  // 11. Carrier resolution layer is explicitly present under CARRIER_RESOLUTION
+  it('11. Carrier resolution layer is explicitly present under CARRIER_RESOLUTION', () => {
+    expect(wizardContent).toContain('C2: True Carrier-Only Resolution Layer');
     expect(wizardContent).toContain(
-      'Current monolithic review workspace remains temporarily mounted under\n' +
-      '                    CARRIER_RESOLUTION until C2 introduces true carrier-only resolution.'
+      'Only Carrier review groups are resolved here before future layers.'
     );
   });
 
@@ -156,9 +155,9 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
     expect(wizardContent).toContain('اعتماد الربط وبدء تحليل سجل التشغيل');
   });
 
-  // 18. current review workspace is not duplicated
-  it('18. current review workspace is not duplicated', () => {
-    const matches = wizardContent.match(/مراجعة وفحص ملف سجل التشغيل الموحد/g);
+  // 18. carrier resolution layer is rendered once
+  it('18. carrier resolution layer is rendered once', () => {
+    const matches = wizardContent.match(/<RosterCarrierResolutionLayer/g);
     expect(matches?.length).toBe(1);
   });
 
