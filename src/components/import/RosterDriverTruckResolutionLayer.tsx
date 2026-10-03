@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Users, Truck, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck } from 'lucide-react';
 import { UnifiedImportBatch } from '../../types/unifiedImport';
 import { RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
@@ -696,204 +697,210 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
       </div>
 
       {/* COMPACT MODAL: CREATE DRIVER (NO PROMPT) */}
-      {creatingDriverGroup && (
-        <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-60 flex items-center justify-center p-4">
-          <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl p-5 space-y-4">
-            <div className="flex justify-between items-center border-b border-stone-800 pb-3">
-              <h4 className="text-sm font-black text-white flex items-center gap-2">
-                <Users className="w-4 h-4 text-amber-500" />
-                <span>إنشاء سائق جديد للناقل</span>
-              </h4>
-              <button
-                type="button"
-                onClick={() => setCreatingDriverGroup(null)}
-                className="text-stone-400 hover:text-white p-1"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {driverFormError && (
-              <div className="bg-rose-950/70 border border-rose-800 p-2.5 rounded-xl text-[11px] text-rose-300 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{driverFormError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmitDriverCreation} className="space-y-3 text-xs">
-              <div>
-                <label className="block text-stone-400 mb-1 font-bold">الناقل التابع له (محدد تلقائياً):</label>
-                <input
-                  type="text"
-                  disabled
-                  value={extractGroupCarrierContext(creatingDriverGroup) || 'غير محدد'}
-                  className="w-full bg-stone-950 border border-stone-800 text-stone-400 px-3 py-2 rounded-xl text-xs font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-stone-400 mb-1 font-bold">اسم السائق (كامل):</label>
-                <input
-                  type="text"
-                  required
-                  value={driverFormData.driverName}
-                  onChange={(e) => setDriverFormData({ ...driverFormData, driverName: e.target.value })}
-                  placeholder="مثال: سالم علي القحطاني"
-                  className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs focus:outline-hidden focus:border-amber-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-stone-400 mb-1 font-bold">رقم الهوية الوطنية / الإقامة (10 أرقام):</label>
-                <input
-                  type="text"
-                  required
-                  maxLength={10}
-                  value={driverFormData.residencyId}
-                  onChange={(e) => setDriverFormData({ ...driverFormData, residencyId: e.target.value.replace(/\D/g, '') })}
-                  placeholder="مثال: 1023456789 أو 2023456789"
-                  className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-stone-400 mb-1 font-bold">رقم الجوال (اختياري):</label>
-                <input
-                  type="text"
-                  value={driverFormData.phone || ''}
-                  onChange={(e) => setDriverFormData({ ...driverFormData, phone: e.target.value })}
-                  placeholder="مثال: 0501234567"
-                  className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2 border-t border-stone-800">
+      {creatingDriverGroup && (() => {
+        const modalContent = (
+          <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-60 flex items-center justify-center p-4">
+            <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl p-5 space-y-4">
+              <div className="flex justify-between items-center border-b border-stone-800 pb-3">
+                <h4 className="text-sm font-black text-white flex items-center gap-2">
+                  <Users className="w-4 h-4 text-amber-500" />
+                  <span>إنشاء سائق جديد للناقل</span>
+                </h4>
                 <button
                   type="button"
                   onClick={() => setCreatingDriverGroup(null)}
-                  disabled={isProcessing}
-                  className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
+                  className="text-stone-400 hover:text-white p-1"
                 >
-                  إلغاء
-                </button>
-                <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>حفظ وإنشاء السائق</span>
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </form>
+
+              {driverFormError && (
+                <div className="bg-rose-950/70 border border-rose-800 p-2.5 rounded-xl text-[11px] text-rose-300 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{driverFormError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmitDriverCreation} className="space-y-3 text-xs">
+                <div>
+                  <label className="block text-stone-400 mb-1 font-bold">الناقل التابع له (محدد تلقائياً):</label>
+                  <input
+                    type="text"
+                    disabled
+                    value={extractGroupCarrierContext(creatingDriverGroup) || 'غير محدد'}
+                    className="w-full bg-stone-950 border border-stone-800 text-stone-400 px-3 py-2 rounded-xl text-xs font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-400 mb-1 font-bold">اسم السائق (كامل):</label>
+                  <input
+                    type="text"
+                    required
+                    value={driverFormData.driverName}
+                    onChange={(e) => setDriverFormData({ ...driverFormData, driverName: e.target.value })}
+                    placeholder="مثال: سالم علي القحطاني"
+                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs focus:outline-hidden focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-400 mb-1 font-bold">رقم الهوية الوطنية / الإقامة (10 أرقام):</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={10}
+                    value={driverFormData.residencyId}
+                    onChange={(e) => setDriverFormData({ ...driverFormData, residencyId: e.target.value.replace(/\D/g, '') })}
+                    placeholder="مثال: 1023456789 أو 2023456789"
+                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-400 mb-1 font-bold">رقم الجوال (اختياري):</label>
+                  <input
+                    type="text"
+                    value={driverFormData.phone || ''}
+                    onChange={(e) => setDriverFormData({ ...driverFormData, phone: e.target.value })}
+                    placeholder="مثال: 0501234567"
+                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2 border-t border-stone-800">
+                  <button
+                    type="button"
+                    onClick={() => setCreatingDriverGroup(null)}
+                    disabled={isProcessing}
+                    className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isProcessing}
+                    className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>حفظ وإنشاء السائق</span>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        );
+        return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
+      })()}
 
       {/* COMPACT MODAL: CREATE TRUCK (NO PROMPT) */}
-      {creatingTruckGroup && (
-        <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-60 flex items-center justify-center p-4">
-          <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl p-5 space-y-4">
-            <div className="flex justify-between items-center border-b border-stone-800 pb-3">
-              <h4 className="text-sm font-black text-white flex items-center gap-2">
-                <Truck className="w-4 h-4 text-amber-500" />
-                <span>إنشاء شاحنة جديدة للناقل</span>
-              </h4>
-              <button
-                type="button"
-                onClick={() => setCreatingTruckGroup(null)}
-                className="text-stone-400 hover:text-white p-1"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {truckFormError && (
-              <div className="bg-rose-950/70 border border-rose-800 p-2.5 rounded-xl text-[11px] text-rose-300 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{truckFormError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmitTruckCreation} className="space-y-3 text-xs">
-              <div>
-                <label className="block text-stone-400 mb-1 font-bold">الناقل التابع له (محدد تلقائياً):</label>
-                <input
-                  type="text"
-                  disabled
-                  value={extractGroupCarrierContext(creatingTruckGroup) || 'غير محدد'}
-                  className="w-full bg-stone-950 border border-stone-800 text-stone-400 px-3 py-2 rounded-xl text-xs font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-stone-400 mb-1 font-bold">رقم لوحة الشاحنة:</label>
-                <input
-                  type="text"
-                  required
-                  value={truckFormData.plateNumber}
-                  onChange={(e) => setTruckFormData({ ...truckFormData, plateNumber: e.target.value })}
-                  placeholder="مثال: أ ب ج 1234"
-                  className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-stone-400 mb-1 font-bold">نوع الشاحنة / الهيكل (اختياري):</label>
-                <input
-                  type="text"
-                  value={truckFormData.truckType || ''}
-                  onChange={(e) => setTruckFormData({ ...truckFormData, truckType: e.target.value })}
-                  placeholder="مثال: قلاب، تريلا، سطحة"
-                  className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs focus:outline-hidden focus:border-amber-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-stone-400 mb-1 font-bold">الوزن الفارغ كجم (اختياري):</label>
-                  <input
-                    type="number"
-                    value={truckFormData.tareWeightKg || ''}
-                    onChange={(e) => setTruckFormData({ ...truckFormData, tareWeightKg: e.target.value ? Number(e.target.value) : undefined })}
-                    placeholder="مثال: 14000"
-                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-stone-400 mb-1 font-bold">الوزن الأقصى كجم (اختياري):</label>
-                  <input
-                    type="number"
-                    value={truckFormData.maxGrossWeightKg || ''}
-                    onChange={(e) => setTruckFormData({ ...truckFormData, maxGrossWeightKg: e.target.value ? Number(e.target.value) : undefined })}
-                    placeholder="مثال: 45000"
-                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2 border-t border-stone-800">
+      {creatingTruckGroup && (() => {
+        const modalContent = (
+          <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-60 flex items-center justify-center p-4">
+            <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl p-5 space-y-4">
+              <div className="flex justify-between items-center border-b border-stone-800 pb-3">
+                <h4 className="text-sm font-black text-white flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-amber-500" />
+                  <span>إنشاء شاحنة جديدة للناقل</span>
+                </h4>
                 <button
                   type="button"
                   onClick={() => setCreatingTruckGroup(null)}
-                  disabled={isProcessing}
-                  className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
+                  className="text-stone-400 hover:text-white p-1"
                 >
-                  إلغاء
-                </button>
-                <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>حفظ وإنشاء الشاحنة</span>
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </form>
+
+              {truckFormError && (
+                <div className="bg-rose-950/70 border border-rose-800 p-2.5 rounded-xl text-[11px] text-rose-300 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{truckFormError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmitTruckCreation} className="space-y-3 text-xs">
+                <div>
+                  <label className="block text-stone-400 mb-1 font-bold">الناقل التابع له (محدد تلقائياً):</label>
+                  <input
+                    type="text"
+                    disabled
+                    value={extractGroupCarrierContext(creatingTruckGroup) || 'غير محدد'}
+                    className="w-full bg-stone-950 border border-stone-800 text-stone-400 px-3 py-2 rounded-xl text-xs font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-400 mb-1 font-bold">رقم لوحة الشاحنة:</label>
+                  <input
+                    type="text"
+                    required
+                    value={truckFormData.plateNumber}
+                    onChange={(e) => setTruckFormData({ ...truckFormData, plateNumber: e.target.value })}
+                    placeholder="مثال: أ ب ج 1234"
+                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-400 mb-1 font-bold">نوع الشاحنة / الهيكل (اختياري):</label>
+                  <input
+                    type="text"
+                    value={truckFormData.truckType || ''}
+                    onChange={(e) => setTruckFormData({ ...truckFormData, truckType: e.target.value })}
+                    placeholder="مثال: قلاب، تريلا، سطحة"
+                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs focus:outline-hidden focus:border-amber-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-stone-400 mb-1 font-bold">الوزن الفارغ كجم (اختياري):</label>
+                    <input
+                      type="number"
+                      value={truckFormData.tareWeightKg || ''}
+                      onChange={(e) => setTruckFormData({ ...truckFormData, tareWeightKg: e.target.value ? Number(e.target.value) : undefined })}
+                      placeholder="مثال: 14000"
+                      className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-stone-400 mb-1 font-bold">الوزن الأقصى كجم (اختياري):</label>
+                    <input
+                      type="number"
+                      value={truckFormData.maxGrossWeightKg || ''}
+                      onChange={(e) => setTruckFormData({ ...truckFormData, maxGrossWeightKg: e.target.value ? Number(e.target.value) : undefined })}
+                      placeholder="مثال: 45000"
+                      className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2 border-t border-stone-800">
+                  <button
+                    type="button"
+                    onClick={() => setCreatingTruckGroup(null)}
+                    disabled={isProcessing}
+                    className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isProcessing}
+                    className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>حفظ وإنشاء الشاحنة</span>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        );
+        return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
+      })()}
     </div>
   );
 };

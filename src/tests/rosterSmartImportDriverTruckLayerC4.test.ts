@@ -68,7 +68,7 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
 
   it('1. Material completion gates transition to Driver/Truck layer via handleSmartImportContinueToDriverTruck', () => {
     expect(wizardContent).toContain('handleSmartImportContinueToDriverTruck');
-    expect(wizardContent).toContain("setRosterImportStage('DRIVER_TRUCK_RESOLUTION')");
+    expect(wizardContent.includes("transitionToRosterStage('DRIVER_TRUCK_RESOLUTION')") || wizardContent.includes("setRosterImportStage('DRIVER_TRUCK_RESOLUTION')")).toBe(true);
     expect(materialLayerContent).toContain('onContinueToDriverTruck');
     expect(materialLayerContent).toContain('متابعة إلى مراجعة السائقين والشاحنات');
   });

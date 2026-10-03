@@ -305,12 +305,14 @@ export class DriverTruckPipelineService {
     context: PipelineContext
   ): UnifiedImportBatch {
     const validator = new DriverTruckImportValidator();
+    const duplicateChecker = new DriverTruckImportDuplicateChecker();
+
     let validRows = 0;
     let warningRows = 0;
     let errorRows = 0;
     let requiresReviewRows = 0;
 
-    const rosterOwnedCodes = new Set([
+    const dynamicCodes = new Set([
       'EMPTY_ROW_DATA',
       'MISSING_DRIVER_NAME',
       'INVALID_ID_FORMAT',
@@ -320,31 +322,49 @@ export class DriverTruckPipelineService {
       'RELATIONSHIP_CONFLICT',
       'UNRESOLVED_MATERIAL',
       'UNAUTHORIZED_MATERIAL',
+      'MATERIAL_PROJECT_CONFLICT',
+      'CARRIER_UNRESOLVED',
+      'MATERIAL_UNRESOLVED',
     ]);
-
-    const unresolvedCodes = new Set(['UNRESOLVED_CARRIER', 'UNRESOLVED_MATERIAL']);
 
     const updatedRows = batch.rows.map((row) => {
       const freshRosterIssues = validator.validateRow(row, context);
 
-      const preservedIssues = (row.validationIssues || []).filter(
-        (issue) => !rosterOwnedCodes.has(issue.code)
-      );
+      const carrierResolved = Boolean(row.entityResolutions?.carrier?.matchedId);
+      const materialResolved = Boolean(row.entityResolutions?.material?.matchedId);
+
+      const preservedIssues = (row.validationIssues || []).filter((issue) => {
+        if (dynamicCodes.has(issue.code)) return false;
+        if (carrierResolved && issue.code.includes('CARRIER')) return false;
+        if (materialResolved && issue.code.includes('MATERIAL')) return false;
+        return true;
+      });
 
       const issueMap = new Map<string, any>();
       preservedIssues.forEach((i) => {
-        const key = `${i.code}_${i.field}_${i.issueId || ''}`;
+        const key = `${i.code}_${i.field || ''}_${i.issueId || ''}`;
         issueMap.set(key, i);
       });
       freshRosterIssues.forEach((i) => {
-        const key = `${i.code}_${i.field}_${i.issueId || ''}`;
+        const key = `${i.code}_${i.field || ''}_${i.issueId || ''}`;
         issueMap.set(key, i);
       });
 
       const mergedIssues = Array.from(issueMap.values());
 
-      const blockingErrorIssues = mergedIssues.filter(
-        (i) => (i.severity === 'BLOCKING' || i.blocking) && !unresolvedCodes.has(i.code)
+      return {
+        ...row,
+        validationIssues: mergedIssues,
+      };
+    });
+
+    // Re-check duplicates across rows
+    const rowsWithDuplicates = duplicateChecker.checkDuplicates(updatedRows, context);
+
+    const evaluatedRows = rowsWithDuplicates.map((row) => {
+      const issues = row.validationIssues || [];
+      const blockingErrorIssues = issues.filter(
+        (i) => (i.severity === 'BLOCKING' || i.blocking) && i.code !== 'UNRESOLVED_CARRIER' && i.code !== 'UNRESOLVED_MATERIAL'
       );
       const hasBlocking = blockingErrorIssues.length > 0;
 
@@ -354,10 +374,10 @@ export class DriverTruckPipelineService {
       const truckUnresolved = Boolean(row.canonical?.truckPlate) && !row.entityResolutions?.truck?.matchedId;
 
       const isUnresolved = carrierUnresolved || materialUnresolved || driverUnresolved || truckUnresolved;
-      const hasWarningOnly = !hasBlocking && !isUnresolved && mergedIssues.some((i) => i.severity === 'WARNING');
+      const hasWarningOnly = !hasBlocking && !isUnresolved && issues.some((i) => i.severity === 'WARNING');
 
       let rowStatus: 'VALID' | 'WARNING' | 'ERROR' | 'PENDING' = 'VALID';
-      let reviewStatus: 'valid' | 'requires_review' | 'warning' | 'error' = 'valid';
+      let reviewStatus: 'accepted' | 'requires_review' | 'warning' | 'error' = 'accepted';
 
       if (hasBlocking) {
         rowStatus = 'ERROR';
@@ -373,17 +393,37 @@ export class DriverTruckPipelineService {
         warningRows++;
       } else {
         rowStatus = 'VALID';
-        reviewStatus = 'valid';
+        reviewStatus = 'accepted';
         validRows++;
       }
 
       return {
         ...row,
-        validationIssues: mergedIssues,
+        validationIssues: issues,
         status: rowStatus,
         reviewStatus,
       };
     });
+
+    // Authoritative batch issues: strictly equals flattened CURRENT row.validationIssues
+    const allRowIssues = evaluatedRows.flatMap((row) => row.validationIssues || []);
+
+    let validationStatus: 'PENDING' | 'PASSED' | 'WARNING' | 'FAILED' = 'PASSED';
+    let commitStatus: any = 'READY_TO_COMMIT';
+
+    if (errorRows > 0) {
+      validationStatus = 'FAILED';
+      commitStatus = 'AWAITING_REVIEW';
+    } else if (requiresReviewRows > 0) {
+      validationStatus = 'PENDING';
+      commitStatus = 'AWAITING_REVIEW';
+    } else if (warningRows > 0) {
+      validationStatus = 'WARNING';
+      commitStatus = batch.warningConfirmation?.confirmed ? 'READY_TO_COMMIT' : 'AWAITING_REVIEW';
+    } else {
+      validationStatus = 'PASSED';
+      commitStatus = 'READY_TO_COMMIT';
+    }
 
     let batchStatus: 'FAILED' | 'PENDING' | 'WARNING' | 'READY' = 'READY';
     if (errorRows > 0) {
@@ -398,11 +438,14 @@ export class DriverTruckPipelineService {
 
     return {
       ...batch,
-      rows: updatedRows,
+      rows: evaluatedRows,
+      issues: allRowIssues,
       validRows,
       warningRows,
       errorRows,
       requiresReviewRows,
+      validationStatus,
+      commitStatus: batch.commitStatus === 'COMMITTED' ? 'COMMITTED' : commitStatus,
       status: batchStatus,
     };
   }

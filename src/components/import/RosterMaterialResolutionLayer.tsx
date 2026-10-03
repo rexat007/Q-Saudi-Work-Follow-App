@@ -23,6 +23,36 @@ export interface RosterMaterialResolutionLayerProps {
   isProcessing?: boolean;
 }
 
+export const checkMaterialResolutionReadiness = (batch: UnifiedImportBatch): boolean => {
+  if (!batch || !batch.rows) return false;
+  const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+  const materialGroups = groups.material || [];
+  if (materialGroups.length === 0) return false;
+
+  const hasUnresolvedGroups = materialGroups.some(
+    (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+  );
+  if (hasUnresolvedGroups) return false;
+
+  const activeRows = batch.rows.filter((r) => r.status !== 'REJECTED');
+  if (activeRows.length === 0) return false;
+
+  const hasMissingOrUnresolvedRow = activeRows.some((r) => {
+    const materialRes = r.entityResolutions?.material;
+    return !materialRes?.matchedId || materialRes.status === 'UNRESOLVED' || materialRes.status === 'CONFLICT';
+  });
+  if (hasMissingOrUnresolvedRow) return false;
+
+  const issues = batch.issues || [];
+  const hasMaterialBlockingIssue = issues.some(
+    (iss) => (iss.severity === 'BLOCKING' || iss.blocking) &&
+      (iss.field === 'materialId' || iss.field === 'materialName' || iss.code === 'UNRESOLVED_MATERIAL' || String(iss.code).startsWith('MATERIAL_'))
+  );
+  if (hasMaterialBlockingIssue) return false;
+
+  return true;
+};
+
 export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLayerProps> = ({
   importBatch,
   projectMaterials = [],
@@ -50,7 +80,8 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
   }, [materialGroups]);
 
   const resolvedCount = materialGroups.length - unresolvedCount;
-  const isMaterialLayerComplete = materialGroups.length > 0 && unresolvedCount === 0;
+  const isMaterialLayerComplete =
+    materialGroups.length > 0 && unresolvedCount === 0 && checkMaterialResolutionReadiness(importBatch);
 
   return (
     <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">

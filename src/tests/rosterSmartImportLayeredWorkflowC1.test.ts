@@ -60,7 +60,7 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
   it('5. from MAPPING_APPROVAL: only CARRIER_RESOLUTION becomes next active stage after pipeline execution', () => {
     const pipelineCallIdx = wizardContent.indexOf('DriverTruckPipelineService.processFileToReview');
     const followingLines = wizardContent.slice(pipelineCallIdx, pipelineCallIdx + 1000);
-    expect(followingLines).toContain("setRosterImportStage('CARRIER_RESOLUTION')");
+    expect(followingLines.includes("transitionToRosterStage('CARRIER_RESOLUTION')") || followingLines.includes("setRosterImportStage('CARRIER_RESOLUTION')")).toBe(true);
     expect(followingLines).not.toContain("setRosterImportStage('MATERIAL_RESOLUTION')");
     expect(followingLines).not.toContain("setRosterImportStage('FINAL_REVIEW')");
   });
@@ -146,7 +146,7 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
 
   // 16. successful discovery transitions to MAPPING_APPROVAL
   it('16. successful discovery transitions to MAPPING_APPROVAL', () => {
-    expect(wizardContent).toContain("setRosterImportStage('MAPPING_APPROVAL')");
+    expect(wizardContent.includes("transitionToRosterStage('MAPPING_APPROVAL')") || wizardContent.includes("setRosterImportStage('MAPPING_APPROVAL')")).toBe(true);
   });
 
   // 17. existing mapping approval button remains the explicit gate

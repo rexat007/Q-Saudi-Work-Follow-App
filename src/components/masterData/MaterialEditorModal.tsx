@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Layers, X, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import {
   materialManagementClientService,
@@ -51,7 +52,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
   clientService = materialManagementClientService,
   zIndexClass = 'z-50',
 }) => {
-  const isEditMode = mode === 'EDIT' || (initialMaterial !== null && initialMaterial !== undefined);
+  const isEditMode = mode === 'EDIT';
 
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
@@ -84,7 +85,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             : 1.6
         );
       } else {
-        setName(initialName || '');
+        setName(initialName || initialMaterial?.name || '');
         setCode('');
         setUnitOfMeasure('TON');
         setStandardDensityTonPerM3(1.6);
@@ -260,7 +261,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
     }
   };
 
-  return (
+  const modalContent = (
     <div
       className={`fixed inset-0 ${zIndexClass} flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto`}
       role="dialog"
@@ -289,7 +290,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             onClick={onClose}
             disabled={isSubmitting}
             className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
-            aria-label="إغلاق"
+            aria-label="إغلاق النافذة"
           >
             <X className="w-5 h-5" />
           </button>
@@ -478,4 +479,6 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
 };

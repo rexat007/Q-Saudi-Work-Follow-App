@@ -72,7 +72,7 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
 
   it('12. Final Review transition preserves same batch', () => {
     expect(wizardContent).toContain('setImportBatch({ ...revalidated });');
-    expect(wizardContent).toContain("setRosterImportStage('FINAL_REVIEW');");
+    expect(wizardContent.includes("transitionToRosterStage('FINAL_REVIEW')") || wizardContent.includes("setRosterImportStage('FINAL_REVIEW')")).toBe(true);
   });
 
   // FINAL REVALIDATION
@@ -231,7 +231,7 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   });
 
   it('43. isCommittingImport prevents double click during commit', () => {
-    expect(finalReviewContent).toContain('disabled={!isReadyToCommit || isCommitting}');
+    expect(finalReviewContent).toContain('disabled={!canCommit || isCommitting}');
   });
 
   it('44. Result stored in smartImportCommitResult', () => {
@@ -243,7 +243,7 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   });
 
   it('46. Transition to COMMIT_RESULT occurs only after attempt', () => {
-    expect(wizardContent).toContain("setRosterImportStage('COMMIT_RESULT')");
+    expect(wizardContent.includes("transitionToRosterStage('COMMIT_RESULT')") || wizardContent.includes("setRosterImportStage('COMMIT_RESULT')")).toBe(true);
   });
 
   it('47. Batch is NOT cleared automatically after commit', () => {
@@ -393,8 +393,8 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
       warningRows: 0,
       requiresReviewRows: 0,
       rows: [
-        { rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'resolved' },
-        { rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'resolved' },
+        { rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
+        { rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
       ],
       issues: [],
       auditTrail: [],
@@ -450,8 +450,8 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
       warningRows: 0,
       requiresReviewRows: 0,
       rows: [
-        { rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'resolved' },
-        { rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'resolved' },
+        { rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
+        { rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
       ],
       issues: [],
       auditTrail: [],
@@ -520,8 +520,8 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
       warningRows: 0,
       requiresReviewRows: 0,
       rows: [
-        { rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'resolved' },
-        { rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'resolved' },
+        { rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
+        { rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
       ],
       issues: [],
       auditTrail: [],
@@ -566,7 +566,7 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
       warningRows: 0,
       requiresReviewRows: 0,
       rows: [
-        { rowNumber: 1, raw: {}, canonical: {}, status: 'REJECTED', reviewStatus: 'resolved' },
+        { rowNumber: 1, raw: {}, canonical: {}, status: 'REJECTED', reviewStatus: 'accepted' },
       ],
       issues: [],
       auditTrail: [],

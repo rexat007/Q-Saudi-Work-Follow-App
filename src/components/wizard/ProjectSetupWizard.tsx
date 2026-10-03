@@ -48,17 +48,16 @@ import {
   translateDiscoveryToRosterTarget 
 } from '../../services/import/driverTruckImport';
 import { ExcelCsvColumnMapper } from '../../services/import/columnMapper.service';
-import { ImportSource } from '../../types/unifiedImport';
+import { ImportSource, ImportResult, UnifiedImportBatch } from '../../types/unifiedImport';
 import * as XLSX from 'xlsx';
 import { auth } from '../../firebase/config';
 import { CarrierEditorModal } from '../masterData/CarrierEditorModal';
 import { MaterialEditorModal } from '../masterData/MaterialEditorModal';
-import { RosterCarrierResolutionLayer } from '../import/RosterCarrierResolutionLayer';
-import { RosterMaterialResolutionLayer } from '../import/RosterMaterialResolutionLayer';
+import { RosterCarrierResolutionLayer, checkCarrierResolutionReadiness } from '../import/RosterCarrierResolutionLayer';
+import { RosterMaterialResolutionLayer, checkMaterialResolutionReadiness } from '../import/RosterMaterialResolutionLayer';
 import { RosterDriverTruckResolutionLayer, extractGroupCarrierContext } from '../import/RosterDriverTruckResolutionLayer';
-import { RosterFinalReviewLayer } from '../import/RosterFinalReviewLayer';
+import { RosterFinalReviewLayer, classifyFinalReviewBlocker } from '../import/RosterFinalReviewLayer';
 import { RosterCommitResultLayer } from '../import/RosterCommitResultLayer';
-import { ImportResult } from '../../types/unifiedImport';
 import { RelationshipContext } from '../../types/dataQuality';
 import { CarrierCreationResult } from '../../services/carrierManagementClient.service';
 import { MaterialCreationResult } from '../../services/materialManagementClient.service';
@@ -308,7 +307,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isImportingFile, setIsImportingFile] = useState(false);
-  const [importBatch, setImportBatch] = useState<any | null>(null);
+  const [importBatch, setImportBatch] = useState<UnifiedImportBatch | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [isCommittingImport, setIsCommittingImport] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -342,8 +341,40 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     hasDetectedHeaders: Boolean(rosterDiscoveryResult?.detectedHeaders && rosterDiscoveryResult.detectedHeaders.length > 0),
     isMappingApproved: Boolean(isRosterMappingApproved),
     hasImportBatch: Boolean(importBatch),
-    isCommitAttemptedOrCompleted: Boolean(importBatch && (importBatch.committedRows !== undefined || importBatch.status === 'COMMITTED')),
-  }), [rosterSelectedFile, rosterBuffer, rosterDiscoveryResult, isRosterMappingApproved, importBatch]);
+    isCommitAttemptedOrCompleted: Boolean(
+      smartImportCommitResult !== null ||
+      isCommittingImport ||
+      (importBatch && (importBatch.commitStatus === 'COMMITTED' || importBatch.commitStatus === 'FAILED' || importBatch.committedRows > 0))
+    ),
+  }), [rosterSelectedFile, rosterBuffer, rosterDiscoveryResult, isRosterMappingApproved, importBatch, smartImportCommitResult, isCommittingImport]);
+
+  // Guarded workflow transition helper
+  const transitionToRosterStage = (targetStage: RosterSmartImportStage): boolean => {
+    if (targetStage === 'SOURCE_DISCOVERY') {
+      setRosterImportStage('SOURCE_DISCOVERY');
+      return true;
+    }
+    const canEnter = RosterSmartImportWorkflowService.canEnterStage(
+      targetStage,
+      rosterWorkflowContext,
+      rosterImportStage
+    );
+    if (!canEnter) {
+      console.warn(`Blocked transition to ${targetStage} from ${rosterImportStage}`);
+      try {
+        RosterSmartImportWorkflowService.assertStagePrerequisites(
+          targetStage,
+          rosterWorkflowContext,
+          rosterImportStage
+        );
+      } catch (err: any) {
+        setImportError(err.message || `تعذر الانتقال إلى مرحلة ${targetStage}`);
+      }
+      return false;
+    }
+    setRosterImportStage(targetStage);
+    return true;
+  };
 
   // Google Sync Action state
   const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
@@ -744,7 +775,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             initialMappings[h] = translateDiscoveryToRosterTarget(diag?.canonicalField);
           });
           setRosterCustomMappings(initialMappings);
-          setRosterImportStage('MAPPING_APPROVAL');
+          transitionToRosterStage('MAPPING_APPROVAL');
         } catch (innerErr: any) {
           if (currentGen !== rosterImportSessionGenerationRef.current) return;
           setRosterDiscoveryError(innerErr.message || 'خطأ أثناء استكشاف ملف سجل التشغيل');
@@ -862,6 +893,21 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         }
       }
 
+      // D12: Required Mapping Gate - Block impossible mappings before batch processing
+      const mappedTargets = Object.values(approvedCustomMappings);
+      const hasCarrierMapping = mappedTargets.includes('carrierName');
+      const hasMaterialMapping = mappedTargets.includes('materialName');
+      const hasDriverOrTruckMapping = mappedTargets.includes('driverName') || mappedTargets.includes('truckPlate');
+
+      if (!hasCarrierMapping || !hasMaterialMapping || !hasDriverOrTruckMapping) {
+        setImportError(
+          'اعتماد الربط يتطلب ربط حقل الناقل (carrierName) وحقل المادة (materialName) وحقل السائق (driverName) أو الشاحنة (truckPlate) على الأقل قبل المتابعة.'
+        );
+        setIsImportingFile(false);
+        setIsProcessing(false);
+        return;
+      }
+
       let relContext = null;
       try {
         relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
@@ -895,7 +941,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       setImportBatch(batch);
       setIsRosterMappingApproved(true);
-      setRosterImportStage('CARRIER_RESOLUTION');
+      transitionToRosterStage('CARRIER_RESOLUTION');
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
       setImportError(err?.message || 'خطأ أثناء تحليل ملف سجل التشغيل');
@@ -907,7 +953,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  // C3 Smart Import: Progression Gate from CARRIER_RESOLUTION to MATERIAL_RESOLUTION
+  // C3 Smart Import: Progression Gate from CARRIER_RESOLUTION to MATERIAL_RESOLUTION (D10, D14)
   const handleSmartImportContinueToMaterials = () => {
     if (!importBatch) return;
     const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
@@ -923,10 +969,22 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       alert('يرجى حسم جميع مجموعات الناقلين قبل الانتقال إلى مراجعة المواد');
       return;
     }
-    setRosterImportStage('MATERIAL_RESOLUTION');
+
+    // D10: Carrier row-level required gate
+    const activeRows = importBatch.rows.filter((r) => r.status !== 'REJECTED');
+    const hasUnresolvedCarrierRow = activeRows.some((r) => {
+      const carrierRes = r.entityResolutions?.carrier;
+      return !carrierRes?.matchedId || carrierRes.status === 'UNRESOLVED' || carrierRes.status === 'CONFLICT';
+    });
+    if (hasUnresolvedCarrierRow) {
+      alert('يوجد سجلات تشغيل نشطة بدون ناقل معتمد أو بحاجة لحسم. يجب حسم جميع صفوف الناقلين قبل المتابعة.');
+      return;
+    }
+
+    transitionToRosterStage('MATERIAL_RESOLUTION');
   };
 
-  // C4 Smart Import: Progression Gate from MATERIAL_RESOLUTION to DRIVER_TRUCK_RESOLUTION
+  // C4 Smart Import: Progression Gate from MATERIAL_RESOLUTION to DRIVER_TRUCK_RESOLUTION (D11, D14)
   const handleSmartImportContinueToDriverTruck = () => {
     if (!importBatch) return;
     const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
@@ -942,7 +1000,19 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       alert('يرجى حسم جميع مجموعات المواد قبل الانتقال إلى مراجعة السائقين والشاحنات');
       return;
     }
-    setRosterImportStage('DRIVER_TRUCK_RESOLUTION');
+
+    // D11: Material row-level required gate
+    const activeRows = importBatch.rows.filter((r) => r.status !== 'REJECTED');
+    const hasUnresolvedMaterialRow = activeRows.some((r) => {
+      const materialRes = r.entityResolutions?.material;
+      return !materialRes?.matchedId || materialRes.status === 'UNRESOLVED' || materialRes.status === 'CONFLICT';
+    });
+    if (hasUnresolvedMaterialRow) {
+      alert('يوجد سجلات تشغيل نشطة بدون مادة معتمدة أو بحاجة لحسم. يجب حسم جميع صفوف المواد قبل المتابعة.');
+      return;
+    }
+
+    transitionToRosterStage('DRIVER_TRUCK_RESOLUTION');
   };
 
   // C4 Smart Import: Accept Driver Candidate
@@ -1464,7 +1534,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
       setImportBatch({ ...revalidated });
-      setRosterImportStage('FINAL_REVIEW');
+      transitionToRosterStage('FINAL_REVIEW');
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
       console.error('Final review revalidation error:', err);
@@ -1546,7 +1616,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       // 6. Store result and batch without clearing
       setImportBatch({ ...committedBatch });
       setSmartImportCommitResult(result);
-      setRosterImportStage('COMMIT_RESULT');
+      transitionToRosterStage('COMMIT_RESULT');
 
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
@@ -1560,35 +1630,16 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  // C5 Smart Import: Final Review Blocker / Back Navigation Strategy
+  // C5 Smart Import: Final Review Blocker / Back Navigation Strategy (D14, D17)
   const handleFinalReviewBack = () => {
     if (!importBatch) {
-      setRosterImportStage('DRIVER_TRUCK_RESOLUTION');
+      transitionToRosterStage('DRIVER_TRUCK_RESOLUTION');
       return;
     }
 
-    const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
-    const issues = importBatch.issues || [];
-    const rows = importBatch.rows || [];
-    const activeRows = rows.filter((r) => r.status !== 'REJECTED');
+    const blockerType = classifyFinalReviewBlocker(importBatch);
 
-    // CARRIER OWNED BLOCKER
-    const unresolvedCarriers = (reviewGroups.carrier || []).some(
-      (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
-    );
-    const carrierIssues = issues.some(
-      (iss) => (iss.severity === 'BLOCKING' || iss.blocking) &&
-        iss.code !== 'DRIVER_CARRIER_CONFLICT' &&
-        (iss.field === 'carrierId' || iss.code === 'UNRESOLVED_CARRIER' || String(iss.code).startsWith('CARRIER_'))
-    );
-    const carrierRowBlock = activeRows.some(
-      (r) => !r.entityResolutions?.carrier?.matchedId ||
-        r.entityResolutions?.carrier?.status === 'UNRESOLVED' ||
-        r.entityResolutions?.carrier?.status === 'CONFLICT' ||
-        r.entityResolutions?.carrier?.status === 'REVIEW_REQUIRED'
-    );
-
-    if (unresolvedCarriers || carrierIssues || carrierRowBlock) {
+    if (blockerType === 'CARRIER') {
       const confirmed = window.confirm(
         'تغيّر أو تعذر اعتماد بيانات الناقل بعد المراجعة النهائية. لأن بيانات السائقين والشاحنات مرتبطة بالناقل، يجب إعادة تحليل جلسة الاستيراد. هل تريد المتابعة؟'
       );
@@ -1598,28 +1649,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       return;
     }
 
-    // MATERIAL OWNED BLOCKER
-    const unresolvedMaterials = (reviewGroups.material || []).some(
-      (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
-    );
-    const materialIssues = issues.some(
-      (iss) => (iss.severity === 'BLOCKING' || iss.blocking) &&
-        (iss.field === 'materialId' || String(iss.code).includes('MATERIAL'))
-    );
-    const materialRowBlock = activeRows.some(
-      (r) => !r.entityResolutions?.material?.matchedId ||
-        r.entityResolutions?.material?.status === 'UNRESOLVED' ||
-        r.entityResolutions?.material?.status === 'CONFLICT' ||
-        r.entityResolutions?.material?.status === 'REVIEW_REQUIRED'
-    );
-
-    if (unresolvedMaterials || materialIssues || materialRowBlock) {
-      setRosterImportStage('MATERIAL_RESOLUTION');
+    if (blockerType === 'MATERIAL') {
+      transitionToRosterStage('MATERIAL_RESOLUTION');
       return;
     }
 
     // DRIVER/TRUCK OWNED BLOCKER OR NORMAL BACK
-    setRosterImportStage('DRIVER_TRUCK_RESOLUTION');
+    transitionToRosterStage('DRIVER_TRUCK_RESOLUTION');
   };
 
   // C2 Smart Import: Accept Carrier Candidate
@@ -1732,9 +1768,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         operationId: `OP-CARRIER-CREATE-${Date.now()}`
       });
 
+      const createdCarrier = snapshot.relationshipContext.carriers?.find((c: any) => c.carrierId === result.carrierId);
       const resolutionPayload = {
         matchedId: result.carrierId,
-        matchedName: smartImportPendingCarrierGroup.sourceValue,
+        matchedName: createdCarrier?.name || smartImportPendingCarrierGroup.sourceValue,
         sourceValue: smartImportPendingCarrierGroup.sourceValue,
       };
 
@@ -1872,9 +1909,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       });
 
       // 4. Construct resolution payload
+      const createdMaterial = snapshot.relationshipContext.materials?.find((m: any) => m.materialId === result.materialId);
       const resolutionPayload = {
         matchedId: result.materialId,
-        matchedName: smartImportPendingMaterialGroup.sourceValue,
+        matchedName: createdMaterial?.nameAr || createdMaterial?.name || smartImportPendingMaterialGroup.sourceValue,
         sourceValue: smartImportPendingMaterialGroup.sourceValue,
       };
 
@@ -2962,15 +3000,28 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       mode="CREATE"
                       projectId={project.projectId}
                       zIndexClass="z-60"
-                      initialCarrier={smartImportPendingCarrierGroup ? {
-                        name: smartImportPendingCarrierGroup.sourceValue,
-                        nameAr: smartImportPendingCarrierGroup.sourceValue,
-                      } as any : undefined}
+                      initialName={smartImportPendingCarrierGroup ? smartImportPendingCarrierGroup.sourceValue : ''}
                       onClose={() => {
                         setIsSmartImportCarrierModalOpen(false);
                         setSmartImportPendingCarrierGroup(null);
                       }}
                       onCreated={handleSmartImportCarrierCreated}
+                    />
+                  )}
+
+                  {/* Smart Import Dedicated Material Creation Modal (D02: Reachable in Phase 2) */}
+                  {project && isSmartImportMaterialModalOpen && (
+                    <MaterialEditorModal
+                      open={isSmartImportMaterialModalOpen}
+                      mode="CREATE"
+                      projectId={project.projectId}
+                      zIndexClass="z-60"
+                      initialName={smartImportPendingMaterialGroup ? smartImportPendingMaterialGroup.sourceValue : ''}
+                      onClose={() => {
+                        setIsSmartImportMaterialModalOpen(false);
+                        setSmartImportPendingMaterialGroup(null);
+                      }}
+                      onCreated={handleSmartImportMaterialCreated}
                     />
                   )}
 

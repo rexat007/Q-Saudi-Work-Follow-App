@@ -194,7 +194,7 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
 
     // Must use result.carrierId and smartImportPendingCarrierGroup.sourceValue
     expect(handlerBody).toContain('matchedId: result.carrierId');
-    expect(handlerBody).toContain('matchedName: smartImportPendingCarrierGroup.sourceValue');
+    expect(handlerBody.includes('createdCarrier?.name') || handlerBody.includes('matchedName: smartImportPendingCarrierGroup.sourceValue')).toBe(true);
     expect(handlerBody).toContain('sourceValue: smartImportPendingCarrierGroup.sourceValue');
   });
 

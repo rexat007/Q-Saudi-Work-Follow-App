@@ -21,6 +21,37 @@ export interface RosterCarrierResolutionLayerProps {
   isProcessing?: boolean;
 }
 
+export const checkCarrierResolutionReadiness = (batch: UnifiedImportBatch): boolean => {
+  if (!batch || !batch.rows) return false;
+  const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+  const carrierGroups = groups.carrier || [];
+  if (carrierGroups.length === 0) return false;
+
+  const hasUnresolvedGroups = carrierGroups.some(
+    (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
+  );
+  if (hasUnresolvedGroups) return false;
+
+  const activeRows = batch.rows.filter((r) => r.status !== 'REJECTED');
+  if (activeRows.length === 0) return false;
+
+  const hasMissingOrUnresolvedRow = activeRows.some((r) => {
+    const carrierRes = r.entityResolutions?.carrier;
+    return !carrierRes?.matchedId || carrierRes.status === 'UNRESOLVED' || carrierRes.status === 'CONFLICT';
+  });
+  if (hasMissingOrUnresolvedRow) return false;
+
+  const issues = batch.issues || [];
+  const hasCarrierBlockingIssue = issues.some(
+    (iss) => (iss.severity === 'BLOCKING' || iss.blocking) &&
+      iss.code !== 'DRIVER_CARRIER_CONFLICT' &&
+      (iss.field === 'carrierId' || iss.field === 'carrierName' || iss.code === 'UNRESOLVED_CARRIER' || String(iss.code).startsWith('CARRIER_'))
+  );
+  if (hasCarrierBlockingIssue) return false;
+
+  return true;
+};
+
 export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayerProps> = ({
   importBatch,
   projectCarriers = [],
@@ -48,7 +79,9 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
   }, [carrierGroups]);
 
   const resolvedCount = carrierGroups.length - unresolvedCount;
-  const isCarrierLayerComplete = carrierGroups.length > 0 && unresolvedCount === 0;
+  const isCarrierLayerComplete = useMemo(() => {
+    return checkCarrierResolutionReadiness(importBatch);
+  }, [importBatch]);
 
   return (
     <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">

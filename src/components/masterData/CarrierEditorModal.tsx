@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Truck, X, AlertCircle, Loader2 } from 'lucide-react';
 import {
   carrierManagementClientService,
@@ -58,7 +59,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   clientService = carrierManagementClientService,
   zIndexClass = 'z-50',
 }) => {
-  const isEditMode = mode === 'EDIT' || (initialCarrier !== null && initialCarrier !== undefined);
+  const isEditMode = mode === 'EDIT';
 
   const [name, setName] = useState('');
   const [commercialRegistrationNo, setCommercialRegistrationNo] = useState('');
@@ -93,7 +94,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           initialCarrier.contactEmail || initialCarrier.contactPerson?.email || ''
         );
       } else {
-        setName(initialName || '');
+        setName(initialName || initialCarrier?.name || '');
         setCommercialRegistrationNo('');
         setTransportLicenseNo('');
         setContactPersonName('');
@@ -284,7 +285,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
     }
   };
 
-  return (
+  const modalContent = (
     <div
       className={`fixed inset-0 bg-stone-950/80 backdrop-blur-xs ${zIndexClass} flex items-center justify-center p-4 animate-in fade-in duration-200`}
       dir="rtl"
@@ -486,4 +487,6 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
 };

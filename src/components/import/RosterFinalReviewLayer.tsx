@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -13,7 +13,7 @@ import {
   Lock,
   RefreshCw,
 } from 'lucide-react';
-import { UnifiedImportBatch } from '../../types/import';
+import { UnifiedImportBatch } from '../../types/unifiedImport';
 import { RosterBatchReviewService } from '../../services/import/rosterBatchReview.service';
 
 export interface RosterFinalReviewLayerProps {
@@ -110,7 +110,10 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
   const unresolvedGroupCount =
     unresolvedCarrierCount + unresolvedMaterialCount + unresolvedDriverCount + unresolvedTruckCount;
 
-  // Inspect rows directly for readiness
+  const [confirmWarnings, setConfirmWarnings] = useState<boolean>(
+    Boolean(importBatch?.warningConfirmation?.confirmed)
+  );
+
   const blockedRows = activeRows.filter((r) => {
     const isErrorStatus = r.status === 'ERROR' || r.reviewStatus === 'requires_review' || r.reviewStatus === 'error';
     const missingCarrier = !r.entityResolutions?.carrier?.matchedId;
@@ -132,6 +135,8 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
     blockedRows.length === 0 &&
     unresolvedGroupCount === 0 &&
     blockingIssues.length === 0;
+
+  const canCommit = isReadyToCommit && (warningRows.length === 0 || confirmWarnings);
 
   return (
     <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
@@ -311,6 +316,37 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
             </div>
           </div>
 
+          {/* Warning Confirmation Banner if warnings exist */}
+          {warningRows.length > 0 && isReadyToCommit && (
+            <div className="p-3.5 bg-amber-950/40 border border-amber-800/60 rounded-xl flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-amber-300 font-bold">
+                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>يوجد {warningRows.length} سجل يحتوي على تنبيهات تشغيلية. يلزم تأكيد الموافقة عليها قبل متابعة الاعتماد.</span>
+              </div>
+              <label htmlFor="confirm-warnings" className="flex items-center gap-2 cursor-pointer text-amber-200 font-bold hover:text-white shrink-0">
+                <input
+                  id="confirm-warnings"
+                  type="checkbox"
+                  checked={confirmWarnings}
+                  onChange={(e) => {
+                    setConfirmWarnings(e.target.checked);
+                    if (importBatch) {
+                      importBatch.warningConfirmation = e.target.checked
+                        ? {
+                            confirmed: true,
+                            confirmedAt: new Date().toISOString(),
+                            confirmedBy: 'OPERATIONAL_SUPERVISOR',
+                          }
+                        : undefined;
+                    }
+                  }}
+                  className="w-4 h-4 rounded-sm border-amber-600 bg-stone-900 text-amber-600 focus:ring-amber-500"
+                />
+                <span>أقر بالموافقة على استيراد السجلات المحتوية على تنبيهات</span>
+              </label>
+            </div>
+          )}
+
           {/* Row Preview Table */}
           <div className="space-y-2">
             <div className="flex justify-between items-center text-stone-400 font-bold border-b border-stone-800 pb-2">
@@ -407,10 +443,15 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
         {/* Modal Footer */}
         <div className="p-4 border-t border-stone-800 bg-stone-950 flex justify-between items-center shrink-0">
           <div className="text-[11px] font-bold">
-            {isReadyToCommit ? (
+            {canCommit ? (
               <span className="text-emerald-400 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>جاهز للاعتماد عبر البوابة الموحدة للبيانات</span>
+              </span>
+            ) : isReadyToCommit ? (
+              <span className="text-amber-400 flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4" />
+                <span>بانتظار تأكيد الموافقة على التنبيهات أعلاه قبل الاعتماد</span>
               </span>
             ) : (
               <span className="text-rose-400 flex items-center gap-1.5">
@@ -435,7 +476,7 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
             <button
               type="button"
               onClick={onCommit}
-              disabled={!isReadyToCommit || isCommitting}
+              disabled={!canCommit || isCommitting}
               className="px-6 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 text-white font-black rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/50 transition-colors"
             >
               {isCommitting ? (

@@ -125,7 +125,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
             truck: { matchedId: 'TRK-1', matchedName: '1234', resolutionType: 'AUTO' },
           },
           status: 'VALID',
-          reviewStatus: 'resolved',
+          reviewStatus: 'accepted',
         },
       ],
       issues: [],
@@ -172,8 +172,8 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
     const fnIdx = wizardContent.indexOf('handleFinalReviewBack');
     const fnBlock = wizardContent.slice(fnIdx, fnIdx + 3000);
     expect(fnBlock).toContain('handleResetRosterImport');
-    expect(fnBlock).toContain("setRosterImportStage('MATERIAL_RESOLUTION')");
-    expect(fnBlock).toContain("setRosterImportStage('DRIVER_TRUCK_RESOLUTION')");
+    expect(fnBlock.includes("transitionToRosterStage('MATERIAL_RESOLUTION')") || fnBlock.includes("setRosterImportStage('MATERIAL_RESOLUTION')")).toBe(true);
+    expect(fnBlock.includes("transitionToRosterStage('DRIVER_TRUCK_RESOLUTION')") || fnBlock.includes("setRosterImportStage('DRIVER_TRUCK_RESOLUTION')")).toBe(true);
   });
 
   // F. CREATE RECOVERY
