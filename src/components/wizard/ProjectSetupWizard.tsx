@@ -2832,6 +2832,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       open={isSmartImportMaterialModalOpen}
                       mode="CREATE"
                       projectId={project.projectId}
+                      zIndexClass="z-60"
                       initialName={smartImportPendingMaterialGroup ? smartImportPendingMaterialGroup.sourceValue : ''}
                       onClose={() => {
                         setIsSmartImportMaterialModalOpen(false);
@@ -2960,6 +2961,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       open={isSmartImportCarrierModalOpen}
                       mode="CREATE"
                       projectId={project.projectId}
+                      zIndexClass="z-60"
                       initialCarrier={smartImportPendingCarrierGroup ? {
                         name: smartImportPendingCarrierGroup.sourceValue,
                         nameAr: smartImportPendingCarrierGroup.sourceValue,

@@ -36,6 +36,7 @@ export interface MaterialEditorModalProps {
       overrideToken?: string
     ) => Promise<MaterialUpdateResult>;
   };
+  zIndexClass?: string;
 }
 
 export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
@@ -48,6 +49,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
   onCreated,
   onUpdated,
   clientService = materialManagementClientService,
+  zIndexClass = 'z-50',
 }) => {
   const isEditMode = mode === 'EDIT' || (initialMaterial !== null && initialMaterial !== undefined);
 
@@ -260,7 +262,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto"
+      className={`fixed inset-0 ${zIndexClass} flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="material-modal-title"

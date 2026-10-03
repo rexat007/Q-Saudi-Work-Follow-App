@@ -43,6 +43,7 @@ export interface CarrierEditorModalProps {
       overrideToken?: string
     ) => Promise<CarrierUpdateResult>;
   };
+  zIndexClass?: string;
 }
 
 export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
@@ -55,6 +56,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   onCreated,
   onUpdated,
   clientService = carrierManagementClientService,
+  zIndexClass = 'z-50',
 }) => {
   const isEditMode = mode === 'EDIT' || (initialCarrier !== null && initialCarrier !== undefined);
 
@@ -284,7 +286,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className={`fixed inset-0 bg-stone-950/80 backdrop-blur-xs ${zIndexClass} flex items-center justify-center p-4 animate-in fade-in duration-200`}
       dir="rtl"
     >
       <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">

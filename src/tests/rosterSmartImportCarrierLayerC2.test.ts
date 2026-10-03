@@ -224,4 +224,10 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
     expect(handlerBody).toContain('resolutionPayload');
     expect(handlerBody).toContain('pipelineCtx');
   });
+
+  it('14. Smart Import CarrierEditorModal renders at z-60 above parent Carrier Resolution layer z-50', () => {
+    const smartImportCarrierModalIdx = wizardContent.indexOf('Smart Import Dedicated Carrier Creation Modal');
+    const smartImportModalBlock = wizardContent.slice(smartImportCarrierModalIdx, smartImportCarrierModalIdx + 600);
+    expect(smartImportModalBlock).toContain('zIndexClass="z-60"');
+  });
 });

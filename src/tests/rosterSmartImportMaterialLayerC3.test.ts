@@ -298,5 +298,11 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
     expect(isMaterialLayerComplete).toBe(false);
     expect(materialLayerContent).toContain('materialGroups.length > 0 && unresolvedCount === 0');
   });
+
+  it('19. Smart Import MaterialEditorModal renders at z-60 above parent Material Resolution layer z-50', () => {
+    const smartImportMaterialModalIdx = wizardContent.indexOf('Smart Import Dedicated Material Creation Modal');
+    const smartImportModalBlock = wizardContent.slice(smartImportMaterialModalIdx, smartImportMaterialModalIdx + 600);
+    expect(smartImportModalBlock).toContain('zIndexClass="z-60"');
+  });
 });
 

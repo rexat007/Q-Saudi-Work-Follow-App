@@ -263,8 +263,8 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-stone-800 bg-stone-950 flex justify-between items-center shrink-0">
-          <div className="text-[11px] text-stone-400 font-medium">
+        <div className="p-4 border-t border-stone-800 bg-stone-950 flex flex-wrap sm:flex-nowrap justify-between items-center gap-3 shrink-0">
+          <div className="text-[11px] text-stone-400 font-medium shrink-0">
             {isMaterialLayerComplete ? (
               <span className="text-emerald-400 font-bold flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" />
@@ -277,13 +277,13 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap shrink-0">
             {isMaterialLayerComplete && onContinueToDriverTruck && (
               <button
                 type="button"
                 onClick={onContinueToDriverTruck}
                 disabled={isProcessing}
-                className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors"
+                className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors shrink-0"
               >
                 <span>متابعة إلى مراجعة السائقين والشاحنات</span>
                 <ChevronLeft className="w-4 h-4" />
@@ -298,7 +298,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                   }
                 }}
                 disabled={isProcessing}
-                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors shrink-0"
               >
                 إلغاء الاستيراد
               </button>
@@ -307,7 +307,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                 type="button"
                 onClick={onClose}
                 disabled={isProcessing}
-                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors shrink-0"
               >
                 إغلاق
               </button>
