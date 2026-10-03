@@ -60,7 +60,7 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
   it('5. from MAPPING_APPROVAL: only CARRIER_RESOLUTION becomes next active stage after pipeline execution', () => {
     const pipelineCallIdx = wizardContent.indexOf('DriverTruckPipelineService.processFileToReview');
     const followingLines = wizardContent.slice(pipelineCallIdx, pipelineCallIdx + 1000);
-    expect(followingLines.includes("transitionToRosterStage('CARRIER_RESOLUTION')") || followingLines.includes("setRosterImportStage('CARRIER_RESOLUTION')")).toBe(true);
+    expect(followingLines.includes("transitionToRosterStage('CARRIER_RESOLUTION'") || followingLines.includes("setRosterImportStage('CARRIER_RESOLUTION')")).toBe(true);
     expect(followingLines).not.toContain("setRosterImportStage('MATERIAL_RESOLUTION')");
     expect(followingLines).not.toContain("setRosterImportStage('FINAL_REVIEW')");
   });
@@ -146,7 +146,7 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
 
   // 16. successful discovery transitions to MAPPING_APPROVAL
   it('16. successful discovery transitions to MAPPING_APPROVAL', () => {
-    expect(wizardContent.includes("transitionToRosterStage('MAPPING_APPROVAL')") || wizardContent.includes("setRosterImportStage('MAPPING_APPROVAL')")).toBe(true);
+    expect(wizardContent.includes("transitionToRosterStage('MAPPING_APPROVAL'") || wizardContent.includes("setRosterImportStage('MAPPING_APPROVAL')")).toBe(true);
   });
 
   // 17. existing mapping approval button remains the explicit gate
@@ -228,5 +228,89 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
     expect(wizardContent).toContain('<MaterialEditorModal');
     expect(wizardContent).toContain('editingMaterial');
     expect(wizardContent).toContain('editingCarrier');
+  });
+
+  // 29. BEHAVIORAL: SOURCE_DISCOVERY to MAPPING_APPROVAL transition contract
+  it('29. BEHAVIORAL: SOURCE_DISCOVERY to MAPPING_APPROVAL allows transition when discovery completed', () => {
+    const validDiscoveryContext: RosterWorkflowContext = {
+      hasSource: true,
+      hasDiscovery: true,
+      hasDetectedHeaders: true,
+      isMappingApproved: false,
+      hasImportBatch: false,
+    };
+    expect(
+      RosterSmartImportWorkflowService.canEnterStage('MAPPING_APPROVAL', validDiscoveryContext, 'SOURCE_DISCOVERY')
+    ).toBe(true);
+
+    const incompleteDiscoveryContext: RosterWorkflowContext = {
+      hasSource: true,
+      hasDiscovery: false,
+      hasDetectedHeaders: false,
+      isMappingApproved: false,
+      hasImportBatch: false,
+    };
+    expect(
+      RosterSmartImportWorkflowService.canEnterStage('MAPPING_APPROVAL', incompleteDiscoveryContext, 'SOURCE_DISCOVERY')
+    ).toBe(false);
+  });
+
+  // 30. BEHAVIORAL: MAPPING_APPROVAL to CARRIER_RESOLUTION with effective next context
+  it('30. BEHAVIORAL: MAPPING_APPROVAL to CARRIER_RESOLUTION succeeds with effective next context despite stale state', () => {
+    // Stale React state before re-render
+    const staleContext: RosterWorkflowContext = {
+      hasSource: true,
+      hasDiscovery: true,
+      hasDetectedHeaders: true,
+      isMappingApproved: false,
+      hasImportBatch: false,
+    };
+
+    // Fails on stale context
+    expect(
+      RosterSmartImportWorkflowService.canEnterStage('CARRIER_RESOLUTION', staleContext, 'MAPPING_APPROVAL')
+    ).toBe(false);
+
+    // Effective next context overrides
+    const effectiveContext: RosterWorkflowContext = {
+      ...staleContext,
+      isMappingApproved: true,
+      hasImportBatch: true,
+    };
+
+    // Succeeds on effective context
+    expect(
+      RosterSmartImportWorkflowService.canEnterStage('CARRIER_RESOLUTION', effectiveContext, 'MAPPING_APPROVAL')
+    ).toBe(true);
+  });
+
+  // 31. BEHAVIORAL: ONE-STAGE-AT-A-TIME sequential isolation
+  it('31. BEHAVIORAL: ONE-STAGE-AT-A-TIME strict sequential guard prevents skipping layers', () => {
+    const fullContext: RosterWorkflowContext = {
+      hasSource: true,
+      hasDiscovery: true,
+      hasDetectedHeaders: true,
+      isMappingApproved: true,
+      hasImportBatch: true,
+      isCommitAttemptedOrCompleted: false,
+    };
+
+    // Cannot jump from SOURCE_DISCOVERY directly to CARRIER_RESOLUTION or later
+    expect(RosterSmartImportWorkflowService.canEnterStage('CARRIER_RESOLUTION', fullContext, 'SOURCE_DISCOVERY')).toBe(false);
+    expect(RosterSmartImportWorkflowService.canEnterStage('MATERIAL_RESOLUTION', fullContext, 'SOURCE_DISCOVERY')).toBe(false);
+    expect(RosterSmartImportWorkflowService.canEnterStage('FINAL_REVIEW', fullContext, 'SOURCE_DISCOVERY')).toBe(false);
+
+    // Cannot jump from MAPPING_APPROVAL directly to MATERIAL_RESOLUTION or later
+    expect(RosterSmartImportWorkflowService.canEnterStage('MATERIAL_RESOLUTION', fullContext, 'MAPPING_APPROVAL')).toBe(false);
+    expect(RosterSmartImportWorkflowService.canEnterStage('FINAL_REVIEW', fullContext, 'MAPPING_APPROVAL')).toBe(false);
+
+    // Cannot jump from CARRIER_RESOLUTION directly to FINAL_REVIEW
+    expect(RosterSmartImportWorkflowService.canEnterStage('FINAL_REVIEW', fullContext, 'CARRIER_RESOLUTION')).toBe(false);
+
+    // Sequential step transitions succeed
+    expect(RosterSmartImportWorkflowService.canEnterStage('CARRIER_RESOLUTION', fullContext, 'MAPPING_APPROVAL')).toBe(true);
+    expect(RosterSmartImportWorkflowService.canEnterStage('MATERIAL_RESOLUTION', fullContext, 'CARRIER_RESOLUTION')).toBe(true);
+    expect(RosterSmartImportWorkflowService.canEnterStage('DRIVER_TRUCK_RESOLUTION', fullContext, 'MATERIAL_RESOLUTION')).toBe(true);
+    expect(RosterSmartImportWorkflowService.canEnterStage('FINAL_REVIEW', fullContext, 'DRIVER_TRUCK_RESOLUTION')).toBe(true);
   });
 });

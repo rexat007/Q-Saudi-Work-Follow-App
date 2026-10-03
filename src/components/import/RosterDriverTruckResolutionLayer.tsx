@@ -50,6 +50,7 @@ export interface RosterDriverTruckResolutionLayerProps {
   onRetryTruckConvergence?: () => Promise<void> | void;
   onContinueToFinalReview?: () => void;
   onCancelImport?: () => void;
+  embeddedInWorkflowHost?: boolean;
 }
 
 /**
@@ -82,6 +83,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   onRetryTruckConvergence,
   onContinueToFinalReview,
   onCancelImport,
+  embeddedInWorkflowHost = false,
 }) => {
   const [selectedAlternateDriver, setSelectedAlternateDriver] = useState<Record<string, string>>({});
   const [selectedAlternateTruck, setSelectedAlternateTruck] = useState<Record<string, string>>({});
@@ -120,7 +122,6 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
 
   const totalGroups = driverGroups.length + truckGroups.length;
   const totalUnresolved = unresolvedDriverCount + unresolvedTruckCount;
-
   const isDriverLayerComplete = driverGroups.length > 0 ? unresolvedDriverCount === 0 : true;
   const isTruckLayerComplete = truckGroups.length > 0 ? unresolvedTruckCount === 0 : true;
   const isLayerComplete = totalGroups > 0 && totalUnresolved === 0;
@@ -190,19 +191,19 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-        {/* Header */}
-        <div className="p-5 border-b border-stone-800 bg-stone-950 flex justify-between items-center shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
-              <Users className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <span>مراجعة وحسم السائقين والشاحنات (Driver & Truck Resolution Layer)</span>
-                <span className="text-[10px] font-mono bg-stone-800 px-2 py-0.5 rounded-full text-amber-400">
+  const panelContent = (
+    <>
+      <div className={`bg-stone-900 border border-stone-800 rounded-2xl w-full overflow-hidden flex flex-col ${embeddedInWorkflowHost ? 'flex-1 min-h-0' : 'max-w-4xl shadow-2xl max-h-[90vh]'}`}>
+      {/* Header */}
+      <div className="p-5 border-b border-stone-800 bg-stone-950 flex justify-between items-center shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
+            <Users className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="text-sm font-black text-white flex items-center gap-2">
+              <span>مراجعة وحسم السائقين والشاحنات (Driver & Truck Resolution Layer)</span>
+              <span className="text-[10px] font-mono bg-stone-800 px-2 py-0.5 rounded-full text-amber-400">
                   المرحلة 5 من 7
                 </span>
               </h3>
@@ -901,6 +902,16 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
         );
         return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
       })()}
+    </>
+  );
+
+  if (embeddedInWorkflowHost) {
+    return panelContent;
+  }
+
+  return (
+    <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      {panelContent}
     </div>
   );
 };

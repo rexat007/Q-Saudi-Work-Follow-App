@@ -14,6 +14,7 @@ export interface RosterCommitResultLayerProps {
   commitResult: ImportResult;
   onFinish?: () => void;
   onClose?: () => void;
+  embeddedInWorkflowHost?: boolean;
 }
 
 export const RosterCommitResultLayer: React.FC<RosterCommitResultLayerProps> = ({
@@ -21,6 +22,7 @@ export const RosterCommitResultLayer: React.FC<RosterCommitResultLayerProps> = (
   commitResult,
   onFinish,
   onClose,
+  embeddedInWorkflowHost = false,
 }) => {
   const committedRows = commitResult.committedRows || 0;
   const failedRows = commitResult.failedRows || 0;
@@ -56,23 +58,22 @@ export const RosterCommitResultLayer: React.FC<RosterCommitResultLayerProps> = (
     bannerBgClass = 'bg-rose-950/50 border-rose-800/60 text-rose-200';
   }
 
-  return (
-    <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-        {/* Header */}
-        <div className="p-5 border-b border-stone-800 bg-stone-950 flex justify-between items-center shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
-              <Database className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <span>نتيجة تنفيذ الاستيراد (Commit Result Layer)</span>
-                <span className="text-[10px] font-mono bg-stone-800 px-2 py-0.5 rounded-full text-amber-400">
-                  المرحلة 7 من 7
-                </span>
-              </h3>
-              <p className="text-[11px] text-stone-400">
+  const panelContent = (
+    <div className={`bg-stone-900 border border-stone-800 rounded-2xl w-full overflow-hidden flex flex-col ${embeddedInWorkflowHost ? 'flex-1 min-h-0' : 'max-w-4xl shadow-2xl max-h-[90vh]'}`}>
+      {/* Header */}
+      <div className="p-5 border-b border-stone-800 bg-stone-950 flex justify-between items-center shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
+            <Database className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="text-sm font-black text-white flex items-center gap-2">
+              <span>نتيجة تنفيذ الاستيراد (Commit Result Layer)</span>
+              <span className="text-[10px] font-mono bg-stone-800 px-2 py-0.5 rounded-full text-amber-400">
+                المرحلة 7 من 7
+              </span>
+            </h3>
+            <p className="text-[11px] text-stone-400">
                 تقرير شامل وموثوق عن نتيجة اعتماد ودفع بيانات سجل التشغيل
               </p>
             </div>
@@ -198,6 +199,15 @@ export const RosterCommitResultLayer: React.FC<RosterCommitResultLayerProps> = (
           </div>
         </div>
       </div>
+    );
+
+  if (embeddedInWorkflowHost) {
+    return panelContent;
+  }
+
+  return (
+    <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      {panelContent}
     </div>
   );
 };

@@ -22,6 +22,7 @@ export interface RosterFinalReviewLayerProps {
   isCommitting?: boolean;
   commitError?: string | null;
   onClose?: () => void;
+  embeddedInWorkflowHost?: boolean;
 }
 
 export const classifyFinalReviewBlocker = (batch: UnifiedImportBatch): 'CARRIER' | 'MATERIAL' | 'DRIVER_TRUCK' => {
@@ -78,6 +79,7 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
   isCommitting = false,
   commitError = null,
   onClose,
+  embeddedInWorkflowHost = false,
 }) => {
   const rows = importBatch.rows || [];
   const activeRows = rows.filter((r) => r.status !== 'REJECTED');
@@ -138,15 +140,14 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
 
   const canCommit = isReadyToCommit && (warningRows.length === 0 || confirmWarnings);
 
-  return (
-    <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-5xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-        {/* Header */}
-        <div className="p-5 border-b border-stone-800 bg-stone-950 flex justify-between items-center shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
+  const panelContent = (
+    <div className={`bg-stone-900 border border-stone-800 rounded-2xl w-full overflow-hidden flex flex-col ${embeddedInWorkflowHost ? 'flex-1 min-h-0' : 'max-w-5xl shadow-2xl max-h-[90vh]'}`}>
+      {/* Header */}
+      <div className="p-5 border-b border-stone-800 bg-stone-950 flex justify-between items-center shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
+            <ShieldCheck className="w-4 h-4" />
+          </div>
             <div>
               <h3 className="text-sm font-black text-white flex items-center gap-2">
                 <span>المراجعة النهائية والاعتماد (Final Review & Commit Layer)</span>
@@ -494,6 +495,15 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
           </div>
         </div>
       </div>
+    );
+
+  if (embeddedInWorkflowHost) {
+    return panelContent;
+  }
+
+  return (
+    <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      {panelContent}
     </div>
   );
 };

@@ -325,7 +325,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [rosterDiscoveryError, setRosterDiscoveryError] = useState<string | null>(null);
 
   // C1 Layered Smart Import Stage Controller
+  const [isSmartImportOpen, setIsSmartImportOpen] = useState<boolean>(false);
   const [rosterImportStage, setRosterImportStage] = useState<RosterSmartImportStage>('SOURCE_DISCOVERY');
+  const [rosterTransitionError, setRosterTransitionError] = useState<string | null>(null);
 
   // C2 Smart Import Carrier Resolution State
   const [smartImportPendingCarrierGroup, setSmartImportPendingCarrierGroup] = useState<RosterEntityReviewGroup | null>(null);
@@ -348,30 +350,48 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     ),
   }), [rosterSelectedFile, rosterBuffer, rosterDiscoveryResult, isRosterMappingApproved, importBatch, smartImportCommitResult, isCommittingImport]);
 
-  // Guarded workflow transition helper
-  const transitionToRosterStage = (targetStage: RosterSmartImportStage): boolean => {
+  // Guarded workflow transition helper with explicit effective next context support
+  const transitionToRosterStage = (
+    targetStage: RosterSmartImportStage,
+    nextContextOverrides?: Partial<RosterWorkflowContext>
+  ): boolean => {
     if (targetStage === 'SOURCE_DISCOVERY') {
+      setRosterTransitionError(null);
       setRosterImportStage('SOURCE_DISCOVERY');
       return true;
     }
+
+    const effectiveContext: RosterWorkflowContext = {
+      ...rosterWorkflowContext,
+      ...nextContextOverrides,
+    };
+
     const canEnter = RosterSmartImportWorkflowService.canEnterStage(
       targetStage,
-      rosterWorkflowContext,
+      effectiveContext,
       rosterImportStage
     );
+
     if (!canEnter) {
-      console.warn(`Blocked transition to ${targetStage} from ${rosterImportStage}`);
+      console.warn(`Blocked transition to ${targetStage} from ${rosterImportStage}`, {
+        effectiveContext,
+        currentStage: rosterImportStage,
+      });
       try {
         RosterSmartImportWorkflowService.assertStagePrerequisites(
           targetStage,
-          rosterWorkflowContext,
+          effectiveContext,
           rosterImportStage
         );
       } catch (err: any) {
-        setImportError(err.message || `تعذر الانتقال إلى مرحلة ${targetStage}`);
+        const msg = err.message || `تعذر الانتقال إلى مرحلة ${targetStage}`;
+        setRosterTransitionError(msg);
+        setImportError(msg);
       }
       return false;
     }
+
+    setRosterTransitionError(null);
     setRosterImportStage(targetStage);
     return true;
   };
@@ -775,7 +795,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             initialMappings[h] = translateDiscoveryToRosterTarget(diag?.canonicalField);
           });
           setRosterCustomMappings(initialMappings);
-          transitionToRosterStage('MAPPING_APPROVAL');
+          setIsSmartImportOpen(true);
+          transitionToRosterStage('MAPPING_APPROVAL', {
+            hasSource: true,
+            hasDiscovery: true,
+            hasDetectedHeaders: (discovery.detectedHeaders?.length || 0) > 0,
+          });
         } catch (innerErr: any) {
           if (currentGen !== rosterImportSessionGenerationRef.current) return;
           setRosterDiscoveryError(innerErr.message || 'خطأ أثناء استكشاف ملف سجل التشغيل');
@@ -941,7 +966,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       setImportBatch(batch);
       setIsRosterMappingApproved(true);
-      transitionToRosterStage('CARRIER_RESOLUTION');
+      setIsSmartImportOpen(true);
+      transitionToRosterStage('CARRIER_RESOLUTION', {
+        hasSource: true,
+        hasDiscovery: true,
+        hasDetectedHeaders: true,
+        isMappingApproved: true,
+        hasImportBatch: true,
+      });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
       setImportError(err?.message || 'خطأ أثناء تحليل ملف سجل التشغيل');
