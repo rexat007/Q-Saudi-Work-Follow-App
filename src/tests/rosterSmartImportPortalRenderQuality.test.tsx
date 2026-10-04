@@ -8,7 +8,8 @@ import { RosterCarrierResolutionLayer, checkCarrierResolutionReadiness } from '.
 import { RosterMaterialResolutionLayer, checkMaterialResolutionReadiness } from '../components/import/RosterMaterialResolutionLayer';
 import { RosterDriverTruckResolutionLayer } from '../components/import/RosterDriverTruckResolutionLayer';
 import { RosterFinalReviewLayer, classifyFinalReviewBlocker } from '../components/import/RosterFinalReviewLayer';
-import { UnifiedImportBatch } from '../types/unifiedImport';
+import { RosterCommitResultLayer } from '../components/import/RosterCommitResultLayer';
+import { UnifiedImportBatch, ImportResult } from '../types/unifiedImport';
 
 describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests', () => {
   let container: HTMLDivElement;
@@ -372,6 +373,457 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
     await act(async () => {
       root.unmount();
+    });
+  });
+
+  describe('STAGE RENDER INTEGRITY & RUNTIME SYMBOL SWEEP (All 7 Stages)', () => {
+    it('Stage 3 (CARRIER_RESOLUTION): renders unresolved state and resolved state with Continue button', async () => {
+      const root = createRoot(container);
+
+      // 1. Unresolved Carrier Stage
+      const unresolvedBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-C2-UNRESOLVED',
+        projectId: 'PRJ-101',
+        source: { sourceType: 'EXCEL_CSV' },
+        totalRows: 1,
+        validRows: 0,
+        errorRows: 0,
+        warningRows: 1,
+        requiresReviewRows: 1,
+        rows: [
+          {
+            rowNumber: 1,
+            raw: { carrier: 'ناقل مجهول' },
+            canonical: { carrierName: 'ناقل مجهول' },
+            entityResolutions: {
+              carrier: { sourceValue: 'ناقل مجهول', status: 'UNRESOLVED' },
+            },
+            status: 'WARNING',
+            reviewStatus: 'requires_review',
+          },
+        ],
+        issues: [],
+        auditTrail: [],
+        currentStage: 'REVIEW',
+        commitStatus: 'AWAITING_REVIEW',
+      };
+
+      await act(async () => {
+        root.render(
+          <RosterCarrierResolutionLayer
+            importBatch={unresolvedBatch}
+            projectCarriers={[]}
+            onAcceptCandidate={() => {}}
+            onCreateCarrier={() => {}}
+          />
+        );
+      });
+
+      expect(document.body.textContent).toContain('مراجعة وحسم الناقلين');
+      expect(document.body.textContent).toContain('إنشاء ناقل جديد');
+      expect(document.body.textContent).toContain('ناقل مجهول');
+
+      // 2. Resolved Carrier Stage
+      const resolvedBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-C2-RESOLVED',
+        projectId: 'PRJ-101',
+        source: { sourceType: 'EXCEL_CSV' },
+        totalRows: 1,
+        validRows: 1,
+        errorRows: 0,
+        warningRows: 0,
+        requiresReviewRows: 0,
+        rows: [
+          {
+            rowNumber: 1,
+            raw: { carrier: 'شركة الرمال للنقل' },
+            canonical: { carrierName: 'شركة الرمال للنقل' },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-101', matchedName: 'شركة الرمال للنقل', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+            },
+            status: 'VALID',
+            reviewStatus: 'accepted',
+          },
+        ],
+        issues: [],
+        auditTrail: [],
+        currentStage: 'REVIEW',
+        commitStatus: 'AWAITING_REVIEW',
+      };
+
+      const handleContinue = vi.fn();
+      await act(async () => {
+        root.render(
+          <RosterCarrierResolutionLayer
+            importBatch={resolvedBatch}
+            projectCarriers={[{ carrierId: 'CAR-101', name: 'شركة الرمال للنقل' }]}
+            onAcceptCandidate={() => {}}
+            onCreateCarrier={() => {}}
+            onContinueToMaterials={handleContinue}
+          />
+        );
+      });
+
+      expect(document.body.textContent).toContain('تم حسم جميع الناقلين بنجاح');
+      const continueBtn = Array.from(document.body.querySelectorAll('button')).find(
+        (b) => b.textContent?.includes('متابعة إلى مراجعة المواد')
+      );
+      expect(continueBtn).toBeDefined();
+
+      await act(async () => {
+        continueBtn?.click();
+      });
+      expect(handleContinue).toHaveBeenCalled();
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
+    it('Stage 4 (MATERIAL_RESOLUTION): renders unresolved state and resolved state with Continue button', async () => {
+      const root = createRoot(container);
+
+      // 1. Unresolved Material
+      const unresolvedBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-C3-UNRESOLVED',
+        projectId: 'PRJ-101',
+        source: { sourceType: 'EXCEL_CSV' },
+        totalRows: 1,
+        validRows: 0,
+        errorRows: 0,
+        warningRows: 1,
+        requiresReviewRows: 1,
+        rows: [
+          {
+            rowNumber: 1,
+            raw: { material: 'مادة غير معرّفة' },
+            canonical: { materialName: 'مادة غير معرّفة' },
+            entityResolutions: {
+              material: { sourceValue: 'مادة غير معرّفة', status: 'UNRESOLVED' },
+            },
+            status: 'WARNING',
+            reviewStatus: 'requires_review',
+          },
+        ],
+        issues: [],
+        auditTrail: [],
+        currentStage: 'REVIEW',
+        commitStatus: 'AWAITING_REVIEW',
+      };
+
+      await act(async () => {
+        root.render(
+          <RosterMaterialResolutionLayer
+            importBatch={unresolvedBatch}
+            projectMaterials={[]}
+            onAcceptCandidate={() => {}}
+            onCreateMaterial={() => {}}
+          />
+        );
+      });
+
+      expect(document.body.textContent).toContain('مراجعة وحسم المواد');
+      expect(document.body.textContent).toContain('إنشاء مادة جديدة');
+
+      // 2. Resolved Material
+      const resolvedBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-C3-RESOLVED',
+        projectId: 'PRJ-101',
+        source: { sourceType: 'EXCEL_CSV' },
+        totalRows: 1,
+        validRows: 1,
+        errorRows: 0,
+        warningRows: 0,
+        requiresReviewRows: 0,
+        rows: [
+          {
+            rowNumber: 1,
+            raw: { material: 'دفان ناعم' },
+            canonical: { materialName: 'دفان ناعم' },
+            entityResolutions: {
+              material: { matchedId: 'MAT-101', matchedName: 'دفان ناعم', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+            },
+            status: 'VALID',
+            reviewStatus: 'accepted',
+          },
+        ],
+        issues: [],
+        auditTrail: [],
+        currentStage: 'REVIEW',
+        commitStatus: 'AWAITING_REVIEW',
+      };
+
+      const handleContinue = vi.fn();
+      await act(async () => {
+        root.render(
+          <RosterMaterialResolutionLayer
+            importBatch={resolvedBatch}
+            projectMaterials={[{ materialId: 'MAT-101', name: 'دفان ناعم' }]}
+            onAcceptCandidate={() => {}}
+            onCreateMaterial={() => {}}
+            onContinueToDriverTruck={handleContinue}
+          />
+        );
+      });
+
+      expect(document.body.textContent).toContain('تم حسم جميع المواد بنجاح');
+      const continueBtn = Array.from(document.body.querySelectorAll('button')).find(
+        (b) => b.textContent?.includes('متابعة إلى مراجعة السائقين والشاحنات')
+      );
+      expect(continueBtn).toBeDefined();
+
+      await act(async () => {
+        continueBtn?.click();
+      });
+      expect(handleContinue).toHaveBeenCalled();
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
+    it('Stage 5 (DRIVER_TRUCK_RESOLUTION): renders completed state with "متابعة إلى المراجعة النهائية" and verifies ArrowLeft does not throw', async () => {
+      const root = createRoot(container);
+
+      const fullyResolvedBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-C4-RESOLVED',
+        projectId: 'PRJ-101',
+        source: { sourceType: 'EXCEL_CSV' },
+        totalRows: 1,
+        validRows: 1,
+        errorRows: 0,
+        warningRows: 0,
+        requiresReviewRows: 0,
+        rows: [
+          {
+            rowNumber: 1,
+            raw: { carrier: 'الناقل الأول', driverName: 'سالم القحطاني', truckPlate: '1111' },
+            canonical: { carrierName: 'الناقل الأول', driverName: 'سالم القحطاني', truckPlate: '1111' },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-1', matchedName: 'الناقل الأول', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+              material: { matchedId: 'MAT-1', matchedName: 'رمل', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+              driver: { matchedId: 'DRV-1', matchedName: 'سالم القحطاني', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+              truck: { matchedId: 'TRK-1', matchedName: '1111', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+            },
+            status: 'VALID',
+            reviewStatus: 'accepted',
+          },
+        ],
+        issues: [],
+        auditTrail: [],
+        currentStage: 'REVIEW',
+        commitStatus: 'AWAITING_REVIEW',
+      };
+
+      const handleContinueToFinal = vi.fn();
+
+      // This render must execute smoothly and mount the ArrowLeft icon without throwing ReferenceError
+      await act(async () => {
+        root.render(
+          <RosterDriverTruckResolutionLayer
+            importBatch={fullyResolvedBatch}
+            projectDrivers={[{ driverId: 'DRV-1', name: 'سالم القحطاني' }]}
+            projectTrucks={[{ truckId: 'TRK-1', plate: '1111' }]}
+            onAcceptCandidate={() => {}}
+            onCreateDriver={() => {}}
+            onCreateTruck={() => {}}
+            onContinueToFinalReview={handleContinueToFinal}
+          />
+        );
+      });
+
+      expect(document.body.textContent).toContain('مراجعة وحسم السائقين والشاحنات');
+      expect(document.body.textContent).toContain('متابعة إلى المراجعة النهائية');
+
+      const continueBtn = Array.from(document.body.querySelectorAll('button')).find(
+        (b) => b.textContent?.includes('متابعة إلى المراجعة النهائية')
+      );
+      expect(continueBtn).toBeDefined();
+      expect((continueBtn as HTMLButtonElement).disabled).toBe(false);
+
+      await act(async () => {
+        continueBtn?.click();
+      });
+      expect(handleContinueToFinal).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
+    it('Stage 6 (FINAL_REVIEW): renders ready state and blocker state correctly', async () => {
+      const root = createRoot(container);
+
+      // Ready batch
+      const readyBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-C5-READY',
+        projectId: 'PRJ-101',
+        source: { sourceType: 'EXCEL_CSV' },
+        totalRows: 1,
+        validRows: 1,
+        errorRows: 0,
+        warningRows: 0,
+        requiresReviewRows: 0,
+        rows: [
+          {
+            rowNumber: 1,
+            raw: {},
+            canonical: {},
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-1', matchedName: 'الناقل 1', status: 'RESOLVED' },
+              material: { matchedId: 'MAT-1', matchedName: 'مادة 1', status: 'RESOLVED' },
+              driver: { matchedId: 'DRV-1', matchedName: 'سائق 1', status: 'RESOLVED' },
+              truck: { matchedId: 'TRK-1', matchedName: 'شاحنة 1', status: 'RESOLVED' },
+            },
+            status: 'VALID',
+            reviewStatus: 'accepted',
+          },
+        ],
+        issues: [],
+        auditTrail: [],
+        currentStage: 'REVIEW',
+        commitStatus: 'AWAITING_REVIEW',
+      };
+
+      const handleCommit = vi.fn();
+      await act(async () => {
+        root.render(
+          <RosterFinalReviewLayer
+            importBatch={readyBatch}
+            onCommit={handleCommit}
+          />
+        );
+      });
+
+      expect(document.body.textContent).toContain('المراجعة النهائية والاعتماد');
+      expect(document.body.textContent).toContain('الدفعة جاهزة تماماً للاعتماد والتنفيذ');
+      expect(document.body.textContent).toContain('اعتماد وتنفيذ الاستيراد');
+
+      const commitBtn = Array.from(document.body.querySelectorAll('button')).find(
+        (b) => b.textContent?.includes('اعتماد وتنفيذ الاستيراد')
+      );
+      expect(commitBtn).toBeDefined();
+      expect((commitBtn as HTMLButtonElement).disabled).toBe(false);
+
+      await act(async () => {
+        commitBtn?.click();
+      });
+      expect(handleCommit).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
+    it('Stage 7 (COMMIT_RESULT): renders full success, partial, and failure outcomes truthfully', async () => {
+      const root = createRoot(container);
+
+      const batch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-C7-RESULT',
+        projectId: 'PRJ-101',
+        source: { sourceType: 'EXCEL_CSV' },
+        totalRows: 2,
+        validRows: 2,
+        errorRows: 0,
+        warningRows: 0,
+        requiresReviewRows: 0,
+        rows: [],
+        issues: [],
+        auditTrail: [],
+        currentStage: 'COMMIT',
+        commitStatus: 'COMMITTED',
+      };
+
+      // 1. Full Success Result
+      const successResult: ImportResult = {
+        importBatchId: 'BATCH-C7-RESULT',
+        projectId: 'PRJ-101',
+        operationId: 'OP-1',
+        sourceType: 'EXCEL_CSV',
+        success: true,
+        totalRows: 2,
+        committedRows: 2,
+        skippedRows: 0,
+        failedRows: 0,
+        issues: [],
+        committedEntityIds: ['E-1', 'E-2'],
+        executedAt: new Date().toISOString(),
+      };
+
+      const handleFinish = vi.fn();
+      await act(async () => {
+        root.render(
+          <RosterCommitResultLayer
+            importBatch={batch}
+            commitResult={successResult}
+            onFinish={handleFinish}
+          />
+        );
+      });
+
+      expect(document.body.textContent).toContain('تم تنفيذ الاستيراد بنجاح');
+      expect(document.body.textContent).toContain('إنهاء الاستيراد');
+
+      // 2. Partial Result
+      const partialResult: ImportResult = {
+        importBatchId: 'BATCH-C7-RESULT',
+        projectId: 'PRJ-101',
+        operationId: 'OP-2',
+        sourceType: 'EXCEL_CSV',
+        success: false,
+        totalRows: 2,
+        committedRows: 1,
+        skippedRows: 0,
+        failedRows: 1,
+        issues: [{ issueId: 'I-1', message: 'فشل حفظ السجل الثاني', severity: 'BLOCKING' }],
+        committedEntityIds: ['E-1'],
+        executedAt: new Date().toISOString(),
+      };
+
+      await act(async () => {
+        root.render(
+          <RosterCommitResultLayer
+            importBatch={batch}
+            commitResult={partialResult}
+            onClose={() => {}}
+          />
+        );
+      });
+
+      expect(document.body.textContent).toContain('تم تنفيذ جزء من الاستيراد مع وجود صفوف فاشلة');
+      expect(document.body.textContent).toContain('فشل حفظ السجل الثاني');
+
+      // 3. Complete Failure Result
+      const failureResult: ImportResult = {
+        importBatchId: 'BATCH-C7-RESULT',
+        projectId: 'PRJ-101',
+        operationId: 'OP-3',
+        sourceType: 'EXCEL_CSV',
+        success: false,
+        totalRows: 2,
+        committedRows: 0,
+        skippedRows: 0,
+        failedRows: 2,
+        issues: [{ issueId: 'I-2', message: 'خطأ اتصال بالخادم', severity: 'BLOCKING' }],
+        committedEntityIds: [],
+        executedAt: new Date().toISOString(),
+      };
+
+      await act(async () => {
+        root.render(
+          <RosterCommitResultLayer
+            importBatch={batch}
+            commitResult={failureResult}
+            onClose={() => {}}
+          />
+        );
+      });
+
+      expect(document.body.textContent).toContain('فشل تنفيذ الاستيراد');
+
+      await act(async () => {
+        root.unmount();
+      });
     });
   });
 });

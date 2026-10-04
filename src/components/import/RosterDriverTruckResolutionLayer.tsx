@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Users, Truck, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck } from 'lucide-react';
+import { Users, Truck, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { UnifiedImportBatch } from '../../types/unifiedImport';
 import { RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
 

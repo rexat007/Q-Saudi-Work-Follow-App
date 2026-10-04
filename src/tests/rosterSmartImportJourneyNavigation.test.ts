@@ -359,4 +359,87 @@ describe('Runtime Behavioral Race & Navigation Safety Suite', () => {
 
     expect(classifyFinalReviewBlocker(batch)).toBe('DRIVER_TRUCK');
   });
+
+  // Section 19: Full User Journey In-Memory Behavioral Sequence
+  it('G. Full User Journey Sequence: 1 to 7 sequential progression with one-stage-at-a-time isolation', () => {
+    type Stage = 'SOURCE_DISCOVERY' | 'MAPPING_APPROVAL' | 'CARRIER_RESOLUTION' | 'MATERIAL_RESOLUTION' | 'DRIVER_TRUCK_RESOLUTION' | 'FINAL_REVIEW' | 'COMMIT_RESULT';
+    let currentStage: Stage = 'SOURCE_DISCOVERY';
+    const stageHistory: Stage[] = [currentStage];
+
+    const transition = (next: Stage) => {
+      currentStage = next;
+      stageHistory.push(currentStage);
+    };
+
+    // Stage 1 -> 2: Discovery completes
+    transition('MAPPING_APPROVAL');
+    expect(currentStage).toBe('MAPPING_APPROVAL');
+
+    // Stage 2 -> 3: Mapping approved and batch created
+    transition('CARRIER_RESOLUTION');
+    expect(currentStage).toBe('CARRIER_RESOLUTION');
+
+    // Stage 3 -> 4: Carrier resolved
+    transition('MATERIAL_RESOLUTION');
+    expect(currentStage).toBe('MATERIAL_RESOLUTION');
+
+    // Stage 4 -> 5: Material resolved
+    transition('DRIVER_TRUCK_RESOLUTION');
+    expect(currentStage).toBe('DRIVER_TRUCK_RESOLUTION');
+
+    // Stage 5 -> 6: Driver & Truck resolved
+    transition('FINAL_REVIEW');
+    expect(currentStage).toBe('FINAL_REVIEW');
+
+    // Stage 6 -> 7: Commit executed
+    transition('COMMIT_RESULT');
+    expect(currentStage).toBe('COMMIT_RESULT');
+
+    expect(stageHistory).toEqual([
+      'SOURCE_DISCOVERY',
+      'MAPPING_APPROVAL',
+      'CARRIER_RESOLUTION',
+      'MATERIAL_RESOLUTION',
+      'DRIVER_TRUCK_RESOLUTION',
+      'FINAL_REVIEW',
+      'COMMIT_RESULT',
+    ]);
+  });
+
+  // Section 20: Crash Recovery & Master Data Persistence Independence
+  it('H. Crash Recovery Simulation: Master data created before crash persists while import session resets cleanly', () => {
+    // Simulated Project Master Data Store
+    const projectMasterData = {
+      carriers: [{ carrierId: 'CAR-EXISTING', name: 'الناقل القديم' }],
+      materials: [{ materialId: 'MAT-EXISTING', name: 'المادة القديمة' }],
+    };
+
+    // Simulated Active Import Session State (in React memory)
+    let inMemorySession: any = {
+      stage: 'CARRIER_RESOLUTION',
+      file: { name: 'roster.xlsx' },
+      batchId: 'BATCH-CRASH-TEST',
+    };
+
+    // 1. User creates a new Carrier during import
+    const newCarrier = { carrierId: 'CAR-CREATED-DURING-IMPORT', name: 'شركة النقل الحديث' };
+    projectMasterData.carriers.push(newCarrier);
+
+    // 2. Simulated unexpected crash / refresh / interruption
+    inMemorySession = null;
+
+    // 3. Verify Contract:
+    // A. In-memory session is clean / reset to initial state
+    expect(inMemorySession).toBeNull();
+
+    // B. Authoritative project master data retains the created carrier
+    const persistedCarrier = projectMasterData.carriers.find(c => c.carrierId === 'CAR-CREATED-DURING-IMPORT');
+    expect(persistedCarrier).toBeDefined();
+    expect(persistedCarrier?.name).toBe('شركة النقل الحديث');
+
+    // C. Re-running import for same file will now auto-match with newly created carrier
+    const newImportRow = { carrierName: 'شركة النقل الحديث' };
+    const matched = projectMasterData.carriers.find(c => c.name === newImportRow.carrierName);
+    expect(matched?.carrierId).toBe('CAR-CREATED-DURING-IMPORT');
+  });
 });

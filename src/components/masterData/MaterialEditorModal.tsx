@@ -314,6 +314,13 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             </div>
           )}
 
+          {!isEditMode && (
+            <div className="p-3 bg-amber-950/30 border border-amber-800/40 rounded-xl text-[11px] text-amber-300 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <span>تنبيه: سيتم تسجيل المادة مباشرة ضمن السجل المعتمد للمشروع (Master Data) وتبقى متاحة حتى لو أُلغيت جلسة الاستيراد الحالية.</span>
+            </div>
+          )}
+
           {/* Material Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1.5">

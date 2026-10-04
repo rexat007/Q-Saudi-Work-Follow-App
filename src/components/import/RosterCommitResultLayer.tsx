@@ -7,7 +7,7 @@ import {
   Clock,
   Database,
 } from 'lucide-react';
-import { UnifiedImportBatch, ImportResult } from '../../types/import';
+import { UnifiedImportBatch, ImportResult } from '../../types/unifiedImport';
 
 export interface RosterCommitResultLayerProps {
   importBatch: UnifiedImportBatch;
