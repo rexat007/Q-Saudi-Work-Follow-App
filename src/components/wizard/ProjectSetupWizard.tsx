@@ -3148,7 +3148,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                           <span>إضافة يدوية</span>
                         </button>
                         <button
-                          onClick={() => fileInputRef.current?.click()}
+                          onClick={() => {
+                            setIsSmartImportOpen(true);
+                            transitionToRosterStage('SOURCE_DISCOVERY');
+                          }}
                           className="px-3 py-1.5 bg-stone-900 border border-stone-850 text-amber-500 hover:text-amber-400 rounded-lg text-[10px] font-bold flex items-center gap-1"
                         >
                           <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -3228,345 +3231,6 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         <button type="submit" className="px-4 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">تسجيل وحفظ</button>
                       </div>
                     </form>
-                  )}
-
-                  {/* C1 Layered Smart Import Stage Indicator Stepper (Orientation & Progress Indicator) */}
-                  <div className="bg-stone-900/90 border border-stone-800 rounded-2xl p-3 shadow-lg mb-4">
-                    <div className="flex items-center justify-between mb-2 px-1">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-amber-500" />
-                        <span className="text-xs font-black text-white">مسار الاستيراد الذكي التراكمي (Smart Import Workflow)</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-amber-400 font-bold bg-amber-950/60 border border-amber-900/50 px-2 py-0.5 rounded-full">
-                        المرحلة {RosterSmartImportWorkflowService.getStageIndex(rosterImportStage) + 1} من 7: {ROSTER_STAGE_DEFINITIONS.find(d => d.stage === rosterImportStage)?.labelAr}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1.5 pt-1">
-                      {ROSTER_STAGE_DEFINITIONS.map((def, idx) => {
-                        const currentIdx = RosterSmartImportWorkflowService.getStageIndex(rosterImportStage);
-                        const isCurrent = def.stage === rosterImportStage;
-                        const isPast = idx < currentIdx;
-
-                        return (
-                          <div
-                            key={def.stage}
-                            className={`flex items-center gap-1.5 p-2 rounded-xl text-right transition-all border ${
-                              isCurrent
-                                ? 'bg-amber-500/10 border-amber-500/80 text-amber-300 font-black shadow-sm ring-1 ring-amber-500/30'
-                                : isPast
-                                ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-400 font-bold'
-                                : 'bg-stone-950/50 border-stone-850/80 text-stone-500 font-medium opacity-60 select-none'
-                            }`}
-                            title={`${def.stepNumber}. ${def.labelAr} - ${def.descriptionAr}`}
-                          >
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-black shrink-0 ${
-                              isCurrent
-                                ? 'bg-amber-500 text-stone-950'
-                                : isPast
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-stone-800 text-stone-500'
-                            }`}>
-                              {isPast ? <Check className="w-3 h-3" /> : def.stepNumber}
-                            </div>
-                            <div className="min-w-0 flex-1 truncate">
-                              <div className="text-[10px] truncate leading-tight">{def.labelAr}</div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Drag and Drop File intake Area (SOURCE_DISCOVERY) */}
-                  {isOperationallyMutable && !rosterSelectedFile && rosterImportStage === 'SOURCE_DISCOVERY' && (
-                    <div
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all ${
-                        isDragOver ? 'border-amber-500 bg-amber-500/5' : 'border-stone-800 bg-stone-950 hover:bg-stone-900/50'
-                      }`}
-                    >
-                      <UploadCloud className="w-8 h-8 text-stone-500 mx-auto mb-2" />
-                      <p className="text-[11px] text-stone-400 font-medium">سحب وإفلات ملف Excel/CSV لسجل التشغيل هنا لبدء الفحص التلقائي</p>
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="text-amber-500 font-bold text-[10px] hover:underline mt-1 block mx-auto"
-                      >
-                        أو تصفح الملفات يدوياً
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Discovery / Loading State */}
-                  {isDiscoveringRoster && (
-                    <div className="bg-stone-900 border border-stone-800 p-6 rounded-2xl text-center space-y-2">
-                      <RefreshCw className="w-6 h-6 text-amber-500 animate-spin mx-auto" />
-                      <p className="text-xs text-white font-bold">جاري استكشاف وتحليل هيكل ملف سجل التشغيل...</p>
-                      <p className="text-[10px] text-stone-400">قراءة أوراق العمل والأعمدة والربط الذكي</p>
-                    </div>
-                  )}
-
-                  {/* Errors */}
-                  {(importError || rosterDiscoveryError) && !importBatch && (
-                    <div className="bg-rose-950/60 border border-rose-800/80 p-3 rounded-xl flex items-center justify-between text-xs text-rose-200">
-                      <span>{importError || rosterDiscoveryError}</span>
-                      <button onClick={() => { setImportError(null); setRosterDiscoveryError(null); }} className="text-rose-400 hover:text-white p-1">
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Roster Smart Discovery & Mapping Approval Gate (MAPPING_APPROVAL) */}
-                  {rosterSelectedFile && rosterDiscoveryResult && !importBatch && !isRosterMappingApproved && rosterImportStage === 'MAPPING_APPROVAL' && (
-                    <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 space-y-4 shadow-xl">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-800 pb-3">
-                        <div className="flex items-center gap-2.5">
-                          <FileSpreadsheet className="w-5 h-5 text-amber-500" />
-                          <div>
-                            <h4 className="font-bold text-white text-xs">فحص هيكل الملف وربط الأعمدة (Source Discovery & Mapping)</h4>
-                            <p className="text-[10px] text-stone-400 font-mono">
-                              {rosterSelectedFile.name} ({(rosterSelectedFile.size / 1024).toFixed(1)} KB)
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleResetRosterImport}
-                          className="px-2.5 py-1 text-stone-400 hover:text-white bg-stone-950 border border-stone-850 rounded-lg text-[10px] font-semibold flex items-center gap-1"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                          <span>تغيير الملف</span>
-                        </button>
-                      </div>
-
-                      {/* Sheet and Header row selectors */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 bg-stone-950 p-3 rounded-xl border border-stone-850">
-                        {rosterDiscoveryResult.availableSheets && rosterDiscoveryResult.availableSheets.length > 0 && (
-                          <div className="space-y-1">
-                            <label className="text-stone-400 text-[10px] font-bold block">ورقة العمل (Sheet)</label>
-                            <select
-                              value={rosterSelectedSheet}
-                              onChange={(e) => handleRosterSheetChange(e.target.value)}
-                              disabled={isDiscoveringRoster}
-                              className="w-full bg-stone-900 border border-stone-800 text-white px-2 py-1.5 rounded-lg text-xs font-semibold focus:outline-hidden"
-                            >
-                              {rosterDiscoveryResult.availableSheets.map((s) => (
-                                <option key={s} value={s}>{s}</option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
-
-                        <div className="space-y-1">
-                          <label className="text-stone-400 text-[10px] font-bold block">سطر العناوين (Header Row)</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="20"
-                            value={rosterHeaderRowIndex}
-                            onChange={(e) => handleRosterHeaderRowIndexChange(parseInt(e.target.value, 10) || 0)}
-                            disabled={isDiscoveringRoster}
-                            className="w-full bg-stone-900 border border-stone-800 text-white px-2 py-1.5 rounded-lg text-xs font-mono font-semibold focus:outline-hidden"
-                          />
-                        </div>
-
-                        <div className="space-y-1 sm:col-span-2 lg:col-span-1 flex flex-col justify-end">
-                          <div className="flex items-center gap-2 text-[10px] bg-stone-900/60 p-2 rounded-lg border border-stone-850">
-                            <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
-                            <span className="text-stone-300">
-                              نسبة التوافق الذكي: <strong className="text-amber-400 font-mono">{rosterDiscoveryResult.confidence}%</strong>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Detected Source Columns Table */}
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center text-[11px] font-bold text-stone-300">
-                          <span>مراجعة وتعديل ربط الأعمدة المصدرية بالبيانات القياسية:</span>
-                          <span className="text-[10px] text-stone-500 font-mono">({rosterDiscoveryResult.detectedHeaders?.length || 0} عمود مكتشف)</span>
-                        </div>
-
-                        <div className="border border-stone-800 rounded-xl overflow-hidden bg-stone-950">
-                          <table className="w-full text-right text-[11px]">
-                            <thead className="bg-stone-900/90 text-stone-400 font-bold border-b border-stone-800">
-                              <tr>
-                                <th className="py-2.5 px-3">العمود المصدر</th>
-                                <th className="py-2.5 px-3">المعنى المقترح</th>
-                                <th className="py-2.5 px-3">الحالة</th>
-                                <th className="py-2.5 px-3">الربط المعتمد</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-stone-850">
-                              {(rosterDiscoveryResult.detectedHeaders || []).map((header) => {
-                                const diag = rosterDiscoveryResult.mappingDiagnostics?.[header];
-                                const proposedTarget = translateDiscoveryToRosterTarget(diag?.canonicalField);
-                                const currentTarget = rosterCustomMappings[header] || proposedTarget;
-                                const proposedOption = ROSTER_CANONICAL_FIELD_OPTIONS.find((o) => o.value === proposedTarget);
-
-                                const isIgnored = currentTarget === 'unmapped';
-                                const isConfident = Boolean(diag && diag.confidence >= 0.70 && !diag.isAmbiguous);
-
-                                return (
-                                  <tr key={header} className="hover:bg-stone-900/40 transition-colors">
-                                    <td className="py-2 px-3 font-mono font-bold text-white text-xs">
-                                      {header}
-                                    </td>
-                                    <td className="py-2 px-3">
-                                      <span className="text-stone-300 font-medium">
-                                        {proposedOption?.labelAr || 'تجاهل / غير مرتبط'}
-                                      </span>
-                                    </td>
-                                    <td className="py-2 px-3">
-                                      {isIgnored ? (
-                                        <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-stone-850 text-stone-400">
-                                          تجاهل
-                                        </span>
-                                      ) : isConfident ? (
-                                        <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-850">
-                                          مطابق
-                                        </span>
-                                      ) : (
-                                        <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-950 text-amber-300 border border-amber-850">
-                                          تنبيه
-                                        </span>
-                                      )}
-                                    </td>
-                                    <td className="py-2 px-3">
-                                      <select
-                                        value={currentTarget}
-                                        onChange={(e) => handleRosterMappingChange(header, e.target.value as any)}
-                                        className="bg-stone-900 border border-stone-800 text-stone-200 text-[10px] font-semibold px-2 py-1 rounded-lg focus:outline-hidden focus:border-amber-500 max-w-[200px]"
-                                      >
-                                        {ROSTER_CANONICAL_FIELD_OPTIONS.map((opt) => (
-                                          <option key={opt.value} value={opt.value}>
-                                            {opt.labelAr} ({opt.labelEn})
-                                          </option>
-                                        ))}
-                                      </select>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                      {/* Primary Approval Action Button */}
-                      <div className="flex justify-between items-center pt-2">
-                        <button
-                          type="button"
-                          onClick={handleResetRosterImport}
-                          className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs"
-                        >
-                          تغيير الملف
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleApproveRosterMappingAndStartPipeline}
-                          disabled={isImportingFile}
-                          className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40"
-                        >
-                          <Check className="w-4 h-4" />
-                          <span>اعتماد الربط وبدء تحليل سجل التشغيل</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/*
-                    C2: True Carrier-Only Resolution Layer
-                    Only Carrier review groups are resolved here before future layers.
-                  */}
-                  {importBatch && rosterImportStage === 'CARRIER_RESOLUTION' && (
-                    <RosterCarrierResolutionLayer
-                      importBatch={importBatch}
-                      projectCarriers={carriers}
-                      onAcceptCandidate={handleSmartImportCarrierAcceptCandidate}
-                      onSelectAlternate={handleSmartImportCarrierSelectAlternate}
-                      onCreateCarrier={(group) => {
-                        setSmartImportPendingCarrierGroup(group);
-                        setIsSmartImportCarrierModalOpen(true);
-                      }}
-                      onContinueToMaterials={handleSmartImportContinueToMaterials}
-                      onCancelImport={handleResetRosterImport}
-                      isProcessing={isProcessing}
-                    />
-                  )}
-
-                  {/*
-                    C3: True Material-Only Resolution Layer
-                    Only Material review groups are resolved here before future layers.
-                  */}
-                  {importBatch && rosterImportStage === 'MATERIAL_RESOLUTION' && (
-                    <RosterMaterialResolutionLayer
-                      importBatch={importBatch}
-                      projectMaterials={materials}
-                      onAcceptCandidate={handleSmartImportMaterialAcceptCandidate}
-                      onSelectAlternate={handleSmartImportMaterialSelectAlternate}
-                      onCreateMaterial={(group) => {
-                        setSmartImportPendingMaterialGroup(group);
-                        setIsSmartImportMaterialModalOpen(true);
-                      }}
-                      onContinueToDriverTruck={handleSmartImportContinueToDriverTruck}
-                      onCancelImport={handleResetRosterImport}
-                      isProcessing={isProcessing}
-                    />
-                  )}
-
-                  {/*
-                    C4: True Driver & Truck Resolution Layer
-                    Only Driver & Truck review groups are resolved here.
-                  */}
-                  {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && (
-                    <RosterDriverTruckResolutionLayer
-                      importBatch={importBatch}
-                      projectDrivers={projectRelationshipContext?.knownDrivers || []}
-                      projectTrucks={projectRelationshipContext?.knownTrucks || []}
-                      onAcceptCandidate={handleSmartImportDriverAcceptCandidate}
-                      onSelectAlternate={handleSmartImportDriverSelectAlternate}
-                      onCreateDriver={handleSmartImportDriverCreate}
-                      onCreateTruck={handleSmartImportTruckCreate}
-                      driverConvergenceError={driverConvergenceError}
-                      truckConvergenceError={truckConvergenceError}
-                      onRetryDriverConvergence={handleRetryDriverConvergence}
-                      onRetryTruckConvergence={handleRetryTruckConvergence}
-                      onContinueToFinalReview={handleSmartImportContinueToFinalReview}
-                      onCancelImport={handleResetRosterImport}
-                      isProcessing={isProcessing}
-                    />
-                  )}
-
-                  {/*
-                    C5: Final Review Layer
-                    Read-only pre-flight inspection and guarded commit.
-                  */}
-                  {importBatch && rosterImportStage === 'FINAL_REVIEW' && (
-                    <RosterFinalReviewLayer
-                      importBatch={importBatch}
-                      onCommit={handleSmartImportCommit}
-                      isCommitting={isCommittingImport}
-                      commitError={smartImportCommitError}
-                      onClose={handleFinalReviewBack}
-                    />
-                  )}
-
-                  {/*
-                    C5: Commit Result Layer
-                    Truthful post-commit execution summary and outcome inspection.
-                  */}
-                  {importBatch && smartImportCommitResult && rosterImportStage === 'COMMIT_RESULT' && (
-                    <RosterCommitResultLayer
-                      importBatch={importBatch}
-                      commitResult={smartImportCommitResult}
-                      onFinish={async () => {
-                        handleResetRosterImport();
-                        await reloadProjectCanonicalData();
-                      }}
-                    />
                   )}
 
                   {/* Fleet Data Table */}
@@ -3996,6 +3660,316 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               </div>
             )}
 
+          </div>
+        </div>
+      )}
+
+      {/* Root Layered Smart Import Workflow Host */}
+      {isSmartImportOpen && project && (
+        <div className="fixed inset-0 z-50 bg-stone-950/90 backdrop-blur-md flex flex-col justify-center p-4 md:p-8 overflow-y-auto">
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-5xl w-full mx-auto my-auto shadow-2xl p-6 space-y-6 flex flex-col max-h-[90vh] overflow-hidden">
+            {/* Header & 7-Stage Orientation Stepper */}
+            <div className="space-y-4 shrink-0">
+              <div className="flex justify-between items-center border-b border-stone-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <FileSpreadsheet className="w-5 h-5 text-amber-500" />
+                  <div>
+                    <h3 className="font-black text-white text-base">استيراد سجل التشغيل الذكي (Smart Roster Import)</h3>
+                    <p className="text-[10px] text-stone-400 font-bold">مسار الاستيراد الذكي التراكمي (Smart Import Workflow)</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleResetRosterImport();
+                    setIsSmartImportOpen(false);
+                  }}
+                  className="p-1.5 text-stone-400 hover:text-white hover:bg-stone-800 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* C1 Layered Smart Import Stage Indicator Stepper (Orientation & Progress Indicator) */}
+              <div className="flex items-center justify-between gap-1 overflow-x-auto pb-2 border-b border-stone-800">
+                {ROSTER_STAGE_DEFINITIONS.map((def, idx) => {
+                  const isCurrent = rosterImportStage === def.stage;
+                  return (
+                    <div
+                      key={def.stage}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[11px] font-bold shrink-0 transition-all ${
+                        isCurrent
+                          ? 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
+                          : 'bg-stone-950/60 text-stone-500 border border-stone-850'
+                      }`}
+                    >
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono ${
+                        isCurrent ? 'bg-amber-500 text-stone-950 font-black' : 'bg-stone-800 text-stone-400'
+                      }`}>
+                        {idx + 1}
+                      </span>
+                      <span>{def.labelAr}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Stage Body - Exactly one stage active */}
+            <div className="flex-1 overflow-y-auto pr-1">
+              {/* STAGE 1: SOURCE_DISCOVERY */}
+              {rosterImportStage === 'SOURCE_DISCOVERY' && (
+                <div className="space-y-6 py-4">
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-4 ${
+                      isDragOver
+                        ? 'border-amber-500 bg-amber-950/20'
+                        : 'border-stone-750 hover:border-amber-500/50 bg-stone-950/50'
+                    }`}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                      <UploadCloud className="w-8 h-8" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-stone-200 text-sm">اسحب وأفلت ملف إكسل أو CSV هنا</h4>
+                      <p className="text-stone-500 text-xs">يدعم ملفات .xlsx, .xls, .csv الخاصة بسجلات السائقين والشاحنات</p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isDiscoveringRoster || isImportingFile}
+                      className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg disabled:opacity-50"
+                    >
+                      <FileSpreadsheet className="w-4 h-4" />
+                      <span>{isDiscoveringRoster ? 'جاري الاستكشاف...' : 'اختر ملفاً من جهازك'}</span>
+                    </button>
+                  </div>
+
+                  {isDiscoveringRoster && (
+                    <div className="p-4 bg-stone-950 border border-stone-800 rounded-xl text-center space-y-2">
+                      <RefreshCw className="w-6 h-6 text-amber-500 animate-spin mx-auto" />
+                      <p className="text-stone-300 text-xs font-semibold">جاري استكشاف وقراءة أعمدة الملف وتحليل الحقول...</p>
+                    </div>
+                  )}
+
+                  {rosterDiscoveryError && (
+                    <div className="p-4 bg-rose-950/40 border border-rose-800 text-rose-300 rounded-xl text-xs flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+                      <span>{rosterDiscoveryError}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* STAGE 2: MAPPING_APPROVAL */}
+              {rosterImportStage === 'MAPPING_APPROVAL' && rosterDiscoveryResult && (
+                <div className="space-y-6">
+                  {/* Sheet selection & Header row selector */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-stone-950 p-4 rounded-xl border border-stone-800 text-xs">
+                    {rosterDiscoveryResult.availableSheets && rosterDiscoveryResult.availableSheets.length > 1 && (
+                      <div className="space-y-1">
+                        <label className="text-stone-400 font-bold block">ورقة العمل (Sheet)</label>
+                        <select
+                          value={rosterSelectedSheet}
+                          onChange={(e) => handleRosterSheetChange(e.target.value)}
+                          className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden font-bold"
+                        >
+                          {rosterDiscoveryResult.availableSheets.map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      <label className="text-stone-400 font-bold block">رقم صف العناوين (Header Row Index)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={rosterHeaderRowIndex}
+                        onChange={(e) => handleRosterHeaderRowIndexChange(parseInt(e.target.value, 10) || 0)}
+                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden font-mono font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Column mapping table */}
+                  <div className="bg-stone-950 border border-stone-800 rounded-xl overflow-hidden">
+                    <div className="p-3 border-b border-stone-800 flex justify-between items-center">
+                      <span className="font-bold text-stone-300 text-xs">ربط أعمدة الملف بالحقول المعيارية</span>
+                      <span className="text-[10px] text-stone-500 font-mono">
+                        {Object.keys(rosterCustomMappings).length} أعمدة مكتشفة
+                      </span>
+                    </div>
+                    <div className="overflow-x-auto max-h-[300px]">
+                      <table className="w-full text-right text-xs">
+                        <thead className="bg-stone-900/80 sticky top-0 border-b border-stone-800 text-stone-400 font-bold">
+                          <tr>
+                            <th className="p-2.5">اسم العمود في الملف</th>
+                            <th className="p-2.5">الحقل المعياري المطابق</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-850">
+                          {(rosterDiscoveryResult.detectedHeaders || []).map((header) => (
+                            <tr key={header} className="hover:bg-stone-900/40">
+                              <td className="p-2.5 font-semibold text-stone-200">{header}</td>
+                              <td className="p-2.5">
+                                <select
+                                  value={rosterCustomMappings[header] || 'unmapped'}
+                                  onChange={(e) => handleRosterMappingChange(header, e.target.value as any)}
+                                  className="w-full bg-stone-900 border border-stone-800 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-bold focus:outline-hidden"
+                                >
+                                  {ROSTER_CANONICAL_FIELD_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                      {opt.labelAr} ({opt.value})
+                                    </option>
+                                  ))}
+                                </select>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {importError && (
+                    <div className="p-3 bg-rose-950/40 border border-rose-800 text-rose-300 rounded-xl text-xs flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                      <span>{importError}</span>
+                    </div>
+                  )}
+
+                  {/* Mapping Approval Actions */}
+                  <div className="flex justify-between items-center pt-2 border-t border-stone-800">
+                    <button
+                      type="button"
+                      onClick={handleResetRosterImport}
+                      className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-bold"
+                    >
+                      إلغاء وإعادة تعيين
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleApproveRosterMappingAndStartPipeline}
+                      disabled={isProcessing || isImportingFile}
+                      className="px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-black rounded-xl text-xs flex items-center gap-2 shadow-lg disabled:opacity-50"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>جاري التحليل واستخراج البيانات...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>اعتماد الربط وبدء تحليل سجل التشغيل</span>
+                          <ArrowLeft className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STAGE 3: CARRIER_RESOLUTION */}
+              {importBatch && rosterImportStage === 'CARRIER_RESOLUTION' && (
+                <div>
+                  {/* C2: True Carrier-Only Resolution Layer */}
+                  {/* Only Carrier review groups are resolved here before future layers. */}
+                  <RosterCarrierResolutionLayer
+                    batch={importBatch}
+                    project={project}
+                    onAcceptCandidate={handleSmartImportCarrierAcceptCandidate}
+                    onSelectAlternate={handleSmartImportCarrierSelectAlternate}
+                    onCreateCarrier={(group) => {
+                      setSmartImportPendingCarrierGroup(group);
+                      setIsSmartImportCarrierModalOpen(true);
+                    }}
+                    onContinueToMaterials={handleSmartImportContinueToMaterials}
+                    onCancelImport={handleResetRosterImport}
+                  />
+                </div>
+              )}
+
+              {/* STAGE 4: MATERIAL_RESOLUTION */}
+              {importBatch && rosterImportStage === 'MATERIAL_RESOLUTION' && (
+                <div>
+                  <RosterMaterialResolutionLayer
+                    batch={importBatch}
+                    project={project}
+                    onAcceptCandidate={handleSmartImportMaterialAcceptCandidate}
+                    onSelectAlternate={handleSmartImportMaterialSelectAlternate}
+                    onCreateMaterial={(group) => {
+                      setSmartImportPendingMaterialGroup(group);
+                      setIsSmartImportMaterialModalOpen(true);
+                    }}
+                    onContinueToDriverTruck={handleSmartImportContinueToDriverTruck}
+                    onBackToCarriers={() => transitionToRosterStage('CARRIER_RESOLUTION')}
+                    onCancelImport={handleResetRosterImport}
+                  />
+                </div>
+              )}
+
+              {/* STAGE 5: DRIVER_TRUCK_RESOLUTION */}
+              {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && (
+                <div>
+                  <RosterDriverTruckResolutionLayer
+                    batch={importBatch}
+                    project={project}
+                    onAcceptDriverCandidate={handleSmartImportDriverAcceptCandidate}
+                    onSelectAlternateDriver={handleSmartImportDriverSelectAlternate}
+                    onCreateDriver={handleSmartImportDriverCreate}
+                    onAcceptTruckCandidate={handleSmartImportTruckAcceptCandidate}
+                    onSelectAlternateTruck={handleSmartImportTruckSelectAlternate}
+                    onCreateTruck={handleSmartImportTruckCreate}
+                    cachedDriverResult={cachedSuccessfulDriverResult}
+                    cachedTruckResult={cachedSuccessfulTruckResult}
+                    driverConvergenceError={driverConvergenceError}
+                    truckConvergenceError={truckConvergenceError}
+                    onRetryDriverConvergence={handleRetryDriverConvergence}
+                    onRetryTruckConvergence={handleRetryTruckConvergence}
+                    onContinueToFinalReview={handleSmartImportContinueToFinalReview}
+                    onBackToMaterials={() => transitionToRosterStage('MATERIAL_RESOLUTION')}
+                    onCancelImport={handleResetRosterImport}
+                  />
+                </div>
+              )}
+
+              {/* STAGE 6: FINAL_REVIEW */}
+              {importBatch && rosterImportStage === 'FINAL_REVIEW' && (
+                <div>
+                  <RosterFinalReviewLayer
+                    batch={importBatch}
+                    project={project}
+                    isCommitting={isCommittingImport}
+                    commitError={smartImportCommitError}
+                    onBackToDriverTruck={handleFinalReviewBack}
+                    onCommit={handleSmartImportCommit}
+                    onCancelImport={handleResetRosterImport}
+                  />
+                </div>
+              )}
+
+              {/* STAGE 7: COMMIT_RESULT */}
+              {importBatch && rosterImportStage === 'COMMIT_RESULT' && (
+                <div>
+                  <RosterCommitResultLayer
+                    batch={importBatch}
+                    result={smartImportCommitResult}
+                    onFinish={() => {
+                      handleResetRosterImport();
+                      setIsSmartImportOpen(false);
+                    }}
+                    onViewRoster={() => {
+                      handleResetRosterImport();
+                      setIsSmartImportOpen(false);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
