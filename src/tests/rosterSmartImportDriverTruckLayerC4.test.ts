@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import { RosterBatchReviewService } from '../services/import/rosterBatchReview.service';
+import { DriverTruckPipelineService } from '../services/import/driverTruckPipeline.service';
 import { UnifiedImportBatch } from '../types/unifiedImport';
 import { ROSTER_SMART_IMPORT_STAGES } from '../services/import/rosterSmartImportWorkflow.service';
 
@@ -208,5 +209,308 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
     expect(driverTruckLayerContent).toContain('إعادة تحديث البيانات');
     expect(driverTruckLayerContent).toContain('driverConvergenceError');
     expect(driverTruckLayerContent).toContain('truckConvergenceError');
+  });
+
+  it('25. Driver prefill extracts driverName, residencyId/iqama, and phone from source row canonical/mapped data', () => {
+    const testBatch: UnifiedImportBatch = {
+      ...mockBatchC4,
+      rows: [
+        {
+          rowNumber: 1,
+          raw: { 'اسم السائق': 'سالم القحطاني', 'رقم الهوية': '1023456789', 'الجوال': '0501234567' },
+          canonical: { driverName: 'سالم القحطاني', driverIdentity: '1023456789', driverPhone: '0501234567' },
+          entityResolutions: {
+            carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            driver: { sourceValue: 'سالم القحطاني', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'سالم القحطاني' },
+          },
+          status: 'WARNING',
+          validationIssues: [],
+          reviewStatus: 'requires_review',
+        },
+      ],
+    };
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(testBatch);
+    const driverGroup = groups.driver[0];
+    expect(driverGroup).toBeDefined();
+
+    const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(testBatch, driverGroup);
+    expect(defaults.driverName).toBe('سالم القحطاني');
+    expect(defaults.residencyId).toBe('1023456789');
+    expect(defaults.phone).toBe('0501234567');
+    expect(defaults.hasConflict).toBe(false);
+  });
+
+  it('26. Driver repeated across 5 rows with identical values yields single group and identical prefill', () => {
+    const rows = Array.from({ length: 5 }, (_, i) => ({
+      rowNumber: i + 1,
+      raw: { 'اسم السائق': 'أحمد فهد', 'رقم الهوية': '2034567890', 'الجوال': '0551112233' },
+      canonical: { driverName: 'أحمد فهد', driverIdentity: '2034567890', driverPhone: '0551112233' },
+      entityResolutions: {
+        carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+        driver: { sourceValue: 'أحمد فهد', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'أحمد فهد' },
+      },
+      status: 'WARNING' as const,
+      validationIssues: [],
+      reviewStatus: 'requires_review' as const,
+    }));
+
+    const multiRowBatch: UnifiedImportBatch = { ...mockBatchC4, rows };
+    const groups = RosterBatchReviewService.getBatchReviewGroups(multiRowBatch);
+    expect(groups.driver.length).toBe(1);
+    expect(groups.driver[0].occurrenceCount).toBe(5);
+
+    const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(multiRowBatch, groups.driver[0]);
+    expect(defaults.driverName).toBe('أحمد فهد');
+    expect(defaults.residencyId).toBe('2034567890');
+    expect(defaults.phone).toBe('0551112233');
+    expect(defaults.hasConflict).toBe(false);
+  });
+
+  it('27. Driver name same but iqama conflict across rows flags hasConflict=true and records field conflict', () => {
+    const rows = [
+      {
+        rowNumber: 1,
+        raw: {},
+        canonical: { driverName: 'خالد عمر', driverIdentity: '1023456789' },
+        entityResolutions: {
+          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          driver: { sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
+        },
+        status: 'WARNING' as const,
+        validationIssues: [],
+        reviewStatus: 'requires_review' as const,
+      },
+      {
+        rowNumber: 2,
+        raw: {},
+        canonical: { driverName: 'خالد عمر', driverIdentity: '2098765432' },
+        entityResolutions: {
+          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          driver: { sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
+        },
+        status: 'WARNING' as const,
+        validationIssues: [],
+        reviewStatus: 'requires_review' as const,
+      },
+    ];
+
+    const conflictBatch: UnifiedImportBatch = { ...mockBatchC4, rows };
+    const groups = RosterBatchReviewService.getBatchReviewGroups(conflictBatch);
+    expect(groups.driver.length).toBe(1);
+
+    const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(conflictBatch, groups.driver[0]);
+    expect(defaults.hasConflict).toBe(true);
+    expect(defaults.conflicts['رقم الهوية/الإقامة']).toContain('1023456789');
+    expect(defaults.conflicts['رقم الهوية/الإقامة']).toContain('2098765432');
+    expect(defaults.residencyId).toBe('');
+  });
+
+  it('28. Truck prefill extracts plateNumber, truckType, tareWeight, and maxGrossWeight', () => {
+    const testBatch: UnifiedImportBatch = {
+      ...mockBatchC4,
+      rows: [
+        {
+          rowNumber: 1,
+          raw: {},
+          canonical: { truckPlate: 'أ ب ج 1234', truckType: 'قلاب كبير', tareWeightKg: 14500, maxGrossWeightKg: 45000 },
+          entityResolutions: {
+            carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            truck: { sourceValue: 'أ ب ج 1234', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'أ ب ج 1234' },
+          },
+          status: 'WARNING',
+          validationIssues: [],
+          reviewStatus: 'requires_review',
+        },
+      ],
+    };
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(testBatch);
+    const truckGroup = groups.truck[0];
+    expect(truckGroup).toBeDefined();
+
+    const defaults = RosterBatchReviewService.deriveTruckCreationDefaults(testBatch, truckGroup);
+    expect(defaults.plateNumber).toBe('أ ب ج 1234');
+    expect(defaults.truckType).toBe('قلاب كبير');
+    expect(defaults.tareWeightKg).toBe(14500);
+    expect(defaults.maxGrossWeightKg).toBe(45000);
+    expect(defaults.hasConflict).toBe(false);
+  });
+
+  it('29. Truck tareWeight conflict across rows flags hasConflict=true', () => {
+    const rows = [
+      {
+        rowNumber: 1,
+        raw: {},
+        canonical: { truckPlate: 'د هـ و 5555', tareWeightKg: 14000 },
+        entityResolutions: {
+          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          truck: { sourceValue: 'د هـ و 5555', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'د هـ و 5555' },
+        },
+        status: 'WARNING' as const,
+        validationIssues: [],
+        reviewStatus: 'requires_review' as const,
+      },
+      {
+        rowNumber: 2,
+        raw: {},
+        canonical: { truckPlate: 'د هـ و 5555', tareWeightKg: 16000 },
+        entityResolutions: {
+          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          truck: { sourceValue: 'د هـ و 5555', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'د هـ و 5555' },
+        },
+        status: 'WARNING' as const,
+        validationIssues: [],
+        reviewStatus: 'requires_review' as const,
+      },
+    ];
+
+    const conflictBatch: UnifiedImportBatch = { ...mockBatchC4, rows };
+    const groups = RosterBatchReviewService.getBatchReviewGroups(conflictBatch);
+
+    const defaults = RosterBatchReviewService.deriveTruckCreationDefaults(conflictBatch, groups.truck[0]);
+    expect(defaults.hasConflict).toBe(true);
+    expect(defaults.conflicts['الوزن الفارغ']).toContain('14000');
+    expect(defaults.conflicts['الوزن الفارغ']).toContain('16000');
+    expect(defaults.tareWeightKg).toBeUndefined();
+  });
+
+  it('30. Missing optional phone yields valid prefill with phone="" without conflict', () => {
+    const testBatch: UnifiedImportBatch = {
+      ...mockBatchC4,
+      rows: [
+        {
+          rowNumber: 1,
+          raw: {},
+          canonical: { driverName: 'سعيد العتيبي', driverIdentity: '1099999999' },
+          entityResolutions: {
+            carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            driver: { sourceValue: 'سعيد العتيبي', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'سعيد العتيبي' },
+          },
+          status: 'WARNING',
+          validationIssues: [],
+          reviewStatus: 'requires_review',
+        },
+      ],
+    };
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(testBatch);
+    const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(testBatch, groups.driver[0]);
+    expect(defaults.driverName).toBe('سعيد العتيبي');
+    expect(defaults.residencyId).toBe('1099999999');
+    expect(defaults.phone).toBe('');
+    expect(defaults.hasConflict).toBe(false);
+  });
+
+  it('31. Cross-Carrier Isolation: Same driver name and same truck plate under different carriers produce separate groups', () => {
+    const testBatch: UnifiedImportBatch = {
+      ...mockBatchC4,
+      rows: [
+        {
+          rowNumber: 1,
+          raw: {},
+          canonical: { driverName: 'سالم علي', truckPlate: 'أ ب ج 1000' },
+          entityResolutions: {
+            carrier: { matchedId: 'CAR-001', matchedName: 'الناقل الأول', sourceValue: 'الناقل الأول', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            driver: { sourceValue: 'سالم علي', recommendation: 'REVIEW' },
+            truck: { sourceValue: 'أ ب ج 1000', recommendation: 'REVIEW' },
+          },
+          status: 'WARNING',
+          validationIssues: [],
+          reviewStatus: 'requires_review',
+        },
+        {
+          rowNumber: 2,
+          raw: {},
+          canonical: { driverName: 'سالم علي', truckPlate: 'أ ب ج 1000' },
+          entityResolutions: {
+            carrier: { matchedId: 'CAR-002', matchedName: 'الناقل الثاني', sourceValue: 'الناقل الثاني', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            driver: { sourceValue: 'سالم علي', recommendation: 'REVIEW' },
+            truck: { sourceValue: 'أ ب ج 1000', recommendation: 'REVIEW' },
+          },
+          status: 'WARNING',
+          validationIssues: [],
+          reviewStatus: 'requires_review',
+        },
+      ],
+    };
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(testBatch);
+    expect(groups.driver.length).toBe(2);
+    expect(groups.truck.length).toBe(2);
+
+    expect(groups.driver[0].normalizedSourceKey).toContain('::carrier:CAR-001');
+    expect(groups.driver[1].normalizedSourceKey).toContain('::carrier:CAR-002');
+    expect(groups.truck[0].normalizedSourceKey).toContain('::carrier:CAR-001');
+    expect(groups.truck[1].normalizedSourceKey).toContain('::carrier:CAR-002');
+  });
+
+  it('32. Grouped Canonical Propagation: Creation updates ALL rows matching the exact group key', () => {
+    const rows = Array.from({ length: 5 }, (_, i) => ({
+      rowNumber: i + 1,
+      raw: {},
+      canonical: { driverName: 'فيصل العلي', driverIdentity: '1088888888' },
+      entityResolutions: {
+        carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+        driver: { sourceValue: 'فيصل العلي', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'فيصل العلي' },
+      },
+      status: 'WARNING' as const,
+      validationIssues: [],
+      reviewStatus: 'requires_review' as const,
+    }));
+
+    const batch: UnifiedImportBatch = { ...mockBatchC4, rows };
+    const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    const driverGroup = groups.driver[0];
+
+    const pipelineCtx = { projectId: 'PRJ-100', operationId: 'OP-TEST', userId: 'USR-1', role: 'PROJECT_ADMIN' as const };
+    const updatedBatch = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      batch,
+      'driver',
+      driverGroup.normalizedSourceKey,
+      { matchedId: 'DRV-CREATED-999', matchedName: 'فيصل العلي' },
+      pipelineCtx
+    );
+
+    updatedBatch.rows.forEach((row) => {
+      expect(row.entityResolutions?.driver?.matchedId).toBe('DRV-CREATED-999');
+      expect(row.entityResolutions?.driver?.matchedName).toBe('فيصل العلي');
+      expect(row.entityResolutions?.driver?.recommendation).toBe('ACCEPT');
+      expect(row.entityResolutions?.driver?.matchMethod).toBe('EXACT');
+      expect(row.resolvedValues?.driverId).toBe('DRV-CREATED-999');
+    });
+
+    const updatedGroups = RosterBatchReviewService.getBatchReviewGroups(updatedBatch);
+    expect(updatedGroups.driver[0].status).toBe('AUTO_RESOLVED');
+  });
+
+  it('33. Smart Prefill & No-Retyping Contract: Form prefill requires no manual re-entry when source contains identity and phone', () => {
+    const testBatch: UnifiedImportBatch = {
+      ...mockBatchC4,
+      rows: [
+        {
+          rowNumber: 1,
+          raw: {},
+          canonical: { driverName: 'نايف محمد', driverIdentity: '1077777777', driverPhone: '0507777777' },
+          entityResolutions: {
+            carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            driver: { sourceValue: 'نايف محمد', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'نايف محمد' },
+          },
+          status: 'WARNING',
+          validationIssues: [],
+          reviewStatus: 'requires_review',
+        },
+      ],
+    };
+
+    const groups = RosterBatchReviewService.getBatchReviewGroups(testBatch);
+    const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(testBatch, groups.driver[0]);
+
+    // Validate that form data is immediately ready for submission without editing
+    expect(defaults.driverName).toBe('نايف محمد');
+    expect(defaults.residencyId).toBe('1077777777');
+    expect(defaults.phone).toBe('0507777777');
+    expect(defaults.residencyId.length).toBe(10);
+    expect(defaults.hasConflict).toBe(false);
   });
 });

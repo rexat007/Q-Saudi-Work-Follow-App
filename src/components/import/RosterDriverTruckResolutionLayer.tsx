@@ -88,14 +88,18 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   const [selectedAlternateDriver, setSelectedAlternateDriver] = useState<Record<string, string>>({});
   const [selectedAlternateTruck, setSelectedAlternateTruck] = useState<Record<string, string>>({});
 
-  // Subform modal states (replaces legacy dialogs)
+  // Subform modal states & Conflict Tracking
   const [creatingDriverGroup, setCreatingDriverGroup] = useState<RosterEntityReviewGroup | null>(null);
   const [driverFormData, setDriverFormData] = useState<NewDriverFormData>({ driverName: '', residencyId: '', phone: '' });
   const [driverFormError, setDriverFormError] = useState<string | null>(null);
+  const [unresolvedDriverConflictFields, setUnresolvedDriverConflictFields] = useState<string[]>([]);
+  const [driverConflictDetails, setDriverConflictDetails] = useState<Record<string, string[]>>({});
 
   const [creatingTruckGroup, setCreatingTruckGroup] = useState<RosterEntityReviewGroup | null>(null);
   const [truckFormData, setTruckFormData] = useState<NewTruckFormData>({ plateNumber: '', truckType: '' });
   const [truckFormError, setTruckFormError] = useState<string | null>(null);
+  const [unresolvedTruckConflictFields, setUnresolvedTruckConflictFields] = useState<string[]>([]);
+  const [truckConflictDetails, setTruckConflictDetails] = useState<Record<string, string[]>>({});
 
   const reviewGroups = useMemo(() => {
     return RosterBatchReviewService.getBatchReviewGroups(importBatch);
@@ -126,21 +130,68 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   const isTruckLayerComplete = truckGroups.length > 0 ? unresolvedTruckCount === 0 : true;
   const isLayerComplete = totalGroups > 0 && totalUnresolved === 0;
 
+  const resolveDriverConflictField = (fieldKey: string) => {
+    setUnresolvedDriverConflictFields((prev) => {
+      const next = prev.filter((f) => f !== fieldKey);
+      if (next.length === 0) setDriverFormError(null);
+      return next;
+    });
+  };
+
+  const resolveTruckConflictField = (fieldKey: string) => {
+    setUnresolvedTruckConflictFields((prev) => {
+      const next = prev.filter((f) => f !== fieldKey);
+      if (next.length === 0) setTruckFormError(null);
+      return next;
+    });
+  };
+
+  const handleCloseDriverModal = () => {
+    setCreatingDriverGroup(null);
+    setDriverFormData({ driverName: '', residencyId: '', phone: '' });
+    setUnresolvedDriverConflictFields([]);
+    setDriverConflictDetails({});
+    setDriverFormError(null);
+  };
+
+  const handleCloseTruckModal = () => {
+    setCreatingTruckGroup(null);
+    setTruckFormData({ plateNumber: '', truckType: '' });
+    setUnresolvedTruckConflictFields([]);
+    setTruckConflictDetails({});
+    setTruckFormError(null);
+  };
+
   // Open Driver Creation subform
   const handleOpenDriverCreation = (group: RosterEntityReviewGroup) => {
     setCreatingDriverGroup(group);
+    const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(importBatch, group);
     setDriverFormData({
-      driverName: group.sourceValue || '',
-      residencyId: '',
-      phone: '',
+      driverName: defaults.driverName || group.sourceValue || '',
+      residencyId: defaults.residencyId || '',
+      phone: defaults.phone || '',
     });
-    setDriverFormError(null);
+    if (defaults.hasConflict) {
+      const conflictKeys = Object.keys(defaults.conflicts);
+      setUnresolvedDriverConflictFields(conflictKeys);
+      setDriverConflictDetails(defaults.conflicts);
+      setDriverFormError('توجد بيانات متعارضة لهذا السائق في الملف يجب إدخال القيمة المعتمدة لها');
+    } else {
+      setUnresolvedDriverConflictFields([]);
+      setDriverConflictDetails({});
+      setDriverFormError(null);
+    }
   };
 
   // Submit Driver Creation
   const handleSubmitDriverCreation = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!creatingDriverGroup) return;
+
+    if (unresolvedDriverConflictFields.length > 0) {
+      setDriverFormError('يجب حسم وإدخال القيم المعتمدة للبيانات المتعارضة للسائق قبل الإنشاء');
+      return;
+    }
 
     if (!driverFormData.driverName.trim()) {
       setDriverFormError('اسم السائق مطلوب');
@@ -153,9 +204,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
 
     try {
       await onCreateDriver(creatingDriverGroup, driverFormData);
-      setCreatingDriverGroup(null);
-      setDriverFormData({ driverName: '', residencyId: '', phone: '' });
-      setDriverFormError(null);
+      handleCloseDriverModal();
     } catch (err: any) {
       setDriverFormError(err.message || 'فشلت عملية إنشاء السائق');
     }
@@ -164,17 +213,34 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   // Open Truck Creation subform
   const handleOpenTruckCreation = (group: RosterEntityReviewGroup) => {
     setCreatingTruckGroup(group);
+    const defaults = RosterBatchReviewService.deriveTruckCreationDefaults(importBatch, group);
     setTruckFormData({
-      plateNumber: group.sourceValue || '',
-      truckType: '',
+      plateNumber: defaults.plateNumber || group.sourceValue || '',
+      truckType: defaults.truckType || '',
+      tareWeightKg: defaults.tareWeightKg,
+      maxGrossWeightKg: defaults.maxGrossWeightKg,
     });
-    setTruckFormError(null);
+    if (defaults.hasConflict) {
+      const conflictKeys = Object.keys(defaults.conflicts);
+      setUnresolvedTruckConflictFields(conflictKeys);
+      setTruckConflictDetails(defaults.conflicts);
+      setTruckFormError('توجد بيانات متعارضة لهذه الشاحنة في الملف يجب إدخال القيمة المعتمدة لها');
+    } else {
+      setUnresolvedTruckConflictFields([]);
+      setTruckConflictDetails({});
+      setTruckFormError(null);
+    }
   };
 
   // Submit Truck Creation
   const handleSubmitTruckCreation = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!creatingTruckGroup) return;
+
+    if (unresolvedTruckConflictFields.length > 0) {
+      setTruckFormError('يجب حسم وإدخال القيم المعتمدة للبيانات المتعارضة للشاحنة قبل الإنشاء');
+      return;
+    }
 
     if (!truckFormData.plateNumber.trim()) {
       setTruckFormError('رقم لوحة الشاحنة مطلوب');
@@ -183,9 +249,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
 
     try {
       await onCreateTruck(creatingTruckGroup, truckFormData);
-      setCreatingTruckGroup(null);
-      setTruckFormData({ plateNumber: '', truckType: '' });
-      setTruckFormError(null);
+      handleCloseTruckModal();
     } catch (err: any) {
       setTruckFormError(err.message || 'فشلت عملية إنشاء الشاحنة');
     }
@@ -709,7 +773,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                 </h4>
                 <button
                   type="button"
-                  onClick={() => setCreatingDriverGroup(null)}
+                  onClick={handleCloseDriverModal}
                   className="text-stone-400 hover:text-white p-1"
                 >
                   <X className="w-4 h-4" />
@@ -720,6 +784,23 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                 <div className="bg-rose-950/70 border border-rose-800 p-2.5 rounded-xl text-[11px] text-rose-300 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{driverFormError}</span>
+                </div>
+              )}
+
+              {Object.keys(driverConflictDetails).length > 0 && (
+                <div className="bg-amber-950/60 border border-amber-700/80 p-3 rounded-xl space-y-1 text-xs text-amber-200">
+                  <div className="font-black flex items-center gap-1.5 text-amber-300">
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>توجد بيانات متعارضة في الملف المصدر يجب إدخال القيمة المعتمدة لها:</span>
+                  </div>
+                  <ul className="list-disc list-inside text-[11px] font-mono space-y-0.5">
+                    {Object.entries(driverConflictDetails).map(([f, vals]) => (
+                      <li key={f} className={unresolvedDriverConflictFields.includes(f) ? 'text-rose-300 font-bold' : 'text-emerald-300 line-through opacity-70'}>
+                        {f}: {vals.join(' مقابل ')} {unresolvedDriverConflictFields.includes(f) ? ' (بانتظار الحسم)' : ' (تم الحسم)'}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-[10px] text-amber-300/70 pt-1">يرجى إدخال القيمة الصحيحة في الحقل أدناه لإلغاء التعارض والتأكيد.</p>
                 </div>
               )}
 
@@ -740,7 +821,10 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                     type="text"
                     required
                     value={driverFormData.driverName}
-                    onChange={(e) => setDriverFormData({ ...driverFormData, driverName: e.target.value })}
+                    onChange={(e) => {
+                      setDriverFormData({ ...driverFormData, driverName: e.target.value });
+                      if (e.target.value.trim()) resolveDriverConflictField('اسم السائق');
+                    }}
                     placeholder="مثال: سالم علي القحطاني"
                     className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs focus:outline-hidden focus:border-amber-500"
                   />
@@ -753,7 +837,11 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                     required
                     maxLength={10}
                     value={driverFormData.residencyId}
-                    onChange={(e) => setDriverFormData({ ...driverFormData, residencyId: e.target.value.replace(/\D/g, '') })}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setDriverFormData({ ...driverFormData, residencyId: val });
+                      if (val.length === 10) resolveDriverConflictField('رقم الهوية/الإقامة');
+                    }}
                     placeholder="مثال: 1023456789 أو 2023456789"
                     className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
                   />
@@ -764,7 +852,10 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                   <input
                     type="text"
                     value={driverFormData.phone || ''}
-                    onChange={(e) => setDriverFormData({ ...driverFormData, phone: e.target.value })}
+                    onChange={(e) => {
+                      setDriverFormData({ ...driverFormData, phone: e.target.value });
+                      if (e.target.value.trim()) resolveDriverConflictField('رقم الجوال');
+                    }}
                     placeholder="مثال: 0501234567"
                     className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
                   />
@@ -773,7 +864,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                 <div className="flex justify-end gap-2 pt-2 border-t border-stone-800">
                   <button
                     type="button"
-                    onClick={() => setCreatingDriverGroup(null)}
+                    onClick={handleCloseDriverModal}
                     disabled={isProcessing}
                     className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
                   >
@@ -807,7 +898,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                 </h4>
                 <button
                   type="button"
-                  onClick={() => setCreatingTruckGroup(null)}
+                  onClick={handleCloseTruckModal}
                   className="text-stone-400 hover:text-white p-1"
                 >
                   <X className="w-4 h-4" />
@@ -818,6 +909,23 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                 <div className="bg-rose-950/70 border border-rose-800 p-2.5 rounded-xl text-[11px] text-rose-300 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{truckFormError}</span>
+                </div>
+              )}
+
+              {Object.keys(truckConflictDetails).length > 0 && (
+                <div className="bg-amber-950/60 border border-amber-700/80 p-3 rounded-xl space-y-1 text-xs text-amber-200">
+                  <div className="font-black flex items-center gap-1.5 text-amber-300">
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>توجد بيانات متعارضة في الملف المصدر يجب إدخال القيمة المعتمدة لها:</span>
+                  </div>
+                  <ul className="list-disc list-inside text-[11px] font-mono space-y-0.5">
+                    {Object.entries(truckConflictDetails).map(([f, vals]) => (
+                      <li key={f} className={unresolvedTruckConflictFields.includes(f) ? 'text-rose-300 font-bold' : 'text-emerald-300 line-through opacity-70'}>
+                        {f}: {vals.join(' مقابل ')} {unresolvedTruckConflictFields.includes(f) ? ' (بانتظار الحسم)' : ' (تم الحسم)'}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-[10px] text-amber-300/70 pt-1">يرجى إدخال القيمة الصحيحة في الحقل أدناه لإلغاء التعارض والتأكيد.</p>
                 </div>
               )}
 
@@ -838,7 +946,10 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                     type="text"
                     required
                     value={truckFormData.plateNumber}
-                    onChange={(e) => setTruckFormData({ ...truckFormData, plateNumber: e.target.value })}
+                    onChange={(e) => {
+                      setTruckFormData({ ...truckFormData, plateNumber: e.target.value });
+                      if (e.target.value.trim()) resolveTruckConflictField('رقم اللوحة');
+                    }}
                     placeholder="مثال: أ ب ج 1234"
                     className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
                   />
@@ -849,7 +960,10 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                   <input
                     type="text"
                     value={truckFormData.truckType || ''}
-                    onChange={(e) => setTruckFormData({ ...truckFormData, truckType: e.target.value })}
+                    onChange={(e) => {
+                      setTruckFormData({ ...truckFormData, truckType: e.target.value });
+                      if (e.target.value.trim()) resolveTruckConflictField('نوع الشاحنة');
+                    }}
                     placeholder="مثال: قلاب، تريلا، سطحة"
                     className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs focus:outline-hidden focus:border-amber-500"
                   />
@@ -861,7 +975,11 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                     <input
                       type="number"
                       value={truckFormData.tareWeightKg || ''}
-                      onChange={(e) => setTruckFormData({ ...truckFormData, tareWeightKg: e.target.value ? Number(e.target.value) : undefined })}
+                      onChange={(e) => {
+                        const val = e.target.value ? Number(e.target.value) : undefined;
+                        setTruckFormData({ ...truckFormData, tareWeightKg: val });
+                        if (val !== undefined && !isNaN(val)) resolveTruckConflictField('الوزن الفارغ');
+                      }}
                       placeholder="مثال: 14000"
                       className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
                     />
@@ -871,7 +989,11 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                     <input
                       type="number"
                       value={truckFormData.maxGrossWeightKg || ''}
-                      onChange={(e) => setTruckFormData({ ...truckFormData, maxGrossWeightKg: e.target.value ? Number(e.target.value) : undefined })}
+                      onChange={(e) => {
+                        const val = e.target.value ? Number(e.target.value) : undefined;
+                        setTruckFormData({ ...truckFormData, maxGrossWeightKg: val });
+                        if (val !== undefined && !isNaN(val)) resolveTruckConflictField('الوزن الأقصى');
+                      }}
                       placeholder="مثال: 45000"
                       className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
                     />
@@ -881,7 +1003,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                 <div className="flex justify-end gap-2 pt-2 border-t border-stone-800">
                   <button
                     type="button"
-                    onClick={() => setCreatingTruckGroup(null)}
+                    onClick={handleCloseTruckModal}
                     disabled={isProcessing}
                     className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
                   >

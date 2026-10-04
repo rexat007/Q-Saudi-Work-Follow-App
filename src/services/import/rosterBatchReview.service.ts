@@ -21,6 +21,25 @@ export interface RosterEntityReviewGroup {
   relationshipStatus?: string;
 }
 
+export interface DriverCreationDefaultsResult {
+  driverName: string;
+  residencyId: string;
+  phone: string;
+  carrierId?: string;
+  hasConflict: boolean;
+  conflicts: Record<string, string[]>;
+}
+
+export interface TruckCreationDefaultsResult {
+  plateNumber: string;
+  truckType: string;
+  tareWeightKg?: number;
+  maxGrossWeightKg?: number;
+  carrierId?: string;
+  hasConflict: boolean;
+  conflicts: Record<string, string[]>;
+}
+
 export class RosterBatchReviewService {
   /**
    * Derives deterministic group key for a given row and entity type.
@@ -235,5 +254,249 @@ export class RosterBatchReviewService {
 
       return hasBlocking || isError || isRequiresReview || isWarning || isDuplicate;
     });
+  }
+
+  /**
+   * Derives smart creation defaults for Driver creation forms from source rows belonging to exact group key.
+   * Applies deterministic consensus rules across group rows.
+   */
+  public static deriveDriverCreationDefaults(
+    batch: UnifiedImportBatch,
+    group: RosterEntityReviewGroup
+  ): DriverCreationDefaultsResult {
+    if (!batch || !batch.rows || !group) {
+      return {
+        driverName: group?.sourceValue || '',
+        residencyId: '',
+        phone: '',
+        hasConflict: false,
+        conflicts: {},
+      };
+    }
+
+    const matchingRows = batch.rows.filter((row) => {
+      if (group.rowNumbers && group.rowNumbers.includes(row.rowNumber)) return true;
+      return this.getGroupKey(row, 'driver') === group.normalizedSourceKey;
+    });
+
+    const driverNames = new Set<string>();
+    const residencyIds = new Set<string>();
+    const phones = new Set<string>();
+    const carrierIds = new Set<string>();
+
+    matchingRows.forEach((row) => {
+      const canonical = row.canonical || {};
+      const mapped = row.mapped || {};
+      const raw = row.raw || {};
+      const resolved = row.resolvedValues || {};
+
+      const nameVal = (
+        canonical.driverName ||
+        mapped.driverName ||
+        resolved.driverName ||
+        raw.driverName ||
+        raw['اسم السائق'] ||
+        group.sourceValue ||
+        ''
+      ).toString().trim();
+      if (nameVal) driverNames.add(nameVal);
+
+      const residencyVal = (
+        canonical.driverIdentity ||
+        canonical.driverIdNumber ||
+        canonical.residencyId ||
+        canonical.idNumber ||
+        canonical.nationalId ||
+        mapped.driverIdentity ||
+        mapped.driverIdNumber ||
+        mapped.residencyId ||
+        mapped.idNumber ||
+        resolved.driverIdentity ||
+        resolved.residencyId ||
+        raw.driverIdentity ||
+        raw.residencyId ||
+        raw['رقم الهوية'] ||
+        raw['الإقامة'] ||
+        raw['رقم الإقامة'] ||
+        ''
+      ).toString().trim();
+      if (residencyVal) residencyIds.add(residencyVal);
+
+      const phoneVal = (
+        canonical.driverPhone ||
+        canonical.phone ||
+        mapped.driverPhone ||
+        mapped.phone ||
+        resolved.driverPhone ||
+        resolved.phone ||
+        raw.driverPhone ||
+        raw.phone ||
+        raw['رقم الجوال'] ||
+        raw['الجوال'] ||
+        raw['الهاتف'] ||
+        ''
+      ).toString().trim();
+      if (phoneVal) phones.add(phoneVal);
+
+      const carrierVal = (
+        group.currentResolution?.entityId ||
+        group.currentResolution?.matchedId ||
+        resolved.carrierId ||
+        row.entityResolutions?.carrier?.matchedId ||
+        row.entityResolutions?.carrier?.entityId ||
+        ''
+      ).toString().trim();
+      if (carrierVal) carrierIds.add(carrierVal);
+    });
+
+    const conflicts: Record<string, string[]> = {};
+    let hasConflict = false;
+
+    if (driverNames.size > 1) {
+      hasConflict = true;
+      conflicts['اسم السائق'] = Array.from(driverNames);
+    }
+    if (residencyIds.size > 1) {
+      hasConflict = true;
+      conflicts['رقم الهوية/الإقامة'] = Array.from(residencyIds);
+    }
+    if (phones.size > 1) {
+      hasConflict = true;
+      conflicts['رقم الجوال'] = Array.from(phones);
+    }
+
+    const driverName = driverNames.size === 1 ? Array.from(driverNames)[0] : (group.sourceValue || '');
+    const residencyId = residencyIds.size === 1 ? Array.from(residencyIds)[0] : '';
+    const phone = phones.size === 1 ? Array.from(phones)[0] : '';
+    const carrierId = carrierIds.size >= 1 ? Array.from(carrierIds)[0] : undefined;
+
+    return {
+      driverName,
+      residencyId,
+      phone,
+      carrierId,
+      hasConflict,
+      conflicts,
+    };
+  }
+
+  /**
+   * Derives smart creation defaults for Truck creation forms from source rows belonging to exact group key.
+   * Applies deterministic consensus rules across group rows.
+   */
+  public static deriveTruckCreationDefaults(
+    batch: UnifiedImportBatch,
+    group: RosterEntityReviewGroup
+  ): TruckCreationDefaultsResult {
+    if (!batch || !batch.rows || !group) {
+      return {
+        plateNumber: group?.sourceValue || '',
+        truckType: '',
+        hasConflict: false,
+        conflicts: {},
+      };
+    }
+
+    const matchingRows = batch.rows.filter((row) => {
+      if (group.rowNumbers && group.rowNumbers.includes(row.rowNumber)) return true;
+      return this.getGroupKey(row, 'truck') === group.normalizedSourceKey;
+    });
+
+    const plateNumbers = new Set<string>();
+    const truckTypes = new Set<string>();
+    const tareWeights = new Set<number>();
+    const maxGrossWeights = new Set<number>();
+    const carrierIds = new Set<string>();
+
+    matchingRows.forEach((row) => {
+      const canonical = row.canonical || {};
+      const mapped = row.mapped || {};
+      const raw = row.raw || {};
+      const resolved = row.resolvedValues || {};
+
+      const plateVal = (
+        canonical.truckPlate ||
+        canonical.plateNumber ||
+        canonical.truckNo ||
+        mapped.truckPlate ||
+        mapped.truckNo ||
+        mapped.plateNumber ||
+        resolved.truckPlate ||
+        raw.plate ||
+        raw['رقم اللوحة'] ||
+        group.sourceValue ||
+        ''
+      ).toString().trim();
+      if (plateVal) plateNumbers.add(plateVal);
+
+      const typeVal = (
+        canonical.truckType ||
+        canonical.type ||
+        mapped.truckType ||
+        mapped.type ||
+        resolved.truckType ||
+        raw.truckType ||
+        raw['نوع الشاحنة'] ||
+        raw['نوع المركبة'] ||
+        ''
+      ).toString().trim();
+      if (typeVal) truckTypes.add(typeVal);
+
+      const tare = canonical.tareWeightKg ?? canonical.tareWeight ?? mapped.tareWeightKg ?? mapped.tareWeight ?? resolved.tareWeightKg;
+      if (tare !== undefined && tare !== null && !isNaN(Number(tare)) && Number(tare) > 0) {
+        tareWeights.add(Number(tare));
+      }
+
+      const gross = canonical.maxGrossWeightKg ?? canonical.maxGrossWeight ?? mapped.maxGrossWeightKg ?? mapped.maxGrossWeight ?? resolved.maxGrossWeightKg;
+      if (gross !== undefined && gross !== null && !isNaN(Number(gross)) && Number(gross) > 0) {
+        maxGrossWeights.add(Number(gross));
+      }
+
+      const carrierVal = (
+        group.currentResolution?.entityId ||
+        group.currentResolution?.matchedId ||
+        resolved.carrierId ||
+        row.entityResolutions?.carrier?.matchedId ||
+        row.entityResolutions?.carrier?.entityId ||
+        ''
+      ).toString().trim();
+      if (carrierVal) carrierIds.add(carrierVal);
+    });
+
+    const conflicts: Record<string, string[]> = {};
+    let hasConflict = false;
+
+    if (plateNumbers.size > 1) {
+      hasConflict = true;
+      conflicts['رقم اللوحة'] = Array.from(plateNumbers);
+    }
+    if (truckTypes.size > 1) {
+      hasConflict = true;
+      conflicts['نوع الشاحنة'] = Array.from(truckTypes);
+    }
+    if (tareWeights.size > 1) {
+      hasConflict = true;
+      conflicts['الوزن الفارغ'] = Array.from(tareWeights).map(String);
+    }
+    if (maxGrossWeights.size > 1) {
+      hasConflict = true;
+      conflicts['الوزن الأقصى'] = Array.from(maxGrossWeights).map(String);
+    }
+
+    const plateNumber = plateNumbers.size === 1 ? Array.from(plateNumbers)[0] : (group.sourceValue || '');
+    const truckType = truckTypes.size === 1 ? Array.from(truckTypes)[0] : '';
+    const tareWeightKg = tareWeights.size === 1 ? Array.from(tareWeights)[0] : undefined;
+    const maxGrossWeightKg = maxGrossWeights.size === 1 ? Array.from(maxGrossWeights)[0] : undefined;
+    const carrierId = carrierIds.size >= 1 ? Array.from(carrierIds)[0] : undefined;
+
+    return {
+      plateNumber,
+      truckType,
+      tareWeightKg,
+      maxGrossWeightKg,
+      carrierId,
+      hasConflict,
+      conflicts,
+    };
   }
 }

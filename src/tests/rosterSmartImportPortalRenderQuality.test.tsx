@@ -977,5 +977,415 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         root.unmount();
       });
     });
+
+    it('C4 REAL COMPONENT A: Driver creation modal opens prefilled with driverName, residencyId/iqama, and phone from source rows', async () => {
+      const root = createRoot(container);
+      const testBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-COMP-A',
+        projectId: 'PRJ-101',
+        sourceType: 'EXCEL_CSV',
+        status: 'DISCOVERED',
+        totalRows: 1,
+        validRows: 0,
+        warningRows: 1,
+        errorRows: 0,
+        requiresReviewRows: 1,
+        issues: [],
+        rows: [
+          {
+            rowNumber: 1,
+            raw: { 'اسم السائق': 'علي المنصور', 'رقم الهوية': '1098765432', 'الجوال': '0509876543' },
+            canonical: { driverName: 'علي المنصور', driverIdentity: '1098765432', driverPhone: '0509876543' },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: { sourceValue: 'علي المنصور', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'علي المنصور' },
+            },
+            status: 'WARNING',
+            validationIssues: [],
+            reviewStatus: 'requires_review',
+          },
+        ],
+      };
+
+      await act(async () => {
+        root.render(
+          <RosterDriverTruckResolutionLayer
+            importBatch={testBatch}
+            onAcceptCandidate={() => {}}
+            onSelectAlternate={() => {}}
+            onCreateDriver={() => {}}
+            onCreateTruck={() => {}}
+          />
+        );
+      });
+
+      const buttons = Array.from(document.body.querySelectorAll('button'));
+      const createDriverBtn = buttons.find((b) => b.textContent?.includes('إنشاء سائق جديد'));
+      expect(createDriverBtn).toBeDefined();
+
+      await act(async () => {
+        createDriverBtn?.click();
+      });
+
+      const nameInput = document.body.querySelector('input[placeholder="مثال: سالم علي القحطاني"]') as HTMLInputElement;
+      const iqamaInput = document.body.querySelector('input[placeholder="مثال: 1023456789 أو 2023456789"]') as HTMLInputElement;
+      const phoneInput = document.body.querySelector('input[placeholder="مثال: 0501234567"]') as HTMLInputElement;
+
+      expect(nameInput).not.toBeNull();
+      expect(nameInput.value).toBe('علي المنصور');
+      expect(iqamaInput.value).toBe('1098765432');
+      expect(phoneInput.value).toBe('0509876543');
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
+    it('C4 REAL COMPONENT B: Truck creation modal opens prefilled with plateNumber, truckType, tareWeight, and maxGrossWeight', async () => {
+      const root = createRoot(container);
+      const testBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-COMP-B',
+        projectId: 'PRJ-101',
+        sourceType: 'EXCEL_CSV',
+        status: 'DISCOVERED',
+        totalRows: 1,
+        validRows: 0,
+        warningRows: 1,
+        errorRows: 0,
+        requiresReviewRows: 1,
+        issues: [],
+        rows: [
+          {
+            rowNumber: 1,
+            raw: {},
+            canonical: { truckPlate: 'ح ط ي 7777', truckType: 'سطحة هايدروليك', tareWeightKg: 15200, maxGrossWeightKg: 42000 },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              truck: { sourceValue: 'ح ط ي 7777', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'ح ط ي 7777' },
+            },
+            status: 'WARNING',
+            validationIssues: [],
+            reviewStatus: 'requires_review',
+          },
+        ],
+      };
+
+      await act(async () => {
+        root.render(
+          <RosterDriverTruckResolutionLayer
+            importBatch={testBatch}
+            onAcceptCandidate={() => {}}
+            onSelectAlternate={() => {}}
+            onCreateDriver={() => {}}
+            onCreateTruck={() => {}}
+          />
+        );
+      });
+
+      const buttons = Array.from(document.body.querySelectorAll('button'));
+      const createTruckBtn = buttons.find((b) => b.textContent?.includes('إنشاء شاحنة جديدة'));
+      expect(createTruckBtn).toBeDefined();
+
+      await act(async () => {
+        createTruckBtn?.click();
+      });
+
+      const plateInput = document.body.querySelector('input[placeholder="مثال: أ ب ج 1234"]') as HTMLInputElement;
+      const typeInput = document.body.querySelector('input[placeholder="مثال: قلاب، تريلا، سطحة"]') as HTMLInputElement;
+      const tareInput = document.body.querySelector('input[placeholder="مثال: 14000"]') as HTMLInputElement;
+      const grossInput = document.body.querySelector('input[placeholder="مثال: 45000"]') as HTMLInputElement;
+
+      expect(plateInput.value).toBe('ح ط ي 7777');
+      expect(typeInput.value).toBe('سطحة هايدروليك');
+      expect(tareInput.value).toBe('15200');
+      expect(grossInput.value).toBe('42000');
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
+    it('C4 REAL COMPONENT C: Driver conflicting Iqama displays conflict details, blocks submit until resolved, then submits chosen value', async () => {
+      const root = createRoot(container);
+      const handleCreateDriver = vi.fn();
+
+      const conflictBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-COMP-C',
+        projectId: 'PRJ-101',
+        sourceType: 'EXCEL_CSV',
+        status: 'DISCOVERED',
+        totalRows: 2,
+        validRows: 0,
+        warningRows: 2,
+        errorRows: 0,
+        requiresReviewRows: 2,
+        issues: [],
+        rows: [
+          {
+            rowNumber: 1,
+            raw: {},
+            canonical: { driverName: 'سعود فهد', driverIdentity: '1011111111' },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: { sourceValue: 'سعود فهد', recommendation: 'REVIEW' },
+            },
+            status: 'WARNING',
+            validationIssues: [],
+            reviewStatus: 'requires_review',
+          },
+          {
+            rowNumber: 2,
+            raw: {},
+            canonical: { driverName: 'سعود فهد', driverIdentity: '2022222222' },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: { sourceValue: 'سعود فهد', recommendation: 'REVIEW' },
+            },
+            status: 'WARNING',
+            validationIssues: [],
+            reviewStatus: 'requires_review',
+          },
+        ],
+      };
+
+      await act(async () => {
+        root.render(
+          <RosterDriverTruckResolutionLayer
+            importBatch={conflictBatch}
+            onAcceptCandidate={() => {}}
+            onSelectAlternate={() => {}}
+            onCreateDriver={handleCreateDriver}
+            onCreateTruck={() => {}}
+          />
+        );
+      });
+
+      const buttons = Array.from(document.body.querySelectorAll('button'));
+      const createDriverBtn = buttons.find((b) => b.textContent?.includes('إنشاء سائق جديد'));
+
+      await act(async () => {
+        createDriverBtn?.click();
+      });
+
+      expect(document.body.textContent).toContain('توجد بيانات متعارضة في الملف المصدر');
+      expect(document.body.textContent).toContain('1011111111 مقابل 2022222222');
+
+      const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes('حفظ وإنشاء السائق'));
+      await act(async () => {
+        submitBtn?.click();
+      });
+
+      expect(handleCreateDriver).toHaveBeenCalledTimes(0);
+
+      const iqamaInput = document.body.querySelector('input[placeholder="مثال: 1023456789 أو 2023456789"]') as HTMLInputElement;
+      await act(async () => {
+        const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+        if (valueSetter) {
+          valueSetter.call(iqamaInput, '1011111111');
+        } else {
+          iqamaInput.value = '1011111111';
+        }
+        iqamaInput.dispatchEvent(new Event('input', { bubbles: true }));
+        iqamaInput.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      await act(async () => {
+        submitBtn?.click();
+      });
+
+      expect(handleCreateDriver).toHaveBeenCalledTimes(1);
+      expect(handleCreateDriver.mock.calls[0][1].residencyId).toBe('1011111111');
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
+    it('C4 REAL COMPONENT D: Truck conflicting optional tareWeightKg displays conflict details, blocks submit until resolved, then submits chosen value', async () => {
+      const root = createRoot(container);
+      const handleCreateTruck = vi.fn();
+
+      const conflictBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-COMP-D',
+        projectId: 'PRJ-101',
+        sourceType: 'EXCEL_CSV',
+        status: 'DISCOVERED',
+        totalRows: 2,
+        validRows: 0,
+        warningRows: 2,
+        errorRows: 0,
+        requiresReviewRows: 2,
+        issues: [],
+        rows: [
+          {
+            rowNumber: 1,
+            raw: {},
+            canonical: { truckPlate: 'ك ل م 8888', tareWeightKg: 14000 },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              truck: { sourceValue: 'ك ل م 8888', recommendation: 'REVIEW' },
+            },
+            status: 'WARNING',
+            validationIssues: [],
+            reviewStatus: 'requires_review',
+          },
+          {
+            rowNumber: 2,
+            raw: {},
+            canonical: { truckPlate: 'ك ل م 8888', tareWeightKg: 16000 },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              truck: { sourceValue: 'ك ل م 8888', recommendation: 'REVIEW' },
+            },
+            status: 'WARNING',
+            validationIssues: [],
+            reviewStatus: 'requires_review',
+          },
+        ],
+      };
+
+      await act(async () => {
+        root.render(
+          <RosterDriverTruckResolutionLayer
+            importBatch={conflictBatch}
+            onAcceptCandidate={() => {}}
+            onSelectAlternate={() => {}}
+            onCreateDriver={() => {}}
+            onCreateTruck={handleCreateTruck}
+          />
+        );
+      });
+
+      const buttons = Array.from(document.body.querySelectorAll('button'));
+      const createTruckBtn = buttons.find((b) => b.textContent?.includes('إنشاء شاحنة جديدة'));
+
+      await act(async () => {
+        createTruckBtn?.click();
+      });
+
+      expect(document.body.textContent).toContain('توجد بيانات متعارضة في الملف المصدر');
+      expect(document.body.textContent).toContain('14000 مقابل 16000');
+
+      const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes('حفظ وإنشاء الشاحنة'));
+      await act(async () => {
+        submitBtn?.click();
+      });
+
+      expect(handleCreateTruck).toHaveBeenCalledTimes(0);
+
+      const tareInput = document.body.querySelector('input[placeholder="مثال: 14000"]') as HTMLInputElement;
+      await act(async () => {
+        const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+        if (valueSetter) {
+          valueSetter.call(tareInput, '15000');
+        } else {
+          tareInput.value = '15000';
+        }
+        tareInput.dispatchEvent(new Event('input', { bubbles: true }));
+        tareInput.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      await act(async () => {
+        submitBtn?.click();
+      });
+
+      expect(handleCreateTruck).toHaveBeenCalledTimes(1);
+      expect(handleCreateTruck.mock.calls[0][1].tareWeightKg).toBe(15000);
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
+    it('C4 REAL COMPONENT E: Conflict state resets completely when modal is cancelled or a clean group is opened', async () => {
+      const root = createRoot(container);
+
+      const multiGroupBatch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-COMP-E',
+        projectId: 'PRJ-101',
+        sourceType: 'EXCEL_CSV',
+        status: 'DISCOVERED',
+        totalRows: 3,
+        validRows: 0,
+        warningRows: 3,
+        errorRows: 0,
+        requiresReviewRows: 3,
+        issues: [],
+        rows: [
+          {
+            rowNumber: 1,
+            raw: {},
+            canonical: { driverName: 'سائق متعارض', driverIdentity: '1000000001' },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: { sourceValue: 'سائق متعارض', recommendation: 'REVIEW' },
+            },
+            status: 'WARNING',
+            validationIssues: [],
+            reviewStatus: 'requires_review',
+          },
+          {
+            rowNumber: 2,
+            raw: {},
+            canonical: { driverName: 'سائق متعارض', driverIdentity: '2000000002' },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: { sourceValue: 'سائق متعارض', recommendation: 'REVIEW' },
+            },
+            status: 'WARNING',
+            validationIssues: [],
+            reviewStatus: 'requires_review',
+          },
+          {
+            rowNumber: 3,
+            raw: {},
+            canonical: { driverName: 'سائق سليم', driverIdentity: '1099887766' },
+            entityResolutions: {
+              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: { sourceValue: 'سائق سليم', recommendation: 'REVIEW' },
+            },
+            status: 'WARNING',
+            validationIssues: [],
+            reviewStatus: 'requires_review',
+          },
+        ],
+      };
+
+      await act(async () => {
+        root.render(
+          <RosterDriverTruckResolutionLayer
+            importBatch={multiGroupBatch}
+            onAcceptCandidate={() => {}}
+            onSelectAlternate={() => {}}
+            onCreateDriver={() => {}}
+            onCreateTruck={() => {}}
+          />
+        );
+      });
+
+      const createButtons = Array.from(document.body.querySelectorAll('button')).filter((b) => b.textContent?.includes('إنشاء سائق جديد'));
+      await act(async () => {
+        createButtons[0]?.click();
+      });
+
+      expect(document.body.textContent).toContain('توجد بيانات متعارضة في الملف المصدر');
+
+      const cancelBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === 'إلغاء');
+      await act(async () => {
+        cancelBtn?.click();
+      });
+
+      await act(async () => {
+        createButtons[1]?.click();
+      });
+
+      expect(document.body.textContent).not.toContain('توجد بيانات متعارضة في الملف المصدر');
+      const iqamaInput = document.body.querySelector('input[placeholder="مثال: 1023456789 أو 2023456789"]') as HTMLInputElement;
+      expect(iqamaInput.value).toBe('1099887766');
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
   });
 });
