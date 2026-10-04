@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import { RosterBatchReviewService } from '../services/import/rosterBatchReview.service';
+import { EntityResolutionService } from '../services/import/entityResolution.service';
 import { DriverTruckPipelineService } from '../services/import/driverTruckPipeline.service';
 import { checkCarrierResolutionReadiness } from '../components/import/RosterCarrierResolutionLayer';
 import { UnifiedImportBatch } from '../types/unifiedImport';
@@ -350,5 +351,166 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
 
     const status = RosterBatchReviewService.determineGroupStatus(conflictRes as any);
     expect(status).toBe('CONFLICT');
+  });
+
+  it('19. Stale Flags Clearance: SELECT_ALTERNATE explicitly overwrites stale isAuthorized=false, ambiguous=true, and isExact=false', () => {
+    const staleInitialRes = {
+      entityType: 'CARRIER' as const,
+      sourceValue: 'ناقل غير مصرح بتبعيته',
+      matchedId: 'CAR-OLD',
+      matchedName: 'ناقل قديم',
+      confidence: 0.65,
+      matchMethod: 'FUZZY' as const,
+      isExact: false,
+      isAuthorized: false,
+      ambiguous: true,
+      recommendation: 'REVIEW' as const,
+      riskLevel: 'HIGH' as const,
+      relationshipStatus: 'DRIVER_CARRIER_CONFLICT' as const,
+    };
+
+    const pipelineCtx = {
+      projectId: 'PRJ-100',
+      operationId: 'OP-TEST',
+      userId: 'USR-1',
+      role: 'PROJECT_ADMIN' as const,
+      relContext: {
+        projectId: 'PRJ-100',
+        authorizedCarrierIds: ['CAR-NEW-VALID'],
+        knownCarriers: [{ carrierId: 'CAR-NEW-VALID', name: 'شركة النقل المعتمدة الجديدة', status: 'ACTIVE' as const }],
+        knownTrucks: [],
+        knownDrivers: [],
+        knownMaterials: [],
+      },
+    };
+
+    const result = EntityResolutionService.applyUserDecision({
+      projectId: 'PRJ-100',
+      importBatchId: 'BATCH-01',
+      operationId: 'OP-TEST',
+      rowNumber: 1,
+      entityType: 'CARRIER',
+      decision: 'SELECT_ALTERNATE',
+      selectedEntityId: 'CAR-NEW-VALID',
+      selectedDisplayName: 'شركة النقل المعتمدة الجديدة',
+      currentRowResolution: staleInitialRes as any,
+      context: pipelineCtx as any,
+      actorId: 'USR-1',
+    });
+
+    const updated = result.updatedResolution;
+
+    expect(updated.matchedId).toBe('CAR-NEW-VALID');
+    expect(updated.matchedName).toBe('شركة النقل المعتمدة الجديدة');
+    expect(updated.confidence).toBe(1.0);
+    expect(updated.matchMethod).toBe('EXACT');
+    expect(updated.isExact).toBe(true);
+    expect(updated.isAuthorized).toBe(true);
+    expect(updated.ambiguous).toBe(false);
+    expect(updated.recommendation).toBe('ACCEPT');
+    expect(updated.riskLevel).toBe('LOW');
+    expect(updated.relationshipStatus).toBe('VALID');
+    expect(updated.conflictDetails).toBeUndefined();
+
+    const groupStatus = RosterBatchReviewService.determineGroupStatus(updated as any);
+    expect(groupStatus).toBe('AUTO_RESOLVED');
+  });
+
+  it('20. All Entity Types Shared Contract: SELECT_ALTERNATE clears stale flags across CARRIER, MATERIAL, DRIVER, TRUCK', () => {
+    const pipelineCtx = {
+      projectId: 'PRJ-100',
+      operationId: 'OP-TEST',
+      userId: 'USR-1',
+      role: 'PROJECT_ADMIN' as const,
+      relContext: {
+        projectId: 'PRJ-100',
+        authorizedCarrierIds: ['CAR-1'],
+        knownCarriers: [{ carrierId: 'CAR-1', name: 'ناقل 1', status: 'ACTIVE' as const }],
+        knownTrucks: [{ truckId: 'TRK-1', plate: 'أ ب ج 1111', carrierId: 'CAR-1', status: 'ACTIVE' as const }],
+        knownDrivers: [{ driverId: 'DRV-1', name: 'سائق 1', carrierId: 'CAR-1', status: 'ACTIVE' as const }],
+        knownMaterials: [{ materialId: 'MAT-1', name: 'مادة 1', code: 'M1', status: 'ACTIVE' as const }],
+      },
+    };
+
+    const staleRes = {
+      confidence: 0.5,
+      matchMethod: 'FUZZY',
+      isExact: false,
+      isAuthorized: false,
+      ambiguous: true,
+      recommendation: 'REVIEW',
+      riskLevel: 'HIGH',
+      relationshipStatus: 'RELATIONSHIP_CONFLICT',
+    };
+
+    const configs = [
+      { type: 'CARRIER' as const, id: 'CAR-1', name: 'ناقل 1' },
+      { type: 'MATERIAL' as const, id: 'MAT-1', name: 'مادة 1' },
+      { type: 'DRIVER' as const, id: 'DRV-1', name: 'سائق 1' },
+      { type: 'TRUCK' as const, id: 'TRK-1', name: 'أ ب ج 1111' },
+    ];
+
+    configs.forEach((cfg) => {
+      const res = EntityResolutionService.applyUserDecision({
+        projectId: 'PRJ-100',
+        importBatchId: 'BATCH-01',
+        operationId: 'OP-TEST',
+        rowNumber: 1,
+        entityType: cfg.type,
+        decision: 'SELECT_ALTERNATE',
+        selectedEntityId: cfg.id,
+        selectedDisplayName: cfg.name,
+        currentRowResolution: { ...staleRes, entityType: cfg.type, sourceValue: 'raw' } as any,
+        context: pipelineCtx as any,
+        actorId: 'USR-1',
+      });
+
+      const up = res.updatedResolution;
+      expect(up.isAuthorized).toBe(true);
+      expect(up.ambiguous).toBe(false);
+      expect(up.isExact).toBe(true);
+      expect(up.recommendation).toBe('ACCEPT');
+      expect(up.relationshipStatus).toBe('VALID');
+      expect(RosterBatchReviewService.determineGroupStatus(up as any)).toBe('AUTO_RESOLVED');
+    });
+  });
+
+  it('21. Security Negative Test: SELECT_ALTERNATE with unauthorized/cross-project entity throws Security Violation', () => {
+    const pipelineCtx = {
+      projectId: 'PRJ-100',
+      operationId: 'OP-TEST',
+      userId: 'USR-1',
+      role: 'PROJECT_ADMIN' as const,
+      relContext: {
+        projectId: 'PRJ-100',
+        authorizedCarrierIds: ['CAR-LOCAL'],
+        knownCarriers: [{ carrierId: 'CAR-LOCAL', name: 'ناقل المحلي', status: 'ACTIVE' as const }],
+        knownTrucks: [],
+        knownDrivers: [],
+        knownMaterials: [],
+      },
+    };
+
+    const initialRes = {
+      entityType: 'CARRIER' as const,
+      sourceValue: 'شركة غريبة',
+      recommendation: 'REVIEW' as const,
+    };
+
+    expect(() => {
+      EntityResolutionService.applyUserDecision({
+        projectId: 'PRJ-100',
+        importBatchId: 'BATCH-01',
+        operationId: 'OP-TEST',
+        rowNumber: 1,
+        entityType: 'CARRIER',
+        decision: 'SELECT_ALTERNATE',
+        selectedEntityId: 'CAR-CROSS-PROJECT-999',
+        selectedDisplayName: 'ناقل من مشروع آخر',
+        currentRowResolution: initialRes as any,
+        context: pipelineCtx as any,
+        actorId: 'USR-1',
+      });
+    }).toThrow(/Security Violation/);
   });
 });

@@ -895,9 +895,12 @@ export class EntityResolutionService {
         updatedResolution.matchedName = updatedResolution.matchedValue;
         updatedResolution.confidence = 1.0;
         updatedResolution.matchMethod = 'EXACT';
+        updatedResolution.isExact = true;
+        updatedResolution.isAuthorized = true;
         updatedResolution.recommendation = 'ACCEPT';
         updatedResolution.riskLevel = 'LOW';
         updatedResolution.relationshipStatus = 'VALID';
+        updatedResolution.ambiguous = false;
         updatedResolution.conflictDetails = undefined;
         break;
 
