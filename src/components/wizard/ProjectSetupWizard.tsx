@@ -1414,22 +1414,30 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     group: RosterEntityReviewGroup,
     candidateEntityId: string
   ) => {
-    if (group.type === 'truck') {
+    if (group.entityType === 'truck') {
       await handleSmartImportTruckAcceptCandidate(group, candidateEntityId);
-    } else {
-      await handleSmartImportDriverAcceptCandidate(group, candidateEntityId);
+      return;
     }
+    if (group.entityType === 'driver') {
+      await handleSmartImportDriverAcceptCandidate(group, candidateEntityId);
+      return;
+    }
+    throw new Error('INVALID_DRIVER_TRUCK_GROUP_TYPE');
   };
 
   const handleSmartImportDriverTruckSelectAlternate = async (
     group: RosterEntityReviewGroup,
     entityId: string
   ) => {
-    if (group.type === 'truck') {
+    if (group.entityType === 'truck') {
       await handleSmartImportTruckSelectAlternate(group, entityId);
-    } else {
-      await handleSmartImportDriverSelectAlternate(group, entityId);
+      return;
     }
+    if (group.entityType === 'driver') {
+      await handleSmartImportDriverSelectAlternate(group, entityId);
+      return;
+    }
+    throw new Error('INVALID_DRIVER_TRUCK_GROUP_TYPE');
   };
 
   const handleRetryDriverConvergence = async () => {
@@ -3900,6 +3908,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {importBatch && rosterImportStage === 'CARRIER_RESOLUTION' && (
                 <div>
                   {/* C2: True Carrier-Only Resolution Layer */}
+                  {/* Only Carrier review groups are resolved here before future layers. */}
                   <RosterCarrierResolutionLayer
                     importBatch={importBatch}
                     projectCarriers={carriers}
@@ -3942,6 +3951,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 <div>
                   <RosterDriverTruckResolutionLayer
                     importBatch={importBatch}
+                    projectDrivers={projectRelationshipContext?.knownDrivers || []}
+                    projectTrucks={projectRelationshipContext?.knownTrucks || []}
                     onAcceptCandidate={handleSmartImportDriverTruckAcceptCandidate}
                     onSelectAlternate={handleSmartImportDriverTruckSelectAlternate}
                     onCreateDriver={handleSmartImportDriverCreate}
@@ -3966,6 +3977,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     onCommit={handleSmartImportCommit}
                     isCommitting={isCommittingImport}
                     commitError={smartImportCommitError}
+                    onClose={handleFinalReviewBack}
                     embeddedInWorkflowHost={true}
                   />
                 </div>

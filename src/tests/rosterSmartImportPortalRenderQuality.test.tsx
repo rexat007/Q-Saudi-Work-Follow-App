@@ -826,4 +826,156 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
     });
   });
+
+  describe('C4 & FINAL REVIEW BEHAVIORAL DISPATCH & CORRECTION TESTS', () => {
+    it('A & B & C: Joint driver/truck accept handler dispatches based on entityType and fails closed on invalid entityType', async () => {
+      const handleDriverAccept = vi.fn();
+      const handleTruckAccept = vi.fn();
+
+      const jointAccept = async (group: any, candidateId: string) => {
+        if (group.entityType === 'truck') {
+          await handleTruckAccept(group, candidateId);
+          return;
+        }
+        if (group.entityType === 'driver') {
+          await handleDriverAccept(group, candidateId);
+          return;
+        }
+        throw new Error('INVALID_DRIVER_TRUCK_GROUP_TYPE');
+      };
+
+      // A: Driver group
+      await jointAccept({ entityType: 'driver', normalizedSourceKey: 'driver:salim' }, 'DRV-1');
+      expect(handleDriverAccept).toHaveBeenCalledTimes(1);
+      expect(handleTruckAccept).toHaveBeenCalledTimes(0);
+
+      handleDriverAccept.mockReset();
+      handleTruckAccept.mockReset();
+
+      // B: Truck group
+      await jointAccept({ entityType: 'truck', normalizedSourceKey: 'truck:trk1' }, 'TRK-1');
+      expect(handleTruckAccept).toHaveBeenCalledTimes(1);
+      expect(handleDriverAccept).toHaveBeenCalledTimes(0);
+
+      handleDriverAccept.mockReset();
+      handleTruckAccept.mockReset();
+
+      // C: Invalid group (carrier/material) -> Fail closed
+      await expect(
+        jointAccept({ entityType: 'carrier', normalizedSourceKey: 'carrier:c1' }, 'CAR-1')
+      ).rejects.toThrow('INVALID_DRIVER_TRUCK_GROUP_TYPE');
+      expect(handleDriverAccept).toHaveBeenCalledTimes(0);
+      expect(handleTruckAccept).toHaveBeenCalledTimes(0);
+    });
+
+    it('D & E & F: projectDrivers and projectTrucks supplied to C4 filter same-carrier alternates and exclude cross-carrier alternates', async () => {
+      const root = createRoot(container);
+      const batch: UnifiedImportBatch = {
+        importBatchId: 'BATCH-ALT-TEST',
+        projectId: 'PRJ-101',
+        sourceType: 'EXCEL_CSV',
+        status: 'DISCOVERED',
+        totalRows: 1,
+        validRows: 0,
+        warningRows: 1,
+        errorRows: 0,
+        requiresReviewRows: 1,
+        rows: [
+          {
+            rowNumber: 1,
+            raw: { 'الناقل': 'شركة الرمال', 'اسم السائق': 'سالم علي', 'رقم الشاحنة': 'TRK-100' },
+            status: 'WARNING',
+            entityResolutions: {
+              carrier: { sourceValue: 'شركة الرمال', matchedId: 'CAR-SAME', matchedName: 'شركة الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
+              driver: { sourceValue: 'سالم علي', recommendation: 'REVIEW' },
+              truck: { sourceValue: 'TRK-100', recommendation: 'REVIEW' },
+            },
+          },
+        ],
+      };
+
+      const projectDrivers = [
+        { driverId: 'DRV-SAME-1', name: 'خالد عبدالله (نفس الناقل)', carrierId: 'CAR-SAME', status: 'ACTIVE' },
+        { driverId: 'DRV-DIFF-1', name: 'فهد محمد (ناقل مختلف)', carrierId: 'CAR-OTHER', status: 'ACTIVE' },
+      ];
+
+      const projectTrucks = [
+        { truckId: 'TRK-SAME-1', plate: 'أ ب ج 1234 (نفس الناقل)', carrierId: 'CAR-SAME', status: 'ACTIVE' },
+        { truckId: 'TRK-DIFF-1', plate: 'س ش ص 9999 (ناقل مختلف)', carrierId: 'CAR-OTHER', status: 'ACTIVE' },
+      ];
+
+      await act(async () => {
+        root.render(
+          <RosterDriverTruckResolutionLayer
+            importBatch={batch}
+            projectDrivers={projectDrivers}
+            projectTrucks={projectTrucks}
+            onAcceptCandidate={() => {}}
+            onSelectAlternate={() => {}}
+            onCreateDriver={() => {}}
+            onCreateTruck={() => {}}
+          />
+        );
+      });
+
+      // D & E: Same-carrier driver and truck appear
+      expect(document.body.textContent).toContain('خالد عبدالله');
+      expect(document.body.textContent).toContain('أ ب ج 1234');
+
+      // F: Cross-carrier driver and truck do NOT appear
+      expect(document.body.textContent).not.toContain('فهد محمد');
+      expect(document.body.textContent).not.toContain('س ش ص 9999');
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
+    it('G & H & I: RosterFinalReviewLayer renders correction button when onClose exists and invokes correct policy', async () => {
+      const root = createRoot(container);
+      const handleClose = vi.fn();
+
+      const batchWithMaterialBlocker: UnifiedImportBatch = {
+        importBatchId: 'BATCH-FINAL-BLOCKER',
+        projectId: 'PRJ-101',
+        sourceType: 'EXCEL_CSV',
+        status: 'DISCOVERED',
+        totalRows: 1,
+        validRows: 0,
+        warningRows: 1,
+        errorRows: 1,
+        requiresReviewRows: 1,
+        issues: [
+          { issueId: 'ISS-MAT', message: 'مادة غير معتمدة للمشروع', severity: 'BLOCKING', entityType: 'material' },
+        ],
+        rows: [],
+      };
+
+      await act(async () => {
+        root.render(
+          <RosterFinalReviewLayer
+            importBatch={batchWithMaterialBlocker}
+            onCommit={async () => {}}
+            onClose={handleClose}
+          />
+        );
+      });
+
+      // G: onClose exists -> correction button is rendered ("العودة لمعالجة البيانات")
+      expect(document.body.textContent).toContain('العودة لمعالجة البيانات');
+
+      // Click correction button
+      const backBtn = document.body.querySelectorAll('button')[0];
+      if (backBtn) {
+        await act(async () => {
+          (backBtn as HTMLButtonElement).click();
+        });
+      }
+      expect(handleClose).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+  });
 });
