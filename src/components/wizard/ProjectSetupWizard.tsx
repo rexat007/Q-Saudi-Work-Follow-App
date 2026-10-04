@@ -1409,6 +1409,29 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
+  // C4 Smart Import: Joint Driver/Truck Accept & Alternate Handlers
+  const handleSmartImportDriverTruckAcceptCandidate = async (
+    group: RosterEntityReviewGroup,
+    candidateEntityId: string
+  ) => {
+    if (group.type === 'truck') {
+      await handleSmartImportTruckAcceptCandidate(group, candidateEntityId);
+    } else {
+      await handleSmartImportDriverAcceptCandidate(group, candidateEntityId);
+    }
+  };
+
+  const handleSmartImportDriverTruckSelectAlternate = async (
+    group: RosterEntityReviewGroup,
+    entityId: string
+  ) => {
+    if (group.type === 'truck') {
+      await handleSmartImportTruckSelectAlternate(group, entityId);
+    } else {
+      await handleSmartImportDriverSelectAlternate(group, entityId);
+    }
+  };
+
   const handleRetryDriverConvergence = async () => {
     if (isProcessing || !project || !importBatch || !cachedSuccessfulDriverResult) return;
     const currentGen = rosterImportSessionGenerationRef.current;
@@ -3877,10 +3900,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {importBatch && rosterImportStage === 'CARRIER_RESOLUTION' && (
                 <div>
                   {/* C2: True Carrier-Only Resolution Layer */}
-                  {/* Only Carrier review groups are resolved here before future layers. */}
                   <RosterCarrierResolutionLayer
-                    batch={importBatch}
-                    project={project}
+                    importBatch={importBatch}
+                    projectCarriers={carriers}
                     onAcceptCandidate={handleSmartImportCarrierAcceptCandidate}
                     onSelectAlternate={handleSmartImportCarrierSelectAlternate}
                     onCreateCarrier={(group) => {
@@ -3889,6 +3911,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     }}
                     onContinueToMaterials={handleSmartImportContinueToMaterials}
                     onCancelImport={handleResetRosterImport}
+                    isProcessing={isProcessing}
+                    embeddedInWorkflowHost={true}
                   />
                 </div>
               )}
@@ -3897,8 +3921,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {importBatch && rosterImportStage === 'MATERIAL_RESOLUTION' && (
                 <div>
                   <RosterMaterialResolutionLayer
-                    batch={importBatch}
-                    project={project}
+                    importBatch={importBatch}
+                    projectMaterials={materials}
                     onAcceptCandidate={handleSmartImportMaterialAcceptCandidate}
                     onSelectAlternate={handleSmartImportMaterialSelectAlternate}
                     onCreateMaterial={(group) => {
@@ -3906,8 +3930,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       setIsSmartImportMaterialModalOpen(true);
                     }}
                     onContinueToDriverTruck={handleSmartImportContinueToDriverTruck}
-                    onBackToCarriers={() => transitionToRosterStage('CARRIER_RESOLUTION')}
                     onCancelImport={handleResetRosterImport}
+                    isProcessing={isProcessing}
+                    embeddedInWorkflowHost={true}
                   />
                 </div>
               )}
@@ -3916,23 +3941,19 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && (
                 <div>
                   <RosterDriverTruckResolutionLayer
-                    batch={importBatch}
-                    project={project}
-                    onAcceptDriverCandidate={handleSmartImportDriverAcceptCandidate}
-                    onSelectAlternateDriver={handleSmartImportDriverSelectAlternate}
+                    importBatch={importBatch}
+                    onAcceptCandidate={handleSmartImportDriverTruckAcceptCandidate}
+                    onSelectAlternate={handleSmartImportDriverTruckSelectAlternate}
                     onCreateDriver={handleSmartImportDriverCreate}
-                    onAcceptTruckCandidate={handleSmartImportTruckAcceptCandidate}
-                    onSelectAlternateTruck={handleSmartImportTruckSelectAlternate}
                     onCreateTruck={handleSmartImportTruckCreate}
-                    cachedDriverResult={cachedSuccessfulDriverResult}
-                    cachedTruckResult={cachedSuccessfulTruckResult}
                     driverConvergenceError={driverConvergenceError}
                     truckConvergenceError={truckConvergenceError}
                     onRetryDriverConvergence={handleRetryDriverConvergence}
                     onRetryTruckConvergence={handleRetryTruckConvergence}
                     onContinueToFinalReview={handleSmartImportContinueToFinalReview}
-                    onBackToMaterials={() => transitionToRosterStage('MATERIAL_RESOLUTION')}
                     onCancelImport={handleResetRosterImport}
+                    isProcessing={isProcessing}
+                    embeddedInWorkflowHost={true}
                   />
                 </div>
               )}
@@ -3941,13 +3962,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {importBatch && rosterImportStage === 'FINAL_REVIEW' && (
                 <div>
                   <RosterFinalReviewLayer
-                    batch={importBatch}
-                    project={project}
+                    importBatch={importBatch}
+                    onCommit={handleSmartImportCommit}
                     isCommitting={isCommittingImport}
                     commitError={smartImportCommitError}
-                    onBackToDriverTruck={handleFinalReviewBack}
-                    onCommit={handleSmartImportCommit}
-                    onCancelImport={handleResetRosterImport}
+                    embeddedInWorkflowHost={true}
                   />
                 </div>
               )}
@@ -3956,16 +3975,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {importBatch && rosterImportStage === 'COMMIT_RESULT' && (
                 <div>
                   <RosterCommitResultLayer
-                    batch={importBatch}
-                    result={smartImportCommitResult}
+                    importBatch={importBatch}
+                    commitResult={smartImportCommitResult!}
                     onFinish={() => {
                       handleResetRosterImport();
                       setIsSmartImportOpen(false);
                     }}
-                    onViewRoster={() => {
-                      handleResetRosterImport();
-                      setIsSmartImportOpen(false);
-                    }}
+                    embeddedInWorkflowHost={true}
                   />
                 </div>
               )}
