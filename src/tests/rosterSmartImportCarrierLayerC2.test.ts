@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import { RosterBatchReviewService } from '../services/import/rosterBatchReview.service';
+import { DriverTruckPipelineService } from '../services/import/driverTruckPipeline.service';
+import { checkCarrierResolutionReadiness } from '../components/import/RosterCarrierResolutionLayer';
 import { UnifiedImportBatch } from '../types/unifiedImport';
 import { ROSTER_SMART_IMPORT_STAGES } from '../services/import/rosterSmartImportWorkflow.service';
 import { CarrierCreationResult } from '../services/carrierManagementClient.service';
@@ -229,5 +231,124 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
     const smartImportCarrierModalIdx = wizardContent.indexOf('Smart Import Dedicated Carrier Creation Modal');
     const smartImportModalBlock = wizardContent.slice(smartImportCarrierModalIdx, smartImportCarrierModalIdx + 600);
     expect(smartImportModalBlock).toContain('zIndexClass="z-60"');
+  });
+
+  it('15. Candidate Accept Scenario: ACCEPT_CANDIDATE converts group status to AUTO_RESOLVED', () => {
+    const pipelineCtx = {
+      projectId: 'PRJ-100',
+      operationId: 'OP-TEST',
+      userId: 'USR-1',
+      role: 'PROJECT_ADMIN' as const,
+      relContext: {
+        projectId: 'PRJ-100',
+        authorizedCarrierIds: ['CARRIER-SAHRA'],
+        knownCarriers: [{ carrierId: 'CARRIER-SAHRA', name: 'مؤسسة الصحراء للنقليات', status: 'ACTIVE' as const }],
+        knownTrucks: [],
+        knownDrivers: [],
+        knownMaterials: [],
+      },
+    };
+    const initialGroups = RosterBatchReviewService.getBatchReviewGroups(mockBatch);
+    const sahraGroup = initialGroups.carrier.find((g) => g.sourceValue === 'مؤسسة الصحراء المتقدمة');
+    expect(sahraGroup?.status).not.toBe('AUTO_RESOLVED');
+
+    const updatedBatch = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      mockBatch,
+      'carrier',
+      sahraGroup!.normalizedSourceKey,
+      'ACCEPT_CANDIDATE',
+      { selectedEntityId: 'CARRIER-SAHRA', selectedDisplayName: 'مؤسسة الصحراء للنقليات' },
+      pipelineCtx,
+      'USR-1'
+    );
+
+    const updatedGroups = RosterBatchReviewService.getBatchReviewGroups(updatedBatch);
+    const updatedSahraGroup = updatedGroups.carrier.find((g) => g.sourceValue === 'مؤسسة الصحراء المتقدمة');
+    expect(updatedSahraGroup?.status).toBe('AUTO_RESOLVED');
+  });
+
+  it('16. Human Alternate Selection Scenario: SELECT_ALTERNATE converts group status to AUTO_RESOLVED', () => {
+    const pipelineCtx = {
+      projectId: 'PRJ-100',
+      operationId: 'OP-TEST',
+      userId: 'USR-1',
+      role: 'PROJECT_ADMIN' as const,
+      relContext: {
+        projectId: 'PRJ-100',
+        authorizedCarrierIds: ['CAR-REMAL-ALT'],
+        knownCarriers: [{ carrierId: 'CAR-REMAL-ALT', name: 'شركة الرمال المعتمدة', status: 'ACTIVE' as const }],
+        knownTrucks: [],
+        knownDrivers: [],
+        knownMaterials: [],
+      },
+    };
+    const initialGroups = RosterBatchReviewService.getBatchReviewGroups(mockBatch);
+    const remalGroup = initialGroups.carrier.find((g) => g.sourceValue === 'شركة الرمال للنقل');
+    expect(remalGroup?.status).not.toBe('AUTO_RESOLVED');
+
+    const updatedBatch = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
+      mockBatch,
+      'carrier',
+      remalGroup!.normalizedSourceKey,
+      'SELECT_ALTERNATE',
+      { selectedEntityId: 'CAR-REMAL-ALT', selectedDisplayName: 'شركة الرمال المعتمدة' },
+      pipelineCtx,
+      'USR-1'
+    );
+
+    const updatedGroups = RosterBatchReviewService.getBatchReviewGroups(updatedBatch);
+    const updatedRemalGroup = updatedGroups.carrier.find((g) => g.sourceValue === 'شركة الرمال للنقل');
+    expect(updatedRemalGroup?.status).toBe('AUTO_RESOLVED');
+  });
+
+  it('17. Created Carrier Scenario: Resolving all 2 carriers converges unresolvedCount to 0 and readiness to true', () => {
+    const pipelineCtx = { projectId: 'PRJ-100', operationId: 'OP-TEST', userId: 'USR-1', role: 'PROJECT_ADMIN' as const };
+    const initialGroups = RosterBatchReviewService.getBatchReviewGroups(mockBatch);
+    const remalGroup = initialGroups.carrier.find((g) => g.sourceValue === 'شركة الرمال للنقل')!;
+    const sahraGroup = initialGroups.carrier.find((g) => g.sourceValue === 'مؤسسة الصحراء المتقدمة')!;
+
+    // Create / converge Carrier A
+    let batch = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      mockBatch,
+      'carrier',
+      remalGroup.normalizedSourceKey,
+      { matchedId: 'CAR-REMAL-001', matchedName: 'شركة الرمال للنقل المعتمدة' },
+      pipelineCtx
+    );
+
+    // Create / converge Carrier B
+    batch = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      batch,
+      'carrier',
+      sahraGroup.normalizedSourceKey,
+      { matchedId: 'CAR-SAHRA-001', matchedName: 'مؤسسة الصحراء المتقدمة المعتمدة' },
+      pipelineCtx
+    );
+
+    const finalGroups = RosterBatchReviewService.getBatchReviewGroups(batch);
+    const carrierGroups = finalGroups.carrier;
+    expect(carrierGroups.length).toBe(2);
+
+    const unresolvedCount = carrierGroups.filter((g) => g.status !== 'AUTO_RESOLVED').length;
+    const resolvedCount = carrierGroups.length - unresolvedCount;
+
+    expect(resolvedCount).toBe(2);
+    expect(unresolvedCount).toBe(0);
+    expect(checkCarrierResolutionReadiness(batch)).toBe(true);
+  });
+
+  it('18. Conflict Safety: RELATIONSHIP_CONFLICT or CRITICAL risk preserves CONFLICT blocking status', () => {
+    const conflictRes = {
+      entityType: 'CARRIER' as const,
+      sourceValue: 'ناقل متعارض',
+      matchedId: 'CAR-BAD',
+      matchedName: 'ناقل متعارض',
+      relationshipStatus: 'CONFLICT' as const,
+      recommendation: 'ACCEPT' as const,
+      riskLevel: 'HIGH' as const,
+    };
+
+    const status = RosterBatchReviewService.determineGroupStatus(conflictRes as any);
+    expect(status).toBe('CONFLICT');
   });
 });

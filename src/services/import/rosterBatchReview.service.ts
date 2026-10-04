@@ -141,20 +141,31 @@ export class RosterBatchReviewService {
       return 'CONFLICT';
     }
 
-    if (
-      res.candidates &&
-      res.candidates.length > 0 &&
-      (res.recommendation === 'REVIEW' || res.recommendation === 'FUZZY' || res.matchMethod === 'FUZZY' || res.matchMethod === 'AMBIGUOUS' || !res.matchedId)
-    ) {
-      return 'REVIEW_REQUIRED';
-    }
-
     if (!res.matchedId) {
       return 'UNRESOLVED';
     }
 
+    if (res.recommendation === 'REJECT') {
+      return 'UNRESOLVED';
+    }
+
+    if (
+      res.recommendation === 'REVIEW' ||
+      res.recommendation === 'FUZZY' ||
+      res.matchMethod === 'FUZZY' ||
+      res.matchMethod === 'AMBIGUOUS' ||
+      res.ambiguous === true
+    ) {
+      return 'REVIEW_REQUIRED';
+    }
+
     // Safety checks for AUTO_RESOLVED
-    const isSafeMethod = res.matchMethod === 'EXACT' || res.matchMethod === 'NORMALIZED' || res.matchMethod === 'ALIAS';
+    const isSafeMethod =
+      res.matchMethod === 'EXACT' ||
+      res.matchMethod === 'NORMALIZED' ||
+      res.matchMethod === 'ALIAS' ||
+      res.matchMethod === 'HUMAN_ACCEPTED' ||
+      res.matchMethod === 'MANUAL';
     const isSafeRelationship = relStatus === 'VALID' || relStatus === 'NOT_APPLICABLE' || !relStatus;
     const isSafeRisk = res.riskLevel !== 'HIGH' && res.riskLevel !== 'CRITICAL';
     const isSafeRecommendation = res.recommendation === 'ACCEPT';
@@ -171,10 +182,6 @@ export class RosterBatchReviewService {
       notAmbiguous
     ) {
       return 'AUTO_RESOLVED';
-    }
-
-    if (res.matchMethod === 'FUZZY' || res.recommendation === 'REVIEW') {
-      return 'REVIEW_REQUIRED';
     }
 
     return 'REVIEW_REQUIRED';

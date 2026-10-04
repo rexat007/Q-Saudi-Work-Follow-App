@@ -322,7 +322,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
 
               <div className="space-y-3">
                 {driverGroups.map((group) => {
-                  const isResolved = group.status === 'AUTO_RESOLVED' || Boolean(group.matchedId);
+                  const isResolved = group.status === 'AUTO_RESOLVED';
                   const isConflict = group.status === 'CONFLICT';
                   const isReviewRequired = group.status === 'REVIEW_REQUIRED';
                   const carrierContext = extractGroupCarrierContext(group);
@@ -488,7 +488,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
 
               <div className="space-y-3">
                 {truckGroups.map((group) => {
-                  const isResolved = group.status === 'AUTO_RESOLVED' || Boolean(group.matchedId);
+                  const isResolved = group.status === 'AUTO_RESOLVED';
                   const isConflict = group.status === 'CONFLICT';
                   const isReviewRequired = group.status === 'REVIEW_REQUIRED';
                   const carrierContext = extractGroupCarrierContext(group);

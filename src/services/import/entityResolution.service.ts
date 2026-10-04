@@ -867,10 +867,15 @@ export class EntityResolutionService {
         updatedResolution.matchedValue = selectedDisplayName || currentRowResolution.matchedValue;
         updatedResolution.matchedId = updatedResolution.entityId;
         updatedResolution.matchedName = updatedResolution.matchedValue;
+        updatedResolution.confidence = 1.0;
+        updatedResolution.matchMethod = 'EXACT';
+        updatedResolution.isExact = true;
+        updatedResolution.isAuthorized = true;
         updatedResolution.recommendation = 'ACCEPT';
         updatedResolution.riskLevel = 'LOW';
         updatedResolution.conflictDetails = undefined;
         updatedResolution.relationshipStatus = 'VALID';
+        updatedResolution.ambiguous = false;
         break;
 
       case 'REJECT_CANDIDATE':
@@ -1073,6 +1078,13 @@ export class EntityResolutionService {
         projectId: context.projectId,
       }));
     }
+    if (context.relContext?.knownCarriers && context.relContext.knownCarriers.length > 0) {
+      return context.relContext.knownCarriers.map((c) => ({
+        carrierId: c.carrierId,
+        name: c.name,
+        projectId: context.projectId,
+      }));
+    }
     return [];
   }
 
@@ -1085,6 +1097,14 @@ export class EntityResolutionService {
         truckId: plate,
         plate,
         carrierId: context.knownEntities?.truckCarrierMap?.[plate],
+        projectId: context.projectId,
+      }));
+    }
+    if (context.relContext?.knownTrucks && context.relContext.knownTrucks.length > 0) {
+      return context.relContext.knownTrucks.map((t) => ({
+        truckId: t.truckId,
+        plate: t.plate,
+        carrierId: t.carrierId,
         projectId: context.projectId,
       }));
     }
@@ -1103,6 +1123,14 @@ export class EntityResolutionService {
         projectId: context.projectId,
       }));
     }
+    if (context.relContext?.knownDrivers && context.relContext.knownDrivers.length > 0) {
+      return context.relContext.knownDrivers.map((d) => ({
+        driverId: d.driverId,
+        name: d.name,
+        carrierId: d.carrierId,
+        projectId: context.projectId,
+      }));
+    }
     return [];
   }
 
@@ -1115,6 +1143,14 @@ export class EntityResolutionService {
         materialId: code,
         name: code,
         code,
+        projectId: context.projectId,
+      }));
+    }
+    if (context.relContext?.knownMaterials && context.relContext.knownMaterials.length > 0) {
+      return context.relContext.knownMaterials.map((m) => ({
+        materialId: m.materialId,
+        name: m.name,
+        code: m.code,
         projectId: context.projectId,
       }));
     }

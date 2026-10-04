@@ -163,7 +163,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
               </div>
 
               {materialGroups.map((group) => {
-                const isResolved = group.status === 'AUTO_RESOLVED' || Boolean(group.matchedId);
+                const isResolved = group.status === 'AUTO_RESOLVED';
                 const isConflict = group.status === 'CONFLICT';
                 const isReviewRequired = group.status === 'REVIEW_REQUIRED';
 
