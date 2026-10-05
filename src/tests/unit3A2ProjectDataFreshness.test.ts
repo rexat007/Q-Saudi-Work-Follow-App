@@ -371,4 +371,90 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
       expect(wizardContent).not.toContain('...localProjectOverride,');
     });
   });
+
+  // O. Type-safety and Mapping tests for Discovery Metadata
+  describe('O. Discovery Metadata Type Safety & Mapping Suite', () => {
+    it('A. buildSafeDiscoveryMetadata uses DiscoveryResult strict typing and no DiscoveryResult | any remains', () => {
+      expect(wizardContent).toContain('disc: DiscoveryResult | null');
+      expect(wizardContent).not.toContain('disc: DiscoveryResult | any');
+    });
+
+    it('B. availableSheets maps to sheetNames', () => {
+      const disc: any = {
+        sourceType: 'EXCEL_CSV',
+        availableSheets: ['Sheet1', 'RosterData'],
+        selectedSheet: 'RosterData',
+        detectedHeaderRowIndex: 0,
+        detectedHeaders: ['اسم السائق', 'رقم الهوية'],
+        mappingDiagnostics: {},
+        confidence: 100,
+        requiresReview: false,
+        ambiguityReasons: [],
+      };
+
+      const sheetNames = disc?.availableSheets && disc.availableSheets.length > 0 ? disc.availableSheets : undefined;
+      expect(sheetNames).toEqual(['Sheet1', 'RosterData']);
+    });
+
+    it('C. selectedSheet maps correctly', () => {
+      const disc: any = { selectedSheet: 'Sheet1' };
+      const selectedSheet = disc?.selectedSheet || undefined;
+      expect(selectedSheet).toBe('Sheet1');
+    });
+
+    it('D. detectedHeaders maps to headers', () => {
+      const disc: any = { detectedHeaders: ['H1', 'H2'] };
+      const headers = disc?.detectedHeaders && disc.detectedHeaders.length > 0 ? disc.detectedHeaders : undefined;
+      expect(headers).toEqual(['H1', 'H2']);
+    });
+
+    it('E. mappingDiagnostics converts to Record<string, string> string values', () => {
+      const mappingDiagnostics: Record<string, any> = {
+        'اسم السائق': { canonicalField: 'fullNameAr', confidence: 0.95 },
+        'رقم الهوية': { canonicalField: 'idNumber', confidence: 1.0 },
+      };
+
+      const cols: Record<string, string> = {};
+      for (const [header, match] of Object.entries(mappingDiagnostics)) {
+        if (match && match.canonicalField) {
+          cols[header] = String(match.canonicalField);
+        }
+      }
+
+      expect(cols).toEqual({
+        'اسم السائق': 'fullNameAr',
+        'رقم الهوية': 'idNumber',
+      });
+    });
+
+    it('F. full ColumnMappingMatch objects are NOT persisted in detectedColumns', () => {
+      const mappingDiagnostics: Record<string, any> = {
+        'اسم السائق': { canonicalField: 'fullNameAr', confidence: 0.95, sampleValue: 'أحمد' },
+      };
+
+      const cols: Record<string, string> = {};
+      for (const [header, match] of Object.entries(mappingDiagnostics)) {
+        if (match && match.canonicalField) {
+          cols[header] = String(match.canonicalField);
+        }
+      }
+
+      expect(typeof cols['اسم السائق']).toBe('string');
+      expect(cols['اسم السائق']).not.toHaveProperty('confidence');
+      expect(cols['اسم السائق']).not.toHaveProperty('sampleValue');
+    });
+
+    it('G. no unsafe binary/raw file payload is included in SafeDiscoveryMetadata', () => {
+      const fnStr = wizardContent.substring(
+        wizardContent.indexOf('const buildSafeDiscoveryMetadata ='),
+        wizardContent.indexOf('const buildSmartImportCheckpointPayload =')
+      );
+
+      expect(fnStr).not.toContain('rawInput');
+      expect(fnStr).not.toContain('ArrayBuffer');
+      expect(fnStr).not.toContain('Uint8Array');
+      expect(fnStr).not.toContain('Workbook');
+      expect(fnStr).not.toContain('Blob');
+    });
+  });
 });

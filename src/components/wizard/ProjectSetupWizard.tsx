@@ -878,17 +878,26 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           setIsRosterMappingApproved(true);
         }
 
-        if (candidate.rosterDiscoveryResult || candidate.sourceMetadata) {
-          const meta = candidate.rosterDiscoveryResult || candidate.sourceMetadata;
+        if (candidate.discoveryMetadata || candidate.rosterDiscoveryResult || candidate.sourceMetadata) {
+          const meta = candidate.discoveryMetadata || candidate.rosterDiscoveryResult || candidate.sourceMetadata;
           if (meta?.headers) {
+            const cols: Record<string, any> = {};
+            if (meta.detectedColumns) {
+              for (const [h, col] of Object.entries(meta.detectedColumns)) {
+                cols[h] = { canonicalField: col };
+              }
+            }
             setRosterDiscoveryResult({
-              sourceFileName: meta.fileName || 'ملف مستورد',
-              totalRowsSampled: meta.sampleRowCount || 0,
-              detectedHeaders: meta.headers || [],
+              sourceType: 'EXCEL',
               availableSheets: meta.sheetNames || [],
-              selectedSheet: meta.selectedSheet || '',
-              detectedColumns: meta.detectedColumns || {},
-            } as any);
+              selectedSheet: meta.selectedSheet || null,
+              detectedHeaderRowIndex: 0,
+              detectedHeaders: meta.headers || [],
+              mappingDiagnostics: cols as any,
+              confidence: 100,
+              requiresReview: false,
+              ambiguityReasons: [],
+            });
           }
         }
 
@@ -1142,19 +1151,33 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // =========================================================================
 
   const buildSafeDiscoveryMetadata = (
-    disc: DiscoveryResult | any,
+    disc: DiscoveryResult | null,
     fileName?: string,
     fileSize?: number
   ): SafeDiscoveryMetadata | null => {
     if (!disc && !fileName) return null;
+
+    let detectedColumns: Record<string, string> | undefined = undefined;
+    if (disc?.mappingDiagnostics) {
+      const cols: Record<string, string> = {};
+      for (const [header, match] of Object.entries(disc.mappingDiagnostics)) {
+        if (match && match.canonicalField) {
+          cols[header] = String(match.canonicalField);
+        }
+      }
+      if (Object.keys(cols).length > 0) {
+        detectedColumns = cols;
+      }
+    }
+
     return {
-      fileName: fileName || disc?.sourceFileName || undefined,
+      fileName: fileName || undefined,
       fileSize: fileSize || undefined,
-      sheetNames: disc?.availableSheets || undefined,
+      sheetNames: disc?.availableSheets && disc.availableSheets.length > 0 ? disc.availableSheets : undefined,
       selectedSheet: disc?.selectedSheet || rosterSelectedSheet || undefined,
-      headers: disc?.detectedHeaders || undefined,
-      detectedColumns: disc?.detectedColumns || undefined,
-      sampleRowCount: disc?.totalRowsSampled || undefined,
+      headers: disc?.detectedHeaders && disc.detectedHeaders.length > 0 ? disc.detectedHeaders : undefined,
+      detectedColumns,
+      sampleRowCount: undefined,
     };
   };
 
