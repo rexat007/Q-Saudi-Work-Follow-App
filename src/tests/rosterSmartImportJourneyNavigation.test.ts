@@ -44,25 +44,25 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
 
   // B. CANCEL PATHS & CLEAN SOURCE RESET
   it('11. Cancel at Mapping returns cleanly to SOURCE_DISCOVERY', () => {
-    expect(wizardContent.includes('onClick={handleCancelRosterImport}') || wizardContent.includes('onClick={handleResetRosterImport}')).toBe(true);
+    expect(wizardContent).toContain('onClick={handleCancelRosterImport}');
   });
 
   it('12. Cancel at Carrier calls onCancelImport (handleCancelRosterImport)', () => {
     expect(carrierLayerContent).toContain('onCancelImport');
     expect(carrierLayerContent).toContain('سيتم إلغاء جلسة الاستيراد الحالية وفقدان القرارات غير المنفذة. هل تريد المتابعة؟');
-    expect(wizardContent.includes('onCancelImport={handleCancelRosterImport}') || wizardContent.includes('onCancelImport={handleResetRosterImport}')).toBe(true);
+    expect(wizardContent).toContain('onCancelImport={handleCancelRosterImport}');
   });
 
   it('13. Cancel at Material calls onCancelImport (handleCancelRosterImport)', () => {
     expect(materialLayerContent).toContain('onCancelImport');
     expect(materialLayerContent).toContain('سيتم إلغاء جلسة الاستيراد الحالية وفقدان القرارات غير المنفذة. هل تريد المتابعة؟');
-    expect(wizardContent.includes('onCancelImport={handleCancelRosterImport}') || wizardContent.includes('onCancelImport={handleResetRosterImport}')).toBe(true);
+    expect(wizardContent).toContain('onCancelImport={handleCancelRosterImport}');
   });
 
   it('14. Cancel at Driver/Truck calls onCancelImport (handleCancelRosterImport)', () => {
     expect(driverTruckLayerContent).toContain('onCancelImport');
     expect(driverTruckLayerContent).toContain('سيتم إلغاء جلسة الاستيراد الحالية وفقدان القرارات غير المنفذة. هل تريد المتابعة؟');
-    expect(wizardContent.includes('onCancelImport={handleCancelRosterImport}') || wizardContent.includes('onCancelImport={handleResetRosterImport}')).toBe(true);
+    expect(wizardContent).toContain('onCancelImport={handleCancelRosterImport}');
   });
 
   it('15. Reset clears import batch and session data completely', () => {
@@ -173,7 +173,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
   it('28. Final Review back action policy: Carrier blocker resets session, Material/Driver route to stage', () => {
     const fnIdx = wizardContent.indexOf('handleFinalReviewBack');
     const fnBlock = wizardContent.slice(fnIdx, fnIdx + 3000);
-    expect(fnBlock.includes('handleCancelRosterImport') || fnBlock.includes('handleResetRosterImport')).toBe(true);
+    expect(fnBlock).toContain('await handleCancelRosterImport()');
     expect(fnBlock.includes("transitionToRosterStage('MATERIAL_RESOLUTION')") || fnBlock.includes("setRosterImportStage('MATERIAL_RESOLUTION')")).toBe(true);
     expect(fnBlock.includes("transitionToRosterStage('DRIVER_TRUCK_RESOLUTION')") || fnBlock.includes("setRosterImportStage('DRIVER_TRUCK_RESOLUTION')")).toBe(true);
   });

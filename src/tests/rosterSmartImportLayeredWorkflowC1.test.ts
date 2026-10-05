@@ -58,11 +58,25 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
 
   // 5. from MAPPING_APPROVAL: only CARRIER_RESOLUTION can become next active stage after pipeline execution
   it('5. from MAPPING_APPROVAL: only CARRIER_RESOLUTION becomes next active stage after pipeline execution', () => {
-    const pipelineCallIdx = wizardContent.indexOf('DriverTruckPipelineService.processFileToReview');
-    const followingLines = wizardContent.slice(pipelineCallIdx, pipelineCallIdx + 2500);
-    expect(followingLines.includes("transitionToRosterStage('CARRIER_RESOLUTION'") || followingLines.includes("setRosterImportStage('CARRIER_RESOLUTION')")).toBe(true);
-    expect(followingLines).not.toContain("setRosterImportStage('MATERIAL_RESOLUTION')");
-    expect(followingLines).not.toContain("setRosterImportStage('FINAL_REVIEW')");
+    const fnStartIdx = wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline');
+    expect(fnStartIdx).toBeGreaterThanOrEqual(0);
+    const nextFnIdx = wizardContent.indexOf('const handleSmartImportContinueToMaterials', fnStartIdx);
+    expect(nextFnIdx).toBeGreaterThan(fnStartIdx);
+    const fnBlock = wizardContent.slice(fnStartIdx, nextFnIdx);
+
+    const pipelineIdx = fnBlock.indexOf('DriverTruckPipelineService.processFileToReview');
+    const createSessionIdx = fnBlock.indexOf('importSessionClientService.createSession');
+    const setSessionIdIdx = fnBlock.indexOf('setImportSessionId(');
+    const transitionIdx = fnBlock.indexOf("transitionToRosterStage('CARRIER_RESOLUTION'");
+
+    expect(pipelineIdx).toBeGreaterThanOrEqual(0);
+    expect(createSessionIdx).toBeGreaterThan(pipelineIdx);
+    expect(setSessionIdIdx).toBeGreaterThan(createSessionIdx);
+    expect(transitionIdx).toBeGreaterThan(setSessionIdIdx);
+
+    expect(fnBlock).not.toContain("setRosterImportStage('CARRIER_RESOLUTION')");
+    expect(fnBlock).not.toContain("setRosterImportStage('MATERIAL_RESOLUTION')");
+    expect(fnBlock).not.toContain("setRosterImportStage('FINAL_REVIEW')");
   });
 
   // 6. from CARRIER_RESOLUTION: MATERIAL_RESOLUTION is NOT clickable in C1
