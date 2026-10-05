@@ -16,6 +16,8 @@ import {
   ImportSource,
   PipelineContext,
   ImportResult,
+  PreparedDriverPlan,
+  PreparedTruckPlan,
 } from '../../types/unifiedImport';
 import { CanonicalDriverTruckRow } from './driverTruckImport';
 import { smartSourceDiscoveryService } from './smartSourceDiscovery.service';
@@ -297,6 +299,165 @@ export class DriverTruckPipelineService {
   }
 
   /**
+   * Applies a non-persisted PREPARED_NEW plan across ALL rows matching an exact driver group key.
+   * NO server mutations or Firestore writes occur.
+   */
+  public static applyPreparedNewDriverPlan(
+    batch: UnifiedImportBatch,
+    normalizedSourceKey: string,
+    plan: PreparedDriverPlan,
+    context?: PipelineContext
+  ): UnifiedImportBatch {
+    const updatedRows = batch.rows.map((row) => {
+      const key = RosterBatchReviewService.getGroupKey(row, 'driver');
+      if (key !== normalizedSourceKey) return row;
+
+      const resolutions = { ...(row.entityResolutions || {}) };
+      resolutions.driver = {
+        entityType: 'DRIVER',
+        originalValue: plan.driverName,
+        sourceValue: plan.driverName,
+        matchedName: plan.driverName,
+        confidence: 1.0,
+        isExact: true,
+        isAuthorized: true,
+        riskLevel: 'LOW',
+        relationshipStatus: 'VALID',
+        recommendation: 'ACCEPT',
+        matchMethod: 'NONE',
+        creationDisposition: 'PREPARED_NEW',
+        preparedDriverPlan: plan,
+      };
+
+      const resolved = { ...(row.resolvedValues || {}) };
+      resolved.driverName = plan.driverName;
+      resolved.residencyId = plan.residencyId;
+      if (plan.phone) resolved.driverPhone = plan.phone;
+
+      return {
+        ...row,
+        entityResolutions: resolutions,
+        resolvedValues: resolved,
+      };
+    });
+
+    const updatedBatch: UnifiedImportBatch = {
+      ...batch,
+      rows: updatedRows,
+    };
+
+    if (context) {
+      return this.revalidateRosterBatch(updatedBatch, context);
+    }
+    return updatedBatch;
+  }
+
+  /**
+   * Applies a non-persisted PREPARED_NEW plan across ALL rows matching an exact truck group key.
+   * NO server mutations or Firestore writes occur.
+   */
+  public static applyPreparedNewTruckPlan(
+    batch: UnifiedImportBatch,
+    normalizedSourceKey: string,
+    plan: PreparedTruckPlan,
+    context?: PipelineContext
+  ): UnifiedImportBatch {
+    const updatedRows = batch.rows.map((row) => {
+      const key = RosterBatchReviewService.getGroupKey(row, 'truck');
+      if (key !== normalizedSourceKey) return row;
+
+      const resolutions = { ...(row.entityResolutions || {}) };
+      resolutions.truck = {
+        entityType: 'TRUCK',
+        originalValue: plan.plateNumber,
+        sourceValue: plan.plateNumber,
+        matchedName: plan.plateNumber,
+        confidence: 1.0,
+        isExact: true,
+        isAuthorized: true,
+        riskLevel: 'LOW',
+        relationshipStatus: 'VALID',
+        recommendation: 'ACCEPT',
+        matchMethod: 'NONE',
+        creationDisposition: 'PREPARED_NEW',
+        preparedTruckPlan: plan,
+      };
+
+      const resolved = { ...(row.resolvedValues || {}) };
+      resolved.truckPlate = plan.plateNumber;
+      if (plan.truckType) resolved.truckType = plan.truckType;
+      if (plan.tareWeightKg !== undefined) resolved.tareWeightKg = plan.tareWeightKg;
+      if (plan.maxGrossWeightKg !== undefined) resolved.maxGrossWeightKg = plan.maxGrossWeightKg;
+
+      return {
+        ...row,
+        entityResolutions: resolutions,
+        resolvedValues: resolved,
+      };
+    });
+
+    const updatedBatch: UnifiedImportBatch = {
+      ...batch,
+      rows: updatedRows,
+    };
+
+    if (context) {
+      return this.revalidateRosterBatch(updatedBatch, context);
+    }
+    return updatedBatch;
+  }
+
+  /**
+   * Automatically prepares PREPARED_NEW plans for clean UNRESOLVED driver and truck groups
+   * that have complete source data and zero conflicts.
+   * NO server mutations occur.
+   */
+  public static autoPrepareCleanNewGroups(
+    batch: UnifiedImportBatch,
+    context?: PipelineContext
+  ): UnifiedImportBatch {
+    let currentBatch = { ...batch };
+    const groups = RosterBatchReviewService.getBatchReviewGroups(currentBatch);
+
+    // Auto-prepare clean drivers
+    for (const group of groups.driver || []) {
+      if (group.status === 'UNRESOLVED' && !group.matchedId && !group.preparedDriverPlan) {
+        const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(currentBatch, group);
+        if (!defaults.hasConflict && defaults.driverName && defaults.residencyId && defaults.carrierId) {
+          currentBatch = this.applyPreparedNewDriverPlan(currentBatch, group.normalizedSourceKey, {
+            driverName: defaults.driverName,
+            residencyId: defaults.residencyId,
+            phone: defaults.phone || undefined,
+            carrierId: defaults.carrierId,
+          });
+        }
+      }
+    }
+
+    // Auto-prepare clean trucks
+    const reGroups = RosterBatchReviewService.getBatchReviewGroups(currentBatch);
+    for (const group of reGroups.truck || []) {
+      if (group.status === 'UNRESOLVED' && !group.matchedId && !group.preparedTruckPlan) {
+        const defaults = RosterBatchReviewService.deriveTruckCreationDefaults(currentBatch, group);
+        if (!defaults.hasConflict && defaults.plateNumber && defaults.carrierId) {
+          currentBatch = this.applyPreparedNewTruckPlan(currentBatch, group.normalizedSourceKey, {
+            plateNumber: defaults.plateNumber,
+            truckType: defaults.truckType || undefined,
+            tareWeightKg: defaults.tareWeightKg,
+            maxGrossWeightKg: defaults.maxGrossWeightKg,
+            carrierId: defaults.carrierId,
+          });
+        }
+      }
+    }
+
+    if (context) {
+      return this.revalidateRosterBatch(currentBatch, context);
+    }
+    return currentBatch;
+  }
+
+  /**
    * Revalidates roster batch rows using DriverTruckImportValidator and current PipelineContext.
    * Preserves non-resolution issues and updates row and batch warning/error counters correctly.
    */
@@ -370,8 +531,18 @@ export class DriverTruckPipelineService {
 
       const carrierUnresolved = !row.entityResolutions?.carrier?.matchedId;
       const materialUnresolved = !row.entityResolutions?.material?.matchedId;
-      const driverUnresolved = Boolean(row.canonical?.driverName) && !row.entityResolutions?.driver?.matchedId;
-      const truckUnresolved = Boolean(row.canonical?.truckPlate) && !row.entityResolutions?.truck?.matchedId;
+      
+      const driverResolved = Boolean(
+        row.entityResolutions?.driver?.matchedId ||
+        (row.entityResolutions?.driver?.creationDisposition === 'PREPARED_NEW' && row.entityResolutions?.driver?.preparedDriverPlan)
+      );
+      const driverUnresolved = Boolean(row.canonical?.driverName) && !driverResolved;
+
+      const truckResolved = Boolean(
+        row.entityResolutions?.truck?.matchedId ||
+        (row.entityResolutions?.truck?.creationDisposition === 'PREPARED_NEW' && row.entityResolutions?.truck?.preparedTruckPlan)
+      );
+      const truckUnresolved = Boolean(row.canonical?.truckPlate) && !truckResolved;
 
       const isUnresolved = carrierUnresolved || materialUnresolved || driverUnresolved || truckUnresolved;
       const hasWarningOnly = !hasBlocking && !isUnresolved && issues.some((i) => i.severity === 'WARNING');
@@ -446,7 +617,6 @@ export class DriverTruckPipelineService {
       requiresReviewRows,
       validationStatus,
       commitStatus: batch.commitStatus === 'COMMITTED' ? 'COMMITTED' : commitStatus,
-      status: batchStatus,
     };
   }
 

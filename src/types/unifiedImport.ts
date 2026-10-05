@@ -106,6 +106,23 @@ export interface ImportSource {
 
 export * from './entityResolution';
 
+export type EntityCreationDisposition = 'EXISTING' | 'PREPARED_NEW' | 'CONFLICT';
+
+export interface PreparedDriverPlan {
+  driverName: string;
+  residencyId: string;
+  phone?: string;
+  carrierId: string;
+}
+
+export interface PreparedTruckPlan {
+  plateNumber: string;
+  truckType?: string;
+  tareWeightKg?: number;
+  maxGrossWeightKg?: number;
+  carrierId: string;
+}
+
 /**
  * Resolution info for a mapped entity
  */
@@ -130,6 +147,11 @@ export interface ImportEntityResolutionInfo {
   conflictDetails?: string;
   candidates?: any[];
   ambiguous?: boolean;
+
+  // Unit 3A: Non-persisted bulk onboarding creation disposition & plans
+  creationDisposition?: EntityCreationDisposition;
+  preparedDriverPlan?: PreparedDriverPlan;
+  preparedTruckPlan?: PreparedTruckPlan;
 }
 
 /**

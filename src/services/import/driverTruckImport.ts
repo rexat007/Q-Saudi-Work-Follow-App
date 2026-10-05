@@ -778,15 +778,37 @@ export class DriverTruckImportCommitter {
         continue;
       }
 
-      // Convert canonical import row keys to canonical intake payload
+      // Use prepared plans where available, otherwise canonical/raw
+      const driverRes = row.entityResolutions?.driver;
+      const truckRes = row.entityResolutions?.truck;
+      const driverPlan = driverRes?.preparedDriverPlan;
+      const truckPlan = truckRes?.preparedTruckPlan;
+
+      // Idempotency check: if row already succeeded in prior partial commit
+      if (row.status === 'COMMITTED') {
+        committedIds.push(`COM-EXISTING-${row.rowNumber}`);
+        continue;
+      }
+
+      const driverName = (driverPlan?.driverName || canonical.driverName || '').trim();
+      const plateNumber = (truckPlan?.plateNumber || canonical.truckPlate || '').trim().toUpperCase();
+      const phone = (driverPlan?.phone || canonical.driverPhone || '').trim();
+      const residencyId = (driverPlan?.residencyId || canonical.driverIdentity || '').trim();
+      const truckType = (truckPlan?.truckType || canonical.truckType || '').trim();
+      const tareWeightKg = truckPlan?.tareWeightKg ?? canonical.tareWeightKg;
+      const maxGrossWeightKg = truckPlan?.maxGrossWeightKg ?? canonical.maxGrossWeightKg;
+
       const payload = {
         projectId: batch.projectId,
         carrierId: carrierId,
         materialId: materialId,
-        driverName: (canonical.driverName || '').trim(),
-        plateNumber: (canonical.truckPlate || '').trim().toUpperCase(),
-        phone: (canonical.driverPhone || '').trim() || undefined,
-        residencyId: (canonical.driverIdentity || '').trim() || undefined,
+        driverName,
+        plateNumber,
+        phone: phone || undefined,
+        residencyId: residencyId || undefined,
+        truckType: truckType || undefined,
+        tareWeightKg: tareWeightKg || undefined,
+        maxGrossWeightKg: maxGrossWeightKg || undefined,
       };
 
       try {
@@ -812,6 +834,7 @@ export class DriverTruckImportCommitter {
         } else {
           committedIds.push(`COM-${row.rowNumber}-${Date.now()}`);
         }
+        row.status = 'COMMITTED';
       } catch (err: any) {
         console.error('Import Row commitment failed:', err);
         failedRowsCount++;
@@ -829,12 +852,15 @@ export class DriverTruckImportCommitter {
       }
     }
 
+    const totalActive = activeRows.length;
+    const isFullSuccess = totalActive > 0 && failedRowsCount === 0;
+
     return {
       importBatchId: batch.importBatchId,
       projectId: batch.projectId,
       operationId: context.operationId,
       sourceType: batch.source.sourceType,
-      success: failedRowsCount < activeRows.length,
+      success: isFullSuccess,
       totalRows: batch.totalRows,
       committedRows: activeRows.length - failedRowsCount,
       skippedRows: (batch.totalRows - activeRows.length) + failedRowsCount,

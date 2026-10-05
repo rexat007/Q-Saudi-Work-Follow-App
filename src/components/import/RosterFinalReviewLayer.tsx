@@ -40,12 +40,16 @@ export const classifyFinalReviewBlocker = (batch: UnifiedImportBatch): 'CARRIER'
       iss.code !== 'DRIVER_CARRIER_CONFLICT' &&
       (iss.field === 'carrierId' || iss.code === 'UNRESOLVED_CARRIER' || String(iss.code).startsWith('CARRIER_'))
   );
-  const carrierRowBlock = activeRows.some(
-    (r) => !r.entityResolutions?.carrier?.matchedId ||
-      r.entityResolutions?.carrier?.status === 'UNRESOLVED' ||
-      r.entityResolutions?.carrier?.status === 'CONFLICT' ||
-      r.entityResolutions?.carrier?.status === 'REVIEW_REQUIRED'
-  );
+  const carrierRowBlock = activeRows.some((r) => {
+    const res = r.entityResolutions?.carrier;
+    return !res?.matchedId ||
+      res.creationDisposition === 'CONFLICT' ||
+      res.recommendation === 'REJECT' ||
+      res.recommendation === 'REVIEW' ||
+      res.relationshipStatus === 'RELATIONSHIP_CONFLICT' ||
+      res.relationshipStatus === 'CROSS_PROJECT_BLOCKED' ||
+      res.riskLevel === 'CRITICAL';
+  });
 
   if (unresolvedCarriers || carrierIssues || carrierRowBlock) {
     return 'CARRIER';
@@ -59,12 +63,16 @@ export const classifyFinalReviewBlocker = (batch: UnifiedImportBatch): 'CARRIER'
     (iss) => (iss.severity === 'BLOCKING' || iss.blocking) &&
       (iss.field === 'materialId' || String(iss.code).includes('MATERIAL'))
   );
-  const materialRowBlock = activeRows.some(
-    (r) => !r.entityResolutions?.material?.matchedId ||
-      r.entityResolutions?.material?.status === 'UNRESOLVED' ||
-      r.entityResolutions?.material?.status === 'CONFLICT' ||
-      r.entityResolutions?.material?.status === 'REVIEW_REQUIRED'
-  );
+  const materialRowBlock = activeRows.some((r) => {
+    const res = r.entityResolutions?.material;
+    return !res?.matchedId ||
+      res.creationDisposition === 'CONFLICT' ||
+      res.recommendation === 'REJECT' ||
+      res.recommendation === 'REVIEW' ||
+      res.relationshipStatus === 'MATERIAL_PROJECT_CONFLICT' ||
+      res.relationshipStatus === 'CROSS_PROJECT_BLOCKED' ||
+      res.riskLevel === 'CRITICAL';
+  });
 
   if (unresolvedMaterials || materialIssues || materialRowBlock) {
     return 'MATERIAL';
@@ -120,8 +128,18 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
     const isErrorStatus = r.status === 'ERROR' || r.reviewStatus === 'requires_review' || r.reviewStatus === 'error';
     const missingCarrier = !r.entityResolutions?.carrier?.matchedId;
     const missingMaterial = !r.entityResolutions?.material?.matchedId;
-    const missingDriver = Boolean(r.raw?.driverName || r.canonical?.driverName) && !r.entityResolutions?.driver?.matchedId;
-    const missingTruck = Boolean(r.raw?.truckPlate || r.canonical?.truckPlate) && !r.entityResolutions?.truck?.matchedId;
+    
+    const isDriverResolved = Boolean(
+      r.entityResolutions?.driver?.matchedId ||
+      (r.entityResolutions?.driver?.creationDisposition === 'PREPARED_NEW' && r.entityResolutions?.driver?.preparedDriverPlan)
+    );
+    const missingDriver = Boolean(r.raw?.driverName || r.canonical?.driverName) && !isDriverResolved;
+
+    const isTruckResolved = Boolean(
+      r.entityResolutions?.truck?.matchedId ||
+      (r.entityResolutions?.truck?.creationDisposition === 'PREPARED_NEW' && r.entityResolutions?.truck?.preparedTruckPlan)
+    );
+    const missingTruck = Boolean(r.raw?.truckPlate || r.canonical?.truckPlate) && !isTruckResolved;
 
     return isErrorStatus || missingCarrier || missingMaterial || missingDriver || missingTruck;
   });

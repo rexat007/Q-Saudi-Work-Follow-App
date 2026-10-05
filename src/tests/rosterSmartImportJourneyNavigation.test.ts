@@ -187,11 +187,11 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
   });
 
   // G. COMMIT TERMINALITY
-  it('32-36. Commit result layer is strictly terminal with single Finish action', () => {
+  it('32-36. Commit result layer is strictly terminal with single Finish action; repeat commit blocked only on full success', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
     const fnBlock = wizardContent.slice(fnIdx, fnIdx + 600);
-    expect(fnBlock).toContain('if (smartImportCommitResult !== null)');
-    expect(fnBlock).toContain('تم تنفيذ محاولة الاستيراد بالفعل لهذه الجلسة');
+    expect(fnBlock).toContain('if (smartImportCommitResult !== null && smartImportCommitResult.success)');
+    expect(fnBlock).toContain('تم اعتماد دفعة الاستيراد بنجاح بالفعل لهذه الجلسة');
 
     expect(wizardContent).not.toContain('onClose={() => setRosterImportStage(\'FINAL_REVIEW\')}');
     expect(commitResultLayerContent).toContain('<span>إنهاء الاستيراد</span>');

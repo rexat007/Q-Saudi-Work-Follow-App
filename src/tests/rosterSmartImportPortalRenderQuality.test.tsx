@@ -1124,7 +1124,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
           {
             rowNumber: 1,
             raw: {},
-            canonical: { driverName: 'سعود فهد', driverIdentity: '1011111111' },
+            canonical: { driverName: 'سعود فهد', driverIdentity: '1011111111', driverPhone: '0501111111' },
             entityResolutions: {
               carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
               driver: { sourceValue: 'سعود فهد', recommendation: 'REVIEW' },
@@ -1136,7 +1136,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
           {
             rowNumber: 2,
             raw: {},
-            canonical: { driverName: 'سعود فهد', driverIdentity: '2022222222' },
+            canonical: { driverName: 'سعود فهد', driverIdentity: '1011111111', driverPhone: '0502222222' },
             entityResolutions: {
               carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
               driver: { sourceValue: 'سعود فهد', recommendation: 'REVIEW' },
@@ -1168,7 +1168,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       expect(document.body.textContent).toContain('توجد بيانات متعارضة في الملف المصدر');
-      expect(document.body.textContent).toContain('1011111111 مقابل 2022222222');
+      expect(document.body.textContent).toContain('0501111111 مقابل 0502222222');
 
       const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes('حفظ وإنشاء السائق'));
       await act(async () => {
@@ -1177,16 +1177,16 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       expect(handleCreateDriver).toHaveBeenCalledTimes(0);
 
-      const iqamaInput = document.body.querySelector('input[placeholder="مثال: 1023456789 أو 2023456789"]') as HTMLInputElement;
+      const phoneInput = document.body.querySelector('input[placeholder="مثال: 0501234567"]') as HTMLInputElement;
       await act(async () => {
         const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
         if (valueSetter) {
-          valueSetter.call(iqamaInput, '1011111111');
+          valueSetter.call(phoneInput, '0501111111');
         } else {
-          iqamaInput.value = '1011111111';
+          phoneInput.value = '0501111111';
         }
-        iqamaInput.dispatchEvent(new Event('input', { bubbles: true }));
-        iqamaInput.dispatchEvent(new Event('change', { bubbles: true }));
+        phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
+        phoneInput.dispatchEvent(new Event('change', { bubbles: true }));
       });
 
       await act(async () => {
@@ -1194,7 +1194,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       expect(handleCreateDriver).toHaveBeenCalledTimes(1);
-      expect(handleCreateDriver.mock.calls[0][1].residencyId).toBe('1011111111');
+      expect(handleCreateDriver.mock.calls[0][1].phone).toBe('0501111111');
 
       await act(async () => {
         root.unmount();
@@ -1315,7 +1315,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
           {
             rowNumber: 1,
             raw: {},
-            canonical: { driverName: 'سائق متعارض', driverIdentity: '1000000001' },
+            canonical: { driverName: 'سائق متعارض', driverIdentity: '1000000001', driverPhone: '0501111111' },
             entityResolutions: {
               carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
               driver: { sourceValue: 'سائق متعارض', recommendation: 'REVIEW' },
@@ -1327,7 +1327,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
           {
             rowNumber: 2,
             raw: {},
-            canonical: { driverName: 'سائق متعارض', driverIdentity: '2000000002' },
+            canonical: { driverName: 'سائق متعارض', driverIdentity: '1000000001', driverPhone: '0502222222' },
             entityResolutions: {
               carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
               driver: { sourceValue: 'سائق متعارض', recommendation: 'REVIEW' },
@@ -1339,7 +1339,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
           {
             rowNumber: 3,
             raw: {},
-            canonical: { driverName: 'سائق سليم', driverIdentity: '1099887766' },
+            canonical: { driverName: 'سائق سليم', driverIdentity: '1099887766', driverPhone: '0555555555' },
             entityResolutions: {
               carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
               driver: { sourceValue: 'سائق سليم', recommendation: 'REVIEW' },
@@ -1369,6 +1369,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       expect(document.body.textContent).toContain('توجد بيانات متعارضة في الملف المصدر');
+      expect(document.body.textContent).toContain('0501111111 مقابل 0502222222');
 
       const cancelBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === 'إلغاء');
       await act(async () => {

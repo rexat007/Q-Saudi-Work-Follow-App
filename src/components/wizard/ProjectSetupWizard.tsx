@@ -1268,7 +1268,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  // C4 Smart Import: Create New Driver with Mutation-Success Cache and Explicit Visibility Proof
+  // Unit 3A: Plan Driver Creation with Non-persisted PREPARED_NEW plan (Zero Server Mutations)
   const handleSmartImportDriverCreate = async (
     group: RosterEntityReviewGroup,
     data: { driverName: string; residencyId: string; phone?: string }
@@ -1284,78 +1284,39 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         throw new Error('تعذر استخراج معرف الناقل التابع له السائق');
       }
 
-      let result: { matchedId: string; matchedName: string; sourceValue: string };
-
-      if (cachedSuccessfulDriverResult?.groupKey === group.normalizedSourceKey) {
-        result = cachedSuccessfulDriverResult.result;
-      } else {
-        setDriverConvergenceError(null);
-        const apiRes = await entityResolutionCommandService.createDriver({
-          projectId: project.projectId,
-          sourceValue: group.sourceValue,
-          driverData: {
-            carrierId,
-            driverName: data.driverName,
-            residencyId: data.residencyId,
-            phone: data.phone,
-          },
-        });
-        if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-        result = {
-          matchedId: apiRes.matchedId,
-          matchedName: apiRes.matchedName || group.sourceValue,
-          sourceValue: group.sourceValue,
-        };
-        setCachedSuccessfulDriverResult({
-          groupKey: group.normalizedSourceKey,
-          carrierId,
-          result,
-        });
+      if (!data.driverName.trim()) {
+        throw new Error('اسم السائق مطلوب');
       }
-
-      // Canonical Refresh & Explicit Visibility Proof
-      const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
-      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-      const foundDriver = snapshot.relationshipContext?.knownDrivers?.find(
-        (d) => d.driverId === result.matchedId && d.carrierId === carrierId
-      );
-
-      if (!foundDriver) {
-        setDriverConvergenceError('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السائق بنجاح، لكن تعذر تحديث البيانات الموثوقة. أعد محاولة التحديث دون إنشاء سجل جديد.');
-        throw new Error('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN');
+      if (!data.residencyId.trim()) {
+        throw new Error('رقم الهوية الوطنية أو الإقامة مطلوب');
       }
-
-      setDriverConvergenceError(null);
-      applyCanonicalSnapshot(snapshot);
 
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: snapshot.relationshipContext,
+        relContext: projectRelationshipContext || undefined,
         projectId: project.projectId,
         userId: authContext.userId,
         role: authContext.role,
-        operationId: `OP-DRIVER-CREATE-${Date.now()}`
+        operationId: `OP-DRIVER-PREPARE-${Date.now()}`
       });
 
-      const resolutionPayload = {
-        matchedId: result.matchedId,
-        matchedName: result.matchedName,
-        sourceValue: result.sourceValue,
-      };
-
-      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      const updated = DriverTruckPipelineService.applyPreparedNewDriverPlan(
         importBatch,
-        'driver',
         group.normalizedSourceKey,
-        resolutionPayload,
+        {
+          driverName: data.driverName.trim(),
+          residencyId: data.residencyId.trim(),
+          phone: data.phone?.trim() || undefined,
+          carrierId,
+        },
         pipelineCtx
       );
 
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
       setImportBatch({ ...updated });
-      setCachedSuccessfulDriverResult(null);
+      setDriverConvergenceError(null);
+    } catch (err: any) {
+      alert(err.message || 'فشلت عملية تجهيز السائق الجديد');
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -1449,7 +1410,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  // C4 Smart Import: Create New Truck with Mutation-Success Cache and Explicit Visibility Proof
+  // Unit 3A: Plan Truck Creation with Non-persisted PREPARED_NEW plan (Zero Server Mutations)
   const handleSmartImportTruckCreate = async (
     group: RosterEntityReviewGroup,
     data: { plateNumber: string; truckType?: string; tareWeightKg?: number; maxGrossWeightKg?: number }
@@ -1465,78 +1426,37 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         throw new Error('تعذر استخراج معرف الناقل التابع له الشاحنة');
       }
 
-      let result: { matchedId: string; matchedName: string; sourceValue: string };
-
-      if (cachedSuccessfulTruckResult?.groupKey === group.normalizedSourceKey) {
-        result = cachedSuccessfulTruckResult.result;
-      } else {
-        setTruckConvergenceError(null);
-        const apiRes = await entityResolutionCommandService.createTruck({
-          projectId: project.projectId,
-          sourceValue: group.sourceValue,
-          truckData: {
-            carrierId,
-            plateNumber: data.plateNumber,
-            truckType: data.truckType,
-            tareWeightKg: data.tareWeightKg,
-            maxGrossWeightKg: data.maxGrossWeightKg,
-          },
-        });
-        if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-        result = {
-          matchedId: apiRes.matchedId,
-          matchedName: apiRes.matchedName || group.sourceValue,
-          sourceValue: group.sourceValue,
-        };
-        setCachedSuccessfulTruckResult({
-          groupKey: group.normalizedSourceKey,
-          carrierId,
-          result,
-        });
+      if (!data.plateNumber.trim()) {
+        throw new Error('رقم لوحة الشاحنة مطلوب');
       }
-
-      const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
-      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-      const foundTruck = snapshot.relationshipContext?.knownTrucks?.some(
-        (t) => t.truckId === result.matchedId && t.carrierId === carrierId
-      );
-
-      if (!foundTruck) {
-        setTruckConvergenceError('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة. أعد محاولة التحديث دون إنشاء سجل جديد.');
-        throw new Error('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN');
-      }
-
-      setTruckConvergenceError(null);
-      applyCanonicalSnapshot(snapshot);
 
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: snapshot.relationshipContext,
+        relContext: projectRelationshipContext || undefined,
         projectId: project.projectId,
         userId: authContext.userId,
         role: authContext.role,
-        operationId: `OP-TRUCK-CREATE-${Date.now()}`
+        operationId: `OP-TRUCK-PREPARE-${Date.now()}`
       });
 
-      const resolutionPayload = {
-        matchedId: result.matchedId,
-        matchedName: result.matchedName,
-        sourceValue: result.sourceValue,
-      };
-
-      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
+      const updated = DriverTruckPipelineService.applyPreparedNewTruckPlan(
         importBatch,
-        'truck',
         group.normalizedSourceKey,
-        resolutionPayload,
+        {
+          plateNumber: data.plateNumber.trim().toUpperCase(),
+          truckType: data.truckType?.trim() || undefined,
+          tareWeightKg: data.tareWeightKg,
+          maxGrossWeightKg: data.maxGrossWeightKg,
+          carrierId,
+        },
         pipelineCtx
       );
 
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
       setImportBatch({ ...updated });
-      setCachedSuccessfulTruckResult(null);
+      setTruckConvergenceError(null);
+    } catch (err: any) {
+      alert(err.message || 'فشلت عملية تجهيز الشاحنة الجديدة');
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -1750,9 +1670,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const currentGen = rosterImportSessionGenerationRef.current;
     const currentBatchId = importBatch.importBatchId;
 
-    if (smartImportCommitResult !== null) {
+    if (smartImportCommitResult !== null && smartImportCommitResult.success) {
       setSmartImportCommitError(
-        'تم تنفيذ محاولة الاستيراد بالفعل لهذه الجلسة. لا يمكن إعادة التنفيد.'
+        'تم اعتماد دفعة الاستيراد بنجاح بالفعل لهذه الجلسة. لا يمكن إعادة الاعتماد.'
       );
       return;
     }

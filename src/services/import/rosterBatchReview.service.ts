@@ -1,5 +1,12 @@
-import { UnifiedImportBatch, ImportRow, ImportEntityResolutionInfo } from '../../types/unifiedImport';
-import { normalizeName, normalizePlate } from '../../utils/normalization';
+import { 
+  UnifiedImportBatch, 
+  ImportRow, 
+  ImportEntityResolutionInfo,
+  EntityCreationDisposition,
+  PreparedDriverPlan,
+  PreparedTruckPlan
+} from '../../types/unifiedImport';
+import { normalizeName, normalizePlate, normalizeIdNumber } from '../../utils/normalization';
 
 export type ReviewGroupEntityType = 'carrier' | 'material' | 'driver' | 'truck';
 
@@ -19,6 +26,11 @@ export interface RosterEntityReviewGroup {
   recommendation?: string;
   riskLevel?: string;
   relationshipStatus?: string;
+
+  // Unit 3A: Non-persisted creation plan metadata
+  creationDisposition?: EntityCreationDisposition;
+  preparedDriverPlan?: PreparedDriverPlan;
+  preparedTruckPlan?: PreparedTruckPlan;
 }
 
 export interface DriverCreationDefaultsResult {
@@ -43,16 +55,21 @@ export interface TruckCreationDefaultsResult {
 export class RosterBatchReviewService {
   /**
    * Derives deterministic group key for a given row and entity type.
-   * Enforces carrier-dependency context on driver and truck groups.
+   * Priority for drivers:
+   * 1. normalized driverIdentity / residencyId when available
+   * 2. normalized driverName only if identity is genuinely unavailable
+   * 3. carrier context remains part of group identity
    */
   public static getGroupKey(row: ImportRow, entityType: ReviewGroupEntityType): string {
-    const rawValue = this.extractSourceValue(row, entityType);
-    if (!rawValue || rawValue === 'غير متوفر في المصدر') return '';
-
-    const normValue = entityType === 'truck' ? normalizePlate(rawValue) : normalizeName(rawValue);
-    if (!normValue) return '';
+    const canonical = row.canonical || {};
+    const raw = row.raw || {};
+    const mapped = (row as any).mapped || {};
 
     if (entityType === 'carrier' || entityType === 'material') {
+      const rawValue = this.extractSourceValue(row, entityType);
+      if (!rawValue || rawValue === 'غير متوفر في المصدر') return '';
+      const normValue = normalizeName(rawValue);
+      if (!normValue) return '';
       return `${entityType}:${normValue}`;
     }
 
@@ -61,7 +78,43 @@ export class RosterBatchReviewService {
     const resolvedCarrierId = row.resolvedValues?.carrierId || carrierRes?.matchedId;
     const carrierContext = resolvedCarrierId || 'UNRESOLVED_CARRIER';
 
-    return `${entityType}:${normValue}::carrier:${carrierContext}`;
+    if (entityType === 'driver') {
+      // Priority 1: normalized driverIdentity / residencyId when available
+      const rawResidency = (
+        canonical.driverIdentity ||
+        canonical.residencyId ||
+        mapped.driverIdentity ||
+        mapped.residencyId ||
+        raw.driverIdentity ||
+        raw.residencyId ||
+        raw['رقم الهوية'] ||
+        raw['رقم الإقامة'] ||
+        raw['الهوية'] ||
+        ''
+      ).toString().trim();
+
+      const normResidency = rawResidency ? normalizeIdNumber(rawResidency) : '';
+      if (normResidency) {
+        return `driver:id:${normResidency}::carrier:${carrierContext}`;
+      }
+
+      // Priority 2: normalized driverName only if identity unavailable
+      const rawName = this.extractSourceValue(row, 'driver');
+      if (!rawName || rawName === 'غير متوفر في المصدر') return '';
+      const normName = normalizeName(rawName);
+      if (!normName) return '';
+      return `driver:name:${normName}::carrier:${carrierContext}`;
+    }
+
+    if (entityType === 'truck') {
+      const rawPlate = this.extractSourceValue(row, 'truck');
+      if (!rawPlate || rawPlate === 'غير متوفر في المصدر') return '';
+      const normPlate = normalizePlate(rawPlate);
+      if (!normPlate) return '';
+      return `truck:${normPlate}::carrier:${carrierContext}`;
+    }
+
+    return '';
   }
 
   /**
@@ -104,15 +157,24 @@ export class RosterBatchReviewService {
             candidates: res?.candidates || [],
             status: groupStatus,
             matchedId: res?.matchedId,
-            matchedName: res?.matchedName,
+            matchedName: res?.matchedName || (res?.creationDisposition === 'PREPARED_NEW' ? (res?.preparedDriverPlan?.driverName || res?.preparedTruckPlan?.plateNumber || res?.sourceValue) : undefined),
             recommendation: res?.recommendation,
             riskLevel: res?.riskLevel,
             relationshipStatus: res?.relationshipStatus,
+            creationDisposition: res?.creationDisposition || (res?.matchedId ? 'EXISTING' : undefined),
+            preparedDriverPlan: res?.preparedDriverPlan,
+            preparedTruckPlan: res?.preparedTruckPlan,
           });
         } else {
           const group = groupMap.get(groupKey)!;
           group.rowNumbers.push(row.rowNumber);
           group.occurrenceCount++;
+
+          if (res?.creationDisposition === 'PREPARED_NEW' && !group.creationDisposition) {
+            group.creationDisposition = 'PREPARED_NEW';
+            group.preparedDriverPlan = res.preparedDriverPlan;
+            group.preparedTruckPlan = res.preparedTruckPlan;
+          }
 
           // Upgrade status if any row has unresolved / review required / conflict
           const rowStatus = this.determineGroupStatus(res);
@@ -149,15 +211,26 @@ export class RosterBatchReviewService {
 
     const relStatus = res.relationshipStatus || 'VALID';
     const isConflict =
-      relStatus === 'CONFLICT' ||
+      res.creationDisposition === 'CONFLICT' ||
+      (relStatus as string) === 'CONFLICT' ||
       relStatus === 'DRIVER_CARRIER_CONFLICT' ||
       relStatus === 'RELATIONSHIP_CONFLICT' ||
       relStatus === 'TRUCK_MATCHED_CARRIER_UNKNOWN' ||
       relStatus === 'MATERIAL_PROJECT_CONFLICT' ||
+      relStatus === 'CROSS_PROJECT_BLOCKED' ||
       res.riskLevel === 'CRITICAL';
 
     if (isConflict) {
       return 'CONFLICT';
+    }
+
+    // Unit 3A: PREPARED_NEW without conflict is resolved for review
+    if (res.creationDisposition === 'PREPARED_NEW') {
+      const hasPlan = Boolean(res.preparedDriverPlan || res.preparedTruckPlan);
+      if (hasPlan) {
+        return 'AUTO_RESOLVED';
+      }
+      return 'UNRESOLVED';
     }
 
     if (!res.matchedId) {
@@ -170,9 +243,7 @@ export class RosterBatchReviewService {
 
     if (
       res.recommendation === 'REVIEW' ||
-      res.recommendation === 'FUZZY' ||
       res.matchMethod === 'FUZZY' ||
-      res.matchMethod === 'AMBIGUOUS' ||
       res.ambiguous === true
     ) {
       return 'REVIEW_REQUIRED';
@@ -182,14 +253,11 @@ export class RosterBatchReviewService {
     const isSafeMethod =
       res.matchMethod === 'EXACT' ||
       res.matchMethod === 'NORMALIZED' ||
-      res.matchMethod === 'ALIAS' ||
-      res.matchMethod === 'HUMAN_ACCEPTED' ||
-      res.matchMethod === 'MANUAL';
-    const isSafeRelationship = relStatus === 'VALID' || relStatus === 'NOT_APPLICABLE' || !relStatus;
+      res.matchMethod === 'ALIAS';
+    const isSafeRelationship = relStatus === 'VALID' || relStatus === 'NOT_APPLICABLE';
     const isSafeRisk = res.riskLevel !== 'HIGH' && res.riskLevel !== 'CRITICAL';
     const isSafeRecommendation = res.recommendation === 'ACCEPT';
     const isAuthorized = res.isAuthorized !== false;
-    const notAmbiguous = res.ambiguous !== true;
 
     if (
       res.matchedId &&
@@ -197,8 +265,7 @@ export class RosterBatchReviewService {
       isSafeMethod &&
       isSafeRelationship &&
       isSafeRisk &&
-      isAuthorized &&
-      notAmbiguous
+      isAuthorized
     ) {
       return 'AUTO_RESOLVED';
     }
@@ -338,15 +405,16 @@ export class RosterBatchReviewService {
       ).toString().trim();
       if (phoneVal) phones.add(phoneVal);
 
+      // Clean carrier context: never read from group's own matchedId/entityId!
       const carrierVal = (
-        group.currentResolution?.entityId ||
-        group.currentResolution?.matchedId ||
-        resolved.carrierId ||
         row.entityResolutions?.carrier?.matchedId ||
-        row.entityResolutions?.carrier?.entityId ||
+        row.resolvedValues?.carrierId ||
+        (group.normalizedSourceKey?.includes('::carrier:') ? group.normalizedSourceKey.split('::carrier:')[1]?.trim() : '') ||
         ''
       ).toString().trim();
-      if (carrierVal) carrierIds.add(carrierVal);
+      if (carrierVal && carrierVal !== 'UNRESOLVED_CARRIER') {
+        carrierIds.add(carrierVal);
+      }
     });
 
     const conflicts: Record<string, string[]> = {};
@@ -452,15 +520,16 @@ export class RosterBatchReviewService {
         maxGrossWeights.add(Number(gross));
       }
 
+      // Clean carrier context: never read from group's own matchedId/entityId!
       const carrierVal = (
-        group.currentResolution?.entityId ||
-        group.currentResolution?.matchedId ||
-        resolved.carrierId ||
         row.entityResolutions?.carrier?.matchedId ||
-        row.entityResolutions?.carrier?.entityId ||
+        row.resolvedValues?.carrierId ||
+        (group.normalizedSourceKey?.includes('::carrier:') ? group.normalizedSourceKey.split('::carrier:')[1]?.trim() : '') ||
         ''
       ).toString().trim();
-      if (carrierVal) carrierIds.add(carrierVal);
+      if (carrierVal && carrierVal !== 'UNRESOLVED_CARRIER') {
+        carrierIds.add(carrierVal);
+      }
     });
 
     const conflicts: Record<string, string[]> = {};

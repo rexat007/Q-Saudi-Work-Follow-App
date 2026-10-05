@@ -187,12 +187,16 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
     expect(finalReviewContent).toContain('!r.entityResolutions?.material?.matchedId');
   });
 
-  it('36. Applicable missing Driver blocks commit', () => {
-    expect(finalReviewContent).toContain('!r.entityResolutions?.driver?.matchedId');
+  it('36. Applicable missing Driver blocks commit unless valid PREPARED_NEW plan exists', () => {
+    expect(finalReviewContent).toContain('isDriverResolved');
+    expect(finalReviewContent).toContain("r.entityResolutions?.driver?.creationDisposition === 'PREPARED_NEW'");
+    expect(finalReviewContent).toContain('preparedDriverPlan');
   });
 
-  it('37. Applicable missing Truck blocks commit', () => {
-    expect(finalReviewContent).toContain('!r.entityResolutions?.truck?.matchedId');
+  it('37. Applicable missing Truck blocks commit unless valid PREPARED_NEW plan exists', () => {
+    expect(finalReviewContent).toContain('isTruckResolved');
+    expect(finalReviewContent).toContain("r.entityResolutions?.truck?.creationDisposition === 'PREPARED_NEW'");
+    expect(finalReviewContent).toContain('preparedTruckPlan');
   });
 
   it('38. Commit performs fresh second revalidation preflight', () => {
@@ -347,11 +351,11 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
     expect(layerBlock).not.toContain('onClose=');
   });
 
-  it('67. handleSmartImportCommit fails closed if smartImportCommitResult is not null', () => {
+  it('67. handleSmartImportCommit blocks repeat commit only on full success; partial failure remains retryable', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
     const fnBlock = wizardContent.slice(fnIdx, fnIdx + 500);
-    expect(fnBlock).toContain('if (smartImportCommitResult !== null)');
-    expect(fnBlock).toContain('تم تنفيذ محاولة الاستيراد بالفعل لهذه الجلسة');
+    expect(fnBlock).toContain('if (smartImportCommitResult !== null && smartImportCommitResult.success)');
+    expect(fnBlock).toContain('تم اعتماد دفعة الاستيراد بنجاح بالفعل لهذه الجلسة');
   });
 });
 

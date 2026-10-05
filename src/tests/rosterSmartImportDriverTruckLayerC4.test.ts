@@ -152,8 +152,11 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
     expect(wizardContent).toContain('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN');
   });
 
-  it('13. Driver present under wrong carrier blocks batch resolution and sets convergence error', () => {
-    expect(wizardContent).toContain('d.driverId === result.matchedId && d.carrierId === carrierId');
+  it('13. PREPARED_NEW Driver creation planning causes ZERO createDriver calls and creates correct prepared plan', () => {
+    const fnIdx = wizardContent.indexOf('handleSmartImportDriverCreate');
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 1200);
+    expect(fnBlock).toContain('DriverTruckPipelineService.applyPreparedNewDriverPlan');
+    expect(fnBlock).not.toContain('entityResolutionCommandService.createDriver');
   });
 
   it('14. Driver correct ID and carrier allows batch resolution and clears cache', () => {
@@ -181,8 +184,11 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
     expect(wizardContent).toContain('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN');
   });
 
-  it('19. Truck wrong carrier blocks batch resolution and sets convergence error', () => {
-    expect(wizardContent).toContain('t.truckId === result.matchedId && t.carrierId === carrierId');
+  it('19. PREPARED_NEW Truck creation planning causes ZERO createTruck calls and creates correct prepared plan', () => {
+    const fnIdx = wizardContent.indexOf('handleSmartImportTruckCreate');
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 1200);
+    expect(fnBlock).toContain('DriverTruckPipelineService.applyPreparedNewTruckPlan');
+    expect(fnBlock).not.toContain('entityResolutionCommandService.createTruck');
   });
 
   it('20. Truck correct ID and carrier allows batch resolution and clears cache', () => {
@@ -267,7 +273,7 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
     expect(defaults.hasConflict).toBe(false);
   });
 
-  it('27. Driver name same but iqama conflict across rows flags hasConflict=true and records field conflict', () => {
+  it('27. Driver same name + carrier + different residency IDs yields 2 separate groups', () => {
     const rows = [
       {
         rowNumber: 1,
@@ -295,15 +301,44 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
       },
     ];
 
-    const conflictBatch: UnifiedImportBatch = { ...mockBatchC4, rows };
-    const groups = RosterBatchReviewService.getBatchReviewGroups(conflictBatch);
-    expect(groups.driver.length).toBe(1);
+    const differentIqamaBatch: UnifiedImportBatch = { ...mockBatchC4, rows };
+    const groups = RosterBatchReviewService.getBatchReviewGroups(differentIqamaBatch);
+    expect(groups.driver.length).toBe(2);
 
-    const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(conflictBatch, groups.driver[0]);
+    // True intra-identity conflict: same residency ID, conflicting phone
+    const intraConflictRows = [
+      {
+        rowNumber: 1,
+        raw: {},
+        canonical: { driverName: 'خالد عمر', driverIdentity: '1023456789', driverPhone: '0501112222' },
+        entityResolutions: {
+          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          driver: { sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
+        },
+        status: 'WARNING' as const,
+        validationIssues: [],
+        reviewStatus: 'requires_review' as const,
+      },
+      {
+        rowNumber: 2,
+        raw: {},
+        canonical: { driverName: 'خالد عمر', driverIdentity: '1023456789', driverPhone: '0509998888' },
+        entityResolutions: {
+          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          driver: { sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
+        },
+        status: 'WARNING' as const,
+        validationIssues: [],
+        reviewStatus: 'requires_review' as const,
+      },
+    ];
+    const intraConflictBatch: UnifiedImportBatch = { ...mockBatchC4, rows: intraConflictRows };
+    const intraGroups = RosterBatchReviewService.getBatchReviewGroups(intraConflictBatch);
+    expect(intraGroups.driver.length).toBe(1);
+    const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(intraConflictBatch, intraGroups.driver[0]);
     expect(defaults.hasConflict).toBe(true);
-    expect(defaults.conflicts['رقم الهوية/الإقامة']).toContain('1023456789');
-    expect(defaults.conflicts['رقم الهوية/الإقامة']).toContain('2098765432');
-    expect(defaults.residencyId).toBe('');
+    expect(defaults.conflicts['رقم الجوال']).toContain('0501112222');
+    expect(defaults.conflicts['رقم الجوال']).toContain('0509998888');
   });
 
   it('28. Truck prefill extracts plateNumber, truckType, tareWeight, and maxGrossWeight', () => {
