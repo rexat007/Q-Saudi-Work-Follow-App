@@ -201,6 +201,34 @@ app.post(
 );
 
 app.get(
+  '/api/projects/:projectId/import-sessions',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req: any, res) => {
+    try {
+      const { projectId } = req.params;
+      const user = req.user;
+      const { importSessionServerService } = await import('../src/services/importSession.server');
+      const sessions = await importSessionServerService.listResumableSessions(projectId, user);
+      return res.json({
+        success: true,
+        sessions,
+        count: sessions.length
+      });
+    } catch (error: any) {
+      console.error('List import sessions failed:', error);
+      const code = error.code || 'IMPORT_SESSIONS_LIST_FAILED';
+      const status = code === 'AUTHORIZATION_ERROR' || code === 'PROJECT_MISMATCH' ? 403 : (code === 'UNAUTHENTICATED' ? 401 : 400);
+      return res.status(status).json({
+        success: false,
+        error: error.message || 'فشل استعراض جلسات الاستيراد.',
+        code
+      });
+    }
+  }
+);
+
+app.get(
   '/api/projects/:projectId/import-sessions/:importSessionId',
   enforceProjectIsolation,
   enforceDispatcherOrAbove,
@@ -561,7 +589,7 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
     const expectedMutationRevision = freshnessState.mutationRevision;
 
     // 1. Build server-authoritative canonical initial snapshot (Drivers, Carriers, Materials, Fleet)
-    const snapshot = await projectWorkspaceInitialProjectionServer.buildInitialProjectionSnapshot(cleanProjectId);
+    const snapshot = await projectWorkspaceInitialProjectionServer.buildInitialProjection(cleanProjectId);
 
     const upsertResults: UpsertResult[] = [];
     const successfullyProjectedTabs: WorkspaceSheetTab[] = [];

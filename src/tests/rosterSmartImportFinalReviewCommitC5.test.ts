@@ -345,10 +345,12 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
     expect(stepperBlock).not.toContain('onClick');
   });
 
-  it('66. COMMIT_RESULT mount does not pass onClose to prevent navigating back to FINAL_REVIEW', () => {
+  it('66. COMMIT_RESULT mount passes onClose for partial retry navigation while full success remains terminal', () => {
     const layerIdx = wizardContent.indexOf('<RosterCommitResultLayer');
-    const layerBlock = wizardContent.slice(layerIdx, layerIdx + 400);
-    expect(layerBlock).not.toContain('onClose=');
+    const layerBlock = wizardContent.slice(layerIdx, layerIdx + 600);
+    expect(layerBlock).toContain('onClose=');
+    expect(layerBlock).toContain("transitionToRosterStage('FINAL_REVIEW')");
+    expect(layerBlock).toContain("persistSmartImportCheckpoint({ stage: 'FINAL_REVIEW' })");
   });
 
   it('67. handleSmartImportCommit blocks repeat commit only on full success; partial failure remains retryable', () => {

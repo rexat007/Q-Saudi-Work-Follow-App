@@ -56,13 +56,19 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
     expect(wizardContent).toContain('C1 Layered Smart Import Stage Indicator Stepper (Orientation & Progress Indicator)');
   });
 
-  // 5. from MAPPING_APPROVAL: only CARRIER_RESOLUTION can become next active stage after pipeline execution
+  // 5. from MAPPING_APPROVAL: pipeline completion creates/persists import session then transitions to CARRIER_RESOLUTION
   it('5. from MAPPING_APPROVAL: only CARRIER_RESOLUTION becomes next active stage after pipeline execution', () => {
-    const pipelineCallIdx = wizardContent.indexOf('DriverTruckPipelineService.processFileToReview');
-    const followingLines = wizardContent.slice(pipelineCallIdx, pipelineCallIdx + 1000);
-    expect(followingLines.includes("transitionToRosterStage('CARRIER_RESOLUTION'") || followingLines.includes("setRosterImportStage('CARRIER_RESOLUTION')")).toBe(true);
-    expect(followingLines).not.toContain("setRosterImportStage('MATERIAL_RESOLUTION')");
-    expect(followingLines).not.toContain("setRosterImportStage('FINAL_REVIEW')");
+    const fnIdx = wizardContent.indexOf('handleApproveRosterMappingAndStartPipeline');
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 6000);
+    const pipelineCallIdx = fnBlock.indexOf('DriverTruckPipelineService.processFileToReview');
+    const sessionCreateIdx = fnBlock.indexOf('importSessionClientService.createSession');
+    const transitionIdx = fnBlock.indexOf("transitionToRosterStage('CARRIER_RESOLUTION");
+
+    expect(pipelineCallIdx).toBeGreaterThan(-1);
+    expect(sessionCreateIdx).toBeGreaterThan(pipelineCallIdx);
+    expect(transitionIdx).toBeGreaterThan(sessionCreateIdx);
+    expect(fnBlock).not.toContain("setRosterImportStage('MATERIAL_RESOLUTION')");
+    expect(fnBlock).not.toContain("setRosterImportStage('FINAL_REVIEW')");
   });
 
   // 6. from CARRIER_RESOLUTION: MATERIAL_RESOLUTION is NOT clickable in C1

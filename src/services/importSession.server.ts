@@ -42,6 +42,12 @@ function hasForbiddenFields(obj: any, visited = new WeakSet()): boolean {
 }
 
 export class ImportSessionServerService {
+  private db: any;
+
+  constructor(db: any = adminDb) {
+    this.db = db;
+  }
+
   async createSession(projectId: string, payload: any, context: AuthUserContext) {
     if (!context || !['PROJECT_ADMIN', 'SUPER_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SITE_SUPERVISOR', 'FINANCE_AUDITOR'].includes(context.role)) {
       const err: any = new Error('غير مصرح لك بإنشاء جلسات الاستيراد');
@@ -92,11 +98,16 @@ export class ImportSessionServerService {
       reviewAction: payload.reviewAction || null,
       validationIssues: payload.validationIssues || [],
       warningConfirmation: payload.warningConfirmation || false,
+      rosterStage: payload.rosterStage || 'SOURCE_DISCOVERY',
+      importBatch: payload.importBatch || null,
+      smartImportCommitResult: payload.smartImportCommitResult || null,
+      isRosterMappingApproved: payload.isRosterMappingApproved ?? false,
+      rosterDiscoveryResult: payload.rosterDiscoveryResult || null,
     };
 
-    const docRef = adminDb.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
+    const docRef = this.db.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
 
-    await adminDb.runTransaction(async (transaction: any) => {
+    await this.db.runTransaction(async (transaction: any) => {
       const docSnap = await transaction.get(docRef);
       if (docSnap.exists) {
         const err: any = new Error('جلسة الاستيراد موجودة مسبقاً بنفس المعرّف');
@@ -116,7 +127,7 @@ export class ImportSessionServerService {
       throw err;
     }
 
-    const docRef = adminDb.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
+    const docRef = this.db.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
@@ -161,11 +172,11 @@ export class ImportSessionServerService {
       throw err;
     }
 
-    const docRef = adminDb.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
+    const docRef = this.db.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
 
     let updatedRecord: any = null;
 
-    await adminDb.runTransaction(async (transaction: any) => {
+    await this.db.runTransaction(async (transaction: any) => {
       const docSnap = await transaction.get(docRef);
       if (!docSnap.exists) {
         const err: any = new Error('جلسة الاستيراد غير موجودة');
@@ -243,6 +254,52 @@ export class ImportSessionServerService {
     });
 
     return updatedRecord;
+  }
+
+  async listResumableSessions(projectId: string, context: AuthUserContext) {
+    if (!context || !['PROJECT_ADMIN', 'SUPER_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SITE_SUPERVISOR', 'FINANCE_AUDITOR'].includes(context.role)) {
+      const err: any = new Error('غير مصرح لك باستعراض جلسات الاستيراد');
+      err.code = 'AUTHORIZATION_ERROR';
+      throw err;
+    }
+
+    if (!projectId || !projectId.trim()) {
+      const err: any = new Error('معرّف المشروع مطلوب');
+      err.code = 'INVALID_PROJECT_ID';
+      throw err;
+    }
+
+    const colRef = this.db.collection('projects').doc(projectId).collection('importSessions');
+    const snapshot = await colRef.orderBy('updatedAt', 'desc').get();
+
+    const allSessions: any[] = [];
+    snapshot.forEach((doc: any) => {
+      const data = doc.data();
+      if (data && data.projectId === projectId) {
+        allSessions.push(data);
+      }
+    });
+
+    const resumable = allSessions.filter((s) => {
+      if (s.lifecycleState === 'COMMITTED' || s.lifecycleState === 'CANCELLED' || s.lifecycleState === 'REJECTED') {
+        return false;
+      }
+      if (s.importBatch?.commitStatus === 'COMMITTED') {
+        return false;
+      }
+      if (s.lifecycleState === 'FAILED') {
+        const isRetryablePartial = Boolean(
+          s.smartImportCommitResult &&
+          s.smartImportCommitResult.success === false &&
+          ((s.smartImportCommitResult.committedRows && s.smartImportCommitResult.committedRows > 0) ||
+           (s.importBatch?.committedRows && s.importBatch.committedRows > 0))
+        );
+        return isRetryablePartial;
+      }
+      return true;
+    });
+
+    return resumable;
   }
 }
 
