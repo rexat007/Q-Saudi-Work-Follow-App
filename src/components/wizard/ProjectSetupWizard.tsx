@@ -69,7 +69,13 @@ import {
 } from '../../services/import/rosterSmartImportWorkflow.service';
 import { RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
 import { importSessionClientService, ImportSessionVersionConflictError } from '../../services/importSessionClient.service';
-import { SafeDiscoveryMetadata, ImportSessionLifecycleState } from '../../types/importSession';
+import { 
+  SafeDiscoveryMetadata, 
+  ImportSessionLifecycleState,
+  LIFECYCLE_TO_ROSTER_STAGE_MAP,
+  ROSTER_STAGE_TO_LIFECYCLE_MAP,
+  UpdateImportSessionPayload
+} from '../../types/importSession';
 import { projectCanonicalRefreshService, ProjectCanonicalRefreshSnapshot } from '../../services/projectCanonicalRefresh.service';
 import { 
   isProjectOperationallyMutable, 
@@ -464,24 +470,32 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
   const [syncNotice, setSyncNotice] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  // Active project lookup helper with authoritative local override support
+  // Active project lookup helper with temporary local bridge override
   const project = useMemo(() => {
     if (!editingProjectId) return null;
     const fromGlobal = globalProjects.find(p => p.projectId === editingProjectId);
-    if (fromGlobal) {
-      if (localProjectOverride && localProjectOverride.projectId === editingProjectId) {
-        return {
-          ...fromGlobal,
-          ...localProjectOverride,
-        };
-      }
-      return fromGlobal;
-    }
+    if (fromGlobal) return fromGlobal;
     if (localProjectOverride && localProjectOverride.projectId === editingProjectId) {
       return localProjectOverride;
     }
     return null;
   }, [globalProjects, editingProjectId, localProjectOverride]);
+
+  // Convergence rule: Clear temporary local override once canonical project arrives in globalProjects
+  useEffect(() => {
+    if (!editingProjectId || !localProjectOverride) return;
+
+    const canonicalExists = globalProjects.some(
+      p => p.projectId === editingProjectId
+    );
+
+    if (
+      canonicalExists &&
+      localProjectOverride.projectId === editingProjectId
+    ) {
+      setLocalProjectOverride(null);
+    }
+  }, [editingProjectId, globalProjects, localProjectOverride]);
 
   // Core foundation setup lock for Active Projects (primary identifiers & metadata)
   const isCoreSetupLocked = useMemo(() => {
@@ -1128,7 +1142,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // =========================================================================
 
   const buildSafeDiscoveryMetadata = (
-    disc: DiscoveryResult | null,
+    disc: DiscoveryResult | any,
     fileName?: string,
     fileSize?: number
   ): SafeDiscoveryMetadata | null => {
@@ -4609,7 +4623,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     onClose={async () => {
                       const persisted = await persistSmartImportCheckpoint({
                         stage: 'FINAL_REVIEW',
-                        lifecycleState: 'FINAL_REVIEW',
+                        lifecycleState: 'REVIEW',
                       });
                       if (!persisted) {
                         return;

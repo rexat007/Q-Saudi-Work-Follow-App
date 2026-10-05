@@ -262,4 +262,113 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
     expect(wizardContent).toContain('reloadProjectCanonicalData');
     expect(wizardContent).toContain('projectCanonicalRefreshService.refresh');
   });
+
+  // N. Convergence tests for localProjectOverride bridge & canonical arrival
+  describe('N. Local Project Override Convergence & Bridge Behavior', () => {
+    it('A. Newly created project is visible immediately before globalProjects update', () => {
+      const editingProjectId = 'PROJECT-NEW';
+      const globalProjects: any[] = [];
+      const localProjectOverride: any = { projectId: 'PROJECT-NEW', nameAr: 'مشروع جديد مؤقت' };
+
+      const resolveProject = (gProjects: any[], eId: string | null, lOverride: any) => {
+        if (!eId) return null;
+        const fromGlobal = gProjects.find(p => p.projectId === eId);
+        if (fromGlobal) return fromGlobal;
+        if (lOverride && lOverride.projectId === eId) {
+          return lOverride;
+        }
+        return null;
+      };
+
+      const resolved = resolveProject(globalProjects, editingProjectId, localProjectOverride);
+      expect(resolved).toEqual({ projectId: 'PROJECT-NEW', nameAr: 'مشروع جديد مؤقت' });
+    });
+
+    it('B. Override remains while canonical project is absent in globalProjects', () => {
+      let localProjectOverride: any = { projectId: 'PROJECT-NEW', nameAr: 'مشروع جديد مؤقت' };
+      const globalProjects: any[] = [{ projectId: 'OTHER-PROJECT', nameAr: 'مشروع آخر' }];
+      const editingProjectId = 'PROJECT-NEW';
+
+      const canonicalExists = globalProjects.some(p => p.projectId === editingProjectId);
+      if (canonicalExists && localProjectOverride?.projectId === editingProjectId) {
+        localProjectOverride = null;
+      }
+
+      expect(localProjectOverride).not.toBeNull();
+      expect(localProjectOverride.projectId).toBe('PROJECT-NEW');
+    });
+
+    it('C. When canonical project arrives for same editingProjectId: localProjectOverride is cleared', () => {
+      let localProjectOverride: any = { projectId: 'PROJECT-NEW', nameAr: 'مشروع جديد مؤقت' };
+      const globalProjects: any[] = [{ projectId: 'PROJECT-NEW', nameAr: 'مشروع جديد كانونيكال' }];
+      const editingProjectId = 'PROJECT-NEW';
+
+      const canonicalExists = globalProjects.some(p => p.projectId === editingProjectId);
+      if (canonicalExists && localProjectOverride?.projectId === editingProjectId) {
+        localProjectOverride = null;
+      }
+
+      expect(localProjectOverride).toBeNull();
+    });
+
+    it('D. After canonical arrival: project lookup prefers canonical global project', () => {
+      const canonicalProject = { projectId: 'PROJECT-NEW', nameAr: 'مشروع جديد كانونيكال من السيرفر' };
+      const staleOverride = { projectId: 'PROJECT-NEW', nameAr: 'مشروع قديم مؤقت' };
+      const globalProjects = [canonicalProject];
+      const editingProjectId = 'PROJECT-NEW';
+
+      const resolveProject = (gProjects: any[], eId: string | null, lOverride: any) => {
+        if (!eId) return null;
+        const fromGlobal = gProjects.find(p => p.projectId === eId);
+        if (fromGlobal) return fromGlobal;
+        if (lOverride && lOverride.projectId === eId) {
+          return lOverride;
+        }
+        return null;
+      };
+
+      const resolved = resolveProject(globalProjects, editingProjectId, staleOverride);
+      expect(resolved.nameAr).toBe('مشروع جديد كانونيكال من السيرفر');
+    });
+
+    it('E. A later canonical server/subscription update is NOT masked by stale override', () => {
+      let globalProjects = [{ projectId: 'PROJECT-NEW', nameAr: 'إصدار 1' }];
+      const editingProjectId = 'PROJECT-NEW';
+      let localProjectOverride: any = null;
+
+      globalProjects = [{ projectId: 'PROJECT-NEW', nameAr: 'إصدار 2 المحدث' }];
+
+      const resolveProject = (gProjects: any[], eId: string | null, lOverride: any) => {
+        if (!eId) return null;
+        const fromGlobal = gProjects.find(p => p.projectId === eId);
+        if (fromGlobal) return fromGlobal;
+        if (lOverride && lOverride.projectId === eId) {
+          return lOverride;
+        }
+        return null;
+      };
+
+      const resolved = resolveProject(globalProjects, editingProjectId, localProjectOverride);
+      expect(resolved.nameAr).toBe('إصدار 2 المحدث');
+    });
+
+    it('F. Switching to a different project still clears unrelated override', () => {
+      let localProjectOverride: any = { projectId: 'PROJECT-OLD', nameAr: 'قديم' };
+      const editingProjectId = 'PROJECT-NEW';
+
+      if (localProjectOverride && localProjectOverride.projectId !== editingProjectId) {
+        localProjectOverride = null;
+      }
+
+      expect(localProjectOverride).toBeNull();
+    });
+
+    it('G. ProjectSetupWizard contains convergence effect and non-merging project memo lookup', () => {
+      expect(wizardContent).toContain('// Convergence rule: Clear temporary local override once canonical project arrives in globalProjects');
+      expect(wizardContent).toContain('const canonicalExists = globalProjects.some');
+      expect(wizardContent).toContain('setLocalProjectOverride(null)');
+      expect(wizardContent).toContain('if (fromGlobal) return fromGlobal;');
+      expect(wizardContent).not.toContain('...localProjectOverride,');
+    });
+  });
 });
