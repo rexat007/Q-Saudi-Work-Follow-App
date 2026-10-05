@@ -74,6 +74,24 @@ import {
   canPerformOperationalMutation, 
   ACTIVE_PROJECT_OPERATIONAL_NOTICE_AR 
 } from '../../services/projectMutability.policy';
+import {
+  ProjectSetupLayer,
+  PROJECT_SETUP_LAYERS,
+  canEnterProjectSetupLayer,
+  NavigationGateContext
+} from '../../services/projectSetupWorkflow.service';
+
+const LAYER_ICONS: Record<ProjectSetupLayer, React.ComponentType<any>> = {
+  FOUNDATION: Building2,
+  WORKSPACE: FolderSync,
+  MATERIALS: Boxes,
+  CARRIERS: Truck,
+  ROSTER: FileSpreadsheet,
+  PRICING: CircleDollarSign,
+  ACCESS: Users,
+  REVIEW_ACTIVATION: ShieldCheck
+};
+
 
 export interface ServerReadinessBlocker {
   code: string;
@@ -229,33 +247,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const { t, isRTL, locale } = useI18n();
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
 
-  // Synchronize editingProjectId with prop selectedProjectId
-  useEffect(() => {
-    if (selectedProjectId) {
-      setEditingProjectId(selectedProjectId);
-    } else {
-      setEditingProjectId(null);
-    }
-  }, [selectedProjectId]);
-
-  const [activePhase, setActivePhase] = useState<number>(1); // 1 to 5
-  
-  // Dashboard view search & filtering
-  const [searchTerm, setSearchTerm] = useState('');
-
-  // Project Creation State
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
-  const [newProjNameAr, setNewProjNameAr] = useState('');
-  const [newProjClient, setNewProjClient] = useState('');
-  const [newProjDesc, setNewProjDesc] = useState('');
-  const [newProjVatRate, setNewProjVatRate] = useState(15);
-  const [newProjZatca, setNewProjZatca] = useState('');
-  const [newProjLocation, setNewProjLocation] = useState('');
-  const [newProjStartDate, setNewProjStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [creationError, setCreationError] = useState<string | null>(null);
-  const [isSubmittingCreation, setIsSubmittingCreation] = useState(false);
-
   // Active Project Sub-collection States
+  const [activeSetupLayer, setActiveSetupLayer] = useState<ProjectSetupLayer>('FOUNDATION');
+  const [navigationError, setNavigationError] = useState<string | null>(null);
   const [materials, setMaterials] = useState<MaterialEntity[]>([]);
   const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
   const [pricingRules, setPricingRules] = useState<PricingRuleEntity[]>([]);
@@ -277,6 +271,50 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // C5 Smart Import Final Review & Commit Result State
   const [smartImportCommitResult, setSmartImportCommitResult] = useState<ImportResult | null>(null);
   const [smartImportCommitError, setSmartImportCommitError] = useState<string | null>(null);
+
+  // Synchronize editingProjectId with prop selectedProjectId
+  useEffect(() => {
+    if (selectedProjectId) {
+      setEditingProjectId(selectedProjectId);
+      setActiveSetupLayer('FOUNDATION');
+      setNavigationError(null);
+    } else {
+      setEditingProjectId(null);
+      setActiveSetupLayer('FOUNDATION');
+      setNavigationError(null);
+    }
+  }, [selectedProjectId]);
+
+  const attemptProjectSetupLayerNavigation = useCallback((targetLayer: ProjectSetupLayer) => {
+    const context: NavigationGateContext = {
+      projectId: editingProjectId,
+      materialsCount: materials.length,
+      carriersCount: carriers.length,
+    };
+    const gate = canEnterProjectSetupLayer(targetLayer, context);
+    if (gate.allowed) {
+      setActiveSetupLayer(targetLayer);
+      setNavigationError(null);
+    } else {
+      setNavigationError(gate.reason || 'تعذر الانتقال إلى هذه الطبقة.');
+    }
+  }, [editingProjectId, materials.length, carriers.length]);
+
+  
+  // Dashboard view search & filtering
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Project Creation State
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [newProjNameAr, setNewProjNameAr] = useState('');
+  const [newProjClient, setNewProjClient] = useState('');
+  const [newProjDesc, setNewProjDesc] = useState('');
+  const [newProjVatRate, setNewProjVatRate] = useState(15);
+  const [newProjZatca, setNewProjZatca] = useState('');
+  const [newProjLocation, setNewProjLocation] = useState('');
+  const [newProjStartDate, setNewProjStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [creationError, setCreationError] = useState<string | null>(null);
+  const [isSubmittingCreation, setIsSubmittingCreation] = useState(false);
 
   // Editing Forms and Modals
   const [isAddingMaterial, setIsAddingMaterial] = useState(false);
@@ -456,10 +494,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   }, [editingProjectId, fetchServerReadiness]);
 
   useEffect(() => {
-    if (activePhase === 5 && editingProjectId) {
+    if (activeSetupLayer === 'REVIEW_ACTIVATION' && editingProjectId) {
       fetchServerReadiness(editingProjectId);
     }
-  }, [activePhase, editingProjectId, fetchServerReadiness]);
+  }, [activeSetupLayer, editingProjectId, fetchServerReadiness]);
 
   const applyCanonicalSnapshot = useCallback((snapshot: ProjectCanonicalRefreshSnapshot) => {
     setMaterials(snapshot.materials || []);
@@ -617,7 +655,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setIsCreatingNew(false);
       setEditingProjectId(createdProject.projectId);
       onSelectProject?.(createdProject.projectId);
-      setActivePhase(1);
+      setActiveSetupLayer('FOUNDATION');
+      setNavigationError(null);
       
       // Clean creation fields
       setNewProjNameAr('');
@@ -792,7 +831,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           const initialMappings: Record<string, DriverTruckCanonicalMappingTarget | 'unmapped'> = {};
           (discovery.detectedHeaders || []).forEach((h) => {
             const diag = discovery.mappingDiagnostics?.[h];
-            initialMappings[h] = translateDiscoveryToRosterTarget(diag?.canonicalField);
+            initialMappings[h] = translateDiscoveryToRosterTarget(diag?.canonicalField ? String(diag.canonicalField) : undefined);
           });
           setRosterCustomMappings(initialMappings);
           setIsSmartImportOpen(true);
@@ -844,7 +883,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         const updatedMappings: Record<string, DriverTruckCanonicalMappingTarget | 'unmapped'> = {};
         (updatedDiscovery.detectedHeaders || []).forEach((h) => {
           const diag = updatedDiscovery.mappingDiagnostics?.[h];
-          updatedMappings[h] = translateDiscoveryToRosterTarget(diag?.canonicalField);
+          updatedMappings[h] = translateDiscoveryToRosterTarget(diag?.canonicalField ? String(diag.canonicalField) : undefined);
         });
         setRosterCustomMappings(updatedMappings);
       } catch (err: any) {
@@ -886,7 +925,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           const newMappings: Record<string, DriverTruckCanonicalMappingTarget | 'unmapped'> = {};
           headers.forEach((h) => {
             const match = diags[h];
-            newMappings[h] = translateDiscoveryToRosterTarget(match?.canonicalField);
+            newMappings[h] = translateDiscoveryToRosterTarget(match?.canonicalField ? String(match.canonicalField) : undefined);
           });
           setRosterCustomMappings(newMappings);
         }
@@ -1006,7 +1045,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const activeRows = importBatch.rows.filter((r) => r.status !== 'REJECTED');
     const hasUnresolvedCarrierRow = activeRows.some((r) => {
       const carrierRes = r.entityResolutions?.carrier;
-      return !carrierRes?.matchedId || carrierRes.status === 'UNRESOLVED' || carrierRes.status === 'CONFLICT';
+      return !carrierRes?.matchedId || carrierRes.relationshipStatus === 'RELATIONSHIP_CONFLICT';
     });
     if (hasUnresolvedCarrierRow) {
       alert('يوجد سجلات تشغيل نشطة بدون ناقل معتمد أو بحاجة لحسم. يجب حسم جميع صفوف الناقلين قبل المتابعة.');
@@ -1037,7 +1076,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const activeRows = importBatch.rows.filter((r) => r.status !== 'REJECTED');
     const hasUnresolvedMaterialRow = activeRows.some((r) => {
       const materialRes = r.entityResolutions?.material;
-      return !materialRes?.matchedId || materialRes.status === 'UNRESOLVED' || materialRes.status === 'CONFLICT';
+      return !materialRes?.matchedId || materialRes.relationshipStatus === 'RELATIONSHIP_CONFLICT';
     });
     if (hasUnresolvedMaterialRow) {
       alert('يوجد سجلات تشغيل نشطة بدون مادة معتمدة أو بحاجة لحسم. يجب حسم جميع صفوف المواد قبل المتابعة.');
@@ -1831,7 +1870,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         operationId: `OP-CARRIER-CREATE-${Date.now()}`
       });
 
-      const createdCarrier = snapshot.relationshipContext.carriers?.find((c: any) => c.carrierId === result.carrierId);
+      const createdCarrier = snapshot.relationshipContext.knownCarriers?.find((c) => c.carrierId === result.carrierId);
       const resolutionPayload = {
         matchedId: result.carrierId,
         matchedName: createdCarrier?.name || smartImportPendingCarrierGroup.sourceValue,
@@ -1972,10 +2011,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       });
 
       // 4. Construct resolution payload
-      const createdMaterial = snapshot.relationshipContext.materials?.find((m: any) => m.materialId === result.materialId);
+      const createdMaterial = snapshot.relationshipContext.knownMaterials?.find((m) => m.materialId === result.materialId);
       const resolutionPayload = {
         matchedId: result.materialId,
-        matchedName: createdMaterial?.nameAr || createdMaterial?.name || smartImportPendingMaterialGroup.sourceValue,
+        matchedName: createdMaterial?.name || smartImportPendingMaterialGroup.sourceValue,
         sourceValue: smartImportPendingMaterialGroup.sourceValue,
       };
 
@@ -2012,7 +2051,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!importBatch || !project) return;
     try {
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
-      if (!relContext || !relContext.knownEntities) {
+      if (!relContext || !relContext.knownCarriers) {
         alert('عفواً، تعذر تحميل سياق العلاقات المصرح به للمشروع');
         return;
       }
@@ -2047,7 +2086,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!importBatch || !project) return;
     try {
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
-      if (!relContext || !relContext.knownEntities) {
+      if (!relContext || !relContext.knownCarriers) {
         alert('عفواً، تعذر تحميل سياق العلاقات المصرح به للمشروع');
         return;
       }
@@ -2083,11 +2122,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
       if (
         !relContext ||
-        !relContext.knownEntities ||
-        !Array.isArray(relContext.knownEntities.carriers) ||
-        !Array.isArray(relContext.knownEntities.materials) ||
-        !Array.isArray(relContext.knownEntities.drivers) ||
-        !Array.isArray(relContext.knownEntities.trucks)
+        !Array.isArray(relContext.knownCarriers) ||
+        !Array.isArray(relContext.knownMaterials) ||
+        !Array.isArray(relContext.knownDrivers) ||
+        !Array.isArray(relContext.knownTrucks)
       ) {
         alert('عفواً، تعذر تحميل سياق العلاقات المصرح به للمشروع');
         return;
@@ -2682,7 +2720,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         onClick={() => {
                           setEditingProjectId(p.projectId);
                           onSelectProject?.(p.projectId);
-                          setActivePhase(1);
+                          setActiveSetupLayer('FOUNDATION');
+                          setNavigationError(null);
                         }}
                         className="px-3.5 py-1.5 bg-stone-800 hover:bg-stone-750 text-white font-bold text-[11px] rounded-lg border border-stone-700 flex items-center gap-1 transition-all"
                       >
@@ -2726,36 +2765,37 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               </div>
             )}
 
-            {/* Phase Selector Stack */}
+            {/* Layer Selector Stack */}
             <div className="space-y-1.5">
-              {[
-                { phase: 1, label: 'البيانات الأساسية والمواد', sub: 'Phase 1: Foundation', icon: Building2 },
-                { phase: 2, label: 'الناقلون وسجل التشغيل', sub: 'Phase 2: Roster & Carriers', icon: Truck },
-                { phase: 3, label: 'قواعد الأسعار والتعرفة', sub: 'Phase 3: Pricing Rules', icon: CircleDollarSign },
-                { phase: 4, label: 'إدارة وتصاريح المستخدمين', sub: 'Phase 4: Governance', icon: Users },
-                { phase: 5, label: 'مراجعة المتطلبات والتفعيل', sub: 'Phase 5: Activation', icon: ShieldCheck }
-              ].map((p) => {
-                const isActive = activePhase === p.phase;
-                const Icon = p.icon;
+              {PROJECT_SETUP_LAYERS.map((layer) => {
+                const isActive = activeSetupLayer === layer.id;
+                const Icon = LAYER_ICONS[layer.id];
                 return (
                   <button
-                    key={p.phase}
-                    onClick={() => setActivePhase(p.phase)}
+                    key={layer.id}
+                    onClick={() => attemptProjectSetupLayerNavigation(layer.id)}
                     className={`w-full p-3 rounded-xl text-right flex items-center gap-3 transition-all ${
                       isActive 
-                        ? 'bg-amber-600/10 border border-amber-500/20 text-white' 
+                        ? 'bg-amber-600/10 border border-amber-500/20 text-white font-bold' 
                         : 'hover:bg-stone-850 text-stone-400 border border-transparent'
                     }`}
                   >
                     <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-amber-500' : 'text-stone-500'}`} />
                     <div className="space-y-0.5">
-                      <span className="text-[11px] font-black block">{p.label}</span>
-                      <span className="text-[9px] text-stone-500 font-mono block">{p.sub}</span>
+                      <span className="text-[11px] font-black block">{layer.labelAr}</span>
+                      <span className="text-[9px] text-stone-500 font-mono block">Layer {layer.ordinal} • {layer.id}</span>
                     </div>
                   </button>
                 );
               })}
             </div>
+
+            {navigationError && (
+              <div className="p-3 bg-amber-950/40 border border-amber-800 rounded-xl text-amber-400 text-[10px] font-bold flex items-center gap-2 mt-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
+                <span>{navigationError}</span>
+              </div>
+            )}
           </div>
 
           {/* Staged Panel Content */}
@@ -2765,14 +2805,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               <div>
                 <h2 className="text-base font-black text-white flex items-center gap-2">
                   <span className="w-6 h-6 bg-amber-600/15 text-amber-500 text-xs font-mono font-black rounded-lg flex items-center justify-center">
-                    {activePhase}
+                    {PROJECT_SETUP_LAYERS.findIndex(l => l.id === activeSetupLayer) + 1}
                   </span>
                   <span>
-                    {activePhase === 1 && 'البيانات الأساسية وتكوين قوقل'}
-                    {activePhase === 2 && 'الناقلون المعتمدون وسجل التشغيل'}
-                    {activePhase === 3 && 'هيكل قواعد الأسعار والاتفاقيات المجدولة'}
-                    {activePhase === 4 && 'تصاريح وصلاحيات مستخدمي المشروع'}
-                    {activePhase === 5 && 'مراجعة الجاهزية واعتماد وتفعيل العمليات الميدانية'}
+                    {activeSetupLayer === 'FOUNDATION' && 'البيانات الأساسية وتكوين المشروع'}
+                    {activeSetupLayer === 'WORKSPACE' && 'مساحة العمل ومزامنة قوقل'}
+                    {activeSetupLayer === 'MATERIALS' && 'قائمة المواد المصرح بها'}
+                    {activeSetupLayer === 'CARRIERS' && 'الناقلون المعتمدون'}
+                    {activeSetupLayer === 'ROSTER' && 'سجل تشغيل السائقين والشاحنات'}
+                    {activeSetupLayer === 'PRICING' && 'هيكل قواعد الأسعار والاتفاقيات المجدولة'}
+                    {activeSetupLayer === 'ACCESS' && 'إدارة وتصاريح المستخدمين'}
+                    {activeSetupLayer === 'REVIEW_ACTIVATION' && 'مراجعة المتطلبات والتفعيل'}
                   </span>
                 </h2>
               </div>
@@ -2784,8 +2827,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 </span>
               )}
             </div>
-            {/* ================= PHASE 1: FOUNDATION & MATERIALS ================= */}
-            {activePhase === 1 && project && (
+            {/* ================= LAYER 1: FOUNDATION ================= */}
+            {activeSetupLayer === 'FOUNDATION' && project && (
               <div className="space-y-6 text-xs text-stone-300">
                 {/* Project details card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
@@ -2854,7 +2897,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
 
+            {/* ================= LAYER 2: WORKSPACE ================= */}
+            {activeSetupLayer === 'WORKSPACE' && project && (
+              <div className="space-y-6 text-xs text-stone-300">
                 {/* Google Workspace Setup card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
@@ -2897,7 +2945,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </button>
                   </div>
                 </div>
+              </div>
+            )}
 
+            {/* ================= LAYER 3: MATERIALS ================= */}
+            {activeSetupLayer === 'MATERIALS' && project && (
+              <div className="space-y-6 text-xs text-stone-300">
                 {/* Materials list management card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
@@ -3023,8 +3076,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               </div>
             )}
 
-            {/* ================= PHASE 2: CARRIERS & OPERATIONAL ROSTER ================= */}
-            {activePhase === 2 && project && (
+            {/* ================= LAYER 4: CARRIERS ================= */}
+            {activeSetupLayer === 'CARRIERS' && project && (
               <div className="space-y-6 text-xs text-stone-300">
                 {/* Carriers checklist */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
@@ -3160,7 +3213,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                   )}
                 </div>
+              </div>
+            )}
 
+            {/* ================= LAYER 5: OPERATIONAL ROSTER ================= */}
+            {activeSetupLayer === 'ROSTER' && project && (
+              <div className="space-y-6 text-xs text-stone-300">
                 {/* Unified Import Pipeline Roster section */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-stone-800 pb-2 gap-3">
@@ -3305,8 +3363,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               </div>
             )}
 
-            {/* ================= PHASE 3: PRICING & CONTRACTS ================= */}
-            {activePhase === 3 && project && (
+            {/* ================= LAYER 6: PRICING ================= */}
+            {activeSetupLayer === 'PRICING' && project && (
               <div className="space-y-6 text-xs text-stone-300">
                 {/* Overlap warnings alert */}
                 {pricingConflicts.length > 0 && (
@@ -3446,8 +3504,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               </div>
             )}
 
-            {/* ================= PHASE 4: ACCESS & GOVERNANCE ================= */}
-            {activePhase === 4 && project && (
+            {/* ================= LAYER 7: ACCESS ================= */}
+            {activeSetupLayer === 'ACCESS' && project && (
               <div className="space-y-6 text-xs text-stone-300">
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <h3 className="font-black text-white text-[13px] border-b border-stone-800 pb-2">إدارة وصلاحيات مستخدمي المشروع</h3>
@@ -3492,8 +3550,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               </div>
             )}
 
-            {/* ================= PHASE 5: REVIEW & ACTIVATE ================= */}
-            {activePhase === 5 && project && (
+            {/* ================= LAYER 8: REVIEW_ACTIVATION ================= */}
+            {activeSetupLayer === 'REVIEW_ACTIVATION' && project && (
               <div className="space-y-6 text-xs text-stone-300">
                 {/* 1. Canonical Server Operational Readiness Authority */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
