@@ -249,6 +249,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const { t, isRTL, locale } = useI18n();
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
 
+  // Unit 3A.2: Project Data Freshness, Race-Safe Loading & Authoritative Snapshot
+  const projectDataLoadGenerationRef = useRef(0);
+  const [isProjectDataLoading, setIsProjectDataLoading] = useState<boolean>(false);
+  const [projectDataLoadError, setProjectDataLoadError] = useState<string | null>(null);
+  const [loadedProjectId, setLoadedProjectId] = useState<string | null>(null);
+  const [localProjectOverride, setLocalProjectOverride] = useState<ProjectEntity | null>(null);
+
   // Active Project Sub-collection States
   const [activeSetupLayer, setActiveSetupLayer] = useState<ProjectSetupLayer>('FOUNDATION');
   const [navigationError, setNavigationError] = useState<string | null>(null);
@@ -288,6 +295,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   }, [selectedProjectId]);
 
   const attemptProjectSetupLayerNavigation = useCallback((targetLayer: ProjectSetupLayer) => {
+    // Unit 3A.2: Block data-dependent layers while project data is loading or project ID not yet loaded
+    if (editingProjectId && (isProjectDataLoading || loadedProjectId !== editingProjectId)) {
+      if (['ROSTER', 'PRICING', 'REVIEW_ACTIVATION'].includes(targetLayer)) {
+        setNavigationError('جاري تحميل بيانات المشروع المعتمدة، يرجى الانتظار...');
+        return;
+      }
+    }
+
     const context: NavigationGateContext = {
       projectId: editingProjectId,
       materialsCount: materials.length,
@@ -300,7 +315,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } else {
       setNavigationError(gate.reason || 'تعذر الانتقال إلى هذه الطبقة.');
     }
-  }, [editingProjectId, materials.length, carriers.length]);
+  }, [editingProjectId, isProjectDataLoading, loadedProjectId, materials.length, carriers.length]);
 
   
   // Dashboard view search & filtering
@@ -449,11 +464,24 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
   const [syncNotice, setSyncNotice] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  // Active project lookup helper
+  // Active project lookup helper with authoritative local override support
   const project = useMemo(() => {
     if (!editingProjectId) return null;
-    return globalProjects.find(p => p.projectId === editingProjectId) || null;
-  }, [globalProjects, editingProjectId]);
+    const fromGlobal = globalProjects.find(p => p.projectId === editingProjectId);
+    if (fromGlobal) {
+      if (localProjectOverride && localProjectOverride.projectId === editingProjectId) {
+        return {
+          ...fromGlobal,
+          ...localProjectOverride,
+        };
+      }
+      return fromGlobal;
+    }
+    if (localProjectOverride && localProjectOverride.projectId === editingProjectId) {
+      return localProjectOverride;
+    }
+    return null;
+  }, [globalProjects, editingProjectId, localProjectOverride]);
 
   // Core foundation setup lock for Active Projects (primary identifiers & metadata)
   const isCoreSetupLocked = useMemo(() => {
@@ -478,12 +506,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [foundationSaveSuccess, setFoundationSaveSuccess] = useState<string | null>(null);
   const [isSavingFoundation, setIsSavingFoundation] = useState<boolean>(false);
 
-  // Reset foundation edit state when selected project changes
+  // Reset foundation edit state and obsolete local override when selected project changes
   useEffect(() => {
     setIsEditingFoundation(false);
     setFoundationDraft(null);
     setFoundationSaveError(null);
     setFoundationSaveSuccess(null);
+    if (localProjectOverride && localProjectOverride.projectId !== editingProjectId) {
+      setLocalProjectOverride(null);
+    }
   }, [editingProjectId]);
 
   const isFoundationDirty = useMemo(() => {
@@ -551,6 +582,31 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       };
 
       await projectService.updateProject(project.projectId, updates, authContext);
+
+      // Fetch authoritative updated project immediately or merge locally to avoid waiting for subscription
+      let updatedProject: ProjectEntity | null = null;
+      try {
+        updatedProject = await projectService.getProject(project.projectId);
+      } catch (getErr) {
+        console.warn('Could not fetch updated project immediately, falling back to optimistic local merge', getErr);
+      }
+
+      if (!updatedProject) {
+        updatedProject = {
+          ...project,
+          ...updates,
+          location: {
+            ...project.location,
+            ...updates.location,
+          },
+          settings: {
+            ...project.settings,
+            ...updates.settings,
+          },
+        } as ProjectEntity;
+      }
+
+      setLocalProjectOverride(updatedProject);
       setIsEditingFoundation(false);
       setFoundationDraft(null);
       setFoundationSaveSuccess('تم حفظ تعديلات المشروع بنجاح');
@@ -569,6 +625,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
   const fetchServerReadiness = useCallback(async (targetProjectId: string) => {
+    const currentGen = projectDataLoadGenerationRef.current;
     setIsLoadingReadiness(true);
     setReadinessError(null);
     try {
@@ -578,19 +635,29 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           'Authorization': `Bearer ${token}`,
         },
       });
+      if (currentGen !== projectDataLoadGenerationRef.current || editingProjectId !== targetProjectId) {
+        return;
+      }
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || `خطأ في استعلام الجاهزية (${res.status})`);
       }
       const data: ServerReadinessDTO = await res.json();
+      if (currentGen !== projectDataLoadGenerationRef.current || editingProjectId !== targetProjectId) {
+        return;
+      }
       setServerReadiness(data);
     } catch (err: any) {
-      setReadinessError(err.message || 'خطأ في جلب تقرير الجاهزية التشغيلية من الخادم');
-      setServerReadiness(null);
+      if (currentGen === projectDataLoadGenerationRef.current && editingProjectId === targetProjectId) {
+        setReadinessError(err.message || 'خطأ في جلب تقرير الجاهزية التشغيلية من الخادم');
+        setServerReadiness(null);
+      }
     } finally {
-      setIsLoadingReadiness(false);
+      if (currentGen === projectDataLoadGenerationRef.current && editingProjectId === targetProjectId) {
+        setIsLoadingReadiness(false);
+      }
     }
-  }, []);
+  }, [editingProjectId]);
 
   useEffect(() => {
     if (editingProjectId) {
@@ -606,43 +673,152 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   }, [activeSetupLayer, editingProjectId, fetchServerReadiness]);
 
-  const applyCanonicalSnapshot = useCallback((snapshot: ProjectCanonicalRefreshSnapshot) => {
+  const applyCanonicalSnapshot = useCallback((
+    arg1: string | ProjectCanonicalRefreshSnapshot,
+    arg2?: ProjectCanonicalRefreshSnapshot,
+    generation?: number
+  ) => {
+    let targetProjectId: string | undefined;
+    let snapshot: ProjectCanonicalRefreshSnapshot;
+    if (typeof arg1 === 'string') {
+      targetProjectId = arg1;
+      snapshot = arg2!;
+    } else {
+      snapshot = arg1;
+    }
+
+    if (generation !== undefined && generation !== projectDataLoadGenerationRef.current) {
+      return;
+    }
+    if (targetProjectId && editingProjectId && targetProjectId !== editingProjectId) {
+      return;
+    }
+
     setMaterials(snapshot.materials || []);
     setCarriers(snapshot.carriers || []);
     setFleetRows(snapshot.fleetRows || []);
     if (snapshot.relationshipContext) {
       setProjectRelationshipContext(snapshot.relationshipContext);
     }
-  }, []);
+    if (targetProjectId || editingProjectId) {
+      setLoadedProjectId(targetProjectId || editingProjectId);
+    }
+  }, [editingProjectId]);
 
-  // Real-time Subscriptions to Active Project sub-collections
+  // Real-time Subscriptions & Authoritative Canonical Data Loading (depends only on editingProjectId)
   useEffect(() => {
     if (!editingProjectId) {
       setMaterials([]);
       setCarriers([]);
       setPricingRules([]);
       setFleetRows([]);
+      setProjectRelationshipContext(null);
+      setServerReadiness(null);
+      setReadinessError(null);
+      setDriverConvergenceError(null);
+      setTruckConvergenceError(null);
+      setCachedSuccessfulDriverResult(null);
+      setCachedSuccessfulTruckResult(null);
+      setSmartImportCommitResult(null);
+      setSmartImportCommitError(null);
+      setImportSessionId(null);
+      setImportSessionOperationId(null);
+      setImportSessionRecoveryError(null);
+      setImportBatch(null);
+      setIsRosterMappingApproved(false);
+      setRosterDiscoveryResult(null);
+      setRosterSelectedFile(null);
+      setRosterBuffer(null);
+      setIsSmartImportOpen(false);
+      setRosterImportStage('SOURCE_DISCOVERY');
+      setLoadedProjectId(null);
+      setIsProjectDataLoading(false);
+      setProjectDataLoadError(null);
       return;
     }
 
-    // Load canonical lists and fleet rows via canonical refresh barrier
+    // Increment generation token for the new project load
+    projectDataLoadGenerationRef.current += 1;
+    const currentGen = projectDataLoadGenerationRef.current;
+    const targetProjectId = editingProjectId;
+
+    // Immediately clear previous project-scoped state before loading target project
+    setMaterials([]);
+    setCarriers([]);
+    setFleetRows([]);
+    setPricingRules([]);
+    setProjectRelationshipContext(null);
+    setServerReadiness(null);
+    setReadinessError(null);
+    setDriverConvergenceError(null);
+    setTruckConvergenceError(null);
+    setCachedSuccessfulDriverResult(null);
+    setCachedSuccessfulTruckResult(null);
+    setSmartImportCommitResult(null);
+    setSmartImportCommitError(null);
+    setImportSessionId(null);
+    setImportSessionOperationId(null);
+    setImportSessionRecoveryError(null);
+    setImportBatch(null);
+    setIsRosterMappingApproved(false);
+    setRosterDiscoveryResult(null);
+    setRosterSelectedFile(null);
+    setRosterBuffer(null);
+    setIsSmartImportOpen(false);
+    setRosterImportStage('SOURCE_DISCOVERY');
+    setLoadedProjectId(null);
+    setIsProjectDataLoading(true);
+    setProjectDataLoadError(null);
+
+    // Fetch canonical lists and fleet rows via canonical refresh barrier
     const fetchCanonicalData = async () => {
       try {
-        const snapshot = await projectCanonicalRefreshService.refresh(editingProjectId);
-        applyCanonicalSnapshot(snapshot);
-      } catch (err) {
-        console.error('Failed to load canonical data', err);
+        const snapshot = await projectCanonicalRefreshService.refresh(targetProjectId);
+        if (currentGen !== projectDataLoadGenerationRef.current || editingProjectId !== targetProjectId) {
+          return;
+        }
+        applyCanonicalSnapshot(targetProjectId, snapshot, currentGen);
+        setLoadedProjectId(targetProjectId);
+        setIsProjectDataLoading(false);
+      } catch (err: any) {
+        if (currentGen === projectDataLoadGenerationRef.current && editingProjectId === targetProjectId) {
+          console.error('Failed to load canonical data', err);
+          setProjectDataLoadError(err?.message || 'فشل تحميل بيانات المشروع');
+          setIsProjectDataLoading(false);
+        }
       }
     };
     
     fetchCanonicalData();
+  }, [editingProjectId, applyCanonicalSnapshot]);
 
-    // Unit 3A.1: Restore Resumable Smart Import Session if available
+  // Unit 3A.2: Pricing Rules Subscription depends only on editingProjectId
+  useEffect(() => {
+    if (!editingProjectId) {
+      setPricingRules([]);
+      return;
+    }
+    const unsubP = pricingRuleRepository.subscribeByProject(editingProjectId, (list) => {
+      setPricingRules(list || []);
+    });
+    return () => {
+      unsubP();
+    };
+  }, [editingProjectId]);
+
+  // Unit 3A.1 / 3A.2: Restore Resumable Smart Import Session when entering ROSTER layer
+  useEffect(() => {
+    if (!editingProjectId || activeSetupLayer !== 'ROSTER') return;
+
     const restoreResumableSession = async () => {
-      if (!editingProjectId) return;
+      const targetProjectId = editingProjectId;
+      const currentGen = projectDataLoadGenerationRef.current;
       try {
         setIsRestoringImportSession(true);
-        const sessions = await importSessionClientService.listResumableSessions(editingProjectId);
+        const sessions = await importSessionClientService.listResumableSessions(targetProjectId);
+        if (currentGen !== projectDataLoadGenerationRef.current || editingProjectId !== targetProjectId) {
+          return;
+        }
         if (!sessions || sessions.length === 0) {
           setIsRestoringImportSession(false);
           return;
@@ -659,6 +835,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         if (candidate.importBatch && (!Array.isArray(candidate.importBatch.rows) || typeof candidate.importBatch.importBatchId !== 'string')) {
           setImportSessionRecoveryError('فشل استعادة جلسة الاستيراد: هيكل البيانات المحفوظ تالف أو غير متوافق.');
           setIsRestoringImportSession(false);
+          return;
+        }
+
+        if (currentGen !== projectDataLoadGenerationRef.current || editingProjectId !== targetProjectId) {
           return;
         }
 
@@ -706,21 +886,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       } catch (err: any) {
         console.warn('Failed to discover resumable import sessions:', err);
       } finally {
-        setIsRestoringImportSession(false);
+        if (currentGen === projectDataLoadGenerationRef.current && editingProjectId === targetProjectId) {
+          setIsRestoringImportSession(false);
+        }
       }
     };
 
-    if (activeSetupLayer === 'ROSTER') {
-      restoreResumableSession();
-    }
-
-    const unsubP = pricingRuleRepository.subscribeByProject(editingProjectId, (list) => {
-      setPricingRules(list || []);
-    });
-
-    return () => {
-      unsubP();
-    };
+    restoreResumableSession();
   }, [editingProjectId, activeSetupLayer]);
 
   // Calculate Completeness for projects in list
@@ -836,6 +1008,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       };
 
       const createdProject = await projectService.createProject(payload, authContext);
+      setLocalProjectOverride(createdProject);
       setIsCreatingNew(false);
       setEditingProjectId(createdProject.projectId);
       onSelectProject?.(createdProject.projectId);
@@ -3148,6 +3321,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 </span>
               )}
             </div>
+
+            {/* Lightweight loading state for project data */}
+            {isProjectDataLoading && activeSetupLayer !== 'FOUNDATION' && (
+              <div className="p-8 bg-stone-950/60 border border-stone-800 rounded-2xl flex flex-col items-center justify-center text-center space-y-3">
+                <RefreshCw className="w-6 h-6 text-amber-500 animate-spin" />
+                <span className="text-stone-400 font-bold text-xs">جاري تحميل بيانات المشروع المعتمدة...</span>
+              </div>
+            )}
+
             {/* ================= LAYER 1: FOUNDATION ================= */}
             {activeSetupLayer === 'FOUNDATION' && project && (
               <div className="space-y-6 text-xs text-stone-300">
@@ -4424,6 +4606,16 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   <RosterCommitResultLayer
                     importBatch={importBatch}
                     commitResult={smartImportCommitResult!}
+                    onClose={async () => {
+                      const persisted = await persistSmartImportCheckpoint({
+                        stage: 'FINAL_REVIEW',
+                        lifecycleState: 'FINAL_REVIEW',
+                      });
+                      if (!persisted) {
+                        return;
+                      }
+                      transitionToRosterStage('FINAL_REVIEW');
+                    }}
                     onFinish={async () => {
                       if (smartImportCommitResult?.success && (smartImportCommitResult.failedRows || 0) === 0) {
                         if (importSessionRecoveryError) {

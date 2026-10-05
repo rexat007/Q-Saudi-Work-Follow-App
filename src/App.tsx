@@ -111,25 +111,13 @@ export default function App() {
       }
     : undefined;
 
+  // Real-time Firestore project subscription (authoritative lifecycle based on user identity/role)
   useEffect(() => {
     setLoadingProjects(true);
-    // Real-time Firestore subscription
     const unsubscribe = projectRepository.subscribeToProjects(
       (list) => {
         setProjects(list || []);
         setLoadingProjects(false);
-        if (list && list.length > 0) {
-          setSelectedProjectId((prev) => {
-            // Guard: If we are intentionally on the WIZARD tab creating a new project, keep selectedProjectId empty
-            if (activeTab === 'WIZARD' && prev === '') {
-              return '';
-            }
-            const stillExists = list.some(p => p.projectId === prev);
-            return stillExists ? prev : list[0].projectId;
-          });
-        } else {
-          setSelectedProjectId('');
-        }
       },
       (err) => {
         console.error('Error in project subscription:', err);
@@ -137,7 +125,23 @@ export default function App() {
       }
     );
     return () => unsubscribe();
-  }, [user, activeTab]);
+  }, [user?.uid, effectiveRole]);
+
+  // Synchronize and reconcile selectedProjectId without restarting project subscription
+  useEffect(() => {
+    if (projects && projects.length > 0) {
+      setSelectedProjectId((prev) => {
+        // Guard: If we are intentionally on the WIZARD tab creating a new project, keep selectedProjectId empty
+        if (activeTab === 'WIZARD' && prev === '') {
+          return '';
+        }
+        const stillExists = projects.some(p => p.projectId === prev);
+        return stillExists ? prev : projects[0].projectId;
+      });
+    } else {
+      setSelectedProjectId('');
+    }
+  }, [projects, activeTab]);
 
   // Runtime referenced navigation labels to ensure 100% translation coverage
   const _navigationLabels = [

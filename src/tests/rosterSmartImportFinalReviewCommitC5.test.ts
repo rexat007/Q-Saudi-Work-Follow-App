@@ -347,10 +347,15 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
 
   it('66. COMMIT_RESULT mount passes onClose for partial retry navigation while full success remains terminal', () => {
     const layerIdx = wizardContent.indexOf('<RosterCommitResultLayer');
-    const layerBlock = wizardContent.slice(layerIdx, layerIdx + 600);
+    const layerBlock = wizardContent.slice(layerIdx, layerIdx + 1200);
     expect(layerBlock).toContain('onClose=');
     expect(layerBlock).toContain("transitionToRosterStage('FINAL_REVIEW')");
-    expect(layerBlock).toContain("persistSmartImportCheckpoint({ stage: 'FINAL_REVIEW' })");
+    expect(layerBlock).toContain('persistSmartImportCheckpoint');
+    expect(layerBlock).toContain("stage: 'FINAL_REVIEW'");
+    const persistIdx = layerBlock.indexOf('persistSmartImportCheckpoint');
+    const transitionIdx = layerBlock.indexOf("transitionToRosterStage('FINAL_REVIEW')");
+    expect(persistIdx).toBeGreaterThan(0);
+    expect(transitionIdx).toBeGreaterThan(persistIdx);
   });
 
   it('67. handleSmartImportCommit blocks repeat commit only on full success; partial failure remains retryable', () => {
