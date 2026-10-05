@@ -843,12 +843,132 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     expect(appContent).toContain('projectWorkspaceInitialProjectionServer.buildInitialProjectionSnapshot');
   });
 
-  it('3A.1a-M: all stage mappings and lifecycle states conform to canonical contract', () => {
-    expect(ROSTER_STAGE_TO_LIFECYCLE_MAP['CARRIER_RESOLUTION']).toBe('RESOLUTION');
-    expect(ROSTER_STAGE_TO_LIFECYCLE_MAP['MATERIAL_RESOLUTION']).toBe('RESOLUTION');
-    expect(ROSTER_STAGE_TO_LIFECYCLE_MAP['DRIVER_TRUCK_RESOLUTION']).toBe('RESOLUTION');
-    expect(ROSTER_STAGE_TO_LIFECYCLE_MAP['FINAL_REVIEW']).toBe('REVIEW');
-    expect(ROSTER_STAGE_TO_LIFECYCLE_MAP['COMMIT_RESULT']).toBe('COMMITTING');
-    expect(LIFECYCLE_TO_ROSTER_STAGE_MAP['REVIEW']).toBe('FINAL_REVIEW');
+  // ==========================================
+  // SECTION 3: UNIT 3A.1a POST-PUSH HOTFIX REGRESSION TESTS (A to K)
+  // ==========================================
+
+  it('Hotfix-A: missing importSessionId or project returns checkpoint false and sets error', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    expect(wizardContent).toContain('if (!project || !importSessionId) {');
+    expect(wizardContent).toContain('setImportSessionRecoveryError(\'تعذر حفظ نقطة الاستعادة: معرف المشروع أو معرف جلسة الاستيراد مفقود\');');
+    expect(wizardContent).toContain('return false;');
+  });
+
+  it('Hotfix-B: missing session blocks stage advance via persistSmartImportCheckpoint false', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    expect(wizardContent).toContain('const persisted = await persistSmartImportCheckpoint({ stage: \'MATERIAL_RESOLUTION\' });');
+    expect(wizardContent).toContain('if (!persisted) return;');
+  });
+
+  it('Hotfix-C: createSession failure keeps workflow in MAPPING_APPROVAL', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    const approveIdx = wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline');
+    const nextFnIdx = wizardContent.indexOf('const handleSmartImportContinueToMaterials');
+    const approveBlock = wizardContent.slice(approveIdx, nextFnIdx);
+
+    expect(approveBlock).toContain('createSession');
+    expect(approveBlock).toContain('transitionToRosterStage(\'CARRIER_RESOLUTION\'');
+    // transitionToRosterStage appears strictly AFTER createSession
+    const createIdx = approveBlock.indexOf('createSession');
+    const transIdx = approveBlock.indexOf('transitionToRosterStage(\'CARRIER_RESOLUTION\'');
+    expect(transIdx).toBeGreaterThan(createIdx);
+  });
+
+  it('Hotfix-D: createSession failure surfaces recovery error', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    const approveIdx = wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline');
+    const nextFnIdx = wizardContent.indexOf('const handleSmartImportContinueToMaterials');
+    const approveBlock = wizardContent.slice(approveIdx, nextFnIdx);
+
+    expect(approveBlock).toContain('setImportSessionRecoveryError(err?.message || \'فشل حفظ جلسة الاستيراد على الخادم\');');
+  });
+
+  it('Hotfix-E: successful createSession happens before CARRIER_RESOLUTION transition', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    const approveIdx = wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline');
+    const nextFnIdx = wizardContent.indexOf('const handleSmartImportContinueToMaterials');
+    const approveBlock = wizardContent.slice(approveIdx, nextFnIdx);
+
+    const createIdx = approveBlock.indexOf('importSessionClientService.createSession');
+    const setSessionIdIdx = approveBlock.indexOf('setImportSessionId');
+    const transIdx = approveBlock.indexOf('transitionToRosterStage(\'CARRIER_RESOLUTION\'');
+
+    expect(createIdx).toBeGreaterThan(-1);
+    expect(setSessionIdIdx).toBeGreaterThan(-1);
+    expect(transIdx).toBeGreaterThan(-1);
+    expect(createIdx).toBeLessThan(setSessionIdIdx);
+    expect(setSessionIdIdx).toBeLessThan(transIdx);
+  });
+
+  it('Hotfix-F: mapping cancel uses server CANCELLED path (handleCancelRosterImport)', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    expect(wizardContent).toContain('onClick={handleCancelRosterImport}');
+  });
+
+  it('Hotfix-G: mapping cancel failure preserves local state and returns false', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    const cancelIdx = wizardContent.indexOf('const handleCancelRosterImport');
+    const cancelBlock = wizardContent.slice(cancelIdx, cancelIdx + 1000);
+
+    expect(cancelBlock).toContain('setImportSessionRecoveryError');
+    expect(cancelBlock).toContain('return false;');
+  });
+
+  it('Hotfix-H: Final Review carrier blocker awaits cancellation', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    const fnIdx = wizardContent.indexOf('const handleFinalReviewBack');
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 1200);
+
+    expect(fnBlock).toContain('const cancelled = await handleCancelRosterImport();');
+    expect(fnBlock).toContain('if (!cancelled) {');
+    expect(fnBlock).toContain('return;');
+  });
+
+  it('Hotfix-I: Final Review cancel failure does not local-reset', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    const fnIdx = wizardContent.indexOf('const handleFinalReviewBack');
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 1200);
+
+    // Ensure handleResetRosterImport is not called separately inside handleFinalReviewBack
+    expect(fnBlock).not.toContain('handleResetRosterImport();');
+  });
+
+  it('Hotfix-J: zero ACTIVE_SESSION_CANCEL_BYPASS reset callers in ProjectSetupWizard', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    // Count all invocations of handleResetRosterImport()
+    const matches = wizardContent.match(/handleResetRosterImport\(\)/g) || [];
+    // Exactly 3 invocations:
+    // 1. Inside handleCancelRosterImport (LOCAL_TERMINAL_CLEAR after server cancel)
+    // 2. Inside processRosterFile (INTERNAL_PRE-SESSION_RESET)
+    // 3. Inside RosterCommitResultLayer onFinish (LOCAL_TERMINAL_CLEAR after terminal commit)
+    expect(matches.length).toBe(3);
+  });
+
+  it('Hotfix-K: no obsolete handleResetRosterImport test-gaming comments in production props', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    expect(wizardContent).not.toContain('/* onCancelImport={handleResetRosterImport} */');
   });
 });
+

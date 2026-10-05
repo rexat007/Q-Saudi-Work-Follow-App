@@ -1018,7 +1018,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     discoveryMetadata?: SafeDiscoveryMetadata | null;
     lifecycleState?: ImportSessionLifecycleState;
   }): Promise<boolean> => {
-    if (!project || !importSessionId) return true;
+    if (!project || !importSessionId) {
+      setImportSessionRecoveryError('تعذر حفظ نقطة الاستعادة: معرف المشروع أو معرف جلسة الاستيراد مفقود');
+      return false;
+    }
 
     try {
       const payload = buildSmartImportCheckpointPayload(params);
@@ -1319,7 +1322,35 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       );
 
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      // transitionToRosterStage('CARRIER_RESOLUTION')
+
+      // Unit 3A.1 / 3A.1a: Create Server Import Session at durable mapping point BEFORE stage advance
+      const discMeta = buildSafeDiscoveryMetadata(rosterDiscoveryResult, rosterSelectedFile.name, rosterSelectedFile.size);
+      const createdSessionRecord = await importSessionClientService.createSession(project.projectId, {
+        sourceType: discMeta?.fileName?.endsWith('.csv') ? 'CSV' : 'EXCEL',
+        currentStage: 'CARRIER_RESOLUTION',
+        rosterStage: 'CARRIER_RESOLUTION',
+        lifecycleState: 'RESOLUTION',
+        importBatchId: batch.importBatchId,
+        operationId: pipelineCtx.operationId,
+        importBatch: batch,
+        isRosterMappingApproved: true,
+        sourceMetadata: discMeta || undefined,
+        rosterDiscoveryResult: discMeta || undefined,
+      });
+
+      if (currentGen !== rosterImportSessionGenerationRef.current) return;
+
+      if (!createdSessionRecord || !createdSessionRecord.importSessionId) {
+        throw new Error('فشل إنشاء جلسة الاستيراد على الخادم: لم يتم استلام معرّف الجلسة');
+      }
+
+      setImportSessionId(createdSessionRecord.importSessionId);
+      const sVer = typeof createdSessionRecord.version === 'number' ? createdSessionRecord.version : 1;
+      setImportSessionVersion(sVer);
+      importSessionVersionRef.current = sVer;
+      setImportSessionOperationId(createdSessionRecord.operationId || pipelineCtx.operationId);
+      setImportSessionRecoveryError(null);
+
       setImportBatch(batch);
       setIsRosterMappingApproved(true);
       setIsSmartImportOpen(true);
@@ -1330,36 +1361,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         isMappingApproved: true,
         hasImportBatch: true,
       });
-
-      // Unit 3A.1: Create Server Import Session at first durable point
-      try {
-        const discMeta = buildSafeDiscoveryMetadata(rosterDiscoveryResult, rosterSelectedFile.name, rosterSelectedFile.size);
-        const createdSessionRecord = await importSessionClientService.createSession(project.projectId, {
-          sourceType: discMeta?.fileName?.endsWith('.csv') ? 'CSV' : 'EXCEL',
-          currentStage: 'CARRIER_RESOLUTION',
-          rosterStage: 'CARRIER_RESOLUTION',
-          lifecycleState: 'RESOLUTION',
-          importBatchId: batch.importBatchId,
-          operationId: pipelineCtx.operationId,
-          importBatch: batch,
-          isRosterMappingApproved: true,
-          sourceMetadata: discMeta || undefined,
-          rosterDiscoveryResult: discMeta || undefined,
-        });
-
-        if (createdSessionRecord) {
-          setImportSessionId(createdSessionRecord.importSessionId);
-          const sVer = typeof createdSessionRecord.version === 'number' ? createdSessionRecord.version : 1;
-          setImportSessionVersion(sVer);
-          importSessionVersionRef.current = sVer;
-          setImportSessionOperationId(createdSessionRecord.operationId || pipelineCtx.operationId);
-        }
-      } catch (sessErr: any) {
-        console.warn('Session creation warning:', sessErr.message);
-      }
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      setImportError(err?.message || 'خطأ أثناء تحليل ملف سجل التشغيل');
+      console.error('Mapping approval & session initialization error:', err);
+      setImportError(err?.message || 'خطأ أثناء تحليل ملف سجل التشغيل أو إنشاء جلسة الاستيراد');
+      setImportSessionRecoveryError(err?.message || 'فشل حفظ جلسة الاستيراد على الخادم');
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsImportingFile(false);
@@ -2048,8 +2054,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         'تغيّر أو تعذر اعتماد بيانات الناقل بعد المراجعة النهائية. لأن بيانات السائقين والشاحنات مرتبطة بالناقل، يجب إعادة تحليل جلسة الاستيراد. هل تريد المتابعة؟'
       );
       if (confirmed) {
-        handleCancelRosterImport();
-        handleResetRosterImport();
+        const cancelled = await handleCancelRosterImport();
+        if (!cancelled) {
+          return;
+        }
       }
       return;
     }
@@ -4304,7 +4312,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   <div className="flex justify-between items-center pt-2 border-t border-stone-800">
                     <button
                       type="button"
-                      onClick={handleResetRosterImport}
+                      onClick={handleCancelRosterImport}
                       className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-bold"
                     >
                       إلغاء وإعادة تعيين
@@ -4346,7 +4354,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       setIsSmartImportCarrierModalOpen(true);
                     }}
                     onContinueToMaterials={handleSmartImportContinueToMaterials}
-                    onCancelImport={handleCancelRosterImport} /* onCancelImport={handleResetRosterImport} */
+                    onCancelImport={handleCancelRosterImport}
                     isProcessing={isProcessing}
                     embeddedInWorkflowHost={true}
                   />
@@ -4366,7 +4374,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       setIsSmartImportMaterialModalOpen(true);
                     }}
                     onContinueToDriverTruck={handleSmartImportContinueToDriverTruck}
-                    onCancelImport={handleCancelRosterImport} /* onCancelImport={handleResetRosterImport} */
+                    onCancelImport={handleCancelRosterImport}
                     isProcessing={isProcessing}
                     embeddedInWorkflowHost={true}
                   />
@@ -4389,7 +4397,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     onRetryDriverConvergence={handleRetryDriverConvergence}
                     onRetryTruckConvergence={handleRetryTruckConvergence}
                     onContinueToFinalReview={handleSmartImportContinueToFinalReview}
-                    onCancelImport={handleCancelRosterImport} /* onCancelImport={handleResetRosterImport} */
+                    onCancelImport={handleCancelRosterImport}
                     isProcessing={isProcessing}
                     embeddedInWorkflowHost={true}
                   />
