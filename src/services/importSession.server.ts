@@ -15,8 +15,61 @@ const FORBIDDEN_KEYS = new Set([
   'file',
 ]);
 
+function isForbiddenRuntimeType(val: any): boolean {
+  if (val === null || val === undefined) return false;
+
+  // 1. ArrayBuffer & ArrayBufferView (TypedArrays: Uint8Array, Int32Array, Float64Array, DataView, etc.)
+  if (typeof ArrayBuffer !== 'undefined' && val instanceof ArrayBuffer) return true;
+  if (typeof ArrayBuffer !== 'undefined' && typeof ArrayBuffer.isView === 'function' && ArrayBuffer.isView(val)) return true;
+
+  // 2. Node.js Buffer
+  if (typeof Buffer !== 'undefined' && typeof Buffer.isBuffer === 'function' && Buffer.isBuffer(val)) return true;
+
+  // 3. File & Blob (browser or Node runtime globals)
+  if (typeof File !== 'undefined' && val instanceof File) return true;
+  if (typeof Blob !== 'undefined' && val instanceof Blob) return true;
+
+  // 4. Fallback prototype tag / constructor name inspection (for mocked or cross-realm objects)
+  if (typeof val === 'object') {
+    const protoTag = Object.prototype.toString.call(val);
+    if (
+      protoTag === '[object File]' ||
+      protoTag === '[object Blob]' ||
+      protoTag === '[object ArrayBuffer]' ||
+      protoTag === '[object Uint8Array]' ||
+      protoTag === '[object Int8Array]' ||
+      protoTag === '[object Uint8ClampedArray]' ||
+      protoTag === '[object Int16Array]' ||
+      protoTag === '[object Uint16Array]' ||
+      protoTag === '[object Int32Array]' ||
+      protoTag === '[object Uint32Array]' ||
+      protoTag === '[object Float32Array]' ||
+      protoTag === '[object Float64Array]' ||
+      protoTag === '[object BigInt64Array]' ||
+      protoTag === '[object BigUint64Array]' ||
+      protoTag === '[object DataView]'
+    ) {
+      return true;
+    }
+
+    const ctorName = val.constructor?.name;
+    if (
+      ctorName === 'File' ||
+      ctorName === 'Blob' ||
+      ctorName === 'ArrayBuffer' ||
+      ctorName === 'Buffer'
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function hasForbiddenFields(obj: any, visited = new WeakSet()): boolean {
-  if (!obj || typeof obj !== 'object') return false;
+  if (obj === null || obj === undefined) return false;
+  if (isForbiddenRuntimeType(obj)) return true;
+  if (typeof obj !== 'object') return false;
   if (visited.has(obj)) return false;
   visited.add(obj);
 
@@ -33,8 +86,11 @@ function hasForbiddenFields(obj: any, visited = new WeakSet()): boolean {
       return true;
     }
     const val = obj[key];
-    if (val && typeof val === 'object') {
-      if (hasForbiddenFields(val, visited)) return true;
+    if (val !== undefined && val !== null) {
+      if (isForbiddenRuntimeType(val)) return true;
+      if (typeof val === 'object') {
+        if (hasForbiddenFields(val, visited)) return true;
+      }
     }
   }
 

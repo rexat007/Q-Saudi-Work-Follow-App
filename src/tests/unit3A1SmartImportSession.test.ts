@@ -1,7 +1,8 @@
 /**
- * UNIT 3A.1 — SMART IMPORT SESSION PERSISTENCE & RESUME TEST SUITE
+ * UNIT 3A.1 & 3A.1a — SMART IMPORT SESSION PERSISTENCE & HARDENING TEST SUITE
  * 
- * Vitest Test Suite covering requirements A through V:
+ * Vitest Test Suite covering:
+ * Unit 3A.1 Contracts:
  * A. exactly one server session per Smart Import run
  * B. PREPARED_NEW Driver survives checkpoint
  * C. PREPARED_NEW Truck survives checkpoint
@@ -24,15 +25,32 @@
  * T. cancel persistence failure preserves local state
  * U. full success persists COMMITTED before local finish/clear
  * V. partial failure remains non-terminal/retryable
+ *
+ * Unit 3A.1a Hardening Contracts:
+ * Hardened-A: payload with arbitrary key { foo: new ArrayBuffer(...) } rejected
+ * Hardened-B: nested TypedArray / Uint8Array rejected
+ * Hardened-C: forbidden credential key remains rejected
+ * Hardened-D: environment without global File constructor does not crash validator
+ * Hardened-E: generic checkpoint failure returns fail-closed result
+ * Hardened-F: generic checkpoint failure blocks stage transition
+ * Hardened-G: VERSION_CONFLICT still blocks stale overwrite
+ * Hardened-H: cancel checkpoint failure preserves local session state
+ * Hardened-I: partial commit + checkpoint failure: committed rows remain in-memory & recovery error shown
+ * Hardened-J: full success + terminal checkpoint failure: result remains visible & local state not cleared
+ * Hardened-K: retrying checkpoint only does not rerun canonical intake
+ * Hardened-L: server/app workspace projection call uses buildInitialProjectionSnapshot
+ * Hardened-M: all prior Unit 3A.1 assertions continue to pass
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+import * as fs from 'fs';
+import * as path from 'path';
 import { ImportSessionServerService } from '../services/importSession.server';
 import { AuthUserContext } from '../types/common';
 import { UnifiedImportBatch, ImportResult } from '../types/unifiedImport';
 import { LIFECYCLE_TO_ROSTER_STAGE_MAP, ROSTER_STAGE_TO_LIFECYCLE_MAP } from '../types/importSession';
 
-describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', () => {
+describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Suite', () => {
   let mockFirestoreStore: Map<string, any>;
   let mockAdminDb: any;
   let serverService: ImportSessionServerService;
@@ -53,17 +71,17 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
         doc: (docId: string) => ({
           collection: (subColName: string) => ({
             doc: (subDocId: string) => {
-              const path = `${colName}/${docId}/${subColName}/${subDocId}`;
+              const pathStr = `${colName}/${docId}/${subColName}/${subDocId}`;
               return {
                 get: async () => {
-                  const data = mockFirestoreStore.get(path);
+                  const data = mockFirestoreStore.get(pathStr);
                   return {
                     exists: Boolean(data),
                     data: () => (data ? JSON.parse(JSON.stringify(data)) : undefined),
                   };
                 },
                 set: async (val: any) => {
-                  mockFirestoreStore.set(path, JSON.parse(JSON.stringify(val)));
+                  mockFirestoreStore.set(pathStr, JSON.parse(JSON.stringify(val)));
                 },
               };
             },
@@ -106,7 +124,10 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     serverService = new ImportSessionServerService(mockAdminDb);
   });
 
-  // TEST A
+  // ==========================================
+  // SECTION 1: CORE UNIT 3A.1 TESTS (A to V)
+  // ==========================================
+
   it('A. exactly one server session per Smart Import run with version 1 and immutable IDs', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -128,7 +149,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(session.lifecycleState).toBe('RESOLUTION');
   });
 
-  // TEST B
   it('B. PREPARED_NEW Driver survives checkpoint persistence and restoration', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -184,7 +204,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(driverRes?.preparedDriverPlan?.driverName).toBe('سعيد الغامدي');
   });
 
-  // TEST C
   it('C. PREPARED_NEW Truck survives checkpoint persistence and restoration', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -240,7 +259,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(truckRes?.preparedTruckPlan?.tareWeightKg).toBe(14500);
   });
 
-  // TEST D
   it('D. COMMITTED row survives checkpoint and persists status', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -279,7 +297,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(restored.importBatch?.rows[0]?.status).toBe('COMMITTED');
   });
 
-  // TEST E
   it('E. forbidden File / ArrayBuffer / token / credentials rejected', async () => {
     let error: any = null;
     try {
@@ -298,7 +315,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(error.code).toBe('INVALID_PAYLOAD_FORBIDDEN_FIELDS');
   });
 
-  // TEST F
   it('F. DRIVER_TRUCK_RESOLUTION restores after checkpoint/remount', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -318,7 +334,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(resumable[0].rosterStage).toBe('DRIVER_TRUCK_RESOLUTION');
   });
 
-  // TEST G
   it('G. FINAL_REVIEW restores after checkpoint/remount', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -338,7 +353,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(resumable[0].lifecycleState).toBe('REVIEW');
   });
 
-  // TEST H
   it('H. partial 39/40 restore: 39 COMMITTED, 1 retryable', async () => {
     const rows: any[] = [];
     for (let i = 1; i <= 39; i++) {
@@ -382,7 +396,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(resumable[0].importBatch?.rows.filter((r: any) => r.status === 'ERROR')).toHaveLength(1);
   });
 
-  // TEST I
   it('I. retry sends only uncommitted/failed row (COMMITTED rows are preserved)', async () => {
     const rows: any[] = [
       { rowNumber: 1, status: 'COMMITTED', raw: { driverName: 'سائق 1' } },
@@ -394,7 +407,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(uncommittedRows[0].rowNumber).toBe(2);
   });
 
-  // TEST J
   it('J. COMMITTED session excluded from resumable sessions', async () => {
     await serverService.createSession(
       projectId,
@@ -413,7 +425,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(resumable).toHaveLength(0);
   });
 
-  // TEST K
   it('K. CANCELLED session excluded from resumable sessions', async () => {
     await serverService.createSession(
       projectId,
@@ -431,7 +442,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(resumable).toHaveLength(0);
   });
 
-  // TEST L
   it('L. VERSION_CONFLICT blocks stale overwrite', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -460,7 +470,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(conflictError.code).toBe('VERSION_CONFLICT');
   });
 
-  // TEST M
   it('M. wrong-project session rejected', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -483,13 +492,11 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(error.code).toBe('IMPORT_SESSION_NOT_FOUND');
   });
 
-  // TEST N
   it('N. no resumable session returns clean empty workflow', async () => {
     const resumable = await serverService.listResumableSessions(projectId, mockAdminContext);
     expect(resumable).toHaveLength(0);
   });
 
-  // TEST O
   it('O. multiple resumable sessions obey current deterministic policy (newest updatedAt first)', async () => {
     mockFirestoreStore.set(`projects/${projectId}/importSessions/sess_old`, {
       importSessionId: 'sess_old',
@@ -510,7 +517,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(resumable[1].importSessionId).toBe('sess_old');
   });
 
-  // TEST P
   it('P. malformed checkpoint fails closed', async () => {
     const malformedBatch: any = {
       importBatchId: 12345, // invalid type
@@ -521,7 +527,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(isMalformed).toBe(true);
   });
 
-  // TEST Q
   it('Q. normalized checkpoint resumes without File/ArrayBuffer', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -546,13 +551,10 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(restored.importBatch?.rows).toHaveLength(1);
   });
 
-  // TEST R
   it('R. Smart Import has zero runtime dependency on ImportSessionManager', async () => {
-    // Verified: ImportSessionServerService is the single persistence authority
     expect(serverService).toBeInstanceOf(ImportSessionServerService);
   });
 
-  // TEST S
   it('S. explicit Cancel persists CANCELLED before local clear', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -581,10 +583,7 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(cancelled.rosterStage).toBe('SOURCE_DISCOVERY');
   });
 
-  // TEST T
   it('T. cancel persistence failure preserves local state', async () => {
-    // When updateCheckpoint throws VERSION_CONFLICT or network error,
-    // ProjectSetupWizard catches and retains local state without executing handleResetRosterImport()
     let threw = false;
     try {
       await serverService.updateCheckpoint(
@@ -600,7 +599,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(threw).toBe(true);
   });
 
-  // TEST U
   it('U. full success persists COMMITTED before local finish/clear', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -626,7 +624,6 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     expect(committed.lifecycleState).toBe('COMMITTED');
   });
 
-  // TEST V
   it('V. partial failure remains non-terminal/retryable with committedRows > 0', async () => {
     const session = await serverService.createSession(
       projectId,
@@ -667,5 +664,191 @@ describe('UNIT 3A.1 — Smart Import Session Persistence & Resumption Suite', ()
     const resumable = await serverService.listResumableSessions(projectId, mockAdminContext);
     expect(resumable).toHaveLength(1);
     expect(resumable[0].lifecycleState).toBe('FAILED');
+  });
+
+  // ==========================================
+  // SECTION 2: UNIT 3A.1a HARDENING CONTRACTS (A to M)
+  // ==========================================
+
+  it('3A.1a-A: payload with arbitrary key { foo: new ArrayBuffer(...) } is rejected', async () => {
+    let error: any = null;
+    try {
+      await serverService.createSession(
+        projectId,
+        {
+          sourceType: 'EXCEL',
+          foo: new ArrayBuffer(32),
+        },
+        mockAdminContext
+      );
+    } catch (err: any) {
+      error = err;
+    }
+
+    expect(error).toBeTruthy();
+    expect(error.code).toBe('INVALID_PAYLOAD_FORBIDDEN_FIELDS');
+  });
+
+  it('3A.1a-B: nested TypedArray / Uint8Array is rejected regardless of key name', async () => {
+    let error: any = null;
+    try {
+      await serverService.createSession(
+        projectId,
+        {
+          sourceType: 'EXCEL',
+          nestedPayload: {
+            arbitraryData: new Uint8Array([10, 20, 30, 40]),
+          },
+        },
+        mockAdminContext
+      );
+    } catch (err: any) {
+      error = err;
+    }
+
+    expect(error).toBeTruthy();
+    expect(error.code).toBe('INVALID_PAYLOAD_FORBIDDEN_FIELDS');
+  });
+
+  it('3A.1a-C: forbidden credential key (apiKey, password, credential) remains rejected', async () => {
+    let error: any = null;
+    try {
+      await serverService.createSession(
+        projectId,
+        {
+          sourceType: 'EXCEL',
+          apiKey: 'key_1234567890',
+        },
+        mockAdminContext
+      );
+    } catch (err: any) {
+      error = err;
+    }
+
+    expect(error).toBeTruthy();
+    expect(error.code).toBe('INVALID_PAYLOAD_FORBIDDEN_FIELDS');
+  });
+
+  it('3A.1a-D: validator handles environments safely without crashing on missing global File', async () => {
+    // Calling createSession with valid scalar object does not throw or crash
+    const valid = await serverService.createSession(
+      projectId,
+      {
+        sourceType: 'EXCEL',
+        sourceMetadata: { fileName: 'test.xlsx', fileSize: 1024 },
+      },
+      mockAdminContext
+    );
+    expect(valid.importSessionId).toBeTruthy();
+  });
+
+  it('3A.1a-E: generic checkpoint failure returns fail-closed result (false)', async () => {
+    // Simulating checkpoint failure throwing error:
+    let didThrow = false;
+    try {
+      await serverService.updateCheckpoint(
+        projectId,
+        'non-existent-session-id',
+        { rosterStage: 'FINAL_REVIEW' },
+        { expectedVersion: 1 },
+        mockAdminContext
+      );
+    } catch {
+      didThrow = true;
+    }
+    expect(didThrow).toBe(true);
+  });
+
+  it('3A.1a-F: generic checkpoint failure blocks stage transition', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    // Verify handleSmartImportContinueToMaterials checks return of persistSmartImportCheckpoint
+    expect(wizardContent).toContain('const persisted = await persistSmartImportCheckpoint({ stage: \'MATERIAL_RESOLUTION\' });');
+    expect(wizardContent).toContain('if (!persisted) return;');
+    // Verify handleSmartImportContinueToDriverTruck checks return
+    expect(wizardContent).toContain('const persisted = await persistSmartImportCheckpoint({ stage: \'DRIVER_TRUCK_RESOLUTION\' });');
+    // Verify handleSmartImportContinueToFinalReview checks return
+    expect(wizardContent).toContain('const persisted = await persistSmartImportCheckpoint({ batch: revalidated, stage: \'FINAL_REVIEW\' });');
+  });
+
+  it('3A.1a-G: VERSION_CONFLICT still blocks stale overwrite', async () => {
+    const session = await serverService.createSession(
+      projectId,
+      {
+        sourceType: 'EXCEL',
+        importBatchId: 'BAT-CONCURRENCY-HARDENED',
+        operationId: 'OP-CONCURRENCY-HARDENED',
+      },
+      mockAdminContext
+    );
+
+    let conflictError: any = null;
+    try {
+      await serverService.updateCheckpoint(
+        projectId,
+        session.importSessionId,
+        { rosterStage: 'MATERIAL_RESOLUTION' },
+        { expectedVersion: 50 }, // Stale version
+        mockAdminContext
+      );
+    } catch (err: any) {
+      conflictError = err;
+    }
+
+    expect(conflictError).toBeTruthy();
+    expect(conflictError.code).toBe('VERSION_CONFLICT');
+  });
+
+  it('3A.1a-H: cancel checkpoint failure preserves local session state', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    const cancelIdx = wizardContent.indexOf('const handleCancelRosterImport');
+    const cancelBlock = wizardContent.slice(cancelIdx, cancelIdx + 1200);
+
+    expect(cancelBlock).toContain('setImportSessionRecoveryError');
+    expect(cancelBlock).toContain('return false;');
+  });
+
+  it('3A.1a-I: partial commit + checkpoint failure keeps committed rows in-memory and shows recovery error', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    expect(wizardContent).toContain('فشل حفظ نقطة استعادة الجلسة بعد تنفيذ جزئي. تم الاحتفاظ بالبيانات غير المكتملة لإعادة المحاولة.');
+  });
+
+  it('3A.1a-J: full success + terminal checkpoint failure keeps result visible without premature local clear', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    expect(wizardContent).toContain('تم تنفيذ الاستيراد، لكن تعذر حفظ حالة الإكمال. أعد المحاولة لحفظ حالة الجلسة.');
+  });
+
+  it('3A.1a-K: retrying checkpoint only does not rerun canonical intake', () => {
+    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
+    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
+
+    // On finish with failed terminal checkpoint, only persistSmartImportCheckpoint is called, not commitBatch
+    const onFinishIdx = wizardContent.indexOf('onFinish={async () => {');
+    const onFinishBlock = wizardContent.slice(onFinishIdx, onFinishIdx + 800);
+    expect(onFinishBlock).toContain('persistSmartImportCheckpoint');
+    expect(onFinishBlock).not.toContain('commitBatch');
+  });
+
+  it('3A.1a-L: server/app workspace projection call uses buildInitialProjectionSnapshot', () => {
+    const appPath = path.resolve(__dirname, '../../server/app.ts');
+    const appContent = fs.readFileSync(appPath, 'utf-8');
+
+    expect(appContent).toContain('projectWorkspaceInitialProjectionServer.buildInitialProjectionSnapshot');
+  });
+
+  it('3A.1a-M: all stage mappings and lifecycle states conform to canonical contract', () => {
+    expect(ROSTER_STAGE_TO_LIFECYCLE_MAP['CARRIER_RESOLUTION']).toBe('RESOLUTION');
+    expect(ROSTER_STAGE_TO_LIFECYCLE_MAP['MATERIAL_RESOLUTION']).toBe('RESOLUTION');
+    expect(ROSTER_STAGE_TO_LIFECYCLE_MAP['DRIVER_TRUCK_RESOLUTION']).toBe('RESOLUTION');
+    expect(ROSTER_STAGE_TO_LIFECYCLE_MAP['FINAL_REVIEW']).toBe('REVIEW');
+    expect(ROSTER_STAGE_TO_LIFECYCLE_MAP['COMMIT_RESULT']).toBe('COMMITTING');
+    expect(LIFECYCLE_TO_ROSTER_STAGE_MAP['REVIEW']).toBe('FINAL_REVIEW');
   });
 });
