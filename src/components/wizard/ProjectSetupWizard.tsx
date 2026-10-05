@@ -454,6 +454,102 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     return isProjectOperationallyMutable(project?.status);
   }, [project]);
 
+  // Unit 2 — Foundation Edit / Save / Cancel Boundary State
+  const [isEditingFoundation, setIsEditingFoundation] = useState<boolean>(false);
+  const [foundationDraft, setFoundationDraft] = useState<{
+    nameAr: string;
+    clientName: string;
+    addressAr: string;
+    zatcaTaxNumber: string;
+    startDate: string;
+  } | null>(null);
+  const [foundationSaveError, setFoundationSaveError] = useState<string | null>(null);
+  const [foundationSaveSuccess, setFoundationSaveSuccess] = useState<string | null>(null);
+  const [isSavingFoundation, setIsSavingFoundation] = useState<boolean>(false);
+
+  // Reset foundation edit state when selected project changes
+  useEffect(() => {
+    setIsEditingFoundation(false);
+    setFoundationDraft(null);
+    setFoundationSaveError(null);
+    setFoundationSaveSuccess(null);
+  }, [editingProjectId]);
+
+  const isFoundationDirty = useMemo(() => {
+    if (!isEditingFoundation || !foundationDraft || !project) return false;
+    return (
+      foundationDraft.nameAr !== (project.nameAr || '') ||
+      foundationDraft.clientName !== (project.clientName || '') ||
+      foundationDraft.addressAr !== (project.location?.addressAr || '') ||
+      foundationDraft.zatcaTaxNumber !== (project.settings?.zatcaTaxNumber || '') ||
+      foundationDraft.startDate !== (project.startDate || '')
+    );
+  }, [isEditingFoundation, foundationDraft, project]);
+
+  const handleEnterFoundationEdit = useCallback(() => {
+    if (isCoreSetupLocked || !project) return;
+    setFoundationDraft({
+      nameAr: project.nameAr || '',
+      clientName: project.clientName || '',
+      addressAr: project.location?.addressAr || '',
+      zatcaTaxNumber: project.settings?.zatcaTaxNumber || '',
+      startDate: project.startDate || '',
+    });
+    setIsEditingFoundation(true);
+    setFoundationSaveError(null);
+    setFoundationSaveSuccess(null);
+  }, [isCoreSetupLocked, project]);
+
+  const handleCancelFoundationEdit = useCallback(() => {
+    setIsEditingFoundation(false);
+    setFoundationDraft(null);
+    setFoundationSaveError(null);
+  }, []);
+
+  const handleSaveFoundation = useCallback(async () => {
+    if (!project || !foundationDraft || !isFoundationDirty || isSavingFoundation) return;
+
+    if (!foundationDraft.nameAr.trim() || foundationDraft.nameAr.trim().length < 3) {
+      setFoundationSaveError('اسم المشروع بالعربية يجب ألا يقل عن 3 أحرف');
+      return;
+    }
+    if (foundationDraft.zatcaTaxNumber && !/^[0-9]{15}$/.test(foundationDraft.zatcaTaxNumber)) {
+      setFoundationSaveError('الرقم الضريبي لهيئة الزكاة والضريبة والجمارك (ZATCA) يجب أن يتكون من 15 رقمًا');
+      return;
+    }
+
+    setIsSavingFoundation(true);
+    setFoundationSaveError(null);
+    setFoundationSaveSuccess(null);
+
+    try {
+      const updates: Partial<ProjectEntity> = {
+        nameAr: foundationDraft.nameAr.trim(),
+        clientName: foundationDraft.clientName.trim(),
+        location: {
+          lat: project.location?.lat || 24.7136,
+          lng: project.location?.lng || 46.6753,
+          geoFenceRadiusMeters: project.location?.geoFenceRadiusMeters || 1000,
+          addressAr: foundationDraft.addressAr.trim(),
+        },
+        settings: {
+          ...project.settings,
+          zatcaTaxNumber: foundationDraft.zatcaTaxNumber.trim(),
+        },
+        startDate: foundationDraft.startDate || undefined,
+      };
+
+      await projectService.updateProject(project.projectId, updates, authContext);
+      setIsEditingFoundation(false);
+      setFoundationDraft(null);
+      setFoundationSaveSuccess('تم حفظ تعديلات المشروع بنجاح');
+    } catch (err: any) {
+      setFoundationSaveError(err.message || 'فشلت عملية حفظ التعديلات');
+    } finally {
+      setIsSavingFoundation(false);
+    }
+  }, [project, foundationDraft, isFoundationDirty, isSavingFoundation, authContext]);
+
   // Canonical Server Readiness States (Phase 5)
   const [serverReadiness, setServerReadiness] = useState<ServerReadinessDTO | null>(null);
   const [isLoadingReadiness, setIsLoadingReadiness] = useState<boolean>(false);
@@ -2832,26 +2928,84 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               <div className="space-y-6 text-xs text-stone-300">
                 {/* Project details card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
-                  <h3 className="font-black text-white text-[13px] border-b border-stone-800 pb-2">تفاصيل المشروع</h3>
+                  <div className="flex justify-between items-center border-b border-stone-800 pb-2">
+                    <h3 className="font-black text-white text-[13px]">تفاصيل المشروع</h3>
+                    {!isCoreSetupLocked && (
+                      <div>
+                        {!isEditingFoundation ? (
+                          <button
+                            type="button"
+                            onClick={handleEnterFoundationEdit}
+                            className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>تعديل البيانات</span>
+                          </button>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={handleSaveFoundation}
+                              disabled={!isFoundationDirty || isSavingFoundation}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
+                            >
+                              {isSavingFoundation ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                              <span>حفظ التعديلات</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleCancelFoundationEdit}
+                              disabled={isSavingFoundation}
+                              className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              <span>إلغاء</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {foundationSaveSuccess && (
+                    <div className="p-3 bg-emerald-950/40 border border-emerald-800 text-emerald-300 rounded-xl flex items-center gap-2 text-xs">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>{foundationSaveSuccess}</span>
+                    </div>
+                  )}
+
+                  {foundationSaveError && (
+                    <div className="p-3 bg-rose-950/40 border border-rose-800 text-rose-300 rounded-xl flex items-center gap-2 text-xs">
+                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                      <span>{foundationSaveError}</span>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-stone-500 font-bold block">اسم المشروع</label>
                       <input 
-                        type="text" value={project.nameAr} disabled={isCoreSetupLocked}
-                        onChange={async (e) => {
-                          await projectService.updateProject(project.projectId, { nameAr: e.target.value }, authContext);
+                        type="text" 
+                        value={isEditingFoundation ? (foundationDraft?.nameAr ?? '') : (project.nameAr || '')} 
+                        disabled={!isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFoundationDraft(prev => prev ? ({ ...prev, nameAr: val }) : null);
                         }}
-                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden"
+                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden disabled:opacity-60"
                       />
                     </div>
                     <div className="space-y-1">
                       <label className="text-stone-500 font-bold block">العميل المستفيد</label>
                       <input 
-                        type="text" value={project.clientName} disabled={isCoreSetupLocked}
-                        onChange={async (e) => {
-                          await projectService.updateProject(project.projectId, { clientName: e.target.value }, authContext);
+                        type="text" 
+                        value={isEditingFoundation ? (foundationDraft?.clientName ?? '') : (project.clientName || '')} 
+                        disabled={!isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFoundationDraft(prev => prev ? ({ ...prev, clientName: val }) : null);
                         }}
-                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden"
+                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden disabled:opacity-60"
                       />
                     </div>
                   </div>
@@ -2859,40 +3013,41 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <div className="space-y-1">
                       <label className="text-stone-500 font-bold block">الموقع الميداني</label>
                       <input 
-                        type="text" value={project.location?.addressAr || ''} disabled={isCoreSetupLocked}
-                        onChange={async (e) => {
-                          await projectService.updateProject(project.projectId, {
-                            location: {
-                              lat: project.location?.lat || 24.7136,
-                              lng: project.location?.lng || 46.6753,
-                              geoFenceRadiusMeters: project.location?.geoFenceRadiusMeters || 1000,
-                              addressAr: e.target.value
-                            }
-                          }, authContext);
+                        type="text" 
+                        value={isEditingFoundation ? (foundationDraft?.addressAr ?? '') : (project.location?.addressAr || '')} 
+                        disabled={!isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFoundationDraft(prev => prev ? ({ ...prev, addressAr: val }) : null);
                         }}
-                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden"
+                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden disabled:opacity-60"
                       />
                     </div>
                     <div className="space-y-1">
                       <label className="text-stone-500 font-bold block">الرقم الضريبي ZATCA</label>
                       <input 
-                        type="text" maxLength={15} value={project.settings?.zatcaTaxNumber || ''} disabled={isCoreSetupLocked}
-                        onChange={async (e) => {
-                          await projectService.updateProject(project.projectId, {
-                            settings: { ...project.settings, zatcaTaxNumber: e.target.value.replace(/\D/g, '') }
-                          }, authContext);
+                        type="text" 
+                        maxLength={15} 
+                        value={isEditingFoundation ? (foundationDraft?.zatcaTaxNumber ?? '') : (project.settings?.zatcaTaxNumber || '')} 
+                        disabled={!isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '');
+                          setFoundationDraft(prev => prev ? ({ ...prev, zatcaTaxNumber: val }) : null);
                         }}
-                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden font-mono"
+                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden font-mono disabled:opacity-60"
                       />
                     </div>
                     <div className="space-y-1">
                       <label className="text-stone-500 font-bold block">تاريخ البدء التشغيلي</label>
                       <input 
-                        type="date" value={project.startDate || ''} disabled={isCoreSetupLocked}
-                        onChange={async (e) => {
-                          await projectService.updateProject(project.projectId, { startDate: e.target.value }, authContext);
+                        type="date" 
+                        value={isEditingFoundation ? (foundationDraft?.startDate ?? '') : (project.startDate || '')} 
+                        disabled={!isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFoundationDraft(prev => prev ? ({ ...prev, startDate: val }) : null);
                         }}
-                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden font-mono"
+                        className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden font-mono disabled:opacity-60"
                       />
                     </div>
                   </div>

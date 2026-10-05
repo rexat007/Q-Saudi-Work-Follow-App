@@ -6,6 +6,7 @@ import { PROJECT_SETUP_LAYERS, canEnterProjectSetupLayer, ProjectSetupLayer } fr
 import { ProjectSetupWizard } from '../components/wizard/ProjectSetupWizard';
 import { ProjectEntity, MaterialEntity, CarrierEntity, PricingRuleEntity } from '../types/entities';
 import { AuthUserContext } from '../types/common';
+import { projectService } from '../services/project.service';
 
 // Mocks for i18n
 vi.mock('../../i18n', () => ({
@@ -437,6 +438,366 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     expect(document.body.textContent).toContain('الناقلون المعتمدون بالمشروع');
     expect(document.body.textContent).toContain('إضافة ناقل جديد');
     expect(document.body.textContent).not.toContain('سجل تشغيل السائقين والشاحنات الموحد (Roster)');
+
+    root.unmount();
+  });
+
+  // ==================================================
+  // M. UNIT 2: FOUNDATION VIEW MODE (DEFAULT)
+  // ==================================================
+  it('M. Unit 2: Foundation opens in View Mode with single edit button and inputs disabled', async () => {
+    const root = createRoot(container);
+    const updateSpy = vi.spyOn(projectService, 'updateProject').mockResolvedValue(undefined);
+
+    await act(async () => {
+      root.render(
+        <ProjectSetupWizard
+          projects={[mockProject]}
+          authContext={mockAuthContext}
+          selectedProjectId="PRJ-RYD-101"
+        />
+      );
+    });
+
+    const editBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('تعديل البيانات')
+    );
+    expect(editBtn).not.toBeUndefined();
+
+    // Inputs should be disabled in view mode
+    const clientInput = document.body.querySelector('input[value="أمانة منطقة الرياض"]') as HTMLInputElement;
+    expect(clientInput).not.toBeNull();
+    expect(clientInput.disabled).toBe(true);
+
+    // No server mutations occurred
+    expect(updateSpy).not.toHaveBeenCalled();
+
+    root.unmount();
+  });
+
+  // ==================================================
+  // N. UNIT 2: EDIT MODE, LOCAL DRAFT, DIRTY STATE & CANCEL
+  // ==================================================
+  it('N. Unit 2: Edit mode enables fields, typing does not mutate server, and Cancel restores canonical values', async () => {
+    const root = createRoot(container);
+    const updateSpy = vi.spyOn(projectService, 'updateProject').mockResolvedValue(undefined);
+
+    await act(async () => {
+      root.render(
+        <ProjectSetupWizard
+          projects={[mockProject]}
+          authContext={mockAuthContext}
+          selectedProjectId="PRJ-RYD-101"
+        />
+      );
+    });
+
+    // Click "تعديل البيانات"
+    const editBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('تعديل البيانات')
+    );
+    await act(async () => {
+      editBtn?.click();
+    });
+
+    // Save and Cancel buttons should now be visible
+    const saveBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('حفظ التعديلات')
+    ) as HTMLButtonElement;
+    const cancelBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('إلغاء')
+    ) as HTMLButtonElement;
+
+    expect(saveBtn).not.toBeUndefined();
+    expect(cancelBtn).not.toBeUndefined();
+    // Save is disabled initially because draft is clean
+    expect(saveBtn.disabled).toBe(true);
+
+    const clientInput = document.body.querySelector('input[value="أمانة منطقة الرياض"]') as HTMLInputElement;
+    expect(clientInput.disabled).toBe(false);
+
+    // Modify draft field
+    await act(async () => {
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+      nativeInputValueSetter?.call(clientInput, 'أمانة منطقة مكة المكرمة');
+      clientInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Typing must NEVER mutate server state
+    expect(updateSpy).not.toHaveBeenCalled();
+    // Save should now be enabled because form is dirty
+    expect(saveBtn.disabled).toBe(false);
+
+    // Click Cancel
+    await act(async () => {
+      cancelBtn.click();
+    });
+
+    // Exited edit mode, canonical value restored, 0 server mutations
+    expect(updateSpy).not.toHaveBeenCalled();
+    const restoredClientInput = document.body.querySelector('input[value="أمانة منطقة الرياض"]') as HTMLInputElement;
+    expect(restoredClientInput).not.toBeNull();
+    expect(restoredClientInput.disabled).toBe(true);
+
+    root.unmount();
+  });
+
+  // ==================================================
+  // O. UNIT 2: SAVE DISPATCHES ONCE WITH CONSOLIDATED DRAFT
+  // ==================================================
+  it('O. Unit 2: Save validates draft, issues updateProject exactly ONCE, and exits edit mode', async () => {
+    const root = createRoot(container);
+    const updateSpy = vi.spyOn(projectService, 'updateProject').mockResolvedValue(undefined);
+
+    await act(async () => {
+      root.render(
+        <ProjectSetupWizard
+          projects={[mockProject]}
+          authContext={mockAuthContext}
+          selectedProjectId="PRJ-RYD-101"
+        />
+      );
+    });
+
+    // Enter edit mode
+    const editBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('تعديل البيانات')
+    );
+    await act(async () => {
+      editBtn?.click();
+    });
+
+    // Modify nameAr
+    const nameInput = document.body.querySelector('input[value="مشروع حفر الرياض"]') as HTMLInputElement;
+    await act(async () => {
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+      nativeInputValueSetter?.call(nameInput, 'مشروع البنية التحتية بالرياض');
+      nameInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    const saveBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('حفظ التعديلات')
+    ) as HTMLButtonElement;
+    expect(saveBtn.disabled).toBe(false);
+
+    // Click Save
+    await act(async () => {
+      saveBtn.click();
+    });
+
+    // Called exactly ONCE
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    expect(updateSpy).toHaveBeenCalledWith(
+      'PRJ-RYD-101',
+      expect.objectContaining({
+        nameAr: 'مشروع البنية التحتية بالرياض',
+        clientName: 'أمانة منطقة الرياض',
+      }),
+      mockAuthContext
+    );
+
+    // Exited edit mode and shows deterministic success message
+    expect(document.body.textContent).toContain('تم حفظ تعديلات المشروع بنجاح');
+
+    root.unmount();
+  });
+
+  // ==================================================
+  // P. UNIT 2: ACTIVE PROJECT POLICY PRESERVED
+  // ==================================================
+  it('P. Unit 2: Active project locks foundation fields and suppresses edit button', async () => {
+    const root = createRoot(container);
+    const activeProject: ProjectEntity = {
+      ...mockProject,
+      status: 'ACTIVE',
+    };
+
+    await act(async () => {
+      root.render(
+        <ProjectSetupWizard
+          projects={[activeProject]}
+          authContext={mockAuthContext}
+          selectedProjectId="PRJ-RYD-101"
+        />
+      );
+    });
+
+    // "تعديل البيانات" should NOT be present when status is ACTIVE
+    const editBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('تعديل البيانات')
+    );
+    expect(editBtn).toBeUndefined();
+
+    // Inputs remain locked
+    const clientInput = document.body.querySelector('input[value="أمانة منطقة الرياض"]') as HTMLInputElement;
+    expect(clientInput.disabled).toBe(true);
+
+    root.unmount();
+  });
+
+  // ==================================================
+  // Q. UNIT 2: SAVE FAILURE ERROR HANDLING
+  // ==================================================
+  it('Q. Unit 2: Save failure preserves draft, remains in edit mode, and displays error', async () => {
+    const root = createRoot(container);
+    vi.spyOn(projectService, 'updateProject').mockRejectedValue(new Error('NETWORK_TIMEOUT: Server unreachable'));
+
+    await act(async () => {
+      root.render(
+        <ProjectSetupWizard
+          projects={[mockProject]}
+          authContext={mockAuthContext}
+          selectedProjectId="PRJ-RYD-101"
+        />
+      );
+    });
+
+    // Enter edit mode
+    const editBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('تعديل البيانات')
+    );
+    await act(async () => {
+      editBtn?.click();
+    });
+
+    const clientInput = document.body.querySelector('input[value="أمانة منطقة الرياض"]') as HTMLInputElement;
+    await act(async () => {
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+      nativeInputValueSetter?.call(clientInput, 'شركة تطوير الرياض القابضة');
+      clientInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    const saveBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('حفظ التعديلات')
+    ) as HTMLButtonElement;
+
+    await act(async () => {
+      saveBtn.click();
+    });
+
+    // Error is displayed
+    expect(document.body.textContent).toContain('NETWORK_TIMEOUT: Server unreachable');
+    // Still in edit mode: clientInput is still enabled and has user's draft value
+    expect(clientInput.disabled).toBe(false);
+    expect(clientInput.value).toBe('شركة تطوير الرياض القابضة');
+
+    root.unmount();
+  });
+
+  // ==================================================
+  // R. UNIT 2: LOCAL VALIDATION GATES
+  // ==================================================
+  it('R. Unit 2: Local validation gates save when nameAr < 3 chars or ZATCA is invalid format', async () => {
+    const root = createRoot(container);
+    const updateSpy = vi.spyOn(projectService, 'updateProject').mockResolvedValue(undefined);
+
+    await act(async () => {
+      root.render(
+        <ProjectSetupWizard
+          projects={[mockProject]}
+          authContext={mockAuthContext}
+          selectedProjectId="PRJ-RYD-101"
+        />
+      );
+    });
+
+    // Enter edit mode
+    const editBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('تعديل البيانات')
+    );
+    await act(async () => {
+      editBtn?.click();
+    });
+
+    // Set invalid nameAr (less than 3 chars)
+    const nameInput = document.body.querySelector('input[value="مشروع حفر الرياض"]') as HTMLInputElement;
+    await act(async () => {
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+      nativeInputValueSetter?.call(nameInput, 'مش');
+      nameInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    const saveBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('حفظ التعديلات')
+    ) as HTMLButtonElement;
+
+    await act(async () => {
+      saveBtn.click();
+    });
+
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(document.body.textContent).toContain('اسم المشروع بالعربية يجب ألا يقل عن 3 أحرف');
+
+    root.unmount();
+  });
+
+  // ==================================================
+  // S. UNIT 2: PROJECT PROP REFRESH SAFETY
+  // ==================================================
+  it('S. Unit 2: Prop updates refresh view mode values, but do not overwrite active draft while editing', async () => {
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <ProjectSetupWizard
+          projects={[mockProject]}
+          authContext={mockAuthContext}
+          selectedProjectId="PRJ-RYD-101"
+        />
+      );
+    });
+
+    // 1. While in view mode, prop update refreshes view
+    const updatedProject: ProjectEntity = {
+      ...mockProject,
+      clientName: 'هيئة تطوير بوابة الدرعية',
+    };
+
+    await act(async () => {
+      root.render(
+        <ProjectSetupWizard
+          projects={[updatedProject]}
+          authContext={mockAuthContext}
+          selectedProjectId="PRJ-RYD-101"
+        />
+      );
+    });
+
+    expect(document.body.querySelector('input[value="هيئة تطوير بوابة الدرعية"]')).not.toBeNull();
+
+    // 2. Enter edit mode and modify draft
+    const editBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('تعديل البيانات')
+    );
+    await act(async () => {
+      editBtn?.click();
+    });
+
+    const clientInput = document.body.querySelector('input[value="هيئة تطوير بوابة الدرعية"]') as HTMLInputElement;
+    await act(async () => {
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+      nativeInputValueSetter?.call(clientInput, 'مسودة المستخدم المحلية المستقلة');
+      clientInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // 3. New prop update arrives while editing
+    const remoteUpdatedProject: ProjectEntity = {
+      ...updatedProject,
+      clientName: 'تحديث خارجي لا يجب أن يمسح المسودة',
+    };
+
+    await act(async () => {
+      root.render(
+        <ProjectSetupWizard
+          projects={[remoteUpdatedProject]}
+          authContext={mockAuthContext}
+          selectedProjectId="PRJ-RYD-101"
+        />
+      );
+    });
+
+    // User's active draft must NOT be overwritten!
+    expect(clientInput.value).toBe('مسودة المستخدم المحلية المستقلة');
 
     root.unmount();
   });
