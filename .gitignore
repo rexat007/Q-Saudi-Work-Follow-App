@@ -7,3 +7,10 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Alternate non-canonical lockfiles (NPM is the canonical toolchain)
+bun.lock
+bun.lockb
+yarn.lock
+pnpm-lock.yaml
+
