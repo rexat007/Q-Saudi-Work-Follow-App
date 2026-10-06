@@ -10,6 +10,7 @@
 - **CD-07**: `docs/reconstruction/` established as the repository-installed documentation authority.
 - **CD-08**: P0-U1 governance baseline and semantic convergence (P0-U1R) were independently verified against GitHub commit `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de`, and P0-U1 is CLOSED.
 - **CD-09**: NPM established as canonical package manager with `package-lock.json` as canonical lockfile, restricting Node to `>=22 <23` and NPM to `>=10 <11`. All alternate lockfiles ignored.
+- **CD-10**: P0-U2 Canonical Toolchain & Dependency Reproducibility was independently verified against commit `715345bba8688fa706fce1bac7add78a9c5e8a28`. Canonical contract: `npm@10.9.8`, Node `>=22 <23`, npm `>=10 <11`, `package-lock.json` canonical, alternate package-manager lockfiles prohibited. P0-U2 is CLOSED.
 
 ---
 

@@ -1,14 +1,14 @@
 # ACTIVE PHASE LEDGER
 
-## Current Active Reconstruction State
+### Current Active Reconstruction State
 
 ```yaml
 ACTIVE_PHASE: PHASE_0
-ACTIVE_UNIT: P0-U2
+ACTIVE_UNIT: P0-U3
 PHASE_0_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
-P0_U2_BASELINE: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
-NEXT_UNIT: P0-U2_CANONICAL_TOOLCHAIN_AND_DEPENDENCY_REPRODUCIBILITY
+P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
+NEXT_UNIT: P0-U3_TEST_TAXONOMY_AND_HARNESS_CONVERGENCE
 ```
 
 ---
@@ -20,10 +20,11 @@ NEXT_UNIT: P0-U2_CANONICAL_TOOLCHAIN_AND_DEPENDENCY_REPRODUCIBILITY
 | **P0-A0** | Studio Artifact Bootstrap | **CLOSED** | `118cdc1730d0a08848463da915a0315c2ac542f2` |
 | **P0-U1** | Governance & Evidence Baseline | **CLOSED** | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **↳ P0-U1R** | Governance Semantic Convergence | **VERIFIED / CLOSED** | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
-| **P0-U2** | Canonical Toolchain & Dependency Reproducibility | **IMPLEMENTING** | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
-| **↳ P0-U2A** | Canonical Toolchain & Dependency Audit | **AUDIT_COMPLETE** | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
-| **↳ P0-U2B** | Canonical Toolchain & Dependency Implementation | **READY_FOR_PUSH** | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
-| **P0-U3** | Test Taxonomy & Harness Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **P0-U2** | Canonical Toolchain & Dependency Reproducibility | **CLOSED** | `715345bba8688fa706fce1bac7add78a9c5e8a28` |
+| **↳ P0-U2A** | Canonical Toolchain & Dependency Audit | **AUDIT_COMPLETE / CLOSED** | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **↳ P0-U2B** | Canonical Toolchain & Dependency Implementation | **VERIFIED / CLOSED** | `715345bba8688fa706fce1bac7add78a9c5e8a28` |
+| **↳ P0-U2C** | Post-Push Toolchain Contract Completion & Closure | **CLOSURE_RECORD** | `715345bba8688fa706fce1bac7add78a9c5e8a28` |
+| **P0-U3** | Test Taxonomy & Harness Convergence | **READY_TO_START** | `715345bba8688fa706fce1bac7add78a9c5e8a28` |
 | **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
