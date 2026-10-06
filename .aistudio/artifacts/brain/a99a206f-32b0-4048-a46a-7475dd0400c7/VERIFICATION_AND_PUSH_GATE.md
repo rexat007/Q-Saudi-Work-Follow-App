@@ -1,49 +1,22 @@
 # VERIFICATION AND PUSH GATE
 
-## Verification Tiers
+## Verification Taxonomy & Distinct Evidence Classes
 
-To ensure complete production quality and prevent regressions, all code changes must pass through distinct verification tiers:
+To prevent conflation of verification results, the Q-Saudi reconstruction program enforces strict distinctions between evidence classes:
 
-### 1. STATIC
-- Source-text contract checks
-- Regex/ast component structure assertions
-- Mandatory interface constraint checks
-
-### 2. UNIT
-- Isolated Vitest unit tests for domain services, helpers, and pure utilities
-- Fast execution (< 1s per suite)
-
-### 3. INTEGRATION_MOCK
-- Component render tests using React Testing Library
-- Mocked server REST responses and mock Firestore adapters
-
-### 4. EMULATOR
-- Local Firebase Firestore and Auth emulator test runs
-- Real security rules enforcement and compound query evaluation
-
-### 5. LIVE_E2E
-- Full end-to-end user journey tests across client and Express server
-- Multi-step workflow validation (e.g. Project Setup -> Roster Import -> Dispatch -> Invoice)
-
-### 6. MANUAL_UI
-- Visual RTL Arabic layout review
-- Touch-target responsiveness on mobile viewports
-- Accessibility and contrast verification
-
-### 7. TYPECHECK
-- TypeScript compilation check: `./node_modules/.bin/tsc --noEmit --pretty false`
-- Zero changed-scope TypeScript errors required
-
-### 8. BUILD
-- Production bundle generation: `npm run build`
-- Vite frontend build + Esbuild server bundle (`dist/` and `server-dist/server.cjs`)
-- Must complete with exit code 0
-
-### 9. GITHUB_POST_PUSH
-- Independent verification that pushed GitHub commit matches verified local state
-- Workspace clean check
+| Evidence Class | Description & Purpose | Non-Proof Boundaries |
+|---|---|---|
+| **STATIC** | Source-text inspection, AST checks, pattern matching | Does NOT prove runtime execution or database behavior. |
+| **UNIT** | Isolated Vitest suite for pure domain logic and utilities | Does NOT prove Firebase connection or REST endpoint routing. |
+| **INTEGRATION_MOCK** | React Testing Library component tests with mocked services | Does NOT prove backend server authority or real persistence. |
+| **EMULATOR** | Local Firebase Firestore and Auth emulator test runs | Does NOT prove live network conditions or third-party OAuth. |
+| **LIVE_E2E** | End-to-end multi-step workflow execution across server and UI | Does NOT replace static type safety or unit contract checks. |
+| **MANUAL_UI** | Browser layout inspection, RTL Arabic alignment, mobile touch test | Does NOT prove edge-case contract safety or database rules. |
+| **TYPECHECK** | `./node_modules/.bin/tsc --noEmit --pretty false` | Does NOT prove business logic correctness or runtime behavior. |
+| **BUILD** | Production bundle compilation (`npm run build`) | Does NOT prove runtime API correctness or user flow success. |
+| **GITHUB_POST_PUSH** | Independent audit of pushed GitHub commit against local state | Does NOT replace pre-push automated verification. |
 
 ---
 
-## Mandatory Invariant
-> **CRITICAL RULE**: Passing automated unit tests and build alone NEVER automatically closes a phase or unit. A unit is CLOSED only after executing the complete 11-step Implementation Unit Protocol, completing scope review, obtaining explicit user approval, pushing to GitHub, and completing independent post-push verification.
+## Binding Verification Rule
+> **CRITICAL RULE**: Passing automated unit tests and build scripts alone NEVER automatically closes a phase or unit. A unit is marked CLOSED only after completing the 11-step Implementation Unit Protocol, completing scope review, receiving explicit user approval, performing push, and completing independent post-push GitHub verification.

@@ -1,5 +1,5 @@
 {
-  "summary":  "Decision & Technical Debt Ledger tracking architectural decisions, open items, blocking debt, and deferred items.",
-  "updatedAt":  "2026-10-06T04:49:16.051404588Z",
+  "summary":  "Reconciled Decision and Technical Debt Ledger recording CLOSED_DECISIONS, OPEN_DECISIONS, BLOCKING_DEBT, DEFERRED_DEBT (with Smart Import session-restore debt deferred to Phase 8: Smart Import Persistence, Resume & Commit Integrity), and RETIREMENT_CANDIDATES.",
+  "updatedAt":  "2026-10-06T05:40:14.676647559Z",
   "userFacing":  true
 }

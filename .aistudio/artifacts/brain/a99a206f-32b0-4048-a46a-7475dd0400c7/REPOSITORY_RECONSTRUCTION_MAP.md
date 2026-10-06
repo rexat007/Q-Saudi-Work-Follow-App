@@ -2,7 +2,7 @@
 
 ## High-Level Repository Classifications
 
-This map governs how code modules, services, components, and tests are categorized and handled throughout the Q-Saudi reconstruction program.
+This map governs how code modules, services, components, and tests are categorized and handled throughout the Q-Saudi reconstruction program (Phase 0 through Phase 18).
 
 ---
 
@@ -27,7 +27,7 @@ This map governs how code modules, services, components, and tests are categoriz
 
 ### CONVERGE
 - **Test Runners**: Unify standalone TSX scripts into standard Vitest suites.
-- **Documentation Authority**: Consolidate planning and architecture docs into Google AI Studio Artifacts.
+- **Documentation Authority**: Consolidate planning and architecture docs into Google AI Studio Artifacts and `docs/reconstruction/`.
 - **Duplicated Business Authority**: Eliminate duplicate business logic across client and server.
 - **Project/Entity Relationship Contracts**: Standardize primary key / foreign key lookup interfaces.
 
@@ -46,4 +46,4 @@ This map governs how code modules, services, components, and tests are categoriz
 ---
 
 ### DEFER
-- Technical debt not required by the active phase (e.g. `DD-01` Smart Import session-restore contract deferred to Phase 8, `DD-02` Vite chunk splitting deferred to Phase 15).
+- Technical debt not required by the active phase (e.g. `DD-01` Smart Import session-restore contract deferred to Phase 8: Smart Import Persistence, Resume & Commit Integrity; `DD-02` Vite chunk splitting deferred to Phase 15: Responsive / Cross-Device Product System).

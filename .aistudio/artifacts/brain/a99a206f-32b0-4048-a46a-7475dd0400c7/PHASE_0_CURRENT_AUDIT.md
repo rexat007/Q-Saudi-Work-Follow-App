@@ -1,20 +1,30 @@
 # PHASE 0 CURRENT AUDIT
 
-## Verified Engineering Baseline Summary
+## Baseline Audit & Engineering Reality Report (2026-10-06)
 
-### 1. Runtime Stack
-- **Frontend**: React 18 SPA built with Vite 6, Tailwind CSS v4 (`@import "tailwindcss";`), Lucide React icons, PWA Service Worker (`vite-plugin-pwa`).
-- **Backend Server**: Express server in `server.ts` / `server/app.ts`, running via `tsx` in dev and bundled to `server-dist/server.cjs` via Esbuild for production execution (`"start": "node server.ts"`).
-- **Persistence**: Firebase Firestore and Firebase Auth (via `firebase-admin` on server, `firebase/app` on client).
+### Executive Audit Summary
+This audit documents the verified engineering baseline of the Q-Saudi Work Follow repository at the start of Phase 0 (`CURRENT_GITHUB_BASELINE = 4c0f409786307932da1108ac50b602752d40af04`).
 
-### 2. Testing & Verification Infrastructure
-- **Test Runner**: Vitest (`v5.0.3`) as primary test runner.
-- **Standalone Test Scripts**: Legacy standalone TSX test scripts (e.g. `npx tsx src/tests/projectWorkflowNavigation86E.test.ts`).
-- **Test Categories**: Source-text static inspection tests, unit tests, integration component tests.
+---
 
-### 3. Identified Gaps & Technical Reality
-- **TypeScript Strictness**: `tsconfig.json` currently has `"strict": false` or relaxed type checks, leading to pre-existing test mock type errors outside changed scopes.
-- **Dependency Lockfile Baseline**: Dependency lockfile state needs formal convergence across environment tools.
-- **GitHub CI Baseline**: GitHub Actions CI workflow requires formal integration to enforce automated gates on every pull request.
-- **Root Historical Repair Scripts**: Ad-hoc root diagnostic and repair scripts exist from historical development blocks.
-- **Documentation Authority**: `RELEASE.md` is historical evidence, not current release truth. Reconstruction artifacts serve as the single source of truth.
+### Verified Runtime & Tech Stack
+1. **Frontend**: React 19 (`react` `^19.0.1`, `react-dom` `^19.0.1` in `package.json`), Vite 6, Tailwind CSS v4, Lucide React, PWA Service Worker (`vite-plugin-pwa`).
+2. **Backend**: Express server (`server.ts` & `server/app.ts`) mounted via Vite middleware in dev (`"dev": "tsx server.ts"`) and bundled via Esbuild to `server-dist/server.cjs` for production (`"start": "node server-dist/server.cjs"`).
+3. **Persistence**: Firebase Firestore & Firebase Auth (`firebase-admin` on backend, client SDK on frontend).
+
+---
+
+### Test Environment Reality
+- **Primary Test Runner**: Vitest (`vitest` `^5.0.1` devDependency in `package.json`).
+- **Standalone Test Runners**: Historical standalone TSX runner scripts executed via `npx tsx` (e.g. `npx tsx src/tests/projectWorkflowNavigation86E.test.ts`).
+- **Source-Text Static Tests**: A significant portion of tests inspect source text (`fs.readFileSync`) rather than executing behavioral contracts. These are classified as `STATIC` inspection tests.
+
+---
+
+### Technical Debt & Baseline Gaps
+- **TypeScript Strictness**: Strict mode is not explicitly enabled in current `tsconfig.json`.
+- **Dependency Lockfiles**: `bun.lock` exists in workspace directory, but no canonical lockfile is currently tracked in repo git history.
+- **GitHub CI**: CI workflows require formal integration.
+- **Ad-Hoc Root Scripts**: Historical repair and migration scripts exist in the root directory and require classification before retirement.
+- **Documentation Authority**: `RELEASE.md` is historical evidence only. `docs/reconstruction/` is established as the current documentation authority.
+- **Smart Import Restore Debt**: Smart Import session restore edge case remains known and is deferred to Phase 8 (Smart Import Persistence, Resume & Commit Integrity) (`DD-01`).

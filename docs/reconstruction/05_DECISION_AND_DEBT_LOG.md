@@ -1,7 +1,7 @@
 # DECISION AND TECHNICAL DEBT LOG
 
 ## CLOSED_DECISIONS
-- **CD-01**: Express server mounted as Vite middleware in dev (`"dev": "tsx server.ts"`), bundled to `server-dist/server.cjs` via Esbuild for production (`"start": "node server.ts"`).
+- **CD-01**: Express server mounted as Vite middleware in dev (`"dev": "tsx server.ts"`), bundled to `server-dist/server.cjs` via Esbuild for production (`"start": "node server-dist/server.cjs"`).
 - **CD-02**: Firestore is the primary canonical persistent database for projects, rosters, dispatch trips, and outbox state.
 - **CD-03**: 8-Layer Project Setup Workflow model is the accepted architectural standard for project onboarding and readiness evaluation.
 - **CD-04**: React SPA on Vite with Tailwind CSS and RTL Arabic as the primary UX interface.

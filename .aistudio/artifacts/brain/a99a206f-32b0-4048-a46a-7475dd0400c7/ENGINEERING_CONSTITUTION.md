@@ -1,37 +1,40 @@
-# Q-SAUDI ENGINEERING CONSTITUTION
+# ENGINEERING CONSTITUTION
 
-## Core Engineering Directives
+## Binding Engineering Directives
 
-### 1. GitHub Main Is Code Truth
-The GitHub `main` branch commit history is the sole authoritative code truth. Local unpushed edits carry zero governance weight until verified, approved, and pushed.
+### 1. Code & Environment Truth
+- **GitHub Main Authority**: The remote GitHub `main` branch is the sole source of code truth.
+- **Runtime Evidence for Runtime Behavior**: Runtime evidence from live network and browser execution proves runtime behavior; static code inspection proves static text structure.
+- **Environment Disambiguation**: When `.git` is unavailable inside Google AI Studio, the Google AI Studio GitHub Sync UI provides the authoritative unpushed-file scope evidence.
+- **Manual Push Execution**: The user performs git push manually; independent post-push GitHub verification follows.
 
-### 2. Runtime Evidence Hierarchy
-Verification must strictly respect the runtime evidence hierarchy:
-`Automated Tests > Static Typechecks > Code Inspection > Manual UI Assertion`.
+### 2. Architectural Integrity & Authority
+- **Server Authority**: The backend (Node/Express/Firebase Admin) is the sole business authority for state transitions, pricing calculations, waybill creation, and persistent reconciliation.
+- **Multi-Tenant Project Isolation**: Every data model, storage collection, outbox entry, and API route must enforce strict `projectId` scoping. Zero cross-tenant data leaks allowed.
+- **No Second Business Authority**: Client components invoke server endpoints or shared pure domain services; they do not maintain duplicate calculation engines.
+- **No Fabricated Data**: Production code paths must never inject fake GUIDs, dummy project IDs, or synthetic business metadata. Existing canonical ID-generation contracts must be preserved.
 
-### 3. No Fabricated IDs or Business Metadata
-No dummy GUIDs, fake project IDs, mock fallback constants, or artificial metadata in production code paths. Every ID must originate from authoritative storage or client-generated UUIDs.
+### 3. Engineering Work Discipline & Defect Resolution
+- **Bounded Units**: Work strictly within one implementation unit at a time.
+- **Area-Wide Defect Review**: Always perform a complete area-wide review before modifying files; identify and eliminate root causes across the entire component/module family.
+- **Prohibition of Patch-by-Patch Stopping**: Never stop discovery at the first defect or apply quick single-line patches without addressing the full defect family.
+- **Reconstruction Classifications**: Every component/service is classified as `KEEP`, `HARDEN`, `CONVERGE`, `REBUILD`, `RETIRE`, or `DEFER`.
+- **Do Not Repair Retirement Candidates**: Do not waste effort repairing a component scheduled for retirement unless strictly required for safe retirement.
 
-### 4. Server Authority
-The backend (Node/Express/Firebase Admin) is the sole authority for business calculations, pricing rules, trip state transitions, and persistent storage reconciliation.
+### 4. Distinct Evidence Classes
+Verification must respect distinct evidence classes without treating one class as proving another:
+- `STATIC`: Source-text inspection & regex structure checks.
+- `UNIT`: Isolated Vitest domain logic tests.
+- `INTEGRATION_MOCK`: React Testing Library component tests with mocked services.
+- `EMULATOR`: Local Firebase emulator tests.
+- `LIVE_E2E`: End-to-end multi-step workflow execution across server and UI.
+- `MANUAL_UI`: RTL Arabic alignment, mobile touch viewports, visual layout inspection.
+- `TYPECHECK`: `./node_modules/.bin/tsc --noEmit --pretty false`.
+- `BUILD`: Production bundle compilation (`npm run build`).
+- `GITHUB_POST_PUSH`: Independent audit of pushed GitHub commit.
 
-### 5. Strict Multi-Tenant Project Isolation
-Every database query, API route, outbox item, and UI state context must be explicitly isolated and filtered by `projectId`. Cross-tenant data leaks are zero-tolerance violations.
-
-### 6. Single Business Authority
-Never duplicate business calculation rules or state transition logic across client and server. Client components invoke server endpoints or shared pure domain services.
-
-### 7. Minimal Controls & Clean Interfaces
-UI interfaces must remain focused, clean, and free of artificial status indicators, debug telemetry, or system log overlays in production rendering.
-
-### 8. Responsive & Cross-Device Invariant
-Field applications must operate seamlessly across mobile, tablet, and desktop viewports with strict RTL Arabic layout discipline and touch-friendly controls.
-
-### 9. Canonical Report & Print Fidelity
-All printouts, waybills, and PDF reports must render strictly from canonical server snapshots rather than transient client state.
-
-### 10. Area-Wide Defect Review
-Before editing any file to fix a defect, perform a full area-wide code review across related components, hooks, and services to address the root cause holistically.
-
-### 11. No Patch-by-Patch Stopping
-Never stop at the first surface error or apply quick single-line patches without verifying total contract integrity across the entire module and test suite.
+### 5. Product Quality & UX Invariants
+- **Responsive / Cross-Device Behavior**: Mobile field workflows, RTL Arabic alignment, touch targets, and desktop views are binding product invariants.
+- **Canonical Print & Report Fidelity**: All printouts, waybills, statements, and exports derive strictly from canonical server snapshots.
+- **Minimal Controls**: Avoid cluttering UI with artificial debug overlays or duplicate action buttons unless materially improving workflow and invoking the same canonical backend operation.
+- **Human Approval Integrity**: Human sign-off and approval steps in workflows remain mandatory and cannot be bypassed.

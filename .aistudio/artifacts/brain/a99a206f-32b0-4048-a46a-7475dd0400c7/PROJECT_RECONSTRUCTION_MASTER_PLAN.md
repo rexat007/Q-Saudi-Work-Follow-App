@@ -5,66 +5,64 @@ Q-Saudi Work Follow is an enterprise-grade Saudi logistics, heavy transport rost
 
 ---
 
-## Reconstruction Phase Sequencing (Phase 0 to Phase 18)
+## Authoritative Reconstruction Roadmap (Phase 0 to Phase 18)
 
-### Phase 0: Governance & Baseline Reconstruction
-- **Scope**: Re-establish strict repository governance, artifact tracking, build verification, and clean baseline commit state.
-- **Active Unit**: `P0-U1_GOVERNANCE_AND_EVIDENCE_BASELINE`
-- **Objective**: Establish single source of truth for planning, test execution, and CI boundaries.
+### Phase 0 — Repository & Engineering Foundation
+- **Scope**: Establish repository governance, document authority, toolchain reproducibility, test taxonomy convergence, root tooling hygiene, secret-free CI baseline, and Phase 0 freeze.
 
-### Phase 1: Multi-Tenant Project Isolation & Authority
-- **Scope**: Hardened project boundaries, multi-tenant isolation, authorization context verification, and workspace projection.
+### Phase 1 — Canonical Domain Model
+- **Scope**: Hardened entity domain interfaces, type boundaries, primary/foreign key relationships, and validation schemas.
 
-### Phase 2: Roster Management & Entity Relationship Authority
-- **Scope**: Canonical Drivers, Carriers, Materials, and Fleet membership, pk/fk integrity, and 8-layer Project Setup model validation.
+### Phase 2 — Persistence & Server Authority
+- **Scope**: Server-authoritative Firestore operations, multi-tenant isolation enforcement, Firebase Admin SDK integration, and security rules auditing.
 
-### Phase 3: Smart Import & Session Persistence Governance
-- **Scope**: Excel/CSV discovery, column mapping, conflict resolution, durable session checkpoints, and transactional commit authority.
+### Phase 3 — Authentication, Authorization & Administrative Governance
+- **Scope**: Role-Based Access Control (RBAC), token verification, field-level authorization, IDOR defense, and admin controls.
 
-### Phase 4: Pricing Rules Engine & Copy-On-Write Immutability
-- **Scope**: Master pricing matrix, project-specific pricing rule overrides, copy-on-write historical immutability, and ZATCA tax rules.
+### Phase 4 — Project Lifecycle & Project-Scoped State
+- **Scope**: Project status state machine (DRAFT, SETUP, ACTIVE, COMPLETED, ARCHIVED), lifecycle transitions, and active project state synchronization.
 
-### Phase 5: Field Dispatch & Fleet Execution Operations
-- **Scope**: Loading operator, driver, and unloading operator field workflows, digital ticket capture, and real-time state machine transitions.
+### Phase 5 — Master Data & Canonical Relationships
+- **Scope**: Canonical Driver, Carrier, Material, and Fleet relationships, foreign key constraints, and master data management.
 
-### Phase 6: Trip Engine & Waybill Lifecycle Governance
-- **Scope**: Trip generation, tare/gross weight verification, waybill lifecycle state transitions, and exception tagging.
+### Phase 6 — Project Setup Experience
+- **Scope**: 8-Layer Project Setup Workflow wizard, readiness gate evaluation, layer-by-layer validation, and activation lock.
 
-### Phase 7: Offline-First Synchronization & Outbox Resilience
-- **Scope**: Outbox queues, conflict resolution policies, background sync retries, and network transition handling.
+### Phase 7 — Smart Import Core
+- **Scope**: Excel/CSV smart source discovery, header detection, column mapping, mapping diagnostics, and entity resolution.
 
-### Phase 8: Billing, Invoicing & Financial Settlement
-- **Scope**: Trip aggregation, contractor billing, carrier settlement statement generation, and invoice PDF/export rendering.
+### Phase 8 — Smart Import Persistence, Resume & Commit Integrity
+- **Scope**: Durable import session checkpoints, session resumption, version concurrency control, transactional batch commits, and session-restore edge case resolution.
 
-### Phase 9: Exception Engine & Audit Trail Tamper-Resistance
-- **Scope**: Operational exception logging, supervisor override tracking, tamper-resistant audit trails, and discrepancy flagging.
+### Phase 9 — Pricing & Commercial Rules
+- **Scope**: Master pricing rules matrix, project-specific rule overrides, copy-on-write historical immutability, and ZATCA tax rules.
 
-### Phase 10: Role-Based Access Control (RBAC) & Security Hardening
-- **Scope**: Role permissions (Project Admin, Field Supervisor, Driver, Viewer), field-level authorization, IDOR protection, and security audit suite.
+### Phase 10 — Operational Trip Lifecycle
+- **Scope**: Field dispatch workflows (Loading Operator, Driver, Unloading Operator), digital waybill creation, tare/gross weight recording, and trip state transitions.
 
-### Phase 11: Workspace & External Services Integration
-- **Scope**: Google Workspace/Sheets initial projection, export endpoints, external REST integrations, and webhook triggers.
+### Phase 11 — Offline, Outbox & Resilience
+- **Scope**: Offline outbox queue, background sync retries, conflict resolution policies, network state transitions, and cache isolation.
 
-### Phase 12: Analytics, Operational Dashboards & SLA Monitoring
-- **Scope**: Fleet utilization metrics, daily tonnage KPIs, SLA turnaround tracking, and operational velocity charts.
+### Phase 12 — Audit, Exceptions & Administrative Control
+- **Scope**: Operational exception logging, supervisor override tracking, tamper-resistant audit trail, and discrepancy flagging.
 
-### Phase 13: Responsive UX, PWA & Cross-Device Field Compliance
-- **Scope**: Mobile-first viewport discipline, RTL Arabic layout integrity, touch targets, and PWA service worker caching.
+### Phase 13 — Dashboards & Operational Analytics
+- **Scope**: Fleet utilization metrics, daily tonnage KPIs, SLA turnaround monitoring, and operational velocity charts.
 
-### Phase 14: Report Generation & Print Fidelity
-- **Scope**: Canonical print templates, official PDF generation, waybill print layouts, and summary report export.
+### Phase 14 — Reports, Export & Print
+- **Scope**: Official waybill print templates, contractor billing statements, carrier settlement statements, and PDF generation.
 
-### Phase 15: System Performance, Indexing & Query Optimization
-- **Scope**: Firestore composite indexes, Express query optimization, chunk splitting, and bundle size reduction.
+### Phase 15 — Responsive / Cross-Device Product System
+- **Scope**: Mobile-first touch targets, RTL Arabic layout integrity, PWA service worker caching, and cross-browser responsive compliance.
 
-### Phase 16: Automated E2E & Continuous Integration Suite
-- **Scope**: Full Vitest test suite unification, CI automation workflows, regression coverage expansion, and pre-commit gates.
+### Phase 16 — End-to-End Business Journeys
+- **Scope**: Comprehensive multi-role E2E scenario testing, automated integration workflows, and regression coverage expansion.
 
-### Phase 17: User Acceptance Testing (UAT) & Production Readiness
-- **Scope**: End-to-end UAT scenario validation, stress testing, error boundary resilience, and staging sign-off.
+### Phase 17 — Hardening, Security, Performance & Recovery
+- **Scope**: Performance optimization, Firestore composite indexes, security audit suite verification, and disaster recovery validation.
 
-### Phase 18: Beta 2 Launch & Final Handoff
-- **Scope**: Final release tagging, operational handoff documentation, production environment deployment, and Beta 2 sign-off.
+### Phase 18 — Beta 2 Release Gate
+- **Scope**: Final release tagging, operational handoff documentation, production deployment sign-off, and Beta 2 exit sign-off.
 
 ---
 

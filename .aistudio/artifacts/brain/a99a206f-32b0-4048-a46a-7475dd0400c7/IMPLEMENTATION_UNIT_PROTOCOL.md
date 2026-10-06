@@ -1,47 +1,47 @@
 # IMPLEMENTATION UNIT PROTOCOL
 
-## 11-Step Mandatory Governance Sequence
+## Standard 11-Step Governance Workflow
 
-Every reconstruction unit must execute the following strict 11-step lifecycle sequence without skipping steps:
+Every implementation unit in the Q-Saudi reconstruction program must execute and document the following 11-step sequence:
 
 ```
-1. Audit
-   └─ Read-only analysis of existing implementation, dependencies, and contract state.
+Step 1: Audit
+  └─ Read-only investigation of existing implementation, callers, data models, and contracts.
 
-2. Target Contract
-   └─ Formal specification of expected behavior, interfaces, and persistence schemas.
+Step 2: Target Contract
+  └─ Formal specification of expected behavior, interfaces, types, and persistence boundaries.
 
-3. Impact Map
-   └─ Complete enumeration of affected components, API routes, tests, and database collections.
+Step 3: Impact Map
+  └─ Complete list of all files, components, services, database collections, and tests affected.
 
-4. Implementation
-   └─ Focused, clean code execution meeting all target contract requirements.
+Step 4: Implementation
+  └─ Bounded, clean code execution satisfying the target contract with zero scope creep.
 
-5. Automated Verification
-   └─ Execution of unit tests, integration tests, typechecks, and production build verification.
+Step 5: Automated Verification
+  └─ Running vitest, tsc typechecks, and build scripts. Documenting pass/fail output.
 
-6. Manual Verification
-   └─ UI walkthrough, RTL layout validation, cross-device check, and edge-case testing.
+Step 6: Manual Verification
+  └─ Verifying UI alignment, RTL Arabic layout, mobile touch viewports, and edge cases.
 
-7. Scope Review
-   └─ Verification that only expected files were modified with 0 unexpected changes.
+Step 7: Scope Review
+  └─ Reviewing changed files to ensure strictly expected file scope with 0 unexpected modifications.
 
-8. User Approval
-   └─ Presentation of verification evidence and explicit confirmation request.
+Step 8: User Approval
+  └─ Presenting full evidence report to user and obtaining explicit confirmation to proceed.
 
-9. Push
-   └─ Commit and push changes to GitHub main branch upon user confirmation.
+Step 9: Push
+  └─ Manual git push performed by the user.
 
-10. Independent GitHub Audit
-   └─ Post-push inspection verifying pushed commit matching local build output.
+Step 10: Independent GitHub Audit
+  └─ Independent verification confirming GitHub commit matches verified local build state.
 
-11. CLOSED
-   └─ Recording unit completion in ACTIVE_PHASE_LEDGER and advancing active ledger pointer.
+Step 11: CLOSED
+  └─ Updating ACTIVE_PHASE_LEDGER to mark unit CLOSED and advancing active ledger pointer.
 ```
 
 ---
 
-## Strict Rules
-- **No Skipping**: A unit CANNOT transition directly from Implementation to Push without passing Automated Verification, Scope Review, and User Approval.
-- **Fail-Closed**: Any failure at Automated Verification or Scope Review immediately halts progression and triggers root-cause remediation.
-- **Evidence Preservation**: All test logs, tsc outputs, build metrics, and file diffs must be documented in the unit closing report.
+## Unit Protocol Execution Contract
+- **No Skipping Steps**: A unit cannot skip from Implementation directly to Push without passing Automated Verification, Scope Review, and User Approval.
+- **Fail-Closed Gate**: If any test or scope check fails, progression immediately halts until root-cause remediation is complete.
+- **Evidence Recording**: Every step output must be recorded in the unit completion report.
