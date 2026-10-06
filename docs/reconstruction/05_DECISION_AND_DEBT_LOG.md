@@ -8,6 +8,7 @@
 - **CD-05**: Local project override bridge in Project Setup Wizard converges away immediately upon canonical `globalProjects` subscription arrival.
 - **CD-06**: P0-A0 Google AI Studio Artifact Bootstrap completed successfully as active planning surface.
 - **CD-07**: `docs/reconstruction/` established as the repository-installed documentation authority.
+- **CD-08**: P0-U1 governance baseline and semantic convergence (P0-U1R) were independently verified against GitHub commit `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de`, and P0-U1 is CLOSED.
 
 ---
 

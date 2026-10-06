@@ -4,27 +4,28 @@
 
 ```yaml
 ACTIVE_PHASE: PHASE_0
-ACTIVE_UNIT: P0-U1R
+ACTIVE_UNIT: P0-U2
 PHASE_0_STATUS: IN_PROGRESS
-CURRENT_GITHUB_BASELINE: 4c0f409786307932da1108ac50b602752d40af04
-NEXT_UNIT_AFTER_ACCEPTANCE: P0-U2_CANONICAL_TOOLCHAIN_AND_DEPENDENCY_REPRODUCIBILITY
+P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
+P0_U2_BASELINE: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
+NEXT_UNIT: P0-U2_CANONICAL_TOOLCHAIN_AND_DEPENDENCY_REPRODUCIBILITY
 ```
 
 ---
 
 ## Phase 0 Unit Sequence & Status
 
-| Unit ID | Unit Title | Status | Baseline Commit |
+| Unit ID | Unit Title | Status | Baseline / Verified Commit |
 |---|---|---|---|
 | **P0-A0** | Studio Artifact Bootstrap | **CLOSED** | `118cdc1730d0a08848463da915a0315c2ac542f2` |
-| **P0-U1** | Governance & Evidence Baseline | **IMPLEMENTING** | `4c0f409786307932da1108ac50b602752d40af04` |
-| **↳ P0-U1R** | Governance Semantic Convergence | **IMPLEMENTING** | `4c0f409786307932da1108ac50b602752d40af04` |
-| **P0-U2** | Canonical Toolchain & Dependency Reproducibility | NOT_STARTED | `4c0f409786307932da1108ac50b602752d40af04` |
-| **P0-U3** | Test Taxonomy & Harness Convergence | NOT_STARTED | `4c0f409786307932da1108ac50b602752d40af04` |
-| **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `4c0f409786307932da1108ac50b602752d40af04` |
-| **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `4c0f409786307932da1108ac50b602752d40af04` |
-| **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `4c0f409786307932da1108ac50b602752d40af04` |
-| **P0-U7** | Phase 0 Closure & Freeze | NOT_STARTED | `4c0f409786307932da1108ac50b602752d40af04` |
+| **P0-U1** | Governance & Evidence Baseline | **CLOSED** | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **↳ P0-U1R** | Governance Semantic Convergence | **VERIFIED / CLOSED** | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **P0-U2** | Canonical Toolchain & Dependency Reproducibility | **READY_TO_START** | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **P0-U3** | Test Taxonomy & Harness Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **P0-U7** | Phase 0 Closure & Freeze | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 
 ---
 
