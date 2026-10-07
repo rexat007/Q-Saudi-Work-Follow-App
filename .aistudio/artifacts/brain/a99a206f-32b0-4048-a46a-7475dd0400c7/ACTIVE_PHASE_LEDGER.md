@@ -37,7 +37,7 @@ NEXT_UNIT: P0-U3_TEST_TAXONOMY_AND_HARNESS_CONVERGENCE
 | **↳ P0-U3C8** | Active Test Harness Convergence (firebaseProjectConfiguration85A) | **VERIFIED / CLOSED** | `9679cf1a371c151e4259c155b9139d327ddd7bc2` |
 | **↳ P0-U3C9** | Active Test Harness Convergence (uiuxFixesBlock83A) — *P0-U3C9A semantic blocker resolved by approved OPTION_B* | **VERIFIED / CLOSED** | `b3fc674ea45783fc570604adee6d3a03e5825d8d` |
 | **↳ P0-U3C10** | Active Test Harness Convergence (i18nFoundation) | **VERIFIED / CLOSED** | `3af9425df1a18483880cd8bf0d5a15c192634abe` |
-| **↳ P0-U3C11** | Active Test Harness Convergence (block102OperationalAccessSmartRoster) — *P0-U3C11A blocker resolved by approved disposition: KEEP_GROUPS_1_TO_4_AND_DEFER_GROUP_5* | **IMPLEMENTING** | `7aec5229568e2593837cfec6c70b401333e64340` |
+| **↳ P0-U3C11** | Active Test Harness Convergence (block102OperationalAccessSmartRoster) — *P0-U3C11A blocker resolved by approved disposition: KEEP_GROUPS_1_TO_4_AND_DEFER_GROUP_5* | **VERIFIED / CLOSED** | `94b16246c0c03737e2e38cd430a7a4ed3c5a7bb4` |
 | **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
