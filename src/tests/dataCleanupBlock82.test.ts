@@ -20,8 +20,6 @@ import { enTranslations } from '../locales/en';
 import { urTranslations } from '../locales/ur';
 import { MASTER_PRICING_RULES } from '../data/masterPricingRules';
 import { STATE_TRANSITIONS } from '../services/tripStateMachine.service';
-import * as fs from 'fs';
-import * as path from 'path';
 
 describe('BLOCK 82 — Data Cleanup & Test Data Purge', () => {
   it('[CLN-01] Inventory builds successfully with all primary sources discovered', async () => {
@@ -63,21 +61,17 @@ describe('BLOCK 82 — Data Cleanup & Test Data Purge', () => {
   it('[CLN-04] Dry run report generates valid JSON and Markdown artifacts', async () => {
     const dryRun = await dataCleanupService.generateDryRunReport();
     expect(dryRun.json).toBeDefined();
+    expect(typeof dryRun.json).toBe('string');
+    expect(dryRun.json.length).toBeGreaterThan(0);
     expect(dryRun.markdown).toBeDefined();
+    expect(typeof dryRun.markdown).toBe('string');
+    expect(dryRun.markdown.length).toBeGreaterThan(0);
 
     const parsed = JSON.parse(dryRun.json);
     expect(parsed.block).toBe('BLOCK-82-DRY-RUN');
     expect(parsed.summary.genuineOperationalDataProtected).toBe(true);
     expect(parsed.summary.i18nPreservedExactly1128Keys).toBe(true);
-
-    const reportsDir = path.resolve(process.cwd(), 'reports');
-    if (!fs.existsSync(reportsDir)) {
-      fs.mkdirSync(reportsDir, { recursive: true });
-    }
-    fs.writeFileSync(path.join(reportsDir, 'data-cleanup-block82-dry-run.json'), dryRun.json, 'utf8');
-    fs.writeFileSync(path.join(reportsDir, 'data-cleanup-block82-dry-run.md'), dryRun.markdown, 'utf8');
-
-    expect(fs.existsSync(path.join(reportsDir, 'data-cleanup-block82-dry-run.json'))).toBe(true);
+    expect(dryRun.markdown).toContain('# BLOCK 82 — DATA CLEANUP & TEST DATA PURGE (DRY RUN REPORT)');
   });
 
   it('[CLN-05] Controlled purge executes successfully without throwing', async () => {
@@ -115,11 +109,17 @@ describe('BLOCK 82 — Data Cleanup & Test Data Purge', () => {
   it('[CLN-09] Final cleanup report generated (JSON and Markdown)', async () => {
     const execResult = await dataCleanupService.executeCleanup();
     const finalReport = await dataCleanupService.generateFinalReport(execResult);
+    expect(finalReport.json).toBeDefined();
+    expect(typeof finalReport.json).toBe('string');
+    expect(finalReport.json.length).toBeGreaterThan(0);
+    expect(finalReport.markdown).toBeDefined();
+    expect(typeof finalReport.markdown).toBe('string');
+    expect(finalReport.markdown.length).toBeGreaterThan(0);
 
-    const reportsDir = path.resolve(process.cwd(), 'reports');
-    fs.writeFileSync(path.join(reportsDir, 'data-cleanup-block82.json'), finalReport.json, 'utf8');
-    fs.writeFileSync(path.join(reportsDir, 'data-cleanup-block82.md'), finalReport.markdown, 'utf8');
-
-    expect(fs.existsSync(path.join(reportsDir, 'data-cleanup-block82.json'))).toBe(true);
+    const parsed = JSON.parse(finalReport.json);
+    expect(parsed.status).toBe('SUCCESS');
+    expect(parsed.verification.noGenuineDataDeleted).toBe(true);
+    expect(parsed.verification.i18nKeyCountPreserved).toBe(true);
+    expect(finalReport.markdown).toContain('# BLOCK 82 — DATA CLEANUP & TEST DATA PURGE (FINAL REPORT)');
   });
 });
