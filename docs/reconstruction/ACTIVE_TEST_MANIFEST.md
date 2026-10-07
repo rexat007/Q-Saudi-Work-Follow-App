@@ -67,7 +67,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 58 | `src/tests/serverAuthenticationTrustBoundary.test.ts` | `test:auth-trust-boundary` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 59 | `src/tests/sidebarProjectWorkspaceBlock88.test.ts` | `test:sidebar-project-workspace-block88, test` | `TSX_CUSTOM` | `UNIT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 60 | `src/tests/switcherAndQualityBlock56.test.ts` | `test:i18n-switcher-quality, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 61 | `src/tests/translationQualityFixesBlock84A.test.ts` | `test:translation-fixes-84a, test` | `TSX_CUSTOM` | `UNIT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 61 | `src/tests/translationQualityFixesBlock84A.test.ts` | `test:translation-fixes-84a, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 62 | `src/tests/uiuxAuditBlock72.test.ts` | `test:uiux-audit-72, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 63 | `src/tests/uiuxFixesBlock83A.test.ts` | `test:uiux-fixes-83a, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 64 | `src/tests/uiuxP1FixesBlock73.test.ts` | `test:uiux-p1-73, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
