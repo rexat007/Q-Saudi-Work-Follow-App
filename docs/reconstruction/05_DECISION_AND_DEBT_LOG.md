@@ -18,6 +18,14 @@
   - **Specialized Harnesses**: Strictly isolated and require explicit justification.
   - **Historical Test Debt**: 125 historical test files are preserved and assigned to the appropriate owning reconstruction phase across Phase 0 through Phase 16, with Phase 0 restricted to genuine foundation/tooling/governance tests, not migrated in Phase 0.
   - **Scope Boundary**: Production TypeScript debt (23 diagnostics) remains strictly outside P0-U3 unless directly caused by test infrastructure; P0-U3 focuses exclusively on test harness convergence and test-side typing hygiene.
+- **CD-12**: P0-U3 Block 57 Pilot Data Authority & Semantic Reconciliation (Option B):
+  - `PILOT_REPAIRS_DATA` is preserved as an immutable historical repair snapshot.
+  - `item.ar` represents `SOURCE_SNAPSHOT_AT_BLOCK_57`, not a forever-immutable constraint.
+  - Historical snapshots do not override later accepted canonical locale values.
+  - Current locale dictionaries (`src/locales/`) are current canonical translation authority.
+  - `qualityPilotBlock57.test.ts` remains ACTIVE after semantic remediation (removing stale exact-equality check `ar === item.ar`, preserving presence, non-emptiness, and all 6 quality invariant guards).
+  - Block 84A current canonical value for `navigation.labels.projects` (`إدارة المشاريع متعددة الأطراف`) is strictly preserved and not reverted.
+  - `scripts/run-pilot-repair-block57.ts` remains unchanged as historical one-time migration evidence (not a current execution tool).
 
 ---
 
