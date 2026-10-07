@@ -16,7 +16,7 @@
   - **Execution Strategy**: Option D (Staged phase-aligned convergence; no bulk migration of historical tests in Phase 0).
   - **Canonical Automated Harness**: Vitest is canonical for all active automated tests (`UNIT`, `INTEGRATION_MOCK`, `SERVER_CONTRACT`, `UI_DOM`, `STATIC_GOVERNANCE`).
   - **Specialized Harnesses**: Strictly isolated and require explicit justification.
-  - **Historical Test Debt**: 125 historical test files are preserved and assigned to their respective owning roadmap reconstruction phases (Phases 1-16), not migrated in Phase 0.
+  - **Historical Test Debt**: 125 historical test files are preserved and assigned to the appropriate owning reconstruction phase across Phase 0 through Phase 16, with Phase 0 restricted to genuine foundation/tooling/governance tests, not migrated in Phase 0.
   - **Scope Boundary**: Production TypeScript debt (23 diagnostics) remains strictly outside P0-U3 unless directly caused by test infrastructure; P0-U3 focuses exclusively on test harness convergence and test-side typing hygiene.
 
 ---

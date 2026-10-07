@@ -91,7 +91,7 @@ Tests requiring live secrets, cloud service accounts, external network endpoints
 Historical test files must NOT be deleted solely because they are not currently referenced in `package.json`. Stale test files represent historical design intent and audit trails.
 
 ### Rule H: Phase-Owned Historical Test Governance
-Every historical or unreferenced test file must be mapped to its owning reconstruction roadmap phase (Phases 1 through 16). The owning phase bears responsibility for evaluating, reactivating, migrating, or retiring the test when reconstructing that domain.
+Every historical or unreferenced test file must be mapped to its owning reconstruction roadmap phase across Phase 0 through Phase 16. Phase 0 ownership is permitted ONLY when the test genuinely concerns repository foundation, tooling, reconstruction governance, architectural/static foundation, or historical foundation verification; domain-specific application tests must remain assigned to their proper domain reconstruction phases rather than being assigned to Phase 0. Where ownership is uncertain, it must remain explicitly designated as `UNKNOWN`. The owning phase bears responsibility for evaluating, reactivating, migrating, or retiring the test when reconstructing that domain.
 
 ### Rule I: Prohibition of Speculative Production Code Changes
 Production code, domain models, or service contracts must NEVER be modified merely to make stale historical tests compile or pass during Phase 0. Domain contract fixes belong exclusively to the reconstruction phase that owns that domain.
