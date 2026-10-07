@@ -11,11 +11,18 @@
 - **CD-08**: P0-U1 governance baseline and semantic convergence (P0-U1R) were independently verified against GitHub commit `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de`, and P0-U1 is CLOSED.
 - **CD-09**: NPM established as canonical package manager with `package-lock.json` as canonical lockfile, restricting Node to `>=22 <23` and NPM to `>=10 <11`. All alternate lockfiles ignored.
 - **CD-10**: P0-U2 Canonical Toolchain & Dependency Reproducibility was independently verified against commit `715345bba8688fa706fce1bac7add78a9c5e8a28`. Canonical contract: `npm@10.9.8`, Node `>=22 <23`, npm `>=10 <11`, `package-lock.json` canonical, alternate package-manager lockfiles prohibited. P0-U2 is CLOSED.
+- **CD-11**: P0-U3 Test Taxonomy & Harness Architecture formally approved:
+  - **Target Architecture**: Option C (Canonical Vitest for active unit/integration/server/UI/static tests; retain specialized/manual scripts only with explicit justification).
+  - **Execution Strategy**: Option D (Staged phase-aligned convergence; no bulk migration of historical tests in Phase 0).
+  - **Canonical Automated Harness**: Vitest is canonical for all active automated tests (`UNIT`, `INTEGRATION_MOCK`, `SERVER_CONTRACT`, `UI_DOM`, `STATIC_GOVERNANCE`).
+  - **Specialized Harnesses**: Strictly isolated and require explicit justification.
+  - **Historical Test Debt**: 125 historical test files are preserved and assigned to their respective owning roadmap reconstruction phases (Phases 1-16), not migrated in Phase 0.
+  - **Scope Boundary**: Production TypeScript debt (23 diagnostics) remains strictly outside P0-U3 unless directly caused by test infrastructure; P0-U3 focuses exclusively on test harness convergence and test-side typing hygiene.
 
 ---
 
 ## OPEN_DECISIONS
-- **OD-02**: Consolidation strategy for standalone TSX test scripts into unified Vitest test runner.
+- None currently open in Phase 0.
 
 ---
 
