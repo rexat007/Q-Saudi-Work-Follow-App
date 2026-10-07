@@ -39,7 +39,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 30 | `src/tests/projectDriverTruckAssignmentFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 31 | `src/tests/projectFleetReadModelAdminReadContext.test.ts` | `verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 32 | `src/tests/projectFleetReadModelFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 33 | `src/tests/projectFormDateUx86F.test.ts` | `test:project-form-date-ux-86f, test` | `TSX_CUSTOM` | `UNIT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 33 | `src/tests/projectFormDateUx86F.test.ts` | `test:project-form-date-ux-86f, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 34 | `src/tests/projectLifecycleServerAuthority.test.ts` | `verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 35 | `src/tests/projectMaterialCarrierServerAuthorityConvergence.test.ts` | `verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 36 | `src/tests/projectMembershipFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
