@@ -27,7 +27,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 18 | `src/tests/humanReviewReconciliationBlock69A.test.ts` | `test:i18n-reconciliation-69a, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 19 | `src/tests/i18nCatalog.test.ts` | `test` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 20 | `src/tests/i18nCodemod.test.ts` | `test:i18n-codemod, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `SERVER_CONTEXT` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 21 | `src/tests/i18nFoundation.test.ts` | `test` | `TSX_CUSTOM` | `UNIT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 21 | `src/tests/i18nFoundation.test.ts` | `test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 22 | `src/tests/i18nGenerationBlock54b.test.ts` | `test:i18n-gen-54b, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 23 | `src/tests/i18nRecoveryBlock54a.test.ts` | `test:i18n-recovery, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 24 | `src/tests/i18nTranslationCatalog.test.ts` | `test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
