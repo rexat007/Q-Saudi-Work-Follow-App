@@ -25,8 +25,9 @@ NEXT_UNIT: P0-U3_TEST_TAXONOMY_AND_HARNESS_CONVERGENCE
 | **↳ P0-U2B** | Canonical Toolchain & Dependency Implementation | **VERIFIED / CLOSED** | `715345bba8688fa706fce1bac7add78a9c5e8a28` |
 | **↳ P0-U2C** | Post-Push Toolchain Contract Completion & Closure | **CLOSURE_RECORD** | `715345bba8688fa706fce1bac7add78a9c5e8a28` |
 | **P0-U3** | Test Taxonomy & Harness Convergence | **IMPLEMENTING** | `715345bba8688fa706fce1bac7add78a9c5e8a28` |
-| **↳ P0-U3A** | Test Taxonomy & Harness Convergence Audit | **AUDIT_COMPLETE** | `715345bba8688fa706fce1bac7add78a9c5e8a28` |
-| **↳ P0-U3B** | Canonical Test Taxonomy & Active Test Manifest | **IMPLEMENTING** | `715345bba8688fa706fce1bac7add78a9c5e8a28` |
+| **↳ P0-U3A** | Test Taxonomy & Harness Convergence Audit | **AUDIT_COMPLETE / CLOSED** | `715345bba8688fa706fce1bac7add78a9c5e8a28` |
+| **↳ P0-U3B** | Canonical Test Taxonomy & Active Test Manifest | **VERIFIED / CLOSED** | `d362fa58b0816644a7a176dd6e8d6e929224c942` |
+| **↳ P0-U3C1** | Active Test Failure-Propagation Convergence (dataCleanupBlock82) | **IMPLEMENTING** | `d362fa58b0816644a7a176dd6e8d6e929224c942` |
 | **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |

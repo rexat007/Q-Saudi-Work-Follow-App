@@ -46,7 +46,7 @@
     "test:field-ops-77": "tsx src/tests/fieldLoadingUnloadingBlock77.test.ts",
     "test:reports-dashboard-80": "tsx src/tests/fieldReportsCentralDashboardBlock80.test.ts",
     "test:nav-assembly-81": "tsx src/tests/roleBasedNavigationSystemAssemblyBlock81.test.ts",
-    "test:data-cleanup-82": "tsx src/tests/dataCleanupBlock82.test.ts",
+    "test:data-cleanup-82": "vitest run src/tests/dataCleanupBlock82.test.ts",
     "test:runtime-empty-82b": "tsx src/tests/runtimeEmptyStateBlock82B.test.ts",
     "test:runtime-project-empty-82d": "tsx src/tests/runtimeProjectMasterDataEmptyStateBlock82D.test.ts",
     "test:uiux-fixes-83a": "tsx src/tests/uiuxFixesBlock83A.test.ts",

@@ -11,7 +11,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 2 | `src/tests/block102OperationalAccessSmartRoster.test.ts` | `test:block102, test` | `TSX_CUSTOM` | `UNIT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 3 | `src/tests/canonicalImportContextConvergence.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 4 | `src/tests/canonicalTripDispatchAuthority.test.ts` | `test:canonical-dispatch, verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 5 | `src/tests/dataCleanupBlock82.test.ts` | `test:data-cleanup-82, test` | `TSX_CUSTOM` | `UI_DOM` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `NO` |
+| 5 | `src/tests/dataCleanupBlock82.test.ts` | `test:data-cleanup-82, test` | `VITEST` | `UI_DOM` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 6 | `src/tests/driverTruckIntakeP602A.test.ts` | `verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 7 | `src/tests/driverViewConvergenceP603.test.ts` | `verify:beta2` | `VITEST` | `INTEGRATION_MOCK` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 8 | `src/tests/excelCsvImport.test.ts` | `test` | `TSX_CUSTOM` | `UNIT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
