@@ -34,6 +34,7 @@ NEXT_UNIT: P0-U3_TEST_TAXONOMY_AND_HARNESS_CONVERGENCE
 | **↳ P0-U3C5** | Active Test Harness Convergence (translationQualityFixesBlock84A) | **VERIFIED / CLOSED** | `043c36bd4b6c1ee50bbb1a44b71530f6aba52e89` |
 | **↳ P0-U3C6** | Active Test Harness Convergence (qualityPilotBlock57) — *P0-U3C6A semantic reconciliation (Option B)* | **VERIFIED / CLOSED** | `dc6a7d4bd79c86889ac23e6e0cdc24412e7599ee` |
 | **↳ P0-U3C7** | Active Test Harness Convergence (projectFormDateUx86F) | **VERIFIED / CLOSED** | `dfcab325437081d35bc27ecfe60dc2729d69ec36` |
+| **↳ P0-U3C8** | Active Test Harness Convergence (firebaseProjectConfiguration85A) | **IMPLEMENTING** | `5b0d557ddccc811109c0c07005c9c21232fba9fc` |
 | **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
