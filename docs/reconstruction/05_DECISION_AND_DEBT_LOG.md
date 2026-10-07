@@ -26,6 +26,13 @@
   - `qualityPilotBlock57.test.ts` remains ACTIVE after semantic remediation (removing stale exact-equality check `ar === item.ar`, preserving presence, non-emptiness, and all 6 quality invariant guards).
   - Block 84A current canonical value for `navigation.labels.projects` (`إدارة المشاريع متعددة الأطراف`) is strictly preserved and not reverted.
   - `scripts/run-pilot-repair-block57.ts` remains unchanged as historical one-time migration evidence (not a current execution tool).
+- **CD-13**: P0-U3 Block 83A UI Semantic Reconciliation (Option B):
+  - `uiuxFixesBlock83A.test.ts` is retained as an active regression suite.
+  - FIX-04 historical `text-slate-300` icon requirement is superseded.
+  - Current `SystemToolsDrawer.tsx` icon colors may use canonical brand/domain semantic colors.
+  - Current neutral badge invariant is: `bg-slate-800`, `text-slate-200`, `border-slate-700`.
+  - Historical UI snapshots do not override later accepted production UI.
+  - Production UI was not changed to satisfy the stale assertion.
 
 ---
 

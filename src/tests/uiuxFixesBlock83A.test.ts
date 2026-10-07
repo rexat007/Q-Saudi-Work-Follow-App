@@ -1,102 +1,68 @@
 /**
  * BLOCK 83A — UI/UX FINAL MINIMAL FIXES TEST SUITE
  * 
- * Verifies the 4 specific UI/UX minimal fixes from BLOCK 83:
+ * Verifies the 4 specific UI/UX minimal fixes from BLOCK 83 + localization invariant:
  * 1. P2: DRIVER sub-navigation tabs isolated in FieldOperationsView.
- * 2. P3-02: Master Data empty state presents primary "Add Record/Create" CTA card button.
+ * 2. P3-02: Master Data empty state presents primary "Add Record/Create" CTA card button (MasterDataView retired).
  * 3. P3-03: Reports Engine mobile view (<640px) uses compact collapsible accordion filters.
- * 4. P3-04: System Tools Drawer badges standardized to neutral/slate visual treatment.
+ * 4. P3-04: System Tools Drawer badges standardized to neutral/slate visual treatment (Option B semantic reconciliation).
  * 5. Invariant: Localization key count strictly frozen at 1,128 per locale.
  */
 
+import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { arTranslations } from '../locales/ar';
 import { enTranslations } from '../locales/en';
 import { urTranslations } from '../locales/ur';
 
-let totalTests = 0;
-let passedTests = 0;
-let failedTests = 0;
-
-function assert(condition: boolean, message: string) {
-  if (!condition) {
-    throw new Error(`Assertion Failed: ${message}`);
-  }
-}
-
-async function runTest(id: string, description: string, fn: () => void | Promise<void>) {
-  totalTests++;
-  try {
-    await fn();
-    passedTests++;
-    console.log(`  ✅ [PASS] [${id}]: ${description}`);
-  } catch (err: any) {
-    failedTests++;
-    console.error(`  ❌ [FAIL] [${id}]: ${description} -> ${err.message}`);
-  }
-}
-
-async function executeTestSuite() {
-  console.log('======================================================');
-  console.log('🚀 Running BLOCK 83A UI/UX Final Minimal Fixes Test Suite...');
-  console.log('======================================================');
-
+describe('BLOCK 83A UI/UX Final Minimal Fixes Test Suite', () => {
   // Test 1: P2 Driver Sub-Navigation Isolation
-  await runTest('FIX-01', 'FieldOperationsView restricts workstation sub-navigation tabs when activeRole is DRIVER', () => {
+  it('FIX-01: FieldOperationsView restricts workstation sub-navigation tabs when activeRole is DRIVER', () => {
     const filePath = path.join(process.cwd(), 'src/components/field/FieldOperationsView.tsx');
     const content = fs.readFileSync(filePath, 'utf-8');
 
-    assert(content.includes("isDriverRole = activeRole === 'DRIVER'"), "Should declare isDriverRole check");
-    assert(content.includes("effectiveTab = isDriverRole ? 'DRIVER_VIEW' : activeTab"), "Should use effectiveTab fallback");
-    assert(content.includes("!isDriverRole"), "Should hide workstation tabs container for DRIVER role");
+    expect(content.includes("isDriverRole = activeRole === 'DRIVER'")).toBe(true);
+    expect(content.includes("effectiveTab = isDriverRole ? 'DRIVER_VIEW' : activeTab")).toBe(true);
+    expect(content.includes("!isDriverRole")).toBe(true);
   });
 
   // Test 2: P3-02 Master Data Empty State CTA - Retired
-  await runTest('FIX-02', 'MasterDataView is physically retired from codebase', () => {
+  it('FIX-02: MasterDataView is physically retired from codebase', () => {
     const filePath = path.join(process.cwd(), 'src/components/masterData/MasterDataView.tsx');
-    assert(fs.existsSync(filePath) === false, "MasterDataView must be physically retired");
+    expect(fs.existsSync(filePath)).toBe(false);
   });
 
   // Test 3: P3-03 Reports Mobile Filter Accordion
-  await runTest('FIX-03', 'ReportsEngineView implements collapsible mobile filter section (<640px)', () => {
+  it('FIX-03: ReportsEngineView implements collapsible mobile filter section (<640px)', () => {
     const filePath = path.join(process.cwd(), 'src/components/reports/ReportsEngineView.tsx');
     const content = fs.readFileSync(filePath, 'utf-8');
 
-    assert(content.includes('isMobileFiltersOpen'), "Should manage isMobileFiltersOpen state");
-    assert(content.includes('sm:hidden'), "Should target mobile viewports <640px");
-    assert(content.includes('min-h-[44px]'), "Should satisfy >=44px touch target requirement");
-    assert(content.includes('خيارات تصفية التقارير (Filters)'), "Should render mobile accordion button header");
+    expect(content.includes('isMobileFiltersOpen')).toBe(true);
+    expect(content.includes('sm:hidden')).toBe(true);
+    expect(content.includes('min-h-[44px]')).toBe(true);
+    expect(content.includes('خيارات تصفية التقارير (Filters)')).toBe(true);
   });
 
-  // Test 4: P3-04 System Tools Drawer Badge Styling
-  await runTest('FIX-04', 'SystemToolsDrawer standardizes badge variants to slate neutral visual treatment', () => {
+  // Test 4: P3-04 System Tools Drawer Badge Styling (Semantically Reconciled - Option B)
+  it('FIX-04: SystemToolsDrawer standardizes badge variants to slate neutral visual treatment', () => {
     const filePath = path.join(process.cwd(), 'src/components/navigation/SystemToolsDrawer.tsx');
     const content = fs.readFileSync(filePath, 'utf-8');
 
-    assert(content.includes('text-slate-300'), "Should render neutral slate icon colors");
-    assert(content.includes('bg-slate-800'), "Should render neutral slate badge background");
-    assert(content.includes('border-slate-700'), "Should render neutral slate badge border");
+    // Neutral slate badge treatment invariants
+    expect(content.includes('bg-slate-800')).toBe(true);
+    expect(content.includes('text-slate-200')).toBe(true);
+    expect(content.includes('border-slate-700')).toBe(true);
   });
 
   // Test 5: I18N Invariant Verification
-  await runTest('FIX-05', 'Localization key counts remain frozen at exactly 1,128 per locale', () => {
+  it('FIX-05: Localization key counts remain frozen at exactly 1,128 per locale', () => {
     const arCount = Object.keys(arTranslations).length;
     const enCount = Object.keys(enTranslations).length;
     const urCount = Object.keys(urTranslations).length;
 
-    assert(arCount === 1128, `AR translation count must be 1,128 (got ${arCount})`);
-    assert(enCount === 1128, `EN translation count must be 1,128 (got ${enCount})`);
-    assert(urCount === 1128, `UR translation count must be 1,128 (got ${urCount})`);
+    expect(arCount).toBe(1128);
+    expect(enCount).toBe(1128);
+    expect(urCount).toBe(1128);
   });
-
-  console.log('======================================================');
-  console.log(`BLOCK 83A: UI/UX Fixes Test Results: ${passedTests}/${totalTests} PASSED`);
-  console.log('======================================================');
-
-  if (failedTests > 0) {
-    process.exit(1);
-  }
-}
-
-executeTestSuite();
+});
