@@ -33,6 +33,16 @@
   - Current neutral badge invariant is: `bg-slate-800`, `text-slate-200`, `border-slate-700`.
   - Historical UI snapshots do not override later accepted production UI.
   - Production UI was not changed to satisfy the stale assertion.
+- **CD-14**: P0-U3 Block 102 Contract Authority Split (Keep Groups 1–4, Defer Group 5):
+  - Block 102 is a mixed historical/current suite.
+  - Groups 1–4 remain current canonical unit guards (RBAC, multilingual normalization, entity resolution with carrier conflict, material blocking validation).
+  - Group 5 historical commit/ID expectations are superseded by the server-authoritative canonical intake architecture.
+  - Group 5 is removed from the Phase 0 active test rather than rewritten against production.
+  - Canonical Driver/Truck creation authority remains `driverTruckIntakeServer.processSharedIntake(...)`.
+  - `driverTruckIntakeP602A.test.ts` remains authoritative for server intake.
+  - Current ID-generation systems remain unchanged.
+  - Client commit/ID integration verification belongs to Phase 7 / Phase 8.
+  - No production behavior was modified to satisfy Block 102.
 
 ---
 

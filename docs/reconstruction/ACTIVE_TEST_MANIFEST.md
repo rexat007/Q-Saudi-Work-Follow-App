@@ -8,7 +8,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | # | Repository Path | Package Script Reachability | Execution Mechanism | Proposed Taxonomy | Environment Class | Migration Disposition | TSC Status | Reliable Failure |
 |---|---|---|---|---|---|---|---|---|
 | 1 | `src/tests/authGatewayPermissionUxBlock87.test.ts` | `test:auth-gateway-87, test` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 2 | `src/tests/block102OperationalAccessSmartRoster.test.ts` | `test:block102, test` | `TSX_CUSTOM` | `UNIT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 2 | `src/tests/block102OperationalAccessSmartRoster.test.ts` | `test:block102, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 3 | `src/tests/canonicalImportContextConvergence.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 4 | `src/tests/canonicalTripDispatchAuthority.test.ts` | `test:canonical-dispatch, verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 5 | `src/tests/dataCleanupBlock82.test.ts` | `test:data-cleanup-82, test` | `VITEST` | `UI_DOM` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
