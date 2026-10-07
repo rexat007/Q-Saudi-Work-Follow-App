@@ -30,6 +30,7 @@ NEXT_UNIT: P0-U3_TEST_TAXONOMY_AND_HARNESS_CONVERGENCE
 | **↳ P0-U3C1** | Active Test Failure-Propagation Convergence (dataCleanupBlock82) | **VERIFIED / CLOSED** | `d4941302663e145926909b62851e591a9bb8a944` |
 | **↳ P0-U3C2** | Active Test Harness Convergence (runtimeDefaultDataElimination92A) | **VERIFIED / CLOSED** | `fed89c60728ee29e3607ff4ef96c4c28c85580ec` |
 | **↳ P0-U3C3** | Active Test Harness Convergence (runtimeEmptyStateBlock82B) | **VERIFIED / CLOSED** | `6c866aae83144519b43e97808b9333435cd32c8b` |
+| **↳ P0-U3C4** | Active Test Harness Convergence (runtimeProjectMasterDataEmptyStateBlock82D) | **IMPLEMENTING** | `deb9ff448d1c8736d119f66fb772d394ddff69cf` |
 | **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |

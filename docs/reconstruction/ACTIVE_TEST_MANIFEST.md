@@ -60,7 +60,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 51 | `src/tests/runtimeDefaultDataElimination92A.test.ts` | `test:runtime-data-92a, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 52 | `src/tests/runtimeEmptyStateBlock82B.test.ts` | `test:runtime-empty-82b, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 53 | `src/tests/runtimeKeyAudit.test.ts` | `test:i18n-runtime, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 54 | `src/tests/runtimeProjectMasterDataEmptyStateBlock82D.test.ts` | `test:runtime-project-empty-82d, test` | `TSX_CUSTOM` | `UNIT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 54 | `src/tests/runtimeProjectMasterDataEmptyStateBlock82D.test.ts` | `test:runtime-project-empty-82d, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 55 | `src/tests/runtimeSmokeBlock55.test.ts` | `test:i18n-smoke, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 56 | `src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts` | `test:auth-approval-86b, test` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 57 | `src/tests/secureTripNumberingOffline89B.test.ts` | `test:secure-trip-89b` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
