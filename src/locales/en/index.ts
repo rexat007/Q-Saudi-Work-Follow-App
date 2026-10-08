@@ -67,6 +67,7 @@ export const enTranslations: TranslationDictionary = {
   "offline.labels.pricing": "Pricing Rules",
   "trips.labels.txt_226b89": "Destination Net Weight Variance",
   "trips.labels.txt_304e68": "Approved Pricing",
+  "trips.labels.txt_default_pricing": "Select default pricing rule",
   "weighbridge.messages.txt_5d74e2": "Idempotency cache has been reset for testing.",
   "authentication.labels.txt_3548e6": "Connected to Firestore",
   "authentication.labels.txt_413ffd": "Sign In (Google)",

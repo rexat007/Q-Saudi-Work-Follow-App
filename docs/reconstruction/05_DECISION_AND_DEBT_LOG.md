@@ -43,6 +43,17 @@
   - Current ID-generation systems remain unchanged.
   - Client commit/ID integration verification belongs to Phase 7 / Phase 8.
   - No production behavior was modified to satisfy Block 102.
+- **CD-15**: Runtime I18N Discovery Authority Reconciliation:
+  - Block 54C runtime audit report (`reports/i18n-block53-runtime-audit.json`) is immutable historical evidence.
+  - Historical `componentCoverage.files` is not current source authority.
+  - Current runtime translation discovery scans active repository runtime source (`src/App.tsx`, `src/components`, `src/hooks`).
+  - Static `>=1100` referenced-key threshold is retired.
+  - Referenced-key count is derived dynamically.
+  - Runtime invariant is 100% resolution, parity, and parameter/token safety across all current call sites.
+  - One live missing key was identified: `trips.labels.txt_default_pricing` in `src/components/TripEngineView.tsx`.
+  - That key was added to AR/EN/UR dictionaries only.
+  - No historical report was rewritten or regenerated.
+  - No retired component was restored.
 
 ---
 

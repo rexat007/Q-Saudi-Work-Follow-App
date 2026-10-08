@@ -67,6 +67,7 @@ export const arTranslations: TranslationDictionary = {
   "offline.labels.pricing": "قواعد التسعير (Pricing Rules)",
   "trips.labels.txt_226b89": "destNet + فرق",
   "trips.labels.txt_304e68": "تسعير معتمد",
+  "trips.labels.txt_default_pricing": "اختر قاعدة التسعير الافتراضية",
   "weighbridge.messages.txt_5d74e2": "تمت إعادة ضبط ذاكرة التحقق التكراري (Idempotency Cache) للاختبار.",
   "authentication.labels.txt_3548e6": "متصل بـ Firestore",
   "authentication.labels.txt_413ffd": "تسجيل الدخول (Google)",

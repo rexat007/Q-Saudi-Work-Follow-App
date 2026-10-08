@@ -67,6 +67,7 @@ export const urTranslations: TranslationDictionary = {
   "offline.labels.pricing": "قیمت کے قواعد (Pricing Rules)",
   "trips.labels.txt_226b89": "منزل کے خالص وزن کا فرق",
   "trips.labels.txt_304e68": "منظور شدہ قیمت",
+  "trips.labels.txt_default_pricing": "ڈیفالٹ قیمت کا اصول منتخب کریں",
   "weighbridge.messages.txt_5d74e2": "جانچ کے لیے آئیڈیمپوٹینسی کیشے دوبارہ ترتیب دے دی گئی ہے۔",
   "authentication.labels.txt_3548e6": "Firestore سے منسلک ہے",
   "authentication.labels.txt_413ffd": "سائن ان کریں (Google)",
