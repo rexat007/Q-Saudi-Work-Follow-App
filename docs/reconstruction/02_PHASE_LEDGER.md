@@ -39,6 +39,7 @@ NEXT_UNIT: P0-U3_TEST_TAXONOMY_AND_HARNESS_CONVERGENCE
 | **↳ P0-U3C10** | Active Test Harness Convergence (i18nFoundation) | **VERIFIED / CLOSED** | `3af9425df1a18483880cd8bf0d5a15c192634abe` |
 | **↳ P0-U3C11** | Active Test Harness Convergence (block102OperationalAccessSmartRoster) — *P0-U3C11A blocker resolved by approved disposition: KEEP_GROUPS_1_TO_4_AND_DEFER_GROUP_5* | **VERIFIED / CLOSED** | `94b16246c0c03737e2e38cd430a7a4ed3c5a7bb4` |
 | **↳ P0-U3C12** | Active Test Harness Convergence (runtimeKeyAudit) — *P0-U3C12A blocker resolved by approved disposition: KEEP_TEST_AND_REPLACE_STALE_DISCOVERY_WITH_CURRENT_SOURCE_SCAN and bounded remediation of the single confirmed live missing key* | **VERIFIED / CLOSED** | `c31d15adc4d455cfb216ad0f3c76114933150aa6` |
+| **↳ P0-U3C13** | Active Test Harness Convergence (runtimeSmokeBlock55) — *P0-U3C13A blocker resolved by approved disposition: KEEP_ALL_7_WITH_CURRENT_DYNAMIC_CONTRACTS* | **IMPLEMENTING** | `2b769461f29d8e6079d944044891e992d9231602` |
 | **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |

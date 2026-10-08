@@ -54,6 +54,20 @@
   - That key was added to AR/EN/UR dictionaries only.
   - No historical report was rewritten or regenerated.
   - No retired component was restored.
+- **CD-16**: Block 55 Runtime Smoke Dynamic Contract Reconciliation:
+  - Block 55 remains active as a runtime smoke and quality gate test suite.
+  - All 7 smoke guards remain current in semantic intent.
+  - Historical Block 54C source-file discovery (`reports/i18n-block53-runtime-audit.json`) is removed.
+  - CD-15 current repository source scan remains authoritative discovery mechanism.
+  - Static 1115 referenced-key count retired in favor of dynamic non-empty resolution.
+  - Static 736 txt_* referenced-key count retired in favor of dynamic non-empty resolution.
+  - No fixed replacement counts introduced.
+  - Current key counts are dynamically derived.
+  - Test 04 duplication with runtimeKeyAudit is intentionally retained as smoke-level redundancy.
+  - Test 05 preserves unique RTL/LTR direction coverage.
+  - 12-domain assertion refers only to the explicit representative smoke domain map, not total dictionary domain count (17).
+  - Current 12 exception mappings and 13 domain metadata mappings remain canonical.
+  - No production or locale changes were required.
 
 ---
 

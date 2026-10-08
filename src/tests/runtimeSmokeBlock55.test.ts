@@ -5,7 +5,7 @@
  * - I18N-SMOKE-01: AR runtime renders translated values
  * - I18N-SMOKE-02: EN runtime renders translated values
  * - I18N-SMOKE-03: UR runtime renders translated values
- * - I18N-SMOKE-04: No raw translation keys rendered (including all 736 txt_* keys)
+ * - I18N-SMOKE-04: No raw translation keys rendered
  * - I18N-SMOKE-05: RTL/LTR direction matches locale (ar=rtl, ur=rtl, en=ltr)
  * - I18N-SMOKE-06: Representative domain translations resolve across all 12 domains
  * - I18N-SMOKE-07: Metadata hooks return localized values for all 12 exceptions & 13 domains
@@ -13,64 +13,67 @@
 
 import fs from 'fs';
 import path from 'path';
+import { describe, it, expect } from 'vitest';
 import { resolveTranslation, isRTL, directionOf } from '../i18n/utils';
-import { DEFAULT_LOCALE, AVAILABLE_LOCALES, LOCALE_DIRECTIONS } from '../i18n/constants';
-import { dictionaries } from '../locales';
+import { AVAILABLE_LOCALES } from '../i18n/constants';
 import { ExceptionType } from '../types/exceptionEngine';
 
-export interface SmokeTestResult {
-  id: string;
-  name: string;
-  passed: boolean;
-  message?: string;
-}
+function getRuntimeSourceFiles(): string[] {
+  const root = process.cwd();
+  const files: string[] = [];
 
-// Helper to get all 1,115 referenced keys from the component coverage files
-function getReferencedKeys(): string[] {
-  const auditPath = path.resolve(process.cwd(), 'reports/i18n-block53-runtime-audit.json');
-  const auditData = JSON.parse(fs.readFileSync(auditPath, 'utf8'));
-  const files: string[] = auditData.componentCoverage.files.map((f: any) => f.file);
+  // 1. src/App.tsx
+  const appFile = path.resolve(root, 'src/App.tsx');
+  if (fs.existsSync(appFile)) {
+    files.push(appFile);
+  }
 
-  const refKeys = new Set<string>();
-  const r = /\b(?:t|translate)\(\s*['"]([^'"\s)]+)['"]/g;
-
-  for (const file of files) {
-    const filePath = path.resolve(process.cwd(), file);
-    const content = fs.readFileSync(filePath, 'utf8');
-    let m;
-    while ((m = r.exec(content)) !== null) {
-      refKeys.add(m[1]);
+  // Recursive directory walker
+  function walkDir(dirPath: string) {
+    if (!fs.existsSync(dirPath)) return;
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry.name);
+      if (entry.isDirectory()) {
+        walkDir(fullPath);
+      } else if (entry.isFile() && (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx'))) {
+        files.push(fullPath);
+      }
     }
   }
 
-  return Array.from(refKeys).sort();
+  // 2. src/components
+  walkDir(path.resolve(root, 'src/components'));
+
+  // 3. src/hooks
+  walkDir(path.resolve(root, 'src/hooks'));
+
+  return files.sort();
 }
 
-export async function runBlock55SmokeTestSuite(): Promise<{ passed: number; failed: number; total: number }> {
-  console.log('======================================================');
-  console.log('🚀 Running BLOCK 55 Runtime Smoke & Quality Gate Tests');
-  console.log('======================================================');
+function getReferencedKeys(): string[] {
+  const files = getRuntimeSourceFiles();
+  const refKeySet = new Set<string>();
+  const keyRegex = /\b(?:t|translate)\(\s*['"]([^'"\s)]+)['"]/g;
 
-  const results: SmokeTestResult[] = [];
-
-  const test = (id: string, name: string, fn: () => void) => {
-    try {
-      fn();
-      results.push({ id, name, passed: true });
-      console.log(`✅ [${id}] ${name}`);
-    } catch (err: any) {
-      results.push({ id, name, passed: false, message: err.message });
-      console.error(`❌ [${id}] ${name}: ${err.message}`);
+  for (const filePath of files) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    let match;
+    while ((match = keyRegex.exec(content)) !== null) {
+      refKeySet.add(match[1]);
     }
-  };
+  }
 
+  return Array.from(refKeySet).sort();
+}
+
+describe('BLOCK 55 Runtime Smoke & Quality Gate Tests', () => {
   const refKeys = getReferencedKeys();
 
   // I18N-SMOKE-01: AR runtime renders translated values
-  test('I18N-SMOKE-01', 'AR runtime renders translated values', () => {
-    if (refKeys.length !== 1115) {
-      throw new Error(`Expected 1115 referenced keys, found ${refKeys.length}`);
-    }
+  it('I18N-SMOKE-01: AR runtime renders translated values', () => {
+    expect(refKeys.length).toBeGreaterThan(0);
+
     // Verify foundation actions
     const foundationKeys = [
       'shared.actions.save',
@@ -88,25 +91,23 @@ export async function runBlock55SmokeTestSuite(): Promise<{ passed: number; fail
     ];
     for (const fk of foundationKeys) {
       const val = resolveTranslation(fk, 'ar');
-      if (!val || val === fk) {
-        throw new Error(`Foundation key "${fk}" failed in AR: "${val}"`);
-      }
+      expect(val).toBeDefined();
+      expect(val).not.toBe(fk);
     }
 
-    // Verify all 1,115 referenced keys in AR
+    // Verify all referenced keys in AR
     for (const k of refKeys) {
       const val = resolveTranslation(k, 'ar');
-      if (!val || typeof val !== 'string' || val.trim() === '') {
-        throw new Error(`Key "${k}" unresolved or empty in AR`);
-      }
-      if (val === k) {
-        throw new Error(`Key "${k}" returned literal key in AR`);
-      }
+      expect(typeof val).toBe('string');
+      expect(val.trim()).not.toBe('');
+      expect(val).not.toBe(k);
     }
   });
 
   // I18N-SMOKE-02: EN runtime renders translated values
-  test('I18N-SMOKE-02', 'EN runtime renders translated values', () => {
+  it('I18N-SMOKE-02: EN runtime renders translated values', () => {
+    expect(refKeys.length).toBeGreaterThan(0);
+
     // Verify foundation actions in EN
     const expectedEnFoundation: Record<string, string> = {
       'shared.actions.save': 'Save',
@@ -124,25 +125,22 @@ export async function runBlock55SmokeTestSuite(): Promise<{ passed: number; fail
     };
     for (const [k, expected] of Object.entries(expectedEnFoundation)) {
       const val = resolveTranslation(k, 'en');
-      if (val !== expected) {
-        throw new Error(`EN foundation mismatch on ${k}: got "${val}", expected "${expected}"`);
-      }
+      expect(val).toBe(expected);
     }
 
-    // Verify all 1,115 referenced keys in EN
+    // Verify all referenced keys in EN
     for (const k of refKeys) {
       const val = resolveTranslation(k, 'en');
-      if (!val || typeof val !== 'string' || val.trim() === '') {
-        throw new Error(`Key "${k}" unresolved or empty in EN`);
-      }
-      if (val === k) {
-        throw new Error(`Key "${k}" returned literal key in EN`);
-      }
+      expect(typeof val).toBe('string');
+      expect(val.trim()).not.toBe('');
+      expect(val).not.toBe(k);
     }
   });
 
   // I18N-SMOKE-03: UR runtime renders translated values
-  test('I18N-SMOKE-03', 'UR runtime renders translated values', () => {
+  it('I18N-SMOKE-03: UR runtime renders translated values', () => {
+    expect(refKeys.length).toBeGreaterThan(0);
+
     // Verify foundation actions in UR
     const expectedUrFoundation: Record<string, string> = {
       'shared.actions.save': 'محفوظ کریں',
@@ -160,30 +158,23 @@ export async function runBlock55SmokeTestSuite(): Promise<{ passed: number; fail
     };
     for (const [k, expected] of Object.entries(expectedUrFoundation)) {
       const val = resolveTranslation(k, 'ur');
-      if (val !== expected) {
-        throw new Error(`UR foundation mismatch on ${k}: got "${val}", expected "${expected}"`);
-      }
+      expect(val).toBe(expected);
     }
 
-    // Verify all 1,115 referenced keys in UR
+    // Verify all referenced keys in UR
     for (const k of refKeys) {
       const val = resolveTranslation(k, 'ur');
-      if (!val || typeof val !== 'string' || val.trim() === '') {
-        throw new Error(`Key "${k}" unresolved or empty in UR`);
-      }
-      if (val === k) {
-        throw new Error(`Key "${k}" returned literal key in UR`);
-      }
+      expect(typeof val).toBe('string');
+      expect(val.trim()).not.toBe('');
+      expect(val).not.toBe(k);
     }
   });
 
   // I18N-SMOKE-04: No raw translation keys rendered
-  test('I18N-SMOKE-04', 'No raw translation keys rendered', () => {
-    // Audit all 736 generated txt_* keys
+  it('I18N-SMOKE-04: No raw translation keys rendered', () => {
+    // Audit all generated txt_* keys
     const txtKeys = refKeys.filter(k => k.includes('txt_'));
-    if (txtKeys.length !== 736) {
-      throw new Error(`Expected 736 txt_* keys, found ${txtKeys.length}`);
-    }
+    expect(txtKeys.length).toBeGreaterThan(0);
 
     const leakedKeys: Array<{ key: string; locale: string }> = [];
     for (const loc of ['ar', 'en', 'ur'] as const) {
@@ -195,22 +186,19 @@ export async function runBlock55SmokeTestSuite(): Promise<{ passed: number; fail
       }
     }
 
-    if (leakedKeys.length > 0) {
-      throw new Error(`Detected ${leakedKeys.length} raw key leakages: ${JSON.stringify(leakedKeys.slice(0, 5))}`);
-    }
+    expect(leakedKeys).toEqual([]);
   });
 
   // I18N-SMOKE-05: RTL/LTR direction matches locale
-  test('I18N-SMOKE-05', 'RTL/LTR direction matches locale', () => {
-    if (directionOf('ar') !== 'rtl' || !isRTL('ar')) {
-      throw new Error(`AR direction incorrect: dir=${directionOf('ar')}, isRTL=${isRTL('ar')}`);
-    }
-    if (directionOf('ur') !== 'rtl' || !isRTL('ur')) {
-      throw new Error(`UR direction incorrect: dir=${directionOf('ur')}, isRTL=${isRTL('ur')}`);
-    }
-    if (directionOf('en') !== 'ltr' || isRTL('en')) {
-      throw new Error(`EN direction incorrect: dir=${directionOf('en')}, isRTL=${isRTL('en')}`);
-    }
+  it('I18N-SMOKE-05: RTL/LTR direction matches locale', () => {
+    expect(directionOf('ar')).toBe('rtl');
+    expect(isRTL('ar')).toBe(true);
+
+    expect(directionOf('ur')).toBe('rtl');
+    expect(isRTL('ur')).toBe(true);
+
+    expect(directionOf('en')).toBe('ltr');
+    expect(isRTL('en')).toBe(false);
 
     // Simulate document.documentElement attribute sync
     const simulatedDoc: Record<string, { lang: string; dir: string }> = {};
@@ -221,19 +209,18 @@ export async function runBlock55SmokeTestSuite(): Promise<{ passed: number; fail
       };
     }
 
-    if (simulatedDoc.ar.dir !== 'rtl' || simulatedDoc.ar.lang !== 'ar') {
-      throw new Error('AR document attribute mismatch');
-    }
-    if (simulatedDoc.ur.dir !== 'rtl' || simulatedDoc.ur.lang !== 'ur') {
-      throw new Error('UR document attribute mismatch');
-    }
-    if (simulatedDoc.en.dir !== 'ltr' || simulatedDoc.en.lang !== 'en') {
-      throw new Error('EN document attribute mismatch');
-    }
+    expect(simulatedDoc.ar.dir).toBe('rtl');
+    expect(simulatedDoc.ar.lang).toBe('ar');
+
+    expect(simulatedDoc.ur.dir).toBe('rtl');
+    expect(simulatedDoc.ur.lang).toBe('ur');
+
+    expect(simulatedDoc.en.dir).toBe('ltr');
+    expect(simulatedDoc.en.lang).toBe('en');
   });
 
-  // I18N-SMOKE-06: Representative domain translations resolve
-  test('I18N-SMOKE-06', 'Representative domain translations resolve across all 12 domains', () => {
+  // I18N-SMOKE-06: Representative domain translations resolve across all 12 domains
+  it('I18N-SMOKE-06: Representative domain translations resolve across all 12 domains', () => {
     const representativeKeys: Record<string, string[]> = {
       dashboard: ['dashboard.labels.continue_2', 'dashboard.labels.pricing_2', 'dashboard.labels.weighbridge'],
       projects: ['projects.labels.pricing_2', 'navigation.labels.projects', 'navigation.labels.projects_2'],
@@ -250,25 +237,23 @@ export async function runBlock55SmokeTestSuite(): Promise<{ passed: number; fail
     };
 
     const domainNames = Object.keys(representativeKeys);
-    if (domainNames.length !== 12) {
-      throw new Error(`Expected 12 domains, got ${domainNames.length}`);
-    }
+    expect(domainNames.length).toBe(12);
 
     for (const [domain, keys] of Object.entries(representativeKeys)) {
       for (const k of keys) {
         for (const loc of ['ar', 'en', 'ur'] as const) {
           const res = resolveTranslation(k, loc);
-          if (!res || res.trim() === '' || res === k) {
-            throw new Error(`Domain "${domain}" key "${k}" failed to resolve in ${loc}: got "${res}"`);
-          }
+          expect(res, `Domain "${domain}" key "${k}" in ${loc}`).toBeDefined();
+          expect(res.trim(), `Domain "${domain}" key "${k}" in ${loc}`).not.toBe('');
+          expect(res, `Domain "${domain}" key "${k}" in ${loc}`).not.toBe(k);
         }
       }
     }
   });
 
-  // I18N-SMOKE-07: Metadata hooks return localized values
-  test('I18N-SMOKE-07', 'Metadata hooks return localized values', () => {
-    // 1. Exception types mapping
+  // I18N-SMOKE-07: Metadata hooks return localized values for all 12 exceptions & 13 domains
+  it('I18N-SMOKE-07: Metadata hooks return localized values for all 12 exceptions & 13 domains', () => {
+    // 1. Exception types mapping (12 types)
     const exceptionKeyMappings: Record<ExceptionType, { labelKey: string; descKey: string }> = {
       WEIGHT_VARIANCE: { labelKey: 'exceptions.labels.weight', descKey: 'exceptions.labels.truckTrip' },
       TRUCK_CARRIER_CONFLICT: { labelKey: 'exceptions.labels.truck', descKey: 'exceptions.labels.truckTrip' },
@@ -284,20 +269,20 @@ export async function runBlock55SmokeTestSuite(): Promise<{ passed: number; fail
       VERSION_CONFLICT: { labelKey: 'exceptions.labels.refreshTrip', descKey: 'exceptions.labels.refreshTrip' },
     };
 
+    expect(Object.keys(exceptionKeyMappings).length).toBe(12);
+
     for (const [exc, mapping] of Object.entries(exceptionKeyMappings)) {
       for (const loc of ['ar', 'en', 'ur'] as const) {
         const labelVal = resolveTranslation(mapping.labelKey, loc);
         const descVal = resolveTranslation(mapping.descKey, loc);
-        if (!labelVal || labelVal === mapping.labelKey) {
-          throw new Error(`Exception "${exc}" label key "${mapping.labelKey}" failed in ${loc}`);
-        }
-        if (!descVal || descVal === mapping.descKey) {
-          throw new Error(`Exception "${exc}" desc key "${mapping.descKey}" failed in ${loc}`);
-        }
+        expect(labelVal, `Exception "${exc}" labelKey "${mapping.labelKey}" in ${loc}`).toBeDefined();
+        expect(labelVal, `Exception "${exc}" labelKey "${mapping.labelKey}" in ${loc}`).not.toBe(mapping.labelKey);
+        expect(descVal, `Exception "${exc}" descKey "${mapping.descKey}" in ${loc}`).toBeDefined();
+        expect(descVal, `Exception "${exc}" descKey "${mapping.descKey}" in ${loc}`).not.toBe(mapping.descKey);
       }
     }
 
-    // 2. Domain metadata mapping
+    // 2. Domain metadata mapping (13 domains from useDomainMeta)
     const domainMappings: Array<{ key: string; nameKey: string; descKey: string }> = [
       { key: 'projects', nameKey: 'other.labels.projects_2', descKey: 'other.labels.txt_2d6b3b' },
       { key: 'carriers', nameKey: 'other.labels.carriers_2', descKey: 'other.labels.txt_6be985' },
@@ -314,33 +299,17 @@ export async function runBlock55SmokeTestSuite(): Promise<{ passed: number; fail
       { key: 'importBatches', nameKey: 'other.labels.import', descKey: 'other.labels.import' },
     ];
 
+    expect(domainMappings.length).toBe(13);
+
     for (const d of domainMappings) {
       for (const loc of ['ar', 'en', 'ur'] as const) {
         const nameVal = resolveTranslation(d.nameKey, loc);
         const descVal = resolveTranslation(d.descKey, loc);
-        if (!nameVal || nameVal === d.nameKey) {
-          throw new Error(`Domain "${d.key}" name key "${d.nameKey}" failed in ${loc}`);
-        }
-        if (!descVal || descVal === d.descKey) {
-          throw new Error(`Domain "${d.key}" desc key "${d.descKey}" failed in ${loc}`);
-        }
+        expect(nameVal, `Domain "${d.key}" nameKey "${d.nameKey}" in ${loc}`).toBeDefined();
+        expect(nameVal, `Domain "${d.key}" nameKey "${d.nameKey}" in ${loc}`).not.toBe(d.nameKey);
+        expect(descVal, `Domain "${d.key}" descKey "${d.descKey}" in ${loc}`).toBeDefined();
+        expect(descVal, `Domain "${d.key}" descKey "${d.descKey}" in ${loc}`).not.toBe(d.descKey);
       }
     }
   });
-
-  console.log('======================================================');
-  const passed = results.filter(r => r.passed).length;
-  const failed = results.filter(r => !r.passed).length;
-  console.log(`BLOCK 55 Test Results: ${passed}/${results.length} PASSED`);
-  console.log('======================================================');
-
-  if (failed > 0) {
-    throw new Error(`${failed} tests failed in BLOCK 55 smoke test suite`);
-  }
-
-  return { passed, failed, total: results.length };
-}
-
-if (import.meta.url.endsWith(process.argv[1]) || process.argv[1]?.includes('runtimeSmokeBlock55')) {
-  runBlock55SmokeTestSuite();
-}
+});
