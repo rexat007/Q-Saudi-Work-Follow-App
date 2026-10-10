@@ -138,6 +138,28 @@
   - Manifest classification set to UNIT, environment FILESYSTEM, runner VITEST, disposition KEEP_VITEST.
   - No locale remediation required.
   - No production changes required.
+- **CD-21**: Block 62 Translation Quality Contract Reconciliation:
+  - Block 62 remains active as a current Vitest regression suite.
+  - Block 62 report JSON (`reports/i18n-block62-quality-expansion.json`) supplies cohort identity only (`repairedEntries`).
+  - Current AR/EN/UR dictionaries (`src/locales/{ar,en,ur}/index.ts`) are the sole translation authority.
+  - Historical 150-entry batch total is migration evidence only; no fixed replacement count is introduced.
+  - Historical 100 Category B / 50 Category C allocation is migration evidence and historical provenance only.
+  - `reviewStatus` is not an active Block 62 locale-test invariant and is completely retired from the test suite; `I18N-QUALITY-38` is retired entirely.
+  - Removal of `reviewStatus` from Block 62 does NOT retire or reclassify Block 60 human-review governance.
+  - Historical `[Verified]` assertion is retired.
+  - Defined, string, trimmed, and non-empty checks remain active.
+  - EN fallback protection applies across the full cohort: `enVal !== dictionaries.ar[entry.key]` and `enVal !== entry.key`.
+  - UR fallback protection applies across the full cohort: `urVal !== dictionaries.ar[entry.key]` and `urVal !== entry.key`.
+  - EN and UR cannot resolve to the key identifier.
+  - Protected technical tokens (exact baseline set of 27 tokens) preservation uses canonical AR (`dictionaries.ar[entry.key]`).
+  - Parameter interpolation parity across AR, EN, and UR uses canonical AR.
+  - Historical cross-report collision checks against Block 57, 58, 59, 61 reports are retired as historical migration batch bookkeeping.
+  - Cross-check against human review queue in `reports/i18n-block60-quality-plan.json` is retired as historical migration planning bookkeeping.
+  - Dynamic cohort integrity gate preserves non-empty cohort, internal key uniqueness, and dictionary entry existence across AR, EN, and UR.
+  - `scripts/execute-block62-translation.ts` and historical reports remain untouched.
+  - Manifest classification set to UNIT, environment FILESYSTEM, runner VITEST, disposition KEEP_VITEST.
+  - No locale remediation required.
+  - No production changes required.
 
 ---
 
