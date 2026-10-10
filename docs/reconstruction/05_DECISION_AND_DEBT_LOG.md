@@ -67,7 +67,8 @@
   - Test 05 preserves unique RTL/LTR direction coverage.
   - 12-domain assertion refers only to the explicit representative smoke domain map, not total dictionary domain count (17).
   - Current 12 exception mappings and 13 domain metadata mappings remain canonical.
-  - **CD-17**: Block 56 Translation Quality Gate Inversion & Complete Defect Family Remediation:
+  - No production or locale changes were required.
+- **CD-17**: Block 56 Translation Quality Gate Inversion & Complete Defect Family Remediation:
   - Block 56 historical quality tests expected defects to remain present.
   - C14A/C14B reconciled the full defect family.
   - 49 unique EN/UR defect keys were remediated coherently.
