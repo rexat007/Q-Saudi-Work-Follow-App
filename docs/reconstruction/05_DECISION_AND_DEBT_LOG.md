@@ -210,6 +210,32 @@
   - Manifest classification set to UNIT, environment FILESYSTEM, runner VITEST, disposition KEEP_VITEST.
   - No locale remediation required.
   - No production changes required.
+- **CD-24**: Block 65 Translation Quality Contract Reconciliation:
+  - Block 65 remains active as a current Vitest regression suite.
+  - Block 65 report JSON (`reports/i18n-block65-quality-expansion.json`) supplies cohort identity only (`repairedEntries`).
+  - Current AR/EN/UR dictionaries (`src/locales/{ar,en,ur}/index.ts`) are the sole translation authority.
+  - Taxonomy is corrected from `STATIC_GOVERNANCE` to `UNIT`.
+  - Environment is corrected from `FIREBASE_MOCK` to `FILESYSTEM`.
+  - Historical 150-entry batch total is migration evidence only; no fixed replacement count is introduced.
+  - Historical 112 Category B / 38 Category C allocation is migration evidence and historical provenance only.
+  - `reviewStatus` is not an active Block 65 locale-test invariant and is completely retired from the test suite; `I18N-QUALITY-62` is retired entirely.
+  - Removal of `reviewStatus` from Block 65 does NOT retire or reclassify Block 60 human-review governance.
+  - Historical `[Verified]` assertion is retired.
+  - Historical snapshot `entry.ar` is retired as token and fallback authority.
+  - Defined, string, trimmed, and non-empty checks remain active.
+  - EN fallback protection applies across the full cohort: `enVal !== dictionaries.ar[entry.key]` and `enVal !== entry.key`.
+  - UR fallback protection applies across the full cohort: `urVal !== dictionaries.ar[entry.key]` and `urVal !== entry.key`.
+  - Zero unintended Arabic in EN gate retained.
+  - Block 65-specific UR blacklist (15 phrases) and hybrid morphology gates retained.
+  - Protected technical tokens (exact baseline set of 26 tokens: `tripId`, `Google Drive`, `Google Sheets`, `Firestore`, `Source of Truth`, `SSOT`, `Zero-Trust ABAC`, `RBAC`, `FSM`, `LM-01`, `LM-50`, `LEGACY_UNRESOLVED`, `Audit Log`, `FUZZY`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`, `BLOCKING`, `OPEN`, `REJECTED`, `REVIEW`, `RESOLVED`, `KG`, `TON`) preservation uses canonical AR (`dictionaries.ar[entry.key]`) with boundary-aware matching.
+  - Parameter interpolation parity across AR, EN, and UR uses canonical AR.
+  - Historical cross-report collision checks against Blocks 57, 58, 59, 61, 62, 63, 64 reports are retired as historical migration batch bookkeeping.
+  - Cross-check against human review queue in `reports/i18n-block60-quality-plan.json` is retired as historical migration planning bookkeeping.
+  - Dynamic cohort integrity gate preserves non-empty cohort, internal key uniqueness, and dictionary entry existence across AR, EN, and UR.
+  - `scripts/execute-block65-translation.ts` and historical reports remain untouched.
+  - Manifest classification set to UNIT, environment FILESYSTEM, runner VITEST, disposition KEEP_VITEST.
+  - No locale remediation required.
+  - No production changes required.
 
 ---
 
