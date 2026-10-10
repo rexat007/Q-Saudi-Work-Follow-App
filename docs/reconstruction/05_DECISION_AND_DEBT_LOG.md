@@ -292,6 +292,26 @@
   - Block 68 does not own Block 69 approval, Block 69A reconciliation, or Block 70 live application.
   - Zero locale changes.
   - Zero report regeneration.
+- **CD-28**: Block 69 Human-Approval Governance Contract Reconciliation:
+  - Block 69 remains active STATIC_GOVERNANCE coverage.
+  - Runner migrated to Vitest.
+  - FILESYSTEM environment remains correct.
+  - `reports/i18n-human-approved-decisions.json` remains the authoritative approval ledger.
+  - `reports/i18n-human-review-decisions.json` remains the upstream Block 68 traceability authority.
+  - Exact 33-item approval ledger remains intentional.
+  - Approved decision distribution remains 29 REVISE / 2 FIX_SOURCE / 1 APPROVE / 1 KEEP_EXCEPTION.
+  - REVIEWED / APPROVED / HUMAN_REVIEW_CHAT remains active artifact-state governance.
+  - `appliedToCodebase: false` remains valid as immutable Block 69 approval-stage artifact semantics.
+  - Critical approved-content checks remain active.
+  - Protected-token and interpolation integrity remain active.
+  - Deterministic SHA-256 checksum verification remains active.
+  - Historical TEST-07 live-code zero-application contract retired.
+  - Obsolete locale key-count 1128 assertions retired and NOT replaced with 1129.
+  - Corrupted fixture invariance retired.
+  - Block 70 skip/guard dependency retired from Block 69.
+  - Block 69 does not own live locale application.
+  - Zero locale changes.
+  - Zero report regeneration.
   - Zero production changes.
 
 ---
