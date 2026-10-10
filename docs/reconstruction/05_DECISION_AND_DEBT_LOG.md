@@ -260,6 +260,22 @@
   - Manifest classification set to UNIT, environment FILESYSTEM, runner VITEST, disposition KEEP_VITEST.
   - No locale remediation required.
   - No production changes required.
+- **CD-26**: Block 67 Human-Review Governance Contract Reconciliation:
+  - Block 67 remains active STATIC_GOVERNANCE coverage.
+  - Runner migrated to Vitest.
+  - Filesystem environment remains correct.
+  - `scripts/block67-items-data.json` remains the canonical fixed 33-item governance dataset for Block 67.
+  - The 33-item queue and 17 bilingual-source classification remain intentional governance invariants.
+  - Governance schema, interpolation protection, and audit-document integrity remain active.
+  - Reports used by TEST-08 remain governance evidence/contracts rather than ordinary translation cohort fixtures.
+  - Obsolete global Arabic dictionary count `1128` retired and is NOT replaced with `1129`.
+  - Six canonical Arabic governance spot-checks remain.
+  - Historical corrupted-fixture invariance TEST-06 retired.
+  - Pre-application zero-modification TEST-07 and Block70 skip/guard dependency retired.
+  - Block 67 does not own Block 68 decision lifecycle, Block 69 approval state, Block 69A reconciliation, or Block 70 live application.
+  - Zero locale changes.
+  - Zero report regeneration.
+  - Zero production changes.
 
 ---
 
