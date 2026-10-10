@@ -83,6 +83,21 @@
   - I18nProvider unchanged.
   - AR locale unchanged.
   - no new test dependencies added.
+- **CD-18**: Block 58 Quality Expansion Contract Reconciliation:
+  - Block 58 remains an active regression suite.
+  - Valid quality gates remain current.
+  - Exact historical 100-entry batch size is historical evidence only; no fixed replacement count is introduced.
+  - Block 57 report non-overlap check was historical batch bookkeeping and is retired.
+  - Historical `entry.ar` snapshot does not override current canonical Arabic.
+  - Current AR/EN/UR dictionaries remain locale authority.
+  - EN contamination and hybrid morphology guards remain.
+  - Urdu semantic Arabic-frame guard remains.
+  - Protected technical token guard remains.
+  - Interpolation parity guard remains.
+  - I18N-QUALITY-17 now checks only dynamic cohort integrity (non-empty cohort, unique keys).
+  - `scripts/run-quality-expansion-block58.ts` remains untouched historical migration evidence.
+  - No locale remediation required.
+  - No production changes required.
 
 ---
 
