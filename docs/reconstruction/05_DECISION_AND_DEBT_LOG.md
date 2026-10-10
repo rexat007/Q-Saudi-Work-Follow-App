@@ -312,6 +312,28 @@
   - Block 69 does not own live locale application.
   - Zero locale changes.
   - Zero report regeneration.
+- **CD-29**: Block 69A Human-Approval Reconciliation Contract:
+  - Block 69A remains active STATIC_GOVERNANCE coverage.
+  - Runner migrated to Vitest.
+  - FILESYSTEM environment remains correct.
+  - `reports/i18n-human-approved-decisions-reconciled.json` remains authoritative reconciliation contract.
+  - Reconciled markdown remains governance documentation artifact.
+  - Exact 33-item reconciliation set remains intentional.
+  - Exact decision distribution remains active.
+  - Exact EN/UR wording across all 33 records remains active.
+  - FIX_SOURCE transitions remain active.
+  - KEEP_EXCEPTION / APPROVE handler semantics remain active.
+  - Protected-token and interpolation integrity remain active.
+  - Block 68 recommendation/classification traceability remains active.
+  - REVIEWED / APPROVED / HUMAN_REVIEW_CHAT remains reconciliation-stage artifact governance.
+  - `appliedToCodebase: false` remains valid as immutable reconciliation-stage artifact semantics.
+  - Deterministic SHA-256 checksum remains active.
+  - Historical TEST-09 live-code freeze contract retired.
+  - Obsolete 1128 locale counts retired and NOT replaced with 1129.
+  - Block 70 skip/guard dependency retired.
+  - Block 69A does not own live locale application.
+  - Zero locale changes.
+  - Zero report regeneration.
   - Zero production changes.
 
 ---
