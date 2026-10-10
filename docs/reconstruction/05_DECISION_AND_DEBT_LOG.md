@@ -67,7 +67,21 @@
   - Test 05 preserves unique RTL/LTR direction coverage.
   - 12-domain assertion refers only to the explicit representative smoke domain map, not total dictionary domain count (17).
   - Current 12 exception mappings and 13 domain metadata mappings remain canonical.
-  - No production or locale changes were required.
+  - **CD-17**: Block 56 Translation Quality Gate Inversion & Complete Defect Family Remediation:
+  - Block 56 historical quality tests expected defects to remain present.
+  - C14A/C14B reconciled the full defect family.
+  - 49 unique EN/UR defect keys were remediated coherently.
+  - 27 historical fallback-identical defects were subset of same 49 keys.
+  - EN mixed-language gate now requires zero Arabic contamination.
+  - UR gate now requires zero confirmed Arabic fallback/mixed-frame defects.
+  - fallback-identical prose gate requires zero unjustified fallback prose.
+  - hybrid morphology gate requires zero current malformed hybrids.
+  - historical Block 56 report remains immutable evidence.
+  - wrong_D = 34 is historical only.
+  - LanguageSwitcher production code unchanged.
+  - I18nProvider unchanged.
+  - AR locale unchanged.
+  - no new test dependencies added.
 
 ---
 

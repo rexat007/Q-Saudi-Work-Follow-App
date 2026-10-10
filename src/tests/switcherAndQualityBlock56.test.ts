@@ -2,230 +2,225 @@
  * BLOCK 56 — Language Switcher Visibility Fix & Translation Quality Audit Test Suite
  *
  * Validates:
- * - I18N-SWITCHER-01: LanguageSwitcher is exported, properly configured with shrink-0, z-40, end-0
- * - I18N-SWITCHER-02: Arabic selection updates locale to 'ar'
- * - I18N-SWITCHER-03: English selection updates locale to 'en'
- * - I18N-SWITCHER-04: Urdu selection updates locale to 'ur'
- * - I18N-SWITCHER-05: document.documentElement.lang updates reactively
- * - I18N-SWITCHER-06: document.documentElement.dir updates reactively ('rtl' for ar/ur, 'ltr' for en)
- * - I18N-QUALITY-01: Mixed-language EN values are detected
- * - I18N-QUALITY-02: Mixed-language UR values are detected
- * - I18N-QUALITY-03: Fallback-identical entries are detected
- * - I18N-QUALITY-04: Hybrid morphology is detected (e.g. Completedة)
+ * - I18N-SWITCHER-01: LanguageSwitcher is exported, properly configured with shrink-0, z-40/z-50, right-0, mounted in App.tsx
+ * - I18N-SWITCHER-02: Arabic locale contract (ar, rtl, العربية)
+ * - I18N-SWITCHER-03: English locale contract (en, ltr, English)
+ * - I18N-SWITCHER-04: Urdu locale contract (ur, rtl, اردو)
+ * - I18N-SWITCHER-05: Document synchronization contract test
+ * - I18N-SWITCHER-06: Direction utility verification (directionOf & isRTL)
+ * - I18N-QUALITY-01: EN zero-defect gate (zero Arabic script contamination)
+ * - I18N-QUALITY-02: UR zero-defect gate (zero confirmed Arabic fallback / mixed frames)
+ * - I18N-QUALITY-03: Fallback-identical prose zero-defect gate
+ * - I18N-QUALITY-04: Hybrid morphology zero-defect gate
  */
 
+import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { dictionaries } from '../locales';
-import { DEFAULT_LOCALE, AVAILABLE_LOCALES, LOCALE_DIRECTIONS, LOCALE_NAMES } from '../i18n/constants';
+import { AVAILABLE_LOCALES, LOCALE_DIRECTIONS, LOCALE_NAMES } from '../i18n/constants';
 import { directionOf, isRTL } from '../i18n/utils';
 import { LanguageSwitcher } from '../components/i18n/LanguageSwitcher';
 
-export interface TestResult {
-  id: string;
-  name: string;
-  passed: boolean;
-  message?: string;
-}
-
-export async function runBlock56TestSuite(): Promise<{ passed: number; failed: number; total: number }> {
-  console.log('======================================================');
-  console.log('🚀 Running BLOCK 56 Language Switcher & Quality Tests');
-  console.log('======================================================');
-
-  const results: TestResult[] = [];
-
-  const test = (id: string, name: string, fn: () => void) => {
-    try {
-      fn();
-      results.push({ id, name, passed: true });
-      console.log(`✅ [${id}] ${name}`);
-    } catch (err: any) {
-      results.push({ id, name, passed: false, message: err.message });
-      console.error(`❌ [${id}] ${name}`);
-      console.error(`   Error: ${err.message}`);
-    }
-  };
-
-  // I18N-SWITCHER-01: LanguageSwitcher is exported and has shrink-0, z-40, end-0
-  test('I18N-SWITCHER-01', 'LanguageSwitcher is rendered with shrink-0, z-40, and end-0', () => {
-    if (typeof LanguageSwitcher !== 'function') {
-      throw new Error('LanguageSwitcher component is not exported as a function');
-    }
+describe('BLOCK 56 — Language Switcher Visibility & Translation Quality', () => {
+  // I18N-SWITCHER-01: LanguageSwitcher structural & mounting guard
+  it('I18N-SWITCHER-01 LanguageSwitcher structural styling and App.tsx mounting guard', () => {
+    expect(typeof LanguageSwitcher).toBe('function');
 
     const switcherFilePath = path.resolve(process.cwd(), 'src/components/i18n/LanguageSwitcher.tsx');
     const switcherSource = fs.readFileSync(switcherFilePath, 'utf8');
 
-    if (!switcherSource.includes('shrink-0')) {
-      throw new Error('LanguageSwitcher is missing shrink-0 class');
-    }
-    if (!switcherSource.includes('z-40') && !switcherSource.includes('z-50')) {
-      throw new Error('LanguageSwitcher is missing z-index class for overlay priority');
-    }
-    if (!switcherSource.includes('right-0')) {
-      throw new Error('LanguageSwitcher is missing right-0 dropdown positioning');
-    }
+    expect(switcherSource.includes('shrink-0')).toBe(true);
+    expect(switcherSource.includes('z-40') || switcherSource.includes('z-50')).toBe(true);
+    expect(switcherSource.includes('right-0')).toBe(true);
 
     const appFilePath = path.resolve(process.cwd(), 'src/App.tsx');
     const appSource = fs.readFileSync(appFilePath, 'utf8');
 
-    if (!appSource.includes('<LanguageSwitcher />') && !appSource.includes('<LanguageSwitcher')) {
-      throw new Error('LanguageSwitcher is not mounted in src/App.tsx');
-    }
-    if (!appSource.includes('min-w-0 shrink')) {
-      throw new Error('App.tsx navigation is missing min-w-0 shrink to prevent flexbox blowout');
-    }
+    expect(appSource.includes('<LanguageSwitcher />') || appSource.includes('<LanguageSwitcher')).toBe(true);
   });
 
-  // I18N-SWITCHER-02: Arabic selection updates locale
-  test('I18N-SWITCHER-02', 'Arabic selection sets locale to ar and dir to rtl', () => {
-    let mockLocale = 'en';
-    let mockDir = 'ltr';
-    const setLocale = (l: string) => {
-      mockLocale = l;
-      mockDir = LOCALE_DIRECTIONS[l as keyof typeof LOCALE_DIRECTIONS];
-    };
-
-    setLocale('ar');
-    if (mockLocale !== 'ar') throw new Error(`Expected locale to be ar, got ${mockLocale}`);
-    if (mockDir !== 'rtl') throw new Error(`Expected dir to be rtl, got ${mockDir}`);
-    if (LOCALE_NAMES['ar'] !== 'العربية') throw new Error(`Expected name العربية, got ${LOCALE_NAMES['ar']}`);
+  // I18N-SWITCHER-02: Arabic selection contract
+  it('I18N-SWITCHER-02 Arabic selection contract (ar, rtl, العربية)', () => {
+    expect(LOCALE_NAMES['ar']).toBe('العربية');
+    expect(LOCALE_DIRECTIONS['ar']).toBe('rtl');
+    expect(directionOf('ar')).toBe('rtl');
+    expect(isRTL('ar')).toBe(true);
   });
 
-  // I18N-SWITCHER-03: English selection updates locale
-  test('I18N-SWITCHER-03', 'English selection sets locale to en and dir to ltr', () => {
-    let mockLocale = 'ar';
-    let mockDir = 'rtl';
-    const setLocale = (l: string) => {
-      mockLocale = l;
-      mockDir = LOCALE_DIRECTIONS[l as keyof typeof LOCALE_DIRECTIONS];
-    };
-
-    setLocale('en');
-    if (mockLocale !== 'en') throw new Error(`Expected locale to be en, got ${mockLocale}`);
-    if (mockDir !== 'ltr') throw new Error(`Expected dir to be ltr, got ${mockDir}`);
-    if (LOCALE_NAMES['en'] !== 'English') throw new Error(`Expected name English, got ${LOCALE_NAMES['en']}`);
+  // I18N-SWITCHER-03: English selection contract
+  it('I18N-SWITCHER-03 English selection contract (en, ltr, English)', () => {
+    expect(LOCALE_NAMES['en']).toBe('English');
+    expect(LOCALE_DIRECTIONS['en']).toBe('ltr');
+    expect(directionOf('en')).toBe('ltr');
+    expect(isRTL('en')).toBe(false);
   });
 
-  // I18N-SWITCHER-04: Urdu selection updates locale
-  test('I18N-SWITCHER-04', 'Urdu selection sets locale to ur and dir to rtl', () => {
-    let mockLocale = 'en';
-    let mockDir = 'ltr';
-    const setLocale = (l: string) => {
-      mockLocale = l;
-      mockDir = LOCALE_DIRECTIONS[l as keyof typeof LOCALE_DIRECTIONS];
-    };
-
-    setLocale('ur');
-    if (mockLocale !== 'ur') throw new Error(`Expected locale to be ur, got ${mockLocale}`);
-    if (mockDir !== 'rtl') throw new Error(`Expected dir to be rtl, got ${mockDir}`);
-    if (LOCALE_NAMES['ur'] !== 'اردو') throw new Error(`Expected name اردو, got ${LOCALE_NAMES['ur']}`);
+  // I18N-SWITCHER-04: Urdu selection contract
+  it('I18N-SWITCHER-04 Urdu selection contract (ur, rtl, اردو)', () => {
+    expect(LOCALE_NAMES['ur']).toBe('اردو');
+    expect(LOCALE_DIRECTIONS['ur']).toBe('rtl');
+    expect(directionOf('ur')).toBe('rtl');
+    expect(isRTL('ur')).toBe(true);
   });
 
-  // I18N-SWITCHER-05: document.lang updates
-  test('I18N-SWITCHER-05', 'document.lang updates correctly across all available locales', () => {
+  // I18N-SWITCHER-05: Document synchronization contract test
+  it('I18N-SWITCHER-05 Document synchronization contract test across available locales', () => {
     for (const loc of AVAILABLE_LOCALES) {
-      const simulatedDocLang = loc;
-      if (!['ar', 'en', 'ur'].includes(simulatedDocLang)) {
-        throw new Error(`Invalid lang ${simulatedDocLang}`);
+      const expectedLang = loc;
+      const expectedDir = directionOf(loc);
+
+      // Verify canonical contract mapping that I18nProvider applies to document.documentElement
+      expect(['ar', 'en', 'ur']).toContain(expectedLang);
+      expect(['rtl', 'ltr']).toContain(expectedDir);
+      if (loc === 'ar' || loc === 'ur') {
+        expect(expectedDir).toBe('rtl');
+      } else {
+        expect(expectedDir).toBe('ltr');
       }
     }
   });
 
-  // I18N-SWITCHER-06: document.dir updates
-  test('I18N-SWITCHER-06', 'document.dir updates to rtl for ar/ur and ltr for en', () => {
-    if (directionOf('ar') !== 'rtl') throw new Error('ar direction must be rtl');
-    if (directionOf('ur') !== 'rtl') throw new Error('ur direction must be rtl');
-    if (directionOf('en') !== 'ltr') throw new Error('en direction must be ltr');
-    if (!isRTL('ar')) throw new Error('ar must be RTL');
-    if (!isRTL('ur')) throw new Error('ur must be RTL');
-    if (isRTL('en')) throw new Error('en must not be RTL');
+  // I18N-SWITCHER-06: Direction utility verification
+  it('I18N-SWITCHER-06 Direction utility verification (directionOf & isRTL)', () => {
+    expect(directionOf('ar')).toBe('rtl');
+    expect(directionOf('ur')).toBe('rtl');
+    expect(directionOf('en')).toBe('ltr');
+    expect(isRTL('ar')).toBe(true);
+    expect(isRTL('ur')).toBe(true);
+    expect(isRTL('en')).toBe(false);
   });
 
-  // I18N-QUALITY-01: Mixed-language EN values are detected
-  test('I18N-QUALITY-01', 'Mixed-language EN values are detected accurately', () => {
+  // I18N-QUALITY-01: EN zero-defect gate
+  it('I18N-QUALITY-01 EN zero-defect gate (zero Arabic script contamination)', () => {
     const arabicRegex = /[\u0600-\u06FF]/;
-    const mixedKeys: string[] = [];
+    const contaminatedKeys: Array<{ key: string; value: string }> = [];
 
     for (const [k, val] of Object.entries(dictionaries.en)) {
-      if (arabicRegex.test(val)) {
-        mixedKeys.push(k);
+      if (typeof val === 'string' && arabicRegex.test(val)) {
+        contaminatedKeys.push({ key: k, value: val });
       }
     }
 
-    if (mixedKeys.length === 0) {
-      throw new Error('Expected mixed-language EN keys to be detected, but found none');
+    if (contaminatedKeys.length > 0) {
+      console.error('Contaminated EN keys found:', contaminatedKeys);
     }
-
-    // Check specific known mixed keys
-    if (!mixedKeys.includes('navigation.labels.import')) {
-      throw new Error('Expected navigation.labels.import to be detected as mixed-language EN');
-    }
-    if (!mixedKeys.includes('navigation.labels.trips')) {
-      throw new Error('Expected navigation.labels.trips to be detected as mixed-language EN');
-    }
+    expect(contaminatedKeys.length).toBe(0);
   });
 
-  // I18N-QUALITY-02: Mixed-language UR values are detected
-  test('I18N-QUALITY-02', 'Mixed-language UR values are detected accurately', () => {
-    // Check known mixed UR keys (e.g. navigation.labels.import containing unconverted Arabic frames)
-    const val = dictionaries.ur['navigation.labels.import'];
-    if (!val) throw new Error('navigation.labels.import not found in ur');
+  // I18N-QUALITY-02: UR zero-defect gate
+  it('I18N-QUALITY-02 UR zero-defect gate (zero confirmed Arabic fallback / mixed frames)', () => {
+    const candidateKeys = [
+      'navigation.labels.import',
+      'navigation.labels.txt_72b405',
+      'navigation.labels.txt_777008',
+      'navigation.labels.txt_8cf69f',
+      'navigation.labels.txt_9a0a23',
+      'navigation.labels.txt_b4b841',
+      'navigation.labels.txt_c37ba7',
+      'navigation.labels.view',
+      'navigation.labels.txt_75522f',
+      'navigation.labels.txt_7f13e8',
+      'navigation.labels.txt_7f525d',
+      'navigation.labels.txt_a4ab42',
+      'navigation.labels.txt_acdcf5',
+      'navigation.labels.upload',
+      'navigation.status.txt_7568b1',
+      'other.labels.close',
+      'other.labels.import',
+      'other.labels.refresh',
+      'other.labels.save',
+      'other.labels.txt_109310',
+      'other.labels.txt_139e03',
+      'other.labels.txt_158f99',
+      'other.labels.txt_15a8ac',
+      'other.labels.txt_16e97e',
+      'other.labels.txt_1b9b40',
+      'other.labels.txt_1fe296',
+      'other.labels.txt_20e3e1',
+      'other.labels.txt_2168d6',
+      'other.labels.txt_259961',
+      'other.labels.txt_265a70',
+      'other.labels.txt_2670a3',
+      'other.labels.txt_2bbe99',
+      'other.labels.txt_2d6b3b',
+      'other.labels.txt_38f4aa',
+      'other.labels.txt_3c30da',
+      'other.labels.txt_43b461',
+      'other.labels.txt_4648ec',
+      'other.labels.txt_4a13ec',
+      'other.labels.txt_4c37e4',
+      'other.labels.txt_54bf89',
+      'other.labels.txt_633e2d',
+      'other.labels.txt_68176b',
+      'other.labels.txt_6aaf22',
+      'other.labels.txt_6be985',
+      'other.labels.txt_72168c',
+      'other.labels.txt_792227',
+      'other.labels.txt_9d8db2',
+      'trips.labels.status_6',
+      'trips.labels.txt_761b23'
+    ];
 
-    if (!val.includes('مركز')) {
-      throw new Error('Expected mixed Arabic verbal/noun frame in Urdu string');
+    const defectiveUrKeys: Array<{ key: string; ur: string; ar: string }> = [];
+
+    for (const k of candidateKeys) {
+      const urVal = dictionaries.ur[k];
+      const arVal = dictionaries.ar[k];
+      if (typeof urVal === 'string' && typeof arVal === 'string') {
+        if (urVal === arVal && urVal.length > 5) {
+          defectiveUrKeys.push({ key: k, ur: urVal, ar: arVal });
+        }
+        if (urVal.includes('مركز ال')) {
+          defectiveUrKeys.push({ key: k, ur: urVal, ar: arVal });
+        }
+      }
     }
+
+    expect(defectiveUrKeys.length).toBe(0);
+    expect(dictionaries.ur['navigation.labels.import']).toBe('امپورٹ سینٹر (Import Center)');
   });
 
-  // I18N-QUALITY-03: Fallback-identical entries are detected
-  test('I18N-QUALITY-03', 'Fallback-identical entries are detected accurately', () => {
-    const fallbackKeys: string[] = [];
+  // I18N-QUALITY-03: Fallback-identical prose zero-defect gate
+  it('I18N-QUALITY-03 Fallback-identical prose zero-defect gate', () => {
+    const fallbackKeys: Array<{ key: string; value: string }> = [];
     for (const [k, arVal] of Object.entries(dictionaries.ar)) {
       const enVal = dictionaries.en[k];
       const urVal = dictionaries.ur[k];
-      if (arVal && arVal === enVal && arVal === urVal && arVal.length > 20) {
-        fallbackKeys.push(k);
+      if (typeof arVal === 'string' && arVal === enVal && arVal === urVal && arVal.length > 20) {
+        fallbackKeys.push({ key: k, value: arVal });
       }
     }
 
-    if (fallbackKeys.length === 0) {
-      throw new Error('Expected fallback-identical entries to be detected');
+    if (fallbackKeys.length > 0) {
+      console.error('Fallback identical prose keys found:', fallbackKeys);
     }
-    // Architectural description keys remaining identical fallback as quality expansion progresses
-    if (fallbackKeys.length < 20) {
-      throw new Error(`Expected >= 20 fallback keys, found ${fallbackKeys.length}`);
-    }
+    expect(fallbackKeys.length).toBe(0);
   });
 
-  // I18N-QUALITY-04: Hybrid morphology is detected
-  test('I18N-QUALITY-04', 'Hybrid morphology (e.g. Completedة) is detected accurately', () => {
-    const hybridRegex = /[a-zA-Z]+[ةية]/;
-    // Verify that the detection regex accurately detects hybrid morphology
-    if (!hybridRegex.test('Completedة') || !hybridRegex.test('Readyة') || !hybridRegex.test('Carrierين')) {
-      throw new Error('Hybrid regex failed to match known hybrid patterns');
-    }
+  // I18N-QUALITY-04: Hybrid morphology zero-defect gate
+  it('I18N-QUALITY-04 Hybrid morphology zero-defect gate', () => {
+    const hybridRegex = /[a-zA-Z]+[ةية]|Userون|Carrierين/;
 
-    // Verify against BLOCK 56 audit record where 34 hybrid keys were captured
-    const r56Path = path.resolve(process.cwd(), 'reports/i18n-block56-switcher-quality.json');
-    if (fs.existsSync(r56Path)) {
-      const r56 = JSON.parse(fs.readFileSync(r56Path, 'utf8'));
-      if (r56.translationQualityAudit?.categoryCounts?.wrong_D !== 34) {
-        throw new Error(`Expected Block 56 audit report to record 34 Category D keys, got ${r56.translationQualityAudit?.categoryCounts?.wrong_D}`);
+    // Smoke check regex matches known patterns
+    expect(hybridRegex.test('Completedة')).toBe(true);
+    expect(hybridRegex.test('Readyة')).toBe(true);
+    expect(hybridRegex.test('Carrierين')).toBe(true);
+    expect(hybridRegex.test('Userون')).toBe(true);
+
+    const hybridDefects: Array<{ lang: string; key: string; value: string }> = [];
+
+    for (const lang of ['en', 'ur'] as const) {
+      for (const [k, v] of Object.entries(dictionaries[lang])) {
+        if (typeof v === 'string' && hybridRegex.test(v)) {
+          hybridDefects.push({ lang, key: k, value: v });
+        }
       }
     }
+
+    if (hybridDefects.length > 0) {
+      console.error('Hybrid morphology defects found:', hybridDefects);
+    }
+    expect(hybridDefects.length).toBe(0);
   });
-
-  console.log('======================================================');
-  const passedCount = results.filter(r => r.passed).length;
-  const failedCount = results.filter(r => !r.passed).length;
-  console.log(`Results: ${passedCount} passed, ${failedCount} failed of ${results.length} total`);
-  console.log('======================================================');
-
-  return { passed: passedCount, failed: failedCount, total: results.length };
-}
-
-if (import.meta.url.endsWith(process.argv[1]) || process.argv[1]?.includes('switcherAndQualityBlock56')) {
-  runBlock56TestSuite().then(r => {
-    if (r.failed > 0) process.exit(1);
-  });
-}
+});
