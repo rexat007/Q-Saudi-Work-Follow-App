@@ -55,7 +55,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 46 | `src/tests/qualityExpansionBlock65.test.ts` | `test:i18n-quality-expansion-65, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 47 | `src/tests/qualityExpansionBlock66.test.ts` | `test:i18n-quality-expansion-66, test` | `TSX_CUSTOM` | `UNIT` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 48 | `src/tests/qualityPilotBlock57.test.ts` | `test:i18n-quality-pilot, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 49 | `src/tests/qualityTranslationBlock61.test.ts` | `test:i18n-quality-p1-61, test` | `TSX_CUSTOM` | `UNIT` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 49 | `src/tests/qualityTranslationBlock61.test.ts` | `test:i18n-quality-p1-61, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 50 | `src/tests/roleBasedNavigationSystemAssemblyBlock81.test.ts` | `test:nav-assembly-81, test` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 51 | `src/tests/runtimeDefaultDataElimination92A.test.ts` | `test:runtime-data-92a, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 52 | `src/tests/runtimeEmptyStateBlock82B.test.ts` | `test:runtime-empty-82b, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
