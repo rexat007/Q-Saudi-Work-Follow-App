@@ -236,6 +236,30 @@
   - Manifest classification set to UNIT, environment FILESYSTEM, runner VITEST, disposition KEEP_VITEST.
   - No locale remediation required.
   - No production changes required.
+- **CD-25**: Block 66 Translation Quality Contract Reconciliation:
+  - Block 66 remains active as a current Vitest regression suite.
+  - Block 66 report JSON (`reports/i18n-block66-final-cleanup.json`) supplies cohort identity only (`repairedEntries`).
+  - Current AR/EN/UR dictionaries (`src/locales/{ar,en,ur}/index.ts`) are the sole translation authority.
+  - Taxonomy is retained as `UNIT`.
+  - Environment is retained as `FILESYSTEM`.
+  - Historical 16-entry batch total is migration evidence only; no fixed replacement count is introduced.
+  - Historical Category B legacyMigration defect cleanup allocation is migration evidence and historical provenance only.
+  - Historical `[Verified]` assertion and status check (`I18N-QUALITY-70`) are retired.
+  - Historical snapshot `entry.ar` is retired as token and fallback authority.
+  - Defined, string, trimmed, and non-empty checks remain active.
+  - EN fallback protection applies across the full cohort: `enVal !== dictionaries.ar[entry.key]` and `enVal !== entry.key`.
+  - UR fallback protection applies across the full cohort: `urVal !== dictionaries.ar[entry.key]` and `urVal !== entry.key`.
+  - Zero unintended Arabic in EN gate retained (`I18N-QUALITY-68`).
+  - Block 66-specific UR blacklist (15 corrupt Arabic phrases) and hybrid morphology gates retained (`I18N-QUALITY-69`).
+  - Protected technical tokens (exact baseline set of 2 tokens: `Admin`, `Failed`) preservation uses canonical AR (`dictionaries.ar[entry.key]`) with boundary-aware matching (`I18N-QUALITY-71`).
+  - Parameter interpolation parity across AR, EN, and UR uses canonical AR (`I18N-QUALITY-72`).
+  - Historical cross-report collision checks against Blocks 57, 58, 59, 61, 62, 63, 64, 65 reports are retired as historical migration batch bookkeeping.
+  - Historical queue status before/after delta check (52 -> 36 defects) is retired as historical migration bookkeeping.
+  - Dynamic cohort integrity gate preserves non-empty cohort, internal key uniqueness, and dictionary entry existence across AR, EN, and UR (`I18N-QUALITY-73`).
+  - Historical reports remain untouched.
+  - Manifest classification set to UNIT, environment FILESYSTEM, runner VITEST, disposition KEEP_VITEST.
+  - No locale remediation required.
+  - No production changes required.
 
 ---
 

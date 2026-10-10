@@ -53,7 +53,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 44 | `src/tests/qualityExpansionBlock63.test.ts` | `test:i18n-quality-expansion-63, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 45 | `src/tests/qualityExpansionBlock64.test.ts` | `test:i18n-quality-expansion-64, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 46 | `src/tests/qualityExpansionBlock65.test.ts` | `test:i18n-quality-expansion-65, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 47 | `src/tests/qualityExpansionBlock66.test.ts` | `test:i18n-quality-expansion-66, test` | `TSX_CUSTOM` | `UNIT` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 47 | `src/tests/qualityExpansionBlock66.test.ts` | `test:i18n-quality-expansion-66, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 48 | `src/tests/qualityPilotBlock57.test.ts` | `test:i18n-quality-pilot, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 49 | `src/tests/qualityTranslationBlock61.test.ts` | `test:i18n-quality-p1-61, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 50 | `src/tests/roleBasedNavigationSystemAssemblyBlock81.test.ts` | `test:nav-assembly-81, test` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
