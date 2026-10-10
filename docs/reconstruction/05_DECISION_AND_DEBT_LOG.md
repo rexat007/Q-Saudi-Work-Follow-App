@@ -98,6 +98,23 @@
   - `scripts/run-quality-expansion-block58.ts` remains untouched historical migration evidence.
   - No locale remediation required.
   - No production changes required.
+- **CD-19**: Block 59 Quality Expansion Contract Reconciliation:
+  - Block 59 remains active as a current regression suite.
+  - Historical 150-entry total is not a current product contract; no fixed replacement count is introduced.
+  - Historical 100 Category C / 50 Category B allocation is not a current product contract.
+  - Priority-domain whitelist was migration planning bookkeeping and is retired.
+  - Historical `entry.ar` snapshot does not override current canonical Arabic (`src/locales/ar/index.ts`).
+  - `oldEn` / `oldUr` inequality checks are migration evidence only and are retired (I18N-QUALITY-23 retired).
+  - Category C fallback guard remains, using current canonical Arabic.
+  - EN contamination / hybrid morphology guard remains.
+  - UR semantic Arabic-frame / hybrid morphology guard remains.
+  - Protected-token guard remains, based on current canonical Arabic.
+  - Interpolation parity remains, based on current AR/EN/UR dictionaries.
+  - Block 57/58 cross-batch collision report checks are retired.
+  - Manifest environment corrected from FIREBASE_MOCK to FILESYSTEM.
+  - `scripts/run-quality-expansion-block59.ts` and historical reports remain untouched.
+  - No locale remediation required.
+  - No production changes required.
 
 ---
 

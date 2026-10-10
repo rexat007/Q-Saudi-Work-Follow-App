@@ -48,7 +48,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 39 | `src/tests/projectReadinessAdminReadContext.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 40 | `src/tests/projectTruckMaterialAllocationFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 41 | `src/tests/qualityExpansionBlock58.test.ts` | `test:i18n-quality-expansion, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 42 | `src/tests/qualityExpansionBlock59.test.ts` | `test:i18n-quality-expansion-59, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 42 | `src/tests/qualityExpansionBlock59.test.ts` | `test:i18n-quality-expansion-59, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 43 | `src/tests/qualityExpansionBlock62.test.ts` | `test:i18n-quality-expansion-62, test` | `TSX_CUSTOM` | `UNIT` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 44 | `src/tests/qualityExpansionBlock63.test.ts` | `test:i18n-quality-expansion-63, test` | `TSX_CUSTOM` | `UNIT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 45 | `src/tests/qualityExpansionBlock64.test.ts` | `test:i18n-quality-expansion-64, test` | `TSX_CUSTOM` | `UNIT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
