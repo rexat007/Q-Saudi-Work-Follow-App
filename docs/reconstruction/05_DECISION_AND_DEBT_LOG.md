@@ -275,6 +275,23 @@
   - Block 67 does not own Block 68 decision lifecycle, Block 69 approval state, Block 69A reconciliation, or Block 70 live application.
   - Zero locale changes.
   - Zero report regeneration.
+- **CD-27**: Block 68 Human-Review Decision Contract Reconciliation:
+  - Block 68 remains active STATIC_GOVERNANCE coverage.
+  - Runner migrated to Vitest.
+  - FILESYSTEM environment remains correct.
+  - `reports/i18n-human-review-decisions.json` and `.md` remain active decision-governance artifacts.
+  - Exact 33-item decision dossier remains intentional.
+  - REVIEW_REQUIRED / PENDING state remains valid as Block 68 formulation-stage artifact semantics.
+  - Four-part audit separation remains active.
+  - Recommendation distribution remains: 29 REVISE / 2 FIX_SOURCE / 1 APPROVE / 1 KEEP_EXCEPTION.
+  - Proposal quality, protected-token integrity, and interpolation protection remain active.
+  - Historical TEST-07 pre-application zero-modification contract retired.
+  - Obsolete exact locale key count 1128 retired and NOT replaced with 1129.
+  - Corrupted fixture invariance retired.
+  - Block 70 skip/guard dependency retired from Block 68.
+  - Block 68 does not own Block 69 approval, Block 69A reconciliation, or Block 70 live application.
+  - Zero locale changes.
+  - Zero report regeneration.
   - Zero production changes.
 
 ---
