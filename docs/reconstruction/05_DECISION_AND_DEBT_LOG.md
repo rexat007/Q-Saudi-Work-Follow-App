@@ -354,6 +354,22 @@
   - Zero locale changes.
   - Zero report regeneration.
   - Zero production changes.
+- **CD-31**: Block 72 UI/UX RTL Audit Contract Reconciliation:
+  - Block 72 remains active STATIC_GOVERNANCE coverage.
+  - Runner migrated to Vitest.
+  - FILESYSTEM environment remains correct.
+  - RTL/LTR mapping contracts remain active (`LOCALE_DIRECTIONS`, `directionOf`, `isRTL`).
+  - Audit JSON (`reports/uiux-rtl-audit-block72.json`) and Markdown (`reports/uiux-rtl-audit-block72.md`) remain active static-governance artifacts.
+  - Finding severity classification (P0, P1, P2, P3) and schema integrity remain active.
+  - Severity summary reconciliation remains active.
+  - Root App direction binding (`App.tsx`) remains active.
+  - Block 71 baseline/artifact validation (`reports/i18n-freeze-gate.json`) remains active.
+  - Historical fixed locale-count tests B72-T01/T02/T03 retired.
+  - Obsolete 1128 locale freeze retired and NOT replaced with 1129.
+  - Block 72 does not freeze future locale expansion.
+  - Zero locale changes.
+  - Zero report regeneration.
+  - Zero production changes.
 
 ---
 
