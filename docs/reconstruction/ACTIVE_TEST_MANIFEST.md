@@ -70,7 +70,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 61 | `src/tests/translationQualityFixesBlock84A.test.ts` | `test:translation-fixes-84a, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 62 | `src/tests/uiuxAuditBlock72.test.ts` | `test:uiux-audit-72, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 63 | `src/tests/uiuxFixesBlock83A.test.ts` | `test:uiux-fixes-83a, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 64 | `src/tests/uiuxP1FixesBlock73.test.ts` | `test:uiux-p1-73, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 64 | `src/tests/uiuxP1FixesBlock73.test.ts` | `test:uiux-p1-73, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 65 | `src/tests/uiuxP2FixesBlock74.test.ts` | `test:uiux-p2-74, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 66 | `src/tests/uiuxP3FixesBlock75.test.ts` | `test:uiux-p3-75, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `HAS_TEST_DEBT` | `YES` |
 | 67 | `src/tests/workspaceCanonicalReadConvergence.test.ts` | `test:workspace-canonical-reads, verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |

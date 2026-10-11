@@ -370,6 +370,21 @@
   - Zero locale changes.
   - Zero report regeneration.
   - Zero production changes.
+- **CD-32**: Block 73 P1 UI/UX Governance Contract Reconciliation:
+  - Block 73 remains active STATIC_GOVERNANCE coverage.
+  - Runner migrated to Vitest.
+  - FILESYSTEM environment remains correct.
+  - OutboxDrawer RTL/LTR directional contracts remain active.
+  - LoadingStation directional arrow (`rtl:rotate-180`) and navigation-handler contracts remain active.
+  - Translation-drift integrity remains active.
+  - LanguageSwitcher audit-integrity contract remains active (`AUDIT-72-03`).
+  - Block 73 JSON/Markdown remediation artifacts remain active governance evidence.
+  - Brittle ProjectSetupWizard source-string assertions B73-T08/T10/T12/T14 retired without replacement markup snapshots.
+  - Fixed locale-count tests B73-T15/T16/T17 retired; obsolete 1128 counts retired without replacement.
+  - Block 73 does not freeze future locale expansion.
+  - Zero production/UI changes.
+  - Zero locale changes.
+  - Zero report regeneration.
 
 ---
 
