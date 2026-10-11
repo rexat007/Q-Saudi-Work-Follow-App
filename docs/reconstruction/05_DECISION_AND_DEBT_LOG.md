@@ -335,6 +335,25 @@
   - Zero locale changes.
   - Zero report regeneration.
   - Zero production changes.
+- **CD-30**: Block 70 Human-Review Application Governance Contract Reconciliation:
+  - Block 70 remains active STATIC_GOVERNANCE coverage.
+  - Runner migrated to Vitest.
+  - FILESYSTEM environment remains correct.
+  - `reports/i18n-human-approved-decisions-reconciled.json` and `reports/i18n-block70-corrected-application.json` remain active application-governance artifacts.
+  - Authoritative 33-item ledger record count and 32 changed unique keys (with 1 KEEP_EXCEPTION unchanged) verified.
+  - Decision breakdowns verified (29 REVISE, 2 FIX_SOURCE, 1 APPROVE, 1 KEEP_EXCEPTION).
+  - Canonical Arabic integrity verified (exactly 2 keys changed: `loading.labels.txt_73e4a3`, `projects.labels.settings`; zero others touched).
+  - English and Urdu locale updates verified (exactly 32 keys changed each).
+  - Unauthorized pricing.* keys protection and 6 mandatory regression guard mappings verified.
+  - Protected-token invariance verified across EN and UR.
+  - Interpolation parity (`${pricingResolutionResult.message}`) verified across AR, EN, and UR.
+  - FIX_SOURCE Arabic transitions verified.
+  - Full content parity verified (all 33 items in live EN/UR match reconciled ledger decisions).
+  - Anti-defect quality verified (strictly 0 Arabic Unicode glyphs across all 32 updated English entries).
+  - Historical assertions retired (manifest integrity integrated into TEST-03; obsolete live filesystem / git dirty assertions retired).
+  - Zero locale changes.
+  - Zero report regeneration.
+  - Zero production changes.
 
 ---
 
