@@ -385,6 +385,23 @@
   - Zero production/UI changes.
   - Zero locale changes.
   - Zero report regeneration.
+- **CD-33**: Block 74 P2 UI/UX Governance Contract Reconciliation:
+  - Block 74 remains active STATIC_GOVERNANCE coverage.
+  - Runner migrated to Vitest.
+  - Environment corrected from FIREBASE_MOCK to FILESYSTEM (zero Firebase imports/mocks/APIs exist).
+  - LanguageSwitcher directionality contracts remain active.
+  - Search input padding/icon placement contracts remain active.
+  - Table alignment/divider contracts remain active.
+  - 44px mobile touch-target contracts remain active.
+  - Translation-drift integrity remains active.
+  - P3 deferral governance remains active.
+  - Block 74 JSON/Markdown remediation artifacts remain active governance evidence.
+  - Brittle App.tsx source-string assertions B74-T11/T12 retired without replacement markup snapshots.
+  - Fixed locale-count tests B74-T15/T16/T17 retired; obsolete 1128 counts retired without replacement.
+  - Zero production/UI changes.
+  - Zero Firebase/service changes.
+  - Zero locale changes.
+  - Zero report regeneration.
 
 ---
 
