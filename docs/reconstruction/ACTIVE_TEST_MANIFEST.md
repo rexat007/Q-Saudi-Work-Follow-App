@@ -15,8 +15,8 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 6 | `src/tests/driverTruckIntakeP602A.test.ts` | `verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 7 | `src/tests/driverViewConvergenceP603.test.ts` | `verify:beta2` | `VITEST` | `INTEGRATION_MOCK` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 8 | `src/tests/excelCsvImport.test.ts` | `test` | `TSX_CUSTOM` | `UNIT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 9 | `src/tests/fieldLoadingUnloadingBlock77.test.ts` | `test:field-ops-77, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 10 | `src/tests/fieldReportsCentralDashboardBlock80.test.ts` | `test:reports-dashboard-80, test` | `TSX_CUSTOM` | `UNIT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 9 | `src/tests/fieldLoadingUnloadingBlock77.test.ts` | `test:field-ops-77, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
+| 10 | `src/tests/fieldReportsCentralDashboardBlock80.test.ts` | `test:reports-dashboard-80, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 11 | `src/tests/fieldSupervisionConvergenceP604.test.ts` | `verify:beta2` | `VITEST` | `INTEGRATION_MOCK` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 12 | `src/tests/finalUiArchitectureBlock76.test.ts` | `test:uiux-arch-76, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 13 | `src/tests/firebaseProjectConfiguration85A.test.ts` | `test:firebase-config-85a, test` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
@@ -56,7 +56,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 47 | `src/tests/qualityExpansionBlock66.test.ts` | `test:i18n-quality-expansion-66, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 48 | `src/tests/qualityPilotBlock57.test.ts` | `test:i18n-quality-pilot, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 49 | `src/tests/qualityTranslationBlock61.test.ts` | `test:i18n-quality-p1-61, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 50 | `src/tests/roleBasedNavigationSystemAssemblyBlock81.test.ts` | `test:nav-assembly-81, test` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 50 | `src/tests/roleBasedNavigationSystemAssemblyBlock81.test.ts` | `test:nav-assembly-81, test` | `VITEST` | `SERVER_CONTRACT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 51 | `src/tests/runtimeDefaultDataElimination92A.test.ts` | `test:runtime-data-92a, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 52 | `src/tests/runtimeEmptyStateBlock82B.test.ts` | `test:runtime-empty-82b, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 53 | `src/tests/runtimeKeyAudit.test.ts` | `test:i18n-runtime, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |

@@ -436,6 +436,23 @@
   - Zero locale changes.
   - Zero report regeneration.
 
+- **CD-36 — Operational Surface & Navigation Harness Convergence Batch**:
+  - Blocks 77, 80, and 81 converged as one batch.
+  - All three migrated from TSX_CUSTOM to native Vitest.
+  - Block77 remains STATIC_GOVERNANCE / FILESYSTEM.
+  - Block80 remains UNIT / PURE_LOGIC.
+  - Block81 remains SERVER_CONTRACT and environment corrected from FIREBASE_MOCK to PURE_LOGIC.
+  - Fixed locale-count assertions retired across all three.
+  - 1128 was NOT replaced with 1129.
+  - Locale parity/drift checks retained independent of cardinality.
+  - Block77 fixtures aligned with current project/truck/trip prerequisites.
+  - Block81 expectations aligned with current authorization/navigation contracts.
+  - Reports Engine tests use explicit current trip input.
+  - Zero production changes.
+  - Zero locale changes.
+  - Zero report regeneration.
+  - All three CLEAN.
+
 ---
 
 ## OPEN_DECISIONS
