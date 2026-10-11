@@ -402,6 +402,22 @@
   - Zero Firebase/service changes.
   - Zero locale changes.
   - Zero report regeneration.
+- **CD-34**: Block 75 P3 UI/UX Governance Contract Reconciliation:
+  - Block 75 remains active STATIC_GOVERNANCE coverage.
+  - Runner migrated to Vitest.
+  - FILESYSTEM environment remains correct.
+  - ImportCenterView retirement contracts remain active.
+  - ReportsEngineView direction-safe logical margin (`ms-1`) contract remains active.
+  - LoadingStation responsive dual-mode stepper contracts remain active.
+  - Translation-drift integrity remains active.
+  - Block 75 JSON/Markdown remediation artifacts remain active governance evidence.
+  - Brittle App.tsx icon source-string assertion B75-T05 retired without replacement markup snapshots.
+  - Fixed locale-count tests B75-T11/T12/T13 retired; obsolete 1128 counts retired without replacement.
+  - All previously identified Block75 test debt resolved inside C31.
+  - Manifest debt status changed from HAS_TEST_DEBT to CLEAN.
+  - Zero production/UI changes.
+  - Zero locale changes.
+  - Zero report regeneration.
 
 ---
 
