@@ -22,11 +22,9 @@ import { projectRepository } from '../repositories/project.repository';
 import { projectCarrierRosterRepository } from '../repositories/projectCarrierRoster.repository';
 import { settlementAdjustmentRepository } from '../repositories/settlementAdjustment.repository';
 import { auditLogService } from '../services/auditLog.service';
-import { AuthUserContext } from '../types/common';
 import { TripEntity, ProjectEntity, ProjectCarrierRosterEntity, SettlementAdjustmentEntity, AuditLogEntity } from '../types/entities';
-import * as fs from 'fs';
-import * as path from 'path';
 import { auth } from '../firebase/config';
+
 
 // Override read-only auth.currentUser property for integration test execution
 let _currentUser: any = null;
@@ -664,85 +662,19 @@ async function runTests() {
     // optional cleanups
   }
 
-  // =========================================================================
-  // REPORT WRITING
-  // =========================================================================
-  const suiteResult = {
-    timestamp: new Date().toISOString(),
-    totalTests: results.length,
-    passedTests: results.filter(r => r.passed).length,
-    failedTests: results.filter(r => !r.passed).length,
-    allPassed: results.every(r => r.passed),
-    results,
-  };
-
-  const reportsDir = path.join(process.cwd(), 'reports');
-  if (!fs.existsSync(reportsDir)) {
-    fs.mkdirSync(reportsDir, { recursive: true });
-  }
-
-  // 1. JSON report
-  fs.writeFileSync(
-    path.join(reportsDir, 'project-centric-operations-block87.json'),
-    JSON.stringify(suiteResult, null, 2),
-    'utf-8'
-  );
-
-  // 2. Markdown report
-  const mdContent = `# BLOCK 87 — PROJECT-CENTRIC OPERATIONS ARCHITECTURE REPORT
-
-**Timestamp:** ${suiteResult.timestamp}  
-**Total Requirements Tested:** ${suiteResult.totalTests}  
-**Passed:** ${suiteResult.passedTests}  
-**Failed:** ${suiteResult.failedTests}  
-**Overall Status:** ${suiteResult.allPassed ? '✅ PASSED (100% SUCCESS)' : '❌ FAILED'}
-
----
-
-## Executive Summary
-
-This report evaluates and verifies the implementation of the **Project-Centric Operations Architecture** (Block 87). The system's operational and pricing models have been successfully refactored around project boundaries. In addition, sequential concurrency-safe project and trip identifiers, project-scoped carrier rosters, and role-based trip settlement adjustments have been established with complete audit compliance.
-
----
-
-## Detailed Test Verification Results
-
-| # | Requirement / Test Name | Category | Status | Verification Summary |
-|---|-------------------------|----------|--------|----------------------|
-${results
-  .map(
-    (r) =>
-      `| ${r.id} | ${r.name} | \`${r.category}\` | ${r.passed ? '✅ PASS' : '❌ FAIL'} | ${r.message} |`
-  )
-  .join('\n')}
-
----
-
-## System Architecture Applied
-
-1. **Structured Project Hierarchy**: Data and subcollections are neatly isolated inside \`/projects/{projectId}\`.
-2. **Sequential Project Identifiers**: Formatted as \`Q-PRJ-0001\`, concurrency-safe via transactions.
-3. **Trip Embedded Identifiers**: Formatted as \`Q-PRJ-0001-TRP-00001\` per project.
-4. **Project Carrier Roster**: Encapsulated driver and truck parameters linked specifically per project to comply with Saudi-local logistics models.
-5. **Settlement Adjustments**: Fully audited financial modifications requiring high-privilege credentials (\`PROJECT_ADMIN\`, \`FINANCE_AUDITOR\`, or \`SUPER_ADMIN\`).
-
-*Report generated automatically by Q-Saudi Work Follow Verification System.*
-`;
-
-  fs.writeFileSync(
-    path.join(reportsDir, 'project-centric-operations-block87.md'),
-    mdContent,
-    'utf-8'
-  );
+  const totalTests = results.length;
+  const passedTests = results.filter(r => r.passed).length;
+  const failedTests = results.filter(r => !r.passed).length;
+  const allPassed = results.every(r => r.passed);
 
   console.log('======================================================');
-  console.log(`📊 BLOCK 87 Test Suite Executed: ${suiteResult.totalTests} Total Tests`);
-  console.log(`   ✅ Passed: ${suiteResult.passedTests}`);
-  console.log(`   ❌ Failed: ${suiteResult.failedTests}`);
+  console.log(`📊 BLOCK 87 Test Suite Executed: ${totalTests} Total Tests`);
+  console.log(`   ✅ Passed: ${passedTests}`);
+  console.log(`   ❌ Failed: ${failedTests}`);
   console.log('======================================================');
 
-  if (!suiteResult.allPassed) {
-    throw new Error(`Project Centric Operations test suite failed with ${suiteResult.failedTests} failures`);
+  if (!allPassed) {
+    throw new Error(`Project Centric Operations test suite failed with ${failedTests} failures`);
   }
 }
 
