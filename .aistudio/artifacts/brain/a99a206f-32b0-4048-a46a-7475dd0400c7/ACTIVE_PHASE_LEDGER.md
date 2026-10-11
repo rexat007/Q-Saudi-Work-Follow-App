@@ -55,7 +55,7 @@ NEXT_UNIT: P0-U3_TEST_TAXONOMY_AND_HARNESS_CONVERGENCE
 | **↳ P0-U3C26** | Active Test Harness Convergence (humanReviewReconciliationBlock69A) — *KEEP_SELECTED_GOVERNANCE_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **VERIFIED / CLOSED** | `f3e66f3f6db12f0087eb2492c3f9479f1c3c57c7` |
 | **↳ P0-U3C27** | Active Test Harness Convergence (humanReviewApplicationBlock70Corrected) — *KEEP_SELECTED_GOVERNANCE_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **VERIFIED / CLOSED** | `a3b2cd241fad9277027898d6502d356475f330eb` |
 | **↳ P0-U3C28** | Active Test Harness Convergence (uiuxAuditBlock72) — *KEEP_SELECTED_GOVERNANCE_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **VERIFIED / CLOSED** | `19572d57012c661ed626317ce67b749606dcac6e` |
-| **↳ P0-U3C29** | Active Test Harness Convergence (uiuxP1FixesBlock73) — *KEEP_SELECTED_GOVERNANCE_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **IMPLEMENTING** | `e11d8db5b454edafc9a3100660ffadc7bbb84191` |
+| **↳ P0-U3C29** | Active Test Harness Convergence (uiuxP1FixesBlock73) — *KEEP_SELECTED_GOVERNANCE_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **VERIFIED / CLOSED** | `45c27fa2b6112bf15159ce6a3b6679ce0ccaa81c` |
 | **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
