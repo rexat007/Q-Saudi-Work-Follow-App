@@ -13,33 +13,14 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { describe, it, expect } from 'vitest';
 import { arTranslations } from '../locales/ar';
 import { enTranslations } from '../locales/en';
 import { urTranslations } from '../locales/ur';
 
-let totalTests = 0;
-let passedTests = 0;
-let failedTests = 0;
-
-function test(id: string, description: string, fn: () => void) {
-  totalTests++;
-  try {
-    fn();
-    passedTests++;
-    console.log(`  ✅ [PASS] ${id}: ${description}`);
-  } catch (error: any) {
-    failedTests++;
-    console.error(`  ❌ [FAIL] ${id}: ${description}`);
-    console.error(`     Error: ${error.message}`);
-  }
-}
-
-console.log('======================================================');
-console.log('  BLOCK 76: FINAL PRODUCT UI ARCHITECTURE TEST SUITE');
-console.log('======================================================');
-
-const jsonReportPath = path.resolve(process.cwd(), 'reports/final-ui-architecture-block76.json');
-const mdReportPath = path.resolve(process.cwd(), 'reports/final-ui-architecture-block76.md');
+describe('Block 76 Final Product UI Architecture & Role-Based Experience Test Suite', () => {
+  const jsonReportPath = path.resolve(process.cwd(), 'reports/final-ui-architecture-block76.json');
+  const mdReportPath = path.resolve(process.cwd(), 'reports/final-ui-architecture-block76.md');
 
 // -------------------------------------------------------------
 // Section 1: Deliverables & Schema Conformance
@@ -213,23 +194,7 @@ test('B76-T12', 'Responsive strategy defines distinct rules for Phone (<640px), 
   }
 });
 
-// -------------------------------------------------------------
-// Section 5: I18N Catalog Freeze Verification (1,128 keys)
-// -------------------------------------------------------------
-test('B76-T13', 'AR locale retains exact freeze count of 1,128 keys', () => {
-  const count = Object.keys(arTranslations).length;
-  if (count !== 1128) throw new Error(`Expected 1128 AR keys, found ${count}`);
-});
 
-test('B76-T14', 'EN locale retains exact freeze count of 1,128 keys', () => {
-  const count = Object.keys(enTranslations).length;
-  if (count !== 1128) throw new Error(`Expected 1128 EN keys, found ${count}`);
-});
-
-test('B76-T15', 'UR locale retains exact freeze count of 1,128 keys', () => {
-  const count = Object.keys(urTranslations).length;
-  if (count !== 1128) throw new Error(`Expected 1128 UR keys, found ${count}`);
-});
 
 test('B76-T16', 'Zero translation drift across AR, EN, and UR', () => {
   const arKeys = new Set(Object.keys(arTranslations));
@@ -259,15 +224,4 @@ test('B76-T17', 'Confirms no redesigned interfaces were implemented in Block 76'
   }
 });
 
-// -------------------------------------------------------------
-// Summary
-// -------------------------------------------------------------
-console.log('------------------------------------------------------');
-console.log(`Results: ${passedTests}/${totalTests} passed (${failedTests} failed)`);
-console.log('======================================================');
-
-if (failedTests > 0) {
-  process.exit(1);
-} else {
-  process.exit(0);
-}
+});

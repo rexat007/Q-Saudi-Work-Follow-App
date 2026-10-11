@@ -419,6 +419,23 @@
   - Zero locale changes.
   - Zero report regeneration.
 
+- **CD-35**: Block 76 Final Product UI Architecture Governance Contract Reconciliation:
+  - Block 76 remains active STATIC_GOVERNANCE coverage.
+  - Runner migrated from TSX_CUSTOM to VITEST (`test:uiux-arch-76`).
+  - FILESYSTEM environment remains correct.
+  - Final Product UI Architecture specification JSON (`reports/final-ui-architecture-block76.json`) and Markdown (`reports/final-ui-architecture-block76.md`) remain active static-governance artifacts.
+  - Four major interface areas (Field Operations, Projects, Field Reports, Central Dashboard) fully specified.
+  - Existing system authority and role-based experience rules strictly preserved (zero unauthorized roles invented).
+  - Navigation model and responsive strategy defined.
+  - Historical fixed locale-count governance is retired; obsolete 1128/1129 counts are retired without replacement.
+  - Block 76 does not freeze future locale dictionary cardinality.
+  - Durable locale integrity/parity checks remain only where independent of exact total count (`B76-T16` translation key drift check).
+  - Explicit confirmation that no redesigned interfaces were implemented in Block 76 (specification only).
+  - Manifest row updated from TSX_CUSTOM to VITEST and KEEP_VITEST.
+  - Zero production/UI changes.
+  - Zero locale changes.
+  - Zero report regeneration.
+
 ---
 
 ## OPEN_DECISIONS

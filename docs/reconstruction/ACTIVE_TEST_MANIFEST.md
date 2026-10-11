@@ -18,7 +18,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 9 | `src/tests/fieldLoadingUnloadingBlock77.test.ts` | `test:field-ops-77, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 10 | `src/tests/fieldReportsCentralDashboardBlock80.test.ts` | `test:reports-dashboard-80, test` | `TSX_CUSTOM` | `UNIT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 11 | `src/tests/fieldSupervisionConvergenceP604.test.ts` | `verify:beta2` | `VITEST` | `INTEGRATION_MOCK` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 12 | `src/tests/finalUiArchitectureBlock76.test.ts` | `test:uiux-arch-76, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 12 | `src/tests/finalUiArchitectureBlock76.test.ts` | `test:uiux-arch-76, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 13 | `src/tests/firebaseProjectConfiguration85A.test.ts` | `test:firebase-config-85a, test` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 14 | `src/tests/humanReviewApplicationBlock70Corrected.test.ts` | `test:i18n-application-70, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 15 | `src/tests/humanReviewApprovalBlock69.test.ts` | `test:i18n-approval-69, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
