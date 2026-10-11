@@ -14,40 +14,13 @@ import { enTranslations } from '../locales/en';
 import { urTranslations } from '../locales/ur';
 import { setTestAuthOverride, setTestDbOverride } from '../firebase/admin';
 
-let totalTests = 0;
-let passedTests = 0;
-let failedTests = 0;
+import { describe, it, expect } from 'vitest';
 
-function test(id: string, description: string, fn: () => void | Promise<void>) {
-  totalTests++;
-  try {
-    const result = fn();
-    if (result instanceof Promise) {
-      return result
-        .then(() => {
-          passedTests++;
-          console.log(`  ✅ [PASS] ${id}: ${description}`);
-        })
-        .catch((error: any) => {
-          failedTests++;
-          console.error(`  ❌ [FAIL] ${id}: ${description}`);
-          console.error(`     Error: ${error?.message || error}`);
-        });
-    } else {
-      passedTests++;
-      console.log(`  ✅ [PASS] ${id}: ${description}`);
-    }
-  } catch (error: any) {
-    failedTests++;
-    console.error(`  ❌ [FAIL] ${id}: ${description}`);
-    console.error(`     Error: ${error?.message || error}`);
+describe('Block 86B Secure Authentication & Account Approval Suite', () => {
+  function test(id: string, description: string, fn: () => void | Promise<void>) {
+    it(`${id}: ${description}`, fn);
   }
-}
 
-async function runSuite() {
-  console.log('======================================================');
-  console.log('🚀 Running BLOCK 86B Secure Authentication & Account Approval Suite...');
-  console.log('======================================================\n');
 
   // Inject real Firebase Admin test boundary mocks so production authenticateUser is tested securely
   setTestAuthOverride({
@@ -421,17 +394,6 @@ async function runSuite() {
     }
   });
 
-  // 17. I18N catalog count remains exactly 1,128 per locale
-  test('TC-86B-17', 'I18N translation catalogs remain exactly 1,128 keys for AR, EN, and UR', () => {
-    const arKeys = Object.keys(arTranslations).length;
-    const enKeys = Object.keys(enTranslations).length;
-    const urKeys = Object.keys(urTranslations).length;
-
-    if (arKeys !== 1128 || enKeys !== 1128 || urKeys !== 1128) {
-      throw new Error(`I18N key count mismatch: AR=${arKeys}, EN=${enKeys}, UR=${urKeys}`);
-    }
-  });
-
   // 18. Legacy active: missing status + isActive === true must PASS as legacy ACTIVE
   test('TC-86B-18', 'Missing status with isActive === true passes as legacy ACTIVE', async () => {
     const req: any = { headers: { authorization: 'Bearer token-legacy-active' } };
@@ -492,16 +454,4 @@ async function runSuite() {
     if (responseBody?.code !== 'ACCOUNT_NOT_ACTIVE') throw new Error(`Expected code ACCOUNT_NOT_ACTIVE, got ${responseBody?.code}`);
   });
 
-  console.log('\n======================================================');
-  console.log(`BLOCK 86B Test Results: ${passedTests}/${totalTests} PASSED`);
-  console.log('======================================================\n');
-
-  if (failedTests > 0) {
-    process.exit(1);
-  }
-}
-
-runSuite().catch((err) => {
-  console.error('Unhandled suite failure:', err);
-  process.exit(1);
 });

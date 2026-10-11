@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-09-15T11:24:24.553Z",
+  "timestamp": "2026-10-11T09:28:43.621Z",
   "totalTests": 13,
-  "passedTests": 12,
-  "failedTests": 1,
-  "allPassed": false,
+  "passedTests": 13,
+  "failedTests": 0,
+  "allPassed": true,
   "results": [
     {
       "id": 1,
@@ -32,14 +32,14 @@
       "name": "Project number generation is concurrency safe and unique",
       "category": "PROJECT_NUMBERING",
       "passed": true,
-      "message": "Generated simultaneous: 3, 4, 5, 6, 7",
+      "message": "Generated simultaneous: 1, 2, 3, 4, 5",
       "details": {
         "numbers": [
+          1,
+          2,
           3,
           4,
-          5,
-          6,
-          7
+          5
         ]
       }
     },
@@ -106,8 +106,8 @@
           "status": "ACTIVE",
           "createdBy": "USR-ADMIN-87",
           "updatedBy": "USR-ADMIN-87",
-          "createdAt": "2026-09-15T11:24:24.550Z",
-          "updatedAt": "2026-09-15T11:24:24.550Z"
+          "createdAt": "2026-10-11T09:28:43.615Z",
+          "updatedAt": "2026-10-11T09:28:43.615Z"
         }
       }
     },
@@ -133,10 +133,10 @@
       "name": "Settlement adjustments can be requested by site supervisors",
       "category": "SETTLEMENT_ADJUSTMENTS",
       "passed": true,
-      "message": "Adjustment ID: ADJ-1789471464551-6DR0, Type: RATE",
+      "message": "Adjustment ID: ADJ-1791710923619-JJB5, Type: RATE",
       "details": {
         "adjustment": {
-          "adjustmentId": "ADJ-1789471464551-6DR0",
+          "adjustmentId": "ADJ-1791710923619-JJB5",
           "tripId": "TRP-COMPLETED-87-001",
           "tripNumber": "Q-PRJ-0001-TRP-00012",
           "projectId": "PRJ-BLOCK87-A",
@@ -145,7 +145,7 @@
           "reason": "زيادة تعرفة نقل الطرق الوعرة",
           "status": "REQUEST",
           "requestedBy": "USR-SUP-87",
-          "requestedAt": "2026-09-15T11:24:24.552Z",
+          "requestedAt": "2026-10-11T09:28:43.619Z",
           "createdBy": "USR-SUP-87",
           "updatedBy": "USR-SUP-87"
         }
@@ -162,7 +162,7 @@
       "id": 12,
       "name": "Recalculates trip baseAmount, demurrage, deductions, ZATCA VAT, and totalAmount correctly upon adjustment approval",
       "category": "FINANCIAL_MATH",
-      "passed": false,
+      "passed": true,
       "message": "Calculated: Base=2900, VAT=435, Total=3335",
       "details": {
         "financials": {

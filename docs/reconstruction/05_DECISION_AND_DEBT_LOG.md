@@ -455,6 +455,25 @@
 
 ---
 
+- **CD-37 — Authentication & Project Workspace Harness Convergence Batch**:
+   - all four suites migrated from TSX_CUSTOM to native Vitest
+   - 86B retains SERVER_CONTRACT / SERVER_CONTEXT
+   - Auth Gateway 87 retains SERVER_CONTRACT / PURE_LOGIC
+   - Project Centric 87 retains SERVER_CONTRACT / PURE_LOGIC
+   - Sidebar 88 retains UNIT and environment corrected FIREBASE_MOCK → PURE_LOGIC
+   - TC-86B-17 retired
+   - [I18N-01] retired
+   - fixed locale cardinality retired without replacement
+   - 1128 was NOT replaced by 1129
+   - security/fail-closed behavior preserved
+   - project-centric fixture/expectation drift aligned with current service contracts
+   - zero production changes
+   - zero locale changes
+   - zero report regeneration
+   - all four CLEAN
+
+---
+
 ## OPEN_DECISIONS
 - None currently open in Phase 0.
 

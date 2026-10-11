@@ -7,7 +7,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 
 | # | Repository Path | Package Script Reachability | Execution Mechanism | Proposed Taxonomy | Environment Class | Migration Disposition | TSC Status | Reliable Failure |
 |---|---|---|---|---|---|---|---|---|
-| 1 | `src/tests/authGatewayPermissionUxBlock87.test.ts` | `test:auth-gateway-87, test` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 1 | `src/tests/authGatewayPermissionUxBlock87.test.ts` | `test:auth-gateway-87, test` | `VITEST` | `SERVER_CONTRACT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 2 | `src/tests/block102OperationalAccessSmartRoster.test.ts` | `test:block102, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 3 | `src/tests/canonicalImportContextConvergence.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 4 | `src/tests/canonicalTripDispatchAuthority.test.ts` | `test:canonical-dispatch, verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
@@ -35,7 +35,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 26 | `src/tests/materialAuthorityP602B2.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 27 | `src/tests/projectActivationServerAuthority.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 28 | `src/tests/projectCarrierFleetAffiliationFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 29 | `src/tests/projectCentricOperationsBlock87.test.ts` | `test:project-centric-87, test` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `PURE_LOGIC` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 29 | `src/tests/projectCentricOperationsBlock87.test.ts` | `test:project-centric-87, test` | `VITEST` | `SERVER_CONTRACT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 30 | `src/tests/projectDriverTruckAssignmentFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 31 | `src/tests/projectFleetReadModelAdminReadContext.test.ts` | `verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 32 | `src/tests/projectFleetReadModelFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
@@ -62,10 +62,10 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 53 | `src/tests/runtimeKeyAudit.test.ts` | `test:i18n-runtime, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 54 | `src/tests/runtimeProjectMasterDataEmptyStateBlock82D.test.ts` | `test:runtime-project-empty-82d, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 55 | `src/tests/runtimeSmokeBlock55.test.ts` | `test:i18n-smoke, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 56 | `src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts` | `test:auth-approval-86b, test` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 56 | `src/tests/secureAuthenticationAccountApprovalBlock86B.test.ts` | `test:auth-approval-86b, test` | `VITEST` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 57 | `src/tests/secureTripNumberingOffline89B.test.ts` | `test:secure-trip-89b` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
 | 58 | `src/tests/serverAuthenticationTrustBoundary.test.ts` | `test:auth-trust-boundary` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 59 | `src/tests/sidebarProjectWorkspaceBlock88.test.ts` | `test:sidebar-project-workspace-block88, test` | `TSX_CUSTOM` | `UNIT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 59 | `src/tests/sidebarProjectWorkspaceBlock88.test.ts` | `test:sidebar-project-workspace-block88, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 60 | `src/tests/switcherAndQualityBlock56.test.ts` | `test:i18n-switcher-quality, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 61 | `src/tests/translationQualityFixesBlock84A.test.ts` | `test:translation-fixes-84a, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 62 | `src/tests/uiuxAuditBlock72.test.ts` | `test:uiux-audit-72, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
