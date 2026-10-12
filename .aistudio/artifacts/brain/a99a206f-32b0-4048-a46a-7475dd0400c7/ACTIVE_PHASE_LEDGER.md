@@ -64,7 +64,7 @@ NEXT_UNIT: P0-U3_TEST_TAXONOMY_AND_HARNESS_CONVERGENCE
 | **↳ P0-U3C35** | Security Trust & Offline Trip Numbering Harness Convergence Batch (89B / Server Auth Trust Boundary) — *KEEP_SELECTED_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **VERIFIED / CLOSED** | `7de361b9367d708d39e9bb1f1b1f79d739fe7231` |
 | **↳ P0-U3C36** | I18N Legacy Test Suite Vitest Convergence Batch — *KEEP_CURRENT_CONTRACTS_AND_ISOLATE_GENERATED_ARTIFACTS* | **VERIFIED / CLOSED** | `0eb0938668147704a84f3123b32a0031813af562` |
 | **↳ P0-U3C37** | Excel/CSV Import Harness Convergence — *KEEP_ALL_CURRENT_IMPORT_CONTRACTS* | **VERIFIED / CLOSED** | `4f85fc340c659e5867e853fe35fb3787bee8aacf` |
-| **↳ P0-U3C38** | Active Runtime I18N Cardinality Invariant Retirement — *REPLACE_FIXED_1128_WITH_DYNAMIC_TRILINGUAL_PARITY* | **IMPLEMENTING** | `f9702ef635d1a91273fbd27f277029ec678e306e` |
+| **↳ P0-U3C38** | Active Runtime I18N Cardinality Invariant Retirement — *REPLACE_FIXED_1128_WITH_DYNAMIC_TRILINGUAL_PARITY* | **VERIFIED / CLOSED** | `cb2e84c1563190d28b6a25024d1ee656b10a42b2` |
 | **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
