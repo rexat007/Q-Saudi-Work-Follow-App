@@ -25,13 +25,13 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 16 | `src/tests/humanReviewDecisionBlock68.test.ts` | `test:i18n-decision-68, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 17 | `src/tests/humanReviewGovernanceBlock67.test.ts` | `test:i18n-governance-67, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 18 | `src/tests/humanReviewReconciliationBlock69A.test.ts` | `test:i18n-reconciliation-69a, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 19 | `src/tests/i18nCatalog.test.ts` | `test` | `TSX_CUSTOM` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 20 | `src/tests/i18nCodemod.test.ts` | `test:i18n-codemod, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `SERVER_CONTEXT` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 19 | `src/tests/i18nCatalog.test.ts` | `test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
+| 20 | `src/tests/i18nCodemod.test.ts` | `test:i18n-codemod, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 21 | `src/tests/i18nFoundation.test.ts` | `test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 22 | `src/tests/i18nGenerationBlock54b.test.ts` | `test:i18n-gen-54b, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 23 | `src/tests/i18nRecoveryBlock54a.test.ts` | `test:i18n-recovery, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 24 | `src/tests/i18nTranslationCatalog.test.ts` | `test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
-| 25 | `src/tests/i18nTranslationGeneration.test.ts` | `test:i18n-gen, test` | `TSX_CUSTOM` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 22 | `src/tests/i18nGenerationBlock54b.test.ts` | `test:i18n-gen-54b, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
+| 23 | `src/tests/i18nRecoveryBlock54a.test.ts` | `test:i18n-recovery, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
+| 24 | `src/tests/i18nTranslationCatalog.test.ts` | `test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
+| 25 | `src/tests/i18nTranslationGeneration.test.ts` | `test:i18n-gen, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 26 | `src/tests/materialAuthorityP602B2.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 27 | `src/tests/projectActivationServerAuthority.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 28 | `src/tests/projectCarrierFleetAffiliationFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |

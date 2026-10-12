@@ -487,6 +487,21 @@
 
 ---
 
+- **CD-39 — I18N Legacy Test Suite Vitest Convergence Batch**:
+   - six legacy i18n TSX_CUSTOM suites (`i18nCatalog.test.ts`, `i18nCodemod.test.ts`, `i18nGenerationBlock54b.test.ts`, `i18nRecoveryBlock54a.test.ts`, `i18nTranslationCatalog.test.ts`, `i18nTranslationGeneration.test.ts`) migrated together to native Vitest
+   - total active suite cardinality = 89 tests
+   - i18nCatalog and i18nCodemod reclassified to UNIT / PURE_LOGIC; remaining four classified UNIT / FILESYSTEM
+   - current locale dictionaries remain canonical live translation authority
+   - reports/i18n-translation-catalog.json remains active tooling/generated input, not live translation authority
+   - tracked report artifacts must not be mutated by ordinary Vitest execution
+   - repository report-generation side effects isolated using test-only temp/mock boundaries
+   - governance reports used by Block54A remain read-only fixtures
+   - historical fixed generation/cardinality assertions retired where snapshot-only
+   - durable key-generation, AST safety, interpolation, source-preservation, protected-token, semantic structure, deterministic and idempotency contracts retained
+   - zero production code, locale dictionaries, or tracked report artifacts changed
+
+---
+
 ## OPEN_DECISIONS
 - None currently open in Phase 0.
 
