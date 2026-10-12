@@ -474,6 +474,19 @@
 
 ---
 
+- **CD-38 — Security Trust & Offline Trip Numbering Harness Convergence Batch**:
+   - both suites (`secureTripNumberingOffline89B.test.ts` and `serverAuthenticationTrustBoundary.test.ts`) migrated from TSX_CUSTOM to native Vitest
+   - 19 tests in 89B and 23 tests in Auth Trust
+   - zero custom runner
+   - zero `process.exit`
+   - zero report writes
+   - zero production changes
+   - zero locale changes
+   - both CLEAN
+   - Block89B JSON and Markdown reports (`reports/secure-trip-numbering-offline-block89B.json` and `reports/secure-trip-numbering-offline-block89B.md`) retired and deleted intentionally as generated non-authoritative outputs with zero current consumers
+
+---
+
 ## OPEN_DECISIONS
 - None currently open in Phase 0.
 
