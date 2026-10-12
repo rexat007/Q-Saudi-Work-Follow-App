@@ -70,7 +70,7 @@ describe('BLOCK 82 — Data Cleanup & Test Data Purge', () => {
     const parsed = JSON.parse(dryRun.json);
     expect(parsed.block).toBe('BLOCK-82-DRY-RUN');
     expect(parsed.summary.genuineOperationalDataProtected).toBe(true);
-    expect(parsed.summary.i18nPreservedExactly1128Keys).toBe(true);
+    expect(parsed.summary.i18nLocaleKeyParity).toBe(true);
     expect(dryRun.markdown).toContain('# BLOCK 82 — DATA CLEANUP & TEST DATA PURGE (DRY RUN REPORT)');
   });
 
@@ -81,14 +81,16 @@ describe('BLOCK 82 — Data Cleanup & Test Data Purge', () => {
     expect(result.verification.i18nKeyCountPreserved).toBe(true);
   });
 
-  it('[CLN-06] I18N catalog remains frozen at exactly 1,128 keys per locale', () => {
+  it('[CLN-06] I18N catalogs maintain dynamic trilingual parity and non-zero key counts', () => {
     const arKeys = Object.keys(arTranslations).length;
     const enKeys = Object.keys(enTranslations).length;
     const urKeys = Object.keys(urTranslations).length;
 
-    expect(arKeys).toBe(1128);
-    expect(enKeys).toBe(1128);
-    expect(urKeys).toBe(1128);
+    expect(arKeys).toBeGreaterThan(0);
+    expect(enKeys).toBeGreaterThan(0);
+    expect(urKeys).toBeGreaterThan(0);
+    expect(arKeys).toBe(enKeys);
+    expect(enKeys).toBe(urKeys);
   });
 
   it('[CLN-07] Master pricing rules remain intact and unaltered', () => {

@@ -1,6 +1,19 @@
 # DECISION AND TECHNICAL DEBT LOG
 
 ## CLOSED_DECISIONS
+- **CD-41**: Active Runtime I18N Fixed Cardinality Invariant Retirement:
+  - Historical 1128 cardinality retired across current active root verification.
+  - 1129 explicitly NOT adopted as replacement.
+  - Current locale dictionaries remain authority.
+  - Dynamic non-zero trilingual parity is the durable general invariant.
+  - Data cleanup uses dynamic pre/post preservation.
+  - Block82 production logic corrected.
+  - Active root suites 82B, 82D, 83A, 84A, 85A, 86F, 92A aligned.
+  - Test cardinalities preserved.
+  - No locale dictionary changes.
+  - No reports changed.
+  - Historical/non-root fixed-count references are not modified by this slice.
+  - dataCleanupBlock82 taxonomy corrected to UNIT / PURE_LOGIC.
 - **CD-01**: Express server mounted as Vite middleware in dev (`"dev": "tsx server.ts"`), bundled to `server-dist/server.cjs` via Esbuild for production (`"start": "node server-dist/server.cjs"`).
 - **CD-02**: Firestore is the primary canonical persistent database for projects, rosters, dispatch trips, and outbox state.
 - **CD-03**: 8-Layer Project Setup Workflow model is the accepted architectural standard for project onboarding and readiness evaluation.
