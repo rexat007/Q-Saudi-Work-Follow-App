@@ -61,7 +61,7 @@ NEXT_UNIT: P0-U3_TEST_TAXONOMY_AND_HARNESS_CONVERGENCE
 | **↳ P0-U3C32** | Active Test Harness Convergence (finalUiArchitectureBlock76) — *KEEP_SELECTED_GOVERNANCE_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **VERIFIED / CLOSED** | `53b858ee95959cd36c2e97e85ac5cce58a20008c` |
 | **↳ P0-U3C33** | Operational Surface & Navigation Harness Convergence Batch (Blocks 77 / 80 / 81) — *KEEP_SELECTED_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **VERIFIED / CLOSED** | `dc35471410a7163122397247359a7a829a993804` |
 | **↳ P0-U3C34** | Authentication & Project Workspace Harness Convergence Batch (86B / 87 / 88) — *KEEP_SELECTED_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **VERIFIED / CLOSED** | `3f5e24f2e0f98a42fe8232aceea481f464e68c0d` |
-| **↳ P0-U3C35** | Security Trust & Offline Trip Numbering Harness Convergence Batch (89B / Server Auth Trust Boundary) — *KEEP_SELECTED_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **IMPLEMENTING** | `f667efa63ef1f0aa4f14186b763f325b63fc8c9c` |
+| **↳ P0-U3C35** | Security Trust & Offline Trip Numbering Harness Convergence Batch (89B / Server Auth Trust Boundary) — *KEEP_SELECTED_GATES_AND_RETIRE_HISTORICAL_ASSERTIONS* | **VERIFIED / CLOSED** | `7de361b9367d708d39e9bb1f1b1f79d739fe7231` |
 | **P0-U4** | Root Tooling Hygiene | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
