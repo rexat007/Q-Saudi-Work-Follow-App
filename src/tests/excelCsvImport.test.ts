@@ -1,34 +1,4 @@
-/**
- * Comprehensive Automated Test Suite: BLOCK 31 — Excel / CSV Import
- *
- * Test cases covered:
- * 1. XLSX parsing with SheetJS
- * 2. XLS parsing compatibility
- * 3. CSV parsing (UTF-8, BOM stripping, custom delimiters)
- * 4. Multi-sheet workbook parsing & sheet selection
- * 5. Quoted CSV fields with internal commas and escaped double quotes
- * 6. Empty rows filtering
- * 7. Duplicate header safe deduplication (e.g. الوزن, الوزن_2)
- * 8. Exact column mapping
- * 9. Normalized column mapping
- * 10. Arabic and English alias mapping
- * 11. Low confidence (< 0.70) / ambiguous column handling
- * 12. Eastern Arabic numerals conversion (٠١٢٣٤٥٦٧٨٩ -> 0123456789)
- * 13. Numeric weights parsing (commas, decimals, stripping units: kg, كجم, طن)
- * 14. Date normalization (Excel serial dates, DD/MM/YYYY, YYYY-MM-DD)
- * 15. Auto-calculated net weight (gross - tare)
- * 16. Blocking error: missing identification (neither ticketId nor truckNo)
- * 17. Blocking error: negative weight and physical invariant violation (gross < tare)
- * 18. Non-blocking warning: missing optional driver
- * 19. Non-blocking warning: missing unloading data (weighbridge dispatch compatible)
- * 20. Non-blocking warning: unknown carrier / truck / material
- * 21. Duplicate detection: internal batch duplicate and existing DB keys
- * 22. Pre-commit gate enforcement: blocking errors reject commit; warnings require confirmation
- * 23. OperationId idempotency: re-committing returns cached result without duplicating trips
- * 24. Project isolation: cross-project commit is strictly rejected
- * 25. In-memory execution: NO Firestore writes before COMMIT
- */
-
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as XLSX from 'xlsx';
 import {
   FileIntakeValidator,
@@ -42,48 +12,46 @@ import {
   ExcelCsvPipelineService,
   UnifiedImportPipelineService,
 } from '../services';
-import { PipelineContext, ImportSource, UnifiedImportBatch } from '../types/unifiedImport';
+import { importedTripClientService } from '../services/import/importedTripClient.service';
+import { PipelineContext, ImportSource } from '../types/unifiedImport';
 
-export interface ExcelCsvTestCaseResult {
-  id: string;
-  name: string;
-  passed: boolean;
-  expected: any;
-  actual: any;
-  notes: string;
-}
+describe('BLOCK 31 — Excel / CSV Import Test Suite', () => {
+  let baseContext: PipelineContext;
 
-export async function runExcelCsvImportTests(): Promise<{
-  allPassed: boolean;
-  total: number;
-  passed: number;
-  failed: number;
-  results: ExcelCsvTestCaseResult[];
-}> {
-  const results: ExcelCsvTestCaseResult[] = [];
-
-  const baseContext: PipelineContext = {
-    projectId: 'proj_riyadh_metro',
-    userId: 'usr_importer_01',
-    userName: 'مهندس الاستيراد',
-    role: 'PROJECT_ADMIN',
-    operationId: `OP-TEST-BLOCK31-${Date.now()}`,
-    allowWarningsCommit: true,
-    knownEntities: {
-      carrierIds: ['الشركة الشرقية للنقل', 'مؤسسة الرمال السريعة'],
-      truckPlates: ['1010-أ ب ج', '2020-د هـ و'],
-      driverIds: ['محمد أحمد', 'علي حسن'],
-      materialCodes: ['AGG-01', 'ركام ناعم 0-5 مم'],
-    },
-    existingKeys: new Set(['TKT-EXISTING-999']),
-  };
-
-  ExcelCsvTripCommitter.resetIdempotencyCache();
+  beforeEach(() => {
+    ExcelCsvTripCommitter.resetIdempotencyCache();
+    vi.spyOn(importedTripClientService, 'dispatchImportedTrip').mockImplementation(async (projectId, params) => {
+      return {
+        trip: {
+          tripId: `TRP-${params.operationalData.ticketId || '101'}`,
+          projectId,
+          status: 'DISPATCHED',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        } as any,
+      };
+    });
+    baseContext = {
+      projectId: 'proj_riyadh_metro',
+      userId: 'usr_importer_01',
+      userName: 'مهندس الاستيراد',
+      role: 'PROJECT_ADMIN',
+      operationId: `OP-TEST-BLOCK31-${Date.now()}`,
+      allowWarningsCommit: true,
+      knownEntities: {
+        carrierIds: ['الشركة الشرقية للنقل', 'مؤسسة الرمال السريعة'],
+        truckPlates: ['1010-أ ب ج', '2020-د هـ و'],
+        driverIds: ['محمد أحمد', 'علي حسن'],
+        materialCodes: ['AGG-01', 'ركام ناعم 0-5 مم'],
+      },
+      existingKeys: new Set(['TKT-EXISTING-999']),
+    };
+  });
 
   // -------------------------------------------------------------------------
   // 1. File Intake Validation
   // -------------------------------------------------------------------------
-  {
+  it('TC-01-FILE-INTAKE: فحص واستقبال ملفات Excel (.xlsx, .xls) و CSV والتحقق من الحجم والامتداد', () => {
     const v1 = FileIntakeValidator.validate('trips_export.xlsx', 1024 * 50);
     const v2 = FileIntakeValidator.validate('old_records.xls', 1024 * 20);
     const v3 = FileIntakeValidator.validate('scale_data.csv', 1024 * 10);
@@ -91,35 +59,21 @@ export async function runExcelCsvImportTests(): Promise<{
     const v5 = FileIntakeValidator.validate('empty.csv', 0);
     const v6 = FileIntakeValidator.validate('oversized.xlsx', 30 * 1024 * 1024);
 
-    const passed =
-      v1.isValid && v1.fileType === 'EXCEL' &&
-      v2.isValid && v2.fileType === 'EXCEL' &&
-      v3.isValid && v3.fileType === 'CSV' &&
-      !v4.isValid &&
-      !v5.isValid &&
-      !v6.isValid;
-
-    results.push({
-      id: 'TC-01-FILE-INTAKE',
-      name: 'فحص واستقبال ملفات Excel (.xlsx, .xls) و CSV والتحقق من الحجم والامتداد',
-      passed,
-      expected: { v1: true, v2: true, v3: true, v4: false, v5: false, v6: false },
-      actual: {
-        v1: v1.isValid,
-        v2: v2.isValid,
-        v3: v3.isValid,
-        v4: v4.isValid,
-        v5: v5.isValid,
-        v6: v6.isValid,
-      },
-      notes: 'تم التحقق من قبول الامتدادات الثلاثة ورفض الملفات الفارغة والزائدة عن 25MB',
-    });
-  }
+    expect(v1.isValid).toBe(true);
+    expect(v1.fileType).toBe('EXCEL');
+    expect(v2.isValid).toBe(true);
+    expect(v2.fileType).toBe('EXCEL');
+    expect(v3.isValid).toBe(true);
+    expect(v3.fileType).toBe('CSV');
+    expect(v4.isValid).toBe(false);
+    expect(v5.isValid).toBe(false);
+    expect(v6.isValid).toBe(false);
+  });
 
   // -------------------------------------------------------------------------
   // 2. Multi-Sheet XLSX Parsing & Sheet Selection
   // -------------------------------------------------------------------------
-  {
+  it('TC-02-EXCEL-MULTISHEET: تحليل مصنف Excel متعدد الأوراق واختيار ورقة العمل المحددة', () => {
     const wb = XLSX.utils.book_new();
     const wsSheet1 = XLSX.utils.aoa_to_sheet([
       ['رقم التذكرة', 'اللوحة', 'الناقل', 'فارغ', 'قائم'],
@@ -149,28 +103,18 @@ export async function runExcelCsvImportTests(): Promise<{
     // Sheet 2 selected
     const res2 = parser.parse(source, xlsxBuffer, { sheetName: 'شحنات إضافية' });
 
-    const passed =
-      sheetNames.length === 2 &&
-      sheetNames[0] === 'ورقة الميزان' &&
-      res1.rows.length === 2 &&
-      res1.rows[0]['رقم التذكرة'] === 'TKT-001' &&
-      res2.rows.length === 1 &&
-      res2.rows[0]['رقم التذكرة'] === 'TKT-SHEET2-01';
-
-    results.push({
-      id: 'TC-02-EXCEL-MULTISHEET',
-      name: 'تحليل مصنف Excel متعدد الأوراق واختيار ورقة العمل المحددة',
-      passed,
-      expected: { sheetsCount: 2, sheet1Rows: 2, sheet2Rows: 1 },
-      actual: { sheetsCount: sheetNames.length, sheet1Rows: res1.rows.length, sheet2Rows: res2.rows.length },
-      notes: 'تم استخراج أسماء أوراق العمل بنجاح ودعم تحديد ورقة العمل دون تشويه للبيانات',
-    });
-  }
+    expect(sheetNames.length).toBe(2);
+    expect(sheetNames[0]).toBe('ورقة الميزان');
+    expect(res1.rows.length).toBe(2);
+    expect(res1.rows[0]['رقم التذكرة']).toBe('TKT-001');
+    expect(res2.rows.length).toBe(1);
+    expect(res2.rows[0]['رقم التذكرة']).toBe('TKT-SHEET2-01');
+  });
 
   // -------------------------------------------------------------------------
   // 3. Duplicate Headers & Empty Row Filtering
   // -------------------------------------------------------------------------
-  {
+  it('TC-03-EMPTY-ROWS-DUP-HEADERS: معالجة تكرار أسماء الأعمدة واستبعاد الصفوف الفارغة في Excel', () => {
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet([
       ['الوزن', 'الوزن', 'اللوحة'], // Duplicate header
@@ -184,25 +128,15 @@ export async function runExcelCsvImportTests(): Promise<{
     const parser = new ExcelImportParser();
     const res = parser.parse({ sourceType: 'EXCEL', importBatchId: 'BAT-DEDUP' }, xlsxBuffer);
 
-    const passed =
-      res.headers?.includes('الوزن') === true &&
-      res.headers?.includes('الوزن_2') === true &&
-      res.rows.length === 1;
-
-    results.push({
-      id: 'TC-03-EMPTY-ROWS-DUP-HEADERS',
-      name: 'معالجة تكرار أسماء الأعمدة واستبعاد الصفوف الفارغة في Excel',
-      passed,
-      expected: { headers: ['الوزن', 'الوزن_2', 'اللوحة'], rowsCount: 1 },
-      actual: { headers: res.headers, rowsCount: res.rows.length },
-      notes: 'تمت إعادة تسمية العمود المكرر إلى الوزن_2 وتصفية الصفوف الفارغة',
-    });
-  }
+    expect(res.headers?.includes('الوزن')).toBe(true);
+    expect(res.headers?.includes('الوزن_2')).toBe(true);
+    expect(res.rows.length).toBe(1);
+  });
 
   // -------------------------------------------------------------------------
   // 4. CSV Parsing: UTF-8 BOM, Quoted Fields, Delimiters
   // -------------------------------------------------------------------------
-  {
+  it('TC-04-CSV-BOM-QUOTES-DELIMITER: تحليل ملفات CSV مع إزالة BOM والتعامل مع الفواصل داخل النصوص وعلامات التنصيص المزدوجة', () => {
     const csvContent =
       '\uFEFF"رقم التذكرة","الناقل, شركة معتمدة","اللوحة","الصافي"\r\n' +
       '"TKT-101","الشركة الشرقية, فرع الرياض","1010-أ ب ج","27000"\r\n' +
@@ -215,33 +149,19 @@ export async function runExcelCsvImportTests(): Promise<{
     const csvSemi = 'Ticket;Truck;Net\nTKT-500;1010-ABC;25000';
     const resSemi = parser.parse({ sourceType: 'CSV', importBatchId: 'BAT-SEMI' }, csvSemi);
 
-    const passed =
-      res.headers?.includes('رقم التذكرة') === true &&
-      res.headers?.includes('الناقل, شركة معتمدة') === true &&
-      res.rows.length === 2 &&
-      res.rows[0]['الناقل, شركة معتمدة'] === 'الشركة الشرقية, فرع الرياض' &&
-      res.rows[1]['الناقل, شركة معتمدة'] === 'مؤسسة الرمال "المتحدة"' &&
-      resSemi.headers?.includes('Truck') === true &&
-      resSemi.rows[0]['Ticket'] === 'TKT-500';
-
-    results.push({
-      id: 'TC-04-CSV-BOM-QUOTES-DELIMITER',
-      name: 'تحليل ملفات CSV مع إزالة BOM والتعامل مع الفواصل داخل النصوص وعلامات التنصيص المزدوجة',
-      passed,
-      expected: { bomStripped: true, quotedPassed: true, semiColonDetected: true },
-      actual: {
-        bomStripped: res.headers?.[0] === 'رقم التذكرة',
-        quotedPassed: res.rows[0]['الناقل, شركة معتمدة'] === 'الشركة الشرقية, فرع الرياض',
-        semiColonDetected: resSemi.rows[0]['Ticket'] === 'TKT-500',
-      },
-      notes: 'تمت إزالة علامة UTF-8 BOM وقراءة الحقول المحاطة باقتباس بنجاح',
-    });
-  }
+    expect(res.headers?.includes('رقم التذكرة')).toBe(true);
+    expect(res.headers?.includes('الناقل, شركة معتمدة')).toBe(true);
+    expect(res.rows.length).toBe(2);
+    expect(res.rows[0]['الناقل, شركة معتمدة']).toBe('الشركة الشرقية, فرع الرياض');
+    expect(res.rows[1]['الناقل, شركة معتمدة']).toBe('مؤسسة الرمال "المتحدة"');
+    expect(resSemi.headers?.includes('Truck')).toBe(true);
+    expect(resSemi.rows[0]['Ticket']).toBe('TKT-500');
+  });
 
   // -------------------------------------------------------------------------
   // 5. Column Mapping Intelligence (Exact, Normalized, Aliases)
   // -------------------------------------------------------------------------
-  {
+  it('TC-05-COLUMN-MAPPING: مطابقة الأعمدة الذكية (Exact, Normalized, Aliases Arabic/English)', () => {
     const headers = [
       'ticket_no',
       'رقم التذكرة',
@@ -257,37 +177,22 @@ export async function runExcelCsvImportTests(): Promise<{
 
     const mappings = ExcelCsvColumnMapper.mapHeaders(headers);
 
-    const passed =
-      mappings['ticket_no'].canonicalField === 'ticketId' &&
-      mappings['رقم التذكرة'].canonicalField === 'ticketId' &&
-      mappings['رقم اللوحة'].canonicalField === 'truckNo' &&
-      mappings['الناقل'].canonicalField === 'carrier' &&
-      mappings['نوع المادة'].canonicalField === 'materialType' &&
-      mappings['الوزن الفارغ'].canonicalField === 'tareWeight' &&
-      mappings['الوزن القائم'].canonicalField === 'grossWeight' &&
-      mappings['الوزن الصافي'].canonicalField === 'netWeight' &&
-      mappings['تاريخ الوردية'].canonicalField === 'shiftDate' &&
-      mappings['unknown_custom_x'].confidence < 0.70;
-
-    results.push({
-      id: 'TC-05-COLUMN-MAPPING',
-      name: 'مطابقة الأعمدة الذكية (Exact, Normalized, Aliases Arabic/English)',
-      passed,
-      expected: { ticket: 'ticketId', plate: 'truckNo', tare: 'tareWeight', unknownConfLessThan70: true },
-      actual: {
-        ticket: mappings['رقم التذكرة'].canonicalField,
-        plate: mappings['رقم اللوحة'].canonicalField,
-        tare: mappings['الوزن الفارغ'].canonicalField,
-        unknownConfLessThan70: mappings['unknown_custom_x'].confidence < 0.70,
-      },
-      notes: 'تمت مطابقة التسميات العربية والإنجليزية الدارجة واحتساب درجات الثقة بدقة',
-    });
-  }
+    expect(mappings['ticket_no'].canonicalField).toBe('ticketId');
+    expect(mappings['رقم التذكرة'].canonicalField).toBe('ticketId');
+    expect(mappings['رقم اللوحة'].canonicalField).toBe('truckNo');
+    expect(mappings['الناقل'].canonicalField).toBe('carrier');
+    expect(mappings['نوع المادة'].canonicalField).toBe('materialType');
+    expect(mappings['الوزن الفارغ'].canonicalField).toBe('tareWeight');
+    expect(mappings['الوزن القائم'].canonicalField).toBe('grossWeight');
+    expect(mappings['الوزن الصافي'].canonicalField).toBe('netWeight');
+    expect(mappings['تاريخ الوردية'].canonicalField).toBe('shiftDate');
+    expect(mappings['unknown_custom_x'].confidence).toBeLessThan(0.70);
+  });
 
   // -------------------------------------------------------------------------
   // 6. Normalization: Arabic Digits, Units, Dates, Net Calculation
   // -------------------------------------------------------------------------
-  {
+  it('TC-06-DATA-NORMALIZATION: معايرة الأرقام العربية الشرقية، الفواصل العشرية، وحدات القياس، والتواريخ، وحساب الصافي تلقائياً', () => {
     const raw = {
       tareWeight: '١٥,٠٠٠ كجم',
       grossWeight: '٤٢٫٥٠٠ طن',
@@ -305,33 +210,18 @@ export async function runExcelCsvImportTests(): Promise<{
     const rawWithNetCalc = { grossWeight: 42000, tareWeight: 15000 };
     const normWithNet = normalizer.normalize(rawWithNetCalc, 2, baseContext);
 
-    const passed =
-      norm.tareWeight === 15000 &&
-      norm.grossWeight === 42.5 &&
-      norm.notes === 'بيان رحلة تجريبي' &&
-      dateSerial === '2023-09-11' &&
-      dateSlash === '2026-09-15' &&
-      normWithNet.netWeight === 27000;
-
-    results.push({
-      id: 'TC-06-DATA-NORMALIZATION',
-      name: 'معايرة الأرقام العربية الشرقية، الفواصل العشرية، وحدات القياس، والتواريخ، وحساب الصافي تلقائياً',
-      passed,
-      expected: { tare: 15000, gross: 42.5, dateSerial: '2023-09-11', netWeight: 27000 },
-      actual: {
-        tare: norm.tareWeight,
-        gross: norm.grossWeight,
-        dateSerial,
-        netWeight: normWithNet.netWeight,
-      },
-      notes: 'تم تحويل الأرقام المكتوبة بالرموز العربية الشرقية واحتساب الصافي بدقة',
-    });
-  }
+    expect(norm.tareWeight).toBe(15000);
+    expect(norm.grossWeight).toBe(42.5);
+    expect(norm.notes).toBe('بيان رحلة تجريبي');
+    expect(dateSerial).toBe('2023-09-11');
+    expect(dateSlash).toBe('2026-09-15');
+    expect(normWithNet.netWeight).toBe(27000);
+  });
 
   // -------------------------------------------------------------------------
   // 7. Validation: Blocking vs Non-Blocking (Weighbridge Compatible)
   // -------------------------------------------------------------------------
-  {
+  it('TC-07-VALIDATION-RULES: قواعد التحقق: تمييز الأخطاء المانعة عن التحذيرات غير المانعة (متوافق مع الميزان)', () => {
     const validator = new ExcelCsvTripValidator();
 
     // Row 1: Missing identification (neither ticket nor truck) -> BLOCKING
@@ -366,27 +256,17 @@ export async function runExcelCsvImportTests(): Promise<{
     const row3HasUnloadWarning = issues3.some((i) => i.code === 'MISSING_UNLOAD_DATA' && i.severity === 'WARNING');
     const row3HasDriverWarning = issues3.some((i) => i.code === 'MISSING_OPTIONAL_DRIVER' && i.severity === 'WARNING');
 
-    const passed =
-      hasMissingIdBlocking &&
-      hasGrossLessThanTare &&
-      !row3HasBlocking &&
-      row3HasUnloadWarning &&
-      row3HasDriverWarning;
-
-    results.push({
-      id: 'TC-07-VALIDATION-RULES',
-      name: 'قواعد التحقق: تمييز الأخطاء المانعة عن التحذيرات غير المانعة (متوافق مع الميزان)',
-      passed,
-      expected: { hasMissingIdBlocking: true, hasGrossLessThanTare: true, row3Blocking: false },
-      actual: { hasMissingIdBlocking, hasGrossLessThanTare, row3Blocking: row3HasBlocking },
-      notes: 'تم تصنيف الأخطاء الفيزيائية كأخطاء حتمية مانعة واعتبار نقص بيانات التفريغ تحذيراً تشغيلياً فقط',
-    });
-  }
+    expect(hasMissingIdBlocking).toBe(true);
+    expect(hasGrossLessThanTare).toBe(true);
+    expect(row3HasBlocking).toBe(false);
+    expect(row3HasUnloadWarning).toBe(true);
+    expect(row3HasDriverWarning).toBe(true);
+  });
 
   // -------------------------------------------------------------------------
   // 8. Duplicate Detection (Batch and Database)
   // -------------------------------------------------------------------------
-  {
+  it('TC-08-DUPLICATE-CHECK: اكتشاف التكرار داخل نفس الدفعة ومع قاعدة البيانات وإحالتها للمراجعة', () => {
     const checker = new ExcelCsvTripDuplicateChecker();
     const rows: any[] = [
       { rowNumber: 1, canonical: { ticketId: 'TKT-DUP-01' } },
@@ -396,31 +276,17 @@ export async function runExcelCsvImportTests(): Promise<{
 
     const checked = checker.checkDuplicates(rows, baseContext);
 
-    const passed =
-      !checked[0].duplicateInfo?.isDuplicate &&
-      checked[1].duplicateInfo?.isDuplicate === true &&
-      checked[1].duplicateInfo?.duplicateWithRow === 1 &&
-      checked[2].duplicateInfo?.isDuplicate === true &&
-      checked[2].reviewStatus === 'requires_review';
-
-    results.push({
-      id: 'TC-08-DUPLICATE-CHECK',
-      name: 'اكتشاف التكرار داخل نفس الدفعة ومع قاعدة البيانات وإحالتها للمراجعة',
-      passed,
-      expected: { row1Dup: false, row2Dup: true, row3Dup: true },
-      actual: {
-        row1Dup: !!checked[0].duplicateInfo?.isDuplicate,
-        row2Dup: !!checked[1].duplicateInfo?.isDuplicate,
-        row3Dup: !!checked[2].duplicateInfo?.isDuplicate,
-      },
-      notes: 'تم وسم الصفوف المكررة بدقة مع تحديد سبب التكرار ورقم الصف الأصلي',
-    });
-  }
+    expect(checked[0].duplicateInfo?.isDuplicate).toBeFalsy();
+    expect(checked[1].duplicateInfo?.isDuplicate).toBe(true);
+    expect(checked[1].duplicateInfo?.duplicateWithRow).toBe(1);
+    expect(checked[2].duplicateInfo?.isDuplicate).toBe(true);
+    expect(checked[2].reviewStatus).toBe('requires_review');
+  });
 
   // -------------------------------------------------------------------------
   // 9. Pre-Commit Gate, Warnings Confirmation, Idempotency & Project Isolation
   // -------------------------------------------------------------------------
-  {
+  it('TC-09-PRECOMMIT-GATE-IDEMPOTENCY: بوابة الاعتماد الصارمة، تأكيد التحذيرات، عزل المشاريع، وضمان عدم تكرار التنفيذ (Idempotency)', async () => {
     const committer = new ExcelCsvTripCommitter();
     const pipelineService = new UnifiedImportPipelineService();
 
@@ -480,6 +346,12 @@ export async function runExcelCsvImportTests(): Promise<{
       {
         rowNumber: 1,
         raw: { ticket: 'TKT-VALID-01' },
+        resolvedValues: {
+          carrierId: 'CAR-01',
+          truckId: 'TRK-01',
+          driverId: 'DRV-01',
+          materialId: 'MAT-01',
+        },
         canonical: {
           projectId: 'proj_riyadh_metro',
           ticketId: 'TKT-VALID-01',
@@ -499,41 +371,19 @@ export async function runExcelCsvImportTests(): Promise<{
     const commitRes1 = await committer.commit(validBatch, fixedContext);
     const commitRes2 = await committer.commit(validBatch, fixedContext);
 
-    const passed =
-      resError.success === false &&
-      resWarn.success === false &&
-      resForeign.success === false &&
-      commitRes1.success === true &&
-      commitRes1.committedRows === 1 &&
-      commitRes2.success === true &&
-      commitRes2.executedAt === commitRes1.executedAt;
-
-    results.push({
-      id: 'TC-09-PRECOMMIT-GATE-IDEMPOTENCY',
-      name: 'بوابة الاعتماد الصارمة، تأكيد التحذيرات، عزل المشاريع، وضمان عدم تكرار التنفيذ (Idempotency)',
-      passed,
-      expected: {
-        resErrorBlocked: true,
-        resWarnBlocked: true,
-        resForeignBlocked: true,
-        commitSuccess: true,
-        idempotentReplay: true,
-      },
-      actual: {
-        resErrorBlocked: !resError.success,
-        resWarnBlocked: !resWarn.success,
-        resForeignBlocked: !resForeign.success,
-        commitSuccess: commitRes1.success,
-        idempotentReplay: commitRes2.executedAt === commitRes1.executedAt,
-      },
-      notes: 'تم التحقق من منع الاعتماد غير الآمن وعزل المشاريع والتعامل مع operationId بنجاح',
-    });
-  }
+    expect(resError.success).toBe(false);
+    expect(resWarn.success).toBe(false);
+    expect(resForeign.success).toBe(false);
+    expect(commitRes1.success).toBe(true);
+    expect(commitRes1.committedRows).toBe(1);
+    expect(commitRes2.success).toBe(true);
+    expect(commitRes2.executedAt).toBe(commitRes1.executedAt);
+  });
 
   // -------------------------------------------------------------------------
   // 10. End-to-End File-to-Review (No Firestore writes before commit)
   // -------------------------------------------------------------------------
-  {
+  it('TC-10-E2E-PIPELINE-NO-PRE-WRITES: التشغيل الشامل عبر ExcelCsvPipelineService حتى مرحلة REVIEW دون كتابة مسبقة في قاعدة البيانات', async () => {
     const rawCsv =
       'رقم التذكرة,رقم اللوحة,الناقل,المادة,تاريخ,فارغ,قائم\n' +
       'TKT-E2E-01,1010-أ ب ج,الشركة الشرقية للنقل,AGG-01,2026-09-11,15000,42000\n' +
@@ -547,32 +397,17 @@ export async function runExcelCsvImportTests(): Promise<{
       baseContext
     );
 
-    const passed =
-      batch.currentStage === 'REVIEW' &&
-      batch.totalRows === 2 &&
-      batch.errorRows === 0 &&
-      batch.rows[0].canonical.netWeight === 27000 &&
-      batch.rows[1].canonical.netWeight === 27000;
-
-    results.push({
-      id: 'TC-10-E2E-PIPELINE-NO-PRE-WRITES',
-      name: 'التشغيل الشامل عبر ExcelCsvPipelineService حتى مرحلة REVIEW دون كتابة مسبقة في قاعدة البيانات',
-      passed,
-      expected: { stage: 'REVIEW', totalRows: 2, errorRows: 0, net1: 27000 },
-      actual: {
-        stage: batch.currentStage,
-        totalRows: batch.totalRows,
-        errorRows: batch.errorRows,
-        net1: batch.rows[0].canonical.netWeight,
-      },
-      notes: 'اكتملت المعالجة في الذاكرة بالكامل حتى مرحلة التدقيق والمراجعة البشرية',
-    });
-  }
+    expect(batch.currentStage).toBe('REVIEW');
+    expect(batch.totalRows).toBe(2);
+    expect(batch.errorRows).toBe(0);
+    expect(batch.rows[0].canonical.netWeight).toBe(27000);
+    expect(batch.rows[1].canonical.netWeight).toBe(27000);
+  });
 
   // -------------------------------------------------------------
-  // TEST CASE 11: Net Weight Safety & Calculation Verification
+  // 11. Net Weight Safety & Calculation Verification
   // -------------------------------------------------------------
-  {
+  it('TC-11-NET-WEIGHT-SAFETY-AND-CALCULATION-CHECK: التحقق من سلامة الوزن الصافي: مطابقة الحساب، إطلاق تحذير غير مانع عند الاختلاف، والتوافق مع الميزان', () => {
     const validator = new ExcelCsvTripValidator();
     const context: PipelineContext = {
       projectId: 'proj_riyadh_metro',
@@ -680,68 +515,11 @@ export async function runExcelCsvImportTests(): Promise<{
     );
     const nullUnloadValid = !hasBlockingInWb && hasUnloadWarning;
 
-    const allConditionsPassed =
-      !hasMismatchIssue1 &&
-      diffPassed &&
-      !hasMismatchIssueFloat &&
-      calcOnlyWhenMissing &&
-      rawNetPreserved &&
-      nullUnloadValid;
-
-    results.push({
-      id: 'TC-11-NET-WEIGHT-SAFETY-AND-CALCULATION-CHECK',
-      name: 'التحقق من سلامة الوزن الصافي: مطابقة الحساب، إطلاق تحذير غير مانع عند الاختلاف، والتوافق مع الميزان',
-      passed: allConditionsPassed,
-      expected: {
-        matchingHasNoWarning: true,
-        diffTriggersWarning: true,
-        toleranceHonored: true,
-        calcOnlyWhenMissing: true,
-        rawPreserved: true,
-        nullUnloadValid: true,
-      },
-      actual: {
-        matchingHasNoWarning: !hasMismatchIssue1,
-        diffTriggersWarning: diffPassed,
-        toleranceHonored: !hasMismatchIssueFloat,
-        calcOnlyWhenMissing,
-        rawPreserved: rawNetPreserved,
-        nullUnloadValid,
-      },
-      notes: 'تحقق شامل لسلامة الوزن الصافي وعدم الاستبدال الصامت وتوثيق الفارق بدقة',
-    });
-  }
-
-  const passedCount = results.filter((r) => r.passed).length;
-  const failedCount = results.length - passedCount;
-
-  return {
-    allPassed: failedCount === 0,
-    total: results.length,
-    passed: passedCount,
-    failed: failedCount,
-    results,
-  };
-}
-
-// Auto-run when executed directly via CLI/tsx
-if (typeof process !== 'undefined' && process.argv && process.argv[1]?.includes('excelCsvImport.test')) {
-  runExcelCsvImportTests().then((res) => {
-    console.log('\n======================================================');
-    console.log(`BLOCK 31: Excel / CSV Import Test Results: ${res.passed}/${res.total} PASSED`);
-    console.log('======================================================');
-    res.results.forEach((r) => {
-      console.log(`${r.passed ? '✅' : '❌'} [${r.id}] ${r.name}`);
-      if (!r.passed) {
-        console.log('   Expected:', r.expected);
-        console.log('   Actual:  ', r.actual);
-      }
-    });
-    console.log('======================================================\n');
-    if (!res.allPassed) {
-      process.exit(1);
-    } else {
-      process.exit(0);
-    }
+    expect(hasMismatchIssue1).toBe(false);
+    expect(diffPassed).toBe(true);
+    expect(hasMismatchIssueFloat).toBe(false);
+    expect(calcOnlyWhenMissing).toBe(true);
+    expect(rawNetPreserved).toBe(true);
+    expect(nullUnloadValid).toBe(true);
   });
-}
+});

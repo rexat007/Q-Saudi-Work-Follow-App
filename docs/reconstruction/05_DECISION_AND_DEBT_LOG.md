@@ -502,6 +502,22 @@
 
 ---
 
+- **CD-40 — Excel/CSV Import Harness Convergence**:
+   - `excelCsvImport.test.ts` migrated from `TSX_CUSTOM` to native Vitest
+   - 11 current semantic contracts preserved (`TC-01` through `TC-11`)
+   - no tests retired
+   - no cardinality drift (exactly 11 tests)
+   - classification corrected from `UNIT / FIREBASE_MOCK` to `UNIT / PURE_LOGIC`
+   - suite requires no Firebase, network, or filesystem runtime
+   - Excel/CSV fixtures remain entirely in memory
+   - current import pipeline behavior remains authoritative
+   - no production code changed
+   - no report artifacts changed
+   - this migration eliminates the final active `TSX_CUSTOM` row from the active test manifest (TSX_CUSTOM count = 0)
+   - P0-U3 remains open pending final phase-level convergence verification
+
+---
+
 ## OPEN_DECISIONS
 - None currently open in Phase 0.
 

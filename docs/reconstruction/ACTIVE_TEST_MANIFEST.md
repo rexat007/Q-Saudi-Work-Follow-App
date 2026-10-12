@@ -14,7 +14,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 5 | `src/tests/dataCleanupBlock82.test.ts` | `test:data-cleanup-82, test` | `VITEST` | `UI_DOM` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 6 | `src/tests/driverTruckIntakeP602A.test.ts` | `verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 7 | `src/tests/driverViewConvergenceP603.test.ts` | `verify:beta2` | `VITEST` | `INTEGRATION_MOCK` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 8 | `src/tests/excelCsvImport.test.ts` | `test` | `TSX_CUSTOM` | `UNIT` | `FIREBASE_MOCK` | `MIGRATE_TO_VITEST` | `CLEAN` | `YES` |
+| 8 | `src/tests/excelCsvImport.test.ts` | `test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 9 | `src/tests/fieldLoadingUnloadingBlock77.test.ts` | `test:field-ops-77, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 10 | `src/tests/fieldReportsCentralDashboardBlock80.test.ts` | `test:reports-dashboard-80, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 11 | `src/tests/fieldSupervisionConvergenceP604.test.ts` | `verify:beta2` | `VITEST` | `INTEGRATION_MOCK` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
