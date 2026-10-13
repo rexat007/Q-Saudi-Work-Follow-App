@@ -1,6 +1,24 @@
 # DECISION AND TECHNICAL DEBT LOG
 
 ## CLOSED_DECISIONS
+- **CD-43**: Root Tooling Authority & Contamination Guard:
+  - npm + package-lock.json are canonical.
+  - npm test = 48-suite root verification surface.
+  - verify:beta2 = separate 19-suite Beta verification surface.
+  - overlap = 0.
+  - current sequential npm test is accepted.
+  - specialized test:* scripts remain valid.
+  - vitest.config.ts remains unchanged.
+  - no script archival without reachability/provenance proof.
+  - npm run lint (tsc --noEmit) functions as full-repository typecheck/debt observability command.
+  - npm run lint is currently non-blocking for P0-U4 because known debt spans inactive tests and future-domain production code.
+  - lint failure must still be reported truthfully as exit 2 / recorded debt; failing full-repository tsc must not be called PASS.
+  - active-test TypeScript debt (29 diagnostics across 5 files) remains explicitly unresolved and deferred to P0-U7 reassessment.
+  - no tsconfig narrowing is authorized merely to obtain green output.
+  - GitHub main remains tooling authority.
+  - AI Studio automatic migration/config rewrites are non-authoritative.
+  - tracked mutations during canonical verification are failures.
+  - stable tooling must not be refactored without proven defect.
 - **CD-42**: Product Contract & Real Product Acceptance Governance:
   - Automated green state is necessary but insufficient for product-facing closure.
   - Real product/browser/workflow verification is mandatory where applicable.
@@ -551,15 +569,20 @@
 
 ## TYPECHECK_BASELINE_DEBT
 - **Status**: RECORDED / UNRESOLVED
-- **Current reproducible full-repository tsc result**: exit 2
-- **Total diagnostics**: 420
-- **src/tests diagnostics**: 397
-- **Production source diagnostics**: 23
-- **P0-U2 changed TypeScript files**: NONE
-- **Errors originating from P0-U2 changed files**: 0
-- **Valid pre-P0-U2 passing tsc baseline**: UNVERIFIED
-- **Classification**: REPRODUCIBLE_PREEXISTING_OR_UNVERIFIED_DEBT
-- **P0-U2 toolchain blocker**: NO
+- **Historical Recorded Baseline**:
+  - Total diagnostics: 420
+  - src/tests diagnostics: 397
+  - Production source diagnostics: 23
+  - Classification: REPRODUCIBLE_PREEXISTING_OR_UNVERIFIED_DEBT
+  - P0-U2 toolchain blocker: NO
+- **P0-U4 Current Typecheck Observation**:
+  - Current reproducible full-repository tsc result: exit 2
+  - Total diagnostics: 445
+  - Active manifest tests: 29 diagnostics (across 5 active manifest test suites: Block 76 [14], i18n Translation Catalog [1], i18n Translation Generation [2], Block 87 Project-Centric [5], Block 86F Date UX [7]; all 5 suites pass cleanly under native Vitest execution)
+  - Historical / non-active tests: 393 diagnostics (across 32 historical, retired, or unlisted test files in `src/tests/` due to repository-wide implicit inclusion from `tsconfig.json` lacking explicit include/exclude)
+  - Production source: 23 diagnostics (routed to owning future phases: 20 in Phase 7/8 Smart Import, 3 in Phase 10 Trip/Operations)
+  - Tooling / config / scripts: 0 diagnostics
+  - Superseding Reconciliation Statement: The current 445 observation is NOT identical to the historical 420 baseline. Therefore any previous statement claiming exact equality with the 420 baseline is superseded by this reconciliation.
 
 ### Principal Debt Families:
 1. **Stale Smart Import / entity-resolution test fixtures**: Object shape drift in test mocks where `ImportEntityResolutionInfo` expanded to include mandatory fields (`originalValue`, `confidence`, `isExact`, `riskLevel`).
@@ -569,12 +592,18 @@
 5. **Missing helper / icon imports**: Missing imports in UI components and tests (e.g. `ShieldAlert` from Lucide, `createEmptyImportBatch`).
 6. **Stale internal type import location**: Imports attempting to resolve types like `AuthUserContext` from `../types/entities` instead of canonical auth definitions.
 7. **Date / String operational typing mismatch**: Operational service methods passing string ISO timestamps where `Date | Timestamp` is required.
-8. **Vitest global test-environment typing**: Calling `expect` in tests without explicit vitest import or ambient globals definition.
+8. **Vitest global test-environment typing**: Calling `expect` or `test` in tests without explicit vitest import or ambient globals definition.
 
 ### Resolution & Governance Routing Policy:
-- Test-harness, static mock, and test-environment typing debt (397 diagnostics) will be systematically triaged in **P0-U3 (Test Taxonomy & Harness Convergence)**.
-- Production contract errors (23 diagnostics) must NOT be patched ad-hoc; they are routed to the specific reconstruction phase that owns the affected domain (Phase 7/8 for Smart Import & Entity Resolution, Phase 10 for Trip Service, Phase 12 for Admin/Exceptions).
-- Phase 0 Closure (**P0-U7**) must explicitly reassess whether any remaining production TypeScript errors block Phase 0 exit before freezing the repository foundation.
+- **Historical / Non-Active Test Debt (393 diagnostics)**: Preserved and isolated; tsconfig narrowing or ad-hoc file modification is prohibited in Phase 0.
+- **Active Manifest Test Debt (29 diagnostics)**: Classified as `ACTIVE_TEST_TYPECHECK_DEBT` and deferred to P0-U7 reassessment; P0-U3 remains valid as Test Taxonomy & Harness Convergence and is NOT reopened.
+- **Production Contract Errors (23 diagnostics)**: Must NOT be patched ad-hoc; routed strictly to owning future phases (Phase 7/8 for Smart Import & Entity Resolution [20 diagnostics], Phase 10 for Trip Service [3 diagnostics]).
+- **P0-U7 Mandatory Reassessment Obligations**:
+  Phase 0 Closure (**P0-U7**, status: NOT_STARTED) must explicitly reassess:
+  A. Remaining active-test TypeScript diagnostics.
+  B. Remaining historical/non-active test diagnostics (whether they remain observable only, are removed/archived through later authorized cleanup, or are excluded from a future canonical active-scope typecheck).
+  C. Remaining production TypeScript diagnostics before Phase 0 freeze.
+  D. Whether a future canonical active-scope typecheck gate is required.
 
 ## DEFERRED_DEBT
 - **DD-01 (DEFERRED_TO_PHASE_8)**: Known Smart Import session-restore contract edge case during full batch recovery. Tracked for resolution during Phase 8 (Smart Import Persistence, Resume & Commit Integrity), NOT as a Phase 0 quick patch task.
