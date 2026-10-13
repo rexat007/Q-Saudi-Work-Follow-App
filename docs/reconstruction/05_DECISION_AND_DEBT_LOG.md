@@ -1,6 +1,14 @@
 # DECISION AND TECHNICAL DEBT LOG
 
 ## CLOSED_DECISIONS
+- **CD-42**: Product Contract & Real Product Acceptance Governance:
+  - Automated green state is necessary but insufficient for product-facing closure.
+  - Real product/browser/workflow verification is mandatory where applicable.
+  - Historical defects and rejected paths must be reviewed before product-domain remediation.
+  - Explicit user acceptance remains a closure gate.
+  - P0-U3 remains valid as technical harness convergence, not product-wide functional validation.
+  - Future features should be translated/tested/verified by construction.
+  - Batch remediation is preferred over defect-by-defect micro-slices.
 - **CD-41**: Active Runtime I18N Fixed Cardinality Invariant Retirement:
   - Historical 1128 cardinality retired across current active root verification.
   - 1129 explicitly NOT adopted as replacement.
