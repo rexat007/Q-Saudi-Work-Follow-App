@@ -23,8 +23,12 @@ export function AuthButton() {
         <div className="absolute top-full mt-2 end-0 z-50 bg-rose-50 border border-rose-200 text-rose-900 text-xs p-3 rounded-xl shadow-xl flex items-start gap-2.5 w-72 sm:w-80 max-w-[90vw]">
           <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
           <div className="flex-1 text-[11px] leading-relaxed">
-            <p className="font-semibold text-rose-800 mb-0.5">تنبيه المصادقة</p>
-            <p className="text-rose-700">{authError}</p>
+            <p className="font-semibold text-rose-800 mb-0.5">{t("authentication.labels.authErrorPrefix")}</p>
+            <p className="text-rose-700">
+              {authError?.includes("auth/requests-from-referer") || authError?.includes("unauthorized-domain")
+                ? t("authentication.labels.unauthorizedDomainError")
+                : authError}
+            </p>
           </div>
           <button
             onClick={clearAuthError}

@@ -162,7 +162,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
                 {isRTL ? 'بوابة التحقق التشغيلية' : 'Operational Authentication Gateway'}
               </h2>
               <p className="text-xs font-mono text-white/40 uppercase tracking-widest">
-                Identity & Governance System
+                {t("authentication.labels.identityGovernance")}
               </p>
             </div>
 
@@ -179,7 +179,16 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
 
             {authError && (
               <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs rounded-xl font-medium leading-relaxed">
-                {authError}
+                {authError && (
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs rounded-xl font-medium leading-relaxed space-y-1">
+                <p className="font-bold">{t("authentication.labels.authErrorPrefix")}</p>
+                <p>
+                  {authError.includes("auth/requests-from-referer") || authError.includes("unauthorized-domain")
+                    ? t("authentication.labels.unauthorizedDomainError")
+                    : authError}
+                </p>
+              </div>
+            )}
               </div>
             )}
 
@@ -201,7 +210,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
         </main>
 
         <footer className="max-w-4xl mx-auto w-full border-t border-white/10 pt-4 text-center text-xs font-mono text-white/30">
-          Q-Saudi Work Follow // Server-Authoritative Identity & Access Governance System
+          {t("authentication.labels.systemFooter")}
         </footer>
       </div>
     );
@@ -393,7 +402,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
         </main>
 
         <footer className="max-w-4xl mx-auto w-full border-t border-white/10 pt-4 text-center text-xs font-mono text-white/30">
-          Q-Saudi Work Follow // Server-Authoritative Identity & Access Governance System
+          {t("authentication.labels.systemFooter")}
         </footer>
       </div>
     );
@@ -539,7 +548,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
       </main>
 
       <footer className="max-w-4xl mx-auto w-full border-t border-white/10 pt-4 text-center text-xs font-mono text-white/30">
-        Q-Saudi Work Follow // Server-Authoritative Identity & Access Governance System
+        {t("authentication.labels.systemFooter")}
       </footer>
     </div>
   );
