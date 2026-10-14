@@ -17,6 +17,7 @@ import { DriverView } from './DriverView';
 import { AuthUserContext, UserRole } from '../../types/common';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { ProjectEntity } from '../../types/entities';
+import { useI18n } from '../../i18n';
 
 export type FieldTab = 'LOADING_STATION' | 'UNLOADING_STATION' | 'SUPERVISION' | 'DRIVER_VIEW';
 
@@ -39,6 +40,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
   onNavigateToWizard,
   authContext
 }) => {
+  const { t, isRTL } = useI18n();
   const [activeTab, setActiveTab] = useState<FieldTab>(initialTab);
   const [notification, setNotification] = useState<{
     type: 'SUCCESS' | 'ERROR' | 'SECURITY';
@@ -50,7 +52,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
   // Fail-closed guard: missing or unauthenticated context must never manufacture operational authority
   if (!authContext) {
     return (
-      <div className="border border-stone-800 bg-stone-950 rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl" dir="rtl">
+      <div className="border border-stone-800 bg-stone-950 rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="w-16 h-16 bg-stone-900 border border-stone-800 text-stone-500 rounded-full flex items-center justify-center mx-auto">
           <ShieldAlert className="w-8 h-8 text-rose-500" />
         </div>
@@ -70,7 +72,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
 
   if (!projects || projects.length === 0) {
     return (
-      <div className="border border-stone-800 bg-stone-950 rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl" dir="rtl">
+      <div className="border border-stone-800 bg-stone-950 rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="w-16 h-16 bg-stone-900 border border-stone-800 text-stone-500 rounded-full flex items-center justify-center mx-auto">
           <Scale className="w-8 h-8 text-amber-500" />
         </div>
@@ -105,7 +107,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
   const effectiveTab = isDriverRole ? 'DRIVER_VIEW' : activeTab;
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Field Workplace Control Header */}
       <div className="bg-stone-900 text-white rounded-2xl p-4 sm:p-5 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -115,12 +117,12 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-amber-400">منظومة العمليات الميدانية</span>
+                <span className="text-xs font-bold text-amber-400">{t("field_operations.suite_title")}</span>
                 <span className="text-stone-500">•</span>
-                <span className="text-xs text-stone-300 font-mono">FIELD OPERATIONS SUITE</span>
+                <span className="text-xs text-stone-300 font-mono">{t("field_operations.suite_title")}</span>
               </div>
               <h1 className="text-base sm:text-lg font-black text-white mt-0.5">
-                واجهات مشغلي الموازين والاستلام بالمواقع
+                {t("field_operations.subtitle")}
               </h1>
             </div>
           </div>
@@ -140,7 +142,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
                   }`}
                 >
                   <Scale className="w-3.5 h-3.5" />
-                  <span>ميزان التحميل (Loading)</span>
+                  <span>{t("field_operations.loading_station_tab")}</span>
                 </button>
                 <button
                   type="button"
@@ -152,7 +154,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
                   }`}
                 >
                   <Truck className="w-3.5 h-3.5" />
-                  <span>ميزان الاستلام (Unloading)</span>
+                  <span>{t("field_operations.unloading_station_tab")}</span>
                 </button>
                 <button
                   type="button"
@@ -164,7 +166,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
                   }`}
                 >
                   <ShieldAlert className="w-3.5 h-3.5" />
-                  <span>الإشراف الميداني (Supervision)</span>
+                  <span>{t("field_operations.supervision")}</span>
                 </button>
                 <button
                   type="button"
@@ -176,14 +178,14 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
                   }`}
                 >
                   <UserCheck className="w-3.5 h-3.5" />
-                  <span>واجهة السائق (Driver)</span>
+                  <span>{t("field_operations.driver")}</span>
                 </button>
               </div>
             )}
 
             {/* Project Context Selector */}
             <div className="flex items-center gap-1.5 bg-stone-800 px-3 py-1.5 rounded-xl border border-stone-700/60 text-xs">
-              <span className="text-stone-400 text-[11px]">المشروع النشط:</span>
+              <span className="text-stone-400 text-[11px]">{t("field_operations.active_project")}</span>
               <select
                 id="select-field-active-project"
                 value={selectedProjectId}
@@ -268,17 +270,3 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
     </div>
   );
 };
-
-function getRoleDisplayName(role: UserRole): string {
-  switch (role) {
-    case 'SCALE_OPERATOR': return 'مشغل ميزان ميداني (Scale Operator)';
-    case 'DISPATCHER': return 'مرحل وموجه حركة (Dispatcher)';
-    case 'SUPERVISOR': return 'مشرف عمليات ميدانية (Field Supervisor)';
-    case 'SITE_SUPERVISOR': return 'مشرف موقع تفريغ (Site Supervisor)';
-    case 'PROJECT_ADMIN': return 'مدير المشروع (Project Admin)';
-    case 'FINANCE_AUDITOR': return 'مدقق مالي (Finance Auditor)';
-    case 'DRIVER': return 'سائق شاحنة (Driver)';
-    case 'SUPER_ADMIN': return 'المشرف العام للنظام (Super Admin)';
-    default: return role;
-  }
-}

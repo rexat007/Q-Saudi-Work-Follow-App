@@ -240,7 +240,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className="w-full flex items-center justify-start gap-2 p-2 rounded-lg bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 text-[11px] font-bold border border-amber-600/20 transition-all cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 shrink-0" />
-                  <span>{isRtl ? 'تأسيس مشروع جديد (Wizard)' : 'Provision New Project'}</span>
+                  <span>{t("navigation.labels.provision_new_project")}</span>
                 </button>
 
                 {/* Project selector dropdown/list */}
@@ -299,7 +299,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="flex items-center gap-2 min-w-0">
                 <Sparkles className="w-4 h-4 shrink-0" />
-                {!isCollapsed && <span>{isRtl ? 'أدوات النظام' : 'System Tools'}</span>}
+                {!isCollapsed && <span>{t("navigation.labels.system_tools")}</span>}
               </div>
               {!isCollapsed && (
                 <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-[#10b981]/20 text-[#10b981]">

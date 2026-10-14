@@ -794,7 +794,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                     value={destNetWeightInput}
                     onChange={(e) => setDestNetWeightInput(e.target.value === '' ? '' : Number(e.target.value))}
                     disabled={activeTrip.status === 'COMPLETED'}
-                    placeholder="صافي وزن الاستلام (كجم)"
+                    placeholder={t("field_operations.dest_net_weight")}
                     className="w-full bg-white border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>

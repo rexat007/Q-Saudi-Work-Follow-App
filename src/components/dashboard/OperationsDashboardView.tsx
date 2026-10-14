@@ -49,12 +49,12 @@ export interface OperationsDashboardViewProps {
 }
 
 export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = ({ authContext }) => {
-  const { t } = useI18n();
+  const { t, isRTL } = useI18n();
 
   // Fail-closed guard: missing or unauthenticated context must never manufacture an operational security profile
   if (!authContext) {
     return (
-      <div className="border border-stone-800 bg-[#0f1115] rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl my-12" dir="rtl">
+      <div className="border border-stone-800 bg-[#0f1115] rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl my-12" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="w-16 h-16 bg-stone-900 border border-stone-800 text-stone-500 rounded-full flex items-center justify-center mx-auto">
           <ShieldAlert className="w-8 h-8 text-rose-500" />
         </div>

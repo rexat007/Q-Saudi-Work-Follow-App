@@ -262,7 +262,7 @@ export const WeightEngineView: React.FC = () => {
                 </span>
                 <div>
                   <h3 className="text-sm font-bold text-stone-900 font-mono">calculateNetWeight(tare, gross)</h3>
-                  <span className="text-[11px] text-stone-500">حساب صافي الوزن واشتراط tare &gt; 0 و gross &gt; tare</span>
+                  <span className="text-[11px] text-stone-500">{t("field_operations.calculate_net_formula")}</span>
                 </div>
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
@@ -276,7 +276,7 @@ export const WeightEngineView: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold text-stone-700 mb-1">
-                  وزن الفارغ (tare) كجم
+                  {t("field_operations.step6_tare_kg")}
                 </label>
                 <input
                   type="text"
@@ -288,7 +288,7 @@ export const WeightEngineView: React.FC = () => {
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-stone-700 mb-1">
-                  وزن القائم (gross) كجم
+                  {t("field_operations.step7_gross_kg")}
                 </label>
                 <input
                   type="text"
@@ -660,7 +660,7 @@ export const WeightEngineView: React.FC = () => {
 
               <div>
                 <label className="block text-[11px] font-semibold text-stone-700 mb-1">
-                  صافي الوزن (netWeight) كجم
+                  {t("field_operations.net_weight_label")} ({t("shared.units.kg")})
                 </label>
                 <input
                   type="text"

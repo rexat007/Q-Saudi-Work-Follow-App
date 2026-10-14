@@ -724,7 +724,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-base sm:text-lg font-black text-stone-900">محطة ميزان التحميل الميدانية</h1>
               <span className="bg-amber-100 text-amber-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                مشغل الميزان (Loading Operator)
+                {t("field_operations.loading_operator")}
               </span>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
@@ -760,7 +760,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">1</span>
-                <h2 className="font-bold text-stone-900 text-sm">بيانات الشاحنة وأمر التحميل (IDENTIFY)</h2>
+                <h2 className="font-bold text-stone-900 text-sm">{t("field_operations.identify")}</h2>
               </div>
               <span className="text-[11px] text-stone-400">اختيار سريع بلمسة واحدة</span>
             </div>
@@ -918,7 +918,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">2</span>
-                <h2 className="font-bold text-stone-900 text-sm">توثيق الأوزان بالميزان (CAPTURE & VALIDATE)</h2>
+                <h2 className="font-bold text-stone-900 text-sm">{t("field_operations.capture_validate")}</h2>
               </div>
               <span className="text-[11px] text-stone-400">قراءات رقمية دقيقة</span>
             </div>
@@ -928,7 +928,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
                   <Scale className="w-3.5 h-3.5 text-stone-600" />
-                  <span>وزن الفارغ (Tare Weight)</span>
+                  <span>{t("field_operations.tare_weight")}</span>
                 </label>
                 <button
                   type="button"
@@ -989,7 +989,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
                   <Scale className="w-3.5 h-3.5 text-amber-700" />
-                  <span>الوزن القائم بعد التعبئة (Gross Weight)</span>
+                  <span>{t("field_operations.gross_weight")}</span>
                 </label>
                 <button
                   type="button"
@@ -1049,7 +1049,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div className="bg-amber-50/70 rounded-xl p-4 border border-amber-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold text-amber-900 block">صافي الحمولة المحسوب (Net Weight)</span>
+                  <span className="text-xs font-bold text-amber-900 block">{t("field_operations.calculated_net_weight")}</span>
                   <span className="text-[10px] text-amber-700 block">معادلة الميزان: القائم - الفارغ</span>
                 </div>
                 <div className="text-left font-mono">

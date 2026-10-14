@@ -620,7 +620,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-base sm:text-lg font-black text-stone-900">محطة استلام وتفريغ الموقع الميدانية</h1>
               <span className="bg-emerald-100 text-emerald-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                مشغل الاستلام (Site Receiver)
+                {t("field_operations.unloading_operator")}
               </span>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
@@ -649,7 +649,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">1</span>
-                <h2 className="font-bold text-stone-900 text-sm">البحث ومطابقة الرحلة الواصلة (IDENTIFY)</h2>
+                <h2 className="font-bold text-stone-900 text-sm">{t("field_operations.identify_unloading")}</h2>
               </div>
               <span className="text-[11px] text-stone-400">مسح باركود أو اختيار فوري</span>
             </div>
@@ -807,7 +807,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
               <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                 <div className="flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">2</span>
-                  <h2 className="font-bold text-stone-900 text-sm">وزن الاستلام واحتساب الفارق (CAPTURE & VALIDATE)</h2>
+                  <h2 className="font-bold text-stone-900 text-sm">{t("field_operations.capture_validate_dest")}</h2>
                 </div>
                 {/* Weight Mode Switcher */}
                 <div className="flex items-center bg-stone-100 p-1 rounded-lg text-xs font-bold">
@@ -858,7 +858,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                 <div className="bg-stone-50 p-4 rounded-xl border border-stone-200/80 space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold text-stone-800">
-                      صافي وزن الاستلام بميزان الموقع (Dest Net Weight)
+                      {t("field_operations.dest_net_weight")}
                     </label>
                     <span className="text-[10px] text-stone-400 font-mono">KG</span>
                   </div>

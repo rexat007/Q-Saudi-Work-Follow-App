@@ -1017,7 +1017,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                   <Scale className="w-5 h-5 text-amber-600" />
                   <div>
-                    <h3 className="text-sm font-bold text-stone-900">الخطوة 6: وزن الشاحنة الفارغة (Tare Weight)</h3>
+                    <h3 className="text-sm font-bold text-stone-900">{t("field_operations.step6_tare")}</h3>
                     <p className="text-xs text-stone-500">{t("loading.labels.txt_177f70")}</p>
                   </div>
                 </div>
@@ -1025,7 +1025,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <div className="space-y-4 pt-2 max-w-lg">
                   <div>
                     <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                      وزن الفارغ بالكيلوجرام (Tare Weight - KG)
+                      {t("field_operations.step6_tare_kg")}
                     </label>
                     <div className="relative">
                       <input
@@ -1072,7 +1072,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                   <Scale className="w-5 h-5 text-amber-600" />
                   <div>
-                    <h3 className="text-sm font-bold text-stone-900">الخطوة 7: الوزن القائم للشاحنة (Gross Weight)</h3>
+                    <h3 className="text-sm font-bold text-stone-900">{t("field_operations.step7_gross")}</h3>
                     <p className="text-xs text-stone-500">{t("loading.labels.txt_72a483")}</p>
                   </div>
                 </div>
@@ -1080,7 +1080,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <div className="space-y-4 pt-2 max-w-lg">
                   <div>
                     <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                      الوزن القائم بالكيلوجرام (Gross Weight - KG)
+                      {t("field_operations.step7_gross_kg")}
                     </label>
                     <div className="relative">
                       <input
@@ -1157,7 +1157,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {/* 1. Net Weight */}
                   <div className="bg-stone-50 border border-stone-200 rounded-xl p-3">
-                    <div className="text-[11px] font-bold text-stone-500 mb-1">صافي الوزن (Net Weight)</div>
+                    <div className="text-[11px] font-bold text-stone-500 mb-1">{t("field_operations.net_weight_label")}</div>
                     <div className="text-lg font-mono font-bold text-stone-900">
                       {netWeightTons} <span className="text-xs font-normal text-stone-500">طن</span>
                     </div>
@@ -1567,7 +1567,7 @@ export const LoadingStation: React.FC<LoadingStationProps> = ({
                     <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">{t("loading.status.completed_2")}</span>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
-                    <div className="bg-white p-2 rounded-lg border border-stone-200 font-medium text-stone-800">Net Weight ✓</div>
+                    <div className="bg-white p-2 rounded-lg border border-stone-200 font-medium text-stone-800">{t("field_operations.net_weight_label")} ✓</div>
                     <div className="bg-white p-2 rounded-lg border border-stone-200 font-medium text-stone-800">Pricing Type ✓</div>
                     <div className="bg-white p-2 rounded-lg border border-stone-200 font-medium text-stone-800">Agreed Rate ✓</div>
                     <div className="bg-white p-2 rounded-lg border border-stone-200 font-medium text-stone-800">Estimated Settlement ✓</div>
