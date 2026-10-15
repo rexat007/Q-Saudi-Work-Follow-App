@@ -92,13 +92,17 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   const availableProjects = useMemo(() => {
     const all = projectsList.map(p => ({
       id: p.projectId,
-      name: `${p.nameAr} (${p.projectId})`
+      name: t("field_operations.project_display", {
+        nameAr: p.nameAr,
+        nameEn: p.nameEn || p.nameAr,
+        id: p.projectId
+      })
     }));
     if (authContext.role === 'SUPER_ADMIN' || !authContext.assignedProjectIds || authContext.assignedProjectIds.length === 0) {
       return all;
     }
     return all.filter(p => authContext.assignedProjectIds!.includes(p.id));
-  }, [projectsList, authContext]);
+  }, [projectsList, authContext, t]);
 
   // Form State: Project and Entity Selections (no mock defaults)
   const [projectId, setProjectId] = useState<string>('');
@@ -623,31 +627,34 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Scale className="w-5 h-5 text-amber-600" />
-                <h3 className="font-bold text-stone-900 text-base">تذكرة ميزان التحميل والانطلاق</h3>
+                <h3 className="font-bold text-stone-900 text-base">{t("field_operations.ticket_title")}</h3>
               </div>
               <span className="text-xs text-stone-500 font-mono">{createdTrip.loadTime?.slice(0, 19).replace('T', ' ')}</span>
             </div>
             <p className="text-xs text-stone-500 mt-1">
-              {projectsList.find(p => p.projectId === createdTrip.projectId)?.nameAr || createdTrip.projectId}
+              {(() => {
+                const proj = projectsList.find(p => p.projectId === createdTrip.projectId);
+                return proj ? t("field_operations.project_display", { nameAr: proj.nameAr, nameEn: proj.nameEn || proj.nameAr, id: proj.projectId }) : createdTrip.projectId;
+              })()}
             </p>
           </div>
 
           {/* Vehicle & Trip Info Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-50 p-4 rounded-xl border border-stone-200/80 text-xs">
             <div>
-              <span className="text-stone-400 block text-[11px]">رقم الشاحنة</span>
+              <span className="text-stone-400 block text-[11px]">{t("field_operations.truck_number")}</span>
               <span className="font-bold text-stone-900 font-mono text-sm">{createdTrip.truckId}</span>
             </div>
             <div>
-              <span className="text-stone-400 block text-[11px]">الناقل</span>
+              <span className="text-stone-400 block text-[11px]">{t("field_operations.carrier")}</span>
               <span className="font-bold text-stone-900">{context?.knownCarriers.find(c => c.carrierId === createdTrip.carrierId)?.name || createdTrip.carrierId}</span>
             </div>
             <div>
-              <span className="text-stone-400 block text-[11px]">السائق</span>
+              <span className="text-stone-400 block text-[11px]">{t("field_operations.driver")}</span>
               <span className="font-bold text-stone-900">{context?.knownDrivers.find(d => d.driverId === createdTrip.driverId)?.name || createdTrip.driverId}</span>
             </div>
             <div>
-              <span className="text-stone-400 block text-[11px]">المادة الموردة</span>
+              <span className="text-stone-400 block text-[11px]">{t("field_operations.supplied_material")}</span>
               <span className="font-bold text-stone-900">{context?.knownMaterials.find(m => m.materialId === createdTrip.materialId)?.name || createdTrip.materialId}</span>
             </div>
           </div>
@@ -656,28 +663,28 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
           <div className="bg-amber-50/50 border border-amber-200 rounded-xl p-4">
             <div className="grid grid-cols-3 gap-3 text-center">
               <div className="bg-white p-3 rounded-lg border border-stone-200">
-                <span className="text-[11px] text-stone-500 block">الوزن القائم (Gross)</span>
+                <span className="text-[11px] text-stone-500 block">{t("field_operations.gross_weight_ticket")}</span>
                 <span className="text-base sm:text-lg font-black text-stone-900 font-mono">{createdTrip.grossWeight.toLocaleString()}</span>
-                <span className="text-[10px] text-stone-400 block">كجم</span>
+                <span className="text-[10px] text-stone-400 block">{t("shared.units.kg")}</span>
               </div>
               <div className="bg-white p-3 rounded-lg border border-stone-200">
-                <span className="text-[11px] text-stone-500 block">وزن الفارغ (Tare)</span>
+                <span className="text-[11px] text-stone-500 block">{t("field_operations.tare_weight_ticket")}</span>
                 <span className="text-base sm:text-lg font-black text-stone-900 font-mono">{createdTrip.tareWeight.toLocaleString()}</span>
-                <span className="text-[10px] text-stone-400 block">كجم</span>
+                <span className="text-[10px] text-stone-400 block">{t("shared.units.kg")}</span>
               </div>
               <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-300">
-                <span className="text-[11px] text-emerald-800 font-bold block">صافي الحمولة (Net)</span>
+                <span className="text-[11px] text-emerald-800 font-bold block">{t("field_operations.net_payload")}</span>
                 <span className="text-base sm:text-xl font-black text-emerald-950 font-mono">{createdTrip.netWeight.toLocaleString()}</span>
-                <span className="text-[10px] text-emerald-700 font-bold block">كجم ({(createdTrip.netWeight / 1000).toFixed(3)} طن)</span>
+                <span className="text-[10px] text-emerald-700 font-bold block">{t("shared.units.kg")} ({(createdTrip.netWeight / 1000).toFixed(3)} {t("shared.units.ton")})</span>
               </div>
             </div>
           </div>
 
           {/* Pricing Snapshot Notice */}
           <div className="text-xs bg-stone-100/70 p-3 rounded-xl flex items-center justify-between text-stone-600 font-mono">
-            <span>قاعدة التسعير: {createdTrip.pricingRuleId}</span>
+            <span>{t("field_operations.pricing_rule_label")} {createdTrip.pricingRuleId}</span>
             <span className="font-bold text-stone-800">
-              التسوية: {createdTrip.settlementAmount.toFixed(2)} {createdTrip.currency} ({createdTrip.pricingType === 'PER_TON' ? 'بالطن' : 'بالمقطوعية'})
+              {t("field_operations.settlement_label")} {createdTrip.settlementAmount.toFixed(2)} {createdTrip.currency} ({createdTrip.pricingType === 'PER_TON' ? t("field_operations.pricing_per_ton") : t("field_operations.pricing_per_trip")})
             </span>
           </div>
 
@@ -688,17 +695,17 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               className="w-full sm:flex-1 py-3.5 px-4 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>تحميل ووزن شاحنة جديدة (Next Truck)</span>
+              <span>{t("field_operations.next_truck")}</span>
             </button>
             <button
               onClick={() => {
-                setTicketCopyNotification('تم نسخ بيانات التذكرة للمشاركة');
+                setTicketCopyNotification(t("field_operations.ticket_copied"));
                 setTimeout(() => setTicketCopyNotification(null), 3000);
               }}
               className="w-full sm:w-auto py-3.5 px-5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 border border-stone-300"
             >
               <Printer className="w-4 h-4" />
-              <span>طباعة التذكرة</span>
+              <span>{t("field_operations.print_ticket")}</span>
             </button>
           </div>
           {ticketCopyNotification && (
@@ -713,7 +720,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   // MAIN FIELD WORKSTATION INTERFACE: IDENTIFY -> CAPTURE -> VALIDATE -> ACT
   // =========================================================================
   return (
-    <div className="max-w-6xl mx-auto space-y-6 text-right pb-12" dir="rtl">
+    <div className={`max-w-6xl mx-auto space-y-6 ${isRTL ? 'text-right' : 'text-left'} pb-12`} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Station Status Banner */}
       <div className="bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -722,13 +729,13 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-base sm:text-lg font-black text-stone-900">محطة ميزان التحميل الميدانية</h1>
+              <h1 className="text-base sm:text-lg font-black text-stone-900">{t("field_operations.loading_station_title")}</h1>
               <span className="bg-amber-100 text-amber-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
                 {t("field_operations.loading_operator")}
               </span>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
-              توثيق أوزان الدخول والخروج، حظر التلاعب بالأوزان، التحقق من حمولة المحاور، وإصدار تذاكر الترحيل.
+              {t("field_operations.loading_station_desc")}
             </p>
           </div>
         </div>
@@ -738,12 +745,12 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
           {isOnline ? (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
               <Wifi className="w-3.5 h-3.5" />
-              <span>متصل بالنظام المركزي</span>
+              <span>{t("field_operations.connected_status")}</span>
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
               <WifiOff className="w-3.5 h-3.5" />
-              <span>وضع عدم الاتصال (Offline)</span>
+              <span>{t("field_operations.offline_status")}</span>
             </span>
           )}
         </div>
@@ -762,14 +769,14 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                 <span className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">1</span>
                 <h2 className="font-bold text-stone-900 text-sm">{t("field_operations.identify")}</h2>
               </div>
-              <span className="text-[11px] text-stone-400">اختيار سريع بلمسة واحدة</span>
+              <span className="text-[11px] text-stone-400">{t("field_operations.quick_selection")}</span>
             </div>
 
             {/* 1.1 Project Selector */}
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5 text-amber-700" />
-                <span>المشروع التابع له أمر التحميل</span>
+                <span>{t("field_operations.project_selector_label")}</span>
               </label>
               <select
                 value={projectId}
@@ -786,11 +793,11 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
                 <Truck className="w-3.5 h-3.5 text-amber-700" />
-                <span>الناقل المعتمد</span>
+                <span>{t("field_operations.authorized_carrier")}</span>
               </label>
               {availableCarriers.length === 0 ? (
                 <div className="p-3 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-xs text-stone-400 text-center">
-                  {readinessStatus === 'PENDING' ? 'جاري تحميل شركات النقل...' : 'لا توجد شركات نقل معتمدة لهذا المشروع'}
+                  {readinessStatus === 'PENDING' ? t("field_operations.loading_carriers") : t("field_operations.no_carriers")}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
@@ -817,11 +824,11 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
                 <Truck className="w-3.5 h-3.5 text-amber-700" />
-                <span>الشاحنة المتاحة للناقل</span>
+                <span>{t("field_operations.available_truck")}</span>
               </label>
               {availableTrucks.length === 0 ? (
                 <div className="p-3 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-xs text-stone-400 text-center">
-                  {!carrierId ? 'يرجى اختيار شركة النقل أولاً' : readinessStatus === 'PENDING' ? 'جاري تحميل الشاحنات...' : 'لا توجد شاحنات نشطة مسجلة لهذا الناقل'}
+                  {!carrierId ? t("field_operations.select_carrier_first") : readinessStatus === 'PENDING' ? t("field_operations.loading_trucks") : t("field_operations.no_trucks")}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-0.5">
@@ -852,7 +859,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-amber-700" />
-                  <span>السائق</span>
+                  <span>{t("field_operations.driver_label")}</span>
                 </label>
                 <select
                   value={driverId}
@@ -860,7 +867,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                   className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                 >
                   {availableDrivers.length === 0 && (
-                    <option value="">{!carrierId ? 'اختر شركة النقل أولاً' : 'لا يوجد سائقين متاحين'}</option>
+                    <option value="">{!carrierId ? t("field_operations.select_carrier_first_driver") : t("field_operations.no_drivers")}</option>
                   )}
                   {availableDrivers.map(d => (
                     <option key={d.driverId} value={d.driverId}>{d.name || d.driverId} ({d.driverId})</option>
@@ -871,7 +878,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
                   <Boxes className="w-3.5 h-3.5 text-amber-700" />
-                  <span>المادة المحملة</span>
+                  <span>{t("field_operations.loaded_material")}</span>
                 </label>
                 <select
                   value={materialId}
@@ -879,7 +886,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                   className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                 >
                   {availableMaterials.length === 0 && (
-                    <option value="">لا توجد مواد مصرح بها</option>
+                    <option value="">{t("field_operations.no_materials")}</option>
                   )}
                   {availableMaterials.map(m => (
                     <option key={m.materialId} value={m.materialId}>{m.name || m.materialId} ({m.materialId})</option>
@@ -894,17 +901,17 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div className="flex items-center justify-between text-stone-700">
               <span className="font-bold flex items-center gap-1.5">
                 <Calculator className="w-3.5 h-3.5 text-stone-500" />
-                <span>قاعدة التسعير المطبقة</span>
+                <span>{t("field_operations.applied_pricing_rule")}</span>
               </span>
               <span className="bg-stone-200 text-stone-800 text-[10px] px-2 py-0.5 rounded font-mono font-bold">
-                {activePricingRule?.pricingType === 'PER_TON' ? 'تسعير بالطن' : 'مقطوعية بالرد'}
+                {activePricingRule?.pricingType === 'PER_TON' ? t("field_operations.pricing_per_ton") : t("field_operations.pricing_per_trip")}
               </span>
             </div>
             <p className="text-stone-600 text-[11px] leading-relaxed">
-              {activePricingRule?.name || 'قاعدة التسعير القياسية للمشروع'}
+              {activePricingRule?.name || t("field_operations.standard_project_rule")}
             </p>
             <div className="bg-white p-2.5 rounded-xl border border-stone-200 flex items-center justify-between font-mono">
-              <span className="text-[11px] text-stone-500">سعر الوحدة:</span>
+              <span className="text-[11px] text-stone-500">{t("field_operations.unit_rate")}</span>
               <span className="font-bold text-stone-900">{activePricingRule?.agreedRate} {activePricingRule?.currency || 'SAR'}</span>
             </div>
           </div>
@@ -920,7 +927,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                 <span className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">2</span>
                 <h2 className="font-bold text-stone-900 text-sm">{t("field_operations.capture_validate")}</h2>
               </div>
-              <span className="text-[11px] text-stone-400">قراءات رقمية دقيقة</span>
+              <span className="text-[11px] text-stone-400">{t("field_operations.accurate_readings")}</span>
             </div>
 
             {/* 2.1 Tare Weight Card */}
@@ -936,7 +943,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                   className="text-[11px] bg-stone-200 hover:bg-stone-300 text-stone-800 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition-all"
                 >
                   <Sparkles className="w-3 h-3 text-amber-700" />
-                  <span>قراءة ميزان الدخول</span>
+                  <span>{t("field_operations.read_scale_in")}</span>
                 </button>
               </div>
 
@@ -970,7 +977,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
 
               {/* Quick Tare Presets */}
               <div className="flex gap-1.5 flex-wrap">
-                <span className="text-[10px] text-stone-400 py-1">نماذج شائعة:</span>
+                <span className="text-[10px] text-stone-400 py-1">{t("field_operations.common_tare_presets")}</span>
                 {[8200, 13800, 14200, 15000].map(w => (
                   <button
                     key={w}
@@ -978,7 +985,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                     onClick={() => applyTarePreset(w)}
                     className="text-[10px] bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 px-2 py-1 rounded font-mono font-semibold"
                   >
-                    {w.toLocaleString()} كجم
+                    {w.toLocaleString()} {t("shared.units.kg")}
                   </button>
                 ))}
               </div>
@@ -997,7 +1004,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                   className="text-[11px] bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition-all"
                 >
                   <Sparkles className="w-3 h-3" />
-                  <span>قراءة ميزان الخروج</span>
+                  <span>{t("field_operations.read_scale_out")}</span>
                 </button>
               </div>
 
@@ -1031,7 +1038,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
 
               {/* Quick Gross Presets */}
               <div className="flex gap-1.5 flex-wrap">
-                <span className="text-[10px] text-stone-400 py-1">نماذج حمولة:</span>
+                <span className="text-[10px] text-stone-400 py-1">{t("field_operations.payload_presets")}</span>
                 {[42000, 45600, 49800].map(w => (
                   <button
                     key={w}
@@ -1039,7 +1046,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                     onClick={() => applyGrossPreset(w)}
                     className="text-[10px] bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 px-2 py-1 rounded font-mono font-semibold"
                   >
-                    {w.toLocaleString()} كجم
+                    {w.toLocaleString()} {t("shared.units.kg")}
                   </button>
                 ))}
               </div>
@@ -1050,14 +1057,14 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs font-bold text-amber-900 block">{t("field_operations.calculated_net_weight")}</span>
-                  <span className="text-[10px] text-amber-700 block">معادلة الميزان: القائم - الفارغ</span>
+                  <span className="text-[10px] text-amber-700 block">{t("field_operations.scale_formula")}</span>
                 </div>
                 <div className="text-left font-mono">
                   <div className="text-xl sm:text-2xl font-black text-amber-950">
-                    {netWeightKg.toLocaleString()} <span className="text-xs font-normal">كجم</span>
+                    {netWeightKg.toLocaleString()} <span className="text-xs font-normal">{t("shared.units.kg")}</span>
                   </div>
                   <div className="text-xs font-bold text-amber-800">
-                    ({netWeightTons} طن متري)
+                    {t("field_operations.metric_tons", { tons: netWeightTons })}
                   </div>
                 </div>
               </div>
@@ -1090,7 +1097,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             {/* Read-Only Settlement Preview */}
             <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200 text-xs flex items-center justify-between">
               <div className="text-stone-600">
-                <span className="block text-[10px] text-stone-400">التسوية التقديرية (محسوبة خادومياً):</span>
+                <span className="block text-[10px] text-stone-400">{t("field_operations.estimated_settlement")}</span>
                 <span className="font-mono text-stone-700">{settlementPreview.text}</span>
               </div>
               <div className="font-bold text-stone-900 text-sm font-mono">
@@ -1114,12 +1121,12 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               {isSubmitting ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>جاري توثيق التذكرة والترحيل...</span>
+                  <span>{t("field_operations.submitting_dispatch")}</span>
                 </>
               ) : (
                 <>
                   <Send className="w-5 h-5 rtl:rotate-180" />
-                  <span>تأكيد وإصدار تذكرة الرحلة (Confirm & Dispatch)</span>
+                  <span>{t("field_operations.confirm_and_dispatch")}</span>
                 </>
               )}
             </button>
