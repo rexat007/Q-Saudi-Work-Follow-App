@@ -614,3 +614,4 @@
 ## RETIREMENT_CANDIDATES
 - Root-level ad-hoc diagnostic scripts (`test-*.ts`, `verify-*.ts`) after proving zero runtime callers.
 - Legacy or duplicate mock services superseded by canonical server services.
+- **CD-41 — Data Cleanup I18N Cardinality Invariant Retirement**: Block82 historical fixed 1,128-key invariant retired; current locale dictionaries remain translation authority; 1128 was historical migration-era cardinality only; 1129 is NOT introduced as a replacement frozen contract; dry-run integrity now uses dynamic current locale parity/counts; cleanup verification uses pre/post count preservation; final reports display dynamic current counts; CLN-04/05/06/09 aligned to current authority; all 9 Block82 tests retained; no locale dictionary changes; taxonomy corrected from UI_DOM/FIREBASE_MOCK to UNIT/PURE_LOGIC; production service changed only to remove stale historical cardinality logic.
