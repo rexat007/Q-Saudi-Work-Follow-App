@@ -10,6 +10,9 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
+import ts from 'typescript';
+import { operationalMessageTemplates } from '../i18n/operationalMessages';
+import { arTranslations, enTranslations, urTranslations } from '../locales';
 
 describe('Translation-by-Construction Regression Guard', () => {
   const rootDir = process.cwd();
@@ -408,3 +411,298 @@ describe('Translation-by-Construction Regression Guard', () => {
   });
 });
 
+
+// Batch 2 is scanned as a functional domain. These checks are static evidence,
+// not browser verification or proof of localization of server-owned messages.
+describe('Batch-2 translation-by-construction', () => {
+  const batch2Files = [
+    "src/components/field/FieldOperationsView.tsx",
+    "src/components/field/LoadingOperatorView.tsx",
+    "src/components/field/UnloadingOperatorView.tsx",
+    "src/components/field/DriverView.tsx",
+    "src/components/field/FieldSupervisionView.tsx",
+    "src/components/tripEngine/WeightEngineView.tsx",
+    "src/components/tripEngine/LoadingStation.tsx",
+    "src/components/tripEngine/UnloadingStation.tsx",
+    "src/components/tripEngine/StateMachineController.tsx",
+    "src/components/TripEngineView.tsx"
+];
+
+  // Preserved business payloads, fixture identities, plates and free-text notes.
+  // Changing these would alter persistence/audit semantics rather than presentation.
+  // Exact values are scoped to their owning file; they do not exempt new UI prose.
+  const preservedBusinessText: Record<string, string[]> = {
+    "src/components/field/LoadingOperatorView.tsx": [
+        "مشغل ميزان التحميل (Scale Operator)",
+        "[تذكرة ميزان منشأة ميدانياً] الصافي: {p0} كجم"
+    ],
+    "src/components/field/UnloadingOperatorView.tsx": [
+        "مشغل ميزان الموقع والتفريغ (Site Receiver)",
+        "{p0} | [اعتماد صريح لصافي وزن المصدر]",
+        "[اعتماد صريح لصافي وزن المصدر كوزن استلام]",
+        "تم اكتمال الاستلام والتفريغ بالموقع"
+    ],
+    "src/components/field/DriverView.tsx": [
+        "السائق"
+    ],
+    "src/components/tripEngine/WeightEngineView.tsx": [
+        "قاعدة تفاوت موقعية جديدة"
+    ],
+    "src/components/tripEngine/LoadingStation.tsx": [
+        "مشروع نيوم - البنية التحتية والمحاجر (PRJ-NEOM-001)",
+        "[رحلة منشأة أوفلاين: بانتظار تخصيص الرقم المتسلسل الخادومي PENDING_NUMBER_ALLOCATION] الصافي: {p0} كجم",
+        "مشغل محطة التحميل (Offline)",
+        "تم إنشاء الرحلة واحتساب التسعيرة محلياً بوضع عدم الاتصال بانتظار تخصيص الرقم المتسلسل الخادومي",
+        "تم إنشاء واعتماد الرحلة من محطة التحميل والميزان (الصافي: {p0} كجم)",
+        "مشغل محطة التحميل والميزان"
+    ],
+    "src/components/tripEngine/UnloadingStation.tsx": [
+        "م. فهد الزهراني (مفتش الاستلام)",
+        "د هـ و 5678",
+        "تمت مراجعة الفارق واحتساب نسبة رطوبة وتبخر طبيعية معتمدة من مدير الموقع"
+    ],
+    "src/components/tripEngine/StateMachineController.tsx": [
+        "م. صالح الغامدي",
+        "مستلم تجريبي",
+        "محاولة إكمال بدون صافي وزن الوصول",
+        "محاولة إكمال بدون تحديد مستلم أو وقت تفريغ",
+        "محاولة إكمال بدون احتساب الفارق",
+        "محاولة بدء رحلة بتسعيرة منتهية الصلاحية ومعدومة القيمة",
+        "محاولة قفز غير قانوني من DRAFT إلى COMPLETED",
+        "سائق تجريبي",
+        "محاولة تغيير الحالة برتبة سائق",
+        "محاولة تعديل رحلة نيوم من مستخدم يتبع مشروع البحر الأحمر",
+        "سعد الشهري (كاتب ميزان)",
+        "صالح الغامدي (مرحل عمليات)",
+        "خالد الشمري (سائق شاحنة)",
+        "م. فهد الزهراني (مستلم موقع)",
+        "م. عبدالرحمن النمر (مدير عمليات)",
+        "أحمد المطيري (مدقق مالي)"
+    ],
+    "src/components/TripEngineView.tsx": [
+        "شحنة ركام خرساني معتمدة لمشروع نيوم",
+        "تمت مطابقة ميزان الجسر بموقع الاستلام واحتساب فارق الوزن",
+        "شحنة ركام بازلتي مطابقة 100% لجميع الشروط والمعايير (تسعير بالطن)",
+        "شحنة رمل ناعم مطابقة 100% بنظام المقطوعية بالرد (PER_TRIP)",
+        "محاولة ترحيل رحلة لناقل غير مصرح به في المشروع",
+        "محاولة توريد خلطة أسفلتية غير مصرح بها في هذا المشروع",
+        "محاولة مخالفة تبعية وكفالة الشاحنة للناقل المختار",
+        "محاولة تطبيق تسعيرة منتهية الصلاحية الزمنية",
+        "اختبار حوكمة الأوزان: العميل يحاول إرسال netWeight = 99,999 كجم",
+        "تمت مطابقة ميزان الاستلام في الموقع"
+    ]
+};
+  const technicalLiterals = new Set([
+    "37.4 × 8.5 = 317.90 SAR",
+    "KG",
+    "tare &gt; 0",
+    "gross &gt; tare",
+    "net &gt; 0",
+    "received &gt; 0",
+    "F1",
+    "calculateNetWeight(tare, gross)",
+    "F2",
+    "calculateVariance(loadedNet, receivedNet)",
+    "null",
+    "F3",
+    "evaluateTolerance(variance, tolerance, loadedNet)",
+    "F4",
+    "calculateSettlement(pricingRule, netWeight)",
+    "ACTIVE",
+    "INACTIVE",
+    "ARCHIVED",
+    "(v",
+    "createTrip()",
+    "createEvent(LOADED)",
+    "transition(IN_TRANSIT)",
+    "PRJ-NEOM-001",
+    "tripSerial",
+    "ticketId",
+    "truckId",
+    "0: NOT_FOUND",
+    "1: CONTINUE",
+    "&gt;1: AMBIGUOUS",
+    "0 \u2794 NOT_FOUND",
+    "1 \u2794 CONTINUE",
+    "IN_TRANSIT \u2794 ARRIVED",
+    "ARRIVED \u2794 UNLOADING",
+    "REC-INSPECTOR-01",
+    "UNLOADING \u2794 COMPLETED",
+    "varianceWeight = destNetWeight - netWeight",
+    "1. unloaderId",
+    "2. arrivalTime",
+    "3. unloadTime",
+    "4. destNetWeight",
+    "5. varianceWeight",
+    "destNet - netWeight",
+    "SAR",
+    "ENG-SITE-04",
+    "2026-09-09T14:30:00Z",
+    "SITE_RECEIVER, DISPATCHER",
+    "SCALE_OPERATOR",
+    "DRIVER, DISPATCHER, RECEIVER",
+    "DISPATCHER, OPERATIONS_MGR",
+    "| v",
+    "v",
+    "destNetWeight = null",
+    "tripId",
+    "projectId",
+    "driverId",
+    "carrierId",
+    "materialId",
+    "shiftDate",
+    "version",
+    "pricingRuleId:",
+    "pricingType:",
+    "agreedRate:",
+    "settlementBase:",
+    "settlementAmount:",
+    "loaderId",
+    "unloaderId",
+    "loadTime",
+    "unloadTime"
+]);
+  const dictionariesByLocale = { ar: arTranslations, en: enTranslations, ur: urTranslations };
+
+  const normalize = (node: ts.Node, source: ts.SourceFile): string => {
+    if (ts.isJsxText(node)) return node.text.trim();
+    if (ts.isTemplateExpression(node)) {
+      return node.head.text + node.templateSpans.map((span, index) => `{p${index}}${span.literal.text}`).join('');
+    }
+    return ts.isStringLiteralLike(node) ? node.text : node.getText(source);
+  };
+
+  const scan = (content: string, file = 'mutation.tsx'): string[] => {
+    const source = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const issues: string[] = [];
+    const visit = (node: ts.Node) => {
+      if (ts.isJsxText(node) || ts.isStringLiteralLike(node) || ts.isTemplateExpression(node)) {
+        const text = normalize(node, source);
+        const parent = node.parent;
+        const translatedKey = ts.isCallExpression(parent) && ['t', 'translate'].includes(parent.expression.getText(source));
+        const attributeNode = ts.isJsxExpression(parent) ? parent.parent : parent;
+        const attribute = ts.isJsxAttribute(attributeNode) && ['title', 'placeholder', 'aria-label', 'alt'].includes(attributeNode.name.getText(source));
+        const jsxText = ts.isJsxText(node);
+        const languageText = /[\u0600-\u06ff]/.test(text);
+        const visibleProperty = ts.isPropertyAssignment(parent) && ['label', 'testName', 'serverMessage', 'message'].includes(parent.name.getText(source));
+        const diagnostic = ts.isCallExpression(parent) && /^console\./.test(parent.expression.getText(source));
+        const workflowKey = file.endsWith('/LoadingStation.tsx') && ts.isPropertyAssignment(parent) && parent.name.getText(source) === 'label' && Object.hasOwn(arTranslations, text);
+        const approved = workflowKey || technicalLiterals.has(text) || preservedBusinessText[file]?.includes(text);
+        const prose = /[A-Za-z\u0600-\u06ff]/.test(text.replace(/\{p\d+\}/g, ""));
+        if (!translatedKey && !diagnostic && !approved && prose && (jsxText || attribute || languageText || visibleProperty)) {
+          issues.push(`${source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1}: ${text}`);
+        }
+        // Avoid reporting individual template pieces twice.
+        if (ts.isTemplateExpression(node) && approved) return;
+      }
+      if (ts.isConditionalExpression(node) && /\bisRTL\b|\bisRtl\b/.test(node.condition.getText(source))) {
+        for (const branch of [node.whenTrue, node.whenFalse]) {
+          if (ts.isStringLiteralLike(branch) && !/^(rtl|ltr|(?:[a-z0-9!:[\]./#%-]+-)[a-z0-9!:[\]./#%-]*(?:\s+[a-z0-9!:[\]./#%-]+)*)$/i.test(branch.text)) {
+            issues.push(`Language-content direction branch: ${branch.text}`);
+          }
+        }
+      }
+      if (ts.isBinaryExpression(node) && [ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(node.operatorToken.kind)) {
+        const left = node.left;
+        if (ts.isCallExpression(left) && ['t', 'translate'].includes(left.expression.getText(source)) && ts.isStringLiteralLike(node.right) && /[A-Za-z\u0600-\u06ff]/.test(node.right.text)) {
+          issues.push(`Inline translation fallback: ${node.right.text}`);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+    return issues;
+  };
+
+  it('TBC-11: All ten Batch-2 sources have no unmanaged local presentation literals', () => {
+    for (const file of batch2Files) {
+      expect(fs.existsSync(file), file).toBe(true);
+      expect(scan(fs.readFileSync(file, 'utf8'), file), file).toEqual([]);
+    }
+  });
+
+  it('TBC-12: Scanner rejects multilingual JSX, attributes, callback messages and direction-language branches', () => {
+    for (const snippet of [
+      '<button>Loading Operator</button>', '<p>تحميل</p>', '<p>لوڈنگ</p>',
+      '<input placeholder="Search trucks" />', '<button title={"Receive truck"} />',
+      '<button aria-label="Record arrival" />',
+      'notify({ message: "Arrival recorded" });',
+      'const label = isRTL ? "Loading Scale" : "Unloading Scale";',
+      'const label = t("missing.key") || "Fallback text";',
+    ]) expect(scan(snippet).length, snippet).toBeGreaterThan(0);
+    expect(scan('<div dir={isRTL ? "rtl" : "ltr"}>{truck.plate}{driver.name}</div>')).toEqual([]);
+    expect(scan('// تعليق داخلي\nconsole.warn("Internal diagnostic");')).toEqual([]);
+  });
+
+  it('TBC-13: Current locale key sets match dynamically and contain no duplicate declarations', () => {
+    const keySets: string[][] = [];
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const file = `src/locales/${locale}/index.ts`;
+      const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true);
+      const keys: string[] = [];
+      const visit = (node: ts.Node) => {
+        if (ts.isPropertyAssignment(node) && ts.isStringLiteral(node.name)) keys.push(node.name.text);
+        ts.forEachChild(node, visit);
+      };
+      visit(source);
+      expect(keys.length, locale).toBeGreaterThan(0);
+      expect(new Set(keys).size, `Duplicate declarations in ${locale}`).toBe(keys.length);
+      keySets.push(keys.sort());
+    }
+    expect(keySets[1]).toEqual(keySets[0]);
+    expect(keySets[2]).toEqual(keySets[0]);
+  });
+
+  it('TBC-14: Every current Batch-2 literal key and workflow label resolves in all locales', () => {
+    const keys = new Set<string>(operationalMessageTemplates.map(entry => entry.key));
+    for (const file of batch2Files) {
+      const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+      const visit = (node: ts.Node) => {
+        if (ts.isCallExpression(node) && ['t', 'translate'].includes(node.expression.getText(source)) && node.arguments[0] && ts.isStringLiteral(node.arguments[0])) keys.add(node.arguments[0].text);
+        if (file.endsWith('/LoadingStation.tsx') && ts.isPropertyAssignment(node) && node.name.getText(source) === 'label' && ts.isStringLiteral(node.initializer)) keys.add(node.initializer.text);
+        ts.forEachChild(node, visit);
+      };
+      visit(source);
+    }
+    expect(keys.size).toBeGreaterThan(0);
+    for (const key of keys) {
+      const values = (['ar', 'en', 'ur'] as const).map(locale => dictionariesByLocale[locale][key]);
+      for (const [index, value] of values.entries()) {
+        expect(typeof value, `${key}, locale ${index}`).toBe('string');
+        expect(value?.trim(), `${key}, locale ${index}`).toBeTruthy();
+        expect(value, key).not.toBe(key);
+      }
+      expect(values[1], `Arabic fallback in English: ${key}`).not.toMatch(/[\u0600-\u06ff]/);
+      // Urdu uses Arabic-derived script. Check fallback equality, not script presence.
+      if (/[\u0600-\u06ff]/.test(values[0]) && values[0].length > 15) {
+        expect(values[1], key).not.toBe(values[0]);
+        expect(values[2], key).not.toBe(values[0]);
+      }
+      const params = (value: string) => [...value.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort();
+      expect(params(values[1]), key).toEqual(params(values[0]));
+      expect(params(values[2]), key).toEqual(params(values[0]));
+      expect(values[0], `Unbound historical source expression: ${key}`).not.toContain('${');
+    }
+  });
+  it('TBC-15: Operational adapter stays at Batch-2 presentation boundaries', () => {
+    const boundaries: Record<string, string[]> = {
+      'src/components/TripEngineView.tsx': ['liveValidation.blockingError || ""', 'r.ruleDescriptionAr', 'r.messageAr'],
+      'src/components/tripEngine/WeightEngineView.tsx': ['err', 'toleranceEvalResult.messageAr', 'settlementResult.formula'],
+      'src/components/tripEngine/StateMachineController.tsx': ['tr.labelAr', 'tr.descriptionAr'],
+      'src/components/tripEngine/UnloadingStation.tsx': ['result.messageAr', 'searchResult.messageAr', 'err.message'],
+      'src/components/tripEngine/LoadingStation.tsx': ['report.blockingReasonAr || ""', 'err.message || ""'],
+      'src/components/field/LoadingOperatorView.tsx': ['err.message || ""'],
+      'src/components/field/UnloadingOperatorView.tsx': ['err.message || ""'],
+    };
+    for (const [file, values] of Object.entries(boundaries)) {
+      const source = fs.readFileSync(file, 'utf8');
+      for (const value of values) expect(source, file).toContain(`operationalMessage(${value})`);
+    }
+    for (const file of ['src/services/weightEngine.service.ts', 'src/services/tripEngine.service.ts',
+      'src/services/tripStateMachine.service.ts', 'src/services/offline/offlineCache.service.ts',
+      'src/services/offline/outbox.service.ts', 'src/services/trip.service.ts', 'server/app.ts']) {
+      expect(fs.readFileSync(file, 'utf8'), file).not.toContain('i18n/operationalMessages');
+    }
+  });
+
+});

@@ -1,3 +1,4 @@
+import { presentOperationalMessage } from "../../i18n/operationalMessages";
 import React, { useState } from 'react';
 import { 
   GitCommit, 
@@ -53,7 +54,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
   selectedTripId,
   onSelectTrip
 }) => {
-  const { t } = useI18n();
+  const { t: translate, t, isRTL } = useI18n();
+  const operationalMessage = (message: string) => presentOperationalMessage(message, translate);
   // Current active actor / persona for RBAC validation testing
   const [activeRole, setActiveRole] = useState<TripActorRole>('DISPATCHER');
   const [activeActorId, setActiveActorId] = useState<string>('USR-DISPATCHER-01');
@@ -119,12 +121,12 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
       onNotification({
         type: 'SUCCESS',
-        message: `تم ترقية حالة الرحلة بنجاح إلى [${targetStatus}] وتحديث الـ Version إلى v${result.updatedTrip.version} وتسجيل حدث التدقيق.`
+        message: translate("operations.trip_status_advanced_to_value_version_updated_to_vvalue", { p0: targetStatus, p1: result.updatedTrip.version })
       });
     } catch (err: any) {
       onNotification({
         type: 'ERROR',
-        message: err.message || 'فشل تنفيذ الانتقال في محرك الحالات'
+        message: operationalMessage(err.message || "") || translate("operations.state_machine_transition_failed")
       });
     }
   };
@@ -146,22 +148,22 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
       // If it didn't throw, it failed the security test
       setStressTestLog({
-        testName: 'حظر التعديل المباشر من العميل (Direct Mutation Guard)',
+        testName: translate("operations.direct_client_mutation_guard"),
         passedBlocked: false,
-        serverMessage: 'فشل الحظر: سمح النظام للعميل بتعديل الحالة مباشرة!',
+        serverMessage: translate("operations.guard_failed_direct_client_status_mutation_was_allowed"),
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
     } catch (err: any) {
       // Successfully blocked!
       setStressTestLog({
-        testName: 'حظر التعديل المباشر من العميل (Direct Mutation Guard)',
+        testName: translate("operations.direct_client_mutation_guard"),
         passedBlocked: true,
         serverMessage: err.message,
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
       onNotification({
         type: 'SECURITY',
-        message: `[اختبار أمني ناجح]: تم حظر محاولة العميل لتعديل status مباشرة بنجاح!`
+        message: translate("operations.security_test_passed_direct_client_status_mutation_was_blocked")
       });
     }
   };
@@ -187,21 +189,21 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
       });
 
       setStressTestLog({
-        testName: 'إكمال الرحلة بدون destNetWeight',
+        testName: translate("trips.labels.trip_3"),
         passedBlocked: false,
-        serverMessage: 'خطأ: سمح النظام بإكمال الرحلة بدون صافي وزن موقع الاستلام!',
+        serverMessage: translate("operations.error_completion_was_allowed_without_destination_net_weight"),
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
     } catch (err: any) {
       setStressTestLog({
-        testName: 'حظر إكمال الرحلة بدون destNetWeight',
+        testName: translate("trips.labels.trip_4"),
         passedBlocked: true,
         serverMessage: err.message,
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
       onNotification({
         type: 'SECURITY',
-        message: `[قاعدة رقابية]: تم حظر إكمال الرحلة لعدم وجود صافي وزن موقع الاستلام (destNetWeight).`
+        message: translate("operations.control_rule_completion_blocked_because_destination_net_weight_destnetweight")
       });
     }
   };
@@ -228,21 +230,21 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
       });
 
       setStressTestLog({
-        testName: 'إكمال الرحلة بدون unloaderId أو unloadTime',
+        testName: translate("operations.complete_trip_without_unloaderid_or_unloadtime"),
         passedBlocked: false,
-        serverMessage: 'خطأ: سمح النظام بإكمال الرحلة بدون تحديد مستلم الموقع أو وقت التفريغ!',
+        serverMessage: translate("operations.error_completion_was_allowed_without_a_site_receiver_or"),
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
     } catch (err: any) {
       setStressTestLog({
-        testName: 'حظر إكمال الرحلة بدون unloaderId أو unloadTime',
+        testName: translate("operations.block_completion_without_unloaderid_or_unloadtime"),
         passedBlocked: true,
         serverMessage: err.message,
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
       onNotification({
         type: 'SECURITY',
-        message: `[قاعدة رقابية]: تم حظر إكمال الرحلة بدون مستلم معتمد (unloaderId) ووقت تفريغ (unloadTime).`
+        message: translate("trips.labels.trip_7")
       });
     }
   };
@@ -268,21 +270,21 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
       });
 
       setStressTestLog({
-        testName: 'إتمام رحلة بدون حساب variance',
+        testName: translate("operations.complete_trip_without_variance_calculation"),
         passedBlocked: false,
-        serverMessage: 'خطأ: سمح النظام بإتمام الرحلة دون إمكانية حساب variance بدقة!',
+        serverMessage: translate("operations.error_trip_completion_was_allowed_without_accurate_variance_calculation"),
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
     } catch (err: any) {
       setStressTestLog({
-        testName: 'حظر إتمام رحلة بدون حساب variance',
+        testName: translate("operations.block_completion_without_variance_calculation"),
         passedBlocked: true,
         serverMessage: err.message,
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
       onNotification({
         type: 'SECURITY',
-        message: `[قاعدة رقابية]: تم حظر إتمام الرحلة بدون حساب فرق الوزن (varianceWeight = destNetWeight - netWeight).`
+        message: translate("operations.control_rule_completion_blocked_without_weight_variance_calculation_varianceweight")
       });
     }
   };
@@ -317,21 +319,21 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
       });
 
       setStressTestLog({
-        testName: 'بدء رحلة عند فشل Pricing Resolution',
+        testName: translate("operations.start_trip_after_pricing_resolution_fails"),
         passedBlocked: false,
-        serverMessage: 'خطأ: سمح النظام ببدء الرحلة بالرغم من فشل حل التسعيرة!',
+        serverMessage: translate("operations.error_trip_start_was_allowed_despite_pricing_resolution_failure"),
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
     } catch (err: any) {
       setStressTestLog({
-        testName: 'حظر بدء رحلة إذا فشل Pricing Resolution',
+        testName: translate("operations.block_trip_start_when_pricing_resolution_fails"),
         passedBlocked: true,
         serverMessage: err.message,
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
       onNotification({
         type: 'SECURITY',
-        message: `[قاعدة رقابية]: تم حظر بدء الرحلة لأن حل التسعير غير صالح أو منتهي الصلاحية (Pricing Resolution Failed).`
+        message: translate("operations.control_rule_trip_start_blocked_because_pricing_resolution_is")
       });
     }
   };
@@ -356,21 +358,21 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
       });
 
       setStressTestLog({
-        testName: 'القفز غير القانوني بين الحالات',
+        testName: translate("operations.illegal_state_jump"),
         passedBlocked: false,
-        serverMessage: 'خطأ: سمح النظام بالقفز مباشرة من DRAFT إلى COMPLETED!',
+        serverMessage: translate("operations.error_direct_transition_from_draft_to_completed_was_allowed"),
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
     } catch (err: any) {
       setStressTestLog({
-        testName: 'حظر القفز غير القانوني للحالة',
+        testName: translate("operations.block_illegal_state_jump"),
         passedBlocked: true,
         serverMessage: err.message,
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
       onNotification({
         type: 'SECURITY',
-        message: `[محرك الحالات]: تم حظر القفز غير المسموح به في مخطط الحالات.`
+        message: translate("operations.state_machine_prohibited_state_transition_blocked")
       });
     }
   };
@@ -391,21 +393,21 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
       tripStateMachine.transition(activeTrip, 'LOADED', context);
 
       setStressTestLog({
-        testName: 'التحول برتبة غير مصرحة',
+        testName: translate("operations.transition_by_unauthorized_role"),
         passedBlocked: false,
-        serverMessage: 'خطأ: سمح النظام للسائق باعتماد حالة التحميل!',
+        serverMessage: translate("operations.error_the_driver_was_allowed_to_approve_loading_status"),
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
     } catch (err: any) {
       setStressTestLog({
-        testName: 'حظر التحول لرتبة غير مصرحة (Role Guard)',
+        testName: translate("operations.block_transition_by_unauthorized_role"),
         passedBlocked: true,
         serverMessage: err.message,
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
       onNotification({
         type: 'SECURITY',
-        message: `[حظر الصلاحيات]: الرتبة غير مصرح لها بتنفيذ هذا التحول في دورة الحياة.`
+        message: translate("operations.role_guard_this_role_cannot_execute_the_lifecycle_transition")
       });
     }
   };
@@ -425,21 +427,21 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
       tripStateMachine.transition(activeTrip, 'IN_TRANSIT', context);
 
       setStressTestLog({
-        testName: 'التحول من مشروع غير مطابق',
+        testName: translate("operations.transition_from_a_different_project"),
         passedBlocked: false,
-        serverMessage: 'خطأ: سمح النظام للمستخدم بالتحكم برحلة تتبع مشروعاً آخر!',
+        serverMessage: translate("operations.error_a_user_was_allowed_to_control_a_trip"),
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
     } catch (err: any) {
       setStressTestLog({
-        testName: 'حظر تعارض المشاريع (Project Isolation Guard)',
+        testName: translate("operations.project_isolation_guard"),
         passedBlocked: true,
         serverMessage: err.message,
         timestamp: new Date().toLocaleTimeString('ar-SA')
       });
       onNotification({
         type: 'SECURITY',
-        message: `[عزل المشاريع]: تم حظر التعديل بسبب عدم تطابق مشروع المشغل مع مشروع الرحلة.`
+        message: translate("operations.project_isolation_change_blocked_because_the_operator_project_does")
       });
     }
   };
@@ -448,30 +450,30 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
   const renderStatusBadge = (status: TripEngineStatus) => {
     switch (status) {
       case 'DRAFT':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-100 text-stone-700 border border-stone-300">مسودة (DRAFT)</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-100 text-stone-700 border border-stone-300">{translate("dashboard.labels.status_draft")}</span>;
       case 'LOADED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-300">تم التحميل والوزن (LOADED)</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-300">{translate("operations.loaded_and_weighed_loaded")}</span>;
       case 'IN_TRANSIT':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 animate-pulse">{t("trips.labels.txt_499473")}</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 animate-pulse">{translate("trips.labels.txt_499473")}</span>;
       case 'ARRIVED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-900 border border-purple-300">{t("trips.labels.location")}</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-900 border border-purple-300">{translate("trips.labels.location")}</span>;
       case 'UNLOADING':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-900 border border-blue-300">قيد التفريغ (UNLOADING)</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-900 border border-blue-300">{translate("operations.unloading_unloading")}</span>;
       case 'COMPLETED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">{t("trips.status.txt_4c5ffa")}</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">{translate("trips.status.txt_4c5ffa")}</span>;
       case 'RETURN_REQUESTED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-950 border border-orange-300">{t("trips.labels.txt_45a060")}</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-950 border border-orange-300">{translate("trips.labels.txt_45a060")}</span>;
       case 'RETURNED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-200 text-stone-900 border border-stone-400">{t("trips.labels.txt_135d7e")}</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-200 text-stone-900 border border-stone-400">{translate("trips.labels.txt_135d7e")}</span>;
       case 'EXCEPTION':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-950 border border-rose-300">{t("trips.labels.txt_4fb822")}</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-950 border border-rose-300">{translate("trips.labels.txt_4fb822")}</span>;
       case 'CANCELLED':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-900 border border-red-300">{t("trips.labels.txt_3740a7")}</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-900 border border-red-300">{translate("trips.labels.txt_3740a7")}</span>;
     }
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Banner: Central State Machine Architecture & Roles */}
       <div className="bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-stone-100 pb-4 mb-4">
@@ -481,12 +483,12 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                <span>{t("trips.labels.txt_2ae109")}</span>
+                <span>{translate("trips.labels.txt_2ae109")}</span>
                 <span className="px-2 py-0.5 text-[10px] font-black bg-amber-100 text-amber-900 rounded-md">
-                  {t("trips.labels.edit_3")}</span>
+                  {translate("operations.server_authority")}</span>
               </h2>
               <p className="text-xs text-stone-500">
-                {t("trips.labels.txt_5f22c5")}</p>
+                {translate("trips.labels.txt_5f22c5")}</p>
             </div>
           </div>
 
@@ -501,7 +503,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
               }`}
             >
               <Sliders className="w-3.5 h-3.5" />
-              <span>{t("trips.labels.txt_a636ce")}</span>
+              <span>{translate("trips.labels.txt_a636ce")}</span>
             </button>
             <button
               onClick={() => setInnerTab('DIAGRAM')}
@@ -512,7 +514,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>{t("trips.labels.txt_68729b")}</span>
+              <span>{translate("trips.labels.txt_68729b")}</span>
             </button>
             <button
               onClick={() => setInnerTab('EVENTS')}
@@ -523,7 +525,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
               }`}
             >
               <History className="w-3.5 h-3.5" />
-              <span>الأحداث (Events: {tripEvents.length})</span>
+              <span>{translate("operations.events")}{tripEvents.length})</span>
             </button>
             <button
               onClick={() => setInnerTab('AUDIT_TRAIL')}
@@ -534,7 +536,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
               }`}
             >
               <Lock className="w-3.5 h-3.5" />
-              <span>سجل التدقيق (Audit: {tripAudits.length})</span>
+              <span>{translate("operations.audit_log")}{tripAudits.length})</span>
             </button>
           </div>
         </div>
@@ -544,7 +546,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
           <div className="flex items-center gap-2">
             <span className="font-bold text-stone-700 flex items-center gap-1">
               <UserCheck className="w-3.5 h-3.5 text-amber-600" />
-              <span>{t("trips.labels.txt_54360d")}</span>
+              <span>{translate("trips.labels.txt_54360d")}</span>
             </span>
             <select
               value={activeRole}
@@ -560,32 +562,32 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
               }}
               className="bg-white border border-stone-300 rounded-lg px-2.5 py-1 text-xs font-bold text-stone-900 focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
-              <option value="DISPATCHER">{t("trips.labels.txt_f4327d")}</option>
-              <option value="SCALE_OPERATOR">{t("trips.labels.txt_2e23b2")}</option>
-              <option value="DRIVER">{t("trips.labels.txt_7517d4")}</option>
-              <option value="SITE_RECEIVER">{t("trips.labels.txt_29b5f9")}</option>
-              <option value="OPERATIONS_MANAGER">{t("trips.labels.txt_2750ef")}</option>
-              <option value="AUDITOR">{t("trips.labels.txt_7ccbe0")}</option>
+              <option value="DISPATCHER">{translate("trips.labels.txt_f4327d")}</option>
+              <option value="SCALE_OPERATOR">{translate("trips.labels.txt_2e23b2")}</option>
+              <option value="DRIVER">{translate("trips.labels.txt_7517d4")}</option>
+              <option value="SITE_RECEIVER">{translate("trips.labels.txt_29b5f9")}</option>
+              <option value="OPERATIONS_MANAGER">{translate("trips.labels.txt_2750ef")}</option>
+              <option value="AUDITOR">{translate("trips.labels.txt_7ccbe0")}</option>
             </select>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="font-bold text-stone-700 flex items-center gap-1">
               <Building2 className="w-3.5 h-3.5 text-indigo-600" />
-              <span>{t("trips.status.projectActive")}</span>
+              <span>{translate("trips.status.projectActive")}</span>
             </span>
             <select
               value={activeProjectId}
               onChange={e => setActiveProjectId(e.target.value)}
               className="bg-white border border-stone-300 rounded-lg px-2.5 py-1 text-xs font-bold text-stone-900 focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
-              <option value="PRJ-NEOM-001">{t("trips.labels.txt_233016")}</option>
-              <option value="PRJ-REDSEA-002">{t("trips.labels.txt_4cc4c6")}</option>
+              <option value="PRJ-NEOM-001">{translate("trips.labels.txt_233016")}</option>
+              <option value="PRJ-REDSEA-002">{translate("trips.labels.txt_4cc4c6")}</option>
             </select>
           </div>
 
           <div className="text-[11px] text-stone-500 font-mono">
-            المشغل: <strong className="text-stone-800">{activeActorName}</strong> | المشروع: <strong className={activeProjectId === activeTrip?.projectId ? 'text-emerald-700' : 'text-rose-700'}>{activeProjectId}</strong>
+            {translate("operations.operator")}<strong className="text-stone-800">{activeActorName}</strong> {translate("trips.labels.project_2")}<strong className={activeProjectId === activeTrip?.projectId ? 'text-emerald-700' : 'text-rose-700'}>{activeProjectId}</strong>
           </div>
         </div>
       </div>
@@ -594,7 +596,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
       <div className="bg-white rounded-2xl border border-stone-200/80 p-4 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-stone-700">{t("trips.labels.trip_16")}</span>
+            <span className="text-xs font-bold text-stone-700">{translate("trips.labels.trip_16")}</span>
             <select
               value={activeTrip?.tripId || ''}
               onChange={e => onSelectTrip(e.target.value)}
@@ -602,7 +604,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
             >
               {trips.map((t, idx) => (
                 <option key={`${t.tripId}-${idx}`} value={t.tripId}>
-                  {t.tripSerial} — الحالة: [{t.status}] — v{t.version} — {t.entitySnapshots?.material?.nameAr || t.materialId}
+                  {t.tripSerial} {translate("operations.status_2")}{t.status}{translate("operations.v")}{t.version} — {t.entitySnapshots?.material?.nameAr || t.materialId}
                 </option>
               ))}
             </select>
@@ -610,12 +612,12 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
           {activeTrip && (
             <div className="flex items-center gap-3 text-xs">
-              <span className="text-stone-500 font-mono">تذكرة: <strong className="text-stone-900">{activeTrip.ticketId}</strong></span>
+              <span className="text-stone-500 font-mono">{translate("operations.ticket")}<strong className="text-stone-900">{activeTrip.ticketId}</strong></span>
               <span className="text-stone-300">|</span>
-              <span className="text-stone-500">الحالة الحالية: {renderStatusBadge(activeTrip.status)}</span>
+              <span className="text-stone-500">{translate("trips.labels.status_2")}{renderStatusBadge(activeTrip.status)}</span>
               <span className="text-stone-300">|</span>
               <span className="px-2 py-0.5 rounded bg-stone-100 text-stone-700 font-mono font-black text-[11px]">
-                الإصدار: v{activeTrip.version}
+                {translate("operations.version_v")}{activeTrip.version}
               </span>
             </div>
           )}
@@ -634,22 +636,22 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                 <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                   <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                     <Scale className="w-4 h-4 text-amber-600" />
-                    <span>سجل قيود وأوزان وتوافقات الرحلة ({activeTrip.tripSerial})</span>
+                    <span>{translate("operations.trip_weights_constraints_and_validation_record")}{activeTrip.tripSerial})</span>
                   </h3>
                   <div className="text-xs text-stone-500">
-                    مشروع: <span className="font-bold text-stone-800 font-mono">{activeTrip.projectId}</span>
+                    {translate("operations.project_2")}<span className="font-bold text-stone-800 font-mono">{activeTrip.projectId}</span>
                   </div>
                 </div>
 
                 {/* Key Invariant Metrics Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                   <div className="bg-stone-50 p-3 rounded-xl border border-stone-200/60">
-                    <span className="text-[10px] text-stone-500 block mb-1">صافي وزن المصدر (معتمد)</span>
+                    <span className="text-[10px] text-stone-500 block mb-1">{translate("operations.origin_net_weight_approved")}</span>
                     <div className="font-mono text-sm font-bold text-stone-900">
-                      {activeTrip.netWeight.toLocaleString()} <span className="text-[10px] text-stone-500">كجم</span>
+                      {activeTrip.netWeight.toLocaleString()} <span className="text-[10px] text-stone-500">{translate("shared.units.kg")}</span>
                     </div>
                     <span className="text-[9px] text-stone-400 font-mono">
-                      قائم: {activeTrip.grossWeight.toLocaleString()} - فارغ: {activeTrip.tareWeight.toLocaleString()}
+                      {translate("operations.gross")}{activeTrip.grossWeight.toLocaleString()} {translate("operations.tare")}{activeTrip.tareWeight.toLocaleString()}
                     </span>
                   </div>
 
@@ -658,11 +660,11 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                       ? 'bg-emerald-50/60 border-emerald-200 text-emerald-900' 
                       : 'bg-stone-50 border-stone-200 text-stone-400'
                   }`}>
-                    <span className="text-[10px] block mb-1">صافي وزن الوصول (destNet)</span>
+                    <span className="text-[10px] block mb-1">{translate("operations.destination_net_weight_destnet")}</span>
                     <div className="font-mono text-sm font-bold">
-                      {activeTrip.destNetWeight !== null ? `${activeTrip.destNetWeight.toLocaleString()} كجم` : 'null (غير مدخل)'}
+                      {activeTrip.destNetWeight !== null ? translate("operations.value_kg", { p0: activeTrip.destNetWeight.toLocaleString() }) : translate("operations.null_not_entered")}
                     </div>
-                    <span className="text-[9px]">{t("trips.labels.trip_18")}</span>
+                    <span className="text-[9px]">{translate("operations.receiving_required")}</span>
                   </div>
 
                   <div className={`p-3 rounded-xl border ${
@@ -670,20 +672,20 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                       ? 'bg-indigo-50/60 border-indigo-200 text-indigo-900' 
                       : 'bg-stone-50 border-stone-200 text-stone-400'
                   }`}>
-                    <span className="text-[10px] block mb-1">تفاوت الوزن (variance)</span>
+                    <span className="text-[10px] block mb-1">{translate("operations.weight_variance")}</span>
                     <div className="font-mono text-sm font-bold">
-                      {activeTrip.varianceWeight !== null ? `${activeTrip.varianceWeight > 0 ? `+${activeTrip.varianceWeight}` : activeTrip.varianceWeight} كجم` : 'null (معلق)'}
+                      {activeTrip.varianceWeight !== null ? translate("operations.value_kg", { p0: activeTrip.varianceWeight > 0 ? `+${activeTrip.varianceWeight}` : activeTrip.varianceWeight }) : translate("operations.null_pending")}
                     </div>
                     <span className="text-[9px]">destNet - netWeight</span>
                   </div>
 
                   <div className="bg-amber-50/60 p-3 rounded-xl border border-amber-200/60 text-amber-950">
-                    <span className="text-[10px] text-amber-800 block mb-1">{t("trips.labels.pricing_3")}</span>
+                    <span className="text-[10px] text-amber-800 block mb-1">{translate("operations.settlement")}</span>
                     <div className="font-mono text-sm font-bold">
                       {activeTrip.settlementAmount.toLocaleString()} <span className="text-[10px]">SAR</span>
                     </div>
                     <span className="text-[9px] text-amber-700">
-                      {activeTrip.pricingSnapshot.agreedRate} SAR ({activeTrip.pricingType === 'PER_TON' ? 'طن' : 'رد'})
+                      {activeTrip.pricingSnapshot.agreedRate} {translate("operations.sar_2")}{activeTrip.pricingType === 'PER_TON' ? translate("shared.units.ton") : translate("operations.trip")})
                     </span>
                   </div>
                 </div>
@@ -694,28 +696,27 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
                     <div>
                       <div className="font-bold text-stone-800">
-                        حل التسعير (Pricing Resolution): {activeTrip.pricingSnapshot.ruleName || activeTrip.pricingRuleId}
+                        {translate("trips.labels.pricing")}{activeTrip.pricingSnapshot.ruleName || activeTrip.pricingRuleId}
                       </div>
                       <div className="text-[10px] text-stone-500">
-                        سارية من {activeTrip.pricingSnapshot.effectiveFrom || '2026-01-01'} إلى {activeTrip.pricingSnapshot.effectiveTo || '2026-12-31'} — تاريخ الرحلة: {activeTrip.shiftDate}
+                        {translate("operations.valid_from")}{activeTrip.pricingSnapshot.effectiveFrom || '2026-01-01'} {translate("operations.to")}{activeTrip.pricingSnapshot.effectiveTo || '2026-12-31'} {translate("operations.trip_date")}{activeTrip.shiftDate}
                       </div>
                     </div>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                    {t("trips.labels.txt_10cba9")}</span>
+                    {translate("trips.labels.txt_10cba9")}</span>
                 </div>
 
                 {/* Available Transitions For Current Role */}
                 <div className="space-y-2 pt-2">
                   <h4 className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
                     <ArrowRight className="w-3.5 h-3.5 text-amber-600" />
-                    <span>التحولات المتاحة لرتبة [{activeRole}] من الحالة [{activeTrip.status}]:</span>
+                    <span>{translate("operations.available_transitions_for_role")}{activeRole}{translate("operations.from_status")}{activeTrip.status}]:</span>
                   </h4>
 
                   {availableTransitions.length === 0 ? (
                     <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-stone-500 text-xs text-center">
-                      لا توجد تحولات قانونية متاحة للرتبة الحالية ({activeRole}) من حالة ({activeTrip.status}). قم بتبديل الرتبة من الشريط العلوي إن أردت محاكاة مشغل آخر.
-                    </div>
+                      {translate("operations.no_legal_transitions_are_available_for_the_current_role")}{activeRole}{translate("operations.from_status_2")}{activeTrip.status}{translate("operations.switch_roles_in_the_top_bar_to_simulate_another")}</div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       {availableTransitions.map(tr => (
@@ -724,11 +725,11 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                           className="p-3 rounded-xl border border-stone-200 bg-white hover:border-amber-400 hover:shadow-xs transition-all space-y-2"
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-stone-900">{tr.labelAr}</span>
+                            <span className="text-xs font-bold text-stone-900">{operationalMessage(tr.labelAr)}</span>
                             <span className="text-[10px] font-mono text-stone-500">{tr.targetStatus}</span>
                           </div>
                           <p className="text-[11px] text-stone-500 leading-snug">
-                            {tr.descriptionAr}
+                            {operationalMessage(tr.descriptionAr)}
                           </p>
                           <div className="pt-1 flex items-center justify-between">
                             <button
@@ -748,7 +749,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                               className="w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center gap-1.5 transition-all shadow-2xs"
                             >
                               <Play className="w-3 h-3" />
-                              <span>تنفيذ التحول إلى [{tr.targetStatus}]</span>
+                              <span>{translate("operations.execute_transition_to")}{tr.targetStatus}]</span>
                             </button>
                           </div>
                         </div>
@@ -763,13 +764,13 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                     <div className="flex items-center justify-between border-b border-amber-200 pb-2">
                       <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
                         <Play className="w-3.5 h-3.5 text-amber-600" />
-                        <span>تأكيد التحول إلى [{transitionTarget}] — التحقق من الحقول الإلزامية</span>
+                        <span>{translate("trips.labels.confirm")}{transitionTarget}{translate("operations.validate_required_fields")}</span>
                       </span>
                       <button
                         onClick={() => setTransitionTarget(null)}
                         className="text-stone-400 hover:text-stone-600 text-xs"
                       >
-                        {t("trips.labels.cancel")}</button>
+                        {translate("trips.labels.cancel")}</button>
                     </div>
 
                     {/* Specific required fields for COMPLETED */}
@@ -777,21 +778,21 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                       <div className="space-y-3 bg-white p-3 rounded-lg border border-amber-200">
                         <div className="text-[11px] font-bold text-emerald-800 flex items-center gap-1">
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>الشروط الإلزامية المطلوبة: صافي وزن الاستلام + هوية المستلم + وقت التفريغ + احتساب التفاوت:</span>
+                          <span>{translate("operations.required_receiving_net_weight_receiver_id_unloading_time_and")}</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                           <div>
-                            <label className="block text-[10px] font-bold text-stone-700 mb-1">صافي وزن الاستلام (destNetWeight)</label>
+                            <label className="block text-[10px] font-bold text-stone-700 mb-1">{translate("operations.receiving_net_weight_destnetweight")}</label>
                             <input
                               type="number"
                               value={transitionPayload.destNetWeight || ''}
                               onChange={e => setTransitionPayload({ ...transitionPayload, destNetWeight: parseFloat(e.target.value) || 0 })}
                               className="w-full border border-stone-300 rounded px-2 py-1 text-xs font-mono font-bold text-stone-900"
-                              placeholder="مثال: 31250"
+                              placeholder={translate("operations.example_31250")}
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] font-bold text-stone-700 mb-1">هوية مستلم الموقع (unloaderId)</label>
+                            <label className="block text-[10px] font-bold text-stone-700 mb-1">{translate("unloading.labels.location")}</label>
                             <input
                               type="text"
                               value={transitionPayload.unloaderId || ''}
@@ -801,7 +802,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] font-bold text-stone-700 mb-1">{t("trips.labels.txt_f45a43")}</label>
+                            <label className="block text-[10px] font-bold text-stone-700 mb-1">{translate("trips.labels.txt_f45a43")}</label>
                             <input
                               type="text"
                               value={transitionPayload.unloadTime || ''}
@@ -814,8 +815,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
                         {transitionPayload.destNetWeight && activeTrip.netWeight && (
                           <div className="p-2 rounded bg-indigo-50 border border-indigo-200 text-indigo-900 text-[11px] font-mono flex items-center justify-between">
-                            <span>فارق الوزن المحسوب خادومياً (Variance):</span>
-                            <strong>{transitionPayload.destNetWeight - activeTrip.netWeight} كجم</strong>
+                            <span>{translate("operations.server_calculated_weight_variance_2")}</span>
+                            <strong>{transitionPayload.destNetWeight - activeTrip.netWeight} {translate("shared.units.kg")}</strong>
                           </div>
                         )}
                       </div>
@@ -824,12 +825,12 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                     {/* Reason input for transitions requiring reason */}
                     <div>
                       <label className="block text-[10px] font-bold text-stone-700 mb-1">
-                        {t("trips.labels.txt_5d1540")}</label>
+                        {translate("trips.labels.txt_5d1540")}</label>
                       <input
                         type="text"
                         value={transitionPayload.reason || ''}
                         onChange={e => setTransitionPayload({ ...transitionPayload, reason: e.target.value })}
-                        placeholder="سبب التحول (إلزامي في حالات الاستثناء والإلغاء والإرجاع)..."
+                        placeholder={translate("operations.transition_reason_required_for_exceptions_cancellation_and_return")}
                         className="w-full border border-stone-300 rounded-lg px-3 py-1.5 text-xs text-stone-900 bg-white"
                       />
                     </div>
@@ -839,14 +840,13 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                         onClick={() => setTransitionTarget(null)}
                         className="px-3 py-1.5 rounded-lg border border-stone-300 text-stone-600 hover:bg-stone-100 text-xs font-bold"
                       >
-                        إلغاء
-                      </button>
+                        {translate("shared.actions.cancel")}</button>
                       <button
                         onClick={() => handleExecuteTransition(transitionTarget)}
                         className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs"
                       >
                         <Check className="w-3.5 h-3.5" />
-                        <span>{t("trips.labels.txt_178295")}</span>
+                        <span>{translate("trips.labels.txt_178295")}</span>
                       </button>
                     </div>
                   </div>
@@ -860,10 +860,10 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                 <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                   <ShieldAlert className="w-4 h-4 text-rose-600" />
                   <h3 className="text-xs font-bold text-stone-900">
-                    {t("trips.labels.txt_2cd3f8")}</h3>
+                    {translate("trips.labels.txt_2cd3f8")}</h3>
                 </div>
                 <p className="text-[11px] text-stone-500 leading-relaxed">
-                  {t("trips.labels.txt_58f744")}</p>
+                  {translate("trips.labels.txt_58f744")}</p>
 
                 <div className="space-y-2">
                   {/* Test 1: Direct Client Mutation */}
@@ -873,8 +873,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <Lock className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">{t("trips.labels.edit_4")}</span>
-                      <span className="text-[10px] text-rose-700">{t("trips.labels.edit_5")}</span>
+                      <span className="font-bold block">{translate("operations.direct_mutation_test")}</span>
+                      <span className="text-[10px] text-rose-700">{translate("operations.direct_mutation_hint")}</span>
                     </div>
                   </button>
 
@@ -885,8 +885,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <Scale className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">2. إكمال الرحلة بدون صافي وزن الاستلام</span>
-                      <span className="text-[10px] text-amber-800">{t("trips.labels.trip_19")}</span>
+                      <span className="font-bold block">{translate("operations.2_complete_trip_without_receiving_net_weight")}</span>
+                      <span className="text-[10px] text-amber-800">{translate("operations.complete_without_net_hint")}</span>
                     </div>
                   </button>
 
@@ -897,8 +897,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <UserCheck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">{t("trips.labels.trip_20")}</span>
-                      <span className="text-[10px] text-amber-800">{t("trips.labels.txt_2c17d4")}</span>
+                      <span className="font-bold block">{translate("operations.complete_without_receiver")}</span>
+                      <span className="text-[10px] text-amber-800">{translate("trips.labels.txt_2c17d4")}</span>
                     </div>
                   </button>
 
@@ -909,8 +909,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <Scale className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">{t("trips.labels.trip_21")}</span>
-                      <span className="text-[10px] text-amber-800">{t("trips.labels.txt_37b15d")}</span>
+                      <span className="font-bold block">{translate("operations.complete_without_variance")}</span>
+                      <span className="text-[10px] text-amber-800">{translate("trips.labels.txt_37b15d")}</span>
                     </div>
                   </button>
 
@@ -921,8 +921,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">{t("trips.status.tripFailed_4")}</span>
-                      <span className="text-[10px] text-rose-700">{t("trips.status.failedPricing")}</span>
+                      <span className="font-bold block">{translate("trips.status.tripFailed_4")}</span>
+                      <span className="text-[10px] text-rose-700">{translate("operations.pricing_failure_hint")}</span>
                     </div>
                   </button>
 
@@ -933,8 +933,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <GitCommit className="w-4 h-4 text-stone-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">{t("trips.labels.txt_1a8cbe")}</span>
-                      <span className="text-[10px] text-stone-500">{t("trips.labels.txt_701a0c")}</span>
+                      <span className="font-bold block">{translate("trips.labels.txt_1a8cbe")}</span>
+                      <span className="text-[10px] text-stone-500">{translate("trips.labels.txt_701a0c")}</span>
                     </div>
                   </button>
 
@@ -945,8 +945,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <ShieldAlert className="w-4 h-4 text-stone-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">{t("trips.labels.status_6")}</span>
-                      <span className="text-[10px] text-stone-500">{t("trips.labels.driverDownload")}</span>
+                      <span className="font-bold block">{translate("operations.unauthorized_role_test")}</span>
+                      <span className="text-[10px] text-stone-500">{translate("trips.labels.driverDownload")}</span>
                     </div>
                   </button>
 
@@ -957,8 +957,8 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   >
                     <Building2 className="w-4 h-4 text-stone-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">{t("trips.labels.project_4")}</span>
-                      <span className="text-[10px] text-stone-500">{t("trips.labels.editTrip_2")}</span>
+                      <span className="font-bold block">{translate("operations.project_isolation_test")}</span>
+                      <span className="text-[10px] text-stone-500">{translate("operations.project_isolation_hint")}</span>
                     </div>
                   </button>
                 </div>
@@ -976,7 +976,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                         <span>{stressTestLog.testName}</span>
                       </span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/70 font-mono">
-                        {stressTestLog.passedBlocked ? 'تم الحظر بنجاح ✓' : 'فشل الحظر ✗'}
+                        {stressTestLog.passedBlocked ? translate("operations.successfully_blocked") : translate("operations.block_failed")}
                       </span>
                     </div>
                     <p className="text-[11px] leading-relaxed font-mono">
@@ -1000,27 +1000,27 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
             <div>
               <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-amber-600" />
-                <span>{t("trips.labels.txt_7a972e")}</span>
+                <span>{translate("trips.labels.txt_7a972e")}</span>
               </h3>
               <p className="text-xs text-stone-500">
-                {t("trips.labels.txt_3ac325")}</p>
+                {translate("trips.labels.txt_3ac325")}</p>
             </div>
             <span className="text-xs text-stone-400 font-mono">
-              الرحلة الحالية: <strong className="text-stone-800">{activeTrip?.tripSerial}</strong> في [{activeTrip?.status}]
+              {translate("operations.current_trip")}<strong className="text-stone-800">{activeTrip?.tripSerial}</strong> {translate("operations.in")}{activeTrip?.status}]
             </span>
           </div>
 
           {/* Primary Golden Path Flow */}
           <div className="space-y-2">
-            <span className="text-xs font-bold text-stone-700 block">{t("trips.labels.txt_23fa6b")}</span>
+            <span className="text-xs font-bold text-stone-700 block">{translate("trips.labels.txt_23fa6b")}</span>
             <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
               {[
-                { st: 'DRAFT', label: '1. مسودة', sub: t('trips.labels.create_2'), roles: 'DISPATCHER' },
-                { st: 'LOADED', label: '2. تحميل ووزن', sub: t('trips.labels.txt_2f47a4'), roles: 'SCALE_OP' },
-                { st: 'IN_TRANSIT', label: '3. في الطريق', sub: t('trips.labels.txt_304e68'), roles: 'DISPATCHER' },
-                { st: 'ARRIVED', label: '4. وصول الموقع', sub: t('trips.labels.txt_61ff0a'), roles: 'DRIVER/REC' },
-                { st: 'UNLOADING', label: '5. قيد التفريغ', sub: t('trips.labels.txt_4d1719'), roles: 'RECEIVER' },
-                { st: 'COMPLETED', label: '6. مكتملة ومسواة', sub: t('trips.labels.txt_226b89'), roles: 'RECEIVER' }
+                { st: 'DRAFT', label: translate("operations.1_draft"), sub: translate('operations.draft_description'), roles: 'DISPATCHER' },
+                { st: 'LOADED', label: translate("operations.2_loading_and_weighing"), sub: translate('trips.labels.txt_2f47a4'), roles: 'SCALE_OP' },
+                { st: 'IN_TRANSIT', label: translate("operations.3_in_transit"), sub: translate('trips.labels.txt_304e68'), roles: 'DISPATCHER' },
+                { st: 'ARRIVED', label: translate("operations.4_arrived_at_site"), sub: translate('trips.labels.txt_61ff0a'), roles: 'DRIVER/REC' },
+                { st: 'UNLOADING', label: translate("operations.5_unloading"), sub: translate('trips.labels.txt_4d1719'), roles: 'RECEIVER' },
+                { st: 'COMPLETED', label: translate("operations.6_completed_and_settled"), sub: translate('trips.labels.txt_226b89'), roles: 'RECEIVER' }
               ].map((item, idx) => {
                 const isCurrent = activeTrip?.status === item.st;
                 return (
@@ -1039,7 +1039,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                     </div>
                     {isCurrent && (
                       <div className="mt-1 text-[9px] font-black text-amber-700 animate-pulse">
-                        ● الرحلة هنا (v{activeTrip.version})
+                        {translate("operations.trip_is_here_v")}{activeTrip.version})
                       </div>
                     )}
                   </div>
@@ -1050,29 +1050,29 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
           {/* Alternative & Exception Branches */}
           <div className="space-y-2 pt-4 border-t border-stone-100">
-            <span className="text-xs font-bold text-stone-700 block">{t("trips.labels.txt_13cdfe")}</span>
+            <span className="text-xs font-bold text-stone-700 block">{translate("trips.labels.txt_13cdfe")}</span>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
               <div className={`p-3 rounded-xl border ${activeTrip?.status === 'RETURN_REQUESTED' ? 'border-orange-500 bg-orange-50' : 'border-stone-200 bg-stone-50'}`}>
-                <div className="font-bold text-orange-900 mb-1">{t("trips.labels.txt_1b87fb")}</div>
-                <div className="text-[11px] text-stone-500 mb-2">{t("trips.labels.location_9")}</div>
+                <div className="font-bold text-orange-900 mb-1">{translate("trips.labels.txt_1b87fb")}</div>
+                <div className="text-[11px] text-stone-500 mb-2">{translate("trips.labels.location_9")}</div>
                 <span className="text-[10px] bg-white px-2 py-0.5 rounded border text-stone-700">SITE_RECEIVER, DISPATCHER</span>
               </div>
 
               <div className={`p-3 rounded-xl border ${activeTrip?.status === 'RETURNED' ? 'border-stone-600 bg-stone-200' : 'border-stone-200 bg-stone-50'}`}>
-                <div className="font-bold text-stone-900 mb-1">{t("trips.labels.txt_1e7d43")}</div>
-                <div className="text-[11px] text-stone-500 mb-2">{t("trips.labels.confirmBackTruck")}</div>
+                <div className="font-bold text-stone-900 mb-1">{translate("trips.labels.txt_1e7d43")}</div>
+                <div className="text-[11px] text-stone-500 mb-2">{translate("trips.labels.confirmBackTruck")}</div>
                 <span className="text-[10px] bg-white px-2 py-0.5 rounded border text-stone-700">SCALE_OPERATOR</span>
               </div>
 
               <div className={`p-3 rounded-xl border ${activeTrip?.status === 'EXCEPTION' ? 'border-rose-500 bg-rose-50' : 'border-stone-200 bg-stone-50'}`}>
-                <div className="font-bold text-rose-900 mb-1">{t("trips.labels.txt_4e4194")}</div>
-                <div className="text-[11px] text-stone-500 mb-2">حادث، عطل طريق، نزاع وزني، أو تعذر الوصول للموقع.</div>
+                <div className="font-bold text-rose-900 mb-1">{translate("trips.labels.txt_4e4194")}</div>
+                <div className="text-[11px] text-stone-500 mb-2">{translate("operations.accident_road_breakdown_weight_dispute_or_inability_to_reach")}</div>
                 <span className="text-[10px] bg-white px-2 py-0.5 rounded border text-stone-700">DRIVER, DISPATCHER, RECEIVER</span>
               </div>
 
               <div className={`p-3 rounded-xl border ${activeTrip?.status === 'CANCELLED' ? 'border-red-500 bg-red-50' : 'border-stone-200 bg-stone-50'}`}>
-                <div className="font-bold text-red-900 mb-1">{t("trips.labels.txt_2e7926")}</div>
-                <div className="text-[11px] text-stone-500 mb-2">{t("trips.labels.cancelTrip")}</div>
+                <div className="font-bold text-red-900 mb-1">{translate("trips.labels.txt_2e7926")}</div>
+                <div className="text-[11px] text-stone-500 mb-2">{translate("trips.labels.cancelTrip")}</div>
                 <span className="text-[10px] bg-white px-2 py-0.5 rounded border text-stone-700">DISPATCHER, OPERATIONS_MGR</span>
               </div>
             </div>
@@ -1087,19 +1087,18 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
             <div>
               <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                 <History className="w-4 h-4 text-amber-600" />
-                <span>سجل أحداث دورة الحياة (Lifecycle Events Stream) — الرحلة {activeTrip.tripSerial}</span>
+                <span>{translate("operations.lifecycle_events_stream_trip")}{activeTrip.tripSerial}</span>
               </h3>
               <p className="text-xs text-stone-500">
-                {t("trips.labels.timeProject")}</p>
+                {translate("trips.labels.timeProject")}</p>
             </div>
             <span className="text-xs font-mono text-stone-400 font-bold">
-              {tripEvents.length} حدث مسجل
-            </span>
+              {tripEvents.length} {translate("operations.recorded_event_s")}</span>
           </div>
 
           {tripEvents.length === 0 ? (
             <div className="text-center py-8 text-xs text-stone-400">
-              {t("trips.labels.trip_25")}</div>
+              {translate("operations.no_lifecycle_events")}</div>
           ) : (
             <div className="space-y-3">
               {tripEvents.map(evt => (
@@ -1120,13 +1119,13 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                       </div>
                     </div>
                     <div className="text-[11px] text-stone-600">
-                      {t("trips.labels.txt_124138")}<strong className="text-stone-800">{evt.reason || 'لا يوجد سبب إضافي'}</strong>
+                      {translate("trips.labels.txt_124138")}<strong className="text-stone-800">{evt.reason || translate("operations.no_additional_reason")}</strong>
                     </div>
                   </div>
 
                   <div className="text-left font-mono text-[11px] text-stone-500 space-y-0.5">
-                    <div>المشغل: <strong className="text-stone-800">{evt.actorName}</strong> ({evt.actorRole})</div>
-                    <div>المشروع: <strong className="text-stone-800">{evt.projectId}</strong> | v{evt.version}</div>
+                    <div>{translate("operations.operator")}<strong className="text-stone-800">{evt.actorName}</strong> ({evt.actorRole})</div>
+                    <div>{translate("operations.project")}<strong className="text-stone-800">{evt.projectId}</strong> | v{evt.version}</div>
                     <div className="text-[10px] text-stone-400">{new Date(evt.timestamp).toLocaleString('ar-SA')}</div>
                   </div>
                 </div>
@@ -1143,19 +1142,18 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
             <div>
               <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                 <Lock className="w-4 h-4 text-amber-600" />
-                <span>{t("trips.labels.txt_46a3cb")}</span>
+                <span>{translate("trips.labels.txt_46a3cb")}</span>
               </h3>
               <p className="text-xs text-stone-500">
-                {t("trips.labels.txt_4c39d7")}</p>
+                {translate("trips.labels.txt_4c39d7")}</p>
             </div>
             <span className="text-xs font-mono text-stone-400 font-bold">
-              {tripAudits.length} إدخال تدقيقي
-            </span>
+              {tripAudits.length} {translate("operations.audit_entry_entries")}</span>
           </div>
 
           {tripAudits.length === 0 ? (
             <div className="text-center py-8 text-xs text-stone-400">
-              {t("trips.labels.txt_584eb0")}</div>
+              {translate("trips.labels.txt_584eb0")}</div>
           ) : (
             <div className="space-y-3">
               {tripAudits.map(aud => (
@@ -1171,9 +1169,9 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                       <span className="text-indigo-900 font-bold">{aud.action}</span>
                     </div>
                     <div className="flex items-center gap-2 text-[11px] font-mono text-stone-600">
-                      <span>{t("trips.labels.txt_5980b8")}<strong>v{aud.versionBefore}</strong> ➔ <strong className="text-amber-700">v{aud.versionAfter}</strong></span>
+                      <span>{translate("trips.labels.txt_5980b8")}<strong>v{aud.versionBefore}</strong> ➔ <strong className="text-amber-700">v{aud.versionAfter}</strong></span>
                       <span className="text-stone-300">|</span>
-                      <span>بواسطة: <strong>{aud.actorName}</strong> ({aud.actorRole})</span>
+                      <span>{translate("operations.by")}<strong>{aud.actorName}</strong> ({aud.actorRole})</span>
                     </div>
                   </div>
 
@@ -1183,7 +1181,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
 
                   {aud.diff && Object.keys(aud.diff).length > 0 && (
                     <div className="bg-white p-2.5 rounded-lg border border-stone-200 space-y-1 font-mono text-[11px]">
-                      <span className="text-[10px] font-bold text-stone-500 block">{t("trips.labels.txt_625185")}</span>
+                      <span className="text-[10px] font-bold text-stone-500 block">{translate("trips.labels.txt_625185")}</span>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(aud.diff).map(([key, value]) => (
                           <div key={key} className="px-2 py-1 rounded bg-stone-100 border border-stone-200 text-stone-800">
@@ -1195,7 +1193,7 @@ export const StateMachineController: React.FC<StateMachineControllerProps> = ({
                   )}
 
                   <div className="text-[10px] text-stone-400 text-left font-mono">
-                    {new Date(aud.timestamp).toLocaleString('ar-SA')} | مشروع: {aud.projectId}
+                    {new Date(aud.timestamp).toLocaleString('ar-SA')} {translate("operations.project_3")}{aud.projectId}
                   </div>
                 </div>
               ))}

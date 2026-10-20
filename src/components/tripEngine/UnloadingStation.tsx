@@ -1,3 +1,4 @@
+import { presentOperationalMessage } from "../../i18n/operationalMessages";
 import React, { useState, useEffect } from 'react';
 import { 
   Scale, 
@@ -43,7 +44,8 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
   onViewTripDetails,
   onNotification
 }) => {
-  const { t } = useI18n();
+  const { t, isRTL } = useI18n();
+  const operationalMessage = (message: string) => presentOperationalMessage(message, t);
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState<UnloadingSearchResult | null>(null);
@@ -149,7 +151,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
       if (onNotification) {
         onNotification({
           type: 'SUCCESS',
-          message: `تم التعرف على الرحلة بنجاح: ${result.trip.tripSerial} عبر معيار (${result.matchedBy})`
+          message: t("operations.trip_identified_value_matched_by_value", { p0: result.trip.tripSerial, p1: result.matchedBy })
         });
       }
     } else if (result.status === 'PLATE_ONLY_PROHIBITED') {
@@ -157,7 +159,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
       if (onNotification) {
         onNotification({
           type: 'SECURITY',
-          message: result.messageAr
+          message: operationalMessage(result.messageAr)
         });
       }
     } else {
@@ -190,7 +192,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
       }
     } catch (err: any) {
       if (onNotification) {
-        onNotification({ type: 'ERROR', message: err.message });
+        onNotification({ type: 'ERROR', message: operationalMessage(err.message) });
       }
     }
   };
@@ -214,12 +216,12 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
       if (onNotification) {
         onNotification({
           type: 'SUCCESS',
-          message: `تم بدء تفريغ الحمولة بنجاح: تم الانتقال إلى [UNLOADING] وتعيين مسؤول التفريغ (${unloaderIdInput}).`
+          message: t("operations.unloading_started_transitioned_to_unloading_and_assigned_receiver_value", { p0: unloaderIdInput })
         });
       }
     } catch (err: any) {
       if (onNotification) {
-        onNotification({ type: 'ERROR', message: err.message });
+        onNotification({ type: 'ERROR', message: operationalMessage(err.message) });
       }
     }
   };
@@ -232,7 +234,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
       if (onNotification) {
         onNotification({
           type: 'ERROR',
-          message: 'يجب إدخال صافي وزن الوصول (destNetWeight) كقيمة موجبة أكبر من صفر.'
+          message: t("operations.destination_net_weight_destnetweight_must_be_a_positive_value")
         });
       }
       return;
@@ -263,20 +265,20 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
         if (onNotification) {
           onNotification({
             type: 'SECURITY',
-            message: `تنبيه رقابي صارم: فارق الوزن (${result.varianceWeight.toLocaleString()} كجم) خارج نسبة التسامح المسموحة! تم رسمياً إنشاء كائن استثناء (${result.exceptionCreated.exceptionId}) في قاعدة البيانات وسجل التدقيق.`
+            message: t("operations.control_warning_variance_value_kg_exceeds_allowed_tolerance_exception", { p0: result.varianceWeight.toLocaleString(), p1: result.exceptionCreated.exceptionId })
           });
         }
       } else {
         if (onNotification) {
           onNotification({
             type: 'SUCCESS',
-            message: `تم إكمال التفريغ بنجاح: تم احتساب فارق الوزن خادومياً (${result.varianceWeight.toLocaleString()} كجم) وتحديث الحقول الـ 5 وترقية الحالة إلى [COMPLETED].`
+            message: t("operations.unloading_completed_server_calculated_variance_value_kg_updated_all", { p0: result.varianceWeight.toLocaleString() })
           });
         }
       }
     } catch (err: any) {
       if (onNotification) {
-        onNotification({ type: 'ERROR', message: err.message });
+        onNotification({ type: 'ERROR', message: operationalMessage(err.message) });
       }
     }
   };
@@ -303,7 +305,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
   const isLiveOutOfTolerance = liveVariance !== null && Math.abs(liveVariance) > effectiveTolerance;
 
   return (
-    <div className="space-y-6 text-right" dir="rtl">
+    <div className="space-y-6 text-right" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Banner with Station Identity and Automated Verification Button */}
       <div className="bg-white rounded-2xl border border-stone-200/80 p-6 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-stone-100 pb-5 mb-5">
@@ -321,8 +323,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   {t("unloading.labels.txt_58bc1a")}</span>
               </div>
               <p className="text-xs text-stone-600 max-w-3xl leading-relaxed">
-                منظومة استلام وتفريغ الشحنات بالموقع: البحث بالتدرج الإلزامي (tripSerial ➔ ticketId ➔ truckId)، حظر البحث باللوحة المنفردة، التدرج التشغيلي للحالات، واحتساب فارق الوزن خادومياً وإنشاء كائنات الاستثناءات الرسمية عند تجاوز التفاوت.
-              </p>
+                {t("operations.site_receiving_and_unloading_search_by_tripserial_ticketid_truckid")}</p>
             </div>
           </div>
 
@@ -369,7 +370,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="أدخل رقم الرحلة (مثال: TRP-NEOM-8892) أو رقم التذكرة أو معرف الشاحنة..."
+                placeholder={t("operations.enter_trip_serial_e_g_trp_neom_8892_ticket")}
                 className="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-xs font-semibold text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 pr-10"
               />
               <Search className="w-4 h-4 text-stone-400 absolute right-3.5 top-3 pointer-events-none" />
@@ -415,7 +416,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
               }}
               className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-stone-200 text-stone-700 border border-stone-200 transition-all flex items-center gap-1"
             >
-              <span>{t("unloading.labels.truck")}</span>
+              <span>{t("operations.lookup_by_truck")}</span>
             </button>
 
             <button
@@ -452,10 +453,10 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                       <span className="bg-amber-200 text-amber-900 px-2 py-0.5 rounded text-[10px] font-bold">
                         0 ➔ NOT_FOUND
                       </span>
-                      <span>{t("unloading.labels.trip")}</span>
+                      <span>{t("operations.no_search_match")}</span>
                     </div>
                     <p className="text-[11px] text-amber-800 mt-1">
-                      {searchResult.messageAr}
+                      {operationalMessage(searchResult.messageAr)}
                     </p>
                   </div>
                 </div>
@@ -472,7 +473,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                       <span>{t("unloading.labels.trip_2")}</span>
                     </div>
                     <p className="text-[11px] text-rose-900 mt-1 leading-relaxed">
-                      {searchResult.messageAr}
+                      {operationalMessage(searchResult.messageAr)}
                     </p>
                   </div>
                 </div>
@@ -486,7 +487,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                     <div>
                       <div className="font-bold flex items-center gap-2">
                         <span className="bg-purple-200 text-purple-900 px-2 py-0.5 rounded text-[10px] font-bold">
-                          &gt;1 ➔ AMBIGUOUS (العدد: {searchResult.count})
+                          {t("operations.1_ambiguous_count")}{searchResult.count})
                         </span>
                         <span>{t("unloading.labels.trip_3")}</span>
                       </div>
@@ -506,7 +507,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                           if (onNotification) {
                             onNotification({
                               type: 'SUCCESS',
-                              message: `تم اختيار الرحلة المحددة: ${cand.tripSerial}`
+                              message: t("operations.trip_selected_value", { p0: cand.tripSerial })
                             });
                           }
                         }}
@@ -529,10 +530,10 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                           </span>
                         </div>
                         <div className="text-[11px] text-stone-600 grid grid-cols-2 gap-1">
-                          <span>التذكرة: {cand.ticketId}</span>
-                          <span>الوزن الصافي: {cand.netWeight.toLocaleString()} كجم</span>
-                          <span>المادة: {cand.materialId}</span>
-                          <span>الوردية: {cand.shiftDate}</span>
+                          <span>{t("operations.ticket_2")}{cand.ticketId}</span>
+                          <span>{t("operations.net_weight")}{cand.netWeight.toLocaleString()} {t("shared.units.kg")}</span>
+                          <span>{t("loading.labels.material_2")}{cand.materialId}</span>
+                          <span>{t("operations.shift")}{cand.shiftDate}</span>
                         </div>
                       </div>
                     ))}
@@ -550,7 +551,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                         <span className="bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded text-[10px] font-bold">
                           1 ➔ CONTINUE
                         </span>
-                        <span>تم تحديد الرحلة الفريدة بنجاح: {activeTrip.tripSerial}</span>
+                        <span>{t("operations.unique_trip_identified")}{activeTrip.tripSerial}</span>
                       </div>
                       <p className="text-[11px] text-emerald-800 mt-0.5">
                         {t("unloading.labels.txt_17be32")}<span className="font-bold">{searchResult.matchedBy}</span>{t("unloading.labels.txt_53c5e6")}</p>
@@ -558,7 +559,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
 
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] bg-white px-2.5 py-1 rounded-lg border border-emerald-200 font-bold text-emerald-900">
-                        الحالة الحالية: {activeTrip.status}
+                        {t("trips.labels.status_2")}{activeTrip.status}
                       </span>
                     </div>
                   </div>
@@ -576,11 +577,11 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
             {/* Active Trip Info Card */}
             <div className="bg-stone-50/70 rounded-xl p-4 border border-stone-200 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 text-xs">
               <div>
-                <span className="text-stone-400 text-[10px] block">رقم الرحلة السريال</span>
+                <span className="text-stone-400 text-[10px] block">{t("operations.trip_serial_number")}</span>
                 <span className="font-bold text-stone-900">{activeTrip.tripSerial}</span>
               </div>
               <div>
-                <span className="text-stone-400 text-[10px] block">رقم تذكرة الميزان</span>
+                <span className="text-stone-400 text-[10px] block">{t("operations.weighbridge_ticket_number")}</span>
                 <span className="font-bold text-stone-900">{activeTrip.ticketId}</span>
               </div>
               <div>
@@ -591,10 +592,9 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 </span>
               </div>
               <div>
-                <span className="text-stone-400 text-[10px] block">الوزن الصافي بالمصدر</span>
+                <span className="text-stone-400 text-[10px] block">{t("operations.origin_net_weight_3")}</span>
                 <span className="font-bold text-amber-700 font-mono">
-                  {activeTrip.netWeight.toLocaleString()} كجم
-                </span>
+                  {activeTrip.netWeight.toLocaleString()} {t("shared.units.kg")}</span>
               </div>
               <div>
                 <span className="text-stone-400 text-[10px] block">{t("unloading.labels.txt_173722")}</span>
@@ -664,7 +664,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   {activeTrip.arrivalTime ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>تم توثيق الوصول بنجاح ({new Date(activeTrip.arrivalTime).toLocaleTimeString('ar-SA')})</span>
+                      <span>{t("operations.arrival_recorded_successfully")}{new Date(activeTrip.arrivalTime).toLocaleTimeString('ar-SA')})</span>
                     </>
                   ) : (
                     <>
@@ -696,7 +696,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   {t("unloading.labels.location_2")}</p>
 
                 <div className="space-y-2 mb-3">
-                  <label className="block text-[11px] font-semibold text-stone-700">هوية مستلم الموقع (unloaderId)</label>
+                  <label className="block text-[11px] font-semibold text-stone-700">{t("unloading.labels.location")}</label>
                   <input
                     type="text"
                     value={unloaderIdInput}
@@ -721,7 +721,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   {activeTrip.status === 'UNLOADING' || activeTrip.status === 'COMPLETED' ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>قيد التفريغ بواسطة ({activeTrip.unloaderId || unloaderIdInput})</span>
+                      <span>{t("operations.being_unloaded_by")}{activeTrip.unloaderId || unloaderIdInput})</span>
                     </>
                   ) : (
                     <>
@@ -743,7 +743,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
                     <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-900 flex items-center justify-center text-[10px] font-bold">3</span>
-                    <span>إدخال الوزن الصافي (destNetWeight)</span>
+                    <span>{t("operations.enter_net_weight_destnetweight")}</span>
                   </span>
                   <span className="text-[10px] font-mono text-stone-500">
                     UNLOADING ➔ COMPLETED
@@ -754,13 +754,13 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
 
                 <div className="space-y-2 mb-3">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-semibold text-stone-700">صافي وزن الوصول (كجم)</span>
+                    <span className="font-semibold text-stone-700">{t("operations.destination_net_weight_kg")}</span>
                     <button
                       type="button"
                       onClick={() => setWeightEntryMode(m => m === 'DIRECT' ? 'DUAL_SCALE' : 'DIRECT')}
                       className="text-[10px] text-indigo-700 hover:underline font-bold"
                     >
-                      {weightEntryMode === 'DIRECT' ? '🔢 استخدام ميزان القائم/الفارغ' : '✏️ إدخال الصافي المباشر'}
+                      {weightEntryMode === 'DIRECT' ? t("operations.use_gross_tare_scale") : t("operations.enter_net_weight_directly")}
                     </button>
                   </div>
 
@@ -772,7 +772,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                           type="number"
                           value={destGrossInput}
                           onChange={(e) => setDestGrossInput(e.target.value === '' ? '' : Number(e.target.value))}
-                          placeholder="مثال: 44800"
+                          placeholder={t("operations.example_44800")}
                           className="w-full bg-white border border-stone-300 rounded px-2 py-1 text-xs"
                         />
                       </div>
@@ -782,7 +782,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                           type="number"
                           value={destTareInput}
                           onChange={(e) => setDestTareInput(e.target.value === '' ? '' : Number(e.target.value))}
-                          placeholder="مثال: 14200"
+                          placeholder={t("operations.example_14200")}
                           className="w-full bg-white border border-stone-300 rounded px-2 py-1 text-xs"
                         />
                       </div>
@@ -857,8 +857,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-stone-900">
-                      معاينة الحساب الخادومي ومراقبة تفاوت الوزن (Server Variance & Tolerance)
-                    </h3>
+                      {t("operations.server_calculation_preview_and_weight_tolerance_monitoring")}</h3>
                     <p className="text-[11px] text-stone-500">
                       {t("unloading.labels.txt_9a2a40")}<span className="font-mono text-stone-800 font-bold">varianceWeight = destNetWeight - netWeight</span>
                     </p>
@@ -868,25 +867,24 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] text-stone-500 font-medium">{t("unloading.labels.txt_5adc67")}</span>
                   <span className="bg-stone-100 text-stone-800 text-xs px-2 py-0.5 rounded font-mono font-bold">
-                    ±{tolerancePercent}% (أو ±{toleranceKg} كجم)
-                  </span>
+                    ±{tolerancePercent}{t("operations.or")}{toleranceKg} {t("operations.kg")}</span>
                 </div>
               </div>
 
               {/* 4 Cards Breakdown */}
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200/80">
-                  <span className="text-[10px] font-medium text-stone-500 block mb-1">الوزن الصافي بالمصدر (netWeight)</span>
+                  <span className="text-[10px] font-medium text-stone-500 block mb-1">{t("operations.origin_net_weight_netweight")}</span>
                   <div className="text-lg font-black text-stone-900 font-mono">
-                    {currentOriginNet.toLocaleString()} <span className="text-xs font-normal">كجم</span>
+                    {currentOriginNet.toLocaleString()} <span className="text-xs font-normal">{t("shared.units.kg")}</span>
                   </div>
                   <span className="text-[10px] text-stone-400">{t("unloading.labels.txt_3af241")}</span>
                 </div>
 
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200/80">
-                  <span className="text-[10px] font-medium text-stone-500 block mb-1">صافي وزن الاستلام (destNetWeight)</span>
+                  <span className="text-[10px] font-medium text-stone-500 block mb-1">{t("operations.receiving_net_weight_destnetweight")}</span>
                   <div className="text-lg font-black text-stone-900 font-mono">
-                    {currentDestNet > 0 ? `${currentDestNet.toLocaleString()} كجم` : 'بانتظار الإدخال'}
+                    {currentDestNet > 0 ? t("operations.value_kg", { p0: currentDestNet.toLocaleString() }) : t("operations.awaiting_input")}
                   </div>
                   <span className="text-[10px] text-stone-400">{t("unloading.labels.txt_576fc8")}</span>
                 </div>
@@ -898,7 +896,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                     ? 'bg-rose-50 border-rose-300' 
                     : 'bg-emerald-50 border-emerald-300'
                 }`}>
-                  <span className="text-[10px] font-medium text-stone-500 block mb-1">فارق الوزن المحسوب خادومياً</span>
+                  <span className="text-[10px] font-medium text-stone-500 block mb-1">{t("operations.server_calculated_weight_variance")}</span>
                   <div className={`text-lg font-black font-mono ${
                     liveVariance === null 
                       ? 'text-stone-400' 
@@ -908,7 +906,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   }`}>
                     {liveVariance !== null ? (
                       <>
-                        {liveVariance > 0 ? `+${liveVariance.toLocaleString()}` : liveVariance.toLocaleString()} <span className="text-xs font-normal">كجم</span>
+                        {liveVariance > 0 ? `+${liveVariance.toLocaleString()}` : liveVariance.toLocaleString()} <span className="text-xs font-normal">{t("shared.units.kg")}</span>
                         {liveVariancePct !== null && (
                           <span className="text-xs font-normal block text-[11px]">
                             ({liveVariancePct > 0 ? `+${liveVariancePct.toFixed(2)}%` : `${liveVariancePct.toFixed(2)}%`})
@@ -924,7 +922,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200/80">
                   <span className="text-[10px] font-medium text-stone-500 block mb-1">{t("unloading.labels.txt_23937a")}</span>
                   {liveVariance === null ? (
-                    <div className="text-xs font-bold text-stone-400 mt-2">بانتظار تسجيل الوزن</div>
+                    <div className="text-xs font-bold text-stone-400 mt-2">{t("operations.awaiting_weight_entry")}</div>
                   ) : isLiveOutOfTolerance ? (
                     <div>
                       <span className="inline-flex items-center gap-1 text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full mb-1">
@@ -932,8 +930,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                         <span>{t("unloading.labels.txt_30adf1")}</span>
                       </span>
                       <span className="text-[10px] text-rose-800 block">
-                        يتجاوز التفاوت المسموح (±{effectiveTolerance.toLocaleString()} كجم)
-                      </span>
+                        {t("operations.exceeds_allowed_tolerance")}{effectiveTolerance.toLocaleString()} {t("operations.kg")}</span>
                     </div>
                   ) : (
                     <div>
@@ -960,25 +957,25 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   <div className="bg-white p-2 rounded border border-stone-200">
                     <span className="text-stone-400 block text-[9px]">2. arrivalTime</span>
                     <span className="font-bold text-stone-800 truncate block">
-                      {activeTrip.arrivalTime ? new Date(activeTrip.arrivalTime).toLocaleTimeString('ar-SA') : 'سيتم التحديث'}
+                      {activeTrip.arrivalTime ? new Date(activeTrip.arrivalTime).toLocaleTimeString('ar-SA') : t("unloading.labels.refresh")}
                     </span>
                   </div>
                   <div className="bg-white p-2 rounded border border-stone-200">
                     <span className="text-stone-400 block text-[9px]">3. unloadTime</span>
                     <span className="font-bold text-stone-800 truncate block">
-                      {activeTrip.unloadTime ? new Date(activeTrip.unloadTime).toLocaleTimeString('ar-SA') : 'سيتم التحديث'}
+                      {activeTrip.unloadTime ? new Date(activeTrip.unloadTime).toLocaleTimeString('ar-SA') : t("unloading.labels.refresh")}
                     </span>
                   </div>
                   <div className="bg-white p-2 rounded border border-stone-200">
                     <span className="text-stone-400 block text-[9px]">4. destNetWeight</span>
                     <span className="font-bold text-stone-800 block">
-                      {activeTrip.destNetWeight !== null ? `${activeTrip.destNetWeight.toLocaleString()} كجم` : `${currentDestNet || 0} كجم`}
+                      {activeTrip.destNetWeight !== null ? t("operations.value_kg", { p0: activeTrip.destNetWeight.toLocaleString() }) : t("operations.value_kg", { p0: currentDestNet || 0 })}
                     </span>
                   </div>
                   <div className="bg-white p-2 rounded border border-stone-200">
                     <span className="text-stone-400 block text-[9px]">5. varianceWeight</span>
                     <span className="font-bold text-stone-800 block">
-                      {activeTrip.varianceWeight !== null ? `${activeTrip.varianceWeight.toLocaleString()} كجم` : `${liveVariance || 0} كجم`}
+                      {activeTrip.varianceWeight !== null ? t("operations.value_kg", { p0: activeTrip.varianceWeight.toLocaleString() }) : t("operations.value_kg", { p0: liveVariance || 0 })}
                     </span>
                   </div>
                 </div>
@@ -1000,8 +997,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                         <h3 className="text-sm font-bold text-rose-950">
                           {t("unloading.labels.txt_7dbd48")}</h3>
                         <span className="bg-rose-200 text-rose-900 text-[10px] px-2 py-0.5 rounded font-mono font-bold">
-                          {tripExceptions.length} استثناء نشط
-                        </span>
+                          {tripExceptions.length} {t("operations.active_exception")}</span>
                       </div>
                       <p className="text-[11px] text-rose-800">
                         {t("unloading.labels.txt_57f705")}<span className="font-bold">{t("unloading.labels.txt_2af283")}</span> {t("unloading.labels.create")}</p>
@@ -1027,16 +1023,15 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                             exc.severity === 'BLOCKING' ? 'bg-purple-100 text-purple-900' : 'bg-rose-100 text-rose-800'
                           }`}>
-                            خطورة: {exc.severity}
+                            {t("operations.severity")}{exc.severity}
                           </span>
                           <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">
-                            الحالة: {exc.status}
+                            {t("operations.status")}{exc.status}
                           </span>
                         </div>
 
                         <span className="text-[10px] text-stone-400 font-mono">
-                          المبلغ المالي المعلق: {activeTrip.settlementAmount.toLocaleString()} ر.س
-                        </span>
+                          {t("operations.held_amount")}{activeTrip.settlementAmount.toLocaleString()} {t("shared.units.sar")}</span>
                       </div>
 
                       <p className="text-xs text-stone-800 leading-relaxed font-medium">
@@ -1066,7 +1061,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                                 if (onNotification) {
                                   onNotification({
                                     type: 'SUCCESS',
-                                    message: `تم اعتماد وقبول الاستثناء (${exc.exceptionId}) بقرار إداري معتمد.`
+                                    message: t("operations.exception_value_approved_by_an_authorized_administrative_decision", { p0: exc.exceptionId })
                                   });
                                 }
                               }}
@@ -1093,8 +1088,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
             </div>
             <h4 className="text-sm font-bold text-stone-700 mb-1">{t("unloading.labels.searchTrip_2")}</h4>
             <p className="text-xs text-stone-500 max-w-md mx-auto">
-              أدخل رقم الرحلة (tripSerial) أو رقم التذكرة (ticketId) أو معرف الشاحنة (truckId) لبدء إجراءات الاستلام والتفريغ.
-            </p>
+              {t("operations.enter_tripserial_ticketid_or_truckid_to_begin_receiving_and")}</p>
           </div>
         )}
       </div>
@@ -1130,7 +1124,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
               {/* Summary Stats */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 text-center">
-                  <span className="text-[10px] text-stone-500 block">إجمالي الفحوصات</span>
+                  <span className="text-[10px] text-stone-500 block">{t("operations.total_checks")}</span>
                   <span className="text-lg font-black text-stone-800">{testResults.summary.total}</span>
                 </div>
                 <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-center">
@@ -1138,7 +1132,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                   <span className="text-lg font-black text-emerald-800">{testResults.summary.passed}</span>
                 </div>
                 <div className="bg-rose-50 p-3 rounded-xl border border-rose-200 text-center">
-                  <span className="text-[10px] text-rose-700 block">فاشلة</span>
+                  <span className="text-[10px] text-rose-700 block">{t("operations.failed")}</span>
                   <span className="text-lg font-black text-rose-800">{testResults.summary.failed}</span>
                 </div>
               </div>
@@ -1181,8 +1175,7 @@ export const UnloadingStation: React.FC<UnloadingStationProps> = ({
                 onClick={() => setIsTestModalOpen(false)}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-900 text-white rounded-lg text-xs font-bold"
               >
-                إغلاق التقرير
-              </button>
+                {t("operations.close_report")}</button>
             </div>
           </div>
         </div>

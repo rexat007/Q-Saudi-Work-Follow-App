@@ -1,3 +1,4 @@
+import { presentOperationalMessage } from "../../i18n/operationalMessages";
 import { pricingService } from "../../services/pricing.service";
 import React, { useState } from 'react';
 import { 
@@ -34,7 +35,8 @@ import { useI18n } from '../../i18n';
 
 
 export const WeightEngineView: React.FC = () => {
-  const { t } = useI18n();
+  const { t, isRTL } = useI18n();
+  const operationalMessage = (message: string) => presentOperationalMessage(message, t);
   // Active Sub-panel
   const [activeTab, setActiveTab] = useState<'FUNCTIONS_SANDBOX' | 'TOLERANCE_RULES' | 'AUTOMATED_TESTS'>('FUNCTIONS_SANDBOX');
 
@@ -165,7 +167,7 @@ export const WeightEngineView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 text-right" dir="rtl">
+    <div className="space-y-6 text-right" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Header Card */}
       <div className="bg-white rounded-2xl border border-stone-200/80 p-6 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-stone-100 pb-5 mb-5">
@@ -225,7 +227,7 @@ export const WeightEngineView: React.FC = () => {
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>فحص الامتثال الآلي (Test Suite)</span>
+              <span>{t("weight_engine.test_suite")}</span>
             </button>
           </div>
         </div>
@@ -282,7 +284,7 @@ export const WeightEngineView: React.FC = () => {
                   type="text"
                   value={tareInput}
                   onChange={(e) => setTareInput(e.target.value)}
-                  placeholder="null (اتركه فارغاً)"
+                  placeholder={t("operations.null_leave_empty")}
                   className="w-full bg-stone-50 border border-stone-300 rounded-lg px-3 py-2 text-xs font-mono font-bold text-stone-900 focus:bg-white focus:ring-2 focus:ring-amber-500"
                 />
               </div>
@@ -294,7 +296,7 @@ export const WeightEngineView: React.FC = () => {
                   type="text"
                   value={grossInput}
                   onChange={(e) => setGrossInput(e.target.value)}
-                  placeholder="null (اتركه فارغاً)"
+                  placeholder={t("operations.null_leave_empty")}
                   className="w-full bg-stone-50 border border-stone-300 rounded-lg px-3 py-2 text-xs font-mono font-bold text-stone-900 focus:bg-white focus:ring-2 focus:ring-amber-500"
                 />
               </div>
@@ -338,7 +340,7 @@ export const WeightEngineView: React.FC = () => {
                 <span className={`text-sm font-mono font-black ${
                   netResult.netWeight !== null ? 'text-emerald-800' : 'text-rose-700'
                 }`}>
-                  {netResult.netWeight !== null ? `${netResult.netWeight.toLocaleString()} كجم` : 'null'}
+                  {netResult.netWeight !== null ? t("operations.value_kg", { p0: netResult.netWeight.toLocaleString() }) : 'null'}
                 </span>
               </div>
               {netResult.validationErrors.length > 0 && (
@@ -346,7 +348,7 @@ export const WeightEngineView: React.FC = () => {
                   {netResult.validationErrors.map((err, i) => (
                     <div key={i} className="flex items-center gap-1.5">
                       <AlertTriangle className="w-3 h-3 shrink-0" />
-                      <span>{err}</span>
+                      <span>{operationalMessage(err)}</span>
                     </div>
                   ))}
                 </div>
@@ -433,12 +435,11 @@ export const WeightEngineView: React.FC = () => {
               varianceResult.isValid ? 'bg-indigo-50/50 border-indigo-200' : 'bg-rose-50/50 border-rose-200'
             }`}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold text-stone-700">الفارق الوزني (variance):</span>
+                <span className="text-xs font-semibold text-stone-700">{t("weight_engine.variance_label")}</span>
                 <div className="text-sm font-mono font-black text-indigo-900">
                   {varianceResult.variance !== null ? (
                     <>
-                      {varianceResult.variance > 0 ? `+${varianceResult.variance.toLocaleString()}` : varianceResult.variance.toLocaleString()} كجم
-                      {varianceResult.variancePercentage !== null && (
+                      {varianceResult.variance > 0 ? `+${varianceResult.variance.toLocaleString()}` : varianceResult.variance.toLocaleString()} {t("shared.units.kg")}{varianceResult.variancePercentage !== null && (
                         <span className="text-xs font-normal text-indigo-700 mr-1.5">
                           ({varianceResult.variancePercentage > 0 ? `+${varianceResult.variancePercentage}%` : `${varianceResult.variancePercentage}%`})
                         </span>
@@ -454,7 +455,7 @@ export const WeightEngineView: React.FC = () => {
                   {varianceResult.validationErrors.map((err, i) => (
                     <div key={i} className="flex items-center gap-1.5">
                       <AlertTriangle className="w-3 h-3 shrink-0" />
-                      <span>{err}</span>
+                      <span>{operationalMessage(err)}</span>
                     </div>
                   ))}
                 </div>
@@ -514,7 +515,7 @@ export const WeightEngineView: React.FC = () => {
                   disabled={toleranceMode === 'PERCENTAGE'}
                   value={ruleAbsolute}
                   onChange={(e) => setRuleAbsolute(e.target.value)}
-                  placeholder="500 كجم"
+                  placeholder={t("operations.500_kg")}
                   className="w-full bg-white border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-mono disabled:bg-stone-200 disabled:text-stone-400"
                 />
               </div>
@@ -538,7 +539,7 @@ export const WeightEngineView: React.FC = () => {
                   type="text"
                   value={evalVarianceInput}
                   onChange={(e) => setEvalVarianceInput(e.target.value)}
-                  placeholder="مثال: -350 كجم"
+                  placeholder={t("operations.example_350_kg")}
                   className="w-full bg-white border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-stone-900"
                 />
               </div>
@@ -549,7 +550,7 @@ export const WeightEngineView: React.FC = () => {
                   type="text"
                   value={evalLoadedNetInput}
                   onChange={(e) => setEvalLoadedNetInput(e.target.value)}
-                  placeholder="30000 كجم"
+                  placeholder={t("operations.30000_kg")}
                   className="w-full bg-white border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-mono"
                 />
               </div>
@@ -599,23 +600,21 @@ export const WeightEngineView: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-xs">{t("weighbridge.labels.details")}</span>
                   <span className="text-[11px] bg-white/80 px-2 py-0.5 rounded border border-stone-200 font-mono">
-                    النوع المطبق: {toleranceEvalResult.toleranceTypeApplied}
+                    {t("operations.applied_type")}{toleranceEvalResult.toleranceTypeApplied}
                   </span>
                   <span className="text-[11px] bg-white/80 px-2 py-0.5 rounded border border-stone-200 font-mono">
-                    الحد الفعال: {toleranceEvalResult.limitKg?.toLocaleString()} كجم
-                  </span>
+                    {t("operations.effective_limit")}{toleranceEvalResult.limitKg?.toLocaleString()} {t("shared.units.kg")}</span>
                   <span className="text-[11px] bg-white/80 px-2 py-0.5 rounded border border-stone-200 font-mono">
-                    حد التحذير (75%): {toleranceEvalResult.warningLimitKg?.toLocaleString()} كجم
-                  </span>
+                    {t("operations.warning_threshold_75")}{toleranceEvalResult.warningLimitKg?.toLocaleString()} {t("shared.units.kg")}</span>
                 </div>
                 
                 <span className="text-xs font-mono font-bold">
-                  الفارق الفعلي: {toleranceEvalResult.variance !== null ? `${toleranceEvalResult.variance} كجم` : 'null'}
+                  {t("operations.actual_variance")}{toleranceEvalResult.variance !== null ? t("operations.value_kg", { p0: toleranceEvalResult.variance }) : 'null'}
                 </span>
               </div>
 
               <p className="text-xs font-medium leading-relaxed">
-                {toleranceEvalResult.messageAr}
+                {operationalMessage(toleranceEvalResult.messageAr)}
               </p>
             </div>
           </div>
@@ -644,7 +643,7 @@ export const WeightEngineView: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[11px] font-semibold text-stone-700 mb-1">
-                  {t("weighbridge.labels.pricing")}</label>
+                  {t("operations.pricing_rule")}</label>
                 <select
                   value={selectedPricingRuleId}
                   onChange={(e) => setSelectedPricingRuleId(e.target.value)}
@@ -666,7 +665,7 @@ export const WeightEngineView: React.FC = () => {
                   type="text"
                   value={settlementNetInput}
                   onChange={(e) => setSettlementNetInput(e.target.value)}
-                  placeholder="null (اتركه فارغاً لاختبار القيمة المفقودة)"
+                  placeholder={t("operations.null_leave_empty_to_test_a_missing_value")}
                   className="w-full bg-stone-50 border border-stone-300 rounded-lg px-3 py-2 text-xs font-mono font-bold text-stone-900 focus:bg-white focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -703,7 +702,7 @@ export const WeightEngineView: React.FC = () => {
                 <div>
                   <span className="text-xs text-stone-500 block mb-0.5">{t("weighbridge.labels.txt_47e373")}</span>
                   <span className="text-xs font-bold text-stone-900 font-mono">
-                    {settlementResult.formula}
+                    {operationalMessage(settlementResult.formula)}
                   </span>
                 </div>
 
@@ -724,7 +723,7 @@ export const WeightEngineView: React.FC = () => {
                   {settlementResult.validationErrors.map((err, i) => (
                     <div key={i} className="flex items-center gap-1.5">
                       <AlertTriangle className="w-3 h-3 shrink-0" />
-                      <span>{err}</span>
+                      <span>{operationalMessage(err)}</span>
                     </div>
                   ))}
                 </div>
@@ -749,7 +748,7 @@ export const WeightEngineView: React.FC = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div>
-                <label className="block text-[11px] font-semibold text-stone-700 mb-1">معرف المشروع (projectId)</label>
+                <label className="block text-[11px] font-semibold text-stone-700 mb-1">{t("operations.project_id_projectid")}</label>
                 <input
                   type="text"
                   value={newRuleForm.projectId}
@@ -795,7 +794,7 @@ export const WeightEngineView: React.FC = () => {
               </div>
 
               <div className="lg:col-span-2">
-                <label className="block text-[11px] font-semibold text-stone-700 mb-1">اسم ووصف القاعدة</label>
+                <label className="block text-[11px] font-semibold text-stone-700 mb-1">{t("operations.rule_name_and_description")}</label>
                 <input
                   type="text"
                   value={newRuleForm.nameAr}
@@ -841,7 +840,7 @@ export const WeightEngineView: React.FC = () => {
           {/* List of Registered Tolerance Rules */}
           <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs space-y-3">
             <h3 className="text-sm font-bold text-stone-900">
-              قواعد التفاوت المسجلة بالنظام ({allRules.length})
+              {t("operations.registered_tolerance_rules")}{allRules.length})
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -857,13 +856,13 @@ export const WeightEngineView: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-2 gap-1 text-[11px] text-stone-600">
-                    <div>المشروع: <strong className="text-stone-800">{rule.projectId}</strong></div>
-                    <div>المادة: <strong className="text-stone-800">{rule.materialId}</strong></div>
+                    <div>{t("operations.project")}<strong className="text-stone-800">{rule.projectId}</strong></div>
+                    <div>{t("loading.labels.material_2")}<strong className="text-stone-800">{rule.materialId}</strong></div>
                     <div>
-                      التفاوت المطلق: {rule.absoluteTolerance !== null ? `${rule.absoluteTolerance} كجم` : 'غير محدد (null)'}
+                      {t("operations.absolute_tolerance")}{rule.absoluteTolerance !== null ? t("operations.value_kg", { p0: rule.absoluteTolerance }) : t("operations.not_specified_null")}
                     </div>
                     <div>
-                      تفاوت النسبة: {rule.percentageTolerance !== null ? `${rule.percentageTolerance} %` : 'غير محدد (null)'}
+                      {t("operations.percentage_tolerance")}{rule.percentageTolerance !== null ? `${rule.percentageTolerance} %` : t("operations.not_specified_null")}
                     </div>
                   </div>
                 </div>
@@ -903,15 +902,15 @@ export const WeightEngineView: React.FC = () => {
           {/* Metrics */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 text-center">
-              <span className="text-[10px] text-stone-500 block">إجمالي الفحوصات</span>
+              <span className="text-[10px] text-stone-500 block">{t("operations.total_checks")}</span>
               <span className="text-xl font-black text-stone-900">{testReport.summary.total}</span>
             </div>
             <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-center">
-              <span className="text-[10px] text-emerald-800 block">ناجحة (100%)</span>
+              <span className="text-[10px] text-emerald-800 block">{t("operations.passed_100")}</span>
               <span className="text-xl font-black text-emerald-800">{testReport.summary.passed}</span>
             </div>
             <div className="bg-rose-50 p-3 rounded-xl border border-rose-200 text-center">
-              <span className="text-[10px] text-rose-800 block">فاشلة</span>
+              <span className="text-[10px] text-rose-800 block">{t("operations.failed")}</span>
               <span className="text-xl font-black text-rose-800">{testReport.summary.failed}</span>
             </div>
           </div>
@@ -934,8 +933,7 @@ export const WeightEngineView: React.FC = () => {
                 </div>
 
                 <span className="bg-emerald-100 text-emerald-900 font-mono text-[10px] font-bold px-2 py-0.5 rounded shrink-0">
-                  PASSED
-                </span>
+                  {t("operations.passed")}</span>
               </div>
             ))}
           </div>
