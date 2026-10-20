@@ -1,6 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { describe, it, expect } from 'vitest';
+import ts from 'typescript';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { resolveTranslation } from '../i18n/utils';
 import { arTranslations } from '../locales/ar';
 import { enTranslations } from '../locales/en';
 import { urTranslations } from '../locales/ur';
@@ -67,10 +71,75 @@ describe('Block 73 P1 Directional UX Fixes Test Suite', () => {
     expect(loadingStationSource.includes('ArrowRight className="w-4 h-4 rtl:rotate-180"')).toBe(true);
   });
 
-  // B73-T11: Navigation button labels in LoadingStation remain byte-identical
-  it('B73-T11: Navigation button labels in LoadingStation remain byte-identical', () => {
-    expect(loadingStationSource.includes('<span>السابق</span>')).toBe(true);
-    expect(loadingStationSource.includes('<span>التالي ({STEPS[stepIndex + 1].label})</span>')).toBe(true);
+  // B73-T11: Navigation keeps translated previous/next labels and the real next step.
+  it('B73-T11: Navigation labels resolve canonically in AR/EN/UR and name the next workflow step', () => {
+    const source = ts.createSourceFile(loadingStationPath, loadingStationSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const buttons = new Map<string, ts.JsxElement>();
+    let stepKeys: string[] = [];
+    const visit = (node: ts.Node) => {
+      if (ts.isVariableDeclaration(node) && node.name.getText(source) === 'STEPS' && node.initializer && ts.isArrayLiteralExpression(node.initializer)) {
+        stepKeys = node.initializer.elements.map(element => {
+          expect(ts.isObjectLiteralExpression(element)).toBe(true);
+          const label = (element as ts.ObjectLiteralExpression).properties.find(property => ts.isPropertyAssignment(property) && property.name.getText(source) === 'label') as ts.PropertyAssignment;
+          expect(label && ts.isStringLiteral(label.initializer)).toBe(true);
+          return (label.initializer as ts.StringLiteral).text;
+        });
+      }
+      if (ts.isJsxElement(node) && node.openingElement.tagName.getText(source) === 'button') {
+        const click = node.openingElement.attributes.properties.find(property => ts.isJsxAttribute(property) && property.name.getText(source) === 'onClick') as ts.JsxAttribute | undefined;
+        if (click?.initializer && ts.isJsxExpression(click.initializer) && click.initializer.expression) {
+          const handler = click.initializer.expression.getText(source);
+          if (['goToPrevStep', 'goToNextStep'].includes(handler)) buttons.set(handler, node);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+    expect(stepKeys.length).toBeGreaterThan(1);
+    expect([...buttons.keys()].sort()).toEqual(['goToNextStep', 'goToPrevStep']);
+
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const dictionary = { ar: arTranslations, en: enTranslations, ur: urTranslations }[locale];
+      for (let stepIndex = 0; stepIndex < stepKeys.length - 1; stepIndex++) {
+        for (const handler of ['goToPrevStep', 'goToNextStep']) {
+          const button = buttons.get(handler)!;
+          const span = button.children.find(child => ts.isJsxElement(child) && child.openingElement.tagName.getText(source) === 'span') as ts.JsxElement;
+          expect(span, handler).toBeDefined();
+          const consumedKeys: string[] = [];
+          // Interpret only the actual label expressions, not the component or services.
+          const evaluate = (node: ts.Expression): unknown => {
+            if (ts.isStringLiteralLike(node)) return node.text;
+            if (ts.isNumericLiteral(node)) return Number(node.text);
+            if (ts.isIdentifier(node) && node.text === 'stepIndex') return stepIndex;
+            if (ts.isIdentifier(node) && node.text === 'STEPS') return stepKeys.map(label => ({ label }));
+            if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) return Number(evaluate(node.left)) + Number(evaluate(node.right));
+            if (ts.isElementAccessExpression(node)) return (evaluate(node.expression) as unknown[])[Number(evaluate(node.argumentExpression))];
+            if (ts.isPropertyAccessExpression(node) && node.name.text === 'label') return (evaluate(node.expression) as { label: string }).label;
+            if (ts.isCallExpression(node) && ['t', 'translate'].includes(node.expression.getText(source))) {
+              const key = String(evaluate(node.arguments[0]));
+              consumedKeys.push(key);
+              expect(Object.hasOwn(dictionary, key), `${locale}: ${key}`).toBe(true);
+              return resolveTranslation(key, locale);
+            }
+            throw new Error(`Unsupported or unmanaged navigation label: ${node.getText(source)}`);
+          };
+          const text = span.children.map(child => {
+            if (ts.isJsxText(child)) {
+              expect(child.text.trim()).not.toMatch(/[A-Za-z\u0600-\u06ff]/);
+              return child.text.trim();
+            }
+            if (ts.isJsxExpression(child) && child.expression) return String(evaluate(child.expression));
+            throw new Error('Unexpected navigation label markup');
+          }).join('');
+          const expected = handler === 'goToPrevStep'
+            ? dictionary['field_operations.prev_btn']
+            : `${dictionary['field_operations.next_btn']} (${dictionary[stepKeys[stepIndex + 1]]})`;
+          expect(renderToStaticMarkup(createElement('span', null, text))).toBe(renderToStaticMarkup(createElement('span', null, expected)));
+          expect(consumedKeys.length).toBeGreaterThan(0);
+          if (handler === 'goToNextStep') expect(consumedKeys).toContain(stepKeys[stepIndex + 1]);
+        }
+      }
+    }
   });
 
   // B73-T13: Navigation click handlers in LoadingStation remain wired to goToPrevStep and goToNextStep

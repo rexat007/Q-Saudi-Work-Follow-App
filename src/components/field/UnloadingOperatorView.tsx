@@ -1,3 +1,4 @@
+import { presentOperationalMessage } from "../../i18n/operationalMessages";
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Scale, 
@@ -60,6 +61,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   onNotification
 }) => {
   const { t, isRTL } = useI18n();
+  const operationalMessage = (message: string) => presentOperationalMessage(message, t);
   const { isOnline } = useOnlineStatus();
 
   // Role Authorization Check (Dispatchers and Drivers forbidden at destination weighbridge)
@@ -164,7 +166,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       setActiveTrip(null);
       setSearchFeedback({
         status: 'SECURITY',
-        message: 'حظر رقابي: لا يُسمح باستخدام لوحة الشاحنة (truckPlate) وحدها لتحديد الرحلة منعاً للتداخل بين رحلات الشاحنة المتعددة عبر الورديات. يُرجى البحث برقم الرحلة (tripSerial) أو رقم التذكرة (ticketId) أو معرف الشاحنة (truckId).'
+        message: t("operations.control_block_a_truck_plate_truckplate_alone_cannot_identify")
       });
       return;
     }
@@ -178,7 +180,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         setActiveTrip(null);
         setSearchFeedback({
           status: 'AMBIGUOUS',
-          message: `تنبيه غامض (AMBIGUOUS): تم العثور على أكثر من رحلة (${matchByTripSerial.length}) مطابقة لنفس الرقم التسلسلي. يلزم تحديد الرحلة يدوياً لمنع الخطأ.`
+          message: t("operations.ambiguous_match_value_trips_share_this_serial_number_select", { p0: matchByTripSerial.length })
         });
       }
       return;
@@ -193,7 +195,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         setActiveTrip(null);
         setSearchFeedback({
           status: 'AMBIGUOUS',
-          message: `تنبيه غامض (AMBIGUOUS): تم العثور على أكثر من رحلة (${matchByTicketId.length}) بنفس رقم التذكرة. يلزم تحديد الرحلة يدوياً.`
+          message: t("operations.ambiguous_match_value_trips_share_this_ticket_number_select", { p0: matchByTicketId.length })
         });
       }
       return;
@@ -208,7 +210,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         setActiveTrip(null);
         setSearchFeedback({
           status: 'AMBIGUOUS',
-          message: `تنبيه غامض (AMBIGUOUS): تم العثور على أكثر من رحلة (${matchByTruckId.length}) بنفس معرف الشاحنة. يلزم تحديد الرحلة يدوياً.`
+          message: t("operations.ambiguous_match_value_trips_share_this_truck_id_select", { p0: matchByTruckId.length })
         });
       }
       return;
@@ -217,7 +219,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
     setActiveTrip(null);
     setSearchFeedback({
       status: 'NOT_FOUND',
-      message: 'لم يتم العثور على أي رحلة مطابقة لمعيار البحث المدخل.'
+      message: t("operations.no_trip_matches_the_search_criteria")
     });
   };
 
@@ -225,7 +227,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
     setActiveTrip(trip);
     setSearchFeedback({
       status: 'CONTINUE',
-      message: `تم التعرف على الرحلة بنجاح: ${trip.tripSerial} عبر معيار (${matchedBy})`
+      message: t("operations.trip_identified_value_matched_by_value", { p0: trip.tripSerial, p1: matchedBy })
     });
     if (trip.destNetWeight) {
       setDestNetWeightInput(trip.destNetWeight);
@@ -290,12 +292,12 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       if (onNotification) {
         onNotification({
           type: 'SUCCESS',
-          message: `تم تسجيل وصول الشاحنة للموقع بنجاح [ARRIVED] - تذكرة ${activeTrip.ticketId}`
+          message: t("operations.truck_arrival_recorded_arrived_ticket_value", { p0: activeTrip.ticketId })
         });
       }
     } catch (err: any) {
       if (onNotification) {
-        onNotification({ type: 'ERROR', message: err.message || 'تعذر تسجيل وصول الشاحنة.' });
+        onNotification({ type: 'ERROR', message: operationalMessage(err.message || "") || t("operations.could_not_record_truck_arrival") });
       }
     }
   };
@@ -333,12 +335,12 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       if (onNotification) {
         onNotification({
           type: 'SUCCESS',
-          message: `تم بدء تفريغ الحمولة [UNLOADING] وتكليف مسؤول الاستلام (${authContext.displayName}).`
+          message: t("operations.unloading_started_unloading_and_receiver_value_assigned", { p0: authContext.displayName })
         });
       }
     } catch (err: any) {
       if (onNotification) {
-        onNotification({ type: 'ERROR', message: err.message || 'تعذر بدء تفريغ الحمولة.' });
+        onNotification({ type: 'ERROR', message: operationalMessage(err.message || "") || t("operations.could_not_start_unloading") });
       }
     }
   };
@@ -355,7 +357,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
     if (onNotification) {
       onNotification({
         type: 'SUCCESS',
-        message: `تم تطبيق قرار: اعتماد صريح لصافي وزن المصدر (${activeTrip.netWeight.toLocaleString()} كجم) كوزن استلام معتمد.`
+        message: t("operations.decision_applied_origin_net_weight_value_kg_explicitly_approved", { p0: activeTrip.netWeight.toLocaleString() })
       });
     }
   };
@@ -368,7 +370,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       if (onNotification) {
         onNotification({
           type: 'ERROR',
-          message: 'يجب إدخال قراءة صافي وزن الوصول (Destination Net) كقيمة موجبة أكبر من صفر.'
+          message: t("operations.enter_a_positive_destination_net_weight_greater_than_zero")
         });
       }
       return;
@@ -442,7 +444,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         if (syncRes.failedCount > 0) {
           const ops = await outboxService.getOperations();
           const lastOp = ops.filter(o => o.payload.tripId === activeTrip.tripId).pop();
-          throw new Error(lastOp?.errorReason || 'فشلت مزامنة الاستلام مع الخادم.');
+          throw new Error(lastOp?.errorReason || t("operations.failed_to_synchronize_receiving_with_the_server"));
         }
 
         const finalTrip = syncedRecord || updatedTrip;
@@ -465,20 +467,20 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         if (onNotification) {
           onNotification({
             type: 'SECURITY',
-            message: `تنبيه رقابي: فارق الوزن (${varianceWeight.toLocaleString()} كجم) تجاوز حد التسامح! تم تسجيل تذكرة الاستلام وتجميد التسوية لحين الاعتماد.`
+            message: t("operations.control_warning_weight_variance_value_kg_exceeds_tolerance_receiving", { p0: varianceWeight.toLocaleString() })
           });
         }
       } else {
         if (onNotification) {
           onNotification({
             type: 'SUCCESS',
-            message: `تم إكمال التفريغ بنجاح! تم احتساب فارق الوزن (${varianceWeight.toLocaleString()} كجم) وترقية الحالة إلى [COMPLETED].`
+            message: t("operations.unloading_completed_weight_variance_value_kg_calculated_and_status", { p0: varianceWeight.toLocaleString() })
           });
         }
       }
     } catch (err: any) {
       if (onNotification) {
-        onNotification({ type: 'ERROR', message: err.message || 'تعذر إكمال عملية التفريغ.' });
+        onNotification({ type: 'ERROR', message: operationalMessage(err.message || "") || t("operations.could_not_complete_unloading") });
       }
     } finally {
       setIsSubmitting(false);
@@ -498,16 +500,15 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   // =========================================================================
   if (!isAuthorized) {
     return (
-      <div className="bg-white rounded-2xl border border-rose-200 p-8 text-center max-w-xl mx-auto my-12 shadow-sm" dir="rtl">
+      <div className="bg-white rounded-2xl border border-rose-200 p-8 text-center max-w-xl mx-auto my-12 shadow-sm" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="w-16 h-16 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto mb-4 border border-rose-200">
           <ShieldAlert className="w-8 h-8" />
         </div>
-        <h2 className="text-lg font-bold text-stone-900 mb-2">غير مصرح بدخول واجهة استلام وتفريغ الموقع</h2>
+        <h2 className="text-lg font-bold text-stone-900 mb-2">{t("field_operations.unloading_unauthorized_title")}</h2>
         <p className="text-xs text-stone-600 mb-6 leading-relaxed">
-          دورك الحالي (<span className="font-bold text-rose-700 font-mono">{authContext.role}</span>) غير مصرح له بإتمام عمليات وزن الاستلام أو إغلاق الرحلات المفرغة. هذه الواجهة مخصصة لمشغلي موازين المواقع ومسؤولي الاستلام (Site Receivers) ومديري المشاريع.
-        </p>
+          {t("operations.your_current_role_2")}<span className="font-bold text-rose-700 font-mono">{authContext.role}</span>{t("operations.cannot_complete_receiving_weights_or_close_unloaded_trips_this")}</p>
         <div className="bg-stone-50 rounded-xl p-3 border border-stone-200 text-xs text-stone-500 font-mono">
-          USER: {authContext.displayName} ({authContext.userId})
+          {t("operations.user")}{authContext.displayName} ({authContext.userId})
         </div>
       </div>
     );
@@ -519,7 +520,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   if (completionResult && activeTrip) {
     const isOut = completionResult.isOutOfTolerance;
     return (
-      <div className="max-w-2xl mx-auto space-y-6 animate-fadeIn text-right" dir="rtl">
+      <div className="max-w-2xl mx-auto space-y-6 animate-fadeIn text-right" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Success Header Banner */}
         <div className={`rounded-2xl p-6 shadow-md flex items-center justify-between gap-4 text-white ${
           isOut ? 'bg-amber-600' : 'bg-emerald-700'
@@ -530,10 +531,10 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-bold">
-                {isOut ? 'تم توثيق التفريغ مع رصد استثناء وزني' : 'تم إكمال الاستلام والتفريغ ومطابقة الوزن'}
+                {isOut ? t("operations.unloading_recorded_with_a_weight_exception") : t("operations.receiving_unloading_and_weight_matching_completed")}
               </h2>
               <p className="text-xs text-white/90 font-mono mt-0.5">
-                تذكرة: {activeTrip.ticketId} • الرقم التسلسلي: {activeTrip.tripSerial}
+                {t("operations.ticket")}{activeTrip.ticketId} {t("operations.serial_number")}{activeTrip.tripSerial}
               </p>
             </div>
           </div>
@@ -546,8 +547,8 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         <div className="bg-white rounded-2xl border-2 border-stone-300 p-6 shadow-sm space-y-6">
           <div className="border-b border-stone-200 pb-4 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-stone-900 text-base">سند استلام وتفريغ الشحنة بموقع المشروع</h3>
-              <p className="text-xs text-stone-500 mt-0.5">محطة ميزان الاستلام والتفريغ • الموقع النهائي</p>
+              <h3 className="font-bold text-stone-900 text-base">{t("field_operations.receive_receipt_title")}</h3>
+              <p className="text-xs text-stone-500 mt-0.5">{t("field_operations.receive_receipt_sub")}</p>
             </div>
             <span className="text-xs text-stone-500 font-mono">{activeTrip.unloadTime?.slice(0, 19).replace('T', ' ')}</span>
           </div>
@@ -555,24 +556,24 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
           {/* Weight & Variance Comparison Card */}
           <div className="grid grid-cols-3 gap-3 text-center">
             <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200">
-              <span className="text-[11px] text-stone-500 block mb-1">وزن المصدر (Origin Net)</span>
+              <span className="text-[11px] text-stone-500 block mb-1">{t("operations.origin_net_weight")}</span>
               <span className="text-lg sm:text-xl font-black text-stone-900 font-mono">{activeTrip.netWeight.toLocaleString()}</span>
-              <span className="text-[10px] text-stone-400 block">كجم</span>
+              <span className="text-[10px] text-stone-400 block">{t("shared.units.kg")}</span>
             </div>
             <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200">
-              <span className="text-[11px] text-stone-500 block mb-1">وزن الاستلام (Dest Net)</span>
+              <span className="text-[11px] text-stone-500 block mb-1">{t("operations.receiving_net_weight")}</span>
               <span className="text-lg sm:text-xl font-black text-stone-900 font-mono">{activeTrip.destNetWeight?.toLocaleString()}</span>
-              <span className="text-[10px] text-stone-400 block">كجم</span>
+              <span className="text-[10px] text-stone-400 block">{t("shared.units.kg")}</span>
             </div>
             <div className={`p-3.5 rounded-xl border ${
               isOut ? 'bg-rose-50 border-rose-300 text-rose-900' : 'bg-emerald-50 border-emerald-300 text-emerald-950'
             }`}>
-              <span className="text-[11px] font-bold block mb-1">فارق الميزان (Variance)</span>
+              <span className="text-[11px] font-bold block mb-1">{t("operations.scale_variance")}</span>
               <span className="text-lg sm:text-xl font-black font-mono">
                 {activeTrip.varianceWeight !== null && activeTrip.varianceWeight > 0 ? `+${activeTrip.varianceWeight.toLocaleString()}` : activeTrip.varianceWeight?.toLocaleString()}
               </span>
               <span className="text-[10px] block font-bold">
-                {completionResult.variancePercent !== undefined ? `${completionResult.variancePercent}%` : ''} ({isOut ? 'خارج التفاوت' : 'مطابق'})
+                {completionResult.variancePercent !== undefined ? `${completionResult.variancePercent}%` : ''} ({isOut ? t("field_operations.out_of_tolerance") : t("operations.matched")})
               </span>
             </div>
           </div>
@@ -582,7 +583,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
             <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-xs text-amber-950 space-y-1.5">
               <div className="flex items-center gap-2 font-bold text-amber-900">
                 <AlertTriangle className="w-4 h-4 text-amber-700" />
-                <span>تم إنشاء استثناء رقابي رسمي رقم: {completionResult.exceptionCreated.exceptionId}</span>
+                <span>{t("operations.official_control_exception_created_number")}{completionResult.exceptionCreated.exceptionId}</span>
               </div>
               <p className="text-[11px] leading-relaxed text-amber-900">
                 {completionResult.exceptionCreated.reasonAr}
@@ -597,7 +598,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
               className="w-full sm:flex-1 py-3.5 px-4 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>استلام شاحنة تالية (Receive Next Inbound Truck)</span>
+              <span>{t("operations.receive_next_inbound_truck")}</span>
             </button>
           </div>
         </div>
@@ -609,7 +610,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   // MAIN FIELD WORKSTATION INTERFACE: IDENTIFY -> CAPTURE -> VALIDATE -> ACT
   // =========================================================================
   return (
-    <div className="max-w-6xl mx-auto space-y-6 text-right pb-12" dir="rtl">
+    <div className="max-w-6xl mx-auto space-y-6 text-right pb-12" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Station Identity Banner */}
       <div className="bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -618,14 +619,13 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-base sm:text-lg font-black text-stone-900">محطة استلام وتفريغ الموقع الميدانية</h1>
+              <h1 className="text-base sm:text-lg font-black text-stone-900">{t("field_operations.unloading_station_title")}</h1>
               <span className="bg-emerald-100 text-emerald-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
                 {t("field_operations.unloading_operator")}
               </span>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
-              مطابقة الشاحنات الواصلة، قراءة موازين الوصول، احتساب فارق الأوزان خادومياً، وإغلاق الرحلات المفرغة.
-            </p>
+              {t("field_operations.unloading_station_desc")}</p>
           </div>
         </div>
 
@@ -633,7 +633,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-stone-100 text-stone-800 border border-stone-200">
             <Truck className="w-3.5 h-3.5 text-amber-600" />
-            <span>شاحنات في المسار: {inboundTrips.length}</span>
+            <span>{t("operations.trucks_in_transit")}{inboundTrips.length}</span>
           </span>
         </div>
       </div>
@@ -651,14 +651,13 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                 <span className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">1</span>
                 <h2 className="font-bold text-stone-900 text-sm">{t("field_operations.identify_unloading")}</h2>
               </div>
-              <span className="text-[11px] text-stone-400">مسح باركود أو اختيار فوري</span>
+              <span className="text-[11px] text-stone-400">{t("field_operations.barcode_or_select")}</span>
             </div>
 
             {/* Fast Search Input */}
             <div className="space-y-2">
               <label className="block text-xs font-bold text-stone-700">
-                أدخل الرقم التسلسلي، رقم التذكرة، أو رقم الشاحنة
-              </label>
+                {t("field_operations.search_trip_input_label")}</label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <input
@@ -666,7 +665,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearchTrip()}
-                    placeholder="مثال: TRP-NEOM-8892 أو WB-TKT-104921"
+                    placeholder={t("field_operations.search_placeholder")}
                     className="w-full bg-stone-50 border border-stone-300 rounded-xl ps-9 pe-4 py-3 text-xs font-mono font-bold text-stone-900 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                   />
                   <Search className="w-4 h-4 text-stone-400 absolute start-3 top-3.5" />
@@ -676,8 +675,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                   onClick={() => handleSearchTrip()}
                   className="px-4 py-3 bg-stone-900 hover:bg-black text-white rounded-xl text-xs font-bold transition-all shrink-0"
                 >
-                  بحث
-                </button>
+                  {t("field_operations.search_button")}</button>
               </div>
 
               {/* Feedback Notice */}
@@ -702,13 +700,13 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
             {/* In-Transit Quick Picker (Zero Typing!) */}
             <div className="pt-1">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-stone-700">شاحنات واصلة وقيد الترحيل (اختيار سريع بلمسة):</span>
-                <span className="text-[10px] text-stone-400">{inboundTrips.length} شاحنة</span>
+                <span className="text-xs font-bold text-stone-700">{t("operations.arriving_and_dispatched_trucks_tap_to_select")}</span>
+                <span className="text-[10px] text-stone-400">{inboundTrips.length} {t("operations.truck")}</span>
               </div>
 
               <div className="space-y-2 max-h-56 overflow-y-auto p-0.5">
                 {inboundTrips.length === 0 ? (
-                  <p className="text-xs text-stone-400 py-4 text-center">لا توجد شاحنات قيد الترحيل حالياً لهذا الموقع.</p>
+                  <p className="text-xs text-stone-400 py-4 text-center">{t("field_operations.no_inbound_trips")}</p>
                 ) : (
                   inboundTrips.map(trip => {
                     const isSelected = activeTrip?.tripId === trip.tripId;
@@ -736,8 +734,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                             </span>
                           </div>
                           <span className="text-[11px] text-stone-500 block mt-0.5 font-mono">
-                            {trip.truckId} • الصافي: {trip.netWeight.toLocaleString()} كجم
-                          </span>
+                            {trip.truckId} {t("operations.net")}{trip.netWeight.toLocaleString()} {t("shared.units.kg")}</span>
                         </div>
                         {isSelected && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
                       </button>
@@ -754,38 +751,38 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
               <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
                 <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
                   <Truck className="w-4 h-4 text-amber-700" />
-                  <span>بيانات الحمولة المنطلقة من المصدر</span>
+                  <span>{t("operations.origin_shipment_details")}</span>
                 </span>
-                <span className="text-[10px] font-mono text-stone-500">تذكرة: {activeTrip.ticketId}</span>
+                <span className="text-[10px] font-mono text-stone-500">{t("operations.ticket")}{activeTrip.ticketId}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-xs bg-stone-50 p-3 rounded-xl border border-stone-200">
                 <div>
-                  <span className="text-stone-400 block text-[10px]">الشاحنة / اللوحة</span>
+                  <span className="text-stone-400 block text-[10px]">{t("operations.truck_plate")}</span>
                   <span className="font-bold text-stone-900 font-mono">{activeTrip.truckId}</span>
                 </div>
                 <div>
-                  <span className="text-stone-400 block text-[10px]">الناقل</span>
+                  <span className="text-stone-400 block text-[10px]">{t("entityResolution.labels.carrier_3")}</span>
                   <span className="font-bold text-stone-900 truncate block">{activeTrip.carrierId}</span>
                 </div>
                 <div>
-                  <span className="text-stone-400 block text-[10px]">السائق</span>
+                  <span className="text-stone-400 block text-[10px]">{t("entityResolution.labels.driver_2")}</span>
                   <span className="font-bold text-stone-900 truncate block">{activeTrip.driverId}</span>
                 </div>
                 <div>
-                  <span className="text-stone-400 block text-[10px]">المادة الموردة</span>
+                  <span className="text-stone-400 block text-[10px]">{t("field_operations.supplied_material")}</span>
                   <span className="font-bold text-stone-900 truncate block">{activeTrip.materialId}</span>
                 </div>
               </div>
 
               <div className="bg-amber-50 p-3 rounded-xl border border-amber-200 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-bold text-amber-950 block">صافي وزن الانطلاق (Origin Net)</span>
-                  <span className="text-[10px] text-amber-700 block">موثق من ميزان المصدر</span>
+                  <span className="text-[11px] font-bold text-amber-950 block">{t("operations.origin_net_weight_2")}</span>
+                  <span className="text-[10px] text-amber-700 block">{t("operations.recorded_by_the_origin_scale")}</span>
                 </div>
                 <div className="text-left font-mono">
-                  <div className="text-lg font-black text-amber-950">{activeTrip.netWeight.toLocaleString()} كجم</div>
-                  <div className="text-[11px] text-amber-800 font-semibold">({(activeTrip.netWeight / 1000).toFixed(3)} طن)</div>
+                  <div className="text-lg font-black text-amber-950">{activeTrip.netWeight.toLocaleString()} {t("shared.units.kg")}</div>
+                  <div className="text-[11px] text-amber-800 font-semibold">({(activeTrip.netWeight / 1000).toFixed(3)} {t("operations.tons")}</div>
                 </div>
               </div>
             </div>
@@ -799,8 +796,8 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
           {!activeTrip ? (
             <div className="bg-white rounded-2xl border border-dashed border-stone-300 p-12 text-center text-stone-400">
               <Scale className="w-12 h-12 mx-auto mb-3 text-stone-300" />
-              <p className="text-sm font-bold text-stone-600">اختر أو ابحث عن رحلة لتفعيل محطة الوزن والتفريغ</p>
-              <p className="text-xs text-stone-400 mt-1">يمكنك النقر على أي شاحنة في قائمة الشاحنات في المسار أعلاه.</p>
+              <p className="text-sm font-bold text-stone-600">{t("field_operations.select_trip_prompt")}</p>
+              <p className="text-xs text-stone-400 mt-1">{t("field_operations.select_trip_subprompt")}</p>
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs space-y-5">
@@ -818,8 +815,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                       weightEntryMode === 'DIRECT' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500'
                     }`}
                   >
-                    صافي مباشر
-                  </button>
+                    {t("field_operations.direct_net_btn")}</button>
                   <button
                     type="button"
                     onClick={() => setWeightEntryMode('DUAL_SCALE')}
@@ -827,8 +823,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                       weightEntryMode === 'DUAL_SCALE' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500'
                     }`}
                   >
-                    قائم وفارغ
-                  </button>
+                    {t("field_operations.gross_tare_btn")}</button>
                 </div>
               </div>
 
@@ -836,7 +831,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
               {weightEntryMode === 'DUAL_SCALE' ? (
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 space-y-1">
-                    <label className="text-[11px] font-bold text-stone-700 block">الوزن القائم بالوصول (كجم)</label>
+                    <label className="text-[11px] font-bold text-stone-700 block">{t("field_operations.arrival_gross_kg")}</label>
                     <input
                       type="number"
                       value={destGrossInput || ''}
@@ -845,7 +840,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                     />
                   </div>
                   <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 space-y-1">
-                    <label className="text-[11px] font-bold text-stone-700 block">وزن الفارغ بعد التفريغ (كجم)</label>
+                    <label className="text-[11px] font-bold text-stone-700 block">{t("field_operations.tare_after_unload_kg")}</label>
                     <input
                       type="number"
                       value={destTareInput || ''}
@@ -875,7 +870,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                         type="button"
                         onClick={() => setDestNetWeightInput(prev => typeof prev === 'number' ? Math.max(0, prev - 100) : 0)}
                         className="w-10 h-10 rounded-xl bg-white border border-stone-200 hover:bg-stone-100 flex items-center justify-center text-stone-700 font-bold"
-                        title="-100 كجم"
+                        title={t("field_operations.adjust_minus_100")}
                       >
                         <Minus className="w-4 h-4" />
                       </button>
@@ -883,7 +878,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                         type="button"
                         onClick={() => setDestNetWeightInput(prev => typeof prev === 'number' ? prev + 100 : 100)}
                         className="w-10 h-10 rounded-xl bg-white border border-stone-200 hover:bg-stone-100 flex items-center justify-center text-stone-700 font-bold"
-                        title="+100 كجم"
+                        title={t("field_operations.adjust_plus_100")}
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -892,21 +887,19 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
 
                   {/* Quick Tolerance Simulation Presets */}
                   <div className="flex gap-2 flex-wrap pt-1">
-                    <span className="text-[10px] text-stone-400 py-1">محاكاة:</span>
+                    <span className="text-[10px] text-stone-400 py-1">{t("operations.simulation")}</span>
                     <button
                       type="button"
                       onClick={() => setDestNetWeightInput(activeTrip.netWeight - 150)}
                       className="text-[10px] bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded font-semibold"
                     >
-                      فارق مقبول (-150 كجم)
-                    </button>
+                      {t("operations.acceptable_variance_150_kg")}</button>
                     <button
                       type="button"
                       onClick={() => setDestNetWeightInput(activeTrip.netWeight - 2500)}
                       className="text-[10px] bg-white hover:bg-rose-50 text-rose-800 border border-rose-300 px-2 py-0.5 rounded font-semibold"
                     >
-                      فارق متجاوز (-2,500 كجم)
-                    </button>
+                      {t("operations.excessive_variance_2_500_kg")}</button>
                   </div>
                 </div>
               )}
@@ -916,16 +909,15 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
               {/* ========================================================================= */}
               <div className="bg-stone-50 border border-stone-200 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="text-right">
-                  <span className="text-xs font-bold text-stone-800 block">مطابقة وزن المصدر مباشرة</span>
-                  <span className="text-[10px] text-stone-500 block">اعتماد وزن المصدر عند عدم وجود ميزان وصول أو عند المعايرة المطابقة</span>
+                  <span className="text-xs font-bold text-stone-800 block">{t("operations.match_origin_weight_directly")}</span>
+                  <span className="text-[10px] text-stone-500 block">{t("operations.approve_origin_weight_when_no_destination_scale_is_available")}</span>
                 </div>
                 <button
                   type="button"
                   onClick={handleAcceptOriginNet}
                   className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-stone-100 text-stone-900 border border-stone-300 rounded-xl text-xs font-bold transition-all shrink-0 shadow-2xs"
                 >
-                  اعتماد صافي وزن المصدر كوزن استلام
-                </button>
+                  {t("operations.approve_origin_net_as_receiving_weight")}</button>
               </div>
 
               {/* Live Variance Calculation & Tolerance Gauge */}
@@ -940,16 +932,14 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                       <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                     )}
                     <div>
-                      <span className="text-xs font-bold text-stone-900 block">فارق الوزن المحسوب (Variance)</span>
+                      <span className="text-xs font-bold text-stone-900 block">{t("operations.calculated_weight_variance")}</span>
                       <span className="text-[10px] text-stone-500">
-                        حد التسامح المسموح: ±{tolerancePercent}% (حد أقصى ±{effectiveTolerance.toLocaleString()} كجم)
-                      </span>
+                        {t("operations.allowed_tolerance")}{tolerancePercent}{t("operations.maximum")}{effectiveTolerance.toLocaleString()} {t("operations.kg")}</span>
                     </div>
                   </div>
                   <div className="text-left font-mono">
                     <div className={`text-xl font-black ${isOutOfTolerance ? 'text-rose-900' : 'text-emerald-950'}`}>
-                      {liveVariance !== null && liveVariance > 0 ? `+${liveVariance.toLocaleString()}` : liveVariance?.toLocaleString()} كجم
-                    </div>
+                      {liveVariance !== null && liveVariance > 0 ? `+${liveVariance.toLocaleString()}` : liveVariance?.toLocaleString()} {t("shared.units.kg")}</div>
                     <div className="text-xs font-bold text-stone-600">
                       {liveVariancePct !== null ? `${liveVariancePct}%` : '0%'}
                     </div>
@@ -959,24 +949,22 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                 <div className="text-[11px] font-semibold text-stone-600">
                   {isOutOfTolerance ? (
                     <span className="text-rose-800">
-                      تحذير: الفارق يتجاوز نسبة التسامح المسموحة! سيتم فتح استثناء رقابي وتجميد التسوية تلقائياً.
-                    </span>
+                      {t("field_operations.variance_warning_excess")}</span>
                   ) : (
                     <span className="text-emerald-800">
-                      الوزن سليم وضمن حدود التسامح التعاقدية. جاهز للإغلاق والتسوية.
-                    </span>
+                      {t("field_operations.variance_ok")}</span>
                   )}
                 </div>
               </div>
 
               {/* Notes Input */}
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">ملاحظات مسؤول الاستلام بالموقع</label>
+                <label className="block text-xs font-bold text-stone-700 mb-1">{t("field_operations.unloader_notes_label")}</label>
                 <input
                   type="text"
                   value={notesInput}
                   onChange={(e) => setNotesInput(e.target.value)}
-                  placeholder="ملاحظات تفريغ، حالة المواد، سبب التفاوت إن وجد..."
+                  placeholder={t("field_operations.unloader_notes_placeholder")}
                   className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                 />
               </div>
@@ -992,7 +980,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                     className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 min-h-[48px]"
                   >
                     <Clock className="w-4 h-4" />
-                    <span>توثيق وصول الشاحنة للموقع (Record Arrival ➔ ARRIVED)</span>
+                    <span>{t("operations.record_truck_arrival_at_site_arrived")}</span>
                   </button>
                 )}
 
@@ -1003,7 +991,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                     className="w-full py-3.5 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 min-h-[48px]"
                   >
                     <Boxes className="w-4 h-4" />
-                    <span>بدء تفريغ الحمولة بالموقع (Start Unloading ➔ UNLOADING)</span>
+                    <span>{t("operations.start_unloading_at_site_unloading")}</span>
                   </button>
                 )}
 
@@ -1023,17 +1011,17 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                   {isSubmitting ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>جاري مطابقة الفارق خادومياً...</span>
+                      <span>{t("operations.matching_variance_on_the_server")}</span>
                     </>
                   ) : activeTrip.status === 'COMPLETED' ? (
                     <>
                       <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                      <span>الرحلة مفرغة ومكتملة مسبقاً (COMPLETED)</span>
+                      <span>{t("operations.trip_already_unloaded_and_completed_completed")}</span>
                     </>
                   ) : (
                     <>
                       <FileCheck2 className="w-5 h-5" />
-                      <span>إكمال التفريغ والمطابقة الخادومية (Complete & Verify Variance)</span>
+                      <span>{t("operations.complete_unloading_and_verify_variance_on_the_server")}</span>
                     </>
                   )}
                 </button>

@@ -1,3 +1,4 @@
+import { presentOperationalMessage } from "../../i18n/operationalMessages";
 import { canonicalRelationshipContextService } from "../../services/canonicalRelationshipContext.service";
 import { ProjectEntity } from '../../types/entities';
 import { RelationshipContext } from '../../types/dataQuality';
@@ -62,7 +63,8 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   onTripCreated,
   onNotification
 }) => {
-  const { t, isRTL } = useI18n();
+  const { t: translate, t, isRTL } = useI18n();
+  const operationalMessage = (message: string) => presentOperationalMessage(message, translate);
   const { isOnline, isSimulatedOffline } = useOnlineStatus();
 
   // Role Authorization Check
@@ -92,7 +94,8 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   const availableProjects = useMemo(() => {
     const all = projectsList.map(p => ({
       id: p.projectId,
-      name: t("field_operations.project_display", {
+      name: translate("field_operations.project_display", {
+        name: p.nameAr,
         nameAr: p.nameAr,
         nameEn: p.nameEn || p.nameAr,
         id: p.projectId
@@ -102,7 +105,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
       return all;
     }
     return all.filter(p => authContext.assignedProjectIds!.includes(p.id));
-  }, [projectsList, authContext, t]);
+  }, [projectsList, authContext, t, translate]);
 
   // Form State: Project and Entity Selections (no mock defaults)
   const [projectId, setProjectId] = useState<string>('');
@@ -258,93 +261,93 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   // Estimated Settlement Calculation (Read-Only Preview)
   const settlementPreview = useMemo(() => {
     if (!activePricingRule) {
-      return { amount: 0, text: 'لا توجد تسعيرة سارية', currency: 'SAR', pricingType: 'PER_TON' };
+      return { amount: 0, text: translate("field_operations.no_active_rate"), currency: 'SAR', pricingType: 'PER_TON' };
     }
     if (activePricingRule.pricingType === 'PER_TON') {
       const total = parseFloat((netWeightTons * activePricingRule.agreedRate).toFixed(2));
       return {
         amount: total,
-        text: `${netWeightTons} طن × ${activePricingRule.agreedRate} = ${total.toFixed(2)} ${activePricingRule.currency || 'SAR'}`,
+        text: translate("operations.value_tons_value_value_value", { p0: netWeightTons, p1: activePricingRule.agreedRate, p2: total.toFixed(2), p3: activePricingRule.currency || 'SAR' }),
         currency: activePricingRule.currency || 'SAR',
         pricingType: 'PER_TON'
       };
     } else {
       return {
         amount: activePricingRule.agreedRate,
-        text: `${activePricingRule.agreedRate.toFixed(2)} ${activePricingRule.currency || 'SAR'} (مقطوعية ثابتة للرد)`,
+        text: translate("operations.value_value_fixed_rate_per_trip", { p0: activePricingRule.agreedRate.toFixed(2), p1: activePricingRule.currency || 'SAR' }),
         currency: activePricingRule.currency || 'SAR',
         pricingType: 'PER_TRIP'
       };
     }
-  }, [activePricingRule, netWeightTons]);
+  }, [activePricingRule, netWeightTons, translate]);
 
   // Validation Checks: Blocking vs Warnings
   const blockingErrors = useMemo<string[]>(() => {
     const errors: string[] = [];
     if (!projectId || projectId === 'ALL') {
-      errors.push('يجب تحديد المشروع التابع له أمر التحميل.');
+      errors.push(translate("field_operations.validation_project_required"));
       return errors;
     }
     if (hasMasterDataError) {
-      errors.push('فشل في تحميل البيانات المعتمدة للمشروع من قاعدة البيانات.');
+      errors.push(translate("operations.failed_to_load_approved_project_data_from_the_database"));
       return errors;
     }
     if (!isMasterDataReady || !context) {
-      errors.push('جاري تحميل وتحديث البيانات المعتمدة للمشروع...');
+      errors.push(translate("operations.loading_and_refreshing_approved_project_data"));
       return errors;
     }
 
     if (!carrierId) {
-      errors.push('يجب تحديد شركة النقل المعتمدة.');
+      errors.push(translate("field_operations.validation_carrier_required"));
     } else {
       const knownCarrier = context.knownCarriers.find(c => c.carrierId === carrierId);
       if (!knownCarrier) {
-        errors.push(`شركة النقل (${carrierId}) غير معرفة في بيانات المشروع.`);
+        errors.push(translate("operations.carrier_value_is_not_defined_in_project_data", { p0: carrierId }));
       } else if (!context.authorizedCarrierIds.includes(carrierId)) {
-        errors.push(`شركة النقل (${knownCarrier.name || carrierId}) غير مصرح لها بالعمل في هذا المشروع.`);
+        errors.push(translate("operations.carrier_value_is_not_authorized_for_this_project", { p0: knownCarrier.name || carrierId }));
       }
     }
 
     if (!truckId) {
-      errors.push('يجب تحديد الشاحنة المراد وزنها.');
+      errors.push(translate("field_operations.validation_truck_required"));
     } else {
       const knownTruck = context.knownTrucks.find(t => t.truckId === truckId);
       if (!knownTruck) {
-        errors.push(`الشاحنة (${truckId}) غير معرفة في بيانات المشروع.`);
+        errors.push(translate("operations.truck_value_is_not_defined_in_project_data", { p0: truckId }));
       } else if (carrierId && knownTruck.carrierId !== carrierId) {
-        errors.push(`الشاحنة (${knownTruck.plate || truckId}) غير تابعة لشركة النقل المحددة.`);
+        errors.push(translate("operations.truck_value_does_not_belong_to_the_selected_carrier", { p0: knownTruck.plate || truckId }));
       }
     }
 
     if (!driverId) {
-      errors.push('يجب تحديد السائق المكلف.');
+      errors.push(translate("field_operations.validation_driver_required"));
     } else {
       const knownDriver = context.knownDrivers.find(d => d.driverId === driverId);
       if (!knownDriver) {
-        errors.push(`السائق (${driverId}) غير معرف في بيانات المشروع.`);
+        errors.push(translate("operations.driver_value_is_not_defined_in_project_data", { p0: driverId }));
       } else if (carrierId && knownDriver.carrierId !== carrierId) {
-        errors.push(`السائق (${knownDriver.name || driverId}) غير تابع لشركة النقل المحددة.`);
+        errors.push(translate("operations.driver_value_does_not_belong_to_the_selected_carrier", { p0: knownDriver.name || driverId }));
       }
     }
 
     if (!materialId || !materialId.trim()) {
-      errors.push('يجب تحديد صنف المادة المحملة ومعرف المادة المعتمد.');
+      errors.push(translate("field_operations.validation_material_required"));
     } else {
       const knownMat = context.knownMaterials.find(m => m.materialId === materialId);
       if (!knownMat) {
-        errors.push(`معرف المادة (${materialId}) غير معرف في الكتالوج المعتمد.`);
+        errors.push(translate("operations.material_id_value_is_not_in_the_approved_catalog", { p0: materialId }));
       } else if (!context.authorizedMaterialIds.includes(materialId)) {
-        errors.push(`المادة (${(knownMat as any).nameAr || knownMat.name || materialId}) غير مصرح بتوريدها لهذا المشروع.`);
+        errors.push(translate("operations.material_value_is_not_authorized_for_this_project", { p0: (knownMat as any).nameAr || knownMat.name || materialId }));
       }
     }
 
-    if (grossWeight <= 0) errors.push('يجب تسجيل قراءة الوزن القائم.');
-    if (tareWeight <= 0) errors.push('يجب تسجيل قراءة وزن الفارغ.');
+    if (grossWeight <= 0) errors.push(translate("field_operations.validation_gross_required"));
+    if (tareWeight <= 0) errors.push(translate("field_operations.validation_tare_required"));
     if (grossWeight <= tareWeight) {
-      errors.push(`خطأ وزني مانع: الوزن القائم (${grossWeight.toLocaleString()} كجم) يجب أن يكون أكبر من وزن الفارغ (${tareWeight.toLocaleString()} كجم).`);
+      errors.push(translate("operations.weight_blocked_gross_weight_value_kg_must_exceed_tare", { p0: grossWeight.toLocaleString(), p1: tareWeight.toLocaleString() }));
     }
     if (!activePricingRule) {
-      errors.push('لا توجد قاعدة تسعير معتمدة وسارية للربط المختار (مشروع/ناقل/مادة).');
+      errors.push(translate("field_operations.validation_no_pricing_rule"));
     }
     return errors;
   }, [
@@ -358,19 +361,20 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     materialId,
     grossWeight,
     tareWeight,
-    activePricingRule
+    activePricingRule,
+    translate
   ]);
 
   const regulatoryWarnings = useMemo<string[]>(() => {
     const warnings: string[] = [];
     if (netWeightTons > 35) {
-      warnings.push(`تنبيه حمولة زائدة: صافي الحمولة (${netWeightTons} طن) يتجاوز الحد النظامي الموصى به (35 طن) وفق لائحة الهيئة العامة للنقل.`);
+      warnings.push(translate("operations.overload_warning_net_load_value_tons_exceeds_the_recommended", { p0: netWeightTons }));
     }
     if (grossWeight > 50000) {
-      warnings.push(`تنبيه وزن إجمالي مرتفع: الوزن القائم (${(grossWeight / 1000).toFixed(1)} طن) قد يعرض المركبة لمخالفة محطات الوزن المتنقلة.`);
+      warnings.push(translate("operations.high_gross_weight_warning_gross_weight_value_tons_may", { p0: (grossWeight / 1000).toFixed(1) }));
     }
     return warnings;
-  }, [netWeightTons, grossWeight]);
+  }, [netWeightTons, grossWeight, translate]);
 
   // Check offline readiness
   useEffect(() => {
@@ -409,7 +413,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     if (onNotification) {
       onNotification({
         type: 'SUCCESS',
-        message: `تمت قراءة ميزان الدخول (Scale In) بنجاح: ${simulated.toLocaleString()} كجم`
+        message: translate("operations.entry_scale_read_successfully_value_kg", { p0: simulated.toLocaleString() })
       });
     }
   };
@@ -421,7 +425,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     if (onNotification) {
       onNotification({
         type: 'SUCCESS',
-        message: `تمت قراءة ميزان الخروج (Scale Out) بنجاح: ${simulated.toLocaleString()} كجم`
+        message: translate("operations.exit_scale_read_successfully_value_kg", { p0: simulated.toLocaleString() })
       });
     }
   };
@@ -447,7 +451,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
       // Security check for offline mode: must have pricing rule
       if (!isOnline || isSimulatedOffline) {
         if (!offlinePrereq?.hasPricingRule || !offlinePrereq.pricingRule || offlinePrereq.pricingRule.agreedRate <= 0) {
-          throw new Error('حظر أمني: لا يُسمح بإنشاء تذكرة ميزان في وضع عدم الاتصال دون توفر بيانات التسعير التعاقدية محلياً.');
+          throw new Error(translate("field_operations.security_offline_block"));
         }
       }
 
@@ -527,7 +531,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
         if (syncResult.failedCount > 0) {
           const ops = await outboxService.getOperations();
           const opAfterSync = ops.find(o => o.operationId === queuedOp.operationId);
-          throw new Error(opAfterSync?.errorReason || 'فشلت مزامنة تذكرة الميزان مع الخادم.');
+          throw new Error(opAfterSync?.errorReason || translate("operations.failed_to_synchronize_the_weighbridge_ticket_with_the_server"));
         }
 
         const finalTrip = syncedRecord || clientRecord;
@@ -536,7 +540,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
         if (onNotification) {
           onNotification({
             type: 'SUCCESS',
-            message: `تم إنشاء تذكرة الميزان [${finalTrip.tripSerial}] وتزامنها مع الخادم بنجاح! الحالة التشغيلية: IN_TRANSIT.`
+            message: translate("operations.weighbridge_ticket_value_created_and_synchronized_successfully_operational_status", { p0: finalTrip.tripSerial })
           });
         }
       } else {
@@ -546,7 +550,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
         if (onNotification) {
           onNotification({
             type: 'SUCCESS',
-            message: `تم إنشاء وتوثيق تذكرة التحميل محلياً [${clientRecord.tripSerial}] وإدراجها في صندوق العمليات المعلقة (Outbox).`
+            message: translate("operations.loading_ticket_value_recorded_locally_and_added_to_the", { p0: clientRecord.tripSerial })
           });
         }
       }
@@ -554,7 +558,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
       if (onNotification) {
         onNotification({
           type: 'ERROR',
-          message: err.message || 'فشلت عملية إنشاء وترحيل تذكرة الميزان.'
+          message: operationalMessage(err.message || "") || translate("operations.failed_to_create_and_dispatch_the_weighbridge_ticket")
         });
       }
     } finally {
@@ -577,16 +581,15 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   // =========================================================================
   if (!isAuthorized) {
     return (
-      <div className="bg-white rounded-2xl border border-rose-200 p-8 text-center max-w-xl mx-auto my-12 shadow-sm" dir="rtl">
+      <div className="bg-white rounded-2xl border border-rose-200 p-8 text-center max-w-xl mx-auto my-12 shadow-sm" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="w-16 h-16 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto mb-4 border border-rose-200">
           <ShieldAlert className="w-8 h-8" />
         </div>
-        <h2 className="text-lg font-bold text-stone-900 mb-2">غير مصرح بدخول واجهة مشغل التحميل</h2>
+        <h2 className="text-lg font-bold text-stone-900 mb-2">{translate("field_operations.loading_unauthorized_title")}</h2>
         <p className="text-xs text-stone-600 mb-6 leading-relaxed">
-          حسابك الحالي بالدور (<span className="font-bold text-rose-700 font-mono">{authContext.role}</span>) غير مدرج ضمن الأدوار المعتمدة لإدارة موازين المصدر وتوثيق تذاكر التحميل. الواجهة متاحة فقط لمشغلي الموازين والمرحلين ومديري المشاريع.
-        </p>
+          {translate("operations.your_current_role")}<span className="font-bold text-rose-700 font-mono">{authContext.role}</span>{translate("operations.is_not_authorized_to_manage_origin_scales_and_loading")}</p>
         <div className="bg-stone-50 rounded-xl p-3 border border-stone-200 text-xs text-stone-500 font-mono">
-          USER: {authContext.displayName} ({authContext.userId})
+          {translate("operations.user")}{authContext.displayName} ({authContext.userId})
         </div>
       </div>
     );
@@ -597,7 +600,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   // =========================================================================
   if (createdTrip) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6 animate-fadeIn text-right" dir="rtl">
+      <div className="max-w-2xl mx-auto space-y-6 animate-fadeIn text-right" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Success Header Banner */}
         <div className="bg-emerald-700 text-white rounded-2xl p-6 shadow-md flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -605,9 +608,9 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               <CheckCircle2 className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold">تم تأكيد وزن الشاحنة وإصدار تذكرة الترحيل</h2>
+              <h2 className="text-lg font-bold">{translate("field_operations.ticket_success_title")}</h2>
               <p className="text-xs text-emerald-100 font-mono mt-0.5">
-                تذكرة رقم: {createdTrip.ticketId} • الرقم التسلسلي: {createdTrip.tripSerial}
+                {translate("operations.ticket_number")}{createdTrip.ticketId} {translate("operations.serial_number")}{createdTrip.tripSerial}
               </p>
             </div>
           </div>
@@ -620,21 +623,20 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
         <div className="bg-white rounded-2xl border-2 border-stone-300 p-6 shadow-sm space-y-6 relative overflow-hidden font-sans">
           {/* Watermark/Stamp */}
           <div className="absolute top-6 left-6 border-2 border-emerald-600 text-emerald-800 px-3 py-1 rounded-lg text-xs font-black rotate-[-12deg] select-none opacity-85">
-            موزونة ومعتمدة • SCALE VERIFIED
-          </div>
+            {translate("field_operations.scale_verified_stamp")}</div>
 
           <div className="border-b border-stone-200 pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Scale className="w-5 h-5 text-amber-600" />
-                <h3 className="font-bold text-stone-900 text-base">{t("field_operations.ticket_title")}</h3>
+                <h3 className="font-bold text-stone-900 text-base">{translate("field_operations.ticket_title")}</h3>
               </div>
               <span className="text-xs text-stone-500 font-mono">{createdTrip.loadTime?.slice(0, 19).replace('T', ' ')}</span>
             </div>
             <p className="text-xs text-stone-500 mt-1">
               {(() => {
                 const proj = projectsList.find(p => p.projectId === createdTrip.projectId);
-                return proj ? t("field_operations.project_display", { nameAr: proj.nameAr, nameEn: proj.nameEn || proj.nameAr, id: proj.projectId }) : createdTrip.projectId;
+                return proj ? translate("field_operations.project_display", { name: proj.nameAr, nameAr: proj.nameAr, nameEn: proj.nameEn || proj.nameAr, id: proj.projectId }) : createdTrip.projectId;
               })()}
             </p>
           </div>
@@ -642,19 +644,19 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
           {/* Vehicle & Trip Info Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-50 p-4 rounded-xl border border-stone-200/80 text-xs">
             <div>
-              <span className="text-stone-400 block text-[11px]">{t("field_operations.truck_number")}</span>
+              <span className="text-stone-400 block text-[11px]">{translate("field_operations.truck_number")}</span>
               <span className="font-bold text-stone-900 font-mono text-sm">{createdTrip.truckId}</span>
             </div>
             <div>
-              <span className="text-stone-400 block text-[11px]">{t("field_operations.carrier")}</span>
+              <span className="text-stone-400 block text-[11px]">{translate("field_operations.carrier")}</span>
               <span className="font-bold text-stone-900">{context?.knownCarriers.find(c => c.carrierId === createdTrip.carrierId)?.name || createdTrip.carrierId}</span>
             </div>
             <div>
-              <span className="text-stone-400 block text-[11px]">{t("field_operations.driver")}</span>
+              <span className="text-stone-400 block text-[11px]">{translate("field_operations.driver_label")}</span>
               <span className="font-bold text-stone-900">{context?.knownDrivers.find(d => d.driverId === createdTrip.driverId)?.name || createdTrip.driverId}</span>
             </div>
             <div>
-              <span className="text-stone-400 block text-[11px]">{t("field_operations.supplied_material")}</span>
+              <span className="text-stone-400 block text-[11px]">{translate("field_operations.supplied_material")}</span>
               <span className="font-bold text-stone-900">{context?.knownMaterials.find(m => m.materialId === createdTrip.materialId)?.name || createdTrip.materialId}</span>
             </div>
           </div>
@@ -663,28 +665,28 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
           <div className="bg-amber-50/50 border border-amber-200 rounded-xl p-4">
             <div className="grid grid-cols-3 gap-3 text-center">
               <div className="bg-white p-3 rounded-lg border border-stone-200">
-                <span className="text-[11px] text-stone-500 block">{t("field_operations.gross_weight_ticket")}</span>
+                <span className="text-[11px] text-stone-500 block">{translate("field_operations.gross_weight_ticket")}</span>
                 <span className="text-base sm:text-lg font-black text-stone-900 font-mono">{createdTrip.grossWeight.toLocaleString()}</span>
-                <span className="text-[10px] text-stone-400 block">{t("shared.units.kg")}</span>
+                <span className="text-[10px] text-stone-400 block">{translate("shared.units.kg")}</span>
               </div>
               <div className="bg-white p-3 rounded-lg border border-stone-200">
-                <span className="text-[11px] text-stone-500 block">{t("field_operations.tare_weight_ticket")}</span>
+                <span className="text-[11px] text-stone-500 block">{translate("field_operations.tare_weight_ticket")}</span>
                 <span className="text-base sm:text-lg font-black text-stone-900 font-mono">{createdTrip.tareWeight.toLocaleString()}</span>
-                <span className="text-[10px] text-stone-400 block">{t("shared.units.kg")}</span>
+                <span className="text-[10px] text-stone-400 block">{translate("shared.units.kg")}</span>
               </div>
               <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-300">
-                <span className="text-[11px] text-emerald-800 font-bold block">{t("field_operations.net_payload")}</span>
+                <span className="text-[11px] text-emerald-800 font-bold block">{translate("field_operations.net_payload")}</span>
                 <span className="text-base sm:text-xl font-black text-emerald-950 font-mono">{createdTrip.netWeight.toLocaleString()}</span>
-                <span className="text-[10px] text-emerald-700 font-bold block">{t("shared.units.kg")} ({(createdTrip.netWeight / 1000).toFixed(3)} {t("shared.units.ton")})</span>
+                <span className="text-[10px] text-emerald-700 font-bold block">{translate("shared.units.kg")} ({(createdTrip.netWeight / 1000).toFixed(3)} {translate("shared.units.ton")})</span>
               </div>
             </div>
           </div>
 
           {/* Pricing Snapshot Notice */}
           <div className="text-xs bg-stone-100/70 p-3 rounded-xl flex items-center justify-between text-stone-600 font-mono">
-            <span>{t("field_operations.pricing_rule_label")} {createdTrip.pricingRuleId}</span>
+            <span>{translate("field_operations.pricing_rule_label")} {createdTrip.pricingRuleId}</span>
             <span className="font-bold text-stone-800">
-              {t("field_operations.settlement_label")} {createdTrip.settlementAmount.toFixed(2)} {createdTrip.currency} ({createdTrip.pricingType === 'PER_TON' ? t("field_operations.pricing_per_ton") : t("field_operations.pricing_per_trip")})
+              {translate("field_operations.settlement_label")} {createdTrip.settlementAmount.toFixed(2)} {createdTrip.currency} ({createdTrip.pricingType === 'PER_TON' ? translate("field_operations.pricing_per_ton") : translate("field_operations.pricing_per_trip")})
             </span>
           </div>
 
@@ -695,17 +697,17 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               className="w-full sm:flex-1 py-3.5 px-4 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>{t("field_operations.next_truck")}</span>
+              <span>{translate("field_operations.next_truck")}</span>
             </button>
             <button
               onClick={() => {
-                setTicketCopyNotification(t("field_operations.ticket_copied"));
+                setTicketCopyNotification(translate("field_operations.ticket_copied"));
                 setTimeout(() => setTicketCopyNotification(null), 3000);
               }}
               className="w-full sm:w-auto py-3.5 px-5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 border border-stone-300"
             >
               <Printer className="w-4 h-4" />
-              <span>{t("field_operations.print_ticket")}</span>
+              <span>{translate("field_operations.print_ticket")}</span>
             </button>
           </div>
           {ticketCopyNotification && (
@@ -729,13 +731,13 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-base sm:text-lg font-black text-stone-900">{t("field_operations.loading_station_title")}</h1>
+              <h1 className="text-base sm:text-lg font-black text-stone-900">{translate("field_operations.loading_station_title")}</h1>
               <span className="bg-amber-100 text-amber-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                {t("field_operations.loading_operator")}
+                {translate("field_operations.loading_operator")}
               </span>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
-              {t("field_operations.loading_station_desc")}
+              {translate("field_operations.loading_station_desc")}
             </p>
           </div>
         </div>
@@ -745,12 +747,12 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
           {isOnline ? (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
               <Wifi className="w-3.5 h-3.5" />
-              <span>{t("field_operations.connected_status")}</span>
+              <span>{translate("field_operations.connected_status")}</span>
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
               <WifiOff className="w-3.5 h-3.5" />
-              <span>{t("field_operations.offline_status")}</span>
+              <span>{translate("field_operations.offline_status")}</span>
             </span>
           )}
         </div>
@@ -767,16 +769,16 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">1</span>
-                <h2 className="font-bold text-stone-900 text-sm">{t("field_operations.identify")}</h2>
+                <h2 className="font-bold text-stone-900 text-sm">{translate("field_operations.identify")}</h2>
               </div>
-              <span className="text-[11px] text-stone-400">{t("field_operations.quick_selection")}</span>
+              <span className="text-[11px] text-stone-400">{translate("field_operations.quick_selection")}</span>
             </div>
 
             {/* 1.1 Project Selector */}
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5 text-amber-700" />
-                <span>{t("field_operations.project_selector_label")}</span>
+                <span>{translate("field_operations.project_selector_label")}</span>
               </label>
               <select
                 value={projectId}
@@ -793,11 +795,11 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
                 <Truck className="w-3.5 h-3.5 text-amber-700" />
-                <span>{t("field_operations.authorized_carrier")}</span>
+                <span>{translate("field_operations.authorized_carrier")}</span>
               </label>
               {availableCarriers.length === 0 ? (
                 <div className="p-3 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-xs text-stone-400 text-center">
-                  {readinessStatus === 'PENDING' ? t("field_operations.loading_carriers") : t("field_operations.no_carriers")}
+                  {readinessStatus === 'PENDING' ? translate("field_operations.loading_carriers") : translate("field_operations.no_carriers")}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
@@ -824,11 +826,11 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
                 <Truck className="w-3.5 h-3.5 text-amber-700" />
-                <span>{t("field_operations.available_truck")}</span>
+                <span>{translate("field_operations.available_truck")}</span>
               </label>
               {availableTrucks.length === 0 ? (
                 <div className="p-3 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-xs text-stone-400 text-center">
-                  {!carrierId ? t("field_operations.select_carrier_first") : readinessStatus === 'PENDING' ? t("field_operations.loading_trucks") : t("field_operations.no_trucks")}
+                  {!carrierId ? translate("field_operations.select_carrier_first") : readinessStatus === 'PENDING' ? translate("field_operations.loading_trucks") : translate("field_operations.no_trucks")}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-0.5">
@@ -845,7 +847,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                     >
                       <div>
                         <span className="text-xs font-mono font-bold block">{t.truckId}</span>
-                        <span className="text-[10px] text-stone-500">{t.plate || 'تريلا قلاب'}</span>
+                        <span className="text-[10px] text-stone-500">{t.plate || translate("operations.tipper_trailer")}</span>
                       </div>
                       {truckId === t.truckId && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
                     </button>
@@ -859,7 +861,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-amber-700" />
-                  <span>{t("field_operations.driver_label")}</span>
+                  <span>{translate("field_operations.driver_label")}</span>
                 </label>
                 <select
                   value={driverId}
@@ -867,7 +869,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                   className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                 >
                   {availableDrivers.length === 0 && (
-                    <option value="">{!carrierId ? t("field_operations.select_carrier_first_driver") : t("field_operations.no_drivers")}</option>
+                    <option value="">{!carrierId ? translate("field_operations.select_carrier_first_driver") : translate("field_operations.no_drivers")}</option>
                   )}
                   {availableDrivers.map(d => (
                     <option key={d.driverId} value={d.driverId}>{d.name || d.driverId} ({d.driverId})</option>
@@ -878,7 +880,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
                   <Boxes className="w-3.5 h-3.5 text-amber-700" />
-                  <span>{t("field_operations.loaded_material")}</span>
+                  <span>{translate("field_operations.loaded_material")}</span>
                 </label>
                 <select
                   value={materialId}
@@ -886,7 +888,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                   className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                 >
                   {availableMaterials.length === 0 && (
-                    <option value="">{t("field_operations.no_materials")}</option>
+                    <option value="">{translate("field_operations.no_materials")}</option>
                   )}
                   {availableMaterials.map(m => (
                     <option key={m.materialId} value={m.materialId}>{m.name || m.materialId} ({m.materialId})</option>
@@ -901,17 +903,17 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div className="flex items-center justify-between text-stone-700">
               <span className="font-bold flex items-center gap-1.5">
                 <Calculator className="w-3.5 h-3.5 text-stone-500" />
-                <span>{t("field_operations.applied_pricing_rule")}</span>
+                <span>{translate("field_operations.applied_pricing_rule")}</span>
               </span>
               <span className="bg-stone-200 text-stone-800 text-[10px] px-2 py-0.5 rounded font-mono font-bold">
-                {activePricingRule?.pricingType === 'PER_TON' ? t("field_operations.pricing_per_ton") : t("field_operations.pricing_per_trip")}
+                {activePricingRule?.pricingType === 'PER_TON' ? translate("field_operations.pricing_per_ton") : translate("field_operations.pricing_per_trip")}
               </span>
             </div>
             <p className="text-stone-600 text-[11px] leading-relaxed">
-              {activePricingRule?.name || t("field_operations.standard_project_rule")}
+              {activePricingRule?.name || translate("field_operations.standard_project_rule")}
             </p>
             <div className="bg-white p-2.5 rounded-xl border border-stone-200 flex items-center justify-between font-mono">
-              <span className="text-[11px] text-stone-500">{t("field_operations.unit_rate")}</span>
+              <span className="text-[11px] text-stone-500">{translate("field_operations.unit_rate")}</span>
               <span className="font-bold text-stone-900">{activePricingRule?.agreedRate} {activePricingRule?.currency || 'SAR'}</span>
             </div>
           </div>
@@ -925,9 +927,9 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">2</span>
-                <h2 className="font-bold text-stone-900 text-sm">{t("field_operations.capture_validate")}</h2>
+                <h2 className="font-bold text-stone-900 text-sm">{translate("field_operations.capture_validate")}</h2>
               </div>
-              <span className="text-[11px] text-stone-400">{t("field_operations.accurate_readings")}</span>
+              <span className="text-[11px] text-stone-400">{translate("field_operations.accurate_readings")}</span>
             </div>
 
             {/* 2.1 Tare Weight Card */}
@@ -935,7 +937,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
                   <Scale className="w-3.5 h-3.5 text-stone-600" />
-                  <span>{t("field_operations.tare_weight")}</span>
+                  <span>{translate("field_operations.tare_weight")}</span>
                 </label>
                 <button
                   type="button"
@@ -943,7 +945,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                   className="text-[11px] bg-stone-200 hover:bg-stone-300 text-stone-800 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition-all"
                 >
                   <Sparkles className="w-3 h-3 text-amber-700" />
-                  <span>{t("field_operations.read_scale_in")}</span>
+                  <span>{translate("field_operations.read_scale_in")}</span>
                 </button>
               </div>
 
@@ -960,7 +962,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                     type="button"
                     onClick={() => adjustTare(-500)}
                     className="w-10 h-10 rounded-xl bg-white border border-stone-200 hover:bg-stone-100 flex items-center justify-center text-stone-700 font-bold"
-                    title="-500 كجم"
+                    title={translate("field_operations.adjust_minus_500")}
                   >
                     <Minus className="w-4 h-4" />
                   </button>
@@ -968,7 +970,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                     type="button"
                     onClick={() => adjustTare(+500)}
                     className="w-10 h-10 rounded-xl bg-white border border-stone-200 hover:bg-stone-100 flex items-center justify-center text-stone-700 font-bold"
-                    title="+500 كجم"
+                    title={translate("field_operations.adjust_plus_500")}
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -977,7 +979,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
 
               {/* Quick Tare Presets */}
               <div className="flex gap-1.5 flex-wrap">
-                <span className="text-[10px] text-stone-400 py-1">{t("field_operations.common_tare_presets")}</span>
+                <span className="text-[10px] text-stone-400 py-1">{translate("field_operations.common_tare_presets")}</span>
                 {[8200, 13800, 14200, 15000].map(w => (
                   <button
                     key={w}
@@ -985,7 +987,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                     onClick={() => applyTarePreset(w)}
                     className="text-[10px] bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 px-2 py-1 rounded font-mono font-semibold"
                   >
-                    {w.toLocaleString()} {t("shared.units.kg")}
+                    {w.toLocaleString()} {translate("shared.units.kg")}
                   </button>
                 ))}
               </div>
@@ -996,7 +998,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
                   <Scale className="w-3.5 h-3.5 text-amber-700" />
-                  <span>{t("field_operations.gross_weight")}</span>
+                  <span>{translate("field_operations.gross_weight")}</span>
                 </label>
                 <button
                   type="button"
@@ -1004,7 +1006,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                   className="text-[11px] bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition-all"
                 >
                   <Sparkles className="w-3 h-3" />
-                  <span>{t("field_operations.read_scale_out")}</span>
+                  <span>{translate("field_operations.read_scale_out")}</span>
                 </button>
               </div>
 
@@ -1021,7 +1023,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                     type="button"
                     onClick={() => adjustGross(-500)}
                     className="w-10 h-10 rounded-xl bg-white border border-stone-200 hover:bg-stone-100 flex items-center justify-center text-stone-700 font-bold"
-                    title="-500 كجم"
+                    title={translate("field_operations.adjust_minus_500")}
                   >
                     <Minus className="w-4 h-4" />
                   </button>
@@ -1029,7 +1031,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                     type="button"
                     onClick={() => adjustGross(+500)}
                     className="w-10 h-10 rounded-xl bg-white border border-stone-200 hover:bg-stone-100 flex items-center justify-center text-stone-700 font-bold"
-                    title="+500 كجم"
+                    title={translate("field_operations.adjust_plus_500")}
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -1038,7 +1040,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
 
               {/* Quick Gross Presets */}
               <div className="flex gap-1.5 flex-wrap">
-                <span className="text-[10px] text-stone-400 py-1">{t("field_operations.payload_presets")}</span>
+                <span className="text-[10px] text-stone-400 py-1">{translate("field_operations.payload_presets")}</span>
                 {[42000, 45600, 49800].map(w => (
                   <button
                     key={w}
@@ -1046,7 +1048,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
                     onClick={() => applyGrossPreset(w)}
                     className="text-[10px] bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 px-2 py-1 rounded font-mono font-semibold"
                   >
-                    {w.toLocaleString()} {t("shared.units.kg")}
+                    {w.toLocaleString()} {translate("shared.units.kg")}
                   </button>
                 ))}
               </div>
@@ -1056,15 +1058,15 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             <div className="bg-amber-50/70 rounded-xl p-4 border border-amber-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold text-amber-900 block">{t("field_operations.calculated_net_weight")}</span>
-                  <span className="text-[10px] text-amber-700 block">{t("field_operations.scale_formula")}</span>
+                  <span className="text-xs font-bold text-amber-900 block">{translate("field_operations.calculated_net_weight")}</span>
+                  <span className="text-[10px] text-amber-700 block">{translate("field_operations.scale_formula")}</span>
                 </div>
                 <div className="text-left font-mono">
                   <div className="text-xl sm:text-2xl font-black text-amber-950">
-                    {netWeightKg.toLocaleString()} <span className="text-xs font-normal">{t("shared.units.kg")}</span>
+                    {netWeightKg.toLocaleString()} <span className="text-xs font-normal">{translate("shared.units.kg")}</span>
                   </div>
                   <div className="text-xs font-bold text-amber-800">
-                    {t("field_operations.metric_tons", { tons: netWeightTons })}
+                    {translate("field_operations.metric_tons", { tons: netWeightTons })}
                   </div>
                 </div>
               </div>
@@ -1097,7 +1099,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
             {/* Read-Only Settlement Preview */}
             <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200 text-xs flex items-center justify-between">
               <div className="text-stone-600">
-                <span className="block text-[10px] text-stone-400">{t("field_operations.estimated_settlement")}</span>
+                <span className="block text-[10px] text-stone-400">{translate("field_operations.estimated_settlement")}</span>
                 <span className="font-mono text-stone-700">{settlementPreview.text}</span>
               </div>
               <div className="font-bold text-stone-900 text-sm font-mono">
@@ -1121,12 +1123,12 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
               {isSubmitting ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>{t("field_operations.submitting_dispatch")}</span>
+                  <span>{translate("field_operations.submitting_dispatch")}</span>
                 </>
               ) : (
                 <>
                   <Send className="w-5 h-5 rtl:rotate-180" />
-                  <span>{t("field_operations.confirm_and_dispatch")}</span>
+                  <span>{translate("field_operations.confirm_and_dispatch")}</span>
                 </>
               )}
             </button>

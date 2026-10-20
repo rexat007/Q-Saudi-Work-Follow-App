@@ -114,17 +114,16 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
     return (
       <div className="bg-rose-50 border border-rose-200 p-6 rounded-2xl flex flex-col items-center justify-center text-center">
         <ShieldAlert className="w-12 h-12 text-rose-500 mb-4" />
-        <h2 className="text-xl font-bold text-rose-900 mb-2">غير مصرح بالدخول (Unauthorized)</h2>
+        <h2 className="text-xl font-bold text-rose-900 mb-2">{t("driver.unauthorized_title")}</h2>
         <p className="text-sm text-rose-600 mb-4">
-          عذراً، هذه الواجهة مخصصة للإشراف الميداني فقط. صلاحيتك الحالية ({authContext.role}) لا تسمح بالوصول.
-        </p>
+          {t("operations.this_interface_is_for_field_supervision_only_your_current")}{authContext.role}{t("operations.does_not_permit_access")}</p>
       </div>
     );
   }
 
   const handleDecision = (tripId: string, action: string) => {
     if (onNotification) {
-      onNotification({ type: 'SUCCESS', message: `تم تطبيق القرار: ${action} للرحلة ${tripId}` });
+      onNotification({ type: 'SUCCESS', message: t("operations.decision_applied_value_for_trip_value", { p0: action, p1: tripId }) });
     }
   };
 
@@ -138,8 +137,8 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
               <ShieldAlert className="w-6 h-6 text-indigo-600" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-stone-900">مركز الإشراف الميداني</h2>
-              <p className="text-xs text-stone-500">مراقبة العمليات الحية، الاستثناءات، والاعتمادات</p>
+              <h2 className="text-lg font-bold text-stone-900">{t("field_supervision.title")}</h2>
+              <p className="text-xs text-stone-500">{t("field_supervision.subtitle")}</p>
             </div>
           </div>
           
@@ -149,29 +148,26 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'LIVE' ? 'bg-white shadow-sm text-indigo-700' : 'text-stone-600 hover:bg-stone-200'}`}
             >
               <Activity className="w-4 h-4 inline-block mr-1.5 ml-1.5" />
-              العمليات الحية
-            </button>
+              {t("field_supervision.tab_live")}</button>
             <button 
               onClick={() => setActiveTab('EXCEPTIONS')}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'EXCEPTIONS' ? 'bg-white shadow-sm text-rose-700' : 'text-stone-600 hover:bg-stone-200'}`}
             >
               <AlertOctagon className="w-4 h-4 inline-block mr-1.5 ml-1.5" />
-              مركز الاستثناءات {exceptions.length > 0 && `(${exceptions.length})`}
+              {t("field_supervision.tab_exceptions")}{exceptions.length > 0 && `(${exceptions.length})`}
             </button>
             <button 
               onClick={() => setActiveTab('UNRESOLVED')}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'UNRESOLVED' ? 'bg-white shadow-sm text-amber-700' : 'text-stone-600 hover:bg-stone-200'}`}
             >
               <Users className="w-4 h-4 inline-block mr-1.5 ml-1.5" />
-              الكيانات غير المعرفة
-            </button>
+              {t("field_supervision.tab_unresolved")}</button>
             <button 
               onClick={() => setActiveTab('IMPORTS')}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'IMPORTS' ? 'bg-white shadow-sm text-emerald-700' : 'text-stone-600 hover:bg-stone-200'}`}
             >
               <FileSpreadsheet className="w-4 h-4 inline-block mr-1.5 ml-1.5" />
-              إشراف الاستيراد
-            </button>
+              {t("field_supervision.tab_imports")}</button>
           </div>
         </div>
 
@@ -180,9 +176,9 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
           <div className="bg-amber-50 text-amber-800 p-3 rounded-xl text-xs font-bold flex items-center justify-between border border-amber-200 mb-4">
             <div className="flex items-center gap-2">
               <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>هناك عمليات معلقة تنتظر المزامنة مع الخادم.</span>
+              <span>{t("field_supervision.pending_offline_sync")}</span>
             </div>
-            <span>الوضع: Offline</span>
+            <span>{t("field_supervision.status_offline")}</span>
           </div>
         )}
       </div>
@@ -193,19 +189,19 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
-              <div className="text-xs text-stone-500 mb-1">طابور التحميل</div>
+              <div className="text-xs text-stone-500 mb-1">{t("field_supervision.queue_loading")}</div>
               <div className="text-2xl font-black text-stone-900">{loadingQueueCount}</div>
             </div>
             <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
-              <div className="text-xs text-stone-500 mb-1">في الطريق (In Transit)</div>
+              <div className="text-xs text-stone-500 mb-1">{t("field_supervision.queue_in_transit")}</div>
               <div className="text-2xl font-black text-indigo-600">{inTransitCount}</div>
             </div>
             <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
-              <div className="text-xs text-stone-500 mb-1">طابور التفريغ</div>
+              <div className="text-xs text-stone-500 mb-1">{t("field_supervision.queue_unloading")}</div>
               <div className="text-2xl font-black text-amber-600">{unloadingQueueCount}</div>
             </div>
             <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
-              <div className="text-xs text-stone-500 mb-1">مكتملة اليوم</div>
+              <div className="text-xs text-stone-500 mb-1">{t("field_supervision.queue_completed_today")}</div>
               <div className="text-2xl font-black text-emerald-600">{completedTodayCount}</div>
             </div>
           </div>
@@ -215,23 +211,21 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
             <div className="p-4 border-b border-stone-200 bg-stone-50 flex items-center justify-between">
               <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                 <Navigation className="w-4 h-4 text-indigo-600" />
-                مراقبة الرحلات الحية (Trip Monitoring)
-              </h3>
+                {t("field_supervision.trip_monitoring_title")}</h3>
               <span className="text-xs text-stone-500 font-mono font-bold">
-                إجمالي: {trips.length} رحلة
-              </span>
+                {t("operations.total")}{trips.length} {t("dashboard.labels.trip")}</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-right text-xs">
                 <thead className="bg-stone-50 text-stone-500 border-b border-stone-200">
                   <tr>
-                    <th className="p-3 font-bold">الرحلة / التذكرة</th>
-                    <th className="p-3 font-bold">الناقل / الشاحنة</th>
-                    <th className="p-3 font-bold">المادة</th>
-                    <th className="p-3 font-bold">وزن المصدر</th>
-                    <th className="p-3 font-bold">وزن الوجهة</th>
-                    <th className="p-3 font-bold">الحالة</th>
-                    <th className="p-3 font-bold">الوقت</th>
+                    <th className="p-3 font-bold">{t("field_supervision.col_trip_ticket")}</th>
+                    <th className="p-3 font-bold">{t("field_supervision.col_carrier_truck")}</th>
+                    <th className="p-3 font-bold">{t("legacyMigration.labels.material_2")}</th>
+                    <th className="p-3 font-bold">{t("field_operations.origin_net_label")}</th>
+                    <th className="p-3 font-bold">{t("field_supervision.col_dest_weight")}</th>
+                    <th className="p-3 font-bold">{t("field_supervision.col_status")}</th>
+                    <th className="p-3 font-bold">{t("field_supervision.col_time")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
@@ -239,8 +233,8 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
                     <tr>
                       <td colSpan={7} className="p-8 text-center text-stone-400">
                         <Navigation className="w-8 h-8 mx-auto mb-2 text-stone-300" />
-                        <p className="font-bold text-sm text-stone-600">لا توجد رحلات نشطة حالياً</p>
-                        <p className="text-xs text-stone-400 mt-1">سيتم إدراج الرحلات الميدانية فور انطلاقها من محطات التحميل</p>
+                        <p className="font-bold text-sm text-stone-600">{t("field_supervision.no_active_trips")}</p>
+                        <p className="text-xs text-stone-400 mt-1">{t("field_supervision.no_active_trips_desc")}</p>
                       </td>
                     </tr>
                   ) : (
@@ -255,8 +249,8 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
                           <div className="text-[10px] text-stone-500 font-mono">{trip.truckId}</div>
                         </td>
                         <td className="p-3 text-stone-700">{trip.materialId}</td>
-                        <td className="p-3 font-mono">{(trip.netWeight || trip.weights?.originNetKg || 0).toLocaleString()} كجم</td>
-                        <td className="p-3 font-mono">{trip.destNetWeight || trip.weights?.destinationNetKg ? `${(trip.destNetWeight || trip.weights?.destinationNetKg).toLocaleString()} كجم` : '-'}</td>
+                        <td className="p-3 font-mono">{(trip.netWeight || trip.weights?.originNetKg || 0).toLocaleString()} {t("shared.units.kg")}</td>
+                        <td className="p-3 font-mono">{trip.destNetWeight || trip.weights?.destinationNetKg ? t("operations.value_kg", { p0: (trip.destNetWeight || trip.weights?.destinationNetKg).toLocaleString() }) : '-'}</td>
                         <td className="p-3">
                           <span className={`px-2 py-1 rounded text-[10px] font-bold ${
                             trip.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' :
@@ -286,8 +280,8 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
           {exceptions.length === 0 ? (
             <div className="bg-white p-8 rounded-xl border border-stone-200 shadow-sm text-center">
               <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
-              <h3 className="font-bold text-stone-900 text-sm mb-1">لا توجد استثناءات معلقة</h3>
-              <p className="text-xs text-stone-500">كافة الرحلات الميدانية مطابقة للمحددات القياسية والتفاوت الوزني المسموح.</p>
+              <h3 className="font-bold text-stone-900 text-sm mb-1">{t("field_supervision.no_exceptions")}</h3>
+              <p className="text-xs text-stone-500">{t("field_supervision.no_exceptions_desc")}</p>
             </div>
           ) : (
             exceptions.map(exc => (
@@ -308,20 +302,18 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
                   
                   {/* OPERATIONAL DECISION PANEL */}
                   <div className="bg-stone-50 p-4 rounded-xl border border-stone-200">
-                    <h4 className="text-xs font-bold text-stone-900 mb-3">لوحة القرارات التشغيلية (Decision Panel)</h4>
+                    <h4 className="text-xs font-bold text-stone-900 mb-3">{t("field_supervision.decision_panel_title")}</h4>
                     <div className="flex gap-2">
                       <button 
                         onClick={() => handleDecision(exc.exceptionId, 'RESOLVE')}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors"
                       >
-                        معالجة واعتماد الاستثناء
-                      </button>
+                        {t("field_supervision.approve_exception_btn")}</button>
                       <button 
                         onClick={() => handleDecision(exc.exceptionId, 'REJECT')}
                         className="bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-bold py-2 px-4 rounded-lg transition-colors"
                       >
-                        رفض وتوثيق المخالفة
-                      </button>
+                        {t("field_supervision.reject_exception_btn")}</button>
                     </div>
                   </div>
                 </div>
@@ -335,8 +327,8 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
         <div className="space-y-4">
           <div className="bg-white p-8 rounded-xl border border-stone-200 shadow-sm text-center">
             <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
-            <h3 className="font-bold text-stone-900 text-sm mb-1">لا توجد كيانات غير معرفة</h3>
-            <p className="text-xs text-stone-500">كافة بيانات الشاحنات والسائقين والناقلين مطابقة لسجلات النظام المركزية.</p>
+            <h3 className="font-bold text-stone-900 text-sm mb-1">{t("field_supervision.no_unresolved")}</h3>
+            <p className="text-xs text-stone-500">{t("field_supervision.no_unresolved_desc")}</p>
           </div>
         </div>
       )}
@@ -347,10 +339,9 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
             /* Unresolved project UX - Fail Closed */
             <div className="bg-amber-50 border border-amber-200 p-8 rounded-2xl flex flex-col items-center justify-center text-center space-y-3">
               <ShieldAlert className="w-10 h-10 text-amber-500" />
-              <h3 className="text-sm font-bold text-amber-900">تحديد نطاق المشروع مطلوب (Project Selection Required)</h3>
+              <h3 className="text-sm font-bold text-amber-900">{t("field_supervision.project_required_title")}</h3>
               <p className="text-xs text-amber-600 max-w-md">
-                برجاء اختيار مشروع محدد من قائمة المشاريع في شريط التنقل للتمكن من استيراد تذاكر النقل البري وموازين التحميل. لا يمكن الاستيراد بدون نطاق مشروع نشط ومعزول.
-              </p>
+                {t("field_supervision.project_required_desc")}</p>
             </div>
           ) : (
             <>
@@ -360,11 +351,10 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
                   <div>
                     <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
                       <Scale className="w-5 h-5 text-emerald-600" />
-                      <span>مركز الاستيراد التشغيلي الذكي</span>
+                      <span>{t("operations.smart_operational_import_center")}</span>
                     </h3>
                     <p className="text-xs text-stone-500 mt-1">
-                      استيراد وتحليل تذاكر موازين النقل وإجراء مطابقة الكيانات والتحقق من وزن المصدر والوجهة تلقائياً.
-                    </p>
+                      {t("operations.import_and_analyze_weighbridge_tickets_match_entities_and_verify")}</p>
                   </div>
 
                   {/* Source Choice Selector Button Group */}
@@ -379,7 +369,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
                       }`}
                     >
                       <FileSpreadsheet className="w-4 h-4" />
-                      <span>ملفات Excel / CSV</span>
+                      <span>{t("operations.excel_csv_files")}</span>
                     </button>
                     <button
                       type="button"
@@ -391,7 +381,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
                       }`}
                     >
                       <RefreshCw className="w-4 h-4" />
-                      <span>جداول Google Sheets</span>
+                      <span>{t("operations.google_sheets_spreadsheets")}</span>
                     </button>
                   </div>
                 </div>
@@ -399,13 +389,13 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
                 {/* Project Context Isolation Scope Metadata Ribbon */}
                 <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-stone-400">نطاق المشروع النشط (Active Project Scope):</span>
+                    <span className="font-bold text-stone-400">{t("operations.active_project_scope")}</span>
                     <span className="bg-stone-50 px-2 py-0.5 rounded-md border border-stone-200 font-mono text-stone-700">
                       {targetProjectId}
                     </span>
                   </div>
                   <div className="font-mono text-stone-400">
-                    ROLE: {authContext.role}
+                    {t("operations.role")}{authContext.role}
                   </div>
                 </div>
               </div>

@@ -57,10 +57,9 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
           <ShieldAlert className="w-8 h-8 text-rose-500" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-bold text-white uppercase tracking-wider">تسجيل الدخول مطلوب</h3>
+          <h3 className="text-lg font-bold text-white uppercase tracking-wider">{t("dashboard.login_required_title")}</h3>
           <p className="text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">
-            منظومة العمليات الميدانية تتطلب جلسة مستخدم معتمدة وصلاحية تشغيلية نشطة لتسجيل الشاحنات وموازين التحميل والاستلام.
-          </p>
+            {t("operations.field_operations_require_an_approved_user_session_and_active")}</p>
         </div>
       </div>
     );
@@ -77,10 +76,9 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
           <Scale className="w-8 h-8 text-amber-500" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-bold text-white uppercase tracking-wider">لا يوجد مشاريع مفعلة</h3>
+          <h3 className="text-lg font-bold text-white uppercase tracking-wider">{t("field_operations.no_active_projects")}</h3>
           <p className="text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">
-            منظومة العمليات الميدانية تتطلب وجود مشروع نشط ومستندات معتمدة في قاعدة البيانات للبدء في تسجيل الشاحنات وموازين التحميل والاستلام.
-          </p>
+            {t("operations.field_operations_require_an_active_project_and_approved_database")}</p>
         </div>
         {onNavigateToWizard && (
           <button
@@ -89,7 +87,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
             onClick={onNavigateToWizard}
             className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-black rounded-xl transition-all shadow-md inline-flex items-center gap-2"
           >
-            <span>تهيئة مشروع في معالج التأسيس</span>
+            <span>{t("field_operations.provision_project_btn")}</span>
           </button>
         )}
       </div>
@@ -211,7 +209,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
               }`}
             >
               {isSimulatedOffline ? <WifiOff className="w-3.5 h-3.5" /> : <Wifi className="w-3.5 h-3.5" />}
-              <span>{isSimulatedOffline ? 'وضع عدم الاتصال نشط' : 'محاكاة عدم الاتصال'}</span>
+              <span>{isSimulatedOffline ? t("field_operations.simulated_offline_active") : t("field_operations.simulate_offline")}</span>
             </button>
           </div>
         </div>
@@ -240,8 +238,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
             onClick={() => setNotification(null)}
             className="text-stone-400 hover:text-stone-700 text-xs px-2 py-1 rounded"
           >
-            إغلاق
-          </button>
+            {t("shared.actions.close")}</button>
         </div>
       )}
 
