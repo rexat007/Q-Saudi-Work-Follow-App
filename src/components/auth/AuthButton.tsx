@@ -33,7 +33,7 @@ export function AuthButton() {
           <button
             onClick={clearAuthError}
             className="text-rose-400 hover:text-rose-700 font-bold p-0.5 rounded transition-colors"
-            title="إغلاق التنبيه"
+            title={t('shared.actions.close_alert')}
           >
             ×
           </button>
@@ -46,7 +46,7 @@ export function AuthButton() {
             {user.photoURL ? (
               <img
                 src={user.photoURL}
-                alt={user.displayName || 'User'}
+                alt={user.displayName || t('auth.labels.user')}
                 className="w-7 h-7 rounded-lg object-cover"
                 referrerPolicy="no-referrer"
               />
@@ -58,7 +58,7 @@ export function AuthButton() {
 
           <div className="hidden sm:flex flex-col text-right">
             <span className="font-semibold text-stone-900 leading-tight">
-              {user.displayName || user.email?.split('@')[0] || 'مستخدم مسجل'}
+              {user.displayName || user.email?.split('@')[0] || t('auth.fallback.registered_user')}
             </span>
             <span className="text-[10px] text-emerald-700 flex items-center gap-0.5">
               <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" />

@@ -37,7 +37,7 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
   onSelectTab,
   currentRole,
 }) => {
-  const { direction } = useI18n();
+  const { direction, t } = useI18n();
   const isRtl = direction === 'rtl';
   const [searchQuery, setSearchQuery] = useState('');
   const [showDevMode, setShowDevMode] = useState(true);
@@ -76,6 +76,10 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
 
   const renderToolButton = (tool: NavItemDef) => {
     const isSelected = activeTab === tool.id;
+    const toolTitle = t(`navigation.tools.${tool.id.toLowerCase()}.title`);
+    const toolBadge = tool.badgeAr ? t(`navigation.tools.${tool.id.toLowerCase()}.badge`) : undefined;
+    const toolDesc = t(`navigation.tools.${tool.id.toLowerCase()}.description`);
+
     return (
       <button
         key={tool.id}
@@ -100,20 +104,20 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
         <div className="flex-1 min-w-0 text-start">
           <div className="flex items-center justify-between gap-2 mb-0.5">
             <span className={`text-xs font-bold truncate font-mono ${isSelected ? 'text-[#0f1115]' : 'text-slate-100'}`}>
-              {isRtl ? tool.titleAr : tool.titleEn}
+              {toolTitle}
             </span>
-            {tool.badgeAr && (
+            {toolBadge && (
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 font-mono ${
                 isSelected 
                   ? 'bg-stone-900 text-[#10b981] border border-[#10b981]/40' 
                   : 'bg-slate-800 text-slate-200 border border-slate-700'
               }`}>
-                {isRtl ? tool.badgeAr : tool.badgeEn}
+                {toolBadge}
               </span>
             )}
           </div>
           <p className={`text-[11px] leading-relaxed line-clamp-1 ${isSelected ? 'text-[#0f1115]/90 font-medium' : 'text-slate-400'}`}>
-            {tool.descriptionAr}
+            {toolDesc}
           </p>
         </div>
         <div className={`shrink-0 self-center ${isSelected ? 'text-[#0f1115]' : 'text-[#10b981]'}`}>
@@ -137,14 +141,16 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-black font-display uppercase tracking-wider text-[#f8fafc]">أدوات النظام والمطورين</h2>
-              <p className="text-xs text-emerald-400/80 font-mono">SYSTEM TOOLS // AUDIT & COMPLIANCE</p>
+              <h2 className="text-base font-black font-display uppercase tracking-wider text-[#f8fafc]">
+                {t('navigation.labels.system_tools')}
+              </h2>
+              <p className="text-xs text-emerald-400/80 font-mono">{t('navigation.system_tools.subtitle')}</p>
             </div>
           </div>
           <button
             onClick={onClose}
             className="p-2 rounded-lg text-white/60 hover:text-[#f8fafc] hover:bg-white/10 border border-white/10 transition-colors focus:ring-2 focus:ring-[#10b981]"
-            title="إغلاق"
+            title={t('shared.actions.close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -158,7 +164,7 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="البحث في أدوات النظام والتدقيق والمركز..."
+              placeholder={t('navigation.system_tools.search_placeholder')}
               className={`w-full text-xs bg-[#0f1115] border border-white/15 text-[#f8fafc] placeholder:text-white/40 rounded-lg py-2.5 px-3 focus:outline-none focus:border-[#10b981] ${isRtl ? 'pr-9' : 'pl-9'}`}
             />
           </div>
@@ -171,7 +177,7 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
             <div>
               <div className="text-[10px] font-black tracking-widest text-amber-400 uppercase mb-2 px-1 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                SYSTEM ADMIN
+                {t('navigation.categories.system_admin')}
               </div>
               <div className="space-y-2">
                 {systemAdminTools.map(renderToolButton)}
@@ -184,7 +190,7 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
             <div>
               <div className="text-[10px] font-black tracking-widest text-blue-400 uppercase mb-2 px-1 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-                AUDIT & SECURITY
+                {t('navigation.categories.audit_security')}
               </div>
               <div className="space-y-2">
                 {auditSecurityTools.map(renderToolButton)}
@@ -197,7 +203,7 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
             <div>
               <div className="text-[10px] font-black tracking-widest text-emerald-400 uppercase mb-2 px-1 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                OPERATIONS SUPPORT
+                {t('navigation.categories.operations_support')}
               </div>
               <div className="space-y-2">
                 {opsSupportTools.map(renderToolButton)}
@@ -211,14 +217,14 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
               <div className="flex items-center justify-between mb-2 px-1">
                 <div className="text-[10px] font-black tracking-widest text-purple-400 uppercase flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-purple-400"></span>
-                  DEVELOPER MODE (RESTRICTED)
+                  {t('navigation.categories.developer_mode')}
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowDevMode(!showDevMode)}
                   className="text-[10px] text-purple-300 hover:text-purple-100 underline"
                 >
-                  {showDevMode ? 'إخفاء (Hide)' : 'إظهار (Show)'}
+                  {showDevMode ? t('shared.actions.hide') : t('shared.actions.show')}
                 </button>
               </div>
               {showDevMode && filteredDevTools.length > 0 && (
@@ -231,7 +237,7 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
 
           {filteredProdTools.length === 0 && filteredDevTools.length === 0 && (
             <div className="text-center py-12 text-white/50 text-xs">
-              لا توجد أدوات مطابقة لبحثك أو غير مصرح لدورك الحالي ({currentRole})
+              {t('navigation.system_tools.no_tools_found', { role: currentRole })}
             </div>
           )}
         </div>
@@ -240,10 +246,10 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
         <div className="p-4 border-t border-white/10 bg-[#14171c] flex items-center justify-between text-[11px] font-mono text-white/50">
           <div className="flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5 text-[#10b981]" />
-            <span>ROLE: <strong className="text-[#f8fafc]">{currentRole}</strong></span>
+            <span>{t('navigation.system_tools.role_label')}: <strong className="text-[#f8fafc]">{currentRole}</strong></span>
           </div>
           <span className="font-mono text-[10px] bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/30 px-2.5 py-1 rounded-lg font-bold">
-            {prodTools.length} PRODUCTION TOOLS
+            {prodTools.length} {t('navigation.system_tools.production_tools_count')}
           </span>
         </div>
       </div>

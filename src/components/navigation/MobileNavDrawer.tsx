@@ -48,10 +48,10 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
   isOnline,
   pendingOutboxCount,
 }) => {
-  const { direction } = useI18n();
+  const { direction, t } = useI18n();
   const isRtl = direction === 'rtl';
   const { user, userProfile } = useAuth();
-  const displayName = userProfile?.fullName || user?.displayName || 'مدير النظام';
+  const displayName = userProfile?.fullName || user?.displayName || t('auth.fallback.system_admin');
 
   if (!isOpen) return null;
 
@@ -91,7 +91,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
           <button
             onClick={onClose}
             className="p-2 rounded text-white/60 hover:text-[#f8fafc] hover:bg-white/10 border border-white/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-            title="إغلاق القائمة"
+            title={t('navigation.mobile.close_menu')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -102,7 +102,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 text-xs font-bold font-mono text-[#f8fafc]">
               <UserCheck className="w-4 h-4 text-[#10b981]" />
-              <span>تبديل الصلاحية:</span>
+              <span>{t('navigation.mobile.switch_role')}:</span>
             </div>
             <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${roleProfile.badgeColor}`}>
               {currentRole}
@@ -119,19 +119,19 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
             }}
             className="w-full bg-[#0f1115] border border-white/15 rounded px-3 py-2 text-xs font-bold font-mono text-[#f8fafc] focus:outline-hidden focus:border-[#10b981] min-h-[44px]"
           >
-            <option value="SUPER_ADMIN">SUPER_ADMIN (مشرف عام)</option>
-            <option value="PROJECT_ADMIN">PROJECT_ADMIN (مدير مشروع)</option>
-            <option value="SUPERVISOR">SUPERVISOR (مشرف ميداني)</option>
-            <option value="SITE_SUPERVISOR">SITE_SUPERVISOR (مشرف موقع تفريغ)</option>
-            <option value="DISPATCHER">DISPATCHER (مرحل شاحنات)</option>
-            <option value="SCALE_OPERATOR">SCALE_OPERATOR (مشغل ميزان)</option>
-            <option value="FINANCE_AUDITOR">FINANCE_AUDITOR (مدقق مالي)</option>
-            <option value="DRIVER">DRIVER (سائق شاحنة)</option>
-            <option value="VIEWER">VIEWER (مستعرض فقط)</option>
+            <option value="SUPER_ADMIN">SUPER_ADMIN ({t('navigation.roles.super_admin_label')})</option>
+            <option value="PROJECT_ADMIN">PROJECT_ADMIN ({t('navigation.roles.project_admin_label')})</option>
+            <option value="SUPERVISOR">SUPERVISOR ({t('navigation.roles.supervisor_label')})</option>
+            <option value="SITE_SUPERVISOR">SITE_SUPERVISOR ({t('navigation.roles.site_supervisor_label')})</option>
+            <option value="DISPATCHER">DISPATCHER ({t('navigation.roles.dispatcher_label')})</option>
+            <option value="SCALE_OPERATOR">SCALE_OPERATOR ({t('navigation.roles.scale_operator_label')})</option>
+            <option value="FINANCE_AUDITOR">FINANCE_AUDITOR ({t('navigation.roles.finance_auditor_label')})</option>
+            <option value="DRIVER">DRIVER ({t('navigation.roles.driver_label')})</option>
+            <option value="VIEWER">VIEWER ({t('navigation.roles.viewer_label')})</option>
           </select>
 
           <div className="mt-2 text-[11px] font-mono text-white/50 leading-tight">
-            USER: {displayName}
+            {t('auth.labels.user_prefix')}: {displayName}
           </div>
         </div>
 
@@ -139,12 +139,14 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <div>
             <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-white/50 mb-2 px-1">
-              الأقسام المصرحة // AUTHORIZED_AREAS
+              {t('navigation.mobile.authorized_sections')}
             </div>
 
             <div className="space-y-1.5">
               {authorizedPrimaryTabs.map((tab) => {
                 const isSelected = activeTab === tab.id;
+                const tabTitle = t(`navigation.tabs.${tab.id.toLowerCase()}`);
+                const badgeText = tab.badgeAr ? t(`navigation.badges.${tab.id.toLowerCase()}`) : undefined;
                 return (
                   <button
                     key={tab.id}
@@ -164,18 +166,18 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                         {getTabIcon(tab.icon)}
                       </div>
                       <div>
-                        <div className="text-xs font-bold font-mono">{tab.titleAr}</div>
+                        <div className="text-xs font-bold font-mono">{tabTitle}</div>
                         <div className={`text-[10px] font-mono ${isSelected ? 'text-[#0f1115]/80' : 'text-white/50'}`}>
-                          {tab.titleEn}
+                          {tab.id}
                         </div>
                       </div>
                     </div>
 
-                    {tab.badgeAr && (
+                    {badgeText && (
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
                         isSelected ? 'bg-black text-[#10b981]' : 'bg-white/10 text-[#f8fafc]'
                       }`}>
-                        {tab.badgeAr}
+                        {badgeText}
                       </span>
                     )}
                   </button>
@@ -188,7 +190,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
           {authorizedTools.length > 0 && (
             <div className="pt-3 border-t border-white/10">
               <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-white/50 mb-2 px-1">
-                SYSTEM_TOOLS // أدوات النظام
+                {t('navigation.mobile.system_tools_section')}
               </div>
 
               <button
@@ -201,7 +203,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
               >
                 <div className="flex items-center gap-2.5">
                   <Sparkles className="w-4 h-4 text-[#10b981]" />
-                  <span>أدوات النظام والمطورين ({authorizedTools.length})</span>
+                  <span>{t('navigation.labels.system_tools')} ({authorizedTools.length})</span>
                 </div>
                 {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </button>
@@ -227,7 +229,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
               }`}
             >
               {isOnline ? <Wifi className="w-4 h-4 text-[#10b981]" /> : <WifiOff className="w-4 h-4 text-amber-400" />}
-              <span>{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
+              <span>{isOnline ? t('shared.status.online') : t('shared.status.offline')}</span>
               <span className="font-mono text-[10px] bg-[#10b981]/20 text-[#10b981] px-1.5 py-0.5 rounded">
                 {pendingOutboxCount}
               </span>

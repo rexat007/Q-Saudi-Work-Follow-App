@@ -53,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { direction, t } = useI18n();
   const isRtl = direction === 'rtl';
   const { user, userProfile } = useAuth();
-  const displayName = userProfile?.fullName || user?.displayName || 'مدير النظام';
+  const displayName = userProfile?.fullName || user?.displayName || t('auth.fallback.system_admin');
 
   const [isProjectsExpanded, setIsProjectsExpanded] = useState(true);
 
@@ -108,7 +108,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           id="btn-sidebar-collapse"
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="p-1.5 hover:bg-white/5 text-white/50 hover:text-white rounded-lg transition-colors focus:outline-hidden"
-          title={isCollapsed ? (isRtl ? 'توسيع' : 'Expand') : (isRtl ? 'طي' : 'Collapse')}
+          title={isCollapsed ? t('sidebar.expand') : t('sidebar.collapse')}
         >
           {isCollapsed ? (
             isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
@@ -132,7 +132,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-white/40 flex items-center gap-1">
                 <UserCheck className="w-3.5 h-3.5 text-[#10b981]" />
-                <span>ROLE PROFILE</span>
+                <span>{t('sidebar.role_profile')}</span>
               </span>
               <span className={`text-[8px] font-mono font-bold px-1.5 py-0.2 rounded ${roleProfile.badgeColor}`}>
                 {currentRole}
@@ -148,15 +148,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               disabled={Boolean(user)}
               className="w-full bg-[#0b0e12] border border-white/10 rounded px-2 py-1 text-[11px] font-bold font-mono text-white focus:outline-hidden focus:border-[#10b981] disabled:opacity-55 disabled:cursor-not-allowed"
             >
-              <option value="SUPER_ADMIN">SUPER_ADMIN (مشرف عام)</option>
-              <option value="PROJECT_ADMIN">PROJECT_ADMIN (مدير مشروع)</option>
-              <option value="SUPERVISOR">SUPERVISOR (مشرف ميداني)</option>
-              <option value="SITE_SUPERVISOR">SITE_SUPERVISOR (مشرف تفريغ)</option>
-              <option value="DISPATCHER">DISPATCHER (مرحل حركة)</option>
-              <option value="SCALE_OPERATOR">SCALE_OPERATOR (مشغل ميزان)</option>
-              <option value="FINANCE_AUDITOR">FINANCE_AUDITOR (مدقق مالي)</option>
-              <option value="DRIVER">DRIVER (سائق شاحنة)</option>
-              <option value="VIEWER">VIEWER (مستعرض فقط)</option>
+              <option value="SUPER_ADMIN">SUPER_ADMIN ({t('navigation.roles.super_admin_label')})</option>
+              <option value="PROJECT_ADMIN">PROJECT_ADMIN ({t('navigation.roles.project_admin_label')})</option>
+              <option value="SUPERVISOR">SUPERVISOR ({t('navigation.roles.supervisor_label')})</option>
+              <option value="SITE_SUPERVISOR">SITE_SUPERVISOR ({t('navigation.roles.site_supervisor_label')})</option>
+              <option value="DISPATCHER">DISPATCHER ({t('navigation.roles.dispatcher_label')})</option>
+              <option value="SCALE_OPERATOR">SCALE_OPERATOR ({t('navigation.roles.scale_operator_label')})</option>
+              <option value="FINANCE_AUDITOR">FINANCE_AUDITOR ({t('navigation.roles.finance_auditor_label')})</option>
+              <option value="DRIVER">DRIVER ({t('navigation.roles.driver_label')})</option>
+              <option value="VIEWER">VIEWER ({t('navigation.roles.viewer_label')})</option>
             </select>
             <div className="text-[10px] font-mono text-white/50 leading-snug truncate" title={displayName}>
               {displayName}
@@ -171,12 +171,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="space-y-1">
           {!isCollapsed && (
             <div className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/30 mb-2 px-2">
-              {isRtl ? 'أقسام النظام الأساسية' : 'OPERATIONAL SUITE'}
+              {t('sidebar.operational_suite')}
             </div>
           )}
 
           {authorizedPrimaryTabs.map((tab) => {
             const isSelected = activeTab === tab.id;
+            const tabTitle = t(`navigation.tabs.${tab.id.toLowerCase()}`);
+            const badgeText = tab.badgeAr ? t(`navigation.badges.${tab.id.toLowerCase()}`) : undefined;
             return (
               <button
                 key={tab.id}
@@ -189,18 +191,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/30 font-bold'
                     : 'bg-transparent text-white/60 hover:text-white border-transparent hover:bg-white/5'
                 }`}
-                title={isCollapsed ? tab.titleAr : undefined}
+                title={isCollapsed ? tabTitle : undefined}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   {getTabIcon(tab.icon, "w-4 h-4 shrink-0 transition-transform group-hover:scale-105")}
-                  {!isCollapsed && <span className="truncate">{tab.titleAr}</span>}
+                  {!isCollapsed && <span className="truncate">{tabTitle}</span>}
                 </div>
 
-                {!isCollapsed && tab.badgeAr && (
+                {!isCollapsed && badgeText && (
                   <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold shrink-0 ${
                     isSelected ? 'bg-[#10b981] text-[#0f1115]' : 'bg-white/10 text-white/60'
                   }`}>
-                    {tab.badgeAr}
+                    {badgeText}
                   </span>
                 )}
               </button>
@@ -214,13 +216,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {!isCollapsed && (
               <div className="flex items-center justify-between px-2 mb-2">
                 <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/30">
-                  {isRtl ? 'مساحة عمل المشاريع' : 'PROJECT WORKSPACE'}
+                  {t('sidebar.project_workspace')}
                 </span>
                 <button
                   type="button"
                   id="sidebar-btn-project-expand"
                   onClick={() => setIsProjectsExpanded(!isProjectsExpanded)}
                   className="p-0.5 hover:bg-white/5 text-white/30 hover:text-white rounded transition-colors"
+                  title={isProjectsExpanded ? t('sidebar.collapse_projects') : t('sidebar.expand_projects')}
                 >
                   <ChevronDown className={`w-3.5 h-3.5 transform transition-transform duration-200 ${isProjectsExpanded ? 'rotate-180' : ''}`} />
                 </button>
@@ -246,12 +249,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* Project selector dropdown/list */}
                 {projects.length === 0 ? (
                   <div className="p-2 text-[10px] text-white/30 italic text-center">
-                    {isRtl ? 'لا يوجد مشاريع مضافة' : 'No projects found'}
+                    {t('sidebar.no_projects_found')}
                   </div>
                 ) : (
                   <div className="space-y-1.5 mt-2">
                     <label className="text-[9px] font-mono text-white/40 block px-1">
-                      {isRtl ? 'المشروع النشط:' : 'ACTIVE LOGISTICS SCOPE:'}
+                      {t('sidebar.active_logistics_scope')}
                     </label>
                     <select
                       id="sidebar-project-quick-selector"
@@ -262,7 +265,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       }}
                       className="w-full bg-[#0f1115] border border-white/10 rounded px-2 py-1.5 text-xs font-bold font-mono text-white focus:outline-hidden focus:border-[#10b981] mb-2"
                     >
-                      <option value="" disabled>{isRtl ? 'اختر المشروع لوجستي' : 'Select Project...'}</option>
+                      <option value="" disabled>{t('sidebar.select_project')}</option>
                       {projects.map((p) => (
                         <option key={p.projectId} value={p.projectId}>
                           {p.nameAr} ({p.status})
@@ -295,7 +298,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={`w-full flex items-center rounded-lg bg-[#151921] border border-[#10b981]/20 text-[#10b981] font-mono font-bold hover:bg-[#10b981]/10 transition-colors ${
                 isCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2 text-xs'
               }`}
-              title={isCollapsed ? 'أدوات النظام والمطورين' : undefined}
+              title={isCollapsed ? t('navigation.labels.system_tools') : undefined}
             >
               <div className="flex items-center gap-2 min-w-0">
                 <Sparkles className="w-4 h-4 shrink-0" />

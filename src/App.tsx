@@ -104,7 +104,7 @@ export default function App() {
   const activeAuthContext: AuthUserContext | undefined = user
     ? {
         userId: user.uid,
-        displayName: userProfile?.fullName || user.displayName || user.email || 'مستخدم النظام',
+        displayName: userProfile?.fullName || user.displayName || user.email || t('auth.fallback.system_user'),
         email: user.email || '',
         role: effectiveRole,
         assignedProjectIds: userProfile?.assignedProjectIds || [],
@@ -333,7 +333,7 @@ export default function App() {
                 id="btn-mobile-nav-toggle"
                 onClick={() => setIsMobileNavOpen(true)}
                 className="lg:hidden p-2 rounded text-white/70 hover:text-white hover:bg-white/5 border border-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center font-mono"
-                title="القائمة الرئيسية"
+                title={t('navigation.mobile.main_menu')}
               >
                 <Menu className="w-5 h-5 text-[#10b981]" />
               </button>
@@ -352,7 +352,7 @@ export default function App() {
                     </span>
                   </div>
                   <span className="label text-[10px] tracking-widest text-[#10b981] font-mono uppercase block">
-                    Enterprise Architecture
+                    {t('navigation.labels.enterprise_architecture')}
                   </span>
                 </div>
               </div>
@@ -382,12 +382,12 @@ export default function App() {
                     value={presentationRole}
                     onChange={(e) => handleRoleChange(e.target.value as UserRole)}
                     className="bg-transparent text-[#f8fafc] font-bold font-mono text-xs focus:outline-hidden cursor-pointer disabled:cursor-not-allowed"
-                    title="تبديل الصلاحية النشطة"
+                    title={t('navigation.labels.switch_active_role')}
                     disabled={Boolean(user)}
                   >
                     {SYSTEM_ROLES.map((role) => (
                       <option key={role} value={role} className="bg-[#1a1d23] text-[#f8fafc] font-mono">
-                        {role} ({ROLE_PROFILES[role].titleAr.split('(')[0]})
+                        {role} ({t(`navigation.roles.${role.toLowerCase()}_label`)})
                       </option>
                     ))}
                   </select>
@@ -426,7 +426,7 @@ export default function App() {
                   title={t("navigation.labels.txt_10324c")}
                 >
                   <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
-                  <span>{conflictCount} تعارض</span>
+                  <span>{conflictCount} {t('navigation.labels.conflicts_count')}</span>
                 </button>
               )}
 
@@ -464,7 +464,7 @@ export default function App() {
                 <span className="flex items-center gap-1 text-white/60">
                   <Lock className="w-3 h-3 text-[#10b981]" />
                   <span className="text-white/40">USER:</span>
-                  <strong className="text-[#f8fafc] font-bold">{activeAuthContext?.displayName || 'غير مسجل'}</strong>
+                  <strong className="text-[#f8fafc] font-bold">{activeAuthContext?.displayName || t('auth.fallback.unregistered_user')}</strong>
                 </span>
                 <span className="text-white/20">•</span>
                 <span className="text-white/60">
@@ -685,7 +685,7 @@ export default function App() {
                         <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-100">
                           <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
                             <Share2 className="w-4 h-4 text-indigo-600" />
-                            <span>الارتباطات المباشرة مع الكيانات الأخرى في النظام ({selectedEntity.relationships.length})</span>
+                            <span>{t('relations.direct_connections', { count: selectedEntity.relationships.length })}</span>
                           </h3>
                           <span className="text-xs text-stone-400">
                             {t("navigation.labels.txt_5dc573")}
@@ -720,7 +720,7 @@ export default function App() {
                                   </p>
                                 </div>
                                 <div className="mt-3 pt-2 border-t border-stone-200/40 flex items-center justify-end text-[10px] font-bold text-stone-400 group-hover:text-indigo-600 gap-1 transition-colors">
-                                  <span>استعراض كيان {rel.target}</span>
+                                  <span>{t('relations.view_entity', { entity: rel.target })}</span>
                                   <ChevronLeft className="w-3 h-3" />
                                 </div>
                               </div>
@@ -848,7 +848,7 @@ export default function App() {
                           {selectedDoc.summaryAr}
                         </p>
                         <div className="mt-3 pt-2 border-t border-stone-200/60 font-mono text-[11px] text-stone-500">
-                          المسار: {selectedDoc.filename}
+                          {t('docs.path_label')}: {selectedDoc.filename}
                         </div>
                       </div>
                     </div>

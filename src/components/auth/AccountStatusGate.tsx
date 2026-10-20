@@ -62,7 +62,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
       });
       const data = await response.json();
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'فشلت عملية تهيئة النظام.');
+        throw new Error(data.error || t('auth.bootstrap.failed'));
       }
       setBootstrapSuccess(true);
       if (onRefresh) {
@@ -70,7 +70,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
       }
     } catch (err: any) {
       console.error('Bootstrap error:', err);
-      setFormError(err.message || 'حدث خطأ أثناء الاتصال بالخادم لتهيئة النظام.');
+      setFormError(err.message || t('auth.bootstrap.connection_error'));
     } finally {
       setIsBootstrapping(false);
     }
@@ -95,7 +95,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
     e.preventDefault();
     if (!user) return;
     if (!fullName.trim()) {
-      setFormError(isRTL ? 'يُرجى إدخال الاسم الكامل.' : 'Please enter your full name.');
+      setFormError(t('auth.validation.full_name_required'));
       return;
     }
 
@@ -126,7 +126,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
       }
     } catch (err: any) {
       console.error('Error submitting account request:', err);
-      setFormError(isRTL ? 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة لاحقاً.' : 'An error occurred while submitting the request. Please try again.');
+      setFormError(t('auth.validation.submit_error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -143,10 +143,10 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
             </div>
             <div>
               <h1 className="text-sm font-mono font-bold text-[#f8fafc] tracking-wider uppercase">
-                كيو لخدمات النقل واللوجستيات // Q-SAUDI WORK FOLLOW
+                {t('auth.gate.brand_title')} // Q-SAUDI WORK FOLLOW
               </h1>
               <p className="text-xs text-white/40 font-mono">
-                بوابة الاعتماد الأمني وحماية البيانات التشغيلية
+                {t('auth.gate.security_subheading')}
               </p>
             </div>
           </div>
@@ -159,7 +159,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
                 <ShieldCheck className="w-8 h-8" />
               </div>
               <h2 className="text-xl font-black text-white tracking-wide">
-                {isRTL ? 'بوابة التحقق التشغيلية' : 'Operational Authentication Gateway'}
+                {t('auth.gate.gateway_title')}
               </h2>
               <p className="text-xs font-mono text-white/40 uppercase tracking-widest">
                 {t("authentication.labels.identityGovernance")}
@@ -168,27 +168,23 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
 
             <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 text-xs text-amber-200/90 leading-relaxed space-y-2">
               <p className="font-bold">
-                {isRTL ? 'إشعار أمني مهم:' : 'Important Security Notice:'}
+                {t('auth.gate.security_notice_title')}
               </p>
               <p>
-                {isRTL 
-                  ? 'هذا النظام مخصص حصرياً للموظفين المصرح لهم والناقلين المعتمدين في مشاريع شركة كيو. يتم رصد وتوثيق كافة محاولات الدخول بشكل صارم.'
-                  : 'This system is exclusively restricted to authorized personnel and approved carriers. All login attempts are recorded and monitored.'}
+                {t('auth.gate.security_notice_body')}
               </p>
             </div>
 
             {authError && (
               <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs rounded-xl font-medium leading-relaxed">
-                {authError && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs rounded-xl font-medium leading-relaxed space-y-1">
-                <p className="font-bold">{t("authentication.labels.authErrorPrefix")}</p>
-                <p>
-                  {authError.includes("auth/requests-from-referer") || authError.includes("unauthorized-domain")
-                    ? t("authentication.labels.unauthorizedDomainError")
-                    : authError}
-                </p>
-              </div>
-            )}
+                <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs rounded-xl font-medium leading-relaxed space-y-1">
+                  <p className="font-bold">{t("authentication.labels.authErrorPrefix")}</p>
+                  <p>
+                    {authError.includes("auth/requests-from-referer") || authError.includes("unauthorized-domain")
+                      ? t("authentication.labels.unauthorizedDomainError")
+                      : authError}
+                  </p>
+                </div>
               </div>
             )}
 
@@ -204,7 +200,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
                   <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.113-5.111 4.113-3.414 0-6.177-2.763-6.177-6.177s2.763-6.177 6.177-6.177c1.554 0 2.964.576 4.05 1.526l3.177-3.177C19.346 1.996 16.035 1 12.24 1 5.48 1 0 6.48 0 13.24s5.48 12.24 12.24 12.24c6.887 0 12.24-5.48 12.24-12.24 0-.823-.082-1.646-.247-2.455H12.24z"/>
                 </svg>
               )}
-              <span>{isSigningIn ? (isRTL ? 'جاري الاتصال بـ Google...' : 'Connecting to Google...') : (isRTL ? 'تسجيل الدخول باستخدام Google' : 'Sign In with Google')}</span>
+              <span>{isSigningIn ? t('auth.actions.connecting_google') : t('auth.actions.signin_google')}</span>
             </button>
           </div>
         </main>
@@ -227,10 +223,10 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
             </div>
             <div>
               <h1 className="text-sm font-mono font-bold text-[#f8fafc] tracking-wider uppercase">
-                كيو لخدمات النقل واللوجستيات // Q-SAUDI WORK FOLLOW
+                {t('auth.gate.brand_title')} // Q-SAUDI WORK FOLLOW
               </h1>
               <p className="text-xs text-white/40 font-mono">
-                بوابة الاعتماد الأمني وحماية البيانات التشغيلية
+                {t('auth.gate.security_subheading')}
               </p>
             </div>
           </div>
@@ -239,7 +235,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 active:scale-95 text-white/70 hover:text-white border border-white/10 text-xs font-mono transition-all min-h-[44px] cursor-pointer"
           >
             <LogOut className="w-4 h-4 text-rose-400" />
-            <span>{isRTL ? 'تسجيل الخروج' : 'Sign Out'}</span>
+            <span>{t('shared.actions.sign_out')}</span>
           </button>
         </header>
 
@@ -247,18 +243,18 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
           <div className="bg-[#15181e] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-5">
             <div className="text-center space-y-2">
               <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/20">
-                {isRTL ? 'مستخدم جديد غير مسجل' : 'NEW UNREGISTERED USER'}
+                {t('auth.gate.new_user_badge')}
               </span>
               <h2 className="text-xl font-bold text-white tracking-wide">
-                {isRTL ? 'تقديم طلب تفعيل حساب جديد' : 'Submit New Account Request'}
+                {t('auth.gate.submit_request_title')}
               </h2>
               <p className="text-xs text-stone-400">
-                {isRTL ? 'يُرجى ملء البيانات التالية لتقديمها للمراجعة والاعتماد' : 'Please provide the details below for operational review'}
+                {t('auth.gate.fill_details_prompt')}
               </p>
             </div>
 
             <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3.5 text-xs text-rose-300 font-semibold text-center leading-relaxed">
-              ⚠️ {isRTL ? 'المصادقة بمفردها لا تمنح صلاحية الوصول التلقائي للنظام.' : 'Authentication alone does not grant application access.'}
+              ⚠️ {t('auth.gate.auth_alone_warning')}
             </div>
 
             {/* Owner Bootstrap Panel */}
@@ -270,24 +266,22 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-white">
-                      {isRTL ? 'بوابة تهيئة النظام الرئيسية (Bootstrap)' : 'Canonical System Owner Setup'}
+                      {t('auth.bootstrap.panel_title')}
                     </h3>
                     <p className="text-[10px] text-stone-400 font-mono">
-                      {isRTL ? 'تم رصد بريدك الإلكتروني كمالك معين للنظام.' : 'Detected authorized initial owner identity.'}
+                      {t('auth.bootstrap.detected_owner')}
                     </p>
                   </div>
                 </div>
 
                 <p className="text-xs text-stone-300 leading-relaxed">
-                  {isRTL 
-                    ? 'يمكنك الآن تفعيل حساب المالك الرئيسي كـ (SUPER_ADMIN) بخطوة واحدة آمنة ومشروطة بخلية مستخدمين فارغة.'
-                    : 'You can now bootstrap the primary administrative account as SUPER_ADMIN. This operation is authoritative and only allowed when the system has zero accounts.'}
+                  {t('auth.bootstrap.description')}
                 </p>
 
                 {bootstrapSuccess ? (
                   <div className="flex items-center gap-2 text-[#10b981] font-bold text-xs bg-[#10b981]/10 p-3 rounded-lg border border-[#10b981]/25">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>{isRTL ? 'تمت تهيئة حساب المالك بنجاح! جاري تحميل شاشات الإدارة...' : 'System bootstrapped successfully! Redirecting...'}</span>
+                    <span>{t('auth.bootstrap.success_message')}</span>
                   </div>
                 ) : (
                   <button
@@ -301,7 +295,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
                     ) : (
                       <ShieldCheck className="w-4 h-4" />
                     )}
-                    <span>{isBootstrapping ? (isRTL ? 'جاري تهيئة الحساب...' : 'Bootstrapping Account...') : (isRTL ? 'تهيئة وتفعيل حساب SUPER_ADMIN' : 'Bootstrap SUPER_ADMIN Profile')}</span>
+                    <span>{isBootstrapping ? t('auth.bootstrap.in_progress') : t('auth.bootstrap.action_btn')}</span>
                   </button>
                 )}
               </div>
@@ -318,7 +312,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
               <div>
                 <label className="block text-stone-400 mb-1.5 font-bold flex items-center gap-1.5">
                   <Mail className="w-3.5 h-3.5" />
-                  {isRTL ? 'البريد الإلكتروني المرتبط بـ Google (معرّف آمن)' : 'Authenticated Google Email'}
+                  {t('auth.fields.google_email')}
                 </label>
                 <input
                   type="text"
@@ -333,14 +327,14 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
               <div>
                 <label className="block text-stone-300 mb-1.5 font-bold flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-[#10b981]" />
-                  {isRTL ? 'الاسم الكامل الثلاثي للمستخدم' : 'Full Three-Part Name'} <span className="text-rose-500">*</span>
+                  {t('auth.fields.full_name')} <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder={isRTL ? 'أدخل اسمك بالكامل' : 'Enter your full name'}
+                  placeholder={t('auth.fields.full_name_placeholder')}
                   className="w-full px-3.5 py-2.5 bg-stone-900 text-white placeholder-stone-600 border border-stone-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl focus:outline-hidden transition-all text-xs"
                 />
               </div>
@@ -349,21 +343,21 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
               <div>
                 <label className="block text-stone-300 mb-1.5 font-bold flex items-center gap-1.5">
                   <Briefcase className="w-3.5 h-3.5 text-[#10b981]" />
-                  {isRTL ? 'الدور الوظيفي المطلوب للوصول' : 'Requested System Role'} <span className="text-rose-500">*</span>
+                  {t('auth.fields.requested_role')} <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={requestedRole}
                   onChange={(e) => setRequestedRole(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-stone-900 text-white border border-stone-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl focus:outline-hidden transition-all text-xs cursor-pointer"
                 >
-                  <option value="VIEWER">{isRTL ? 'مشاهد عام فقط (VIEWER)' : 'General Viewer (VIEWER)'}</option>
-                  <option value="DRIVER">{isRTL ? 'سائق شاحنة ميداني (DRIVER)' : 'Field Truck Driver (DRIVER)'}</option>
-                  <option value="SCALE_OPERATOR">{isRTL ? 'مشغل ميزان البوابة (SCALE_OPERATOR)' : 'Weighbridge Operator (SCALE_OPERATOR)'}</option>
-                  <option value="DISPATCHER">{isRTL ? 'منسق رحلات وتشغيل (DISPATCHER)' : 'Operations Dispatcher (DISPATCHER)'}</option>
-                  <option value="SITE_SUPERVISOR">{isRTL ? 'مشرف موقع تفريغ واستلام (SITE_SUPERVISOR)' : 'Unloading Site Supervisor (SITE_SUPERVISOR)'}</option>
-                  <option value="SUPERVISOR">{isRTL ? 'مشرف عمليات ميداني عام (SUPERVISOR)' : 'Field Supervisor (SUPERVISOR)'}</option>
-                  <option value="FINANCE_AUDITOR">{isRTL ? 'مدقق ومراجع مالي وعقود (FINANCE_AUDITOR)' : 'Finance & Audit Controller (FINANCE_AUDITOR)'}</option>
-                  <option value="PROJECT_ADMIN">{isRTL ? 'مدير المشروع المشرف (PROJECT_ADMIN)' : 'Authorized Project Administrator (PROJECT_ADMIN)'}</option>
+                  <option value="VIEWER">{t('navigation.roles.viewer_label')} (VIEWER)</option>
+                  <option value="DRIVER">{t('navigation.roles.driver_label')} (DRIVER)</option>
+                  <option value="SCALE_OPERATOR">{t('navigation.roles.scale_operator_label')} (SCALE_OPERATOR)</option>
+                  <option value="DISPATCHER">{t('navigation.roles.dispatcher_label')} (DISPATCHER)</option>
+                  <option value="SITE_SUPERVISOR">{t('navigation.roles.site_supervisor_label')} (SITE_SUPERVISOR)</option>
+                  <option value="SUPERVISOR">{t('navigation.roles.supervisor_label')} (SUPERVISOR)</option>
+                  <option value="FINANCE_AUDITOR">{t('navigation.roles.finance_auditor_label')} (FINANCE_AUDITOR)</option>
+                  <option value="PROJECT_ADMIN">{t('navigation.roles.project_admin_label')} (PROJECT_ADMIN)</option>
                 </select>
               </div>
 
@@ -371,13 +365,13 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
               <div>
                 <label className="block text-stone-300 mb-1.5 font-bold flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5 text-[#10b981]" />
-                  {isRTL ? 'سبب تقديم الطلب / نطاق العمل المقترح' : 'Reason for Request / Proposed Scope'}
+                  {t('auth.fields.request_reason')}
                 </label>
                 <textarea
                   value={requestReason}
                   onChange={(e) => setRequestReason(e.target.value)}
                   rows={3}
-                  placeholder={isRTL ? 'مثال: مهندس موقع بمشروع نيوم لتسجيل موازين الشحنات اليومية' : 'Example: Unloading site inspector assigned to record weighments at Neom'}
+                  placeholder={t('auth.fields.request_reason_placeholder')}
                   className="w-full px-3.5 py-2.5 bg-stone-900 text-white placeholder-stone-600 border border-stone-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl focus:outline-hidden transition-all text-xs resize-none"
                 />
               </div>
@@ -394,7 +388,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
                   ) : (
                     <Check className="w-4 h-4" />
                   )}
-                  <span>{isSubmitting ? (isRTL ? 'جاري إرسال الطلب...' : 'Submitting Request...') : (isRTL ? 'تقديم طلب الحساب' : 'Submit Registration')}</span>
+                  <span>{isSubmitting ? t('auth.actions.submitting_request') : t('auth.actions.submit_request')}</span>
                 </button>
               </div>
             </form>
@@ -410,37 +404,36 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
 
   // 3-5. Gated screens: PENDING_APPROVAL, REJECTED, SUSPENDED
   const getStatusDetails = () => {
-    const profile = userRepository; // dummy ref
     switch (status) {
       case 'REJECTED':
         return {
-          title: 'تم رفض طلب إنشاء الحساب',
-          titleEn: 'Account Request Rejected',
-          description: 'نعتذر، لم يتم قبول طلب الانضمام للنظام. يرجى مراجعة السبب الموضح أدناه، أو التواصل مع إدارة العمليات لتقديم طلب مراجعة.',
+          title: t('auth.status.rejected_title'),
+          subtitle: t('auth.status.rejected_subtitle'),
+          description: t('auth.status.rejected_description'),
           icon: <XCircle className="w-12 h-12 text-rose-500" />,
           badgeBg: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
-          badgeText: 'مرفوض // REJECTED',
+          badgeText: t('auth.status.rejected_badge'),
           showRejectionReason: true
         };
       case 'SUSPENDED':
         return {
-          title: 'الحساب معلق مؤقتاً',
-          titleEn: 'Account Suspended',
-          description: 'تم تعليق الصلاحيات التشغيلية لهذا الحساب بقرار إداري. يُرجى مراجعة مسؤول النظام للتحقق من أسباب التعليق وإعادة التفعيل.',
+          title: t('auth.status.suspended_title'),
+          subtitle: t('auth.status.suspended_subtitle'),
+          description: t('auth.status.suspended_description'),
           icon: <AlertTriangle className="w-12 h-12 text-amber-500" />,
           badgeBg: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-          badgeText: 'معلق // SUSPENDED',
+          badgeText: t('auth.status.suspended_badge'),
           showRejectionReason: false
         };
       case 'PENDING_APPROVAL':
       default:
         return {
-          title: 'طلب الحساب قيد المراجعة والاعتماد',
-          titleEn: 'Account Pending Approval',
-          description: 'تم تسجيل بيانات حسابك بنجاح عبر Google Auth. حسابك حالياً بحالة الانتظار ولن تتمكن من الوصول إلى الشاشات التشغيلية والمشاريع حتى يتم اعتماد طلبك وتعيين الدور الوظيفي من قبل مسؤول النظام (SUPER_ADMIN / PROJECT_ADMIN).',
+          title: t('auth.status.pending_title'),
+          subtitle: t('auth.status.pending_subtitle'),
+          description: t('auth.status.pending_description'),
           icon: <Clock className="w-12 h-12 text-blue-400 animate-pulse" />,
           badgeBg: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
-          badgeText: 'قيد الاعتماد // PENDING_APPROVAL',
+          badgeText: t('auth.status.pending_badge'),
           showRejectionReason: false
         };
     }
@@ -458,10 +451,10 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
           </div>
           <div>
             <h1 className="text-sm font-mono font-bold text-[#f8fafc] tracking-wider uppercase">
-              كيو لخدمات النقل واللوجستيات // Q-SAUDI WORK FOLLOW
+              {t('auth.gate.brand_title')} // Q-SAUDI WORK FOLLOW
             </h1>
             <p className="text-xs text-white/40 font-mono">
-              بوابة الاعتماد الأمني وحماية البيانات التشغيلية
+              {t('auth.gate.security_subheading')}
             </p>
           </div>
         </div>
@@ -471,7 +464,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 active:scale-95 text-white/70 hover:text-white border border-white/10 text-xs font-mono transition-all min-h-[44px] cursor-pointer"
         >
           <LogOut className="w-4 h-4 text-rose-400" />
-          <span>{isRTL ? 'تسجيل الخروج' : 'Sign Out'}</span>
+          <span>{t('shared.actions.sign_out')}</span>
         </button>
       </header>
 
@@ -488,25 +481,25 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
               {details.title}
             </h2>
             <p className="text-xs font-mono text-white/40 uppercase tracking-widest">
-              {details.titleEn}
+              {details.subtitle}
             </p>
           </div>
 
           <div className="bg-[#0f1115] border border-white/5 rounded-xl p-4 space-y-2 text-xs font-mono">
             <div className="flex justify-between items-center text-white/60">
-              <span>{isRTL ? 'البريد الإلكتروني:' : 'Email Address:'}</span>
-              <strong className="text-[#10b981]">{userEmail || 'غير محدد'}</strong>
+              <span>{t('auth.labels.email_label')}</span>
+              <strong className="text-[#10b981]">{userEmail || t('shared.labels.unspecified')}</strong>
             </div>
             {userName && (
               <div className="flex justify-between items-center text-white/60">
-                <span>{isRTL ? 'اسم المستخدم:' : 'User Display Name:'}</span>
+                <span>{t('auth.labels.username_label')}</span>
                 <span className="text-white/90">{userName}</span>
               </div>
             )}
             <div className="flex justify-between items-center text-white/60 border-t border-white/5 pt-2 mt-2">
-              <span>{isRTL ? 'حالة المصادقة:' : 'Auth Provider Status:'}</span>
+              <span>{t('auth.labels.auth_status_label')}</span>
               <span className="text-emerald-400 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> Google Auth Verified
+                <ShieldCheck className="w-3.5 h-3.5" /> {t('auth.labels.google_verified')}
               </span>
             </div>
           </div>
@@ -518,7 +511,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
           {/* Render rejection reason if applicable */}
           {details.showRejectionReason && userProfile?.rejectionReason && (
             <div className="bg-rose-500/5 border border-rose-500/25 rounded-xl p-4 text-xs text-rose-300 leading-relaxed space-y-1">
-              <span className="font-bold block text-rose-400">🛑 {isRTL ? 'سبب الرفض المحدّد من قِبل مسؤول النظام:' : 'System Rejection Reason:'}</span>
+              <span className="font-bold block text-rose-400">🛑 {t('auth.labels.rejection_reason_label')}</span>
               <p className="font-mono bg-stone-950/50 p-2.5 rounded border border-rose-500/10 mt-1">
                 {userProfile.rejectionReason}
               </p>
@@ -532,7 +525,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#10b981] hover:bg-[#10b981]/90 active:scale-[0.98] text-[#0f1115] font-bold text-xs transition-all shadow-lg shadow-[#10b981]/20 min-h-[44px] cursor-pointer"
               >
                 <RefreshCw className="w-4 h-4" />
-                <span>{isRTL ? 'إعادة التحقق من حالة الاعتماد' : 'Check Approval Status'}</span>
+                <span>{t('auth.actions.check_status')}</span>
               </button>
             )}
             
@@ -541,7 +534,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
               className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 active:scale-95 text-white/80 font-bold text-xs transition-all min-h-[44px] cursor-pointer"
             >
               <LogOut className="w-4 h-4 text-rose-400" />
-              <span>{isRTL ? 'تسجيل الخروج' : 'Sign Out'}</span>
+              <span>{t('shared.actions.sign_out')}</span>
             </button>
           </div>
         </div>
