@@ -1,3 +1,5 @@
+> **HISTORICAL_RECORD — historical release claim only.** Body, date and scorecard preserved unchanged. This is not current production/Beta 2 approval, clean-lint evidence, a frozen dictionary contract or exhaustive current browser verification. Current state: [02_PHASE_LEDGER.md](../docs/reconstruction/02_PHASE_LEDGER.md); [document authority](../docs/reconstruction/DOCUMENT_AUTHORITY.md).
+
 # FINAL PRODUCTION BASELINE — Q-Saudi-Work-Follow
 
 **Release Identifier**: `Q-Saudi-Work-Follow — Production Candidate`  

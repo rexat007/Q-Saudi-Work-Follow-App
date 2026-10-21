@@ -1,5 +1,14 @@
 # PHASE LEDGER
-## Master Status Tracking for Q-Saudi Reconstruction
+## Single Current Reconstruction State Authority
+
+Authority: `CURRENT_AUTHORITY`. Reviewed against GitHub main at `2b52180304ac02d71b506f16dc69722c94ba9b6f` for P0-U5.
+
+This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. A local review-ready result does not close P0-U5.
+
+- **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
+- **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
+- **Next-unit evidence**: the accepted sequence in [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md#phase-0--repository--engineering-foundation) places P0-U6 after P0-U5 and before P0-U7. P0-U6 remains unstarted until P0-U5 acceptance, authorized publication, and independent post-push review.
+- **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
@@ -8,7 +17,10 @@ ACTIVE_UNIT: P0-U5_DOCUMENTATION_AUTHORITY_CONVERGENCE
 PHASE_0_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
-NEXT_UNIT: P0-U5_DOCUMENTATION_AUTHORITY_CONVERGENCE
+NEXT_UNIT: P0-U6_SECRET_FREE_GITHUB_CI_BASELINE
+NEXT_UNIT_STATUS: NOT_STARTED
+P0_U5_STATUS: ACTIVE
+CURRENT_CODE_BASELINE: 2b52180304ac02d71b506f16dc69722c94ba9b6f
 ```
 
 ---
@@ -66,7 +78,7 @@ NEXT_UNIT: P0-U5_DOCUMENTATION_AUTHORITY_CONVERGENCE
 | **↳ P0-U3C37** | Excel/CSV Import Harness Convergence — *KEEP_ALL_CURRENT_IMPORT_CONTRACTS* | **VERIFIED / CLOSED** | `4f85fc340c659e5867e853fe35fb3787bee8aacf` |
 | **↳ P0-U3C38** | Active Runtime I18N Cardinality Invariant Retirement — *REPLACE_FIXED_1128_WITH_DYNAMIC_TRILINGUAL_PARITY* | **VERIFIED / CLOSED** | `cb2e84c1563190d28b6a25024d1ee656b10a42b2` |
 | **P0-U4** | Root Tooling Hygiene | **VERIFIED / CLOSED** | `45e6c8b7f7c038d2a05723e4df7a5655bfaabc15` |
-| **P0-U5** | Documentation Authority Convergence | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **P0-U5** | Documentation Authority Convergence | **ACTIVE — owner review pending** | Code baseline: `2b52180304ac02d71b506f16dc69722c94ba9b6f`; no unit closure commit yet |
 | **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 | **P0-U7** | Phase 0 Closure & Freeze | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 
@@ -93,3 +105,11 @@ NEXT_UNIT: P0-U5_DOCUMENTATION_AUTHORITY_CONVERGENCE
 - **Phase 16 — End-to-End Business Journeys**: NOT_STARTED
 - **Phase 17 — Hardening, Security, Performance & Recovery**: NOT_STARTED
 - **Phase 18 — Beta 2 Release Gate**: NOT_STARTED
+
+## Current Product and Verification Boundary
+
+Whole-App i18n Batches 1–4 and final residual remediation are merged at the code baseline above. Repository-authoritative convergence and the current product-language result are accepted for this reconstruction stage. AR/EN/UR parity is established; dictionary totals are observations, never a frozen invariant.
+
+Browser review is accepted sufficiently for this stage. This is not evidence that every label, device, role, or workflow was manually verified, nor a Beta 2/Phase 18 release acceptance. Minor mixed Arabic/English or bilingual labels remain `DEFERRED_NON_BLOCKING_PRODUCT_DEBT` in the decision/debt log.
+
+P0-U5 is documentation-only. No localization, tests, package/config/scripts, production behavior, CI implementation, or future distribution work is authorized by this unit. Verification here is documentation/source inspection and Git scope/link checks; prior runtime/test/build evidence retains its original scope and is not a new run.

@@ -1,11 +1,11 @@
 # HISTORICAL TEST REGISTER
 ## Q-Saudi Work Follow Reconstruction — Phase 0 (Unit P0-U3B)
 
-Total Unreferenced Historical Test Files: 125
+Historical register rows retained: 125; additional accepted targeted suites: 6; total non-package-referenced entries: 131 (including 3 manual report/check scripts).
 
-This register tracks all 125 historical test files currently present in `src/tests/` that are unreferenced by active `package.json` scripts. In accordance with Rule G and Rule H of the Test Taxonomy Contract, these files are preserved and mapped to their owning reconstruction phases for domain-specific evaluation, reactivation, or retirement.
+The original table preserves 125 historical/unreferenced entries, including three manual scripts rather than `.test.*` files. Six later accepted targeted suites are recorded separately below. At the P0-U5 baseline there are 195 `.test.ts`/`.test.tsx` files: 67 package-referenced and 128 not package-referenced; adding the three manual scripts yields the 131 entries here. Counts are observations, not invariants. Unreferenced does not automatically mean dead, retired, or product-unreachable. In accordance with Rule G and Rule H of the Test Taxonomy Contract, these files are preserved and mapped to their owning reconstruction phases for domain-specific evaluation, reactivation, or retirement.
 
-| # | Repository Path | Inferred Owning Phase / Domain | Current Harness | Evidence Taxonomy | Disposition |
+| # | Repository Path | Inferred Owning Phase / Domain | Recorded Harness | Recorded Evidence Taxonomy | Disposition |
 |---|---|---|---|---|---|
 | 1 | `src/tests/adminConsoleConvergence.test.ts` | Phase 12 (Audit, Exceptions & Administrative Control) | `VITEST_NATIVE` | `UI_DOM` | `POTENTIAL_REACTIVATION` |
 | 2 | `src/tests/authSessionRefreshBlock93.test.ts` | Phase 3 (Authentication & Authorization) | `VITEST_NATIVE` | `UNIT` | `POTENTIAL_REACTIVATION` |
@@ -132,3 +132,18 @@ This register tracks all 125 historical test files currently present in `src/tes
 | 123 | `src/tests/weightEngine.test.ts` | Phase 10 (Operational Trip Lifecycle) | `TSX_CUSTOM` | `UNIT` | `REVIEW_IN_OWNING_PHASE` |
 | 124 | `src/tests/workspaceConvergence.test.ts` | Phase 0 (Foundation / Tooling / Historical) | `TSX_CUSTOM` | `UNIT` | `REVIEW_IN_OWNING_PHASE` |
 | 125 | `src/tests/workspaceIntegration.test.ts` | Phase 0 (Foundation / Tooling / Historical) | `TSX_CUSTOM` | `UNIT` | `REVIEW_IN_OWNING_PHASE` |
+
+## Accepted targeted suites outside root/Beta package reachability
+
+These are current supporting regression evidence from accepted i18n convergence. They are not historical assertions to retire merely because package scripts do not name them. Run explicitly with canonical Vitest when the relevant scope requires them; P0-U5 does not change package membership or tests.
+
+| Repository path | Current evidence role | Harness | Disposition |
+|---|---|---|---|
+| `src/tests/operationalMessages.test.ts` | Operational presentation messages and parameters | Vitest (`node`) | RETAIN_ACCEPTED_TARGETED |
+| `src/tests/dashboardReportsI18n.test.ts` | Dashboard/report localization contracts | Vitest (`node`, static inspection) | RETAIN_ACCEPTED_TARGETED |
+| `src/tests/batch4I18nPresentation.test.ts` | Admin/project/import presentation mapping | Vitest (`node`) | RETAIN_ACCEPTED_TARGETED |
+| `src/tests/translationByConstructionGuard.test.ts` | Active UI source/key construction boundaries | Vitest (`node`, static inspection) | RETAIN_ACCEPTED_TARGETED |
+| `src/tests/residualI18nMessages.test.ts` | Closed message mapping and parameter/code preservation | Vitest (`node`) | RETAIN_ACCEPTED_TARGETED |
+| `src/tests/residualI18nUI.test.tsx` | Auth/offline/outbox/conflict UI with mocked services | Vitest (`happy-dom`, mocked UI) | RETAIN_ACCEPTED_TARGETED |
+
+Current phase, acceptance and next-unit authority remains [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). The historical table's harness/type classifications remain provenance for its recorded reviews; no automatic migration or production repair is authorized here.

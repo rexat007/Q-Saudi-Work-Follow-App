@@ -5,7 +5,7 @@
 - **GitHub Main Authority**: The GitHub `main` branch is the sole code truth.
 - **Runtime Evidence Superiority**: Automated execution evidence overrides static assumptions or historical reports.
 - **Environment Disambiguation**: When `.git` is unavailable inside Google AI Studio, the Google AI Studio GitHub Sync UI provides the authoritative unpushed-file scope evidence.
-- **Manual Push Discipline**: The user performs git push manually; independent post-push GitHub verification follows.
+- **Publication Authorization**: The user publishes manually or explicitly authorizes an agent to publish the reviewed scope; independent post-push GitHub verification follows. This does not authorize publication during P0-U5.
 
 ### 2. Architectural Integrity & Authority
 - **Server Authority**: The server is the sole business authority for state transitions, pricing calculations, waybill creation, and persistent reconciliation.
@@ -25,3 +25,7 @@
 - **Canonical Print & Report Fidelity**: All printouts, waybills, statements, and exports derive strictly from canonical server snapshots.
 - **Minimal Controls**: Avoid cluttering UI with artificial debug overlays or duplicate action buttons unless materially improving workflow and invoking the same canonical backend operation.
 - **Human Approval Integrity**: Human sign-off and approval steps in workflows remain mandatory and cannot be bypassed.
+
+### Current-state and evidence boundary
+
+This constitution supplies execution principles; [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) alone owns current unit/phase status. Server authority and isolation are accepted architectural requirements, not a claim that all historical paths have passed live verification. Future product-facing work follows [acceptance governance](PRODUCT_RECONSTRUCTION_ACCEPTANCE_GOVERNANCE.md). Existing valid foundation closures are preserved; new regressions are not excused by historical debt.
