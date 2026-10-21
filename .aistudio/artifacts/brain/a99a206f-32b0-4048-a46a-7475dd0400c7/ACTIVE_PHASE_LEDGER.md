@@ -1,3 +1,5 @@
+> **HISTORICAL_RECORD — preserved Studio planning snapshot.** Original body and recorded provenance follow unchanged. This is not a live governance mirror: embedded phase/unit pointers, pending decisions, package/test claims and roadmap statuses are historical context only. Current reconstruction state: [canonical ledger](../../../../docs/reconstruction/02_PHASE_LEDGER.md). Current counterpart: [02_PHASE_LEDGER.md](../../../../docs/reconstruction/02_PHASE_LEDGER.md).
+
 # PHASE LEDGER
 ## Master Status Tracking for Q-Saudi Reconstruction
 

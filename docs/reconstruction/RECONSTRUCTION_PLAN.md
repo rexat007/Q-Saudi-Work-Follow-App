@@ -26,7 +26,7 @@ To ensure structured code evolution without destructive rewrites, every componen
 
 #### 6. DEFER
 - **Definition**: Real technical debt or secondary improvement that is not required for the active phase and does not block current goals.
-- **Action**: Log in `DECISION_AND_DEBT_LOG.md` with target phase deferred to.
+- **Action**: Log in [05_DECISION_AND_DEBT_LOG.md](05_DECISION_AND_DEBT_LOG.md) with target phase deferred to.
 
 ---
 
@@ -37,3 +37,7 @@ Engineers MUST:
 2. Identify all related defects and root-cause issues.
 3. Consolidate the entire defect family into a unified target contract.
 4. Apply a holistic fix that satisfies the contract across all callers and test suites.
+
+### Scope and sequence authority
+
+This document defines methodology, not current progress. The accepted order is in [FOUNDATIONAL_PLAN_PHASE_0_TO_18.md](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md); current phase/unit and next-unit entry are owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Area-wide discovery does not authorize edits outside a bounded user instruction: P0-U5 changes documentation only and does not reopen accepted i18n work.

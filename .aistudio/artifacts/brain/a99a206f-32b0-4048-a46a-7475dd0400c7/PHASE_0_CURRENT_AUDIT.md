@@ -1,3 +1,5 @@
+> **HISTORICAL_RECORD — preserved Studio planning snapshot.** Original body and recorded provenance follow unchanged. This is not a live governance mirror: embedded phase/unit pointers, pending decisions, package/test claims and roadmap statuses are historical context only. Current reconstruction state: [canonical ledger](../../../../docs/reconstruction/02_PHASE_LEDGER.md). Current counterpart: [PHASE_0_READ_ONLY_AUDIT.md](../../../../docs/reconstruction/PHASE_0_READ_ONLY_AUDIT.md).
+
 # PHASE 0 CURRENT AUDIT
 
 ## Baseline Audit & Engineering Reality Report (2026-10-06)

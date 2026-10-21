@@ -19,10 +19,10 @@ P0-U4 — Root Tooling Hygiene
 ## Static Typecheck Authority & Debt Observability
 - **Canonical Command**: `npm run lint` (`tsc --noEmit`)
 - **Current Role**: `FULL_REPOSITORY_DEBT_OBSERVABILITY`
-- **Current Phase 0 Blocking Status**: `NON_BLOCKING FOR P0-U4`
+- **Recorded P0-U4 Blocking Disposition**: `NON_BLOCKING FOR P0-U4` (the unit is now closed)
 - **Rationale**:
   - Full-repository `tsc` checks active source, active tests, historical/non-active tests, and production code.
-  - Verified P0-U4 observation: 445 total diagnostics (exit code 2).
+  - Recorded P0-U4 observation: 445 total diagnostics (exit code 2); this is dated evidence, not a frozen expected count.
   - 393 diagnostics reside in historical/non-active test files (governed under Phase 0–16 staged convergence).
   - 29 diagnostics reside in 5 active manifest test files.
   - 23 diagnostics reside in production source code (routed to owning future phases: Smart Import, Trip Lifecycle, Admin/Exceptions).
@@ -32,21 +32,23 @@ P0-U4 — Root Tooling Hygiene
   - No artificial `tsconfig.json` scoping or exclusion narrowing is authorized merely to produce clean exit codes.
 
 ## Active Test Typecheck Debt
-- **Current Active Test Gap**: 5 active manifest test files, 29 diagnostics total.
+- **Recorded P0-U4 Active Test Gap**: 5 active manifest test files, 29 diagnostics total; no typecheck is newly executed by P0-U5.
   1. `src/tests/finalUiArchitectureBlock76.test.ts` (14 diagnostics)
   2. `src/tests/i18nTranslationCatalog.test.ts` (1 diagnostic)
   3. `src/tests/i18nTranslationGeneration.test.ts` (2 diagnostics)
   4. `src/tests/projectCentricOperationsBlock87.test.ts` (5 diagnostics)
   5. `src/tests/projectFormDateUx86F.test.ts` (7 diagnostics)
-- **Runtime Verification**: All 5 test files currently PASS under their respective canonical Vitest executions.
+- **Runtime Evidence**: P0-U4 reported these suites passing at its verification point. This is not a current blanket PASS; later unchanged Firestore/proxy timeouts are environmental failures and must be reported as such.
 - **Classification**: `ACTIVE_TEST_TYPECHECK_DEBT`
 - **Disposition**: `DEFERRED_TO_P0_U7_REASSESSMENT`
 - **Taxonomy Boundary**: P0-U3 remains verified and closed for Test Taxonomy & Harness Convergence; it did not eliminate all TypeScript diagnostics from all active tests. Active test typecheck debt will be reassessed prior to Phase 0 freeze (P0-U7).
 
 ## Root Test Contract
-- `npm test`: Executes 48 distinct root test suites.
-- `verify:beta2`: Executes 19 distinct additional Beta 2 verification suites.
-- These represent distinct, non-overlapping verification surfaces.
+- At the P0-U5 main baseline, `npm test` explicitly invokes 48 distinct Vitest files sequentially with `&&`.
+- `verify:beta2` first runs `npm run lint`, `npm run build`, and `npm run test:reports-dashboard-80`, then directly invokes 19 additional Vitest files.
+- The direct 19-file Beta set is disjoint from the 48-file root set. The complete Beta wrapper also runs `fieldReportsCentralDashboardBlock80.test.ts` via its helper; that file is shared with root. Thus the wrapper covers 20 distinct test files with one overlap, not zero overlap overall.
+- These are distinct authorities; one command or selected targeted suites cannot be reported as proof that the other complete command passed. The Beta wrapper short-circuits at nonzero lint; direct Beta suite results are separately scoped evidence.
+- The observed file counts describe current package scripts, not permanent fixed suite/cardinality invariants.
 - Current sequential execution is accepted. Refactoring is forbidden unless proven broken by concrete defect.
 
 ## Specialized Script Contract
@@ -73,3 +75,7 @@ P0-U4 — Root Tooling Hygiene
 ## Generated Mutation Guard
 - Canonical verification commands must not mutate tracked files (package-lock.json, reports/**, src/locales/**, config files).
 - Tracked mutations are verification failures.
+
+## Current execution and closure boundary
+
+Current state and unit ordering defer to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). P0-U4 remains verified/closed. The historical 445 = 393 non-active test + 29 active test + 23 production diagnostic split records its verification snapshot; it does not define an allowed permanent ceiling. New diagnostics require investigation, and P0-U7 must reassess outstanding debt before freeze. P0-U5 updates documentation without narrowing typecheck, changing scripts/configs, migrating tests or rerunning product verification.

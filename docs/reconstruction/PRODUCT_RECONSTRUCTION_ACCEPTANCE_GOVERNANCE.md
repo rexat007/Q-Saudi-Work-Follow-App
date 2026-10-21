@@ -66,3 +66,11 @@ Closure documentation must record:
 AI Studio may report: IMPLEMENTED, TECHNICALLY VERIFIED, BROWSER VERIFIED.
 AI Studio may NOT report: USER ACCEPTED, unless explicit user acceptance has been given.
 Final product acceptance authority remains with the user.
+
+## Accepted current-stage disposition (P0-U5 documentation record)
+
+The owner accepts the merged Whole-App i18n Batches 1–4 and residual remediation at `2b52180304ac02d71b506f16dc69722c94ba9b6f` sufficiently for the current reconstruction stage. Browser review is accepted to that bounded extent. This is not a claim that every visible label was manually checked or that every future product unit or Beta 2 exit is accepted.
+
+Some Arabic-mode views may still display mixed Arabic/English or bilingual labels. These are `DEFERRED_NON_BLOCKING_PRODUCT_DEBT`, recorded in [05_DECISION_AND_DEBT_LOG.md](05_DECISION_AND_DEBT_LOG.md), and do not reopen accepted foundation units or block continuing P0. Full cosmetic language perfection is not a prerequisite to that continuation. New product-facing work retains the translation-by-construction and four-layer acceptance rules above.
+
+This supporting contract does not own current unit pointers; see [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). P0-U5 itself remains active and pending owner review/publication gates.

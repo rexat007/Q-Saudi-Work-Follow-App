@@ -1,11 +1,18 @@
 # DECISION AND TECHNICAL DEBT LOG
 
+Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This is the canonical decision/debt record, not a second unit ledger. Closed decisions below preserve their unit-scoped evidence; past suite/key totals, no-change statements and verification results do not describe all later work.
+
 ## CLOSED_DECISIONS
+- **CD-44 — Whole-App i18n convergence accepted**: Batches 1–4 are merged on current main. Repository-authoritative convergence and the product-language result are accepted for this reconstruction stage. Current dictionaries establish dynamic AR/EN/UR parity; no fixed dictionary size is a permanent contract.
+- **CD-45 — Final residual i18n remediation accepted and merged**: Commit `09f3c0374c835560364d136430ab43560dae9a38` was merged by main `2b52180304ac02d71b506f16dc69722c94ba9b6f`. The accepted scope closed 205 audited positions (87 local + 118 message positions / 17 families), the PWA guard gap and the final parameter-free Outbox error-title defect. The diagnostic `offline.status.failed_2` retains both parameters; the title reuses `legacyMigration.status.failed_2`. These are bounded acceptance records, not authorization to reopen localization in P0-U5.
+  - Final bounded verification reported 46/46 targeted tests and 10/10 conflict behavior checks, successful build, and lint exit 2 with the same 445-diagnostic baseline and no new changed-file diagnostics. These results were not rerun by this documentation unit.
+  - Prior broader verification separately classified 9 baseline-existing assertion failures and 6 Firestore/proxy-dependent failures; this is not a clean root npm-test or Beta-wrapper PASS. Counts/signatures describe those runs, not permanent allowed failure totals.
+  - Browser review is accepted sufficiently for the current reconstruction stage; it does not imply every visible label, role, workflow or device was manually verified, nor certify Phase 18/Beta 2 release readiness.
 - **CD-43**: Root Tooling Authority & Contamination Guard:
   - npm + package-lock.json are canonical.
   - npm test = 48-suite root verification surface.
-  - verify:beta2 = separate 19-suite Beta verification surface.
-  - overlap = 0.
+  - verify:beta2 directly adds 19 suites; those direct files are disjoint from the root 48.
+  - Its full package wrapper runs lint, build and the shared reports test first; overall wrapper/root test overlap is one file. The earlier zero-overlap description applied only to the direct additional set. Counts are package observations, not frozen invariants.
   - current sequential npm test is accepted.
   - specialized test:* scripts remain valid.
   - vitest.config.ts remains unchanged.
@@ -553,17 +560,17 @@
    - no production code changed
    - no report artifacts changed
    - this migration eliminates the final active `TSX_CUSTOM` row from the active test manifest (TSX_CUSTOM count = 0)
-   - P0-U3 remains open pending final phase-level convergence verification
+   - Historical CD-40-time status: P0-U3 was still open pending final convergence. This was superseded by its verified/closed record in 02_PHASE_LEDGER.md; it is not current status.
 
 ---
 
 ## OPEN_DECISIONS
-- None currently open in Phase 0.
+- No unresolved foundation contract decision blocks documentation-only P0-U5. Future distribution/licensing/provider choices remain undecided under the future proposal; they do not authorize current implementation.
 
 ---
 
 ## BLOCKING_DEBT
-- None in current Phase 0 setup (P0-U2 toolchain blocker: NO).
+- No accepted blocker for the bounded P0-U5 documentation scope. This does not certify a debt-free product or Phase 0 freeze; recorded typecheck and domain debt below remain unresolved.
 
 ---
 
@@ -575,8 +582,8 @@
   - Production source diagnostics: 23
   - Classification: REPRODUCIBLE_PREEXISTING_OR_UNVERIFIED_DEBT
   - P0-U2 toolchain blocker: NO
-- **P0-U4 Current Typecheck Observation**:
-  - Current reproducible full-repository tsc result: exit 2
+- **Recorded P0-U4 Typecheck Observation (historical evidence)**:
+  - Recorded full-repository tsc result: exit 2; the final residual verification also observed 445 diagnostics, but P0-U5 does not rerun typecheck
   - Total diagnostics: 445
   - Active manifest tests: 29 diagnostics (across 5 active manifest test suites: Block 76 [14], i18n Translation Catalog [1], i18n Translation Generation [2], Block 87 Project-Centric [5], Block 86F Date UX [7]; all 5 suites pass cleanly under native Vitest execution)
   - Historical / non-active tests: 393 diagnostics (across 32 historical, retired, or unlisted test files in `src/tests/` due to repository-wide implicit inclusion from `tsconfig.json` lacking explicit include/exclude)
@@ -606,6 +613,8 @@
   D. Whether a future canonical active-scope typecheck gate is required.
 
 ## DEFERRED_DEBT
+- **DD-03 — Deferred language polish**: `DEFERRED_NON_BLOCKING_PRODUCT_DEBT`. Some Arabic-mode surfaces may still show deliberate or unresolved mixed Arabic/English or bilingual labels. Preserve current accepted stage behavior; full cosmetic language perfection is not required before continuing P0. Future remediation needs a separately bounded product scope and acceptance; P0-U5 performs no localization changes.
+- **DD-04 — Product verification breadth**: Browser review is accepted sufficiently for this reconstruction stage, not claimed exhaustive. Future product-facing phases retain surface/workflow/language/device/role evidence and explicit user acceptance obligations; historical release-ready reports do not satisfy them automatically.
 - **DD-01 (DEFERRED_TO_PHASE_8)**: Known Smart Import session-restore contract edge case during full batch recovery. Tracked for resolution during Phase 8 (Smart Import Persistence, Resume & Commit Integrity), NOT as a Phase 0 quick patch task.
 - **DD-02 (DEFERRED_TO_PHASE_15)**: Monolithic client chunk size warning (> 500 kB) in Vite build output. Tracked for Phase 15 performance optimization.
 
@@ -614,4 +623,4 @@
 ## RETIREMENT_CANDIDATES
 - Root-level ad-hoc diagnostic scripts (`test-*.ts`, `verify-*.ts`) after proving zero runtime callers.
 - Legacy or duplicate mock services superseded by canonical server services.
-- **CD-41 — Data Cleanup I18N Cardinality Invariant Retirement**: Block82 historical fixed 1,128-key invariant retired; current locale dictionaries remain translation authority; 1128 was historical migration-era cardinality only; 1129 is NOT introduced as a replacement frozen contract; dry-run integrity now uses dynamic current locale parity/counts; cleanup verification uses pre/post count preservation; final reports display dynamic current counts; CLN-04/05/06/09 aligned to current authority; all 9 Block82 tests retained; no locale dictionary changes; taxonomy corrected from UI_DOM/FIREBASE_MOCK to UNIT/PURE_LOGIC; production service changed only to remove stale historical cardinality logic.
+- **Historical CD-41 supplemental provenance (not a retirement candidate or a new decision ID)**: Block82 historical fixed 1,128-key invariant retired; current locale dictionaries remain translation authority; 1128 was historical migration-era cardinality only; 1129 is NOT introduced as a replacement frozen contract; dry-run integrity now uses dynamic current locale parity/counts; cleanup verification uses pre/post count preservation; final reports display dynamic current counts; CLN-04/05/06/09 aligned to current authority; all 9 Block82 tests retained; no locale dictionary changes; taxonomy corrected from UI_DOM/FIREBASE_MOCK to UNIT/PURE_LOGIC; production service changed only to remove stale historical cardinality logic.

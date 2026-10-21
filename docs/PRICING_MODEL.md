@@ -1,3 +1,5 @@
+> **HISTORICAL_RECORD — original design/reference specification.** The preserved body may combine implemented behavior with former targets; it is not proof of current routes, schemas, security, deployment or reconstruction status. Current GitHub main takes precedence. For the verified repository overview see [MASTER_PROJECT_HANDOFF.md](reconstruction/MASTER_PROJECT_HANDOFF.md); current state is [02_PHASE_LEDGER.md](reconstruction/02_PHASE_LEDGER.md). No historical target here authorizes product changes.
+
 # Q Saudi Work Follow — نموذج التسعير والمحاسبة الخادومي (Pricing & Financial Engine)
 
 ## 1. الفلسفة والمبدأ الإلزامي السادس (Principle #6: Server-Authoritative Pricing)

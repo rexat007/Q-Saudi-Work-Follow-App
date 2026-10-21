@@ -1,11 +1,13 @@
 # ACTIVE TEST MANIFEST
 ## Q-Saudi Work Follow Reconstruction — Phase 0 (Unit P0-U3B)
 
-Total Active Test Files: 67
+Package-Referenced Test Files at P0-U5 main baseline: 67 (observed, not frozen)
 
-This manifest enumerates all 67 test files currently referenced by `package.json` test scripts (`npm test`, `verify:beta2`, and dedicated `test:*` scripts).
+This manifest enumerates the 67 files explicitly referenced by current package scripts at `2b52180304ac02d71b506f16dc69722c94ba9b6f`. Static reachability matches `package.json`; this does not mean every file has been rerun by P0-U5 or that useful targeted regressions outside these scripts are inactive. The root set has 48 files; Beta directly adds 19. Its complete wrapper also invokes the shared root reports test before those 19 files.
 
-| # | Repository Path | Package Script Reachability | Execution Mechanism | Proposed Taxonomy | Environment Class | Migration Disposition | TSC Status | Reliable Failure |
+`TSC Status` records P0-U4 evidence, not an assertion of current full-repository cleanliness. The five rows marked recorded debt below account for its 29 active-test diagnostics; full lint had 445 total / exit 2. Other CLEAN entries retain their scoped historical typecheck observation, not a permanent guarantee. Current phase/unit status is owned by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
+
+| # | Repository Path | Package Script Reachability | Execution Mechanism | Primary Taxonomy | Environment Class | Migration Disposition | TSC Status | Reliable Failure |
 |---|---|---|---|---|---|---|---|---|
 | 1 | `src/tests/authGatewayPermissionUxBlock87.test.ts` | `test:auth-gateway-87, test` | `VITEST` | `SERVER_CONTRACT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 2 | `src/tests/block102OperationalAccessSmartRoster.test.ts` | `test:block102, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
@@ -18,7 +20,7 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 9 | `src/tests/fieldLoadingUnloadingBlock77.test.ts` | `test:field-ops-77, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 10 | `src/tests/fieldReportsCentralDashboardBlock80.test.ts` | `test:reports-dashboard-80, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 11 | `src/tests/fieldSupervisionConvergenceP604.test.ts` | `verify:beta2` | `VITEST` | `INTEGRATION_MOCK` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 12 | `src/tests/finalUiArchitectureBlock76.test.ts` | `test:uiux-arch-76, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
+| 12 | `src/tests/finalUiArchitectureBlock76.test.ts` | `test:uiux-arch-76, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `RECORDED_DEBT_P0_U4` | `YES` |
 | 13 | `src/tests/firebaseProjectConfiguration85A.test.ts` | `test:firebase-config-85a, test` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 14 | `src/tests/humanReviewApplicationBlock70Corrected.test.ts` | `test:i18n-application-70, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 15 | `src/tests/humanReviewApprovalBlock69.test.ts` | `test:i18n-approval-69, test` | `VITEST` | `STATIC_GOVERNANCE` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
@@ -30,16 +32,16 @@ This manifest enumerates all 67 test files currently referenced by `package.json
 | 21 | `src/tests/i18nFoundation.test.ts` | `test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 22 | `src/tests/i18nGenerationBlock54b.test.ts` | `test:i18n-gen-54b, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 23 | `src/tests/i18nRecoveryBlock54a.test.ts` | `test:i18n-recovery, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 24 | `src/tests/i18nTranslationCatalog.test.ts` | `test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 25 | `src/tests/i18nTranslationGeneration.test.ts` | `test:i18n-gen, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
+| 24 | `src/tests/i18nTranslationCatalog.test.ts` | `test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `RECORDED_DEBT_P0_U4` | `YES` |
+| 25 | `src/tests/i18nTranslationGeneration.test.ts` | `test:i18n-gen, test` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `RECORDED_DEBT_P0_U4` | `YES` |
 | 26 | `src/tests/materialAuthorityP602B2.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 27 | `src/tests/projectActivationServerAuthority.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 28 | `src/tests/projectCarrierFleetAffiliationFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 29 | `src/tests/projectCentricOperationsBlock87.test.ts` | `test:project-centric-87, test` | `VITEST` | `SERVER_CONTRACT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
+| 29 | `src/tests/projectCentricOperationsBlock87.test.ts` | `test:project-centric-87, test` | `VITEST` | `SERVER_CONTRACT` | `PURE_LOGIC` | `KEEP_VITEST` | `RECORDED_DEBT_P0_U4` | `YES` |
 | 30 | `src/tests/projectDriverTruckAssignmentFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FILESYSTEM` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 31 | `src/tests/projectFleetReadModelAdminReadContext.test.ts` | `verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 32 | `src/tests/projectFleetReadModelFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |
-| 33 | `src/tests/projectFormDateUx86F.test.ts` | `test:project-form-date-ux-86f, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `CLEAN` | `YES` |
+| 33 | `src/tests/projectFormDateUx86F.test.ts` | `test:project-form-date-ux-86f, test` | `VITEST` | `UNIT` | `PURE_LOGIC` | `KEEP_VITEST` | `RECORDED_DEBT_P0_U4` | `YES` |
 | 34 | `src/tests/projectLifecycleServerAuthority.test.ts` | `verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 35 | `src/tests/projectMaterialCarrierServerAuthorityConvergence.test.ts` | `verify:beta2` | `VITEST` | `SERVER_CONTRACT` | `SERVER_CONTEXT` | `KEEP_VITEST` | `CLEAN` | `YES` |
 | 36 | `src/tests/projectMembershipFoundation.test.ts` | `verify:beta2` | `VITEST` | `UNIT` | `FIREBASE_MOCK` | `KEEP_VITEST` | `CLEAN` | `YES` |

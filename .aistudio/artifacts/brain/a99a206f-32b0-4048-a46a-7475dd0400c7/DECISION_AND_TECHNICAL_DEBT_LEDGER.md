@@ -1,3 +1,5 @@
+> **HISTORICAL_RECORD — preserved Studio planning snapshot.** Original body and recorded provenance follow unchanged. This is not a live governance mirror: embedded phase/unit pointers, pending decisions, package/test claims and roadmap statuses are historical context only. Current reconstruction state: [canonical ledger](../../../../docs/reconstruction/02_PHASE_LEDGER.md). Current counterpart: [05_DECISION_AND_DEBT_LOG.md](../../../../docs/reconstruction/05_DECISION_AND_DEBT_LOG.md).
+
 # DECISION AND TECHNICAL DEBT LEDGER
 
 ## CLOSED_DECISIONS

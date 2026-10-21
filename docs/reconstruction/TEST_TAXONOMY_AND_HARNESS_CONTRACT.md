@@ -42,7 +42,7 @@ Every automated and semi-automated test in the repository must be classified int
 - **External / Network Dependencies**: Strictly PROHIBITED.
 
 ### 1.5 STATIC_GOVERNANCE
-- **Purpose**: Verifies repository structural rules, AST patterns, i18n key count freeze (1,128 keys across AR/EN/UR), secret-free codebase hygiene, documentation cross-references, and code retired symbol isolation.
+- **Purpose**: Verifies repository structural rules, AST patterns, dynamic non-zero AR/EN/UR key parity, key resolution and interpolation/token safety (no fixed dictionary cardinality), secret-free codebase hygiene, documentation cross-references, and code retired symbol isolation.
 - **Expected Harness**: Vitest Native (`vitest run`) with `node:fs` reading workspace source files.
 - **Normal CI Allowed**: YES (Mandatory).
 - **Environment Requirements**: `node` / Local Filesystem Read Access.
@@ -98,3 +98,11 @@ Production code, domain models, or service contracts must NEVER be modified mere
 
 ### Rule J: Behavioral Invariance in Test Migration
 Migrating an active custom test runner to Vitest must preserve the exact behavioral verification intent. Harness conversion must never weaken, skip, or silently alter assertions.
+
+## 3. Current authority and historical boundaries
+
+Current state is [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). P0-U3 is verified/closed for harness convergence, not a promise of clean repository-wide typecheck or complete product acceptance. Historical fixed dictionary totals and old batch-specific generation/review counts are retired as general invariants; current active assertions in source remain the execution contract and exceptions are reviewed explicitly, not silently removed.
+
+Package-script reachability is recorded in [ACTIVE_TEST_MANIFEST.md](ACTIVE_TEST_MANIFEST.md); it is not the complete set of useful targeted regressions. Accepted targeted suites and historical/manual files are distinguished in [HISTORICAL_TEST_REGISTER.md](HISTORICAL_TEST_REGISTER.md). Both classifications are documentation, not automatic permission to migrate tests or edit production. Source-text/filesystem inspection is STATIC_GOVERNANCE evidence; UI_DOM may use React's DOM test utilities directly as the existing residual tests do, without requiring a different component-testing library.
+
+Network-free normal-CI execution is the desired harness contract. An observed Firestore/proxy dependency failure must remain separately classified environmental evidence, never renamed a UNIT pass. Secret-free CI implementation belongs to the next planned unit, not P0-U5.

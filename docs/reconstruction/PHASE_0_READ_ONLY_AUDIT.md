@@ -1,3 +1,5 @@
+> **HISTORICAL_RECORD — bootstrap audit, 2026-10-06.** The body below is preserved evidence of its stated baseline, not current lockfile, harness, debt, phase or release status. npm/package-lock authority was subsequently established by P0-U2 and P0-U3/P0-U4 are closed. Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); current tooling: [TOOLCHAIN_CONTRACT.md](TOOLCHAIN_CONTRACT.md) and [ROOT_TOOLING_HYGIENE_CONTRACT.md](ROOT_TOOLING_HYGIENE_CONTRACT.md).
+
 # PHASE 0 READ-ONLY AUDIT
 ## Baseline Audit & Engineering Reality Report (2026-10-06)
 

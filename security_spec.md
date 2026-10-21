@@ -1,3 +1,5 @@
+> **HISTORICAL_RECORD — not current acceptance authority.** Original report/specification follows unchanged. Its release verdicts, test counts, phase terminology and language totals describe the historical record, not current repository or product acceptance. Current state: [02_PHASE_LEDGER.md](docs/reconstruction/02_PHASE_LEDGER.md); accepted decisions/debt: [05_DECISION_AND_DEBT_LOG.md](docs/reconstruction/05_DECISION_AND_DEBT_LOG.md).
+
 # SECURITY SPECIFICATION: PHASE 0 SECURITY TDD
 ## PROJECT-CENTRIC OPERATIONS ARCHITECTURE
 
