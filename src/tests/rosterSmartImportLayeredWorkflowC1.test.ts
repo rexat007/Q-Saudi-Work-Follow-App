@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -166,7 +168,17 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
   // 17. existing mapping approval button remains the explicit gate
   it('17. existing mapping approval button remains the explicit gate', () => {
     expect(wizardContent).toContain('onClick={handleApproveRosterMappingAndStartPipeline}');
-    expect(wizardContent).toContain('اعتماد الربط وبدء تحليل سجل التشغيل');
+    const approvalButton = wizardContent.match(/<button\b[^>]*onClick=\{handleApproveRosterMappingAndStartPipeline\}[\s\S]*?<\/button>/)?.[0];
+    expect(approvalButton).toBeDefined();
+    expect(approvalButton).toContain('disabled={isProcessing || isImportingFile}');
+    expect(approvalButton).toContain("t('projects.labels.approve_mapping_analyze_log')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'projects.labels.approve_mapping_analyze_log';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // 18. carrier resolution layer is rendered once
@@ -177,7 +189,16 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
 
   // 19. stage indicator remains informational / orientation-first
   it('19. stage indicator remains informational / orientation-first', () => {
-    expect(wizardContent).toContain('مسار الاستيراد الذكي التراكمي (Smart Import Workflow)');
+    expect(wizardContent).toMatch(/<p\b[^>]*>\{t\('projects.labels.smart_import_workflow'\)\}<\/p>/);
+    const smartImportPanel = wizardContent.slice(wizardContent.indexOf('{isSmartImportOpen && project && ('));
+    expect(smartImportPanel).toContain("t('projects.labels.smart_import_workflow')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'projects.labels.smart_import_workflow';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // 20. no prompt() cleanup in C1

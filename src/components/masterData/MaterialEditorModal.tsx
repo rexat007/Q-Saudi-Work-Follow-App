@@ -1,3 +1,5 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { useI18n } from '../../i18n';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Layers, X, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
@@ -52,6 +54,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
   clientService = materialManagementClientService,
   zIndexClass = 'z-50',
 }) => {
+  const { t } = useI18n();
   const isEditMode = mode === 'EDIT';
 
   const [name, setName] = useState('');
@@ -107,28 +110,28 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
 
     const trimmedName = name.trim();
     if (!trimmedName) {
-      errors.name = 'اسم المادة مطلوب';
+      errors.name = t('entityResolution.messages.material_name_required');
     } else if (trimmedName.length < 2) {
-      errors.name = 'اسم المادة يجب أن يتكون من حرفين على الأقل';
+      errors.name = t('entityResolution.messages.material_name_min_length');
     }
 
     if (!isEditMode) {
       const trimmedCode = code.trim();
       if (!trimmedCode) {
-        errors.code = 'رمز المادة (Code) مطلوب';
+        errors.code = t('entityResolution.messages.material_code_required');
       } else if (trimmedCode.length < 2) {
-        errors.code = 'رمز المادة يجب أن يتكون من حرفين على الأقل';
+        errors.code = t('entityResolution.messages.material_code_min_length');
       }
     }
 
     if (!['TON', 'M3', 'TRIP'].includes(unitOfMeasure)) {
-      errors.unitOfMeasure = 'وحدة القياس غير صالحة';
+      errors.unitOfMeasure = t('entityResolution.messages.unit_invalid');
     }
 
     if (standardDensityTonPerM3 !== undefined && standardDensityTonPerM3 !== null) {
       const num = Number(standardDensityTonPerM3);
       if (isNaN(num) || !isFinite(num) || num <= 0) {
-        errors.standardDensityTonPerM3 = 'الكثافة يجب أن تكون رقماً موجباً صحيحاً';
+        errors.standardDensityTonPerM3 = t('entityResolution.messages.density_positive');
       }
     }
 
@@ -171,7 +174,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
           result = await creator(projectId, payload);
           setCreatedMaterialResult(result);
         } catch (err: any) {
-          setSubmitError(err.message || 'حدث خطأ أثناء إنشاء المادة');
+          setSubmitError(err.message || t('entityResolution.messages.material_create_failed'));
           setIsSubmitting(false);
           return;
         }
@@ -186,7 +189,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
       } catch (refreshErr: any) {
         setRefreshFailed(true);
         setSubmitError(
-          'تم حفظ المادة بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+          t('entityResolution.messages.material_saved_refresh_failed')
         );
       } finally {
         setIsSubmitting(false);
@@ -211,7 +214,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
           result = await updater(projectId, targetMaterialId, payload);
           setUpdatedMaterialResult(result);
         } catch (err: any) {
-          setSubmitError(err.message || 'حدث خطأ أثناء تعديل بيانات المادة');
+          setSubmitError(err.message || t('entityResolution.messages.material_update_failed'));
           setIsSubmitting(false);
           return;
         }
@@ -226,7 +229,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
       } catch (refreshErr: any) {
         setRefreshFailed(true);
         setSubmitError(
-          'تم حفظ تعديلات المادة بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+          t('entityResolution.messages.material_updated_refresh_failed')
         );
       } finally {
         setIsSubmitting(false);
@@ -253,8 +256,8 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
       setRefreshFailed(true);
       setSubmitError(
         isEditMode
-          ? 'تم حفظ تعديلات المادة بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
-          : 'تم حفظ المادة بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+          ? t('entityResolution.messages.material_updated_refresh_failed')
+          : t('entityResolution.messages.material_saved_refresh_failed')
       );
     } finally {
       setIsSubmitting(false);
@@ -277,12 +280,12 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             </div>
             <div>
               <h2 id="material-modal-title" className="text-lg font-bold text-white">
-                {isEditMode ? 'تعديل بيانات المادة المصرح بها' : 'إضافة مادة جديدة للمشروع'}
+                {isEditMode ? t('materials.labels.editMaterial') : t('entityResolution.labels.add_material')}
               </h2>
               <p className="text-xs text-slate-400">
                 {isEditMode
-                  ? 'تحديث مواصفات المادة في السجل الموحد للمشروع'
-                  : 'تسجيل مادة معتمدة وحفظها في السجل الموحد للمشروع'}
+                  ? t('entityResolution.labels.material_edit_description')
+                  : t('entityResolution.labels.material_create_description')}
               </p>
             </div>
           </div>
@@ -290,7 +293,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             onClick={onClose}
             disabled={isSubmitting}
             className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
-            aria-label="إغلاق النافذة"
+            aria-label={t('shared.actions.close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -308,8 +311,8 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             >
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <div className="text-xs space-y-1 flex-1">
-                <p className="font-semibold">{refreshFailed ? 'تنبيه تحديث البيانات' : 'خطأ في العملية'}</p>
-                <p>{submitError}</p>
+                <p className="font-semibold">{refreshFailed ? t('entityResolution.labels.refresh_warning') : t('shared.status.error')}</p>
+                <p>{presentBatch4Message(submitError, t)}</p>
               </div>
             </div>
           )}
@@ -317,14 +320,14 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
           {!isEditMode && (
             <div className="p-3 bg-amber-950/30 border border-amber-800/40 rounded-xl text-[11px] text-amber-300 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-              <span>تنبيه: سيتم تسجيل المادة مباشرة ضمن السجل المعتمد للمشروع (Master Data) وتبقى متاحة حتى لو أُلغيت جلسة الاستيراد الحالية.</span>
+              <span>{t('entityResolution.messages.master_data_survives_cancel', { entity: t('legacyMigration.labels.material_2') })}</span>
             </div>
           )}
 
           {/* Material Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-              اسم المادة <span className="text-rose-400">*</span>
+              {t('analytics.column.material_name')} <span className="text-rose-400">*</span>
             </label>
             <input
               type="text"
@@ -340,7 +343,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
                 }
               }}
               disabled={isSubmitting || (isEditMode ? updatedMaterialResult !== null && refreshFailed : createdMaterialResult !== null && refreshFailed)}
-              placeholder="مثال: بحص 10 مم، رمل أحمر، دفان"
+              placeholder={t('entityResolution.labels.material_name_example')}
               className={`w-full px-3.5 py-2.5 bg-slate-950/60 border rounded-xl text-sm text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 transition-colors ${
                 fieldErrors.name
                   ? 'border-rose-500 focus:ring-rose-500/30'
@@ -350,7 +353,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             {fieldErrors.name && (
               <p className="mt-1 text-xs text-rose-400 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
-                {fieldErrors.name}
+                {presentBatch4Message(fieldErrors.name, t)}
               </p>
             )}
           </div>
@@ -358,10 +361,10 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
           {/* Material Code */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-              رمز المادة (Code) <span className="text-rose-400">*</span>
+              {t('materials.labels.material_2')} <span className="text-rose-400">*</span>
               {isEditMode && (
                 <span className="text-[11px] text-stone-500 font-normal mr-2">
-                  (رمز الهوية ثابت وغير قابل للتعديل)
+                  {t('entityResolution.labels.material_code_immutable')}
                 </span>
               )}
             </label>
@@ -379,7 +382,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
                 }
               }}
               disabled={isEditMode || isSubmitting || (createdMaterialResult !== null && refreshFailed)}
-              placeholder="مثال: AGG-10MM, SAND-RED, GABC"
+              placeholder={t('entityResolution.labels.material_code_example')}
               className={`w-full px-3.5 py-2.5 bg-slate-950/60 border rounded-xl text-sm text-white font-mono placeholder-slate-500 focus:outline-hidden focus:ring-2 transition-colors uppercase ${
                 isEditMode
                   ? 'bg-slate-900/80 text-stone-400 border-slate-800 cursor-not-allowed'
@@ -391,7 +394,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             {fieldErrors.code && (
               <p className="mt-1 text-xs text-rose-400 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
-                {fieldErrors.code}
+                {presentBatch4Message(fieldErrors.code, t)}
               </p>
             )}
           </div>
@@ -400,7 +403,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                وحدة القياس <span className="text-rose-400">*</span>
+                {t('materials.labels.txt_252118')} <span className="text-rose-400">*</span>
               </label>
               <select
                 value={unitOfMeasure}
@@ -408,15 +411,15 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
                 disabled={isSubmitting || (isEditMode ? updatedMaterialResult !== null && refreshFailed : createdMaterialResult !== null && refreshFailed)}
                 className="w-full px-3.5 py-2.5 bg-slate-950/60 border border-slate-700 rounded-xl text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 disabled:opacity-50 transition-colors"
               >
-                <option value="TON">طن (TON) - بالوزن</option>
-                <option value="M3">متر مكعب (M3) - بالحجم</option>
-                <option value="TRIP">رد / نقلة (TRIP) - بالحمولة</option>
+                <option value="TON">{t('entityResolution.labels.unit_ton_weight')}</option>
+                <option value="M3">{t('materials.labels.txt_6688ac')}</option>
+                <option value="TRIP">{t('entityResolution.labels.unit_trip_load')}</option>
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                الكثافة الافتراضية (طن/م³)
+                {t('entityResolution.labels.default_density')}
               </label>
               <input
                 type="number"
@@ -440,7 +443,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
               disabled={isSubmitting}
               className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors disabled:opacity-50"
             >
-              إلغاء
+              {t('shared.actions.cancel')}
             </button>
 
             {refreshFailed && (isEditMode ? updatedMaterialResult : createdMaterialResult) ? (
@@ -453,12 +456,12 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    جاري التحديث...
+                    {t('entityResolution.labels.refreshing')}
                   </>
                 ) : (
                   <>
                     <RefreshCw className="w-3.5 h-3.5" />
-                    إعادة تحديث البيانات
+                    {t('entityResolution.labels.refresh_data')}
                   </>
                 )}
               </button>
@@ -471,12 +474,12 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    جاري الحفظ...
+                    {t('entityResolution.labels.saving')}
                   </>
                 ) : (
                   <>
                     <Layers className="w-3.5 h-3.5" />
-                    {isEditMode ? 'حفظ التعديلات' : 'حفظ المادة'}
+                    {isEditMode ? t('shared.actions.save') : t('entityResolution.labels.save_material')}
                   </>
                 )}
               </button>

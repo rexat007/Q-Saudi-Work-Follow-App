@@ -1,3 +1,5 @@
+import { batch4DiagnosticText } from '../../i18n/batch4Presentation';
+import { useI18n } from '../../i18n';
 import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
@@ -26,6 +28,7 @@ import { runSecurityAuditTests, SecurityAuditReport, SecurityTestCaseResult } fr
 import { runDirtyDozenAudit, DirtyDozenTestResult } from '../../tests/dirtyDozen.test';
 
 export const SecurityAuditView: React.FC = () => {
+  const { t, direction } = useI18n();
   const [report, setReport] = useState<SecurityAuditReport | null>(null);
   const [dirtyDozenReport, setDirtyDozenReport] = useState<{
     allPassed: boolean;
@@ -67,22 +70,22 @@ export const SecurityAuditView: React.FC = () => {
   }, []);
 
   const securityDomains = [
-    { nameAr: 'Authentication', desc: 'التحقق من الهوية وصلاحية الجلسات عبر Firebase Auth و Bearer Tokens', status: 'VERIFIED' },
-    { nameAr: 'Authorization & RBAC', desc: 'التحكم الصارم في الصلاحيات حسب الأدوار وتجميد الحقول الحساسة', status: 'VERIFIED' },
-    { nameAr: 'Supervisor Restrictions', desc: 'منع المشرف من تغيير (carrierId, projectId, pricingRuleId, settlement, status, truck)', status: 'VERIFIED' },
-    { nameAr: 'Project Isolation', desc: 'عزل تام للمشاريع المتعددة ومنع اختراق البيانات بين المشاريع (Multi-Tenant)', status: 'VERIFIED' },
-    { nameAr: 'Firestore Rules', desc: 'قواعد أمان محكمة تمنع تحوير السجلات وتفرض التدقيق والـ Immutability', status: 'VERIFIED' },
-    { nameAr: 'API Authorization', desc: 'حماية مسارات الخادم /api/* بـ Middlewares للتحقق من هوية ومشاريع المستخدم', status: 'VERIFIED' },
-    { nameAr: 'IDOR Protection', desc: 'منع استدعاء أو تعديل كائنات المشاريع الأخرى بتغيير المعرفات المباشرة', status: 'VERIFIED' },
-    { nameAr: 'Secrets & Environment', desc: 'حفظ المفاتيح السرية حصرياً في بيئة الخادم دون أي تسريب إلى كود المتصفح', status: 'VERIFIED' },
-    { nameAr: 'Frontend Exposure', desc: 'خلو الواجهة الأمامية من أي Service Accounts أو Tokens خاصة بالنظام', status: 'VERIFIED' },
-    { nameAr: 'File Upload Security', desc: 'قائمة سماح بيضاء للأنواع (Whitelist)، منع Path Traversal، وحظر الملفات التنفيذية', status: 'VERIFIED' },
-    { nameAr: 'Import Security', desc: 'منع استيراد أو ربط شاحنة بناقل مختلف أو تعارض لوحات الشاحنات بين الناقلين', status: 'VERIFIED' },
-    { nameAr: 'Audit Integrity', desc: 'سجل تدقيق تاريخي غير قابل للحذف أو التعديل لجميع العمليات الحساسة', status: 'VERIFIED' },
-    { nameAr: 'Offline Data Security', desc: 'تشفير وعزل صندوق الإرسال Outbox على مستوى المشروع وحل النزاعات المحاسبي', status: 'VERIFIED' },
-    { nameAr: 'Session Handling', desc: 'إدارة آمنة للجلسات وإبطال الوصول غير المصرح به', status: 'VERIFIED' },
-    { nameAr: 'Replay Protection', desc: 'اكتشاف إعادة إرسال الحزم ومنع تكرار العمليات عبر التشفير المزدوج', status: 'VERIFIED' },
-    { nameAr: 'Idempotency', desc: 'حماية عملية المزامنة عبر operationId فريد يمنع تكرار الخصم أو التعديل', status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_authentication'), desc: t('security.labels.authentication_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_authorization'), desc: t('security.labels.authorization_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_supervisor_restrictions'), desc: t('security.labels.supervisor_restrictions_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_project_isolation'), desc: t('security.labels.project_isolation_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_firestore_rules'), desc: t('security.labels.firestore_rules_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_api_authorization'), desc: t('security.labels.api_authorization_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_idor_protection'), desc: t('security.labels.idor_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_secrets_environment'), desc: t('security.labels.server_secrets_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_frontend_exposure'), desc: t('security.labels.frontend_exposure_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_file_upload_security'), desc: t('security.labels.file_security_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_import_security'), desc: t('security.labels.import_security_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_audit_integrity'), desc: t('security.labels.audit_integrity_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_offline_security'), desc: t('security.labels.offline_security_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_session_management'), desc: t('security.labels.session_security_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_replay_protection'), desc: t('security.labels.replay_security_description'), status: 'VERIFIED' },
+    { nameAr: t('security.labels.domain_idempotency'), desc: t('security.labels.idempotency_description'), status: 'VERIFIED' },
   ];
 
   const filteredResults = report ? report.results.filter(r => {
@@ -92,7 +95,7 @@ export const SecurityAuditView: React.FC = () => {
   }) : [];
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={direction}>
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-6 rounded-2xl shadow-xl border border-blue-800/40">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -102,14 +105,14 @@ export const SecurityAuditView: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight">مركز التدقيق الأمني والحوكمة المؤسسية</h1>
+                <h1 className="text-2xl font-bold tracking-tight">{t('security.labels.audit_center')}</h1>
                 <span className="px-3 py-1 bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-semibold rounded-full flex items-center gap-1">
                   <Check className="w-3.5 h-3.5" />
-                  مستوى الأمان: Enterprise Grade
+                  {t('security.labels.enterprise_security_level')}
                 </span>
               </div>
               <p className="text-slate-300 text-sm mt-1 max-w-3xl leading-relaxed">
-                تدقيق شامل لكافة المتطلبات الأمنية: حظر تعديل المشرفين للحقول الحساسة، عزل المشاريع، حماية التسعير عبر Copy-on-Write، منع تعارض الناقلين، ومكافحة Replay Attacks عبر Idempotency.
+                {t('security.labels.audit_overview')}
               </p>
             </div>
           </div>
@@ -123,12 +126,12 @@ export const SecurityAuditView: React.FC = () => {
               {isRunning ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>جاري تنفيذ الاختبارات...</span>
+                  <span>{t('security.labels.running_tests')}</span>
                 </>
               ) : (
                 <>
                   <Play className="w-4 h-4" />
-                  <span>إعادة تشغيل الاختبارات الأمنية</span>
+                  <span>{t('security.labels.rerun_tests')}</span>
                 </>
               )}
             </button>
@@ -139,22 +142,22 @@ export const SecurityAuditView: React.FC = () => {
         {report && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-700/50">
             <div className="bg-slate-800/60 backdrop-blur p-4 rounded-xl border border-slate-700">
-              <div className="text-xs text-slate-400">إجمالي الفحوصات الأمنية</div>
-              <div className="text-2xl font-bold text-white mt-1">{report.totalTests} اختبار</div>
+              <div className="text-xs text-slate-400">{t('security.labels.total_security_checks')}</div>
+              <div className="text-2xl font-bold text-white mt-1">{report.totalTests} {t('security.labels.test_unit')}</div>
             </div>
             <div className="bg-emerald-950/40 backdrop-blur p-4 rounded-xl border border-emerald-800/40">
-              <div className="text-xs text-emerald-400">الاختبارات الناجحة (Pass)</div>
+              <div className="text-xs text-emerald-400">{t('security.labels.passed_checks')}</div>
               <div className="text-2xl font-bold text-emerald-400 mt-1">{report.passedTests}</div>
             </div>
             <div className="bg-rose-950/40 backdrop-blur p-4 rounded-xl border border-rose-800/40">
-              <div className="text-xs text-rose-400">محاولات الاختراق التي تم صدها</div>
-              <div className="text-2xl font-bold text-rose-300 mt-1">100% رفض أمني</div>
+              <div className="text-xs text-rose-400">{t('security.labels.blocked_attacks')}</div>
+              <div className="text-2xl font-bold text-rose-300 mt-1">{t('security.labels.complete_security_rejection')}</div>
             </div>
             <div className="bg-blue-950/40 backdrop-blur p-4 rounded-xl border border-blue-800/40">
-              <div className="text-xs text-blue-400">حالة الاعتماد النهائي</div>
+              <div className="text-xs text-blue-400">{t('security.labels.final_approval_status')}</div>
               <div className="text-xl font-bold text-blue-300 mt-1 flex items-center gap-1.5">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                <span>ممتثل للضوابط</span>
+                <span>{t('security.labels.compliant')}</span>
               </div>
             </div>
           </div>
@@ -172,7 +175,7 @@ export const SecurityAuditView: React.FC = () => {
           }`}
         >
           <Shield className="w-4 h-4" />
-          <span>حوكمة المنظومة ونطاقات التدقيق (16 Domain Matrix)</span>
+          <span>{t('security.labels.governance_matrix')}</span>
         </button>
         <button
           onClick={() => setActiveTab('DIRTY_DOZEN')}
@@ -183,10 +186,10 @@ export const SecurityAuditView: React.FC = () => {
           }`}
         >
           <Bug className="w-4 h-4" />
-          <span>فحوصات الاختراق الـ 12: "The Dirty Dozen" (Red Team Audit)</span>
+          <span>{t('security.labels.red_team_tab')}</span>
           {dirtyDozenReport && (
             <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-mono">
-              {dirtyDozenReport.blockedCount}/{dirtyDozenReport.total} محصن
+              {dirtyDozenReport.blockedCount}/{dirtyDozenReport.total} {t('security.labels.protected')}
             </span>
           )}
         </button>
@@ -199,10 +202,10 @@ export const SecurityAuditView: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <Layers className="w-5 h-5 text-blue-600" />
-                نطاقات التدقيق الأمني الـ 16 (Security Audit Matrix)
+                {t('security.labels.audit_matrix')}
               </h2>
               <span className="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                16 / 16 نطاق محمي ومفعل
+                {t('security.labels.all_domains_protected')}
               </span>
             </div>
 
@@ -214,7 +217,7 @@ export const SecurityAuditView: React.FC = () => {
                       <span className="font-semibold text-xs text-slate-800">{domain.nameAr}</span>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
                         <Check className="w-3 h-3" />
-                        محصن
+                        {t('security.labels.protected')}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">{domain.desc}</p>
@@ -232,9 +235,9 @@ export const SecurityAuditView: React.FC = () => {
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                     <Server className="w-5 h-5 text-blue-600" />
-                    نتائج اختبارات سيناريوهات الأمان الإلزامية
+                    {t('security.labels.required_scenario_results')}
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">انقر على أي سيناريو لعرض تفاصيل الرفض الأمني والتوجيه البرمجي</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{t('security.labels.select_scenario_description')}</p>
                 </div>
 
                 <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-medium">
@@ -242,19 +245,19 @@ export const SecurityAuditView: React.FC = () => {
                     onClick={() => setActiveFilter('ALL')}
                     className={`px-3 py-1 rounded-lg transition ${activeFilter === 'ALL' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
                   >
-                    الكل ({report?.totalTests || 0})
+                    {t('admin_console.filter_all')} ({report?.totalTests || 0})
                   </button>
                   <button
                     onClick={() => setActiveFilter('PASSED')}
                     className={`px-3 py-1 rounded-lg transition ${activeFilter === 'PASSED' ? 'bg-white text-emerald-700 shadow-sm font-semibold' : 'text-slate-600 hover:text-slate-900'}`}
                   >
-                    اجتاز ({report?.passedTests || 0})
+                    {t('security.labels.passed_checks')} ({report?.passedTests || 0})
                   </button>
                   <button
                     onClick={() => setActiveFilter('FAILED')}
                     className={`px-3 py-1 rounded-lg transition ${activeFilter === 'FAILED' ? 'bg-white text-rose-700 shadow-sm font-semibold' : 'text-slate-600 hover:text-slate-900'}`}
                   >
-                    فشل ({report?.failedTests || 0})
+                    {t('security.labels.failed_checks')} ({report?.failedTests || 0})
                   </button>
                 </div>
               </div>
@@ -281,7 +284,7 @@ export const SecurityAuditView: React.FC = () => {
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-sm text-slate-900">{test.titleAr}</span>
+                              <span className="font-bold text-sm text-slate-900">{batch4DiagnosticText(t, test.id, 'titleAr', test.titleAr)}</span>
                               <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-mono">{test.id}</span>
                             </div>
                             <div className="text-xs text-slate-500 mt-1 font-sans">{test.category}</div>
@@ -294,7 +297,7 @@ export const SecurityAuditView: React.FC = () => {
                         <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ${
                           test.passed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                         }`}>
-                          {test.passed ? 'تم الصد بنجاح' : 'ثغرة غير مغلقة'}
+                          {test.passed ? t('security.labels.attack_blocked') : t('security.labels.vulnerability_open')}
                         </span>
                       </div>
                     </div>
@@ -308,69 +311,69 @@ export const SecurityAuditView: React.FC = () => {
               <div>
                 <h3 className="text-base font-bold text-slate-900 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">
                   <FileCheck className="w-5 h-5 text-blue-600" />
-                  تفاصيل فحص الأمان المختار
+                  {t('security.labels.selected_check_details')}
                 </h3>
 
                 {selectedTestCase ? (
                   <div className="space-y-4">
                     <div>
-                      <div className="text-xs text-slate-400">رمز الفحص والتصنيف</div>
+                      <div className="text-xs text-slate-400">{t('security.labels.check_code_category')}</div>
                       <div className="font-mono text-xs font-semibold text-blue-700 mt-0.5">{selectedTestCase.id} • {selectedTestCase.category}</div>
                     </div>
 
                     <div>
-                      <div className="text-xs text-slate-400">عنوان الاختبار</div>
-                      <div className="text-sm font-bold text-slate-900 mt-0.5">{selectedTestCase.titleAr}</div>
+                      <div className="text-xs text-slate-400">{t('security.labels.test_title')}</div>
+                      <div className="text-sm font-bold text-slate-900 mt-0.5">{batch4DiagnosticText(t, selectedTestCase.id, 'titleAr', selectedTestCase.titleAr)}</div>
                       <div className="text-xs text-slate-500 mt-0.5 font-mono">{selectedTestCase.titleEn}</div>
                     </div>
 
                     <div>
-                      <div className="text-xs text-slate-400">السلوك الأمني المتوقع</div>
+                      <div className="text-xs text-slate-400">{t('security.labels.expected_security_behavior')}</div>
                       <div className="text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-slate-800 mt-1 leading-relaxed">
-                        {selectedTestCase.expectedBehavior}
+                        {batch4DiagnosticText(t, selectedTestCase.id, 'expectedBehavior', selectedTestCase.expectedBehavior)}
                       </div>
                     </div>
 
                     <div>
-                      <div className="text-xs text-slate-400">النتيجة الفعلية للخادم (Live Server Response)</div>
+                      <div className="text-xs text-slate-400">{t('security.labels.live_server_response')}</div>
                       <div className="text-xs bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-200 text-emerald-900 mt-1 leading-relaxed font-mono">
                         {selectedTestCase.actualOutcome}
                       </div>
                     </div>
 
                     <div>
-                      <div className="text-xs text-slate-400">الحيثيات والضوابط القانونية والمحاسبية</div>
+                      <div className="text-xs text-slate-400">{t('security.labels.legal_accounting_controls')}</div>
                       <p className="text-xs text-slate-600 mt-1 leading-relaxed bg-blue-50/50 p-2.5 rounded-xl border border-blue-100">
-                        {selectedTestCase.details}
+                        {batch4DiagnosticText(t, selectedTestCase.id, 'details', selectedTestCase.details)}
                       </p>
                     </div>
                   </div>
                 ) : (
                   <div className="py-12 text-center text-slate-400 text-xs">
-                    اختر اختباراً من القائمة للاطلاع على الحيثيات
+                    {t('security.labels.select_check')}
                   </div>
                 )}
               </div>
 
               {/* Quick Security Checklist */}
               <div className="mt-6 pt-4 border-t border-slate-100">
-                <div className="text-xs font-bold text-slate-800 mb-2">الضمانات الفنية المحققة:</div>
+                <div className="text-xs font-bold text-slate-800 mb-2">{t('security.labels.verified_guarantees')}</div>
                 <ul className="text-[11px] text-slate-600 space-y-1.5">
                   <li className="flex items-center gap-1.5">
                     <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>منع المشرف من التلاعب بـ carrierId, truckId, pricingRuleId</span>
+                    <span>{t('security.labels.protect_sensitive_identifiers')}</span>
                   </li>
                   <li className="flex items-center gap-1.5">
                     <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>منع تحوير السعر على الرحلات السابقة عبر Copy-on-Write</span>
+                    <span>{t('security.labels.protect_historical_prices')}</span>
                   </li>
                   <li className="flex items-center gap-1.5">
                     <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>عزل المشاريع المتعددة ومنع الوصول العرضي (IDOR)</span>
+                    <span>{t('security.labels.prevent_cross_project_access')}</span>
                   </li>
                   <li className="flex items-center gap-1.5">
                     <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>كشف وإحباط هجمات الإعادة عبر Idempotency (operationId)</span>
+                    <span>{t('security.labels.prevent_operation_replay')}</span>
                   </li>
                 </ul>
               </div>
@@ -385,15 +388,15 @@ export const SecurityAuditView: React.FC = () => {
               <div>
                 <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <Bug className="w-5 h-5 text-rose-600" />
-                  حمولات الهجوم الـ 12: "The Dirty Dozen"
+                  {t('security.labels.attack_payloads')}
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  فحص اختراق استباقي (Red Team) لجميع السيناريوهات المحددة في وثيقة الأمان (security_spec.md)
+                  {t('security.labels.red_team_description')}
                 </p>
               </div>
               <span className="text-xs font-bold px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" />
-                تم صد جميع الهجمات (12/12)
+                {t('security.labels.all_attacks_blocked')}
               </span>
             </div>
 
@@ -417,7 +420,7 @@ export const SecurityAuditView: React.FC = () => {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-sm text-slate-900">{dd.nameAr}</span>
+                            <span className="font-bold text-sm text-slate-900">{batch4DiagnosticText(t, dd.payloadId, 'nameAr', dd.nameAr)}</span>
                             <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-mono font-bold">
                               {dd.invariantId}
                             </span>
@@ -430,7 +433,7 @@ export const SecurityAuditView: React.FC = () => {
                       </div>
 
                       <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 shrink-0">
-                        🛡️ تم التحصين
+                        {t('security.labels.hardened')}
                       </span>
                     </div>
                   </div>
@@ -444,13 +447,13 @@ export const SecurityAuditView: React.FC = () => {
             <div>
               <h3 className="text-base font-bold text-slate-900 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">
                 <ShieldAlert className="w-5 h-5 text-rose-600" />
-                تحليل حمولة الهجوم واستراتيجية الصد
+                {t('security.labels.payload_analysis')}
               </h3>
 
               {selectedDirtyDozen ? (
                 <div className="space-y-4">
                   <div>
-                    <div className="text-xs text-slate-400">معرف الحمولة والثابت الأمني</div>
+                    <div className="text-xs text-slate-400">{t('security.labels.payload_identifier_invariant')}</div>
                     <div className="font-mono text-xs font-semibold text-rose-700 mt-0.5">
                       #{selectedDirtyDozen.payloadNumber} • {selectedDirtyDozen.payloadId}
                     </div>
@@ -460,27 +463,27 @@ export const SecurityAuditView: React.FC = () => {
                   </div>
 
                   <div>
-                    <div className="text-xs text-slate-400">اسم الهجوم الفني</div>
-                    <div className="text-sm font-bold text-slate-900 mt-0.5">{selectedDirtyDozen.nameAr}</div>
+                    <div className="text-xs text-slate-400">{t('security.labels.attack_name')}</div>
+                    <div className="text-sm font-bold text-slate-900 mt-0.5">{batch4DiagnosticText(t, selectedDirtyDozen.payloadId, 'nameAr', selectedDirtyDozen.nameAr)}</div>
                     <div className="text-xs text-slate-500 mt-0.5 font-mono">{selectedDirtyDozen.nameEn}</div>
                   </div>
 
                   <div>
-                    <div className="text-xs text-slate-400">سيناريو الهجوم (Attack Vector)</div>
+                    <div className="text-xs text-slate-400">{t('security.labels.attack_vector')}</div>
                     <div className="text-xs bg-rose-50/60 p-2.5 rounded-xl border border-rose-200 text-rose-900 mt-1 leading-relaxed">
-                      {selectedDirtyDozen.attackDescription}
+                      {batch4DiagnosticText(t, selectedDirtyDozen.payloadId, 'attackDescription', selectedDirtyDozen.attackDescription)}
                     </div>
                   </div>
 
                   <div>
-                    <div className="text-xs text-slate-400">الاستجابة الأمنية المطلوبة (Expected Defense)</div>
+                    <div className="text-xs text-slate-400">{t('security.labels.expected_defense')}</div>
                     <div className="text-xs bg-slate-100 p-2.5 rounded-xl border border-slate-200 text-slate-800 mt-1 leading-relaxed font-mono">
                       {selectedDirtyDozen.expectedHttpCodeOrError}
                     </div>
                   </div>
 
                   <div>
-                    <div className="text-xs text-slate-400">نتيجة الاختبار الفعلي على الخادم (Actual Outcome)</div>
+                    <div className="text-xs text-slate-400">{t('security.labels.live_server_response')}</div>
                     <div className="text-xs bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 text-emerald-900 mt-1 leading-relaxed font-mono">
                       {selectedDirtyDozen.actualOutcome}
                     </div>
@@ -488,15 +491,15 @@ export const SecurityAuditView: React.FC = () => {
                 </div>
               ) : (
                 <div className="py-12 text-center text-slate-400 text-xs">
-                  اختر حمولة هجوم من القائمة لمراجعة تفاصيلها
+                  {t('security.labels.select_payload')}
                 </div>
               )}
             </div>
 
             <div className="mt-6 pt-4 border-t border-slate-100">
-              <div className="text-xs font-bold text-slate-800 mb-2">مبدأ الدفاع في العمق:</div>
+              <div className="text-xs font-bold text-slate-800 mb-2">{t('security.labels.defense_in_depth')}</div>
               <p className="text-[11px] text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                لا تعتمد المنظومة على حماية العميل أو واجهة المستخدم وحدها. كل طلب يخضع للتحقق في 4 طبقات متتالية: التوثيق، عزل المشروع، صلاحية الدور، وقواعد أمان Firestore.
+                {t('security.labels.defense_in_depth_description')}
               </p>
             </div>
           </div>

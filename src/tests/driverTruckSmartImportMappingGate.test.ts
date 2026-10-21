@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
@@ -308,7 +310,13 @@ describe('Unit DT-01 — Driver/Truck Smart Import: Source Discovery & Explicit 
 
   // 25. approval button exists
   it('25. approval button exists', () => {
-    expect(wizardContent).toContain('اعتماد الربط وبدء تحليل سجل التشغيل');
+    expect(wizardContent).toContain("t('projects.labels.approve_mapping_analyze_log')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['projects.labels.approve_mapping_analyze_log']).toBeTruthy();
+      const label = resolveTranslation('projects.labels.approve_mapping_analyze_log', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['projects.labels.approve_mapping_analyze_log'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
   });
 
   // 26. processFileToReview is called only by approval path for the new flow

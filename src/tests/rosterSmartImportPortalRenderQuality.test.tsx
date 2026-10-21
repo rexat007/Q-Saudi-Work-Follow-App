@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+import { I18nProvider } from '../i18n';
+import { canonicalBatch4Label } from './batch4I18nTestSupport';
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -35,24 +37,24 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
     await act(async () => {
       root.render(
-        <CarrierEditorModal
+        <I18nProvider initialLocale="ar"><CarrierEditorModal
           open={true}
           mode="CREATE"
           projectId="PRJ-101"
           initialName="شركة الأفق لنقل البضائع"
           onClose={handleClose}
           onCreated={handleCreated}
-        />
+        /></I18nProvider>
       );
     });
 
     // Verify modal is portaled directly into document.body
-    const dialogElement = document.body.querySelector('[aria-label="إغلاق النافذة"]');
+    const dialogElement = document.body.querySelector(`[aria-label="${canonicalBatch4Label('shared.actions.close')}"]`);
     expect(dialogElement).not.toBeNull();
 
     // Verify title reflects CREATE mode explicitly (D03)
-    expect(document.body.textContent).toContain('إضافة ناقل للمشروع');
-    expect(document.body.textContent).toContain('حفظ واعتماد الناقل');
+    expect(document.body.textContent).toContain(canonicalBatch4Label('projects.labels.add_carrier'));
+    expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.save_approve_carrier'));
 
     // Click Close Button
     await act(async () => {
@@ -70,19 +72,19 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
     await act(async () => {
       root.render(
-        <CarrierEditorModal
+        <I18nProvider initialLocale="ar"><CarrierEditorModal
           open={true}
           mode="CREATE"
           projectId="PRJ-101"
           initialCarrier={{ carrierId: 'CAR-OLD', name: 'ناقل قديم' }}
           onClose={() => {}}
-        />
+        /></I18nProvider>
       );
     });
 
     // Must be CREATE mode, not EDIT
-    expect(document.body.textContent).toContain('إضافة ناقل للمشروع');
-    expect(document.body.textContent).not.toContain('تعديل بيانات الناقل');
+    expect(document.body.textContent).toContain(canonicalBatch4Label('projects.labels.add_carrier'));
+    expect(document.body.textContent).not.toContain(canonicalBatch4Label('entityResolution.labels.edit_carrier'));
 
     await act(async () => {
       root.unmount();
@@ -95,21 +97,21 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
     await act(async () => {
       root.render(
-        <MaterialEditorModal
+        <I18nProvider initialLocale="ar"><MaterialEditorModal
           open={true}
           mode="CREATE"
           projectId="PRJ-101"
           initialName="دفان ناعم 0-5 مم"
           onClose={handleClose}
-        />
+        /></I18nProvider>
       );
     });
 
     // Portaled to document.body
-    const closeBtn = document.body.querySelector('[aria-label="إغلاق النافذة"]');
+    const closeBtn = document.body.querySelector(`[aria-label="${canonicalBatch4Label('shared.actions.close')}"]`);
     expect(closeBtn).not.toBeNull();
-    expect(document.body.textContent).toContain('إضافة مادة جديدة للمشروع');
-    expect(document.body.textContent).toContain('حفظ المادة');
+    expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.add_material'));
+    expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.save_material'));
 
     await act(async () => {
       (closeBtn as HTMLButtonElement).click();
@@ -156,7 +158,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
     await act(async () => {
       root.render(
-        <RosterDriverTruckResolutionLayer
+        <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
           importBatch={mockBatch}
           projectCarriers={[{ carrierId: 'CAR-1', name: 'الناقل الأول' }]}
           projectDrivers={[]}
@@ -168,13 +170,13 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
           onSelectAlternateTruck={() => {}}
           onCreateTruck={() => {}}
           onOpenFinalReview={() => {}}
-        />
+        /></I18nProvider>
       );
     });
 
     // Look for button to create driver
     const createDriverBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('إنشاء سائق')
+      (b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_driver'))
     );
     expect(createDriverBtn).toBeDefined();
 
@@ -184,8 +186,8 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
     });
 
     // Driver creation modal is portaled into document.body
-    expect(document.body.textContent).toContain('إنشاء سائق جديد للناقل');
-    expect(document.body.textContent).toContain('رقم الهوية الوطنية / الإقامة');
+    expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.create_carrier_driver'));
+    expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.residency_identifier_label'));
 
     await act(async () => {
       root.unmount();
@@ -349,10 +351,10 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
     await act(async () => {
       root.render(
-        <RosterFinalReviewLayer
+        <I18nProvider initialLocale="ar"><RosterFinalReviewLayer
           importBatch={batchWithWarnings}
           onCommit={async () => {}}
-        />
+        /></I18nProvider>
       );
     });
 
@@ -410,17 +412,17 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterCarrierResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterCarrierResolutionLayer
             importBatch={unresolvedBatch}
             projectCarriers={[]}
             onAcceptCandidate={() => {}}
             onCreateCarrier={() => {}}
-          />
+          /></I18nProvider>
         );
       });
 
-      expect(document.body.textContent).toContain('مراجعة وحسم الناقلين');
-      expect(document.body.textContent).toContain('إنشاء ناقل جديد');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.carrier_review_title'));
+      expect(document.body.textContent).toContain(canonicalBatch4Label('projects.labels.add_carrier'));
       expect(document.body.textContent).toContain('ناقل مجهول');
 
       // 2. Resolved Carrier Stage
@@ -454,19 +456,19 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       const handleContinue = vi.fn();
       await act(async () => {
         root.render(
-          <RosterCarrierResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterCarrierResolutionLayer
             importBatch={resolvedBatch}
             projectCarriers={[{ carrierId: 'CAR-101', name: 'شركة الرمال للنقل' }]}
             onAcceptCandidate={() => {}}
             onCreateCarrier={() => {}}
             onContinueToMaterials={handleContinue}
-          />
+          /></I18nProvider>
         );
       });
 
-      expect(document.body.textContent).toContain('تم حسم جميع الناقلين بنجاح');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.messages.all_carriers_resolved', { count: 1 }));
       const continueBtn = Array.from(document.body.querySelectorAll('button')).find(
-        (b) => b.textContent?.includes('متابعة إلى مراجعة المواد')
+        (b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.continue_material_review'))
       );
       expect(continueBtn).toBeDefined();
 
@@ -513,17 +515,17 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterMaterialResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterMaterialResolutionLayer
             importBatch={unresolvedBatch}
             projectMaterials={[]}
             onAcceptCandidate={() => {}}
             onCreateMaterial={() => {}}
-          />
+          /></I18nProvider>
         );
       });
 
-      expect(document.body.textContent).toContain('مراجعة وحسم المواد');
-      expect(document.body.textContent).toContain('إنشاء مادة جديدة');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.material_review_title'));
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.add_material'));
 
       // 2. Resolved Material
       const resolvedBatch: UnifiedImportBatch = {
@@ -556,19 +558,19 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       const handleContinue = vi.fn();
       await act(async () => {
         root.render(
-          <RosterMaterialResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterMaterialResolutionLayer
             importBatch={resolvedBatch}
             projectMaterials={[{ materialId: 'MAT-101', name: 'دفان ناعم' }]}
             onAcceptCandidate={() => {}}
             onCreateMaterial={() => {}}
             onContinueToDriverTruck={handleContinue}
-          />
+          /></I18nProvider>
         );
       });
 
-      expect(document.body.textContent).toContain('تم حسم جميع المواد بنجاح');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.messages.all_materials_resolved', { count: 1 }));
       const continueBtn = Array.from(document.body.querySelectorAll('button')).find(
-        (b) => b.textContent?.includes('متابعة إلى مراجعة السائقين والشاحنات')
+        (b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.continue_driver_truck_review'))
       );
       expect(continueBtn).toBeDefined();
 
@@ -620,7 +622,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       // This render must execute smoothly and mount the ArrowLeft icon without throwing ReferenceError
       await act(async () => {
         root.render(
-          <RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
             importBatch={fullyResolvedBatch}
             projectDrivers={[{ driverId: 'DRV-1', name: 'سالم القحطاني' }]}
             projectTrucks={[{ truckId: 'TRK-1', plate: '1111' }]}
@@ -628,15 +630,15 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
             onCreateDriver={() => {}}
             onCreateTruck={() => {}}
             onContinueToFinalReview={handleContinueToFinal}
-          />
+          /></I18nProvider>
         );
       });
 
-      expect(document.body.textContent).toContain('مراجعة وحسم السائقين والشاحنات');
-      expect(document.body.textContent).toContain('متابعة إلى المراجعة النهائية');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.driver_truck_review_title'));
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.continue_final_review'));
 
       const continueBtn = Array.from(document.body.querySelectorAll('button')).find(
-        (b) => b.textContent?.includes('متابعة إلى المراجعة النهائية')
+        (b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.continue_final_review'))
       );
       expect(continueBtn).toBeDefined();
       expect((continueBtn as HTMLButtonElement).disabled).toBe(false);
@@ -688,19 +690,19 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       const handleCommit = vi.fn();
       await act(async () => {
         root.render(
-          <RosterFinalReviewLayer
+          <I18nProvider initialLocale="ar"><RosterFinalReviewLayer
             importBatch={readyBatch}
             onCommit={handleCommit}
-          />
+          /></I18nProvider>
         );
       });
 
-      expect(document.body.textContent).toContain('المراجعة النهائية والاعتماد');
-      expect(document.body.textContent).toContain('الدفعة جاهزة تماماً للاعتماد والتنفيذ');
-      expect(document.body.textContent).toContain('اعتماد وتنفيذ الاستيراد');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.final_review_title'));
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.messages.batch_ready_count', { ready: 1, total: 1 }));
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.approve_commit_import'));
 
       const commitBtn = Array.from(document.body.querySelectorAll('button')).find(
-        (b) => b.textContent?.includes('اعتماد وتنفيذ الاستيراد')
+        (b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.approve_commit_import'))
       );
       expect(commitBtn).toBeDefined();
       expect((commitBtn as HTMLButtonElement).disabled).toBe(false);
@@ -753,16 +755,16 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       const handleFinish = vi.fn();
       await act(async () => {
         root.render(
-          <RosterCommitResultLayer
+          <I18nProvider initialLocale="ar"><RosterCommitResultLayer
             importBatch={batch}
             commitResult={successResult}
             onFinish={handleFinish}
-          />
+          /></I18nProvider>
         );
       });
 
-      expect(document.body.textContent).toContain('تم تنفيذ الاستيراد بنجاح');
-      expect(document.body.textContent).toContain('إنهاء الاستيراد');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.messages.import_succeeded'));
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.finish_import'));
 
       // 2. Partial Result
       const partialResult: ImportResult = {
@@ -782,15 +784,15 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterCommitResultLayer
+          <I18nProvider initialLocale="ar"><RosterCommitResultLayer
             importBatch={batch}
             commitResult={partialResult}
             onClose={() => {}}
-          />
+          /></I18nProvider>
         );
       });
 
-      expect(document.body.textContent).toContain('تم تنفيذ جزء من الاستيراد مع وجود صفوف فاشلة');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.messages.import_partial'));
       expect(document.body.textContent).toContain('فشل حفظ السجل الثاني');
 
       // 3. Complete Failure Result
@@ -811,15 +813,15 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterCommitResultLayer
+          <I18nProvider initialLocale="ar"><RosterCommitResultLayer
             importBatch={batch}
             commitResult={failureResult}
             onClose={() => {}}
-          />
+          /></I18nProvider>
         );
       });
 
-      expect(document.body.textContent).toContain('فشل تنفيذ الاستيراد');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.messages.import_failed'));
 
       await act(async () => {
         root.unmount();
@@ -906,7 +908,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
             importBatch={batch}
             projectDrivers={projectDrivers}
             projectTrucks={projectTrucks}
@@ -914,7 +916,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
             onSelectAlternate={() => {}}
             onCreateDriver={() => {}}
             onCreateTruck={() => {}}
-          />
+          /></I18nProvider>
         );
       });
 
@@ -953,16 +955,16 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterFinalReviewLayer
+          <I18nProvider initialLocale="ar"><RosterFinalReviewLayer
             importBatch={batchWithMaterialBlocker}
             onCommit={async () => {}}
             onClose={handleClose}
-          />
+          /></I18nProvider>
         );
       });
 
       // G: onClose exists -> correction button is rendered ("العودة لمعالجة البيانات")
-      expect(document.body.textContent).toContain('العودة لمعالجة البيانات');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.return_to_correction'));
 
       // Click correction button
       const backBtn = document.body.querySelectorAll('button')[0];
@@ -1009,27 +1011,27 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
             importBatch={testBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
             onCreateDriver={() => {}}
             onCreateTruck={() => {}}
-          />
+          /></I18nProvider>
         );
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createDriverBtn = buttons.find((b) => b.textContent?.includes('إنشاء سائق جديد'));
+      const createDriverBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_driver')));
       expect(createDriverBtn).toBeDefined();
 
       await act(async () => {
         createDriverBtn?.click();
       });
 
-      const nameInput = document.body.querySelector('input[placeholder="مثال: سالم علي القحطاني"]') as HTMLInputElement;
-      const iqamaInput = document.body.querySelector('input[placeholder="مثال: 1023456789 أو 2023456789"]') as HTMLInputElement;
-      const phoneInput = document.body.querySelector('input[placeholder="مثال: 0501234567"]') as HTMLInputElement;
+      const nameInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: 'سالم علي القحطاني' })}"]`) as HTMLInputElement;
+      const iqamaInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: canonicalBatch4Label('shared.labels.alternative_values', { first: '1023456789', second: '2023456789' }) })}"]`) as HTMLInputElement;
+      const phoneInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "0501234567" })}"]`) as HTMLInputElement;
 
       expect(nameInput).not.toBeNull();
       expect(nameInput.value).toBe('علي المنصور');
@@ -1072,28 +1074,28 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
             importBatch={testBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
             onCreateDriver={() => {}}
             onCreateTruck={() => {}}
-          />
+          /></I18nProvider>
         );
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createTruckBtn = buttons.find((b) => b.textContent?.includes('إنشاء شاحنة جديدة'));
+      const createTruckBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_truck')));
       expect(createTruckBtn).toBeDefined();
 
       await act(async () => {
         createTruckBtn?.click();
       });
 
-      const plateInput = document.body.querySelector('input[placeholder="مثال: أ ب ج 1234"]') as HTMLInputElement;
-      const typeInput = document.body.querySelector('input[placeholder="مثال: قلاب، تريلا، سطحة"]') as HTMLInputElement;
-      const tareInput = document.body.querySelector('input[placeholder="مثال: 14000"]') as HTMLInputElement;
-      const grossInput = document.body.querySelector('input[placeholder="مثال: 45000"]') as HTMLInputElement;
+      const plateInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "أ ب ج 1234" })}"]`) as HTMLInputElement;
+      const typeInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: canonicalBatch4Label('entityResolution.labels.truck_body_examples') })}"]`) as HTMLInputElement;
+      const tareInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "14000" })}"]`) as HTMLInputElement;
+      const grossInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "45000" })}"]`) as HTMLInputElement;
 
       expect(plateInput.value).toBe('ح ط ي 7777');
       expect(typeInput.value).toBe('سطحة هايدروليك');
@@ -1150,34 +1152,34 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
             importBatch={conflictBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
             onCreateDriver={handleCreateDriver}
             onCreateTruck={() => {}}
-          />
+          /></I18nProvider>
         );
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createDriverBtn = buttons.find((b) => b.textContent?.includes('إنشاء سائق جديد'));
+      const createDriverBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_driver')));
 
       await act(async () => {
         createDriverBtn?.click();
       });
 
-      expect(document.body.textContent).toContain('توجد بيانات متعارضة في الملف المصدر');
-      expect(document.body.textContent).toContain('0501111111 مقابل 0502222222');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
+      expect(document.body.textContent).toContain(`0501111111 ${canonicalBatch4Label('entityResolution.labels.versus')} 0502222222`);
 
-      const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes('حفظ وإنشاء السائق'));
+      const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.save_create_driver')));
       await act(async () => {
         submitBtn?.click();
       });
 
       expect(handleCreateDriver).toHaveBeenCalledTimes(0);
 
-      const phoneInput = document.body.querySelector('input[placeholder="مثال: 0501234567"]') as HTMLInputElement;
+      const phoneInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "0501234567" })}"]`) as HTMLInputElement;
       await act(async () => {
         const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
         if (valueSetter) {
@@ -1246,34 +1248,34 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
             importBatch={conflictBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
             onCreateDriver={() => {}}
             onCreateTruck={handleCreateTruck}
-          />
+          /></I18nProvider>
         );
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createTruckBtn = buttons.find((b) => b.textContent?.includes('إنشاء شاحنة جديدة'));
+      const createTruckBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_truck')));
 
       await act(async () => {
         createTruckBtn?.click();
       });
 
-      expect(document.body.textContent).toContain('توجد بيانات متعارضة في الملف المصدر');
-      expect(document.body.textContent).toContain('14000 مقابل 16000');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
+      expect(document.body.textContent).toContain(`14000 ${canonicalBatch4Label('entityResolution.labels.versus')} 16000`);
 
-      const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes('حفظ وإنشاء الشاحنة'));
+      const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.save_create_truck')));
       await act(async () => {
         submitBtn?.click();
       });
 
       expect(handleCreateTruck).toHaveBeenCalledTimes(0);
 
-      const tareInput = document.body.querySelector('input[placeholder="مثال: 14000"]') as HTMLInputElement;
+      const tareInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "14000" })}"]`) as HTMLInputElement;
       await act(async () => {
         const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
         if (valueSetter) {
@@ -1353,25 +1355,25 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
             importBatch={multiGroupBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
             onCreateDriver={() => {}}
             onCreateTruck={() => {}}
-          />
+          /></I18nProvider>
         );
       });
 
-      const createButtons = Array.from(document.body.querySelectorAll('button')).filter((b) => b.textContent?.includes('إنشاء سائق جديد'));
+      const createButtons = Array.from(document.body.querySelectorAll('button')).filter((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_driver')));
       await act(async () => {
         createButtons[0]?.click();
       });
 
-      expect(document.body.textContent).toContain('توجد بيانات متعارضة في الملف المصدر');
-      expect(document.body.textContent).toContain('0501111111 مقابل 0502222222');
+      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
+      expect(document.body.textContent).toContain(`0501111111 ${canonicalBatch4Label('entityResolution.labels.versus')} 0502222222`);
 
-      const cancelBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === 'إلغاء');
+      const cancelBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === canonicalBatch4Label('shared.actions.cancel'));
       await act(async () => {
         cancelBtn?.click();
       });
@@ -1380,8 +1382,8 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         createButtons[1]?.click();
       });
 
-      expect(document.body.textContent).not.toContain('توجد بيانات متعارضة في الملف المصدر');
-      const iqamaInput = document.body.querySelector('input[placeholder="مثال: 1023456789 أو 2023456789"]') as HTMLInputElement;
+      expect(document.body.textContent).not.toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
+      const iqamaInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: canonicalBatch4Label('shared.labels.alternative_values', { first: '1023456789', second: '2023456789' }) })}"]`) as HTMLInputElement;
       expect(iqamaInput.value).toBe('1099887766');
 
       await act(async () => {

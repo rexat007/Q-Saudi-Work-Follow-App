@@ -1,5 +1,10 @@
 // @vitest-environment happy-dom
 import React, { act } from 'react';
+import fs from 'fs';
+import path from 'path';
+import { canonicalBatch4Label } from './batch4I18nTestSupport';
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n/utils';
 import { createRoot } from 'react-dom/client';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { PROJECT_SETUP_LAYERS, canEnterProjectSetupLayer, ProjectSetupLayer } from '../services/projectSetupWorkflow.service';
@@ -206,7 +211,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     // Sidebar should reflect Layer 1 (FOUNDATION) as the active layer
-    expect(document.body.textContent).toContain('البيانات الأساسية وتكوين المشروع');
+    expect(document.body.textContent).toContain(uiKey('projects.batch4.layer_foundation'));
     
     // Check form is rendering foundation inputs like project name and client name
     const clientInput = document.body.querySelector('input[value="أمانة منطقة الرياض"]');
@@ -232,7 +237,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
       );
     });
 
-    expect(document.body.textContent).toContain('البيانات الأساسية وتكوين المشروع');
+    expect(document.body.textContent).toContain(uiKey('projects.batch4.layer_foundation'));
 
     root.unmount();
   });
@@ -255,7 +260,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
 
     // Locate the ROSTER navigation button (Ordinal 5)
     const rosterTabBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('Operational Roster') || b.textContent?.includes('سجل تشغيل السائقين والشاحنات')
+      (b) => b.textContent?.includes('Operational Roster') || b.textContent?.includes(uiKey('projects.batch4.layer_roster'))
     );
     expect(rosterTabBtn).not.toBeUndefined();
 
@@ -265,8 +270,8 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     // Ensure we did NOT navigate to ROSTER (remained on FOUNDATION) and the gate reason is rendered
-    expect(document.body.textContent).not.toContain('سجل تشغيل السائقين والشاحنات الموحد (Roster)');
-    expect(document.body.textContent).toContain('سجل تشغيل السائقين وقواعد الأسعار تتطلب مادة مصرحة واحدة وناقل واحد على الأقل');
+    expect(document.body.textContent).not.toContain(uiKey('projects.batch4.unified_roster'));
+    expect(document.body.textContent).toContain(uiKey('batch4.service.navigation_material_carrier_required'));
 
     root.unmount();
   });
@@ -355,11 +360,11 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     // On FOUNDATION layer (default), Google Sync triggers should be absent.
-    expect(document.body.textContent).not.toContain('معرف شيت قوقل لإنزال الرحلات');
+    expect(document.body.textContent).not.toContain(uiKey('projects.batch4.trip_spreadsheet_id'));
 
     // Click on WORKSPACE tab to switch
     const workspaceTabBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('Google Workspace') || b.textContent?.includes('مساحة العمل ومزامنة قوقل')
+      (b) => b.textContent?.includes('Google Workspace') || b.textContent?.includes(uiKey('projects.batch4.layer_workspace'))
     );
     expect(workspaceTabBtn).not.toBeUndefined();
 
@@ -368,7 +373,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     // Workspace UI is now visible
-    expect(document.body.textContent).toContain('معرف شيت قوقل لإنزال الرحلات');
+    expect(document.body.textContent).toContain(uiKey('projects.batch4.trip_spreadsheet_id'));
 
     root.unmount();
   });
@@ -390,11 +395,11 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     // Default layer is FOUNDATION. Materials management should be absent.
-    expect(document.body.textContent).not.toContain('إضافة مادة جديدة');
+    expect(document.body.textContent).not.toContain(uiKey('projects.batch4.add_material'));
 
     // Click on MATERIALS layer tab (Ordinal 3)
     const materialsTabBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('Authorized Materials') || b.textContent?.includes('قائمة المواد المصرح بها')
+      (b) => b.textContent?.includes('Authorized Materials') || b.textContent?.includes(uiKey('projects.batch4.layer_materials'))
     );
     expect(materialsTabBtn).not.toBeUndefined();
 
@@ -403,7 +408,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     // Materials layer should render material actions
-    expect(document.body.textContent).toContain('إضافة مادة جديدة');
+    expect(document.body.textContent).toContain(uiKey('projects.batch4.add_material'));
 
     root.unmount();
   });
@@ -426,7 +431,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
 
     // Navigate to CARRIERS layer tab
     const carriersTabBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('Authorized Carriers') || b.textContent?.includes('الناقلون المعتمدون')
+      (b) => b.textContent?.includes('Authorized Carriers') || b.textContent?.includes(uiKey('projects.batch4.layer_carriers'))
     );
     expect(carriersTabBtn).not.toBeUndefined();
 
@@ -435,9 +440,29 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     // Carrier management (add carrier) is visible, but Roster controls (Google Sheets sync / upload / intake) are absent
-    expect(document.body.textContent).toContain('الناقلون المعتمدون بالمشروع');
-    expect(document.body.textContent).toContain('إضافة ناقل جديد');
-    expect(document.body.textContent).not.toContain('سجل تشغيل السائقين والشاحنات الموحد (Roster)');
+    expect(document.body.textContent).toContain(uiKey('projects.batch4.project_approved_carriers'));
+    const addCarrierKey = 'projects.labels.add_carrier';
+    const addCarrierButton = Array.from(document.body.querySelectorAll('button')).find(
+      button => button.textContent?.trim() === addCarrierKey
+    );
+    expect(addCarrierButton).toBeDefined();
+    expect(addCarrierButton?.disabled).toBe(false);
+    const wizardSource = fs.readFileSync(path.resolve(process.cwd(), 'src/components/wizard/ProjectSetupWizard.tsx'), 'utf8');
+    const carriersStart = wizardSource.indexOf("{activeSetupLayer === 'CARRIERS' && project && (");
+    expect(carriersStart).toBeGreaterThanOrEqual(0);
+    const carriersEnd = wizardSource.indexOf("{activeSetupLayer === 'ROSTER'", carriersStart);
+    expect(carriersEnd).toBeGreaterThan(carriersStart);
+    const carriersWorkspace = wizardSource.slice(carriersStart, carriersEnd);
+    expect(carriersWorkspace).toMatch(/onClick=\{\(\) => setIsCarrierEditorOpen\(true\)\}[\s\S]*?<span>\{t\('projects.labels.add_carrier'\)\}<\/span>/);
+    expect(carriersWorkspace).toContain('open={isCarrierEditorOpen}');
+    expect(carriersWorkspace).toContain('mode="CREATE"');
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const label = dictionaries[locale][addCarrierKey];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(addCarrierKey, locale)).toBe(label);
+    }
+    expect(document.body.textContent).not.toContain(uiKey('projects.batch4.unified_roster'));
 
     root.unmount();
   });
@@ -460,7 +485,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     const editBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('تعديل البيانات')
+      (b) => b.textContent?.includes(uiKey('projects.batch4.edit_data'))
     );
     expect(editBtn).not.toBeUndefined();
 
@@ -494,7 +519,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
 
     // Click "تعديل البيانات"
     const editBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('تعديل البيانات')
+      (b) => b.textContent?.includes(uiKey('projects.batch4.edit_data'))
     );
     await act(async () => {
       editBtn?.click();
@@ -502,10 +527,10 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
 
     // Save and Cancel buttons should now be visible
     const saveBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('حفظ التعديلات')
+      (b) => b.textContent?.includes(uiKey('shared.actions.save'))
     ) as HTMLButtonElement;
     const cancelBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('إلغاء')
+      (b) => b.textContent?.includes(uiKey('shared.actions.cancel'))
     ) as HTMLButtonElement;
 
     expect(saveBtn).not.toBeUndefined();
@@ -561,7 +586,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
 
     // Enter edit mode
     const editBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('تعديل البيانات')
+      (b) => b.textContent?.includes(uiKey('projects.batch4.edit_data'))
     );
     await act(async () => {
       editBtn?.click();
@@ -576,7 +601,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     const saveBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('حفظ التعديلات')
+      (b) => b.textContent?.includes(uiKey('shared.actions.save'))
     ) as HTMLButtonElement;
     expect(saveBtn.disabled).toBe(false);
 
@@ -597,7 +622,19 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     );
 
     // Exited edit mode and shows deterministic success message
-    expect(document.body.textContent).toContain('تم حفظ تعديلات المشروع بنجاح');
+    const savedKey = 'projects.messages.changes_saved';
+    expect(document.body.textContent).toContain(savedKey);
+    const savedClientInput = document.body.querySelector('input[value="أمانة منطقة الرياض"]') as HTMLInputElement;
+    expect(savedClientInput).not.toBeNull();
+    expect(savedClientInput.disabled).toBe(true);
+    const wizardSource = fs.readFileSync(path.resolve(process.cwd(), 'src/components/wizard/ProjectSetupWizard.tsx'), 'utf8');
+    expect(wizardSource).toContain("setFoundationSaveSuccess(t('projects.messages.changes_saved'))");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const label = dictionaries[locale][savedKey];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(savedKey, locale)).toBe(label);
+    }
 
     root.unmount();
   });
@@ -624,7 +661,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
 
     // "تعديل البيانات" should NOT be present when status is ACTIVE
     const editBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('تعديل البيانات')
+      (b) => b.textContent?.includes(uiKey('projects.batch4.edit_data'))
     );
     expect(editBtn).toBeUndefined();
 
@@ -654,7 +691,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
 
     // Enter edit mode
     const editBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('تعديل البيانات')
+      (b) => b.textContent?.includes(uiKey('projects.batch4.edit_data'))
     );
     await act(async () => {
       editBtn?.click();
@@ -668,7 +705,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     const saveBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('حفظ التعديلات')
+      (b) => b.textContent?.includes(uiKey('shared.actions.save'))
     ) as HTMLButtonElement;
 
     await act(async () => {
@@ -703,7 +740,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
 
     // Enter edit mode
     const editBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('تعديل البيانات')
+      (b) => b.textContent?.includes(uiKey('projects.batch4.edit_data'))
     );
     await act(async () => {
       editBtn?.click();
@@ -718,7 +755,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     const saveBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('حفظ التعديلات')
+      (b) => b.textContent?.includes(uiKey('shared.actions.save'))
     ) as HTMLButtonElement;
 
     await act(async () => {
@@ -726,7 +763,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     expect(updateSpy).not.toHaveBeenCalled();
-    expect(document.body.textContent).toContain('اسم المشروع بالعربية يجب ألا يقل عن 3 أحرف');
+    expect(document.body.textContent).toContain(uiKey('projects.batch4.project_name_minimum'));
 
     root.unmount();
   });
@@ -767,7 +804,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
 
     // 2. Enter edit mode and modify draft
     const editBtn = Array.from(document.body.querySelectorAll('button')).find(
-      (b) => b.textContent?.includes('تعديل البيانات')
+      (b) => b.textContent?.includes(uiKey('projects.batch4.edit_data'))
     );
     await act(async () => {
       editBtn?.click();
@@ -802,3 +839,8 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     root.unmount();
   });
 });
+
+function uiKey(key: string): string {
+  canonicalBatch4Label(key);
+  return key;
+}

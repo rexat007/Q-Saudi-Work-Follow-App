@@ -1,3 +1,4 @@
+import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
 import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -115,10 +116,10 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
   });
 
   it('3. RosterCarrierResolutionLayer provides completion banner and status indicators', () => {
-    expect(layerContent).toContain('مجموعات الناقلين المصدرية');
-    expect(layerContent).toContain('ناقلون محسومون ومعتمدون');
-    expect(layerContent).toContain('بحاجة لحسم أو إنشاء');
-    expect(layerContent).toContain('طبقة المواد ستُفتح في المرحلة التالية');
+    expectCanonicalBatch4Source(layerContent, 'entityResolution.labels.source_carrier_groups');
+    expectCanonicalBatch4Source(layerContent, 'entityResolution.labels.approved_carriers');
+    expectCanonicalBatch4Source(layerContent, 'entityResolution.labels.materials_needing_resolution');
+    expectCanonicalBatch4Source(layerContent, 'entityResolution.messages.material_next_stage');
   });
 
   it('4. ProjectSetupWizard mounts RosterCarrierResolutionLayer exclusively under CARRIER_RESOLUTION', () => {

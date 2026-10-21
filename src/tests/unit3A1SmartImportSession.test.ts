@@ -1,3 +1,6 @@
+import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 /**
  * UNIT 3A.1 & 3A.1a — SMART IMPORT SESSION PERSISTENCE & HARDENING TEST SUITE
  * 
@@ -815,14 +818,26 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
     const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
 
-    expect(wizardContent).toContain('فشل حفظ نقطة استعادة الجلسة بعد تنفيذ جزئي. تم الاحتفاظ بالبيانات غير المكتملة لإعادة المحاولة.');
+    expect(wizardContent).toContain("t('projects.messages.checkpoint_partial_failure')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['projects.messages.checkpoint_partial_failure']).toBeTruthy();
+      const label = resolveTranslation('projects.messages.checkpoint_partial_failure', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['projects.messages.checkpoint_partial_failure'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
   });
 
   it('3A.1a-J: full success + terminal checkpoint failure keeps result visible without premature local clear', () => {
     const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
     const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
 
-    expect(wizardContent).toContain('تم تنفيذ الاستيراد، لكن تعذر حفظ حالة الإكمال. أعد المحاولة لحفظ حالة الجلسة.');
+    expect(wizardContent).toContain("t('projects.messages.checkpoint_full_failure')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['projects.messages.checkpoint_full_failure']).toBeTruthy();
+      const label = resolveTranslation('projects.messages.checkpoint_full_failure', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['projects.messages.checkpoint_full_failure'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
   });
 
   it('3A.1a-K: retrying checkpoint only does not rerun canonical intake', () => {
@@ -852,7 +867,8 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
 
     expect(wizardContent).toContain('if (!project || !importSessionId) {');
-    expect(wizardContent).toContain('setImportSessionRecoveryError(\'تعذر حفظ نقطة الاستعادة: معرف المشروع أو معرف جلسة الاستيراد مفقود\');');
+    expect(wizardContent).toContain("setImportSessionRecoveryError(t('projects.batch4.checkpoint_identifiers_missing'));");
+    expectCanonicalBatch4Source(wizardContent, 'projects.batch4.checkpoint_identifiers_missing');
     expect(wizardContent).toContain('return false;');
   });
 
@@ -888,7 +904,8 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     const nextFnIdx = wizardContent.indexOf('const handleSmartImportContinueToMaterials');
     const approveBlock = wizardContent.slice(approveIdx, nextFnIdx);
 
-    expect(approveBlock).toContain('setImportSessionRecoveryError(err?.message || \'فشل حفظ جلسة الاستيراد على الخادم\');');
+    expect(approveBlock).toContain("setImportSessionRecoveryError(err?.message || t('projects.batch4.import_session_save_failed'));");
+    expectCanonicalBatch4Source(approveBlock, 'projects.batch4.import_session_save_failed');
   });
 
   it('Hotfix-E: successful createSession happens before CARRIER_RESOLUTION transition', () => {

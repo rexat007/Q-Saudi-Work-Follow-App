@@ -1,3 +1,6 @@
+import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
@@ -187,7 +190,13 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
     const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
     const unknownCarrierGroup = groups.carrier.find(g => g.sourceValue === 'شركة الناقل المجهول');
     expect(unknownCarrierGroup?.occurrenceCount).toBe(2);
-    expect(sectionContent).toContain('تكرار: {group.occurrenceCount} صفوف');
+    expect(sectionContent).toContain("t('entityResolution.labels.duplicate_rows', { count: group.occurrenceCount })");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['entityResolution.labels.duplicate_rows']).toBeTruthy();
+      const label = resolveTranslation('entityResolution.labels.duplicate_rows', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['entityResolution.labels.duplicate_rows'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
   });
 
   // 4. AUTO_RESOLVED requires no manual acceptance
@@ -196,19 +205,49 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
     const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
     const autoGroup = groups.carrier.find(g => g.sourceValue === 'شركة الناقل المعتمد');
     expect(autoGroup?.status).toBe('AUTO_RESOLVED');
-    expect(sectionContent).toContain('مطابقة تلقائية مؤكدة');
+    expect(sectionContent).toContain("t('entityResolution.labels.automatic_match')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['entityResolution.labels.automatic_match']).toBeTruthy();
+      const label = resolveTranslation('entityResolution.labels.automatic_match', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['entityResolution.labels.automatic_match'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
   });
 
   // 5. REVIEW_REQUIRED renders decision UI
   it('5. REVIEW_REQUIRED renders decision UI', () => {
-    expect(sectionContent).toContain('قبول المقترح');
-    expect(sectionContent).toContain('اختيار بديل');
-    expect(sectionContent).toContain('ترك بدون حسم');
+    expect(sectionContent).toContain("t('entityResolution.labels.accept_suggested_match')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['entityResolution.labels.accept_suggested_match']).toBeTruthy();
+      const label = resolveTranslation('entityResolution.labels.accept_suggested_match', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['entityResolution.labels.accept_suggested_match'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
+    expect(sectionContent).toContain("t('entityResolution.labels.choose_alternative')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['entityResolution.labels.choose_alternative']).toBeTruthy();
+      const label = resolveTranslation('entityResolution.labels.choose_alternative', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['entityResolution.labels.choose_alternative'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
+    expect(sectionContent).toContain("t('entityResolution.labels.leave_unresolved')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['entityResolution.labels.leave_unresolved']).toBeTruthy();
+      const label = resolveTranslation('entityResolution.labels.leave_unresolved', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['entityResolution.labels.leave_unresolved'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
   });
 
   // 6. Candidate suggestion is visible
   it('6. Candidate suggestion is visible', () => {
-    expect(sectionContent).toContain('الكيان المعتمد المطابق:');
+    expect(sectionContent).toContain("t('entityResolution.labels.matched_entity')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['entityResolution.labels.matched_entity']).toBeTruthy();
+      const label = resolveTranslation('entityResolution.labels.matched_entity', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['entityResolution.labels.matched_entity'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
     expect(sectionContent).toContain('{group.matchedName || group.matchedId}');
   });
 
@@ -276,11 +315,12 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
 
   // 11. Carrier category is shown before driver/truck
   it('11. Carrier category is shown before driver/truck', () => {
-    const carrierPos = sectionContent.indexOf("titleAr: '1. الناقلون'");
-    const materialPos = sectionContent.indexOf("titleAr: '2. المواد والأصناف'");
-    const driverPos = sectionContent.indexOf("titleAr: '3. السائقون'");
-    const truckPos = sectionContent.indexOf("titleAr: '4. الشاحنات والمركبات'");
+    const carrierPos = sectionContent.indexOf("key: 'carrier', titleAr: t('shared.labels.numbered_label', { number: 1, label: t('entityResolution.labels.carriers') })");
+    const materialPos = sectionContent.indexOf("key: 'material', titleAr: t('shared.labels.numbered_label', { number: 2, label: t('other.labels.materials_5') })");
+    const driverPos = sectionContent.indexOf("key: 'driver', titleAr: t('shared.labels.numbered_label', { number: 3, label: t('other.labels.drivers_5') })");
+    const truckPos = sectionContent.indexOf("key: 'truck', titleAr: t('shared.labels.numbered_label', { number: 4, label: t('entityResolution.labels.trucks') })");
 
+    for (const key of ['shared.labels.numbered_label', 'entityResolution.labels.carriers', 'other.labels.materials_5', 'other.labels.drivers_5', 'entityResolution.labels.trucks']) expectCanonicalBatch4Source(sectionContent, key);
     expect(carrierPos).toBeGreaterThan(-1);
     expect(materialPos).toBeGreaterThan(carrierPos);
     expect(driverPos).toBeGreaterThan(materialPos);
@@ -289,7 +329,7 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
 
   // 12. Driver create is blocked without resolved carrier
   it('12. Driver create is blocked without resolved carrier', () => {
-    expect(sectionContent).toContain('يجب حسم مطابقة الناقل أولاً قبل إنشاء');
+    expectCanonicalBatch4Source(sectionContent, 'entityResolution.messages.resolve_carrier_before_create');
     expect(sectionContent).toContain('isCarrierBlocked');
   });
 
@@ -359,13 +399,13 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
 
   // 23. unresolvedGroups gate row-review progression
   it('23. unresolvedGroups gate row-review progression', () => {
-    expect(sectionContent).toContain('مراجعة الصفوف والاستثناءات (طابور الاستثناءات) مقفلة مؤقتاً حتى اكتمال حسم مطابقة الكيانات');
+    expectCanonicalBatch4Source(sectionContent, 'entityResolution.messages.entity_review_gate_locked');
     expect(sectionContent).toContain("unresolvedGroups.length > 0 ? 'opacity-60 pointer-events-none' : ''");
   });
 
   // 24. When unresolvedGroups becomes zero, row review is available
   it('24. When unresolvedGroups becomes zero, row review is available', () => {
-    expect(sectionContent).toContain('تم حسم مطابقة الكيانات — الانتقال إلى مراجعة الصفوف');
+    expectCanonicalBatch4Source(sectionContent, 'entityResolution.labels.entities_resolved_review_exceptions');
   });
 
   // 25. No row-by-row duplicate entity decision workflow is introduced

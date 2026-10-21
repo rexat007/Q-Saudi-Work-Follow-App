@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
@@ -397,7 +399,14 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
   it('35. CarrierEditorModal supports EDIT', () => {
     expect(modalContent).toContain('onUpdated?:');
     expect(modalContent).toContain('initialCarrier?:');
-    expect(modalContent).toContain('تعديل بيانات الناقل');
+    expect(modalContent).toContain("t('entityResolution.labels.edit_carrier')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.edit_carrier';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // 36. edit form prefills existing values
@@ -410,7 +419,14 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
   // 37. CR is read-only in EDIT
   it('37. CR is read-only in EDIT', () => {
     expect(modalContent).toContain('disabled={isSubmitting || refreshFailed || isEditMode}');
-    expect(modalContent).toContain('رقم الهوية ثابت وغير قابل للتعديل');
+    expect(modalContent).toContain("t('entityResolution.labels.carrier_identity_immutable')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.carrier_identity_immutable';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // 38. carrierId is not editable
@@ -555,7 +571,14 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
   // 47. ProjectSetupWizard exposes minimal Edit action
   it('47. ProjectSetupWizard exposes minimal Edit action', () => {
     expect(wizardContent).toContain('onClick={() => setEditingCarrier(c)}');
-    expect(wizardContent).toContain('<span>تعديل</span>');
+    expect(wizardContent).toContain("<span>{t('shared.actions.edit')}</span>");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'shared.actions.edit';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // 48. edit opens same CarrierEditorModal
@@ -621,7 +644,14 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
 
   // 56. CR identity migration remains out of scope
   it('56. CR identity migration remains out of scope', () => {
-    expect(modalContent).toContain('(رقم الهوية ثابت وغير قابل للتعديل)');
+    expect(modalContent).toContain("t('entityResolution.labels.carrier_identity_immutable')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.carrier_identity_immutable';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // =========================================================================

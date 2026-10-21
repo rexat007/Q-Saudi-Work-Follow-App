@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect, vi } from 'vitest';
 import { executeProjectWorkspaceSyncOrchestration } from '../components/wizard/ProjectSetupWizard';
 import fs from 'fs';
@@ -395,8 +397,21 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
     expect(buttonMatches.length).toBe(1);
 
     // Dynamic button label based on both IDs presence
-    expect(wizardContent).toContain('تحديث مزامنة Google Workspace');
-    expect(wizardContent).toContain('تهيئة ومزامنة Google Workspace');
+    expect(wizardContent).toContain("project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')");
+    expect(wizardContent).toContain("t('projects.labels.update_workspace_sync')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['projects.labels.update_workspace_sync'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('projects.labels.update_workspace_sync', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
+    expect(wizardContent).toContain("t('projects.labels.initialize_workspace_sync')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['projects.labels.initialize_workspace_sync'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('projects.labels.initialize_workspace_sync', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
   });
 
   // Test 14: isSyncingGoogle prevents double submission

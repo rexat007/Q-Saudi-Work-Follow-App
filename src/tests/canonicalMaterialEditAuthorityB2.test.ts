@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
@@ -462,7 +464,14 @@ describe('FOUNDATION B2 — Canonical Material Edit Authority', () => {
 
   // 25. code visible but read-only
   it('25. code visible but read-only', () => {
-    expect(modalContent).toContain('(رمز الهوية ثابت وغير قابل للتعديل)');
+    expect(modalContent).toContain("t('entityResolution.labels.material_code_immutable')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.material_code_immutable';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
     expect(modalContent).toContain('disabled={isEditMode');
   });
 
@@ -709,7 +718,14 @@ describe('FOUNDATION B2 — Canonical Material Edit Authority', () => {
   // 42. list updates immediately
   it('42. list updates immediately', () => {
     expect(wizardContent).toContain('onClick={() => setEditingMaterial(m)}');
-    expect(wizardContent).toContain('<span>تعديل</span>');
+    expect(wizardContent).toContain("<span>{t('shared.actions.edit')}</span>");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'shared.actions.edit';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // 43. existing ENROLL_MATERIAL/create behavior remains intact

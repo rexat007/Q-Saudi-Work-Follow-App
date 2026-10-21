@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n';
 import React, { useMemo, useState } from 'react';
 import { Layers, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { UnifiedImportBatch } from '../../types/unifiedImport';
@@ -66,6 +67,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
   isProcessing = false,
   embeddedInWorkflowHost = false,
 }) => {
+  const { t } = useI18n();
   const [selectedAlternateMaterial, setSelectedAlternateMaterial] = useState<Record<string, string>>({});
 
   const reviewGroups = useMemo(() => {
@@ -95,13 +97,13 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
           </div>
           <div>
             <h3 className="text-sm font-black text-white flex items-center gap-2">
-              <span>مراجعة وحسم المواد (Material Resolution Layer)</span>
+              <span>{t('entityResolution.labels.material_review_title')}</span>
               <span className="text-[10px] font-mono bg-stone-800 px-2 py-0.5 rounded-full text-amber-400">
-                المرحلة 4 من 7
+                {t('entityResolution.labels.stage_progress', { stage: 4, total: 7 })}
               </span>
             </h3>
             <p className="text-[11px] text-stone-400">
-              مطابقة وتعيين المواد المصرح بها للمشروع قبل الانتقال لطبقة السائقين والشاحنات
+              {t('entityResolution.labels.material_review_description')}
             </p>
           </div>
         </div>
@@ -112,15 +114,15 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
           {/* Summary Stats Banner */}
           <div className="grid grid-cols-3 gap-3 bg-stone-950 p-3 rounded-xl border border-stone-850 text-center font-bold">
             <div>
-              <span className="block text-stone-500 text-[10px]">مجموعات المواد المصدرية</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.source_material_groups')}</span>
               <span className="text-base font-mono text-white">{materialGroups.length}</span>
             </div>
             <div className="text-emerald-400">
-              <span className="block text-stone-500 text-[10px]">مواد محسومة ومعتمدة</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.approved_materials')}</span>
               <span className="text-base font-mono">{resolvedCount}</span>
             </div>
             <div className={unresolvedCount > 0 ? 'text-amber-400' : 'text-stone-500'}>
-              <span className="block text-stone-500 text-[10px]">بحاجة لحسم أو إنشاء</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.materials_needing_resolution')}</span>
               <span className="text-base font-mono">{unresolvedCount}</span>
             </div>
           </div>
@@ -131,8 +133,8 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
               <div className="flex items-center gap-3">
                 <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
                 <div className="text-xs">
-                  <span className="font-bold block">تم حسم جميع المواد بنجاح ({materialGroups.length} مجموعات مواد معتمدة)</span>
-                  <span className="text-[11px] text-emerald-300/80">طبقة السائقين والشاحنات ستُفتح في المرحلة التالية (C4)</span>
+                  <span className="font-bold block">{t('entityResolution.messages.all_materials_resolved', { count: materialGroups.length })}</span>
+                  <span className="text-[11px] text-emerald-300/80">{t('entityResolution.messages.driver_truck_next_stage')}</span>
                 </div>
               </div>
               {onContinueToDriverTruck && (
@@ -142,7 +144,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                   disabled={isProcessing}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-emerald-950/50 transition-colors shrink-0"
                 >
-                  <span>متابعة إلى مراجعة السائقين والشاحنات</span>
+                  <span>{t('entityResolution.labels.continue_driver_truck_review')}</span>
                   <ChevronLeft className="w-4 h-4" />
                 </button>
               )}
@@ -152,14 +154,14 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
           {/* Material Groups List */}
           {materialGroups.length === 0 ? (
             <div className="text-center py-8 text-stone-500 space-y-1">
-              <p className="text-xs">لم يتم اكتشاف بيانات مواد قابلة للحسم في ملف الاستيراد.</p>
-              <p className="text-[10px] text-rose-400">المادة مطلوبة لكل سجل تشغيل. راجع ربط عمود المادة أو بيانات المصدر قبل المتابعة.</p>
+              <p className="text-xs">{t('entityResolution.labels.no_material_resolution_data')}</p>
+              <p className="text-[10px] text-rose-400">{t('entityResolution.labels.material_required_mapping')}</p>
             </div>
           ) : (
             <div className="space-y-3">
               <div className="flex justify-between items-center text-[11px] font-bold text-stone-400 px-1">
-                <span>قائمة مجموعات المواد المصدرية:</span>
-                <span className="text-[10px] font-mono">({materialGroups.length} عناصر فريدة)</span>
+                <span>{t('entityResolution.labels.source_material_groups')}</span>
+                <span className="text-[10px] font-mono">{t('entityResolution.labels.unique_items_count', { count: materialGroups.length })}</span>
               </div>
 
               {materialGroups.map((group) => {
@@ -177,15 +179,13 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                         <div className="flex items-center gap-2">
                           <span className="text-white font-black text-xs">{group.sourceValue}</span>
                           <span className="text-[10px] text-stone-500 font-mono bg-stone-900 px-2 py-0.5 rounded-md border border-stone-850">
-                            تكرار: {group.occurrenceCount} صفوف (الصفوف: #{group.rowNumbers.slice(0, 4).join(', ')}
-                            {group.rowNumbers.length > 4 ? '...' : ''})
-                          </span>
+                            {t('entityResolution.labels.duplicate_rows', { count: group.occurrenceCount })} ({t('entityResolution.labels.row_numbers', { rows: group.rowNumbers.slice(0, 4).join(', ') })}{group.rowNumbers.length > 4 ? '...' : ''})</span>
                         </div>
 
                         {group.matchedName && (
                           <div className="text-emerald-400 text-[10px] flex items-center gap-1 font-mono font-bold">
                             <Check className="w-3 h-3" />
-                            <span>مطابق لـ: {group.matchedName} ({group.matchedId})</span>
+                            <span>{t('entityResolution.labels.matched_to_prefix')} {group.matchedName} ({group.matchedId})</span>
                           </div>
                         )}
                       </div>
@@ -195,22 +195,22 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                         {isResolved ? (
                           <span className="px-2.5 py-1 bg-emerald-950 text-emerald-400 rounded-lg text-[10px] font-bold border border-emerald-800 flex items-center gap-1">
                             <Check className="w-3 h-3" />
-                            <span>مطابق ومعتمد</span>
+                            <span>{t('entityResolution.labels.matched_approved')}</span>
                           </span>
                         ) : isConflict ? (
                           <span className="px-2.5 py-1 bg-rose-950 text-rose-300 rounded-lg text-[10px] font-bold border border-rose-800 flex items-center gap-1">
                             <AlertCircle className="w-3 h-3" />
-                            <span>تعارض في التعيين</span>
+                            <span>{t('entityResolution.labels.assignment_conflict')}</span>
                           </span>
                         ) : isReviewRequired ? (
                           <span className="px-2.5 py-1 bg-amber-950 text-amber-300 rounded-lg text-[10px] font-bold border border-amber-800 flex items-center gap-1">
                             <AlertTriangle className="w-3 h-3" />
-                            <span>يتطلب تدقيق واختيار</span>
+                            <span>{t('entityResolution.labels.review_selection_required')}</span>
                           </span>
                         ) : (
                           <span className="px-2.5 py-1 bg-rose-950/70 text-rose-300 rounded-lg text-[10px] font-bold border border-rose-850 flex items-center gap-1">
                             <AlertCircle className="w-3 h-3" />
-                            <span>غير معرّفة في المشروع</span>
+                            <span>{t('entityResolution.labels.not_in_project')}</span>
                           </span>
                         )}
                       </div>
@@ -231,7 +231,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                                 className="px-2.5 py-1 bg-stone-850 hover:bg-amber-600 hover:text-white text-stone-200 rounded-lg text-[10px] font-bold transition-colors disabled:opacity-50 flex items-center gap-1"
                               >
                                 <UserCheck className="w-3 h-3 text-amber-400" />
-                                <span>اعتماد: {cand.candidateDisplayName || cand.candidateNameAr}</span>
+                                <span>{t('entityResolution.labels.accept_suggested_match')} {cand.candidateDisplayName || cand.candidateNameAr}</span>
                               </button>
                             ))
                           )}
@@ -249,7 +249,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                                 }
                                 className="bg-stone-900 border border-stone-800 text-stone-300 px-2 py-1 rounded-lg text-[10px] focus:outline-hidden"
                               >
-                                <option value="">اختيار مادة معتمدة أخرى...</option>
+                                <option value="">{t('entityResolution.labels.select_other_material')}</option>
                                 {projectMaterials.map((pm) => (
                                   <option key={pm.materialId} value={pm.materialId}>
                                     {pm.nameAr || pm.name || pm.nameEn} ({pm.code || pm.materialId})
@@ -268,7 +268,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                                   }
                                   className="px-2 py-1 bg-stone-800 hover:bg-emerald-600 hover:text-white text-emerald-400 rounded-lg text-[10px] font-bold transition-colors disabled:opacity-50"
                                 >
-                                  تعيين
+                                  {t('entityResolution.labels.choose_alternative')}
                                 </button>
                               )}
                             </div>
@@ -283,7 +283,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                           className="px-3 py-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-[10px] font-black transition-colors flex items-center gap-1.5 shadow-sm shadow-amber-950/50"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          <span>إنشاء مادة جديدة</span>
+                          <span>{t('entityResolution.labels.add_material')}</span>
                         </button>
                       </div>
                     )}
@@ -300,12 +300,12 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
             {isMaterialLayerComplete ? (
               <span className="text-emerald-400 font-bold flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" />
-                <span>اكتملت مراجعة المواد لهذا الملف</span>
+                <span>{t('entityResolution.messages.all_materials_resolved', { count: materialGroups.length })}</span>
               </span>
             ) : (
               <span className="text-amber-400 font-bold flex items-center gap-1">
                 <AlertTriangle className="w-3.5 h-3.5" />
-                <span>متبقي {unresolvedCount} مادة غير محسومة</span>
+                <span>{t('entityResolution.labels.unresolved_groups_remaining', { count: unresolvedCount })}</span>
               </span>
             )}
           </div>
@@ -317,7 +317,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                 disabled={isProcessing}
                 className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors shrink-0"
               >
-                <span>متابعة إلى مراجعة السائقين والشاحنات</span>
+                <span>{t('entityResolution.labels.continue_driver_truck_review')}</span>
                 <ChevronLeft className="w-4 h-4" />
               </button>
             )}
@@ -325,14 +325,14 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
               <button
                 type="button"
                 onClick={() => {
-                  if (window.confirm('سيتم إلغاء جلسة الاستيراد الحالية وفقدان القرارات غير المنفذة. هل تريد المتابعة؟')) {
+                  if (window.confirm(t('entityResolution.messages.confirm_cancel_import'))) {
                     onCancelImport();
                   }
                 }}
                 disabled={isProcessing}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors shrink-0"
               >
-                إلغاء الاستيراد
+                {t('entityResolution.labels.cancel_import')}
               </button>
             ) : onClose ? (
               <button
@@ -341,7 +341,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                 disabled={isProcessing}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors shrink-0"
               >
-                إغلاق
+                {t('shared.actions.close')}
               </button>
             ) : null}
           </div>

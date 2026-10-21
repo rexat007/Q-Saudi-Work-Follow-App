@@ -1,3 +1,4 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ProjectEntity, 
@@ -32,7 +33,7 @@ type AdminSection =
   | 'AUDIT_LOGS';
 
 export function AdminConsoleView() {
-  const { t } = useI18n();
+  const { t, direction, locale } = useI18n();
   const { user: currentUser, userProfile } = useAuth();
   
   const [activeSection, setActiveSection] = useState<AdminSection>('USERS');
@@ -213,10 +214,10 @@ export function AdminConsoleView() {
         after: { ...userToApprove, ...updates }
       }, authContext);
 
-      showBanner(`تم اعتماد المستخدم بنجاح بالدور: ${approvalRole}`);
+      showBanner(t('admin_console.user_approved', { role: approvalRole }));
       setUserApprovalModal(null);
     } catch (error: any) {
-      showBanner(`فشلت عملية الاعتماد: ${error.message}`, 'warning');
+      showBanner(t('admin_console.approval_failed', { error: presentBatch4Message(String(error.message), t) }), 'warning');
     }
   };
 
@@ -247,11 +248,11 @@ export function AdminConsoleView() {
         after: { ...userToReject, ...updates }
       }, authContext);
 
-      showBanner(`تم رفض حساب المستخدم وتقديم التبرير الحوكمي.`);
+      showBanner(t('admin_console.user_rejected'));
       setUserRejectionModal(null);
       setRejectionReason('');
     } catch (error: any) {
-      showBanner(`فشلت عملية الرفض: ${error.message}`, 'warning');
+      showBanner(t('admin_console.rejection_failed', { error: presentBatch4Message(String(error.message), t) }), 'warning');
     }
   };
 
@@ -274,9 +275,9 @@ export function AdminConsoleView() {
         after: { ...userToSuspend, ...updates }
       }, authContext);
 
-      showBanner(`تم تعليق حساب المستخدم بنجاح.`);
+      showBanner(t('admin_console.user_suspended'));
     } catch (error: any) {
-      showBanner(`فشلت عملية التعليق: ${error.message}`, 'warning');
+      showBanner(t('admin_console.suspension_failed', { error: presentBatch4Message(String(error.message), t) }), 'warning');
     }
   };
 
@@ -299,9 +300,9 @@ export function AdminConsoleView() {
         after: { ...userToReactivate, ...updates }
       }, authContext);
 
-      showBanner(`تمت إعادة تفعيل الحساب بنجاح.`);
+      showBanner(t('admin_console.user_reactivated'));
     } catch (error: any) {
-      showBanner(`فشلت إعادة التفعيل: ${error.message}`, 'warning');
+      showBanner(t('admin_console.reactivation_failed', { error: presentBatch4Message(String(error.message), t) }), 'warning');
     }
   };
 
@@ -329,14 +330,14 @@ export function AdminConsoleView() {
         after: { ...target, ...updates }
       }, authContext);
 
-      showBanner(`تم تحديث وثيقة الصلاحيات والوصول الأمني للمستخدم: ${target.email}`);
+      showBanner(t('admin_console.security_updated', { email: target.email }));
     } catch (error: any) {
-      showBanner(`فشل تحديث السياسات الأمنية: ${error.message}`, 'warning');
+      showBanner(t('admin_console.security_update_failed', { error: presentBatch4Message(String(error.message), t) }), 'warning');
     }
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={direction}>
       
       {/* ================= BANNER & STATUS NOTIFICATIONS ================= */}
       {banner && (
@@ -346,7 +347,7 @@ export function AdminConsoleView() {
           'bg-blue-50 text-blue-950 border-blue-200'
         }`}>
           <AlertCircle className="w-5 h-5 shrink-0" />
-          <span className="text-sm font-bold">{banner.message}</span>
+          <span className="text-sm font-bold">{presentBatch4Message(banner.message, t)}</span>
         </div>
       )}
 
@@ -358,7 +359,7 @@ export function AdminConsoleView() {
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 block font-bold">طلبات الاعتماد المعلقة</span>
+            <span className="text-xs text-stone-400 block font-bold">{t('admin_console.pending_approval_requests')}</span>
             <span className="text-2xl font-black text-stone-900">
               {users.filter(u => u.status === 'PENDING_APPROVAL').length}
             </span>
@@ -370,7 +371,7 @@ export function AdminConsoleView() {
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 block font-bold">المستخدمون النشطون (Firestore)</span>
+            <span className="text-xs text-stone-400 block font-bold">{t('admin_console.active_users_stat')}</span>
             <span className="text-2xl font-black text-stone-900">
               {users.filter(u => u.status === 'ACTIVE' || (u.isActive && !u.status)).length}
             </span>
@@ -382,7 +383,7 @@ export function AdminConsoleView() {
             <FolderKanban className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 block font-bold">المشاريع المتاحة في النطاق</span>
+            <span className="text-xs text-stone-400 block font-bold">{t('admin_console.available_projects_stat')}</span>
             <span className="text-2xl font-black text-stone-900">
               {projects.length}
             </span>
@@ -394,7 +395,7 @@ export function AdminConsoleView() {
             <History className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 block font-bold">سجلات التدقيق المسجلة</span>
+            <span className="text-xs text-stone-400 block font-bold">{t('admin_console.audit_records_stat')}</span>
             <span className="text-2xl font-black text-stone-900">
               {auditLogs.length}
             </span>
@@ -415,7 +416,7 @@ export function AdminConsoleView() {
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>المستخدمون والاعتمادات</span>
+            <span>{t('admin_console.tab_users')}</span>
           </button>
           <button
             onClick={() => setActiveSection('SECURITY_ACCESS')}
@@ -426,7 +427,7 @@ export function AdminConsoleView() {
             }`}
           >
             <Lock className="w-4 h-4" />
-            <span>صلاحيات الوصول والشبكة</span>
+            <span>{t('admin_console.tab_security')}</span>
           </button>
           <button
             onClick={() => setActiveSection('AUDIT_LOGS')}
@@ -437,11 +438,11 @@ export function AdminConsoleView() {
             }`}
           >
             <History className="w-4 h-4" />
-            <span>سجل التدقيق الشامل (Audit Logs)</span>
+            <span>{t('admin_console.tab_audit')}</span>
           </button>
         </div>
         <div className="px-3 py-1 bg-stone-800 border border-stone-700 rounded-lg text-[11px] font-mono font-bold text-stone-400">
-          PROJECT_ADMIN CONSOLE
+          {t('admin_console.project_admin_console')}
         </div>
       </div>
 
@@ -453,8 +454,8 @@ export function AdminConsoleView() {
           <div className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-stone-100">
               <div>
-                <h2 className="text-base font-bold text-stone-900">طلبات الحسابات والتفويض (Users & Accounts Approval)</h2>
-                <p className="text-xs text-stone-400 mt-1">اعتماد المستخدمين القادمين من مصادقة Google Sign-In وتعيين صلاحياتهم التشغيلية ومشاريعهم المسموحة.</p>
+                <h2 className="text-base font-bold text-stone-900">{t('admin_console.users_section_title')}</h2>
+                <p className="text-xs text-stone-400 mt-1">{t('admin_console.users_section_desc')}</p>
               </div>
               
               <div className="flex flex-wrap gap-2">
@@ -468,10 +469,10 @@ export function AdminConsoleView() {
                         : 'bg-stone-50 text-stone-600 border border-stone-200/60 hover:bg-stone-100'
                     }`}
                   >
-                    {st === 'ALL' ? 'الكل' :
-                     st === 'PENDING_APPROVAL' ? 'بانتظار الموافقة' :
-                     st === 'ACTIVE' ? 'نشط' :
-                     st === 'SUSPENDED' ? 'معلق' : 'مرفوض'}
+                    {st === 'ALL' ? t('admin_console.filter_all') :
+                     st === 'PENDING_APPROVAL' ? t('admin_console.status_pending') :
+                     st === 'ACTIVE' ? t('admin_console.status_active') :
+                     st === 'SUSPENDED' ? t('admin_console.status_suspended') : t('admin_console.status_rejected')}
                   </button>
                 ))}
               </div>
@@ -484,7 +485,7 @@ export function AdminConsoleView() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="البحث بواسطة الاسم، البريد الإلكتروني، أو الرقم التعريفي..."
+                placeholder={t('admin_console.search_users_placeholder')}
                 className="w-full bg-transparent text-sm text-stone-900 placeholder-stone-400 focus:outline-none"
               />
             </div>
@@ -494,26 +495,26 @@ export function AdminConsoleView() {
               <table className="w-full text-right border-collapse text-xs">
                 <thead>
                   <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold">
-                    <th className="py-3 px-4">المستخدم</th>
-                    <th className="py-3 px-4">البريد الإلكتروني</th>
-                    <th className="py-3 px-4">الدور المقترح</th>
-                    <th className="py-3 px-4">المشاريع المسموحة</th>
-                    <th className="py-3 px-4">حالة الحساب</th>
-                    <th className="py-3 px-4 text-left">الإجراءات الحوكمية</th>
+                    <th className="py-3 px-4">{t('admin_console.col_user')}</th>
+                    <th className="py-3 px-4">{t('admin_console.col_email')}</th>
+                    <th className="py-3 px-4">{t('admin_console.col_role')}</th>
+                    <th className="py-3 px-4">{t('admin_console.col_projects')}</th>
+                    <th className="py-3 px-4">{t('admin_console.col_status')}</th>
+                    <th className="py-3 px-4 text-left">{t('admin_console.col_actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {filteredUsers.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-8 text-center text-stone-400 font-medium">
-                        لا يوجد مستخدمون يطابقون خيارات التصفية الحالية.
+                        {t('admin_console.no_users_match')}
                       </td>
                     </tr>
                   ) : (
                     filteredUsers.map(u => (
                       <tr key={u.userId} className="hover:bg-stone-50/60">
                         <td className="py-3.5 px-4">
-                          <span className="font-bold text-stone-900 block">{u.fullName || 'مستخدم جديد'}</span>
+                          <span className="font-bold text-stone-900 block">{u.fullName || t('admin_console.new_user')}</span>
                           <span className="font-mono text-[10px] text-stone-400">{u.userId}</span>
                         </td>
                         <td className="py-3.5 px-4 font-mono text-stone-600">{u.email}</td>
@@ -521,7 +522,7 @@ export function AdminConsoleView() {
                         <td className="py-3.5 px-4 text-stone-600">
                           {u.assignedProjectIds && u.assignedProjectIds.length > 0 
                             ? u.assignedProjectIds.join(', ') 
-                            : 'لا يوجد مشاريع مسندة'}
+                            : t('admin_console.no_assigned_projects')}
                         </td>
                         <td className="py-3.5 px-4">
                           <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
@@ -530,9 +531,9 @@ export function AdminConsoleView() {
                             u.status === 'SUSPENDED' ? 'bg-orange-100 text-orange-800 border border-orange-200' :
                             'bg-rose-100 text-rose-800 border border-rose-200'
                           }`}>
-                            {u.status === 'ACTIVE' ? 'نشط ومصرح' :
-                             u.status === 'PENDING_APPROVAL' ? 'معلق بانتظار الاعتماد' :
-                             u.status === 'SUSPENDED' ? 'معطل مؤقتاً' : 'مرفوض'}
+                            {u.status === 'ACTIVE' ? t('admin_console.status_active') :
+                             u.status === 'PENDING_APPROVAL' ? t('admin_console.status_pending') :
+                             u.status === 'SUSPENDED' ? t('admin_console.status_suspended') : t('admin_console.status_rejected')}
                           </span>
                         </td>
                         <td className="py-3.5 px-4 text-left space-x-2 rtl:space-x-reverse">
@@ -546,7 +547,7 @@ export function AdminConsoleView() {
                                 }}
                                 className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
                               >
-                                اعتماد وتعيين صلاحيات
+                                {t('admin_console.btn_approve')}
                               </button>
                               <button
                                 onClick={() => {
@@ -555,7 +556,7 @@ export function AdminConsoleView() {
                                 }}
                                 className="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold transition-all cursor-pointer"
                               >
-                                رفض الطلب
+                                {t('admin_console.btn_reject')}
                               </button>
                             </>
                           )}
@@ -565,7 +566,7 @@ export function AdminConsoleView() {
                               onClick={() => handleSuspendUser(u)}
                               className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold cursor-pointer"
                             >
-                              تعليق الحساب
+                              {t('admin_console.btn_suspend')}
                             </button>
                           )}
 
@@ -574,7 +575,7 @@ export function AdminConsoleView() {
                               onClick={() => handleReactivateUser(u)}
                               className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[11px] font-bold cursor-pointer"
                             >
-                              إعادة تفعيل الحساب
+                              {t('admin_console.btn_reactivate')}
                             </button>
                           )}
                         </td>
@@ -597,8 +598,8 @@ export function AdminConsoleView() {
           {/* Left panel: Users select */}
           <div className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs lg:col-span-1 space-y-4">
             <div>
-              <h3 className="text-sm font-bold text-stone-900">سجل الكيانات الأمنية</h3>
-              <p className="text-[11px] text-stone-400 mt-0.5">اختر مستخدماً من القائمة لتعديل سياسة التفويض الأمني الخاصة به.</p>
+              <h3 className="text-sm font-bold text-stone-900">{t('admin_console.security_entities')}</h3>
+              <p className="text-[11px] text-stone-400 mt-0.5">{t('admin_console.select_authorization_user')}</p>
             </div>
             
             <div className="flex items-center gap-2 bg-stone-50 border border-stone-200/60 rounded-xl px-3 py-1.5 text-xs">
@@ -607,7 +608,7 @@ export function AdminConsoleView() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث باسم الموظف..."
+                placeholder={t('admin_console.search_employee')}
                 className="bg-transparent w-full focus:outline-none"
               />
             </div>
@@ -625,7 +626,7 @@ export function AdminConsoleView() {
                         : 'hover:bg-stone-50 text-stone-800'
                     }`}
                   >
-                    <span className="font-bold text-xs">{u.fullName || 'مستخدم بلا اسم'}</span>
+                    <span className="font-bold text-xs">{u.fullName || t('admin_console.unnamed_user')}</span>
                     <span className="text-[10px] font-mono opacity-80">{u.email}</span>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-stone-800 text-stone-300">
@@ -648,8 +649,8 @@ export function AdminConsoleView() {
               <div className="space-y-6">
                 <div className="pb-4 border-b border-stone-100 flex items-start justify-between">
                   <div>
-                    <h3 className="text-base font-bold text-stone-900">محدد السياسات الأمنية والحوكمة</h3>
-                    <p className="text-xs text-stone-400 mt-1">المستخدم المحدد: <strong className="text-stone-700">{selectedUserForSecurity.fullName}</strong> ({selectedUserForSecurity.email})</p>
+                    <h3 className="text-base font-bold text-stone-900">{t('admin_console.security_policy_editor')}</h3>
+                    <p className="text-xs text-stone-400 mt-1">{t('admin_console.selected_user')} <strong className="text-stone-700">{selectedUserForSecurity.fullName}</strong> ({selectedUserForSecurity.email})</p>
                   </div>
                   <span className="px-3 py-1 bg-stone-100 border border-stone-200 text-stone-800 font-mono font-bold text-[11px] rounded-lg">
                     {selectedUserForSecurity.userId}
@@ -658,8 +659,8 @@ export function AdminConsoleView() {
 
                 {/* 1. RBAC Selection */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-stone-700 block">الدور الرقابي والأمني (Role Base Assignment)</label>
-                  <p className="text-[11px] text-stone-400">تمنح هذه الصلاحية للمستخدم الوصول للمرافق والعمليات المحددة لكل دور رقابي في قواعد البيانات.</p>
+                  <label className="text-xs font-bold text-stone-700 block">{t('admin_console.role_assignment')}</label>
+                  <p className="text-[11px] text-stone-400">{t('admin_console.role_assignment_description')}</p>
                   <select
                     value={selectedUserForSecurity.role}
                     onChange={(e) => {
@@ -668,20 +669,20 @@ export function AdminConsoleView() {
                     }}
                     className="w-full max-w-xs bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none"
                   >
-                    <option value="SUPER_ADMIN">SUPER_ADMIN (المدير الفني الأعلى)</option>
-                    <option value="PROJECT_ADMIN">PROJECT_ADMIN (مدير المنظومة)</option>
-                    <option value="SUPERVISOR">SUPERVISOR (المشرف العام الميداني)</option>
-                    <option value="SITE_SUPERVISOR">SITE_SUPERVISOR (مشرف الموقع)</option>
-                    <option value="DISPATCHER">DISPATCHER (مشرف الترحيل والميزان)</option>
-                    <option value="FINANCE_AUDITOR">FINANCE_AUDITOR (المدقق المالي للعمليات)</option>
-                    <option value="VIEWER">VIEWER (مستعرض للنظام)</option>
+                    <option value="SUPER_ADMIN">{t('navigation.roles.super_admin')}</option>
+                    <option value="PROJECT_ADMIN">{t('navigation.roles.project_admin')}</option>
+                    <option value="SUPERVISOR">{t('navigation.roles.supervisor')}</option>
+                    <option value="SITE_SUPERVISOR">{t('navigation.roles.site_supervisor')}</option>
+                    <option value="DISPATCHER">{t('navigation.roles.dispatcher')}</option>
+                    <option value="FINANCE_AUDITOR">{t('navigation.roles.finance_auditor')}</option>
+                    <option value="VIEWER">{t('navigation.roles.viewer')}</option>
                   </select>
                 </div>
 
                 {/* 2. Project Whitelist Assignment */}
                 <div className="space-y-3">
-                  <label className="text-xs font-bold text-stone-700 block">قائمة المشاريع المسموحة (Explicit Project Access Whitelist)</label>
-                  <p className="text-[11px] text-stone-400">تحديد المشاريع التي يسمح لهذا الحساب بالوصول لبياناتها التشغيلية بشكل صريح. يتم فرض هذا العزل كلياً في طبقة البيانات.</p>
+                  <label className="text-xs font-bold text-stone-700 block">{t('admin_console.explicit_project_whitelist')}</label>
+                  <p className="text-[11px] text-stone-400">{t('admin_console.explicit_project_whitelist_description')}</p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
                     {projects.map(proj => {
@@ -725,7 +726,7 @@ export function AdminConsoleView() {
                     className="px-6 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-2"
                   >
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                    <span>حفظ واعتماد مصفوفة الصلاحيات</span>
+                    <span>{t('admin_console.save_matrix')}</span>
                   </button>
                 </div>
 
@@ -733,7 +734,7 @@ export function AdminConsoleView() {
             ) : (
               <div className="py-24 text-center text-stone-400 flex flex-col items-center justify-center gap-3">
                 <Info className="w-8 h-8 text-stone-300" />
-                <span className="text-sm font-bold">يرجى اختيار مستخدم من القائمة الجانبية لتعديل مصفوفة صلاحياته.</span>
+                <span className="text-sm font-bold">{t('admin_console.select_user_prompt')}</span>
               </div>
             )}
           </div>
@@ -748,21 +749,21 @@ export function AdminConsoleView() {
         <div className="space-y-4">
           <div className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs space-y-4">
             <div>
-              <h2 className="text-base font-bold text-stone-900">سجل التدقيق الشامل غير القابل للتعديل (Immutable Security & System Logs)</h2>
-              <p className="text-xs text-stone-400 mt-1">تتبع كافة العمليات والاعتمادات وتعديل وثائق الصلاحيات المسجلة برمجياً في Firestore مع تفاصيل الحقول المعدلة (Delta).</p>
+              <h2 className="text-base font-bold text-stone-900">{t('admin_console.immutable_audit_title')}</h2>
+              <p className="text-xs text-stone-400 mt-1">{t('admin_console.immutable_audit_description')}</p>
             </div>
 
             {/* Advanced Multi-Filter controls */}
             <div className="bg-stone-50 border border-stone-200/60 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3.5 text-xs">
               
               <div className="space-y-1">
-                <label className="font-bold text-stone-600">فلترة بالمنفذ</label>
+                <label className="font-bold text-stone-600">{t('admin_console.filter_actor')}</label>
                 <select
                   value={auditUserFilter}
                   onChange={(e) => setAuditUserFilter(e.target.value)}
                   className="w-full bg-white border border-stone-200 rounded-lg p-2 font-bold text-stone-800 focus:outline-none"
                 >
-                  <option value="ALL">كافة المنفذين</option>
+                  <option value="ALL">{t('admin_console.all_actors')}</option>
                   {uniqueAuditActors.map(em => (
                     <option key={em} value={em}>{em}</option>
                   ))}
@@ -770,13 +771,13 @@ export function AdminConsoleView() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-stone-600">فلترة بالمشروع</label>
+                <label className="font-bold text-stone-600">{t('admin_console.filter_project')}</label>
                 <select
                   value={auditProjectFilter}
                   onChange={(e) => setAuditProjectFilter(e.target.value)}
                   className="w-full bg-white border border-stone-200 rounded-lg p-2 font-bold text-stone-800 focus:outline-none"
                 >
-                  <option value="ALL">كافة المشاريع</option>
+                  <option value="ALL">{t('analytics.ui.all_projects')}</option>
                   {projects.map(p => (
                     <option key={p.projectId} value={p.projectId}>{p.nameAr || p.nameEn}</option>
                   ))}
@@ -784,29 +785,29 @@ export function AdminConsoleView() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-stone-600">نوع الإجراء</label>
+                <label className="font-bold text-stone-600">{t('admin_console.action_type')}</label>
                 <select
                   value={auditActionFilter}
                   onChange={(e) => setAuditActionFilter(e.target.value)}
                   className="w-full bg-white border border-stone-200 rounded-lg p-2 font-bold text-stone-800 focus:outline-none"
                 >
-                  <option value="ALL">كافة الإجراءات</option>
-                  <option value="CREATE">إنشاء (CREATE)</option>
-                  <option value="UPDATE">تعديل (UPDATE)</option>
-                  <option value="DELETE">حذف (DELETE)</option>
-                  <option value="FORCE_STATUS_CHANGE">تغيير حالة جبري</option>
-                  <option value="RECONCILE">معالجة استثناء</option>
+                  <option value="ALL">{t('admin_console.all_actions')}</option>
+                  <option value="CREATE">{t('admin_console.action_create')}</option>
+                  <option value="UPDATE">{t('admin_console.action_update')}</option>
+                  <option value="DELETE">{t('admin_console.action_delete')}</option>
+                  <option value="FORCE_STATUS_CHANGE">{t('admin_console.action_force_status')}</option>
+                  <option value="RECONCILE">{t('admin_console.action_resolve_exception')}</option>
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-stone-600">نوع الكيان</label>
+                <label className="font-bold text-stone-600">{t('admin_console.entity_type')}</label>
                 <select
                   value={auditEntityFilter}
                   onChange={(e) => setAuditEntityFilter(e.target.value)}
                   className="w-full bg-white border border-stone-200 rounded-lg p-2 font-bold text-stone-800 focus:outline-none"
                 >
-                  <option value="ALL">كافة الكيانات</option>
+                  <option value="ALL">{t('admin_console.all_entities')}</option>
                   {uniqueAuditEntities.map(en => (
                     <option key={en} value={en}>{en}</option>
                   ))}
@@ -814,7 +815,7 @@ export function AdminConsoleView() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-stone-600">من تاريخ</label>
+                <label className="font-bold text-stone-600">{t('admin_console.from_date')}</label>
                 <input
                   type="date"
                   value={auditDateStart}
@@ -824,7 +825,7 @@ export function AdminConsoleView() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-stone-600">إلى تاريخ</label>
+                <label className="font-bold text-stone-600">{t('admin_console.to_date')}</label>
                 <input
                   type="date"
                   value={auditDateEnd}
@@ -840,19 +841,19 @@ export function AdminConsoleView() {
               <table className="w-full text-right border-collapse text-xs">
                 <thead>
                   <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold">
-                    <th className="py-3 px-4">رقم القيد والتاريخ</th>
-                    <th className="py-3 px-4">المنفذ</th>
-                    <th className="py-3 px-4">المستهدف</th>
-                    <th className="py-3 px-4">نوع الإجراء</th>
-                    <th className="py-3 px-4">الحقول المعدلة (Delta)</th>
-                    <th className="py-3 px-4 text-left">التفاصيل الكاملة</th>
+                    <th className="py-3 px-4">{t('admin_console.entry_number_date')}</th>
+                    <th className="py-3 px-4">{t('admin_console.actor')}</th>
+                    <th className="py-3 px-4">{t('admin_console.target')}</th>
+                    <th className="py-3 px-4">{t('admin_console.action_type')}</th>
+                    <th className="py-3 px-4">{t('admin_console.changed_fields')}</th>
+                    <th className="py-3 px-4 text-left">{t('admin_console.full_details')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {filteredAuditLogs.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-12 text-center text-stone-400 font-medium">
-                        لا توجد قيود مطابقة لمعايير البحث والتدقيق الحالية.
+                        {t('admin_console.no_audit_matches')}
                       </td>
                     </tr>
                   ) : (
@@ -864,7 +865,7 @@ export function AdminConsoleView() {
                             <td className="py-3.5 px-4">
                               <span className="font-mono font-bold text-stone-900 block">{log.auditLogId}</span>
                               <span className="text-[10px] text-stone-400 font-mono block mt-0.5">
-                                {log.createdAt ? new Date(log.createdAt as any).toLocaleString('ar-SA') : '—'}
+                                {log.createdAt ? new Date(log.createdAt as any).toLocaleString(locale, { calendar: 'islamic-umalqura' }) : '—'}
                               </span>
                             </td>
                             <td className="py-3.5 px-4">
@@ -891,7 +892,7 @@ export function AdminConsoleView() {
                                 onClick={() => setExpandedLogId(isExpanded ? null : log.auditLogId)}
                                 className="px-2.5 py-1 border border-stone-200 hover:bg-stone-100 text-stone-700 font-bold text-[10px] rounded-lg cursor-pointer"
                               >
-                                {isExpanded ? 'إخفاء' : 'عرض البيانات (JSON)'}
+                                {isExpanded ? t('shared.actions.hide') : t('admin_console.show_payload')}
                               </button>
                             </td>
                           </tr>
@@ -902,19 +903,19 @@ export function AdminConsoleView() {
                               <td colSpan={6} className="p-4">
                                 <div className="bg-stone-900 text-stone-100 rounded-xl p-4 font-mono text-[11px] space-y-3 shadow-inner">
                                   <div className="flex justify-between items-center text-stone-400 border-b border-stone-800 pb-2">
-                                    <span>مفتش البيانات الوصفية (Audit Payload Inspector)</span>
-                                    <span>ID: {log.auditLogId}</span>
+                                    <span>{t('admin_console.payload_inspector')}</span>
+                                    <span>{t('shared.labels.identifier')} {log.auditLogId}</span>
                                   </div>
                                   
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                      <span className="text-amber-400 block mb-1">البيانات السابقة (Before):</span>
+                                      <span className="text-amber-400 block mb-1">{t('admin_console.before_data')}</span>
                                       <pre className="overflow-x-auto max-h-[150px] p-2 bg-stone-950 rounded-lg text-stone-300">
                                         {JSON.stringify(log.changes?.before, null, 2) || 'null'}
                                       </pre>
                                     </div>
                                     <div>
-                                      <span className="text-emerald-400 block mb-1">البيانات اللاحقة (After):</span>
+                                      <span className="text-emerald-400 block mb-1">{t('admin_console.after_data')}</span>
                                       <pre className="overflow-x-auto max-h-[150px] p-2 bg-stone-950 rounded-lg text-stone-300">
                                         {JSON.stringify(log.changes?.after, null, 2) || 'null'}
                                       </pre>
@@ -943,8 +944,8 @@ export function AdminConsoleView() {
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 border border-stone-200 shadow-2xl animate-in slide-in-from-bottom-8 duration-300">
             <div className="pb-3 border-b border-stone-100 flex items-start justify-between">
               <div>
-                <h3 className="text-base font-bold text-stone-900">اعتماد طلب تفويض الحساب</h3>
-                <p className="text-xs text-stone-400 mt-1">تأكيد تفعيل الحساب وتحديد الدور والمشاريع المسموحة له.</p>
+                <h3 className="text-base font-bold text-stone-900">{t('admin_console.approve_account_request')}</h3>
+                <p className="text-xs text-stone-400 mt-1">{t('admin_console.approve_account_description')}</p>
               </div>
               <button 
                 onClick={() => setUserApprovalModal(null)}
@@ -956,14 +957,14 @@ export function AdminConsoleView() {
 
             <div className="space-y-4">
               <div className="p-3 bg-stone-50 border border-stone-200/60 rounded-xl">
-                <span className="text-stone-400 text-[10px] block font-bold">الموظف المراد اعتماده</span>
+                <span className="text-stone-400 text-[10px] block font-bold">{t('admin_console.employee_to_approve')}</span>
                 <span className="font-bold text-sm text-stone-900 block mt-0.5">{userApprovalModal.fullName}</span>
                 <span className="font-mono text-[11px] text-stone-500 block">{userApprovalModal.email}</span>
               </div>
 
               {/* Role select */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-stone-700 block">تخصيص الدور الوظيفي (Assign Security Role)</label>
+                <label className="text-xs font-bold text-stone-700 block">{t('admin_console.assign_security_role')}</label>
                 <select
                   value={approvalRole}
                   onChange={(e) => setApprovalRole(e.target.value as any)}
@@ -981,7 +982,7 @@ export function AdminConsoleView() {
 
               {/* Projects checklist */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-stone-700 block">إسناد المشاريع المحددة (Assigned Projects Whitelist)</label>
+                <label className="text-xs font-bold text-stone-700 block">{t('admin_console.assigned_project_whitelist')}</label>
                 <div className="grid grid-cols-1 gap-2 max-h-[160px] overflow-y-auto pr-1">
                   {projects.map(p => {
                     const checked = approvalProjectIds.includes(p.projectId);
@@ -1019,14 +1020,14 @@ export function AdminConsoleView() {
                 onClick={() => setUserApprovalModal(null)}
                 className="px-4 py-2 hover:bg-stone-100 border border-stone-200 text-stone-700 rounded-xl text-xs font-bold cursor-pointer"
               >
-                إلغاء التراجع
+                {t('shared.actions.cancel')}
               </button>
               <button
                 onClick={handleApproveUserConfirm}
                 className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
               >
                 <Check className="w-4 h-4" />
-                <span>اعتماد وتفعيل المستخدم</span>
+                <span>{t('admin_console.approve_activate_user')}</span>
               </button>
             </div>
           </div>
@@ -1041,8 +1042,8 @@ export function AdminConsoleView() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 border border-stone-200 shadow-2xl animate-in slide-in-from-bottom-8 duration-300">
             <div className="pb-3 border-b border-stone-100 flex items-start justify-between">
               <div>
-                <h3 className="text-base font-bold text-stone-900">رفض طلب تفويض الحساب</h3>
-                <p className="text-xs text-stone-400 mt-1">الرجاء إدخال تبرير الحوكمة لرفض طلب التسجيل.</p>
+                <h3 className="text-base font-bold text-stone-900">{t('admin_console.reject_account_request')}</h3>
+                <p className="text-xs text-stone-400 mt-1">{t('admin_console.reject_account_description')}</p>
               </div>
               <button 
                 onClick={() => setUserRejectionModal(null)}
@@ -1054,17 +1055,17 @@ export function AdminConsoleView() {
 
             <div className="space-y-3 text-xs">
               <div className="p-3 bg-stone-50 border border-stone-200/60 rounded-xl">
-                <span className="text-stone-400 text-[10px] block font-bold">المستخدم</span>
+                <span className="text-stone-400 text-[10px] block font-bold">{t('admin_console.col_user')}</span>
                 <span className="font-bold text-stone-800">{userRejectionModal.fullName}</span>
                 <span className="font-mono text-stone-400 block mt-0.5">{userRejectionModal.email}</span>
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-bold text-stone-700 block">سبب الرفض الرقابي (حقل إلزامي)</label>
+                <label className="font-bold text-stone-700 block">{t('admin_console.rejection_reason_required')}</label>
                 <textarea
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder="مثال: الحساب لا يتبع لأي من مقاولي المشاريع الحالية أو لم يتم التحقق من بطاقته الوظيفية..."
+                  placeholder={t('admin_console.rejection_reason_example')}
                   rows={4}
                   className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 />
@@ -1076,7 +1077,7 @@ export function AdminConsoleView() {
                 onClick={() => setUserRejectionModal(null)}
                 className="px-4 py-2 hover:bg-stone-100 border border-stone-200 text-stone-700 rounded-xl text-xs font-bold cursor-pointer"
               >
-                إلغاء التراجع
+                {t('shared.actions.cancel')}
               </button>
               <button
                 onClick={handleRejectUserConfirm}
@@ -1084,7 +1085,7 @@ export function AdminConsoleView() {
                 className="px-5 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
               >
                 <XCircle className="w-4 h-4" />
-                <span>تأكيد رفض طلب الحساب</span>
+                <span>{t('admin_console.confirm_reject_account')}</span>
               </button>
             </div>
           </div>

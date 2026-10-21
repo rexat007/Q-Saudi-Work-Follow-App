@@ -1,3 +1,6 @@
+import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
@@ -207,7 +210,13 @@ describe('Smart Import R3 — Row Correction & Exception Review Test Suite', () 
   // 1. Correction requires explicit user action
   it('1. Correction requires explicit user action', () => {
     expect(sectionContent).toContain('handleStartRowCorrection(row)');
-    expect(sectionContent).toContain('تصحيح البيانات');
+    expect(sectionContent).toContain("t('entityResolution.labels.correct_data')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['entityResolution.labels.correct_data']).toBeTruthy();
+      const label = resolveTranslation('entityResolution.labels.correct_data', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['entityResolution.labels.correct_data'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
   });
 
   // 2. Only one correction editor active at a time
@@ -324,7 +333,7 @@ describe('Smart Import R3 — Row Correction & Exception Review Test Suite', () 
   // 11. numeric correction rejects NaN
   it('11. numeric correction rejects NaN in UI handler', () => {
     expect(sectionContent).toContain('isNaN(num)');
-    expect(sectionContent).toContain('يجب أن تكون رقماً صحيحاً');
+    expectCanonicalBatch4Source(sectionContent, 'entityResolution.messages.correction_number_invalid');
   });
 
   // 12. numeric correction does not silently become zero
@@ -486,7 +495,8 @@ describe('Smart Import R3 — Row Correction & Exception Review Test Suite', () 
   // 26. R2 unresolvedGroups gate remains intact
   it('26. R2 unresolvedGroups gate remains intact', () => {
     expect(sectionContent).toContain('unresolvedGroups.length > 0');
-    expect(sectionContent).toContain('الخطوة 5');
+    expectCanonicalBatch4Source(sectionContent, 'entityResolution.labels.step_number');
+    expect(sectionContent).toContain("t('entityResolution.labels.step_number', { step: 5 })");
   });
 
   // 27. R1 mapping gate remains intact

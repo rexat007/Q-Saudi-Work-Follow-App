@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
@@ -232,7 +234,14 @@ describe('FOUNDATION A1 — Reusable Carrier Creation Component & Client Command
 
   // 20. existing "إضافة ناقل جديد" entry point is preserved
   it('20. existing "إضافة ناقل جديد" entry point is preserved', () => {
-    expect(wizardContent).toContain('إضافة ناقل جديد');
+    expect(wizardContent).toContain("t('projects.labels.add_carrier')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'projects.labels.add_carrier';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // 21. successful creation completes through canonical refresh barrier

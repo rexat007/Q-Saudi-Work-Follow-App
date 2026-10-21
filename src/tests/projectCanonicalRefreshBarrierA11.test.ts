@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
@@ -492,7 +494,22 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
   it('31. Refresh-failed-after-create state distinguishes mutation from refresh', () => {
     expect(modalFileContent).toContain('refreshFailed');
     expect(modalFileContent).toContain('createdCarrierResult');
-    expect(modalFileContent).toContain('إعادة تحديث البيانات');
+    const refreshAction = modalFileContent.match(/\{refreshFailed \? \([\s\S]*?<\/button>/)?.[0];
+    expect(refreshAction).toContain('onClick={handleRetryRefresh}');
+    expect(refreshAction).toContain('disabled={isSubmitting}');
+    expect(refreshAction).toContain('{isSubmitting && <Loader2');
+    expect(refreshAction).toContain("t('entityResolution.labels.refresh_data')");
+    const retryHandler = modalFileContent.slice(modalFileContent.indexOf('const handleRetryRefresh ='), modalFileContent.indexOf('return (', modalFileContent.indexOf('const handleRetryRefresh =')));
+    expect(retryHandler).toContain('if (createdCarrierResult && onCreated)');
+    expect(retryHandler).toContain('await onCreated(createdCarrierResult);');
+    expect(retryHandler).not.toContain('clientService.createProjectCarrier');
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.refresh_data';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // 32. Material creation uses refresh service

@@ -1,3 +1,5 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { useI18n } from '../../i18n';
 import React, { useState, useMemo } from 'react';
 import {
   CheckCircle2,
@@ -89,6 +91,7 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
   onClose,
   embeddedInWorkflowHost = false,
 }) => {
+  const { t } = useI18n();
   const rows = importBatch.rows || [];
   const activeRows = rows.filter((r) => r.status !== 'REJECTED');
   const totalRows = rows.length;
@@ -168,13 +171,13 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
           </div>
             <div>
               <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <span>المراجعة النهائية والاعتماد (Final Review & Commit Layer)</span>
+                <span>{t('entityResolution.labels.final_review_title')}</span>
                 <span className="text-[10px] font-mono bg-stone-800 px-2 py-0.5 rounded-full text-amber-400">
-                  المرحلة 6 من 7
+                  {t('entityResolution.labels.stage_progress', { stage: 6, total: 7 })}
                 </span>
               </h3>
               <p className="text-[11px] text-stone-400">
-                فحص ومراجعة السجلات المعتمدة قبل الحقن والتنفيذ النهائي في المشروع
+                {t('entityResolution.labels.final_review_description')}
               </p>
             </div>
           </div>
@@ -189,10 +192,9 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                 <div>
                   <span className="font-bold block text-sm text-emerald-300">
-                    الدفعة جاهزة تماماً للاعتماد والتنفيذ ({readyRowsCount} من أصل {totalRows} سجل)
-                  </span>
+                    {t('entityResolution.messages.batch_ready_count', { ready: readyRowsCount, total: totalRows })}</span>
                   <span className="text-xs text-emerald-300/80">
-                    تم حسم الناقلين، المواد، السائقين، والشاحنات بنجاح. يمكن الآن تنفيذ الاستيراد.
+                    {t('entityResolution.messages.entities_resolved_ready')}
                   </span>
                 </div>
               </div>
@@ -203,12 +205,11 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
                 <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
                 <div>
                   <span className="font-bold block text-sm text-rose-300">
-                    الدفعة غير جاهزة للاعتماد (توجد {blockedRows.length} صفوف محجوبة / {unresolvedGroupCount} عناصر غير محسومة)
-                  </span>
+                    {t('entityResolution.messages.batch_not_ready_counts', { blocked: blockedRows.length, unresolved: unresolvedGroupCount })}</span>
                   <span className="text-xs text-rose-300/80">
                     {blockerType === 'CARRIER'
-                      ? 'تغيّر أو تعذر اعتماد بيانات الناقل بعد المراجعة النهائية. لأن بيانات السائقين والشاحنات مرتبطة بالناقل، يجب إعادة تحليل جلسة الاستيراد.'
-                      : 'يجب معالجة الكيانات المعلقة والصفوف غير المطابقة قبل البدء بإنشاء السجلات في المشروع.'}
+                      ? t('entityResolution.messages.carrier_changed_reanalysis_required')
+                      : t('entityResolution.messages.resolve_before_commit')}
                   </span>
                 </div>
               </div>
@@ -218,38 +219,38 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
           {commitError && (
             <div className="bg-rose-950/60 border border-rose-800 p-3.5 rounded-xl text-rose-200 text-xs flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-              <span>{commitError}</span>
+              <span>{presentBatch4Message(commitError, t)}</span>
             </div>
           )}
 
           {/* Overall Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 bg-stone-950 p-3.5 rounded-xl border border-stone-850 text-center font-bold">
             <div>
-              <span className="block text-stone-500 text-[10px]">إجمالي السجلات</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.total_records')}</span>
               <span className="text-sm font-mono text-white">{totalRows}</span>
             </div>
             <div>
-              <span className="block text-stone-500 text-[10px]">جاهزة للاعتماد</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.ready_for_approval')}</span>
               <span className="text-sm font-mono text-emerald-400">{readyRowsCount}</span>
             </div>
             <div>
-              <span className="block text-stone-500 text-[10px]">صفوف بها تنبيهات</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.rows_with_warnings')}</span>
               <span className="text-sm font-mono text-amber-400">{warningRows.length}</span>
             </div>
             <div>
-              <span className="block text-stone-500 text-[10px]">صفوف محجوبة/أخطاء</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.blocked_error_rows')}</span>
               <span className="text-sm font-mono text-rose-400">{blockedRows.length}</span>
             </div>
             <div>
-              <span className="block text-stone-500 text-[10px]">صفوف مستبعدة</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.excluded_rows')}</span>
               <span className="text-sm font-mono text-stone-400">{rejectedRows.length}</span>
             </div>
             <div>
-              <span className="block text-stone-500 text-[10px]">معتمدة سابقاً</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.previously_committed')}</span>
               <span className="text-sm font-mono text-cyan-400">{alreadyCommittedRows.length}</span>
             </div>
             <div>
-              <span className="block text-stone-500 text-[10px]">عناصر معلقة</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.unresolved_items')}</span>
               <span className={`text-sm font-mono ${unresolvedGroupCount > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
                 {unresolvedGroupCount}
               </span>
@@ -263,17 +264,16 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
               <div className="flex justify-between items-center text-stone-400 font-bold text-[11px]">
                 <span className="flex items-center gap-1.5 text-white">
                   <Building2 className="w-3.5 h-3.5 text-amber-500" />
-                  <span>الناقلون (Carriers)</span>
+                  <span>{t('entityResolution.labels.carriers')}</span>
                 </span>
-                <span className="font-mono text-[10px]">{carrierGroups.length} مجموعات</span>
+                <span className="font-mono text-[10px]">{t('entityResolution.labels.group_count', { count: carrierGroups.length })}</span>
               </div>
               <p className="text-[11px] font-mono text-stone-300">
-                حسم المجموعات: {carrierGroups.length - unresolvedCarrierCount} / {carrierGroups.length}
-              </p>
+                {t('entityResolution.labels.group_resolution_progress', { resolved: carrierGroups.length - unresolvedCarrierCount, total: carrierGroups.length })}</p>
               {unresolvedCarrierCount > 0 ? (
-                <p className="text-[10px] text-rose-400 font-bold">يوجد {unresolvedCarrierCount} ناقل غير محسوم</p>
+                <p className="text-[10px] text-rose-400 font-bold">{t('entityResolution.labels.unresolved_groups_remaining', { count: unresolvedCarrierCount })}</p>
               ) : (
-                <p className="text-[10px] text-emerald-400 font-semibold">مكتمل ومستقر</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">{t('entityResolution.labels.complete_stable')}</p>
               )}
             </div>
 
@@ -282,17 +282,16 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
               <div className="flex justify-between items-center text-stone-400 font-bold text-[11px]">
                 <span className="flex items-center gap-1.5 text-white">
                   <Box className="w-3.5 h-3.5 text-amber-500" />
-                  <span>المواد (Materials)</span>
+                  <span>{t('other.labels.materials_5')}</span>
                 </span>
-                <span className="font-mono text-[10px]">{materialGroups.length} مجموعات</span>
+                <span className="font-mono text-[10px]">{t('entityResolution.labels.group_count', { count: materialGroups.length })}</span>
               </div>
               <p className="text-[11px] font-mono text-stone-300">
-                حسم المجموعات: {materialGroups.length - unresolvedMaterialCount} / {materialGroups.length}
-              </p>
+                {t('entityResolution.labels.group_resolution_progress', { resolved: materialGroups.length - unresolvedMaterialCount, total: materialGroups.length })}</p>
               {unresolvedMaterialCount > 0 ? (
-                <p className="text-[10px] text-rose-400 font-bold">يوجد {unresolvedMaterialCount} مادة غير محسومة</p>
+                <p className="text-[10px] text-rose-400 font-bold">{t('entityResolution.labels.unresolved_groups_remaining', { count: unresolvedMaterialCount })}</p>
               ) : (
-                <p className="text-[10px] text-emerald-400 font-semibold">مكتمل ومستقر</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">{t('entityResolution.labels.complete_stable')}</p>
               )}
             </div>
 
@@ -301,17 +300,16 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
               <div className="flex justify-between items-center text-stone-400 font-bold text-[11px]">
                 <span className="flex items-center gap-1.5 text-white">
                   <Users className="w-3.5 h-3.5 text-amber-500" />
-                  <span>السائقون (Drivers)</span>
+                  <span>{t('other.labels.drivers_5')}</span>
                 </span>
-                <span className="font-mono text-[10px]">{driverGroups.length} مجموعات</span>
+                <span className="font-mono text-[10px]">{t('entityResolution.labels.group_count', { count: driverGroups.length })}</span>
               </div>
               <p className="text-[11px] font-mono text-stone-300">
-                حسم المجموعات: {driverGroups.length - unresolvedDriverCount} / {driverGroups.length}
-              </p>
+                {t('entityResolution.labels.group_resolution_progress', { resolved: driverGroups.length - unresolvedDriverCount, total: driverGroups.length })}</p>
               {unresolvedDriverCount > 0 ? (
-                <p className="text-[10px] text-rose-400 font-bold">يوجد {unresolvedDriverCount} سائق غير محسوم</p>
+                <p className="text-[10px] text-rose-400 font-bold">{t('entityResolution.labels.unresolved_groups_remaining', { count: unresolvedDriverCount })}</p>
               ) : (
-                <p className="text-[10px] text-emerald-400 font-semibold">مكتمل ومستقر</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">{t('entityResolution.labels.complete_stable')}</p>
               )}
             </div>
 
@@ -320,17 +318,16 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
               <div className="flex justify-between items-center text-stone-400 font-bold text-[11px]">
                 <span className="flex items-center gap-1.5 text-white">
                   <Truck className="w-3.5 h-3.5 text-amber-500" />
-                  <span>الشاحنات (Trucks)</span>
+                  <span>{t('entityResolution.labels.trucks')}</span>
                 </span>
-                <span className="font-mono text-[10px]">{truckGroups.length} مجموعات</span>
+                <span className="font-mono text-[10px]">{t('entityResolution.labels.group_count', { count: truckGroups.length })}</span>
               </div>
               <p className="text-[11px] font-mono text-stone-300">
-                حسم المجموعات: {truckGroups.length - unresolvedTruckCount} / {truckGroups.length}
-              </p>
+                {t('entityResolution.labels.group_resolution_progress', { resolved: truckGroups.length - unresolvedTruckCount, total: truckGroups.length })}</p>
               {unresolvedTruckCount > 0 ? (
-                <p className="text-[10px] text-rose-400 font-bold">يوجد {unresolvedTruckCount} شاحنة غير محسومة</p>
+                <p className="text-[10px] text-rose-400 font-bold">{t('entityResolution.labels.unresolved_groups_remaining', { count: unresolvedTruckCount })}</p>
               ) : (
-                <p className="text-[10px] text-emerald-400 font-semibold">مكتمل ومستقر</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">{t('entityResolution.labels.complete_stable')}</p>
               )}
             </div>
           </div>
@@ -340,7 +337,7 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
             <div className="p-3.5 bg-amber-950/40 border border-amber-800/60 rounded-xl flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2 text-amber-300 font-bold">
                 <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>يوجد {warningRows.length} سجل يحتوي على تنبيهات تشغيلية. يلزم تأكيد الموافقة عليها قبل متابعة الاعتماد.</span>
+                <span>{t('entityResolution.messages.warning_acceptance_required', { count: warningRows.length })}</span>
               </div>
               <label htmlFor="confirm-warnings" className="flex items-center gap-2 cursor-pointer text-amber-200 font-bold hover:text-white shrink-0">
                 <input
@@ -361,7 +358,7 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
                   }}
                   className="w-4 h-4 rounded-sm border-amber-600 bg-stone-900 text-amber-600 focus:ring-amber-500"
                 />
-                <span>أقر بالموافقة على استيراد السجلات المحتوية على تنبيهات</span>
+                <span>{t('entityResolution.labels.accept_warning_records')}</span>
               </label>
             </div>
           )}
@@ -371,7 +368,7 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
             <div className="flex justify-between items-center text-stone-400 font-bold border-b border-stone-800 pb-2">
               <span className="text-white flex items-center gap-2">
                 <FileText className="w-4 h-4 text-amber-500" />
-                <span>معاينة القيم القياسية المحسومة للسجلات ({rows.length} سجل)</span>
+                <span>{t('entityResolution.labels.canonical_preview_count', { count: rows.length })}</span>
               </span>
             </div>
 
@@ -379,12 +376,12 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
               <table className="w-full text-right text-xs">
                 <thead className="sticky top-0 bg-stone-900 border-b border-stone-800 text-stone-400 font-bold text-[11px]">
                   <tr>
-                    <th className="p-2.5">الصف</th>
-                    <th className="p-2.5">الناقل المعتمد</th>
-                    <th className="p-2.5">المادة المعتمدة</th>
-                    <th className="p-2.5">اسم السائق</th>
-                    <th className="p-2.5">رقم اللوحة</th>
-                    <th className="p-2.5 text-center">حالة الجاهزية</th>
+                    <th className="p-2.5">{t('entityResolution.labels.row_label')}</th>
+                    <th className="p-2.5">{t('field_operations.authorized_carrier')}</th>
+                    <th className="p-2.5">{t('entityResolution.labels.approved_material')}</th>
+                    <th className="p-2.5">{t('entityResolution.labels.driver_name')}</th>
+                    <th className="p-2.5">{t('analytics.column.plate_number')}</th>
+                    <th className="p-2.5 text-center">{t('entityResolution.labels.readiness_status')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-850">
@@ -430,23 +427,23 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
                         <td className="p-2.5 text-center">
                           {isRejected ? (
                             <span className="px-2 py-0.5 rounded-full text-[10px] bg-stone-800 text-stone-500 font-bold">
-                              مستبعد
+                              {t('entityResolution.labels.row_excluded')}
                             </span>
                           ) : isCommitted ? (
                             <span className="px-2 py-0.5 rounded-full text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800/40 font-bold">
-                              معتمد سابقاً
+                              {t('entityResolution.labels.previously_committed')}
                             </span>
                           ) : isBlocked ? (
                             <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-950 text-rose-300 border border-rose-800/40 font-bold">
-                              محجوب / غير مكتمل
+                              {t('entityResolution.labels.row_blocked_incomplete')}
                             </span>
                           ) : isWarning ? (
                             <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-950 text-amber-300 border border-amber-800/40 font-bold">
-                              جاهز مع تنبيه
+                              {t('entityResolution.labels.row_ready_with_warning')}
                             </span>
                           ) : (
                             <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800/40 font-bold">
-                              جاهز للاعتماد
+                              {t('entityResolution.labels.ready_for_approval')}
                             </span>
                           )}
                         </td>
@@ -465,17 +462,17 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
             {canCommit ? (
               <span className="text-emerald-400 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" />
-                <span>جاهز للاعتماد عبر البوابة الموحدة للبيانات</span>
+                <span>{t('entityResolution.messages.unified_gateway_ready')}</span>
               </span>
             ) : isReadyToCommit ? (
               <span className="text-amber-400 flex items-center gap-1.5">
                 <AlertTriangle className="w-4 h-4" />
-                <span>بانتظار تأكيد الموافقة على التنبيهات أعلاه قبل الاعتماد</span>
+                <span>{t('entityResolution.messages.awaiting_warning_acceptance')}</span>
               </span>
             ) : (
               <span className="text-rose-400 flex items-center gap-1.5">
                 <Lock className="w-4 h-4" />
-                <span>الاعتماد مغلق حتى حسم السجلات المحجوبة</span>
+                <span>{t('entityResolution.messages.commit_blocked_unresolved')}</span>
               </span>
             )}
           </div>
@@ -488,7 +485,7 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
                 disabled={isCommitting}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
               >
-                {blockerType === 'CARRIER' ? 'إعادة بدء الاستيراد' : 'العودة لمعالجة البيانات'}
+                {blockerType === 'CARRIER' ? t('entityResolution.labels.restart_import') : t('entityResolution.labels.return_to_correction')}
               </button>
             )}
 
@@ -501,12 +498,12 @@ export const RosterFinalReviewLayer: React.FC<RosterFinalReviewLayerProps> = ({
               {isCommitting ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>جاري الاعتماد والتنفيذ...</span>
+                  <span>{t('entityResolution.labels.committing_import')}</span>
                 </>
               ) : (
                 <>
                   <ShieldCheck className="w-4 h-4" />
-                  <span>اعتماد وتنفيذ الاستيراد</span>
+                  <span>{t('entityResolution.labels.approve_commit_import')}</span>
                 </>
               )}
             </button>
