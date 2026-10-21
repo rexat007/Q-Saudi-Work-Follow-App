@@ -2,18 +2,24 @@
 
 Classification: `CURRENT_SUPPORTING`. This is audit/owner-review evidence, not another state ledger. Current reconstruction state is owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
 
+## Closure follow-up
+
+P0-U5 is **VERIFIED / CLOSED**: implementation reviewed, publication completed, and GitHub merge `15529b85848a80322dea033e80903fd2fd1e294c` independently verified as confirmed by the owner. The current main baseline is that merge. The canonical ledger now activates P0-U6 — Secret-Free GitHub CI Baseline as **NOT_STARTED / ACTIVE**, with P0-U7 — Phase 0 Closure & Freeze next in the accepted plan. No CI implementation is claimed.
+
+The original review evidence below remains a review-time snapshot. Its baseline, active/next-unit statements, publication status and inventory classifications describe the pre-publication review, not current state. Current pointers belong only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); the 245-document convergence has not been repeated.
+
 ## Baseline and scope
 
 Main was synchronized from a clean worktree by fast-forward to `2b52180304ac02d71b506f16dc69722c94ba9b6f`. All 245 pre-existing tracked text documents were read for authority claims: 18 reconstruction documents, 7 older designs, 8 Studio snapshots, 2 root release/security documents and 210 report/text artifacts. Two documentation indexes are added, yielding 247 classified documents below. Classification concerns authority, not recertification of every historical technical statement.
 
 Actual package/config, production entries and setup-layer source were inspected read-only. No production code, tests, locales, package/lockfiles, configs or scripts changed. No new product test, build, lint or browser run is claimed. Historical fixture/catalog inputs retain their bounded role and were not regenerated.
 
-## Current state and acceptance
+## Review-time state and acceptance (historical context)
 
 - Current phase: PHASE_0 — Repository & Engineering Foundation, IN_PROGRESS.
 - Accepted/closed: P0-A0, P0-U1 including U1R, P0-U2 and its recorded audit/implementation/closure subunits, P0-U3 and its recorded audit/convergence subunits, and P0-U4. P0-U3 and P0-U4 remain VERIFIED / CLOSED; commit provenance is preserved in the canonical ledger.
-- Active unit: P0-U5 — Documentation Authority Convergence. This local review-ready result does not close it; acceptance/publication/post-push gates remain.
-- Resolved next unit: P0-U6 — Secret-Free GitHub CI Baseline, NOT_STARTED. This follows P0-U5 and precedes P0-U7 in the existing [foundational plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md); no new unit or CI implementation is invented.
+- Review-time active unit: P0-U5 — Documentation Authority Convergence. At that review point it was not yet closed; acceptance/publication/post-push gates remained.
+- Review-time next unit: P0-U6 — Secret-Free GitHub CI Baseline, NOT_STARTED. This follows P0-U5 and precedes P0-U7 in the existing [foundational plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md); no new unit or CI implementation is invented.
 - Whole-App i18n Batches 1–4 and final residual remediation are merged and accepted for this reconstruction stage. Residual commit `09f3c0374c835560364d136430ab43560dae9a38` merged at the baseline above. CD-44/CD-45 record this in the [decision/debt log](05_DECISION_AND_DEBT_LOG.md). AR/EN/UR parity is dynamic, not a fixed-cardinality contract.
 - Browser review is accepted sufficiently for this stage, without claiming every visible label, device, role or workflow was manually verified. Mixed Arabic/English or bilingual labels remain DEFERRED_NON_BLOCKING_PRODUCT_DEBT (DD-03); broader product-verification obligations remain explicit (DD-04). Full cosmetic language perfection does not block continuing P0 or reopen accepted units.
 - Future desktop/company/provider/licensing distribution remains an unapproved FUTURE DEVELOPMENT PROPOSAL, not current implementation or next-unit authorization. Product-facing acceptance retains the four verification layers and explicit user acceptance.
@@ -298,7 +304,7 @@ Searched ACTIVE_UNIT, NEXT_UNIT, P0-U3/P0-U4/P0-U5, 1128/1129 (including comma f
 
 Verification is documentation/source inspection, package/register reconciliation, relative-link targets, preservation of historical bodies, current ledger consistency, and documentation-only Git/whitespace review. No product verification rerun or exhaustive browser review is claimed.
 
-P0-U5 result: `P0_U5_DOCUMENTATION_AUTHORITY_CONVERGENCE_READY_FOR_OWNER_REVIEW`. Formal closure is not claimed. PUBLICATION STATUS: NOT PUBLISHED.
+Review-time P0-U5 result: `P0_U5_DOCUMENTATION_AUTHORITY_CONVERGENCE_READY_FOR_OWNER_REVIEW`. That review did not claim formal closure; its publication status was NOT PUBLISHED. The closure follow-up above records the subsequent verified merge.
 
 ## Exact changed documentation files
 

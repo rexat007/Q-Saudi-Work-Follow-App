@@ -1,26 +1,29 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Reviewed against GitHub main at `2b52180304ac02d71b506f16dc69722c94ba9b6f` for P0-U5.
+Authority: `CURRENT_AUTHORITY`. Current authoritative main: `15529b85848a80322dea033e80903fd2fd1e294c`. P0-U5 closure and P0-U6 activation are recorded below.
 
-This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. A local review-ready result does not close P0-U5.
+This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. A local review-ready result alone never closes a unit; P0-U5 is closed by the reviewed publication, merge and independent-audit record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
-- **Next-unit evidence**: the accepted sequence in [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md#phase-0--repository--engineering-foundation) places P0-U6 after P0-U5 and before P0-U7. P0-U6 remains unstarted until P0-U5 acceptance, authorized publication, and independent post-push review.
+- **Next-unit evidence**: the accepted sequence in [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md#phase-0--repository--engineering-foundation) places P0-U6 after P0-U5 and before P0-U7. P0-U5 closure gates are now satisfied. P0-U6 is administratively active with implementation NOT_STARTED; the next planned unit is P0-U7 — Phase 0 Closure & Freeze, also NOT_STARTED.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PHASE_0
-ACTIVE_UNIT: P0-U5_DOCUMENTATION_AUTHORITY_CONVERGENCE
+ACTIVE_UNIT: P0-U6_SECRET_FREE_GITHUB_CI_BASELINE
+ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
 PHASE_0_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
-NEXT_UNIT: P0-U6_SECRET_FREE_GITHUB_CI_BASELINE
+NEXT_UNIT: P0-U7_PHASE_0_CLOSURE_AND_FREEZE
 NEXT_UNIT_STATUS: NOT_STARTED
-P0_U5_STATUS: ACTIVE
-CURRENT_CODE_BASELINE: 2b52180304ac02d71b506f16dc69722c94ba9b6f
+P0_U5_STATUS: VERIFIED / CLOSED
+P0_U5_VERIFIED_MERGE: 15529b85848a80322dea033e80903fd2fd1e294c
+P0_U6_STATUS: NOT_STARTED / ACTIVE
+CURRENT_CODE_BASELINE: 15529b85848a80322dea033e80903fd2fd1e294c
 ```
 
 ---
@@ -78,11 +81,18 @@ CURRENT_CODE_BASELINE: 2b52180304ac02d71b506f16dc69722c94ba9b6f
 | **↳ P0-U3C37** | Excel/CSV Import Harness Convergence — *KEEP_ALL_CURRENT_IMPORT_CONTRACTS* | **VERIFIED / CLOSED** | `4f85fc340c659e5867e853fe35fb3787bee8aacf` |
 | **↳ P0-U3C38** | Active Runtime I18N Cardinality Invariant Retirement — *REPLACE_FIXED_1128_WITH_DYNAMIC_TRILINGUAL_PARITY* | **VERIFIED / CLOSED** | `cb2e84c1563190d28b6a25024d1ee656b10a42b2` |
 | **P0-U4** | Root Tooling Hygiene | **VERIFIED / CLOSED** | `45e6c8b7f7c038d2a05723e4df7a5655bfaabc15` |
-| **P0-U5** | Documentation Authority Convergence | **ACTIVE — owner review pending** | Code baseline: `2b52180304ac02d71b506f16dc69722c94ba9b6f`; no unit closure commit yet |
-| **P0-U6** | Secret-Free GitHub CI Baseline | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
+| **P0-U5** | Documentation Authority Convergence | **VERIFIED / CLOSED** | Independently verified merge: `15529b85848a80322dea033e80903fd2fd1e294c` |
+| **P0-U6** | Secret-Free GitHub CI Baseline | **NOT_STARTED / ACTIVE** | Activation baseline: `15529b85848a80322dea033e80903fd2fd1e294c`; implementation not started |
 | **P0-U7** | Phase 0 Closure & Freeze | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 
 ---
+
+### P0-U5 Closure Evidence
+
+- Implementation reviewed: the accepted 36-file documentation-only convergence was reviewed before publication.
+- Publication completed: implementation commit `752936fd8832b5dc1ddad25892004aa6f0b08400` was pushed on its reviewed branch and merged to main.
+- GitHub merge independently verified: the owner confirmed the independent audit of merge `15529b85848a80322dea033e80903fd2fd1e294c`.
+- Final unit status: **VERIFIED / CLOSED**. P0-U6 activation advances the administrative pointer only; no CI implementation, verification or closure is claimed.
 
 ### Overall Reconstruction Roadmap Status
 
@@ -108,8 +118,8 @@ CURRENT_CODE_BASELINE: 2b52180304ac02d71b506f16dc69722c94ba9b6f
 
 ## Current Product and Verification Boundary
 
-Whole-App i18n Batches 1–4 and final residual remediation are merged at the code baseline above. Repository-authoritative convergence and the current product-language result are accepted for this reconstruction stage. AR/EN/UR parity is established; dictionary totals are observations, never a frozen invariant.
+Whole-App i18n Batches 1–4 and final residual remediation are merged in the history of the current code baseline above (the accepted i18n merge is `2b52180304ac02d71b506f16dc69722c94ba9b6f`). Repository-authoritative convergence and the current product-language result are accepted for this reconstruction stage. AR/EN/UR parity is established; dictionary totals are observations, never a frozen invariant.
 
 Browser review is accepted sufficiently for this stage. This is not evidence that every label, device, role, or workflow was manually verified, nor a Beta 2/Phase 18 release acceptance. Minor mixed Arabic/English or bilingual labels remain `DEFERRED_NON_BLOCKING_PRODUCT_DEBT` in the decision/debt log.
 
-P0-U5 is documentation-only. No localization, tests, package/config/scripts, production behavior, CI implementation, or future distribution work is authorized by this unit. Verification here is documentation/source inspection and Git scope/link checks; prior runtime/test/build evidence retains its original scope and is not a new run.
+This closure/activation update is documentation-only. P0-U6 implementation remains NOT_STARTED; no CI, localization, source/test, package/config/script, production or future distribution change is performed or authorized by this administrative update. Verification here is current-state consistency and Git scope/whitespace inspection; prior runtime/test/build evidence retains its original scope and is not a new run.
