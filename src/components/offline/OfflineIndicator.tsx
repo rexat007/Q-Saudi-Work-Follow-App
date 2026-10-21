@@ -27,14 +27,12 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ pendingCount
         </span>
         <WifiOff className="w-4 h-4 text-amber-400" />
         <span>
-          {isSimulatedOffline ? 'وضع محاكاة عدم الاتصال (Simulated Offline)' : 'وضع عدم الاتصال (Offline) — البيانات من IndexedDB'}
+          {isSimulatedOffline ? t("residual.ui.simulated_offline") : t("residual.ui.offline_local_data")}
         </span>
       </div>
 
       {pendingCount > 0 && (
-        <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 text-[11px]">
-          {pendingCount} في Outbox
-        </span>
+        <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 text-[11px]">{t("residual.ui.pending_in_outbox", { count: pendingCount })}</span>
       )}
 
       {onOpenOutbox && (

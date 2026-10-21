@@ -1,3 +1,4 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
 import React from 'react';
 import { LogOut, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../../firebase/authContext';
@@ -27,7 +28,7 @@ export function AuthButton() {
             <p className="text-rose-700">
               {authError?.includes("auth/requests-from-referer") || authError?.includes("unauthorized-domain")
                 ? t("authentication.labels.unauthorizedDomainError")
-                : authError}
+                : presentBatch4Message(authError, t)}
             </p>
           </div>
           <button
