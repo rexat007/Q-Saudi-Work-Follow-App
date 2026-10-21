@@ -12,6 +12,8 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
+import ts from 'typescript';
+import { resolveTranslation } from '../i18n/utils';
 import { arTranslations } from '../locales/ar';
 import { enTranslations } from '../locales/en';
 import { urTranslations } from '../locales/ur';
@@ -41,7 +43,40 @@ describe('BLOCK 83A UI/UX Final Minimal Fixes Test Suite', () => {
     expect(content.includes('isMobileFiltersOpen')).toBe(true);
     expect(content.includes('sm:hidden')).toBe(true);
     expect(content.includes('min-h-[44px]')).toBe(true);
-    expect(content.includes('خيارات تصفية التقارير (Filters)')).toBe(true);
+    // The mobile caption is an active localized UI contract, not an Arabic source-byte invariant.
+    const source = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const buttons: ts.JsxElement[] = [];
+    const findButton = (node: ts.Node) => {
+      if (ts.isJsxElement(node) && node.openingElement.tagName.getText(source) === 'button') {
+        const toggle = node.openingElement.attributes.properties.find(attribute => ts.isJsxAttribute(attribute) &&
+          attribute.name.getText(source) === 'onClick' && attribute.initializer?.getText(source).includes('setIsMobileFiltersOpen(!isMobileFiltersOpen)'));
+        if (toggle) buttons.push(node);
+      }
+      ts.forEachChild(node, findButton);
+    };
+    findButton(source);
+    expect(buttons).toHaveLength(1);
+    const captions: ts.CallExpression[] = [];
+    const findCaption = (node: ts.Node) => {
+      if (ts.isJsxElement(node) && node.openingElement.tagName.getText(source) === 'span') {
+        for (const child of node.children) {
+          if (ts.isJsxExpression(child) && child.expression && ts.isCallExpression(child.expression) &&
+            ['t', 'translate'].includes(child.expression.expression.getText(source))) captions.push(child.expression);
+        }
+      }
+      ts.forEachChild(node, findCaption);
+    };
+    findCaption(buttons[0]);
+    expect(captions).toHaveLength(1);
+    const argument = captions[0].arguments[0];
+    expect(ts.isStringLiteral(argument)).toBe(true);
+    const key = (argument as ts.StringLiteral).text;
+    const expected = { ar: 'خيارات تصفية التقارير (Filters)', en: 'Report filter options', ur: 'رپورٹ فلٹر کے اختیارات' };
+    const dictionaries = { ar: arTranslations, en: enTranslations, ur: urTranslations };
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(Object.hasOwn(dictionaries[locale], key), `${locale}: ${key}`).toBe(true);
+      expect(resolveTranslation(key, locale)).toBe(expected[locale]);
+    }
   });
 
   // Test 4: P3-04 System Tools Drawer Badge Styling (Semantically Reconciled - Option B)

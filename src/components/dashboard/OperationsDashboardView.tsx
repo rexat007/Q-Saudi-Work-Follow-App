@@ -1,3 +1,4 @@
+import { presentAnalyticsText } from '../../i18n/analyticsPresentation';
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   LayoutDashboard, 
@@ -49,7 +50,7 @@ export interface OperationsDashboardViewProps {
 }
 
 export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = ({ authContext }) => {
-  const { t, isRTL } = useI18n();
+  const { t: translate, isRTL } = useI18n();
 
   // Fail-closed guard: missing or unauthenticated context must never manufacture an operational security profile
   if (!authContext) {
@@ -59,10 +60,9 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <ShieldAlert className="w-8 h-8 text-rose-500" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-bold text-white uppercase tracking-wider">تسجيل الدخول مطلوب</h3>
+          <h3 className="text-lg font-bold text-white uppercase tracking-wider">{translate("dashboard.login_required_title")}</h3>
           <p className="text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">
-            لوحة العمليات المركزية تتطلب جلسة مستخدم معتمدة وصلاحية تشغيلية نشطة لمراقبة المشاريع والأسطول.
-          </p>
+            {translate("dashboard.login_required_desc")}</p>
         </div>
       </div>
     );
@@ -435,7 +435,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
   }, [terminalFilters, activeProfile, canonicalTrips, masterDataContext, terminalStatusFilter, terminalSearch]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       
       {/* 1. Header & Security Role Switcher (Project Authorization Enforcement) */}
       <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
@@ -447,12 +447,12 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               </div>
               <div>
                 <h1 className="text-xl font-bold text-stone-900 flex items-center gap-2">
-                  <span>{t("dashboard.labels.txt_7d6fcd")}</span>
+                  <span>{translate("dashboard.labels.txt_7d6fcd")}</span>
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
-                    {t("dashboard.labels.txt_6c69a9")}</span>
+                    {translate("dashboard.labels.txt_6c69a9")}</span>
                 </h1>
                 <p className="text-xs text-stone-500 mt-0.5">
-                  {t("dashboard.labels.continue")}</p>
+                  {translate("dashboard.labels.continue")}</p>
               </div>
             </div>
           </div>
@@ -462,10 +462,10 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         <div className="mt-4 pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2 text-xs text-stone-600">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>{t("dashboard.labels.projects_2")}</span>
+            <span>{translate("dashboard.labels.projects_2")}</span>
             {activeProfile.authorizedProjectIds.includes('ALL') ? (
               <span className="font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                {t("dashboard.labels.projects_3")}</span>
+                {translate("dashboard.labels.projects_3")}</span>
             ) : (
               <div className="flex flex-wrap gap-1">
                 {authorizedProjects.map(p => (
@@ -481,9 +481,9 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             {activeProfile.isRestricted ? (
               <span className="text-amber-800 font-bold flex items-center gap-1">
                 <ShieldAlert className="w-3 h-3" />
-                {t("dashboard.labels.trip")}</span>
+                {translate("analytics.correction.restricted_to_assigned_projects")}</span>
             ) : (
-              <span className="text-stone-500">{t("dashboard.labels.txt_11a6ad")}</span>
+              <span className="text-stone-500">{translate("dashboard.labels.txt_11a6ad")}</span>
             )}
           </div>
         </div>
@@ -494,9 +494,9 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         <div className="flex items-center justify-between mb-3 text-xs">
           <div className="flex items-center gap-2 font-bold text-stone-800">
             <Filter className="w-4 h-4 text-amber-600" />
-            <span className="text-sm">{t("dashboard.labels.txt_52e654")}</span>
+            <span className="text-sm">{translate("dashboard.labels.txt_52e654")}</span>
             <span className="text-[11px] font-normal text-stone-500">
-              {t("dashboard.labels.txt_36b0b2")}</span>
+              {translate("dashboard.labels.txt_36b0b2")}</span>
           </div>
 
           <button
@@ -514,7 +514,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             className="flex items-center gap-1.5 text-xs text-stone-600 hover:text-stone-900 font-bold cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>{t("dashboard.labels.txt_38efc7")}</span>
+            <span>{translate("dashboard.labels.txt_38efc7")}</span>
           </button>
         </div>
 
@@ -523,7 +523,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <div>
             <label className="block text-[11px] font-bold text-stone-600 mb-1 flex items-center gap-1">
               <Building2 className="w-3 h-3 text-stone-400" />
-              <span>{t("dashboard.labels.project")}</span>
+              <span>{translate("dashboard.labels.project")}</span>
             </label>
             <select
               value={globalFilters.projectId}
@@ -531,7 +531,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:bg-white focus:border-amber-500 outline-none"
             >
               {!activeProfile.isRestricted && (
-                <option value="ALL">{t("dashboard.labels.projects_4")}</option>
+                <option value="ALL">{translate("dashboard.labels.projects_7")}</option>
               )}
               {authorizedProjects.map(p => (
                 <option key={p.projectId} value={p.projectId}>
@@ -545,7 +545,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <div>
             <label className="block text-[11px] font-bold text-stone-600 mb-1 flex items-center gap-1">
               <Calendar className="w-3 h-3 text-stone-400" />
-              <span>تاريخ الوردية (Shift Date)</span>
+              <span>{translate("dashboard.labels.shift_date")}</span>
             </label>
             <input
               type="date"
@@ -559,14 +559,14 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <div>
             <label className="block text-[11px] font-bold text-stone-600 mb-1 flex items-center gap-1">
               <Truck className="w-3 h-3 text-stone-400" />
-              <span>الناقل (Carrier)</span>
+              <span>{translate("analytics.ui.carrier")}</span>
             </label>
             <select
               value={globalFilters.carrierId}
               onChange={(e) => setGlobalFilters(prev => ({ ...prev, carrierId: e.target.value }))}
               className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:bg-white focus:border-amber-500 outline-none"
             >
-              <option value="ALL">كافة الناقلين (All Carriers)</option>
+              <option value="ALL">{translate("dashboard.labels.all_carriers")}</option>
               {availableCarriers.map(c => (
                 <option key={c.carrierId} value={c.carrierId}>
                   {c.companyNameAr || c.name}
@@ -579,14 +579,14 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <div>
             <label className="block text-[11px] font-bold text-stone-600 mb-1 flex items-center gap-1">
               <Layers className="w-3 h-3 text-stone-400" />
-              <span>المادة (Material)</span>
+              <span>{translate("analytics.ui.material")}</span>
             </label>
             <select
               value={globalFilters.materialId}
               onChange={(e) => setGlobalFilters(prev => ({ ...prev, materialId: e.target.value }))}
               className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:bg-white focus:border-amber-500 outline-none"
             >
-              <option value="ALL">كافة المواد (All Materials)</option>
+              <option value="ALL">{translate("dashboard.labels.all_materials")}</option>
               {availableMaterials.map(m => (
                 <option key={m.materialId} value={m.materialId}>
                   {m.nameAr || m.name}
@@ -599,16 +599,16 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <div>
             <label className="block text-[11px] font-bold text-stone-600 mb-1 flex items-center gap-1">
               <Calculator className="w-3 h-3 text-stone-400" />
-              <span>نوع التسعير (Pricing Type)</span>
+              <span>{translate("loading.labels.pricing_2")}</span>
             </label>
             <select
               value={globalFilters.pricingType}
               onChange={(e) => setGlobalFilters(prev => ({ ...prev, pricingType: e.target.value as any }))}
               className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:bg-white focus:border-amber-500 outline-none"
             >
-              <option value="ALL">{t("dashboard.labels.txt_6f8552")}</option>
-              <option value="PER_TRIP">{t("dashboard.labels.txt_176fe6")}</option>
-              <option value="PER_TON">بالطن المتري (PER_TON)</option>
+              <option value="ALL">{translate("dashboard.labels.txt_6f8552")}</option>
+              <option value="PER_TRIP">{translate("dashboard.labels.txt_176fe6")}</option>
+              <option value="PER_TON">{translate("dashboard.labels.per_metric_ton")}</option>
             </select>
           </div>
         </div>
@@ -620,7 +620,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-amber-600" />
             <h3 className="text-sm font-bold text-stone-900">
-              {t("dashboard.labels.trips")}</h3>
+              {translate("dashboard.labels.trips")}</h3>
           </div>
 
           <button
@@ -628,7 +628,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             className="flex items-center gap-1.5 text-xs text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>{t("dashboard.labels.txt_4ab700")}</span>
+            <span>{translate("dashboard.labels.txt_4ab700")}</span>
             {getEffectiveFilters('tripsCard').isCustomized && (
               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
             )}
@@ -654,21 +654,21 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {/* Total Trips */}
           <div className="bg-stone-50 border border-stone-200/80 rounded-xl p-4 flex flex-col justify-between">
-            <span className="text-xs font-bold text-stone-500">{t("dashboard.labels.trips_2")}</span>
+            <span className="text-xs font-bold text-stone-500">{translate("analytics.ui.total_trips")}</span>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-2xl font-black text-stone-900 font-mono">
                 {tripsData.metrics.totalTrips}
               </span>
-              <span className="text-xs text-stone-500">رحلة</span>
+              <span className="text-xs text-stone-500">{translate("analytics.correction.restricted_to_assigned_projects")}</span>
             </div>
             <div className="mt-2 text-[11px] text-stone-600 font-medium">
-              {t("dashboard.labels.txt_196321")}</div>
+              {translate("dashboard.labels.txt_196321")}</div>
           </div>
 
           {/* Completed */}
           <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-emerald-900">{t("dashboard.status.txt_4f5139")}</span>
+              <span className="text-xs font-bold text-emerald-900">{translate("dashboard.status.txt_4f5139")}</span>
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="mt-2 flex items-baseline gap-2">
@@ -680,29 +680,29 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               </span>
             </div>
             <div className="mt-2 text-[11px] text-emerald-800">
-              {t("dashboard.labels.txt_7a5a12")}</div>
+              {translate("dashboard.labels.txt_7a5a12")}</div>
           </div>
 
           {/* In Transit */}
           <div className="bg-blue-50/70 border border-blue-200/80 rounded-xl p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-blue-900">{t("dashboard.labels.txt_44dad6")}</span>
+              <span className="text-xs font-bold text-blue-900">{translate("dashboard.labels.txt_44dad6")}</span>
               <Clock className="w-4 h-4 text-blue-600 animate-spin" />
             </div>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-2xl font-black text-blue-900 font-mono">
                 {tripsData.metrics.inTransitTrips}
               </span>
-              <span className="text-xs text-blue-700">{t("dashboard.labels.txt_77aa19")}</span>
+              <span className="text-xs text-blue-700">{translate("dashboard.labels.txt_77aa19")}</span>
             </div>
             <div className="mt-2 text-[11px] text-blue-800">
-              {t("dashboard.labels.download")}</div>
+              {translate("dashboard.labels.download")}</div>
           </div>
 
           {/* Returned */}
           <div className="bg-rose-50/70 border border-rose-200/80 rounded-xl p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-rose-900">{t("dashboard.labels.txt_2ca1cc")}</span>
+              <span className="text-xs font-bold text-rose-900">{translate("dashboard.labels.txt_2ca1cc")}</span>
               <RotateCw className="w-4 h-4 text-rose-600" />
             </div>
             <div className="mt-2 flex items-baseline gap-2">
@@ -714,23 +714,23 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               </span>
             </div>
             <div className="mt-2 text-[11px] text-rose-800">
-              {t("dashboard.labels.location")}</div>
+              {translate("dashboard.labels.location")}</div>
           </div>
 
           {/* Exceptions */}
           <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-amber-900">{t("dashboard.labels.txt_1137e3")}</span>
+              <span className="text-xs font-bold text-amber-900">{translate("dashboard.labels.txt_1137e3")}</span>
               <AlertTriangle className="w-4 h-4 text-amber-600" />
             </div>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-2xl font-black text-amber-900 font-mono">
                 {tripsData.metrics.exceptionTrips}
               </span>
-              <span className="text-xs text-amber-700">معلقة</span>
+              <span className="text-xs text-amber-700">{translate("dashboard.labels.pending_suffix")}</span>
             </div>
             <div className="mt-2 text-[11px] text-amber-800">
-              {t("dashboard.labels.txt_5ac4f2")}</div>
+              {translate("dashboard.labels.txt_5ac4f2")}</div>
           </div>
         </div>
       </div>
@@ -741,7 +741,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <div className="flex items-center gap-2">
             <Scale className="w-4 h-4 text-amber-600" />
             <h3 className="text-sm font-bold text-stone-900">
-              {t("dashboard.labels.txt_125b36")}</h3>
+              {translate("dashboard.labels.txt_125b36")}</h3>
           </div>
 
           <button
@@ -749,7 +749,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             className="flex items-center gap-1.5 text-xs text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>{t("dashboard.labels.txt_4ab700")}</span>
+            <span>{translate("dashboard.labels.txt_4ab700")}</span>
             {getEffectiveFilters('tonnageCard').isCustomized && (
               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
             )}
@@ -775,28 +775,28 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {/* Total Loaded Tons */}
           <div className="bg-stone-50 border border-stone-200/80 rounded-xl p-4">
-            <span className="text-xs font-bold text-stone-500">{t("dashboard.labels.download_2")}</span>
+            <span className="text-xs font-bold text-stone-500">{translate("dashboard.labels.download_2")}</span>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-2xl font-black text-stone-900 font-mono">
                 {tonnageData.metrics.totalLoadedTons.toLocaleString()}
               </span>
-              <span className="text-xs font-bold text-stone-600">طن متري</span>
+              <span className="text-xs font-bold text-stone-600">{translate("dashboard.labels.metric_ton")}</span>
             </div>
             <div className="mt-1 text-[11px] text-stone-500">
-              {t("dashboard.labels.txt_7caf8b")}</div>
+              {translate("dashboard.labels.txt_7caf8b")}</div>
           </div>
 
           {/* Total Received Tons */}
           <div className="bg-stone-50 border border-stone-200/80 rounded-xl p-4">
-            <span className="text-xs font-bold text-stone-500">{t("dashboard.labels.location_2")}</span>
+            <span className="text-xs font-bold text-stone-500">{translate("dashboard.labels.location_2")}</span>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-2xl font-black text-stone-900 font-mono">
                 {tonnageData.metrics.totalReceivedTons.toLocaleString()}
               </span>
-              <span className="text-xs font-bold text-stone-600">طن متري</span>
+              <span className="text-xs font-bold text-stone-600">{translate("dashboard.labels.metric_ton")}</span>
             </div>
             <div className="mt-1 text-[11px] text-stone-500">
-              {t("dashboard.labels.txt_18b638")}</div>
+              {translate("dashboard.labels.txt_18b638")}</div>
           </div>
 
           {/* Total Variance */}
@@ -806,13 +806,13 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               : 'bg-rose-50/70 border-rose-200'
           }`}>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-700">{t("dashboard.labels.txt_1b110d")}</span>
+              <span className="text-xs font-bold text-stone-700">{translate("dashboard.labels.txt_1b110d")}</span>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                 tonnageData.metrics.isVarianceAcceptable 
                   ? 'bg-emerald-100 text-emerald-800' 
                   : 'bg-rose-100 text-rose-800'
               }`}>
-                {tonnageData.metrics.isVarianceAcceptable ? 'ضمن نسبة التسامح (±1%)' : 'تجاوز نسبة التسامح'}
+                {tonnageData.metrics.isVarianceAcceptable ? translate("dashboard.labels.within_tolerance_1pct") : translate("dashboard.labels.out_of_tolerance_1pct")}
               </span>
             </div>
             <div className="mt-2 flex items-baseline gap-2">
@@ -821,7 +821,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               }`}>
                 {tonnageData.metrics.totalVarianceTons > 0 ? `+${tonnageData.metrics.totalVarianceTons}` : tonnageData.metrics.totalVarianceTons}
               </span>
-              <span className="text-xs font-bold text-stone-600">طن</span>
+              <span className="text-xs font-bold text-stone-600">{translate("shared.units.ton")}</span>
               <span className={`text-xs font-bold font-mono ${
                 tonnageData.metrics.isVarianceAcceptable ? 'text-emerald-700' : 'text-rose-700'
               }`}>
@@ -829,8 +829,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               </span>
             </div>
             <div className="mt-1 text-[11px] text-stone-500">
-              الفارق بين وزن الموقع ووزن المقلع
-            </div>
+              {translate("dashboard.labels.variance_diff_desc")}</div>
           </div>
         </div>
       </div>
@@ -841,7 +840,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <div className="flex items-center gap-2">
             <Banknote className="w-4 h-4 text-amber-600" />
             <h3 className="text-sm font-bold text-stone-900">
-              {t("dashboard.labels.txt_18193c")}</h3>
+              {translate("dashboard.labels.txt_18193c")}</h3>
           </div>
 
           <button
@@ -849,7 +848,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             className="flex items-center gap-1.5 text-xs text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>{t("dashboard.labels.txt_4ab700")}</span>
+            <span>{translate("dashboard.labels.txt_4ab700")}</span>
             {getEffectiveFilters('settlementCard').isCustomized && (
               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
             )}
@@ -875,21 +874,21 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {/* Total Settlement */}
           <div className="bg-stone-900 text-white rounded-xl p-4 shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-bold text-stone-400">{t("dashboard.labels.txt_588cfc")}</span>
+            <span className="text-xs font-bold text-stone-400">{translate("dashboard.labels.txt_588cfc")}</span>
             <div className="mt-3 flex items-baseline gap-2">
               <span className="text-2xl font-black font-mono text-amber-400">
                 {settlementData.metrics.totalSettlementAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
-              <span className="text-xs font-bold text-stone-300">ر.س</span>
+              <span className="text-xs font-bold text-stone-300">{translate("shared.units.sar")}</span>
             </div>
             <div className="mt-2 text-[11px] text-stone-400">
-              {t("dashboard.labels.pricing_2")}</div>
+              {translate("dashboard.labels.pricing_2")}</div>
           </div>
 
           {/* Trip-based Settlement */}
           <div className="bg-stone-50 border border-stone-200/80 rounded-xl p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-600">{t("dashboard.labels.txt_42b243")}</span>
+              <span className="text-xs font-bold text-stone-600">{translate("dashboard.labels.txt_42b243")}</span>
               <span className="text-[10px] font-mono bg-blue-100 text-blue-900 px-1.5 py-0.2 rounded font-bold">
                 PER_TRIP
               </span>
@@ -898,18 +897,18 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               <span className="text-2xl font-black font-mono text-stone-900">
                 {settlementData.metrics.tripBasedSettlementAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
-              <span className="text-xs font-bold text-stone-500">ر.س</span>
+              <span className="text-xs font-bold text-stone-500">{translate("shared.units.sar")}</span>
             </div>
             <div className="mt-2 text-[11px] text-stone-600 flex items-center justify-between">
-              <span>{settlementData.metrics.tripBasedTripsCount} رحلة بالمقطوعية</span>
-              <span className="font-mono text-[10px] text-stone-400">العدد × السعر</span>
+              <span>{settlementData.metrics.tripBasedTripsCount} {" "}{translate("analytics.ui.fixed_rate_trips")}</span>
+              <span className="font-mono text-[10px] text-stone-400">{translate("dashboard.labels.trip_based_rate_sub")}</span>
             </div>
           </div>
 
           {/* Ton-based Settlement */}
           <div className="bg-stone-50 border border-stone-200/80 rounded-xl p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-600">{t("dashboard.labels.txt_b1749a")}</span>
+              <span className="text-xs font-bold text-stone-600">{translate("dashboard.labels.txt_b1749a")}</span>
               <span className="text-[10px] font-mono bg-emerald-100 text-emerald-900 px-1.5 py-0.2 rounded font-bold">
                 PER_TON
               </span>
@@ -918,11 +917,11 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               <span className="text-2xl font-black font-mono text-stone-900">
                 {settlementData.metrics.tonBasedSettlementAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
-              <span className="text-xs font-bold text-stone-500">ر.س</span>
+              <span className="text-xs font-bold text-stone-500">{translate("shared.units.sar")}</span>
             </div>
             <div className="mt-2 text-[11px] text-stone-600 flex items-center justify-between">
-              <span>{settlementData.metrics.tonBasedTripsCount} رحلة بالطن</span>
-              <span className="font-mono text-[10px] text-stone-400">الصافي × سعر الطن</span>
+              <span>{settlementData.metrics.tonBasedTripsCount} {" "}{translate("analytics.ui.weight_based_trips")}</span>
+              <span className="font-mono text-[10px] text-stone-400">{translate("dashboard.labels.ton_based_rate_sub")}</span>
             </div>
           </div>
         </div>
@@ -938,7 +937,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               <div className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-amber-600" />
                 <h3 className="text-sm font-bold text-stone-900">
-                  {t("dashboard.labels.txt_45844d")}</h3>
+                  {translate("dashboard.labels.txt_45844d")}</h3>
               </div>
 
               <button
@@ -946,7 +945,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
                 className="flex items-center gap-1 text-xs text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2 py-1 rounded-lg font-bold cursor-pointer"
               >
                 <SlidersHorizontal className="w-3 h-3" />
-                <span>{t("dashboard.labels.txt_2f010a")}</span>
+                <span>{translate("dashboard.labels.txt_2f010a")}</span>
                 {getEffectiveFilters('carrierPerf').isCustomized && (
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                 )}
@@ -973,18 +972,18 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               <table className="w-full text-right text-xs">
                 <thead>
                   <tr className="border-b border-stone-200 text-stone-500 font-bold">
-                    <th className="py-2 px-1">الناقل</th>
-                    <th className="py-2 px-1 text-center">الرحلات</th>
-                    <th className="py-2 px-1 text-center">المكتملة</th>
-                    <th className="py-2 px-1 text-center">{t("dashboard.labels.download_3")}</th>
-                    <th className="py-2 px-1 text-left">{t("dashboard.labels.txt_3b0cf8")}</th>
+                    <th className="py-2 px-1">{translate("entityResolution.labels.carrier_3")}</th>
+                    <th className="py-2 px-1 text-center">{translate("dashboard.labels.trips")}</th>
+                    <th className="py-2 px-1 text-center">{translate("dashboard.labels.completed_col")}</th>
+                    <th className="py-2 px-1 text-center">{translate("analytics.correction.total_loaded_tons")}</th>
+                    <th className="py-2 px-1 text-left">{translate("dashboard.labels.txt_3b0cf8")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100 font-medium">
                   {carrierData.items.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="py-6 text-center text-stone-400">
-                        {t("dashboard.labels.txt_15b1d1")}</td>
+                        {translate("dashboard.labels.txt_15b1d1")}</td>
                     </tr>
                   ) : (
                     carrierData.items.map((c) => (
@@ -1024,7 +1023,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-amber-600" />
                 <h3 className="text-sm font-bold text-stone-900">
-                  {t("dashboard.labels.materials_2")}</h3>
+                  {translate("analytics.correction.material_distribution")}</h3>
               </div>
 
               <button
@@ -1032,7 +1031,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
                 className="flex items-center gap-1 text-xs text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2 py-1 rounded-lg font-bold cursor-pointer"
               >
                 <SlidersHorizontal className="w-3 h-3" />
-                <span>{t("dashboard.labels.txt_2f010a")}</span>
+                <span>{translate("dashboard.labels.txt_2f010a")}</span>
                 {getEffectiveFilters('materialDist').isCustomized && (
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                 )}
@@ -1058,7 +1057,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             <div className="space-y-3">
               {materialData.items.length === 0 ? (
                 <div className="py-8 text-center text-xs text-stone-400">
-                  {t("dashboard.labels.txt_5fc7c1")}</div>
+                  {translate("dashboard.labels.txt_5fc7c1")}</div>
               ) : (
                 materialData.items.map((m) => (
                   <div key={m.materialId} className="bg-stone-50 rounded-xl p-3 border border-stone-200/70 text-xs">
@@ -1068,8 +1067,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
                         <span className="text-[10px] text-stone-500 font-mono">({m.code})</span>
                       </div>
                       <div className="text-left font-mono font-bold text-stone-900">
-                        {m.loadedTons.toLocaleString()} طن
-                        <span className="text-[10px] text-amber-800 mr-1.5">({m.sharePercent}%)</span>
+                        {m.loadedTons.toLocaleString()} {" "}{translate("shared.units.ton")}<span className="text-[10px] text-amber-800 mr-1.5">({m.sharePercent}%)</span>
                       </div>
                     </div>
 
@@ -1082,8 +1080,8 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
                     </div>
 
                     <div className="flex items-center justify-between text-[11px] text-stone-500 mt-2">
-                      <span>{m.totalTrips} رحلة نقل</span>
-                      <span className="font-mono">{m.settlementAmount.toLocaleString()} ر.س</span>
+                      <span>{m.totalTrips} {" "}{translate("analytics.ui.transport_trips")}</span>
+                      <span className="font-mono">{m.settlementAmount.toLocaleString()} {" "}{translate("shared.units.sar")}</span>
                     </div>
                   </div>
                 ))
@@ -1100,7 +1098,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <div className="flex items-center gap-2">
             <Calculator className="w-4 h-4 text-amber-600" />
             <h3 className="text-sm font-bold text-stone-900">
-              {t("dashboard.labels.pricing_3")}</h3>
+              {translate("analytics.correction.pricing_model_distribution")}</h3>
           </div>
 
           <button
@@ -1108,7 +1106,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             className="flex items-center gap-1.5 text-xs text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>{t("dashboard.labels.txt_550c13")}</span>
+            <span>{translate("dashboard.labels.txt_550c13")}</span>
             {getEffectiveFilters('pricingDist').isCustomized && (
               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
             )}
@@ -1140,33 +1138,31 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-stone-900">{p.titleAr}</span>
+                  <span className="font-bold text-sm text-stone-900">{presentAnalyticsText(p.titleAr, translate)}</span>
                   <span className="text-xs font-mono font-bold bg-white px-2 py-0.5 rounded border border-stone-200">
-                    {p.sharePercent}% من الإجمالي
-                  </span>
+                    {p.sharePercent}{translate("analytics.ui.of_total")}</span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 mt-4 text-center">
                   <div className="bg-white/80 p-2.5 rounded-lg border border-stone-200/60">
-                    <span className="block text-[10px] text-stone-500 font-bold">الرحلات</span>
+                    <span className="block text-[10px] text-stone-500 font-bold">{translate("dashboard.labels.trips")}</span>
                     <span className="text-lg font-black font-mono text-stone-900">{p.totalTrips}</span>
                   </div>
                   <div className="bg-white/80 p-2.5 rounded-lg border border-stone-200/60">
-                    <span className="block text-[10px] text-stone-500 font-bold">{t("dashboard.labels.txt_7ef999")}</span>
+                    <span className="block text-[10px] text-stone-500 font-bold">{translate("dashboard.labels.txt_7ef999")}</span>
                     <span className="text-lg font-black font-mono text-stone-900">{p.totalTons.toLocaleString()}</span>
                   </div>
                   <div className="bg-white/80 p-2.5 rounded-lg border border-stone-200/60">
-                    <span className="block text-[10px] text-stone-500 font-bold">متوسط السعر</span>
+                    <span className="block text-[10px] text-stone-500 font-bold">{translate("analytics.ui.average_rate")}</span>
                     <span className="text-lg font-black font-mono text-stone-900">{p.averageRate}</span>
                   </div>
                 </div>
               </div>
 
               <div className="mt-4 pt-3 border-t border-stone-200/60 flex items-center justify-between text-xs">
-                <span className="font-bold text-stone-600">{t("dashboard.labels.txt_356679")}</span>
+                <span className="font-bold text-stone-600">{translate("dashboard.labels.txt_356679")}</span>
                 <span className="font-mono font-bold text-stone-900 text-sm">
-                  {p.totalSettlementAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ر.س
-                </span>
+                  {p.totalSettlementAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {" "}{translate("shared.units.sar")}</span>
               </div>
             </div>
           ))}
@@ -1180,13 +1176,12 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></div>
             <div>
               <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-                <span>{t("dashboard.labels.txt_2530ed")}</span>
+                <span>{translate("dashboard.labels.txt_2530ed")}</span>
                 <span className="text-[10px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full font-mono font-bold border border-stone-200">
-                  {terminalData.items.length} حركة نشطة
-                </span>
+                  {terminalData.items.length} {" "}{translate("analytics.ui.active_movements")}</span>
               </h3>
               <p className="text-[11px] text-stone-500">
-                {t("dashboard.labels.continue_2")}</p>
+                {translate("dashboard.labels.continue_2")}</p>
             </div>
           </div>
 
@@ -1196,7 +1191,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               <Search className="w-3.5 h-3.5 absolute right-3 top-2.5 text-stone-400" />
               <input
                 type="text"
-                placeholder="بحث برقم التذكرة، اللوحة، أو السائق..."
+                placeholder={translate("dashboard.labels.search_placeholder")}
                 value={terminalSearch}
                 onChange={(e) => setTerminalSearch(e.target.value)}
                 className="pr-8 pl-3 py-1.5 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:bg-white focus:border-amber-500 outline-none w-48 sm:w-60"
@@ -1208,18 +1203,18 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               onChange={(e) => setTerminalStatusFilter(e.target.value)}
               className="bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-stone-700 focus:bg-white focus:border-amber-500 outline-none cursor-pointer"
             >
-              <option value="ALL">{t("dashboard.labels.txt_3318a9")}</option>
-              <option value="IN_TRANSIT">قيد النقل (IN_TRANSIT)</option>
-              <option value="LOADED">تم التحميل (LOADED)</option>
-              <option value="COMPLETED">مكتملة (COMPLETED)</option>
-              <option value="RETURNED">مرتجعة (RETURNED)</option>
-              <option value="EXCEPTION">استثناء (EXCEPTION)</option>
+              <option value="ALL">{translate("dashboard.labels.txt_3318a9")}</option>
+              <option value="IN_TRANSIT">{translate("dashboard.labels.status_in_transit")}</option>
+              <option value="LOADED">{translate("dashboard.labels.download")}</option>
+              <option value="COMPLETED">{translate("dashboard.labels.status_completed")}</option>
+              <option value="RETURNED">{translate("dashboard.labels.status_returned")}</option>
+              <option value="EXCEPTION">{translate("dashboard.labels.status_exception")}</option>
             </select>
 
             <button
               onClick={() => toggleWidgetFilter('terminalBoard')}
               className="p-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl cursor-pointer"
-              title={t("dashboard.labels.txt_8d4f12")}
+              title={translate("dashboard.labels.txt_8d4f12")}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
             </button>
@@ -1244,22 +1239,22 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           <table className="w-full text-right text-xs">
             <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 font-bold">
               <tr>
-                <th className="py-2.5 px-3">رقم الرحلة / التذكرة</th>
-                <th className="py-2.5 px-3">{t("dashboard.labels.truckDriver")}</th>
-                <th className="py-2.5 px-3">{t("dashboard.labels.projectMaterial")}</th>
-                <th className="py-2.5 px-3">الناقل</th>
-                <th className="py-2.5 px-3 text-center">الحالة</th>
-                <th className="py-2.5 px-3 text-center">{t("dashboard.labels.downloadLocation")}</th>
-                <th className="py-2.5 px-3 text-center">{t("dashboard.labels.weighbridge")}</th>
-                <th className="py-2.5 px-3 text-left">{t("dashboard.labels.txt_12bb4c")}</th>
-                <th className="py-2.5 px-3 text-center">{t("dashboard.labels.txt_7f63ed")}</th>
+                <th className="py-2.5 px-3">{translate("driver.trip_ticket_no")}</th>
+                <th className="py-2.5 px-3">{translate("dashboard.labels.truckDriver")}</th>
+                <th className="py-2.5 px-3">{translate("dashboard.labels.projectMaterial")}</th>
+                <th className="py-2.5 px-3">{translate("entityResolution.labels.carrier_3")}</th>
+                <th className="py-2.5 px-3 text-center">{translate("field_supervision.col_status")}</th>
+                <th className="py-2.5 px-3 text-center">{translate("dashboard.labels.downloadLocation")}</th>
+                <th className="py-2.5 px-3 text-center">{translate("dashboard.labels.weighbridge")}</th>
+                <th className="py-2.5 px-3 text-left">{translate("dashboard.labels.txt_12bb4c")}</th>
+                <th className="py-2.5 px-3 text-center">{translate("dashboard.labels.txt_7f63ed")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 font-medium">
               {terminalData.items.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="py-8 text-center text-stone-400">
-                    {t("dashboard.labels.search")}</td>
+                    {translate("dashboard.labels.search")}</td>
                 </tr>
               ) : (
                 terminalData.items.map((row) => (
@@ -1298,21 +1293,21 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
                           ? 'bg-rose-100 text-rose-800'
                           : 'bg-amber-100 text-amber-800'
                       }`}>
-                        {row.status === 'COMPLETED' && 'مكتملة'}
-                        {row.status === 'IN_TRANSIT' && 'قيد النقل'}
-                        {row.status === 'LOADED' && 'تم التحميل'}
-                        {row.status === 'RETURNED' && 'مرتجعة'}
-                        {row.status === 'EXCEPTION' && 'استثناء'}
-                        {row.status === 'DRAFT' && 'مسودة'}
+                        {row.status === 'COMPLETED' && translate("analytics.ui.completed")}
+                        {row.status === 'IN_TRANSIT' && translate("analytics.ui.in_transit")}
+                        {row.status === 'LOADED' && translate("dashboard.labels.download_2")}
+                        {row.status === 'RETURNED' && translate("analytics.ui.returned")}
+                        {row.status === 'EXCEPTION' && translate("analytics.ui.exception")}
+                        {row.status === 'DRAFT' && translate("operations.draft")}
                       </span>
                     </td>
 
                     <td className="py-3 px-3 text-center font-mono">
-                      <div>{(row.loadedWeightKg / 1000).toFixed(2)} طن</div>
+                      <div>{(row.loadedWeightKg / 1000).toFixed(2)} {" "}{translate("shared.units.ton")}</div>
                       {row.receivedWeightKg !== null ? (
-                        <div className="text-[10px] text-stone-500">الموقع: {(row.receivedWeightKg / 1000).toFixed(2)} طن</div>
+                        <div className="text-[10px] text-stone-500">{translate("dashboard.labels.location")}{" "}{(row.receivedWeightKg / 1000).toFixed(2)} {" "}{translate("shared.units.ton")}</div>
                       ) : (
-                        <div className="text-[10px] text-amber-600 font-bold">{t("dashboard.labels.txt_11cccb")}</div>
+                        <div className="text-[10px] text-amber-600 font-bold">{translate("dashboard.labels.txt_11cccb")}</div>
                       )}
                     </td>
 
@@ -1321,8 +1316,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
                         <span className={`font-bold ${
                           Math.abs(row.variancePercent || 0) <= 1 ? 'text-emerald-700' : 'text-rose-700'
                         }`}>
-                          {row.varianceKg > 0 ? `+${row.varianceKg}` : row.varianceKg} كجم
-                          <span className="text-[10px] block">({row.variancePercent}%)</span>
+                          {row.varianceKg > 0 ? `+${row.varianceKg}` : row.varianceKg} {" "}{translate("shared.units.kg")}<span className="text-[10px] block">({row.variancePercent}%)</span>
                         </span>
                       ) : (
                         <span className="text-stone-300">-</span>
@@ -1333,7 +1327,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
                       {row.settlementAmount > 0 ? (
                         <span>{row.settlementAmount.toLocaleString()} {row.currency}</span>
                       ) : (
-                        <span className="text-stone-400 text-xs">{t("dashboard.labels.txt_5049eb")}</span>
+                        <span className="text-stone-400 text-xs">{translate("dashboard.labels.txt_5049eb")}</span>
                       )}
                       <span className="text-[9px] block text-stone-400">{row.pricingType}</span>
                     </td>
