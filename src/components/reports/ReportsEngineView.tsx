@@ -1,3 +1,5 @@
+import { presentAnalyticsText, presentReportCell } from '../../i18n/analyticsPresentation';
+import { useI18n } from '../../i18n';
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   FileText, 
@@ -86,6 +88,7 @@ export function computeMergedExceptionsFromProjects(exceptionsByProject: Record<
 }
 
 export const ReportsEngineView: React.FC = () => {
+  const { t: translate, isRTL } = useI18n();
   // Navigation
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('OPERATIONAL');
   const [selectedReportType, setSelectedReportType] = useState<ReportType>('DAILY_OPERATIONS');
@@ -155,7 +158,7 @@ export const ReportsEngineView: React.FC = () => {
       },
       (err) => {
         console.error('Failed to subscribe to authorized projects:', err);
-        setDataError('عذراً، فشل تحميل قائمة المشاريع المصرحة.');
+        setDataError("analytics.ui.could_not_load_authorized_projects");
         setIsDataLoading(false);
       },
       assignedIds,
@@ -217,7 +220,7 @@ export const ReportsEngineView: React.FC = () => {
           pendingSet.delete(pId);
 
           if (failedSet.size > 0) {
-            setDataError('عذراً، فشل جلب بيانات الرحلات لبعض المشاريع المصرحة.');
+            setDataError("analytics.ui.could_not_retrieve_trip_data_for_some_authorized_projects");
           } else {
             setDataError(null);
           }
@@ -237,7 +240,7 @@ export const ReportsEngineView: React.FC = () => {
             return next;
           });
 
-          setDataError('عذراً، فشل جلب بيانات الرحلات لبعض المشاريع المصرحة.');
+          setDataError("analytics.ui.could_not_retrieve_trip_data_for_some_authorized_projects");
 
           if (pendingSet.size === 0) {
             setIsDataLoading(false);
@@ -303,7 +306,7 @@ export const ReportsEngineView: React.FC = () => {
           pendingSet.delete(pId);
 
           if (failedSet.size > 0) {
-            setDataError('عذراً، فشل جلب بيانات الاستثناءات لبعض المشاريع المصرحة.');
+            setDataError("analytics.ui.could_not_retrieve_exception_data_for_some_authorized_projects");
           } else {
             setDataError(null);
           }
@@ -323,7 +326,7 @@ export const ReportsEngineView: React.FC = () => {
             return next;
           });
 
-          setDataError('عذراً، فشل جلب بيانات الاستثناءات لبعض المشاريع المصرحة.');
+          setDataError("analytics.ui.could_not_retrieve_exception_data_for_some_authorized_projects");
 
           if (pendingSet.size === 0) {
             setIsDataLoading(false);
@@ -487,7 +490,7 @@ export const ReportsEngineView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       
       {/* 1. Header Banner & Authoritative Invariance Guarantee */}
       <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
@@ -499,14 +502,12 @@ export const ReportsEngineView: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-stone-900 flex items-center gap-2">
-                  <span>محرك التقارير اللوجستية والمالية (Reports Engine)</span>
+                  <span>{translate("analytics.ui.logistics_and_financial_reports_engine")}</span>
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
-                    15 تقريراً معتمداً
-                  </span>
+                    {translate("analytics.ui.count_approved_reports", { count: Object.keys(OPERATIONAL_REPORTS_METADATA).length + Object.keys(PRICING_REPORTS_METADATA).length })}</span>
                 </h1>
                 <p className="text-xs text-stone-500 mt-0.5">
-                  منظومة التقارير التشغيلية والمالية الشاملة المدعومة بضمانة ثبات لقطات التسعير التعاقدية (Snapshot Invariance).
-                </p>
+                  {translate("analytics.ui.comprehensive_operational_and_financial_reporting_with_contractual_pricing_snapshot_in")}</p>
               </div>
             </div>
           </div>
@@ -516,10 +517,9 @@ export const ReportsEngineView: React.FC = () => {
             <div className="bg-amber-50 border border-amber-200/80 rounded-xl p-3 text-xs text-amber-950 flex items-start gap-2.5 max-w-md">
               <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold">قاعدة الثبات التعاقدي (Snapshot Invariance):</span>
+                <span className="font-bold">{translate("analytics.ui.contractual_snapshot_invariance")}</span>
                 <p className="text-[11px] text-amber-900 mt-0.5 leading-relaxed">
-                  تعتمد التقارير حصرياً على <code className="bg-white px-1 py-0.2 rounded font-mono font-bold text-amber-950">settlementAmount</code> المحفوظ في كل رحلة، وتمنع قطيعاً إعادة تسعير الرحلات التاريخية بالأسعار الحالية.
-                </p>
+                  {translate("analytics.ui.reports_rely_exclusively_on")}{" "}<code className="bg-white px-1 py-0.2 rounded font-mono font-bold text-amber-950">settlementAmount</code> {" "}{translate("analytics.ui.stored_with_each_trip_historical_trips_are_never_repriced_using_current_rates")}</p>
               </div>
             </div>
           </div>
@@ -540,10 +540,9 @@ export const ReportsEngineView: React.FC = () => {
             }`}
           >
             <Truck className="w-4 h-4" />
-            <span>التقارير التشغيلية (7 تقارير)</span>
+            <span>{translate("analytics.ui.operational_reports_7_reports")}</span>
             <span className={`px-1.5 py-0.2 rounded text-[10px] ${activeCategory === 'OPERATIONAL' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
-              Operational
-            </span>
+              {translate("analytics.ui.operational")}</span>
           </button>
 
           <button
@@ -559,10 +558,9 @@ export const ReportsEngineView: React.FC = () => {
             }`}
           >
             <Scale className="w-4 h-4" />
-            <span>تقارير الموازين والفروقات</span>
+            <span>{translate("analytics.ui.weighbridge_and_variance_reports")}</span>
             <span className={`px-1.5 py-0.2 rounded text-[10px] ${activeCategory === 'WEIGHBRIDGE' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
-              Weighbridge
-            </span>
+              {translate("analytics.ui.weighbridge")}</span>
           </button>
 
           <button
@@ -578,10 +576,9 @@ export const ReportsEngineView: React.FC = () => {
             }`}
           >
             <Banknote className="w-4 h-4" />
-            <span>التقارير المالية والتسويات (7 تقارير)</span>
+            <span>{translate("analytics.ui.financial_and_settlement_reports_7_reports")}</span>
             <span className={`px-1.5 py-0.2 rounded text-[10px] ${activeCategory === 'PRICING' || activeCategory === 'SETTLEMENT' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
-              Financial
-            </span>
+              {translate("analytics.ui.financial")}</span>
           </button>
 
           <button
@@ -597,10 +594,9 @@ export const ReportsEngineView: React.FC = () => {
             }`}
           >
             <AlertTriangle className="w-4 h-4" />
-            <span>تقارير الاستيراد والاستثناءات</span>
+            <span>{translate("analytics.ui.ingestion_and_exception_reports")}</span>
             <span className={`px-1.5 py-0.2 rounded text-[10px] ${activeCategory === 'INGESTION' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
-              Ingestion / Exceptions
-            </span>
+              {translate("analytics.ui.ingestion_exceptions")}</span>
           </button>
         </div>
 
@@ -624,7 +620,7 @@ export const ReportsEngineView: React.FC = () => {
                   <div className={`p-1.5 rounded-lg mb-1.5 ${isSelected ? 'bg-amber-500 text-white' : 'bg-stone-200 text-stone-600'}`}>
                     {renderReportIcon(rep.iconName, 'w-3.5 h-3.5')}
                   </div>
-                  <span className="text-[11px] line-clamp-1">{rep.titleAr}</span>
+                  <span className="text-[11px] line-clamp-1">{presentAnalyticsText(rep.titleAr, translate)}</span>
                 </button>
               );
             })}
@@ -637,8 +633,8 @@ export const ReportsEngineView: React.FC = () => {
               <div className="p-1.5 rounded-lg mb-1.5 bg-cyan-600 text-white">
                 <Scale className="w-4 h-4" />
               </div>
-              <span className="text-xs">{OPERATIONAL_REPORTS_METADATA.WEIGHT_VARIANCE.titleAr}</span>
-              <span className="text-[10px] text-cyan-800 font-normal mt-0.5">{OPERATIONAL_REPORTS_METADATA.WEIGHT_VARIANCE.descriptionAr}</span>
+              <span className="text-xs">{presentAnalyticsText(OPERATIONAL_REPORTS_METADATA.WEIGHT_VARIANCE.titleAr, translate)}</span>
+              <span className="text-[10px] text-cyan-800 font-normal mt-0.5">{presentAnalyticsText(OPERATIONAL_REPORTS_METADATA.WEIGHT_VARIANCE.descriptionAr, translate)}</span>
             </button>
           )}
 
@@ -658,7 +654,7 @@ export const ReportsEngineView: React.FC = () => {
                   <div className={`p-1.5 rounded-lg mb-1.5 ${isSelected ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-600'}`}>
                     {renderReportIcon(rep.iconName, 'w-3.5 h-3.5')}
                   </div>
-                  <span className="text-[11px] line-clamp-1">{rep.titleAr}</span>
+                  <span className="text-[11px] line-clamp-1">{presentAnalyticsText(rep.titleAr, translate)}</span>
                 </button>
               );
             })}
@@ -671,8 +667,8 @@ export const ReportsEngineView: React.FC = () => {
               <div className="p-1.5 rounded-lg mb-1.5 bg-rose-600 text-white">
                 <AlertTriangle className="w-4 h-4" />
               </div>
-              <span className="text-xs">{OPERATIONAL_REPORTS_METADATA.EXCEPTION_REPORT.titleAr}</span>
-              <span className="text-[10px] text-rose-800 font-normal mt-0.5">{OPERATIONAL_REPORTS_METADATA.EXCEPTION_REPORT.descriptionAr}</span>
+              <span className="text-xs">{presentAnalyticsText(OPERATIONAL_REPORTS_METADATA.EXCEPTION_REPORT.titleAr, translate)}</span>
+              <span className="text-[10px] text-rose-800 font-normal mt-0.5">{presentAnalyticsText(OPERATIONAL_REPORTS_METADATA.EXCEPTION_REPORT.descriptionAr, translate)}</span>
             </button>
           )}
         </div>
@@ -683,11 +679,10 @@ export const ReportsEngineView: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-stone-700" />
-            <h2 className="text-sm font-bold text-stone-900">محرك الفلاتر والتقسيم (Multi-Parameter Filter Engine)</h2>
+            <h2 className="text-sm font-bold text-stone-900">{translate("analytics.ui.multi_criteria_report_filters")}</h2>
             {activeFilterCount > 0 && (
               <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
-                {activeFilterCount} نشط
-              </span>
+                {activeFilterCount} {" "}{translate("analytics.ui.active")}</span>
             )}
           </div>
           {activeFilterCount > 0 && (
@@ -696,7 +691,7 @@ export const ReportsEngineView: React.FC = () => {
               className="flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 font-semibold cursor-pointer"
             >
               <RotateCw className="w-3.5 h-3.5" />
-              <span>إعادة ضبط الفلاتر</span>
+              <span>{translate("analytics.ui.reset_filters")}</span>
             </button>
           )}
         </div>
@@ -710,7 +705,7 @@ export const ReportsEngineView: React.FC = () => {
           >
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-amber-600" />
-              <span>خيارات تصفية التقارير (Filters)</span>
+              <span>{translate("analytics.ui.report_filter_options")}</span>
               {activeFilterCount > 0 && (
                 <span className="px-2 py-0.5 rounded-full bg-amber-600 text-white text-[10px] font-bold">
                   {activeFilterCount}
@@ -718,7 +713,7 @@ export const ReportsEngineView: React.FC = () => {
               )}
             </div>
             <div className="flex items-center gap-1 text-stone-500 text-[11px]">
-              <span>{isMobileFiltersOpen ? 'إخفاء' : 'عرض'}</span>
+              <span>{isMobileFiltersOpen ? translate("navigation.hide") : translate("operations.showing")}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${isMobileFiltersOpen ? 'rotate-180' : ''}`} />
             </div>
           </button>
@@ -726,13 +721,13 @@ export const ReportsEngineView: React.FC = () => {
           {!isMobileFiltersOpen && (
             <div className="flex flex-wrap gap-1.5 text-[10px] text-stone-600 mt-2 px-1">
               <span className="px-2 py-0.5 bg-stone-100 border border-stone-200 rounded-md font-mono">
-                المشروع: {filters.projectId === 'ALL' ? 'الكل' : filters.projectId}
+                {translate("operations.project")}{" "}{filters.projectId === 'ALL' ? translate("admin_console.filter_all") : filters.projectId}
               </span>
               <span className="px-2 py-0.5 bg-stone-100 border border-stone-200 rounded-md font-mono">
-                الناقل: {filters.carrierId === 'ALL' ? 'الكل' : filters.carrierId}
+                {translate("operations.carrier")}{" "}{filters.carrierId === 'ALL' ? translate("admin_console.filter_all") : filters.carrierId}
               </span>
               <span className="px-2 py-0.5 bg-stone-100 border border-stone-200 rounded-md font-mono">
-                المادة: {filters.materialId === 'ALL' ? 'الكل' : filters.materialId}
+                {translate("loading.labels.material_2")}{" "}{filters.materialId === 'ALL' ? translate("admin_console.filter_all") : filters.materialId}
               </span>
             </div>
           )}
@@ -743,13 +738,13 @@ export const ReportsEngineView: React.FC = () => {
           
           {/* 1. Project */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">المشروع (Project)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("analytics.ui.project")}</label>
             <select
               value={filters.projectId}
               onChange={(e) => setFilters(prev => ({ ...prev, projectId: e.target.value }))}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 text-stone-800"
             >
-              <option value="ALL">كافة المشاريع (All Projects)</option>
+              <option value="ALL">{translate("analytics.ui.all_projects")}</option>
               {availableProjects.map(p => (
                 <option key={p.projectId} value={p.projectId}>{p.nameAr}</option>
               ))}
@@ -758,7 +753,7 @@ export const ReportsEngineView: React.FC = () => {
 
           {/* 2. Shift Date From & To */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">تاريخ التشغيل من (From)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("analytics.ui.operation_date_from")}</label>
             <input
               type="date"
               value={filters.shiftDateFrom || ''}
@@ -768,7 +763,7 @@ export const ReportsEngineView: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">تاريخ التشغيل إلى (To)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("analytics.ui.operation_date_to")}</label>
             <input
               type="date"
               value={filters.shiftDateTo || ''}
@@ -779,28 +774,28 @@ export const ReportsEngineView: React.FC = () => {
 
           {/* Shift Filter */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">الوردية (Shift)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("analytics.ui.shift")}</label>
             <select
               value={filters.shift || 'ALL'}
               onChange={(e) => setFilters(prev => ({ ...prev, shift: e.target.value as any }))}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 text-stone-800"
             >
-              <option value="ALL">كافة الورديات (All Shifts)</option>
-              <option value="MORNING">الصباحية (06:00 - 14:00)</option>
-              <option value="EVENING">المسائية (14:00 - 22:00)</option>
-              <option value="NIGHT">الليلية (22:00 - 06:00)</option>
+              <option value="ALL">{translate("analytics.ui.all_shifts")}</option>
+              <option value="MORNING">{translate("analytics.ui.morning_06_00_14_00")}</option>
+              <option value="EVENING">{translate("analytics.ui.evening_14_00_22_00")}</option>
+              <option value="NIGHT">{translate("analytics.ui.night_22_00_06_00")}</option>
             </select>
           </div>
 
           {/* 3. Carrier */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">الناقل (Carrier)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("analytics.ui.carrier")}</label>
             <select
               value={filters.carrierId}
               onChange={(e) => setFilters(prev => ({ ...prev, carrierId: e.target.value }))}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 text-stone-800"
             >
-              <option value="ALL">كافة الناقلين (All Carriers)</option>
+              <option value="ALL">{translate("dashboard.labels.all_carriers")}</option>
               {availableCarriers.map(c => (
                 <option key={c.carrierId} value={c.carrierId}>{c.nameAr}</option>
               ))}
@@ -809,13 +804,13 @@ export const ReportsEngineView: React.FC = () => {
 
           {/* 4. Material */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">المادة (Material)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("analytics.ui.material")}</label>
             <select
               value={filters.materialId}
               onChange={(e) => setFilters(prev => ({ ...prev, materialId: e.target.value }))}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 text-stone-800"
             >
-              <option value="ALL">كافة المواد (All Materials)</option>
+              <option value="ALL">{translate("dashboard.labels.all_materials")}</option>
               {availableMaterials.map(m => (
                 <option key={m.materialId} value={m.materialId}>{m.nameAr}</option>
               ))}
@@ -824,67 +819,67 @@ export const ReportsEngineView: React.FC = () => {
 
           {/* 5. Pricing Type */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">نوع التسعير (Pricing Type)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("loading.labels.pricing_2")}</label>
             <select
               value={filters.pricingType}
               onChange={(e) => setFilters(prev => ({ ...prev, pricingType: e.target.value as any }))}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 text-stone-800 font-medium"
             >
-              <option value="ALL">كافة النماذج (All Models)</option>
-              <option value="PER_TON">بالوزن / الطن (PER_TON)</option>
-              <option value="PER_TRIP">بالمقطوعية / الرد (PER_TRIP)</option>
+              <option value="ALL">{translate("analytics.ui.all_pricing_models")}</option>
+              <option value="PER_TON">{translate("analytics.ui.per_weight_ton_per_ton")}</option>
+              <option value="PER_TRIP">{translate("analytics.ui.fixed_rate_trip_per_trip")}</option>
             </select>
           </div>
 
           {/* 6. Status */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">حالة الرحلة (Status)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("analytics.ui.trip_status")}</label>
             <select
               value={filters.status}
               onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value as any }))}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 text-stone-800"
             >
-              <option value="ALL">كافة الحالات (All Statuses)</option>
-              <option value="COMPLETED">مكتملة (COMPLETED)</option>
-              <option value="IN_TRANSIT">قيد النقل (IN_TRANSIT)</option>
-              <option value="UNLOADING">قيد التفريغ (UNLOADING)</option>
-              <option value="ARRIVED">وصلت للموقع (ARRIVED)</option>
-              <option value="LOADED">تم التحميل (LOADED)</option>
-              <option value="RETURNED">مرتجعة ومرفوضة (RETURNED)</option>
-              <option value="EXCEPTION">استثناء نشط (EXCEPTION)</option>
-              <option value="DRAFT">مسودة (DRAFT)</option>
+              <option value="ALL">{translate("analytics.ui.all_statuses")}</option>
+              <option value="COMPLETED">{translate("dashboard.labels.status_completed")}</option>
+              <option value="IN_TRANSIT">{translate("dashboard.labels.status_in_transit")}</option>
+              <option value="UNLOADING">{translate("operations.unloading_unloading")}</option>
+              <option value="ARRIVED">{translate("analytics.ui.arrived_at_site_arrived")}</option>
+              <option value="LOADED">{translate("dashboard.labels.download")}</option>
+              <option value="RETURNED">{translate("analytics.ui.returned_or_rejected_returned")}</option>
+              <option value="EXCEPTION">{translate("analytics.ui.active_exception_exception")}</option>
+              <option value="DRAFT">{translate("dashboard.labels.status_draft")}</option>
             </select>
           </div>
 
           {/* Source Type Filter */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">مصدر العملية (Source Type)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("analytics.ui.operation_source")}</label>
             <select
               value={filters.sourceType || 'ALL'}
               onChange={(e) => setFilters(prev => ({ ...prev, sourceType: e.target.value as any }))}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 text-stone-800 font-medium"
             >
-              <option value="ALL">كافة المصادر (All Sources)</option>
-              <option value="WEIGHBRIDGE">ميزان إلكتروني (WEIGHBRIDGE)</option>
-              <option value="MANUAL">إدخال يدوي (MANUAL)</option>
-              <option value="EXCEL">استيراد إكسل (EXCEL)</option>
-              <option value="CSV">ملف نصي (CSV)</option>
-              <option value="GOOGLE_SHEETS">جداول جوجل (GOOGLE_SHEETS)</option>
-              <option value="GOOGLE_DRIVE">سحابة درايف (GOOGLE_DRIVE)</option>
-              <option value="API">ربط برمجي (API)</option>
-              <option value="MIGRATION">ترحيل تاريخي (MIGRATION)</option>
+              <option value="ALL">{translate("analytics.ui.all_sources")}</option>
+              <option value="WEIGHBRIDGE">{translate("analytics.ui.electronic_weighbridge_weighbridge")}</option>
+              <option value="MANUAL">{translate("analytics.ui.manual_entry_manual")}</option>
+              <option value="EXCEL">{translate("analytics.ui.excel_import_excel")}</option>
+              <option value="CSV">{translate("analytics.ui.text_data_file_csv")}</option>
+              <option value="GOOGLE_SHEETS">{translate("analytics.ui.google_sheets_google_sheets")}</option>
+              <option value="GOOGLE_DRIVE">{translate("analytics.ui.google_drive_google_drive")}</option>
+              <option value="API">{translate("analytics.ui.api_integration_api")}</option>
+              <option value="MIGRATION">{translate("analytics.ui.historical_migration_migration")}</option>
             </select>
           </div>
 
           {/* 7. Truck */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">الشاحنة (Truck)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("other.labels.truck_5")}</label>
             <select
               value={filters.truckId}
               onChange={(e) => setFilters(prev => ({ ...prev, truckId: e.target.value }))}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 text-stone-800"
             >
-              <option value="ALL">كافة الشاحنات (All Trucks)</option>
+              <option value="ALL">{translate("analytics.ui.all_trucks")}</option>
               {availableTrucks.map(t => (
                 <option key={t.truckId} value={t.truckId}>{t.plateNumberAr}</option>
               ))}
@@ -893,13 +888,13 @@ export const ReportsEngineView: React.FC = () => {
 
           {/* 8. Driver */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">السائق (Driver)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("analytics.ui.driver")}</label>
             <select
               value={filters.driverId}
               onChange={(e) => setFilters(prev => ({ ...prev, driverId: e.target.value }))}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 text-stone-800"
             >
-              <option value="ALL">كافة السائقين (All Drivers)</option>
+              <option value="ALL">{translate("analytics.ui.all_drivers")}</option>
               {availableDrivers.map(d => (
                 <option key={d.driverId} value={d.driverId}>{d.fullNameAr}</option>
               ))}
@@ -908,13 +903,13 @@ export const ReportsEngineView: React.FC = () => {
 
           {/* 9. Supervisor */}
           <div>
-            <label className="block text-[11px] font-bold text-stone-600 mb-1">المشرف / مسؤول الميزان (Supervisor)</label>
+            <label className="block text-[11px] font-bold text-stone-600 mb-1">{translate("analytics.ui.supervisor_weighbridge_operator")}</label>
             <select
               value={filters.supervisorId}
               onChange={(e) => setFilters(prev => ({ ...prev, supervisorId: e.target.value }))}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 text-stone-800"
             >
-              <option value="ALL">كافة المشرفين (All Supervisors)</option>
+              <option value="ALL">{translate("analytics.ui.all_supervisors")}</option>
               {availableSupervisors.map(s => (
                 <option key={s} value={s}>{s}</option>
               ))}
@@ -927,17 +922,17 @@ export const ReportsEngineView: React.FC = () => {
       {isDataLoading && (
         <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center shadow-xs">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600 mx-auto mb-4"></div>
-          <h3 className="text-sm font-bold text-stone-900">جاري تحميل بيانات الرحلات المصرحة...</h3>
-          <p className="text-xs text-stone-500 mt-1 font-sans">يرجى الانتظار بينما يتم جلب السجلات والتحقق من الصلاحيات بشكل آمن من قاعدة البيانات.</p>
+          <h3 className="text-sm font-bold text-stone-900">{translate("analytics.ui.loading_authorized_trip_data")}</h3>
+          <p className="text-xs text-stone-500 mt-1 font-sans">{translate("analytics.ui.please_wait_while_records_are_retrieved_and_access_permissions_are_securely_verified")}</p>
         </div>
       )}
 
       {dataError && (
         <div className="bg-rose-50 rounded-2xl border border-rose-200 p-8 text-center shadow-xs">
           <ShieldAlert className="w-10 h-10 text-rose-600 mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-rose-900">فشل تحميل البيانات</h3>
-          <p className="text-xs text-rose-700 mt-1">{dataError}</p>
-          <p className="text-[11px] text-stone-500 mt-2 font-sans">يرجى التأكد من اتصال الإنترنت وإعادة تحميل الصفحة، أو مراجعة مسؤول النظام.</p>
+          <h3 className="text-sm font-bold text-rose-900">{translate("analytics.ui.data_loading_failed")}</h3>
+          <p className="text-xs text-rose-700 mt-1">{translate(dataError)}</p>
+          <p className="text-[11px] text-stone-500 mt-2 font-sans">{translate("analytics.ui.check_your_internet_connection_and_reload_the_page_or_contact_your_system_administrato")}</p>
         </div>
       )}
 
@@ -948,61 +943,60 @@ export const ReportsEngineView: React.FC = () => {
         
         {/* Gross Amount */}
         <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[11px] font-bold text-stone-500">المبلغ الإجمالي الأصلي (Gross)</div>
+          <div className="text-[11px] font-bold text-stone-500">{translate("analytics.ui.original_gross_amount")}</div>
           <div className="text-xl font-black text-stone-900 mt-1 font-mono">
             {currentDataset.summary.grossAmountSAR.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className="text-[10px] text-stone-400 mt-0.5">SAR • من لقطة التسعير</div>
+          <div className="text-[10px] text-stone-400 mt-0.5">{translate("analytics.ui.sar_pricing_snapshot")}</div>
         </div>
 
         {/* Adjustments */}
         <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 shadow-xs">
-          <div className="text-[11px] font-bold text-emerald-800">التعديلات (Adjustments)</div>
+          <div className="text-[11px] font-bold text-emerald-800">{translate("analytics.ui.adjustments")}</div>
           <div className="text-xl font-black text-emerald-900 mt-1 font-mono">
             +{currentDataset.summary.adjustmentsSAR.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className="text-[10px] text-emerald-700 mt-0.5">SAR • بدلات وتسامح موازين</div>
+          <div className="text-[10px] text-emerald-700 mt-0.5">{translate("analytics.ui.sar_allowances_and_weighbridge_tolerance")}</div>
         </div>
 
         {/* Exceptions & Deductions */}
         <div className="bg-rose-50/60 p-4 rounded-2xl border border-rose-200 shadow-xs">
-          <div className="text-[11px] font-bold text-rose-800">الاستثناءات والخصومات (Exceptions)</div>
+          <div className="text-[11px] font-bold text-rose-800">{translate("analytics.ui.exceptions_and_deductions")}</div>
           <div className="text-xl font-black text-rose-900 mt-1 font-mono">
             -{currentDataset.summary.exceptionsSAR.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className="text-[10px] text-rose-700 mt-0.5">SAR • جزاءات وعجز أوزان</div>
+          <div className="text-[10px] text-rose-700 mt-0.5">{translate("analytics.ui.sar_penalties_and_weight_shortages")}</div>
         </div>
 
         {/* Net Amount */}
         <div className="bg-amber-500/10 p-4 rounded-2xl border-2 border-amber-500 shadow-xs">
-          <div className="text-[11px] font-bold text-amber-900">صافي المستحق النهائي (Net Amount)</div>
+          <div className="text-[11px] font-bold text-amber-900">{translate("analytics.ui.final_net_amount_payable")}</div>
           <div className="text-2xl font-black text-amber-950 mt-1 font-mono">
             {currentDataset.summary.netAmountSAR.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className="text-[10px] text-amber-800 font-bold mt-0.5">SAR • Net Payable</div>
+          <div className="text-[10px] text-amber-800 font-bold mt-0.5">{translate("analytics.ui.sar_net_payable")}</div>
         </div>
 
         {/* Total Trips */}
         <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[11px] font-bold text-stone-500">إجمالي الردود / الرحلات</div>
+          <div className="text-[11px] font-bold text-stone-500">{translate("analytics.ui.total_trips")}</div>
           <div className="text-xl font-black text-stone-900 mt-1 font-mono">
             {currentDataset.summary.totalTrips}
           </div>
           <div className="text-[10px] text-stone-400 mt-0.5">
-            {currentDataset.summary.pricedTrips ?? currentDataset.summary.totalTrips} معتمدة
-            {currentDataset.summary.pendingSettlementTrips ? (
-              <span className="text-amber-700 font-bold ms-1">• {currentDataset.summary.pendingSettlementTrips} معلقة</span>
+            {currentDataset.summary.pricedTrips ?? currentDataset.summary.totalTrips} {" "}{translate("analytics.ui.approved")}{currentDataset.summary.pendingSettlementTrips ? (
+              <span className="text-amber-700 font-bold ms-1">• {currentDataset.summary.pendingSettlementTrips} {" "}{translate("dashboard.labels.pending_suffix")}</span>
             ) : ''}
           </div>
         </div>
 
         {/* Total Metric Tons */}
         <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[11px] font-bold text-stone-500">إجمالي الأوزان المنقولة</div>
+          <div className="text-[11px] font-bold text-stone-500">{translate("analytics.ui.total_transported_weight")}</div>
           <div className="text-xl font-black text-stone-900 mt-1 font-mono">
             {currentDataset.summary.totalNetWeightTons.toLocaleString()}
           </div>
-          <div className="text-[10px] text-stone-400 mt-0.5">طن متري (Metric Tons)</div>
+          <div className="text-[10px] text-stone-400 mt-0.5">{translate("analytics.ui.metric_tons")}</div>
         </div>
 
       </div>
@@ -1013,15 +1007,13 @@ export const ReportsEngineView: React.FC = () => {
           <div className="flex items-start sm:items-center gap-2.5">
             <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5 sm:mt-0" />
             <div>
-              <div className="text-xs font-bold">عزل الرحلات معلقة التسعير (Pending Settlement Isolation):</div>
+              <div className="text-xs font-bold">{translate("analytics.ui.pending_settlement_isolation")}</div>
               <div className="text-[11px] text-amber-900 mt-0.5 leading-relaxed">
-                يوجد <strong className="font-mono">{currentDataset.summary.pendingSettlementTrips}</strong> رحلة مسجلة تشغيلياً دون تعتيم ولكن تسعيرها معلق بانتظار اعتماد العقد. تم عزلها بالكامل من صافي المستحق النهائي (0.00 ر.س لا تعني سعراً نهائياً).
-              </div>
+                {translate("analytics.ui.there_are")}{" "}<strong className="font-mono">{currentDataset.summary.pendingSettlementTrips}</strong> {" "}{translate("analytics.ui.operationally_recorded_trips_awaiting_contract_approval_for_pricing_they_are_excluded_")}</div>
             </div>
           </div>
           <div className="shrink-0 bg-amber-200/70 border border-amber-300 text-amber-950 text-xs px-3 py-1.5 rounded-xl font-bold font-mono">
-            التسوية النهائية المعتمدة: {currentDataset.summary.finalSettlementAmount.toLocaleString()} ر.س
-          </div>
+            {translate("analytics.ui.approved_final_settlement")}{" "}{currentDataset.summary.finalSettlementAmount.toLocaleString()} {" "}{translate("shared.units.sar")}</div>
         </div>
       )}
 
@@ -1030,10 +1022,10 @@ export const ReportsEngineView: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
-              <span>{currentDataset.titleAr}</span>
+              <span>{presentAnalyticsText(currentDataset.titleAr, translate)}</span>
               <span className="text-xs text-stone-400 font-mono font-normal">({currentDataset.titleEn})</span>
             </h3>
-            <p className="text-xs text-stone-500 mt-0.5">{currentDataset.descriptionAr}</p>
+            <p className="text-xs text-stone-500 mt-0.5">{presentAnalyticsText(currentDataset.descriptionAr, translate)}</p>
           </div>
 
           {/* Export and Print Action Buttons */}
@@ -1042,30 +1034,30 @@ export const ReportsEngineView: React.FC = () => {
               id="btn-export-csv"
               onClick={handleExportCSV}
               className="flex items-center gap-1.5 px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold transition-all border border-stone-200 shadow-2xs cursor-pointer"
-              title="تصدير بيانات التقرير بتنسيق CSV مع دعم UTF-8 BOM"
+              title={translate("analytics.ui.export_report_data_as_csv_with_utf_8_bom_support")}
             >
               <Download className="w-3.5 h-3.5 text-stone-600" />
-              <span>تصدير CSV</span>
+              <span>{translate("analytics.ui.export_csv")}</span>
             </button>
 
             <button
               id="btn-export-xlsx"
               onClick={handleExportXLSX}
               className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
-              title="تصدير تقرير إكسل رسمي (.xlsx) مهيأ بالخلايا العربية والترويسة"
+              title={translate("analytics.ui.export_the_official_excel_report_xlsx_with_its_original_arabic_cells_and_header")}
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>تصدير Excel (XLSX)</span>
+              <span>{translate("analytics.ui.export_excel_xlsx")}</span>
             </button>
 
             <button
               id="btn-print-pdf"
               onClick={() => setIsPrintModalOpen(true)}
               className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-stone-950 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
-              title="معاينة وطباعة المستند الرسمي المعتمد وتصدير PDF"
+              title={translate("analytics.ui.preview_and_print_the_official_document_or_save_it_as_pdf")}
             >
               <Printer className="w-4 h-4" />
-              <span>معاينة وطباعة PDF</span>
+              <span>{translate("analytics.ui.preview_and_print_pdf")}</span>
             </button>
           </div>
         </div>
@@ -1076,7 +1068,7 @@ export const ReportsEngineView: React.FC = () => {
             <Search className="w-3.5 h-3.5 absolute right-3 rtl:right-3 ltr:left-3 ltr:right-auto top-2.5 text-stone-400" />
             <input
               type="text"
-              placeholder="بحث في نتائج التقرير الحالية..."
+              placeholder={translate("analytics.ui.search_current_report_results")}
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
               className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg pr-8 pl-3 rtl:pr-8 rtl:pl-3 ltr:pl-8 ltr:pr-3 py-1.5 focus:ring-1 focus:ring-amber-500 text-stone-800"
@@ -1084,8 +1076,7 @@ export const ReportsEngineView: React.FC = () => {
           </div>
 
           <div className="text-xs text-stone-500 font-mono">
-            عرض {filteredRows.length} من أصل {currentDataset.rows.length} سجل
-          </div>
+            {translate("operations.showing")}{" "}{filteredRows.length} {" "}{translate("operations.of_2")}{" "}{currentDataset.rows.length} {" "}{translate("analytics.ui.records")}</div>
         </div>
 
         {/* Table Rendering */}
@@ -1101,7 +1092,7 @@ export const ReportsEngineView: React.FC = () => {
                       c.align === 'center' ? 'text-center' : c.align === 'left' ? 'text-left' : 'text-right rtl:text-right ltr:text-left'
                     }`}
                   >
-                    {c.labelAr}
+                    {presentAnalyticsText(c.labelAr, translate)}
                   </th>
                 ))}
               </tr>
@@ -1111,8 +1102,8 @@ export const ReportsEngineView: React.FC = () => {
                 <tr>
                   <td colSpan={currentDataset.columns.length + 1} className="p-8 text-center text-stone-500">
                     <AlertTriangle className="w-6 h-6 text-amber-500 mx-auto mb-2 opacity-80" />
-                    <p className="font-semibold">لا توجد سجلات تطابق الفلاتر المحددة</p>
-                    <p className="text-[11px] text-stone-400 mt-1">جرب تغيير معايير الفلترة أو الضغط على "إعادة ضبط الفلاتر"</p>
+                    <p className="font-semibold">{translate("analytics.ui.no_records_match_the_selected_filters")}</p>
+                    <p className="text-[11px] text-stone-400 mt-1">{translate("analytics.ui.change_the_filter_criteria_or_select_reset_filters")}</p>
                   </td>
                 </tr>
               ) : (
@@ -1144,7 +1135,7 @@ export const ReportsEngineView: React.FC = () => {
                               String(val).includes('عجز') || String(val).includes('CRITICAL') || String(val).includes('BLOCKING') ? 'bg-rose-100 text-rose-800' :
                               'bg-amber-100 text-amber-800'
                             }`}>
-                              {String(val)}
+                              {presentReportCell(col.key, val, translate)}
                             </span>
                           ) : col.format === 'percent' ? (
                             <span className="font-bold text-emerald-800">
@@ -1152,7 +1143,7 @@ export const ReportsEngineView: React.FC = () => {
                             </span>
                           ) : (
                             <span className="text-stone-800">
-                              {val !== undefined && val !== null ? String(val) : '-'}
+                              {val !== undefined && val !== null ? presentReportCell(col.key, val, translate) : '-'}
                             </span>
                           )}
                         </td>
@@ -1169,7 +1160,7 @@ export const ReportsEngineView: React.FC = () => {
         {currentDataset.notes && (
           <div className="flex items-center gap-2 text-xs text-stone-500 bg-stone-50 p-3 rounded-xl border border-stone-200">
             <Info className="w-4 h-4 text-stone-400 shrink-0" />
-            <span>{currentDataset.notes}</span>
+            <span>{presentAnalyticsText(currentDataset.notes, translate)}</span>
           </div>
         )}
       </div>

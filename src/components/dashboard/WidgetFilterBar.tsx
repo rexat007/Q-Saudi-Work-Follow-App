@@ -27,7 +27,7 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
   onResetToGlobal,
   compact = true,
 }) => {
-  const { t } = useI18n();
+  const { t: translate } = useI18n();
 
   const filteredCarriers = React.useMemo(() => {
     if (filters.projectId === 'ALL') return carriersList;
@@ -55,10 +55,10 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-stone-200/60 text-xs">
         <div className="flex items-center gap-1.5 font-bold text-stone-700">
           <Filter className="w-3.5 h-3.5 text-stone-500" />
-          <span>{t("dashboard.labels.txt_19e345")}</span>
+          <span>{translate("dashboard.labels.txt_19e345")}</span>
           {isCustomized && (
             <span className="text-[10px] bg-amber-200 text-amber-900 px-1.5 py-0.2 rounded font-mono font-bold">
-              {t("dashboard.labels.txt_5b4092")}</span>
+              {translate("dashboard.labels.txt_5b4092")}</span>
           )}
         </div>
 
@@ -68,7 +68,7 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
             className="flex items-center gap-1 text-[11px] text-amber-800 hover:text-amber-950 font-bold underline cursor-pointer"
           >
             <RotateCcw className="w-3 h-3" />
-            <span>{t("dashboard.labels.txt_3563c6")}</span>
+            <span>{translate("dashboard.labels.txt_3563c6")}</span>
           </button>
         )}
       </div>
@@ -78,7 +78,7 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
         <div>
           <label className="block text-[10px] font-bold text-stone-500 mb-0.5 flex items-center gap-1">
             <Building2 className="w-2.5 h-2.5" />
-            <span>المشروع</span>
+            <span>{translate("dashboard.labels.project")}</span>
           </label>
           <select
             value={filters.projectId}
@@ -86,7 +86,7 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
             className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs text-stone-800 focus:border-amber-500 outline-none"
           >
             {!userProfile.isRestricted && (
-              <option value="ALL">{t("dashboard.labels.projects_7")}</option>
+              <option value="ALL">{translate("dashboard.labels.projects_7")}</option>
             )}
             {authorizedProjects.map((p) => (
               <option key={p.projectId} value={p.projectId}>
@@ -100,7 +100,7 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
         <div>
           <label className="block text-[10px] font-bold text-stone-500 mb-0.5 flex items-center gap-1">
             <Calendar className="w-2.5 h-2.5" />
-            <span>تاريخ الوردية (Shift Date)</span>
+            <span>{translate("dashboard.labels.shift_date")}</span>
           </label>
           <input
             type="date"
@@ -114,14 +114,14 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
         <div>
           <label className="block text-[10px] font-bold text-stone-500 mb-0.5 flex items-center gap-1">
             <Truck className="w-2.5 h-2.5" />
-            <span>الناقل</span>
+            <span>{translate("entityResolution.labels.carrier_3")}</span>
           </label>
           <select
             value={filters.carrierId}
             onChange={(e) => handleChange('carrierId', e.target.value)}
             className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs text-stone-800 focus:border-amber-500 outline-none"
           >
-            <option value="ALL">{t("dashboard.labels.txt_553cd5")}</option>
+            <option value="ALL">{translate("dashboard.labels.txt_553cd5")}</option>
             {filteredCarriers.map((c) => (
               <option key={c.carrierId} value={c.carrierId}>
                 {c.companyNameAr || c.name}
@@ -134,14 +134,14 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
         <div>
           <label className="block text-[10px] font-bold text-stone-500 mb-0.5 flex items-center gap-1">
             <Layers className="w-2.5 h-2.5" />
-            <span>المادة</span>
+            <span>{translate("legacyMigration.labels.material_2")}</span>
           </label>
           <select
             value={filters.materialId}
             onChange={(e) => handleChange('materialId', e.target.value)}
             className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs text-stone-800 focus:border-amber-500 outline-none"
           >
-            <option value="ALL">كافة المواد</option>
+            <option value="ALL">{translate("dashboard.labels.materials_2")}</option>
             {filteredMaterials.map((m) => (
               <option key={m.materialId} value={m.materialId}>
                 {m.nameAr || m.name}
@@ -154,16 +154,16 @@ export const WidgetFilterBar: React.FC<WidgetFilterBarProps> = ({
         <div>
           <label className="block text-[10px] font-bold text-stone-500 mb-0.5 flex items-center gap-1">
             <Calculator className="w-2.5 h-2.5" />
-            <span>نوع التسعير</span>
+            <span>{translate("dashboard.labels.pricing_2")}</span>
           </label>
           <select
             value={filters.pricingType}
             onChange={(e) => handleChange('pricingType', e.target.value)}
             className="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs text-stone-800 focus:border-amber-500 outline-none"
           >
-            <option value="ALL">{t("dashboard.labels.txt_6f8552")}</option>
-            <option value="PER_TRIP">{t("dashboard.labels.txt_176fe6")}</option>
-            <option value="PER_TON">بالطن المتري (PER_TON)</option>
+            <option value="ALL">{translate("dashboard.labels.txt_6f8552")}</option>
+            <option value="PER_TRIP">{translate("dashboard.labels.txt_176fe6")}</option>
+            <option value="PER_TON">{translate("dashboard.labels.per_metric_ton")}</option>
           </select>
         </div>
       </div>

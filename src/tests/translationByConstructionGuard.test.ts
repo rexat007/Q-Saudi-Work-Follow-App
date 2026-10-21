@@ -11,6 +11,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import ts from 'typescript';
+import { analyticsTextKeys } from '../i18n/analyticsPresentation';
 import { operationalMessageTemplates } from '../i18n/operationalMessages';
 import { arTranslations, enTranslations, urTranslations } from '../locales';
 
@@ -587,7 +588,12 @@ describe('Batch-2 translation-by-construction', () => {
         const visibleProperty = ts.isPropertyAssignment(parent) && ['label', 'testName', 'serverMessage', 'message'].includes(parent.name.getText(source));
         const diagnostic = ts.isCallExpression(parent) && /^console\./.test(parent.expression.getText(source));
         const workflowKey = file.endsWith('/LoadingStation.tsx') && ts.isPropertyAssignment(parent) && parent.name.getText(source) === 'label' && Object.hasOwn(arTranslations, text);
-        const approved = workflowKey || technicalLiterals.has(text) || preservedBusinessText[file]?.includes(text);
+        const analyticsProfile = file.endsWith('/dashboard/OperationsDashboardView.tsx') && text === 'مستخدم النظام' &&
+          ts.isBinaryExpression(parent) && ts.isPropertyAssignment(parent.parent) && parent.parent.name.getText(source) === 'userNameAr';
+        const analyticsStyle = file.endsWith('/reports/ReportsEngineView.tsx') && ['مطابق', 'عجز'].includes(text) &&
+          ts.isCallExpression(parent) && parent.expression.getText(source) === 'String(val).includes';
+        const analyticsToken = /\/(dashboard|reports)\//.test(file) && ['PER_TRIP', 'PER_TON', 'settlementAmount'].includes(text) && jsxText;
+        const approved = analyticsProfile || analyticsStyle || analyticsToken || workflowKey || technicalLiterals.has(text) || preservedBusinessText[file]?.includes(text);
         const prose = /[A-Za-z\u0600-\u06ff]/.test(text.replace(/\{p\d+\}/g, ""));
         if (!translatedKey && !diagnostic && !approved && prose && (jsxText || attribute || languageText || visibleProperty)) {
           issues.push(`${source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1}: ${text}`);
@@ -702,6 +708,45 @@ describe('Batch-2 translation-by-construction', () => {
       'src/services/tripStateMachine.service.ts', 'src/services/offline/offlineCache.service.ts',
       'src/services/offline/outbox.service.ts', 'src/services/trip.service.ts', 'server/app.ts']) {
       expect(fs.readFileSync(file, 'utf8'), file).not.toContain('i18n/operationalMessages');
+    }
+  });
+
+  const batch3Files = [
+    'src/components/dashboard/OperationsDashboardView.tsx',
+    'src/components/dashboard/WidgetFilterBar.tsx',
+    'src/components/reports/ReportsEngineView.tsx',
+    'src/components/reports/PrintableReportModal.tsx',
+  ];
+
+  it('TBC-16: Reachable Dashboard/Reports presentation has no unmanaged local prose', () => {
+    for (const file of batch3Files) expect(scan(fs.readFileSync(file, 'utf8'), file), file).toEqual([]);
+    for (const snippet of ['<span>Operational</span>', '<span>ملخص التقارير</span>', '<span>رپورٹس</span>',
+      '<input aria-label="Report search" />', 'const title = isRTL ? "تقارير" : "Reports";']) {
+      expect(scan(snippet).length, snippet).toBeGreaterThan(0);
+    }
+  });
+
+  it('TBC-17: Current Dashboard/Reports keys, error states and upstream labels resolve with trilingual parameter parity', () => {
+    const keys = new Set(Object.values(analyticsTextKeys));
+    for (const file of [...batch3Files, 'src/i18n/analyticsPresentation.ts']) {
+      const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true, file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+      const visit = (node: ts.Node) => {
+        if (ts.isStringLiteralLike(node) && (node.text.startsWith('analytics.') ||
+          (ts.isCallExpression(node.parent) && ['t', 'translate'].includes(node.parent.expression.getText(source))))) keys.add(node.text);
+        ts.forEachChild(node, visit);
+      };
+      visit(source);
+    }
+    expect(keys.size).toBeGreaterThan(0);
+    for (const key of keys) {
+      const values = [arTranslations[key], enTranslations[key], urTranslations[key]];
+      for (const value of values) expect(value?.trim(), key).toBeTruthy();
+      expect(values[1], key).not.toMatch(/[\u0600-\u06ff]/);
+      if (values[0].length > 15 && /[\u0600-\u06ff]/.test(values[0])) expect(values[2], key).not.toBe(values[0]);
+      const params = (v: string) => [...v.matchAll(/\{(\w+)\}/g)].map(m => m[1]).sort();
+      expect(params(values[1]), key).toEqual(params(values[0]));
+      expect(params(values[2]), key).toEqual(params(values[0]));
+      expect(values[0], key).not.toContain('${');
     }
   });
 
