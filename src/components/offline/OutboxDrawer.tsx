@@ -1,3 +1,5 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { batch4ConflictValueLabel } from '../../i18n/batch4Presentation';
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
@@ -285,8 +287,8 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
   const STORE_LABELS: Record<string, string> = {
     projects: t('offline.labels.projects'),
     carriers: t('offline.labels.txt_262349'),
-    materials: 'المواد (Materials)',
-    trucks: 'الشاحنات (Trucks)',
+    materials: t("other.labels.materials_5"),
+    trucks: t("entityResolution.labels.trucks"),
     drivers: t('offline.labels.txt_499f33'),
     pricingRules: t('offline.labels.pricing'),
   };
@@ -332,7 +334,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
             <span className="text-stone-400">|</span>
             <span className="text-stone-300 font-mono text-[11px] flex items-center gap-1">
               <Smartphone className="w-3.5 h-3.5 text-stone-400" />
-              <span>الجهاز: {outboxService.getDeviceId()}</span>
+              <span>{t("residual.ui.device_label")}{outboxService.getDeviceId()}</span>
             </span>
           </div>
 
@@ -346,7 +348,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700'
               }`}
             >
-              {isSimulatedOffline ? 'إيقاف المحاكاة (Go Online)' : 'تفعيل المحاكاة (Go Offline)'}
+              {isSimulatedOffline ? t("residual.ui.stop_offline_simulation") : t("residual.ui.start_offline_simulation")}
             </button>
           </div>
         </div>
@@ -418,7 +420,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           : 'bg-stone-100 hover:bg-stone-200 text-stone-600'
                       }`}
                     >
-                      {st === 'ALL' ? `الكل (${stats.total})` : `${st} (${stats[st.toLowerCase() as keyof OutboxStats] || 0})`}
+                      {st === 'ALL' ? `${t("admin_console.filter_all")} (${stats.total})` : `${st} (${stats[st.toLowerCase() as keyof OutboxStats] || 0})`}
                     </button>
                   ))}
                 </div>
@@ -440,7 +442,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                     className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
                   >
                     <RotateCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                    <span>{isSyncing ? 'جاري المزامنة...' : 'مزامنة فورية (Sync)'}</span>
+                    <span>{isSyncing ? t("residual.ui.synchronizing") : t("residual.ui.synchronize_now")}</span>
                   </button>
                 </div>
               </div>
@@ -467,7 +469,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             {getStatusBadge(op.status)}
                             <span className="font-mono text-xs font-bold text-stone-800">{op.operationId}</span>
                             <span className="text-stone-300">|</span>
-                            <span className="text-xs text-stone-600 font-medium">نوع العملية: {op.operationType}</span>
+                            <span className="text-xs text-stone-600 font-medium">{t("residual.ui.operation_type_label")}{op.operationType}</span>
                           </div>
 
                           <div className="flex items-center gap-2 text-xs text-stone-500">
@@ -479,15 +481,15 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                         {/* Summary Details */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-stone-50 p-2.5 rounded-lg border border-stone-200/60">
                           <div>
-                            <span className="text-stone-500 block text-[10px]">رقم الرحلة:</span>
-                            <span className="font-mono font-bold text-stone-900">{op.payload?.tripSerial || op.payload?.tripId || 'N/A'}</span>
+                            <span className="text-stone-500 block text-[10px]">{t("operations.trip_number")}</span>
+                            <span className="font-mono font-bold text-stone-900">{op.payload?.tripSerial || op.payload?.tripId || t("weighbridge.labels.txt_68c5e6")}</span>
                           </div>
                           <div>
-                            <span className="text-stone-500 block text-[10px]">صافي الوزن:</span>
+                            <span className="text-stone-500 block text-[10px]">{t("field_operations.net_weight_label")}</span>
                             <span className="font-bold text-stone-900">
                               {op.payload?.grossWeight && op.payload?.tareWeight 
-                                ? `${(op.payload.grossWeight - op.payload.tareWeight).toLocaleString()} كجم`
-                                : 'N/A'}
+                                ? `${(op.payload.grossWeight - op.payload.tareWeight).toLocaleString()} ${t("shared.units.kg")}`
+                                : t("weighbridge.labels.txt_68c5e6")}
                             </span>
                           </div>
                           <div>
@@ -495,17 +497,17 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             {op.payload?.pricingSnapshot?.isPending || op.payload?.pricingStatus === 'PENDING' || op.payload?.pricingRuleId === 'UNRESOLVED_PENDING' ? (
                               <span className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded text-[11px] border border-amber-300">
                                 <AlertTriangle className="w-3 h-3 text-amber-600" />
-                                <span>معلق التسوية (Pending)</span>
+                                <span>{t("residual.ui.pending_settlement")}</span>
                               </span>
                             ) : (
                               <span className="font-bold text-amber-900">
-                                {op.payload?.settlementAmount !== undefined ? `${op.payload.settlementAmount.toLocaleString()} ر.س` : 'N/A'}
+                                {op.payload?.settlementAmount !== undefined ? `${op.payload.settlementAmount.toLocaleString()} ${t("shared.units.sar")}` : t("weighbridge.labels.txt_68c5e6")}
                               </span>
                             )}
                           </div>
                           <div>
                             <span className="text-stone-500 block text-[10px]">{t("offline.labels.txt_6526c5")}</span>
-                            <span className="font-bold text-stone-900">{op.retryCount} محاولة</span>
+                            <span className="font-bold text-stone-900">{t("residual.ui.attempt_count", { count: op.retryCount })}</span>
                           </div>
                         </div>
 
@@ -516,8 +518,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             <div>
                               <div className="font-bold">{t("offline.status.pending_2")}</div>
                               <div className="text-[11px] text-amber-900 mt-0.5 leading-relaxed">
-                                تم تسجيل العملية تشغيلياً بنجاح في سجل الإرسال، ولكن التسوية المالية معلقة لعدم توفر قاعدة تسعير تعاقدية مطابقة. لن يتم احتساب تسوية نهائية لحين اعتماد العقد (لا يتم اعتماد 0.00 ر.س كسعر نهائي).
-                              </div>
+                                {t("residual.ui.pending_contract_settlement_notice")}</div>
                             </div>
                           </div>
                         )}
@@ -528,7 +529,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                             <div>
                               <div className="font-bold">{t("offline.labels.txt_292ade")}</div>
-                              <div>{op.serverAck.messageAr} (رقم الرحلة الخادومي: {op.serverAck.tripSerial})</div>
+                              <div>{presentBatch4Message(op.serverAck.messageAr, t)} {t("residual.ui.server_trip_number", { number: op.serverAck.tripSerial })}</div>
                             </div>
                           </div>
                         )}
@@ -537,8 +538,8 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           <div className="text-xs bg-rose-50 border border-rose-200 rounded-lg p-2.5 text-rose-900 flex items-start gap-2">
                             <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                             <div>
-                              <div className="font-bold">{t("offline.status.failed_2")}</div>
-                              <div>{op.errorReason}</div>
+                              <div className="font-bold">{t("legacyMigration.status.failed_2")}</div>
+                              <div>{presentBatch4Message(op.errorReason, t)}</div>
                             </div>
                           </div>
                         )}
@@ -548,7 +549,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             <AlertTriangle className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
                             <div>
                               <div className="font-bold">{t("offline.labels.details")}</div>
-                              <div>{op.conflictDetails.messageAr}</div>
+                              <div>{presentBatch4Message(op.conflictDetails.messageAr, t)}</div>
                             </div>
                           </div>
                         )}
@@ -560,7 +561,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             className="text-xs text-stone-600 hover:text-stone-900 flex items-center gap-1 font-medium"
                           >
                             {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                            <span>{isExpanded ? 'إخفاء الحمولة الكاملة' : 'عرض تفاصيل الحمولة (Payload)'}</span>
+                            <span>{isExpanded ? t("residual.ui.hide_payload") : t("residual.ui.show_payload")}</span>
                           </button>
 
                           <div className="flex items-center gap-2">
@@ -609,8 +610,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                     <span>{t("offline.labels.txt_21781d")}</span>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-stone-800 text-purple-300 border border-purple-500/30">
-                    Strict Audit Trail
-                  </span>
+                    {t("residual.ui.strict_audit_trail")}</span>
                 </div>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] text-stone-300 pt-1">
                   <li className="flex items-start gap-1.5">
@@ -619,7 +619,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   </li>
                   <li className="flex items-start gap-1.5">
                     <span className="text-emerald-400 font-bold">•</span>
-                    <span><strong>{t("offline.labels.txt_197045")}</strong> لقطة التسعير المعتمدة وقت الإنشاء بدون اتصال ملزمة للرحلة ولا تتغير بتحديث السعر اللاحق.</span>
+                    <span><strong>{t("offline.labels.txt_197045")}</strong> {t("residual.ui.binding_snapshot")}</span>
                   </li>
                   <li className="flex items-start gap-1.5">
                     <span className="text-purple-400 font-bold">•</span>
@@ -627,7 +627,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   </li>
                   <li className="flex items-start gap-1.5">
                     <span className="text-blue-400 font-bold">•</span>
-                    <span><strong>{t("offline.labels.txt_6aae4c")}</strong> السعر المحدث على الخادم يقتصر أثره فقط على الرحلات المستقبلية الجديدة.</span>
+                    <span><strong>{t("offline.labels.txt_6aae4c")}</strong> {t("residual.ui.future_rates_only")}</span>
                   </li>
                 </ul>
               </div>
@@ -658,7 +658,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   >
                     <div className="flex items-center gap-1 text-amber-900 font-bold text-xs">
                       <Lock className="w-3.5 h-3.5 text-amber-700" />
-                      <span>1. تحديث السعر</span>
+                      <span>{t("shared.labels.numbered_label", { number: 1, label: t("residual.ui.update_price") })}</span>
                     </div>
                     <span className="text-[10px] text-amber-800 block mt-0.5">{t("offline.labels.txt_2eef0a")}</span>
                   </button>
@@ -755,7 +755,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                     className="px-3.5 py-1.5 rounded-lg bg-indigo-700 hover:bg-indigo-800 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors shrink-0"
                   >
                     <RotateCw className={`w-3.5 h-3.5 ${isRunningTests ? 'animate-spin' : ''}`} />
-                    <span>{isRunningTests ? 'جاري الفحص البرمجي...' : 'تشغيل الفحص الآلي (Run Tests)'}</span>
+                    <span>{isRunningTests ? t("residual.ui.running_conflict_checks") : t("residual.ui.run_conflict_checks")}</span>
                   </button>
                 </div>
 
@@ -775,8 +775,8 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                         )}
                         <span className="font-bold">
                           {testSuiteResult.allPassed
-                            ? `نجح الفحص بالكامل: ${testSuiteResult.passedTests} من أصل ${testSuiteResult.totalTests} اختبار اجتازت التحقق بنسبة 100%`
-                            : `فشل الفحص: اجتاز ${testSuiteResult.passedTests} وفشل ${testSuiteResult.failedTests}`}
+                            ? t("residual.ui.all_conflict_checks_passed", { passed: testSuiteResult.passedTests, total: testSuiteResult.totalTests })
+                            : t("offline.status.failed_2", { passed: testSuiteResult.passedTests, failed: testSuiteResult.failedTests })}
                         </span>
                       </div>
                       <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-white border border-stone-200">
@@ -785,25 +785,25 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                     </div>
 
                     <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
-                      {testSuiteResult.results.map(t => (
+                      {testSuiteResult.results.map(testCase => (
                         <div
-                          key={t.id}
+                          key={testCase.id}
                           className="bg-stone-50 border border-stone-200 rounded-lg p-2.5 text-xs flex flex-col gap-1"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className={`w-2 h-2 rounded-full ${t.passed ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                              <span className="font-bold text-stone-900">{t.nameAr}</span>
-                              <span className="text-[10px] font-mono text-stone-400">({t.id})</span>
+                              <span className={`w-2 h-2 rounded-full ${testCase.passed ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                              <span className="font-bold text-stone-900">{presentBatch4Message(testCase.nameAr, t)}</span>
+                              <span className="text-[10px] font-mono text-stone-400">({testCase.id})</span>
                             </div>
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              t.passed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                              testCase.passed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                             }`}>
-                              {t.passed ? 'ناجح PASSED' : 'فاشل FAILED'}
+                              {testCase.passed ? t("legacyMigration.labels.txt_327227") : t("legacyMigration.labels.txt_55a807")}
                             </span>
                           </div>
                           <div className="text-[11px] text-stone-600 leading-relaxed">
-                            {t.details}
+                            {presentBatch4Message(testCase.details, t)}
                           </div>
                         </div>
                       ))}
@@ -842,7 +842,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                                   ? 'bg-amber-100 text-amber-900 border-amber-300'
                                   : 'bg-emerald-100 text-emerald-900 border-emerald-300'
                               }`}>
-                                {isOpen ? 'بانتظار الحل الصريح (OPEN)' : 'تمت المعالجة (RESOLVED)'}
+                                {isOpen ? t("residual.ui.conflict_open") : t("residual.ui.conflict_resolved")}
                               </span>
                               <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-stone-100 text-stone-700">
                                 {conf.conflictType}
@@ -851,8 +851,8 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                                 {conf.conflictId}
                               </span>
                             </div>
-                            <h4 className="text-xs font-bold text-stone-900 pt-0.5">{conf.titleAr}</h4>
-                            <p className="text-xs text-stone-600 leading-relaxed">{conf.descriptionAr}</p>
+                            <h4 className="text-xs font-bold text-stone-900 pt-0.5">{presentBatch4Message(conf.titleAr, t)}</h4>
+                            <p className="text-xs text-stone-600 leading-relaxed">{presentBatch4Message(conf.descriptionAr, t)}</p>
                           </div>
 
                           {isOpen && (
@@ -874,13 +874,11 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                               <div>
                                 <span className="font-bold text-emerald-950">{t("offline.labels.txt_6aaee2")}</span>
                                 <span className="text-emerald-900">
-                                  سعر اللقطة المحفوظة: {conf.pricingProtection.snapshotRate} ر.س | سعر الخادم الجديد: {conf.pricingProtection.serverCurrentRate} ر.س
-                                </span>
+                                  {t("residual.ui.snapshot_rate_label")}{conf.pricingProtection.snapshotRate} {t("shared.units.sar") + " | " + t("residual.ui.server_rate_label")}{conf.pricingProtection.serverCurrentRate} {t("shared.units.sar")}</span>
                               </div>
                             </div>
                             <span className="px-2 py-0.5 rounded bg-emerald-200/80 text-emerald-900 font-bold text-[10px]">
-                              السعر محمي تعاقدياً
-                            </span>
+                              {t("residual.ui.contractually_protected_rate")}</span>
                           </div>
                         )}
 
@@ -890,14 +888,14 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           <div className="space-y-1">
                             {conf.diffFields.map((d, i) => (
                               <div key={i} className="flex items-center justify-between text-[11px] bg-white p-1.5 px-2.5 rounded border border-stone-200">
-                                <span className="font-bold text-stone-800">{d.fieldLabelAr} ({d.field})</span>
+                                <span className="font-bold text-stone-800">{presentBatch4Message(d.fieldLabelAr, t)} ({d.field})</span>
                                 <div className="flex items-center gap-2 font-mono">
                                   <span className="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                                    محلي: {String(d.localValue)}
+                                    {t("offline.labels.txt_24195a")}{String(d.localValue)}
                                   </span>
                                   <span className="text-stone-400">↔</span>
                                   <span className="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
-                                    خادم: {String(d.serverValue)}
+                                    {t("offline.labels.txt_69531e")}{batch4ConflictValueLabel(t, d.field, d.serverValue)}
                                   </span>
                                 </div>
                               </div>
@@ -911,10 +909,10 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             <div className="flex items-center justify-between font-bold text-emerald-950">
                               <span className="flex items-center gap-1">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                                <span>القرار المعتمد: {conf.resolution.strategy}</span>
+                                <span>{t("residual.ui.approved_decision_label")}{conf.resolution.strategy}</span>
                               </span>
                               <span className="text-[10px] text-emerald-800">
-                                بواسطة: {conf.resolution.resolvedBy}
+                                {t("operations.by")}{conf.resolution.resolvedBy}
                               </span>
                             </div>
                             <div className="text-[11px] text-emerald-900">
@@ -936,8 +934,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                 <div>
                   <h3 className="text-xs font-bold text-stone-900">{t("offline.labels.txt_6fc0d8")}</h3>
                   <p className="text-xs text-stone-500">
-                    تتضمن كل باقة مخزنة محلياً رقم الإصدار (Version) والطابع الزمني (Timestamp) لضمان اتساق البيانات
-                  </p>
+                    {t("residual.ui.cache_consistency_notice")}</p>
                 </div>
                 <button
                   onClick={handleRefreshCache}
@@ -945,7 +942,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-900 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingCache ? 'animate-spin' : ''}`} />
-                  <span>{isRefreshingCache ? 'جاري التحديث...' : 'تحديث الذاكرة (Refresh Cache)'}</span>
+                  <span>{isRefreshingCache ? t("entityResolution.labels.refreshing") : t("residual.ui.refresh_cache")}</span>
                 </button>
               </div>
 
@@ -968,7 +965,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
                         <span className="text-stone-400 block text-[10px]">{t("offline.labels.txt_6464df")}</span>
-                        <span className="font-bold text-stone-800">{meta.recordCount} سجل</span>
+                        <span className="font-bold text-stone-800">{meta.recordCount + " " + t("analytics.ui.records")}</span>
                       </div>
                       <div>
                         <span className="text-stone-400 block text-[10px]">{t("offline.labels.txt_7490af")}</span>
@@ -979,7 +976,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                     </div>
 
                     <div className="text-[10px] text-stone-400 pt-1 border-t border-stone-50 flex items-center justify-between">
-                      <span>مصدر التخزين: {meta.lastSyncedBy || 'SYSTEM'}</span>
+                      <span>{t("residual.ui.storage_source_label")}{meta.lastSyncedBy || 'SYSTEM'}</span>
                       <span className="text-emerald-700 font-medium">{t("offline.labels.txt_41cc14")}</span>
                     </div>
                   </div>
@@ -1006,16 +1003,15 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
         <div className="bg-white border-t border-stone-200 px-6 py-3 flex items-center justify-between">
           <span className="text-xs text-stone-500">
             {stats.pending > 0 
-              ? `يوجد ${stats.pending} عملية معلقة بانتظار المزامنة`
-              : 'جميع العمليات متزامنة ومحدثة'}
+              ? t("residual.ui.pending_sync_count", { count: stats.pending })
+              : t("residual.ui.all_synchronized")}
           </span>
 
           <button
             onClick={onClose}
             className="px-4 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-bold transition-colors"
           >
-            إغلاق
-          </button>
+            {t("shared.actions.close")}</button>
         </div>
 
         {/* Explicit Conflict Resolution Modal */}

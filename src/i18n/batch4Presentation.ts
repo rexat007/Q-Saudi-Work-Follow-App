@@ -886,3 +886,10 @@ export function batch4ConflictFieldLabel(t: OperationalTranslator, field: string
   const key = ownEntry(conflictFieldKeys, field);
   return key ? t(key) : field;
 }
+
+// Only this synthetic status caption is localized; actual business values remain verbatim.
+export function batch4ConflictValueLabel(t: OperationalTranslator, field: string, value: unknown): string {
+  return field === 'materialId' && value === 'موقوفة (DEACTIVATED)'
+    ? t("residual.messages.suspended_deactivated")
+    : String(value);
+}

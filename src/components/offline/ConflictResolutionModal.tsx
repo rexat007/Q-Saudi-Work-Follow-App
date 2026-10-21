@@ -1,3 +1,5 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { batch4ConflictValueLabel } from '../../i18n/batch4Presentation';
 import React, { useState } from 'react';
 import { 
   X, 
@@ -77,7 +79,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
       onResolved?.(conflict.conflictId, res.messageAr);
       onClose();
     } catch (err: any) {
-      alert(err.message || 'فشلت معالجة التعارض');
+      alert(presentBatch4Message(err.message || '', t) || t("residual.ui.conflict_resolution_failed"));
     } finally {
       setIsResolving(false);
     }
@@ -86,37 +88,37 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
   const getConflictTypeBadge = (type: ConflictType) => {
     const map: Record<ConflictType, { label: string; color: string; desc: string }> = {
       VERSION_CONFLICT: {
-        label: 'تعارض إصدار (VERSION_CONFLICT)',
+        label: t("residual.ui.version_conflict_badge"),
         color: 'bg-indigo-100 text-indigo-900 border-indigo-300',
         desc: t('offline.labels.txt_10f795')
       },
       PRICING_CHANGED: {
-        label: 'تحديث سعر الخادم (PRICING_CHANGED)',
+        label: t("residual.ui.pricing_changed_badge"),
         color: 'bg-amber-100 text-amber-900 border-amber-300',
-        desc: 'تم تحديث سعر القاعدة على الخادم؛ تحمي المنظومة لقطة السعر وقت الإنشاء.'
+        desc: t("residual.ui.server_rate_snapshot_notice")
       },
       TRIP_ALREADY_COMPLETED: {
-        label: 'الرحلة مكتملة خادومياً (TRIP_ALREADY_COMPLETED)',
+        label: t("residual.ui.completed_trip_badge"),
         color: 'bg-emerald-100 text-emerald-900 border-emerald-300',
         desc: t('offline.labels.trip')
       },
       TRIP_ALREADY_RETURNED: {
-        label: 'الرحلة مرتجعة (TRIP_ALREADY_RETURNED)',
+        label: t("residual.ui.returned_trip_badge"),
         color: 'bg-rose-100 text-rose-900 border-rose-300',
         desc: t('offline.labels.txt_5b9d20')
       },
       DUPLICATE_OPERATION: {
-        label: 'عملية مكررة (DUPLICATE_OPERATION)',
+        label: t("residual.ui.duplicate_operation_badge"),
         color: 'bg-orange-100 text-orange-900 border-orange-300',
-        desc: 'رقم التذكرة أو الرحلة مسجل مسبقاً لعملية أخرى.'
+        desc: t("residual.ui.duplicate_ticket_notice")
       },
       TRUCK_CARRIER_CONFLICT: {
-        label: 'تعارض الناقل للشاحنة (TRUCK_CARRIER_CONFLICT)',
+        label: t("residual.ui.truck_carrier_conflict_badge"),
         color: 'bg-purple-100 text-purple-900 border-purple-300',
         desc: t('offline.labels.truck')
       },
       MASTER_DATA_CHANGED: {
-        label: 'تغيير بيانات أساسية (MASTER_DATA_CHANGED)',
+        label: t("residual.ui.master_data_changed_badge"),
         color: 'bg-cyan-100 text-cyan-900 border-cyan-300',
         desc: t('offline.labels.edit')
       },
@@ -125,9 +127,9 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
     return (
       <div className="space-y-1">
         <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold border ${c.color}`}>
-          {c.label}
+          {presentBatch4Message(c.label, t)}
         </span>
-        <p className="text-xs text-stone-500">{c.desc}</p>
+        <p className="text-xs text-stone-500">{presentBatch4Message(c.desc, t)}</p>
       </div>
     );
   };
@@ -165,8 +167,8 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
         <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3 text-xs text-amber-950">
           <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
           <div className="space-y-0.5">
-            <div className="font-bold">{conflict.titleAr}</div>
-            <div className="text-amber-900 leading-relaxed">{conflict.descriptionAr}</div>
+            <div className="font-bold">{presentBatch4Message(conflict.titleAr, t)}</div>
+            <div className="text-amber-900 leading-relaxed">{presentBatch4Message(conflict.descriptionAr, t)}</div>
           </div>
         </div>
 
@@ -182,39 +184,34 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                   <span>{t("offline.labels.txt_41c156")}</span>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-200/80 text-emerald-900 border border-emerald-300">
-                  سعر محمي تعاقدياً
-                </span>
+                  {t("residual.ui.contractually_protected_rate")}</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                 <div className="bg-white p-3 rounded-lg border border-emerald-200">
-                  <span className="text-stone-500 block text-[11px]">سعر لقطة وثيقة التحميل (Snapshot):</span>
+                  <span className="text-stone-500 block text-[11px]">{t("residual.ui.snapshot_rate_label")}</span>
                   <div className="text-base font-bold text-emerald-900 font-mono mt-0.5">
-                    {conflict.pricingProtection.snapshotRate} {conflict.pricingProtection.currency} / طن
-                  </div>
+                    {conflict.pricingProtection.snapshotRate} {conflict.pricingProtection.currency} {"/ " + t("shared.units.ton")}</div>
                   <span className="text-[10px] text-emerald-700 block mt-1">{t("offline.labels.createTrip")}</span>
                 </div>
 
                 <div className="bg-white p-3 rounded-lg border border-emerald-200">
-                  <span className="text-stone-500 block text-[11px]">السعر المحدث على الخادم (Server):</span>
+                  <span className="text-stone-500 block text-[11px]">{t("residual.ui.server_rate_label")}</span>
                   <div className="text-base font-bold text-amber-900 font-mono mt-0.5">
-                    {conflict.pricingProtection.serverCurrentRate} {conflict.pricingProtection.currency} / طن
-                  </div>
+                    {conflict.pricingProtection.serverCurrentRate} {conflict.pricingProtection.currency} {"/ " + t("shared.units.ton")}</div>
                   <span className="text-[10px] text-amber-700 block mt-1">
-                    فارق السعر: {conflict.pricingProtection.rateDifference > 0 ? `+${conflict.pricingProtection.rateDifference}` : conflict.pricingProtection.rateDifference} ر.س
-                  </span>
+                    {t("residual.ui.rate_difference_label")}{conflict.pricingProtection.rateDifference > 0 ? `+${conflict.pricingProtection.rateDifference}` : conflict.pricingProtection.rateDifference} {t("shared.units.sar")}</span>
                 </div>
 
                 <div className="bg-white p-3 rounded-lg border border-emerald-200">
                   <span className="text-stone-500 block text-[11px]">{t("offline.labels.txt_71eceb")}</span>
                   <p className="text-[11px] text-stone-700 font-medium leading-relaxed mt-0.5">
-                    لا يتم تغيير قيمة هذه الرحلة لاحقاً بسبب تحديث السعر. السعر الجديد يستخدم فقط للرحلات المستقبلية.
-                  </p>
+                    {t("residual.ui.binding_snapshot") + " " + t("residual.ui.future_rates_only")}</p>
                 </div>
               </div>
 
               <div className="text-[11px] text-emerald-900 bg-emerald-100/70 p-2.5 rounded-lg border border-emerald-200 leading-relaxed font-medium">
-                {conflict.pricingProtection.policyNoteAr}
+                {presentBatch4Message(conflict.pricingProtection.policyNoteAr, t)}
               </div>
             </div>
           )}
@@ -267,7 +264,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                     {conflict.diffFields.map((df, idx) => (
                       <tr key={idx} className="hover:bg-amber-50/40 transition-colors">
                         <td className="py-3 px-4 font-bold text-stone-800">
-                          <div>{df.fieldLabelAr}</div>
+                          <div>{presentBatch4Message(df.fieldLabelAr, t)}</div>
                           <span className="font-mono text-[10px] text-stone-400">{df.field}</span>
                         </td>
                         <td className="py-3 px-4 text-stone-900 bg-amber-50/20 font-medium">
@@ -277,7 +274,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                         </td>
                         <td className="py-3 px-4 text-stone-900 bg-blue-50/20 font-medium">
                           <span className="px-2 py-0.5 rounded bg-white border border-blue-200 font-mono text-xs">
-                            {String(df.serverValue)}
+                            {batch4ConflictValueLabel(t, df.field, df.serverValue)}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-stone-600 text-[11px]">
@@ -287,7 +284,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                               <span>{t("offline.labels.txt_4c59dc")}</span>
                             </span>
                           ) : (
-                            df.notesAr || 'يتطلب اعتماد المشرف'
+                            (df.notesAr ? presentBatch4Message(df.notesAr, t) : '') || t("residual.ui.supervisor_approval_required")
                           )}
                         </td>
                       </tr>
@@ -298,11 +295,11 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="bg-stone-900 text-stone-200 p-3.5 rounded-xl font-mono overflow-x-auto max-h-56 text-left" dir="ltr">
-                  <div className="text-amber-400 font-bold mb-1">// 1. Preserved Local Command</div>
+                  <div className="text-amber-400 font-bold mb-1">{t("shared.labels.numbered_label", { number: 1, label: t("offline.labels.txt_24195a") })}</div>
                   <pre>{JSON.stringify(conflict.localCommand, null, 2)}</pre>
                 </div>
                 <div className="bg-stone-900 text-stone-200 p-3.5 rounded-xl font-mono overflow-x-auto max-h-56 text-left" dir="ltr">
-                  <div className="text-blue-400 font-bold mb-1">// 2. Preserved Server State</div>
+                  <div className="text-blue-400 font-bold mb-1">{t("shared.labels.numbered_label", { number: 2, label: t("offline.labels.txt_69531e") })}</div>
                   <pre>{JSON.stringify(conflict.serverState, null, 2)}</pre>
                 </div>
               </div>
@@ -341,11 +338,9 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                       <div className="space-y-1">
                         <div className="font-bold text-xs text-emerald-950 flex items-center gap-1.5">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          <span>الخيار القياسي المعتمد: المحافظة على سعر لقطة وثيقة التحميل (Lock Snapshot Rate)</span>
+                          <span>{t("residual.ui.preserve_snapshot_action")}</span>
                         </div>
-                        <p className="text-xs text-emerald-900 leading-relaxed">
-                          الالتزام الصارم بسعر اللقطة المحفوظة ({conflict.pricingProtection?.snapshotRate} ر.س/طن) وعدم تغيير قيمة الرحلة، مع قصر السعر الخادومي الجديد على الرحلات المستقبلية فقط.
-                        </p>
+                        <p className="text-xs text-emerald-900 leading-relaxed">{t("residual.ui.preserve_snapshot_explanation", { rate: conflict.pricingProtection?.snapshotRate ?? '' })}</p>
                       </div>
                     </div>
                   </label>
@@ -365,12 +360,9 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                         className="mt-1 text-amber-600 focus:ring-amber-500"
                       />
                       <div className="space-y-1">
-                        <div className="font-bold text-xs text-stone-900">
-                          استثناء إداري: إعادة الاحتساب بالسعر الخادومي الجديد ({conflict.pricingProtection?.serverCurrentRate} ر.س/طن)
-                        </div>
+                        <div className="font-bold text-xs text-stone-900">{t("residual.ui.override_rate", { rate: conflict.pricingProtection?.serverCurrentRate ?? '' })}</div>
                         <p className="text-xs text-stone-600 leading-relaxed">
-                          يتطلب موافقة خطية ومبرراً رسمياً لتعديل سعر التعاقد الأصلي للرحلة.
-                        </p>
+                          {t("residual.ui.written_approval_required")}</p>
                       </div>
                     </div>
                   </label>
@@ -396,9 +388,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                       <div className="space-y-1">
                         <div className="font-bold text-xs text-blue-950">
                           {t("offline.labels.txt_3d9611")}</div>
-                        <p className="text-xs text-blue-900 leading-relaxed">
-                          الاحتفاظ ببيانات الخادم الحالية v{conflict.serverState.serverVersion} وإلغاء التعديل المحلي القديم.
-                        </p>
+                        <p className="text-xs text-blue-900 leading-relaxed">{t("residual.ui.retain_server_version", { version: conflict.serverState.serverVersion ?? '' })}</p>
                       </div>
                     </div>
                   </label>
@@ -421,8 +411,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                         <div className="font-bold text-xs text-stone-900">
                           {t("offline.labels.txt_60c85c")}</div>
                         <p className="text-xs text-stone-600 leading-relaxed">
-                          تطبيق الأمر الميداني فوق بيانات الخادم مع رفع رقم الإصدار تلقائياً وتوثيق هوية المشرف.
-                        </p>
+                          {t("residual.ui.force_local_explanation")}</p>
                       </div>
                     </div>
                   </label>
@@ -446,9 +435,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                         className="mt-1 text-emerald-600 focus:ring-emerald-500"
                       />
                       <div className="space-y-1">
-                        <div className="font-bold text-xs text-stone-900">
-                          الالتزام بقرار الخادم النهائي ({conflict.serverState.status})
-                        </div>
+                        <div className="font-bold text-xs text-stone-900">{t("residual.ui.accept_final_server_status", { status: conflict.serverState.status })}</div>
                         <p className="text-xs text-stone-600 leading-relaxed">
                           {t("offline.status.closeTrip")}</p>
                       </div>
@@ -521,11 +508,9 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
                       />
                       <div className="space-y-1">
                         <div className="font-bold text-xs text-stone-900">
-                          إعادة إصدار رقم تذكرة جديد واعتماد الرحلة (Re-issue Ticket)
-                        </div>
+                          {t("residual.ui.reissue_ticket_action")}</div>
                         <p className="text-xs text-stone-600 leading-relaxed">
-                          توليد رقم تذكرة ميزان جديد فريد لتفادي التكرار واعتماد قيد الرحلة.
-                        </p>
+                          {t("residual.ui.reissue_ticket_explanation")}</p>
                       </div>
                     </div>
                   </label>
@@ -590,7 +575,7 @@ export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = (
               <textarea
                 value={justification}
                 onChange={(e) => setJustification(e.target.value)}
-                placeholder="أدخل مبرر اعتماد القرار التشغيلي لتوثيقه في سجل التدقيق والمراقبة..."
+                placeholder={t("residual.ui.audit_justification_placeholder")}
                 rows={2}
                 className="w-full text-xs p-2.5 rounded-lg border border-stone-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none"
               />

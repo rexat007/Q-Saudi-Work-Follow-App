@@ -1,3 +1,4 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
 import React, { useState } from 'react';
 import { useAuth } from '../../firebase/authContext';
 import { useI18n } from '../../i18n';
@@ -182,7 +183,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
                   <p>
                     {authError.includes("auth/requests-from-referer") || authError.includes("unauthorized-domain")
                       ? t("authentication.labels.unauthorizedDomainError")
-                      : authError}
+                      : presentBatch4Message(authError, t)}
                   </p>
                 </div>
               </div>
@@ -303,7 +304,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
 
             {formError && (
               <div className="p-3 bg-rose-500/15 border border-rose-500/30 text-rose-200 text-xs rounded-xl font-medium">
-                {formError}
+                {presentBatch4Message(formError, t)}
               </div>
             )}
 

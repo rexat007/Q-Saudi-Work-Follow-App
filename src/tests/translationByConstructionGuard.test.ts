@@ -1001,3 +1001,53 @@ describe('Batch 4 complete active presentation family', () => {
     }
   });
 });
+
+// Complete local text coverage for the residual offline/auth family, including the clean PWA gap.
+describe('Residual offline and PWA translation construction', () => {
+  const readSource = (file: string) => fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+  const residualFiles = [
+    'src/components/offline/OfflineIndicator.tsx',
+    'src/components/offline/OutboxDrawer.tsx',
+    'src/components/offline/ConflictResolutionModal.tsx',
+    'src/components/offline/PWAInstallButton.tsx',
+  ];
+  it('rejects unmanaged multilingual JSX and accessible text across the complete residual family', () => {
+    const failures: string[] = [];
+    const technical = new Set(['PASSED', 'v']);
+    for (const file of residualFiles) {
+      const source = readSource(file);
+      const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+      const visit = (node: ts.Node) => {
+        const attribute = ts.isStringLiteral(node) && ts.isJsxAttribute(node.parent)
+          && ['title', 'aria-label', 'placeholder', 'alt'].includes(node.parent.name.getText(ast));
+        if (ts.isJsxText(node) || attribute) {
+          const text = (node as ts.JsxText | ts.StringLiteral).text.trim();
+          if (/\p{L}/u.test(text) && !technical.has(text)) failures.push(file + ': ' + text);
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(ast);
+    }
+    expect(failures).toEqual([]);
+  });
+
+  it('protects message boundaries and preserves installation and conflict action wiring', () => {
+    const pwa = readSource('src/components/offline/PWAInstallButton.tsx');
+    expect(pwa).toContain('onClick={install}');
+    expect(pwa).toContain('if (isInstalled)');
+    expect(pwa).toContain('if (isInstallable)');
+    expect(pwa).toContain('if (isIOS)');
+    expect(pwa).toContain('setShowIOSGuide(true)');
+    const drawer = readSource('src/components/offline/OutboxDrawer.tsx');
+    for (const expression of ['op.serverAck.messageAr', 'op.errorReason', 'conf.titleAr', 'conf.descriptionAr', 'd.fieldLabelAr', 'testCase.nameAr', 'testCase.details']) {
+      expect(drawer).toContain('presentBatch4Message(' + expression + ', t)');
+    }
+    const modal = readSource('src/components/offline/ConflictResolutionModal.tsx');
+    expect(modal).toContain('strategy: currentStrategy');
+    expect(modal).toContain('justification: justification.trim()');
+    expect(modal).toContain('conflictResolutionService.resolveConflict(conflict.conflictId');
+    for (const file of ['src/components/auth/AuthButton.tsx', 'src/components/auth/AccountStatusGate.tsx']) {
+      expect(readSource(file)).toContain('presentBatch4Message(authError, t)');
+    }
+  });
+});
