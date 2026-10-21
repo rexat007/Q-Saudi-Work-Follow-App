@@ -1,3 +1,5 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { batch4DiagnosticText } from '../../i18n/batch4Presentation';
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   legacyMigrationService 
@@ -43,7 +45,7 @@ import { useI18n } from '../../i18n';
 
 
 export function LegacyMigrationView() {
-  const { t } = useI18n();
+  const { t, direction, locale } = useI18n();
   // Spreadsheet Connection States
   const [spreadsheetId, setSpreadsheetId] = useState<string>('1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms');
   const [sheetTabName, setSheetTabName] = useState<string>('LegacyOperations_20Cols');
@@ -184,7 +186,7 @@ export function LegacyMigrationView() {
       setShowCommitModal(false);
       setReport(legacyMigrationService.getCurrentReport());
     } catch (err: any) {
-      alert(`فشل الترحيل: ${err.message || err}`);
+      alert(presentBatch4Message(t('legacyMigration.labels.migration_failed', { error: presentBatch4Message(String(err.message || err), t) }), t));
     } finally {
       setIsCommitting(false);
     }
@@ -229,7 +231,7 @@ export function LegacyMigrationView() {
   }, [items, activeFilterTab, searchQuery]);
 
   return (
-    <div className="space-y-6 pb-16 font-sans text-stone-900" dir="rtl">
+    <div className="space-y-6 pb-16 font-sans text-stone-900" dir={direction}>
       
       {/* Read-Only & Source Security Banner */}
       <div className="bg-emerald-950 text-emerald-100 rounded-2xl p-5 shadow-sm border border-emerald-900 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -242,11 +244,11 @@ export function LegacyMigrationView() {
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-800 text-emerald-200 border border-emerald-700">
                 {t("legacyMigration.labels.edit")}</span>
               <span className="text-xs font-mono text-emerald-400">
-                20 Legacy Columns Schema
+                {t('legacyMigration.labels.legacy_schema')}
               </span>
             </div>
             <h1 className="text-lg font-black text-white mt-1">
-              أداة ترحيل البيانات التاريخية من شيت قوقل القديم (Legacy Migration Tool)
+              {t('legacyMigration.labels.migration_tool_description')}
             </h1>
             <p className="text-xs text-emerald-200/90 mt-1 max-w-3xl leading-relaxed">
               {t("legacyMigration.labels.confirm")}</p>
@@ -257,7 +259,7 @@ export function LegacyMigrationView() {
         <div className="flex items-center gap-2 bg-emerald-900/80 px-4 py-2.5 rounded-xl border border-emerald-800 text-xs shrink-0">
           <FileSpreadsheet className="w-4 h-4 text-emerald-300" />
           <div>
-            <span className="text-[11px] text-emerald-300 block">حالة المصدر:</span>
+            <span className="text-[11px] text-emerald-300 block">{t('legacyMigration.labels.source_status')}</span>
             <strong className="text-white font-mono">{t("legacyMigration.labels.edit_2")}</strong>
           </div>
         </div>
@@ -273,7 +275,7 @@ export function LegacyMigrationView() {
             <div>
               <h3 className="font-bold text-sm text-emerald-950">{t("legacyMigration.status.txt_1d98ed")}</h3>
               <p className="text-xs text-emerald-800 mt-0.5">
-                {t("legacyMigration.labels.create")}<strong>{commitResult.batchId}</strong> {t("legacyMigration.status.success")}<strong>{commitResult.tripsCount} رحلة</strong> {t("legacyMigration.labels.txt_42479d")}<strong>{commitResult.auditLogId}</strong>.
+                {t("legacyMigration.labels.create")}<strong>{commitResult.batchId}</strong> {t("legacyMigration.status.success")}<strong>{commitResult.tripsCount} {t('dashboard.labels.trips_suffix')}</strong> {t("legacyMigration.labels.txt_42479d")}<strong>{commitResult.auditLogId}</strong>.
               </p>
             </div>
           </div>
@@ -315,7 +317,7 @@ export function LegacyMigrationView() {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>{report?.isCommitted ? 'تم الاعتماد والترحيل' : 'تأكيد وترحيل السجلات (Admin Commit)'}</span>
+              <span>{report?.isCommitted ? t('legacyMigration.labels.migration_committed') : t('legacyMigration.labels.confirm')}</span>
             </button>
           </div>
         </div>
@@ -349,7 +351,7 @@ export function LegacyMigrationView() {
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
                   {t("legacyMigration.labels.txt_22d9d7")}</span>
                 <span className="text-xs font-mono text-stone-500">
-                  كود التقرير: {report.reportId}
+                  {t('legacyMigration.labels.report_code')} {report.reportId}
                 </span>
               </div>
               <h2 className="text-base font-black text-stone-900 mt-1">
@@ -357,7 +359,7 @@ export function LegacyMigrationView() {
             </div>
 
             <div className="flex items-center gap-2 text-xs text-stone-500">
-              <span>تاريخ التوليد: <strong>{new Date(report.generatedAt).toLocaleTimeString('ar-SA')}</strong></span>
+              <span>{t('legacyMigration.labels.generated_at')} <strong>{new Date(report.generatedAt).toLocaleTimeString(locale)}</strong></span>
               <span>•</span>
               <span className="text-emerald-700 font-bold flex items-center gap-1">
                 <Lock className="w-3 h-3" />
@@ -370,7 +372,7 @@ export function LegacyMigrationView() {
             
             {/* 1. rowsRead */}
             <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200">
-              <span className="text-[11px] font-semibold text-stone-500 block">rowsRead</span>
+              <span className="text-[11px] font-semibold text-stone-500 block">{t('legacyMigration.labels.rows_read')}</span>
               <span className="text-xl font-black text-stone-900 font-mono mt-1 block">
                 {report.rowsRead}
               </span>
@@ -379,7 +381,7 @@ export function LegacyMigrationView() {
 
             {/* 2. rowsValid */}
             <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
-              <span className="text-[11px] font-semibold text-emerald-800 block">rowsValid</span>
+              <span className="text-[11px] font-semibold text-emerald-800 block">{t('entityResolution.labels.valid_rows')}</span>
               <span className="text-xl font-black text-emerald-700 font-mono mt-1 block">
                 {report.rowsValid}
               </span>
@@ -388,7 +390,7 @@ export function LegacyMigrationView() {
 
             {/* 3. rowsInvalid */}
             <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200">
-              <span className="text-[11px] font-semibold text-rose-800 block">rowsInvalid</span>
+              <span className="text-[11px] font-semibold text-rose-800 block">{t('entityResolution.labels.invalid_rows')}</span>
               <span className="text-xl font-black text-rose-700 font-mono mt-1 block">
                 {report.rowsInvalid}
               </span>
@@ -397,7 +399,7 @@ export function LegacyMigrationView() {
 
             {/* 4. matchedEntities */}
             <div className="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200">
-              <span className="text-[11px] font-semibold text-indigo-800 block">matchedEntities</span>
+              <span className="text-[11px] font-semibold text-indigo-800 block">{t('entityResolution.labels.matched_entities')}</span>
               <span className="text-xl font-black text-indigo-900 font-mono mt-1 block">
                 {report.matchedEntities.total}
               </span>
@@ -407,7 +409,7 @@ export function LegacyMigrationView() {
 
             {/* 5. unmatchedEntities */}
             <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
-              <span className="text-[11px] font-semibold text-amber-800 block">unmatchedEntities</span>
+              <span className="text-[11px] font-semibold text-amber-800 block">{t('entityResolution.labels.unmatched_entities')}</span>
               <span className="text-xl font-black text-amber-900 font-mono mt-1 block">
                 {report.unmatchedEntities.total}
               </span>
@@ -417,7 +419,7 @@ export function LegacyMigrationView() {
 
             {/* 6. pricingUnresolved */}
             <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200">
-              <span className="text-[11px] font-semibold text-purple-900 block">pricingUnresolved</span>
+              <span className="text-[11px] font-semibold text-purple-900 block">{t('entityResolution.labels.unresolved_pricing')}</span>
               <span className="text-xl font-black text-purple-700 font-mono mt-1 block">
                 {report.pricingUnresolved}
               </span>
@@ -428,7 +430,7 @@ export function LegacyMigrationView() {
 
             {/* 7. duplicates */}
             <div className="p-3.5 rounded-xl bg-orange-50 border border-orange-200">
-              <span className="text-[11px] font-semibold text-orange-900 block">duplicates</span>
+              <span className="text-[11px] font-semibold text-orange-900 block">{t('entityResolution.labels.duplicate_records')}</span>
               <span className="text-xl font-black text-orange-700 font-mono mt-1 block">
                 {report.duplicates}
               </span>
@@ -437,7 +439,7 @@ export function LegacyMigrationView() {
 
             {/* 8. conflicts */}
             <div className="p-3.5 rounded-xl bg-red-50 border border-red-200">
-              <span className="text-[11px] font-semibold text-red-900 block">conflicts</span>
+              <span className="text-[11px] font-semibold text-red-900 block">{t('entityResolution.labels.data_conflicts')}</span>
               <span className="text-xl font-black text-red-700 font-mono mt-1 block">
                 {report.conflicts}
               </span>
@@ -452,19 +454,19 @@ export function LegacyMigrationView() {
               <span className="font-bold text-stone-700 block mb-2">{t("legacyMigration.labels.txt_279c98")}</span>
               <div className="grid grid-cols-4 gap-2 text-center">
                 <div className="p-2 bg-white rounded border border-stone-200">
-                  <span className="text-stone-400 block text-[10px]">الناقلين</span>
+                  <span className="text-stone-400 block text-[10px]">{t('entityResolution.labels.carriers')}</span>
                   <span className="font-bold text-stone-900">{report.matchedEntities.carriers}</span>
                 </div>
                 <div className="p-2 bg-white rounded border border-stone-200">
-                  <span className="text-stone-400 block text-[10px]">المواد</span>
+                  <span className="text-stone-400 block text-[10px]">{t('other.labels.materials_5')}</span>
                   <span className="font-bold text-stone-900">{report.matchedEntities.materials}</span>
                 </div>
                 <div className="p-2 bg-white rounded border border-stone-200">
-                  <span className="text-stone-400 block text-[10px]">الشاحنات</span>
+                  <span className="text-stone-400 block text-[10px]">{t('entityResolution.labels.trucks')}</span>
                   <span className="font-bold text-stone-900">{report.matchedEntities.trucks}</span>
                 </div>
                 <div className="p-2 bg-white rounded border border-stone-200">
-                  <span className="text-stone-400 block text-[10px]">السائقين</span>
+                  <span className="text-stone-400 block text-[10px]">{t('other.labels.drivers_5')}</span>
                   <span className="font-bold text-stone-900">{report.matchedEntities.drivers}</span>
                 </div>
               </div>
@@ -474,19 +476,19 @@ export function LegacyMigrationView() {
               <span className="font-bold text-stone-700 block mb-2">{t("legacyMigration.labels.txt_115a70")}</span>
               <div className="grid grid-cols-4 gap-2 text-center">
                 <div className="p-2 bg-white rounded border border-stone-200">
-                  <span className="text-stone-400 block text-[10px]">الناقلين</span>
+                  <span className="text-stone-400 block text-[10px]">{t('entityResolution.labels.carriers')}</span>
                   <span className="font-bold text-amber-700">{report.unmatchedEntities.carriers}</span>
                 </div>
                 <div className="p-2 bg-white rounded border border-stone-200">
-                  <span className="text-stone-400 block text-[10px]">المواد</span>
+                  <span className="text-stone-400 block text-[10px]">{t('other.labels.materials_5')}</span>
                   <span className="font-bold text-amber-700">{report.unmatchedEntities.materials}</span>
                 </div>
                 <div className="p-2 bg-white rounded border border-stone-200">
-                  <span className="text-stone-400 block text-[10px]">الشاحنات</span>
+                  <span className="text-stone-400 block text-[10px]">{t('entityResolution.labels.trucks')}</span>
                   <span className="font-bold text-amber-700">{report.unmatchedEntities.trucks}</span>
                 </div>
                 <div className="p-2 bg-white rounded border border-stone-200">
-                  <span className="text-stone-400 block text-[10px]">السائقين</span>
+                  <span className="text-stone-400 block text-[10px]">{t('other.labels.drivers_5')}</span>
                   <span className="font-bold text-amber-700">{report.unmatchedEntities.drivers}</span>
                 </div>
               </div>
@@ -507,7 +509,7 @@ export function LegacyMigrationView() {
                 : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
             }`}
           >
-            كافة السجلات ({items.length})
+            {t('legacyMigration.labels.all_records_prefix')}{items.length})
           </button>
 
           <button
@@ -546,7 +548,7 @@ export function LegacyMigrationView() {
             }`}
           >
             <Copy className="w-3.5 h-3.5" />
-            <span>تذاكر مكررة ({report?.duplicates || 0})</span>
+            <span>{t('legacyMigration.labels.duplicate_tickets_prefix')}{report?.duplicates || 0})</span>
           </button>
 
           <button
@@ -558,7 +560,7 @@ export function LegacyMigrationView() {
             }`}
           >
             <AlertOctagon className="w-3.5 h-3.5" />
-            <span>تعارضات أوزان ({report?.conflicts || 0})</span>
+            <span>{t('legacyMigration.labels.weight_conflicts_prefix')}{report?.conflicts || 0})</span>
           </button>
 
           <button
@@ -570,7 +572,7 @@ export function LegacyMigrationView() {
             }`}
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>سجلات سليمة ({report?.rowsValid || 0})</span>
+            <span>{t('legacyMigration.labels.valid_records_prefix')}{report?.rowsValid || 0})</span>
           </button>
 
           <button
@@ -587,7 +589,7 @@ export function LegacyMigrationView() {
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>اختبارات الترحيل الآلية ({testReport ? `${testReport.passed}/${testReport.total}` : '50/50'})</span>
+            <span>{t('legacyMigration.labels.automated_tests_prefix')}{testReport ? `${testReport.passed}/${testReport.total}` : '50/50'})</span>
           </button>
         </div>
 
@@ -597,7 +599,7 @@ export function LegacyMigrationView() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="بحث بالتذكرة، السائق، الناقل، اللوحة..."
+            placeholder={t('legacyMigration.labels.search_records')}
             className="w-full pr-9 pl-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500"
           />
         </div>
@@ -612,7 +614,7 @@ export function LegacyMigrationView() {
             <div>
               <h3 className="font-bold text-base text-stone-900 flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-blue-600" />
-                <span>حزمة الاختبارات الآلية الشاملة للترحيل التاريخي (BLOCK 37)</span>
+                <span>{t('legacyMigration.labels.automated_test_suite')}</span>
               </h3>
               <p className="text-xs text-stone-500 mt-1">
                 {t("legacyMigration.labels.pricing_2")}</p>
@@ -624,7 +626,7 @@ export function LegacyMigrationView() {
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50 shrink-0"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRunningTests ? 'animate-spin' : ''}`} />
-              <span>{isRunningTests ? 'جاري الفحص...' : 'إعادة تشغيل الـ 50 اختباراً'}</span>
+              <span>{isRunningTests ? t('legacyMigration.labels.running_checks') : t('legacyMigration.labels.rerun_fifty_tests')}</span>
             </button>
           </div>
 
@@ -665,10 +667,10 @@ export function LegacyMigrationView() {
                     <span className="font-mono font-black text-stone-800 px-2 py-0.5 rounded bg-white border border-stone-200 text-[11px]">
                       {tc.id}
                     </span>
-                    <span className="font-bold text-stone-900">{tc.name}</span>
+                    <span className="font-bold text-stone-900">{batch4DiagnosticText(t, tc.id, 'name', tc.name)}</span>
                   </div>
                   <p className="text-[11px] text-stone-600">
-                    <span className="font-medium text-stone-500">المتوقع: </span>{tc.expected} | <span className="font-medium text-stone-500">الفعلي: </span>{tc.actual}
+                    <span className="font-medium text-stone-500">{t('legacyMigration.labels.expected')} </span>{tc.expected} | <span className="font-medium text-stone-500">{t('legacyMigration.labels.actual')} </span>{tc.actual}
                   </p>
                   {tc.notes && <p className="text-[10px] text-stone-500 italic">{tc.notes}</p>}
                 </div>
@@ -700,7 +702,7 @@ export function LegacyMigrationView() {
             <thead>
               <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold">
                 <th className="py-3 px-3">#</th>
-                <th className="py-3 px-3">رقم التذكرة والوردية</th>
+                <th className="py-3 px-3">{t('legacyMigration.labels.ticket_shift')}</th>
                 <th className="py-3 px-3">{t("legacyMigration.labels.carrier_2")}</th>
                 <th className="py-3 px-3">{t("legacyMigration.labels.material_2")}</th>
                 <th className="py-3 px-3">{t("legacyMigration.labels.truck_2")}</th>
@@ -708,7 +710,7 @@ export function LegacyMigrationView() {
                 <th className="py-3 px-3">{t("legacyMigration.labels.txt_149d03")}</th>
                 <th className="py-3 px-3">{t("legacyMigration.labels.pricing_3")}</th>
                 <th className="py-3 px-3">{t("legacyMigration.labels.status")}</th>
-                <th className="py-3 px-3 text-left">الإجراء</th>
+                <th className="py-3 px-3 text-left">{t('legacyMigration.labels.action')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -752,7 +754,7 @@ export function LegacyMigrationView() {
                         {item.matchedCarrier.status === 'EXACT_MATCH' ? (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
                             <Check className="w-2.5 h-2.5" />
-                            <span>مطابق ({item.matchedCarrier.matchedName})</span>
+                            <span>{t('legacyMigration.labels.matched_prefix')}{item.matchedCarrier.matchedName})</span>
                           </span>
                         ) : item.matchedCarrier.status === 'CANDIDATE_MATCH' ? (
                           <button
@@ -766,7 +768,7 @@ export function LegacyMigrationView() {
                             title={t("legacyMigration.labels.edit_3")}
                           >
                             <AlertTriangle className="w-2.5 h-2.5 text-amber-700" />
-                            <span>مقترح: {item.matchedCarrier.candidates[0]?.name} ({Math.round(item.matchedCarrier.confidenceScore * 100)}%)</span>
+                            <span>{t('legacyMigration.labels.suggested')} {item.matchedCarrier.candidates[0]?.name} ({Math.round(item.matchedCarrier.confidenceScore * 100)}%)</span>
                           </button>
                         ) : (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-bold bg-stone-100 text-stone-600 border border-stone-200">
@@ -792,7 +794,7 @@ export function LegacyMigrationView() {
                             })}
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300 cursor-pointer"
                           >
-                            <span>مقترح: {item.matchedMaterial.candidates[0]?.name}</span>
+                            <span>{t('legacyMigration.labels.suggested')} {item.matchedMaterial.candidates[0]?.name}</span>
                           </button>
                         ) : (
                           <span className="text-[10px] text-stone-400">{t("legacyMigration.labels.txt_686b44")}</span>
@@ -803,7 +805,7 @@ export function LegacyMigrationView() {
                       <td className="py-3.5 px-3">
                         <span className="font-mono font-bold text-stone-800 block text-[11px]">{item.raw.truckNo}</span>
                         {item.matchedTruck.status === 'EXACT_MATCH' ? (
-                          <span className="text-[10px] text-emerald-700 font-bold block">معتمد ({item.matchedTruck.matchedId})</span>
+                          <span className="text-[10px] text-emerald-700 font-bold block">{t('legacyMigration.labels.approved_prefix')}{item.matchedTruck.matchedId})</span>
                         ) : item.matchedTruck.status === 'CANDIDATE_MATCH' ? (
                           <button
                             onClick={() => setReviewingItem({
@@ -814,7 +816,7 @@ export function LegacyMigrationView() {
                             })}
                             className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300"
                           >
-                            مقترح: {item.matchedTruck.candidates[0]?.name}
+                            {t('legacyMigration.labels.suggested')} {item.matchedTruck.candidates[0]?.name}
                           </button>
                         ) : (
                           <span className="text-[10px] text-stone-400">{t("legacyMigration.labels.txt_1d9cbd")}</span>
@@ -825,7 +827,7 @@ export function LegacyMigrationView() {
                       <td className="py-3.5 px-3">
                         <span className="font-medium text-stone-800 block text-[11px]">{item.raw.driverName}</span>
                         {item.matchedDriver.status === 'EXACT_MATCH' ? (
-                          <span className="text-[10px] text-emerald-700 font-bold">معتمد</span>
+                          <span className="text-[10px] text-emerald-700 font-bold">{t('legacyMigration.labels.approved')}</span>
                         ) : item.matchedDriver.status === 'CANDIDATE_MATCH' ? (
                           <button
                             onClick={() => setReviewingItem({
@@ -836,22 +838,22 @@ export function LegacyMigrationView() {
                             })}
                             className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300"
                           >
-                            مقترح: {item.matchedDriver.candidates[0]?.name}
+                            {t('legacyMigration.labels.suggested')} {item.matchedDriver.candidates[0]?.name}
                           </button>
                         ) : (
-                          <span className="text-[10px] text-stone-400">سائق جديد</span>
+                          <span className="text-[10px] text-stone-400">{t('legacyMigration.labels.new_driver')}</span>
                         )}
                       </td>
 
                       {/* Weights */}
                       <td className="py-3.5 px-3 font-mono text-[11px]">
-                        <span className="font-bold text-stone-900 block">{item.raw.netWeight} كجم (صافي)</span>
+                        <span className="font-bold text-stone-900 block">{item.raw.netWeight} {t('legacyMigration.labels.net_kg')}</span>
                         <span className="text-[10px] text-stone-400 block">
-                          قائم: {item.raw.grossWeight} | فارغ: {item.raw.tareWeight}
+                          {t('operations.gross')} {item.raw.grossWeight} {t('operations.tare_2')} {item.raw.tareWeight}
                         </span>
                         {item.hasConflict && (
                           <span className="inline-block mt-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-red-100 text-red-900 border border-red-300">
-                            تعارض حسابي في الوزن!
+                            {t('legacyMigration.labels.weight_arithmetic_conflict')}
                           </span>
                         )}
                       </td>
@@ -860,7 +862,7 @@ export function LegacyMigrationView() {
                       <td className="py-3.5 px-3">
                         <div className="flex items-center gap-1.5">
                           <span className="font-mono font-bold text-stone-900 text-xs">
-                            {item.pricingResolution.resolvedRate} ر.س
+                            {item.pricingResolution.resolvedRate} {t('shared.units.sar')}
                           </span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${
                             item.pricingResolution.pricingType === 'PER_TON' ? 'bg-indigo-100 text-indigo-800' :
@@ -881,8 +883,8 @@ export function LegacyMigrationView() {
                               className="bg-white border border-purple-300 text-[10px] rounded px-1 py-0.5 text-purple-950 font-bold focus:outline-none"
                             >
                               <option value="LEGACY_UNRESOLVED">{t("legacyMigration.labels.txt_52920f")}</option>
-                              <option value="PER_TRIP">بالرد (PER_TRIP)</option>
-                              <option value="PER_TON">بالطن (PER_TON)</option>
+                              <option value="PER_TRIP">{t('operations.per_trip_per_trip')}</option>
+                              <option value="PER_TON">{t('operations.per_ton_per_ton')}</option>
                             </select>
                           </div>
                         )}
@@ -896,9 +898,9 @@ export function LegacyMigrationView() {
                             <span>{t("legacyMigration.labels.txt_a00b26")}</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800" title={item.validationErrors.join(' | ')}>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800" title={item.validationErrors.map(message => presentBatch4Message(message, t)).join(' | ')}>
                             <XCircle className="w-3 h-3 text-rose-600" />
-                            <span>مرفوض ({item.validationErrors[0]})</span>
+                            <span>{t('legacyMigration.labels.rejected_prefix')}{presentBatch4Message(item.validationErrors[0], t)})</span>
                           </span>
                         )}
                       </td>
@@ -917,7 +919,7 @@ export function LegacyMigrationView() {
                               : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'
                           }`}
                         >
-                          {item.reviewDecision === 'REJECTED' ? 'استعادة' : 'استبعاد'}
+                          {item.reviewDecision === 'REJECTED' ? t('legacyMigration.labels.restore_record') : t('legacyMigration.labels.exclude_record')}
                         </button>
                       </td>
 
@@ -943,7 +945,7 @@ export function LegacyMigrationView() {
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
                   {t("legacyMigration.labels.txt_29633c")}</span>
                 <h3 className="text-base font-bold text-stone-900 mt-1">
-                  مطابقة {reviewingItem.entityType === 'carrier' ? 'الناقل' : reviewingItem.entityType === 'material' ? 'المادة' : reviewingItem.entityType === 'truck' ? 'الشاحنة' : 'السائق'}
+                  {t('legacyMigration.labels.matching')} {reviewingItem.entityType === 'carrier' ? t('legacyMigration.labels.carrier_2') : reviewingItem.entityType === 'material' ? t('legacyMigration.labels.material_2') : reviewingItem.entityType === 'truck' ? t('legacyMigration.labels.truck_2') : t('legacyMigration.labels.driver_2')}
                 </h3>
               </div>
               <button
@@ -965,11 +967,11 @@ export function LegacyMigrationView() {
                 <div key={cIdx} className="p-3 bg-white border border-stone-200 rounded-xl flex items-center justify-between hover:border-amber-400 transition-all">
                   <div>
                     <span className="font-bold text-stone-900 block text-xs">{cand.name}</span>
-                    <span className="text-[10px] text-stone-400 font-mono">{cand.id} • {cand.details || 'مطابقة تشابه لغوي'}</span>
+                    <span className="text-[10px] text-stone-400 font-mono">{cand.id} • {cand.details || t('legacyMigration.labels.fuzzy_match')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                      {Math.round(cand.score * 100)}% ثقة
+                      {Math.round(cand.score * 100)}{t('legacyMigration.labels.confidence_percent')}
                     </span>
                     <button
                       onClick={() => handleAcceptCandidate(reviewingItem.itemIndex, reviewingItem.entityType, cand)}
@@ -986,7 +988,7 @@ export function LegacyMigrationView() {
                 onClick={() => setReviewingItem(null)}
                 className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs"
               >
-                إلغاء
+                {t('shared.actions.cancel')}
               </button>
             </div>
 
@@ -1009,10 +1011,10 @@ export function LegacyMigrationView() {
                 </div>
                 <div>
                   <h3 className="text-base font-black text-stone-900">
-                    تأكيد واعتماد ترحيل البيانات التاريخية (Admin Commit Confirmation)
+                    {t('legacyMigration.labels.commit_confirmation')}
                   </h3>
                   <p className="text-[11px] text-stone-500">
-                    بصفتك مدير النظام ({adminContext.displayName})
+                    {t('legacyMigration.labels.acting_as_admin_prefix')}{adminContext.displayName})
                   </p>
                 </div>
               </div>
@@ -1028,15 +1030,15 @@ export function LegacyMigrationView() {
             <div className="bg-stone-50 rounded-xl p-4 border border-stone-200 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-stone-600">{t("legacyMigration.labels.txt_73bda7")}</span>
-                <strong className="text-emerald-700 font-mono text-sm">{report.rowsValid} رحلة</strong>
+                <strong className="text-emerald-700 font-mono text-sm">{report.rowsValid} {t('dashboard.labels.trips_suffix')}</strong>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-stone-600">{t("legacyMigration.labels.txt_34d624")}</span>
-                <strong className="text-rose-700 font-mono text-sm">{report.rowsInvalid} سجل</strong>
+                <strong className="text-rose-700 font-mono text-sm">{report.rowsInvalid} {t('analytics.ui.records')}</strong>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-stone-600">{t("legacyMigration.labels.tripsPricing")}</span>
-                <strong className="text-purple-700 font-mono text-sm">{report.pricingUnresolved} رحلة (بدون افتراض)</strong>
+                <strong className="text-purple-700 font-mono text-sm">{report.pricingUnresolved} {t('legacyMigration.labels.trips_without_assumption')}</strong>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-stone-200 text-stone-500">
                 <span>{t("legacyMigration.labels.txt_3a366d")}</span>
@@ -1055,8 +1057,7 @@ export function LegacyMigrationView() {
                 className="mt-0.5 w-4 h-4 text-amber-600 rounded focus:ring-amber-500"
               />
               <span className="text-amber-950 text-xs leading-relaxed font-semibold">
-                أقر أنا مدير النظام بصحة مراجعة المطابقات المقترحة، وأوافق على ترحيل الـ {report.rowsValid} رحلة إلى النظام وقاعدة البيانات، مع تسجيل قيد تدقيق غير قابل للحذف يحمل هويتي الرسمية.
-              </span>
+                {t('legacyMigration.labels.admin_acknowledgement', { count: report.rowsValid })}</span>
             </label>
 
             {/* Action Buttons */}
@@ -1066,7 +1067,7 @@ export function LegacyMigrationView() {
                 onClick={() => setShowCommitModal(false)}
                 className="px-4 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-bold hover:bg-stone-50 text-xs"
               >
-                إلغاء والتراجع
+                {t('shared.actions.cancel')}
               </button>
               <button
                 type="button"
@@ -1077,12 +1078,12 @@ export function LegacyMigrationView() {
                 {isCommitting ? (
                   <>
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>جاري الترحيل وتسجيل الدفعة...</span>
+                    <span>{t('legacyMigration.labels.committing_migration')}</span>
                   </>
                 ) : (
                   <>
                     <Check className="w-4 h-4" />
-                    <span>تأكيد واعتماد الترحيل النهائي (Commit)</span>
+                    <span>{t('legacyMigration.labels.confirm_final_commit')}</span>
                   </>
                 )}
               </button>

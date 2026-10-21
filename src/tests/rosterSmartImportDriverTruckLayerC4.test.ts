@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -71,7 +73,14 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
     expect(wizardContent).toContain('handleSmartImportContinueToDriverTruck');
     expect(wizardContent.includes("transitionToRosterStage('DRIVER_TRUCK_RESOLUTION')") || wizardContent.includes("setRosterImportStage('DRIVER_TRUCK_RESOLUTION')")).toBe(true);
     expect(materialLayerContent).toContain('onContinueToDriverTruck');
-    expect(materialLayerContent).toContain('متابعة إلى مراجعة السائقين والشاحنات');
+    expect(materialLayerContent).toContain("t('entityResolution.labels.continue_driver_truck_review')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.continue_driver_truck_review';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('2. Group keys for drivers and trucks incorporate carrier context to prevent leakage', () => {
@@ -211,8 +220,22 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
   });
 
   it('24. UI recovery state displays required messaging and retry action button without permitting duplicate submission', () => {
-    expect(driverTruckLayerContent).toContain('تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة.');
-    expect(driverTruckLayerContent).toContain('إعادة تحديث البيانات');
+    expect(driverTruckLayerContent).toContain("t('entityResolution.messages.created_refresh_failed')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.messages.created_refresh_failed';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
+    expect(driverTruckLayerContent).toContain("t('entityResolution.labels.refresh_data')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.refresh_data';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
     expect(driverTruckLayerContent).toContain('driverConvergenceError');
     expect(driverTruckLayerContent).toContain('truckConvergenceError');
   });

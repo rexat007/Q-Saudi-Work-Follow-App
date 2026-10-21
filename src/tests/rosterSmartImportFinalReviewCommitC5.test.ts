@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -67,7 +69,14 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   });
 
   it('11. Exactly one Continue-to-Final-Review action in C4', () => {
-    expect(driverTruckContent).toContain('متابعة إلى المراجعة النهائية');
+    expect(driverTruckContent).toContain("t('entityResolution.labels.continue_final_review')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.continue_final_review';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('12. Final Review transition preserves same batch', () => {
@@ -102,42 +111,98 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   // FINAL REVIEW UI
   it('18. Total rows shown in Final Review', () => {
     expect(finalReviewContent).toContain('totalRows');
-    expect(finalReviewContent).toContain('إجمالي السجلات');
+    expect(finalReviewContent).toContain("t('entityResolution.labels.total_records')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.total_records';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('19. Ready rows shown', () => {
     expect(finalReviewContent).toContain('readyRowsCount');
-    expect(finalReviewContent).toContain('جاهزة للاعتماد');
+    expect(finalReviewContent).toContain("t('entityResolution.labels.ready_for_approval')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.ready_for_approval';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('20. Warning rows shown', () => {
     expect(finalReviewContent).toContain('warningRows');
-    expect(finalReviewContent).toContain('صفوف بها تنبيهات');
+    expect(finalReviewContent).toContain("t('entityResolution.labels.rows_with_warnings')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.rows_with_warnings';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('21. Blocked rows shown', () => {
     expect(finalReviewContent).toContain('blockedRows');
-    expect(finalReviewContent).toContain('صفوف محجوبة/أخطاء');
+    expect(finalReviewContent).toContain("t('entityResolution.labels.blocked_error_rows')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.blocked_error_rows';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('22. Carrier summary shown', () => {
     expect(finalReviewContent).toContain('carrierGroups');
-    expect(finalReviewContent).toContain('الناقلون (Carriers)');
+    expect(finalReviewContent).toContain("t('entityResolution.labels.carriers')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.carriers';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('23. Material summary shown', () => {
     expect(finalReviewContent).toContain('materialGroups');
-    expect(finalReviewContent).toContain('المواد (Materials)');
+    expect(finalReviewContent).toContain("t('other.labels.materials_5')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'other.labels.materials_5';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('24. Driver summary shown', () => {
     expect(finalReviewContent).toContain('driverGroups');
-    expect(finalReviewContent).toContain('السائقون (Drivers)');
+    expect(finalReviewContent).toContain("t('other.labels.drivers_5')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'other.labels.drivers_5';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('25. Truck summary shown', () => {
     expect(finalReviewContent).toContain('truckGroups');
-    expect(finalReviewContent).toContain('الشاحنات (Trucks)');
+    expect(finalReviewContent).toContain("t('entityResolution.labels.trucks')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.trucks';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('26. Effective canonical/resolved values shown', () => {
@@ -163,7 +228,14 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   });
 
   it('30. Exactly one commit button in Final Review', () => {
-    expect(finalReviewContent).toContain('اعتماد وتنفيذ الاستيراد');
+    expect(finalReviewContent).toContain("t('entityResolution.labels.approve_commit_import')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.approve_commit_import';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // COMMIT GATE
@@ -259,22 +331,50 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   // RESULT CLASSIFICATION
   it('48. failedRows=0 + committedRows>0 classifies as FULL SUCCESS', () => {
     expect(commitResultContent).toContain('failedRows === 0 && committedRows > 0');
-    expect(commitResultContent).toContain('تم تنفيذ الاستيراد بنجاح');
+    expect(commitResultContent).toContain("t('entityResolution.messages.import_succeeded')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.messages.import_succeeded';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('49. committedRows>0 + failedRows>0 classifies as PARTIAL', () => {
     expect(commitResultContent).toContain('committedRows > 0 && failedRows > 0');
-    expect(commitResultContent).toContain('تم تنفيذ جزء من الاستيراد مع وجود صفوف فاشلة');
+    expect(commitResultContent).toContain("t('entityResolution.messages.import_partial')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.messages.import_partial';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('50. committedRows=0 + failedRows>0 classifies as FAILURE', () => {
     expect(commitResultContent).toContain('committedRows === 0 && failedRows > 0');
-    expect(commitResultContent).toContain('فشل تنفيذ الاستيراد');
+    expect(commitResultContent).toContain("t('entityResolution.messages.import_failed')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.messages.import_failed';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('51. committedRows=0 + failedRows=0 classifies as ZERO/INVALID', () => {
     expect(commitResultContent).toContain('committedRows === 0 && failedRows === 0');
-    expect(commitResultContent).toContain('لم يتم تنفيذ أي تغييرات');
+    expect(commitResultContent).toContain("t('entityResolution.messages.import_no_changes')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.messages.import_no_changes';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('52. result.success=true with failedRows>0 is NOT displayed as full success', () => {
@@ -288,7 +388,14 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   });
 
   it('54. Partial result shows failed count', () => {
-    expect(commitResultContent).toContain('الصفوف الفاشلة');
+    expect(commitResultContent).toContain("t('entityResolution.labels.failed_rows')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.failed_rows';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   it('55. Partial result shows issues log', () => {
@@ -313,7 +420,14 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   });
 
   it('60. Finish action invokes explicit reset only after user click', () => {
-    expect(commitResultContent).toContain('إنهاء الاستيراد');
+    expect(commitResultContent).toContain("t('entityResolution.labels.finish_import')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.finish_import';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // RESET
@@ -362,7 +476,14 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
     const fnBlock = wizardContent.slice(fnIdx, fnIdx + 500);
     expect(fnBlock).toContain('if (smartImportCommitResult !== null && smartImportCommitResult.success)');
-    expect(fnBlock).toContain('تم اعتماد دفعة الاستيراد بنجاح بالفعل لهذه الجلسة');
+    expect(fnBlock).toContain("t('entityResolution.messages.already_committed')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.messages.already_committed';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 });
 

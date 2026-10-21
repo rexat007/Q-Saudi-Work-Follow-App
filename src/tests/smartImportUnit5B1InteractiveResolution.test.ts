@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ExcelCsvPipelineService } from '../services/import/excelCsvPipeline.service';
 import { EntityResolutionService } from '../services/import/entityResolution.service';
@@ -570,7 +572,13 @@ describe('Smart Import Unit 5B-1 Production Interactive Entity Resolution Test S
     const serviceFilePath = path.resolve(__dirname, '../components/importCenter/ExcelCsvImportSection.tsx');
     const code = fs.readFileSync(serviceFilePath, 'utf-8');
 
-    expect(code).toContain('مراجعة المطابقة');
+    expect(code).toContain("t('entityResolution.labels.review_matching')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      expect(dictionaries[locale]['entityResolution.labels.review_matching']).toBeTruthy();
+      const label = resolveTranslation('entityResolution.labels.review_matching', locale, { count: 2 });
+      expect(label).toBe(dictionaries[locale]['entityResolution.labels.review_matching'].replace('{count}', '2'));
+      expect(label).not.toContain('{count}');
+    }
     expect(code).not.toContain('مراجعة الناقل');
     expect(code).not.toContain('مراجعة الشاحنة');
   });

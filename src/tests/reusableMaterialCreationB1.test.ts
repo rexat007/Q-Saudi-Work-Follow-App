@@ -1,3 +1,4 @@
+import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
@@ -177,7 +178,7 @@ describe('FOUNDATION B1 — Reusable Material Creation Component', () => {
     expect(modalContent).toContain('createdMaterialResult');
     expect(modalContent).toContain('refreshFailed');
     expect(modalContent).toContain('handleRetryRefresh');
-    expect(modalContent).toContain('إعادة تحديث البيانات');
+    expectCanonicalBatch4Source(modalContent, 'entityResolution.labels.refresh_data');
   });
 
   // 14. Retry refresh never re-executes POST /setup-material

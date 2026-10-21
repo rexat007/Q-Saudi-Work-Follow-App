@@ -1,3 +1,5 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { useI18n } from '../../i18n';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Truck, X, AlertCircle, Loader2 } from 'lucide-react';
@@ -59,6 +61,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   clientService = carrierManagementClientService,
   zIndexClass = 'z-50',
 }) => {
+  const { t, direction } = useI18n();
   const isEditMode = mode === 'EDIT';
 
   const [name, setName] = useState('');
@@ -118,9 +121,9 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
 
     const trimmedName = name.trim();
     if (!trimmedName) {
-      errors.name = 'اسم الناقل / الشركة مطلوب';
+      errors.name = t('entityResolution.messages.carrier_name_required');
     } else if (trimmedName.length < 3) {
-      errors.name = 'اسم الناقل يجب أن يتكون من 3 أحرف على الأقل';
+      errors.name = t('entityResolution.messages.carrier_name_min_length');
     }
 
     // In CREATE mode, CR is strictly validated. In EDIT mode, CR is read-only.
@@ -128,22 +131,22 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       const trimmedCr = commercialRegistrationNo.trim();
       const crDigits = trimmedCr.replace(/[^0-9]/g, '');
       if (!trimmedCr) {
-        errors.commercialRegistrationNo = 'رقم السجل التجاري (CR) مطلوب';
+        errors.commercialRegistrationNo = t('entityResolution.messages.carrier_registration_required');
       } else if (crDigits.length !== 10 || crDigits !== trimmedCr) {
-        errors.commercialRegistrationNo = 'رقم السجل التجاري يجب أن يتكون من 10 أرقام بالضبط';
+        errors.commercialRegistrationNo = t('entityResolution.messages.carrier_registration_length');
       }
     }
 
     if (contactPhone.trim()) {
       const cleanPhone = contactPhone.trim().replace(/[\s-]/g, '');
       if (!/^\+?[0-9]{9,15}$/.test(cleanPhone)) {
-        errors.contactPhone = 'رقم الهاتف غير صحيح (يجب أن يتكون من 9 إلى 15 رقماً)';
+        errors.contactPhone = t('entityResolution.messages.phone_invalid');
       }
     }
 
     if (contactEmail.trim()) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail.trim())) {
-        errors.contactEmail = 'صيغة البريد الإلكتروني غير صحيحة';
+        errors.contactEmail = t('entityResolution.messages.email_invalid');
       }
     }
 
@@ -193,7 +196,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           result = await clientService.createProjectCarrier(projectId, payload);
           setCreatedCarrierResult(result);
         } catch (err: any) {
-          setSubmitError(err.message || 'حدث خطأ أثناء حفظ الناقل');
+          setSubmitError(err.message || t('entityResolution.messages.carrier_save_failed'));
           setIsSubmitting(false);
           return;
         }
@@ -208,7 +211,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       } catch (refreshErr: any) {
         setRefreshFailed(true);
         setSubmitError(
-          'تم حفظ الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+          t('entityResolution.messages.carrier_saved_refresh_failed')
         );
       } finally {
         setIsSubmitting(false);
@@ -235,7 +238,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           result = await updater(projectId, targetCarrierId, payload);
           setUpdatedCarrierResult(result);
         } catch (err: any) {
-          setSubmitError(err.message || 'حدث خطأ أثناء تعديل بيانات الناقل');
+          setSubmitError(err.message || t('entityResolution.messages.carrier_update_failed'));
           setIsSubmitting(false);
           return;
         }
@@ -250,7 +253,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       } catch (refreshErr: any) {
         setRefreshFailed(true);
         setSubmitError(
-          'تم حفظ تعديلات الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+          t('entityResolution.messages.carrier_updated_refresh_failed')
         );
       } finally {
         setIsSubmitting(false);
@@ -277,8 +280,8 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       setRefreshFailed(true);
       setSubmitError(
         isEditMode
-          ? 'تم حفظ تعديلات الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
-          : 'تم حفظ الناقل بنجاح، لكن تعذر تحديث بيانات المشروع فوراً. أعد محاولة تحديث البيانات قبل متابعة العمل.'
+          ? t('entityResolution.messages.carrier_updated_refresh_failed')
+          : t('entityResolution.messages.carrier_saved_refresh_failed')
       );
     } finally {
       setIsSubmitting(false);
@@ -288,7 +291,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   const modalContent = (
     <div
       className={`fixed inset-0 bg-stone-950/80 backdrop-blur-xs ${zIndexClass} flex items-center justify-center p-4 animate-in fade-in duration-200`}
-      dir="rtl"
+      dir={direction}
     >
       <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         {/* Modal Header */}
@@ -299,12 +302,12 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-black text-white">
-                {isEditMode ? 'تعديل بيانات الناقل' : 'إضافة ناقل للمشروع'}
+                {isEditMode ? t('entityResolution.labels.edit_carrier') : t('projects.labels.add_carrier')}
               </h3>
               <p className="text-[11px] text-stone-400">
                 {isEditMode
-                  ? 'تعديل البيانات الأساسية والتواصل للناقل المعتمد'
-                  : 'تسجيل واعتماد شريك نقل رسمي للمشروع'}
+                  ? t('entityResolution.labels.carrier_edit_description')
+                  : t('entityResolution.labels.carrier_create_description')}
               </p>
             </div>
           </div>
@@ -313,7 +316,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
             onClick={onClose}
             disabled={isSubmitting}
             className="p-1.5 text-stone-400 hover:text-white hover:bg-stone-800 rounded-lg transition-colors"
-            aria-label="إغلاق النافذة"
+            aria-label={t('shared.actions.close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -324,14 +327,14 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           {submitError && (
             <div className="p-3 bg-rose-950/60 border border-rose-800/80 rounded-xl text-rose-200 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-              <div className="flex-1 font-medium">{submitError}</div>
+              <div className="flex-1 font-medium">{presentBatch4Message(submitError, t)}</div>
             </div>
           )}
 
           {!isEditMode && (
             <div className="p-3 bg-amber-950/30 border border-amber-800/40 rounded-xl text-[11px] text-amber-300 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-              <span>تنبيه: سيتم تسجيل الناقل مباشرة ضمن السجل المعتمد للمشروع (Master Data) ويبقى متاحاً حتى لو أُلغيت جلسة الاستيراد الحالية.</span>
+              <span>{t('entityResolution.messages.master_data_survives_cancel', { entity: t('legacyMigration.labels.carrier_2') })}</span>
             </div>
           )}
 
@@ -339,13 +342,13 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           <div className="space-y-3">
             <div className="space-y-1">
               <label className="text-stone-300 font-bold block">
-                اسم الناقل / الشركة <span className="text-amber-500">*</span>
+                {t('entityResolution.labels.carrier_company_name')} <span className="text-amber-500">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="مثال: شركة اليمامة للمقاولات والنقل"
+                placeholder={t('entityResolution.labels.carrier_name_example')}
                 disabled={isSubmitting || refreshFailed}
                 className={`w-full bg-stone-950 border ${
                   fieldErrors.name
@@ -354,18 +357,18 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                 } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60`}
               />
               {fieldErrors.name && (
-                <p className="text-[11px] text-rose-400 font-semibold">{fieldErrors.name}</p>
+                <p className="text-[11px] text-rose-400 font-semibold">{presentBatch4Message(fieldErrors.name, t)}</p>
               )}
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between items-center">
                 <label className="text-stone-300 font-bold block">
-                  السجل التجاري (CR) <span className="text-amber-500">*</span>
+                  {t('entityResolution.labels.commercial_registration')} <span className="text-amber-500">*</span>
                 </label>
                 {isEditMode && (
                   <span className="text-[10px] text-stone-500 font-mono">
-                    (رقم الهوية ثابت وغير قابل للتعديل)
+                    {t('entityResolution.labels.carrier_identity_immutable')}
                   </span>
                 )}
               </div>
@@ -374,7 +377,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                 maxLength={10}
                 value={commercialRegistrationNo}
                 onChange={(e) => setCommercialRegistrationNo(e.target.value)}
-                placeholder="10 أرقام (مثال: 1010123456)"
+                placeholder={t('entityResolution.labels.registration_example')}
                 disabled={isSubmitting || refreshFailed || isEditMode}
                 className={`w-full bg-stone-950 border font-mono ${
                   fieldErrors.commercialRegistrationNo
@@ -384,7 +387,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
               />
               {fieldErrors.commercialRegistrationNo && (
                 <p className="text-[11px] text-rose-400 font-semibold">
-                  {fieldErrors.commercialRegistrationNo}
+                  {presentBatch4Message(fieldErrors.commercialRegistrationNo, t)}
                 </p>
               )}
             </div>
@@ -392,40 +395,40 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
 
           {/* Optional Fields Divider */}
           <div className="pt-2 border-t border-stone-800/80">
-            <p className="text-[11px] text-stone-500 font-bold mb-3">بيانات تشغيلية إضافية (اختيارية)</p>
+            <p className="text-[11px] text-stone-500 font-bold mb-3">{t('entityResolution.labels.optional_operational_details')}</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-stone-400 font-medium block">رقم ترخيص النقل (TGA)</label>
+                <label className="text-stone-400 font-medium block">{t('entityResolution.labels.transport_license_tga')}</label>
                 <input
                   type="text"
                   value={transportLicenseNo}
                   onChange={(e) => setTransportLicenseNo(e.target.value)}
-                  placeholder="رقم الترخيص"
+                  placeholder={t('entityResolution.labels.license_number')}
                   disabled={isSubmitting || refreshFailed}
                   className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors font-mono text-xs disabled:opacity-60"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-stone-400 font-medium block">المسؤول التشغيلي</label>
+                <label className="text-stone-400 font-medium block">{t('entityResolution.labels.operations_contact')}</label>
                 <input
                   type="text"
                   value={contactPersonName}
                   onChange={(e) => setContactPersonName(e.target.value)}
-                  placeholder="اسم الشخص المسؤول"
+                  placeholder={t('entityResolution.labels.contact_person_name')}
                   disabled={isSubmitting || refreshFailed}
                   className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-stone-400 font-medium block">رقم الهاتف</label>
+                <label className="text-stone-400 font-medium block">{t('entityResolution.labels.phone_number')}</label>
                 <input
                   type="text"
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
-                  placeholder="05xxxxxxxx أو +966..."
+                  placeholder={t('entityResolution.labels.phone_example')}
                   disabled={isSubmitting || refreshFailed}
                   className={`w-full bg-stone-950 border font-mono ${
                     fieldErrors.contactPhone
@@ -434,12 +437,12 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                   } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60`}
                 />
                 {fieldErrors.contactPhone && (
-                  <p className="text-[11px] text-rose-400 font-semibold">{fieldErrors.contactPhone}</p>
+                  <p className="text-[11px] text-rose-400 font-semibold">{presentBatch4Message(fieldErrors.contactPhone, t)}</p>
                 )}
               </div>
 
               <div className="space-y-1">
-                <label className="text-stone-400 font-medium block">البريد الإلكتروني</label>
+                <label className="text-stone-400 font-medium block">{t('admin_console.col_email')}</label>
                 <input
                   type="email"
                   value={contactEmail}
@@ -453,7 +456,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                   } text-white px-3 py-2 rounded-xl focus:outline-hidden transition-colors text-xs disabled:opacity-60`}
                 />
                 {fieldErrors.contactEmail && (
-                  <p className="text-[11px] text-rose-400 font-semibold">{fieldErrors.contactEmail}</p>
+                  <p className="text-[11px] text-rose-400 font-semibold">{presentBatch4Message(fieldErrors.contactEmail, t)}</p>
                 )}
               </div>
             </div>
@@ -467,7 +470,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
               disabled={isSubmitting}
               className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
             >
-              إلغاء
+              {t('shared.actions.cancel')}
             </button>
             {refreshFailed ? (
               <button
@@ -477,7 +480,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                 className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40 transition-colors"
               >
                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>إعادة تحديث البيانات</span>
+                <span>{t('entityResolution.labels.refresh_data')}</span>
               </button>
             ) : (
               <button
@@ -486,7 +489,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
                 className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40 transition-colors"
               >
                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>{isEditMode ? 'حفظ التعديلات' : 'حفظ واعتماد الناقل'}</span>
+                <span>{isEditMode ? t('shared.actions.save') : t('entityResolution.labels.save_approve_carrier')}</span>
               </button>
             )}
           </div>

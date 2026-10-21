@@ -1,3 +1,4 @@
+import { PROJECT_SETUP_LAYERS, canEnterProjectSetupLayer } from '../services/projectSetupWorkflow.service';
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { ProjectSetupWizard } from '../components/wizard/ProjectSetupWizard';
@@ -38,13 +39,35 @@ describe('Step 3C — Trip Ingestion Entry Convergence', () => {
     expect(phase6Matches.length).toBe(0);
   });
 
-  it('2. Phase 4 Governance remains 100% unchanged', () => {
+  it('2. Project access governance remains available through the canonical ACCESS layer', () => {
     const fileContent = fs.readFileSync(wizardFilePath, 'utf-8');
-    
-    // Verify that Phase 4 is still labeled and operates on Governance
-    expect(fileContent).toContain("phase: 4, label: 'إدارة وتصاريح المستخدمين'");
-    expect(fileContent).toContain("sub: 'Phase 4: Governance'");
-    expect(fileContent).toContain("activePhase === 4");
+    const accessLayers = PROJECT_SETUP_LAYERS.filter(layer => layer.id === 'ACCESS');
+    expect(accessLayers).toHaveLength(1);
+    expect(accessLayers[0]).toMatchObject({ id: 'ACCESS', labelEn: 'Project Access' });
+    expect(canEnterProjectSetupLayer('ACCESS', {
+      projectId: 'PROJECT-ACCESS-CONTRACT', materialsCount: 0, carriersCount: 0,
+    })).toEqual({ allowed: true });
+    expect(canEnterProjectSetupLayer('ACCESS', {
+      projectId: null, materialsCount: 0, carriersCount: 0,
+    }).allowed).toBe(false);
+
+    expect(fileContent).toContain("useState<ProjectSetupLayer>('FOUNDATION')");
+    expect(fileContent).toContain('PROJECT_SETUP_LAYERS.map((layer) => {');
+    expect(fileContent).toContain('onClick={() => attemptProjectSetupLayerNavigation(layer.id)}');
+    expect(fileContent).toContain('const isActive = activeSetupLayer === layer.id;');
+    expect(fileContent).not.toMatch(/\bactivePhase\b/);
+    expect(fileContent).not.toContain('Phase 4: Governance');
+    expect(fileContent).not.toMatch(/\bphase:\s*4\b/);
+
+    const accessStart = fileContent.indexOf("{activeSetupLayer === 'ACCESS' && project && (");
+    expect(accessStart).toBeGreaterThanOrEqual(0);
+    const accessEnd = fileContent.indexOf("{activeSetupLayer === 'REVIEW_ACTIVATION'", accessStart);
+    expect(accessEnd).toBeGreaterThan(accessStart);
+    const accessWorkspace = fileContent.slice(accessStart, accessEnd);
+    expect(accessWorkspace).toContain('<table');
+    expect(accessWorkspace).toContain('{authContext.displayName}');
+    expect(accessWorkspace).toContain('{authContext.email}');
+    expect(accessWorkspace).toContain('{authContext.role}');
   });
 
   it('3. ProjectSetupWizard has zero direct imports or dependencies on ImportCenterView', () => {

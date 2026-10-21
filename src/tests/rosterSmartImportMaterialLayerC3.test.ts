@@ -1,3 +1,6 @@
+import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -106,7 +109,7 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
 
   it('3. Completed Carrier layer provides onContinueToMaterials callback and progression button', () => {
     expect(carrierLayerContent).toContain('onContinueToMaterials');
-    expect(carrierLayerContent).toContain('متابعة إلى مراجعة المواد');
+    expectCanonicalBatch4Source(carrierLayerContent, 'entityResolution.labels.continue_material_review');
     expect(wizardContent).toContain('onContinueToMaterials={handleSmartImportContinueToMaterials}');
   });
 
@@ -222,11 +225,41 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
 
   // 6. COMPLETION GATE AND STAGE CEILING TESTS
   it('14. RosterMaterialResolutionLayer dynamically derives completion from materialGroups and stays at MATERIAL_RESOLUTION', () => {
-    expect(materialLayerContent).toContain('مجموعات المواد المصدرية');
-    expect(materialLayerContent).toContain('مواد محسومة ومعتمدة');
-    expect(materialLayerContent).toContain('بحاجة لحسم أو إنشاء');
-    expect(materialLayerContent).toContain('تم حسم جميع المواد بنجاح');
-    expect(materialLayerContent).toContain('طبقة السائقين والشاحنات ستُفتح في المرحلة التالية');
+    expect(materialLayerContent).toContain("t('entityResolution.labels.source_material_groups')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['entityResolution.labels.source_material_groups'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('entityResolution.labels.source_material_groups', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
+    expect(materialLayerContent).toContain("t('entityResolution.labels.approved_materials')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['entityResolution.labels.approved_materials'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('entityResolution.labels.approved_materials', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
+    expect(materialLayerContent).toContain("t('entityResolution.labels.materials_needing_resolution')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['entityResolution.labels.materials_needing_resolution'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('entityResolution.labels.materials_needing_resolution', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
+    expect(materialLayerContent).toContain("t('entityResolution.messages.all_materials_resolved', { count: materialGroups.length })");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['entityResolution.messages.all_materials_resolved'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('entityResolution.messages.all_materials_resolved', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
+    expect(materialLayerContent).toContain("t('entityResolution.messages.driver_truck_next_stage')");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['entityResolution.messages.driver_truck_next_stage'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('entityResolution.messages.driver_truck_next_stage', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
 
     // Material layer does NOT render continue button to driver/truck in C3
     expect(materialLayerContent).not.toContain('onContinueToDrivers');
@@ -260,8 +293,8 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
     expect(materialLayerContent).not.toContain('اختياري');
 
     // Must communicate required fail-closed status
-    expect(materialLayerContent).toContain('لم يتم اكتشاف بيانات مواد قابلة للحسم في ملف الاستيراد.');
-    expect(materialLayerContent).toContain('المادة مطلوبة لكل سجل تشغيل. راجع ربط عمود المادة أو بيانات المصدر قبل المتابعة.');
+    expectCanonicalBatch4Source(materialLayerContent, 'entityResolution.labels.no_material_resolution_data');
+    expectCanonicalBatch4Source(materialLayerContent, 'entityResolution.labels.material_required_mapping');
   });
 
   it('18. Zero Material groups evaluate to incomplete and do not display completion banner or progress', () => {

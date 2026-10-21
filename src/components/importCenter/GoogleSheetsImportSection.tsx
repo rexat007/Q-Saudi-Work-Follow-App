@@ -1,3 +1,6 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { batch4DiagnosticText } from '../../i18n/batch4Presentation';
+import { useI18n } from '../../i18n';
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   FileSpreadsheet,
@@ -64,6 +67,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
   canonicalRelationshipContext,
   pipelineContext,
 }) => {
+  const { t, direction, locale } = useI18n();
   // State for Spreadsheets
   const [spreadsheets, setSpreadsheets] = useState<GoogleSpreadsheetItem[]>([]);
   const [isLoadingSpreadsheets, setIsLoadingSpreadsheets] = useState<boolean>(false);
@@ -459,7 +463,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
 
   const loadSpreadsheets = async () => {
     if (!isOnline) {
-      setFetchError('التطبيق في وضع عدم الاتصال (Offline). لا يمكن استعراض جداول بيانات Google.');
+      setFetchError(t('entityResolution.messages.offline_sheet_listing'));
       return;
     }
 
@@ -472,7 +476,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         handleSelectSpreadsheet(res.spreadsheets[0]);
       }
     } catch (err: any) {
-      setFetchError(err.message || 'فشل في استعراض جداول بيانات Google Sheets للمشروع');
+      setFetchError(err.message || t('entityResolution.messages.sheet_listing_failed'));
     } finally {
       setIsLoadingSpreadsheets(false);
     }
@@ -503,7 +507,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
   const handleProcessSheet = async () => {
     if (!selectedSpreadsheet) return;
     if (!isOnline) {
-      setProcessError('التطبيق غير متصل بالإنترنت. لا يمكن جلب بيانات ورقة العمل أثناء انقطاع الاتصال.');
+      setProcessError(t('entityResolution.messages.offline_sheet_fetch'));
       return;
     }
 
@@ -556,7 +560,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
       } catch (err: any) {
         // FAIL CLOSED: STOP! DO NOT proceed to discovery/pipeline!
         setIsProcessing(false);
-        setProcessError(err?.message || 'فشل في إنشاء جلسة الاستيراد على الخادم. تم إيقاف المعالجة.');
+        setProcessError(err?.message || t('entityResolution.messages.session_create_stopped'));
         return;
       }
     }
@@ -652,14 +656,14 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
           setSessionVersion(updatedSession.version);
         } catch (err: any) {
           if (err?.code === 'VERSION_CONFLICT') {
-            setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): يرجى تحديث الصفحة');
+            setProcessError(t('entityResolution.messages.version_conflict_refresh'));
           } else {
             console.warn('Failed to update session checkpoint:', err);
           }
         }
       }
     } catch (err: any) {
-      setProcessError(err.message || 'فشل في معالجة بيانات ورقة العمل عبر مسار الاستيراد الموحد');
+      setProcessError(err.message || t('entityResolution.messages.sheet_processing_failed'));
     } finally {
       setIsProcessing(false);
     }
@@ -732,9 +736,9 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         setSessionVersion(updatedSession.version);
       } catch (err: any) {
         if (err?.code === 'VERSION_CONFLICT') {
-          setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ إجراء المراجعة');
+          setProcessError(t('entityResolution.messages.version_conflict_review'));
         } else {
-          setProcessError(err?.message || 'فشل في حفظ إجراء المراجعة في جلسة الخادم');
+          setProcessError(err?.message || t('entityResolution.messages.review_save_failed'));
         }
       }
     }
@@ -767,12 +771,12 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
   const handleCommit = async () => {
     if (!batch) return;
     if (!isOnline) {
-      alert('يجب توفر اتصال بالإنترنت لاعتماد الشحنات في قاعدة البيانات الرئيسية.');
+      alert(presentBatch4Message(t('entityResolution.messages.connection_required_commit'), t));
       return;
     }
 
     if (!effectiveUserId) {
-      alert('يتطلب الاعتماد مستخدماً مصادقاً عليه (Unauthenticated - Access Denied)');
+      alert(presentBatch4Message(t('entityResolution.messages.authentication_required_commit'), t));
       return;
     }
 
@@ -844,7 +848,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             setSessionVersion(updatedSession.version);
           } catch (err: any) {
             if (err?.code === 'VERSION_CONFLICT') {
-              setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر تحديث حالة الاعتماد الجزئي');
+              setProcessError(t('entityResolution.messages.version_conflict_partial_commit'));
             } else {
               console.warn('Failed to update partial commit checkpoint:', err);
             }
@@ -852,7 +856,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         }
       }
     } catch (err: any) {
-      alert(`فشل الاعتماد: ${err.message}`);
+      alert(presentBatch4Message(t('admin_console.approval_failed', { error: presentBatch4Message(String(err.message), t) }), t));
     } finally {
       setIsCommitting(false);
     }
@@ -891,7 +895,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
   }, [spreadsheets, searchQuery]);
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={direction}>
       {/* Top Banner: Mode & Title */}
       <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -901,19 +905,19 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-slate-900">استيراد مباشر من جداول Google (Google Sheets)</h2>
+                <h2 className="text-xl font-bold text-slate-900">{t('entityResolution.labels.sheets_import_title')}</h2>
                 <span className="px-2.5 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded-full">
                   BLOCK 33
                 </span>
                 {!isOnline && (
                   <span className="px-2.5 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 rounded-full flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3" />
-                    غير متصل (Offline)
+                    {t('shared.status.offline')}
                   </span>
                 )}
               </div>
               <p className="text-sm text-slate-600 mt-1">
-                استيراد جداول البيانات ومطابقة الأعمدة آلياً وفحص بيانات الميزان وتذاكر التحميل مع الحفاظ على عزل المشاريع وبوابة الاعتماد.
+                {t('entityResolution.labels.sheets_import_description')}
               </p>
             </div>
           </div>
@@ -927,7 +931,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
-              استيراد الجداول
+              {t('entityResolution.labels.import_spreadsheets')}
             </button>
             <button
               onClick={() => {
@@ -941,7 +945,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
               }`}
             >
               <PlayCircle className="w-4 h-4" />
-              فحص الاختبارات (14 فحصاً)
+              {t('entityResolution.labels.fourteen_test_tab')}
             </button>
           </div>
         </div>
@@ -952,9 +956,9 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">حزمة الاختبارات الفنية لـ BLOCK 33</h3>
+              <h3 className="text-lg font-bold text-slate-900">{t('entityResolution.labels.block33_test_suite')}</h3>
               <p className="text-sm text-slate-500">
-                التحقق التلقائي من عزل المشاريع، حماية الأسرار، مطابقة الميزان، والاعتماد الآمن.
+                {t('entityResolution.labels.block33_test_description')}
               </p>
             </div>
             <button
@@ -963,14 +967,14 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg flex items-center gap-2 transition disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isRunningTests ? 'animate-spin' : ''}`} />
-              {isRunningTests ? 'جارٍ التشغيل...' : 'إعادة تشغيل الاختبارات'}
+              {isRunningTests ? t('entityResolution.labels.running') : t('entityResolution.labels.rerun_tests')}
             </button>
           </div>
 
           {isRunningTests && (
             <div className="py-12 text-center text-slate-500">
               <RefreshCw className="w-8 h-8 animate-spin mx-auto text-emerald-600 mb-2" />
-              <p>جارٍ فحص واختبار سيناريوهات BLOCK 33 بالكامل...</p>
+              <p>{t('entityResolution.labels.running_block33_tests')}</p>
             </div>
           )}
 
@@ -987,11 +991,10 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900">
-                      {testReport.allPassed ? 'اجتياز جميع الفحوصات بنسبة 100%' : 'توجد بعض الفحوصات غير المجتازة'}
+                      {testReport.allPassed ? t('entityResolution.labels.all_checks_passed') : t('entityResolution.labels.some_checks_failed')}
                     </h4>
                     <p className="text-xs text-slate-500">
-                      تم تشغيل {testReport.total} اختباراً معيارياً وفق مواصفات BLOCK 33.
-                    </p>
+                      {t('entityResolution.labels.block33_tests_executed', { count: testReport.total })}</p>
                   </div>
                 </div>
                 <span
@@ -999,36 +1002,36 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                     testReport.allPassed ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
                   }`}
                 >
-                  {testReport.allPassed ? 'PASSED (100%)' : 'FAILED'}
+                  {testReport.allPassed ? t('operations.passed_100') : t('legacyMigration.status.failed_2')}
                 </span>
               </div>
 
               <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
-                {testReport.results.map((t) => (
-                  <div key={t.id} className="p-4 hover:bg-slate-50 flex items-start justify-between gap-4">
+                {testReport.results.map((testCase) => (
+                  <div key={testCase.id} className="p-4 hover:bg-slate-50 flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs font-bold bg-slate-100 text-slate-800 px-2 py-0.5 rounded">
-                          {t.id}
+                          {testCase.id}
                         </span>
-                        <span className="text-sm font-semibold text-slate-900">{t.name}</span>
+                        <span className="text-sm font-semibold text-slate-900">{batch4DiagnosticText(t, testCase.id, 'name', testCase.name)}</span>
                       </div>
-                      <p className="text-xs text-slate-600">{t.notes}</p>
+                      <p className="text-xs text-slate-600">{testCase.notes}</p>
                       <div className="text-xs font-mono text-slate-500 bg-slate-50 p-2 rounded mt-1">
-                        <div>المتوقع: {t.expected}</div>
-                        <div>الفعلي: {t.actual}</div>
+                        <div>{t('legacyMigration.labels.expected')} {testCase.expected}</div>
+                        <div>{t('legacyMigration.labels.actual')} {testCase.actual}</div>
                       </div>
                     </div>
                     <div>
-                      {t.passed ? (
+                      {testCase.passed ? (
                         <span className="flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          ناجح
+                          {t('legacyMigration.status.success_3')}
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 text-xs font-bold text-red-700 bg-red-50 px-2.5 py-1 rounded-full border border-red-200">
                           <XCircle className="w-3.5 h-3.5" />
-                          فشل
+                          {t('legacyMigration.status.failed_2')}
                         </span>
                       )}
                     </div>
@@ -1048,7 +1051,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                 <span className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold text-sm flex items-center justify-center">
                   1
                 </span>
-                <h3 className="font-bold text-slate-900">اختيار جدول البيانات (Spreadsheet) وورقة العمل (Sheet Tab)</h3>
+                <h3 className="font-bold text-slate-900">{t('entityResolution.labels.select_spreadsheet_tab')}</h3>
               </div>
 
               <div className="flex items-center gap-2">
@@ -1056,7 +1059,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                   <Search className="w-4 h-4 absolute right-3 top-2.5 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="بحث في الجداول..."
+                    placeholder={t('entityResolution.labels.search_spreadsheets')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pr-9 pl-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 w-48 md:w-64"
@@ -1066,7 +1069,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                   onClick={loadSpreadsheets}
                   disabled={isLoadingSpreadsheets || !isOnline}
                   className="p-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg transition disabled:opacity-50"
-                  title="تحديث القائمة"
+                  title={t('entityResolution.labels.refresh_list')}
                 >
                   <RefreshCw className={`w-4 h-4 ${isLoadingSpreadsheets ? 'animate-spin' : ''}`} />
                 </button>
@@ -1076,7 +1079,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             {fetchError && (
               <div className="p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-sm flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                <span>{fetchError}</span>
+                <span>{presentBatch4Message(fetchError, t)}</span>
               </div>
             )}
 
@@ -1105,20 +1108,20 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           className="text-slate-400 hover:text-slate-600 p-1 rounded"
-                          title="فتح في Google Sheets"
+                          title={t('entityResolution.labels.open_google_sheets')}
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>
                       )}
                     </div>
                     <h4 className="font-bold text-slate-900 text-sm mt-3 line-clamp-1">{s.name}</h4>
-                    <p className="text-xs font-mono text-slate-400 mt-0.5 truncate">ID: {s.id}</p>
+                    <p className="text-xs font-mono text-slate-400 mt-0.5 truncate">{t('shared.labels.identifier')} {s.id}</p>
 
                     <div className="flex items-center justify-between text-xs text-slate-500 mt-3 pt-3 border-t border-slate-100">
-                      <span>{s.sheets?.length || 1} ورقات عمل</span>
+                      <span>{s.sheets?.length || 1} {t('entityResolution.labels.worksheet_tabs')}</span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {s.modifiedTime ? new Date(s.modifiedTime).toLocaleDateString('ar-SA') : 'N/A'}
+                        {s.modifiedTime ? new Date(s.modifiedTime).toLocaleDateString(locale, { calendar: 'islamic-umalqura' }) : t('shared.labels.unspecified')}
                       </span>
                     </div>
                   </div>
@@ -1130,7 +1133,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             {selectedSpreadsheet && selectedSpreadsheet.sheets && selectedSpreadsheet.sheets.length > 0 && (
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <label className="block text-xs font-bold text-slate-700">
-                  اختر ورقة العمل المراد استيراد بياناتها:
+                  {t('entityResolution.labels.select_worksheet')}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {selectedSpreadsheet.sheets.map((tab) => (
@@ -1143,7 +1146,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                           : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                       }`}
                     >
-                      {tab.title} {tab.rowCount ? `(${tab.rowCount} صفاً)` : ''}
+                      {tab.title} {tab.rowCount ? t('entityResolution.labels.row_count', { count: tab.rowCount }) : ''}
                     </button>
                   ))}
                 </div>
@@ -1154,7 +1157,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             <div className="flex items-center justify-between pt-2">
               <div className="text-xs text-slate-500 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>المعالجة تمر بـ 8 بوابات فحص وتدقيق دون أي حفظ في قاعدة البيانات حتى مرحلة الاعتماد.</span>
+                <span>{t('entityResolution.labels.eight_checks_before_commit')}</span>
               </div>
 
               <button
@@ -1165,11 +1168,11 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                 {isProcessing ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>جارٍ تحليل ورقة العمل ومطابقة الأعمدة...</span>
+                    <span>{t('entityResolution.labels.analyzing_worksheet')}</span>
                   </>
                 ) : (
                   <>
-                    <span>بدء المعالجة والتحليل (Process Sheet)</span>
+                    <span>{t('entityResolution.labels.process_worksheet')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -1179,7 +1182,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             {processError && (
               <div className="p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm flex items-center gap-2">
                 <XCircle className="w-4 h-4 flex-shrink-0" />
-                <span>{processError}</span>
+                <span>{presentBatch4Message(processError, t)}</span>
               </div>
             )}
           </div>
@@ -1192,15 +1195,15 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                   <span className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold text-sm flex items-center justify-center">
                     2
                   </span>
-                  <h3 className="font-bold text-slate-900">مراجعة بيانات الشحنات وبوابة الاعتماد (Human Review Gate)</h3>
+                  <h3 className="font-bold text-slate-900">{t('entityResolution.labels.shipment_human_review')}</h3>
                 </div>
 
                 <div className="flex items-center gap-2 text-xs">
                   <span className="font-mono bg-slate-100 px-2 py-1 rounded text-slate-600">
-                    Batch: {batch.importBatchId}
+                    {t('entityResolution.labels.batch_identifier')} {batch.importBatchId}
                   </span>
                   <span className="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                    المصدر: {batch.source.sourceType}
+                    {t('entityResolution.labels.import_source')} {batch.source.sourceType}
                   </span>
                 </div>
               </div>
@@ -1208,8 +1211,8 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
               {/* 10-Stage Visual Stepper */}
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div className="text-xs font-bold text-slate-500 mb-3 flex items-center justify-between">
-                  <span>المراحل العشر لخط الاستيراد الموحد (Unified 10-Stage Pipeline):</span>
-                  <span className="text-emerald-700 font-bold">المرحلة الحالية: {batch.currentStage}</span>
+                  <span>{t('entityResolution.labels.ten_stage_pipeline')}</span>
+                  <span className="text-emerald-700 font-bold">{t('entityResolution.labels.current_stage')} {batch.currentStage}</span>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                   {UNIFIED_IMPORT_PIPELINE_STAGES.map((stg, idx) => {
@@ -1227,7 +1230,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                             : 'bg-white text-slate-400 border-slate-200'
                         }`}
                       >
-                        <div className="text-[10px] text-slate-400 font-sans">مرحلة {idx + 1}</div>
+                        <div className="text-[10px] text-slate-400 font-sans">{t('entityResolution.labels.stage_unit')} {idx + 1}</div>
                         <div>{stg}</div>
                       </div>
                     );
@@ -1238,23 +1241,23 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
               {/* Stats Counters */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
-                  <div className="text-xs text-slate-500">إجمالي الصفوف</div>
+                  <div className="text-xs text-slate-500">{t('legacyMigration.labels.txt_37ac91')}</div>
                   <div className="text-xl font-bold text-slate-900 mt-1">{batch.totalRows}</div>
                 </div>
                 <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50">
-                  <div className="text-xs text-emerald-700 font-semibold">صفوف صالحة</div>
+                  <div className="text-xs text-emerald-700 font-semibold">{t('entityResolution.labels.valid_rows')}</div>
                   <div className="text-xl font-bold text-emerald-800 mt-1">{batch.validRows}</div>
                 </div>
                 <div className="p-3 rounded-xl border border-amber-200 bg-amber-50">
-                  <div className="text-xs text-amber-700 font-semibold">تحذيرات (غير مانعة)</div>
+                  <div className="text-xs text-amber-700 font-semibold">{t('entityResolution.labels.nonblocking_warnings')}</div>
                   <div className="text-xl font-bold text-amber-800 mt-1">{batch.warningRows}</div>
                 </div>
                 <div className="p-3 rounded-xl border border-red-200 bg-red-50">
-                  <div className="text-xs text-red-700 font-semibold">أخطاء مانعة</div>
+                  <div className="text-xs text-red-700 font-semibold">{t('entityResolution.labels.blocking_errors')}</div>
                   <div className="text-xl font-bold text-red-800 mt-1">{batch.errorRows}</div>
                 </div>
                 <div className="p-3 rounded-xl border border-indigo-200 bg-indigo-50">
-                  <div className="text-xs text-indigo-700 font-semibold">مكررة</div>
+                  <div className="text-xs text-indigo-700 font-semibold">{t('entityResolution.labels.duplicate_records')}</div>
                   <div className="text-xl font-bold text-indigo-800 mt-1">{batch.rows.filter((r) => r.duplicateInfo?.isDuplicate).length}</div>
                 </div>
               </div>
@@ -1265,13 +1268,13 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                   <div>
                     <h3 className="text-base font-black text-amber-900 flex items-center gap-2">
                       <ShieldAlert className="w-5 h-5 text-amber-600" />
-                      <span>طابور الاستثناءات الفعلي (True Exception Queue)</span>
+                      <span>{t('entityResolution.labels.exception_queue')}</span>
                       <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-200 text-amber-900">
-                        {rowExceptions.length} استثناء
+                        {rowExceptions.length} {t('analytics.ui.exception')}
                       </span>
                     </h3>
                     <p className="text-xs text-amber-800/80 mt-1">
-                      يعرض فقط الصفوف المعلقة التي تتطلب اتخاذ قرار أو معالجة (أخطاء، تنبيهات معلقة، أو بيانات مكررة).
+                      {t('entityResolution.labels.exception_queue_description')}
                     </p>
                   </div>
                 </div>
@@ -1279,7 +1282,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                 {rowExceptions.length === 0 ? (
                   <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                    <span>ممتاز! لا توجد أي صفوف استثنائية معلقة. جميع الصفوف إما سليمة، تم قبول تنبيهاتها، أو تم استبعادها رسمياً.</span>
+                    <span>{t('entityResolution.labels.no_pending_exceptions')}</span>
                   </div>
                 ) : (
                   <div className="overflow-x-auto border border-amber-200/80 rounded-xl bg-white">
@@ -1287,10 +1290,10 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                       <thead className="bg-amber-100/50 border-b border-amber-200 text-amber-950 font-bold">
                         <tr>
                           <th className="p-3 w-12 text-center">#</th>
-                          <th className="p-3">نوع الاستثناء</th>
-                          <th className="p-3">بيانات الشحنة التعريفية</th>
-                          <th className="p-3">أسباب الاستثناء والملاحظات</th>
-                          <th className="p-3 text-center">الإجراءات المتاحة</th>
+                          <th className="p-3">{t('analytics.column.exception_type')}</th>
+                          <th className="p-3">{t('entityResolution.labels.shipment_identification')}</th>
+                          <th className="p-3">{t('entityResolution.labels.exception_reasons_notes')}</th>
+                          <th className="p-3 text-center">{t('entityResolution.labels.available_actions')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-amber-100">
@@ -1311,15 +1314,15 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                                 <div className="flex flex-col gap-1 items-start">
                                   {hasBlocking || isError ? (
                                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 inline-flex items-center gap-1">
-                                      <XCircle className="w-3 h-3 text-red-600" /> خطأ مانع
+                                      <XCircle className="w-3 h-3 text-red-600" /> {t('entityResolution.labels.blocking_error')}
                                     </span>
                                   ) : isDuplicate ? (
                                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 inline-flex items-center gap-1">
-                                      <AlertTriangle className="w-3 h-3 text-blue-600" /> صف مكرر
+                                      <AlertTriangle className="w-3 h-3 text-blue-600" /> {t('entityResolution.labels.duplicate_row')}
                                     </span>
                                   ) : isWarning ? (
                                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 inline-flex items-center gap-1">
-                                      <AlertTriangle className="w-3 h-3 text-amber-600" /> تنبيه يتطلب مراجعة
+                                      <AlertTriangle className="w-3 h-3 text-amber-600" /> {t('entityResolution.labels.warning_needs_review')}
                                     </span>
                                   ) : null}
                                 </div>
@@ -1327,10 +1330,10 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
 
                               <td className="p-3">
                                 <div className="font-bold text-slate-900">
-                                  {canonical.carrier || 'ناقل غير محدد'} | {canonical.materialType || 'مادة غير محددة'}
+                                  {canonical.carrier || `${t('legacyMigration.labels.carrier_2')}: ${t('shared.labels.unspecified')}`} | {canonical.materialType || `${t('legacyMigration.labels.material_2')}: ${t('shared.labels.unspecified')}`}
                                 </div>
                                 <div className="text-[11px] text-slate-600 mt-0.5 font-mono">
-                                  تذكرة: {canonical.ticketId || '—'} | الشاحنة: {canonical.truckNo || '—'} | السائق: {canonical.driverName || '—'}
+                                  {t('operations.ticket')} {canonical.ticketId || '—'} {`| ${t('operations.truck_plate')}:`} {canonical.truckNo || '—'} {`| ${t('entityResolution.labels.driver_name')}:`} {canonical.driverName || '—'}
                                 </div>
                               </td>
 
@@ -1338,15 +1341,15 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                                 {row.validationIssues && row.validationIssues.length > 0 ? (
                                   <div className="text-red-800 text-[11px] font-bold space-y-0.5">
                                     {row.validationIssues.map((e, idx) => (
-                                      <div key={idx}>• {e.messageAr || e.message}</div>
+                                      <div key={idx}>• {presentBatch4Message(e.messageAr || e.message, t)}</div>
                                     ))}
                                   </div>
                                 ) : isDuplicate ? (
                                   <div className="text-blue-800 text-[11px] font-bold">
-                                    {row.duplicateInfo?.reason || 'تم اكتشاف تكرار لبيانات هذه الشحنة'}
+                                    {row.duplicateInfo?.reason || t('entityResolution.labels.duplicate_shipment_detected')}
                                   </div>
                                 ) : (
-                                  <span className="text-slate-500 text-[11px]">يتطلب اتخاذ قرار مراجعة</span>
+                                  <span className="text-slate-500 text-[11px]">{t('entityResolution.labels.review_decision_required')}</span>
                                 )}
                               </td>
 
@@ -1356,20 +1359,20 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                                     <button
                                       onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
                                       className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
-                                      title="قبول التنبيه واعتماد الصف"
+                                      title={t('entityResolution.labels.accept_warning_approve_row')}
                                     >
                                       <Check className="w-3.5 h-3.5" />
-                                      <span>قبول التنبيه</span>
+                                      <span>{t('entityResolution.labels.accept_warning')}</span>
                                     </button>
                                   )}
 
                                   <button
                                     onClick={() => handleRowAction(row.rowNumber, 'REJECT_ROW')}
                                     className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-red-100 text-slate-700 hover:text-red-800 text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer"
-                                    title="استبعاد الصف"
+                                    title={t('entityResolution.labels.exclude_row')}
                                   >
                                     <X className="w-3.5 h-3.5 text-red-600" />
-                                    <span>استبعاد</span>
+                                    <span>{t('legacyMigration.labels.exclude_record')}</span>
                                   </button>
                                 </div>
                               </td>
@@ -1392,8 +1395,8 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                     <Eye className="w-4 h-4 text-slate-600" />
                     <span>
                       {showFullBatchTable
-                        ? 'إخفاء جدول مرجع جميع الصفوف'
-                        : `عرض جميع صفوف الدفعة الكاملة (Full Batch Reference Table - ${batch.rows.length} صف)`}
+                        ? t('entityResolution.labels.hide_full_batch_table')
+                        : t('entityResolution.labels.show_full_batch_table', { count: batch.rows.length })}
                     </span>
                   </button>
                 </div>
@@ -1408,7 +1411,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                     filterTab === 'ALL' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  الكل ({batch.rows.length})
+                  {t('admin_console.filter_all')} ({batch.rows.length})
                 </button>
                 <button
                   onClick={() => setFilterTab('VALID')}
@@ -1416,7 +1419,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                     filterTab === 'VALID' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  صالحة ({batch.validRows})
+                  {t('entityResolution.labels.valid_rows')} ({batch.validRows})
                 </button>
                 <button
                   onClick={() => setFilterTab('WARNING')}
@@ -1424,7 +1427,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                     filterTab === 'WARNING' ? 'bg-amber-600 text-white' : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  تحذيرات ({batch.warningRows})
+                  {t('entityResolution.labels.warnings')} ({batch.warningRows})
                 </button>
                 <button
                   onClick={() => setFilterTab('ERROR')}
@@ -1432,7 +1435,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                     filterTab === 'ERROR' ? 'bg-red-600 text-white' : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  أخطاء مانعة ({batch.errorRows})
+                  {t('entityResolution.labels.blocking_errors')} ({batch.errorRows})
                 </button>
               </div>
 
@@ -1442,13 +1445,13 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                   <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
                     <tr>
                       <th className="p-3">#</th>
-                      <th className="p-3">رقم التذكرة</th>
-                      <th className="p-3">اللوحة / الشاحنة</th>
-                      <th className="p-3">الناقل والسائق</th>
-                      <th className="p-3">المادة</th>
-                      <th className="p-3">الأوزان (فارغ / قائم / صافي)</th>
-                      <th className="p-3">الحالة والتحذيرات</th>
-                      <th className="p-3 text-center">إجراء المراجعة</th>
+                      <th className="p-3">{t('field_operations.ticket_number_label')}</th>
+                      <th className="p-3">{t('operations.truck_plate')}</th>
+                      <th className="p-3">{t('entityResolution.labels.carrier_driver')}</th>
+                      <th className="p-3">{t('legacyMigration.labels.material_2')}</th>
+                      <th className="p-3">{t('entityResolution.labels.weights_tare_gross_net')}</th>
+                      <th className="p-3">{t('entityResolution.labels.status_warnings')}</th>
+                      <th className="p-3 text-center">{t('entityResolution.labels.review_action')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -1468,49 +1471,49 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                             <td className="p-3 font-mono font-bold text-slate-900">{canonical.ticketId || '—'}</td>
                             <td className="p-3 font-semibold text-slate-800">{canonical.truckNo || '—'}</td>
                             <td className="p-3">
-                              <div className="font-semibold text-slate-900">{canonical.carrier || 'غير محدد'}</div>
-                              <div className="text-slate-400 text-[11px]">{canonical.driverName || 'بدون سائق'}</div>
+                              <div className="font-semibold text-slate-900">{canonical.carrier || t('shared.labels.unspecified')}</div>
+                              <div className="text-slate-400 text-[11px]">{canonical.driverName || t('entityResolution.labels.no_driver')}</div>
                             </td>
                             <td className="p-3 font-medium text-slate-700">{canonical.materialType || '—'}</td>
                             <td className="p-3 font-mono">
                               <div className="text-slate-500">
-                                ف: {canonical.tareWeight ?? '—'} | ق: {canonical.grossWeight ?? '—'}
+                                {`${t('field_operations.tare_weight_ticket')}:`} {canonical.tareWeight ?? '—'} {`| ${t('operations.gross')}`} {canonical.grossWeight ?? '—'}
                               </div>
                               <div className="font-bold text-slate-900">
-                                صافي: {canonical.netWeight ?? '—'} كجم
-                                {canonical.destNetWeight ? ` (تفريغ: ${canonical.destNetWeight})` : ''}
+                                {t('operations.net_weight')} {canonical.netWeight ?? '—'} {t('shared.units.kg')}
+                                {canonical.destNetWeight ? t('entityResolution.labels.destination_weight_suffix', { weight: canonical.destNetWeight }) : ''}
                               </div>
                             </td>
                             <td className="p-3">
                               {row.status === 'COMMITTED' ? (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-                                  <CheckCircle2 className="w-3 h-3" /> تم الاعتماد
+                                  <CheckCircle2 className="w-3 h-3" /> {t('entityResolution.labels.committed_status')}
                                 </span>
                               ) : row.status === 'REJECTED' ? (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-700">
-                                  <X className="w-3 h-3" /> مستبعد
+                                  <X className="w-3 h-3" /> {t('entityResolution.labels.row_excluded')}
                                 </span>
                               ) : hasBlocking ? (
                                 <div className="space-y-1">
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-800">
-                                    <XCircle className="w-3 h-3" /> خطأ مانع
+                                    <XCircle className="w-3 h-3" /> {t('entityResolution.labels.blocking_error')}
                                   </span>
                                   <div className="text-[10px] text-red-600">
-                                    {row.validationIssues.find((i) => i.blocking)?.messageAr}
+                                    {presentBatch4Message(row.validationIssues.find((i) => i.blocking)?.messageAr || '', t)}
                                   </div>
                                 </div>
                               ) : hasWarnings ? (
                                 <div className="space-y-1">
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
-                                    <AlertTriangle className="w-3 h-3" /> تحذير
+                                    <AlertTriangle className="w-3 h-3" /> {t('entityResolution.labels.warning_status')}
                                   </span>
                                   <div className="text-[10px] text-amber-700">
-                                    {row.validationIssues.map((i) => i.messageAr || i.message).join(' | ')}
+                                    {row.validationIssues.map((i) => presentBatch4Message(i.messageAr || i.message, t)).join(' | ')}
                                   </div>
                                 </div>
                               ) : (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-                                  <CheckCircle2 className="w-3 h-3" /> صالح للاعتماد
+                                  <CheckCircle2 className="w-3 h-3" /> {t('entityResolution.labels.ready_for_approval')}
                                 </span>
                               )}
                             </td>
@@ -1521,7 +1524,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                                     <button
                                       onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
                                       className="p-1 text-emerald-700 hover:bg-emerald-50 rounded border border-emerald-200 cursor-pointer"
-                                      title="قبول التحذير"
+                                      title={t('entityResolution.labels.accept_warning')}
                                     >
                                       <Check className="w-3.5 h-3.5" />
                                     </button>
@@ -1530,12 +1533,12 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                                     <button
                                       onClick={() => handleRowAction(row.rowNumber, 'REJECT_ROW')}
                                       className="p-1 text-red-700 hover:bg-red-50 rounded border border-red-200 cursor-pointer"
-                                      title="استبعاد هذا الصف"
+                                      title={t('entityResolution.labels.exclude_this_row')}
                                     >
                                       <X className="w-3.5 h-3.5" />
                                     </button>
                                   ) : (
-                                     <span className="text-[10px] text-slate-400 font-bold">مستبعد</span>
+                                     <span className="text-[10px] text-slate-400 font-bold">{t('entityResolution.labels.row_excluded')}</span>
                                    )}
                                 </div>
                               )}
@@ -1569,13 +1572,13 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
 
             const cannotCommitReason =
               unresolvedGroups.length > 0
-                ? `توجد (${unresolvedGroups.length}) مجموعات كائنات غير مطابقة تتطلب حسم القرار أولاً`
+                ? t('entityResolution.messages.unresolved_entities_block_commit', { count: unresolvedGroups.length })
                 : blockingErrorCount > 0
-                ? `توجد (${blockingErrorCount}) صفوف تتضمن أخطاء مانعة يجب معالجتها أو استبعادها`
+                ? t('entityResolution.messages.blocking_rows_need_correction', { count: blockingErrorCount })
                 : rowExceptions.length > 0 && !confirmWarnings && pendingWarningCount > 0
-                ? `توجد (${pendingWarningCount}) تنبيهات معلقة، يلزم قبول التنبيهات أو تفعيل إقرار الموافقة على التنبيهات`
+                ? t('entityResolution.messages.pending_warnings_need_acceptance', { count: pendingWarningCount })
                 : eligibleCommitCount === 0
-                ? 'لا توجد أي صفوف صالحة جاهزة للاعتماد'
+                ? t('entityResolution.messages.no_eligible_rows')
                 : null;
 
             return (
@@ -1583,51 +1586,51 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                 <div className="border-b border-slate-200 pb-3">
                   <h4 className="font-black text-slate-900 text-sm flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                    <span>ملخص المراجعة النهائية قبل الاعتماد (Pre-Commit Breakdown)</span>
+                    <span>{t('entityResolution.labels.precommit_breakdown')}</span>
                   </h4>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    توضيح دقيق لتوزيع الصفوف والقرارات قبل التنفيذ النهائي في قاعدة البيانات.
+                    {t('entityResolution.labels.precommit_breakdown_description')}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 text-center">
                   <div className="p-2.5 rounded-xl bg-white border border-slate-200">
-                    <div className="text-[10px] font-bold text-slate-500">إجمالي الدفعة</div>
+                    <div className="text-[10px] font-bold text-slate-500">{t('entityResolution.labels.batch_total')}</div>
                     <div className="text-sm font-black text-slate-900 font-mono mt-0.5">{batch.totalRows}</div>
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
-                    <div className="text-[10px] font-bold text-emerald-800">سليمة وجاهزة</div>
+                    <div className="text-[10px] font-bold text-emerald-800">{t('entityResolution.labels.valid_ready_rows')}</div>
                     <div className="text-sm font-black text-emerald-900 font-mono mt-0.5">{readyValidCount}</div>
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
-                    <div className="text-[10px] font-bold text-amber-800">تنبيهات معلقة</div>
+                    <div className="text-[10px] font-bold text-amber-800">{t('entityResolution.labels.pending_warnings')}</div>
                     <div className="text-sm font-black text-amber-900 font-mono mt-0.5">{pendingWarningCount}</div>
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-red-50 border border-red-200">
-                    <div className="text-[10px] font-bold text-red-800">أخطاء مانعة</div>
+                    <div className="text-[10px] font-bold text-red-800">{t('entityResolution.labels.blocking_errors')}</div>
                     <div className="text-sm font-black text-red-900 font-mono mt-0.5">{blockingErrorCount}</div>
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200">
-                    <div className="text-[10px] font-bold text-slate-600">صفوف مستبعدة</div>
+                    <div className="text-[10px] font-bold text-slate-600">{t('entityResolution.labels.excluded_rows')}</div>
                     <div className="text-sm font-black text-slate-700 font-mono mt-0.5">{rejectedCount}</div>
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200">
-                    <div className="text-[10px] font-bold text-blue-800">كائنات معلقة</div>
+                    <div className="text-[10px] font-bold text-blue-800">{t('entityResolution.labels.pending_entities')}</div>
                     <div className="text-sm font-black text-blue-900 font-mono mt-0.5">{unresolvedGroups.length}</div>
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-amber-100/60 border border-amber-300">
-                    <div className="text-[10px] font-bold text-amber-900">استثناءات معلقة</div>
+                    <div className="text-[10px] font-bold text-amber-900">{t('entityResolution.labels.pending_exceptions')}</div>
                     <div className="text-sm font-black text-amber-950 font-mono mt-0.5">{rowExceptions.length}</div>
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-emerald-600 text-white border border-emerald-700 shadow-2xs">
-                    <div className="text-[10px] font-bold opacity-90">جاهز للاعتماد</div>
+                    <div className="text-[10px] font-bold opacity-90">{t('entityResolution.labels.ready_for_approval')}</div>
                     <div className="text-sm font-black font-mono mt-0.5">{eligibleCommitCount}</div>
                   </div>
                 </div>
@@ -1642,11 +1645,11 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                         className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer"
                       />
                       <span className="text-xs font-black text-slate-900">
-                        أقرّ بالموافقة على اعتماد الصفوف التي تتضمن تنبيهات قابلة لتجاوز المراجعة (Allow Warnings Commit)
+                        {t('entityResolution.labels.allow_warnings_commit')}
                       </span>
                     </label>
                     <p className="text-[11px] text-slate-500 pr-6">
-                      تنبيه: لن يتم اعتماد أي شحنة مستبعدة أو تحتوي على أخطاء قاتلة (Fatal Errors).
+                      {t('entityResolution.labels.fatal_excluded_never_committed')}
                     </p>
                   </div>
 
@@ -1659,19 +1662,19 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                       {isCommitting ? (
                         <>
                           <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>جارٍ اعتماد الشحنات وتوثيق السجل...</span>
+                          <span>{t('entityResolution.labels.committing_shipments')}</span>
                         </>
                       ) : (
                         <>
                           <CheckCircle2 className="w-4 h-4" />
-                          <span>اعتماد الشحنات الصالحة ({eligibleCommitCount})</span>
+                          <span>{t('entityResolution.labels.eligible_shipments_count', { count: eligibleCommitCount })}</span>
                         </>
                       )}
                     </button>
 
                     {cannotCommitReason && (
                       <span className="text-[11px] text-red-700 font-bold max-w-xs text-left">
-                        {cannotCommitReason}
+                        {presentBatch4Message(cannotCommitReason, t)}
                       </span>
                     )}
                   </div>
@@ -1696,11 +1699,11 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
                     <div>
                       <div className="font-bold">
                         {commitResult.success
-                          ? `تم اعتماد واستيراد (${commitResult.committedRows}) رحلة بنجاح في سجل العمليات!`
-                          : 'تعذر اعتماد الشحنات'}
+                          ? t('entityResolution.messages.shipments_committed_count', { count: commitResult.committedRows })
+                          : t('entityResolution.messages.shipment_approval_failed')}
                       </div>
                       <div className="text-xs text-slate-600 mt-1 font-mono">
-                        Operation ID: {commitResult.operationId} | Batch: {commitResult.importBatchId}
+                        {t('weighbridge.labels.txt_24fc12')} {commitResult.operationId} {t('entityResolution.labels.batch_identifier')} {commitResult.importBatchId}
                       </div>
                     </div>
                   </div>

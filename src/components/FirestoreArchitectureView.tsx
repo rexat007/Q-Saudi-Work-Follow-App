@@ -1,3 +1,4 @@
+import { batch4ArchitectureText } from '../i18n/batch4Presentation';
 import React, { useState, useEffect } from 'react';
 import { 
   Database, 
@@ -320,9 +321,9 @@ export default function FirestoreArchitectureView() {
   const runArchitecturalSimulation = async (scenario: 'VALID_DISPATCH' | 'INVALID_WEIGHT' | 'INVALID_DRIVER_ID') => {
     setIsSimulating(true);
     const logs: string[] = [];
-    logs.push(`[1. React UI Event]: استلام طلب عملية من واجهة المستخدم (Simulated Actor: ${simulatedRole})`);
-    logs.push(`[2. Architectural Boundary Gate]: React ممنوع تماماً من استدعاء setDoc / updateDoc في Firestore مباشرة.`);
-    logs.push(`[3. Delegation to Domain Service]: استدعاء tripService.dispatchTrip(...) مع سياق المستخدم.`);
+    logs.push(t('batch4.architecture.sim_react_event', { actor: simulatedRole }));
+    logs.push(t('batch4.architecture.sim_boundary'));
+    logs.push(t('batch4.architecture.sim_service'));
 
     const context: AuthUserContext = {
       userId: 'usr_simulation_operator',
@@ -334,7 +335,7 @@ export default function FirestoreArchitectureView() {
     };
 
     if (scenario === 'INVALID_DRIVER_ID') {
-      logs.push(`[4. Domain Validator]: استدعاء DriverValidator.validate(...) مع هوية سائق غير صحيحة ("987654321")...`);
+      logs.push(t('batch4.architecture.sim_invalid_driver'));
       const val = DriverValidator.validate({
         driverId: 'drv_test',
         projectId: 'proj_riyadh_metro',
@@ -344,9 +345,9 @@ export default function FirestoreArchitectureView() {
         phone: '0512345678',
         isActive: true,
       });
-      logs.push(`❌ [Validation Rejected]: فشل التحقق في Validator قبل الوصول إلى قاعدة البيانات!`);
+      logs.push(t('batch4.architecture.sim_driver_rejected'));
       val.errors.forEach(e => logs.push(`   - ${e.messageAr} (${e.code})`));
-      logs.push(`[Result]: تم حماية قاعدة بيانات Firestore من البيانات غير المطابقة للمواصفات السعودية.`);
+      logs.push(t('batch4.architecture.sim_database_protected'));
       setSimulationLog(logs);
       setSimulationOutput({ success: false, errors: val.errors });
       setIsSimulating(false);
@@ -354,7 +355,7 @@ export default function FirestoreArchitectureView() {
     }
 
     if (scenario === 'INVALID_WEIGHT') {
-      logs.push(`[4. Domain Validator]: استدعاء TruckValidator.validate(...) مع وزن فارغ يتجاوز الإجمالي (Tare > Gross)...`);
+      logs.push(t('batch4.architecture.sim_invalid_weight'));
       const val = TruckValidator.validate({
         truckId: 'trk_test',
         projectId: 'proj_riyadh_metro',
@@ -365,9 +366,9 @@ export default function FirestoreArchitectureView() {
         legalPayloadLimitKg: 0,
         isActive: true,
       });
-      logs.push(`❌ [Validation Rejected]: رفض محرك التحقق الفيزيائي العملية!`);
+      logs.push(t('batch4.architecture.sim_weight_rejected'));
       val.errors.forEach(e => logs.push(`   - ${e.messageAr} (${e.code})`));
-      logs.push(`[Result]: تم منع إسناد الشاحنة أو حفظ السجل دون لمس قاعدة البيانات.`);
+      logs.push(t('batch4.architecture.sim_no_write'));
       setSimulationLog(logs);
       setSimulationOutput({ success: false, errors: val.errors });
       setIsSimulating(false);
@@ -375,13 +376,13 @@ export default function FirestoreArchitectureView() {
     }
 
     // Valid Dispatch Pipeline Demonstration
-    logs.push(`[4. Domain Validator]: فحص شروط النطاق التشغيلي عبر TripValidator بنجاح (100% Valid).`);
-    logs.push(`[5. Historical Snapshot Invariant]: استدعاء لقطات غير قابلة للتعديل (carrierSnapshot, truckSnapshot, driverSnapshot, pricingSnapshot).`);
-    logs.push(`[6. Auditing Injection]: ختم الحقول الإلزامية: createdAt, createdBy="${context.userId}", updatedAt, updatedBy="${context.userId}".`);
-    logs.push(`[7. Repository Execution]: tripRepository.create(...) يرسل الوثيقة المشفرة والمدققة إلى Firestore.`);
-    logs.push(`[8. Append-Only Event Stream]: تسجيل حدث الرحلة EVT-DISPATCH عبر tripEventService.`);
-    logs.push(`[9. Immutable Audit Log]: تسجيل العملية في auditLogService مع تفاصيل الفاعل (${context.email}).`);
-    logs.push(`✅ [Pipeline Completed]: تم تنفيذ دورة الحياة كاملة وفق ضوابط المعمارية الخادومية الصارمة.`);
+    logs.push(t('batch4.architecture.sim_trip_validation'));
+    logs.push(t('batch4.architecture.sim_snapshots'));
+    logs.push(t('batch4.architecture.sim_audit_fields', { creator: context.userId, updater: context.userId }));
+    logs.push(t('batch4.architecture.sim_repository'));
+    logs.push(t('batch4.architecture.sim_event'));
+    logs.push(t('batch4.architecture.sim_audit_actor', { actor: context.email }));
+    logs.push(t('batch4.architecture.sim_complete'));
 
     const sampleTripGenerated = {
       tripId: `TRP-2026-${Math.floor(100000 + Math.random() * 900000)}`,
@@ -456,7 +457,7 @@ export default function FirestoreArchitectureView() {
                   {t("other.labels.txt_259961")}</h2>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
-                  Active & Deployed
+                  {t('batch4.architecture.active_deployed')}
                 </span>
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-stone-100 text-stone-700">
                   Region: europe-west2
@@ -469,7 +470,7 @@ export default function FirestoreArchitectureView() {
 
           <div className="flex items-center gap-3 self-start md:self-auto">
             <div className="text-left font-mono text-[11px] bg-stone-50 px-3 py-1.5 rounded-lg border border-stone-200">
-              <span className="text-stone-400 block text-[10px]">Database Instance</span>
+              <span className="text-stone-400 block text-[10px]">{t('batch4.architecture.database_instance')}</span>
               <span className="font-semibold text-stone-800">ai-studio-qsaudiworkfollow...</span>
             </div>
             <button
@@ -502,14 +503,14 @@ export default function FirestoreArchitectureView() {
           <div className="flex items-center gap-2 bg-stone-50 p-2.5 rounded-xl border border-stone-200/60">
             <Lock className="w-4 h-4 text-amber-600 shrink-0" />
             <div>
-              <span className="text-[11px] font-bold text-stone-800 block">No Direct React Writes</span>
+              <span className="text-[11px] font-bold text-stone-800 block">{t('batch4.architecture.no_react_writes')}</span>
               <span className="text-[10px] text-stone-500">{t("other.labels.txt_1b9b40")}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 bg-stone-50 p-2.5 rounded-xl border border-stone-200/60">
             <ShieldCheck className="w-4 h-4 text-indigo-600 shrink-0" />
             <div>
-              <span className="text-[11px] font-bold text-stone-800 block">13 Repositories & Services</span>
+              <span className="text-[11px] font-bold text-stone-800 block">{t('batch4.architecture.repository_service_count')}</span>
               <span className="text-[10px] text-stone-500">{t("other.labels.txt_38f4aa")}</span>
             </div>
           </div>
@@ -523,7 +524,7 @@ export default function FirestoreArchitectureView() {
           <div className="bg-white rounded-2xl border border-stone-200 p-3 shadow-xs">
             <div className="px-3 py-2 border-b border-stone-100 flex items-center justify-between">
               <span className="text-xs font-bold text-stone-800">{t("other.labels.txt_6aaf22")}</span>
-              <span className="text-[10px] bg-stone-100 font-mono text-stone-600 px-2 py-0.5 rounded-full font-bold">13 Modules</span>
+              <span className="text-[10px] bg-stone-100 font-mono text-stone-600 px-2 py-0.5 rounded-full font-bold">{t('batch4.architecture.module_count')}</span>
             </div>
 
             <div className="mt-2 space-y-1 max-h-[600px] overflow-y-auto pr-1">
@@ -547,7 +548,7 @@ export default function FirestoreArchitectureView() {
                         <Icon className="w-4 h-4" />
                       </div>
                       <div className="truncate">
-                        <div className="text-xs font-bold truncate">{domain.nameAr}</div>
+                        <div className="text-xs font-bold truncate">{batch4ArchitectureText(t, domain.key, 'nameAr', domain.nameAr)}</div>
                         <div className={`text-[10px] font-mono truncate ${isSelected ? 'text-stone-300' : 'text-stone-400'}`}>
                           {domain.nameEn}
                         </div>
@@ -576,12 +577,12 @@ export default function FirestoreArchitectureView() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-stone-900">{selectedDomain.nameAr} ({selectedDomain.nameEn})</h3>
+                    <h3 className="text-lg font-bold text-stone-900">{batch4ArchitectureText(t, selectedDomain.key, 'nameAr', selectedDomain.nameAr)} ({selectedDomain.nameEn})</h3>
                     <span className="text-xs font-mono font-bold bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full">
                       ID: {selectedDomain.idField}
                     </span>
                   </div>
-                  <p className="text-xs text-stone-600 mt-1">{selectedDomain.descriptionAr}</p>
+                  <p className="text-xs text-stone-600 mt-1">{batch4ArchitectureText(t, selectedDomain.key, 'descriptionAr', selectedDomain.descriptionAr)}</p>
                 </div>
               </div>
             </div>
@@ -593,7 +594,7 @@ export default function FirestoreArchitectureView() {
                 <span>{selectedDomain.pathPattern}</span>
               </div>
               <span className="text-[10px] bg-stone-800 text-stone-300 px-2 py-1 rounded">
-                Multi-Tenant Scoped
+                {t('batch4.architecture.multi_tenant_scoped')}
               </span>
             </div>
 
@@ -631,7 +632,7 @@ export default function FirestoreArchitectureView() {
                     {t("other.labels.txt_2bbe99")}</p>
                 </div>
                 <div className="mt-3 pt-2 border-t border-amber-200/60 text-[10px] text-stone-500">
-                  Secured & Audit-Stamped
+                  {t('batch4.architecture.secured_audit_stamped')}
                 </div>
               </div>
 
@@ -649,7 +650,7 @@ export default function FirestoreArchitectureView() {
                     {t("other.labels.refresh")}</p>
                 </div>
                 <div className="mt-3 pt-2 border-t border-indigo-200/60 text-[10px] text-stone-500">
-                  Enforces createdAt & updatedAt
+                  {t('batch4.architecture.enforces_timestamps')}
                 </div>
               </div>
             </div>
@@ -658,13 +659,13 @@ export default function FirestoreArchitectureView() {
             <div className="mt-6 pt-5 border-t border-stone-100">
               <h4 className="text-xs font-bold text-stone-800 mb-3 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>أبرز ضوابط التحقق المعتمدة لنطاق ({selectedDomain.nameAr}):</span>
+                <span>{t('batch4.architecture.domain_validation_rules', { domain: batch4ArchitectureText(t, selectedDomain.key, 'nameAr', selectedDomain.nameAr) })}</span>
               </h4>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                 {selectedDomain.sampleValidationRules.map((rule, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-stone-700 bg-stone-50 p-2.5 rounded-lg border border-stone-200/60">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
-                    <span>{rule}</span>
+                    <span>{batch4ArchitectureText(t, selectedDomain.key, 'rule:' + idx, rule)}</span>
                   </li>
                 ))}
               </ul>
@@ -725,7 +726,7 @@ export default function FirestoreArchitectureView() {
                 className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-all flex items-center gap-2"
               >
                 <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                <span>اختبار رفض وزن فارغ مخالف فيزيائياً (Truck Physics Test)</span>
+                <span>{t('batch4.architecture.physics_test')}</span>
               </button>
             </div>
 

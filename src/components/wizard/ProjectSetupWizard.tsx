@@ -1,3 +1,5 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { batch4FieldLabel, batch4LayerLabel, batch4RosterStageLabel } from '../../i18n/batch4Presentation';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { 
   Building2, 
@@ -253,6 +255,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   onSelectProject
 }) => {
   const { t, isRTL, locale } = useI18n();
+  // Keep presentation current without changing canonical-read callback identities or effects.
+  const presentationTranslator = useRef(t);
+  presentationTranslator.current = t;
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
 
   // Unit 3A.2: Project Data Freshness, Race-Safe Loading & Authoritative Snapshot
@@ -301,10 +306,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   }, [selectedProjectId]);
 
   const attemptProjectSetupLayerNavigation = useCallback((targetLayer: ProjectSetupLayer) => {
+    const t = (key: string, params?: Record<string, string | number>) => presentationTranslator.current(key, params);
     // Unit 3A.2: Block data-dependent layers while project data is loading or project ID not yet loaded
     if (editingProjectId && (isProjectDataLoading || loadedProjectId !== editingProjectId)) {
       if (['ROSTER', 'PRICING', 'REVIEW_ACTIVATION'].includes(targetLayer)) {
-        setNavigationError('جاري تحميل بيانات المشروع المعتمدة، يرجى الانتظار...');
+        setNavigationError(t('projects.messages.canonical_data_loading'));
         return;
       }
     }
@@ -319,7 +325,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setActiveSetupLayer(targetLayer);
       setNavigationError(null);
     } else {
-      setNavigationError(gate.reason || 'تعذر الانتقال إلى هذه الطبقة.');
+      setNavigationError(gate.reason || t('projects.batch4.navigation_failed'));
     }
   }, [editingProjectId, isProjectDataLoading, loadedProjectId, materials.length, carriers.length]);
 
@@ -454,7 +460,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           rosterImportStage
         );
       } catch (err: any) {
-        const msg = err.message || `تعذر الانتقال إلى مرحلة ${targetStage}`;
+        const msg = err.message || t('projects.batch4.stage_navigation_failed', { stage: targetStage });
         setRosterTransitionError(msg);
         setImportError(msg);
       }
@@ -563,14 +569,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   }, []);
 
   const handleSaveFoundation = useCallback(async () => {
+    const t = (key: string, params?: Record<string, string | number>) => presentationTranslator.current(key, params);
     if (!project || !foundationDraft || !isFoundationDirty || isSavingFoundation) return;
 
     if (!foundationDraft.nameAr.trim() || foundationDraft.nameAr.trim().length < 3) {
-      setFoundationSaveError('اسم المشروع بالعربية يجب ألا يقل عن 3 أحرف');
+      setFoundationSaveError(t('projects.batch4.project_name_minimum'));
       return;
     }
     if (foundationDraft.zatcaTaxNumber && !/^[0-9]{15}$/.test(foundationDraft.zatcaTaxNumber)) {
-      setFoundationSaveError('الرقم الضريبي لهيئة الزكاة والضريبة والجمارك (ZATCA) يجب أن يتكون من 15 رقمًا');
+      setFoundationSaveError(t('projects.batch4.zatca_fifteen_digits'));
       return;
     }
 
@@ -623,9 +630,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setLocalProjectOverride(updatedProject);
       setIsEditingFoundation(false);
       setFoundationDraft(null);
-      setFoundationSaveSuccess('تم حفظ تعديلات المشروع بنجاح');
+      setFoundationSaveSuccess(t('projects.messages.changes_saved'));
     } catch (err: any) {
-      setFoundationSaveError(err.message || 'فشلت عملية حفظ التعديلات');
+      setFoundationSaveError(err.message || t('projects.batch4.save_changes_failed'));
     } finally {
       setIsSavingFoundation(false);
     }
@@ -639,6 +646,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
   const fetchServerReadiness = useCallback(async (targetProjectId: string) => {
+    const t = (key: string, params?: Record<string, string | number>) => presentationTranslator.current(key, params);
     const currentGen = projectDataLoadGenerationRef.current;
     setIsLoadingReadiness(true);
     setReadinessError(null);
@@ -654,7 +662,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       }
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `خطأ في استعلام الجاهزية (${res.status})`);
+        throw new Error(errData.error || t('projects.batch4.readiness_http_error', { status: res.status }));
       }
       const data: ServerReadinessDTO = await res.json();
       if (currentGen !== projectDataLoadGenerationRef.current || editingProjectId !== targetProjectId) {
@@ -663,7 +671,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setServerReadiness(data);
     } catch (err: any) {
       if (currentGen === projectDataLoadGenerationRef.current && editingProjectId === targetProjectId) {
-        setReadinessError(err.message || 'خطأ في جلب تقرير الجاهزية التشغيلية من الخادم');
+        setReadinessError(err.message || t('projects.batch4.readiness_fetch_failed'));
         setServerReadiness(null);
       }
     } finally {
@@ -797,7 +805,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       } catch (err: any) {
         if (currentGen === projectDataLoadGenerationRef.current && editingProjectId === targetProjectId) {
           console.error('Failed to load canonical data', err);
-          setProjectDataLoadError(err?.message || 'فشل تحميل بيانات المشروع');
+          setProjectDataLoadError(err?.message || t('projects.batch4.project_load_failed'));
           setIsProjectDataLoading(false);
         }
       }
@@ -847,7 +855,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
         // Validate checkpoint structural integrity
         if (candidate.importBatch && (!Array.isArray(candidate.importBatch.rows) || typeof candidate.importBatch.importBatchId !== 'string')) {
-          setImportSessionRecoveryError('فشل استعادة جلسة الاستيراد: هيكل البيانات المحفوظ تالف أو غير متوافق.');
+          setImportSessionRecoveryError(t('projects.batch4.import_restore_invalid'));
           setIsRestoringImportSession(false);
           return;
         }
@@ -962,27 +970,27 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           // Check for date range overlap
           const overlap = (from1 <= to2) && (from2 <= to1);
           if (overlap) {
-            conflicts.push(`تضارب تداخل تاريخ: القاعدة [${r1.name}] تتعارض مع القاعدة [${r2.name}]`);
+            conflicts.push(t('projects.batch4.pricing_overlap', { first: r1.name, second: r2.name }));
           }
         }
       }
     }
     return conflicts;
-  }, [pricingRules]);
+  }, [pricingRules, t]);
 
   // Setup Progress Checklist calculations (informational progress tracking)
   const setupChecklist = useMemo(() => {
     if (!project) return [];
     return [
-      { id: 'foundation', text: 'تكوين بيانات التأسيس والعميل', isDone: !!project.nameAr && !!project.clientName },
-      { id: 'materials', text: 'إضافة مادة واحدة على الأقل للمشروع', isDone: materials.length > 0 },
-      { id: 'carriers', text: 'إضافة ناقل واحد معتمد على الأقل', isDone: carriers.length > 0 },
-      { id: 'roster', text: 'تسجيل شاحنة واحدة نشطة على الأقل في الأسطول التشغيلي', isDone: fleetRows.length > 0 },
-      { id: 'pricing', text: 'تهيئة قواعد الأسعار والتعرفة', isDone: pricingRules.length > 0 },
-      { id: 'conflicts', text: 'خلو المشروع من تضارب تداخل الأسعار', isDone: pricingConflicts.length === 0 },
-      { id: 'google_sync', text: 'مزامنة وتهيئة ملفات Google Workspace', isDone: !!project.settings?.googleSpreadsheetId }
+      { id: 'foundation', text: t('projects.batch4.check_foundation'), isDone: !!project.nameAr && !!project.clientName },
+      { id: 'materials', text: t('projects.batch4.check_materials'), isDone: materials.length > 0 },
+      { id: 'carriers', text: t('projects.batch4.check_carriers'), isDone: carriers.length > 0 },
+      { id: 'roster', text: t('projects.batch4.check_roster'), isDone: fleetRows.length > 0 },
+      { id: 'pricing', text: t('projects.batch4.check_pricing'), isDone: pricingRules.length > 0 },
+      { id: 'conflicts', text: t('projects.batch4.check_pricing_conflicts'), isDone: pricingConflicts.length === 0 },
+      { id: 'google_sync', text: t('projects.batch4.check_workspace'), isDone: !!project.settings?.googleSpreadsheetId }
     ];
-  }, [project, materials, carriers, fleetRows, pricingRules, pricingConflicts]);
+  }, [project, materials, carriers, fleetRows, pricingRules, pricingConflicts, t]);
 
   const isSetupChecklistComplete = useMemo(() => {
     return setupChecklist.every(item => item.isDone);
@@ -1045,7 +1053,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setNewProjLocation('');
       setNewProjZatca('');
     } catch (err: any) {
-      setCreationError(err.message || 'فشل إنشاء المشروع');
+      setCreationError(err.message || t('projects.batch4.project_creation_failed'));
     } finally {
       setIsSubmittingCreation(false);
     }
@@ -1071,7 +1079,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!project || !canPerformOperationalMutation('INTAKE_DRIVER_TRUCK', project.status)) return;
 
     if (!rostDriverName.trim() || !rostPlate.trim() || !rostCarrier || !rostMaterial || !rostResidency.trim()) {
-      alert('الرجاء تعبئة جميع الحقول المطلوبة بما في ذلك الهوية الوطنية ورقم اللوحة والناقل والمادة');
+      alert(presentBatch4Message(t('projects.batch4.roster_required_fields'), t));
       return;
     }
 
@@ -1094,7 +1102,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       });
       if (!response.ok) {
         const errJson = await response.json();
-        throw new Error(errJson.error || 'فشلت عملية التسجيل التشغيلي');
+        throw new Error(errJson.error || t('projects.batch4.roster_registration_failed'));
       }
 
       setIsAddingRosterRow(false);
@@ -1117,7 +1125,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setFleetRows(fleetRes.data?.rows || []);
 
     } catch (err: any) {
-      alert(err.message || 'خطأ في إضافة شريك التشغيل');
+      alert(presentBatch4Message(err.message || t('projects.batch4.partner_add_failed'), t));
     }
   };
 
@@ -1229,7 +1237,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     lifecycleState?: ImportSessionLifecycleState;
   }): Promise<boolean> => {
     if (!project || !importSessionId) {
-      setImportSessionRecoveryError('تعذر حفظ نقطة الاستعادة: معرف المشروع أو معرف جلسة الاستيراد مفقود');
+      setImportSessionRecoveryError(t('projects.batch4.checkpoint_identifiers_missing'));
       return false;
     }
 
@@ -1253,9 +1261,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } catch (err: any) {
       console.error('Import session checkpoint failed:', err);
       if (err instanceof ImportSessionVersionConflictError || err?.code === 'VERSION_CONFLICT') {
-        setImportSessionRecoveryError('تعارض في إصدار جلسة الاستيراد (VERSION_CONFLICT): تم تحديث الجلسة من جلسة أخرى.');
+        setImportSessionRecoveryError(t('projects.batch4.import_version_conflict'));
       } else {
-        setImportSessionRecoveryError(err.message || 'فشل حفظ نقطة استعادة جلسة الاستيراد (تعذر الحفظ الدائم على الخادم)');
+        setImportSessionRecoveryError(err.message || t('projects.batch4.checkpoint_persistence_failed'));
       }
       return false;
     }
@@ -1314,8 +1322,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         );
       } catch (err: any) {
         console.error('Failed to cancel import session on server:', err);
-        setImportError(err.message || 'فشل إلغاء جلسة الاستيراد على الخادم');
-        setImportSessionRecoveryError(err.message || 'فشل إلغاء جلسة الاستيراد على الخادم');
+        setImportError(err.message || t('projects.batch4.import_cancel_failed'));
+        setImportSessionRecoveryError(err.message || t('projects.batch4.import_cancel_failed'));
         setIsProcessing(false);
         return false;
       }
@@ -1338,7 +1346,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       reader.onload = async (event) => {
         try {
           const data = event.target?.result as ArrayBuffer;
-          if (!data) throw new Error('فشلت قراءة ملف البيانات');
+          if (!data) throw new Error(t('projects.batch4.file_read_failed'));
           if (currentGen !== rosterImportSessionGenerationRef.current) return;
           setRosterBuffer(data);
 
@@ -1372,7 +1380,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           });
         } catch (innerErr: any) {
           if (currentGen !== rosterImportSessionGenerationRef.current) return;
-          setRosterDiscoveryError(innerErr.message || 'خطأ أثناء استكشاف ملف سجل التشغيل');
+          setRosterDiscoveryError(innerErr.message || t('projects.batch4.roster_discovery_failed'));
         } finally {
           if (currentGen === rosterImportSessionGenerationRef.current) {
             setIsImportingFile(false);
@@ -1383,7 +1391,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       reader.readAsArrayBuffer(file);
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      setRosterDiscoveryError(err.message || 'خطأ في استيراد ملف سجل التشغيل');
+      setRosterDiscoveryError(err.message || t('projects.batch4.roster_import_failed'));
       setIsImportingFile(false);
       setIsDiscoveringRoster(false);
     }
@@ -1419,7 +1427,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       } catch (err: any) {
         if (currentGen !== rosterImportSessionGenerationRef.current) return;
         console.error('Roster sheet change discovery error:', err);
-        setRosterDiscoveryError(err?.message || 'فشل في استكشاف ورقة العمل المحددة');
+        setRosterDiscoveryError(err?.message || t('entityResolution.messages.worksheet_discovery_failed'));
       } finally {
         if (currentGen === rosterImportSessionGenerationRef.current) {
           setIsDiscoveringRoster(false);
@@ -1495,7 +1503,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       if (!hasCarrierMapping || !hasMaterialMapping || !hasDriverOrTruckMapping) {
         setImportError(
-          'اعتماد الربط يتطلب ربط حقل الناقل (carrierName) وحقل المادة (materialName) وحقل السائق (driverName) أو الشاحنة (truckPlate) على الأقل قبل المتابعة.'
+          t('projects.batch4.mapping_required_fields')
         );
         setIsImportingFile(false);
         setIsProcessing(false);
@@ -1551,7 +1559,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
 
       if (!createdSessionRecord || !createdSessionRecord.importSessionId) {
-        throw new Error('فشل إنشاء جلسة الاستيراد على الخادم: لم يتم استلام معرّف الجلسة');
+        throw new Error(t('projects.batch4.import_session_id_missing'));
       }
 
       setImportSessionId(createdSessionRecord.importSessionId);
@@ -1574,8 +1582,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
       console.error('Mapping approval & session initialization error:', err);
-      setImportError(err?.message || 'خطأ أثناء تحليل ملف سجل التشغيل أو إنشاء جلسة الاستيراد');
-      setImportSessionRecoveryError(err?.message || 'فشل حفظ جلسة الاستيراد على الخادم');
+      setImportError(err?.message || t('projects.batch4.roster_analysis_failed'));
+      setImportSessionRecoveryError(err?.message || t('projects.batch4.import_session_save_failed'));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsImportingFile(false);
@@ -1590,14 +1598,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
     const carrierGroups = reviewGroups.carrier || [];
     if (carrierGroups.length === 0) {
-      alert('لم يتم اكتشاف أي مجموعات ناقلين في الملف. الناقل مطلوب لكل سجل تشغيل.');
+      alert(presentBatch4Message(t('projects.batch4.carrier_groups_missing'), t));
       return;
     }
     const hasUnresolvedCarriers = carrierGroups.some(
       (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
     );
     if (hasUnresolvedCarriers) {
-      alert('يرجى حسم جميع مجموعات الناقلين قبل الانتقال إلى مراجعة المواد');
+      alert(presentBatch4Message(t('projects.batch4.carrier_groups_pending'), t));
       return;
     }
 
@@ -1608,7 +1616,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       return !carrierRes?.matchedId || carrierRes.relationshipStatus === 'RELATIONSHIP_CONFLICT';
     });
     if (hasUnresolvedCarrierRow) {
-      alert('يوجد سجلات تشغيل نشطة بدون ناقل معتمد أو بحاجة لحسم. يجب حسم جميع صفوف الناقلين قبل المتابعة.');
+      alert(presentBatch4Message(t('projects.batch4.carrier_rows_pending'), t));
       return;
     }
 
@@ -1623,14 +1631,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
     const materialGroups = reviewGroups.material || [];
     if (materialGroups.length === 0) {
-      alert('لم يتم اكتشاف أي مجموعات مواد في الملف. المادة مطلوبة لكل سجل تشغيل.');
+      alert(presentBatch4Message(t('projects.batch4.material_groups_missing'), t));
       return;
     }
     const hasUnresolvedMaterials = materialGroups.some(
       (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
     );
     if (hasUnresolvedMaterials) {
-      alert('يرجى حسم جميع مجموعات المواد قبل الانتقال إلى مراجعة السائقين والشاحنات');
+      alert(presentBatch4Message(t('projects.batch4.material_groups_pending'), t));
       return;
     }
 
@@ -1641,7 +1649,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       return !materialRes?.matchedId || materialRes.relationshipStatus === 'RELATIONSHIP_CONFLICT';
     });
     if (hasUnresolvedMaterialRow) {
-      alert('يوجد سجلات تشغيل نشطة بدون مادة معتمدة أو بحاجة لحسم. يجب حسم جميع صفوف المواد قبل المتابعة.');
+      alert(presentBatch4Message(t('projects.batch4.material_rows_pending'), t));
       return;
     }
 
@@ -1686,7 +1694,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      alert(err.message || 'فشل تطبيق قرار مطابقة السائق');
+      alert(presentBatch4Message(err.message || t('projects.batch4.driver_decision_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -1730,7 +1738,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      alert(err.message || 'فشل تعيين السائق البديل');
+      alert(presentBatch4Message(err.message || t('projects.batch4.driver_alternative_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -1751,14 +1759,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     try {
       const carrierId = extractGroupCarrierContext(group);
       if (!carrierId) {
-        throw new Error('تعذر استخراج معرف الناقل التابع له السائق');
+        throw new Error(t('projects.batch4.driver_carrier_missing'));
       }
 
       if (!data.driverName.trim()) {
-        throw new Error('اسم السائق مطلوب');
+        throw new Error(t('entityResolution.messages.driver_name_required'));
       }
       if (!data.residencyId.trim()) {
-        throw new Error('رقم الهوية الوطنية أو الإقامة مطلوب');
+        throw new Error(t('projects.batch4.driver_identity_required'));
       }
 
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
@@ -1787,7 +1795,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setDriverConvergenceError(null);
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
-      alert(err.message || 'فشلت عملية تجهيز السائق الجديد');
+      alert(presentBatch4Message(err.message || t('projects.batch4.driver_prepare_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -1831,7 +1839,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      alert(err.message || 'فشل تطبيق قرار مطابقة الشاحنة');
+      alert(presentBatch4Message(err.message || t('projects.batch4.truck_decision_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -1875,7 +1883,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      alert(err.message || 'فشل تعيين الشاحنة البديلة');
+      alert(presentBatch4Message(err.message || t('projects.batch4.truck_alternative_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -1896,11 +1904,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     try {
       const carrierId = extractGroupCarrierContext(group);
       if (!carrierId) {
-        throw new Error('تعذر استخراج معرف الناقل التابع له الشاحنة');
+        throw new Error(t('projects.batch4.truck_carrier_missing'));
       }
 
       if (!data.plateNumber.trim()) {
-        throw new Error('رقم لوحة الشاحنة مطلوب');
+        throw new Error(t('entityResolution.messages.truck_plate_required'));
       }
 
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
@@ -1930,7 +1938,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setTruckConvergenceError(null);
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
-      alert(err.message || 'فشلت عملية تجهيز الشاحنة الجديدة');
+      alert(presentBatch4Message(err.message || t('projects.batch4.truck_prepare_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -1983,7 +1991,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         (d) => d.driverId === cachedSuccessfulDriverResult.result.matchedId && d.carrierId === cachedSuccessfulDriverResult.carrierId
       );
       if (!foundDriver) {
-        setDriverConvergenceError('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة.');
+        setDriverConvergenceError(`DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN: ${t('entityResolution.messages.created_refresh_failed')}`);
         throw new Error('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN');
       }
       setDriverConvergenceError(null);
@@ -2008,7 +2016,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      setDriverConvergenceError(err.message || 'فشلت إعادة محاولة تحديث البيانات');
+      setDriverConvergenceError(err.message || t('projects.batch4.refresh_retry_failed'));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -2030,7 +2038,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         (t) => t.truckId === cachedSuccessfulTruckResult.result.matchedId && t.carrierId === cachedSuccessfulTruckResult.carrierId
       );
       if (!foundTruck) {
-        setTruckConvergenceError('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN: تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة.');
+        setTruckConvergenceError(`TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN: ${t('entityResolution.messages.created_refresh_failed')}`);
         throw new Error('TRUCK_CANONICAL_CONVERGENCE_NOT_PROVEN');
       }
       setTruckConvergenceError(null);
@@ -2055,7 +2063,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      setTruckConvergenceError(err.message || 'فشلت إعادة محاولة تحديث البيانات');
+      setTruckConvergenceError(err.message || t('projects.batch4.refresh_retry_failed'));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -2076,7 +2084,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const driverTruckGroups = [...driverGroups, ...truckGroups];
 
     if (driverTruckGroups.length === 0) {
-      alert('تعذر الانتقال للمراجعة النهائية: لا توجد مجموعات سائقين أو شاحنات لتقييمها.');
+      alert(presentBatch4Message(t('projects.batch4.final_review_groups_missing'), t));
       return;
     }
 
@@ -2104,7 +2112,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       driverConvergenceError !== null ||
       truckConvergenceError !== null
     ) {
-      alert('تعذر الانتقال للمراجعة النهائية: توجد بيانات سائقين/شاحنات معلقة أو أخطاء تطابق قيد المعالجة.');
+      alert(presentBatch4Message(t('projects.batch4.final_review_pending'), t));
       return;
     }
 
@@ -2140,7 +2148,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
       console.error('Final review revalidation error:', err);
-      alert(err.message || 'حدث خطأ أثناء إجراء الفحص النهائي قبل المراجعة.');
+      alert(presentBatch4Message(err.message || t('projects.batch4.pre_review_check_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -2156,7 +2164,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
     if (smartImportCommitResult !== null && smartImportCommitResult.success) {
       setSmartImportCommitError(
-        'تم اعتماد دفعة الاستيراد بنجاح بالفعل لهذه الجلسة. لا يمكن إعادة الاعتماد.'
+        t('entityResolution.messages.already_committed')
       );
       return;
     }
@@ -2206,7 +2214,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       if (hasUnresolved || hasRowErrors || hasBlockingIssues) {
         setImportBatch({ ...revalidated });
-        setSmartImportCommitError('تعذر الاعتماد: أظهر الفحص المسبق وجود بيانات معلقة أو غير مطابقة مجدداً.');
+        setSmartImportCommitError(t('projects.batch4.commit_preflight_pending'));
         setIsCommittingImport(false);
         return;
       }
@@ -2232,16 +2240,16 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       if (!persisted) {
         if (isFullSuccess) {
-          setSmartImportCommitError('تم تنفيذ الاستيراد، لكن تعذر حفظ حالة الإكمال. أعد المحاولة لحفظ حالة الجلسة.');
+          setSmartImportCommitError(t('projects.messages.checkpoint_full_failure'));
         } else {
-          setSmartImportCommitError('فشل حفظ نقطة استعادة الجلسة بعد تنفيذ جزئي. تم الاحتفاظ بالبيانات غير المكتملة لإعادة المحاولة.');
+          setSmartImportCommitError(t('projects.messages.checkpoint_partial_failure'));
         }
       }
 
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
       console.error('Commit execution error:', err);
-      setSmartImportCommitError(err.message || 'حدث خطأ أثناء تنفيذ عملية الاعتماد');
+      setSmartImportCommitError(err.message || t('projects.batch4.commit_execution_failed'));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsCommittingImport(false);
@@ -2261,7 +2269,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
     if (blockerType === 'CARRIER') {
       const confirmed = window.confirm(
-        'تغيّر أو تعذر اعتماد بيانات الناقل بعد المراجعة النهائية. لأن بيانات السائقين والشاحنات مرتبطة بالناقل، يجب إعادة تحليل جلسة الاستيراد. هل تريد المتابعة؟'
+        t('projects.batch4.carrier_reanalysis_confirmation')
       );
       if (confirmed) {
         const cancelled = await handleCancelRosterImport();
@@ -2321,7 +2329,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      alert(err.message || 'فشل تطبيق قرار مطابقة الناقل');
+      alert(presentBatch4Message(err.message || t('projects.batch4.carrier_decision_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -2365,7 +2373,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      alert(err.message || 'فشل تعيين الناقل البديل');
+      alert(presentBatch4Message(err.message || t('projects.batch4.carrier_alternative_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -2461,7 +2469,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      alert(err.message || 'فشل تطبيق قرار مطابقة المادة');
+      alert(presentBatch4Message(err.message || t('projects.batch4.material_decision_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -2505,7 +2513,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       await persistSmartImportCheckpoint({ batch: updated });
     } catch (err: any) {
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      alert(err.message || 'فشل تعيين المادة البديلة');
+      alert(presentBatch4Message(err.message || t('projects.batch4.material_alternative_failed'), t));
     } finally {
       if (currentGen === rosterImportSessionGenerationRef.current) {
         setIsProcessing(false);
@@ -2942,9 +2950,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // Sync Roster from Project's Google Sheets (Non-destructive pending convergence message)
   const handleSyncRosterFromSheet = async () => {
-    alert(isRTL 
-      ? 'تكامل جداول بيانات جوجل (Google Sheets) لهذا المشروع قيد الإنجاز والتوافق' 
-      : 'Google Sheets integration for this project workspace is pending convergence');
+    alert(presentBatch4Message(t('projects.batch4.sheets_integration_pending'), t));
   };
 
   // Phase 3: Add Pricing Rule
@@ -2988,13 +2994,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'خطأ في إضافة تعرفة السعر');
+        throw new Error(errorData.error || t('projects.batch4.pricing_add_failed'));
       }
       setIsAddingPricing(false);
       setPriceRate(0);
       setPriceNotes('');
     } catch (err: any) {
-      alert(err.message || 'خطأ في إضافة تعرفة السعر');
+      alert(presentBatch4Message(err.message || t('projects.batch4.pricing_add_failed'), t));
     }
   };
 
@@ -3014,12 +3020,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'خطأ في ترقية حالة المشروع');
+        throw new Error(data.error || t('projects.batch4.project_status_failed'));
       }
-      alert(`تمت ترقية حالة المشروع بنجاح إلى: ${nextStatus}`);
+      alert(presentBatch4Message(t('projects.batch4.project_status_success', { status: nextStatus }), t));
       await fetchServerReadiness(project.projectId);
     } catch (err: any) {
-      alert(err.message || 'خطأ في ترقية حالة المشروع');
+      alert(presentBatch4Message(err.message || t('projects.batch4.project_status_failed'), t));
     } finally {
       setIsTransitioning(false);
     }
@@ -3039,12 +3045,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'فشل التنشيط');
+        throw new Error(data.error || t('projects.batch4.activation_failed'));
       }
-      alert('تم تنشيط المشروع بنجاح');
+      alert(presentBatch4Message(t('projects.batch4.activation_success'), t));
       await fetchServerReadiness(project.projectId);
     } catch (error: any) {
-      alert(`فشل التنشيط: ${error.message}`);
+      alert(presentBatch4Message(t('projects.batch4.activation_error', { error: presentBatch4Message(String(error.message), t) }), t));
     } finally {
       setIsActivating(false);
     }
@@ -3060,17 +3066,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             <div className="space-y-1">
               <h1 className="text-xl font-black text-white flex items-center gap-2">
                 <Building2 className="w-6 h-6 text-amber-500" />
-                <span>لوحة التحكم والتأسيس المرحلي للمشاريع</span>
+                <span>{t('projects.batch4.setup_dashboard_title')}</span>
               </h1>
               <p className="text-xs text-stone-400">
-                متابعة وإعداد مشاريع نقل المواد والجاهزية التشغيلية في دورة التأسيس المكونة من 5 مراحل
+                {t('projects.batch4.setup_dashboard_description')}
               </p>
             </div>
 
             <div className="flex items-center gap-3">
               <input 
                 type="text" 
-                placeholder="البحث عن مشروع..."
+                placeholder={t('projects.batch4.search_projects')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="bg-stone-950 border border-stone-800 px-4 py-2 rounded-xl text-xs text-white focus:outline-hidden focus:border-amber-500"
@@ -3080,7 +3086,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all"
               >
                 <Plus className="w-4 h-4" />
-                <span>تأسيس مشروع جديد</span>
+                <span>{t('navigation.labels.provision_new_project')}</span>
               </button>
             </div>
           </div>
@@ -3090,7 +3096,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
               <form onSubmit={handleCreateProject} className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl">
                 <div className="p-5 border-b border-stone-800 bg-stone-950 flex items-center justify-between">
-                  <h3 className="text-sm font-black text-white">تأسيس مشروع جديد - مرحلة 1</h3>
+                  <h3 className="text-sm font-black text-white">{t('projects.batch4.create_project_stage_one')}</h3>
                   <button type="button" onClick={() => setIsCreatingNew(false)} className="p-1 text-stone-400 hover:text-white rounded-lg">
                     <X className="w-5 h-5" />
                   </button>
@@ -3100,20 +3106,20 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   {creationError && (
                     <div className="p-3 bg-rose-950/40 border border-rose-800 text-rose-200 rounded-xl flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
-                      <span>{creationError}</span>
+                      <span>{presentBatch4Message(creationError, t)}</span>
                     </div>
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="block text-stone-400 font-bold">اسم المشروع بالكامل (عربي)</label>
+                      <label className="block text-stone-400 font-bold">{t('projects.batch4.project_full_arabic_name')}</label>
                       <input 
                         type="text" required value={newProjNameAr} onChange={(e) => setNewProjNameAr(e.target.value)}
                         className="w-full bg-stone-950 border border-stone-800 text-white rounded-xl px-3 py-2.5 focus:border-amber-500 focus:outline-hidden"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-stone-400 font-bold">العميل المستفيد / الشركة</label>
+                      <label className="block text-stone-400 font-bold">{t('projects.batch4.beneficiary_company')}</label>
                       <input 
                         type="text" required value={newProjClient} onChange={(e) => setNewProjClient(e.target.value)}
                         className="w-full bg-stone-950 border border-stone-800 text-white rounded-xl px-3 py-2.5 focus:border-amber-500 focus:outline-hidden"
@@ -3123,14 +3129,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="block text-stone-400 font-bold">الموقع / الحقل الميداني</label>
+                      <label className="block text-stone-400 font-bold">{t('projects.batch4.field_location')}</label>
                       <input 
                         type="text" required value={newProjLocation} onChange={(e) => setNewProjLocation(e.target.value)}
                         className="w-full bg-stone-950 border border-stone-800 text-white rounded-xl px-3 py-2.5 focus:border-amber-500 focus:outline-hidden"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-stone-400 font-bold">تاريخ البدء التشغيلي</label>
+                      <label className="block text-stone-400 font-bold">{t('projects.batch4.operational_start_date')}</label>
                       <input 
                         type="date" required value={newProjStartDate} onChange={(e) => setNewProjStartDate(e.target.value)}
                         className="w-full bg-stone-950 border border-stone-800 text-white rounded-xl px-3 py-2.5 focus:border-amber-500 focus:outline-hidden font-mono"
@@ -3140,15 +3146,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="block text-stone-400 font-bold">الرقم الضريبي للمشروع (ZATCA)</label>
+                      <label className="block text-stone-400 font-bold">{t('projects.batch4.project_zatca_number')}</label>
                       <input 
                         type="text" maxLength={15} value={newProjZatca} onChange={(e) => setNewProjZatca(e.target.value.replace(/\D/g, ''))}
                         className="w-full bg-stone-950 border border-stone-800 text-white rounded-xl px-3 py-2.5 focus:border-amber-500 focus:outline-hidden font-mono font-bold"
-                        placeholder="15 خانة ضريبية"
+                        placeholder={t('projects.batch4.fifteen_tax_digits')}
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-stone-400 font-bold">نسبة الضريبة المضافة (%)</label>
+                      <label className="block text-stone-400 font-bold">{t('projects.batch4.vat_percent')}</label>
                       <input 
                         type="number" min={0} max={100} value={newProjVatRate} onChange={(e) => setNewProjVatRate(Number(e.target.value))}
                         className="w-full bg-stone-950 border border-stone-800 text-white rounded-xl px-3 py-2.5 focus:border-amber-500 focus:outline-hidden font-mono"
@@ -3157,7 +3163,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-stone-400 font-bold">نطاق العمل ووصف التفاصيل</label>
+                    <label className="block text-stone-400 font-bold">{t('projects.batch4.scope_and_details')}</label>
                     <textarea 
                       value={newProjDesc} onChange={(e) => setNewProjDesc(e.target.value)}
                       className="w-full h-24 bg-stone-950 border border-stone-800 text-white rounded-xl px-3 py-2 focus:border-amber-500 focus:outline-hidden"
@@ -3165,17 +3171,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   </div>
 
                   <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] rounded-xl font-medium leading-relaxed">
-                    * ملاحظة: رمز المشروع (projectCode) ورقم تسلسله (projectNumber) لا يمكن تعديلهما أو إدخالهما من قبل المستخدم، بل يتم توليدهما تلقائياً على الخادم لضمان سلامة الإثبات الإحصائي.
+                    {t('projects.batch4.server_generated_identifiers_note')}
                   </div>
                 </div>
 
                 <div className="p-5 border-t border-stone-800 bg-stone-950 flex justify-end gap-3">
                   <button type="button" onClick={() => setIsCreatingNew(false)} className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors">
-                    إلغاء
+                    {t('shared.actions.cancel')}
                   </button>
                   <button type="submit" disabled={isSubmittingCreation} className="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-xs flex items-center gap-2">
                     {isSubmittingCreation ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-4 h-4" />}
-                    <span>إنشاء وتأسيس المشروع</span>
+                    <span>{t('projects.batch4.create_project')}</span>
                   </button>
                 </div>
               </form>
@@ -3189,8 +3195,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 <LayoutDashboard className="w-8 h-8" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-black text-white">لا توجد مشاريع قيد التأسيس</h3>
-                <p className="text-xs text-stone-400">انقر على زر التأسيس بالأعلى للبدء في صياغة أول مشروع لوجستي</p>
+                <h3 className="text-sm font-black text-white">{t('projects.batch4.no_setup_projects')}</h3>
+                <p className="text-xs text-stone-400">{t('projects.batch4.create_first_project_hint')}</p>
               </div>
             </div>
           ) : (
@@ -3221,11 +3227,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                       <div className="grid grid-cols-2 gap-3 py-3 border-t border-b border-stone-800/80 text-[11px] text-stone-400">
                         <div>
-                          <span className="block text-stone-500 text-[10px]">العميل المستفيد</span>
+                          <span className="block text-stone-500 text-[10px]">{t('projects.batch4.beneficiary_client')}</span>
                           <span className="font-bold text-stone-200 block truncate">{p.clientName}</span>
                         </div>
                         <div>
-                          <span className="block text-stone-500 text-[10px]">تاريخ البدء</span>
+                          <span className="block text-stone-500 text-[10px]">{t('projects.batch4.start_date')}</span>
                           <span className="font-mono text-stone-200 block truncate">{p.startDate || '—'}</span>
                         </div>
                       </div>
@@ -3233,7 +3239,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       {/* Completeness Indicator */}
                       <div className="space-y-1">
                         <div className="flex justify-between text-[10px] font-black text-stone-400">
-                          <span>اكتمال تهيئة المتطلبات</span>
+                          <span>{t('projects.batch4.setup_completion')}</span>
                           <span className="font-mono">{completeness}%</span>
                         </div>
                         <div className="w-full h-1.5 bg-stone-950 rounded-full overflow-hidden">
@@ -3244,7 +3250,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                     <div className="mt-5 pt-3 border-t border-stone-800 flex items-center justify-between">
                       <span className="text-[10px] text-stone-500">
-                        {p.location?.addressAr || 'المملكة العربية السعودية'}
+                        {p.location?.addressAr || t('analytics.ui.kingdom_of_saudi_arabia')}
                       </span>
                       
                       <button
@@ -3256,7 +3262,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         }}
                         className="px-3.5 py-1.5 bg-stone-800 hover:bg-stone-750 text-white font-bold text-[11px] rounded-lg border border-stone-700 flex items-center gap-1 transition-all"
                       >
-                        <span>متابعة التهيئة</span>
+                        <span>{t('projects.batch4.continue_setup')}</span>
                         <ArrowLeft className="w-3 h-3 text-stone-400 rtl:rotate-180" />
                       </button>
                     </div>
@@ -3280,7 +3286,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 className="text-[10px] font-bold text-amber-500 hover:underline flex items-center gap-1 mx-auto lg:mx-0"
               >
                 <ArrowRight className="w-3.5 h-3.5 text-amber-500" />
-                <span>الرجوع للوحة المشاريع</span>
+                <span>{t('projects.batch4.back_to_projects')}</span>
               </button>
               <h2 className="text-sm font-black text-white mt-1">{project?.nameAr}</h2>
               <span className="text-[10px] font-mono text-stone-500 block">
@@ -3313,8 +3319,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   >
                     <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-amber-500' : 'text-stone-500'}`} />
                     <div className="space-y-0.5">
-                      <span className="text-[11px] font-black block">{layer.labelAr}</span>
-                      <span className="text-[9px] text-stone-500 font-mono block">Layer {layer.ordinal} • {layer.id}</span>
+                      <span className="text-[11px] font-black block">{batch4LayerLabel(t, layer.id, layer.labelAr)}</span>
+                      <span className="text-[9px] text-stone-500 font-mono block">{t('projects.batch4.layer')} {layer.ordinal} • {layer.id}</span>
                     </div>
                   </button>
                 );
@@ -3324,7 +3330,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             {navigationError && (
               <div className="p-3 bg-amber-950/40 border border-amber-800 rounded-xl text-amber-400 text-[10px] font-bold flex items-center gap-2 mt-2">
                 <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
-                <span>{navigationError}</span>
+                <span>{presentBatch4Message(navigationError, t)}</span>
               </div>
             )}
           </div>
@@ -3339,14 +3345,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     {PROJECT_SETUP_LAYERS.findIndex(l => l.id === activeSetupLayer) + 1}
                   </span>
                   <span>
-                    {activeSetupLayer === 'FOUNDATION' && 'البيانات الأساسية وتكوين المشروع'}
-                    {activeSetupLayer === 'WORKSPACE' && 'مساحة العمل ومزامنة قوقل'}
-                    {activeSetupLayer === 'MATERIALS' && 'قائمة المواد المصرح بها'}
-                    {activeSetupLayer === 'CARRIERS' && 'الناقلون المعتمدون'}
-                    {activeSetupLayer === 'ROSTER' && 'سجل تشغيل السائقين والشاحنات'}
-                    {activeSetupLayer === 'PRICING' && 'هيكل قواعد الأسعار والاتفاقيات المجدولة'}
-                    {activeSetupLayer === 'ACCESS' && 'إدارة وتصاريح المستخدمين'}
-                    {activeSetupLayer === 'REVIEW_ACTIVATION' && 'مراجعة المتطلبات والتفعيل'}
+                    {activeSetupLayer === 'FOUNDATION' && t('projects.batch4.layer_foundation')}
+                    {activeSetupLayer === 'WORKSPACE' && t('projects.batch4.layer_workspace')}
+                    {activeSetupLayer === 'MATERIALS' && t('projects.batch4.layer_materials')}
+                    {activeSetupLayer === 'CARRIERS' && t('projects.batch4.layer_carriers')}
+                    {activeSetupLayer === 'ROSTER' && t('projects.batch4.layer_roster')}
+                    {activeSetupLayer === 'PRICING' && t('projects.batch4.layer_pricing')}
+                    {activeSetupLayer === 'ACCESS' && t('projects.batch4.layer_access')}
+                    {activeSetupLayer === 'REVIEW_ACTIVATION' && t('projects.batch4.layer_activation')}
                   </span>
                 </h2>
               </div>
@@ -3354,7 +3360,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {isCoreSetupLocked && (
                 <span className="px-2.5 py-1 bg-stone-950 border border-stone-800 text-[10px] text-stone-500 rounded-xl font-bold flex items-center gap-1.5">
                   <Lock className="w-3.5 h-3.5" />
-                  <span>تعديل مقفل</span>
+                  <span>{t('projects.batch4.editing_locked')}</span>
                 </span>
               )}
             </div>
@@ -3363,7 +3369,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             {isProjectDataLoading && activeSetupLayer !== 'FOUNDATION' && (
               <div className="p-8 bg-stone-950/60 border border-stone-800 rounded-2xl flex flex-col items-center justify-center text-center space-y-3">
                 <RefreshCw className="w-6 h-6 text-amber-500 animate-spin" />
-                <span className="text-stone-400 font-bold text-xs">جاري تحميل بيانات المشروع المعتمدة...</span>
+                <span className="text-stone-400 font-bold text-xs">{t('projects.batch4.loading_canonical_project')}</span>
               </div>
             )}
 
@@ -3373,7 +3379,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 {/* Project details card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
-                    <h3 className="font-black text-white text-[13px]">تفاصيل المشروع</h3>
+                    <h3 className="font-black text-white text-[13px]">{t('projects.batch4.project_details')}</h3>
                     {!isCoreSetupLocked && (
                       <div>
                         {!isEditingFoundation ? (
@@ -3383,7 +3389,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
-                            <span>تعديل البيانات</span>
+                            <span>{t('projects.batch4.edit_data')}</span>
                           </button>
                         ) : (
                           <div className="flex items-center gap-2">
@@ -3394,7 +3400,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
                             >
                               {isSavingFoundation ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                              <span>حفظ التعديلات</span>
+                              <span>{t('shared.actions.save')}</span>
                             </button>
                             <button
                               type="button"
@@ -3403,7 +3409,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
                             >
                               <X className="w-3.5 h-3.5" />
-                              <span>إلغاء</span>
+                              <span>{t('shared.actions.cancel')}</span>
                             </button>
                           </div>
                         )}
@@ -3421,13 +3427,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   {foundationSaveError && (
                     <div className="p-3 bg-rose-950/40 border border-rose-800 text-rose-300 rounded-xl flex items-center gap-2 text-xs">
                       <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-                      <span>{foundationSaveError}</span>
+                      <span>{presentBatch4Message(foundationSaveError, t)}</span>
                     </div>
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-stone-500 font-bold block">اسم المشروع</label>
+                      <label className="text-stone-500 font-bold block">{t('dashboard.labels.project')}</label>
                       <input 
                         type="text" 
                         value={isEditingFoundation ? (foundationDraft?.nameAr ?? '') : (project.nameAr || '')} 
@@ -3440,7 +3446,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-stone-500 font-bold block">العميل المستفيد</label>
+                      <label className="text-stone-500 font-bold block">{t('projects.batch4.beneficiary_client')}</label>
                       <input 
                         type="text" 
                         value={isEditingFoundation ? (foundationDraft?.clientName ?? '') : (project.clientName || '')} 
@@ -3455,7 +3461,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                     <div className="space-y-1">
-                      <label className="text-stone-500 font-bold block">الموقع الميداني</label>
+                      <label className="text-stone-500 font-bold block">{t('projects.batch4.field_site')}</label>
                       <input 
                         type="text" 
                         value={isEditingFoundation ? (foundationDraft?.addressAr ?? '') : (project.location?.addressAr || '')} 
@@ -3468,7 +3474,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-stone-500 font-bold block">الرقم الضريبي ZATCA</label>
+                      <label className="text-stone-500 font-bold block">{t('analytics.ui.zatca_tax_number')}</label>
                       <input 
                         type="text" 
                         maxLength={15} 
@@ -3482,7 +3488,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-stone-500 font-bold block">تاريخ البدء التشغيلي</label>
+                      <label className="text-stone-500 font-bold block">{t('projects.batch4.operational_start_date')}</label>
                       <input 
                         type="date" 
                         value={isEditingFoundation ? (foundationDraft?.startDate ?? '') : (project.startDate || '')} 
@@ -3505,11 +3511,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 {/* Google Workspace Setup card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
-                    <h3 className="font-black text-white text-[13px]">حالة مزامنة ملفات Google Drive / Google Sheets</h3>
+                    <h3 className="font-black text-white text-[13px]">{t('projects.batch4.workspace_sync_status')}</h3>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                       project.settings?.googleSpreadsheetId ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'
                     }`}>
-                      {project.settings?.googleSpreadsheetId ? 'مكتمل' : 'بانتظار التهيئة'}
+                      {project.settings?.googleSpreadsheetId ? t('entityResolution.labels.complete') : t('projects.batch4.awaiting_workspace_setup')}
                     </span>
                   </div>
 
@@ -3518,18 +3524,18 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       syncNotice.type === 'success' ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300' : 'bg-rose-950/40 border-rose-800 text-rose-300'
                     }`}>
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
-                      <span>{syncNotice.text}</span>
+                      <span>{presentBatch4Message(syncNotice.text, t)}</span>
                     </div>
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px] text-stone-400">
                     <div>
-                      <span className="block text-stone-500 font-bold">معرف شيت قوقل لإنزال الرحلات</span>
-                      <span className="font-mono text-stone-200 block truncate">{project.settings?.googleSpreadsheetId || 'غير مهيأ'}</span>
+                      <span className="block text-stone-500 font-bold">{t('projects.batch4.trip_spreadsheet_id')}</span>
+                      <span className="font-mono text-stone-200 block truncate">{project.settings?.googleSpreadsheetId || t('projects.batch4.not_configured')}</span>
                     </div>
                     <div>
-                      <span className="block text-stone-500 font-bold">معرف المجلد الرئيسي للمشروع</span>
-                      <span className="font-mono text-stone-200 block truncate">{project.settings?.googleDriveFolderId || 'غير مهيأ'}</span>
+                      <span className="block text-stone-500 font-bold">{t('projects.batch4.project_root_folder_id')}</span>
+                      <span className="font-mono text-stone-200 block truncate">{project.settings?.googleDriveFolderId || t('projects.batch4.not_configured')}</span>
                     </div>
                   </div>
 
@@ -3540,7 +3546,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-4 py-2 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50"
                     >
                       {isSyncingGoogle ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <FolderSync className="w-4 h-4" />}
-                      <span>{project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId ? 'تحديث مزامنة Google Workspace' : 'تهيئة ومزامنة Google Workspace'}</span>
+                      <span>{project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')}</span>
                     </button>
                   </div>
                 </div>
@@ -3553,14 +3559,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 {/* Materials list management card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
-                    <h3 className="font-black text-white text-[13px]">قائمة المواد المصرح بها</h3>
+                    <h3 className="font-black text-white text-[13px]">{t('projects.batch4.layer_materials')}</h3>
                     {isOperationallyMutable && (
                       <button
                         onClick={() => setIsAddingMaterial(true)}
                         className="text-amber-500 font-bold hover:underline flex items-center gap-1"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>إضافة مادة جديدة</span>
+                        <span>{t('projects.batch4.add_material')}</span>
                       </button>
                     )}
                   </div>
@@ -3630,18 +3636,18 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   )}
 
                   {materials.length === 0 ? (
-                    <p className="text-center text-stone-500 py-6">لم يتم تسجيل أي مواد لهذا المشروع بعد.</p>
+                    <p className="text-center text-stone-500 py-6">{t('projects.batch4.no_project_materials')}</p>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-right">
                         <thead>
                           <tr className="border-b border-stone-800/80 text-stone-500 font-black">
-                            <th className="pb-2">معرف المادة</th>
-                            <th className="pb-2">الاسم</th>
-                            <th className="pb-2">رمز الكود</th>
-                            <th className="pb-2">الوحدة</th>
-                            <th className="pb-2">الكثافة الافتراضية</th>
-                            <th className="pb-2 text-center">الإجراءات</th>
+                            <th className="pb-2">{t('projects.batch4.material_id')}</th>
+                            <th className="pb-2">{t('projects.batch4.name')}</th>
+                            <th className="pb-2">{t('projects.batch4.code')}</th>
+                            <th className="pb-2">{t('materials.labels.txt_252118')}</th>
+                            <th className="pb-2">{t('projects.batch4.default_density')}</th>
+                            <th className="pb-2 text-center">{t('admin_console.col_actions')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -3651,17 +3657,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="py-2.5">{m.nameAr || (m as any).name}</td>
                               <td className="py-2.5 font-mono">{m.code}</td>
                               <td className="py-2.5">{m.unitOfMeasure}</td>
-                              <td className="py-2.5 font-mono">{m.standardDensityTonPerM3 || 1.6} طن/م³</td>
+                              <td className="py-2.5 font-mono">{m.standardDensityTonPerM3 || 1.6} {t('projects.batch4.ton_per_cubic_meter')}</td>
                               <td className="py-2.5 text-center">
                                 {isOperationallyMutable && (
                                   <button
                                     type="button"
                                     onClick={() => setEditingMaterial(m)}
                                     className="p-1 px-2 text-stone-400 hover:text-amber-500 hover:bg-stone-800 rounded transition-colors inline-flex items-center gap-1 text-[11px]"
-                                    title="تعديل بيانات المادة"
+                                    title={t('materials.labels.editMaterial')}
                                   >
                                     <Edit3 className="w-3.5 h-3.5" />
-                                    <span>تعديل</span>
+                                    <span>{t('shared.actions.edit')}</span>
                                   </button>
                                 )}
                               </td>
@@ -3681,14 +3687,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 {/* Carriers checklist */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
-                    <h3 className="font-black text-white text-[13px]">الناقلون المعتمدون بالمشروع</h3>
+                    <h3 className="font-black text-white text-[13px]">{t('projects.batch4.project_approved_carriers')}</h3>
                     {isOperationallyMutable && (
                       <button
                         onClick={() => setIsCarrierEditorOpen(true)}
                         className="text-amber-500 font-bold hover:underline flex items-center gap-1"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>إضافة ناقل جديد</span>
+                        <span>{t('projects.labels.add_carrier')}</span>
                       </button>
                     )}
                   </div>
@@ -3771,18 +3777,18 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   )}
 
                   {carriers.length === 0 ? (
-                    <p className="text-center text-stone-500 py-6">لم يتم تسجيل أي ناقلين معتمدين للمشروع بعد.</p>
+                    <p className="text-center text-stone-500 py-6">{t('projects.batch4.no_project_carriers')}</p>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-right">
                         <thead>
                           <tr className="border-b border-stone-800/80 text-stone-500 font-black">
-                            <th className="pb-2">معرف الناقل</th>
-                            <th className="pb-2">اسم الشركة</th>
-                            <th className="pb-2">السجل التجاري</th>
-                            <th className="pb-2">رقم التصريح TGA</th>
-                            <th className="pb-2">البريد الإلكتروني</th>
-                            <th className="pb-2 text-center">إجراءات</th>
+                            <th className="pb-2">{t('projects.batch4.carrier_id')}</th>
+                            <th className="pb-2">{t('projects.batch4.company_name')}</th>
+                            <th className="pb-2">{t('projects.batch4.commercial_registration')}</th>
+                            <th className="pb-2">{t('projects.batch4.tga_permit_number')}</th>
+                            <th className="pb-2">{t('admin_console.col_email')}</th>
+                            <th className="pb-2 text-center">{t('trips.labels.txt_1309b3')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -3801,7 +3807,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                                     className="p-1 px-2 text-stone-400 hover:text-amber-500 hover:bg-stone-800 rounded transition-colors inline-flex items-center gap-1 text-[11px]"
                                   >
                                     <Edit3 className="w-3.5 h-3.5" />
-                                    <span>تعديل</span>
+                                    <span>{t('shared.actions.edit')}</span>
                                   </button>
                                 )}
                               </td>
@@ -3822,8 +3828,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-stone-800 pb-2 gap-3">
                     <div className="space-y-0.5">
-                      <h3 className="font-black text-white text-[13px]">سجل تشغيل السائقين والشاحنات الموحد (Roster)</h3>
-                      <p className="text-[10px] text-stone-500">مزامنة وترخيص السائقين والشاحنات للمشروع لمنع التكرار والحفظ الإقصائي</p>
+                      <h3 className="font-black text-white text-[13px]">{t('projects.batch4.unified_roster')}</h3>
+                      <p className="text-[10px] text-stone-500">{t('projects.batch4.roster_description')}</p>
                     </div>
 
                     {isOperationallyMutable && (
@@ -3833,7 +3839,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                           className="px-3 py-1.5 bg-stone-900 border border-stone-850 text-stone-300 hover:text-white rounded-lg text-[10px] font-bold flex items-center gap-1"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          <span>إضافة يدوية</span>
+                          <span>{t('projects.batch4.manual_add')}</span>
                         </button>
                         <button
                           onClick={() => {
@@ -3843,7 +3849,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                           className="px-3 py-1.5 bg-stone-900 border border-stone-850 text-amber-500 hover:text-amber-400 rounded-lg text-[10px] font-bold flex items-center gap-1"
                         >
                           <FileSpreadsheet className="w-3.5 h-3.5" />
-                          <span>استيراد ملف</span>
+                          <span>{t('projects.batch4.import_file')}</span>
                         </button>
                         <input
                           type="file"
@@ -3857,7 +3863,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                           className="px-3 py-1.5 bg-stone-900 border border-stone-850 text-blue-400 hover:text-blue-300 rounded-lg text-[10px] font-bold flex items-center gap-1"
                         >
                           <RefreshCw className="w-3.5 h-3.5" />
-                          <span>مزامنة شيت قوقل</span>
+                          <span>{t('projects.batch4.sync_google_sheet')}</span>
                         </button>
                       </div>
                     )}
@@ -3868,25 +3874,25 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <form onSubmit={handleAddRosterManual} className="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-3">
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">اسم السائق الثنائي</label>
+                          <label className="text-stone-400 font-bold">{t('projects.batch4.driver_two_part_name')}</label>
                           <input type="text" required value={rostDriverName} onChange={(e) => setRostDriverName(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">رقم الجوال (+966)</label>
+                          <label className="text-stone-400 font-bold">{t('projects.batch4.mobile_saudi_prefix')}</label>
                           <input type="text" required value={rostPhone} onChange={(e) => setRostPhone(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-mono"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">لوحة الشاحنة</label>
+                          <label className="text-stone-400 font-bold">{t('projects.batch4.truck_plate')}</label>
                           <input type="text" required value={rostPlate} onChange={(e) => setRostPlate(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-mono"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">رقم الهوية / الإقامة</label>
+                          <label className="text-stone-400 font-bold">{t('entityResolution.labels.residency_identifier')}</label>
                           <input type="text" value={rostResidency} onChange={(e) => setRostResidency(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-mono"
                           />
@@ -3895,46 +3901,46 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">الناقل المعين</label>
+                          <label className="text-stone-400 font-bold">{t('projects.batch4.assigned_carrier')}</label>
                           <select required value={rostCarrier} onChange={(e) => setRostCarrier(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
                           >
-                            <option value="">اختر الناقل...</option>
+                            <option value="">{t('projects.batch4.choose_carrier')}</option>
                             {carriers.map(c => <option key={c.carrierId} value={c.carrierId}>{c.name}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">المادة المعتادة</label>
+                          <label className="text-stone-400 font-bold">{t('projects.batch4.usual_material')}</label>
                           <select required value={rostMaterial} onChange={(e) => setRostMaterial(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
                           >
-                            <option value="">اختر المادة...</option>
+                            <option value="">{t('projects.batch4.choose_material')}</option>
                             {materials.map(m => <option key={m.materialId} value={m.materialId}>{m.nameAr}</option>)}
                           </select>
                         </div>
                       </div>
 
                       <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" onClick={() => setIsAddingRosterRow(false)} className="px-3 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg">إلغاء</button>
-                        <button type="submit" className="px-4 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">تسجيل وحفظ</button>
+                        <button type="button" onClick={() => setIsAddingRosterRow(false)} className="px-3 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg">{t('shared.actions.cancel')}</button>
+                        <button type="submit" className="px-4 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">{t('projects.batch4.register_and_save')}</button>
                       </div>
                     </form>
                   )}
 
                   {/* Fleet Data Table */}
                   {fleetRows.length === 0 ? (
-                    <p className="text-center text-stone-500 py-6">الأسطول التشغيلي فارغ حالياً.</p>
+                    <p className="text-center text-stone-500 py-6">{t('projects.batch4.empty_fleet')}</p>
                   ) : (
                     <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
                       <table className="w-full text-right">
                         <thead className="sticky top-0 bg-stone-950 z-10">
                           <tr className="border-b border-stone-800 text-stone-500 font-black text-[11px]">
-                            <th className="pb-2">معرف الشاحنة</th>
-                            <th className="pb-2">اسم السائق</th>
-                            <th className="pb-2">رقم اللوحة</th>
-                            <th className="pb-2">الناقل</th>
-                            <th className="pb-2">المادة المعتمدة</th>
-                            <th className="pb-2">حالة التعيين</th>
+                            <th className="pb-2">{t('projects.batch4.truck_id')}</th>
+                            <th className="pb-2">{t('entityResolution.labels.driver_name')}</th>
+                            <th className="pb-2">{t('analytics.column.plate_number')}</th>
+                            <th className="pb-2">{t('entityResolution.labels.carrier_3')}</th>
+                            <th className="pb-2">{t('entityResolution.labels.approved_material')}</th>
+                            <th className="pb-2">{t('projects.batch4.assignment_status')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -3970,7 +3976,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   <div className="p-4 bg-amber-950/40 border border-amber-800 text-amber-300 rounded-2xl space-y-2">
                     <div className="flex items-center gap-2 font-black">
                       <AlertTriangle className="w-5 h-5 text-amber-500" />
-                      <span>تنبيه تداخل زمني نشط للتعرفات الضريبية والمالية:</span>
+                      <span>{t('projects.batch4.active_tariff_overlap')}</span>
                     </div>
                     <ul className="list-disc list-inside space-y-1 font-mono text-[10px] leading-relaxed">
                       {pricingConflicts.map((c, i) => <li key={i}>{c}</li>)}
@@ -3981,8 +3987,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
                     <div>
-                      <h3 className="font-black text-white text-[13px]">قواعد وأسعار النقل والاتفاقيات</h3>
-                      <p className="text-[10px] text-stone-500">تطبيق الفحص المنطقي لمنع الازدواجية في فترات التعاقد وحساب الفروقات الضريبية</p>
+                      <h3 className="font-black text-white text-[13px]">{t('projects.batch4.pricing_agreements')}</h3>
+                      <p className="text-[10px] text-stone-500">{t('projects.batch4.pricing_agreements_description')}</p>
                     </div>
 
                     {isOperationallyMutable && (
@@ -3991,7 +3997,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         className="text-amber-500 font-bold hover:underline flex items-center gap-1"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>إضافة تعرفة جديدة</span>
+                        <span>{t('projects.batch4.add_tariff')}</span>
                       </button>
                     )}
                   </div>
@@ -4000,49 +4006,49 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <form onSubmit={handleAddPricingRule} className="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-3">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">الناقل المعني</label>
+                          <label className="text-stone-400 font-bold">{t('analytics.column.concerned_carrier')}</label>
                           <select required value={priceCarrierId} onChange={(e) => setPriceCarrierId(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
                           >
-                            <option value="ALL">جميع الناقلين المعتمدين (تعرفة عامة)</option>
+                            <option value="ALL">{t('projects.batch4.all_approved_carriers_tariff')}</option>
                             {carriers.map(c => <option key={c.carrierId} value={c.carrierId}>{c.name}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">المادة المستهدفة</label>
+                          <label className="text-stone-400 font-bold">{t('projects.batch4.target_material')}</label>
                           <select required value={priceMaterialId} onChange={(e) => setPriceMaterialId(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
                           >
-                            <option value="ALL_MATERIALS">جميع المواد المصرحة</option>
+                            <option value="ALL_MATERIALS">{t('projects.batch4.all_authorized_materials')}</option>
                             {materials.map(m => <option key={m.materialId} value={m.materialId}>{m.nameAr}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">نموذج التسعير</label>
+                          <label className="text-stone-400 font-bold">{t('analytics.column.pricing_model')}</label>
                           <select required value={priceModel} onChange={(e) => setPriceModel(e.target.value as any)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
                           >
-                            <option value="PER_TRIP">بالرد (PER TRIP)</option>
-                            <option value="PER_TON">بالطن (PER TON)</option>
+                            <option value="PER_TRIP">{t('operations.per_trip_per_trip')}</option>
+                            <option value="PER_TON">{t('operations.per_ton_per_ton')}</option>
                           </select>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">السعر الأساسي للرد/الطن (SAR)</label>
+                          <label className="text-stone-400 font-bold">{t('projects.batch4.base_rate_sar')}</label>
                           <input type="number" min={0} step={0.01} required value={priceRate} onChange={(e) => setPriceRate(Number(e.target.value))}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-mono font-bold"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">تاريخ السريان من</label>
+                          <label className="text-stone-400 font-bold">{t('projects.batch4.effective_from')}</label>
                           <input type="date" required value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-mono"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-stone-400 font-bold">تاريخ الانتهاء إلى (اختياري)</label>
+                          <label className="text-stone-400 font-bold">{t('projects.batch4.expires_optional')}</label>
                           <input type="date" value={priceTo} onChange={(e) => setPriceTo(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-mono"
                           />
@@ -4050,33 +4056,33 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-stone-400 font-bold">ملاحظات ومرجع التعاقد</label>
+                        <label className="text-stone-400 font-bold">{t('projects.batch4.contract_notes')}</label>
                         <input type="text" value={priceNotes} onChange={(e) => setPriceNotes(e.target.value)}
                           className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden"
                         />
                       </div>
 
                       <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" onClick={() => setIsAddingPricing(false)} className="px-3 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg">إلغاء</button>
-                        <button type="submit" className="px-4 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">حفظ التعرفة</button>
+                        <button type="button" onClick={() => setIsAddingPricing(false)} className="px-3 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg">{t('shared.actions.cancel')}</button>
+                        <button type="submit" className="px-4 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">{t('projects.batch4.save_tariff')}</button>
                       </div>
                     </form>
                   )}
 
                   {pricingRules.length === 0 ? (
-                    <p className="text-center text-stone-500 py-6">لم يتم تكوين أي قواعد أسعار أو اتفاقيات بعد.</p>
+                    <p className="text-center text-stone-500 py-6">{t('projects.batch4.no_pricing_agreements')}</p>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-right">
                         <thead>
                           <tr className="border-b border-stone-800/80 text-stone-500 font-black">
-                            <th className="pb-2">معرف القاعدة</th>
-                            <th className="pb-2">الناقل المعني</th>
-                            <th className="pb-2">المادة المستهدفة</th>
-                            <th className="pb-2">الموديل</th>
-                            <th className="pb-2">التعرفة (SAR)</th>
-                            <th className="pb-2">السريان من</th>
-                            <th className="pb-2">انتهاء السريان</th>
+                            <th className="pb-2">{t('projects.batch4.rule_id')}</th>
+                            <th className="pb-2">{t('analytics.column.concerned_carrier')}</th>
+                            <th className="pb-2">{t('projects.batch4.target_material')}</th>
+                            <th className="pb-2">{t('projects.batch4.model')}</th>
+                            <th className="pb-2">{t('projects.batch4.tariff_sar')}</th>
+                            <th className="pb-2">{t('operations.valid_from')}</th>
+                            <th className="pb-2">{t('projects.batch4.valid_until')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -4084,15 +4090,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             <tr key={r.pricingRuleId} className="border-b border-stone-850 text-stone-300 font-semibold">
                               <td className="py-2.5 font-mono">{r.pricingRuleId}</td>
                               <td className="py-2.5 font-bold">
-                                {r.carrierId ? (carriers.find(c => c.carrierId === r.carrierId)?.name || r.carrierId) : 'جميع الناقلين'}
+                                {r.carrierId ? (carriers.find(c => c.carrierId === r.carrierId)?.name || r.carrierId) : t('dashboard.all_carriers')}
                               </td>
                               <td className="py-2.5">
-                                {r.materialId ? (materials.find(m => m.materialId === r.materialId)?.nameAr || r.materialId) : 'جميع المواد المعتمدة'}
+                                {r.materialId ? (materials.find(m => m.materialId === r.materialId)?.nameAr || r.materialId) : t('projects.batch4.all_approved_materials')}
                               </td>
-                              <td className="py-2.5">{r.pricingModel === 'PER_TRIP' ? 'بالرد' : 'بالطن'}</td>
-                              <td className="py-2.5 font-mono text-emerald-400">{r.baseRateSAR} ريال</td>
+                              <td className="py-2.5">{r.pricingModel === 'PER_TRIP' ? t('field_operations.pricing_per_trip') : t('field_operations.pricing_per_ton')}</td>
+                              <td className="py-2.5 font-mono text-emerald-400">{r.baseRateSAR} {t('shared.units.sar')}</td>
                               <td className="py-2.5 font-mono">{r.effectiveFrom}</td>
-                              <td className="py-2.5 font-mono">{r.effectiveTo || 'مفتوح / غير محدد'}</td>
+                              <td className="py-2.5 font-mono">{r.effectiveTo || t('projects.batch4.open_ended')}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -4107,20 +4113,20 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             {activeSetupLayer === 'ACCESS' && project && (
               <div className="space-y-6 text-xs text-stone-300">
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
-                  <h3 className="font-black text-white text-[13px] border-b border-stone-800 pb-2">إدارة وصلاحيات مستخدمي المشروع</h3>
+                  <h3 className="font-black text-white text-[13px] border-b border-stone-800 pb-2">{t('projects.batch4.project_user_access')}</h3>
                   
                   <div className="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-4 leading-relaxed">
                     <p className="text-stone-400 text-[11px]">
-                      تطبيق عزل البيانات التشغيلية والمستندية على مستوى المشروع لضمان الوصول الخاضع للمراقبة والتدقيق.
+                      {t('projects.batch4.project_access_description')}
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-3 bg-stone-950 rounded-lg border border-stone-850 space-y-1">
-                        <span className="font-bold text-white block">مدير المشروع (PROJECT_ADMIN)</span>
-                        <span className="text-stone-500 text-[10px] block">صلاحية التأسيس، تعديل سجل التشغيل، إضافة الأسعار وتغيير حالة المشروع.</span>
+                        <span className="font-bold text-white block">{t('projects.labels.project_11')}</span>
+                        <span className="text-stone-500 text-[10px] block">{t('projects.batch4.project_manager_permissions')}</span>
                       </div>
                       <div className="p-3 bg-stone-950 rounded-lg border border-stone-850 space-y-1">
-                        <span className="font-bold text-white block">مراقب الميدان (FIELD_SUPERVISOR)</span>
-                        <span className="text-stone-500 text-[10px] block">صلاحية تتبع شاحنات سجل التشغيل، وإصدار وتعديل كشوفات الرحلات اللوجستية.</span>
+                        <span className="font-bold text-white block">{t('projects.batch4.field_supervisor_role')}</span>
+                        <span className="text-stone-500 text-[10px] block">{t('projects.batch4.field_supervisor_permissions')}</span>
                       </div>
                     </div>
                   </div>
@@ -4129,10 +4135,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <table className="w-full text-right">
                       <thead>
                         <tr className="border-b border-stone-800/80 text-stone-500 font-black">
-                          <th className="pb-2">المستخدم</th>
-                          <th className="pb-2">البريد الإلكتروني</th>
-                          <th className="pb-2">الدور الوظيفي في النظام</th>
-                          <th className="pb-2">عزل المشاريع</th>
+                          <th className="pb-2">{t('other.labels.user_4')}</th>
+                          <th className="pb-2">{t('admin_console.col_email')}</th>
+                          <th className="pb-2">{t('projects.batch4.system_role')}</th>
+                          <th className="pb-2">{t('security.labels.domain_project_isolation')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -4140,7 +4146,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                           <td className="py-2.5 font-bold">{authContext.displayName}</td>
                           <td className="py-2.5 font-mono">{authContext.email}</td>
                           <td className="py-2.5 font-mono text-amber-500 font-bold">{authContext.role}</td>
-                          <td className="py-2.5 text-emerald-400">كامل الصلاحيات (مرخص)</td>
+                          <td className="py-2.5 text-emerald-400">{t('projects.batch4.full_authorized_access')}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -4159,10 +4165,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <ShieldCheck className="w-5 h-5 text-amber-500" />
                       <div>
                         <h3 className="font-black text-white text-[13px]">
-                          الجاهزية التشغيلية الميدانية المعتمدة (مرجعية الخادم)
+                          {t('projects.batch4.server_operational_readiness')}
                         </h3>
                         <p className="text-[11px] text-stone-400">
-                          تقييم الربط التشغيلي الفعلي (المواد، الناقلين، السائقين، الشاحنات، والتعرفات السارية)
+                          {t('projects.batch4.readiness_description')}
                         </p>
                       </div>
                     </div>
@@ -4171,24 +4177,24 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       onClick={() => fetchServerReadiness(project.projectId)}
                       disabled={isLoadingReadiness}
                       className="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 border border-stone-750 text-stone-300 rounded-lg flex items-center gap-1.5 transition-all text-[11px] disabled:opacity-50"
-                      title="إعادة فحص الجاهزية التشغيلية"
+                      title={t('projects.batch4.recheck_readiness')}
                     >
                       <RefreshCw className={`w-3.5 h-3.5 ${isLoadingReadiness ? 'animate-spin text-amber-500' : 'text-stone-400'}`} />
-                      <span>{isLoadingReadiness ? 'جاري الفحص...' : 'تحديث الفحص'}</span>
+                      <span>{isLoadingReadiness ? t('legacyMigration.labels.running_checks') : t('projects.batch4.refresh_readiness')}</span>
                     </button>
                   </div>
 
                   {isLoadingReadiness ? (
                     <div className="p-6 bg-stone-900/50 border border-stone-800 rounded-xl text-center space-y-2">
                       <RefreshCw className="w-6 h-6 animate-spin text-amber-500 mx-auto" />
-                      <p className="text-stone-400">جاري تقييم الجاهزية التشغيلية من الخادم بشكل موثق...</p>
+                      <p className="text-stone-400">{t('projects.batch4.readiness_checking')}</p>
                     </div>
                   ) : readinessError ? (
                     <div className="p-4 bg-rose-950/40 border border-rose-800 rounded-xl flex items-center gap-3 text-rose-300">
                       <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
                       <div>
-                        <span className="font-bold block">تعذر تقييم الجاهزية التشغيلية</span>
-                        <span className="text-[11px] opacity-80">{readinessError}</span>
+                        <span className="font-bold block">{t('projects.batch4.readiness_unavailable')}</span>
+                        <span className="text-[11px] opacity-80">{presentBatch4Message(readinessError, t)}</span>
                       </div>
                     </div>
                   ) : serverReadiness ? (
@@ -4197,17 +4203,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         <div className="p-4 bg-emerald-950/40 border border-emerald-800/80 rounded-xl space-y-3">
                           <div className="flex items-center gap-2.5 text-emerald-400 font-black text-xs">
                             <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                            <span>المشروع مستوفٍ لجميع متطلبات الجاهزية التشغيلية وجاهز للتفعيل</span>
+                            <span>{t('projects.batch4.readiness_satisfied')}</span>
                           </div>
                           <p className="text-[11px] text-emerald-300/80 leading-relaxed">
-                            تم التحقق السيرفري بنجاح: تم العثور على مسار تشغيلي متكامل ومترابط (عضوية سائق نشطة ↔ تعيين شاحنة ↔ تبعية ناقل متطابقة ↔ تخصيص مادة ↔ تعرفة سعر سارية).
+                            {t('projects.batch4.readiness_verified_path')}
                           </p>
                           {serverReadiness.candidatePath && (
                             <div className="bg-stone-950/80 border border-emerald-900/60 p-3 rounded-lg flex flex-wrap gap-4 text-[10px] font-mono text-stone-300">
-                              <div><span className="text-stone-500">سائق: </span>{serverReadiness.candidatePath.driverId}</div>
-                              <div><span className="text-stone-500">شاحنة: </span>{serverReadiness.candidatePath.truckId}</div>
-                              <div><span className="text-stone-500">ناقل: </span>{serverReadiness.candidatePath.carrierId}</div>
-                              <div><span className="text-stone-500">مادة: </span>{serverReadiness.candidatePath.materialId}</div>
+                              <div><span className="text-stone-500">{t('loading.labels.driver')} </span>{serverReadiness.candidatePath.driverId}</div>
+                              <div><span className="text-stone-500">{t('operations.truck_2')} </span>{serverReadiness.candidatePath.truckId}</div>
+                              <div><span className="text-stone-500">{t('operations.carrier')} </span>{serverReadiness.candidatePath.carrierId}</div>
+                              <div><span className="text-stone-500">{t('loading.labels.material_2')} </span>{serverReadiness.candidatePath.materialId}</div>
                             </div>
                           )}
                         </div>
@@ -4215,15 +4221,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         <div className="p-4 bg-rose-950/30 border border-rose-800/70 rounded-xl space-y-3">
                           <div className="flex items-center gap-2.5 text-rose-400 font-black text-xs">
                             <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
-                            <span>المشروع غير جاهز للتشغيل الميداني الفعلي ({serverReadiness.blockers.length} عوائق)</span>
+                            <span>{t('projects.batch4.readiness_blocker_count', { count: serverReadiness.blockers.length })}</span>
                           </div>
                           <div className="space-y-2 pt-1">
                             {serverReadiness.blockers.map((b, idx) => (
                               <div key={idx} className="flex items-start gap-2 bg-stone-950/70 border border-rose-900/40 p-2.5 rounded-lg text-rose-200 text-[11px]">
                                 <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                                 <div className="space-y-0.5">
-                                  <span className="font-semibold block">{b.message}</span>
-                                  <span className="text-[10px] font-mono text-stone-500 block">رمز العائق: {b.code}</span>
+                                  <span className="font-semibold block">{presentBatch4Message(b.message, t)}</span>
+                                  <span className="text-[10px] font-mono text-stone-500 block">{t('projects.batch4.blocker_code')} {b.code}</span>
                                 </div>
                               </div>
                             ))}
@@ -4233,7 +4239,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                   ) : (
                     <div className="p-4 bg-stone-900 border border-stone-800 rounded-xl text-stone-400 text-center">
-                      اضغط على تحديث الفحص لجلب تقرير الجاهزية التشغيلية من الخادم.
+                      {t('projects.batch4.readiness_refresh_hint')}
                     </div>
                   )}
                 </div>
@@ -4241,8 +4247,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 {/* 2. Informational Setup Progress Checklist */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="border-b border-stone-800 pb-2">
-                    <h3 className="font-black text-white text-[13px]">مؤشرات اكتمال الإعداد والتأسيس (معلوماتية)</h3>
-                    <p className="text-[11px] text-stone-500">متابعة إدخال البيانات المبدئية ومزامنة المستندات</p>
+                    <h3 className="font-black text-white text-[13px]">{t('projects.batch4.setup_indicators')}</h3>
+                    <p className="text-[11px] text-stone-500">{t('projects.batch4.setup_indicators_description')}</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -4252,12 +4258,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         {item.isDone ? (
                           <span className="px-2 py-0.5 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/60 font-bold flex items-center gap-1 text-[10px]">
                             <Check className="w-3 h-3 text-emerald-400" />
-                            <span>مستوفى</span>
+                            <span>{t('projects.batch4.fulfilled')}</span>
                           </span>
                         ) : (
                           <span className="px-2 py-0.5 rounded-lg bg-stone-850 text-stone-400 border border-stone-750 font-bold flex items-center gap-1 text-[10px]">
                             <X className="w-3 h-3 text-stone-500" />
-                            <span>غير مكتمل</span>
+                            <span>{t('projects.batch4.incomplete')}</span>
                           </span>
                         )}
                       </div>
@@ -4268,7 +4274,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 {/* 3. Governance and Lifecycle Controller */}
                 <div className="bg-stone-950 border border-stone-850 p-6 rounded-2xl text-center space-y-6 max-w-xl mx-auto shadow-lg">
                   <div className="space-y-2">
-                    <span className="text-stone-500 font-mono font-bold block">دورة حوكمة حالة المشروع</span>
+                    <span className="text-stone-500 font-mono font-bold block">{t('projects.batch4.project_governance_cycle')}</span>
                     <div className="flex justify-center gap-2 items-center text-xs font-black">
                       <span className={`px-2 py-0.5 rounded-md ${(project.status as any) === 'SETUP' ? 'bg-amber-600 text-white' : 'bg-stone-900 text-stone-500'}`}>SETUP</span>
                       <span className="text-stone-700">➔</span>
@@ -4282,7 +4288,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   <div className="space-y-3">
                     <p className="text-stone-400 leading-relaxed text-[11px] max-w-md mx-auto">
-                      يتطلب تحويل المشروع إلى الحالة <span className="font-bold text-white">ACTIVE</span> استيفاء الجاهزية التشغيلية السيرفرية واعتماد الحوكمة (APPROVED). بتفعيل المشروع، يتم قفل التهيئات ويصبح جاهزاً للتشغيل الفعلي.
+                      {t('projects.batch4.activation_requires')} <span className="font-bold text-white">ACTIVE</span> {t('projects.batch4.activation_governance_requirements')}
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-3 pt-2">
@@ -4292,7 +4298,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                           disabled={isTransitioning}
                           className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl transition-all shadow-md disabled:opacity-50"
                         >
-                          {isTransitioning ? 'جاري التقديم...' : 'تقديم طلب مراجعة واعتماد الإعدادات'}
+                          {isTransitioning ? t('projects.batch4.submitting_review') : t('projects.batch4.submit_review')}
                         </button>
                       )}
 
@@ -4303,14 +4309,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             disabled={isTransitioning}
                             className="px-4 py-2 bg-rose-900/50 border border-rose-800 text-rose-300 font-black rounded-xl transition-all disabled:opacity-50"
                           >
-                            رفض للتعديل
+                            {t('projects.batch4.reject_for_revision')}
                           </button>
                           <button
                             onClick={() => handleTransitionStatus('APPROVED' as any)}
                             disabled={isTransitioning}
                             className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl transition-all disabled:opacity-50"
                           >
-                            {isTransitioning ? 'جاري الاعتماد...' : 'اعتماد وتصديق جاهزية التهيئة'}
+                            {isTransitioning ? t('projects.batch4.approving_setup') : t('projects.batch4.approve_setup')}
                           </button>
                         </>
                       )}
@@ -4323,11 +4329,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs flex items-center gap-2 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Unlock className="w-4 h-4" />
-                            <span>{isActivating ? 'جاري التنشيط...' : 'تفعيل المشروع وبدء العمليات الميدانية'}</span>
+                            <span>{isActivating ? t('projects.batch4.activating_project') : t('projects.batch4.activate_operations')}</span>
                           </button>
                           {!serverReadiness?.ready && (
                             <span className="text-[10px] text-rose-400 font-semibold">
-                              * زر التفعيل مقفل: يتطلب استيفاء الجاهزية التشغيلية السيرفرية أولاً
+                              {t('projects.batch4.activation_locked_hint')}
                             </span>
                           )}
                         </div>
@@ -4337,8 +4343,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         <div className="p-4 bg-emerald-950/40 border border-emerald-800 rounded-2xl text-emerald-400 font-black flex flex-col items-center gap-3">
                           <CheckCircle2 className="w-10 h-10 text-emerald-400" />
                           <div className="space-y-1">
-                            <span className="text-xs block">المشروع نشط للتشغيل الميداني الفعلي</span>
-                            <span className="text-[10px] text-stone-500 font-mono block">جميع متطلبات التأسيس والجاهزية تم قفلها بنجاح</span>
+                            <span className="text-xs block">{t('projects.batch4.project_operational_active')}</span>
+                            <span className="text-[10px] text-stone-500 font-mono block">{t('projects.batch4.setup_locked_success')}</span>
                           </div>
                         </div>
                       )}
@@ -4362,8 +4368,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 <div className="flex items-center gap-2">
                   <FileSpreadsheet className="w-5 h-5 text-amber-500" />
                   <div>
-                    <h3 className="font-black text-white text-base">استيراد سجل التشغيل الذكي (Smart Roster Import)</h3>
-                    <p className="text-[10px] text-stone-400 font-bold">مسار الاستيراد الذكي التراكمي (Smart Import Workflow)</p>
+                    <h3 className="font-black text-white text-base">{t('projects.batch4.smart_roster_import')}</h3>
+                    <p className="text-[10px] text-stone-400 font-bold">{t('projects.labels.smart_import_workflow')}</p>
                   </div>
                 </div>
                 <button
@@ -4393,7 +4399,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       }`}>
                         {idx + 1}
                       </span>
-                      <span>{def.labelAr}</span>
+                      <span>{batch4RosterStageLabel(t, def.stage, def.labelAr)}</span>
                     </div>
                   );
                 })}
@@ -4420,8 +4426,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <UploadCloud className="w-8 h-8" />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="font-bold text-stone-200 text-sm">اسحب وأفلت ملف إكسل أو CSV هنا</h4>
-                      <p className="text-stone-500 text-xs">يدعم ملفات .xlsx, .xls, .csv الخاصة بسجلات السائقين والشاحنات</p>
+                      <h4 className="font-bold text-stone-200 text-sm">{t('projects.batch4.drop_roster_file')}</h4>
+                      <p className="text-stone-500 text-xs">{t('projects.batch4.roster_file_formats')}</p>
                     </div>
                     <button
                       type="button"
@@ -4429,21 +4435,21 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg disabled:opacity-50"
                     >
                       <FileSpreadsheet className="w-4 h-4" />
-                      <span>{isDiscoveringRoster ? 'جاري الاستكشاف...' : 'اختر ملفاً من جهازك'}</span>
+                      <span>{isDiscoveringRoster ? t('projects.batch4.discovering_file') : t('projects.batch4.choose_device_file')}</span>
                     </button>
                   </div>
 
                   {isDiscoveringRoster && (
                     <div className="p-4 bg-stone-950 border border-stone-800 rounded-xl text-center space-y-2">
                       <RefreshCw className="w-6 h-6 text-amber-500 animate-spin mx-auto" />
-                      <p className="text-stone-300 text-xs font-semibold">جاري استكشاف وقراءة أعمدة الملف وتحليل الحقول...</p>
+                      <p className="text-stone-300 text-xs font-semibold">{t('projects.batch4.discovering_columns')}</p>
                     </div>
                   )}
 
                   {rosterDiscoveryError && (
                     <div className="p-4 bg-rose-950/40 border border-rose-800 text-rose-300 rounded-xl text-xs flex items-center gap-2">
                       <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
-                      <span>{rosterDiscoveryError}</span>
+                      <span>{presentBatch4Message(rosterDiscoveryError, t)}</span>
                     </div>
                   )}
                 </div>
@@ -4456,7 +4462,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-stone-950 p-4 rounded-xl border border-stone-800 text-xs">
                     {rosterDiscoveryResult.availableSheets && rosterDiscoveryResult.availableSheets.length > 1 && (
                       <div className="space-y-1">
-                        <label className="text-stone-400 font-bold block">ورقة العمل (Sheet)</label>
+                        <label className="text-stone-400 font-bold block">{t('entityResolution.labels.worksheet')}</label>
                         <select
                           value={rosterSelectedSheet}
                           onChange={(e) => handleRosterSheetChange(e.target.value)}
@@ -4469,7 +4475,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       </div>
                     )}
                     <div className="space-y-1">
-                      <label className="text-stone-400 font-bold block">رقم صف العناوين (Header Row Index)</label>
+                      <label className="text-stone-400 font-bold block">{t('projects.batch4.header_row_index')}</label>
                       <input
                         type="number"
                         min={0}
@@ -4483,17 +4489,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   {/* Column mapping table */}
                   <div className="bg-stone-950 border border-stone-800 rounded-xl overflow-hidden">
                     <div className="p-3 border-b border-stone-800 flex justify-between items-center">
-                      <span className="font-bold text-stone-300 text-xs">ربط أعمدة الملف بالحقول المعيارية</span>
+                      <span className="font-bold text-stone-300 text-xs">{t('projects.batch4.map_canonical_columns')}</span>
                       <span className="text-[10px] text-stone-500 font-mono">
-                        {Object.keys(rosterCustomMappings).length} أعمدة مكتشفة
+                        {Object.keys(rosterCustomMappings).length} {t('projects.batch4.discovered_columns')}
                       </span>
                     </div>
                     <div className="overflow-x-auto max-h-[300px]">
                       <table className="w-full text-right text-xs">
                         <thead className="bg-stone-900/80 sticky top-0 border-b border-stone-800 text-stone-400 font-bold">
                           <tr>
-                            <th className="p-2.5">اسم العمود في الملف</th>
-                            <th className="p-2.5">الحقل المعياري المطابق</th>
+                            <th className="p-2.5">{t('projects.batch4.source_column_name')}</th>
+                            <th className="p-2.5">{t('projects.batch4.matched_canonical_field')}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-stone-850">
@@ -4508,7 +4514,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                                 >
                                   {ROSTER_CANONICAL_FIELD_OPTIONS.map((opt) => (
                                     <option key={opt.value} value={opt.value}>
-                                      {opt.labelAr} ({opt.value})
+                                      {batch4FieldLabel(t, opt.value, opt.labelAr)} ({opt.value})
                                     </option>
                                   ))}
                                 </select>
@@ -4523,7 +4529,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   {importError && (
                     <div className="p-3 bg-rose-950/40 border border-rose-800 text-rose-300 rounded-xl text-xs flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-                      <span>{importError}</span>
+                      <span>{presentBatch4Message(importError, t)}</span>
                     </div>
                   )}
 
@@ -4534,7 +4540,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       onClick={handleCancelRosterImport}
                       className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-bold"
                     >
-                      إلغاء وإعادة تعيين
+                      {t('projects.batch4.cancel_reset')}
                     </button>
                     <button
                       type="button"
@@ -4545,11 +4551,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       {isProcessing ? (
                         <>
                           <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>جاري التحليل واستخراج البيانات...</span>
+                          <span>{t('projects.batch4.analyzing_roster')}</span>
                         </>
                       ) : (
                         <>
-                          <span>اعتماد الربط وبدء تحليل سجل التشغيل</span>
+                          <span>{t('projects.labels.approve_mapping_analyze_log')}</span>
                           <ArrowLeft className="w-4 h-4" />
                         </>
                       )}
@@ -4611,8 +4617,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     onSelectAlternate={handleSmartImportDriverTruckSelectAlternate}
                     onCreateDriver={handleSmartImportDriverCreate}
                     onCreateTruck={handleSmartImportTruckCreate}
-                    driverConvergenceError={driverConvergenceError}
-                    truckConvergenceError={truckConvergenceError}
+                    driverConvergenceError={presentBatch4Message(driverConvergenceError, t)}
+                    truckConvergenceError={presentBatch4Message(truckConvergenceError, t)}
                     onRetryDriverConvergence={handleRetryDriverConvergence}
                     onRetryTruckConvergence={handleRetryTruckConvergence}
                     onContinueToFinalReview={handleSmartImportContinueToFinalReview}
@@ -4663,7 +4669,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             lifecycleState: 'COMMITTED',
                           });
                           if (!retrySuccess) {
-                            setSmartImportCommitError('تم تنفيذ الاستيراد، لكن تعذر حفظ حالة الإكمال. أعد المحاولة لحفظ حالة الجلسة.');
+                            setSmartImportCommitError(t('projects.messages.checkpoint_full_failure'));
                             return;
                           }
                         }

@@ -50,7 +50,9 @@ export const SystemToolsDrawer: React.FC<SystemToolsDrawerProps> = ({
   const filterItem = (tool: NavItemDef) =>
     tool.titleAr.includes(searchQuery) ||
     tool.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tool.descriptionAr.includes(searchQuery);
+    tool.descriptionAr.includes(searchQuery) ||
+    t(`navigation.tools.${tool.id.toLowerCase()}.title`).toLowerCase().includes(searchQuery.toLowerCase()) ||
+    t(`navigation.tools.${tool.id.toLowerCase()}.description`).toLowerCase().includes(searchQuery.toLowerCase());
 
   const filteredProdTools = prodTools.filter(filterItem);
   const filteredDevTools = devTools.filter(filterItem);

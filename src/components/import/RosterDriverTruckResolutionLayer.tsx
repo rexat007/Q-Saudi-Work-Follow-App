@@ -1,3 +1,6 @@
+import { batch4ConflictFieldLabel } from '../../i18n/batch4Presentation';
+import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { useI18n } from '../../i18n';
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Users, Truck, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ArrowLeft } from 'lucide-react';
@@ -85,6 +88,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   onCancelImport,
   embeddedInWorkflowHost = false,
 }) => {
+  const { t } = useI18n();
   const [selectedAlternateDriver, setSelectedAlternateDriver] = useState<Record<string, string>>({});
   const [selectedAlternateTruck, setSelectedAlternateTruck] = useState<Record<string, string>>({});
 
@@ -175,7 +179,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
       const conflictKeys = Object.keys(defaults.conflicts);
       setUnresolvedDriverConflictFields(conflictKeys);
       setDriverConflictDetails(defaults.conflicts);
-      setDriverFormError('توجد بيانات متعارضة لهذا السائق في الملف يجب إدخال القيمة المعتمدة لها');
+      setDriverFormError(t('entityResolution.messages.driver_source_conflicts'));
     } else {
       setUnresolvedDriverConflictFields([]);
       setDriverConflictDetails({});
@@ -189,16 +193,16 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
     if (!creatingDriverGroup) return;
 
     if (unresolvedDriverConflictFields.length > 0) {
-      setDriverFormError('يجب حسم وإدخال القيم المعتمدة للبيانات المتعارضة للسائق قبل الإنشاء');
+      setDriverFormError(t('entityResolution.messages.driver_resolve_before_create'));
       return;
     }
 
     if (!driverFormData.driverName.trim()) {
-      setDriverFormError('اسم السائق مطلوب');
+      setDriverFormError(t('entityResolution.messages.driver_name_required'));
       return;
     }
     if (!driverFormData.residencyId.trim() || driverFormData.residencyId.trim().length !== 10) {
-      setDriverFormError('رقم الهوية الوطنية أو الإقامة يجب أن يتكون من 10 أرقام');
+      setDriverFormError(t('entityResolution.messages.residency_identifier_length'));
       return;
     }
 
@@ -206,7 +210,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
       await onCreateDriver(creatingDriverGroup, driverFormData);
       handleCloseDriverModal();
     } catch (err: any) {
-      setDriverFormError(err.message || 'فشلت عملية إنشاء السائق');
+      setDriverFormError(err.message || t('entityResolution.messages.driver_create_failed'));
     }
   };
 
@@ -224,7 +228,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
       const conflictKeys = Object.keys(defaults.conflicts);
       setUnresolvedTruckConflictFields(conflictKeys);
       setTruckConflictDetails(defaults.conflicts);
-      setTruckFormError('توجد بيانات متعارضة لهذه الشاحنة في الملف يجب إدخال القيمة المعتمدة لها');
+      setTruckFormError(t('entityResolution.messages.truck_source_conflicts'));
     } else {
       setUnresolvedTruckConflictFields([]);
       setTruckConflictDetails({});
@@ -238,12 +242,12 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
     if (!creatingTruckGroup) return;
 
     if (unresolvedTruckConflictFields.length > 0) {
-      setTruckFormError('يجب حسم وإدخال القيم المعتمدة للبيانات المتعارضة للشاحنة قبل الإنشاء');
+      setTruckFormError(t('entityResolution.messages.truck_resolve_before_create'));
       return;
     }
 
     if (!truckFormData.plateNumber.trim()) {
-      setTruckFormError('رقم لوحة الشاحنة مطلوب');
+      setTruckFormError(t('entityResolution.messages.truck_plate_required'));
       return;
     }
 
@@ -251,7 +255,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
       await onCreateTruck(creatingTruckGroup, truckFormData);
       handleCloseTruckModal();
     } catch (err: any) {
-      setTruckFormError(err.message || 'فشلت عملية إنشاء الشاحنة');
+      setTruckFormError(err.message || t('entityResolution.messages.truck_create_failed'));
     }
   };
 
@@ -266,13 +270,13 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
           </div>
           <div>
             <h3 className="text-sm font-black text-white flex items-center gap-2">
-              <span>مراجعة وحسم السائقين والشاحنات (Driver & Truck Resolution Layer)</span>
+              <span>{t('entityResolution.labels.driver_truck_review_title')}</span>
               <span className="text-[10px] font-mono bg-stone-800 px-2 py-0.5 rounded-full text-amber-400">
-                  المرحلة 5 من 7
+                  {t('entityResolution.labels.stage_progress', { stage: 5, total: 7 })}
                 </span>
               </h3>
               <p className="text-[11px] text-stone-400">
-                مطابقة وتعيين السائقين والشاحنات وربطهم بالناقلين المصرح بهم قبل المراجعة النهائية
+                {t('entityResolution.labels.driver_truck_review_description')}
               </p>
             </div>
           </div>
@@ -283,23 +287,23 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
           {/* Summary Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-950 p-3.5 rounded-xl border border-stone-850 text-center font-bold">
             <div>
-              <span className="block text-stone-500 text-[10px]">مجموعات السائقين</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.driver_groups')}</span>
               <span className="text-base font-mono text-white">
-                {driverGroups.length} <span className="text-[10px] text-emerald-400 font-normal">({resolvedDriverCount} محسوم)</span>
+                {driverGroups.length} <span className="text-[10px] text-emerald-400 font-normal">{t('entityResolution.labels.resolved_count', { count: resolvedDriverCount })}</span>
               </span>
             </div>
             <div className={unresolvedDriverCount > 0 ? 'text-amber-400' : 'text-stone-500'}>
-              <span className="block text-stone-500 text-[10px]">سائقون بانتظار الحسم</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.drivers_pending_resolution')}</span>
               <span className="text-base font-mono">{unresolvedDriverCount}</span>
             </div>
             <div>
-              <span className="block text-stone-500 text-[10px]">مجموعات الشاحنات</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.truck_groups')}</span>
               <span className="text-base font-mono text-white">
-                {truckGroups.length} <span className="text-[10px] text-emerald-400 font-normal">({resolvedTruckCount} محسوم)</span>
+                {truckGroups.length} <span className="text-[10px] text-emerald-400 font-normal">{t('entityResolution.labels.resolved_count', { count: resolvedTruckCount })}</span>
               </span>
             </div>
             <div className={unresolvedTruckCount > 0 ? 'text-amber-400' : 'text-stone-500'}>
-              <span className="block text-stone-500 text-[10px]">شاحنات بانتظار الحسم</span>
+              <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.trucks_pending_resolution')}</span>
               <span className="text-base font-mono">{unresolvedTruckCount}</span>
             </div>
           </div>
@@ -310,8 +314,8 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               <div className="flex items-center gap-3">
                 <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
                 <div className="text-xs">
-                  <span className="font-bold block">تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة.</span>
-                  <span className="text-[11px] text-amber-300/80">{driverConvergenceError}</span>
+                  <span className="font-bold block">{t('entityResolution.messages.created_refresh_failed')}</span>
+                  <span className="text-[11px] text-amber-300/80">{presentBatch4Message(driverConvergenceError, t)}</span>
                 </div>
               </div>
               {onRetryDriverConvergence && (
@@ -320,7 +324,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                   onClick={onRetryDriverConvergence}
                   className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold text-xs transition-colors shrink-0"
                 >
-                  إعادة تحديث البيانات
+                  {t('entityResolution.labels.refresh_data')}
                 </button>
               )}
             </div>
@@ -332,8 +336,8 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               <div className="flex items-center gap-3">
                 <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
                 <div className="text-xs">
-                  <span className="font-bold block">تم إنشاء السجل بنجاح، لكن تعذر تحديث البيانات الموثوقة.</span>
-                  <span className="text-[11px] text-amber-300/80">{truckConvergenceError}</span>
+                  <span className="font-bold block">{t('entityResolution.messages.created_refresh_failed')}</span>
+                  <span className="text-[11px] text-amber-300/80">{presentBatch4Message(truckConvergenceError, t)}</span>
                 </div>
               </div>
               {onRetryTruckConvergence && (
@@ -342,7 +346,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                   onClick={onRetryTruckConvergence}
                   className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold text-xs transition-colors shrink-0"
                 >
-                  إعادة تحديث البيانات
+                  {t('entityResolution.labels.refresh_data')}
                 </button>
               )}
             </div>
@@ -354,10 +358,9 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
               <div className="text-xs">
                 <span className="font-bold block">
-                  تم حسم السائقين والشاحنات بنجاح ({resolvedDriverCount} سائقين، {resolvedTruckCount} شاحنات معتمدة)
-                </span>
+                  {t('entityResolution.messages.drivers_trucks_resolved', { drivers: resolvedDriverCount, trucks: resolvedTruckCount })}</span>
                 <span className="text-[11px] text-emerald-300/80">
-                  المرحلة التالية هي المراجعة النهائية (C5)
+                  {t('entityResolution.messages.final_review_next_stage')}
                 </span>
               </div>
             </div>
@@ -366,9 +369,9 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
           {/* Zero Driver/Truck Empty State */}
           {totalGroups === 0 && (
             <div className="text-center py-8 text-stone-500 space-y-1">
-              <p className="text-xs">لم يتم اكتشاف أي بيانات للسائقين أو الشاحنات في ملف الاستيراد.</p>
+              <p className="text-xs">{t('entityResolution.labels.no_driver_truck_data')}</p>
               <p className="text-[10px] text-rose-400">
-                يجب توفر بيانات سائق أو شاحنة واحدة على الأقل لكل سجل تشغيل قبل المتابعة.
+                {t('entityResolution.labels.driver_or_truck_required')}
               </p>
             </div>
           )}
@@ -379,9 +382,9 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               <div className="flex justify-between items-center text-[11px] font-bold text-stone-400 border-b border-stone-800 pb-1.5">
                 <div className="flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="text-white">أولاً: مراجعة وحسم السائقين (Drivers)</span>
+                  <span className="text-white">{t('entityResolution.labels.driver_review_section')}</span>
                 </div>
-                <span className="text-[10px] font-mono">({driverGroups.length} مجموعات فريدة)</span>
+                <span className="text-[10px] font-mono">{t('entityResolution.labels.unique_items_count', { count: driverGroups.length })}</span>
               </div>
 
               <div className="space-y-3">
@@ -406,18 +409,16 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-white font-black text-xs">{group.sourceValue}</span>
                             <span className="text-[10px] text-stone-400 font-mono bg-stone-900 px-2 py-0.5 rounded-md border border-stone-850">
-                              الناقل: {carrierContext ? carrierContext : 'غير محدد'}
+                              {t('operations.carrier')} {carrierContext ? carrierContext : t('shared.labels.unspecified')}
                             </span>
                             <span className="text-[10px] text-stone-500 font-mono bg-stone-900 px-2 py-0.5 rounded-md border border-stone-850">
-                              تكرار: {group.occurrenceCount} صفوف (الصفوف: #{group.rowNumbers.slice(0, 4).join(', ')}
-                              {group.rowNumbers.length > 4 ? '...' : ''})
-                            </span>
+                              {t('entityResolution.labels.duplicate_rows', { count: group.occurrenceCount })} ({t('entityResolution.labels.row_numbers', { rows: group.rowNumbers.slice(0, 4).join(', ') })}{group.rowNumbers.length > 4 ? '...' : ''})</span>
                           </div>
 
                           {group.matchedName && (
                             <div className="text-emerald-400 text-[10px] flex items-center gap-1 font-mono font-bold">
                               <Check className="w-3 h-3" />
-                              <span>مطابق لـ: {group.matchedName} ({group.matchedId})</span>
+                              <span>{t('entityResolution.labels.matched_to_prefix')} {group.matchedName} ({group.matchedId})</span>
                             </div>
                           )}
 
@@ -434,22 +435,22 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                           {isResolved ? (
                             <span className="px-2.5 py-1 bg-emerald-950 text-emerald-400 rounded-lg text-[10px] font-bold border border-emerald-800 flex items-center gap-1">
                               <Check className="w-3 h-3" />
-                              <span>مطابق ومعتمد</span>
+                              <span>{t('entityResolution.labels.matched_approved')}</span>
                             </span>
                           ) : isConflict ? (
                             <span className="px-2.5 py-1 bg-rose-950 text-rose-300 rounded-lg text-[10px] font-bold border border-rose-800 flex items-center gap-1">
                               <AlertCircle className="w-3 h-3" />
-                              <span>تعارض في التعيين</span>
+                              <span>{t('entityResolution.labels.assignment_conflict')}</span>
                             </span>
                           ) : isReviewRequired ? (
                             <span className="px-2.5 py-1 bg-amber-950 text-amber-300 rounded-lg text-[10px] font-bold border border-amber-800 flex items-center gap-1">
                               <AlertTriangle className="w-3 h-3" />
-                              <span>يتطلب تدقيق واختيار</span>
+                              <span>{t('entityResolution.labels.review_selection_required')}</span>
                             </span>
                           ) : (
                             <span className="px-2.5 py-1 bg-rose-950/70 text-rose-300 rounded-lg text-[10px] font-bold border border-rose-855 flex items-center gap-1">
                               <AlertCircle className="w-3 h-3" />
-                              <span>سائق غير معرّف</span>
+                              <span>{t('entityResolution.labels.unmatched')}</span>
                             </span>
                           )}
                         </div>
@@ -470,7 +471,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                                   className="px-2.5 py-1 bg-stone-850 hover:bg-amber-600 hover:text-white text-stone-200 rounded-lg text-[10px] font-bold transition-colors disabled:opacity-50 flex items-center gap-1"
                                 >
                                   <UserCheck className="w-3 h-3 text-amber-400" />
-                                  <span>اعتماد: {cand.candidateDisplayName || cand.candidateNameAr || cand.candidateEntityId}</span>
+                                  <span>{t('entityResolution.labels.accept_suggested_match')}: {cand.candidateDisplayName || cand.candidateNameAr || cand.candidateEntityId}</span>
                                 </button>
                               ))
                             )}
@@ -488,7 +489,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                                   }
                                   className="bg-stone-900 border border-stone-800 text-stone-300 px-2 py-1 rounded-lg text-[10px] focus:outline-hidden"
                                 >
-                                  <option value="">اختيار سائق معتمد للناقل...</option>
+                                  <option value="">{t('entityResolution.labels.select_carrier_driver')}</option>
                                   {availableAlternateDrivers.map((d) => (
                                     <option key={d.driverId} value={d.driverId}>
                                       {d.name || d.driverId} ({d.idNumber || d.driverId})
@@ -507,7 +508,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                                     }
                                     className="px-2 py-1 bg-stone-800 hover:bg-emerald-600 hover:text-white text-emerald-400 rounded-lg text-[10px] font-bold transition-colors disabled:opacity-50"
                                   >
-                                    تعيين
+                                    {t('entityResolution.labels.choose_alternative')}
                                   </button>
                                 )}
                               </div>
@@ -523,11 +524,11 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                               className="px-3 py-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-[10px] font-black transition-colors flex items-center gap-1.5 shadow-sm shadow-amber-950/50"
                             >
                               <Plus className="w-3.5 h-3.5" />
-                              <span>إنشاء سائق جديد</span>
+                              <span>{t('entityResolution.labels.create_driver')}</span>
                             </button>
                           ) : (
                             <span className="text-[10px] text-stone-500 italic">
-                              (يتطلب تحديد الناقل أولاً للإنشاء)
+                              {t('entityResolution.labels.select_carrier_before_create')}
                             </span>
                           )}
                         </div>
@@ -545,9 +546,9 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               <div className="flex justify-between items-center text-[11px] font-bold text-stone-400 border-b border-stone-800 pb-1.5">
                 <div className="flex items-center gap-1.5">
                   <Truck className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="text-white">ثانياً: مراجعة وحسم الشاحنات (Trucks)</span>
+                  <span className="text-white">{t('entityResolution.labels.truck_review_section')}</span>
                 </div>
-                <span className="text-[10px] font-mono">({truckGroups.length} مجموعات فريدة)</span>
+                <span className="text-[10px] font-mono">{t('entityResolution.labels.unique_items_count', { count: truckGroups.length })}</span>
               </div>
 
               <div className="space-y-3">
@@ -572,18 +573,16 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-white font-black text-xs">{group.sourceValue}</span>
                             <span className="text-[10px] text-stone-400 font-mono bg-stone-900 px-2 py-0.5 rounded-md border border-stone-850">
-                              الناقل: {carrierContext ? carrierContext : 'غير محدد'}
+                              {t('operations.carrier')} {carrierContext ? carrierContext : t('shared.labels.unspecified')}
                             </span>
                             <span className="text-[10px] text-stone-500 font-mono bg-stone-900 px-2 py-0.5 rounded-md border border-stone-850">
-                              تكرار: {group.occurrenceCount} صفوف (الصفوف: #{group.rowNumbers.slice(0, 4).join(', ')}
-                              {group.rowNumbers.length > 4 ? '...' : ''})
-                            </span>
+                              {t('entityResolution.labels.duplicate_rows', { count: group.occurrenceCount })} ({t('entityResolution.labels.row_numbers', { rows: group.rowNumbers.slice(0, 4).join(', ') })}{group.rowNumbers.length > 4 ? '...' : ''})</span>
                           </div>
 
                           {group.matchedName && (
                             <div className="text-emerald-400 text-[10px] flex items-center gap-1 font-mono font-bold">
                               <Check className="w-3 h-3" />
-                              <span>مطابق لـ: {group.matchedName} ({group.matchedId})</span>
+                              <span>{t('entityResolution.labels.matched_to_prefix')} {group.matchedName} ({group.matchedId})</span>
                             </div>
                           )}
 
@@ -600,22 +599,22 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                           {isResolved ? (
                             <span className="px-2.5 py-1 bg-emerald-950 text-emerald-400 rounded-lg text-[10px] font-bold border border-emerald-800 flex items-center gap-1">
                               <Check className="w-3 h-3" />
-                              <span>مطابق ومعتمد</span>
+                              <span>{t('entityResolution.labels.matched_approved')}</span>
                             </span>
                           ) : isConflict ? (
                             <span className="px-2.5 py-1 bg-rose-950 text-rose-300 rounded-lg text-[10px] font-bold border border-rose-800 flex items-center gap-1">
                               <AlertCircle className="w-3 h-3" />
-                              <span>تعارض في التعيين</span>
+                              <span>{t('entityResolution.labels.assignment_conflict')}</span>
                             </span>
                           ) : isReviewRequired ? (
                             <span className="px-2.5 py-1 bg-amber-950 text-amber-300 rounded-lg text-[10px] font-bold border border-amber-800 flex items-center gap-1">
                               <AlertTriangle className="w-3 h-3" />
-                              <span>يتطلب تدقيق واختيار</span>
+                              <span>{t('entityResolution.labels.review_selection_required')}</span>
                             </span>
                           ) : (
                             <span className="px-2.5 py-1 bg-rose-950/70 text-rose-300 rounded-lg text-[10px] font-bold border border-rose-850 flex items-center gap-1">
                               <AlertCircle className="w-3 h-3" />
-                              <span>شاحنة غير معرّفة</span>
+                              <span>{t('entityResolution.labels.unmatched')}</span>
                             </span>
                           )}
                         </div>
@@ -636,7 +635,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                                   className="px-2.5 py-1 bg-stone-850 hover:bg-amber-600 hover:text-white text-stone-200 rounded-lg text-[10px] font-bold transition-colors disabled:opacity-50 flex items-center gap-1"
                                 >
                                   <UserCheck className="w-3 h-3 text-amber-400" />
-                                  <span>اعتماد: {cand.candidateDisplayName || cand.candidateNameAr || cand.candidateEntityId}</span>
+                                  <span>{t('entityResolution.labels.accept_suggested_match')}: {cand.candidateDisplayName || cand.candidateNameAr || cand.candidateEntityId}</span>
                                 </button>
                               ))
                             )}
@@ -654,7 +653,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                                   }
                                   className="bg-stone-900 border border-stone-800 text-stone-300 px-2 py-1 rounded-lg text-[10px] focus:outline-hidden"
                                 >
-                                  <option value="">اختيار شاحنة معتمدة للناقل...</option>
+                                  <option value="">{t('entityResolution.labels.select_carrier_truck')}</option>
                                   {availableAlternateTrucks.map((t) => (
                                     <option key={t.truckId} value={t.truckId}>
                                       {t.plate || t.truckId} ({t.truckType || t.truckId})
@@ -673,7 +672,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                                     }
                                     className="px-2 py-1 bg-stone-800 hover:bg-emerald-600 hover:text-white text-emerald-400 rounded-lg text-[10px] font-bold transition-colors disabled:opacity-50"
                                   >
-                                    تعيين
+                                    {t('entityResolution.labels.choose_alternative')}
                                   </button>
                                 )}
                               </div>
@@ -689,11 +688,11 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                               className="px-3 py-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-[10px] font-black transition-colors flex items-center gap-1.5 shadow-sm shadow-amber-950/50"
                             >
                               <Plus className="w-3.5 h-3.5" />
-                              <span>إنشاء شاحنة جديدة</span>
+                              <span>{t('entityResolution.labels.create_truck')}</span>
                             </button>
                           ) : (
                             <span className="text-[10px] text-stone-500 italic">
-                              (يتطلب تحديد الناقل أولاً للإنشاء)
+                              {t('entityResolution.labels.select_carrier_before_create')}
                             </span>
                           )}
                         </div>
@@ -712,12 +711,12 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
             {isLayerComplete ? (
               <span className="text-emerald-400 font-bold flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" />
-                <span>اكتملت مراجعة السائقين والشاحنات لهذا الملف</span>
+                <span>{t('entityResolution.messages.drivers_trucks_resolved', { drivers: resolvedDriverCount, trucks: resolvedTruckCount })}</span>
               </span>
             ) : (
               <span className="text-amber-400 font-bold flex items-center gap-1">
                 <AlertTriangle className="w-3.5 h-3.5" />
-                <span>متبقي {totalUnresolved} عنصر (سائق/شاحنة) غير محسوم</span>
+                <span>{t('entityResolution.labels.unresolved_groups_remaining', { count: totalUnresolved })}</span>
               </span>
             )}
           </div>
@@ -726,14 +725,14 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               <button
                 type="button"
                 onClick={() => {
-                  if (window.confirm('سيتم إلغاء جلسة الاستيراد الحالية وفقدان القرارات غير المنفذة. هل تريد المتابعة؟')) {
+                  if (window.confirm(t('entityResolution.messages.confirm_cancel_import'))) {
                     onCancelImport();
                   }
                 }}
                 disabled={isProcessing}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors shrink-0"
               >
-                إلغاء الاستيراد
+                {t('entityResolution.labels.cancel_import')}
               </button>
             ) : onClose ? (
               <button
@@ -742,7 +741,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                 disabled={isProcessing}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors shrink-0"
               >
-                إغلاق
+                {t('shared.actions.close')}
               </button>
             ) : null}
 
@@ -753,7 +752,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                 disabled={!isLayerComplete || isProcessing || Boolean(driverConvergenceError) || Boolean(truckConvergenceError)}
                 className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 text-white font-black rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/50 transition-colors shrink-0"
               >
-                <span>متابعة إلى المراجعة النهائية</span>
+                <span>{t('entityResolution.labels.continue_final_review')}</span>
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
@@ -769,7 +768,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               <div className="flex justify-between items-center border-b border-stone-800 pb-3">
                 <h4 className="text-sm font-black text-white flex items-center gap-2">
                   <Users className="w-4 h-4 text-amber-500" />
-                  <span>إنشاء سائق جديد للناقل</span>
+                  <span>{t('entityResolution.labels.create_carrier_driver')}</span>
                 </h4>
                 <button
                   type="button"
@@ -783,7 +782,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               {driverFormError && (
                 <div className="bg-rose-950/70 border border-rose-800 p-2.5 rounded-xl text-[11px] text-rose-300 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{driverFormError}</span>
+                  <span>{presentBatch4Message(driverFormError, t)}</span>
                 </div>
               )}
 
@@ -791,32 +790,32 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                 <div className="bg-amber-950/60 border border-amber-700/80 p-3 rounded-xl space-y-1 text-xs text-amber-200">
                   <div className="font-black flex items-center gap-1.5 text-amber-300">
                     <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>توجد بيانات متعارضة في الملف المصدر يجب إدخال القيمة المعتمدة لها:</span>
+                    <span>{t('entityResolution.labels.resolve_source_conflicts')}</span>
                   </div>
                   <ul className="list-disc list-inside text-[11px] font-mono space-y-0.5">
                     {Object.entries(driverConflictDetails).map(([f, vals]) => (
                       <li key={f} className={unresolvedDriverConflictFields.includes(f) ? 'text-rose-300 font-bold' : 'text-emerald-300 line-through opacity-70'}>
-                        {f}: {vals.join(' مقابل ')} {unresolvedDriverConflictFields.includes(f) ? ' (بانتظار الحسم)' : ' (تم الحسم)'}
+                        {batch4ConflictFieldLabel(t, f)}: {vals.join(` ${t('entityResolution.labels.versus')} `)} {unresolvedDriverConflictFields.includes(f) ? t('entityResolution.labels.awaiting_resolution') : t('entityResolution.labels.resolved_status')}
                       </li>
                     ))}
                   </ul>
-                  <p className="text-[10px] text-amber-300/70 pt-1">يرجى إدخال القيمة الصحيحة في الحقل أدناه لإلغاء التعارض والتأكيد.</p>
+                  <p className="text-[10px] text-amber-300/70 pt-1">{t('entityResolution.labels.enter_approved_conflict_value')}</p>
                 </div>
               )}
 
               <form onSubmit={handleSubmitDriverCreation} className="space-y-3 text-xs">
                 <div>
-                  <label className="block text-stone-400 mb-1 font-bold">الناقل التابع له (محدد تلقائياً):</label>
+                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.automatic_carrier')}</label>
                   <input
                     type="text"
                     disabled
-                    value={extractGroupCarrierContext(creatingDriverGroup) || 'غير محدد'}
+                    value={extractGroupCarrierContext(creatingDriverGroup) || t('shared.labels.unspecified')}
                     className="w-full bg-stone-950 border border-stone-800 text-stone-400 px-3 py-2 rounded-xl text-xs font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-stone-400 mb-1 font-bold">اسم السائق (كامل):</label>
+                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.driver_full_name')}</label>
                   <input
                     type="text"
                     required
@@ -825,13 +824,13 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                       setDriverFormData({ ...driverFormData, driverName: e.target.value });
                       if (e.target.value.trim()) resolveDriverConflictField('اسم السائق');
                     }}
-                    placeholder="مثال: سالم علي القحطاني"
+                    placeholder={t('shared.labels.example_value', { value: "سالم علي القحطاني" })}
                     className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs focus:outline-hidden focus:border-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-stone-400 mb-1 font-bold">رقم الهوية الوطنية / الإقامة (10 أرقام):</label>
+                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.residency_identifier_label')}</label>
                   <input
                     type="text"
                     required
@@ -842,13 +841,13 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                       setDriverFormData({ ...driverFormData, residencyId: val });
                       if (val.length === 10) resolveDriverConflictField('رقم الهوية/الإقامة');
                     }}
-                    placeholder="مثال: 1023456789 أو 2023456789"
+                    placeholder={t('shared.labels.example_value', { value: t('shared.labels.alternative_values', { first: '1023456789', second: '2023456789' }) })}
                     className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-stone-400 mb-1 font-bold">رقم الجوال (اختياري):</label>
+                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.mobile_optional')}</label>
                   <input
                     type="text"
                     value={driverFormData.phone || ''}
@@ -856,7 +855,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                       setDriverFormData({ ...driverFormData, phone: e.target.value });
                       if (e.target.value.trim()) resolveDriverConflictField('رقم الجوال');
                     }}
-                    placeholder="مثال: 0501234567"
+                    placeholder={t('shared.labels.example_value', { value: "0501234567" })}
                     className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
                   />
                 </div>
@@ -868,7 +867,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                     disabled={isProcessing}
                     className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
                   >
-                    إلغاء
+                    {t('shared.actions.cancel')}
                   </button>
                   <button
                     type="submit"
@@ -876,7 +875,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                     className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>حفظ وإنشاء السائق</span>
+                    <span>{t('entityResolution.labels.save_create_driver')}</span>
                   </button>
                 </div>
               </form>
@@ -894,7 +893,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               <div className="flex justify-between items-center border-b border-stone-800 pb-3">
                 <h4 className="text-sm font-black text-white flex items-center gap-2">
                   <Truck className="w-4 h-4 text-amber-500" />
-                  <span>إنشاء شاحنة جديدة للناقل</span>
+                  <span>{t('entityResolution.labels.create_carrier_truck')}</span>
                 </h4>
                 <button
                   type="button"
@@ -908,7 +907,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               {truckFormError && (
                 <div className="bg-rose-950/70 border border-rose-800 p-2.5 rounded-xl text-[11px] text-rose-300 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{truckFormError}</span>
+                  <span>{presentBatch4Message(truckFormError, t)}</span>
                 </div>
               )}
 
@@ -916,32 +915,32 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                 <div className="bg-amber-950/60 border border-amber-700/80 p-3 rounded-xl space-y-1 text-xs text-amber-200">
                   <div className="font-black flex items-center gap-1.5 text-amber-300">
                     <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>توجد بيانات متعارضة في الملف المصدر يجب إدخال القيمة المعتمدة لها:</span>
+                    <span>{t('entityResolution.labels.resolve_source_conflicts')}</span>
                   </div>
                   <ul className="list-disc list-inside text-[11px] font-mono space-y-0.5">
                     {Object.entries(truckConflictDetails).map(([f, vals]) => (
                       <li key={f} className={unresolvedTruckConflictFields.includes(f) ? 'text-rose-300 font-bold' : 'text-emerald-300 line-through opacity-70'}>
-                        {f}: {vals.join(' مقابل ')} {unresolvedTruckConflictFields.includes(f) ? ' (بانتظار الحسم)' : ' (تم الحسم)'}
+                        {batch4ConflictFieldLabel(t, f)}: {vals.join(` ${t('entityResolution.labels.versus')} `)} {unresolvedTruckConflictFields.includes(f) ? t('entityResolution.labels.awaiting_resolution') : t('entityResolution.labels.resolved_status')}
                       </li>
                     ))}
                   </ul>
-                  <p className="text-[10px] text-amber-300/70 pt-1">يرجى إدخال القيمة الصحيحة في الحقل أدناه لإلغاء التعارض والتأكيد.</p>
+                  <p className="text-[10px] text-amber-300/70 pt-1">{t('entityResolution.labels.enter_approved_conflict_value')}</p>
                 </div>
               )}
 
               <form onSubmit={handleSubmitTruckCreation} className="space-y-3 text-xs">
                 <div>
-                  <label className="block text-stone-400 mb-1 font-bold">الناقل التابع له (محدد تلقائياً):</label>
+                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.automatic_carrier')}</label>
                   <input
                     type="text"
                     disabled
-                    value={extractGroupCarrierContext(creatingTruckGroup) || 'غير محدد'}
+                    value={extractGroupCarrierContext(creatingTruckGroup) || t('shared.labels.unspecified')}
                     className="w-full bg-stone-950 border border-stone-800 text-stone-400 px-3 py-2 rounded-xl text-xs font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-stone-400 mb-1 font-bold">رقم لوحة الشاحنة:</label>
+                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.truck_plate_label')}</label>
                   <input
                     type="text"
                     required
@@ -950,13 +949,13 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                       setTruckFormData({ ...truckFormData, plateNumber: e.target.value });
                       if (e.target.value.trim()) resolveTruckConflictField('رقم اللوحة');
                     }}
-                    placeholder="مثال: أ ب ج 1234"
+                    placeholder={t('shared.labels.example_value', { value: "أ ب ج 1234" })}
                     className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-stone-400 mb-1 font-bold">نوع الشاحنة / الهيكل (اختياري):</label>
+                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.truck_body_optional')}</label>
                   <input
                     type="text"
                     value={truckFormData.truckType || ''}
@@ -964,14 +963,14 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                       setTruckFormData({ ...truckFormData, truckType: e.target.value });
                       if (e.target.value.trim()) resolveTruckConflictField('نوع الشاحنة');
                     }}
-                    placeholder="مثال: قلاب، تريلا، سطحة"
+                    placeholder={t('shared.labels.example_value', { value: t('entityResolution.labels.truck_body_examples') })}
                     className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs focus:outline-hidden focus:border-amber-500"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-stone-400 mb-1 font-bold">الوزن الفارغ كجم (اختياري):</label>
+                    <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.tare_kg_optional')}</label>
                     <input
                       type="number"
                       value={truckFormData.tareWeightKg || ''}
@@ -980,12 +979,12 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                         setTruckFormData({ ...truckFormData, tareWeightKg: val });
                         if (val !== undefined && !isNaN(val)) resolveTruckConflictField('الوزن الفارغ');
                       }}
-                      placeholder="مثال: 14000"
+                      placeholder={t('shared.labels.example_value', { value: "14000" })}
                       className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-stone-400 mb-1 font-bold">الوزن الأقصى كجم (اختياري):</label>
+                    <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.max_weight_kg_optional')}</label>
                     <input
                       type="number"
                       value={truckFormData.maxGrossWeightKg || ''}
@@ -994,7 +993,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                         setTruckFormData({ ...truckFormData, maxGrossWeightKg: val });
                         if (val !== undefined && !isNaN(val)) resolveTruckConflictField('الوزن الأقصى');
                       }}
-                      placeholder="مثال: 45000"
+                      placeholder={t('shared.labels.example_value', { value: "45000" })}
                       className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
                     />
                   </div>
@@ -1007,7 +1006,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                     disabled={isProcessing}
                     className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
                   >
-                    إلغاء
+                    {t('shared.actions.cancel')}
                   </button>
                   <button
                     type="submit"
@@ -1015,7 +1014,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                     className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>حفظ وإنشاء الشاحنة</span>
+                    <span>{t('entityResolution.labels.save_create_truck')}</span>
                   </button>
                 </div>
               </form>

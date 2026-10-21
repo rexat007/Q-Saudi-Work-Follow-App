@@ -1,3 +1,6 @@
+import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -49,19 +52,37 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
 
   it('12. Cancel at Carrier calls onCancelImport (handleCancelRosterImport)', () => {
     expect(carrierLayerContent).toContain('onCancelImport');
-    expect(carrierLayerContent).toContain('سيتم إلغاء جلسة الاستيراد الحالية وفقدان القرارات غير المنفذة. هل تريد المتابعة؟');
+    expect(carrierLayerContent).toContain("window.confirm(t('entityResolution.messages.confirm_cancel_import'))");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['entityResolution.messages.confirm_cancel_import'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('entityResolution.messages.confirm_cancel_import', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
     expect(wizardContent).toContain('onCancelImport={handleCancelRosterImport}');
   });
 
   it('13. Cancel at Material calls onCancelImport (handleCancelRosterImport)', () => {
     expect(materialLayerContent).toContain('onCancelImport');
-    expect(materialLayerContent).toContain('سيتم إلغاء جلسة الاستيراد الحالية وفقدان القرارات غير المنفذة. هل تريد المتابعة؟');
+    expect(materialLayerContent).toContain("window.confirm(t('entityResolution.messages.confirm_cancel_import'))");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['entityResolution.messages.confirm_cancel_import'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('entityResolution.messages.confirm_cancel_import', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
     expect(wizardContent).toContain('onCancelImport={handleCancelRosterImport}');
   });
 
   it('14. Cancel at Driver/Truck calls onCancelImport (handleCancelRosterImport)', () => {
     expect(driverTruckLayerContent).toContain('onCancelImport');
-    expect(driverTruckLayerContent).toContain('سيتم إلغاء جلسة الاستيراد الحالية وفقدان القرارات غير المنفذة. هل تريد المتابعة؟');
+    expect(driverTruckLayerContent).toContain("window.confirm(t('entityResolution.messages.confirm_cancel_import'))");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['entityResolution.messages.confirm_cancel_import'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('entityResolution.messages.confirm_cancel_import', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
     expect(wizardContent).toContain('onCancelImport={handleCancelRosterImport}');
   });
 
@@ -80,7 +101,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
   // C. GATES & FAIL-CLOSED CHECKS
   it('16. Zero Carrier groups cannot enter Material layer', () => {
     expect(wizardContent).toContain('if (carrierGroups.length === 0)');
-    expect(wizardContent).toContain('لم يتم اكتشاف أي مجموعات ناقلين في الملف');
+    expectCanonicalBatch4Source(wizardContent, 'projects.batch4.carrier_groups_missing');
   });
 
   it('17. Unresolved Carrier groups block progression to Material', () => {
@@ -97,7 +118,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
 
   it('20. Zero Driver/Truck groups block progression to Final Review', () => {
     expect(wizardContent).toContain('if (driverTruckGroups.length === 0)');
-    expect(wizardContent).toContain('تعذر الانتقال للمراجعة النهائية: لا توجد مجموعات سائقين أو شاحنات لتقييمها.');
+    expectCanonicalBatch4Source(wizardContent, 'projects.batch4.final_review_groups_missing');
   });
 
   it('21. Unresolved Driver/Truck groups block progression to Final Review', () => {
@@ -160,7 +181,8 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
   });
 
   it('26. Blocked progression provides user-visible alert feedback', () => {
-    expect(wizardContent).toContain("alert('تعذر الانتقال للمراجعة النهائية: توجد بيانات سائقين/شاحنات معلقة أو أخطاء تطابق قيد المعالجة.')");
+    expect(wizardContent).toContain("alert(presentBatch4Message(t('projects.batch4.final_review_pending'), t))");
+    expectCanonicalBatch4Source(wizardContent, 'projects.batch4.final_review_pending');
   });
 
   it('27. Entering Final Review runs revalidation without committing data', () => {
@@ -185,7 +207,26 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
     expect(wizardContent).toContain('DRIVER_CANONICAL_CONVERGENCE_NOT_PROVEN');
     expect(driverTruckLayerContent).toContain('driverConvergenceError');
     expect(driverTruckLayerContent).toContain('truckConvergenceError');
-    expect(driverTruckLayerContent).toContain('إعادة تحديث البيانات');
+    for (const [errorState, retryHandler] of [
+      ['driverConvergenceError', 'onRetryDriverConvergence'],
+      ['truckConvergenceError', 'onRetryTruckConvergence'],
+    ]) {
+      const recoveryStart = driverTruckLayerContent.indexOf(`{${errorState} && (`);
+      expect(recoveryStart).toBeGreaterThanOrEqual(0);
+      const actionEnd = driverTruckLayerContent.indexOf('</button>', recoveryStart);
+      expect(actionEnd).toBeGreaterThan(recoveryStart);
+      const recoveryAction = driverTruckLayerContent.slice(recoveryStart, actionEnd);
+      expect(recoveryAction).toContain(`{${retryHandler} && (`);
+      expect(recoveryAction).toContain(`onClick={${retryHandler}}`);
+      expect(recoveryAction).toContain("t('entityResolution.labels.refresh_data')");
+    }
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.refresh_data';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // G. COMMIT TERMINALITY
@@ -193,10 +234,36 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
     const fnBlock = wizardContent.slice(fnIdx, fnIdx + 600);
     expect(fnBlock).toContain('if (smartImportCommitResult !== null && smartImportCommitResult.success)');
-    expect(fnBlock).toContain('تم اعتماد دفعة الاستيراد بنجاح بالفعل لهذه الجلسة');
+    expect(fnBlock).toMatch(/if \(smartImportCommitResult !== null && smartImportCommitResult.success\) \{\s*setSmartImportCommitError\(\s*t\('entityResolution.messages.already_committed'\)\s*\);\s*return;/);
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.messages.already_committed';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
 
     expect(wizardContent).not.toContain('onClose={() => setRosterImportStage(\'FINAL_REVIEW\')}');
-    expect(commitResultLayerContent).toContain('<span>إنهاء الاستيراد</span>');
+    const finishStart = commitResultLayerContent.indexOf('{onFinish && (');
+    expect(finishStart).toBeGreaterThanOrEqual(0);
+    const finishEnd = commitResultLayerContent.indexOf('</button>', finishStart);
+    expect(finishEnd).toBeGreaterThan(finishStart);
+    const finishAction = commitResultLayerContent.slice(finishStart, finishEnd);
+    expect(finishAction).toContain('onClick={onFinish}');
+    expect(finishAction).toContain("<span>{t('entityResolution.labels.finish_import')}</span>");
+    const resultStageStart = wizardContent.indexOf("importBatch && rosterImportStage === 'COMMIT_RESULT'");
+    expect(resultStageStart).toBeGreaterThanOrEqual(0);
+    const resultStage = wizardContent.slice(resultStageStart);
+    expect(resultStage).toContain('onFinish={async () => {');
+    expect(resultStage).toContain('handleResetRosterImport();');
+    expect(resultStage).toContain('setIsSmartImportOpen(false);');
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const key = 'entityResolution.labels.finish_import';
+      const label = dictionaries[locale][key];
+      expect(typeof label).toBe('string');
+      expect(label.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation(key, locale)).toBe(label);
+    }
   });
 
   // H. RESET & NEW SESSION CLEANLINESS

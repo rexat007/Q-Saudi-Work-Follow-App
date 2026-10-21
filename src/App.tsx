@@ -1,3 +1,4 @@
+import { batch4RelationText, batch4ReferenceText } from './i18n/batch4Presentation';
 import React, { useState, useEffect } from 'react';
 import { 
   Building2, 
@@ -603,7 +604,7 @@ export default function App() {
                               <div className="min-w-0">
                                 <div className="text-xs font-bold truncate">{entity.nameEn}</div>
                                 <div className={`text-[10px] truncate ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
-                                  {entity.nameAr.split(' ')[0]}
+                                  {batch4RelationText(t, entity.id, 'nameAr', entity.nameAr).split(' ')[0]}
                                 </div>
                               </div>
                             </button>
@@ -627,14 +628,14 @@ export default function App() {
                                   {selectedEntity.category}
                                 </span>
                                 <h3 className="text-lg font-bold text-stone-900 mt-1">
-                                  {selectedEntity.nameAr}
+                                  {batch4RelationText(t, selectedEntity.id, 'nameAr', selectedEntity.nameAr)}
                                 </h3>
                               </div>
                             </div>
                           </div>
 
                           <p className="text-xs leading-relaxed text-stone-600 mb-4 bg-stone-50 p-3 rounded-xl border border-stone-200/60">
-                            {selectedEntity.shortDescAr}
+                            {batch4RelationText(t, selectedEntity.id, 'shortDescAr', selectedEntity.shortDescAr)}
                           </p>
 
                           <div className="space-y-4">
@@ -644,7 +645,7 @@ export default function App() {
                                 <span>{t("navigation.labels.txt_777008")}</span>
                               </h4>
                               <p className="text-xs text-stone-600 leading-normal">
-                                {selectedEntity.roleInSystemAr}
+                                {batch4RelationText(t, selectedEntity.id, 'roleInSystemAr', selectedEntity.roleInSystemAr)}
                               </p>
                             </div>
 
@@ -673,7 +674,7 @@ export default function App() {
                             {selectedEntity.rulesEnforcedAr.map((rule, idx) => (
                               <li key={idx} className="text-xs text-stone-600 flex items-start gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-                                <span>{rule}</span>
+                                <span>{batch4RelationText(t, selectedEntity.id, 'rule:' + idx, rule)}</span>
                               </li>
                             ))}
                           </ul>
@@ -708,7 +709,7 @@ export default function App() {
                                         {getEntityIcon(rel.target)}
                                       </div>
                                       <span className="text-xs font-bold text-stone-900 group-hover:text-indigo-600 transition-colors">
-                                        {targetEntity ? targetEntity.nameAr : rel.target}
+                                        {targetEntity ? batch4RelationText(t, targetEntity.id, 'nameAr', targetEntity.nameAr) : rel.target}
                                       </span>
                                     </div>
                                     <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100">
@@ -716,7 +717,7 @@ export default function App() {
                                     </span>
                                   </div>
                                   <p className="text-xs text-stone-600 leading-relaxed">
-                                    {rel.descAr}
+                                    {batch4RelationText(t, selectedEntity.id, 'relation:' + rel.target, rel.descAr)}
                                   </p>
                                 </div>
                                 <div className="mt-3 pt-2 border-t border-stone-200/40 flex items-center justify-end text-[10px] font-bold text-stone-400 group-hover:text-indigo-600 gap-1 transition-colors">
@@ -781,14 +782,14 @@ export default function App() {
                                 #{principle.num}
                               </span>
                               <span className="text-[10px] font-bold text-stone-400 bg-stone-100 px-2 py-0.5 rounded">
-                                INVARIANT RULE
+                                {t('batch4.presentation.invariant_rule')}
                               </span>
                             </div>
                             <h3 className="text-sm font-bold text-stone-900 mb-2">
-                              {principle.title}
+                              {batch4RelationText(t, 'principle_' + principle.num, 'title', principle.title)}
                             </h3>
                             <p className="text-xs text-stone-600 leading-relaxed">
-                              {principle.desc}
+                              {batch4RelationText(t, 'principle_' + principle.num, 'desc', principle.desc)}
                             </p>
                           </div>
                           
@@ -827,7 +828,7 @@ export default function App() {
                               >
                                 <div className="flex items-center gap-2 min-w-0">
                                   {getDocIcon(doc.iconName)}
-                                  <span className="truncate">{doc.titleAr}</span>
+                                  <span className="truncate">{batch4ReferenceText(t, doc.id, 'titleAr', doc.titleAr)}</span>
                                 </div>
                                 <span className={`font-mono text-[10px] shrink-0 ${isSelected ? 'text-stone-400' : 'text-stone-400'}`}>
                                   .md
@@ -845,7 +846,7 @@ export default function App() {
                           <span>{t("navigation.labels.txt_72b405")}</span>
                         </div>
                         <p className="leading-relaxed">
-                          {selectedDoc.summaryAr}
+                          {batch4ReferenceText(t, selectedDoc.id, 'summaryAr', selectedDoc.summaryAr)}
                         </p>
                         <div className="mt-3 pt-2 border-t border-stone-200/60 font-mono text-[11px] text-stone-500">
                           {t('docs.path_label')}: {selectedDoc.filename}
@@ -863,11 +864,11 @@ export default function App() {
                             </span>
                             <span className="text-xs text-stone-400">•</span>
                             <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                              Production Ready Spec
+                              {t('batch4.reference.production_ready_spec')}
                             </span>
                           </div>
                           <h2 className="text-lg font-bold text-stone-900">
-                            {selectedDoc.titleAr} ({selectedDoc.titleEn})
+                            {batch4ReferenceText(t, selectedDoc.id, 'titleAr', selectedDoc.titleAr)} ({selectedDoc.titleEn})
                           </h2>
                         </div>
 

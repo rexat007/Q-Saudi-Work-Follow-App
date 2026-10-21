@@ -750,4 +750,254 @@ describe('Batch-2 translation-by-construction', () => {
     }
   });
 
+
+  it('TBC-B4: the eleven approved import anchors consume canonical translations', () => {
+    const surfaces: Record<string, string[]> = {
+      "src/components/wizard/ProjectSetupWizard.tsx": [
+            "projects.messages.checkpoint_partial_failure",
+            "projects.messages.checkpoint_full_failure",
+            "projects.labels.approve_mapping_analyze_log"
+      ],
+      "src/components/importCenter/ExcelCsvImportSection.tsx": [
+            "entityResolution.labels.review_matching",
+            "entityResolution.labels.duplicate_rows",
+            "entityResolution.labels.automatic_match",
+            "entityResolution.labels.accept_suggested_match",
+            "entityResolution.labels.choose_alternative",
+            "entityResolution.labels.leave_unresolved",
+            "entityResolution.labels.matched_entity",
+            "entityResolution.labels.correct_data"
+      ]
+};
+    for (const [file, keys] of Object.entries(surfaces)) {
+      const source = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+      expect(source).toContain('useI18n');
+      const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+      const consumed = new Set<string>();
+      const literals: string[] = [];
+      const visit = (node: ts.Node) => {
+        if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 't'
+          && node.arguments[0] && ts.isStringLiteral(node.arguments[0])) consumed.add(node.arguments[0].text);
+        if (ts.isStringLiteral(node) || ts.isJsxText(node)) literals.push(node.text.trim());
+        ts.forEachChild(node, visit);
+      };
+      visit(ast);
+      for (const key of keys) {
+        expect(consumed.has(key), `${file}: ${key}`).toBe(true);
+        for (const dictionary of [arTranslations, enTranslations, urTranslations]) {
+          expect(dictionary[key]?.trim().length, key).toBeGreaterThan(0);
+        }
+        expect(literals, key).not.toContain(arTranslations[key]);
+      }
+      expect(literals).not.toContain('تكرار:');
+    }
+  });
+
+  it('TBC-B4-second: project and resolution anchors remain translated across all locales', () => {
+    const surfaces: Record<string, string[]> = {
+      "src/components/wizard/ProjectSetupWizard.tsx": [
+            "projects.messages.canonical_data_loading",
+            "projects.messages.changes_saved",
+            "projects.labels.update_workspace_sync",
+            "projects.labels.initialize_workspace_sync"
+      ],
+      "src/components/import/RosterMaterialResolutionLayer.tsx": [
+            "entityResolution.labels.source_material_groups",
+            "entityResolution.labels.approved_materials",
+            "entityResolution.labels.materials_needing_resolution",
+            "entityResolution.messages.all_materials_resolved",
+            "entityResolution.messages.driver_truck_next_stage",
+            "entityResolution.messages.confirm_cancel_import"
+      ],
+      "src/components/import/RosterCarrierResolutionLayer.tsx": [
+            "entityResolution.messages.confirm_cancel_import"
+      ],
+      "src/components/import/RosterDriverTruckResolutionLayer.tsx": [
+            "entityResolution.messages.confirm_cancel_import"
+      ]
+};
+    for (const [file, keys] of Object.entries(surfaces)) {
+      const source = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+      const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+      const consumed = new Set<string>();
+      const literals: string[] = [];
+      const visit = (node: ts.Node) => {
+        if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 't'
+          && node.arguments[0] && ts.isStringLiteral(node.arguments[0])) consumed.add(node.arguments[0].text);
+        if (ts.isStringLiteral(node) || ts.isJsxText(node)) literals.push(node.text.trim());
+        ts.forEachChild(node, visit);
+      };
+      visit(ast);
+      for (const key of keys) {
+        expect(consumed.has(key), `${file}: ${key}`).toBe(true);
+        const placeholders = (value: string) => [...value.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort();
+        for (const dictionary of [arTranslations, enTranslations, urTranslations]) {
+          expect(dictionary[key]?.trim().length, key).toBeGreaterThan(0);
+          expect(placeholders(dictionary[key]), key).toEqual(placeholders(arTranslations[key]));
+        }
+        expect(literals, key).not.toContain(arTranslations[key]);
+      }
+    }
+  });
+
+  it('TBC-B4-third: workflow guidance and canonical refresh retry use translated labels', () => {
+    const anchors = [
+      ['src/components/wizard/ProjectSetupWizard.tsx', 'projects.labels.smart_import_workflow'],
+      ['src/components/masterData/CarrierEditorModal.tsx', 'entityResolution.labels.refresh_data'],
+    ] as const;
+    for (const [file, key] of anchors) {
+      const source = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+      expect(source).toContain(`t('${key}')`);
+      expect(source).not.toContain(arTranslations[key]);
+      for (const dictionary of [arTranslations, enTranslations, urTranslations]) {
+        expect(dictionary[key]?.trim().length, key).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('TBC-B4-fourth: review, commit, recovery and immutable editor anchors remain managed', () => {
+    const surfaces: Record<string, string[]> = {
+      "src/components/wizard/ProjectSetupWizard.tsx": [
+            "entityResolution.messages.created_refresh_failed",
+            "entityResolution.messages.already_committed",
+            "projects.labels.add_carrier",
+            "shared.actions.edit"
+      ],
+      "src/components/import/RosterMaterialResolutionLayer.tsx": [
+            "entityResolution.labels.continue_driver_truck_review"
+      ],
+      "src/components/import/RosterDriverTruckResolutionLayer.tsx": [
+            "entityResolution.messages.created_refresh_failed",
+            "entityResolution.labels.continue_final_review",
+            "entityResolution.labels.refresh_data"
+      ],
+      "src/components/import/RosterFinalReviewLayer.tsx": [
+            "entityResolution.labels.total_records",
+            "entityResolution.labels.ready_for_approval",
+            "entityResolution.labels.rows_with_warnings",
+            "entityResolution.labels.blocked_error_rows",
+            "entityResolution.labels.carriers",
+            "entityResolution.labels.trucks",
+            "entityResolution.labels.approve_commit_import",
+            "other.labels.materials_5",
+            "other.labels.drivers_5"
+      ],
+      "src/components/import/RosterCommitResultLayer.tsx": [
+            "entityResolution.labels.total_records",
+            "entityResolution.messages.import_succeeded",
+            "entityResolution.messages.import_partial",
+            "entityResolution.messages.import_failed",
+            "entityResolution.messages.import_no_changes",
+            "entityResolution.labels.failed_rows",
+            "entityResolution.labels.finish_import"
+      ],
+      "src/components/masterData/CarrierEditorModal.tsx": [
+            "entityResolution.labels.edit_carrier",
+            "entityResolution.labels.carrier_identity_immutable"
+      ],
+      "src/components/masterData/MaterialEditorModal.tsx": [
+            "entityResolution.labels.material_code_immutable"
+      ]
+};
+    for (const [file, keys] of Object.entries(surfaces)) {
+      const source = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+      const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+      const consumed = new Set<string>();
+      const literals: string[] = [];
+      const visit = (node: ts.Node) => {
+        if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 't'
+          && node.arguments[0] && ts.isStringLiteral(node.arguments[0])) consumed.add(node.arguments[0].text);
+        if (ts.isStringLiteral(node) || ts.isJsxText(node)) literals.push(node.text.trim());
+        ts.forEachChild(node, visit);
+      };
+      visit(ast);
+      for (const key of keys) {
+        expect(consumed.has(key), `${file}: ${key}`).toBe(true);
+        for (const dictionary of [arTranslations, enTranslations, urTranslations]) {
+          expect(dictionary[key]?.trim().length, key).toBeGreaterThan(0);
+        }
+        expect(literals, key).not.toContain(arTranslations[key]);
+      }
+    }
+  });
+});
+
+describe('Batch 4 complete active presentation family', () => {
+  const files = [
+    'src/App.tsx',
+    'src/components/FirestoreArchitectureView.tsx',
+    'src/components/pricing/PricingEngineView.tsx',
+    'src/components/admin/AdminConsoleView.tsx',
+    'src/components/security/SecurityAuditView.tsx',
+    'src/components/migration/LegacyMigrationView.tsx',
+    'src/components/navigation/SystemToolsDrawer.tsx',
+    'src/components/wizard/ProjectSetupWizard.tsx',
+    'src/components/importCenter/ExcelCsvImportSection.tsx',
+    'src/components/importCenter/GoogleSheetsImportSection.tsx',
+    'src/components/import/RosterCarrierResolutionLayer.tsx',
+    'src/components/import/RosterMaterialResolutionLayer.tsx',
+    'src/components/import/RosterDriverTruckResolutionLayer.tsx',
+    'src/components/import/RosterFinalReviewLayer.tsx',
+    'src/components/import/RosterCommitResultLayer.tsx',
+    'src/components/masterData/CarrierEditorModal.tsx',
+    'src/components/masterData/MaterialEditorModal.tsx',
+  ];
+  // Verbatim schema identifiers, deployment metadata and examples are technical data, not UI prose.
+  const technical = new Set([
+    'CSV', 'XLS', 'XLSX', 'BLOCK 33', 'SETUP', 'READY_FOR_REVIEW', 'APPROVED', 'ACTIVE',
+    'Multi-Project Logistics FSM', 'Region: europe-west2', 'ai-studio-qsaudiworkfollow...',
+    'createdAt & createdBy', 'updatedAt & updatedBy', 'Output: ValidationResult (isValid, errors)',
+    'tripId:', 'createdAt:', 'createdBy:', 'updatedAt:', 'updatedBy:', 'carrierSnapshot:', 'truckSnapshot:',
+    'YYYY-MM-DD', '05xxxxxxxx', 'name@company.com', '1.6', 'ID:',
+    'SUPER_ADMIN', 'PROJECT_ADMIN', 'SUPERVISOR', 'SITE_SUPERVISOR', 'DISPATCHER', 'FINANCE_AUDITOR', 'VIEWER',
+    'LEGACY_UNRESOLVED', '.md', '.xlsx', '.xls', '.csv', 'KB |',
+    '(ticketId)', '(tripSerial)', '(shiftDate)', '(truckNo)', '(grossWeight)', '(tareWeight)', '(netWeight)', '(destNetWeight)',
+    'No-Guess Pricing', 'Copy-on-Write Versioning', 'Trip Pricing Snapshot', 'SAR', 'v',
+  ]);
+
+  it('routes human JSX text and literal accessible labels through canonical translations', () => {
+    const defects: string[] = [];
+    for (const file of files) {
+      const source = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+      const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+      const visit = (node: ts.Node) => {
+        // App's shell belongs to completed Batch 1; this gate covers only its system-tool views.
+        if (file === 'src/App.tsx' && (ts.isJsxText(node) || ts.isStringLiteral(node))) {
+          let insideTools = false;
+          for (let parent: ts.Node | undefined = node.parent; parent; parent = parent.parent) {
+            if (ts.isBinaryExpression(parent) && parent.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+              && /activeTab === '(RELATIONS|PRINCIPLES|DOCS)'/.test(parent.left.getText(ast))) insideTools = true;
+          }
+          if (!insideTools) return;
+        }
+        const literalAttribute = ts.isStringLiteral(node) && ts.isJsxAttribute(node.parent)
+          && ['title', 'placeholder', 'aria-label', 'alt'].includes(node.parent.name.getText(ast));
+        if (ts.isJsxText(node) || literalAttribute) {
+          const text = (node as ts.JsxText | ts.StringLiteral).text.replace(/\s+/g, ' ').trim();
+          if (/\p{L}/u.test(text) && !technical.has(text)) {
+            const line = ast.getLineAndCharacterOfPosition(node.getStart(ast)).line + 1;
+            defects.push(`${file}:${line}: ${text}`);
+          }
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(ast);
+    }
+    expect(defects).toEqual([]);
+  });
+
+  it('keeps service metadata localization at the consumer and service text behind the presentation boundary', () => {
+    const wizard = fs.readFileSync(path.resolve(process.cwd(), 'src/components/wizard/ProjectSetupWizard.tsx'), 'utf8');
+    const csv = fs.readFileSync(path.resolve(process.cwd(), 'src/components/importCenter/ExcelCsvImportSection.tsx'), 'utf8');
+    expect(wizard).toContain('batch4LayerLabel(t, layer.id, layer.labelAr)');
+    expect(wizard).toContain('batch4RosterStageLabel(t, def.stage, def.labelAr)');
+    expect(wizard).toContain('batch4FieldLabel(t, opt.value, opt.labelAr)');
+    expect(csv).toContain('batch4FieldLabel(t, String(opt.value), opt.labelAr)');
+    expect(wizard).toContain('presentBatch4Message(syncNotice.text, t)');
+    expect(wizard).toContain('presentBatch4Message(b.message, t)');
+    expect(csv).toContain('presentBatch4Message(e.messageAr || e.message, t)');
+    for (const service of ['src/services/projectSetupWorkflow.service.ts', 'src/services/import/rosterSmartImportWorkflow.service.ts']) {
+      expect(fs.readFileSync(path.resolve(process.cwd(), service), 'utf8')).not.toMatch(/from\s+['"][^'"]*i18n/);
+    }
+  });
 });

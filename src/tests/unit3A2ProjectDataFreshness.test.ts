@@ -1,3 +1,5 @@
+import { dictionaries } from '../locales';
+import { resolveTranslation } from '../i18n';
 import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -109,7 +111,13 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
 
     expect(navBlock).toContain("isProjectDataLoading || loadedProjectId !== editingProjectId");
     expect(navBlock).toContain("['ROSTER', 'PRICING', 'REVIEW_ACTIVATION'].includes(targetLayer)");
-    expect(navBlock).toContain("setNavigationError('جاري تحميل بيانات المشروع المعتمدة، يرجى الانتظار...')");
+    expect(navBlock).toContain("setNavigationError(t('projects.messages.canonical_data_loading'))");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['projects.messages.canonical_data_loading'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('projects.messages.canonical_data_loading', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
   });
 
   // F. Old A counts cannot authorize B ROSTER gate
@@ -174,7 +182,13 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
 
     expect(saveBlock).toContain('await projectService.updateProject(project.projectId, updates, authContext);');
     expect(saveBlock).toContain('setLocalProjectOverride(updatedProject);');
-    expect(saveBlock).toContain("setFoundationSaveSuccess('تم حفظ تعديلات المشروع بنجاح');");
+    expect(saveBlock).toContain("setFoundationSaveSuccess(t('projects.messages.changes_saved'));");
+    for (const locale of ['ar', 'en', 'ur'] as const) {
+      const template = dictionaries[locale]['projects.messages.changes_saved'];
+      expect(typeof template).toBe('string');
+      expect(template.trim().length).toBeGreaterThan(0);
+      expect(resolveTranslation('projects.messages.changes_saved', locale, { count: 3 })).toBe(template.replace('{count}', '3'));
+    }
   });
 
   // I. Late resumable session response from A is ignored after B selected

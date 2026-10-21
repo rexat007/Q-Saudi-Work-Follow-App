@@ -1,3 +1,6 @@
+import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { batch4FieldLabel } from '../../i18n/batch4Presentation';
+import { useI18n } from '../../i18n';
 import React, { useState, useRef, useMemo, useEffect, Fragment } from 'react';
 import {
   FileSpreadsheet,
@@ -78,6 +81,7 @@ export function ExcelCsvImportSection({
   canonicalRelationshipContext,
   pipelineContext,
 }: ExcelCsvImportSectionProps) {
+  const { t, direction, locale } = useI18n();
   // File state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileBuffer, setFileBuffer] = useState<ArrayBuffer | null>(null);
@@ -180,7 +184,7 @@ export function ExcelCsvImportSection({
           } else {
             const num = Number(trimmed);
             if (isNaN(num)) {
-              throw new Error(`القيمة المدخلة في حقل (${field}) غير صالحة، يجب أن تكون رقماً صحيحاً.`);
+              throw new Error(t('entityResolution.messages.correction_number_invalid', { field: field }));
             }
             parsedCorrections[field] = num;
           }
@@ -237,14 +241,14 @@ export function ExcelCsvImportSection({
           setSessionVersion(updatedSession.version);
         } catch (err: any) {
           if (err?.code === 'VERSION_CONFLICT') {
-            setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ تصحيح الصف');
+            setProcessError(t('entityResolution.messages.version_conflict_correction'));
           } else {
             console.warn('Failed to update session checkpoint:', err);
           }
         }
       }
     } catch (err: any) {
-      setCorrectionError(err?.message || 'فشل في حفظ تصحيح بيانات الصف');
+      setCorrectionError(err?.message || t('entityResolution.messages.row_correction_save_failed'));
     }
   };
 
@@ -348,9 +352,9 @@ export function ExcelCsvImportSection({
       }
     } catch (err: any) {
       if (err?.code === 'VERSION_CONFLICT') {
-        setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ قرار المطابقة');
+        setProcessError(t('entityResolution.messages.version_conflict_matching'));
       } else {
-        setProcessError(err?.message || 'فشل في حفظ قرار المطابقة في جلسة الخادم');
+        setProcessError(err?.message || t('entityResolution.messages.matching_decision_save_failed'));
       }
     }
   };
@@ -387,7 +391,7 @@ export function ExcelCsvImportSection({
 
       if (group.entityType === 'carrier') {
         if (!formData.commercialRegistrationNo || !formData.commercialRegistrationNo.trim()) {
-          throw new Error('رقم السجل التجاري للناقل مطلوب');
+          throw new Error(t('entityResolution.messages.carrier_registration_required'));
         }
         result = await entityResolutionCommandService.createCarrier({
           projectId: currentProjectId,
@@ -400,7 +404,7 @@ export function ExcelCsvImportSection({
         });
       } else if (group.entityType === 'material') {
         if (!formData.code || !formData.code.trim()) {
-          throw new Error('رمز المادة (code) مطلوب');
+          throw new Error(t('entityResolution.messages.material_code_required'));
         }
         result = await entityResolutionCommandService.createMaterial({
           projectId: currentProjectId,
@@ -419,10 +423,10 @@ export function ExcelCsvImportSection({
           }
         }
         if (!carrierId) {
-          throw new Error('يجب حسم الناقل أولاً قبل إنشاء السائق');
+          throw new Error(t('entityResolution.messages.resolve_carrier_before_create', { entity: t('legacyMigration.labels.driver_2') }));
         }
         if (!formData.residencyId || !formData.residencyId.trim()) {
-          throw new Error('رقم الهوية الوطنية أو الإقامة (residencyId) مطلوب');
+          throw new Error(t('entityResolution.messages.residency_identifier_required'));
         }
         result = await entityResolutionCommandService.createDriver({
           projectId: currentProjectId,
@@ -443,10 +447,10 @@ export function ExcelCsvImportSection({
           }
         }
         if (!carrierId) {
-          throw new Error('يجب حسم الناقل أولاً قبل إنشاء الشاحنة');
+          throw new Error(t('entityResolution.messages.resolve_carrier_before_create', { entity: t('legacyMigration.labels.truck_2') }));
         }
         if (!formData.plateNumber || !formData.plateNumber.trim()) {
-          throw new Error('رقم لوحة الشاحنة (plateNumber) مطلوب');
+          throw new Error(`${t('entityResolution.messages.truck_plate_required')} (plateNumber)`);
         }
         result = await entityResolutionCommandService.createTruck({
           projectId: currentProjectId,
@@ -460,7 +464,7 @@ export function ExcelCsvImportSection({
           },
         });
       } else {
-        throw new Error('نوع الكيان غير مدعوم');
+        throw new Error(t('entityResolution.messages.unsupported_entity_type'));
       }
 
       const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
@@ -506,9 +510,9 @@ export function ExcelCsvImportSection({
       }
     } catch (err: any) {
       if (err?.code === 'VERSION_CONFLICT') {
-        setCreateError('تعارض في إصدار الجلسة (VERSION_CONFLICT)');
+        setCreateError(t('entityResolution.messages.version_conflict'));
       } else {
-        setCreateError(err?.message || 'فشل في إنشاء الكيان وإسقاطه على المجموعة');
+        setCreateError(err?.message || t('entityResolution.messages.group_entity_create_failed'));
       }
     } finally {
       setIsCreatingEntity(false);
@@ -763,7 +767,7 @@ export function ExcelCsvImportSection({
 
       setRequiresSourceFileReattach(false);
     } catch (err: any) {
-      setProcessError(err?.message || 'حدث خطأ أثناء فحص واستكشاف الملف');
+      setProcessError(err?.message || t('entityResolution.messages.file_discovery_failed'));
     } finally {
       setIsProcessing(false);
     }
@@ -803,7 +807,7 @@ export function ExcelCsvImportSection({
         setCustomMappingOverrides(updatedMappings);
       } catch (err: any) {
         console.error('Sheet change discovery failed:', err);
-        setProcessError(err?.message || 'فشل في استكشاف ورقة العمل المحددة');
+        setProcessError(err?.message || t('entityResolution.messages.worksheet_discovery_failed'));
       } finally {
         setIsProcessing(false);
       }
@@ -940,14 +944,14 @@ export function ExcelCsvImportSection({
           setSessionVersion(updatedSession.version);
         } catch (err: any) {
           if (err?.code === 'VERSION_CONFLICT') {
-            setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): يرجى تحديث الصفحة');
+            setProcessError(t('entityResolution.messages.version_conflict_refresh'));
           } else {
             console.warn('Failed to update session checkpoint:', err);
           }
         }
       }
     } catch (err: any) {
-      setProcessError(err?.message || 'فشل في تحليل ومعالجة ملف الاستيراد');
+      setProcessError(err?.message || t('entityResolution.messages.file_processing_failed'));
     } finally {
       setIsProcessing(false);
     }
@@ -996,9 +1000,9 @@ export function ExcelCsvImportSection({
         setSessionVersion(updatedSession.version);
       } catch (err: any) {
         if (err?.code === 'VERSION_CONFLICT') {
-          setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ إجراء المراجعة');
+          setProcessError(t('entityResolution.messages.version_conflict_review'));
         } else {
-          setProcessError(err?.message || 'فشل في حفظ إجراء المراجعة في جلسة الخادم');
+          setProcessError(err?.message || t('entityResolution.messages.review_save_failed'));
         }
       }
     }
@@ -1019,7 +1023,7 @@ export function ExcelCsvImportSection({
         setSessionVersion(updatedSession.version);
       } catch (err: any) {
         if (err?.code === 'VERSION_CONFLICT') {
-          setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT)');
+          setProcessError(t('entityResolution.messages.version_conflict'));
         } else {
           console.warn('Failed to update warning confirmation:', err);
         }
@@ -1109,7 +1113,7 @@ export function ExcelCsvImportSection({
         }
       }
     } catch (err: any) {
-      setProcessError(err?.message || 'فشل في تنفيذ الاعتماد وحفظ الشحنات');
+      setProcessError(err?.message || t('entityResolution.messages.shipment_commit_failed'));
     } finally {
       setIsCommitting(false);
     }
@@ -1156,19 +1160,19 @@ export function ExcelCsvImportSection({
   }) || [];
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={direction}>
       {/* Reattach Source File Banner */}
       {requiresSourceFileReattach && !fileBuffer && (
         <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
-            <span>تم استئناف جلسة المراجعة المحفوظة. يُرجى إعادة ربط ملف المصدر الأصلي لتسهيل إعادة التحليل عند الحاجة.</span>
+            <span>{t('entityResolution.messages.review_session_resumed')}</span>
           </div>
           <button
             onClick={() => fileInputRef.current?.click()}
             className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors shadow-xs shrink-0 cursor-pointer"
           >
-            إعادة ربط الملف
+            {t('entityResolution.labels.reattach_file')}
           </button>
         </div>
       )}
@@ -1183,22 +1187,22 @@ export function ExcelCsvImportSection({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-xl font-black tracking-tight text-stone-900">
-                  استيراد ملفات Excel و CSV (BLOCK 31)
+                  {t('entityResolution.labels.excel_csv_import_title')}
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900">
-                  Unified Pipeline Integrated
+                  {t('entityResolution.labels.unified_pipeline_integrated')}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900">
-                  Weighbridge Compatible
+                  {t('entityResolution.labels.weighbridge_compatible')}
                 </span>
                 {activeSessionId && (
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-900 font-mono">
-                    Session Active ({sessionVersion})
+                    {t('entityResolution.labels.active_session', { sessionId: activeSessionId })}{sessionVersion})
                   </span>
                 )}
               </div>
               <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                استقبال ومعالجة ملفات جداول البيانات (.xlsx, .xls, .csv) بالاعتماد المباشر على معمارية الاستيراد الموحد (المراحل العشر) دون كتابة مسبقة في Firestore.
+                {t('entityResolution.labels.excel_csv_import_description')}
               </p>
             </div>
           </div>
@@ -1210,7 +1214,7 @@ export function ExcelCsvImportSection({
                 className="px-3.5 py-2 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>إعادة تعيين / ملف جديد</span>
+                <span>{t('entityResolution.labels.reset_new_file')}</span>
               </button>
             </div>
           )}
@@ -1244,15 +1248,15 @@ export function ExcelCsvImportSection({
               <UploadCloud className="w-8 h-8" />
             </div>
             <h3 className="text-base font-bold text-stone-900 mb-1">
-              انقر لاختيار ملف إكسل أو CSV أو اسحبه وأفلته هنا
+              {t('entityResolution.labels.choose_drop_file')}
             </h3>
             <p className="text-xs text-stone-500 mb-4 max-w-md mx-auto">
-              الصيغ المدعومة: <span className="font-mono font-bold text-stone-700">.xlsx</span>,{' '}
+              {t('entityResolution.labels.supported_formats')} <span className="font-mono font-bold text-stone-700">.xlsx</span>,{' '}
               <span className="font-mono font-bold text-stone-700">.xls</span>,{' '}
-              <span className="font-mono font-bold text-stone-700">.csv</span> (بحد أقصى 25 ميغابايت)
+              <span className="font-mono font-bold text-stone-700">.csv</span> {t('entityResolution.labels.max_file_size')}
             </p>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-xs">
-              <span>تحديد ملف من الجهاز</span>
+              <span>{t('entityResolution.labels.select_local_file')}</span>
               <ArrowRight className="w-4 h-4 rotate-180" />
             </div>
           </div>
@@ -1268,7 +1272,7 @@ export function ExcelCsvImportSection({
               <div>
                 <div className="text-sm font-bold text-stone-900">{selectedFile.name}</div>
                 <div className="text-xs text-stone-500 font-mono">
-                  {(selectedFile.size / 1024).toFixed(1)} KB | {selectedFile.name.endsWith('.csv') ? 'CSV File' : 'Excel Workbook'}
+                  {(selectedFile.size / 1024).toFixed(1)} KB | {selectedFile.name.endsWith('.csv') ? t('batch4.presentation.csv_file') : t('batch4.presentation.excel_workbook')}
                 </div>
               </div>
             </div>
@@ -1279,7 +1283,7 @@ export function ExcelCsvImportSection({
                   onClick={() => setActiveBatch(null)}
                   className="px-3.5 py-1.5 rounded-lg bg-white border border-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-100 transition-colors cursor-pointer"
                 >
-                  تعديل ربط الأعمدة (Reconfigure Mapping)
+                  {t('batch4.presentation.reconfigure_mapping')}
                 </button>
               </div>
             )}
@@ -1293,19 +1297,19 @@ export function ExcelCsvImportSection({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-md text-xs font-black bg-emerald-700 text-white font-mono">
-                    الخطوة 2
+                    {t('entityResolution.labels.step_number', { step: 2 })}
                   </span>
                   <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
-                    <span>فهم وربط أعمدة البيانات (Column Mapping Review)</span>
+                    <span>{t('entityResolution.labels.mapping_review_title')}</span>
                   </h3>
                 </div>
                 <p className="text-xs text-stone-600 mt-1">
-                  راجع مطابقة أعمدة الملف المصدر مع الحقول القياسية للنظام، وقم بتعديل أي حقل يدويّاً قبل بدء معالجة الشحنات.
+                  {t('entityResolution.labels.mapping_review_description')}
                 </p>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs font-bold text-stone-500">مستوى الثقة في الاستكشاف:</span>
+                <span className="text-xs font-bold text-stone-500">{t('entityResolution.labels.discovery_confidence')}</span>
                 <span className={`px-3 py-1 rounded-full text-xs font-black font-mono ${
                   discoveryResult.confidence >= 80
                     ? 'bg-emerald-100 text-emerald-800'
@@ -1321,14 +1325,14 @@ export function ExcelCsvImportSection({
             {/* Scope & Sheet Controls */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white p-4 rounded-xl border border-stone-200 text-xs">
               <div className="space-y-1.5">
-                <span className="font-bold text-stone-500 block">نوع الملف</span>
+                <span className="font-bold text-stone-500 block">{t('entityResolution.labels.file_type')}</span>
                 <span className="font-mono font-black text-stone-800 bg-stone-50 px-2.5 py-1 rounded border border-stone-200 inline-block">
                   {discoveryResult.sourceType}
                 </span>
               </div>
 
               <div className="space-y-1.5">
-                <span className="font-bold text-stone-500 block">ورقة العمل (Sheet)</span>
+                <span className="font-bold text-stone-500 block">{t('entityResolution.labels.worksheet')}</span>
                 {availableSheets.length > 1 ? (
                   <select
                     value={selectedSheet}
@@ -1343,15 +1347,15 @@ export function ExcelCsvImportSection({
                   </select>
                 ) : (
                   <span className="font-bold text-stone-800 bg-stone-50 px-2.5 py-1 rounded border border-stone-200 inline-block">
-                    {selectedSheet || 'ورقة العمل الأولى'}
+                    {selectedSheet || t('entityResolution.labels.first_worksheet')}
                   </span>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <span className="font-bold text-stone-500 block">صف الترويسة (Header Row)</span>
+                <span className="font-bold text-stone-500 block">{t('entityResolution.labels.header_row')}</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-stone-700">الصف:</span>
+                  <span className="font-mono font-bold text-stone-700">{t('entityResolution.labels.row_label')}:</span>
                   <input
                     type="number"
                     min="0"
@@ -1360,7 +1364,7 @@ export function ExcelCsvImportSection({
                     onChange={(e) => handleHeaderRowIndexChange(parseInt(e.target.value) || 0)}
                     className="w-16 px-2 py-1 text-center font-mono font-bold bg-white border border-stone-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                   />
-                  <span className="text-[11px] text-stone-400 font-mono">(0-based index)</span>
+                  <span className="text-[11px] text-stone-400 font-mono">{t('entityResolution.labels.zero_based_index')}</span>
                 </div>
               </div>
             </div>
@@ -1370,10 +1374,10 @@ export function ExcelCsvImportSection({
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-black text-stone-800 flex items-center gap-1.5">
                   <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
-                  <span>جدول ربط الأعمدة المكتشفة ({discoveryResult.detectedHeaders?.length || 0} عمود)</span>
+                  <span>{t('entityResolution.labels.discovered_columns_count', { count: discoveryResult.detectedHeaders?.length || 0 })}</span>
                 </h4>
                 <span className="text-[11px] text-stone-500">
-                  يمكنك تغيير تعيين أي عمود أو اختيار "تجاهل هذا العمود"
+                  {t('entityResolution.labels.mapping_edit_instruction')}
                 </span>
               </div>
 
@@ -1382,9 +1386,9 @@ export function ExcelCsvImportSection({
                   <thead className="bg-stone-50 border-b border-stone-200 text-stone-700 font-bold">
                     <tr>
                       <th className="p-3 w-12 text-center font-mono">#</th>
-                      <th className="p-3">اسم العمود في ملف المصدر</th>
-                      <th className="p-3">حقل النظام المعتمد (Canonical Target Field)</th>
-                      <th className="p-3 text-center">حالة الربط</th>
+                      <th className="p-3">{t('entityResolution.labels.source_column_name')}</th>
+                      <th className="p-3">{t('entityResolution.labels.canonical_target_field')}</th>
+                      <th className="p-3 text-center">{t('entityResolution.labels.mapping_status')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100">
@@ -1406,8 +1410,7 @@ export function ExcelCsvImportSection({
                             </div>
                             {match && match.matchedBy && (
                               <div className="text-[10px] text-stone-400 mt-0.5">
-                                كشف آلي ({match.matchedBy}) | ثقة: {confidencePercent}%
-                              </div>
+                                {t('entityResolution.labels.detected_mapping_confidence', { method: match.matchedBy, confidence: confidencePercent })}</div>
                             )}
                           </td>
 
@@ -1423,7 +1426,7 @@ export function ExcelCsvImportSection({
                             >
                               {CANONICAL_FIELD_OPTIONS.map((opt) => (
                                 <option key={opt.value} value={opt.value}>
-                                  {opt.labelAr}
+                                  {batch4FieldLabel(t, String(opt.value), opt.labelAr)}
                                 </option>
                               ))}
                             </select>
@@ -1433,11 +1436,11 @@ export function ExcelCsvImportSection({
                             {isMapped ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800">
                                 <Check className="w-3 h-3 text-emerald-600" />
-                                <span>مربوط</span>
+                                <span>{t('entityResolution.labels.mapped')}</span>
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-stone-100 text-stone-500">
-                                <span>مستبعد / غير مربوط</span>
+                                <span>{t('entityResolution.labels.excluded_unmapped')}</span>
                               </span>
                             )}
                           </td>
@@ -1452,7 +1455,7 @@ export function ExcelCsvImportSection({
             {/* Approval Gate Primary CTA */}
             <div className="pt-4 border-t border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="text-xs text-stone-500">
-                عند النقر على اعتماد الربط، سيبدأ النظام في تحليل وتدقيق كافة الصفوف وإجراء المطابقة الذكية.
+                {t('entityResolution.labels.approve_mapping_instruction')}
               </div>
 
               <button
@@ -1467,12 +1470,12 @@ export function ExcelCsvImportSection({
                 {isProcessing ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>جاري تحليل ومعالجة البيانات...</span>
+                    <span>{t('entityResolution.labels.analyzing_data')}</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-4.5 h-4.5" />
-                    <span>اعتماد الربط وبدء تحليل البيانات</span>
+                    <span>{t('entityResolution.labels.approve_mapping_analyze_data')}</span>
                     <ArrowRight className="w-4 h-4 rotate-180" />
                   </>
                 )}
@@ -1485,7 +1488,7 @@ export function ExcelCsvImportSection({
         {processError && (
           <div className="mt-4 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold flex items-center gap-2">
             <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
-            <span>{processError}</span>
+            <span>{presentBatch4Message(processError, t)}</span>
           </div>
         )}
 
@@ -1493,8 +1496,8 @@ export function ExcelCsvImportSection({
         {isProcessing && (
           <div className="mt-6 p-8 text-center bg-stone-50 rounded-2xl border border-stone-200">
             <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-3" />
-            <div className="text-sm font-bold text-stone-900">جاري تحليل ومعالجة ملف الاستيراد عبر المراحل العشر...</div>
-            <div className="text-xs text-stone-500 mt-1">يتم الفحص والتطابق الذكي في الذاكرة دون حفظ مسبق</div>
+            <div className="text-sm font-bold text-stone-900">{t('entityResolution.labels.processing_ten_stages')}</div>
+            <div className="text-xs text-stone-500 mt-1">{t('entityResolution.labels.in_memory_validation')}</div>
           </div>
         )}
       </div>
@@ -1505,27 +1508,27 @@ export function ExcelCsvImportSection({
           {/* Summary KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80">
-              <div className="text-xs font-bold text-stone-500 mb-1">إجمالي الصفوف</div>
+              <div className="text-xs font-bold text-stone-500 mb-1">{t('legacyMigration.labels.txt_37ac91')}</div>
               <div className="text-lg font-black text-stone-900 font-mono">{activeBatch.totalRows}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-200/80">
-              <div className="text-xs font-bold text-emerald-700 mb-1">صفوف سليمة</div>
+              <div className="text-xs font-bold text-emerald-700 mb-1">{t('entityResolution.labels.valid_rows')}</div>
               <div className="text-lg font-black text-emerald-800 font-mono">{activeBatch.validRows}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/80">
-              <div className="text-xs font-bold text-amber-700 mb-1">صفوف تتضمن تنبيهات</div>
+              <div className="text-xs font-bold text-amber-700 mb-1">{t('entityResolution.labels.rows_with_warnings')}</div>
               <div className="text-lg font-black text-amber-800 font-mono">{activeBatch.warningRows}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-rose-50/60 border border-rose-200/80">
-              <div className="text-xs font-bold text-rose-700 mb-1">صفوف تتضمن أخطاء</div>
+              <div className="text-xs font-bold text-rose-700 mb-1">{t('entityResolution.labels.rows_with_errors')}</div>
               <div className="text-lg font-black text-rose-800 font-mono">{activeBatch.errorRows}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-200/80 col-span-2 sm:col-span-1">
-              <div className="text-xs font-bold text-blue-700 mb-1">تتطلب مراجعة</div>
+              <div className="text-xs font-bold text-blue-700 mb-1">{t('entityResolution.labels.review_required')}</div>
               <div className="text-lg font-black text-blue-800 font-mono">{activeBatch.requiresReviewRows}</div>
             </div>
           </div>
@@ -1536,15 +1539,15 @@ export function ExcelCsvImportSection({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-md text-xs font-black bg-blue-700 text-white font-mono">
-                    الخطوة 5
+                    {t('entityResolution.labels.step_number', { step: 5 })}
                   </span>
                   <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-blue-600" />
-                    <span>مساحة مراجعة ومطابقة الكيانات (Entity Review Workspace)</span>
+                    <span>{t('entityResolution.labels.entity_review_workspace')}</span>
                   </h3>
                 </div>
                 <p className="text-xs text-stone-600 mt-1">
-                  حسم وتأكيد مطابقة الكيانات المجمعة (الناقلون، المواد، السائقون، الشاحنات) قبل معالجة استثناءات الصفوف الفردية.
+                  {t('entityResolution.labels.entity_review_description')}
                 </p>
               </div>
 
@@ -1552,12 +1555,12 @@ export function ExcelCsvImportSection({
                 {unresolvedGroups.length > 0 ? (
                   <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1.5">
                     <AlertTriangle className="w-4 h-4 text-amber-600" />
-                    <span>توجد ({unresolvedGroups.length}) مجموعات معلقة</span>
+                    <span>{t('entityResolution.labels.pending_groups_count', { count: unresolvedGroups.length })}</span>
                   </span>
                 ) : (
                   <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>تم حسم مطابقة الكيانات — الانتقال إلى مراجعة الصفوف</span>
+                    <span>{t('entityResolution.labels.entities_resolved_review_rows')}</span>
                   </span>
                 )}
               </div>
@@ -1571,10 +1574,10 @@ export function ExcelCsvImportSection({
                 titleEn: string;
                 groups: RosterEntityReviewGroup[];
               }> = [
-                { key: 'carrier', titleAr: '1. الناقلون', titleEn: 'Carriers', groups: reviewGroups.carrier },
-                { key: 'material', titleAr: '2. المواد والأصناف', titleEn: 'Materials', groups: reviewGroups.material },
-                { key: 'driver', titleAr: '3. السائقون', titleEn: 'Drivers', groups: reviewGroups.driver },
-                { key: 'truck', titleAr: '4. الشاحنات والمركبات', titleEn: 'Trucks', groups: reviewGroups.truck },
+                { key: 'carrier', titleAr: t('shared.labels.numbered_label', { number: 1, label: t('entityResolution.labels.carriers') }), titleEn: 'Carriers', groups: reviewGroups.carrier },
+                { key: 'material', titleAr: t('shared.labels.numbered_label', { number: 2, label: t('other.labels.materials_5') }), titleEn: 'Materials', groups: reviewGroups.material },
+                { key: 'driver', titleAr: t('shared.labels.numbered_label', { number: 3, label: t('other.labels.drivers_5') }), titleEn: 'Drivers', groups: reviewGroups.driver },
+                { key: 'truck', titleAr: t('shared.labels.numbered_label', { number: 4, label: t('entityResolution.labels.trucks') }), titleEn: 'Trucks', groups: reviewGroups.truck },
               ];
 
               return (
@@ -1600,17 +1603,16 @@ export function ExcelCsvImportSection({
                             <span className="text-xs font-black text-stone-900">{cat.titleAr}</span>
                             {pendingCount > 0 ? (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 text-amber-900">
-                                {pendingCount} معلق
+                                {pendingCount} {t('offline.labels.txt_7eabcf')}
                               </span>
                             ) : (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800">
-                                مكتمل
+                                {t('entityResolution.labels.complete')}
                               </span>
                             )}
                           </div>
                           <div className="text-[11px] text-stone-500 font-mono">
-                            {cat.groups.length} مجموعات ({cat.groups.reduce((acc, g) => acc + g.occurrenceCount, 0)} صف)
-                          </div>
+                            {t('entityResolution.labels.group_row_counts', { groups: cat.groups.length, rows: cat.groups.reduce((acc, g) => acc + g.occurrenceCount, 0) })}</div>
                         </button>
                       );
                     })}
@@ -1631,21 +1633,20 @@ export function ExcelCsvImportSection({
                         {/* Category Stats Summary */}
                         <div className="flex flex-wrap items-center justify-between gap-3 text-xs border-b border-stone-100 pb-3">
                           <div className="font-bold text-stone-800">
-                            مجموعات {currentCat.titleAr} ({groups.length} مجموعة فريدة)
-                          </div>
+                            {t('entityResolution.labels.category_unique_groups', { category: currentCat.titleAr, count: groups.length })}</div>
                           <div className="flex items-center gap-2 flex-wrap font-mono text-[11px]">
                             <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
-                              مطابقة تلقائية: {autoCount}
+                              {t('entityResolution.labels.automatic_match')}: {autoCount}
                             </span>
                             <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
-                              تتطلب مراجعة: {reviewCount}
+                              {t('entityResolution.labels.review_required')}: {reviewCount}
                             </span>
                             <span className="px-2 py-0.5 rounded bg-stone-100 text-stone-700 border border-stone-200">
-                              غير مطابقة: {unresolvedCount}
+                              {t('entityResolution.labels.unmatched')}: {unresolvedCount}
                             </span>
                             {conflictCount > 0 && (
                               <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-800 border border-rose-200">
-                                تعارض: {conflictCount}
+                                {t('entityResolution.labels.data_conflicts')}: {conflictCount}
                               </span>
                             )}
                           </div>
@@ -1654,8 +1655,7 @@ export function ExcelCsvImportSection({
                         {/* Group Cards List */}
                         {groups.length === 0 ? (
                           <div className="p-6 text-center text-stone-400 text-xs font-bold">
-                            لا توجد أي بيانات خاصة بفئة {currentCat.titleAr} في الملف المصدر
-                          </div>
+                            {t('entityResolution.messages.no_category_data', { category: currentCat.titleAr })}</div>
                         ) : (
                           <div className="space-y-3">
                             {groups.map((group) => {
@@ -1692,27 +1692,27 @@ export function ExcelCsvImportSection({
                                           {group.sourceValue}
                                         </span>
                                         <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-stone-200/80 text-stone-700">
-                                          تكرار: {group.occurrenceCount} صفوف ({group.rowNumbers.slice(0, 3).join(', ')}
+                                          {t('entityResolution.labels.duplicate_rows', { count: group.occurrenceCount })} ({group.rowNumbers.slice(0, 3).join(', ')}
                                           {group.rowNumbers.length > 3 ? '...' : ''})
                                         </span>
                                         {isAuto && (
                                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 inline-flex items-center gap-1">
-                                            <Check className="w-3 h-3 text-emerald-600" /> مطابقة تلقائية مؤكدة
+                                            <Check className="w-3 h-3 text-emerald-600" /> {t('entityResolution.labels.automatic_match')}
                                           </span>
                                         )}
                                         {isReview && (
                                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 inline-flex items-center gap-1">
-                                            <AlertTriangle className="w-3 h-3 text-amber-600" /> مقترح يتطلب مراجعة
+                                            <AlertTriangle className="w-3 h-3 text-amber-600" /> {t('entityResolution.labels.candidate_needs_review')}
                                           </span>
                                         )}
                                         {isUnresolved && (
                                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-200 text-stone-700 inline-flex items-center gap-1">
-                                            <HelpCircle className="w-3 h-3 text-stone-500" /> غير مطابق
+                                            <HelpCircle className="w-3 h-3 text-stone-500" /> {t('entityResolution.labels.unmatched')}
                                           </span>
                                         )}
                                         {isConflict && (
                                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 inline-flex items-center gap-1">
-                                            <XCircle className="w-3 h-3 text-rose-600" /> تعارض في العلاقات
+                                            <XCircle className="w-3 h-3 text-rose-600" /> {t('entityResolution.labels.relationship_conflict')}
                                           </span>
                                         )}
                                       </div>
@@ -1722,26 +1722,25 @@ export function ExcelCsvImportSection({
                                         {group.matchedName || group.matchedId ? (
                                           <div className="flex items-center gap-2 flex-wrap mt-1">
                                             <span className="font-bold text-stone-800">
-                                              الكيان المعتمد المطابق:
+                                              {t('entityResolution.labels.matched_entity')}
                                             </span>
                                             <span className="font-mono font-bold text-emerald-800 bg-white px-2 py-0.5 rounded border border-stone-200">
                                               {group.matchedName || group.matchedId}
                                             </span>
                                             {group.currentResolution?.confidence !== undefined && (
                                               <span className="text-[11px] text-stone-400 font-mono">
-                                                (ثقة: {Math.round((group.currentResolution.confidence ?? 1) * 100)}%)
-                                              </span>
+                                                {t('entityResolution.labels.confidence_percentage', { confidence: Math.round((group.currentResolution.confidence ?? 1) * 100) })}</span>
                                             )}
                                           </div>
                                         ) : (
                                           <div className="text-stone-500 mt-1">
-                                            لم يتم العثور على مطابقة تلقائية مؤكدة في قاعدة بيانات المشروع.
+                                            {t('entityResolution.labels.no_confirmed_project_match')}
                                           </div>
                                         )}
 
                                         {group.relationshipStatus && group.relationshipStatus !== 'VALID' && (
                                           <div className="text-rose-700 font-bold text-[11px] mt-1">
-                                            حالة العلاقة: {group.relationshipStatus}
+                                            {t('entityResolution.labels.relationship_status')} {group.relationshipStatus}
                                           </div>
                                         )}
                                       </div>
@@ -1763,7 +1762,7 @@ export function ExcelCsvImportSection({
                                           className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
                                         >
                                           <Check className="w-3.5 h-3.5" />
-                                          <span>قبول المقترح</span>
+                                          <span>{t('entityResolution.labels.accept_suggested_match')}</span>
                                         </button>
                                       )}
 
@@ -1809,7 +1808,7 @@ export function ExcelCsvImportSection({
                                             }}
                                             className="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors cursor-pointer"
                                           >
-                                            اختيار بديل
+                                            {t('entityResolution.labels.choose_alternative')}
                                           </button>
                                         </div>
                                       )}
@@ -1825,7 +1824,7 @@ export function ExcelCsvImportSection({
                                           }`}
                                         >
                                           <PlusCircle className="w-3.5 h-3.5 text-emerald-600" />
-                                          <span>إنشاء كيان جديد</span>
+                                          <span>{t('entityResolution.labels.create_entity')}</span>
                                         </button>
                                       )}
 
@@ -1841,7 +1840,7 @@ export function ExcelCsvImportSection({
                                           }
                                           className="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600 text-xs font-bold transition-colors cursor-pointer"
                                         >
-                                          ترك بدون حسم
+                                          {t('entityResolution.labels.leave_unresolved')}
                                         </button>
                                       )}
                                     </div>
@@ -1853,13 +1852,13 @@ export function ExcelCsvImportSection({
                                       <div className="flex items-center justify-between">
                                         <h5 className="text-xs font-black text-stone-900 flex items-center gap-1.5">
                                           <PlusCircle className="w-4 h-4 text-emerald-600" />
-                                          <span>إنشاء كيان معتمد جديد في المشروع ({group.entityType})</span>
+                                          <span>{t('entityResolution.labels.create_project_entity_kind', { kind: group.entityType })}</span>
                                         </h5>
                                         <button
                                           onClick={() => setActiveCreateGroupKey(null)}
                                           className="text-stone-400 hover:text-stone-600 text-xs font-bold cursor-pointer"
                                         >
-                                          إلغاء
+                                          {t('shared.actions.cancel')}
                                         </button>
                                       </div>
 
@@ -1867,17 +1866,14 @@ export function ExcelCsvImportSection({
                                         <div className="p-3 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold flex items-center gap-2">
                                           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                                           <span>
-                                            يجب حسم مطابقة الناقل أولاً قبل إنشاء{' '}
-                                            {group.entityType === 'driver' ? 'السائق' : 'الشاحنة'}. يُرجى تأكيد الناقل
-                                            في تبويب الناقلين أولاً.
-                                          </span>
+                                            {t('entityResolution.messages.resolve_carrier_before_create', { entity: group.entityType === 'driver' ? t('legacyMigration.labels.driver_2') : t('legacyMigration.labels.truck_2') })}. {t('entityResolution.messages.confirm_carrier_tab_first')}</span>
                                         </div>
                                       ) : (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
                                           {group.entityType === 'carrier' && (
                                             <>
                                               <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">اسم الناقل (بالعربية)</label>
+                                                <label className="font-bold text-stone-700 block">{t('entityResolution.labels.carrier_name_arabic')}</label>
                                                 <input
                                                   type="text"
                                                   value={createFormData.nameAr ?? group.sourceValue}
@@ -1889,11 +1885,11 @@ export function ExcelCsvImportSection({
                                               </div>
                                               <div className="space-y-1">
                                                 <label className="font-bold text-stone-700 block">
-                                                  رقم السجل التجاري <span className="text-rose-600">*</span>
+                                                  {t('entityResolution.labels.commercial_registration')} <span className="text-rose-600">*</span>
                                                 </label>
                                                 <input
                                                   type="text"
-                                                  placeholder="مثال: 1010123456"
+                                                  placeholder={t('shared.labels.example_value', { value: "1010123456" })}
                                                   value={createFormData.commercialRegistrationNo || ''}
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({
@@ -1905,10 +1901,10 @@ export function ExcelCsvImportSection({
                                                 />
                                               </div>
                                               <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">ترخيص هيئة النقل (اختياري)</label>
+                                                <label className="font-bold text-stone-700 block">{`${t('entityResolution.labels.transport_license_tga')} (${t('entityResolution.labels.optional')})`}</label>
                                                 <input
                                                   type="text"
-                                                  placeholder="اختياري"
+                                                  placeholder={t('entityResolution.labels.optional')}
                                                   value={createFormData.transportLicenseNo || ''}
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({
@@ -1925,7 +1921,7 @@ export function ExcelCsvImportSection({
                                           {group.entityType === 'material' && (
                                             <>
                                               <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">اسم المادة / الصنف</label>
+                                                <label className="font-bold text-stone-700 block">{t('analytics.column.material_name')}</label>
                                                 <input
                                                   type="text"
                                                   value={createFormData.nameAr ?? group.sourceValue}
@@ -1937,11 +1933,11 @@ export function ExcelCsvImportSection({
                                               </div>
                                               <div className="space-y-1">
                                                 <label className="font-bold text-stone-700 block">
-                                                  رمز المادة (code) <span className="text-rose-600">*</span>
+                                                  {t('materials.labels.material_2')} <span className="text-rose-600">*</span>
                                                 </label>
                                                 <input
                                                   type="text"
-                                                  placeholder="مثال: MAT-AGG-20"
+                                                  placeholder={t('shared.labels.example_value', { value: "MAT-AGG-20" })}
                                                   value={createFormData.code || ''}
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({ ...prev, code: e.target.value }))
@@ -1955,7 +1951,7 @@ export function ExcelCsvImportSection({
                                           {group.entityType === 'driver' && (
                                             <>
                                               <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">اسم السائق</label>
+                                                <label className="font-bold text-stone-700 block">{t('entityResolution.labels.driver_name')}</label>
                                                 <input
                                                   type="text"
                                                   value={createFormData.driverName ?? group.sourceValue}
@@ -1967,11 +1963,11 @@ export function ExcelCsvImportSection({
                                               </div>
                                               <div className="space-y-1">
                                                 <label className="font-bold text-stone-700 block">
-                                                  رقم الهوية / الإقامة <span className="text-rose-600">*</span>
+                                                  {t('entityResolution.labels.residency_identifier')} <span className="text-rose-600">*</span>
                                                 </label>
                                                 <input
                                                   type="text"
-                                                  placeholder="مثال: 2412345678"
+                                                  placeholder={t('shared.labels.example_value', { value: '2412345678' })}
                                                   value={createFormData.residencyId || ''}
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({
@@ -1983,7 +1979,7 @@ export function ExcelCsvImportSection({
                                                 />
                                               </div>
                                               <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">رقم الجوال (اختياري)</label>
+                                                <label className="font-bold text-stone-700 block">{t('entityResolution.labels.mobile_optional')}</label>
                                                 <input
                                                   type="text"
                                                   placeholder="05xxxxxxxx"
@@ -2001,7 +1997,7 @@ export function ExcelCsvImportSection({
                                             <>
                                               <div className="space-y-1">
                                                 <label className="font-bold text-stone-700 block">
-                                                  رقم اللوحة <span className="text-rose-600">*</span>
+                                                  {t('analytics.column.plate_number')} <span className="text-rose-600">*</span>
                                                 </label>
                                                 <input
                                                   type="text"
@@ -2016,10 +2012,10 @@ export function ExcelCsvImportSection({
                                                 />
                                               </div>
                                               <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">نوع الشاحنة (اختياري)</label>
+                                                <label className="font-bold text-stone-700 block">{t('entityResolution.labels.truck_body_optional')}</label>
                                                 <input
                                                   type="text"
-                                                  placeholder="مثال: قلاب ثلاثي"
+                                                  placeholder={t('shared.labels.example_value', { value: t('entityResolution.labels.three_axle_tipper_example') })}
                                                   value={createFormData.truckType || ''}
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({ ...prev, truckType: e.target.value }))
@@ -2028,10 +2024,10 @@ export function ExcelCsvImportSection({
                                                 />
                                               </div>
                                               <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">الوزن الفارغ كجم (اختياري)</label>
+                                                <label className="font-bold text-stone-700 block">{t('entityResolution.labels.tare_kg_optional')}</label>
                                                 <input
                                                   type="number"
-                                                  placeholder="مثال: 14500"
+                                                  placeholder={t('shared.labels.example_value', { value: "14500" })}
                                                   value={createFormData.tareWeightKg || ''}
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({
@@ -2049,7 +2045,7 @@ export function ExcelCsvImportSection({
 
                                       {createError && (
                                         <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold">
-                                          {createError}
+                                          {presentBatch4Message(createError, t)}
                                         </div>
                                       )}
 
@@ -2058,7 +2054,7 @@ export function ExcelCsvImportSection({
                                           onClick={() => setActiveCreateGroupKey(null)}
                                           className="px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold cursor-pointer"
                                         >
-                                          إلغاء
+                                          {t('shared.actions.cancel')}
                                         </button>
                                         <button
                                           onClick={() => handleGroupCreateCanonicalEntity(group, createFormData)}
@@ -2072,12 +2068,12 @@ export function ExcelCsvImportSection({
                                           {isCreatingEntity ? (
                                             <>
                                               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                              <span>جاري إنشاء الكيان...</span>
+                                              <span>{t('entityResolution.labels.creating_entity')}</span>
                                             </>
                                           ) : (
                                             <>
                                               <Check className="w-3.5 h-3.5" />
-                                              <span>حفظ وإنشاء الكيان وإسقاطه على الدفعة</span>
+                                              <span>{t('entityResolution.labels.create_apply_entity')}</span>
                                             </>
                                           )}
                                         </button>
@@ -2103,15 +2099,13 @@ export function ExcelCsvImportSection({
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
                 <span>
-                  مراجعة الصفوف والاستثناءات (طابور الاستثناءات) مقفلة مؤقتاً حتى اكتمال حسم مطابقة الكيانات أعلاه (
-                  {unresolvedGroups.length} مجموعات معلقة تتطلب اتخاذ قرار).
-                </span>
+                  {t('entityResolution.messages.entity_review_gate_locked', { count: unresolvedGroups.length })}</span>
               </div>
             </div>
           ) : (
             <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center gap-2 shadow-2xs">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-              <span>تم حسم مطابقة الكيانات — الانتقال إلى مراجعة الصفوف والاستثناءات</span>
+              <span>{t('entityResolution.labels.entities_resolved_review_exceptions')}</span>
             </div>
           )}
 
@@ -2121,13 +2115,13 @@ export function ExcelCsvImportSection({
               <div>
                 <h3 className="text-base font-black text-amber-900 flex items-center gap-2">
                   <ShieldAlert className="w-5 h-5 text-amber-600" />
-                  <span>طابور الاستثناءات الفعلي (True Exception Queue)</span>
+                  <span>{t('entityResolution.labels.exception_queue')}</span>
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-200 text-amber-900">
-                    {rowExceptions.length} استثناء
+                    {rowExceptions.length} {t('analytics.ui.exception')}
                   </span>
                 </h3>
                 <p className="text-xs text-amber-800/80 mt-1">
-                  يعرض فقط الصفوف المعلقة التي تتطلب اتخاذ قرار أو معالجة (أخطاء، تنبيهات معلقة، أو بيانات مكررة).
+                  {t('entityResolution.labels.exception_queue_description')}
                 </p>
               </div>
             </div>
@@ -2135,7 +2129,7 @@ export function ExcelCsvImportSection({
             {rowExceptions.length === 0 ? (
               <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                <span>ممتاز! لا توجد أي صفوف استثنائية معلقة. جميع الصفوف إما سليمة، تم قبول تنبيهاتها، أو تم استبعادها رسمياً.</span>
+                <span>{t('entityResolution.labels.no_pending_exceptions')}</span>
               </div>
             ) : (
               <div className="overflow-x-auto border border-amber-200/80 rounded-xl bg-white">
@@ -2143,10 +2137,10 @@ export function ExcelCsvImportSection({
                   <thead className="bg-amber-100/50 border-b border-amber-200 text-amber-950 font-bold">
                     <tr>
                       <th className="p-3 w-12 text-center">#</th>
-                      <th className="p-3">نوع الاستثناء</th>
-                      <th className="p-3">بيانات الشحنة التعريفية</th>
-                      <th className="p-3">أسباب الاستثناء والملاحظات</th>
-                      <th className="p-3 text-center">الإجراءات المتاحة</th>
+                      <th className="p-3">{t('analytics.column.exception_type')}</th>
+                      <th className="p-3">{t('entityResolution.labels.shipment_identification')}</th>
+                      <th className="p-3">{t('entityResolution.labels.exception_reasons_notes')}</th>
+                      <th className="p-3 text-center">{t('entityResolution.labels.available_actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-amber-100">
@@ -2168,15 +2162,15 @@ export function ExcelCsvImportSection({
                             <div className="flex flex-col gap-1 items-start">
                               {hasBlocking || isError ? (
                                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 inline-flex items-center gap-1">
-                                  <XCircle className="w-3 h-3 text-rose-600" /> خطأ مانع
+                                  <XCircle className="w-3 h-3 text-rose-600" /> {t('entityResolution.labels.blocking_error')}
                                 </span>
                               ) : isDuplicate ? (
                                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 inline-flex items-center gap-1">
-                                  <AlertTriangle className="w-3 h-3 text-blue-600" /> صف مكرر
+                                  <AlertTriangle className="w-3 h-3 text-blue-600" /> {t('entityResolution.labels.duplicate_row')}
                                 </span>
                               ) : isWarning ? (
                                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 inline-flex items-center gap-1">
-                                  <AlertTriangle className="w-3 h-3 text-amber-600" /> تنبيه يتطلب مراجعة
+                                  <AlertTriangle className="w-3 h-3 text-amber-600" /> {t('entityResolution.labels.warning_needs_review')}
                                 </span>
                               ) : null}
                             </div>
@@ -2184,10 +2178,10 @@ export function ExcelCsvImportSection({
 
                           <td className="p-3">
                             <div className="font-bold text-stone-900">
-                              {canonical.carrierName || canonical.carrier || 'ناقل غير محدد'} | {canonical.materialName || canonical.materialType || 'مادة غير محددة'}
+                              {canonical.carrierName || canonical.carrier || `${t('legacyMigration.labels.carrier_2')}: ${t('shared.labels.unspecified')}`} | {canonical.materialName || canonical.materialType || `${t('legacyMigration.labels.material_2')}: ${t('shared.labels.unspecified')}`}
                             </div>
                             <div className="text-[11px] text-stone-600 mt-0.5 font-mono">
-                              تاريخ: {canonical.tripDate || '—'} | اللوحة: {canonical.plateNumber || canonical.truckNo || '—'} | السائق: {canonical.driverName || '—'}
+                              {`${t('analytics.column.date')}:`} {canonical.tripDate || '—'} {`| ${t('analytics.column.plate_number')}:`} {canonical.plateNumber || canonical.truckNo || '—'} {`| ${t('legacyMigration.labels.driver_2')}:`} {canonical.driverName || '—'}
                             </div>
                           </td>
 
@@ -2195,15 +2189,15 @@ export function ExcelCsvImportSection({
                             {row.validationIssues && row.validationIssues.length > 0 ? (
                               <div className="text-rose-800 text-[11px] font-bold space-y-0.5">
                                 {row.validationIssues.map((e, idx) => (
-                                  <div key={idx}>• {e.messageAr || e.message}</div>
+                                  <div key={idx}>• {presentBatch4Message(e.messageAr || e.message, t)}</div>
                                 ))}
                               </div>
                             ) : isDuplicate ? (
                               <div className="text-blue-800 text-[11px] font-bold">
-                                {row.duplicateInfo?.reason || 'تم اكتشاف تكرار لبيانات هذه الشحنة'}
+                                {row.duplicateInfo?.reason || t('entityResolution.labels.duplicate_shipment_detected')}
                               </div>
                             ) : (
-                              <span className="text-stone-500 text-[11px]">يتطلب اتخاذ قرار مراجعة</span>
+                              <span className="text-stone-500 text-[11px]">{t('entityResolution.labels.review_decision_required')}</span>
                             )}
                           </td>
 
@@ -2216,30 +2210,30 @@ export function ExcelCsvImportSection({
                                     ? 'bg-blue-700 text-white'
                                     : 'bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200'
                                 }`}
-                                title="تصحيح بيانات الشحنة التشغيلية"
+                                title={t('entityResolution.labels.correct_data')}
                               >
                                 <SlidersHorizontal className="w-3.5 h-3.5" />
-                                <span>تصحيح البيانات</span>
+                                <span>{t('entityResolution.labels.correct_data')}</span>
                               </button>
 
                               {!hasBlocking && !isError && (
                                 <button
                                   onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
                                   className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
-                                  title="قبول التنبيه واعتماد الصف"
+                                  title={t('entityResolution.labels.accept_warning_approve_row')}
                                 >
                                   <Check className="w-3.5 h-3.5" />
-                                  <span>قبول التنبيه</span>
+                                  <span>{t('entityResolution.labels.accept_warning')}</span>
                                 </button>
                               )}
 
                               <button
                                 onClick={() => handleRowAction(row.rowNumber, 'REJECT_ROW')}
                                 className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-rose-100 text-stone-700 hover:text-rose-800 text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer"
-                                title="استبعاد الصف"
+                                title={t('entityResolution.labels.exclude_row')}
                               >
                                 <X className="w-3.5 h-3.5 text-rose-600" />
-                                <span>استبعاد</span>
+                                <span>{t('legacyMigration.labels.exclude_record')}</span>
                               </button>
                             </div>
                           </td>
@@ -2252,19 +2246,19 @@ export function ExcelCsvImportSection({
                                 <div className="flex items-center justify-between border-b border-stone-200 pb-2">
                                   <span className="font-bold text-xs text-stone-900 flex items-center gap-1.5">
                                     <SlidersHorizontal className="w-4 h-4 text-blue-600" />
-                                    <span>تصحيح البيانات التشغيلية للصف رقم ({row.rowNumber})</span>
+                                    <span>{t('entityResolution.labels.row_correction_title', { row: row.rowNumber })}</span>
                                   </span>
                                   <button
                                     onClick={() => setActiveCorrectionRowNumber(null)}
                                     className="text-stone-400 hover:text-stone-600 text-xs font-bold cursor-pointer"
                                   >
-                                    إلغاء
+                                    {t('shared.actions.cancel')}
                                   </button>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                                   <div className="space-y-1">
-                                    <label className="font-bold text-stone-700 block">رقم التذكرة / البوليصة (ticketId)</label>
+                                    <label className="font-bold text-stone-700 block">{batch4FieldLabel(t, 'ticketId', 'ticketId')} (ticketId)</label>
                                     <input
                                       type="text"
                                       value={correctionDraft.ticketId || ''}
@@ -2274,7 +2268,7 @@ export function ExcelCsvImportSection({
                                   </div>
 
                                   <div className="space-y-1">
-                                    <label className="font-bold text-stone-700 block">الرقم التسلسلي (tripSerial)</label>
+                                    <label className="font-bold text-stone-700 block">{t('analytics.column.trip_serial_number')} (tripSerial)</label>
                                     <input
                                       type="text"
                                       value={correctionDraft.tripSerial || ''}
@@ -2284,7 +2278,7 @@ export function ExcelCsvImportSection({
                                   </div>
 
                                   <div className="space-y-1">
-                                    <label className="font-bold text-stone-700 block">تاريخ الوردية / الحركة (shiftDate)</label>
+                                    <label className="font-bold text-stone-700 block">{batch4FieldLabel(t, 'shiftDate', 'shiftDate')} (shiftDate)</label>
                                     <input
                                       type="text"
                                       placeholder="YYYY-MM-DD"
@@ -2295,7 +2289,7 @@ export function ExcelCsvImportSection({
                                   </div>
 
                                   <div className="space-y-1">
-                                    <label className="font-bold text-stone-700 block">رقم اللوحة / الشاحنة (truckNo)</label>
+                                    <label className="font-bold text-stone-700 block">{batch4FieldLabel(t, 'truckNo', 'truckNo')} (truckNo)</label>
                                     <input
                                       type="text"
                                       value={correctionDraft.truckNo || ''}
@@ -2305,7 +2299,7 @@ export function ExcelCsvImportSection({
                                   </div>
 
                                   <div className="space-y-1">
-                                    <label className="font-bold text-stone-700 block">الوزن الإجمالي القائم كجم (grossWeight)</label>
+                                    <label className="font-bold text-stone-700 block">{batch4FieldLabel(t, 'grossWeight', 'grossWeight')} (grossWeight)</label>
                                     <input
                                       type="number"
                                       value={correctionDraft.grossWeight !== undefined ? correctionDraft.grossWeight : ''}
@@ -2315,7 +2309,7 @@ export function ExcelCsvImportSection({
                                   </div>
 
                                   <div className="space-y-1">
-                                    <label className="font-bold text-stone-700 block">الوزن الفارغ كجم (tareWeight)</label>
+                                    <label className="font-bold text-stone-700 block">{batch4FieldLabel(t, 'tareWeight', 'tareWeight')} (tareWeight)</label>
                                     <input
                                       type="number"
                                       value={correctionDraft.tareWeight !== undefined ? correctionDraft.tareWeight : ''}
@@ -2325,7 +2319,7 @@ export function ExcelCsvImportSection({
                                   </div>
 
                                   <div className="space-y-1">
-                                    <label className="font-bold text-stone-700 block">الوزن الصافي كجم (netWeight)</label>
+                                    <label className="font-bold text-stone-700 block">{batch4FieldLabel(t, 'netWeight', 'netWeight')} (netWeight)</label>
                                     <input
                                       type="number"
                                       value={correctionDraft.netWeight !== undefined ? correctionDraft.netWeight : ''}
@@ -2335,7 +2329,7 @@ export function ExcelCsvImportSection({
                                   </div>
 
                                   <div className="space-y-1">
-                                    <label className="font-bold text-stone-700 block">صافي وزن الوجهة كجم (destNetWeight)</label>
+                                    <label className="font-bold text-stone-700 block">{batch4FieldLabel(t, 'destNetWeight', 'destNetWeight')} (destNetWeight)</label>
                                     <input
                                       type="number"
                                       value={correctionDraft.destNetWeight !== undefined ? correctionDraft.destNetWeight : ''}
@@ -2347,7 +2341,7 @@ export function ExcelCsvImportSection({
 
                                 {correctionError && (
                                   <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold">
-                                    {correctionError}
+                                    {presentBatch4Message(correctionError, t)}
                                   </div>
                                 )}
 
@@ -2356,14 +2350,14 @@ export function ExcelCsvImportSection({
                                     onClick={() => setActiveCorrectionRowNumber(null)}
                                     className="px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold cursor-pointer"
                                   >
-                                    إلغاء
+                                    {t('shared.actions.cancel')}
                                   </button>
                                   <button
                                     onClick={() => handleSaveRowCorrection(row.rowNumber)}
                                     className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                                   >
                                     <Check className="w-3.5 h-3.5" />
-                                    <span>حفظ التصحيح وإعادة الفحص</span>
+                                    <span>{t('entityResolution.labels.save_correction_revalidate')}</span>
                                   </button>
                                 </div>
                               </div>
@@ -2389,8 +2383,8 @@ export function ExcelCsvImportSection({
                 <Eye className="w-4 h-4 text-stone-600" />
                 <span>
                   {showFullBatchTable
-                    ? 'إخفاء جدول مرجع جميع الصفوف'
-                    : `عرض جميع صفوف الدفعة الكاملة (Full Batch Reference Table - ${activeBatch.rows.length} صف)`}
+                    ? t('entityResolution.labels.hide_full_batch_table')
+                    : t('entityResolution.labels.show_full_batch_table', { count: activeBatch.rows.length })}
                 </span>
               </button>
             </div>
@@ -2407,7 +2401,7 @@ export function ExcelCsvImportSection({
                   filterStatus === 'ALL' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                 }`}
               >
-                الكل ({activeBatch.rows.length})
+                {t('admin_console.filter_all')} ({activeBatch.rows.length})
               </button>
 
               <button
@@ -2416,7 +2410,7 @@ export function ExcelCsvImportSection({
                   filterStatus === 'VALID' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
                 }`}
               >
-                سليمة ({activeBatch.validRows})
+                {t('entityResolution.labels.valid_rows')} ({activeBatch.validRows})
               </button>
 
               <button
@@ -2425,7 +2419,7 @@ export function ExcelCsvImportSection({
                   filterStatus === 'WARNING' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-800 hover:bg-amber-100'
                 }`}
               >
-                تنبيهات ({activeBatch.warningRows})
+                {t('entityResolution.labels.warnings')} ({activeBatch.warningRows})
               </button>
 
               <button
@@ -2434,7 +2428,7 @@ export function ExcelCsvImportSection({
                   filterStatus === 'ERROR' ? 'bg-rose-700 text-white' : 'bg-rose-50 text-rose-800 hover:bg-rose-100'
                 }`}
               >
-                أخطاء ({activeBatch.errorRows})
+                {t('entityResolution.labels.rows_with_errors')} ({activeBatch.errorRows})
               </button>
 
               <button
@@ -2443,7 +2437,7 @@ export function ExcelCsvImportSection({
                   filterStatus === 'REQUIRES_REVIEW' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
                 }`}
               >
-                تتطلب مراجعة ({activeBatch.requiresReviewRows})
+                {t('entityResolution.labels.review_required')} ({activeBatch.requiresReviewRows})
               </button>
             </div>
 
@@ -2453,7 +2447,7 @@ export function ExcelCsvImportSection({
                 className="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
-                <span>تكتيكات الربط والتطابق</span>
+                <span>{t('entityResolution.labels.mapping_techniques')}</span>
               </button>
             </div>
           </div>
@@ -2462,7 +2456,7 @@ export function ExcelCsvImportSection({
           {showMappingDrawer && (
             <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/90 space-y-3">
               <div className="text-xs font-bold text-stone-900 border-b border-stone-200 pb-2">
-                تطابق الأعمدة المكتشفة مع حقول الشحنات القانونية (Canonical Trip Schema Mappings)
+                {t('entityResolution.labels.canonical_column_mappings')}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 text-xs">
                 {Object.entries(columnMappings).map(([rawHeader, match]) => (
@@ -2472,7 +2466,7 @@ export function ExcelCsvImportSection({
                       {match.canonicalField}
                     </div>
                     <div className="text-[9px] text-stone-400 mt-0.5 font-mono">
-                      ثقة التطابق: {(match.confidence * 100).toFixed(0)}%
+                      {t('entityResolution.labels.matching_confidence')} {(match.confidence * 100).toFixed(0)}%
                     </div>
                   </div>
                 ))}
@@ -2486,24 +2480,24 @@ export function ExcelCsvImportSection({
               <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold">
                 <tr>
                   <th className="p-3 w-12 text-center">#</th>
-                  <th className="p-3">حالة الصف</th>
-                  <th className="p-3">تاريخ الشحنة</th>
-                  <th className="p-3">السائق الهوية</th>
-                  <th className="p-3">الشاحنة / اللوحة</th>
-                  <th className="p-3">الناقل / المقاول</th>
-                  <th className="p-3">المادة / الحمولة</th>
-                  <th className="p-3 text-center">الوزن القائم (كجم)</th>
-                  <th className="p-3 text-center">الوزن فارغ (كجم)</th>
-                  <th className="p-3 text-center">الوزن الصافي (كجم)</th>
-                  <th className="p-3">ملاحظات والتنبيهات</th>
-                  <th className="p-3 text-center">الإجراءات</th>
+                  <th className="p-3">{t('entityResolution.labels.row_status')}</th>
+                  <th className="p-3">{t('entityResolution.labels.shipment_date')}</th>
+                  <th className="p-3">{t('entityResolution.labels.driver_identity')}</th>
+                  <th className="p-3">{t('operations.truck_plate')}</th>
+                  <th className="p-3">{t('entityResolution.labels.carrier_contractor')}</th>
+                  <th className="p-3">{t('entityResolution.labels.material_load')}</th>
+                  <th className="p-3 text-center">{`${t('field_operations.gross_weight_ticket')} (${t('shared.units.kg')})`}</th>
+                  <th className="p-3 text-center">{`${t('field_operations.tare_weight_ticket')} (${t('shared.units.kg')})`}</th>
+                  <th className="p-3 text-center">{`${t('field_operations.net_weight_label')} (${t('shared.units.kg')})`}</th>
+                  <th className="p-3">{t('entityResolution.labels.notes_warnings')}</th>
+                  <th className="p-3 text-center">{t('admin_console.col_actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200/70">
                 {displayedRows.length === 0 ? (
                   <tr>
                     <td colSpan={12} className="p-8 text-center text-stone-500 font-bold">
-                      لا توجد صفوف تطابق الفلتر المحدد
+                      {t('entityResolution.labels.no_filter_rows')}
                     </td>
                   </tr>
                 ) : (
@@ -2549,26 +2543,26 @@ export function ExcelCsvImportSection({
                               >
                                 {isRejected ? (
                                   <>
-                                    <XCircle className="w-3 h-3 text-stone-500" /> مستبعد
+                                    <XCircle className="w-3 h-3 text-stone-500" /> {t('entityResolution.labels.row_excluded')}
                                   </>
                                 ) : isError ? (
                                   <>
-                                    <XCircle className="w-3 h-3 text-rose-600" /> خطأ
+                                    <XCircle className="w-3 h-3 text-rose-600" /> {t('entityResolution.labels.error_status')}
                                   </>
                                 ) : isWarning && !isAccepted ? (
                                   <>
-                                    <AlertTriangle className="w-3 h-3 text-amber-600" /> تنبيه
+                                    <AlertTriangle className="w-3 h-3 text-amber-600" /> {t('entityResolution.labels.warning_status')}
                                   </>
                                 ) : (
                                   <>
-                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> مقبول
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> {t('entityResolution.labels.accepted_status')}
                                   </>
                                 )}
                               </span>
 
                               {needsResolution && (
                                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 inline-flex items-center gap-1">
-                                  <Sparkles className="w-3 h-3 text-blue-600" /> مراجعة المطابقة
+                                  <Sparkles className="w-3 h-3 text-blue-600" /> {t('entityResolution.labels.review_matching')}
                                 </span>
                               )}
                             </div>
@@ -2582,7 +2576,7 @@ export function ExcelCsvImportSection({
                             <div className="font-bold">{canonical.driverName || '-'}</div>
                             {canonical.residencyId && (
                               <div className="text-[10px] text-stone-500 font-mono">
-                                هوية: {canonical.residencyId}
+                                {t('shared.labels.identifier')} {canonical.residencyId}
                               </div>
                             )}
                           </td>
@@ -2600,24 +2594,24 @@ export function ExcelCsvImportSection({
                           </td>
 
                           <td className="p-3 text-center font-mono font-bold text-stone-800">
-                            {canonical.grossWeightKg ? canonical.grossWeightKg.toLocaleString() : '-'}
+                            {canonical.grossWeightKg ? canonical.grossWeightKg.toLocaleString(locale) : '-'}
                           </td>
 
                           <td className="p-3 text-center font-mono text-stone-600">
-                            {canonical.tareWeightKg ? canonical.tareWeightKg.toLocaleString() : '-'}
+                            {canonical.tareWeightKg ? canonical.tareWeightKg.toLocaleString(locale) : '-'}
                           </td>
 
                           <td className="p-3 text-center font-mono font-black text-emerald-800">
-                            {canonical.netWeightKg ? canonical.netWeightKg.toLocaleString() : '-'}
+                            {canonical.netWeightKg ? canonical.netWeightKg.toLocaleString(locale) : '-'}
                           </td>
 
                           <td className="p-3 max-w-xs">
                             {row.validationIssues && row.validationIssues.length > 0 ? (
                               <div className="text-rose-700 text-[11px] font-bold">
-                                {row.validationIssues.map((e) => e.message).join(' | ')}
+                                {row.validationIssues.map((e) => presentBatch4Message(e.message, t)).join(' | ')}
                               </div>
                             ) : (
-                              <span className="text-stone-400 text-[11px]">لا توجد ملاحظات</span>
+                              <span className="text-stone-400 text-[11px]">{t('operations.no_notes')}</span>
                             )}
                           </td>
 
@@ -2627,7 +2621,7 @@ export function ExcelCsvImportSection({
                                 <button
                                   onClick={() => handleRowAction(row.rowNumber, 'ACCEPT_WARNING')}
                                   className="p-1 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-800 transition-colors cursor-pointer"
-                                  title="قبول التنبيه"
+                                  title={t('entityResolution.labels.accept_warning')}
                                 >
                                   <Check className="w-3.5 h-3.5" />
                                 </button>
@@ -2637,12 +2631,12 @@ export function ExcelCsvImportSection({
                                 <button
                                   onClick={() => handleRowAction(row.rowNumber, 'REJECT_ROW')}
                                   className="p-1 rounded bg-stone-100 hover:bg-rose-100 text-stone-600 hover:text-rose-700 transition-colors cursor-pointer"
-                                  title="استبعاد الصف"
+                                  title={t('entityResolution.labels.exclude_row')}
                                 >
                                   <X className="w-3.5 h-3.5" />
                                 </button>
                               ) : (
-                                <span className="text-[10px] text-stone-400 font-bold">مستبعد</span>
+                                <span className="text-[10px] text-stone-400 font-bold">{t('entityResolution.labels.row_excluded')}</span>
                               )}
                             </div>
                           </td>
@@ -2664,7 +2658,7 @@ export function ExcelCsvImportSection({
             const preview = ExcelCsvPipelineService.getFinalPreview(activeBatch, confirmWarnings);
             const cannotCommitReason =
               unresolvedGroups.length > 0
-                ? `توجد (${unresolvedGroups.length}) مجموعات كائنات غير مطابقة تتطلب حسم القرار أولاً`
+                ? t('entityResolution.messages.unresolved_entities_block_commit', { count: unresolvedGroups.length })
                 : preview.blockers.length > 0
                 ? preview.blockers[0]
                 : null;
@@ -2674,47 +2668,47 @@ export function ExcelCsvImportSection({
                 <div className="border-b border-stone-200 pb-3">
                   <h4 className="font-black text-stone-900 text-base flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                    <span>المراجعة النهائية والتحقق قبل الاعتماد (R4 Final Human Preview)</span>
+                    <span>{t('entityResolution.labels.final_human_preview')}</span>
                   </h4>
                   <p className="text-xs text-stone-500 mt-1">
-                    الاستعراض الشامل والدقيق للصفوف الجاهزة، المستبعدة، والتنبيهات المقبولة قبل الاعتماد الرسمي في المشروع.
+                    {t('entityResolution.labels.final_human_preview_description')}
                   </p>
                 </div>
 
                 {/* Aggregate Metrics Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 text-center">
                   <div className="p-3 rounded-xl bg-white border border-stone-200">
-                    <div className="text-[10px] font-bold text-stone-500">إجمالي الدفعة</div>
+                    <div className="text-[10px] font-bold text-stone-500">{t('entityResolution.labels.batch_total')}</div>
                     <div className="text-base font-black text-stone-900 font-mono mt-0.5">{preview.totalRows}</div>
                   </div>
 
                   <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-                    <div className="text-[10px] font-bold text-emerald-800">جاهز للاعتماد</div>
+                    <div className="text-[10px] font-bold text-emerald-800">{t('entityResolution.labels.ready_for_approval')}</div>
                     <div className="text-base font-black text-emerald-900 font-mono mt-0.5">{preview.commitEligibleRows.length}</div>
                   </div>
 
                   <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
-                    <div className="text-[10px] font-bold text-amber-800">تنبيهات معلقة</div>
+                    <div className="text-[10px] font-bold text-amber-800">{t('entityResolution.labels.pending_warnings')}</div>
                     <div className="text-base font-black text-amber-900 font-mono mt-0.5">{preview.pendingWarningCount}</div>
                   </div>
 
                   <div className="p-3 rounded-xl bg-rose-50 border border-rose-200">
-                    <div className="text-[10px] font-bold text-rose-800">صفوف محظورة/أخطاء</div>
+                    <div className="text-[10px] font-bold text-rose-800">{t('entityResolution.labels.blocked_error_rows')}</div>
                     <div className="text-base font-black text-rose-900 font-mono mt-0.5">{preview.blockedRows.length}</div>
                   </div>
 
                   <div className="p-3 rounded-xl bg-stone-100 border border-stone-200">
-                    <div className="text-[10px] font-bold text-stone-600">صفوف مستبعدة</div>
+                    <div className="text-[10px] font-bold text-stone-600">{t('entityResolution.labels.excluded_rows')}</div>
                     <div className="text-base font-black text-stone-700 font-mono mt-0.5">{preview.rejectedRows.length}</div>
                   </div>
 
                   <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
-                    <div className="text-[10px] font-bold text-blue-800">مفعلة مسبقاً (Committed)</div>
+                    <div className="text-[10px] font-bold text-blue-800">{t('entityResolution.labels.previously_committed')}</div>
                     <div className="text-base font-black text-blue-900 font-mono mt-0.5">{preview.alreadyCommittedCount}</div>
                   </div>
 
                   <div className="p-3 rounded-xl bg-blue-100/70 border border-blue-300">
-                    <div className="text-[10px] font-bold text-blue-900">مجموعات معلقة</div>
+                    <div className="text-[10px] font-bold text-blue-900">{t('entityResolution.labels.pending_groups')}</div>
                     <div className="text-base font-black text-blue-950 font-mono mt-0.5">{unresolvedGroups.length}</div>
                   </div>
                 </div>
@@ -2723,11 +2717,11 @@ export function ExcelCsvImportSection({
                 <div className="space-y-3">
                   <h5 className="font-bold text-xs text-emerald-900 flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>أ. الصفوف الجاهزة للاعتماد الفعلي ({preview.commitEligibleRows.length} صف)</span>
+                    <span>{t('entityResolution.labels.ready_rows_section_count', { count: preview.commitEligibleRows.length })}</span>
                   </h5>
                   {preview.commitEligibleRows.length === 0 ? (
                     <div className="p-4 rounded-xl bg-stone-100 text-stone-600 text-xs font-bold">
-                      لا توجد صفوف جاهزة للاعتماد حالياً.
+                      {t('entityResolution.messages.no_eligible_rows')}
                     </div>
                   ) : (
                     <div className="overflow-x-auto border border-emerald-200 rounded-xl bg-white">
@@ -2735,13 +2729,13 @@ export function ExcelCsvImportSection({
                         <thead className="bg-emerald-50 border-b border-emerald-200 text-emerald-950 font-bold">
                           <tr>
                             <th className="p-2.5 w-10 text-center">#</th>
-                            <th className="p-2.5">رقم التذكرة</th>
-                            <th className="p-2.5">التاريخ</th>
-                            <th className="p-2.5">الشحنة / المادة</th>
-                            <th className="p-2.5">الناقل</th>
-                            <th className="p-2.5">السائق والشاحنة</th>
-                            <th className="p-2.5 text-center">الصافي (كجم)</th>
-                            <th className="p-2.5 text-center">الحالة</th>
+                            <th className="p-2.5">{t('field_operations.ticket_number_label')}</th>
+                            <th className="p-2.5">{t('analytics.column.date')}</th>
+                            <th className="p-2.5">{t('entityResolution.labels.shipment_material')}</th>
+                            <th className="p-2.5">{t('entityResolution.labels.carrier_3')}</th>
+                            <th className="p-2.5">{t('entityResolution.labels.driver_truck')}</th>
+                            <th className="p-2.5 text-center">{t('navigation.labels.txt_4eac23')}</th>
+                            <th className="p-2.5 text-center">{t('field_supervision.col_status')}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-emerald-100">
@@ -2758,11 +2752,11 @@ export function ExcelCsvImportSection({
                                   {data.driverName || '—'} ({data.plateNumber || data.truckNo || '—'})
                                 </td>
                                 <td className="p-2.5 text-center font-mono font-bold text-emerald-800">
-                                  {data.netWeightKg || data.netWeight ? Number(data.netWeightKg || data.netWeight).toLocaleString() : '—'}
+                                  {data.netWeightKg || data.netWeight ? Number(data.netWeightKg || data.netWeight).toLocaleString(locale) : '—'}
                                 </td>
                                 <td className="p-2.5 text-center">
                                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                                    {r.status === 'WARNING' ? 'مقبول بتنبيه' : 'سليم'}
+                                    {r.status === 'WARNING' ? t('entityResolution.labels.accepted_with_warning') : t('entityResolution.labels.valid_status')}
                                   </span>
                                 </td>
                               </tr>
@@ -2779,39 +2773,39 @@ export function ExcelCsvImportSection({
                   <div className="space-y-3">
                     <h5 className="font-bold text-xs text-stone-900 flex items-center gap-1.5">
                       <XCircle className="w-4 h-4 text-rose-600" />
-                      <span>ب. الصفوف المستبعدة أو المحظورة ولن يتم اعتمادها</span>
+                      <span>{t('entityResolution.labels.excluded_blocked_section')}</span>
                     </h5>
                     <div className="overflow-x-auto border border-stone-200 rounded-xl bg-white">
                       <table className="w-full text-right text-xs">
                         <thead className="bg-stone-100 border-b border-stone-200 text-stone-700 font-bold">
                           <tr>
                             <th className="p-2.5 w-10 text-center">#</th>
-                            <th className="p-2.5">سبب الاستبعاد / الحظر</th>
-                            <th className="p-2.5">بيانات الشحنة</th>
+                            <th className="p-2.5">{t('entityResolution.labels.exclusion_block_reason')}</th>
+                            <th className="p-2.5">{t('entityResolution.labels.shipment_data')}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-stone-100">
                           {preview.rejectedRows.map((r) => (
                             <tr key={r.rowNumber} className="hover:bg-stone-50">
                               <td className="p-2.5 text-center font-mono font-bold">{r.rowNumber}</td>
-                              <td className="p-2.5 font-bold text-stone-600">مستبعد يدوياً (Manually Rejected)</td>
-                              <td className="p-2.5 font-mono text-stone-500">التذكرة: {r.canonical?.ticketId || r.raw?.ticketId || '—'}</td>
+                              <td className="p-2.5 font-bold text-stone-600">{t('entityResolution.labels.manually_rejected')}</td>
+                              <td className="p-2.5 font-mono text-stone-500">{t('operations.ticket_2')} {r.canonical?.ticketId || r.raw?.ticketId || '—'}</td>
                             </tr>
                           ))}
                           {preview.blockedRows.map((r) => (
                             <tr key={r.rowNumber} className="hover:bg-rose-50/40">
                               <td className="p-2.5 text-center font-mono font-bold">{r.rowNumber}</td>
                               <td className="p-2.5 font-bold text-rose-800">
-                                {r.validationIssues?.map(i => i.messageAr || i.message).join(' | ') || 'أخطاء مانعة أو مراجعة معلقة'}
+                                {r.validationIssues?.map(i => presentBatch4Message(i.messageAr || i.message, t)).join(' | ') || t('entityResolution.labels.blocking_or_pending_review')}
                               </td>
-                              <td className="p-2.5 font-mono text-stone-500">التذكرة: {r.canonical?.ticketId || r.raw?.ticketId || '—'}</td>
+                              <td className="p-2.5 font-mono text-stone-500">{t('operations.ticket_2')} {r.canonical?.ticketId || r.raw?.ticketId || '—'}</td>
                             </tr>
                           ))}
                           {preview.alreadyCommittedRows.map((r) => (
                             <tr key={r.rowNumber} className="hover:bg-blue-50/40">
                               <td className="p-2.5 text-center font-mono font-bold">{r.rowNumber}</td>
-                              <td className="p-2.5 font-bold text-blue-800">تم اعتمادها مسبقاً في الدفعات السابقة (Already Committed)</td>
-                              <td className="p-2.5 font-mono text-stone-500">التذكرة: {r.canonical?.ticketId || r.raw?.ticketId || '—'}</td>
+                              <td className="p-2.5 font-bold text-blue-800">{t('entityResolution.labels.already_committed_previous_batches')}</td>
+                              <td className="p-2.5 font-mono text-stone-500">{t('operations.ticket_2')} {r.canonical?.ticketId || r.raw?.ticketId || '—'}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -2825,10 +2819,10 @@ export function ExcelCsvImportSection({
                   <div className="space-y-2">
                     <h5 className="font-bold text-xs text-amber-900 flex items-center gap-1.5">
                       <AlertTriangle className="w-4 h-4 text-amber-600" />
-                      <span>ج. التنبيهات التشغيلية ({preview.warningRows.length} صف تتطلب الموافقة أو تمت الموافقة عليها)</span>
+                      <span>{t('entityResolution.labels.warning_rows_section_count', { count: preview.warningRows.length })}</span>
                     </h5>
                     <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
-                      <div>حالة الاعتماد للبلاغات والتنبيهات: {confirmWarnings ? '✔ تم تفعيل إقرار الموافقة (جاهزة للاعتماد)' : '⏳ بانتظار تفعيل إقرار الموافقة أدناه'}</div>
+                      <div>{t('entityResolution.labels.warnings_approval_status')} {confirmWarnings ? t('entityResolution.labels.warnings_acceptance_enabled') : t('entityResolution.labels.warnings_acceptance_pending')}</div>
                     </div>
                   </div>
                 )}
@@ -2838,7 +2832,7 @@ export function ExcelCsvImportSection({
                   <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold space-y-1">
                     <div className="flex items-center gap-2">
                       <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" />
-                      <span>موانع الاعتماد الحالية (Commit Blockers):</span>
+                      <span>{t('entityResolution.labels.current_commit_blockers')}</span>
                     </div>
                     <ul className="list-disc list-inside pr-5 space-y-0.5 font-normal text-rose-800">
                       {preview.blockers.map((b, idx) => (
@@ -2859,11 +2853,11 @@ export function ExcelCsvImportSection({
                         className="w-4 h-4 text-emerald-600 rounded border-stone-300 focus:ring-emerald-500 cursor-pointer"
                       />
                       <span className="text-xs font-black text-stone-900">
-                        أقرّ بالموافقة على اعتماد الصفوف التي تتضمن تنبيهات قابلة لتجاوز المراجعة (Allow Warnings Commit)
+                        {t('entityResolution.labels.allow_warnings_commit')}
                       </span>
                     </label>
                     <p className="text-[11px] text-stone-500 pr-6">
-                      تنبيه: لن يتم اعتماد أي شحنة مستبعدة أو تحتوي على أخطاء قاتلة.
+                      {t('entityResolution.labels.fatal_excluded_never_committed')}
                     </p>
                   </div>
 
@@ -2880,19 +2874,19 @@ export function ExcelCsvImportSection({
                       {isCommitting ? (
                         <>
                           <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>جاري اعتماد الشحنات...</span>
+                          <span>{t('entityResolution.labels.approving_shipments')}</span>
                         </>
                       ) : (
                         <>
                           <ShieldCheck className="w-4 h-4" />
-                          <span>اعتماد وإضافة {preview.commitEligibleRows.length} رحلة إلى المشروع</span>
+                          <span>{t('entityResolution.labels.approve_add_trips_count', { count: preview.commitEligibleRows.length })}</span>
                         </>
                       )}
                     </button>
 
                     {cannotCommitReason && (
                       <span className="text-[11px] text-rose-700 font-bold max-w-xs text-left">
-                        {cannotCommitReason}
+                        {presentBatch4Message(cannotCommitReason, t)}
                       </span>
                     )}
                   </div>
@@ -2914,50 +2908,50 @@ export function ExcelCsvImportSection({
                 {commitResult.success ? (
                   <>
                     <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                    <span>تم اعتماد الدفعة بنجاح كامل في سجلات المشروع!</span>
+                    <span>{t('entityResolution.labels.batch_full_success')}</span>
                   </>
                 ) : commitResult.committedRows > 0 ? (
                   <>
                     <AlertTriangle className="w-5 h-5 text-amber-600" />
-                    <span>نتيجة جزئية (Partial Success / Failure): تم اعتماد بعض الرحلات وبقيت رحلات أخرى معلقة أو مرفوضة.</span>
+                    <span>{t('entityResolution.messages.batch_partial_approval')}</span>
                   </>
                 ) : (
                   <>
                     <XCircle className="w-5 h-5 text-rose-600" />
-                    <span>فشل اعتماد الدفعة: لم يتم اعتماد أي رحلة.</span>
+                    <span>{t('entityResolution.messages.batch_no_approval')}</span>
                   </>
                 )}
               </div>
 
               {commitResult.error && (
                 <div className="text-xs font-bold text-rose-800 bg-white/80 p-2.5 rounded-lg border border-rose-200">
-                  خطأ التنفيذ: {commitResult.error}
+                  {t('entityResolution.labels.execution_error')} {presentBatch4Message(commitResult.error, t)}
                 </div>
               )}
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-xs font-mono font-bold">
                 <div className="p-2 bg-white/70 rounded-lg border border-stone-200">
-                  إجمالي الدفعة: {commitResult.totalRows}
+                  {t('entityResolution.labels.batch_total')} {commitResult.totalRows}
                 </div>
                 <div className="p-2 bg-emerald-100/70 text-emerald-900 rounded-lg border border-emerald-200">
-                  تم الاعتماد (committedRows): {commitResult.committedRows}
+                  {t('entityResolution.labels.committed_rows_label')} {commitResult.committedRows}
                 </div>
                 <div className="p-2 bg-stone-100 text-stone-800 rounded-lg border border-stone-200">
-                  تم التجاوز (skippedRows): {commitResult.skippedRows}
+                  {t('entityResolution.labels.skipped_rows_label')} {commitResult.skippedRows}
                 </div>
                 <div className="p-2 bg-rose-100 text-rose-900 rounded-lg border border-rose-200">
-                  فشل (failedRows): {commitResult.failedRows}
+                  {t('entityResolution.labels.failed_rows_label')} {commitResult.failedRows}
                 </div>
               </div>
 
               {commitResult.issues && commitResult.issues.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-stone-200/60 space-y-1.5">
-                  <div className="text-xs font-bold text-stone-800">ملاحظات ومشاكل التنفيذ المرتبطة بالصفوف:</div>
+                  <div className="text-xs font-bold text-stone-800">{t('entityResolution.labels.execution_row_issues')}</div>
                   <div className="max-h-40 overflow-y-auto space-y-1 pr-1">
                     {commitResult.issues.map((issue, idx) => (
                       <div key={idx} className="p-2 rounded bg-white/90 border border-stone-200 text-[11px] text-stone-800 flex items-start gap-2 font-mono">
-                        <span className="font-bold text-rose-700 shrink-0">صف {issue.row}:</span>
-                        <span>{issue.messageAr || issue.message} ({issue.code})</span>
+                        <span className="font-bold text-rose-700 shrink-0">{t('entityResolution.labels.row_label')} {issue.row}:</span>
+                        <span>{presentBatch4Message(issue.messageAr || issue.message, t)} ({issue.code})</span>
                       </div>
                     ))}
                   </div>
