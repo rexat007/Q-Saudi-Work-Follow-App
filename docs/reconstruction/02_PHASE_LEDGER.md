@@ -1,20 +1,20 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main: `15529b85848a80322dea033e80903fd2fd1e294c`. P0-U5 closure and P0-U6 activation are recorded below.
+Authority: `CURRENT_AUTHORITY`. Current authoritative main: `2923108b1a635f5eed3b1e4d6d15d2c456246c08`. P0-U5 remains closed; bounded P0-U6 implementation awaits owner and hosted verification.
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. A local review-ready result alone never closes a unit; P0-U5 is closed by the reviewed publication, merge and independent-audit record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
-- **Next-unit evidence**: the accepted sequence in [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md#phase-0--repository--engineering-foundation) places P0-U6 after P0-U5 and before P0-U7. P0-U5 closure gates are now satisfied. P0-U6 is administratively active with implementation NOT_STARTED; the next planned unit is P0-U7 — Phase 0 Closure & Freeze, also NOT_STARTED.
+- **Next-unit evidence**: the accepted sequence in [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md#phase-0--repository--engineering-foundation) places P0-U6 after P0-U5 and before P0-U7. P0-U5 closure gates are now satisfied. P0-U6 is active with status IMPLEMENTED / AWAITING_VERIFICATION; the next planned unit is P0-U7 — Phase 0 Closure & Freeze, also NOT_STARTED.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PHASE_0
 ACTIVE_UNIT: P0-U6_SECRET_FREE_GITHUB_CI_BASELINE
-ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
+ACTIVE_UNIT_STATUS: IMPLEMENTED / AWAITING_VERIFICATION
 PHASE_0_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
@@ -22,8 +22,8 @@ NEXT_UNIT: P0-U7_PHASE_0_CLOSURE_AND_FREEZE
 NEXT_UNIT_STATUS: NOT_STARTED
 P0_U5_STATUS: VERIFIED / CLOSED
 P0_U5_VERIFIED_MERGE: 15529b85848a80322dea033e80903fd2fd1e294c
-P0_U6_STATUS: NOT_STARTED / ACTIVE
-CURRENT_CODE_BASELINE: 15529b85848a80322dea033e80903fd2fd1e294c
+P0_U6_STATUS: IMPLEMENTED / AWAITING_VERIFICATION
+CURRENT_CODE_BASELINE: 2923108b1a635f5eed3b1e4d6d15d2c456246c08
 ```
 
 ---
@@ -82,7 +82,7 @@ CURRENT_CODE_BASELINE: 15529b85848a80322dea033e80903fd2fd1e294c
 | **↳ P0-U3C38** | Active Runtime I18N Cardinality Invariant Retirement — *REPLACE_FIXED_1128_WITH_DYNAMIC_TRILINGUAL_PARITY* | **VERIFIED / CLOSED** | `cb2e84c1563190d28b6a25024d1ee656b10a42b2` |
 | **P0-U4** | Root Tooling Hygiene | **VERIFIED / CLOSED** | `45e6c8b7f7c038d2a05723e4df7a5655bfaabc15` |
 | **P0-U5** | Documentation Authority Convergence | **VERIFIED / CLOSED** | Independently verified merge: `15529b85848a80322dea033e80903fd2fd1e294c` |
-| **P0-U6** | Secret-Free GitHub CI Baseline | **NOT_STARTED / ACTIVE** | Activation baseline: `15529b85848a80322dea033e80903fd2fd1e294c`; implementation not started |
+| **P0-U6** | Secret-Free GitHub CI Baseline | **IMPLEMENTED / AWAITING_VERIFICATION** | Implementation baseline: `2923108b1a635f5eed3b1e4d6d15d2c456246c08`; local checks recorded in CI contract; owner/hosted verification and publication pending |
 | **P0-U7** | Phase 0 Closure & Freeze | NOT_STARTED | `674c6a5a5cf1aa1680c43728aa67e1e0fd3170de` |
 
 ---
@@ -92,7 +92,7 @@ CURRENT_CODE_BASELINE: 15529b85848a80322dea033e80903fd2fd1e294c
 - Implementation reviewed: the accepted 36-file documentation-only convergence was reviewed before publication.
 - Publication completed: implementation commit `752936fd8832b5dc1ddad25892004aa6f0b08400` was pushed on its reviewed branch and merged to main.
 - GitHub merge independently verified: the owner confirmed the independent audit of merge `15529b85848a80322dea033e80903fd2fd1e294c`.
-- Final unit status: **VERIFIED / CLOSED**. P0-U6 activation advances the administrative pointer only; no CI implementation, verification or closure is claimed.
+- Final unit status: **VERIFIED / CLOSED**. At the closure/activation snapshot, P0-U6 activation advanced the administrative pointer only; that historical update claimed no CI implementation, verification or closure. Current implementation evidence follows.
 
 ### Overall Reconstruction Roadmap Status
 
@@ -122,4 +122,8 @@ Whole-App i18n Batches 1–4 and final residual remediation are merged in the hi
 
 Browser review is accepted sufficiently for this stage. This is not evidence that every label, device, role, or workflow was manually verified, nor a Beta 2/Phase 18 release acceptance. Minor mixed Arabic/English or bilingual labels remain `DEFERRED_NON_BLOCKING_PRODUCT_DEBT` in the decision/debt log.
 
-This closure/activation update is documentation-only. P0-U6 implementation remains NOT_STARTED; no CI, localization, source/test, package/config/script, production or future distribution change is performed or authorized by this administrative update. Verification here is current-state consistency and Git scope/whitespace inspection; prior runtime/test/build evidence retains its original scope and is not a new run.
+### P0-U6 Bounded Implementation Evidence
+
+[CI Baseline Contract](CI_BASELINE_CONTRACT.md) defines the new secret-free foundation workflow and the unchanged external-dependency boundary. Local clean installation, build, runtime-key tests (16/16) and auth trust-boundary tests (23/23) passed. Full-repository lint failed truthfully with exit 2 / 445 diagnostics matching the accepted final-residual signature, with zero new diagnostics. Both jobs include always-run repository mutation guards; the separate debt job does not control foundation execution and remains failed when lint fails.
+
+Status is **IMPLEMENTED / AWAITING_VERIFICATION**, not verified/closed. Publication, hosted Actions execution, merge and owner acceptance are pending. P0-U7 remains NOT_STARTED. No production, tests, packages, lockfiles, existing configs or scripts changed; no deployment/release authority is introduced. Earlier closure/activation evidence retains its historical documentation-only scope.
