@@ -1,6 +1,6 @@
 # SECRET-FREE GITHUB CI BASELINE CONTRACT
 
-Status: P0-U6 IMPLEMENTED / AWAITING_VERIFICATION; owner review and hosted GitHub verification remain pending. P0-U6 is not closed. Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
+Status: P0-U6 VERIFIED / CLOSED at merge `54f6d829c184a371e96c2812b08738c42280552b`, following owner-confirmed independent audit and corrected PR/main runtime verification. P0-U7 is NOT_STARTED / ACTIVE; this closure does not waive TypeScript debt. Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
 
 ## Purpose and authority
 
@@ -12,7 +12,7 @@ This is a foundation-only CI contract on main baseline `2923108b1a635f5eed3b1e4d
 - Triggers: `pull_request` targeting `main`, and `push` to `main` only.
 - Runner: GitHub-hosted `ubuntu-24.04`.
 - Project Node authority: Node 22 (`>=22 <23`); setup selects the current Node 22 release and verifies major 22.
-- Project npm authority: `>=10 <11`, with canonical package-manager declaration `npm@10.9.8`. The job prints the supplied npm version and enforces major 10 before installation; it does not silently replace the package manager. Local verified versions are Node 22.23.3 / npm 10.9.8. Hosted version evidence remains pending; no claim of an exact hosted npm patch version is made.
+- Project npm authority: `>=10 <11`, with canonical package-manager declaration `npm@10.9.8`. The job prints the supplied npm version and enforces major 10 before installation; it does not silently replace the package manager. Local verified versions are Node 22.23.3 / npm 10.9.8. The owner confirmed hosted verification; this closure record does not supply an exact hosted npm patch version.
 - Official actions only, pinned to audited commits:
   - `actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803` (v6), `persist-credentials: false`.
   - `actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38` (v6).
@@ -44,7 +44,7 @@ An `always()` reporting step reads the pre-tolerance outcome and writes distinct
 
 If the only failure is lint debt, the debt job is expected to conclude SUCCESS. When foundation, both mutation guards and all other steps succeed, the overall workflow is expected to conclude SUCCESS. This does NOT mean lint passed. Unexpected install, reporting, guard or foundation failures still fail the affected job and workflow. Branch-protection settings remain outside this implementation. The observed 445 diagnostics / exit 2 are dated evidence, never a permanent allowance. New diagnostics require investigation; P0-U7 reassessment remains required.
 
-The initial implementation was published as `4ac5769fb2d490b900114cc23dc0a4456944be25`. Owner-supplied GitHub runtime evidence reported Required foundation SUCCESS and Typecheck debt observability FAILURE, leaving the original workflow failed. That truthful but operationally misleading aggregate result prompted this approved step-level correction. The corrected workflow has not yet been published or runtime-verified; a new GitHub run must prove the expected semantics before closure.
+The initial implementation was published as `4ac5769fb2d490b900114cc23dc0a4456944be25`. Owner-supplied GitHub runtime evidence reported Required foundation SUCCESS and Typecheck debt observability FAILURE, leaving the original workflow failed. That truthful but operationally misleading aggregate result prompted this approved step-level correction. The correction was subsequently published as `def3195f7c3661bd31744c348c6e2f01176b399d` and merged by `54f6d829c184a371e96c2812b08738c42280552b`. The owner confirmed independent audit, corrected PR runtime verification (both jobs SUCCESS), and post-merge main run #3 (both jobs and overall SUCCESS). These supersede the original pending-verification state; successful workflow conclusions do not mean lint passed.
 
 ## CURRENT_EXTERNAL_DEPENDENCY_BOUNDARY
 
@@ -56,7 +56,7 @@ No emulator, test migration, production workaround, service credential injection
 
 Both jobs end with an `always()` cleanliness step. It checks unstaged tracked changes (`git diff --exit-code`), staged changes (`git diff --cached --exit-code`) and new unignored files (`git status --porcelain=v1 --untracked-files=all`). Any detected mutation fails the job. Ignored `node_modules`, `dist` and `server-dist` outputs are allowed. The guard does not repair or discard changes.
 
-Local implementation files are intentional pending changes; local verification compares package hashes and the exact approved scope rather than claiming this uncommitted worktree is clean.
+At the local implementation snapshot below, implementation files were intentional pending changes; verification compared package hashes and approved scope rather than claiming that uncommitted worktree was clean. Implementation has since been published and merged; the current closure update is documentation only.
 
 ## Local implementation evidence
 
@@ -81,4 +81,4 @@ SHA-256 before and after successful install:
 | package.json | `5b0b085eca4e9a324cf3e8a911ed65e01ce39e7ea8750336aa5479db0ef0d468` |
 | package-lock.json | `3e8d430adb5c492549dbd854ca8f8c7deed02fbbca6fd03996c9a41a416a54a8` |
 
-Static review verifies the exact pins, read-only permissions, zero secret references, zero third-party actions, zero deployment/release steps, absent privileged triggers, separate debt job and both always-run guards. The original publication and owner-reported runtime observation are recorded above; publication and new hosted verification of this correction, merge confirmation and owner closure acceptance remain pending. Local success does not close P0-U6. P0-U7 remains NOT_STARTED.
+Static review verifies the exact pins, read-only permissions, zero secret references, zero third-party actions, zero deployment/release steps, absent privileged triggers, separate debt job and both always-run guards. The owner-confirmed closure record establishes publication, owner review, independently audited merge `54f6d829c184a371e96c2812b08738c42280552b`, corrected PR verification and post-merge main run #3 verification. P0-U6 is VERIFIED / CLOSED; P0-U7 is NOT_STARTED / ACTIVE. No new runtime verification is performed by this documentation update. The existing typecheck debt remains visible and must be reassessed in P0-U7; closure is not lint PASS, debt waiver, Phase 0 freeze, or full root/Beta acceptance.

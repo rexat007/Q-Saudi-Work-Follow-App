@@ -2,9 +2,9 @@
 
 Classification: `CURRENT_SUPPORTING`. This is audit/owner-review evidence, not another state ledger. Current reconstruction state is owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
 
-## Closure follow-up
+## P0-U5 closure follow-up (historical snapshot)
 
-P0-U5 is **VERIFIED / CLOSED**: implementation reviewed, publication completed, and GitHub merge `15529b85848a80322dea033e80903fd2fd1e294c` independently verified as confirmed by the owner. The current main baseline is that merge. The canonical ledger now activates P0-U6 — Secret-Free GitHub CI Baseline as **NOT_STARTED / ACTIVE**, with P0-U7 — Phase 0 Closure & Freeze next in the accepted plan. No CI implementation is claimed.
+P0-U5 is **VERIFIED / CLOSED**: implementation reviewed, publication completed, and GitHub merge `15529b85848a80322dea033e80903fd2fd1e294c` independently verified as confirmed by the owner. At that closure snapshot the main baseline was that merge. The canonical ledger then activated P0-U6 — Secret-Free GitHub CI Baseline as **NOT_STARTED / ACTIVE**, with P0-U7 — Phase 0 Closure & Freeze next in the accepted plan. That historical closure update claimed no CI implementation. Current state, including subsequent P0-U6 closure and P0-U7 activation, belongs to the canonical ledger.
 
 The original review evidence below remains a review-time snapshot. Its baseline, active/next-unit statements, publication status and inventory classifications describe the pre-publication review, not current state. Current pointers belong only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); the 245-document convergence has not been repeated.
 
