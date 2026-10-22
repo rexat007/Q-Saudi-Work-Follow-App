@@ -1,6 +1,7 @@
 import { settlementAdjustmentRepository } from '../repositories/settlementAdjustment.repository';
 import { tripRepository } from '../repositories/trip.repository';
 import { SettlementAdjustmentEntity, TripEntity } from '../types/entities';
+import type { SettlementAdjustmentType } from '../types/entities';
 import { AuthUserContext } from '../types/common';
 import { auditLogService } from './auditLog.service';
 
@@ -13,7 +14,7 @@ export class SettlementAdjustmentService {
     params: {
       projectId: string;
       tripId: string;
-      adjustmentType: 'RATE' | 'AMOUNT' | 'DEDUCTION' | 'OTHER';
+      adjustmentType: SettlementAdjustmentType;
       amountOrRateAdjustment: number;
       reason: string;
     },
