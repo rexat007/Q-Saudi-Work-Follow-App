@@ -1,9 +1,9 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `9bd5f7c971f21119ecb53717999786b8d1ad9609`. By the explicit owner-approved P0-U7 governance decision, Phase 0 is VERIFIED / CLOSED / FROZEN and Phase 1 is NOT_STARTED / ACTIVE. This closure/freeze documentation is not yet published; no P0-U7 publication or merge SHA is claimed.
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `3b0fc03d27a4b663e85d330f581550c37d62999d`. By the explicit owner-approved P0-U7 governance decision, Phase 0 is VERIFIED / CLOSED / FROZEN and Phase 1 is NOT_STARTED / ACTIVE. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
-This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its publication and independent post-publication gates remain pending, separately from the approved governance state.
+This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
@@ -28,9 +28,11 @@ P0_U5_VERIFIED_MERGE: 15529b85848a80322dea033e80903fd2fd1e294c
 P0_U6_STATUS: VERIFIED / CLOSED
 P0_U6_VERIFIED_MERGE: 54f6d829c184a371e96c2812b08738c42280552b
 P0_U7_STATUS: VERIFIED / CLOSED
-P0_U7_PUBLICATION_STATUS: NOT_PUBLISHED
-P0_U7_VERIFIED_MERGE: PENDING_ACTUAL_MERGE
-CURRENT_CODE_BASELINE: 9bd5f7c971f21119ecb53717999786b8d1ad9609
+P0_U7_PUBLICATION_STATUS: MERGED / VERIFIED
+P0_U7_VERIFIED_MERGE: 3b0fc03d27a4b663e85d330f581550c37d62999d
+P0_U7_PUBLICATION_COMMIT: d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5
+P0_U7_PR: 9
+CURRENT_CODE_BASELINE: 3b0fc03d27a4b663e85d330f581550c37d62999d
 ```
 
 ---
@@ -90,7 +92,7 @@ CURRENT_CODE_BASELINE: 9bd5f7c971f21119ecb53717999786b8d1ad9609
 | **P0-U4** | Root Tooling Hygiene | **VERIFIED / CLOSED** | `45e6c8b7f7c038d2a05723e4df7a5655bfaabc15` |
 | **P0-U5** | Documentation Authority Convergence | **VERIFIED / CLOSED** | Independently verified merge: `15529b85848a80322dea033e80903fd2fd1e294c` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | **VERIFIED / CLOSED** | Independently audited merge: `54f6d829c184a371e96c2812b08738c42280552b`; corrected PR and post-merge main run #3 verified |
-| **P0-U7** | Phase 0 Closure & Freeze | **VERIFIED / CLOSED** | Owner-approved governance/freeze closure on audit baseline `9bd5f7c971f21119ecb53717999786b8d1ad9609`; publication and actual merge reference pending |
+| **P0-U7** | Phase 0 Closure & Freeze | **VERIFIED / CLOSED** | Owner-approved governance/freeze closure; publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`; PR #9 merged / verified at `3b0fc03d27a4b663e85d330f581550c37d62999d` |
 
 ---
 
@@ -153,4 +155,4 @@ Accepted exit evidence: authority/tooling/test-authority conflicts 0; clean inst
 
 **PHASE_1 — Canonical Domain Model** is **NOT_STARTED / ACTIVE**. The accepted goal is hardened entity domain interfaces, type boundaries, primary/foreign key relationships and validation schemas. ACTIVE_UNIT is **UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION**. This administrative transition starts no Phase 1 implementation and invents no unit ID.
 
-Publication status for this P0-U7 documentation: **NOT PUBLISHED**. Owner scope review, publication and independent post-publication review remain required. The implementation/publication/merge SHA will be recorded only after it actually exists; the code baseline above is not a P0-U7 verification or merge commit. This update reruns no product checks and does not strengthen the accepted audit evidence into lint/root/Beta or full-product acceptance.
+P0-U7 publication status: **MERGED / VERIFIED**. Owner review passed; implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5` was published with exactly 7 documentation files and merged through PR #9 as `3b0fc03d27a4b663e85d330f581550c37d62999d`. These are the owner-supplied verified GitHub facts, corroborated by the merge and published head in local main history after safe synchronization. This post-merge record update reruns no product checks, changes no phase/unit semantics and does not strengthen the accepted audit evidence into lint/root/Beta or full-product acceptance.

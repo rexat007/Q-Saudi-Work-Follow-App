@@ -4,13 +4,13 @@ Classification: CURRENT_SUPPORTING. The sole current phase/unit authority is [02
 
 ## Owner decision and transition
 
-The owner approved Phase 0 governance closure and freeze after accepting `P0_U7_PHASE_0_CLOSURE_AUDIT_COMPLETE_READY_FOR_CLOSURE_DECISION` on authoritative main baseline `9bd5f7c971f21119ecb53717999786b8d1ad9609`.
+The owner approved Phase 0 governance closure and freeze after accepting `P0_U7_PHASE_0_CLOSURE_AUDIT_COMPLETE_READY_FOR_CLOSURE_DECISION` on audit baseline `9bd5f7c971f21119ecb53717999786b8d1ad9609` (historical audit context). Current authoritative main is `3b0fc03d27a4b663e85d330f581550c37d62999d`.
 
 - PHASE_0: VERIFIED / CLOSED / FROZEN.
 - P0-U7: VERIFIED / CLOSED, as a governance/freeze closure, not a product-remediation unit.
 - PHASE_1: NOT_STARTED / ACTIVE — Canonical Domain Model.
 - ACTIVE_UNIT: UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION.
-- Publication of this documentation: NOT PUBLISHED. No P0-U7 publication/verification/merge commit is invented; record the actual merge SHA after merge. Owner scope review and independent publication review remain gates.
+- P0-U7 publication: MERGED / VERIFIED. Owner-reviewed implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5` was merged through PR #9 at `3b0fc03d27a4b663e85d330f581550c37d62999d`, with 7 documentation files only, according to the owner-supplied verified GitHub facts and synchronized main history.
 
 The accepted roadmap names Phase 1's goal: hardened entity domain interfaces, type boundaries, primary/foreign key relationships and validation schemas. It does not name a first implementation unit. This freeze does not create one or start Phase 1 work.
 
@@ -31,7 +31,7 @@ Existing toolchain, test, documentation and CI contracts remain detailed support
 
 ## Accepted Phase 0 exit evidence
 
-These are the accepted read-only audit results on the baseline above, not checks rerun by this documentation implementation:
+These are the accepted read-only audit results on historical audit baseline `9bd5f7c971f21119ecb53717999786b8d1ad9609`, not checks rerun by this documentation implementation or post-merge record update:
 
 | Evidence | Accepted result |
 |---|---|
