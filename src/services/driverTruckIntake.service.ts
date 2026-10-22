@@ -1,5 +1,6 @@
 import { auth } from '../firebase/config';
 import { AuthUserContext } from '../types/common';
+import type { GlobalTruckType } from '../types/globalEntities';
 
 export interface DriverTruckIntakePayload {
   projectId: string;
@@ -9,7 +10,7 @@ export interface DriverTruckIntakePayload {
   plateNumber: string;
   phone?: string;
   residencyId?: string;
-  truckType?: 'TIPPER_32M3' | 'TRAILER_24M' | 'FLATBED' | 'DUMPER';
+  truckType?: GlobalTruckType;
   tareWeightKg?: number;
   maxGrossWeightKg?: number;
 }
