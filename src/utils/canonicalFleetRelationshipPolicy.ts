@@ -1,3 +1,6 @@
+import type { ProjectDriverTruckAssignmentEntity } from '../types/projectDriverTruckAssignment';
+import type { ProjectTruckMaterialAllocationEntity } from '../types/projectTruckMaterialAllocation';
+
 export interface AffiliationInput {
   projectId: string;
   entityId: string;
@@ -15,29 +18,9 @@ export interface PureAffiliation {
   updatedBy?: string;
 }
 
-export interface PureAssignment {
-  assignmentId: string;
-  projectId: string;
-  driverId: string;
-  truckId: string;
-  status: 'ACTIVE' | 'CLOSED';
-  effectiveFrom: string;
-  effectiveTo: string | null;
-  createdAt: string;
-  createdBy: string;
-}
+export type PureAssignment = ProjectDriverTruckAssignmentEntity;
 
-export interface PureAllocation {
-  allocationId: string;
-  projectId: string;
-  truckId: string;
-  materialId: string;
-  status: 'ACTIVE' | 'CLOSED';
-  effectiveFrom: string;
-  effectiveTo: string | null;
-  createdAt: string;
-  createdBy: string;
-}
+export type PureAllocation = ProjectTruckMaterialAllocationEntity;
 
 export class CanonicalFleetRelationshipPolicy {
   /**
