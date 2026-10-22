@@ -3,7 +3,8 @@
 Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This is the canonical decision/debt record, not a second unit ledger. Closed decisions below preserve their unit-scoped evidence; past suite/key totals, no-change statements and verification results do not describe all later work.
 
 ## CLOSED_DECISIONS
-- **CD-49 — P0-U6 closure / P0-U7 activation**: The owner confirmed implementation, review, publication of commits `4ac5769fb2d490b900114cc23dc0a4456944be25` and `def3195f7c3661bd31744c348c6e2f01176b399d`, merge `54f6d829c184a371e96c2812b08738c42280552b`, and independent audit. Corrected PR verification recorded Required foundation SUCCESS and Typecheck debt observability SUCCESS. Post-merge main Secret-free foundation CI run #3 recorded both jobs SUCCESS and overall SUCCESS. P0-U6 is **VERIFIED / CLOSED**; this does NOT mean lint PASS or waive unresolved TypeScript debt. P0-U7 is **NOT_STARTED / ACTIVE** and must reassess that debt before freeze. The accepted foundational plan places Phase 1 — Canonical Domain Model after Phase 0; its first unit is not specified, and progression is gated by P0-U7 closure. This documentation-only record uses the owner's confirmed runtime/audit evidence; it does not rerun CI, change CI behavior, start P0-U7 implementation or close Phase 0.
+- **CD-50 — Owner-approved P0-U7 governance closure / Phase 0 freeze**: On main audit baseline `9bd5f7c971f21119ecb53717999786b8d1ad9609`, the owner accepted the P0-U7 read-only audit and explicitly approved governance/freeze implementation. P0-U7 is **VERIFIED / CLOSED**, Phase 0 is **VERIFIED / CLOSED / FROZEN**, and Phase 1 — Canonical Domain Model is **NOT_STARTED / ACTIVE**. No first Phase 1 unit is defined: ACTIVE_UNIT is **UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION**. [PHASE_0_FREEZE_CONTRACT.md](PHASE_0_FREEZE_CONTRACT.md) preserves the foundation authorities, accepted audit evidence and non-completion boundaries. The reassessed 445 diagnostics and six external failures remain non-blocking exit debt with explicit routing below; lint, root npm test and verify:beta2 are NOT PASS. No debt is remediated, no foundation unit is reopened and no Phase 1 implementation is started. This documentation is NOT PUBLISHED; no publication/merge verification SHA exists yet, and the actual merge SHA must be added after actual merge. Owner scope review and independent publication review remain required.
+- **CD-49 — P0-U6 closure / P0-U7 activation**: The owner confirmed implementation, review, publication of commits `4ac5769fb2d490b900114cc23dc0a4456944be25` and `def3195f7c3661bd31744c348c6e2f01176b399d`, merge `54f6d829c184a371e96c2812b08738c42280552b`, and independent audit. Corrected PR verification recorded Required foundation SUCCESS and Typecheck debt observability SUCCESS. Post-merge main Secret-free foundation CI run #3 recorded both jobs SUCCESS and overall SUCCESS. P0-U6 is **VERIFIED / CLOSED**; this does NOT mean lint PASS or waive unresolved TypeScript debt. At that closure/activation snapshot P0-U7 was **NOT_STARTED / ACTIVE** and owed debt reassessment; CD-50 records its subsequent reassessment, closure and transition. The accepted foundational plan places Phase 1 — Canonical Domain Model after Phase 0; its first unit is not specified, and progression is gated by P0-U7 closure. This documentation-only record uses the owner's confirmed runtime/audit evidence; it does not rerun CI, change CI behavior, start P0-U7 implementation or close Phase 0.
 - **CD-48 — P0-U6 runtime-semantics correction decision**: Initial implementation commit `4ac5769fb2d490b900114cc23dc0a4456944be25` was published. Owner-supplied GitHub evidence showed Required foundation SUCCESS, Typecheck debt observability FAILURE, and aggregate workflow FAILURE. The owner approved `continue-on-error: true` at the lint STEP only (id `typecheck`, exact command `npm run lint`), not at JOB level. Its actual nonzero command result and `steps.typecheck.outcome == failure` remain visible; the post-tolerance conclusion permits the debt job and workflow to succeed if all other required steps/jobs succeed. An always-run summary explicitly distinguishes failed TYPECHECK COMMAND RESULT from independent FOUNDATION CI RESULT, calls this intentionally non-blocking debt observability rather than lint PASS, and requires P0-U7 reassessment. Both mutation guards remain always-run and blocking; no foundation, permission, secret, external-test, package, source or test contract changes are authorized. At that correction-decision snapshot, publication and a new hosted run were pending; it did not claim runtime verification or P0-U6 closure, and P0-U7 remained NOT_STARTED. CD-49 supersedes those pending pointers with the confirmed closure/activation record.
 - **CD-47 — Bounded P0-U6 CI implementation decision**: The owner approved secret-free foundation-only CI on baseline `2923108b1a635f5eed3b1e4d6d15d2c456246c08`; at that implementation snapshot the status was **IMPLEMENTED / AWAITING_VERIFICATION**, not unit closure (superseded by CD-49). [CI Baseline Contract](CI_BASELINE_CONTRACT.md) records two independent jobs: blocking foundation (clean install/build/runtime-key/auth trust boundary) and full-repository typecheck debt observability. The original implementation retained lint failure at job/workflow level without shell suppression or a fixed diagnostic allowance; its aggregate-failure policy is superseded by CD-48 below. Local results: install/build exit 0, tests 16/16 and 23/23, lint exit 2 / 445 diagnostics with exact accepted final-residual signature parity and zero new diagnostics. The authorized external temporary cache resolved the local install-cache failure without repository configuration or lock changes. `CURRENT_EXTERNAL_DEPENDENCY_BOUNDARY` excludes root npm test/Beta from foundation only, without test retirement. At that implementation snapshot, hosted execution, publication, merge, owner acceptance and required-check settings were pending. Subsequent publication and owner-reported runtime evidence are recorded in CD-48. At that implementation snapshot P0-U7 was NOT_STARTED; it still owns debt reassessment, with current activation recorded in CD-49. Production/test/package/config/script changes and deployment/release authority are outside this decision.
 - **CD-46 — P0-U5 closure / P0-U6 activation**: P0-U5 Documentation Authority Convergence is **VERIFIED / CLOSED**. Its implementation was reviewed, publication completed as commit `752936fd8832b5dc1ddad25892004aa6f0b08400`, and GitHub merge `15529b85848a80322dea033e80903fd2fd1e294c` was independently verified as confirmed by the owner. At that closure/activation snapshot, [the canonical ledger](02_PHASE_LEDGER.md) activated P0-U6 Secret-Free GitHub CI Baseline as **NOT_STARTED / ACTIVE**; implementation was not claimed. CD-47 records the subsequent bounded implementation decision. At that closure/activation snapshot, the accepted sequence identified P0-U7 Phase 0 Closure & Freeze as next, NOT_STARTED; current activation is recorded in CD-49. This record does not reopen i18n debt or prior decisions.
@@ -569,12 +570,12 @@ Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This is the canon
 ---
 
 ## OPEN_DECISIONS
-- No unresolved foundation contract decision blocks documentation-only P0-U5. Future distribution/licensing/provider choices remain undecided under the future proposal; they do not authorize current implementation.
+- The accepted P0-U7 audit found no unresolved foundation contract decision blocking Phase 0 closure. Phase 1 still requires an explicitly defined owning unit before implementation. Future distribution/licensing/provider choices remain undecided under the future proposal and do not authorize implementation.
 
 ---
 
 ## BLOCKING_DEBT
-- No accepted blocker for the bounded P0-U5 documentation scope. This does not certify a debt-free product or Phase 0 freeze; recorded typecheck and domain debt below remain unresolved.
+- The owner-accepted P0-U7 audit records MUST_FIX_BEFORE_PHASE_0_FREEZE = 0 and UNKNOWN diagnostics/failures = 0. No remaining foundation blocker prevents the approved governance freeze. This is not a debt-free product or clean full-test claim; the unresolved exit debt below remains observable and phase-owned.
 
 ---
 
@@ -607,14 +608,67 @@ Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This is the canon
 
 ### Resolution & Governance Routing Policy:
 - **Historical / Non-Active Test Debt (393 diagnostics)**: Preserved and isolated; tsconfig narrowing or ad-hoc file modification is prohibited in Phase 0.
-- **Active Manifest Test Debt (29 diagnostics)**: Classified as `ACTIVE_TEST_TYPECHECK_DEBT` and deferred to P0-U7 reassessment; P0-U3 remains valid as Test Taxonomy & Harness Convergence and is NOT reopened.
+- **Active Manifest Test Debt (29 diagnostics)**: `ACTIVE_TEST_TYPECHECK_DEBT` was reassessed by P0-U7; accepted non-blocking phase routing is recorded below. P0-U3 remains valid as Test Taxonomy & Harness Convergence and is NOT reopened.
 - **Production Contract Errors (23 diagnostics)**: Must NOT be patched ad-hoc; routed strictly to owning future phases (Phase 7/8 for Smart Import & Entity Resolution [20 diagnostics], Phase 10 for Trip Service [3 diagnostics]).
-- **P0-U7 Mandatory Reassessment Obligations**:
-  Phase 0 Closure (**P0-U7**, status: NOT_STARTED / ACTIVE) must explicitly reassess:
+- **Historical P0-U7 Mandatory Reassessment Obligations (completed in the accepted exit audit)**:
+  Before closure, P0-U7 was required to reassess:
   A. Remaining active-test TypeScript diagnostics.
   B. Remaining historical/non-active test diagnostics (whether they remain observable only, are removed/archived through later authorized cleanup, or are excluded from a future canonical active-scope typecheck).
   C. Remaining production TypeScript diagnostics before Phase 0 freeze.
   D. Whether a future canonical active-scope typecheck gate is required.
+
+
+### P0-U7 accepted exit reassessment
+
+Current exit status: RECORDED / UNRESOLVED / NON_BLOCKING_FOR_PHASE_0_EXIT. The owner accepted the audit on `9bd5f7c971f21119ecb53717999786b8d1ad9609`: lint exit 2, 445 diagnostics, ACTIVE_TEST 29, HISTORICAL_NON_ACTIVE_TEST 393, PRODUCTION 23, TOOLING_CONFIG 0. Signature delta versus P0-U6 is 0 added / 0 removed. MUST_FIX_BEFORE_PHASE_0_FREEZE = 0; UNKNOWN = 0. This completes the reassessment obligation, not the remediation. Counts are dated observations; future increases are not automatically accepted.
+
+| Reassessed family | Diagnostics | Exit classification | Owning phase / disposition |
+|---|---:|---|---|
+| Active Vitest global typing | 21 | ACCEPTED_DEFERRED_TO_OWNING_PHASE | Phase 1 / owning phase as audited; runtime globals are configured and affected suites execute; no harness redesign authorized |
+| Active i18n helper-call arity | 3 | ACCEPTED_DEFERRED_TO_OWNING_PHASE | Phase 1 type-boundary follow-up; bounded helper tests run, no foundation execution blocker |
+| Active AuthUserContext typing | 5 | ACCEPTED_DEFERRED_TO_OWNING_PHASE | Phase 3 auth typing; external timeout is classified separately |
+| Smart Import production contracts | 20 | ACCEPTED_DEFERRED_TO_OWNING_PHASE | Phase 7/8; no ad-hoc production change at foundation exit |
+| Trip production contracts | 3 | ACCEPTED_DEFERRED_TO_OWNING_PHASE | Phase 10; domain authority is preserved |
+| Historical Smart Import / fixture / contract drift | 338 | ACCEPTED_DEFERRED_TO_OWNING_PHASE | Existing register owners Phase 4/5/6 and 7/8; preserve current semantic tests, no blanket retirement |
+| Retired navigation references | 26 | OBSOLETE_OR_HISTORICAL | Existing Phase 0/4/5/6/10/12 register ownership; review later without restoring retired navigation |
+| Historical field-supervision overloads | 20 | ACCEPTED_DEFERRED_TO_OWNING_PHASE | Phase 4/5/6 as registered |
+| Historical import helper | 1 | ACCEPTED_DEFERRED_TO_OWNING_PHASE | Phase 7/8 |
+| Historical ProjectEntity fixtures | 2 | ACCEPTED_DEFERRED_TO_OWNING_PHASE | Phase 4/5/6 |
+| Historical workspace projection contracts | 6 | ACCEPTED_DEFERRED_TO_OWNING_PHASE | Phase 4/5/6 |
+
+The unchanged runtime/toolchain foundation passed clean install/build, runtime-key 16/16 and auth trust-boundary 23/23. This and the explicit phase ownership justify bounded deferral; neither passing build nor deferred status erases type errors or certifies the product. Historical/non-active is a package-reachability classification, not automatic deletion or semantic obsolescence. Full-repository typecheck remains the debt-observation authority; this audit does not establish a replacement active-scope gate or authorize exclusions. Any future gate design needs a separate owning unit and verification.
+
+### CURRENT_EXTERNAL_DEPENDENCY_BOUNDARY — accepted Phase 0 exit debt
+
+Status: ENVIRONMENTAL_EXTERNAL_DEPENDENCY / UNRESOLVED / NON_BLOCKING_FOR_PHASE_0_EXIT. The audit observed Firestore/proxy connection rejection (403) and timeouts on the known TripNumberGenerator path. Exact cases:
+
+1. `src/tests/projectCentricOperationsBlock87.test.ts`: aggregate test executing all 13 project-centric operation checks.
+2. `src/tests/secureTripNumberingOffline89B.test.ts`: REQ-01.
+3. `src/tests/secureTripNumberingOffline89B.test.ts`: REQ-13.
+4. `src/tests/canonicalTripDispatchAuthority.test.ts`: A, successful canonical dispatch.
+5. `src/tests/canonicalTripDispatchAuthority.test.ts`: U, immutable snapshots from canonical data.
+6. `src/tests/materialAuthorityP602B2.test.ts`: case 5, valid/authorized material dispatch.
+
+`npm test` exited 1 after 42 passing suites / 467 passing tests and the Project-Centric timeout. Separate remaining-root-file checks observed 71 passed / 2 external failures, for combined scoped evidence of 538 passed / 3 external failures, not root-command PASS. `verify:beta2` exited 2 at lint before its test stages; separate direct Beta tests observed 440 passed / 3 external failures, not Beta-wrapper PASS. NEW_REGRESSION = 0; UNKNOWN failures = 0. The earlier CD-45 nine-baseline-assertion-failure observation retains its earlier scope and is not newly reproduced or renamed a current PASS.
+
+Future verification belongs to the domain-owning phases (Phase 10 for trip numbering), Phase 16 for broader integration/E2E and Phase 18 for the Beta 2 gate where applicable. Deferral is safe for Phase 0 because secret-free foundation gates are independently verified and this boundary is explicit. Environmental failure is not test retirement and is not product acceptance. No production workaround, credential injection, emulator or test migration is authorized by this exit record.
+
+### Canonical open-debt inventory at Phase 0 exit
+
+All entries remain open. All are NON_BLOCKING_FOR_PHASE_0_EXIT, not waived for their owning phase or release gates. Existing identifiers are retained; preventive observations below use descriptive references rather than invented debt IDs.
+
+| Existing reference | Current status / evidence | Future owner | Reason safe to defer at foundation exit |
+|---|---|---|---|
+| TYPECHECK_BASELINE_DEBT | RECORDED / UNRESOLVED; 445 diagnostics, exit 2; families and evidence above | Phase 1 / 3 / 4–8 / 10 / 12 according to the family and existing register | No new diagnostics or tooling/config errors; full debt observability remains intact; no silent acceptance of future increases |
+| CURRENT_EXTERNAL_DEPENDENCY_BOUNDARY | UNRESOLVED / ENVIRONMENTAL; six cases above; root/Beta NOT PASS | Domain owners, Phase 16, Phase 18 where applicable | Known external paths are outside the successful secret-free foundation gate; tests remain preserved |
+| DD-01 | DEFERRED / UNRESOLVED; recorded Smart Import full-batch session-restore edge case, not re-proven by this documentation | Phase 8 | Persistence/resume semantics belong to that domain, not foundation closure |
+| DD-02 | DEFERRED / UNRESOLVED; build succeeds with >500 kB client-chunk warning | Phase 15 | Performance debt does not prevent compilation or foundation verification |
+| DD-03 | DEFERRED_NON_BLOCKING_PRODUCT_DEBT; accepted-stage mixed/bilingual label polish, not a claim of unmanaged-string remediation here | Separate product-polish scope; Phase 15 follow-up proposed by the accepted audit | Current stage acceptance is bounded; cosmetic perfection is not a Phase 0 gate |
+| DD-04 | DEFERRED / UNRESOLVED; browser/product verification is not exhaustive | Product-owning phases; Phase 16 journeys and Phase 18 release | Foundation acceptance does not replace future surface/language/device/role and owner acceptance evidence |
+| P0-U6 lockfile metadata observation | RECORDED / UNRESOLVED; 810 non-root entries lack resolved/integrity; clean npm ci succeeds without package mutation | Separate supply-chain scope; Phase 17 follow-up proposed by the accepted audit | Concrete install works; metadata assurance limitation is retained, not repaired or claimed absent |
+| P0-U6 credential-filename ignore observation | PREVENTIVE / UNRESOLVED; .env patterns ignored, generic credential filenames not covered; TRACKED_SECRET = 0 | Separate hardening scope; Phase 17 follow-up proposed by the accepted audit | No actual tracked credential found; no .gitignore change is authorized here |
+
+Proposed follow-up phases remain explicitly identified as proposals from the accepted audit, not invented implementation units or authorization to remediate. Existing future distribution/provider decisions and retirement candidates remain separate decisions, not unproven new foundation debt or permission to act.
 
 ## DEFERRED_DEBT
 - **DD-03 — Deferred language polish**: `DEFERRED_NON_BLOCKING_PRODUCT_DEBT`. Some Arabic-mode surfaces may still show deliberate or unresolved mixed Arabic/English or bilingual labels. Preserve current accepted stage behavior; full cosmetic language perfection is not required before continuing P0. Future remediation needs a separately bounded product scope and acceptance; P0-U5 performs no localization changes.

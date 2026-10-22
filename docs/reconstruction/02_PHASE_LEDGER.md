@@ -1,32 +1,36 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main: `54f6d829c184a371e96c2812b08738c42280552b`. P0-U6 is VERIFIED / CLOSED; P0-U7 is administratively active and NOT_STARTED.
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `9bd5f7c971f21119ecb53717999786b8d1ad9609`. By the explicit owner-approved P0-U7 governance decision, Phase 0 is VERIFIED / CLOSED / FROZEN and Phase 1 is NOT_STARTED / ACTIVE. This closure/freeze documentation is not yet published; no P0-U7 publication or merge SHA is claimed.
 
-This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. A local review-ready result alone never closes a unit; P0-U5 is closed by the reviewed publication, merge and independent-audit record below.
+This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its publication and independent post-publication gates remain pending, separately from the approved governance state.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
-- **Next-phase evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) ends Phase 0 with P0-U7 and then explicitly lists Phase 1 — Canonical Domain Model. P0-U7 — Phase 0 Closure & Freeze is now NOT_STARTED / ACTIVE. Phase 1 is the next planned phase only after P0-U7 closure; the plan does not name its first unit, so no unit ID is invented and no phase transition is activated.
+- **Phase-transition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0. Phase 1 is now NOT_STARTED / ACTIVE; its first unit is not named in that plan. ACTIVE_UNIT remains UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION. No Phase 1 unit ID, implementation or additional phase transition is invented.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
-ACTIVE_PHASE: PHASE_0
-ACTIVE_UNIT: P0-U7_PHASE_0_CLOSURE_AND_FREEZE
-ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
-PHASE_0_STATUS: IN_PROGRESS
+ACTIVE_PHASE: PHASE_1
+ACTIVE_PHASE_STATUS: NOT_STARTED / ACTIVE
+ACTIVE_UNIT: UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION
+ACTIVE_UNIT_STATUS: UNASSIGNED / NOT_STARTED
+PHASE_0_STATUS: VERIFIED / CLOSED
+PHASE_0_FREEZE_STATUS: FROZEN
+PHASE_1_STATUS: NOT_STARTED / ACTIVE
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NOT_DEFINED_IN_ACCEPTED_PLAN
-NEXT_PHASE: PHASE_1_CANONICAL_DOMAIN_MODEL
-NEXT_PHASE_STATUS: NOT_STARTED / GATED_BY_P0_U7_CLOSURE
+NEXT_ACTION: DEFINE_PHASE_1_UNIT
 P0_U5_STATUS: VERIFIED / CLOSED
 P0_U5_VERIFIED_MERGE: 15529b85848a80322dea033e80903fd2fd1e294c
 P0_U6_STATUS: VERIFIED / CLOSED
 P0_U6_VERIFIED_MERGE: 54f6d829c184a371e96c2812b08738c42280552b
-P0_U7_STATUS: NOT_STARTED / ACTIVE
-CURRENT_CODE_BASELINE: 54f6d829c184a371e96c2812b08738c42280552b
+P0_U7_STATUS: VERIFIED / CLOSED
+P0_U7_PUBLICATION_STATUS: NOT_PUBLISHED
+P0_U7_VERIFIED_MERGE: PENDING_ACTUAL_MERGE
+CURRENT_CODE_BASELINE: 9bd5f7c971f21119ecb53717999786b8d1ad9609
 ```
 
 ---
@@ -86,7 +90,7 @@ CURRENT_CODE_BASELINE: 54f6d829c184a371e96c2812b08738c42280552b
 | **P0-U4** | Root Tooling Hygiene | **VERIFIED / CLOSED** | `45e6c8b7f7c038d2a05723e4df7a5655bfaabc15` |
 | **P0-U5** | Documentation Authority Convergence | **VERIFIED / CLOSED** | Independently verified merge: `15529b85848a80322dea033e80903fd2fd1e294c` |
 | **P0-U6** | Secret-Free GitHub CI Baseline | **VERIFIED / CLOSED** | Independently audited merge: `54f6d829c184a371e96c2812b08738c42280552b`; corrected PR and post-merge main run #3 verified |
-| **P0-U7** | Phase 0 Closure & Freeze | **NOT_STARTED / ACTIVE** | Activation baseline: `54f6d829c184a371e96c2812b08738c42280552b`; not implemented |
+| **P0-U7** | Phase 0 Closure & Freeze | **VERIFIED / CLOSED** | Owner-approved governance/freeze closure on audit baseline `9bd5f7c971f21119ecb53717999786b8d1ad9609`; publication and actual merge reference pending |
 
 ---
 
@@ -99,8 +103,8 @@ CURRENT_CODE_BASELINE: 54f6d829c184a371e96c2812b08738c42280552b
 
 ### Overall Reconstruction Roadmap Status
 
-- **Phase 0 — Repository & Engineering Foundation**: IN_PROGRESS
-- **Phase 1 — Canonical Domain Model**: NOT_STARTED
+- **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
+- **Phase 1 — Canonical Domain Model**: NOT_STARTED / ACTIVE; unit definition required
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -127,9 +131,9 @@ Browser review is accepted sufficiently for this stage. This is not evidence tha
 
 ### P0-U6 Bounded Implementation Evidence
 
-[CI Baseline Contract](CI_BASELINE_CONTRACT.md) defines the new secret-free foundation workflow and the unchanged external-dependency boundary. Local clean installation, build, runtime-key tests (16/16) and auth trust-boundary tests (23/23) passed. Full-repository lint failed truthfully with exit 2 / 445 diagnostics matching the accepted final-residual signature, with zero new diagnostics. Both jobs include always-run repository mutation guards; the separate debt job does not control foundation execution. The approved runtime-semantics correction uses step-level continue-on-error only for lint: its pre-tolerance outcome remains failure, but known debt alone no longer fails the job/workflow. Explicit summary reporting distinguishes lint failure from foundation success; guards and every other failure remain blocking. P0-U7 must reassess unresolved debt.
+[CI Baseline Contract](CI_BASELINE_CONTRACT.md) defines the new secret-free foundation workflow and the unchanged external-dependency boundary. Local clean installation, build, runtime-key tests (16/16) and auth trust-boundary tests (23/23) passed. Full-repository lint failed truthfully with exit 2 / 445 diagnostics matching the accepted final-residual signature, with zero new diagnostics. Both jobs include always-run repository mutation guards; the separate debt job does not control foundation execution. The approved runtime-semantics correction uses step-level continue-on-error only for lint: its pre-tolerance outcome remains failure, but known debt alone no longer fails the job/workflow. Explicit summary reporting distinguishes lint failure from foundation success; guards and every other failure remain blocking. P0-U7 reassessed this debt at Phase 0 exit; unresolved families remain routed in the canonical debt log.
 
-### P0-U6 Closure Evidence / P0-U7 Activation
+### P0-U6 Closure Evidence / P0-U7 Activation (historical closure snapshot)
 
 - Implementation commits: `4ac5769fb2d490b900114cc23dc0a4456944be25` and `def3195f7c3661bd31744c348c6e2f01176b399d`.
 - Implementation and correction owner-reviewed, published via PR #7, merged and independently audited, as confirmed by the owner. Verified merge: `54f6d829c184a371e96c2812b08738c42280552b`.
@@ -137,6 +141,16 @@ Browser review is accepted sufficiently for this stage. This is not evidence tha
 - Post-merge main workflow: Secret-free foundation CI, run #3; Required foundation = SUCCESS; Typecheck debt observability = SUCCESS; overall = SUCCESS.
 - Runtime evidence and independent-audit completion above are the owner's confirmed closure record; this documentation update does not rerun CI or claim a separate new runtime audit.
 - Final P0-U6 status: **VERIFIED / CLOSED**. Secret-free foundation CI is established on PRs targeting main and pushes to main, with read-only permissions, no required repository secrets, and full external-dependent suites outside the foundation gate.
-- Successful debt-job/workflow conclusions do NOT mean lint PASS. The actual typecheck failure remains visible through step outcome and diagnostic logs; step-level tolerance does not waive debt. P0-U7 must reassess unresolved TypeScript debt before freeze.
-- Active unit: **P0-U7 — Phase 0 Closure & Freeze**, **NOT_STARTED / ACTIVE**. Activation is administrative only; Phase 0 remains IN_PROGRESS. Next planned phase is Phase 1 — Canonical Domain Model, gated by P0-U7 closure; no first Phase 1 unit is specified in the accepted plan.
-- This closure update changes documentation only. It does not modify CI behavior, source, tests, packages, scripts, configs or debt dispositions, and does not start P0-U7 implementation.
+- Successful debt-job/workflow conclusions do NOT mean lint PASS. The actual typecheck failure remains visible through step outcome and diagnostic logs; step-level tolerance does not waive debt. The required P0-U7 reassessment was subsequently completed at Phase 0 exit; unresolved TypeScript debt is not waived.
+- At that P0-U6 closure snapshot, P0-U7 was NOT_STARTED / ACTIVE and Phase 0 was IN_PROGRESS. The subsequent owner-approved P0-U7 transition below supersedes those historical pointers; the accepted plan still specifies no first Phase 1 unit.
+- That P0-U6 closure update changed documentation only and did not implement P0-U7; its historical evidence is preserved.
+
+### P0-U7 Governance Closure / Phase 0 Exit
+
+The owner accepted the read-only P0-U7 closure audit and explicitly approved documentation/governance closure and freeze implementation. This records **P0-U7 VERIFIED / CLOSED** and **PHASE_0 VERIFIED / CLOSED / FROZEN** under [PHASE_0_FREEZE_CONTRACT.md](PHASE_0_FREEZE_CONTRACT.md), not product remediation. All predecessor foundation units remain closed.
+
+Accepted exit evidence: authority/tooling/test-authority conflicts 0; clean install and build PASS; runtime-key tests 16/16 and auth trust-boundary tests 23/23 PASS. Lint failed with exit 2 / 445 diagnostics (29 active tests, 393 historical/non-active tests, 23 production, 0 tooling/config), unchanged from P0-U6. MUST_FIX_BEFORE_PHASE_0_FREEZE = 0; UNKNOWN diagnostics = 0. Root npm test is NOT PASS; verify:beta2 is NOT PASS. Six environmental/external cases remain explicitly deferred, with NEW_REGRESSION = 0 and UNKNOWN failures = 0. CI_BASELINE_BLOCKER, TRACKED_SECRET, UNAUTHORIZED_GENERATED_ARTIFACT and COMPETING_LOCKFILE are each 0. Detailed debt families, evidence and phase owners remain in [05_DECISION_AND_DEBT_LOG.md](05_DECISION_AND_DEBT_LOG.md).
+
+**PHASE_1 — Canonical Domain Model** is **NOT_STARTED / ACTIVE**. The accepted goal is hardened entity domain interfaces, type boundaries, primary/foreign key relationships and validation schemas. ACTIVE_UNIT is **UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION**. This administrative transition starts no Phase 1 implementation and invents no unit ID.
+
+Publication status for this P0-U7 documentation: **NOT PUBLISHED**. Owner scope review, publication and independent post-publication review remain required. The implementation/publication/merge SHA will be recorded only after it actually exists; the code baseline above is not a P0-U7 verification or merge commit. This update reruns no product checks and does not strengthen the accepted audit evidence into lint/root/Beta or full-product acceptance.
