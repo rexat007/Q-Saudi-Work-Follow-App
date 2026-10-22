@@ -1,21 +1,21 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `8a962ae3e1d133301918e08e59c3e3da5d17f254`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is IMPLEMENTED / AWAITING_OWNER_REVIEW; no later unit is assigned or activated. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `ca53209f0844c7968e518efe553fd171436bce70`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is NOT_STARTED / ACTIVE. Phase 1 closure is NOT ready: five bounded type-authority families remain, including the active P1-U4 seam. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
-- **Phase-transition / unit-definition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0 but does not name its first unit. After `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, the owner explicitly assigned **P1-U1 — Canonical Domain Authority and Identity Boundary Contract**, type **CONTRACT_FIRST_UNIT**. This owner decision supplies the unit ID; it is not inferred from historical Phase/Block numbering. Phase 1 is IN_PROGRESS; P1-U1 is VERIFIED / CLOSED under [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md). The owner subsequently assigned P1-U2 after PHASE_1_NEXT_UNIT_SEAM_AUDIT_COMPLETE; its activation contract and implementation evidence below govern the bounded step. The owner has now explicitly approved and assigned P1-U3 under the activation contract below. No unit after P1-U3 is assigned.
+- **Phase-transition / unit-definition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0 but does not name its first unit. After `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, the owner explicitly assigned **P1-U1 — Canonical Domain Authority and Identity Boundary Contract**, type **CONTRACT_FIRST_UNIT**. This owner decision supplies the unit ID; it is not inferred from historical Phase/Block numbering. Phase 1 is IN_PROGRESS; P1-U1 is VERIFIED / CLOSED under [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md). The owner subsequently assigned P1-U2 after PHASE_1_NEXT_UNIT_SEAM_AUDIT_COMPLETE; its activation contract and implementation evidence below govern the bounded step. The owner has now explicitly approved and assigned P1-U3 under the activation contract below. The owner has subsequently approved P1-U3 closure and assigned P1-U4 under the activation contract below. No later unit is assigned.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PHASE_1
 ACTIVE_PHASE_STATUS: IN_PROGRESS
-ACTIVE_UNIT: P1-U3 — Truck Type Vocabulary Authority Across Input and Stored Boundaries
-ACTIVE_UNIT_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
+ACTIVE_UNIT: P1-U4 — Settlement Adjustment Type Vocabulary Authority Convergence
+ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
 ACTIVE_UNIT_TYPE: BOUNDED_TYPE_AUTHORITY_CONVERGENCE
 PHASE_0_STATUS: VERIFIED / CLOSED
 PHASE_0_FREEZE_STATUS: FROZEN
@@ -23,9 +23,11 @@ PHASE_1_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NO_SUBSEQUENT_UNIT_ASSIGNED
-NEXT_ACTION: OWNER_REVIEW_P1_U3_IMPLEMENTATION
-PHASE_1_REMAINING_SEAMS: 1
-AFTER_P1_U3_EXPECTED_STATE: LIKELY_READY_FOR_PHASE_1_CLOSURE_AUDIT
+NEXT_ACTION: EXECUTE_P1_U4_SETTLEMENT_ADJUSTMENT_TYPE_AUTHORITY_CONVERGENCE
+PHASE_1_CLOSURE_READY: NO
+PHASE_1_REMAINING_SEAMS: 5
+AFTER_P1_U4_REMAINING_FAMILIES: 4
+AFTER_P1_U4_EXPECTED_STATE: FRESH_PHASE_1_RESIDUAL_ASSESSMENT_REQUIRED
 P0_U5_STATUS: VERIFIED / CLOSED
 P0_U5_VERIFIED_MERGE: 15529b85848a80322dea033e80903fd2fd1e294c
 P0_U6_STATUS: VERIFIED / CLOSED
@@ -47,7 +49,13 @@ P1_U2_PR: 15
 P1_U2_VERIFIED_MERGE: 551c6ef554c537a57485035955cbb03b6fb9d0e5
 P1_U2_OWNER_REVIEW: PASSED
 P1_U2_PUBLICATION_STATUS: MERGED / VERIFIED
-CURRENT_CODE_BASELINE: 8a962ae3e1d133301918e08e59c3e3da5d17f254
+P1_U3_STATUS: VERIFIED / CLOSED
+P1_U3_IMPLEMENTATION_COMMIT: 42db0a980768103cd05bc04204f3f76a2a322fc0
+P1_U3_PR: 17
+P1_U3_VERIFIED_MERGE: ca53209f0844c7968e518efe553fd171436bce70
+P1_U3_OWNER_REVIEW: PASSED
+P1_U3_PUBLICATION_STATUS: MERGED / VERIFIED
+CURRENT_CODE_BASELINE: ca53209f0844c7968e518efe553fd171436bce70
 ```
 
 ---
@@ -121,7 +129,7 @@ CURRENT_CODE_BASELINE: 8a962ae3e1d133301918e08e59c3e3da5d17f254
 ### Overall Reconstruction Roadmap Status
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
-- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 IMPLEMENTED / AWAITING_OWNER_REVIEW
+- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 NOT_STARTED / ACTIVE
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -403,9 +411,9 @@ Historical activation snapshot: NOT_STARTED / ACTIVE, future-scope and no-implem
 **Phase 1 direction**: PHASE_1_REMAINING_SEAMS = 1, meaning the remaining currently proven Phase-1-owned seam identified by the accepted audit; P1-U3 is that seam. AFTER_P1_U3_EXPECTED_STATE = LIKELY_READY_FOR_PHASE_1_CLOSURE_AUDIT. This is advisory, not Phase 1 closure or Phase 2 activation. P1-U1 and P1-U2 remain VERIFIED / CLOSED; Phase 0 remains VERIFIED / CLOSED / FROZEN; Phase 1 remains IN_PROGRESS. No subsequent Phase 1 unit ID is assigned. NEXT_ACTION: EXECUTE_P1_U3_TRUCK_TYPE_VOCABULARY_AUTHORITY_CONVERGENCE. Publication of this combined governance update does not implement, verify or close P1-U3.
 
 
-### P1-U3 Bounded Implementation — Awaiting Owner Review
+### P1-U3 Bounded Implementation — Accepted Verification Evidence
 
-**Status**: IMPLEMENTED / AWAITING_OWNER_REVIEW. Authoritative implementation baseline: `8a962ae3e1d133301918e08e59c3e3da5d17f254`, safely synchronized to clean main before changes. The active unit remains P1-U3, type BOUNDED_TYPE_AUTHORITY_CONVERGENCE; Phase 1 remains IN_PROGRESS. Owner acceptance and publication remain pending; this is not unit closure.
+**Status**: VERIFIED / CLOSED. Authoritative implementation baseline: `8a962ae3e1d133301918e08e59c3e3da5d17f254`, safely synchronized to clean main before changes. Unit type remains BOUNDED_TYPE_AUTHORITY_CONVERGENCE; Phase 1 remains IN_PROGRESS. The implementation-time status was IMPLEMENTED / AWAITING_OWNER_REVIEW; owner review has since PASSED and implementation publication is MERGED / VERIFIED, as recorded below.
 
 **Exact production scope**:
 
@@ -439,4 +447,77 @@ The read-only authority `src/types/globalEntities.ts` is unchanged. Its exact vo
 
 **Boundary result**: accepted values, optionality, declared nullability, mutability, exports and field name truckType are unchanged. Project strictNullChecks remains unchanged; the stricter focused fixture proves the declaration contract and does not add runtime validation. Runtime imports/side effects, runtime behavior, payload/storage/API shape and serialization are unchanged. No global/project entity merge or storage migration occurs. No existing test is edited or weakened. Existing lint debt remains exit 2, NOT PASS; no full root-test or Beta success is claimed.
 
-All 18 implementation criteria are met within the exact bounded scope. P1-U1 and P1-U2 remain VERIFIED / CLOSED, their implementations/contracts untouched; Phase 0 remains VERIFIED / CLOSED / FROZEN. Timestamp debt remains DEFER_PHASE_2; importBatchId DTO debt remains DEFER_PHASE_7_8. No later Phase 1 unit ID or Phase 2 activation is introduced. NEXT_ACTION: OWNER_REVIEW_P1_U3_IMPLEMENTATION. The expected next step after P1-U3 acceptance/publication/merge/post-merge closure remains the Phase 1 closure audit; LIKELY_READY_FOR_PHASE_1_CLOSURE_AUDIT is advisory, not Phase 1 closure. Implementation publication: NOT PUBLISHED. No commit, push or PR is created.
+All 18 implementation criteria are met within the exact bounded scope. P1-U1 and P1-U2 remain VERIFIED / CLOSED, their implementations/contracts untouched; Phase 0 remains VERIFIED / CLOSED / FROZEN. Timestamp debt remains DEFER_PHASE_2; importBatchId DTO debt remains DEFER_PHASE_7_8. At that implementation snapshot no later unit or Phase 2 activation was introduced; NEXT_ACTION was OWNER_REVIEW_P1_U3_IMPLEMENTATION and implementation publication was NOT PUBLISHED. The then-expected Phase 1 closure audit has now completed with PHASE_1_CLOSURE_READY = NO. Its fresh residual scan supersedes the earlier one-seam estimate and advisory LIKELY_READY_FOR_PHASE_1_CLOSURE_AUDIT pointer; the closure/activation record below owns the current state.
+
+
+### P1-U3 Post-Merge Closure Record
+
+P1-U3 — Truck Type Vocabulary Authority Across Input and Stored Boundaries is **VERIFIED / CLOSED**. Owner review **PASSED**; implementation commit `42db0a980768103cd05bc04204f3f76a2a322fc0` merged through **PR #17** at verified merge `ca53209f0844c7968e518efe553fd171436bce70`. P1_U3_PUBLICATION_STATUS is **MERGED / VERIFIED**. The owner-supplied verified facts are corroborated by synchronized main and the post-merge audit: the merge tree equals the reviewed head and contains exactly the reviewed five-file scope.
+
+Accepted P1-U3 verification is preserved: focused compiler contract 3/3 PASS; existing relevant regressions 128/128 PASS; diagnostics 445 → 445, added 0 / removed 0; runtime emit NONE; build PASS; i18n-runtime 16/16 PASS; auth-trust-boundary 23/23 PASS; storage/wire and runtime behavior unchanged. Lint remains EXIT 2 / NOT PASS, existing debt preserved. The later read-only closure audit additionally ran both Phase 1 contract suites (6/6) and relevant regressions (214/214), total 220/220, with build and foundation checks passing and no diagnostic delta. This governance update reruns no implementation checks and changes no accepted implementation.
+
+**Phase 1 closure assessment**: PHASE_1_CLOSURE_READY = NO. Five bounded Phase-1-owned type-authority families remain: material UOM, user-role vocabulary, global entity input-status vocabulary, settlement adjustment type vocabulary, and affiliation status vocabulary. Pure type authority sharing must not absorb their behavioral ownership. The prior one-seam estimate was incomplete and is historical, not current closure evidence. The owner selects only the settlement adjustment seam for P1-U4 below; the other four families have no assigned unit IDs. Phase 1 remains IN_PROGRESS; Phase 0 remains VERIFIED / CLOSED / FROZEN; P1-U1 and P1-U2 remain VERIFIED / CLOSED.
+
+### P1-U4 Owner-Approved Unit Activation
+
+- **Unit ID / title**: P1-U4 — Settlement Adjustment Type Vocabulary Authority Convergence.
+- **Unit type**: BOUNDED_TYPE_AUTHORITY_CONVERGENCE.
+- **Status**: NOT_STARTED / ACTIVE. This is governance activation only, not implementation, verification or closure.
+- **Owner authority**: explicit approval of P1-U3 closure and this bounded next unit on authoritative main `ca53209f0844c7968e518efe553fd171436bce70`.
+- **One purpose**: remove the service request boundary's duplicate settlement adjustment vocabulary and reuse the existing exported SettlementAdjustmentType, preserving accepted values, request semantics, authorization, calculations, approval workflow, persistence, API/wire shape, field names and runtime behavior.
+
+**Current authority — read-only**: `src/types/entities.ts`, `SettlementAdjustmentType = 'RATE' | 'AMOUNT' | 'DEDUCTION' | 'OTHER'`. SettlementAdjustmentEntity already uses `adjustmentType: SettlementAdjustmentType` and must remain unchanged.
+
+**Exact future production scope — one file only**: `src/services/settlementAdjustment.service.ts`. In SettlementAdjustmentService.requestAdjustment, use a type-only reference/import for SettlementAdjustmentType and replace only the duplicate adjustmentType union. Preserve every method body and runtime path. Do NOT implement this change in the activation step.
+
+**Related boundary — read-only**: `src/repositories/settlementAdjustment.repository.ts` already reads/persists SettlementAdjustmentEntity. Its Firestore paths, casts, create/update contracts and timestamp handling are out of P1-U4 scope.
+
+**Future verification contract**:
+
+- New focused test: `src/tests/settlementAdjustmentTypeAuthority.test.ts`. Real TypeScript/compiler evidence must prove all four canonical values accepted, invalid values rejected, no widening to string, shared entity/request vocabulary, no optionality/nullability mutation and no new `any`.
+- Existing regression: `src/tests/tripIdentityAdjustmentBlock89.test.ts`, without weakening or removing assertions. Historical harness report-generation side effects do not authorize modifying tracked reports; the implementation must preserve repository integrity during verification.
+- `npm run build`, `npm run test:i18n-runtime`, `npm run test:auth-trust-boundary`, diagnostic comparison, runtime emit comparison and `git diff --check`.
+
+**Implementation acceptance criteria**:
+
+1. SettlementAdjustmentType remains the sole authoritative vocabulary.
+2. Exact four values remain unchanged.
+3. requestAdjustment uses SettlementAdjustmentType.
+4. SettlementAdjustmentEntity remains unchanged.
+5. No field names change.
+6. No request behavior changes.
+7. No RBAC/authorization changes.
+8. No calculations or approval workflow changes.
+9. No persistence/storage/wire/API changes.
+10. No new `any`.
+11. No type widening.
+12. Runtime JavaScript emit unchanged.
+13. Zero new diagnostics; existing nonzero lint is not reported PASS.
+14. Focused compiler-contract test passes.
+15. Existing relevant regression passes without assertion weakening.
+16. Build and foundation checks pass.
+17. Exactly one production file modified in implementation.
+
+**Future implementation stop conditions** — report BLOCKED; do not broaden automatically:
+
+- The service and canonical four-value vocabularies are not identical.
+- Another accepted adjustment type exists.
+- Another production file requires modification.
+- SettlementAdjustmentType itself must change.
+- Authorization logic must change.
+- Adjustment calculations/workflow must change.
+- Repository/storage/API contracts must change.
+- Runtime emit changes materially.
+- A new TypeScript diagnostic appears.
+- Type widening or new `any` is required.
+
+**Remaining unassigned Phase 1 candidate families after this seam**:
+
+- Global material UOM vocabulary authority.
+- User role vocabulary authority.
+- Global entity status vocabulary authority.
+- Affiliation status vocabulary authority.
+
+P1-U4 addresses only settlement adjustment type vocabulary. Five families currently remain including P1-U4; four additional known families remain outside it. No IDs are assigned to those families. A fresh residual assessment remains required after P1-U4; immediate Phase 1 closure is not promised and Phase 2 is not activated.
+
+**Later-phase debt preservation / explicit exclusions**: timestamp/storage boundary DEFER_PHASE_2; Auth context convergence DEFER_PHASE_3; Project lifecycle DEFER_PHASE_4; master relationship behavior DEFER_PHASE_5; import DTO/importBatchId DEFER_PHASE_7_8; pricing DEFER_PHASE_9; Trip lifecycle/model DEFER_PHASE_10; offline/outbox DEFER_PHASE_11. Vocabulary-only authority references do not authorize any of those semantics. No production/test/configuration/package/workflow edit occurs in this combined governance step. P1-U1/P1-U2 contracts and Phase 0 freeze remain unchanged. No subsequent unit ID is assigned. NEXT_ACTION: EXECUTE_P1_U4_SETTLEMENT_ADJUSTMENT_TYPE_AUTHORITY_CONVERGENCE. The owner authorizes publication of only this ledger and the decision/debt log in one normal branch commit, without implementing P1-U4 or merging.
