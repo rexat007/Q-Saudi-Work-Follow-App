@@ -1,28 +1,29 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `06696db883db2a47526b207f5a94e27321c49ec7`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED; the contract is documentation only, not production convergence. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `a53d5a95b2e392ae6b362ddbda4866b49c6bbe7d`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 NOT_STARTED / ACTIVE. This update activates the bounded unit administratively; no production convergence is implemented. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
-- **Phase-transition / unit-definition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0 but does not name its first unit. After `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, the owner explicitly assigned **P1-U1 — Canonical Domain Authority and Identity Boundary Contract**, type **CONTRACT_FIRST_UNIT**. This owner decision supplies the unit ID; it is not inferred from historical Phase/Block numbering. Phase 1 is IN_PROGRESS; P1-U1 is VERIFIED / CLOSED under [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md). No subsequent unit is assigned or activated.
+- **Phase-transition / unit-definition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0 but does not name its first unit. After `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, the owner explicitly assigned **P1-U1 — Canonical Domain Authority and Identity Boundary Contract**, type **CONTRACT_FIRST_UNIT**. This owner decision supplies the unit ID; it is not inferred from historical Phase/Block numbering. Phase 1 is IN_PROGRESS; P1-U1 is VERIFIED / CLOSED under [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md). The owner subsequently assigned P1-U2 after PHASE_1_NEXT_UNIT_SEAM_AUDIT_COMPLETE; its activation contract below governs the next bounded step. No later unit ID is assigned.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PHASE_1
 ACTIVE_PHASE_STATUS: IN_PROGRESS
-ACTIVE_UNIT: UNASSIGNED / REQUIRES_NEXT_PHASE_1_UNIT_DEFINITION
-ACTIVE_UNIT_STATUS: UNASSIGNED / NOT_STARTED
+ACTIVE_UNIT: P1-U2 — Temporal Fleet Relationship Policy Type Authority Convergence
+ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
+ACTIVE_UNIT_TYPE: BOUNDED_TYPE_AUTHORITY_CONVERGENCE
 PHASE_0_STATUS: VERIFIED / CLOSED
 PHASE_0_FREEZE_STATUS: FROZEN
 PHASE_1_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NOT_DEFINED_IN_ACCEPTED_PLAN
-NEXT_ACTION: DEFINE_NEXT_PHASE_1_UNIT
+NEXT_ACTION: EXECUTE_P1_U2_BOUNDED_TYPE_AUTHORITY_CONVERGENCE
 P0_U5_STATUS: VERIFIED / CLOSED
 P0_U5_VERIFIED_MERGE: 15529b85848a80322dea033e80903fd2fd1e294c
 P0_U6_STATUS: VERIFIED / CLOSED
@@ -38,7 +39,7 @@ P1_U1_PR: 12
 P1_U1_VERIFIED_MERGE: 06696db883db2a47526b207f5a94e27321c49ec7
 P1_U1_OWNER_REVIEW: PASSED
 P1_U1_PUBLICATION_STATUS: MERGED / VERIFIED
-CURRENT_CODE_BASELINE: 06696db883db2a47526b207f5a94e27321c49ec7
+CURRENT_CODE_BASELINE: a53d5a95b2e392ae6b362ddbda4866b49c6bbe7d
 ```
 
 ---
@@ -112,7 +113,7 @@ CURRENT_CODE_BASELINE: 06696db883db2a47526b207f5a94e27321c49ec7
 ### Overall Reconstruction Roadmap Status
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
-- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED
+- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 NOT_STARTED / ACTIVE
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -206,7 +207,7 @@ The unit must define the authoritative type per context, alternate/legacy dispos
 
 Earlier supporting records that describe Phase 1 as unassigned retain their pre-P1-U1 activation context; only this ledger owns the current unit pointer. At that activation snapshot Phase 0 remained frozen, P1-U1 was NOT_STARTED / ACTIVE, publication was NOT PUBLISHED and the contract-definition deliverables were not executed. The activation was subsequently published as `da47392b6d4f5fefa2cfadfbf8dda9d5e8061771` and is included in implementation baseline `4e7fde36628b83117bf19f4ee34091f6eee2204c`. The implementation record below supersedes only the activation-time pending pointers.
 
-### P1-U1 Contract — Post-Merge Closure Record
+### P1-U1 Contract — Post-Merge Closure Record (historical closure snapshot)
 
 Contract: [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md), classification CURRENT_SUPPORTING. The ledger remains the sole phase/unit state authority. Unit type remains CONTRACT_FIRST_UNIT; status is **VERIFIED / CLOSED**. Owner review **PASSED** before publication. Evidence baseline: `4e7fde36628b83117bf19f4ee34091f6eee2204c`.
 
@@ -216,4 +217,68 @@ Recommended next production seam, **CANDIDATE_NEXT_IMPLEMENTATION_SEAM / NOT ACT
 
 The ten approved criteria are recorded with evidence in Section 12; explicit owner acceptance is **PASSED** (criterion 10). Local verification is documentation/matrix/link/state consistency and Git scope/whitespace inspection, plus read-only structural type comparison of the two proposed alias pairs. No full lint/build/product tests are newly run; production/compiler inputs are unchanged, so no new TypeScript diagnostic is caused by these documentation edits. Phase 0 freeze and existing debt remain unchanged.
 
-Publication status of the P1-U1 contract implementation: **MERGED / VERIFIED**. Implementation/publication commit `438b3695757f9da3f1a782e85193340b25d6fb74` merged through **PR #12** at verified merge `06696db883db2a47526b207f5a94e27321c49ec7`. These owner-supplied verified GitHub facts are corroborated by synchronized main history. This documentation-only closure record is **NOT PUBLISHED**; it performs no type convergence, branded IDs, persistence migration, runtime change or later unit activation. The next action is DEFINE_NEXT_PHASE_1_UNIT; no candidate seam is automatically activated.
+Publication status of the P1-U1 contract implementation: **MERGED / VERIFIED**. Implementation/publication commit `438b3695757f9da3f1a782e85193340b25d6fb74` merged through **PR #12** at verified merge `06696db883db2a47526b207f5a94e27321c49ec7`. These owner-supplied verified GitHub facts are corroborated by synchronized main history. At that closure snapshot this documentation-only record was **NOT PUBLISHED**; it performs no type convergence, branded IDs, persistence migration, runtime change or later unit activation. At that snapshot the next action was DEFINE_NEXT_PHASE_1_UNIT; no candidate seam was automatically activated. The closure record is now included in main `a53d5a95b2e392ae6b362ddbda4866b49c6bbe7d`; the explicit subsequent owner decision below assigns P1-U2 without changing the accepted P1-U1 contract.
+
+### P1-U2 Owner-Approved Unit Activation
+
+- **Unit ID / title**: P1-U2 — Temporal Fleet Relationship Policy Type Authority Convergence.
+- **Unit type**: BOUNDED_TYPE_AUTHORITY_CONVERGENCE.
+- **Status**: NOT_STARTED / ACTIVE. This documentation-only activation does not implement aliases or authorize changes in this step to production, tests, compiler configuration, persistence, Firestore or runtime behavior.
+- **Authority / audit basis**: explicit owner approval following PHASE_1_NEXT_UNIT_SEAM_AUDIT_COMPLETE on authoritative main `a53d5a95b2e392ae6b362ddbda4866b49c6bbe7d`. The P1-U1 recommendation becomes this assigned unit only through that owner decision; its original contract and historical candidate record remain unchanged.
+- **One purpose**: remove duplicate type authority for temporal fleet assignment/allocation policy inputs while preserving exported names, exact field shapes, runtime behavior, storage/wire format, relationship semantics, existing IDs, timestamps, null semantics and status vocabularies.
+
+**Exact future production scope**: only `src/utils/canonicalFleetRelationshipPolicy.ts`. Add type-only imports and replace the local structural declarations with aliases: `PureAssignment` → `ProjectDriverTruckAssignmentEntity`; `PureAllocation` → `ProjectTruckMaterialAllocationEntity`. No function-body edits. These aliases are NOT implemented by activation.
+
+**Read-only reference files**:
+
+- `src/types/projectDriverTruckAssignment.ts`
+- `src/types/projectTruckMaterialAllocation.ts`
+- `src/services/driverTruckIntake.server.ts`
+- `src/repositories/projectCarrierAffiliation.repository.ts`
+
+No reference-file modification is authorized; a future need requires stop, re-review and owner approval.
+
+**Accepted bounded-audit evidence (not rerun by activation)**:
+
+- PureAssignment and PureAllocation: EXACT_STRUCTURAL_EQUIVALENCE with their respective canonical entities; each has nine matching required, mutable properties, matching status unions and `effectiveTo: string | null`. Strict-null property comparison also matched.
+- EXPORT_COMPATIBILITY: CONDITIONAL. Interface → type alias preserves current consumers; declaration-merging compatibility cannot be guaranteed for unknown external extensions. No such merging was found in the repository audit.
+- RUNTIME_EMIT_CHANGE_EXPECTED: NO. In-memory hypothetical substitution produced byte-identical policy JavaScript through TypeScript and esbuild; this is not a completed implementation or full-build claim.
+- Typecheck: 445 baseline diagnostics; 445 virtual-alias diagnostics; 0 added; 0 removed. Existing debt remains unresolved; lint is not PASS.
+- Complete direct module consumer/reference set: `src/services/driverTruckIntake.server.ts` (policy, PureAffiliation, PureAssignment, PureAllocation), `src/repositories/projectCarrierAffiliation.repository.ts` (policy and PureAffiliation only), and policy's own method signatures in `src/utils/canonicalFleetRelationshipPolicy.ts`.
+- Related test files under `src/tests/`: `driverTruckIntakeP602A.test.ts` (14), `projectCarrierFleetAffiliationFoundation.test.ts` (12), `projectDriverTruckAssignmentFoundation.test.ts` (24), `projectTruckMaterialAllocationFoundation.test.ts` (53), `smartImportUnit5AStandaloneFleetBoundary.test.ts` (28). Audit execution on Node 22: **131/131 PASS**. These runtime regressions do not themselves prove compiler type contracts; historical placeholder assertions are not strengthened into behavioral evidence.
+
+**Explicit out of scope**: PureAffiliation and AffiliationInput; affiliation semantics; assignment/allocation behavior; relationship lifecycle; ID generators; Firestore transactions; collection paths; payloads; APIs; RBAC; validators; Smart Import behavior; UI; compiler configuration; packages; CI; and existing TypeScript debt outside this seam. No new `any`, type widening or business-logic edits.
+
+**Future implementation acceptance criteria**:
+
+1. PureAssignment export preserved.
+2. PureAllocation export preserved.
+3. Exact nine-property shape preserved for both.
+4. No readonly, optionality or nullability change.
+5. No status vocabulary change.
+6. No runtime JavaScript behavior change.
+7. No storage/wire change.
+8. No new diagnostics against the recorded baseline; existing failures must not be relabeled PASS.
+9. All five related test files pass without removing or weakening tests.
+10. A focused compiler contract test exists and passes, using actual compiler checks rather than transpilation-only assertions. Proposed exact file: `src/tests/canonicalFleetRelationshipPolicyTypeAuthority.test.ts`; no test is created in this activation.
+11. `npm run build` passes.
+12. `npm run test:i18n-runtime` passes.
+13. `npm run test:auth-trust-boundary` passes.
+14. Emitted policy runtime remains equivalent to the approved baseline.
+15. Exact bounded production scope is preserved.
+
+**Implementation stop conditions** — report BLOCKED, do not broaden automatically:
+
+- Declaration merging is discovered.
+- An additional affected production consumer is discovered.
+- Structural mismatch.
+- Semantic mismatch.
+- Runtime emit change.
+- New TypeScript diagnostic.
+- Need to widen types.
+- Need to introduce `any`.
+- Need to modify business logic.
+- Need to modify another production file.
+- Need to alter persistence/wire contracts.
+
+**Governance boundary**: P1-U1 remains VERIFIED / CLOSED; Phase 0 remains VERIFIED / CLOSED / FROZEN; Phase 1 remains IN_PROGRESS. NEXT_ACTION is EXECUTE_P1_U2_BOUNDED_TYPE_AUTHORITY_CONVERGENCE. No subsequent Phase 1 unit ID is assigned. P1-U2 is activated but NOT implemented, verified or closed. Activation publication status: **NOT PUBLISHED**. No commit or push occurs in this step.
