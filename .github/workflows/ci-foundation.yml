@@ -1,0 +1,102 @@
+name: Secret-free foundation CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  required-foundation:
+    name: Required foundation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Set up project Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Confirm Node and npm authority
+        run: |
+          node --version
+          npm --version
+          node -e "if (process.versions.node.split('.')[0] !== '22') process.exit(1)"
+          npm_version="$(npm --version)"
+          test "${npm_version%%.*}" = '10'
+      - name: Clean install
+        run: npm ci --no-audit --no-fund
+      - name: Build
+        run: npm run build
+      - name: Verify runtime translation keys
+        run: npm run test:i18n-runtime
+      - name: Verify authentication trust boundary
+        run: npm run test:auth-trust-boundary
+      - name: Verify repository cleanliness
+        if: ${{ always() }}
+        run: |
+          git diff --exit-code
+          git diff --cached --exit-code
+          repository_status="$(git status --porcelain=v1 --untracked-files=all)"
+          if [ -n "$repository_status" ]; then
+            printf '%s\n' "$repository_status"
+            echo '::error::Verification mutated repository state.'
+            exit 1
+          fi
+
+  typecheck-debt-observability:
+    name: Typecheck debt observability
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Set up project Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Confirm Node and npm authority
+        run: |
+          node --version
+          npm --version
+          node -e "if (process.versions.node.split('.')[0] !== '22') process.exit(1)"
+          npm_version="$(npm --version)"
+          test "${npm_version%%.*}" = '10'
+      - name: Clean install
+        run: npm ci --no-audit --no-fund
+      # Preserve the command outcome while tolerating debt in this step only.
+      - name: Full-repository typecheck (non-blocking debt observation)
+        id: typecheck
+        continue-on-error: true
+        run: npm run lint
+      - name: Report typecheck outcome
+        if: ${{ always() }}
+        env:
+          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
+        run: |
+          printf 'TYPECHECK COMMAND RESULT: %s\n' "$TYPECHECK_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$TYPECHECK_OUTCOME" = 'failure' ]; then
+            echo 'npm run lint failed. TypeScript debt remains present. This is debt observability, intentionally non-blocking for P0-U6 foundation; lint did not PASS. P0-U7 must reassess the unresolved debt.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo 'FOUNDATION CI RESULT: reported independently by the Required foundation job. Typecheck debt tolerance does not establish foundation success. Mutation guards and all other steps remain blocking; no fixed diagnostic allowance applies.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify repository cleanliness
+        if: ${{ always() }}
+        run: |
+          git diff --exit-code
+          git diff --cached --exit-code
+          repository_status="$(git status --porcelain=v1 --untracked-files=all)"
+          if [ -n "$repository_status" ]; then
+            printf '%s\n' "$repository_status"
+            echo '::error::Verification mutated repository state.'
+            exit 1
+          fi
