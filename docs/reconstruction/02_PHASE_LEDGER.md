@@ -1,28 +1,28 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `3b0fc03d27a4b663e85d330f581550c37d62999d`. By the explicit owner-approved P0-U7 governance decision, Phase 0 is VERIFIED / CLOSED / FROZEN and Phase 1 is NOT_STARTED / ACTIVE. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `5bf844e2f2cea1604e3f6fcfbf8778cd8aed94e6`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with owner-approved P1-U1 NOT_STARTED / ACTIVE. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
-- **Phase-transition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0. Phase 1 is now NOT_STARTED / ACTIVE; its first unit is not named in that plan. ACTIVE_UNIT remains UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION. No Phase 1 unit ID, implementation or additional phase transition is invented.
+- **Phase-transition / unit-definition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0 but does not name its first unit. After `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, the owner explicitly assigned **P1-U1 — Canonical Domain Authority and Identity Boundary Contract**, type **CONTRACT_FIRST_UNIT**. This owner decision supplies the unit ID; it is not inferred from historical Phase/Block numbering. Phase 1 is IN_PROGRESS; P1-U1 is NOT_STARTED / ACTIVE. No subsequent unit is assigned or activated.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PHASE_1
-ACTIVE_PHASE_STATUS: NOT_STARTED / ACTIVE
-ACTIVE_UNIT: UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION
-ACTIVE_UNIT_STATUS: UNASSIGNED / NOT_STARTED
+ACTIVE_PHASE_STATUS: IN_PROGRESS
+ACTIVE_UNIT: P1-U1 — Canonical Domain Authority and Identity Boundary Contract
+ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
 PHASE_0_STATUS: VERIFIED / CLOSED
 PHASE_0_FREEZE_STATUS: FROZEN
-PHASE_1_STATUS: NOT_STARTED / ACTIVE
+PHASE_1_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NOT_DEFINED_IN_ACCEPTED_PLAN
-NEXT_ACTION: DEFINE_PHASE_1_UNIT
+NEXT_ACTION: EXECUTE_P1_U1_CONTRACT_DEFINITION
 P0_U5_STATUS: VERIFIED / CLOSED
 P0_U5_VERIFIED_MERGE: 15529b85848a80322dea033e80903fd2fd1e294c
 P0_U6_STATUS: VERIFIED / CLOSED
@@ -32,7 +32,7 @@ P0_U7_PUBLICATION_STATUS: MERGED / VERIFIED
 P0_U7_VERIFIED_MERGE: 3b0fc03d27a4b663e85d330f581550c37d62999d
 P0_U7_PUBLICATION_COMMIT: d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5
 P0_U7_PR: 9
-CURRENT_CODE_BASELINE: 3b0fc03d27a4b663e85d330f581550c37d62999d
+CURRENT_CODE_BASELINE: 5bf844e2f2cea1604e3f6fcfbf8778cd8aed94e6
 ```
 
 ---
@@ -106,7 +106,7 @@ CURRENT_CODE_BASELINE: 3b0fc03d27a4b663e85d330f581550c37d62999d
 ### Overall Reconstruction Roadmap Status
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
-- **Phase 1 — Canonical Domain Model**: NOT_STARTED / ACTIVE; unit definition required
+- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 NOT_STARTED / ACTIVE
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -153,6 +153,49 @@ The owner accepted the read-only P0-U7 closure audit and explicitly approved doc
 
 Accepted exit evidence: authority/tooling/test-authority conflicts 0; clean install and build PASS; runtime-key tests 16/16 and auth trust-boundary tests 23/23 PASS. Lint failed with exit 2 / 445 diagnostics (29 active tests, 393 historical/non-active tests, 23 production, 0 tooling/config), unchanged from P0-U6. MUST_FIX_BEFORE_PHASE_0_FREEZE = 0; UNKNOWN diagnostics = 0. Root npm test is NOT PASS; verify:beta2 is NOT PASS. Six environmental/external cases remain explicitly deferred, with NEW_REGRESSION = 0 and UNKNOWN failures = 0. CI_BASELINE_BLOCKER, TRACKED_SECRET, UNAUTHORIZED_GENERATED_ARTIFACT and COMPETING_LOCKFILE are each 0. Detailed debt families, evidence and phase owners remain in [05_DECISION_AND_DEBT_LOG.md](05_DECISION_AND_DEBT_LOG.md).
 
-**PHASE_1 — Canonical Domain Model** is **NOT_STARTED / ACTIVE**. The accepted goal is hardened entity domain interfaces, type boundaries, primary/foreign key relationships and validation schemas. ACTIVE_UNIT is **UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION**. This administrative transition starts no Phase 1 implementation and invents no unit ID.
+At the P0-U7 exit snapshot, **PHASE_1 — Canonical Domain Model** was **NOT_STARTED / ACTIVE**, with ACTIVE_UNIT **UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION**. Its goal remains hardened entity domain interfaces, type boundaries, primary/foreign key relationships and validation schemas. The subsequent owner-approved P1-U1 activation below supersedes those historical unassigned pointers; the exit itself started no Phase 1 implementation.
 
 P0-U7 publication status: **MERGED / VERIFIED**. Owner review passed; implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5` was published with exactly 7 documentation files and merged through PR #9 as `3b0fc03d27a4b663e85d330f581550c37d62999d`. These are the owner-supplied verified GitHub facts, corroborated by the merge and published head in local main history after safe synchronization. This post-merge record update reruns no product checks, changes no phase/unit semantics and does not strengthen the accepted audit evidence into lint/root/Beta or full-product acceptance.
+
+### P1-U1 Owner-Approved Unit Activation
+
+- **Unit ID**: P1-U1.
+- **Title**: Canonical Domain Authority and Identity Boundary Contract.
+- **Arabic title**: عقد سلطة أنواع الدومين وحدود الهوية ونطاق المشروع.
+- **Unit type**: CONTRACT_FIRST_UNIT.
+- **Status**: NOT_STARTED / ACTIVE. This is administrative activation only; the contract is not implemented, accepted or closed.
+- **Activation basis**: owner approval following `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE` on baseline `5bf844e2f2cea1604e3f6fcfbf8778cd8aed94e6`.
+- **One architectural purpose**: establish the binding authority contract for core domain identity, project references and competing type definitions before any Phase 1 production convergence.
+
+The unit must define the authoritative type per context, alternate/legacy disposition, identity versus natural key versus display value, project-scoped reference semantics, ID generation/source semantics, document/domain ID mapping, stored/create/update/projection boundaries where necessary to identity, existing runtime enforcement versus gaps, and the bounded impact map for the next implementation seam. These are required future deliverables, not contracts completed by this activation.
+
+**In-scope families**: Project identity; common ID/reference semantics; GlobalCarrierEntity, GlobalDriverEntity, GlobalTruckEntity and GlobalMaterialEntity; project memberships; driver/truck carrier affiliations; driver-truck assignments; truck-material allocations.
+
+**Production reference files (read-only evidence)**: `src/types/common.ts`, `src/types/entities.ts`, `src/types/globalEntities.ts`, `src/types/projectMembership.ts`, `src/types/projectCarrierAffiliation.ts`, `src/types/projectDriverTruckAssignment.ts`, `src/types/projectTruckMaterialAllocation.ts`, and directly related ID generators/read-write boundaries only. These are the actual repository paths corresponding to the owner's `types/` references. Activation edits none of them.
+
+**Out of scope**: RBAC/auth semantics, Project lifecycle changes, persistence/server or Firebase schema/collection migration, master-data behavioral convergence, Smart Import remediation, Pricing convergence, TripEntity/TripRecord convergence, offline/outbox changes, UI redesign, TypeScript cleanup campaigns, deletion of legacy contracts, new schema libraries, branded-ID introduction and new ID-generator formats. Later owning units/phases retain those concerns.
+
+**Critical audit findings to preserve**:
+
+- “Canonical” naming does not establish runtime authority by itself; historical accepted intent cannot override current production reality.
+- Global identities and legacy project-scoped entity definitions coexist.
+- All inspected core IDs are currently string-based; Trip ID and Trip number are distinct concepts.
+- Natural keys and display/source values must not be promoted into canonical domain IDs. Preserve existing IDs and persisted values; this rule does not regenerate old IDs or reject them using a newly invented format.
+- Existing storage/wire contracts are not implicitly migrated by this contract unit.
+
+**Required acceptance outputs and gates**:
+
+1. An authority/disposition matrix for every in-scope definition.
+2. A core identity matrix specifying ID source, scope, uniqueness, requiredness, serialization and document mapping.
+3. Explicit separation of global identity, project membership, affiliation, temporal assignment and temporal allocation.
+4. Rules preventing identity inference from Project name, driver national ID, truck plate, material code/name and carrier display/source text; natural-key lookup of an existing identity remains distinct from generating an ID from that value.
+5. A map of current runtime enforcement and missing enforcement.
+6. A bounded impact map for the next implementation unit, without activating it.
+7. No production behavior change.
+8. No persistence/wire-format change.
+9. No new TypeScript diagnostics; existing recorded debt is not a cleanup authorization.
+10. Explicit owner acceptance after the unit's deliverables are produced and reviewed.
+
+**Tentative sequence only**: P1-U1 is the active contract-first unit. Possible successors are “Core Identity / Reference Type Convergence” and “Core Input / Stored / Projection Boundary Contracts”. They have no assigned IDs and are not activated or authorized for implementation.
+
+Earlier supporting records that describe Phase 1 as unassigned retain their pre-P1-U1 activation context; only this ledger owns the current unit pointer. Phase 0 remains VERIFIED / CLOSED / FROZEN with its contract and debt dispositions unchanged. This activation changes no production, tests, config, persistence or runtime behavior and does not execute P1-U1 contract definition. Activation publication status: **NOT PUBLISHED**; no commit, push or PR is created by this step.
