@@ -1,7 +1,7 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `551c6ef554c537a57485035955cbb03b6fb9d0e5`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is NOT_STARTED / ACTIVE; no later unit is assigned. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `8a962ae3e1d133301918e08e59c3e3da5d17f254`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is IMPLEMENTED / AWAITING_OWNER_REVIEW; no later unit is assigned or activated. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
@@ -15,7 +15,7 @@ This is the sole current source for phase, active/next unit, accepted units, and
 ACTIVE_PHASE: PHASE_1
 ACTIVE_PHASE_STATUS: IN_PROGRESS
 ACTIVE_UNIT: P1-U3 — Truck Type Vocabulary Authority Across Input and Stored Boundaries
-ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
+ACTIVE_UNIT_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
 ACTIVE_UNIT_TYPE: BOUNDED_TYPE_AUTHORITY_CONVERGENCE
 PHASE_0_STATUS: VERIFIED / CLOSED
 PHASE_0_FREEZE_STATUS: FROZEN
@@ -23,7 +23,7 @@ PHASE_1_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NO_SUBSEQUENT_UNIT_ASSIGNED
-NEXT_ACTION: EXECUTE_P1_U3_TRUCK_TYPE_VOCABULARY_AUTHORITY_CONVERGENCE
+NEXT_ACTION: OWNER_REVIEW_P1_U3_IMPLEMENTATION
 PHASE_1_REMAINING_SEAMS: 1
 AFTER_P1_U3_EXPECTED_STATE: LIKELY_READY_FOR_PHASE_1_CLOSURE_AUDIT
 P0_U5_STATUS: VERIFIED / CLOSED
@@ -47,7 +47,7 @@ P1_U2_PR: 15
 P1_U2_VERIFIED_MERGE: 551c6ef554c537a57485035955cbb03b6fb9d0e5
 P1_U2_OWNER_REVIEW: PASSED
 P1_U2_PUBLICATION_STATUS: MERGED / VERIFIED
-CURRENT_CODE_BASELINE: 551c6ef554c537a57485035955cbb03b6fb9d0e5
+CURRENT_CODE_BASELINE: 8a962ae3e1d133301918e08e59c3e3da5d17f254
 ```
 
 ---
@@ -121,7 +121,7 @@ CURRENT_CODE_BASELINE: 551c6ef554c537a57485035955cbb03b6fb9d0e5
 ### Overall Reconstruction Roadmap Status
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
-- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 NOT_STARTED / ACTIVE
+- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 IMPLEMENTED / AWAITING_OWNER_REVIEW
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -342,6 +342,8 @@ At closure preparation, this governance record was NOT PUBLISHED. The owner has 
 
 ### P1-U3 Owner-Approved Unit Activation
 
+Historical activation snapshot: NOT_STARTED / ACTIVE, future-scope and no-implementation statements below describe the owner-approved activation, not the later implementation state. Governance commit `ab7da667fe13614f1dc752a9294051793c18c339` is included in main `8a962ae3e1d133301918e08e59c3e3da5d17f254`. The implementation record below supersedes activation-time execution pointers without changing the approved scope or prior closures.
+
 - **Unit ID / title**: P1-U3 — Truck Type Vocabulary Authority Across Input and Stored Boundaries.
 - **Unit type**: BOUNDED_TYPE_AUTHORITY_CONVERGENCE.
 - **Status**: NOT_STARTED / ACTIVE. This governance step does not implement P1-U3.
@@ -399,3 +401,42 @@ At closure preparation, this governance record was NOT PUBLISHED. The owner has 
 **Explicit out of scope**: CreateStandaloneTruckPayload.truckType?: string; CanonicalDriverTruckRow.truckType; parsing; matching; commit semantics; Smart Import behavior; IDs; relationship rules; validators; Firestore; UI; RBAC; timestamp mismatches; importBatchId DTO mismatches; compiler configuration; packages; CI. Timestamp issues remain DEFER_PHASE_2. Import DTO issues remain DEFER_PHASE_7_8. No source/test/configuration/package/workflow edit occurs in this governance step.
 
 **Phase 1 direction**: PHASE_1_REMAINING_SEAMS = 1, meaning the remaining currently proven Phase-1-owned seam identified by the accepted audit; P1-U3 is that seam. AFTER_P1_U3_EXPECTED_STATE = LIKELY_READY_FOR_PHASE_1_CLOSURE_AUDIT. This is advisory, not Phase 1 closure or Phase 2 activation. P1-U1 and P1-U2 remain VERIFIED / CLOSED; Phase 0 remains VERIFIED / CLOSED / FROZEN; Phase 1 remains IN_PROGRESS. No subsequent Phase 1 unit ID is assigned. NEXT_ACTION: EXECUTE_P1_U3_TRUCK_TYPE_VOCABULARY_AUTHORITY_CONVERGENCE. Publication of this combined governance update does not implement, verify or close P1-U3.
+
+
+### P1-U3 Bounded Implementation — Awaiting Owner Review
+
+**Status**: IMPLEMENTED / AWAITING_OWNER_REVIEW. Authoritative implementation baseline: `8a962ae3e1d133301918e08e59c3e3da5d17f254`, safely synchronized to clean main before changes. The active unit remains P1-U3, type BOUNDED_TYPE_AUTHORITY_CONVERGENCE; Phase 1 remains IN_PROGRESS. Owner acceptance and publication remain pending; this is not unit closure.
+
+**Exact production scope**:
+
+- `src/services/driverTruckIntake.service.ts`: type-only import from `../types/globalEntities`; DriverTruckIntakePayload.truckType remains optional and now references GlobalTruckType.
+- `src/types/entities.ts`: type-only import from `./globalEntities`; TruckEntity.truckType remains optional and now references GlobalTruckType.
+
+The read-only authority `src/types/globalEntities.ts` is unchanged. Its exact vocabulary remains TIPPER_32M3, TRAILER_24M, FLATBED, DUMPER. Reversing only the two import/reference edits reproduces both baseline files exactly: no other property or executable statement changed. Global/project entities remain distinct. The broader string-based CreateStandaloneTruckPayload.truckType and CanonicalDriverTruckRow.truckType are untouched, as are validators, parsing/matching/commit, IDs, relations, Firestore, APIs, UI, RBAC, timestamps, packages, compiler configuration and CI.
+
+**New focused test**: `src/tests/truckTypeBoundaryAuthority.test.ts` only. Three tests verify canonical type-only source consumption; real compiler compatibility against the exact four-value union and optional mutable field shape; omitted/undefined values; bidirectional field vocabulary compatibility; rejection of arbitrary strings, extra values, altered casing, null, numeric/object values; and absence of type widening. Compiler fixtures use the unchanged project options plus stronger strict null checking and Node ambient references, remain virtual, and emit/write nothing. Unused expect-error directives fail verification. No new `any` is introduced.
+
+**Executed verification — Node 22.23.3 / npm 10.9.8**:
+
+| Check | Result |
+|---|---|
+| Baseline `npm run lint` | Exit 2; 445 diagnostics |
+| Post-change `npm run lint` | Exit 2; 445 identical diagnostic records; added 0, removed 0; changed production/test files have 0 diagnostics |
+| `truckTypeBoundaryAuthority.test.ts` | 3/3 PASS |
+| `driverTruckIntakeP602A.test.ts` | 14/14 PASS |
+| `smartImportUnit5AStandaloneFleetBoundary.test.ts` | 28/28 PASS |
+| `globalIdentityFoundation.test.ts` | 28/28 PASS |
+| `projectWorkspaceFleetRosterUnit1.test.ts` | 12/12 PASS |
+| `rosterSmartImportDriverTruckLayerC4.test.ts` | 33/33 PASS |
+| `legacyMasterDataHelperDeprecation.test.ts` | 10/10 PASS |
+| `canonicalFleetRelationshipPolicyTypeAuthority.test.ts` | 3/3 PASS |
+| Seven unchanged existing test files | 128/128 PASS; with the new test, 131/131 PASS |
+| Both production files: baseline/current emit | Byte-identical JavaScript under TypeScript and esbuild; maps/line metadata excluded; RUNTIME_EMIT_CHANGE: NONE |
+| `npm run build` | PASS, exit 0 |
+| `npm run test:i18n-runtime` | 16/16 PASS, exit 0 |
+| `npm run test:auth-trust-boundary` | 23/23 PASS, exit 0 |
+| Scope / whitespace | Exactly five approved files: two production, one new focused test, two governance docs; `git diff --check` PASS; no generated tracked/untracked verification artifacts |
+
+**Boundary result**: accepted values, optionality, declared nullability, mutability, exports and field name truckType are unchanged. Project strictNullChecks remains unchanged; the stricter focused fixture proves the declaration contract and does not add runtime validation. Runtime imports/side effects, runtime behavior, payload/storage/API shape and serialization are unchanged. No global/project entity merge or storage migration occurs. No existing test is edited or weakened. Existing lint debt remains exit 2, NOT PASS; no full root-test or Beta success is claimed.
+
+All 18 implementation criteria are met within the exact bounded scope. P1-U1 and P1-U2 remain VERIFIED / CLOSED, their implementations/contracts untouched; Phase 0 remains VERIFIED / CLOSED / FROZEN. Timestamp debt remains DEFER_PHASE_2; importBatchId DTO debt remains DEFER_PHASE_7_8. No later Phase 1 unit ID or Phase 2 activation is introduced. NEXT_ACTION: OWNER_REVIEW_P1_U3_IMPLEMENTATION. The expected next step after P1-U3 acceptance/publication/merge/post-merge closure remains the Phase 1 closure audit; LIKELY_READY_FOR_PHASE_1_CLOSURE_AUDIT is advisory, not Phase 1 closure. Implementation publication: NOT PUBLISHED. No commit, push or PR is created.

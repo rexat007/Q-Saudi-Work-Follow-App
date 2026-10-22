@@ -1,6 +1,7 @@
 import { Timestamp } from 'firebase/firestore';
 import { BaseAuditedEntity } from './common';
 import { ProjectStorageProfile } from './workspace';
+import type { GlobalTruckType } from './globalEntities';
 
 // 1. Project Entity
 export interface ProjectEntity extends BaseAuditedEntity {
@@ -107,7 +108,7 @@ export interface TruckEntity extends BaseAuditedEntity {
   projectId: string;
   plateNumberAr?: string; // backward compat
   plateNumberEn?: string;
-  truckType?: 'TIPPER_32M3' | 'TRAILER_24M' | 'FLATBED' | 'DUMPER';
+  truckType?: GlobalTruckType;
   tareWeightKg?: number;
   maxGrossWeightKg?: number;
   legalPayloadLimitKg?: number; // maxGrossWeightKg - tareWeightKg
