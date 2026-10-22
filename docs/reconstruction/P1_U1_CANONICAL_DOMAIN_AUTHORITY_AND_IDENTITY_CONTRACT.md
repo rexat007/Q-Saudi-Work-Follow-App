@@ -2,13 +2,13 @@
 
 Arabic title: عقد سلطة أنواع الدومين وحدود الهوية ونطاق المشروع.
 
-Classification: **CURRENT_SUPPORTING**. The [Phase Ledger](02_PHASE_LEDGER.md) is the sole phase/unit state authority; this document defines the architectural contract, not an independent progress ledger. Type: **CONTRACT_FIRST_UNIT**. Owner acceptance of this completed contract remains pending; no VERIFIED/CLOSED or publication claim is made.
+Classification: **CURRENT_SUPPORTING**. The [Phase Ledger](02_PHASE_LEDGER.md) is the sole phase/unit state authority; this document defines the architectural contract, not an independent progress ledger. Type: **CONTRACT_FIRST_UNIT**. Owner acceptance **PASSED** before publication. P1-U1 is **VERIFIED / CLOSED**; contract publication is **MERGED / VERIFIED**, PR **#12**, implementation/publication commit `438b3695757f9da3f1a782e85193340b25d6fb74`, verified merge `06696db883db2a47526b207f5a94e27321c49ec7`. Current authoritative main baseline is `06696db883db2a47526b207f5a94e27321c49ec7`; the architectural evidence baseline below is retained.
 
 ## 1. Evidence and scope
 
-Evidence baseline: current GitHub main `4e7fde36628b83117bf19f4ee34091f6eee2204c`, safely synchronized from a clean tree. Inputs are the accepted `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, owner activation of P1-U1, and current source inspection. Primary files: `src/types/common.ts`, `entities.ts`, `globalEntities.ts`, `projectMembership.ts`, `projectCarrierAffiliation.ts`, `projectDriverTruckAssignment.ts`, `projectTruckMaterialAllocation.ts`, directly related generators/ports/guards, and the consumers cited below.
+Implementation evidence baseline: then-current GitHub main `4e7fde36628b83117bf19f4ee34091f6eee2204c`, safely synchronized from a clean tree. Inputs are the accepted `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, owner activation of P1-U1, and current source inspection. Primary files: `src/types/common.ts`, `entities.ts`, `globalEntities.ts`, `projectMembership.ts`, `projectCarrierAffiliation.ts`, `projectDriverTruckAssignment.ts`, `projectTruckMaterialAllocation.ts`, directly related generators/ports/guards, and the consumers cited below.
 
-The architectural authority and identity rules below are the proposed binding P1-U1 contract for owner acceptance. They characterize current contexts and constrain later authorized work; they do not claim every existing path already enforces them. This unit edits documentation only. It changes no code, tests, configuration, rules, dependencies, IDs, timestamps, collections, persisted data, wire payloads, authorization or runtime behavior. No branded ID, replacement DTO, schema library or new generator format is introduced.
+The architectural authority and identity rules below are the owner-accepted binding P1-U1 contract. They characterize current contexts and constrain later authorized work; they do not claim every existing path already enforces them. This unit edits documentation only. It changes no code, tests, configuration, rules, dependencies, IDs, timestamps, collections, persisted data, wire payloads, authorization or runtime behavior. No branded ID, replacement DTO, schema library or new generator format is introduced.
 
 Evidence classes are distinct: source/caller/guard inspection proves structure, not a live database audit. Entry tracing starts at `src/main.tsx`, `server.ts` and `api/index.ts`, includes relative static/dynamic imports and is corroborated with direct consumers. The canonical-named service group has no path from those entries; this is repository-entry unreachability, not proof for deleting it or denying possible external consumers. Test imports do not promote it to production authority. Existing lint evidence is unchanged because source/server/toolchain/config are unchanged from the accepted Phase 0 exit baseline; no new lint/build/full-product run is claimed here.
 
@@ -245,6 +245,8 @@ The accepted production type-debt observations remain unresolved, not patched: t
 
 ## 11. Bounded next production seam recommendation (not activated)
 
+**Recommendation status:** CANDIDATE_NEXT_IMPLEMENTATION_SEAM; NOT ACTIVE; NOT AUTHORIZED FOR IMPLEMENTATION; NO UNIT ID ASSIGNED. Evidence for the next unit-definition decision only.
+
 **Recommended title:** Temporal Fleet Relationship Policy Type Authority Convergence. This is a proposed narrow seam within core identity/reference type convergence, not an assigned unit ID or authorization to implement.
 
 **One purpose:** remove the two exact duplicate interval declarations in the pure policy boundary while retaining their existing exported names and all current behavior.
@@ -288,6 +290,6 @@ Phase 1 establishes type authority, reference representation and boundary contra
 | 7. Behavior unchanged | Documentation-only Git scope; no production edits |
 | 8. Persistence/wire unchanged | Documentation-only scope; no new DTO/generator/schema or data operation |
 | 9. No new TypeScript diagnostics caused | No compiler input/source/package/config changed; existing Phase 0 type-debt evidence remains scoped, no new lint PASS claimed |
-| 10. Explicit owner acceptance | PENDING; this document is ready for review, not accepted/verified/closed |
+| 10. Explicit owner acceptance | PASSED before publication; P1-U1 VERIFIED / CLOSED; PR #12 merged and verified |
 
-Document links, current-state consistency, matrix counts, protected-path identity, exact three-file scope and `git diff --check` are the local implementation checks. This contract is NOT PUBLISHED. No commit, push, PR, production convergence or later unit activation occurs in this step.
+Document links, current-state consistency, matrix counts, protected-path identity, exact three-file scope and `git diff --check` are the local implementation checks. The contract implementation is MERGED / VERIFIED as recorded above. This post-merge documentation closure record is NOT PUBLISHED. No commit, push, production convergence or later unit activation occurs in this closure-record step.
