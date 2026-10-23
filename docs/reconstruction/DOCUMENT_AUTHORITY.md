@@ -5,7 +5,7 @@ Authority: `CURRENT_SUPPORTING`; current state is owned only by [02_PHASE_LEDGER
 
 ## Authority order
 
-1. **Current GitHub main** — actual code, architecture and package/config contents. Current verified continuation checkpoint: `b360fe7c717cff35357dc539ca37d83bea1b348c` (PR #26 merged). Historical unit baselines remain historical evidence and must not be rewritten as current.
+1. **Current GitHub main** — actual code, architecture and package/config contents. Current closure evidence baseline: `f817fc8f053aeb2f5f1ecc63f456a939816b7301` (PR #29 merged). Phase 1 is VERIFIED / CLOSED; Phase 2 is NOT_STARTED pending owner activation, with no active implementation unit. Historical unit baselines remain historical evidence and must not be rewritten as current.
 2. **Accepted reconstruction decisions represented in repository documents** — the current-state ledger, canonical decision/debt log, constitution, unit protocol, acceptance governance and accepted roadmap.
 3. **Current active test/tooling contracts** — actual `package.json` commands, `vitest.config.ts`, canonical npm lockfile, and their supporting manifests/contracts. They describe execution and evidence; they do not override accepted product semantics with retired snapshots.
 4. **Historical documentation** — prior Block/Phase reports, release scorecards, original design specifications and Studio artifacts. They preserve past claims/provenance and cannot establish current status by filename alone.

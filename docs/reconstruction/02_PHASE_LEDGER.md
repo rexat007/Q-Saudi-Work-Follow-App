@@ -1,32 +1,35 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `b360fe7c717cff35357dc539ca37d83bea1b348c`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #21. P1-U6 — Global Entity Status Input Authority Convergence is VERIFIED / CLOSED after owner review PASSED and verified merge through PR #23. P1-U7 — Global Material UOM Vocabulary Authority Convergence is VERIFIED / CLOSED after owner review PASSED and verified merge through PR #25. P1-U8 — User Entity Role Vocabulary Authority Convergence is NOT_STARTED / ACTIVE. The accepted User Role semantic audit separates the two safe full-vocabulary UserEntity fields from intentional context subsets and Phase 3 security/validation boundaries. Phase 1 remains IN_PROGRESS and closure is NOT ready. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Closure evidence baseline: `f817fc8f053aeb2f5f1ecc63f456a939816b7301`. The owner approved Phase 1 closure after `PHASE_1_CLOSURE_AUDIT_PASS_READY_FOR_OWNER_CLOSURE_DECISION`. Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 and P1-U1 through P1-U9 are VERIFIED / CLOSED. No implementation unit is active. Phase 2 remains NOT_STARTED pending explicit owner activation; no Phase 2 unit or P1-U10 is assigned.
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
-- **Phase-transition / unit-definition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0 but does not name its first unit. After `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, the owner explicitly assigned **P1-U1 — Canonical Domain Authority and Identity Boundary Contract**, type **CONTRACT_FIRST_UNIT**. This owner decision supplies the unit ID; it is not inferred from historical Phase/Block numbering. Phase 1 is IN_PROGRESS; P1-U1 is VERIFIED / CLOSED under [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md). The owner subsequently assigned P1-U2 after PHASE_1_NEXT_UNIT_SEAM_AUDIT_COMPLETE; its activation contract and implementation evidence below govern the bounded step. The owner has now explicitly approved and assigned P1-U3 under the activation contract below. The owner has subsequently approved P1-U3 closure and assigned P1-U4 under the activation contract below. The owner has now approved P1-U4 closure and explicitly assigned P1-U5 under the activation contract below. The owner has now approved P1-U5 closure and explicitly assigned P1-U6 under the activation contract below. The owner has now approved P1-U6 closure and explicitly assigned P1-U7 under the activation contract below. The owner has now approved P1-U7 closure and explicitly assigned P1-U8 after the accepted User Role semantic audit below. No later unit is assigned.
+- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 2 after Phase 1. Owner approval closes Phase 1 only; it does not activate Phase 2 or define its first unit. Historical activation and verification evidence below remains scoped to its recorded period.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
-ACTIVE_PHASE: PHASE_1
-ACTIVE_PHASE_STATUS: IN_PROGRESS
-ACTIVE_UNIT: P1-U8 — User Entity Role Vocabulary Authority Convergence
-ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
-ACTIVE_UNIT_TYPE: BOUNDED_TYPE_AUTHORITY_CONVERGENCE
-PHASE_0_STATUS: VERIFIED / CLOSED
+ACTIVE_PHASE: NONE
+ACTIVE_PHASE_STATUS: NONE
+ACTIVE_UNIT: NONE
+ACTIVE_UNIT_STATUS: NONE
+ACTIVE_UNIT_TYPE: NONE
+PHASE_0_STATUS: VERIFIED / CLOSED / FROZEN
 PHASE_0_FREEZE_STATUS: FROZEN
-PHASE_1_STATUS: IN_PROGRESS
+PHASE_1_STATUS: VERIFIED / CLOSED
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
-NEXT_UNIT: NO_SUBSEQUENT_UNIT_ASSIGNED
-NEXT_ACTION: EXECUTE_P1_U8_USER_ENTITY_ROLE_VOCABULARY_AUTHORITY_CONVERGENCE
-PHASE_1_CLOSURE_READY: NO
-PHASE_1_REMAINING_SEAMS: 1
-AFTER_P1_U8_EXPECTED_STATE: PHASE_1_CLOSURE_AUDIT_REQUIRED_AFTER_IMPLEMENTATION_MERGE_VERIFICATION
+NEXT_UNIT: NONE_ASSIGNED
+NEXT_PHASE: PHASE_2
+NEXT_PHASE_STATUS: NOT_STARTED
+NEXT_ACTION: OWNER_DECISION_TO_ACTIVATE_PHASE_2
+PHASE_1_CLOSURE_READY: CLOSED
+PHASE_1_REMAINING_SEAMS: 0
+PHASE_1_CLOSURE_AUDIT: PHASE_1_CLOSURE_AUDIT_PASS_READY_FOR_OWNER_CLOSURE_DECISION
+PHASE_1_OWNER_CLOSURE_DECISION: APPROVED
 USER_ROLE_CONVERGENCE_STATUS: PARTITIONED_ENTITY_SAFE_PHASE_1_OTHER_BOUNDARIES_DEFER_PHASE_3
 WIZARD_ROLE_STATUS: DEFER_PHASE_3_SEMANTIC_REVIEW
 VALIDATOR_ROLE_STATUS: DEFER_PHASE_3_AUTHORIZATION_VALIDATION_REVIEW
@@ -82,11 +85,22 @@ P1_U7_PR: 25
 P1_U7_VERIFIED_MERGE: 9e93f0e47f955d78d74011b5467aa04188268ca6
 P1_U7_OWNER_REVIEW: PASSED
 P1_U7_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U8_STATUS: NOT_STARTED / ACTIVE
+P1_U8_STATUS: VERIFIED / CLOSED
 P1_U8_ACTIVATION_COMMIT: fe14046551d9193949ab3d739bdb4720faed06b1
 P1_U8_ACTIVATION_PR: 26
 P1_U8_ACTIVATION_MERGE: b360fe7c717cff35357dc539ca37d83bea1b348c
-CURRENT_CODE_BASELINE: b360fe7c717cff35357dc539ca37d83bea1b348c
+P1_U8_IMPLEMENTATION_COMMIT: 71bd509547087d8eb34ef160ac96765ff0c7a10d
+P1_U8_PR: 28
+P1_U8_VERIFIED_MERGE: 587f47403a9b768be08794054d6f99cf7f1eb2c1
+P1_U8_OWNER_REVIEW: PASSED
+P1_U8_PUBLICATION_STATUS: MERGED / VERIFIED
+P1_U9_STATUS: VERIFIED / CLOSED
+P1_U9_IMPLEMENTATION_COMMIT: 8dd14fdc5214539ad9b675733bf3906a20780780
+P1_U9_PR: 29
+P1_U9_VERIFIED_MERGE: f817fc8f053aeb2f5f1ecc63f456a939816b7301
+P1_U9_OWNER_REVIEW: PASSED
+P1_U9_PUBLICATION_STATUS: MERGED / VERIFIED
+CURRENT_CODE_BASELINE: f817fc8f053aeb2f5f1ecc63f456a939816b7301
 ```
 
 ---
@@ -160,7 +174,7 @@ CURRENT_CODE_BASELINE: b360fe7c717cff35357dc539ca37d83bea1b348c
 ### Overall Reconstruction Roadmap Status
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
-- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 VERIFIED / CLOSED; P1-U5 VERIFIED / CLOSED; P1-U6 VERIFIED / CLOSED; P1-U7 VERIFIED / CLOSED; P1-U8 NOT_STARTED / ACTIVE
+- **Phase 1 — Canonical Domain Model**: VERIFIED / CLOSED; P1-U1 through P1-U9 VERIFIED / CLOSED; no remaining proven safe Phase 1 seam.
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -184,6 +198,10 @@ CURRENT_CODE_BASELINE: b360fe7c717cff35357dc539ca37d83bea1b348c
 Whole-App i18n Batches 1–4 and final residual remediation are merged in the history of the current code baseline above (the accepted i18n merge is `2b52180304ac02d71b506f16dc69722c94ba9b6f`). Repository-authoritative convergence and the current product-language result are accepted for this reconstruction stage. AR/EN/UR parity is established; dictionary totals are observations, never a frozen invariant.
 
 Browser review is accepted sufficiently for this stage. This is not evidence that every label, device, role, or workflow was manually verified, nor a Beta 2/Phase 18 release acceptance. Minor mixed Arabic/English or bilingual labels remain `DEFERRED_NON_BLOCKING_PRODUCT_DEBT` in the decision/debt log.
+
+## Historical Unit Evidence
+
+The following activation, implementation and closure snapshots through the P1-U8 activation section preserve their original baselines, pending states and next actions. They are historical, superseded for current-state purposes by Current Active State above and the Phase 1 closure record below. They do not reactivate units or contradict current closure.
 
 ### P0-U6 Bounded Implementation Evidence
 
@@ -999,3 +1017,18 @@ The owner-supplied semantic audit decision is corroborated by read-only source i
 **Debt / governance preservation**: the three explicit role deferrals above remain Phase 3 obligations, not unresolved P1-U8 implementation. Existing timestamp/storage Phase 2, other Auth context Phase 3, project lifecycle Phase 4, relationship behavior Phase 5, import DTO Phases 7/8, pricing Phase 9, Trip lifecycle/model Phase 10 and offline/outbox Phase 11 ownership remains unchanged.
 
 **Current governance/publication boundary**: NEXT_ACTION is EXECUTE_P1_U8_USER_ENTITY_ROLE_VOCABULARY_AUTHORITY_CONVERGENCE. Only this ledger and the decision/debt log change. The owner authorizes one normal branch commit on `reconstruction/p1-u7-closure-p1-u8-activation`, without force push, merge or P1-U8 implementation. P1-U1 through P1-U6 and the Phase 0 freeze remain unchanged.
+
+## Phase 1 Owner-Approved Closure Record
+
+Closure evidence baseline: `f817fc8f053aeb2f5f1ecc63f456a939816b7301`. Closure audit: **PHASE_1_CLOSURE_AUDIT_PASS_READY_FOR_OWNER_CLOSURE_DECISION**. Owner closure decision: **APPROVED**. Phase 1 and P1-U1 through P1-U9 are **VERIFIED / CLOSED**; P1-U9 was the final Phase 1 unit. No P1-U10 exists.
+
+| Unit | Title | Implementation commit | PR | Independently verified merge |
+|---|---|---|---|---|
+| P1-U8 | User Entity Role Vocabulary Authority Convergence | `71bd509547087d8eb34ef160ac96765ff0c7a10d` | #28 | `587f47403a9b768be08794054d6f99cf7f1eb2c1` |
+| P1-U9 | Storage Provider Vocabulary Authority Convergence | `8dd14fdc5214539ad9b675733bf3906a20780780` | #29 | `f817fc8f053aeb2f5f1ecc63f456a939816b7301` |
+
+Both units completed bounded implementation, technical verification, owner scope review, publication, independent GitHub publication audit, manual merge and independent merge verification. P1-U8 converged UserEntity.role/requestedRole to canonical UserRole. P1-U9 converged two ClientWorkspaceService provider annotations to canonical StorageProviderType (MY_DRIVE / SHARED_DRIVE). Accepted evidence for each: focused contract 4/4 PASS, diagnostics 445 → 445 (added 0, removed 0), runtime emit NONE, build PASS, i18n-runtime 16/16 PASS and auth-trust-boundary 23/23 PASS. Lint remained EXIT 2 / NOT PASS. P1-U8's historical translation-count regression and P1-U9's two workspace regression failures were reproduced unchanged on their respective baselines; zero new regressions were identified. These are accepted implementation results, not checks rerun by this documentation task.
+
+The post-P1-U9 closure audit found no additional proven SAFE_PHASE_1_SEAM and no Phase-1-owned unresolved regression. Role differences at wizard, validator and authenticated-user boundaries remain intentionally deferred to Phase 3. Persistence/decoder/timestamp debt remains Phase 2; project lifecycle Phase 4; relationship behavior Phase 5; smart import Phases 7–8; pricing Phase 9; trips Phase 10; offline/outbox Phase 11; exception lifecycle Phase 12. Known 445 diagnostics and lint EXIT 2 / NOT PASS do not block this bounded closure or imply repository-wide health. No debt is waived.
+
+Phase 0 remains VERIFIED / CLOSED / FROZEN. ACTIVE_PHASE and ACTIVE_UNIT are NONE. Phase 2 remains NOT_STARTED with no unit defined. NEXT_ACTION: OWNER_DECISION_TO_ACTIVATE_PHASE_2. This closure decision does not activate Phase 2. The closure evidence SHA is fixed evidence, not a request to recursively update documents after their publication.

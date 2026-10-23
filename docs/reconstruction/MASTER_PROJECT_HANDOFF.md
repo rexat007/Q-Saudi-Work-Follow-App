@@ -22,7 +22,7 @@ This document serves as the master project handoff reference for the Q-Saudi Wor
 
 ### Current repository and acceptance scope
 
-Supporting overview, checked against main `b360fe7c717cff35357dc539ca37d83bea1b348c`; unit status is owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). `package.json` defines Node 22 / npm 10 (`npm@10.9.8`), with `package-lock.json` canonical. `server.ts` mounts Vite middleware in development and serves `dist` in production; the production server bundle is built with Esbuild. Firebase Auth/Firestore remain in use. Server-authoritative services are accepted boundaries, not a blanket live-certification claim for every legacy path.
+Supporting overview, closure evidence baseline `f817fc8f053aeb2f5f1ecc63f456a939816b7301`; unit status is owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). `package.json` defines Node 22 / npm 10 (`npm@10.9.8`), with `package-lock.json` canonical. `server.ts` mounts Vite middleware in development and serves `dist` in production; the production server bundle is built with Esbuild. Firebase Auth/Firestore remain in use. Server-authoritative services are accepted boundaries, not a blanket live-certification claim for every legacy path.
 
 The setup layers in `projectSetupWorkflow.service.ts` are FOUNDATION, WORKSPACE, MATERIALS, CARRIERS, ROSTER, PRICING, ACCESS and REVIEW_ACTIVATION. ACCESS is the semantic access/governance identity; the retired numeric Phase-4 UI shape is not restored. Historical restoration Phase/Block names are not the reconstruction roadmap's current status.
 
@@ -31,16 +31,12 @@ Whole-App i18n Batches 1–4 and residual remediation are merged and accepted fo
 
 ### Current Reconstruction Checkpoint — 2026-10-23
 
-- **Authoritative main**: `b360fe7c717cff35357dc539ca37d83bea1b348c` (PR #26 merged).
+- **Closure evidence baseline (verified GitHub main)**: `f817fc8f053aeb2f5f1ecc63f456a939816b7301` (PR #29 merged).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
-- **Phase 1**: IN_PROGRESS.
-- **Closed Phase 1 units**: P1-U1 through P1-U7.
-- **Active unit**: P1-U8 — User Entity Role Vocabulary Authority Convergence.
-- **P1-U8 status**: NOT_STARTED / ACTIVE.
-- **P1-U8 production scope**: exactly `src/types/entities.ts`.
-- **Canonical role authority**: `UserRole` in `src/types/common.ts`.
-- **Only target fields**: `UserEntity.role` and `UserEntity.requestedRole`.
-- **Do not touch in P1-U8**: `src/types/wizard.ts`, `src/validators/user.validator.ts`, `server/security.middleware.ts`, RBAC, auth context behavior or UI role choices.
-- **Deferred to Phase 3**: wizard role subset semantic review, validator authorization/validation review, and AuthenticatedUser role-context convergence.
-- **Next after verified P1-U8 merge**: PHASE_1_CLOSURE_AUDIT. No P1-U9 is assigned.
-- For conversation transfer use [CURRENT_CONVERSATION_HANDOFF_2026-10-23.md](CURRENT_CONVERSATION_HANDOFF_2026-10-23.md).
+- **Phase 1**: VERIFIED / CLOSED (`PHASE_1_VERIFIED_CLOSED`).
+- **P1-U1 through P1-U9**: VERIFIED / CLOSED; P1-U9 was the final Phase 1 unit.
+- **Active phase / unit**: NONE; no implementation work is active.
+- **Phase 2**: NOT_STARTED, pending explicit owner activation; no Phase 2 unit is defined.
+- **Next action**: `OWNER_DECISION_TO_ACTIVATE_PHASE_2`.
+- No P1-U10 exists.
+- Wizard/validator/auth-context role differences remain Phase 3 debt; other later-phase debt is unchanged.

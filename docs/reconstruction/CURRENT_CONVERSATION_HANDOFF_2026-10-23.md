@@ -4,8 +4,8 @@
 ### 1. Repository authority
 - Repository: `rexat007/Q-Saudi-Work-Follow-App`
 - Authoritative branch: `main`
-- Verified main HEAD: `b360fe7c717cff35357dc539ca37d83bea1b348c`
-- Latest verified merge: PR #26 — `docs(reconstruction): close P1-U7 and activate P1-U8`
+- Verified main HEAD: `f817fc8f053aeb2f5f1ecc63f456a939816b7301`
+- Latest verified merge: PR #29 — `refactor(reconstruction): converge storage provider authority`
 - GitHub `main` is the sole code truth.
 - Current state authority: `docs/reconstruction/02_PHASE_LEDGER.md`.
 
@@ -27,18 +27,15 @@ Rules:
 - Do not recursively rewrite historical SHA records merely because main advances.
 
 ### 3. Phase status
-- Phase 0: **VERIFIED / CLOSED / FROZEN**.
-- Phase 1: **IN_PROGRESS**.
-- P1-U1: VERIFIED / CLOSED.
-- P1-U2: VERIFIED / CLOSED.
-- P1-U3: VERIFIED / CLOSED.
-- P1-U4: VERIFIED / CLOSED.
-- P1-U5: VERIFIED / CLOSED.
-- P1-U6: VERIFIED / CLOSED.
-- P1-U7: VERIFIED / CLOSED.
-- P1-U8: **NOT_STARTED / ACTIVE**.
-- Phase 1 closure ready: **NO**.
-- P1-U9: **NOT ASSIGNED**.
+- **Closure evidence baseline (verified GitHub main)**: `f817fc8f053aeb2f5f1ecc63f456a939816b7301` (PR #29 merged).
+- **Phase 0**: VERIFIED / CLOSED / FROZEN.
+- **Phase 1**: VERIFIED / CLOSED (`PHASE_1_VERIFIED_CLOSED`).
+- **P1-U1 through P1-U9**: VERIFIED / CLOSED; P1-U9 was the final Phase 1 unit.
+- **Active phase / unit**: NONE; no implementation work is active.
+- **Phase 2**: NOT_STARTED, pending explicit owner activation; no Phase 2 unit is defined.
+- **Next action**: `OWNER_DECISION_TO_ACTIVATE_PHASE_2`.
+- No P1-U10 exists.
+- Wizard/validator/auth-context role differences remain Phase 3 debt; other later-phase debt is unchanged.
 
 ### 4. Phase 1 completed units
 #### P1-U1 — Canonical Domain Authority and Identity Boundary Contract
@@ -75,128 +72,16 @@ Accepted evidence:
 - UI/storage/wire/runtime unchanged.
 - authorized truck test change classified TEST_HARNESS_COMPATIBILITY_CORRECTION.
 
-### 5. Active unit — P1-U8
-**Title:** User Entity Role Vocabulary Authority Convergence  
-**Type:** BOUNDED_TYPE_AUTHORITY_CONVERGENCE  
-**Status:** NOT_STARTED / ACTIVE
+### 5. P1-U8 and P1-U9 verified completion
+- P1-U8 — User Entity Role Vocabulary Authority Convergence: VERIFIED / CLOSED. Implementation `71bd509547087d8eb34ef160ac96765ff0c7a10d`, PR #28, independently verified merge `587f47403a9b768be08794054d6f99cf7f1eb2c1`. UserEntity.role and optional requestedRole consume canonical UserRole from common.ts; exact nine-role vocabulary preserved.
+- P1-U9 — Storage Provider Vocabulary Authority Convergence: VERIFIED / CLOSED. Implementation `8dd14fdc5214539ad9b675733bf3906a20780780`, PR #29, independently verified merge `f817fc8f053aeb2f5f1ecc63f456a939816b7301`. Both ClientWorkspaceService provider inputs consume StorageProviderType from workspace.ts; MY_DRIVE / SHARED_DRIVE preserved.
+- Each focused compiler contract: 4/4 PASS; diagnostics 445 → 445, added/removed 0; runtime emit NONE; build PASS; i18n-runtime 16/16 PASS; auth-trust-boundary 23/23 PASS; lint EXIT 2 / NOT PASS. Accepted baseline regression failures remain unchanged; zero new regressions. These are accepted evidence, not fresh executions by this closure documentation step.
 
-Canonical authority:
-- `src/types/common.ts`
-- `UserRole`
-- canonical role count: 9
+### 6. Closure decision and preserved deferrals
+Closure audit: PHASE_1_CLOSURE_AUDIT_PASS_READY_FOR_OWNER_CLOSURE_DECISION. Owner closure decision: APPROVED. No additional proven SAFE_PHASE_1_SEAM or unresolved Phase-1-owned regression remains. P1-U9 was the final Phase 1 unit. No P1-U10 exists.
+Wizard's four-role subset, UserValidator's five-role allowlist and server AuthenticatedUser.role remain intentional Phase 3 review boundaries. No auth/RBAC/validation behavior is changed or waived.
 
-Authorized production scope:
-- exactly `src/types/entities.ts`
-
-Target fields only:
-- `UserEntity.role`
-- `UserEntity.requestedRole`
-
-Expected convergence:
-- `UserEntity.role: UserRole`
-- `UserEntity.requestedRole?: UserRole`
-
-Exact canonical vocabulary:
-- PROJECT_ADMIN
-- SUPER_ADMIN
-- SITE_SUPERVISOR
-- SUPERVISOR
-- DISPATCHER
-- FINANCE_AUDITOR
-- SCALE_OPERATOR
-- DRIVER
-- VIEWER
-
-Preserve:
-- requestedRole optionality.
-- exact 9-role vocabulary.
-- storage/wire/runtime behavior.
-- zero widening and zero `any`.
-- runtime emit NONE.
-- zero new diagnostics.
-
-### 6. Explicit P1-U8 exclusions / Phase 3 deferrals
-Do not modify in P1-U8:
-- `src/types/wizard.ts`
-- `src/validators/user.validator.ts`
-- `server/security.middleware.ts`
-- AuthUserContext behavior
-- AuthenticatedUser behavior
-- RBAC
-- permissions
-- admin routing
-- bootstrap behavior
-- Firestore user loading
-- UI role choices
-
-Deferrals:
-- wizard 4-role subset → `DEFER_PHASE_3_SEMANTIC_REVIEW`
-- UserValidator 5-role accepted subset → `DEFER_PHASE_3_AUTHORIZATION_VALIDATION_REVIEW`
-- server AuthenticatedUser.role → `DEFER_PHASE_3_AUTH_CONTEXT_CONVERGENCE`
-
-These differences are not unresolved P1-U8 work.
-
-### 7. Required P1-U8 verification
-Create exactly one focused compiler contract:
-`src/tests/userEntityRoleVocabularyAuthority.test.ts`
-
-Verify:
-- all 9 canonical roles accepted by UserRole.
-- invalid role rejected.
-- UserEntity.role compatible with UserRole.
-- UserEntity.requestedRole compatible with UserRole.
-- requestedRole remains optional.
-- no widening to string.
-- no any.
-- excluded wizard/validator/server files unchanged.
-
-Run relevant unchanged user/role regressions and at minimum:
-- `npm run test:auth-trust-boundary`
-- `npm run build`
-- `npm run test:i18n-runtime`
-
-Known diagnostic baseline:
-- 445
-- added diagnostics must remain 0.
-- lint may remain EXIT 2 / NOT PASS and must not be called PASS.
-
-Runtime emit:
-- compare `src/types/entities.ts`
-- required: NONE.
-
-### 8. P1-U8 stop conditions
-STOP if:
-- UserEntity vocabulary differs from canonical UserRole.
-- another production file is required.
-- wizard subset must change.
-- validator behavior must change.
-- server/security must change.
-- authorization/RBAC semantics must change.
-- runtime behavior or storage/wire/API changes.
-- new diagnostics appear.
-- any or widening is required.
-
-### 9. After P1-U8
-Do **not** introduce P1-U9 automatically.
-
-After:
-1. implementation,
-2. owner review,
-3. publication,
-4. manual merge,
-5. independent merge verification,
-
-the next required action is:
-
-**PHASE_1_CLOSURE_AUDIT**
-
-The closure audit must confirm:
-- no remaining safe Phase-1 seam,
-- Phase 3 role deferrals are correctly classified,
-- later-phase debt remains routed to its owning phase,
-- Phase 1 can be explicitly closed before Phase 2 activation.
-
-### 10. Known global technical debt / governance facts
+### 7. Known global technical debt / governance facts
 - Full-repository TypeScript diagnostics baseline remains 445 at the latest verified bounded runs.
 - `npm run lint` currently exits 2 / NOT PASS; never describe it as PASS.
 - Phase 0 freeze does not imply zero technical debt.
@@ -209,13 +94,13 @@ The closure audit must confirm:
   - pricing → Phase 9
   - trips → Phase 10
   - offline/outbox → Phase 11
+  - exception lifecycle → Phase 12
 
-### 11. Tool/environment note
+### 8. Tool/environment note
 Current Q-Saudi implementation environment is Codex/local repository workflow with GitHub as authority.
 If Google AI Studio is ever used, do not assume it can read GitHub automatically; provide direct internet URLs for GitHub files/data when asking Studio to read them.
 
-### 12. Immediate next action
-Start by independently verifying GitHub main HEAD:
-`b360fe7c717cff35357dc539ca37d83bea1b348c`
+### 9. Immediate next action
+OWNER_DECISION_TO_ACTIVATE_PHASE_2.
 
-Then execute **P1-U8 — User Entity Role Vocabulary Authority Convergence** under the exact bounded contract above. Do not begin Phase 1 closure audit until P1-U8 has been implemented, reviewed, merged, and independently verified.
+No implementation is active. Phase 2 remains NOT_STARTED; no Phase 2 unit is defined or authorized. Do not execute a new implementation unit until the owner explicitly activates and defines it. Use the fixed closure evidence baseline above; do not recursively rewrite historical baselines after documentation publication.
