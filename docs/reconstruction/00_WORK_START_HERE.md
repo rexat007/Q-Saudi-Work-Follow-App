@@ -12,17 +12,17 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 
 
 ### Current Continuation Checkpoint — 2026-10-23
-- **Authoritative GitHub main**: `b360fe7c717cff35357dc539ca37d83bea1b348c` (PR #26 merged).
+
+- **Closure evidence baseline (verified GitHub main)**: `f817fc8f053aeb2f5f1ecc63f456a939816b7301` (PR #29 merged).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
-- **Phase 1**: IN_PROGRESS.
-- **P1-U1 through P1-U7**: VERIFIED / CLOSED.
-- **Active unit**: **P1-U8 — User Entity Role Vocabulary Authority Convergence**, NOT_STARTED / ACTIVE.
-- **Authorized P1-U8 production scope**: exactly `src/types/entities.ts`.
-- **Canonical authority**: `UserRole` from `src/types/common.ts`.
-- **Target fields**: `UserEntity.role` and optional `UserEntity.requestedRole`.
-- **Explicit Phase 3 deferrals**: wizard role subset, user-validator role semantics, and server `AuthenticatedUser.role` auth-context convergence.
-- **After P1-U8 implementation + owner review + merge + verification**: run **PHASE_1_CLOSURE_AUDIT** before assigning any P1-U9 or activating Phase 2.
-- Conversation continuity reference: [CURRENT_CONVERSATION_HANDOFF_2026-10-23.md](CURRENT_CONVERSATION_HANDOFF_2026-10-23.md).
+- **Phase 1**: VERIFIED / CLOSED (`PHASE_1_VERIFIED_CLOSED`).
+- **P1-U1 through P1-U9**: VERIFIED / CLOSED; P1-U9 was the final Phase 1 unit.
+- **Active phase / unit**: NONE; no implementation work is active.
+- **Phase 2**: NOT_STARTED, pending explicit owner activation; no Phase 2 unit is defined.
+- **Next action**: `OWNER_DECISION_TO_ACTIVATE_PHASE_2`.
+- No P1-U10 exists.
+- Wizard/validator/auth-context role differences remain Phase 3 debt; other later-phase debt is unchanged.
+
 
 ---
 
