@@ -1,21 +1,21 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `d303fe88ce00df132abcd7e06d5508d7ae5308eb`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is IMPLEMENTED / AWAITING_OWNER_REVIEW. Phase 1 closure is NOT ready: P1-U5 awaits owner acceptance, and three other bounded type-authority families remain unassigned. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `e76ad3cf9ce9204f8f5d2aaa5b4fa2c106a35b39`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #21. P1-U6 — Global Entity Status Input Authority Convergence is NOT_STARTED / ACTIVE. Phase 1 closure is NOT ready: three bounded type-authority families remain, including the active P1-U6 seam. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
-- **Phase-transition / unit-definition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0 but does not name its first unit. After `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, the owner explicitly assigned **P1-U1 — Canonical Domain Authority and Identity Boundary Contract**, type **CONTRACT_FIRST_UNIT**. This owner decision supplies the unit ID; it is not inferred from historical Phase/Block numbering. Phase 1 is IN_PROGRESS; P1-U1 is VERIFIED / CLOSED under [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md). The owner subsequently assigned P1-U2 after PHASE_1_NEXT_UNIT_SEAM_AUDIT_COMPLETE; its activation contract and implementation evidence below govern the bounded step. The owner has now explicitly approved and assigned P1-U3 under the activation contract below. The owner has subsequently approved P1-U3 closure and assigned P1-U4 under the activation contract below. The owner has now approved P1-U4 closure and explicitly assigned P1-U5 under the activation contract below. No later unit is assigned.
+- **Phase-transition / unit-definition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0 but does not name its first unit. After `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, the owner explicitly assigned **P1-U1 — Canonical Domain Authority and Identity Boundary Contract**, type **CONTRACT_FIRST_UNIT**. This owner decision supplies the unit ID; it is not inferred from historical Phase/Block numbering. Phase 1 is IN_PROGRESS; P1-U1 is VERIFIED / CLOSED under [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md). The owner subsequently assigned P1-U2 after PHASE_1_NEXT_UNIT_SEAM_AUDIT_COMPLETE; its activation contract and implementation evidence below govern the bounded step. The owner has now explicitly approved and assigned P1-U3 under the activation contract below. The owner has subsequently approved P1-U3 closure and assigned P1-U4 under the activation contract below. The owner has now approved P1-U4 closure and explicitly assigned P1-U5 under the activation contract below. The owner has now approved P1-U5 closure and explicitly assigned P1-U6 under the activation contract below. No later unit is assigned.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PHASE_1
 ACTIVE_PHASE_STATUS: IN_PROGRESS
-ACTIVE_UNIT: P1-U5 — Affiliation Status Vocabulary Authority Convergence
-ACTIVE_UNIT_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
+ACTIVE_UNIT: P1-U6 — Global Entity Status Input Authority Convergence
+ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
 ACTIVE_UNIT_TYPE: BOUNDED_TYPE_AUTHORITY_CONVERGENCE
 PHASE_0_STATUS: VERIFIED / CLOSED
 PHASE_0_FREEZE_STATUS: FROZEN
@@ -23,11 +23,11 @@ PHASE_1_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NO_SUBSEQUENT_UNIT_ASSIGNED
-NEXT_ACTION: OWNER_REVIEW_P1_U5_IMPLEMENTATION
+NEXT_ACTION: EXECUTE_P1_U6_GLOBAL_ENTITY_STATUS_INPUT_AUTHORITY_CONVERGENCE
 PHASE_1_CLOSURE_READY: NO
-PHASE_1_REMAINING_SEAMS: 4
-AFTER_P1_U5_REMAINING_FAMILIES: 3
-AFTER_P1_U5_EXPECTED_STATE: FRESH_PHASE_1_RESIDUAL_ASSESSMENT_REQUIRED
+PHASE_1_REMAINING_SEAMS: 3
+AFTER_P1_U6_REMAINING_FAMILIES: 2
+AFTER_P1_U6_EXPECTED_STATE: FRESH_PHASE_1_RESIDUAL_ASSESSMENT_REQUIRED
 P0_U5_STATUS: VERIFIED / CLOSED
 P0_U5_VERIFIED_MERGE: 15529b85848a80322dea033e80903fd2fd1e294c
 P0_U6_STATUS: VERIFIED / CLOSED
@@ -61,9 +61,14 @@ P1_U4_PR: 19
 P1_U4_VERIFIED_MERGE: c00a4975cf973d470033e430579a09a80fb71ce0
 P1_U4_OWNER_REVIEW: PASSED
 P1_U4_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U5_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
-P1_U5_PUBLICATION_STATUS: NOT PUBLISHED
-CURRENT_CODE_BASELINE: d303fe88ce00df132abcd7e06d5508d7ae5308eb
+P1_U5_STATUS: VERIFIED / CLOSED
+P1_U5_IMPLEMENTATION_COMMIT: 4a2e1c1747212dd27d0c20aaefbab09c30dff9d8
+P1_U5_PR: 21
+P1_U5_VERIFIED_MERGE: e76ad3cf9ce9204f8f5d2aaa5b4fa2c106a35b39
+P1_U5_OWNER_REVIEW: PASSED
+P1_U5_PUBLICATION_STATUS: MERGED / VERIFIED
+P1_U6_STATUS: NOT_STARTED / ACTIVE
+CURRENT_CODE_BASELINE: e76ad3cf9ce9204f8f5d2aaa5b4fa2c106a35b39
 ```
 
 ---
@@ -137,7 +142,7 @@ CURRENT_CODE_BASELINE: d303fe88ce00df132abcd7e06d5508d7ae5308eb
 ### Overall Reconstruction Roadmap Status
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
-- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 VERIFIED / CLOSED; P1-U5 IMPLEMENTED / AWAITING_OWNER_REVIEW
+- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 VERIFIED / CLOSED; P1-U5 VERIFIED / CLOSED; P1-U6 NOT_STARTED / ACTIVE
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -626,6 +631,8 @@ Historical activation snapshot: implementation status, execution/publication poi
 
 ### P1-U5 Bounded Implementation — Awaiting Owner Review
 
+Historical implementation snapshot: owner-review/publication/next-action and residual-inventory pointers are superseded by the closure/activation below. Accepted verification evidence remains unchanged.
+
 Implementation baseline: `d303fe88ce00df132abcd7e06d5508d7ae5308eb`. **P1-U5 — Affiliation Status Vocabulary Authority Convergence: IMPLEMENTED / AWAITING_OWNER_REVIEW**. Owner acceptance is pending; the unit is not verified/closed. NEXT_ACTION: OWNER_REVIEW_P1_U5_IMPLEMENTATION. Implementation publication: **NOT PUBLISHED**.
 
 - **Canonical authority**: unchanged `src/types/projectCarrierAffiliation.ts` exports AffiliationStatus with exactly **ACTIVE / INACTIVE**. Stored affiliation entities are unchanged.
@@ -643,3 +650,87 @@ All 19 bounded implementation acceptance criteria are satisfied without a stop-c
 Phase 1 remains **IN_PROGRESS**, **PHASE_1_CLOSURE_READY: NO**. Three other known candidate families remain unassigned: Global Material UOM vocabulary authority, User Role vocabulary authority and Global Entity Status vocabulary authority. The four-seam review inventory still includes P1-U5 until owner acceptance; a fresh residual assessment remains required after this unit. No subsequent unit ID or Phase 2 activation is introduced. Later-phase ownership remains unchanged: timestamp/storage Phase 2, Auth context Phase 3, project lifecycle Phase 4, relationship behavior Phase 5, import DTO Phases 7/8, pricing Phase 9, Trip lifecycle/model Phase 10, offline/outbox Phase 11. This type-only change does not absorb those semantics.
 
 **PUBLICATION STATUS: NOT PUBLISHED**. No staging, commit, push or PR occurs in this implementation step.
+
+
+### P1-U5 Post-Merge Closure Record
+
+**P1-U5 — Affiliation Status Vocabulary Authority Convergence is VERIFIED / CLOSED**. Owner review **PASSED**. Implementation/publication commit `4a2e1c1747212dd27d0c20aaefbab09c30dff9d8`; PR **#21**; verified merge/current authoritative main baseline `e76ad3cf9ce9204f8f5d2aaa5b4fa2c106a35b39`. Implementation publication **MERGED / VERIFIED**. The owner-supplied verified merge is corroborated by synchronized main containing the implementation commit.
+
+Accepted verification is preserved: focused compiler contract **3/3 PASS**; unchanged relevant regressions **106/106 PASS**; diagnostics **445 → 445**, added **0**, removed **0**; lint **EXIT 2 / NOT PASS**; runtime emit **NONE**; build **PASS**; i18n-runtime **16/16 PASS**; auth-trust-boundary **23/23 PASS**. Storage/wire and runtime behavior changes **NO**. These are accepted implementation results, not checks rerun by this documentation-only closure.
+
+P1-U1/P1-U2/P1-U3/P1-U4 remain VERIFIED / CLOSED, Phase 0 remains VERIFIED / CLOSED / FROZEN, and Phase 1 remains IN_PROGRESS with closure readiness NO. The owner explicitly activates P1-U6 below; unit closure does not waive any existing debt.
+
+### P1-U6 Owner-Approved Unit Activation
+
+- **Unit ID / title**: P1-U6 — Global Entity Status Input Authority Convergence.
+- **Unit type**: BOUNDED_TYPE_AUTHORITY_CONVERGENCE.
+- **Status**: NOT_STARTED / ACTIVE. This governance publication does not implement, verify or close the unit.
+- **One purpose**: remove the eight duplicated status unions in global identity create/update input declarations, reusing each boundary's own canonical entity-local status type.
+- **Authority model**: **ENTITY-LOCAL STATUS AUTHORITY**, using indexed access types from read-only `src/types/globalEntities.ts`. Driver, Truck, Carrier and Material retain distinct vocabularies; no common GlobalEntityStatus type and no cross-entity normalization.
+- **Exactly one future production file**: `src/repositories/globalIdentity.repository.ts`. Only the eight status type declarations may change; no method bodies, defaults, transitions or runtime validation changes.
+
+**Canonical vocabulary / proven future input boundaries (8)**:
+
+| Entity-local authority | Exact canonical vocabulary | Create input | Update input | Count |
+|---|---|---|---|---|
+| `GlobalDriverEntity['status']` | ACTIVE / SUSPENDED / INACTIVE | GlobalDriverRepository.createGlobal input.status | GlobalDriverRepository.updateProfile updates.status | 2 |
+| `GlobalTruckEntity['status']` | ACTIVE / MAINTENANCE / INACTIVE | GlobalTruckRepository.createGlobal input.status | GlobalTruckRepository.updateProfile updates.status | 2 |
+| `GlobalCarrierEntity['status']` | ACTIVE / SUSPENDED / INACTIVE | GlobalCarrierRepository.createGlobal input.status | GlobalCarrierRepository.updateProfile updates.status | 2 |
+| `GlobalMaterialEntity['status']` | ACTIVE / INACTIVE | GlobalMaterialRepository.createGlobal input.status | GlobalMaterialRepository.updateCatalog updates.status | 2 |
+
+Each declaration remains optional: `status?: GlobalDriverEntity['status']`, `status?: GlobalTruckEntity['status']`, `status?: GlobalCarrierEntity['status']`, or `status?: GlobalMaterialEntity['status']`, matched to its entity. Repository inspection confirms the material update method is named **updateCatalog**, not updateProfile as described in the owner request; this records the actual name for the same eighth status boundary, without renaming a method or expanding semantic scope. Truck MAINTENANCE and Driver/Carrier SUSPENDED remain intentionally different; Material accepts only ACTIVE / INACTIVE.
+
+**Explicit exclusions**: do not change `src/types/globalEntities.ts`, entity vocabularies, default statuses, createGlobal/updateProfile/updateCatalog bodies, Firestore paths, natural identity logic, ID generation, transactions, normalization, in-memory fallback behavior, runtime validation, storage payloads, API/wire contracts or UI. This unit shares type authority only and must not absorb later-phase runtime status-transition semantics.
+
+**Future focused test**: create exactly one compiler-level test, `src/tests/globalEntityStatusInputAuthority.test.ts`, during implementation. Both create and update boundaries must prove:
+
+- Driver: accepts ACTIVE / SUSPENDED / INACTIVE; rejects MAINTENANCE.
+- Truck: accepts ACTIVE / MAINTENANCE / INACTIVE; rejects SUSPENDED.
+- Carrier: accepts ACTIVE / SUSPENDED / INACTIVE; rejects MAINTENANCE.
+- Material: accepts ACTIVE / INACTIVE; rejects SUSPENDED and MAINTENANCE.
+- Each consumes its own entity-local canonical status; no string widening/any, optionality unchanged, entity definitions unchanged.
+
+**Future regressions and verification**: run unchanged `src/tests/globalIdentityFoundation.test.ts`, and discover/run directly relevant global driver/truck/carrier/material repository tests already present. Do not weaken assertions. Compare diagnostics against the current known **445**, requiring **ADDED_DIAGNOSTICS = 0**; lint remains NOT PASS if its exit code remains nonzero. Compare emitted JavaScript for `src/repositories/globalIdentity.repository.ts`, requiring **RUNTIME_EMIT_CHANGE = NONE**. Require `npm run build`, `npm run test:i18n-runtime` and `npm run test:auth-trust-boundary` to pass. These gates are future implementation requirements, not checks executed in this activation.
+
+**Acceptance criteria (20)**:
+
+1. Each entity retains its own canonical status vocabulary.
+2. All eight proven duplicate input declarations converge.
+3. Driver inputs use GlobalDriverEntity['status'].
+4. Truck inputs use GlobalTruckEntity['status'].
+5. Carrier inputs use GlobalCarrierEntity['status'].
+6. Material inputs use GlobalMaterialEntity['status'].
+7. No common cross-entity status type introduced.
+8. Exact vocabularies preserved.
+9. Optionality preserved.
+10. No method body changes.
+11. No default value changes.
+12. No runtime behavior changes.
+13. No persistence/storage/wire changes.
+14. No any.
+15. No widening.
+16. Runtime emit unchanged.
+17. Zero new diagnostics.
+18. Focused compiler-contract passes.
+19. Relevant regressions pass.
+20. Exactly one production file modified.
+
+**Stop conditions (11) — stop future implementation and report; do not broaden scope automatically**:
+
+1. Any of the eight input vocabularies differs from its canonical entity.
+2. Another status value is discovered that changes the contract.
+3. Authority source must change.
+4. Another production file must change.
+5. A common cross-entity status type becomes necessary.
+6. Method bodies/defaults must change.
+7. Runtime behavior must change.
+8. Storage/wire/API must change.
+9. Runtime emit changes materially.
+10. New diagnostics appear.
+11. Any or widening is required.
+
+**Remaining unassigned Phase 1 families beyond P1-U6 (2)**: Global Material UOM vocabulary authority; User Role vocabulary authority. Three known families remain including active P1-U6. No subsequent unit ID is assigned. Phase 1 remains IN_PROGRESS and PHASE_1_CLOSURE_READY remains NO; no Phase 2 activation or automatic phase closure.
+
+**Later-phase ownership preserved**: timestamp/storage DEFER_PHASE_2; Auth context convergence DEFER_PHASE_3; project lifecycle DEFER_PHASE_4; master relationship behavior DEFER_PHASE_5; import DTO DEFER_PHASE_7_8; pricing DEFER_PHASE_9; Trip lifecycle/model DEFER_PHASE_10; offline/outbox DEFER_PHASE_11. Runtime status-transition semantics remain with their existing behavioral owners.
+
+**Current governance/publication boundary**: NEXT_ACTION is EXECUTE_P1_U6_GLOBAL_ENTITY_STATUS_INPUT_AUTHORITY_CONVERGENCE. Only this ledger and the decision/debt log change. The owner authorizes a single normal branch commit on `reconstruction/p1-u5-closure-p1-u6-activation`, without force push, merge or P1-U6 implementation. Prior accepted units and Phase 0 freeze remain unchanged.
