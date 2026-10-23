@@ -10,6 +10,20 @@ This directory (`docs/reconstruction/`) contains repository-governed current con
 
 P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
 
+
+### Current Continuation Checkpoint — 2026-10-23
+- **Authoritative GitHub main**: `b360fe7c717cff35357dc539ca37d83bea1b348c` (PR #26 merged).
+- **Phase 0**: VERIFIED / CLOSED / FROZEN.
+- **Phase 1**: IN_PROGRESS.
+- **P1-U1 through P1-U7**: VERIFIED / CLOSED.
+- **Active unit**: **P1-U8 — User Entity Role Vocabulary Authority Convergence**, NOT_STARTED / ACTIVE.
+- **Authorized P1-U8 production scope**: exactly `src/types/entities.ts`.
+- **Canonical authority**: `UserRole` from `src/types/common.ts`.
+- **Target fields**: `UserEntity.role` and optional `UserEntity.requestedRole`.
+- **Explicit Phase 3 deferrals**: wizard role subset, user-validator role semantics, and server `AuthenticatedUser.role` auth-context convergence.
+- **After P1-U8 implementation + owner review + merge + verification**: run **PHASE_1_CLOSURE_AUDIT** before assigning any P1-U9 or activating Phase 2.
+- Conversation continuity reference: [CURRENT_CONVERSATION_HANDOFF_2026-10-23.md](CURRENT_CONVERSATION_HANDOFF_2026-10-23.md).
+
 ---
 
 ### Core Operational Principles

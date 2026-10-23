@@ -1,7 +1,7 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `9e93f0e47f955d78d74011b5467aa04188268ca6`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #21. P1-U6 — Global Entity Status Input Authority Convergence is VERIFIED / CLOSED after owner review PASSED and verified merge through PR #23. P1-U7 — Global Material UOM Vocabulary Authority Convergence is VERIFIED / CLOSED after owner review PASSED and verified merge through PR #25. P1-U8 — User Entity Role Vocabulary Authority Convergence is NOT_STARTED / ACTIVE. The accepted User Role semantic audit separates the two safe full-vocabulary UserEntity fields from intentional context subsets and Phase 3 security/validation boundaries. Phase 1 remains IN_PROGRESS and closure is NOT ready. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `b360fe7c717cff35357dc539ca37d83bea1b348c`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #21. P1-U6 — Global Entity Status Input Authority Convergence is VERIFIED / CLOSED after owner review PASSED and verified merge through PR #23. P1-U7 — Global Material UOM Vocabulary Authority Convergence is VERIFIED / CLOSED after owner review PASSED and verified merge through PR #25. P1-U8 — User Entity Role Vocabulary Authority Convergence is NOT_STARTED / ACTIVE. The accepted User Role semantic audit separates the two safe full-vocabulary UserEntity fields from intentional context subsets and Phase 3 security/validation boundaries. Phase 1 remains IN_PROGRESS and closure is NOT ready. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
@@ -83,7 +83,10 @@ P1_U7_VERIFIED_MERGE: 9e93f0e47f955d78d74011b5467aa04188268ca6
 P1_U7_OWNER_REVIEW: PASSED
 P1_U7_PUBLICATION_STATUS: MERGED / VERIFIED
 P1_U8_STATUS: NOT_STARTED / ACTIVE
-CURRENT_CODE_BASELINE: 9e93f0e47f955d78d74011b5467aa04188268ca6
+P1_U8_ACTIVATION_COMMIT: fe14046551d9193949ab3d739bdb4720faed06b1
+P1_U8_ACTIVATION_PR: 26
+P1_U8_ACTIVATION_MERGE: b360fe7c717cff35357dc539ca37d83bea1b348c
+CURRENT_CODE_BASELINE: b360fe7c717cff35357dc539ca37d83bea1b348c
 ```
 
 ---
