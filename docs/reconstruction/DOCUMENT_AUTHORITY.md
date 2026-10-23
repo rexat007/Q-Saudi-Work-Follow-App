@@ -5,7 +5,7 @@ Authority: `CURRENT_SUPPORTING`; current state is owned only by [02_PHASE_LEDGER
 
 ## Authority order
 
-1. **Current GitHub main** — actual code, architecture and package/config contents. P0-U5 was synchronized cleanly to `2b52180304ac02d71b506f16dc69722c94ba9b6f`.
+1. **Current GitHub main** — actual code, architecture and package/config contents. Current verified continuation checkpoint: `b360fe7c717cff35357dc539ca37d83bea1b348c` (PR #26 merged). Historical unit baselines remain historical evidence and must not be rewritten as current.
 2. **Accepted reconstruction decisions represented in repository documents** — the current-state ledger, canonical decision/debt log, constitution, unit protocol, acceptance governance and accepted roadmap.
 3. **Current active test/tooling contracts** — actual `package.json` commands, `vitest.config.ts`, canonical npm lockfile, and their supporting manifests/contracts. They describe execution and evidence; they do not override accepted product semantics with retired snapshots.
 4. **Historical documentation** — prior Block/Phase reports, release scorecards, original design specifications and Studio artifacts. They preserve past claims/provenance and cannot establish current status by filename alone.
@@ -20,6 +20,7 @@ Browser/runtime/network observations remain evidence for the exact behavior obse
 - [ROOT_TOOLING_HYGIENE_CONTRACT.md](ROOT_TOOLING_HYGIENE_CONTRACT.md), [TOOLCHAIN_CONTRACT.md](TOOLCHAIN_CONTRACT.md), [TEST_TAXONOMY_AND_HARNESS_CONTRACT.md](TEST_TAXONOMY_AND_HARNESS_CONTRACT.md): supporting execution contracts, subordinate to the actual current package/config files.
 - [PRODUCT_RECONSTRUCTION_ACCEPTANCE_GOVERNANCE.md](PRODUCT_RECONSTRUCTION_ACCEPTANCE_GOVERNANCE.md): product verification and explicit user-acceptance requirements.
 - [DOCUMENTATION_AUTHORITY_REVIEW_P0_U5.md](DOCUMENTATION_AUTHORITY_REVIEW_P0_U5.md): exhaustive document classifications and P0-U5 review evidence; not a second state ledger.
+- [CURRENT_CONVERSATION_HANDOFF_2026-10-23.md](CURRENT_CONVERSATION_HANDOFF_2026-10-23.md): current conversation-transfer snapshot and execution handoff; subordinate to GitHub main and the phase ledger, and not a competing state authority.
 
 ## Historical boundaries
 

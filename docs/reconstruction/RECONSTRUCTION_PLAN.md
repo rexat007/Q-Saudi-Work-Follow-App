@@ -41,3 +41,8 @@ Engineers MUST:
 ### Scope and sequence authority
 
 This document defines methodology, not current progress. The accepted order is in [FOUNDATIONAL_PLAN_PHASE_0_TO_18.md](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md); current phase/unit and next-unit entry are owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Area-wide discovery does not authorize edits outside a bounded user instruction: P0-U5 changes documentation only and does not reopen accepted i18n work.
+
+
+### Current continuation checkpoint
+
+As of verified main `b360fe7c717cff35357dc539ca37d83bea1b348c`, Phase 0 is VERIFIED / CLOSED / FROZEN and Phase 1 is IN_PROGRESS. P1-U1 through P1-U7 are VERIFIED / CLOSED. The active unit is P1-U8 — User Entity Role Vocabulary Authority Convergence, scoped only to `UserEntity.role` and `UserEntity.requestedRole` in `src/types/entities.ts`, consuming canonical `UserRole` from `src/types/common.ts`. Wizard/validator/server-auth role differences are intentionally deferred to Phase 3. After P1-U8 implementation, owner review, merge and independent verification, run PHASE_1_CLOSURE_AUDIT before defining another unit or starting Phase 2. Current state details remain owned by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
