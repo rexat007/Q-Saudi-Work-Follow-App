@@ -1,7 +1,7 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `c00a4975cf973d470033e430579a09a80fb71ce0`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is NOT_STARTED / ACTIVE. Phase 1 closure is NOT ready: four bounded type-authority families remain, including the active P1-U5 seam. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `d303fe88ce00df132abcd7e06d5508d7ae5308eb`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is IMPLEMENTED / AWAITING_OWNER_REVIEW. Phase 1 closure is NOT ready: P1-U5 awaits owner acceptance, and three other bounded type-authority families remain unassigned. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
@@ -15,7 +15,7 @@ This is the sole current source for phase, active/next unit, accepted units, and
 ACTIVE_PHASE: PHASE_1
 ACTIVE_PHASE_STATUS: IN_PROGRESS
 ACTIVE_UNIT: P1-U5 — Affiliation Status Vocabulary Authority Convergence
-ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
+ACTIVE_UNIT_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
 ACTIVE_UNIT_TYPE: BOUNDED_TYPE_AUTHORITY_CONVERGENCE
 PHASE_0_STATUS: VERIFIED / CLOSED
 PHASE_0_FREEZE_STATUS: FROZEN
@@ -23,7 +23,7 @@ PHASE_1_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NO_SUBSEQUENT_UNIT_ASSIGNED
-NEXT_ACTION: EXECUTE_P1_U5_AFFILIATION_STATUS_VOCABULARY_AUTHORITY_CONVERGENCE
+NEXT_ACTION: OWNER_REVIEW_P1_U5_IMPLEMENTATION
 PHASE_1_CLOSURE_READY: NO
 PHASE_1_REMAINING_SEAMS: 4
 AFTER_P1_U5_REMAINING_FAMILIES: 3
@@ -61,8 +61,9 @@ P1_U4_PR: 19
 P1_U4_VERIFIED_MERGE: c00a4975cf973d470033e430579a09a80fb71ce0
 P1_U4_OWNER_REVIEW: PASSED
 P1_U4_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U5_STATUS: NOT_STARTED / ACTIVE
-CURRENT_CODE_BASELINE: c00a4975cf973d470033e430579a09a80fb71ce0
+P1_U5_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
+P1_U5_PUBLICATION_STATUS: NOT PUBLISHED
+CURRENT_CODE_BASELINE: d303fe88ce00df132abcd7e06d5508d7ae5308eb
 ```
 
 ---
@@ -136,7 +137,7 @@ CURRENT_CODE_BASELINE: c00a4975cf973d470033e430579a09a80fb71ce0
 ### Overall Reconstruction Roadmap Status
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
-- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 VERIFIED / CLOSED; P1-U5 NOT_STARTED / ACTIVE
+- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 VERIFIED / CLOSED; P1-U5 IMPLEMENTED / AWAITING_OWNER_REVIEW
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -560,6 +561,8 @@ P1-U1/P1-U2/P1-U3 remain VERIFIED / CLOSED, Phase 0 remains VERIFIED / CLOSED / 
 
 ### P1-U5 Owner-Approved Unit Activation
 
+Historical activation snapshot: implementation status, execution/publication pointers and no-change statements are superseded by the implementation evidence below. Its bounded scope, criteria and exclusions remain binding.
+
 - **Unit ID / title**: P1-U5 — Affiliation Status Vocabulary Authority Convergence.
 - **Unit type**: BOUNDED_TYPE_AUTHORITY_CONVERGENCE.
 - **Status**: NOT_STARTED / ACTIVE. This governance step does not implement, verify or close P1-U5.
@@ -619,3 +622,24 @@ P1-U1/P1-U2/P1-U3 remain VERIFIED / CLOSED, Phase 0 remains VERIFIED / CLOSED / 
 **Later-phase ownership preserved**: timestamp/storage DEFER_PHASE_2; Auth context convergence DEFER_PHASE_3; project lifecycle DEFER_PHASE_4; master relationship behavior DEFER_PHASE_5; import DTO DEFER_PHASE_7_8; pricing DEFER_PHASE_9; Trip lifecycle/model DEFER_PHASE_10; offline/outbox DEFER_PHASE_11.
 
 **Current governance/publication boundary**: NEXT_ACTION is EXECUTE_P1_U5_AFFILIATION_STATUS_VOCABULARY_AUTHORITY_CONVERGENCE. Only this ledger and the decision/debt log change in this step. The owner authorizes one normal branch commit on `reconstruction/p1-u4-closure-p1-u5-activation`, without merge or P1-U5 implementation. Prior accepted units and the Phase 0 freeze remain unchanged.
+
+
+### P1-U5 Bounded Implementation — Awaiting Owner Review
+
+Implementation baseline: `d303fe88ce00df132abcd7e06d5508d7ae5308eb`. **P1-U5 — Affiliation Status Vocabulary Authority Convergence: IMPLEMENTED / AWAITING_OWNER_REVIEW**. Owner acceptance is pending; the unit is not verified/closed. NEXT_ACTION: OWNER_REVIEW_P1_U5_IMPLEMENTATION. Implementation publication: **NOT PUBLISHED**.
+
+- **Canonical authority**: unchanged `src/types/projectCarrierAffiliation.ts` exports AffiliationStatus with exactly **ACTIVE / INACTIVE**. Stored affiliation entities are unchanged.
+- **Only production file**: `src/utils/canonicalFleetRelationshipPolicy.ts`. One type-only import and two canonical references replace the duplicate unions at PureAffiliation.status and CanonicalFleetRelationshipPolicy.evaluateAffiliation return status. No other production source bytes change.
+- **Partial boundary preserved**: PureAffiliation remains an independent exported interface, not a stored-entity alias or extension. Its required projectId/carrierId/status and optional createdAt/createdBy/updatedAt/updatedBy remain unchanged, including the pre-existing timestamp metadata types. No new any is introduced; status types are not any and do not widen to string. AffiliationInput, PureAssignment and PureAllocation are unchanged.
+- **New real compiler contract**: `src/tests/affiliationStatusVocabularyAuthority.test.ts`, **3/3 PASS**. The real TypeScript compiler resolves production definitions under strict null checks, proving exact shared canonical/policy/result/stored vocabulary, accepted ACTIVE/INACTIVE values, invalid/widened/null/undefined/omitted status rejection, exact required core fields and result shape, optional metadata and policy independence. AST assertions verify both canonical references, the type-only import and unchanged partial interface metadata.
+- **Existing regressions — unchanged files/assertions**: projectCarrierFleetAffiliationFoundation **12/12 PASS**; driverTruckIntakeP602A **14/14 PASS**; canonicalFleetRelationshipPolicyTypeAuthority **3/3 PASS**; directly relevant projectDriverTruckAssignmentFoundation **24/24 PASS**; projectTruckMaterialAllocationFoundation **53/53 PASS**. Existing regressions total **106/106 PASS** both before and after the change; including the new compiler test, targeted verification is **109/109 PASS**.
+- **Diagnostics**: baseline **445**, post-change **445**, added **0**, removed **0**. Full diagnostic records match exactly. Both lint runs exit **2 / NOT PASS**; existing debt is not waived.
+- **Runtime emit**: **NONE**. TypeScript and esbuild emitted JavaScript for the policy file is byte-identical before/after with source maps disabled. Reversing exactly the one import and two status references reproduces the baseline source byte-for-byte.
+- **Foundation checks**: build **PASS**; i18n-runtime **16/16 PASS**; auth-trust-boundary **23/23 PASS**.
+- **Relationship/runtime/storage/wire**: **UNCHANGED**. All policy method bodies and CREATE/REACTIVATE/REASSIGN/IDEMPOTENT paths, intake carrier conflicts, assignment/allocation validation, field names, runtime input/output shapes, stored entities, repositories, Firestore paths, payloads, API/wire values, RBAC and UI remain untouched.
+
+All 19 bounded implementation acceptance criteria are satisfied without a stop-condition scope expansion. Final scope is exactly one production file, one new focused test, and the two governance documents. No existing test is modified; no generated report/artifact drift is included. P1-U1/P1-U2/P1-U3/P1-U4 closure records and Phase 0 freeze remain unchanged.
+
+Phase 1 remains **IN_PROGRESS**, **PHASE_1_CLOSURE_READY: NO**. Three other known candidate families remain unassigned: Global Material UOM vocabulary authority, User Role vocabulary authority and Global Entity Status vocabulary authority. The four-seam review inventory still includes P1-U5 until owner acceptance; a fresh residual assessment remains required after this unit. No subsequent unit ID or Phase 2 activation is introduced. Later-phase ownership remains unchanged: timestamp/storage Phase 2, Auth context Phase 3, project lifecycle Phase 4, relationship behavior Phase 5, import DTO Phases 7/8, pricing Phase 9, Trip lifecycle/model Phase 10, offline/outbox Phase 11. This type-only change does not absorb those semantics.
+
+**PUBLICATION STATUS: NOT PUBLISHED**. No staging, commit, push or PR occurs in this implementation step.
