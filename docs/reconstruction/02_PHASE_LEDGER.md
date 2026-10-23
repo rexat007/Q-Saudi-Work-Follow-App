@@ -1,21 +1,21 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `5d3526a14d697038d414ff48ab661406672acb0b`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is IMPLEMENTED / AWAITING_OWNER_REVIEW. Phase 1 closure is NOT ready: four other bounded type-authority families remain; P1-U4 implementation awaits owner review. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `c00a4975cf973d470033e430579a09a80fb71ce0`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is NOT_STARTED / ACTIVE. Phase 1 closure is NOT ready: four bounded type-authority families remain, including the active P1-U5 seam. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
-- **Phase-transition / unit-definition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0 but does not name its first unit. After `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, the owner explicitly assigned **P1-U1 — Canonical Domain Authority and Identity Boundary Contract**, type **CONTRACT_FIRST_UNIT**. This owner decision supplies the unit ID; it is not inferred from historical Phase/Block numbering. Phase 1 is IN_PROGRESS; P1-U1 is VERIFIED / CLOSED under [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md). The owner subsequently assigned P1-U2 after PHASE_1_NEXT_UNIT_SEAM_AUDIT_COMPLETE; its activation contract and implementation evidence below govern the bounded step. The owner has now explicitly approved and assigned P1-U3 under the activation contract below. The owner has subsequently approved P1-U3 closure and assigned P1-U4 under the activation contract below. No later unit is assigned.
+- **Phase-transition / unit-definition evidence**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 1 — Canonical Domain Model after Phase 0 but does not name its first unit. After `PHASE_1_FIRST_UNIT_DEFINITION_AUDIT_COMPLETE`, the owner explicitly assigned **P1-U1 — Canonical Domain Authority and Identity Boundary Contract**, type **CONTRACT_FIRST_UNIT**. This owner decision supplies the unit ID; it is not inferred from historical Phase/Block numbering. Phase 1 is IN_PROGRESS; P1-U1 is VERIFIED / CLOSED under [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md). The owner subsequently assigned P1-U2 after PHASE_1_NEXT_UNIT_SEAM_AUDIT_COMPLETE; its activation contract and implementation evidence below govern the bounded step. The owner has now explicitly approved and assigned P1-U3 under the activation contract below. The owner has subsequently approved P1-U3 closure and assigned P1-U4 under the activation contract below. The owner has now approved P1-U4 closure and explicitly assigned P1-U5 under the activation contract below. No later unit is assigned.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PHASE_1
 ACTIVE_PHASE_STATUS: IN_PROGRESS
-ACTIVE_UNIT: P1-U4 — Settlement Adjustment Type Vocabulary Authority Convergence
-ACTIVE_UNIT_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
+ACTIVE_UNIT: P1-U5 — Affiliation Status Vocabulary Authority Convergence
+ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
 ACTIVE_UNIT_TYPE: BOUNDED_TYPE_AUTHORITY_CONVERGENCE
 PHASE_0_STATUS: VERIFIED / CLOSED
 PHASE_0_FREEZE_STATUS: FROZEN
@@ -23,11 +23,11 @@ PHASE_1_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NO_SUBSEQUENT_UNIT_ASSIGNED
-NEXT_ACTION: OWNER_REVIEW_P1_U4_IMPLEMENTATION
+NEXT_ACTION: EXECUTE_P1_U5_AFFILIATION_STATUS_VOCABULARY_AUTHORITY_CONVERGENCE
 PHASE_1_CLOSURE_READY: NO
 PHASE_1_REMAINING_SEAMS: 4
-AFTER_P1_U4_REMAINING_FAMILIES: 4
-AFTER_P1_U4_EXPECTED_STATE: FRESH_PHASE_1_RESIDUAL_ASSESSMENT_REQUIRED
+AFTER_P1_U5_REMAINING_FAMILIES: 3
+AFTER_P1_U5_EXPECTED_STATE: FRESH_PHASE_1_RESIDUAL_ASSESSMENT_REQUIRED
 P0_U5_STATUS: VERIFIED / CLOSED
 P0_U5_VERIFIED_MERGE: 15529b85848a80322dea033e80903fd2fd1e294c
 P0_U6_STATUS: VERIFIED / CLOSED
@@ -55,9 +55,14 @@ P1_U3_PR: 17
 P1_U3_VERIFIED_MERGE: ca53209f0844c7968e518efe553fd171436bce70
 P1_U3_OWNER_REVIEW: PASSED
 P1_U3_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U4_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
-P1_U4_PUBLICATION_STATUS: NOT PUBLISHED
-CURRENT_CODE_BASELINE: 5d3526a14d697038d414ff48ab661406672acb0b
+P1_U4_STATUS: VERIFIED / CLOSED
+P1_U4_IMPLEMENTATION_COMMIT: c8deded43ce20647955ea3e1839386f2bc78be78
+P1_U4_PR: 19
+P1_U4_VERIFIED_MERGE: c00a4975cf973d470033e430579a09a80fb71ce0
+P1_U4_OWNER_REVIEW: PASSED
+P1_U4_PUBLICATION_STATUS: MERGED / VERIFIED
+P1_U5_STATUS: NOT_STARTED / ACTIVE
+CURRENT_CODE_BASELINE: c00a4975cf973d470033e430579a09a80fb71ce0
 ```
 
 ---
@@ -131,7 +136,7 @@ CURRENT_CODE_BASELINE: 5d3526a14d697038d414ff48ab661406672acb0b
 ### Overall Reconstruction Roadmap Status
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
-- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 IMPLEMENTED / AWAITING_OWNER_REVIEW
+- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 VERIFIED / CLOSED; P1-U5 NOT_STARTED / ACTIVE
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -458,7 +463,7 @@ P1-U3 — Truck Type Vocabulary Authority Across Input and Stored Boundaries is 
 
 Accepted P1-U3 verification is preserved: focused compiler contract 3/3 PASS; existing relevant regressions 128/128 PASS; diagnostics 445 → 445, added 0 / removed 0; runtime emit NONE; build PASS; i18n-runtime 16/16 PASS; auth-trust-boundary 23/23 PASS; storage/wire and runtime behavior unchanged. Lint remains EXIT 2 / NOT PASS, existing debt preserved. The later read-only closure audit additionally ran both Phase 1 contract suites (6/6) and relevant regressions (214/214), total 220/220, with build and foundation checks passing and no diagnostic delta. This governance update reruns no implementation checks and changes no accepted implementation.
 
-**Phase 1 closure assessment**: PHASE_1_CLOSURE_READY = NO. Five bounded Phase-1-owned type-authority families remain: material UOM, user-role vocabulary, global entity input-status vocabulary, settlement adjustment type vocabulary, and affiliation status vocabulary. Pure type authority sharing must not absorb their behavioral ownership. The prior one-seam estimate was incomplete and is historical, not current closure evidence. The owner selects only the settlement adjustment seam for P1-U4 below; the other four families have no assigned unit IDs. Phase 1 remains IN_PROGRESS; Phase 0 remains VERIFIED / CLOSED / FROZEN; P1-U1 and P1-U2 remain VERIFIED / CLOSED.
+**Historical Phase 1 closure assessment before P1-U4 implementation** (unit-selection pointers superseded by the P1-U4 closure / P1-U5 activation below): PHASE_1_CLOSURE_READY = NO. Five bounded Phase-1-owned type-authority families remain: material UOM, user-role vocabulary, global entity input-status vocabulary, settlement adjustment type vocabulary, and affiliation status vocabulary. Pure type authority sharing must not absorb their behavioral ownership. The prior one-seam estimate was incomplete and is historical, not current closure evidence. The owner selects only the settlement adjustment seam for P1-U4 below; the other four families have no assigned unit IDs. Phase 1 remains IN_PROGRESS; Phase 0 remains VERIFIED / CLOSED / FROZEN; P1-U1 and P1-U2 remain VERIFIED / CLOSED.
 
 ### P1-U4 Owner-Approved Unit Activation
 
@@ -529,6 +534,8 @@ P1-U4 addresses only settlement adjustment type vocabulary. Five families curren
 
 ### P1-U4 Bounded Implementation — Awaiting Owner Review
 
+Historical implementation snapshot: its review/publication/next-action pointers and unassigned-family statements are superseded by the closure/activation record below. Accepted verification evidence remains unchanged.
+
 Implementation baseline: `5d3526a14d697038d414ff48ab661406672acb0b`. P1-U4 is **IMPLEMENTED / AWAITING_OWNER_REVIEW**; it is not verified/closed. Publication: **NOT PUBLISHED**. NEXT_ACTION: OWNER_REVIEW_P1_U4_IMPLEMENTATION.
 
 - **Production scope**: only `src/services/settlementAdjustment.service.ts`: a type-only import of canonical SettlementAdjustmentType from unchanged `src/types/entities.ts` replaces the duplicated requestAdjustment.adjustmentType union.
@@ -541,3 +548,74 @@ Implementation baseline: `5d3526a14d697038d414ff48ab661406672acb0b`. P1-U4 is **
 - **Storage/wire/runtime**: **UNCHANGED**. Request/repository payloads, field names, canonical stored entity, Firestore paths, IDs, timestamps, RBAC, calculation/approval workflows, validation, errors and method bodies are unchanged.
 
 Exact final scope: one production file, one new compiler test, and this ledger plus the decision/debt log. Phase 0 remains VERIFIED / CLOSED / FROZEN; P1-U1/P1-U2/P1-U3 closure records are unchanged. PHASE_1 remains IN_PROGRESS, PHASE_1_CLOSURE_READY remains NO. Four other known type-authority families remain unassigned; fresh residual assessment is still required after P1-U4 acceptance, with no automatic closure or later unit assignment. Later-phase debt remains deferred to its existing owners. No commit, push or PR is performed.
+
+
+### P1-U4 Post-Merge Closure Record
+
+The owner independently verified the merge and approved closure. **P1-U4 — Settlement Adjustment Type Vocabulary Authority Convergence is VERIFIED / CLOSED**. Owner review: **PASSED**. Implementation/publication commit: `c8deded43ce20647955ea3e1839386f2bc78be78`; PR **#19**; verified merge/current main baseline: `c00a4975cf973d470033e430579a09a80fb71ce0`. Implementation publication: **MERGED / VERIFIED**.
+
+Accepted verification remains: focused compiler contract **3/3 PASS**; unchanged tripIdentityAdjustmentBlock89 regression **21/21 PASS**; diagnostics **445 → 445**, added **0**, removed **0**; lint **EXIT 2 / NOT PASS**; runtime emit **NONE**; build **PASS**; i18n-runtime **16/16 PASS**; auth-trust-boundary **23/23 PASS**. Storage/wire change **NO**, runtime behavior change **NO**, generated report drift **NO**. Firestore connection errors exercised the pre-existing fallback in the historical regression; this is not proof of live Firestore connectivity and does not broaden its historical assertions.
+
+P1-U1/P1-U2/P1-U3 remain VERIFIED / CLOSED, Phase 0 remains VERIFIED / CLOSED / FROZEN, and Phase 1 remains IN_PROGRESS. Closure of this unit does not close Phase 1 or waive existing debt. The owner explicitly assigns P1-U5 below.
+
+### P1-U5 Owner-Approved Unit Activation
+
+- **Unit ID / title**: P1-U5 — Affiliation Status Vocabulary Authority Convergence.
+- **Unit type**: BOUNDED_TYPE_AUTHORITY_CONVERGENCE.
+- **Status**: NOT_STARTED / ACTIVE. This governance step does not implement, verify or close P1-U5.
+- **One purpose**: make existing exported AffiliationStatus the single affiliation-status vocabulary authority inside the pure relationship-policy boundary, without changing affiliation behavior, transitions, reassignment, persistence, Firestore, APIs, cardinality or entity shapes beyond duplicate vocabulary references.
+- **Read-only canonical authority**: `src/types/projectCarrierAffiliation.ts`, exporting `AffiliationStatus = 'ACTIVE' | 'INACTIVE'`. Canonical stored driver/truck affiliation entities already consume this status vocabulary through their base entity.
+- **Exactly one authorized future production file**: `src/utils/canonicalFleetRelationshipPolicy.ts`. Add a type-only AffiliationStatus import/reference and replace only the duplicate unions at **PureAffiliation.status** and **evaluateAffiliation return status**.
+- **Shape boundary**: PureAffiliation remains an independent partial/policy shape; do not alias it to a stored entity. No optionality change to audit metadata is authorized.
+
+**Explicit exclusions**: do not modify AffiliationInput, PureAssignment, PureAllocation, ProjectDriverCarrierAffiliationEntity, ProjectTruckCarrierAffiliationEntity, policy method bodies, carrier reassignment/reactivation rules, idempotency, assignment/allocation logic, repositories, Firestore paths, storage/wire payloads, RBAC or UI. Sharing vocabulary does not absorb Phase 5 relationship semantics. The canonical authority remains read-only unless a stop condition is found.
+
+**Future focused compiler test**: create exactly one test during implementation, `src/tests/affiliationStatusVocabularyAuthority.test.ts`. Real compiler-level evidence must prove ACTIVE and INACTIVE accepted, invalid status rejected, evaluateAffiliation return status compatible with AffiliationStatus, stored and policy statuses sharing the canonical vocabulary, no string widening/any, independent partial PureAffiliation structure, and unchanged optional audit metadata.
+
+**Future regressions — unchanged assertions**:
+
+- `src/tests/projectCarrierFleetAffiliationFoundation.test.ts`
+- `src/tests/driverTruckIntakeP602A.test.ts`
+- `src/tests/canonicalFleetRelationshipPolicyTypeAuthority.test.ts`
+- Any directly relevant affiliation/policy regression discovered during implementation.
+
+**Future verification**: compare diagnostics against the current expected baseline **445**, requiring **ADDED_DIAGNOSTICS = 0**. Compare runtime emit for `src/utils/canonicalFleetRelationshipPolicy.ts`, requiring **RUNTIME_EMIT_CHANGE = NONE**. Require `npm run build`, `npm run test:i18n-runtime` and `npm run test:auth-trust-boundary` to pass. Do not call lint PASS if it remains exit 2. These are future implementation gates, not checks executed by this documentation-only activation.
+
+**Acceptance criteria (17)**:
+
+1. AffiliationStatus remains canonical vocabulary authority.
+2. Exact values ACTIVE / INACTIVE are preserved.
+3. PureAffiliation.status uses AffiliationStatus.
+4. evaluateAffiliation return status uses AffiliationStatus.
+5. PureAffiliation remains an independent partial policy shape.
+6. No policy method body changes.
+7. No affiliation behavior changes.
+8. No reassignment/reactivation changes.
+9. No persistence/storage/wire/API changes.
+10. No any.
+11. No widening.
+12. Runtime emit unchanged.
+13. Zero new diagnostics.
+14. Focused compiler-contract passes.
+15. Relevant regressions pass.
+16. Build/i18n/auth checks pass.
+17. Exactly one production file modified.
+
+**Stop conditions (10) — stop future implementation and report; do not broaden automatically**:
+
+1. Policy and canonical affiliation vocabularies differ.
+2. Another affiliation status value exists.
+3. Authority source must change.
+4. Another production file must change.
+5. PureAffiliation must be converted into a stored entity.
+6. Behavior or transition rules must change.
+7. Runtime emit changes materially.
+8. New diagnostics appear.
+9. Persistence/wire/API must change.
+10. Any or widening is required.
+
+**Remaining unassigned Phase 1 families beyond P1-U5 (3)**: Global Material UOM vocabulary authority; User Role vocabulary authority; Global Entity Status vocabulary authority. No subsequent unit ID is assigned. Four known families remain including active P1-U5; Phase 1 remains IN_PROGRESS and PHASE_1_CLOSURE_READY remains NO. Fresh residual assessment is required after this bounded seam; no Phase 2 activation or automatic phase closure is authorized.
+
+**Later-phase ownership preserved**: timestamp/storage DEFER_PHASE_2; Auth context convergence DEFER_PHASE_3; project lifecycle DEFER_PHASE_4; master relationship behavior DEFER_PHASE_5; import DTO DEFER_PHASE_7_8; pricing DEFER_PHASE_9; Trip lifecycle/model DEFER_PHASE_10; offline/outbox DEFER_PHASE_11.
+
+**Current governance/publication boundary**: NEXT_ACTION is EXECUTE_P1_U5_AFFILIATION_STATUS_VOCABULARY_AUTHORITY_CONVERGENCE. Only this ledger and the decision/debt log change in this step. The owner authorizes one normal branch commit on `reconstruction/p1-u4-closure-p1-u5-activation`, without merge or P1-U5 implementation. Prior accepted units and the Phase 0 freeze remain unchanged.
