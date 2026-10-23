@@ -52,12 +52,17 @@ describe('Truck type vocabulary authority across input and stored boundaries', (
       const declarations = source.statements.filter(ts.isImportDeclaration).filter(d =>
         ts.isStringLiteral(d.moduleSpecifier) && d.moduleSpecifier.text === modulePath
       );
-      expect(declarations).toHaveLength(1);
-      const clause = declarations[0].importClause;
-      expect(clause?.isTypeOnly).toBe(true);
-      const bindings = clause?.namedBindings;
-      if (!bindings || !ts.isNamedImports(bindings)) throw new Error(`Missing canonical import in ${file}`);
-      expect(bindings.elements.map(e => e.name.text)).toEqual(['GlobalTruckType']);
+      const truckImports = declarations.flatMap(declaration => {
+        const clause = declaration.importClause;
+        const bindings = clause?.namedBindings;
+        if (!bindings || !ts.isNamedImports(bindings)) return [];
+        return bindings.elements
+          .filter(element => element.name.text === 'GlobalTruckType')
+          .map(element => ({ clause, element }));
+      });
+      expect(truckImports).toHaveLength(1);
+      expect(truckImports[0].clause?.isTypeOnly).toBe(true);
+      expect(truckImports[0].element.propertyName?.text ?? truckImports[0].element.name.text).toBe('GlobalTruckType');
     }
   });
 

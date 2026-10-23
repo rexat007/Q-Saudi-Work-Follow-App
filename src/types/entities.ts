@@ -1,7 +1,7 @@
 import { Timestamp } from 'firebase/firestore';
 import { BaseAuditedEntity } from './common';
 import { ProjectStorageProfile } from './workspace';
-import type { GlobalTruckType } from './globalEntities';
+import type { GlobalTruckType, GlobalMaterialUom } from './globalEntities';
 
 // 1. Project Entity
 export interface ProjectEntity extends BaseAuditedEntity {
@@ -91,7 +91,7 @@ export interface MaterialEntity extends BaseAuditedEntity {
   status: 'ACTIVE' | 'INACTIVE';
   projectId: string;
   nameAr?: string; // backward compat
-  unitOfMeasure?: 'TON' | 'M3' | 'TRIP';
+  unitOfMeasure?: GlobalMaterialUom;
   sortOrder?: number;
   standardDensityTonPerM3?: number;
   maxAllowableMoisturePercent?: number;

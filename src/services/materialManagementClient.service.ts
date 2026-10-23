@@ -1,9 +1,10 @@
+import type { GlobalMaterialUom } from '../types/globalEntities';
 import { auth } from '../firebase/config';
 
 export interface MaterialCreateInput {
   name: string;
   code: string;
-  unitOfMeasure?: 'TON' | 'M3' | 'TRIP';
+  unitOfMeasure?: GlobalMaterialUom;
   standardDensityTonPerM3?: number;
 }
 
@@ -17,7 +18,7 @@ export interface MaterialCreationResult {
 
 export interface MaterialUpdateInput {
   name?: string;
-  unitOfMeasure?: 'TON' | 'M3' | 'TRIP';
+  unitOfMeasure?: GlobalMaterialUom;
   standardDensityTonPerM3?: number | null;
 }
 
