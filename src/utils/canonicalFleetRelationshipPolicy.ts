@@ -1,3 +1,4 @@
+import type { AffiliationStatus } from '../types/projectCarrierAffiliation';
 import type { ProjectDriverTruckAssignmentEntity } from '../types/projectDriverTruckAssignment';
 import type { ProjectTruckMaterialAllocationEntity } from '../types/projectTruckMaterialAllocation';
 
@@ -11,7 +12,7 @@ export interface AffiliationInput {
 export interface PureAffiliation {
   projectId: string;
   carrierId: string;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: AffiliationStatus;
   createdAt?: any;
   createdBy?: string;
   updatedAt?: any;
@@ -32,7 +33,7 @@ export class CanonicalFleetRelationshipPolicy {
     isIntake: boolean = false
   ): {
     action: 'CREATE' | 'REACTIVATE' | 'REASSIGN' | 'IDEMPOTENT';
-    status: 'ACTIVE' | 'INACTIVE';
+    status: AffiliationStatus;
     carrierId: string;
   } {
     const { projectId, entityId, carrierId, entityType } = input;
