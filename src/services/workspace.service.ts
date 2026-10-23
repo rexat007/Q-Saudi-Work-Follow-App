@@ -1,3 +1,4 @@
+import type { StorageProviderType } from '../types/workspace';
 import { 
   WORKSPACE_TABS, 
   OPERATIONS_FULL_COLUMNS,
@@ -620,7 +621,7 @@ export class ClientWorkspaceService {
   public async validateDestinationFolder(
     projectId: string,
     targetFolderId: string,
-    targetProvider: 'MY_DRIVE' | 'SHARED_DRIVE',
+    targetProvider: StorageProviderType,
     currentFolderId?: string,
     sharedDriveId?: string
   ): Promise<DestinationValidationResult> {
@@ -661,7 +662,7 @@ export class ClientWorkspaceService {
     sourceFolderId: string;
     sourceSpreadsheetId: string;
     targetFolderId: string;
-    targetProvider: 'MY_DRIVE' | 'SHARED_DRIVE';
+    targetProvider: StorageProviderType;
     sharedDriveId?: string | null;
     migrationJobId?: string;
     trips?: any[];
