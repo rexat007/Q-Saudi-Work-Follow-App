@@ -1,7 +1,7 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `deb9738b508b0183ccf0d73c1ea0ea6351ce3ea5`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #21. P1-U6 — Global Entity Status Input Authority Convergence is VERIFIED / CLOSED after owner review PASSED and verified merge through PR #23. P1-U7 — Global Material UOM Vocabulary Authority Convergence is NOT_STARTED / ACTIVE. Phase 1 closure is NOT ready: the active UOM family and unassigned User Role family remain; User Role requires a fresh semantic audit. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `ee0911b916ea7f4e88b84e154cc294bfee422ac4`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #21. P1-U6 — Global Entity Status Input Authority Convergence is VERIFIED / CLOSED after owner review PASSED and verified merge through PR #23. P1-U7 — Global Material UOM Vocabulary Authority Convergence is IMPLEMENTED / AWAITING_OWNER_REVIEW. Phase 1 closure is NOT ready: the active UOM family and unassigned User Role family remain; User Role requires a fresh semantic audit. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
@@ -15,7 +15,7 @@ This is the sole current source for phase, active/next unit, accepted units, and
 ACTIVE_PHASE: PHASE_1
 ACTIVE_PHASE_STATUS: IN_PROGRESS
 ACTIVE_UNIT: P1-U7 — Global Material UOM Vocabulary Authority Convergence
-ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
+ACTIVE_UNIT_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
 ACTIVE_UNIT_TYPE: BOUNDED_TYPE_AUTHORITY_CONVERGENCE
 PHASE_0_STATUS: VERIFIED / CLOSED
 PHASE_0_FREEZE_STATUS: FROZEN
@@ -23,7 +23,7 @@ PHASE_1_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NO_SUBSEQUENT_UNIT_ASSIGNED
-NEXT_ACTION: EXECUTE_P1_U7_GLOBAL_MATERIAL_UOM_VOCABULARY_AUTHORITY_CONVERGENCE
+NEXT_ACTION: OWNER_REVIEW_P1_U7_IMPLEMENTATION
 PHASE_1_CLOSURE_READY: NO
 PHASE_1_REMAINING_SEAMS: 2
 AFTER_P1_U7_REMAINING_FAMILIES: 1
@@ -74,8 +74,9 @@ P1_U6_PR: 23
 P1_U6_VERIFIED_MERGE: deb9738b508b0183ccf0d73c1ea0ea6351ce3ea5
 P1_U6_OWNER_REVIEW: PASSED
 P1_U6_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U7_STATUS: NOT_STARTED / ACTIVE
-CURRENT_CODE_BASELINE: deb9738b508b0183ccf0d73c1ea0ea6351ce3ea5
+P1_U7_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
+P1_U7_PUBLICATION_STATUS: NOT PUBLISHED
+CURRENT_CODE_BASELINE: ee0911b916ea7f4e88b84e154cc294bfee422ac4
 ```
 
 ---
@@ -149,7 +150,7 @@ CURRENT_CODE_BASELINE: deb9738b508b0183ccf0d73c1ea0ea6351ce3ea5
 ### Overall Reconstruction Roadmap Status
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
-- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 VERIFIED / CLOSED; P1-U5 VERIFIED / CLOSED; P1-U6 VERIFIED / CLOSED; P1-U7 NOT_STARTED / ACTIVE
+- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 VERIFIED / CLOSED; P1-U5 VERIFIED / CLOSED; P1-U6 VERIFIED / CLOSED; P1-U7 IMPLEMENTED / AWAITING_OWNER_REVIEW
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -786,6 +787,8 @@ P1-U1 through P1-U5 remain VERIFIED / CLOSED; Phase 0 remains VERIFIED / CLOSED 
 
 ### P1-U7 Owner-Approved Unit Activation
 
+Historical activation snapshot: implementation status and execution/publication pointers are superseded by the implementation evidence below. Its canonical authority, bounded production scope and exclusions remain binding; the explicit owner exception below adds only one compatibility test edit.
+
 - **Unit ID / title**: P1-U7 — Global Material UOM Vocabulary Authority Convergence.
 - **Unit type**: BOUNDED_TYPE_AUTHORITY_CONVERGENCE.
 - **Status**: NOT_STARTED / ACTIVE. This activation does not implement, verify or close P1-U7.
@@ -851,3 +854,56 @@ Read-only inspection locates the exact duplicate declarations in these candidate
 **Debt / governance preservation**: timestamp/storage DEFER_PHASE_2; Auth context convergence DEFER_PHASE_3; project lifecycle DEFER_PHASE_4; master relationship behavior DEFER_PHASE_5; import DTO DEFER_PHASE_7_8; pricing DEFER_PHASE_9; Trip lifecycle/model DEFER_PHASE_10; offline/outbox DEFER_PHASE_11 remain with their existing owners. No production/test/configuration/package/workflow changes occur in this step.
 
 **Current governance/publication boundary**: NEXT_ACTION is EXECUTE_P1_U7_GLOBAL_MATERIAL_UOM_VOCABULARY_AUTHORITY_CONVERGENCE. Only this ledger and the decision/debt log change. The owner authorizes a single normal branch commit on `reconstruction/p1-u6-closure-p1-u7-activation`, without force push, merge or P1-U7 implementation. P1-U1 through P1-U5 and the Phase 0 freeze remain unchanged.
+
+
+### P1-U7 Bounded Implementation — Awaiting Owner Review
+
+Implementation baseline: `ee0911b916ea7f4e88b84e154cc294bfee422ac4`. **P1-U7 — Global Material UOM Vocabulary Authority Convergence: IMPLEMENTED / AWAITING_OWNER_REVIEW**. Owner acceptance is pending; the unit is not verified/closed. NEXT_ACTION: OWNER_REVIEW_P1_U7_IMPLEMENTATION. Implementation publication: **NOT PUBLISHED**.
+
+**Canonical authority**: unchanged `src/types/globalEntities.ts`, exported **GlobalMaterialUom = TON / M3 / TRIP**. Preflight confirmed all targeted declarations are exact duplicates. Exactly **seven duplicate sites across four production files** converge through erased type-only imports/references:
+
+| Production file | Exact convergence | Optionality / compatibility |
+|---|---|---|
+| `src/types/entities.ts` | MaterialEntity.unitOfMeasure → GlobalMaterialUom | optional field preserved; other entity fields untouched |
+| `src/types/wizard.ts` | exported UnitOfMeasure → GlobalMaterialUom alias | public exported name retained; no independent union |
+| `src/services/materialManagementClient.service.ts` | MaterialCreateInput.unitOfMeasure and MaterialUpdateInput.unitOfMeasure → GlobalMaterialUom | both remain optional; no service method changes |
+| `src/components/masterData/MaterialEditorModal.tsx` | useState generic, edit-prepopulation assertion and select-event assertion → GlobalMaterialUom | three exact type sites; default TON and all UI logic unchanged |
+
+Broader result/output/initial-material `unitOfMeasure: string` or optional string fields remain unchanged, including MaterialUpdateResult and the modal's broader initial-material input. No output DTO narrowing, new any or targeted string widening.
+
+**TEST_HARNESS_COMPATIBILITY_CORRECTION**: the owner explicitly authorized the additional existing test file `src/tests/truckTypeBoundaryAuthority.test.ts` after preflight identified its obsolete sole-import layout assumption. Only that import assertion block changes: it still requires exactly one local GlobalTruckType binding from the exact canonical module, verifies the original exported symbol and a type-only import, while allowing other canonical types or separate type-only imports. All substantive truck vocabulary, no-any/no-widening, optionality/mutability, stored/input compatibility and compiler positive/negative assertions are byte-for-byte preserved. Test count stays **3**, result **3/3 PASS**. This is not a production-contract change or permission for general historical-test rewrites.
+
+**New focused compiler contract**: `src/tests/globalMaterialUomVocabularyAuthority.test.ts`, **3/3 PASS**. Real TypeScript compiler fixtures resolve production definitions under strict null checks scoped to the contract. AST checks prove all seven canonical references and type-only imports, retained wizard alias, optionality, actual state initializer/default and both modal assertions. The compiler validates TON/M3/TRIP acceptance, invalid/arbitrary strings/null/incompatible values rejection, no any/widening, exact entity/input/alias/state compatibility, and unchanged broader string contracts. The React useState call is extracted from production and checked with actual React types.
+
+**Relevant regression / guard results**:
+
+| Existing test file | Final result |
+|---|---|
+| `src/tests/globalIdentityFoundation.test.ts` | 28/28 PASS |
+| `src/tests/reusableMaterialCreationB1.test.ts` | 20/20 PASS |
+| `src/tests/canonicalMaterialEditAuthorityB2.test.ts` | 46/46 PASS |
+| `src/tests/projectMembershipFoundation.test.ts` | 26/26 PASS |
+| `src/tests/projectCanonicalRefreshBarrierA11.test.ts` | 40/40 PASS |
+| `src/tests/rosterSmartImportMaterialLayerC3.test.ts` | 19/19 PASS |
+| `src/tests/rosterSmartImportPortalRenderQuality.test.tsx` | 20/20 PASS |
+| `src/tests/rosterSmartImportLayeredWorkflowC1.test.ts` | 31/31 PASS |
+| `src/tests/translationByConstructionGuard.test.ts` | 25/25 PASS |
+| `src/tests/truckTypeBoundaryAuthority.test.ts` | 3/3 PASS; authorized compatibility correction only |
+
+Material/global-identity regressions total **230/230 PASS**; unchanged translation guard **25/25 PASS**; corrected truck test **3/3 PASS**. Existing regression/guard matrix **258/258 PASS**; with the new compiler test, **261/261 PASS**. No other existing test is modified, removed, skipped or weakened.
+
+**Diagnostics**: baseline **445**, final **445**, added **0**, removed **0**; full diagnostic records match exactly. Both lint runs exit **2 / NOT PASS**. Existing debt remains preserved.
+
+**Runtime emit per production file**: entities.ts **NONE**; wizard.ts **NONE**; materialManagementClient.service.ts **NONE**; MaterialEditorModal.tsx **NONE**. Both TypeScript and esbuild emit byte-identical JavaScript before/after for every file, with source maps disabled, including TSX. Reversing only the approved imports, alias and seven type sites reproduces each baseline source byte-for-byte; no executable logic or runtime import changes.
+
+**UI_BEHAVIOR_CHANGED: NO**. Initial TON, edit prepopulation, TON fallback, M3/TRIP handling, density, select options, validation, submit values and refresh/recovery behavior are unchanged. Existing automated modal render/edit/create/refresh tests pass. **Browser/manual verification required: NO**, because runtime emit and behavior are unchanged; no manual/browser session is claimed.
+
+**STORAGE_WIRE_CHANGED: NO; RUNTIME_BEHAVIOR_CHANGED: NO**. unitOfMeasure property names, persisted strings, TON/M3/TRIP wire values, request/response shapes, storage documents, Firestore behavior, validation, material workflows, server commands, pricing/import semantics, labels and i18n remain untouched.
+
+**Foundation**: build **PASS**; i18n-runtime **16/16 PASS**; auth-trust-boundary **23/23 PASS**. All 22 original implementation acceptance criteria and the bounded compatibility preservation requirements are satisfied without further scope expansion.
+
+Exact final scope: **8 files** — four authorized production files, one new focused compiler test, one explicitly authorized compatibility test edit, and this ledger plus the decision/debt log. Authority source and other tests remain unchanged; no package/config/workflow/generated artifacts. P1-U1 through P1-U6 closure records and Phase 0 freeze remain unchanged.
+
+Phase 1 remains **IN_PROGRESS**, **PHASE_1_CLOSURE_READY: NO**. The two-family review inventory includes P1-U7 until owner acceptance and the unassigned User Role vocabulary authority. User Role remains **FRESH_SEMANTIC_AUDIT_REQUIRED_NOT_PROVEN_TYPE_ONLY**; no convergence attempted, subsequent unit ID assigned, or later phase activated. Existing later-phase debt ownership remains unchanged.
+
+**PUBLICATION STATUS: NOT PUBLISHED**. No staging, commit, push or PR occurs in this implementation step.

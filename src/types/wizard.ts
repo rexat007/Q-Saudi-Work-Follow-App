@@ -1,7 +1,9 @@
+import type { GlobalMaterialUom } from './globalEntities';
+
 export type ProjectStatus = 'ACTIVE' | 'PLANNING' | 'SUSPENDED' | 'ARCHIVED';
 export type EntityStatus = 'ACTIVE' | 'DISABLED';
 export type PricingType = 'PER_TRIP' | 'PER_TON';
-export type UnitOfMeasure = 'TON' | 'M3' | 'TRIP';
+export type UnitOfMeasure = GlobalMaterialUom;
 export type UserRole = 'PROJECT_ADMIN' | 'DISPATCHER' | 'FINANCE_AUDITOR' | 'VIEWER';
 
 export interface ProjectInfoStep {

@@ -1,3 +1,4 @@
+import type { GlobalMaterialUom } from '../../types/globalEntities';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { useI18n } from '../../i18n';
 import React, { useState, useEffect } from 'react';
@@ -59,7 +60,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
 
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
-  const [unitOfMeasure, setUnitOfMeasure] = useState<'TON' | 'M3' | 'TRIP'>('TON');
+  const [unitOfMeasure, setUnitOfMeasure] = useState<GlobalMaterialUom>('TON');
   const [standardDensityTonPerM3, setStandardDensityTonPerM3] = useState<number>(1.6);
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -80,7 +81,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
         setUnitOfMeasure(
           (initialMaterial.unitOfMeasure === 'M3' || initialMaterial.unitOfMeasure === 'TRIP'
             ? initialMaterial.unitOfMeasure
-            : 'TON') as 'TON' | 'M3' | 'TRIP'
+            : 'TON') as GlobalMaterialUom
         );
         setStandardDensityTonPerM3(
           initialMaterial.standardDensityTonPerM3 !== undefined && initialMaterial.standardDensityTonPerM3 !== null
@@ -407,7 +408,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
               </label>
               <select
                 value={unitOfMeasure}
-                onChange={(e) => setUnitOfMeasure(e.target.value as 'TON' | 'M3' | 'TRIP')}
+                onChange={(e) => setUnitOfMeasure(e.target.value as GlobalMaterialUom)}
                 disabled={isSubmitting || (isEditMode ? updatedMaterialResult !== null && refreshFailed : createdMaterialResult !== null && refreshFailed)}
                 className="w-full px-3.5 py-2.5 bg-slate-950/60 border border-slate-700 rounded-xl text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 disabled:opacity-50 transition-colors"
               >
