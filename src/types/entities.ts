@@ -1,5 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
-import { BaseAuditedEntity } from './common';
+import { BaseAuditedEntity, type UserRole } from './common';
 import { ProjectStorageProfile } from './workspace';
 import type { GlobalTruckType, GlobalMaterialUom } from './globalEntities';
 
@@ -140,11 +140,11 @@ export interface UserEntity extends BaseAuditedEntity {
   userId: string;
   email: string;
   fullName: string;
-  role: 'PROJECT_ADMIN' | 'SUPER_ADMIN' | 'SITE_SUPERVISOR' | 'SUPERVISOR' | 'DISPATCHER' | 'FINANCE_AUDITOR' | 'SCALE_OPERATOR' | 'DRIVER' | 'VIEWER';
+  role: UserRole;
   assignedProjectIds: string[];
   isActive: boolean;
   status?: 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED' | 'SUSPENDED';
-  requestedRole?: 'PROJECT_ADMIN' | 'SUPER_ADMIN' | 'SITE_SUPERVISOR' | 'SUPERVISOR' | 'DISPATCHER' | 'FINANCE_AUDITOR' | 'SCALE_OPERATOR' | 'DRIVER' | 'VIEWER';
+  requestedRole?: UserRole;
   requestReason?: string;
   approvedBy?: string;
   approvedAt?: string;
