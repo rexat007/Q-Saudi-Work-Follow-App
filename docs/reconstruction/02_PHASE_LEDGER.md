@@ -1,7 +1,7 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `e76ad3cf9ce9204f8f5d2aaa5b4fa2c106a35b39`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #21. P1-U6 — Global Entity Status Input Authority Convergence is NOT_STARTED / ACTIVE. Phase 1 closure is NOT ready: three bounded type-authority families remain, including the active P1-U6 seam. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
+Authority: `CURRENT_AUTHORITY`. Current authoritative main baseline: `e4718e3fc5a3a8bf4546c1c8c0a19b2dd4943079`. By the explicit owner-approved P0-U7 governance decision, Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 is IN_PROGRESS with P1-U1 VERIFIED / CLOSED and P1-U2 VERIFIED / CLOSED. Owner review passed and the bounded implementation is MERGED / VERIFIED. By the subsequent explicit owner decision, P1-U3 is VERIFIED / CLOSED, and P1-U4 is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #19. P1-U5 — Affiliation Status Vocabulary Authority Convergence is VERIFIED / CLOSED following owner review PASSED and verified merge through PR #21. P1-U6 — Global Entity Status Input Authority Convergence is IMPLEMENTED / AWAITING_OWNER_REVIEW. Phase 1 closure is NOT ready: P1-U6 awaits owner acceptance and two other bounded type-authority families remain unassigned. P0-U7 publication is MERGED / VERIFIED: PR #9, implementation/publication commit `d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5`, verified merge `3b0fc03d27a4b663e85d330f581550c37d62999d`, documentation-only scope (7 files).
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
@@ -15,7 +15,7 @@ This is the sole current source for phase, active/next unit, accepted units, and
 ACTIVE_PHASE: PHASE_1
 ACTIVE_PHASE_STATUS: IN_PROGRESS
 ACTIVE_UNIT: P1-U6 — Global Entity Status Input Authority Convergence
-ACTIVE_UNIT_STATUS: NOT_STARTED / ACTIVE
+ACTIVE_UNIT_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
 ACTIVE_UNIT_TYPE: BOUNDED_TYPE_AUTHORITY_CONVERGENCE
 PHASE_0_STATUS: VERIFIED / CLOSED
 PHASE_0_FREEZE_STATUS: FROZEN
@@ -23,7 +23,7 @@ PHASE_1_STATUS: IN_PROGRESS
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NO_SUBSEQUENT_UNIT_ASSIGNED
-NEXT_ACTION: EXECUTE_P1_U6_GLOBAL_ENTITY_STATUS_INPUT_AUTHORITY_CONVERGENCE
+NEXT_ACTION: OWNER_REVIEW_P1_U6_IMPLEMENTATION
 PHASE_1_CLOSURE_READY: NO
 PHASE_1_REMAINING_SEAMS: 3
 AFTER_P1_U6_REMAINING_FAMILIES: 2
@@ -67,8 +67,9 @@ P1_U5_PR: 21
 P1_U5_VERIFIED_MERGE: e76ad3cf9ce9204f8f5d2aaa5b4fa2c106a35b39
 P1_U5_OWNER_REVIEW: PASSED
 P1_U5_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U6_STATUS: NOT_STARTED / ACTIVE
-CURRENT_CODE_BASELINE: e76ad3cf9ce9204f8f5d2aaa5b4fa2c106a35b39
+P1_U6_STATUS: IMPLEMENTED / AWAITING_OWNER_REVIEW
+P1_U6_PUBLICATION_STATUS: NOT PUBLISHED
+CURRENT_CODE_BASELINE: e4718e3fc5a3a8bf4546c1c8c0a19b2dd4943079
 ```
 
 ---
@@ -142,7 +143,7 @@ CURRENT_CODE_BASELINE: e76ad3cf9ce9204f8f5d2aaa5b4fa2c106a35b39
 ### Overall Reconstruction Roadmap Status
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
-- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 VERIFIED / CLOSED; P1-U5 VERIFIED / CLOSED; P1-U6 NOT_STARTED / ACTIVE
+- **Phase 1 — Canonical Domain Model**: IN_PROGRESS; P1-U1 VERIFIED / CLOSED; P1-U2 VERIFIED / CLOSED; P1-U3 VERIFIED / CLOSED; P1-U4 VERIFIED / CLOSED; P1-U5 VERIFIED / CLOSED; P1-U6 IMPLEMENTED / AWAITING_OWNER_REVIEW
 - **Phase 2 — Persistence & Server Authority**: NOT_STARTED
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
@@ -662,6 +663,8 @@ P1-U1/P1-U2/P1-U3/P1-U4 remain VERIFIED / CLOSED, Phase 0 remains VERIFIED / CLO
 
 ### P1-U6 Owner-Approved Unit Activation
 
+Historical activation snapshot: implementation status, execution/publication pointers and no-change statements are superseded by the implementation evidence below. Its entity-local authority model, bounded scope and exclusions remain binding.
+
 - **Unit ID / title**: P1-U6 — Global Entity Status Input Authority Convergence.
 - **Unit type**: BOUNDED_TYPE_AUTHORITY_CONVERGENCE.
 - **Status**: NOT_STARTED / ACTIVE. This governance publication does not implement, verify or close the unit.
@@ -734,3 +737,32 @@ Each declaration remains optional: `status?: GlobalDriverEntity['status']`, `sta
 **Later-phase ownership preserved**: timestamp/storage DEFER_PHASE_2; Auth context convergence DEFER_PHASE_3; project lifecycle DEFER_PHASE_4; master relationship behavior DEFER_PHASE_5; import DTO DEFER_PHASE_7_8; pricing DEFER_PHASE_9; Trip lifecycle/model DEFER_PHASE_10; offline/outbox DEFER_PHASE_11. Runtime status-transition semantics remain with their existing behavioral owners.
 
 **Current governance/publication boundary**: NEXT_ACTION is EXECUTE_P1_U6_GLOBAL_ENTITY_STATUS_INPUT_AUTHORITY_CONVERGENCE. Only this ledger and the decision/debt log change. The owner authorizes a single normal branch commit on `reconstruction/p1-u5-closure-p1-u6-activation`, without force push, merge or P1-U6 implementation. Prior accepted units and Phase 0 freeze remain unchanged.
+
+
+### P1-U6 Bounded Implementation — Awaiting Owner Review
+
+Implementation baseline: `e4718e3fc5a3a8bf4546c1c8c0a19b2dd4943079`. **P1-U6 — Global Entity Status Input Authority Convergence: IMPLEMENTED / AWAITING_OWNER_REVIEW**. Owner acceptance is pending; the unit is not verified/closed. NEXT_ACTION: OWNER_REVIEW_P1_U6_IMPLEMENTATION. Implementation publication: **NOT PUBLISHED**.
+
+**Authority model: ENTITY-LOCAL STATUS AUTHORITY**. Unchanged `src/types/globalEntities.ts` remains canonical. Only `src/repositories/globalIdentity.repository.ts` changes in production, replacing exactly **eight optional status type declarations** with the matching indexed access type:
+
+| Entity-local authority | Exact vocabulary preserved | Create boundary | Update boundary | Declarations |
+|---|---|---|---|---|
+| `GlobalDriverEntity['status']` | ACTIVE / SUSPENDED / INACTIVE | GlobalDriverRepository.createGlobal input.status | GlobalDriverRepository.updateProfile updates.status | 2 |
+| `GlobalTruckEntity['status']` | ACTIVE / MAINTENANCE / INACTIVE | GlobalTruckRepository.createGlobal input.status | GlobalTruckRepository.updateProfile updates.status | 2 |
+| `GlobalCarrierEntity['status']` | ACTIVE / SUSPENDED / INACTIVE | GlobalCarrierRepository.createGlobal input.status | GlobalCarrierRepository.updateProfile updates.status | 2 |
+| `GlobalMaterialEntity['status']` | ACTIVE / INACTIVE | GlobalMaterialRepository.createGlobal input.status | GlobalMaterialRepository.updateCatalog updates.status | 2 |
+
+Material's actual update method remains **updateCatalog**, as recorded at activation; no method is renamed. No common GlobalEntityStatus or shared cross-entity status authority is introduced. Truck MAINTENANCE and Driver/Carrier SUSPENDED remain distinct; Material accepts neither. All status inputs remain optional, with unchanged undefined/omission behavior; no any or string widening is introduced.
+
+- **Focused compiler test**: new `src/tests/globalEntityStatusInputAuthority.test.ts`, **3/3 PASS**. Real TypeScript fixtures resolve production repository and entity types; AST inspection verifies all eight entity-local indexed references and unchanged optionality. Positive/negative compiler cases cover both create and update for every entity, exact vocabularies, accepted values, omission/undefined, rejection of cross-entity values, invalid/arbitrary strings, null and incompatible types, and no any. Strengthened strict-null checks are scoped to the contract fixture; the full project remains subject to its unchanged lint gate. A read-only virtual baseline comparison also confirms that four implementation-body TS2345 diagnostics under stronger strict-null settings are identical before/after, not new project diagnostics.
+- **Existing regressions — unchanged files/assertions**: `src/tests/globalIdentityFoundation.test.ts` **28/28 PASS**; directly relevant `src/tests/projectMembershipFoundation.test.ts` **26/26 PASS**; `src/tests/driverTruckIntakeP602A.test.ts` **14/14 PASS**. Existing regression total **68/68 PASS**. Together with the final focused compiler result, the verification matrix is **71/71 PASS**.
+- **Project diagnostics**: baseline **445**, post-change **445**, added **0**, removed **0**, exact full diagnostic records unchanged. Both baseline and final lint exit **2 / NOT PASS**; existing debt is not waived.
+- **Runtime emit**: **NONE**. TypeScript and esbuild emit byte-identical JavaScript for the repository file before/after with source maps disabled. Reversing exactly the eight type declarations reproduces the baseline source byte-for-byte; all other production bytes are unchanged.
+- **Foundation**: build **PASS**; i18n-runtime **16/16 PASS**; auth-trust-boundary **23/23 PASS**.
+- **Defaults / runtime / storage / wire**: **UNCHANGED**. Driver/Truck/Carrier/Material still default to ACTIVE through the exact existing expressions. Method bodies, status conditions such as `if (updates.status)`, transitions, transactions, fallback, ID generation, normalization, natural identity lookups, runtime validation, field names, entity shapes, collection/document paths, persisted values, create/update runtime shapes, repository payloads, API/wire values and UI are untouched.
+
+All 20 bounded implementation acceptance criteria are satisfied within the authorized scope, with no implementation stop-condition expansion. Final scope: exactly one production file, one new focused test, this ledger and the decision/debt log. No authority-source or existing test change; no generated report/artifact drift. P1-U1 through P1-U5 closure records and Phase 0 freeze remain unchanged.
+
+Phase 1 stays **IN_PROGRESS**, **PHASE_1_CLOSURE_READY: NO**. The three-seam review inventory still includes P1-U6 until owner acceptance. Global Material UOM vocabulary authority and User Role vocabulary authority remain unassigned; fresh residual assessment is required after the current unit. No subsequent unit ID or Phase 2 activation is introduced. Later-phase ownership remains unchanged: timestamp/storage Phase 2, Auth context Phase 3, project lifecycle Phase 4, master relationship behavior Phase 5, import DTO Phases 7/8, pricing Phase 9, Trip lifecycle/model Phase 10, offline/outbox Phase 11. Status vocabulary authority sharing does not absorb runtime transition semantics.
+
+**PUBLICATION STATUS: NOT PUBLISHED**. No staging, commit, push or PR occurs in this implementation step.

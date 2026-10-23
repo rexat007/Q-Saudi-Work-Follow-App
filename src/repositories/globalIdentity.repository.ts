@@ -181,7 +181,7 @@ export class GlobalDriverRepository {
       licenseNumber?: string;
       licenseValidUntil?: Date;
       nationality?: string;
-      status?: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
+      status?: GlobalDriverEntity['status'];
       createdBy: string;
     },
     transaction?: Transaction
@@ -267,7 +267,7 @@ export class GlobalDriverRepository {
       licenseNumber?: string;
       licenseValidUntil?: Date;
       nationality?: string;
-      status?: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
+      status?: GlobalDriverEntity['status'];
       updatedBy: string;
     }
   ): Promise<void> {
@@ -388,7 +388,7 @@ export class GlobalTruckRepository {
       primaryCarrierId?: string;
       mvpiValidUntil?: Date;
       insuranceValidUntil?: Date;
-      status?: 'ACTIVE' | 'MAINTENANCE' | 'INACTIVE';
+      status?: GlobalTruckEntity['status'];
       createdBy: string;
     },
     transaction?: Transaction
@@ -483,7 +483,7 @@ export class GlobalTruckRepository {
       primaryCarrierId?: string;
       mvpiValidUntil?: Date;
       insuranceValidUntil?: Date;
-      status?: 'ACTIVE' | 'MAINTENANCE' | 'INACTIVE';
+      status?: GlobalTruckEntity['status'];
       updatedBy: string;
     }
   ): Promise<void> {
@@ -607,7 +607,7 @@ export class GlobalCarrierRepository {
       transportLicenseNo?: string;
       vatNumber?: string;
       contactPerson?: GlobalCarrierEntity['contactPerson'];
-      status?: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
+      status?: GlobalCarrierEntity['status'];
       createdBy: string;
     },
     transaction?: Transaction
@@ -690,7 +690,7 @@ export class GlobalCarrierRepository {
       transportLicenseNo?: string;
       vatNumber?: string;
       contactPerson?: GlobalCarrierEntity['contactPerson'];
-      status?: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
+      status?: GlobalCarrierEntity['status'];
       updatedBy: string;
     }
   ): Promise<void> {
@@ -809,7 +809,7 @@ export class GlobalMaterialRepository {
       unitOfMeasure?: GlobalMaterialEntity['unitOfMeasure'];
       standardDensityTonPerM3?: number;
       maxAllowableMoisturePercent?: number;
-      status?: 'ACTIVE' | 'INACTIVE';
+      status?: GlobalMaterialEntity['status'];
       createdBy: string;
     },
     transaction?: Transaction
@@ -894,7 +894,7 @@ export class GlobalMaterialRepository {
       unitOfMeasure?: GlobalMaterialEntity['unitOfMeasure'];
       standardDensityTonPerM3?: number;
       maxAllowableMoisturePercent?: number;
-      status?: 'ACTIVE' | 'INACTIVE';
+      status?: GlobalMaterialEntity['status'];
       updatedBy: string;
     }
   ): Promise<void> {
