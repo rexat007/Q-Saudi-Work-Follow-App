@@ -1,31 +1,31 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Closure evidence baseline: `f817fc8f053aeb2f5f1ecc63f456a939816b7301`. The owner approved Phase 1 closure after `PHASE_1_CLOSURE_AUDIT_PASS_READY_FOR_OWNER_CLOSURE_DECISION`. Phase 0 remains VERIFIED / CLOSED / FROZEN. Phase 1 and P1-U1 through P1-U9 are VERIFIED / CLOSED. No implementation unit is active. Phase 2 remains NOT_STARTED pending explicit owner activation; no Phase 2 unit or P1-U10 is assigned.
+Authority: `CURRENT_AUTHORITY`. Phase 2 activation evidence baseline: `747e86662b867aa5990f87fb0e60c79b077efb86`. Owner decision: ACTIVATE_PHASE_2 = APPROVED. Phase 0 remains VERIFIED / CLOSED / FROZEN; Phase 1 and P1-U1 through P1-U9 remain VERIFIED / CLOSED. Phase 1 closure documentation is merged and independently verified through PR #30. Phase 2 — Persistence & Server Authority is IN_PROGRESS at governance level only. The first unit is UNASSIGNED; no implementation is authorized. NEXT_ACTION: PHASE_2_FIRST_UNIT_DEFINITION_AUDIT.
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
-- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 2 after Phase 1. Owner approval closes Phase 1 only; it does not activate Phase 2 or define its first unit. Historical activation and verification evidence below remains scoped to its recorded period.
+- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 2 after Phase 1. Phase 1 closure did not activate Phase 2. The subsequent explicit owner decision now activates Phase 2 at governance level only, without defining its first unit. Historical activation and verification evidence below remains scoped to its recorded period.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
-ACTIVE_PHASE: NONE
-ACTIVE_PHASE_STATUS: NONE
-ACTIVE_UNIT: NONE
-ACTIVE_UNIT_STATUS: NONE
-ACTIVE_UNIT_TYPE: NONE
+ACTIVE_PHASE: PHASE_2
+ACTIVE_PHASE_STATUS: IN_PROGRESS
+ACTIVE_UNIT: UNASSIGNED / REQUIRES_PHASE_2_FIRST_UNIT_DEFINITION
+ACTIVE_UNIT_STATUS: UNASSIGNED / NOT_STARTED
+ACTIVE_UNIT_TYPE: UNASSIGNED
 PHASE_0_STATUS: VERIFIED / CLOSED / FROZEN
 PHASE_0_FREEZE_STATUS: FROZEN
 PHASE_1_STATUS: VERIFIED / CLOSED
 P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
 P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
 NEXT_UNIT: NONE_ASSIGNED
-NEXT_PHASE: PHASE_2
-NEXT_PHASE_STATUS: NOT_STARTED
-NEXT_ACTION: OWNER_DECISION_TO_ACTIVATE_PHASE_2
+PHASE_2_STATUS: IN_PROGRESS
+P2_U1_STATUS: DOES_NOT_EXIST
+NEXT_ACTION: PHASE_2_FIRST_UNIT_DEFINITION_AUDIT
 PHASE_1_CLOSURE_READY: CLOSED
 PHASE_1_REMAINING_SEAMS: 0
 PHASE_1_CLOSURE_AUDIT: PHASE_1_CLOSURE_AUDIT_PASS_READY_FOR_OWNER_CLOSURE_DECISION
@@ -100,7 +100,12 @@ P1_U9_PR: 29
 P1_U9_VERIFIED_MERGE: f817fc8f053aeb2f5f1ecc63f456a939816b7301
 P1_U9_OWNER_REVIEW: PASSED
 P1_U9_PUBLICATION_STATUS: MERGED / VERIFIED
-CURRENT_CODE_BASELINE: f817fc8f053aeb2f5f1ecc63f456a939816b7301
+PHASE_1_CLOSURE_DOCUMENTATION_COMMIT: 12d15710b847bb3b87a8d3aec4432906ea3fdcc4
+PHASE_1_CLOSURE_PR: 30
+PHASE_1_CLOSURE_VERIFIED_MERGE: 747e86662b867aa5990f87fb0e60c79b077efb86
+PHASE_2_OWNER_ACTIVATION_DECISION: APPROVED
+PHASE_2_ACTIVATION_EVIDENCE_BASELINE: 747e86662b867aa5990f87fb0e60c79b077efb86
+CURRENT_CODE_BASELINE: 747e86662b867aa5990f87fb0e60c79b077efb86
 ```
 
 ---
@@ -175,7 +180,7 @@ CURRENT_CODE_BASELINE: f817fc8f053aeb2f5f1ecc63f456a939816b7301
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
 - **Phase 1 — Canonical Domain Model**: VERIFIED / CLOSED; P1-U1 through P1-U9 VERIFIED / CLOSED; no remaining proven safe Phase 1 seam.
-- **Phase 2 — Persistence & Server Authority**: NOT_STARTED
+- **Phase 2 — Persistence & Server Authority**: IN_PROGRESS; governance activation only, first unit UNASSIGNED.
 - **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
 - **Phase 5 — Master Data & Canonical Relationships**: NOT_STARTED
@@ -1031,4 +1036,16 @@ Both units completed bounded implementation, technical verification, owner scope
 
 The post-P1-U9 closure audit found no additional proven SAFE_PHASE_1_SEAM and no Phase-1-owned unresolved regression. Role differences at wizard, validator and authenticated-user boundaries remain intentionally deferred to Phase 3. Persistence/decoder/timestamp debt remains Phase 2; project lifecycle Phase 4; relationship behavior Phase 5; smart import Phases 7–8; pricing Phase 9; trips Phase 10; offline/outbox Phase 11; exception lifecycle Phase 12. Known 445 diagnostics and lint EXIT 2 / NOT PASS do not block this bounded closure or imply repository-wide health. No debt is waived.
 
-Phase 0 remains VERIFIED / CLOSED / FROZEN. ACTIVE_PHASE and ACTIVE_UNIT are NONE. Phase 2 remains NOT_STARTED with no unit defined. NEXT_ACTION: OWNER_DECISION_TO_ACTIVATE_PHASE_2. This closure decision does not activate Phase 2. The closure evidence SHA is fixed evidence, not a request to recursively update documents after their publication.
+Historical Phase 1 closure snapshot (continuation pointers superseded by the Phase 2 activation below): Phase 0 remained VERIFIED / CLOSED / FROZEN. ACTIVE_PHASE and ACTIVE_UNIT were NONE. Phase 2 remained NOT_STARTED with no unit defined. NEXT_ACTION was OWNER_DECISION_TO_ACTIVATE_PHASE_2. That closure decision did not activate Phase 2. The closure evidence SHA is fixed evidence, not a request to recursively update documents after their publication.
+
+## Phase 2 Owner-Approved Governance Activation
+
+Owner decision: **ACTIVATE_PHASE_2 = APPROVED**. Activation evidence baseline: `747e86662b867aa5990f87fb0e60c79b077efb86`. Phase 1 closure documentation commit `12d15710b847bb3b87a8d3aec4432906ea3fdcc4` merged through PR **#30** at this independently verified baseline. Phase 0 remains VERIFIED / CLOSED / FROZEN; Phase 1 and P1-U1 through P1-U9 remain VERIFIED / CLOSED. The accepted Phase 1 closure audit PASS and owner closure approval remain unchanged. No P1-U10 exists.
+
+**Phase 2 — Persistence & Server Authority** is **IN_PROGRESS**, governance only. The accepted foundational-plan goal remains server-authoritative Firestore operations, multi-tenant isolation enforcement, Firebase Admin SDK integration and security-rules auditing. ACTIVE_UNIT: UNASSIGNED / REQUIRES_PHASE_2_FIRST_UNIT_DEFINITION; ACTIVE_UNIT_STATUS: UNASSIGNED / NOT_STARTED; ACTIVE_UNIT_TYPE: UNASSIGNED. P2_U1_STATUS: DOES_NOT_EXIST. No implementation unit is active or authorized.
+
+NEXT_ACTION: **PHASE_2_FIRST_UNIT_DEFINITION_AUDIT**, a separate read-only audit to identify the first safe bounded seam for owner review and explicit unit approval. This activation neither performs that audit nor selects a candidate.
+
+Candidate audit territory, not remediation authorization: persistence authority; Firestore read/write representation boundaries; cast-based reads and decoders; Timestamp / Date / ISO-string conversions; storage representations; server/client persistence authority; persistence-side natural-identity representation where applicable.
+
+Boundaries remain intact: Phase 3 authentication/RBAC/role and validation semantics (including wizard, UserValidator and authenticated-user role differences); Phase 4 project lifecycle; Phase 5 canonical relationship/master-data behavior; Phases 7–8 import parsing/matching/checkpoints/commit integrity; Phase 9 pricing; Phase 10 trip lifecycle/models; Phase 11 offline/outbox/replay/conflicts; Phase 12 exception lifecycle. A domain's persistence representation does not authorize changes to its behavior. Known 445 diagnostics and lint EXIT 2 / NOT PASS remain recorded debt, not a fresh verification or waiver. This task changes documentation only: no production, test, server, Firestore rules, SDK, schema, decoder, timestamp code, package/config/workflow, lockfile or generated-output changes.

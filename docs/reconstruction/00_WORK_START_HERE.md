@@ -13,15 +13,15 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 
 ### Current Continuation Checkpoint — 2026-10-23
 
-- **Closure evidence baseline (verified GitHub main)**: `f817fc8f053aeb2f5f1ecc63f456a939816b7301` (PR #29 merged).
+- **Phase 2 activation evidence baseline (verified GitHub main)**: `747e86662b867aa5990f87fb0e60c79b077efb86` (PR #30 — Phase 1 closure merged).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
-- **Phase 1**: VERIFIED / CLOSED (`PHASE_1_VERIFIED_CLOSED`).
-- **P1-U1 through P1-U9**: VERIFIED / CLOSED; P1-U9 was the final Phase 1 unit.
-- **Active phase / unit**: NONE; no implementation work is active.
-- **Phase 2**: NOT_STARTED, pending explicit owner activation; no Phase 2 unit is defined.
-- **Next action**: `OWNER_DECISION_TO_ACTIVATE_PHASE_2`.
-- No P1-U10 exists.
-- Wizard/validator/auth-context role differences remain Phase 3 debt; other later-phase debt is unchanged.
+- **Phase 1 and P1-U1 through P1-U9**: VERIFIED / CLOSED; no P1-U10 exists.
+- **Active phase**: PHASE_2 — Persistence & Server Authority, IN_PROGRESS.
+- **Active unit**: UNASSIGNED / REQUIRES_PHASE_2_FIRST_UNIT_DEFINITION.
+- **Active-unit status / type**: UNASSIGNED / NOT_STARTED; UNASSIGNED.
+- **P2_U1_STATUS**: DOES_NOT_EXIST; no numbered Phase 2 unit is defined.
+- **Next action**: `PHASE_2_FIRST_UNIT_DEFINITION_AUDIT`.
+- No implementation is authorized by this governance activation.
 
 
 ---
