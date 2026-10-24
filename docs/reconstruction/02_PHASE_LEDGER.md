@@ -1,114 +1,58 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Phase 2 activation evidence baseline: `747e86662b867aa5990f87fb0e60c79b077efb86`. Owner decision: ACTIVATE_PHASE_2 = APPROVED. Phase 0 remains VERIFIED / CLOSED / FROZEN; Phase 1 and P1-U1 through P1-U9 remain VERIFIED / CLOSED. Phase 1 closure documentation is merged and independently verified through PR #30. Phase 2 — Persistence & Server Authority is IN_PROGRESS at governance level only. The first unit is UNASSIGNED; no implementation is authorized. NEXT_ACTION: PHASE_2_FIRST_UNIT_DEFINITION_AUDIT.
+Authority: `CURRENT_AUTHORITY`. Current verified GitHub main before this documentation transition: `e09cd613d93d3e6519fe1dc283caf96d4363bcec` (PR #35). Phase 0 remains VERIFIED / CLOSED / FROZEN; Phase 1 is VERIFIED / CLOSED; Phase 2 — Persistence & Server Authority and P2-U1 through P2-U4 are VERIFIED / CLOSED. By explicit owner instruction to proceed, Phase 3 — Authentication, Authorization & Administrative Governance is IN_PROGRESS at governance level. ACTIVE_UNIT is UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT. NEXT_ACTION: PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT.
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Streamlined Reconstruction Execution Method](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md) is the current delivery-method authority, supported by [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md). It supersedes older multi-audit/micro-unit continuation patterns for future work while preserving high-risk gates.
-- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 2 after Phase 1. Phase 1 closure did not activate Phase 2. The subsequent explicit owner decision now activates Phase 2 at governance level only, without defining its first unit. Historical activation and verification evidence below remains scoped to its recorded period.
+- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 3 after Phase 2. Phase 2 is now VERIFIED / CLOSED. The owner's explicit instruction to proceed activates Phase 3 at governance level without pre-assigning a numbered unit. Historical activation and verification evidence below remains scoped to its recorded period.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
-ACTIVE_PHASE: PHASE_2
+ACTIVE_PHASE: PHASE_3
 ACTIVE_PHASE_STATUS: IN_PROGRESS
-ACTIVE_UNIT: UNASSIGNED / REQUIRES_PHASE_2_FIRST_UNIT_DEFINITION
+ACTIVE_UNIT: UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT
 ACTIVE_UNIT_STATUS: UNASSIGNED / NOT_STARTED
 ACTIVE_UNIT_TYPE: UNASSIGNED
 PHASE_0_STATUS: VERIFIED / CLOSED / FROZEN
-PHASE_0_FREEZE_STATUS: FROZEN
 PHASE_1_STATUS: VERIFIED / CLOSED
-P0_U1_VERIFIED_COMMIT: 674c6a5a5cf1aa1680c43728aa67e1e0fd3170de
-P0_U2_VERIFIED_COMMIT: 715345bba8688fa706fce1bac7add78a9c5e8a28
+PHASE_2_STATUS: VERIFIED / CLOSED
+P2_U1_STATUS: VERIFIED / CLOSED
+P2_U1_VERIFIED_MERGE: ff5dc79cb380a8ea2713eb539f6cad326407ea16
+P2_U1_PR: 32
+P2_U2_STATUS: VERIFIED / CLOSED
+P2_U2_VERIFIED_MERGE: fafbadd90a37988ad97d18a4cfa3191532307255
+P2_U2_PR: 33
+P2_U2_FIRESTORE_RULES_DEPLOYMENT: PUBLISHED_AND_SMOKE_VERIFIED
+P2_U3_STATUS: VERIFIED / CLOSED
+P2_U3_VERIFIED_MERGE: 48c016e790dbc6f1b64e09cbc22ef60e78743d1c
+P2_U3_PR: 34
+P2_U4_STATUS: VERIFIED / CLOSED
+P2_U4_VERIFIED_MERGE: e09cd613d93d3e6519fe1dc283caf96d4363bcec
+P2_U4_PR: 35
+PHASE_2_OWNER_CLOSURE_DECISION: APPROVED_BY_PROCEED_INSTRUCTION
+PHASE_3_OWNER_ACTIVATION_DECISION: APPROVED_BY_PROCEED_INSTRUCTION
+PHASE_3_STATUS: IN_PROGRESS
 NEXT_UNIT: NONE_ASSIGNED
-PHASE_2_STATUS: IN_PROGRESS
-P2_U1_STATUS: DOES_NOT_EXIST
-NEXT_ACTION: PHASE_2_FIRST_UNIT_DEFINITION_AUDIT
+NEXT_ACTION: PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT
+CURRENT_CODE_BASELINE: e09cd613d93d3e6519fe1dc283caf96d4363bcec
 EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
 EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
-PHASE_1_CLOSURE_READY: CLOSED
-PHASE_1_REMAINING_SEAMS: 0
-PHASE_1_CLOSURE_AUDIT: PHASE_1_CLOSURE_AUDIT_PASS_READY_FOR_OWNER_CLOSURE_DECISION
-PHASE_1_OWNER_CLOSURE_DECISION: APPROVED
-USER_ROLE_CONVERGENCE_STATUS: PARTITIONED_ENTITY_SAFE_PHASE_1_OTHER_BOUNDARIES_DEFER_PHASE_3
-WIZARD_ROLE_STATUS: DEFER_PHASE_3_SEMANTIC_REVIEW
-VALIDATOR_ROLE_STATUS: DEFER_PHASE_3_AUTHORIZATION_VALIDATION_REVIEW
-AUTHENTICATED_USER_ROLE_STATUS: DEFER_PHASE_3_AUTH_CONTEXT_CONVERGENCE
-P0_U5_STATUS: VERIFIED / CLOSED
-P0_U5_VERIFIED_MERGE: 15529b85848a80322dea033e80903fd2fd1e294c
-P0_U6_STATUS: VERIFIED / CLOSED
-P0_U6_VERIFIED_MERGE: 54f6d829c184a371e96c2812b08738c42280552b
-P0_U7_STATUS: VERIFIED / CLOSED
-P0_U7_PUBLICATION_STATUS: MERGED / VERIFIED
-P0_U7_VERIFIED_MERGE: 3b0fc03d27a4b663e85d330f581550c37d62999d
-P0_U7_PUBLICATION_COMMIT: d4f5a8c6f2fdf7f227fb192d901fdf15da58c1c5
-P0_U7_PR: 9
-P1_U1_STATUS: VERIFIED / CLOSED
-P1_U1_IMPLEMENTATION_COMMIT: 438b3695757f9da3f1a782e85193340b25d6fb74
-P1_U1_PR: 12
-P1_U1_VERIFIED_MERGE: 06696db883db2a47526b207f5a94e27321c49ec7
-P1_U1_OWNER_REVIEW: PASSED
-P1_U1_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U2_STATUS: VERIFIED / CLOSED
-P1_U2_IMPLEMENTATION_COMMIT: 09b42328b7aabd8d0a2bde610d76e307b1c6ff7e
-P1_U2_PR: 15
-P1_U2_VERIFIED_MERGE: 551c6ef554c537a57485035955cbb03b6fb9d0e5
-P1_U2_OWNER_REVIEW: PASSED
-P1_U2_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U3_STATUS: VERIFIED / CLOSED
-P1_U3_IMPLEMENTATION_COMMIT: 42db0a980768103cd05bc04204f3f76a2a322fc0
-P1_U3_PR: 17
-P1_U3_VERIFIED_MERGE: ca53209f0844c7968e518efe553fd171436bce70
-P1_U3_OWNER_REVIEW: PASSED
-P1_U3_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U4_STATUS: VERIFIED / CLOSED
-P1_U4_IMPLEMENTATION_COMMIT: c8deded43ce20647955ea3e1839386f2bc78be78
-P1_U4_PR: 19
-P1_U4_VERIFIED_MERGE: c00a4975cf973d470033e430579a09a80fb71ce0
-P1_U4_OWNER_REVIEW: PASSED
-P1_U4_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U5_STATUS: VERIFIED / CLOSED
-P1_U5_IMPLEMENTATION_COMMIT: 4a2e1c1747212dd27d0c20aaefbab09c30dff9d8
-P1_U5_PR: 21
-P1_U5_VERIFIED_MERGE: e76ad3cf9ce9204f8f5d2aaa5b4fa2c106a35b39
-P1_U5_OWNER_REVIEW: PASSED
-P1_U5_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U6_STATUS: VERIFIED / CLOSED
-P1_U6_IMPLEMENTATION_COMMIT: 7055d09bf18e85366dadca36cdf2efa8d72daac6
-P1_U6_PR: 23
-P1_U6_VERIFIED_MERGE: deb9738b508b0183ccf0d73c1ea0ea6351ce3ea5
-P1_U6_OWNER_REVIEW: PASSED
-P1_U6_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U7_STATUS: VERIFIED / CLOSED
-P1_U7_IMPLEMENTATION_COMMIT: fdb1340af13bac9a7b939ab4bb28345169eedfb7
-P1_U7_PR: 25
-P1_U7_VERIFIED_MERGE: 9e93f0e47f955d78d74011b5467aa04188268ca6
-P1_U7_OWNER_REVIEW: PASSED
-P1_U7_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U8_STATUS: VERIFIED / CLOSED
-P1_U8_ACTIVATION_COMMIT: fe14046551d9193949ab3d739bdb4720faed06b1
-P1_U8_ACTIVATION_PR: 26
-P1_U8_ACTIVATION_MERGE: b360fe7c717cff35357dc539ca37d83bea1b348c
-P1_U8_IMPLEMENTATION_COMMIT: 71bd509547087d8eb34ef160ac96765ff0c7a10d
-P1_U8_PR: 28
-P1_U8_VERIFIED_MERGE: 587f47403a9b768be08794054d6f99cf7f1eb2c1
-P1_U8_OWNER_REVIEW: PASSED
-P1_U8_PUBLICATION_STATUS: MERGED / VERIFIED
-P1_U9_STATUS: VERIFIED / CLOSED
-P1_U9_IMPLEMENTATION_COMMIT: 8dd14fdc5214539ad9b675733bf3906a20780780
-P1_U9_PR: 29
-P1_U9_VERIFIED_MERGE: f817fc8f053aeb2f5f1ecc63f456a939816b7301
-P1_U9_OWNER_REVIEW: PASSED
-P1_U9_PUBLICATION_STATUS: MERGED / VERIFIED
-PHASE_1_CLOSURE_DOCUMENTATION_COMMIT: 12d15710b847bb3b87a8d3aec4432906ea3fdcc4
-PHASE_1_CLOSURE_PR: 30
-PHASE_1_CLOSURE_VERIFIED_MERGE: 747e86662b867aa5990f87fb0e60c79b077efb86
-PHASE_2_OWNER_ACTIVATION_DECISION: APPROVED
-PHASE_2_ACTIVATION_EVIDENCE_BASELINE: 747e86662b867aa5990f87fb0e60c79b077efb86
-CURRENT_CODE_BASELINE: 747e86662b867aa5990f87fb0e60c79b077efb86
+USER_ROLE_CONVERGENCE_STATUS: PHASE_3_AUDIT_REQUIRED
+WIZARD_ROLE_STATUS: PHASE_3_AUDIT_REQUIRED
+VALIDATOR_ROLE_STATUS: PHASE_3_AUDIT_REQUIRED
+AUTHENTICATED_USER_ROLE_STATUS: PHASE_3_AUDIT_REQUIRED
 ```
+
+
+### Phase 2 Closure / Phase 3 Activation — 2026-10-24
+
+Phase 2 closed after four accepted bounded units. P2-U1 established durable Firebase Admin persistence selection; P2-U2 hardened the Firestore trust boundary and was completed by publishing the rules plus owner smoke verification; P2-U3 enforced project-scoped storage isolation with durable migration reservations; P2-U4 normalized active Firestore read/write representation boundaries and closed remaining direct raw domain returns. No Phase-2-owned Beta 2 blocker remains known. Repository-wide diagnostics baseline 445 and lint EXIT 2 remain global debt and are not Phase 2 blockers.
+
+Phase 3 is now governance-active under the accepted foundational scope: RBAC, token verification, field-level authorization, IDOR defense and administrative controls. The first action is one broad `PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT`, not a micro-unit audit. It must include the Phase-1 deferrals for wizard role subset, UserValidator accepted-role semantics and server `AuthenticatedUser.role`, while preserving intentional context subsets unless the audit proves a semantic defect.
 
 ---
 
@@ -182,8 +126,8 @@ CURRENT_CODE_BASELINE: 747e86662b867aa5990f87fb0e60c79b077efb86
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
 - **Phase 1 — Canonical Domain Model**: VERIFIED / CLOSED; P1-U1 through P1-U9 VERIFIED / CLOSED; no remaining proven safe Phase 1 seam.
-- **Phase 2 — Persistence & Server Authority**: IN_PROGRESS; governance activation only, first unit UNASSIGNED.
-- **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
+- **Phase 2 — Persistence & Server Authority**: VERIFIED / CLOSED; P2-U1 through P2-U4 VERIFIED / CLOSED.
+- **Phase 3 — Authentication, Authorization & Administrative Governance**: IN_PROGRESS; governance activation only, first unit UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT.
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
 - **Phase 5 — Master Data & Canonical Relationships**: NOT_STARTED
 - **Phase 6 — Project Setup Experience**: NOT_STARTED

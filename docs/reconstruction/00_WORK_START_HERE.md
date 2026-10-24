@@ -11,18 +11,20 @@ This directory (`docs/reconstruction/`) contains repository-governed current con
 P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
 
 
-### Current Continuation Checkpoint — 2026-10-23
+### Current Continuation Checkpoint — 2026-10-24
 
-- **Phase 2 activation evidence baseline (verified GitHub main)**: `747e86662b867aa5990f87fb0e60c79b077efb86` (PR #30 — Phase 1 closure merged).
+- **Current verified GitHub main**: `e09cd613d93d3e6519fe1dc283caf96d4363bcec` (PR #35 — P2-U4 merged).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
-- **Phase 1 and P1-U1 through P1-U9**: VERIFIED / CLOSED; no P1-U10 exists.
-- **Active phase**: PHASE_2 — Persistence & Server Authority, IN_PROGRESS.
-- **Active unit**: UNASSIGNED / REQUIRES_PHASE_2_FIRST_UNIT_DEFINITION.
-- **Active-unit status / type**: UNASSIGNED / NOT_STARTED; UNASSIGNED.
-- **P2_U1_STATUS**: DOES_NOT_EXIST; no numbered Phase 2 unit is defined.
-- **Next action**: `PHASE_2_FIRST_UNIT_DEFINITION_AUDIT`.
-- No implementation is authorized by this governance activation.
-
+- **Phase 1 and P1-U1 through P1-U9**: VERIFIED / CLOSED.
+- **Phase 2 — Persistence & Server Authority**: VERIFIED / CLOSED.
+- **P2-U1** Durable Admin Persistence Selection: VERIFIED / CLOSED — PR #32, verified merge `ff5dc79cb380a8ea2713eb539f6cad326407ea16`.
+- **P2-U2** Firestore Persistence Trust Boundary: VERIFIED / CLOSED — PR #33, verified merge `fafbadd90a37988ad97d18a4cfa3191532307255`; Firestore rules published and owner smoke verification passed.
+- **P2-U3** Server Project and Storage Resource Isolation: VERIFIED / CLOSED — PR #34, verified merge `48c016e790dbc6f1b64e09cbc22ef60e78743d1c`.
+- **P2-U4** Persistence Read/Write Representation Boundary: VERIFIED / CLOSED — PR #35, verified merge `e09cd613d93d3e6519fe1dc283caf96d4363bcec`.
+- **Active phase**: PHASE_3 — Authentication, Authorization & Administrative Governance, IN_PROGRESS.
+- **Active unit**: UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT.
+- **Next action**: `PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT`.
+- Phase 3 audit must map RBAC, token/auth context, field-level authorization, IDOR/admin controls, and the intentional role-boundary deferrals from Phase 1 before defining bounded implementation batches.
 
 ---
 

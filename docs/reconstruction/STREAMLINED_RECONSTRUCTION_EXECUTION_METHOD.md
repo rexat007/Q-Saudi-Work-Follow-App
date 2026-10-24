@@ -118,15 +118,16 @@ If the answer is no, the step should normally be skipped, combined, or deferred.
 
 Perfection is not the target of reconstruction. A safe, coherent, testable Beta 2 is the target. Non-blocking debt should remain recorded and owned by the correct later phase rather than extending the active phase indefinitely.
 
-## 9. Current Phase 2 application
+## 9. Current Phase 3 application
 
-For Phase 2 — Persistence & Server Authority:
+For Phase 3 — Authentication, Authorization & Administrative Governance:
 
-- perform `PHASE_2_FIRST_UNIT_DEFINITION_AUDIT` as a broad phase-level audit;
-- identify and prioritize the meaningful Phase-2 persistence/server-authority work as a practical map;
-- group compatible issues into bounded batches where safe;
-- avoid a new audit after every small seam;
-- preserve Phase 3+ behavioral ownership boundaries;
-- use heavier gates only for high-risk persistence/security/tenant-isolation changes.
+- perform one broad `PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT`;
+- map RBAC, token/auth-context, field-level authorization, IDOR defenses and administrative controls as one coherent authorization surface;
+- include the Phase-1 deferred wizard role subset, UserValidator role allowlist and server AuthenticatedUser role semantics;
+- distinguish intentional context-specific role subsets from true semantic divergence before changing behavior;
+- group compatible fixes into bounded batches rather than one micro-unit per role or endpoint;
+- preserve Phase 4+ business-domain ownership boundaries;
+- use heavier verification for authorization, privilege escalation, IDOR and admin-control changes.
 
-This policy changes the execution process, not the accepted phase scope or prior closed-unit history.
+This policy changes execution process only; it does not reopen closed Phase 2 work.
