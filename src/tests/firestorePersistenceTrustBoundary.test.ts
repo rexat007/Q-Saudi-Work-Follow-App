@@ -90,8 +90,8 @@ describe('Firestore persistence trust boundary (structural verification)', () =>
   it('uses precisely the existing Admin Console reader roles, not every active user', () => {
     expect(reader).toContain('return isUserActive() && (');
     expect(reader).toContain('isSuperAdmin()');
-    expect(reader).toContain("request.auth.token.get('role', '') == 'PROJECT_ADMIN'");
-    expect(reader).toContain(".data.role == 'PROJECT_ADMIN'");
+    expect(reader).not.toContain("request.auth.token");
+    expect(reader).toContain("currentUser().role == 'PROJECT_ADMIN'");
     const nav = source('src/services/navigation.service.ts');
     const consoleItem = nav.slice(nav.indexOf("id: 'ADMIN_CONSOLE'"), nav.indexOf("id: 'SECURITY_AUDIT'"));
     expect(consoleItem).toContain("allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN']");

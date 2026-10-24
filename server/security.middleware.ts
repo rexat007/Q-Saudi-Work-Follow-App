@@ -1,3 +1,5 @@
+import type { UserRole } from '../src/types/common';
+import { buildPrincipal, PrincipalError } from '../src/utils/principal';
 import { Request, Response, NextFunction } from 'express';
 import { adminConsoleService } from '../src/services/adminConsole.service';
 import { adminAuth, adminDb } from '../src/firebase/admin';
@@ -6,7 +8,7 @@ export interface AuthenticatedUser {
   userId: string;
   email: string;
   displayName: string;
-  role: 'PROJECT_ADMIN' | 'SUPER_ADMIN' | 'SITE_SUPERVISOR' | 'SUPERVISOR' | 'DISPATCHER' | 'FINANCE_AUDITOR' | 'SCALE_OPERATOR' | 'DRIVER' | 'VIEWER';
+  role: UserRole;
   assignedProjectIds: string[];
 }
 
@@ -132,7 +134,7 @@ export async function authenticateUser(req: Request, res: Response, next: NextFu
 
   try {
     // C. Verify ID Token using real Firebase Admin verifier
-    const decodedToken = await adminAuth.verifyIdToken(token);
+    const decodedToken = await adminAuth.verifyIdToken(token, true);
     
     // D. Obtain uid ONLY from verified decoded token
     const uid = decodedToken.uid;
@@ -149,11 +151,9 @@ export async function authenticateUser(req: Request, res: Response, next: NextFu
 
     // F. Reject if user document does not exist
     if (!userDoc.exists) {
-      const isBootstrapPath = req.path === '/auth/bootstrap' || 
-                              req.path === '/api/auth/bootstrap' || 
-                              (req.originalUrl && req.originalUrl.includes('bootstrap'));
-      
-      if (isBootstrapPath) {
+      const isBootstrapPath = req.method === 'POST' && (req.path === '/auth/bootstrap' || req.path === '/api/auth/bootstrap');
+
+      if (isBootstrapPath && decodedToken.email_verified === true && typeof decodedToken.email === 'string' && decodedToken.email.length > 0) {
         (req as any).user = {
           userId: uid,
           email: decodedToken.email || '',
@@ -180,52 +180,17 @@ export async function authenticateUser(req: Request, res: Response, next: NextFu
       });
     }
 
-    const effectiveStatus =
-      userData.status ||
-      (userData.isActive ? 'ACTIVE' : 'PENDING_APPROVAL');
-
-    // G. Reject account when effectiveStatus !== ACTIVE or isActive === false
-    if (effectiveStatus !== 'ACTIVE') {
-      let arabicStatus = effectiveStatus || 'غير نشط';
-      if (effectiveStatus === 'PENDING_APPROVAL') {
-        arabicStatus = 'قيد المراجعة والاعتماد (PENDING_APPROVAL)';
-      } else if (effectiveStatus === 'REJECTED') {
-        arabicStatus = 'مرفوض (REJECTED)';
-      } else if (effectiveStatus === 'SUSPENDED') {
-        arabicStatus = 'معلق (SUSPENDED)';
-      }
-      return res.status(403).json({
-        success: false,
-        error: `رفض أمني: حسابك ليس بحالة نشطة، حالته الحالية: ${arabicStatus}. لا يمكنك استخدام الخدمات التشغيلية.`,
-        code: 'ACCOUNT_NOT_ACTIVE',
-      });
-    }
-
-    if (userData.isActive === false) {
-      return res.status(403).json({
-        success: false,
-        error: 'رفض أمني: الحساب معطل.',
-        code: 'ACCOUNT_NOT_ACTIVE',
-      });
-    }
-
-    // H. Construct req.user ONLY from canonical server account state
-    (req as any).user = {
-      userId: userData.userId || uid,
-      email: userData.email || decodedToken.email || '',
-      displayName: userData.fullName || userData.displayName || decodedToken.name || 'مستخدم غير معروف',
-      role: userData.role || 'VIEWER',
-      assignedProjectIds: Array.isArray(userData.assignedProjectIds) ? userData.assignedProjectIds : [],
-    } as AuthenticatedUser;
+    (req as any).user = buildPrincipal(userData, uid, { email: decodedToken.email, name: decodedToken.name });
 
     next();
   } catch (err: any) {
-    console.error('[authenticateUser] Token verification error:', err);
-    return res.status(401).json({
-      success: false,
-      error: 'رمز المصادقة غير صالح أو منتهي الصلاحية.',
-      code: 'INVALID_TOKEN',
-    });
+    const firebaseCodes: Record<string, string> = {
+      'auth/id-token-expired': 'TOKEN_EXPIRED',
+      'auth/id-token-revoked': 'TOKEN_REVOKED',
+      'auth/user-disabled': 'IDENTITY_DISABLED',
+    };
+    const code = err instanceof PrincipalError ? err.code : firebaseCodes[err?.code] || 'INVALID_TOKEN';
+    return res.status(err instanceof PrincipalError ? 403 : 401).json({ success: false, code, error: err instanceof PrincipalError ? err.message : code });
   }
 }
 

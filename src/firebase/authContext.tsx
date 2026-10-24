@@ -1,12 +1,15 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { 
   GoogleAuthProvider, 
   signInWithPopup, 
   signOut, 
-  onAuthStateChanged, 
+  onIdTokenChanged,
   User 
 } from 'firebase/auth';
-import { auth } from './config';
+import { auth, db } from './config';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { createAuthSession } from './authSession';
+import { validateAccountProfile } from '../utils/principal';
 import { UserEntity } from '../types/entities';
 import { userRepository } from '../repositories/user.repository';
 
@@ -34,79 +37,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isProfileLoading, setIsProfileLoading] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const fetchOrCreateProfile = async (currentUser: User) => {
-    setIsProfileLoading(true);
-    try {
-      const token = await currentUser.getIdToken();
-      setIdToken(token);
-    } catch (e) {
-      console.warn('[AuthProvider] Failed to fetch ID token:', e);
-    }
-    try {
-      let profile = await userRepository.findById(currentUser.uid);
-      if (!profile) {
-        // First-time sign-in: Do NOT auto-create profile here.
-        // The front-end AccountStatusGate will render the Account Request page.
-        setUserProfile(null);
-      } else {
-        // If status is missing on legacy record, default to PENDING_APPROVAL unless active
-        if (!profile.status) {
-          profile = {
-            ...profile,
-            status: profile.isActive ? 'ACTIVE' : 'PENDING_APPROVAL',
-          };
-        }
-        setUserProfile(profile);
-      }
-    } catch (err) {
-      console.error('[AuthProvider] Failed to fetch/create user profile:', err);
-      // Fallback pending profile
-      setUserProfile({
-        userId: currentUser.uid,
-        email: currentUser.email || '',
-        fullName: currentUser.displayName || 'مستخدم جديد',
-        role: 'VIEWER',
-        assignedProjectIds: [],
-        status: 'PENDING_APPROVAL',
-        isActive: false,
-        createdAt: new Date().toISOString() as any,
-        createdBy: currentUser.uid,
-        updatedAt: new Date().toISOString() as any,
-        updatedBy: currentUser.uid,
-      });
-    } finally {
-      setIsProfileLoading(false);
-    }
+  const session = useRef<ReturnType<typeof createAuthSession<User>> | null>(null);
+  const normalizeProfile = (raw: UserEntity | null, uid: string): UserEntity | null => {
+    if (!raw) return null;
+    const account = validateAccountProfile(raw, uid);
+    if (account.isActive === false && account.status === 'ACTIVE') throw new Error('ACCOUNT_NOT_ACTIVE');
+    return { ...raw, userId: uid, status: account.status };
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      async (currentUser) => {
-        setUser(currentUser);
-        if (currentUser) {
-          await fetchOrCreateProfile(currentUser);
-        } else {
-          setUserProfile(null);
-          setIdToken(null);
-        }
-        setIsAuthReady(true);
-      },
-      (error) => {
-        console.error('Firebase Auth state error:', error);
-        setAuthError(error.message);
-        setIsAuthReady(true);
-      }
-    );
-
-    return () => unsubscribe();
+    const controller = createAuthSession<User>({
+      user: setUser, profile: setUserProfile, token: setIdToken,
+      loading: setIsProfileLoading, ready: () => setIsAuthReady(true), error: setAuthError,
+    }, {
+      load: async current => normalizeProfile(await userRepository.findById(current.uid), current.uid),
+      watch: (current, receive, fail) => onSnapshot(doc(db, 'users', current.uid), snapshot => {
+        try { receive(normalizeProfile(snapshot.exists() ? snapshot.data() as UserEntity : null, current.uid)); }
+        catch { fail(); }
+      }, fail),
+      terminate: () => signOut(auth),
+    });
+    session.current = controller;
+    const unsubscribe = onIdTokenChanged(auth, current => { void controller.change(current); }, () => {
+      controller.clear(); setAuthError('AUTH_REFRESH_FAILED'); setIsAuthReady(true);
+    });
+    return () => { unsubscribe(); controller.dispose(); session.current = null; };
   }, []);
 
-  const refreshUserProfile = async () => {
-    if (user) {
-      await fetchOrCreateProfile(user);
-    }
-  };
+  const refreshUserProfile = async () => { await session.current?.refresh(); };
 
   const signInWithGoogle = async () => {
     setAuthError(null);
@@ -115,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       provider.setCustomParameters({ prompt: 'select_account' });
       const cred = await signInWithPopup(auth, provider);
       if (cred.user) {
-        await fetchOrCreateProfile(cred.user);
+        await session.current?.change(cred.user);
       }
     } catch (err: any) {
       console.error('Google Sign-In failed:', err);
@@ -139,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOutUser = async () => {
     setAuthError(null);
+    session.current?.clear();
     try {
       await signOut(auth);
       setUserProfile(null);

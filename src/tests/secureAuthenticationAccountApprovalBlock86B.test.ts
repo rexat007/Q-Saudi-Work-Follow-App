@@ -47,7 +47,7 @@ describe('Block 86B Secure Authentication & Account Approval Suite', () => {
                 return {
                   exists: true,
                   data() {
-                    return { status: 'PENDING_APPROVAL', isActive: false, role: 'VIEWER', userId: 'uid-pending' };
+                    return { status: 'PENDING_APPROVAL', isActive: false, role: 'VIEWER', userId: 'uid-pending', assignedProjectIds: [] };
                   }
                 };
               }
@@ -55,7 +55,7 @@ describe('Block 86B Secure Authentication & Account Approval Suite', () => {
                 return {
                   exists: true,
                   data() {
-                    return { status: 'REJECTED', isActive: false, role: 'VIEWER', userId: 'uid-rejected' };
+                    return { status: 'REJECTED', isActive: false, role: 'VIEWER', userId: 'uid-rejected', assignedProjectIds: [] };
                   }
                 };
               }
@@ -63,7 +63,7 @@ describe('Block 86B Secure Authentication & Account Approval Suite', () => {
                 return {
                   exists: true,
                   data() {
-                    return { status: 'SUSPENDED', isActive: false, role: 'VIEWER', userId: 'uid-suspended' };
+                    return { status: 'SUSPENDED', isActive: false, role: 'VIEWER', userId: 'uid-suspended', assignedProjectIds: [] };
                   }
                 };
               }
@@ -75,7 +75,7 @@ describe('Block 86B Secure Authentication & Account Approval Suite', () => {
                       status: 'ACTIVE',
                       isActive: true,
                       role: 'SUPERVISOR',
-                      userId: 'USR-SITE-SUPERVISOR-01',
+                      userId: 'uid-supervisor',
                       fullName: 'المشرف الميداني',
                       email: 'supervisor@qsaudi.com',
                       assignedProjectIds: ['PRJ-NEOM-NORTH-01']
@@ -87,7 +87,7 @@ describe('Block 86B Secure Authentication & Account Approval Suite', () => {
                 return {
                   exists: true,
                   data() {
-                    return { isActive: true, role: 'VIEWER', userId: 'uid-legacy-active' }; // status field missing
+                    return { isActive: true, role: 'VIEWER', userId: 'uid-legacy-active', assignedProjectIds: [] }; // status field missing
                   }
                 };
               }
@@ -95,7 +95,7 @@ describe('Block 86B Secure Authentication & Account Approval Suite', () => {
                 return {
                   exists: true,
                   data() {
-                    return { isActive: false, role: 'VIEWER', userId: 'uid-legacy-inactive' }; // status field missing
+                    return { isActive: false, role: 'VIEWER', userId: 'uid-legacy-inactive', assignedProjectIds: [] }; // status field missing
                   }
                 };
               }
@@ -103,7 +103,7 @@ describe('Block 86B Secure Authentication & Account Approval Suite', () => {
                 return {
                   exists: true,
                   data() {
-                    return { status: 'ACTIVE', isActive: true, role: 'VIEWER', userId: 'uid-explicit-active' };
+                    return { status: 'ACTIVE', isActive: true, role: 'VIEWER', userId: 'uid-explicit-active', assignedProjectIds: [] };
                   }
                 };
               }
@@ -111,7 +111,7 @@ describe('Block 86B Secure Authentication & Account Approval Suite', () => {
                 return {
                   exists: true,
                   data() {
-                    return { status: 'ACTIVE', isActive: false, role: 'VIEWER', userId: 'uid-active-inactive' };
+                    return { status: 'ACTIVE', isActive: false, role: 'VIEWER', userId: 'uid-active-inactive', assignedProjectIds: [] };
                   }
                 };
               }
