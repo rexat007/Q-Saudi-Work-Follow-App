@@ -119,10 +119,12 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   const [materialId, setMaterialId] = useState<string>('');
 
   useEffect(() => {
-    if (availableProjects.length > 0 && !projectId) {
-      setProjectId(availableProjects[0].id);
-    }
-  }, [availableProjects, projectId]);
+    setProjectId(current => {
+      if (availableProjects.length === 0) return '';
+      if (current && availableProjects.some(project => project.id === current)) return current;
+      return availableProjects[0].id;
+    });
+  }, [availableProjects]);
 
   // Project Switch Isolation & Canonical Relationship Loading
   useEffect(() => {

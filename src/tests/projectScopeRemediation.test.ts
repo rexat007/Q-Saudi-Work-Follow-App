@@ -110,3 +110,56 @@ describe('Canonical project scope in active App effects', () => {
     expect(source).toContain('prjs = prjs.filter(p => isSuperAdmin || assignedProjectIds.includes(p.projectId))');
   });
 });
+
+const loading = ast('src/components/field/LoadingOperatorView.tsx');
+const runLoadingEffects = new Function('useEffect', 'availableProjects', 'projectId', 'setProjectId', 'generationRef', 'setContext', 'setCarrierId', 'setTruckId', 'setDriverId', 'setMaterialId', 'setReadinessStatus', 'canonicalRelationshipContextService',
+  ts.transpileModule(`${effect(loading, 'setProjectId')}; ${effect(loading, 'getProjectRelationshipContext')};`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText);
+function loadingHarness(initialSelection: string) {
+  const slots: any[][] = [];
+  let cursor = 0, selected = initialSelection, context: any = null, readiness = '', carrier = '', truck = '', driver = '', material = '';
+  const generation = { current: 0 };
+  const service = { getProjectRelationshipContext: vi.fn((id: string): Promise<any> => Promise.resolve({ projectId: id })) };
+  const useEffect = (callback: () => void, dependencies: any[]) => {
+    const index = cursor++;
+    if (!slots[index] || dependencies.some((value, i) => !Object.is(value, slots[index][i]))) {
+      slots[index] = dependencies; callback();
+    }
+  };
+  return {
+    service,
+    render(ids: string[]) {
+      const availableProjects = ids.map(id => ({ id }));
+      for (let render = 0; render < 2; render++) {
+        cursor = 0;
+        runLoadingEffects(useEffect, availableProjects, selected, (value: any) => { selected = typeof value === 'function' ? value(selected) : value; }, generation,
+          (value: any) => { context = value; }, (value: string) => { carrier = value; }, (value: string) => { truck = value; }, (value: string) => { driver = value; }, (value: string) => { material = value; }, (value: string) => { readiness = value; }, service);
+      }
+    },
+    selected: () => selected, context: () => context, readiness: () => readiness,
+    setEntitySelections() { carrier = 'carrier'; truck = 'truck'; driver = 'driver'; material = 'material'; },
+    entitySelections: () => [carrier, truck, driver, material],
+  };
+}
+describe('Loading project reconciliation after canonical scope changes', () => {
+  it('replaces removed P1 with the first currently authorized project P2', () => {
+    const view = loadingHarness('P1'); view.render(['P1', 'P2']); view.render(['P2']); expect(view.selected()).toBe('P2');
+    expect(view.service.getProjectRelationshipContext.mock.calls.map(([id]) => id)).toEqual(['P1', 'P2']);
+  });
+  it('clears selection and existing context when scope becomes empty without another lookup', async () => {
+    const view = loadingHarness('P1'); view.render(['P1']); await Promise.resolve(); expect(view.context()).toEqual({ projectId: 'P1' });
+    view.setEntitySelections(); view.render([]);
+    expect(view.selected()).toBe(''); expect(view.context()).toBeNull(); expect(view.readiness()).toBe('PENDING');
+    expect(view.entitySelections()).toEqual(['', '', '', '']); expect(view.service.getProjectRelationshipContext).toHaveBeenCalledTimes(1);
+  });
+  it('keeps valid P2 selection and its context when scope changes to P2/P3', async () => {
+    const view = loadingHarness('P2'); view.render(['P1', 'P2']); await Promise.resolve(); view.render(['P2', 'P3']);
+    expect(view.selected()).toBe('P2'); expect(view.context()).toEqual({ projectId: 'P2' }); expect(view.service.getProjectRelationshipContext).toHaveBeenCalledTimes(1);
+  });
+  it('uses the existing project-switch generation guard to reject late P1 context', async () => {
+    const view = loadingHarness('P1'); let resolveOld!: (value: unknown) => void;
+    view.service.getProjectRelationshipContext.mockImplementationOnce(() => new Promise(resolve => { resolveOld = resolve; }));
+    view.render(['P1', 'P2']); view.render(['P2']); await Promise.resolve();
+    expect(view.context()).toEqual({ projectId: 'P2' }); resolveOld({ projectId: 'P1' }); await Promise.resolve();
+    expect(view.context()).toEqual({ projectId: 'P2' }); expect(view.readiness()).toBe('READY');
+  });
+});
