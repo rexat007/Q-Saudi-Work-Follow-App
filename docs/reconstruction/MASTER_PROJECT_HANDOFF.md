@@ -30,14 +30,15 @@ The setup layers in `projectSetupWorkflow.service.ts` are FOUNDATION, WORKSPACE,
 Whole-App i18n Batches 1–4 and residual remediation are merged and accepted for the current stage. AR/EN/UR parity is established; dictionary size is dynamic. Browser review is sufficiently accepted for this stage, without claiming exhaustive manual label verification. Mixed/bilingual labels remain deferred non-blocking debt. Future desktop/company/database/licensing directions remain proposals under [the future-direction document](FUTURE_ARCHITECTURE_AND_DISTRIBUTION_DIRECTION.md), not current implementation.
 
 
-### Current Reconstruction Checkpoint — 2026-10-23
+### Current Reconstruction Checkpoint — 2026-10-24
 
-- **Phase 2 activation evidence baseline (verified GitHub main)**: `747e86662b867aa5990f87fb0e60c79b077efb86` (PR #30 — Phase 1 closure merged).
-- **Phase 0**: VERIFIED / CLOSED / FROZEN.
-- **Phase 1 and P1-U1 through P1-U9**: VERIFIED / CLOSED; no P1-U10 exists.
-- **Active phase**: PHASE_2 — Persistence & Server Authority, IN_PROGRESS.
-- **Active unit**: UNASSIGNED / REQUIRES_PHASE_2_FIRST_UNIT_DEFINITION.
-- **Active-unit status / type**: UNASSIGNED / NOT_STARTED; UNASSIGNED.
-- **P2_U1_STATUS**: DOES_NOT_EXIST; no numbered Phase 2 unit is defined.
-- **Next action**: `PHASE_2_FIRST_UNIT_DEFINITION_AUDIT`.
-- No implementation is authorized by this governance activation.
+- Current verified GitHub main: `e09cd613d93d3e6519fe1dc283caf96d4363bcec`.
+- Phase 0: VERIFIED / CLOSED / FROZEN.
+- Phase 1: VERIFIED / CLOSED.
+- Phase 2 — Persistence & Server Authority: VERIFIED / CLOSED.
+- P2-U1 through P2-U4: VERIFIED / CLOSED.
+- Phase 3 — Authentication, Authorization & Administrative Governance: IN_PROGRESS at governance level.
+- Active unit: UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT.
+- Next action: `PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT`.
+- Known Phase-3 carryovers include wizard role-subset semantics, UserValidator authorization-role semantics, server AuthenticatedUser/auth-context convergence, RBAC/field authorization, IDOR defenses and administrative governance.
+- Global TypeScript diagnostics baseline 445 and lint EXIT 2 / NOT PASS remain debt; they are not Phase 2 closure blockers.

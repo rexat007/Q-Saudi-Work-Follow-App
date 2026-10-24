@@ -5,7 +5,7 @@ Authority: `CURRENT_SUPPORTING`; current state is owned only by [02_PHASE_LEDGER
 
 ## Authority order
 
-1. **Current GitHub main** — actual code, architecture and package/config contents. Current Phase 2 activation evidence baseline: `747e86662b867aa5990f87fb0e60c79b077efb86` (PR #30 — Phase 1 closure merged). Phase 1 is VERIFIED / CLOSED; Phase 2 is IN_PROGRESS by explicit owner approval, governance only. No first unit is defined or implementation authorized; next action is PHASE_2_FIRST_UNIT_DEFINITION_AUDIT. Historical unit baselines remain historical evidence and must not be rewritten as current.
+1. **Current GitHub main** — actual code, architecture and package/config contents. Current verified main: `e09cd613d93d3e6519fe1dc283caf96d4363bcec` (PR #35). Phase 0 is VERIFIED / CLOSED / FROZEN; Phase 1 is VERIFIED / CLOSED; Phase 2 and P2-U1 through P2-U4 are VERIFIED / CLOSED; Phase 3 is IN_PROGRESS at governance level. No P3 unit is yet assigned. NEXT_ACTION: PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT. Historical unit baselines remain historical evidence and must not be rewritten as current.
 2. **Accepted reconstruction decisions represented in repository documents** — the current-state ledger, canonical decision/debt log, constitution, unit protocol, acceptance governance and accepted roadmap.
 3. **Current active test/tooling contracts** — actual `package.json` commands, `vitest.config.ts`, canonical npm lockfile, and their supporting manifests/contracts. They describe execution and evidence; they do not override accepted product semantics with retired snapshots.
 4. **Historical documentation** — prior Block/Phase reports, release scorecards, original design specifications and Studio artifacts. They preserve past claims/provenance and cannot establish current status by filename alone.
@@ -21,7 +21,7 @@ Browser/runtime/network observations remain evidence for the exact behavior obse
 - [ROOT_TOOLING_HYGIENE_CONTRACT.md](ROOT_TOOLING_HYGIENE_CONTRACT.md), [TOOLCHAIN_CONTRACT.md](TOOLCHAIN_CONTRACT.md), [TEST_TAXONOMY_AND_HARNESS_CONTRACT.md](TEST_TAXONOMY_AND_HARNESS_CONTRACT.md): supporting execution contracts, subordinate to the actual current package/config files.
 - [PRODUCT_RECONSTRUCTION_ACCEPTANCE_GOVERNANCE.md](PRODUCT_RECONSTRUCTION_ACCEPTANCE_GOVERNANCE.md): product verification and explicit user-acceptance requirements.
 - [DOCUMENTATION_AUTHORITY_REVIEW_P0_U5.md](DOCUMENTATION_AUTHORITY_REVIEW_P0_U5.md): exhaustive document classifications and P0-U5 review evidence; not a second state ledger.
-- [CURRENT_CONVERSATION_HANDOFF_2026-10-23.md](CURRENT_CONVERSATION_HANDOFF_2026-10-23.md): current conversation-transfer snapshot and execution handoff; subordinate to GitHub main and the phase ledger, and not a competing state authority.
+- [CURRENT_CONVERSATION_HANDOFF_2026-10-24.md](CURRENT_CONVERSATION_HANDOFF_2026-10-24.md): current conversation-transfer snapshot and execution handoff; subordinate to GitHub main and the phase ledger, and not a competing state authority.
 
 ## Historical boundaries
 
