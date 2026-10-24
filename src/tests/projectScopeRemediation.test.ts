@@ -8,13 +8,14 @@ const data = [{ projectId: 'P1' }, { projectId: 'P2' }];
 vi.mock('../firebase/config', () => ({ auth: { currentUser: { uid: 'u' } }, db: {} }));
 vi.mock('firebase/firestore', async original => ({
   ...await original<typeof import('firebase/firestore')>(),
+  documentId: vi.fn(() => '__name__'),
   collection: vi.fn(() => ({ kind: 'collection' })),
   where: vi.fn((field, op, value) => ({ field, op, value })),
   query: vi.fn((collection, ...filters) => ({ collection, filters })),
   onSnapshot: vi.fn(), getDocs: vi.fn(),
 }));
 function snapshot(query: any) {
-  const ids = query.filters?.find((filter: any) => filter.field === 'projectId')?.value;
+  const ids = query.filters?.find((filter: any) => filter.field === '__name__')?.value;
   return { docs: data.filter(item => !ids || ids.includes(item.projectId)).map(item => ({ id: item.projectId, data: () => item })) };
 }
 function ast(path: string) { return ts.createSourceFile(path, readFileSync(path, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX); }
@@ -45,7 +46,7 @@ function harness() {
   return {
     render(role: string, assignedProjectIds: string[]) {
       for (let render = 0; render < 2; render++) {
-      cursor = 0; runEffects(useEffect, projectRepository, { uid }, { role, assignedProjectIds }, role, (value: any[]) => { projects = value; }, () => {}, (value: any) => { selected = typeof value === 'function' ? value(selected) : value; }, projects, tab);
+      cursor = 0; runEffects(useEffect, projectRepository, { uid }, { role, assignedProjectIds }, role, (value: any) => { projects = typeof value === 'function' ? value(projects) : value; }, () => {}, (value: any) => { selected = typeof value === 'function' ? value(selected) : value; }, projects, tab);
       }
     },
     select(id: string) { selected = id; }, wizard() { tab = 'WIZARD'; },

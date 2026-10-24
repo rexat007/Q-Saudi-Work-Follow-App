@@ -1,3 +1,4 @@
+/** @deprecated Historical non-authoritative model. Not wired into the active application. Do not use for human access. */
 /**
  * BLOCK 114 — Canonical Shared Entity Contracts, Security Foundations, and Service Boundaries
  * Strict adherence to Blocks 105–111 architectural specifications.

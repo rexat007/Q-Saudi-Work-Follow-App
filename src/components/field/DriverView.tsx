@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { filterProjectScope } from '../../utils/projectScope';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Truck, MapPin, Navigation, QrCode, WifiOff, ShieldAlert } from 'lucide-react';
 import { AuthUserContext } from '../../types/common';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -15,9 +16,14 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
   const { isOnline, isSimulatedOffline } = useOnlineStatus();
   const { t, isRTL } = useI18n();
 
-  const [activeTrip, setActiveTrip] = useState<any | null>(null);
+  const [storedActiveTrip, setActiveTrip] = useState<any | null>(null);
+
+  const scopeKey = JSON.stringify([authContext.userId, authContext.role, [...(authContext.assignedProjectIds || [])].sort()]);
+  const scopeRef = useRef(scopeKey); scopeRef.current = scopeKey;
+  const activeTrip = storedActiveTrip && (storedActiveTrip.driverId === authContext.userId || storedActiveTrip.assignedDriverId === authContext.userId) && filterProjectScope([storedActiveTrip], authContext).length ? storedActiveTrip : null;
 
   const refreshActiveTrip = useCallback(async () => {
+    const requestedScope = scopeKey;
     try {
       if (isOnline && authContext?.assignedProjectIds && authContext.assignedProjectIds.length > 0) {
         for (const pId of authContext.assignedProjectIds) {
@@ -28,12 +34,12 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
         }
       }
 
-      const all: any[] = await indexedDBService.getAll('trips').catch(() => []);
+      const all: any[] = filterProjectScope(await indexedDBService.getAll<any>('trips').catch(() => []), authContext);
       const driverActive = all.find(t => 
         (t.driverId === authContext.userId || t.assignedDriverId === authContext.userId) && 
         (t.status === 'LOADED' || t.status === 'IN_TRANSIT' || t.status === 'ARRIVED' || t.status === 'UNLOADING')
       );
-      setActiveTrip(driverActive || null);
+      if (requestedScope === scopeRef.current) setActiveTrip(driverActive || null);
     } catch (e) {
       console.warn('[DriverView] Failed to refresh active trip:', e);
     }

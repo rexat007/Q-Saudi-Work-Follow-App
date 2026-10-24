@@ -1,3 +1,4 @@
+/** @deprecated Historical non-authoritative model. Not wired into the active application. Do not use for human access. */
 import React, { useState } from 'react';
 import { WizardUserAccessItem, UserRole } from '../../types/wizard';
 import { 

@@ -16,6 +16,10 @@ import {
   PricingRuleEntity 
 } from '../types/entities';
 
+// Cache visibility now requires a current eligible canonical account.
+vi.mock('../firebase/config', () => ({ auth: { currentUser: { uid: 'cache-reader' } }, db: {} }));
+vi.mock('../repositories/user.repository', () => ({ userRepository: { findById: async () => ({ userId: 'cache-reader', role: 'SUPER_ADMIN', assignedProjectIds: [], status: 'ACTIVE', isActive: true }) } }));
+
 describe('BLOCK 130 — LU-P5-01 Canonical Cache Hydration Verification', () => {
   let mockProjects: ProjectEntity[] = [];
   let mockCarriers: Record<string, CarrierEntity[]> = {};

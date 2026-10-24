@@ -1,6 +1,20 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "project_access.description": "Assignments come from user accounts; roles are global and effective access requires an active account.",
+  "project_access.account_status": "Account status",
+  "project_access.assignment": "Assignment",
+  "project_access.effective_access": "Effective access",
+  "project_access.assigned": "Assigned",
+  "project_access.effective": "Active access",
+  "project_access.inactive": "Access inactive",
+  "project_access.remove": "Remove from project",
+  "project_access.add": "Assign to project",
+  "project_access.choose_user": "Choose a user",
+  "project_access.empty": "No users are assigned to this project.",
+  "project_access.read_failed": "Could not load project assignments.",
+  "project_access.read_only_admin": "Assignments are visible only to system administrators or authorized project administrators.",
+
   "shared.actions.save": "Save",
   "shared.actions.cancel": "Cancel",
   "shared.actions.confirm": "Confirm",

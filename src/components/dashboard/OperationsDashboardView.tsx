@@ -1,3 +1,4 @@
+import { filterProjectScope } from '../../utils/projectScope';
 import { presentAnalyticsText } from '../../i18n/analyticsPresentation';
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
@@ -121,6 +122,8 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
 
   useEffect(() => {
     let isMounted = true;
+    setCanonicalProjects([]); setCanonicalCarriers([]); setCanonicalMaterials([]);
+    setCanonicalTrucks([]); setCanonicalDrivers([]); setCanonicalTrips([]);
     const loadCanonicalData = async () => {
       try {
         // 1. Projects
@@ -242,7 +245,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           setCanonicalMaterials(mats || []);
           setCanonicalTrucks(trks || []);
           setCanonicalDrivers(drvs || []);
-          setCanonicalTrips(dbTrips || []);
+          setCanonicalTrips(filterProjectScope(dbTrips || [], authContext));
         }
       } catch (err) {
         console.warn('OperationsDashboardView: Error loading canonical data:', err);
@@ -250,6 +253,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
     };
 
     loadCanonicalData();
+    return () => { isMounted = false; };
   }, [authContext.userId, authContext.role, assignedProjectScopeKey]);
 
   // 2. Global Dashboard Filters

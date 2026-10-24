@@ -158,17 +158,10 @@ export class CanonicalUserRepository {
   }
 }
 
+/** @deprecated Retired human project-local membership authority. */
 export class CanonicalMembershipRepository {
-  async listByProject(projectId: string): Promise<CanonicalProjectMembership[]> {
-    if (!auth.currentUser) return [];
-    const path = `projects/${projectId}/membership`;
-    try {
-      const snap = await getDocs(collection(db, 'projects', projectId, 'membership'));
-      return snap.docs.map(d => d.data() as CanonicalProjectMembership);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.LIST, path);
-      return [];
-    }
+  async listByProject(_projectId: string): Promise<CanonicalProjectMembership[]> {
+    throw new Error('LEGACY_HUMAN_MEMBERSHIP_RETIRED');
   }
 }
 

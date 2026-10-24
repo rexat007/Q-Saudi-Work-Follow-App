@@ -1,3 +1,4 @@
+import { ProjectAccessView } from './ProjectAccessView';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { batch4FieldLabel, batch4LayerLabel, batch4RosterStageLabel } from '../../i18n/batch4Presentation';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
@@ -4111,48 +4112,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
             {/* ================= LAYER 7: ACCESS ================= */}
             {activeSetupLayer === 'ACCESS' && project && (
-              <div className="space-y-6 text-xs text-stone-300">
-                <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
-                  <h3 className="font-black text-white text-[13px] border-b border-stone-800 pb-2">{t('projects.batch4.project_user_access')}</h3>
-                  
-                  <div className="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-4 leading-relaxed">
-                    <p className="text-stone-400 text-[11px]">
-                      {t('projects.batch4.project_access_description')}
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-3 bg-stone-950 rounded-lg border border-stone-850 space-y-1">
-                        <span className="font-bold text-white block">{t('projects.labels.project_11')}</span>
-                        <span className="text-stone-500 text-[10px] block">{t('projects.batch4.project_manager_permissions')}</span>
-                      </div>
-                      <div className="p-3 bg-stone-950 rounded-lg border border-stone-850 space-y-1">
-                        <span className="font-bold text-white block">{t('projects.batch4.field_supervisor_role')}</span>
-                        <span className="text-stone-500 text-[10px] block">{t('projects.batch4.field_supervisor_permissions')}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-right">
-                      <thead>
-                        <tr className="border-b border-stone-800/80 text-stone-500 font-black">
-                          <th className="pb-2">{t('other.labels.user_4')}</th>
-                          <th className="pb-2">{t('admin_console.col_email')}</th>
-                          <th className="pb-2">{t('projects.batch4.system_role')}</th>
-                          <th className="pb-2">{t('security.labels.domain_project_isolation')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-stone-850 text-stone-300 font-semibold">
-                          <td className="py-2.5 font-bold">{authContext.displayName}</td>
-                          <td className="py-2.5 font-mono">{authContext.email}</td>
-                          <td className="py-2.5 font-mono text-amber-500 font-bold">{authContext.role}</td>
-                          <td className="py-2.5 text-emerald-400">{t('projects.batch4.full_authorized_access')}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+              <ProjectAccessView key={project.projectId} projectId={project.projectId} />
             )}
 
             {/* ================= LAYER 8: REVIEW_ACTIVATION ================= */}

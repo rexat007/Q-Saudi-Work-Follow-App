@@ -118,6 +118,7 @@ export default function App() {
   useEffect(() => {
     const assignedProjectIds: string[] = JSON.parse(assignedProjectScopeKey);
     const isSuperAdmin = effectiveRole === 'SUPER_ADMIN';
+    setProjects(previous => previous.filter(project => isSuperAdmin || assignedProjectIds.includes(project.projectId)));
     setLoadingProjects(true);
     const unsubscribe = projectRepository.subscribeToProjects(
       (list) => {

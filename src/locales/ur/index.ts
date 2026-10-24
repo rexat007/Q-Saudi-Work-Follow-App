@@ -1,6 +1,20 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "project_access.description": "تعیینات صارف اکاؤنٹس سے آتی ہیں؛ کردار عمومی ہیں اور مؤثر رسائی کے لیے فعال اکاؤنٹ ضروری ہے۔",
+  "project_access.account_status": "اکاؤنٹ کی حالت",
+  "project_access.assignment": "تعیین",
+  "project_access.effective_access": "مؤثر رسائی",
+  "project_access.assigned": "تفویض شدہ",
+  "project_access.effective": "فعال رسائی",
+  "project_access.inactive": "رسائی غیر فعال",
+  "project_access.remove": "منصوبے سے ہٹائیں",
+  "project_access.add": "منصوبے کو تفویض کریں",
+  "project_access.choose_user": "صارف منتخب کریں",
+  "project_access.empty": "اس منصوبے کو کوئی صارف تفویض نہیں ہے۔",
+  "project_access.read_failed": "منصوبے کی تعینات لوڈ نہیں ہو سکیں۔",
+  "project_access.read_only_admin": "تعیینات صرف نظام کے منتظم یا مجاز منصوبہ منتظم دیکھ سکتے ہیں۔",
+
   "shared.actions.save": "محفوظ کریں",
   "shared.actions.cancel": "منسوخ کریں",
   "shared.actions.confirm": "تصدیق کریں",

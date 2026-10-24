@@ -1,5 +1,6 @@
+import { filterProjectScope } from '../../utils/projectScope';
 import { presentOperationalMessage } from "../../i18n/operationalMessages";
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   Scale, 
   Truck, 
@@ -71,7 +72,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
 
   // Search State
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [activeTrip, setActiveTrip] = useState<TripRecord | null>(null);
+  const [storedActiveTrip, setActiveTrip] = useState<TripRecord | null>(null);
   const [searchFeedback, setSearchFeedback] = useState<{ status: string; message: string } | null>(null);
 
   // Weight Entry Mode: DUAL_SCALE (Gross - Tare) or DIRECT (Net)
@@ -92,14 +93,24 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   const toleranceKg = 500;
 
   // Inbound Queue (trips in IN_TRANSIT, ARRIVED, or UNLOADING status)
-  const [inboundTrips, setInboundTrips] = useState<TripRecord[]>([]);
-  const [tripsCache, setTripsCache] = useState<any[]>([]);
+  const [storedInboundTrips, setInboundTrips] = useState<TripRecord[]>([]);
+  const [storedTripsCache, setTripsCache] = useState<any[]>([]);
+
+  const scopeKey = JSON.stringify([authContext.userId, authContext.role, [...(authContext.assignedProjectIds || [])].sort()]);
+  const scopeRef = useRef(scopeKey); scopeRef.current = scopeKey;
+  const activeTrip = storedActiveTrip && filterProjectScope([storedActiveTrip], authContext).length ? storedActiveTrip : null;
+  const inboundTrips = filterProjectScope(storedInboundTrips, authContext);
+  const tripsCache = filterProjectScope(storedTripsCache, authContext);
 
   const refreshInboundTrips = async () => {
+    const requestedScope = scopeKey;
     try {
       // Fetch latest from database if online to hydrate IndexedDB
-      if (isOnline && authContext?.assignedProjectIds && authContext.assignedProjectIds.length > 0) {
-        for (const pId of authContext.assignedProjectIds) {
+      if (isOnline) {
+        const projectIds = authContext.role === 'SUPER_ADMIN'
+          ? (await projectRepository.listAll([], true)).map(project => project.projectId)
+          : (authContext.assignedProjectIds || []).filter(id => id && id !== 'ALL');
+        for (const pId of projectIds) {
           const remoteTrips = await tripRepository.listByProject(pId).catch(() => []);
           if (remoteTrips && remoteTrips.length > 0) {
             await indexedDBService.putMany('trips', remoteTrips).catch(() => {});
@@ -108,7 +119,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       }
 
       // Load all trips from IndexedDB cache
-      const all: any[] = await indexedDBService.getAll('trips').catch(() => []);
+      const all: any[] = filterProjectScope(await indexedDBService.getAll<any>('trips').catch(() => []), authContext);
       
       // Filter inbound states (bridge canonical & legacy statuses)
       const inbounds = all.filter(t => 
@@ -119,6 +130,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         (t.status as string) === 'OFFLOADED'
       );
 
+      if (requestedScope !== scopeRef.current) return;
       setInboundTrips(inbounds);
       setTripsCache(all);
     } catch (e) {
@@ -128,7 +140,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
 
   useEffect(() => {
     refreshInboundTrips();
-  }, [isOnline]);
+  }, [isOnline, scopeKey]);
 
   // Sync dual scale weights
   useEffect(() => {
