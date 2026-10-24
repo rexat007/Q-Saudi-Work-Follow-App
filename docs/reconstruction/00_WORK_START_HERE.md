@@ -13,25 +13,25 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 
 ### Current Continuation Checkpoint — 2026-10-23
 
-- **Closure evidence baseline (verified GitHub main)**: `f817fc8f053aeb2f5f1ecc63f456a939816b7301` (PR #29 merged).
+- **Phase 2 activation evidence baseline (verified GitHub main)**: `747e86662b867aa5990f87fb0e60c79b077efb86` (PR #30 — Phase 1 closure merged).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
-- **Phase 1**: VERIFIED / CLOSED (`PHASE_1_VERIFIED_CLOSED`).
-- **P1-U1 through P1-U9**: VERIFIED / CLOSED; P1-U9 was the final Phase 1 unit.
-- **Active phase / unit**: NONE; no implementation work is active.
-- **Phase 2**: NOT_STARTED, pending explicit owner activation; no Phase 2 unit is defined.
-- **Next action**: `OWNER_DECISION_TO_ACTIVATE_PHASE_2`.
-- No P1-U10 exists.
-- Wizard/validator/auth-context role differences remain Phase 3 debt; other later-phase debt is unchanged.
+- **Phase 1 and P1-U1 through P1-U9**: VERIFIED / CLOSED; no P1-U10 exists.
+- **Active phase**: PHASE_2 — Persistence & Server Authority, IN_PROGRESS.
+- **Active unit**: UNASSIGNED / REQUIRES_PHASE_2_FIRST_UNIT_DEFINITION.
+- **Active-unit status / type**: UNASSIGNED / NOT_STARTED; UNASSIGNED.
+- **P2_U1_STATUS**: DOES_NOT_EXIST; no numbered Phase 2 unit is defined.
+- **Next action**: `PHASE_2_FIRST_UNIT_DEFINITION_AUDIT`.
+- No implementation is authorized by this governance activation.
 
 
 ---
 
 ### Core Operational Principles
-1. **GitHub Main Is Code Truth**: The remote `main` branch on GitHub is the sole source of code truth. Unpushed local edits hold zero governance weight until verified, approved, and pushed.
-2. **One Bounded Unit at a Time**: Work proceeds strictly one implementation unit at a time. No parallel unverified feature additions.
-3. **No Greenfield Rewrites**: Existing application code is valuable asset material. Reconstruction hardens, converges, and stabilizes capabilities rather than discarding existing working features.
-4. **Area-Wide Review Before Editing**: Never fix a defect isolated in a single line without reviewing the entire component/module family to identify and eliminate root causes holistically.
-5. **No Patch-by-Patch Stopping**: Continue discovery after encountering the first defect. Consolidate the entire defect family before writing code.
+1. **GitHub Main Is Code Truth**: The remote `main` branch on GitHub is the sole source of code truth.
+2. **Minimum Necessary Governance**: Use the streamlined method in [STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md). Combine or skip gates that add no material protection; preserve extra gates for high-risk work.
+3. **Bounded Batches, Not Endless Micro-Units**: Prefer one coherent batch for related safe work with a shared purpose and regression surface. Split only when risk, ownership or verification requires it.
+4. **No Greenfield Rewrites**: Existing application code is valuable asset material. Reconstruction hardens, converges, and stabilizes capabilities rather than discarding existing working features.
+5. **Area-Wide Review Before Editing**: Review the full relevant family, then fix the coherent defect family rather than stopping at the first visible symptom.
 6. **Server Authority**: The backend (Node/Express/Firebase Admin) is the sole authority for business logic, pricing computations, trip state transitions, and persistent data reconciliation.
 7. **Multi-Tenant Isolation**: Every database query, outbox item, REST endpoint, and UI state context must be strictly isolated by `projectId`.
 8. **Responsive / Cross-Device Invariant**: Field UI must function flawlessly across mobile, tablet, and desktop viewports with strict RTL Arabic layout discipline.
@@ -42,6 +42,7 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 - **Document Authority**: `docs/reconstruction/DOCUMENT_AUTHORITY.md`
 - **Engineering Constitution**: `docs/reconstruction/01_ENGINEERING_CONSTITUTION.md`
 - **Active Phase Ledger**: `docs/reconstruction/02_PHASE_LEDGER.md`
+- **Streamlined Execution Method**: `docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md`
 - **Implementation Unit Protocol**: `docs/reconstruction/03_IMPLEMENTATION_UNIT_TEMPLATE.md`
 - **Verification & Push Gate**: `docs/reconstruction/04_VERIFICATION_AND_PUSH_GATE.md`
 - **Decision & Debt Log**: `docs/reconstruction/05_DECISION_AND_DEBT_LOG.md`

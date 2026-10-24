@@ -18,11 +18,12 @@ This document serves as the master project handoff reference for the Q-Saudi Wor
 ### Handoff Directives
 1. **Repository Authority**: All reconstruction work operates under the rules defined in `docs/reconstruction/DOCUMENT_AUTHORITY.md`.
 2. **Phase Continuity**: Refer to `docs/reconstruction/02_PHASE_LEDGER.md` for current active phase and unit state.
-3. **Quality Gates**: All code changes must pass through gates defined in `docs/reconstruction/04_VERIFICATION_AND_PUSH_GATE.md`.
+3. **Quality Gates**: Verification is proportional to risk; standing gates remain defined in `docs/reconstruction/04_VERIFICATION_AND_PUSH_GATE.md`.
+4. **Execution Method**: Follow `docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md`: phase-level audit, bounded batches, combined publication, manual owner merge, one normal post-merge audit, and extra gates only where risk justifies them.
 
 ### Current repository and acceptance scope
 
-Supporting overview, closure evidence baseline `f817fc8f053aeb2f5f1ecc63f456a939816b7301`; unit status is owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). `package.json` defines Node 22 / npm 10 (`npm@10.9.8`), with `package-lock.json` canonical. `server.ts` mounts Vite middleware in development and serves `dist` in production; the production server bundle is built with Esbuild. Firebase Auth/Firestore remain in use. Server-authoritative services are accepted boundaries, not a blanket live-certification claim for every legacy path.
+Supporting overview, Phase 2 activation evidence baseline `747e86662b867aa5990f87fb0e60c79b077efb86`; unit status is owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). `package.json` defines Node 22 / npm 10 (`npm@10.9.8`), with `package-lock.json` canonical. `server.ts` mounts Vite middleware in development and serves `dist` in production; the production server bundle is built with Esbuild. Firebase Auth/Firestore remain in use. Server-authoritative services are accepted boundaries, not a blanket live-certification claim for every legacy path.
 
 The setup layers in `projectSetupWorkflow.service.ts` are FOUNDATION, WORKSPACE, MATERIALS, CARRIERS, ROSTER, PRICING, ACCESS and REVIEW_ACTIVATION. ACCESS is the semantic access/governance identity; the retired numeric Phase-4 UI shape is not restored. Historical restoration Phase/Block names are not the reconstruction roadmap's current status.
 
@@ -31,12 +32,12 @@ Whole-App i18n Batches 1–4 and residual remediation are merged and accepted fo
 
 ### Current Reconstruction Checkpoint — 2026-10-23
 
-- **Closure evidence baseline (verified GitHub main)**: `f817fc8f053aeb2f5f1ecc63f456a939816b7301` (PR #29 merged).
+- **Phase 2 activation evidence baseline (verified GitHub main)**: `747e86662b867aa5990f87fb0e60c79b077efb86` (PR #30 — Phase 1 closure merged).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
-- **Phase 1**: VERIFIED / CLOSED (`PHASE_1_VERIFIED_CLOSED`).
-- **P1-U1 through P1-U9**: VERIFIED / CLOSED; P1-U9 was the final Phase 1 unit.
-- **Active phase / unit**: NONE; no implementation work is active.
-- **Phase 2**: NOT_STARTED, pending explicit owner activation; no Phase 2 unit is defined.
-- **Next action**: `OWNER_DECISION_TO_ACTIVATE_PHASE_2`.
-- No P1-U10 exists.
-- Wizard/validator/auth-context role differences remain Phase 3 debt; other later-phase debt is unchanged.
+- **Phase 1 and P1-U1 through P1-U9**: VERIFIED / CLOSED; no P1-U10 exists.
+- **Active phase**: PHASE_2 — Persistence & Server Authority, IN_PROGRESS.
+- **Active unit**: UNASSIGNED / REQUIRES_PHASE_2_FIRST_UNIT_DEFINITION.
+- **Active-unit status / type**: UNASSIGNED / NOT_STARTED; UNASSIGNED.
+- **P2_U1_STATUS**: DOES_NOT_EXIST; no numbered Phase 2 unit is defined.
+- **Next action**: `PHASE_2_FIRST_UNIT_DEFINITION_AUDIT`.
+- No implementation is authorized by this governance activation.

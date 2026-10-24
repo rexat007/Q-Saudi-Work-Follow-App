@@ -4,38 +4,38 @@
 ### 1. Repository authority
 - Repository: `rexat007/Q-Saudi-Work-Follow-App`
 - Authoritative branch: `main`
-- Verified main HEAD: `f817fc8f053aeb2f5f1ecc63f456a939816b7301`
-- Latest verified merge: PR #29 — `refactor(reconstruction): converge storage provider authority`
+- Phase 2 activation evidence baseline (verified main HEAD): `747e86662b867aa5990f87fb0e60c79b077efb86`
+- Latest verified merge: PR #30 — `docs(reconstruction): close Phase 1`
 - GitHub `main` is the sole code truth.
 - Current state authority: `docs/reconstruction/02_PHASE_LEDGER.md`.
 
 ### 2. Operating method
-Use exactly this cycle:
-**area audit → semantic decision → bounded implementation → technical verification → owner scope review → branch commit/push → independent GitHub audit → PR → user manual merge → independent merge audit → real runtime/browser verification when applicable → explicit acceptance → documentation closure.**
+Follow [STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md).
+
+Normal cycle:
+**phase/area audit → bounded batch definition → implementation → focused verification → owner review → commit + push + PR → owner manual merge → one independent post-merge verification → continue**.
 
 Rules:
-- One bounded unit at a time.
-- Do not invent unit IDs.
-- Do not reopen accepted units without a proven regression.
-- Historical reports/cardinality are not current contracts by default.
-- Vitest is the active automated framework.
-- Tests/build are necessary but not sufficient for product-facing closure.
-- Implementation reports cannot self-declare USER ACCEPTED.
-- Do not state Git state without independent GitHub evidence.
-- User manually merges PRs.
-- Minimize turns, but do not skip governance gates.
-- Do not recursively rewrite historical SHA records merely because main advances.
+- Use one broad phase audit to map meaningful work and ordering; do not audit seam-by-seam by default.
+- Prefer coherent bounded batches over micro-units when purpose, ownership and regression surface align.
+- Skip separate pre-PR publication audits unless the work is high-risk.
+- Browser/runtime verification is required when UI/workflow/network/runtime behavior changes, not automatically for type-only or documentation-only work.
+- Refresh governance documents at phase boundaries, major batch closures, or when current pointers would otherwise mislead; avoid documentation-only loops and recursive SHA updates.
+- Run focused regressions plus required standing gates; do not repeatedly run unrelated broad suites without a reason.
+- High-risk auth, tenant isolation, Firestore rules, destructive migration/persistence, financial correctness and broad server-authority changes may require extra gates.
+- GitHub main remains code truth; owner merge remains manual; accepted work is not reopened without proven regression.
+- The release objective is a safe, coherent Beta 2, not indefinite perfection or governance for its own sake.
 
 ### 3. Phase status
-- **Closure evidence baseline (verified GitHub main)**: `f817fc8f053aeb2f5f1ecc63f456a939816b7301` (PR #29 merged).
+- **Phase 2 activation evidence baseline (verified GitHub main)**: `747e86662b867aa5990f87fb0e60c79b077efb86` (PR #30 — Phase 1 closure merged).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
-- **Phase 1**: VERIFIED / CLOSED (`PHASE_1_VERIFIED_CLOSED`).
-- **P1-U1 through P1-U9**: VERIFIED / CLOSED; P1-U9 was the final Phase 1 unit.
-- **Active phase / unit**: NONE; no implementation work is active.
-- **Phase 2**: NOT_STARTED, pending explicit owner activation; no Phase 2 unit is defined.
-- **Next action**: `OWNER_DECISION_TO_ACTIVATE_PHASE_2`.
-- No P1-U10 exists.
-- Wizard/validator/auth-context role differences remain Phase 3 debt; other later-phase debt is unchanged.
+- **Phase 1 and P1-U1 through P1-U9**: VERIFIED / CLOSED; no P1-U10 exists.
+- **Active phase**: PHASE_2 — Persistence & Server Authority, IN_PROGRESS.
+- **Active unit**: UNASSIGNED / REQUIRES_PHASE_2_FIRST_UNIT_DEFINITION.
+- **Active-unit status / type**: UNASSIGNED / NOT_STARTED; UNASSIGNED.
+- **P2_U1_STATUS**: DOES_NOT_EXIST; no numbered Phase 2 unit is defined.
+- **Next action**: `PHASE_2_FIRST_UNIT_DEFINITION_AUDIT`.
+- No implementation is authorized by this governance activation.
 
 ### 4. Phase 1 completed units
 #### P1-U1 — Canonical Domain Authority and Identity Boundary Contract
@@ -101,6 +101,8 @@ Current Q-Saudi implementation environment is Codex/local repository workflow wi
 If Google AI Studio is ever used, do not assume it can read GitHub automatically; provide direct internet URLs for GitHub files/data when asking Studio to read them.
 
 ### 9. Immediate next action
-OWNER_DECISION_TO_ACTIVATE_PHASE_2.
+PHASE_2_FIRST_UNIT_DEFINITION_AUDIT.
 
-No implementation is active. Phase 2 remains NOT_STARTED; no Phase 2 unit is defined or authorized. Do not execute a new implementation unit until the owner explicitly activates and defines it. Use the fixed closure evidence baseline above; do not recursively rewrite historical baselines after documentation publication.
+Phase 2 is IN_PROGRESS at governance level only by ACTIVATE_PHASE_2 = APPROVED. Its accepted purpose is server-authoritative Firestore operations, multi-tenant isolation enforcement, Firebase Admin SDK integration and security-rules auditing. ACTIVE_UNIT is UNASSIGNED / REQUIRES_PHASE_2_FIRST_UNIT_DEFINITION, status UNASSIGNED / NOT_STARTED, type UNASSIGNED. P2_U1_STATUS: DOES_NOT_EXIST. No implementation is authorized.
+
+A separate read-only first-unit audit must identify the first safe bounded persistence/server-authority seam before owner selection and explicit approval. Candidate territory includes cast-based reads, decoders, Timestamp / Date / ISO representations, storage representations, Firestore read/write boundaries and persistence-side natural identity. No candidate is selected by activation; domain behavior keeps the later-phase ownership above. Do not execute that audit or implement production work as part of this activation task. Phase 1 closure documentation merged through PR #30 at the fixed activation evidence baseline; historical closure evidence remains unchanged.
