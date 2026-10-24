@@ -1,3 +1,4 @@
+import { decodePricing } from '../utils/persistenceBoundary';
 import { 
   collection, 
   doc, 
@@ -53,8 +54,9 @@ export class PricingRuleRepository {
         const local = this.getLocalCache(projectId).find(r => r.pricingRuleId === pricingRuleId);
         return local || null;
       }
-      return snap.data() as PricingRuleEntity;
+      return decodePricing<PricingRuleEntity>(snap.data(), pricingRuleId, projectId);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       const local = this.getLocalCache(projectId).find(r => r.pricingRuleId === pricingRuleId);
       if (local) return local;
       handleFirestoreError(error, OperationType.GET, path);
@@ -69,13 +71,14 @@ export class PricingRuleRepository {
     const path = this.getPath(projectId);
     try {
       const snap = await getDocs(collection(db, 'projects', projectId, 'pricing_rules'));
-      const rules = snap.docs.map(d => d.data() as PricingRuleEntity);
+      const rules = snap.docs.map(d => decodePricing<PricingRuleEntity>(d.data(), d.id, projectId));
       if (rules.length > 0) {
         this.saveLocalCache(projectId, rules);
         return rules;
       }
       return cached.length > 0 ? cached : rules;
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       if (cached.length > 0) return cached;
       handleFirestoreError(error, OperationType.LIST, path);
     }
@@ -84,7 +87,7 @@ export class PricingRuleRepository {
   async listByProjectInTransaction(projectId: string, transaction: Transaction): Promise<PricingRuleEntity[]> {
     const colRef = collection(db, 'projects', projectId, 'pricing_rules');
     const snap = await getDocs(colRef);
-    return snap.docs.map(d => d.data() as PricingRuleEntity);
+    return snap.docs.map(d => decodePricing<PricingRuleEntity>(d.data(), d.id, projectId));
   }
 
   async create(rule: Omit<PricingRuleEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
@@ -106,6 +109,7 @@ export class PricingRuleRepository {
       });
       await setDoc(doc(db, 'projects', rule.projectId, 'pricing_rules', rule.pricingRuleId), payload);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.CREATE, path);
     }
   }
@@ -131,6 +135,7 @@ export class PricingRuleRepository {
       });
       await updateDoc(doc(db, 'projects', projectId, 'pricing_rules', pricingRuleId), payload);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.UPDATE, path);
     }
   }
@@ -144,7 +149,7 @@ export class PricingRuleRepository {
     return onSnapshot(
       collection(db, 'projects', projectId, 'pricing_rules'),
       (snapshot) => {
-        onData(snapshot.docs.map(d => d.data() as PricingRuleEntity));
+        onData(snapshot.docs.map(d => decodePricing<PricingRuleEntity>(d.data(), d.id, projectId)));
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, path);

@@ -1,3 +1,5 @@
+import { sanitizeUndefined } from '../utils/sanitize';
+import { decodeTrip } from '../utils/persistenceBoundary';
 import { 
   collection, 
   doc, 
@@ -30,8 +32,9 @@ export class TripRepository {
     try {
       const snap = await getDoc(doc(db, 'projects', projectId, 'trips', tripId));
       if (!snap.exists()) return null;
-      return snap.data() as TripEntity;
+      return decodeTrip<TripEntity>(snap.data(), tripId, projectId);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
     }
   }
@@ -48,8 +51,9 @@ export class TripRepository {
         limit(maxLimit)
       );
       const snap = await getDocs(q);
-      return snap.docs.map(d => d.data() as TripEntity);
+      return snap.docs.map(d => decodeTrip<TripEntity>(d.data(), d.id, projectId));
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, path);
     }
   }
@@ -65,8 +69,9 @@ export class TripRepository {
         where('status', '==', status)
       );
       const snap = await getDocs(q);
-      return snap.docs.map(d => d.data() as TripEntity);
+      return snap.docs.map(d => decodeTrip<TripEntity>(d.data(), d.id, projectId));
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, path);
     }
   }
@@ -91,8 +96,9 @@ export class TripRepository {
       return;
     }
     try {
-      await setDoc(docRef, payload);
+      await setDoc(docRef, sanitizeUndefined(payload));
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.CREATE, path);
     }
   }
@@ -122,8 +128,9 @@ export class TripRepository {
       return;
     }
     try {
-      await updateDoc(docRef, payload);
+      await updateDoc(docRef, sanitizeUndefined(payload));
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.UPDATE, path);
     }
   }
@@ -139,8 +146,9 @@ export class TripRepository {
       );
       const snap = await getDocs(q);
       if (snap.empty) return null;
-      return snap.docs[0].data() as TripEntity;
+      return decodeTrip<TripEntity>(snap.docs[0].data(), snap.docs[0].id, projectId);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
     }
   }
@@ -157,7 +165,7 @@ export class TripRepository {
     return onSnapshot(
       collection(db, 'projects', projectId, 'trips'),
       (snapshot) => {
-        onData(snapshot.docs.map(d => d.data() as TripEntity));
+        onData(snapshot.docs.map(d => decodeTrip<TripEntity>(d.data(), d.id, projectId)));
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, path);

@@ -1,3 +1,4 @@
+import { decodeProject } from '../utils/persistenceBoundary';
 import { 
   collection, 
   doc, 
@@ -28,8 +29,9 @@ export class ProjectRepository {
     try {
       const snap = await getDoc(doc(db, this.collectionName, projectId));
       if (!snap.exists()) return null;
-      return snap.data() as ProjectEntity;
+      return decodeProject<ProjectEntity>(snap.data(), projectId);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
     }
   }
@@ -37,7 +39,7 @@ export class ProjectRepository {
   async findByIdInTransaction(projectId: string, transaction: Transaction): Promise<ProjectEntity | null> {
     const docRef = doc(db, this.collectionName, projectId);
     const snap = await transaction.get(docRef);
-    return snap.exists() ? (snap.data() as ProjectEntity) : null;
+    return snap.exists() ? (decodeProject<ProjectEntity>(snap.data(), projectId)) : null;
   }
 
   async listAll(assignedProjectIds?: string[], isSuperAdmin?: boolean): Promise<ProjectEntity[]> {
@@ -55,12 +57,13 @@ export class ProjectRepository {
           where('projectId', 'in', assignedProjectIds.slice(0, 30))
         );
         const snap = await getDocs(q);
-        return snap.docs.map(d => d.data() as ProjectEntity);
+        return snap.docs.map(d => decodeProject<ProjectEntity>(d.data(), d.id));
       }
 
       const snap = await getDocs(collection(db, this.collectionName));
-      return snap.docs.map(d => d.data() as ProjectEntity);
+      return snap.docs.map(d => decodeProject<ProjectEntity>(d.data(), d.id));
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, this.collectionName);
     }
   }
@@ -79,6 +82,7 @@ export class ProjectRepository {
       });
       await setDoc(doc(db, this.collectionName, project.projectId), payload);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.CREATE, path);
     }
   }
@@ -98,6 +102,7 @@ export class ProjectRepository {
       });
       await updateDoc(doc(db, this.collectionName, projectId), payload);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.UPDATE, path);
     }
   }
@@ -110,6 +115,7 @@ export class ProjectRepository {
     try {
       await deleteDoc(doc(db, this.collectionName, projectId));
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.DELETE, path);
     }
   }
@@ -170,7 +176,7 @@ export class ProjectRepository {
         const unsub = onSnapshot(
           q,
           (snapshot) => {
-            chunkResults[index] = snapshot.docs.map(d => d.data() as ProjectEntity);
+            chunkResults[index] = snapshot.docs.map(d => decodeProject<ProjectEntity>(d.data(), d.id));
             chunkInitialEmitted[index] = true;
             notifyCombinedIfReady();
           },
@@ -192,7 +198,7 @@ export class ProjectRepository {
     return onSnapshot(
       q,
       (snapshot) => {
-        const list = snapshot.docs.map(d => d.data() as ProjectEntity);
+        const list = snapshot.docs.map(d => decodeProject<ProjectEntity>(d.data(), d.id));
         onData(list);
       },
       (error) => {

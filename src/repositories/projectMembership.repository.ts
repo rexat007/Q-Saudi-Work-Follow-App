@@ -1,3 +1,5 @@
+import { decodeScopedProjection } from '../utils/persistenceBoundary';
+import { sanitizeUndefined } from '../utils/sanitize';
 import {
   collection,
   doc,
@@ -106,15 +108,16 @@ export class ProjectMembershipRepository<
       const docRef = doc(db, 'projects', projectId, this.subcollectionName, entityId);
       if (transaction) {
         const snap = await transaction.get(docRef);
-        return snap.exists() ? (snap.data() as TEntity) : null;
+        return snap.exists() ? (decodeScopedProjection<TEntity>(snap.data(), this.idKey, entityId, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED'])) : null;
       }
       
       const snap = await getDoc(docRef);
       if (!snap.exists()) {
         return this.inMemoryMemberships.get(compKey) || null;
       }
-      return snap.data() as TEntity;
+      return decodeScopedProjection<TEntity>(snap.data(), this.idKey, entityId, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
       return this.inMemoryMemberships.get(compKey) || null;
     }
@@ -138,17 +141,18 @@ export class ProjectMembershipRepository<
       
       if (transaction) {
         const snap = await getDocs(q);
-        return snap.docs.map(d => d.data() as TEntity);
+        return snap.docs.map(d => decodeScopedProjection<TEntity>(d.data(), this.idKey, d.id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']));
       }
 
       const snap = await getDocs(q);
-      const live = snap.docs.map(d => d.data() as TEntity);
+      const live = snap.docs.map(d => decodeScopedProjection<TEntity>(d.data(), this.idKey, d.id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']));
       if (live.length === 0) {
         const cached = Array.from(this.inMemoryMemberships.values()).filter(m => m.projectId === projectId);
         return statusFilter ? cached.filter(m => m.status === statusFilter) : cached;
       }
       return live;
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, path);
       const cached = Array.from(this.inMemoryMemberships.values()).filter(m => m.projectId === projectId);
       return statusFilter ? cached.filter(m => m.status === statusFilter) : cached;
@@ -220,12 +224,13 @@ export class ProjectMembershipRepository<
 
     if (transaction && auth.currentUser) {
       const docRef = doc(db, 'projects', projectId, this.subcollectionName, entityId);
-      transaction.set(docRef, newMembership);
+      transaction.set(docRef, sanitizeUndefined(newMembership));
     } else if (auth.currentUser) {
       const path = `projects/${projectId}/${this.subcollectionName}/${entityId}`;
       try {
-        await setDoc(doc(db, 'projects', projectId, this.subcollectionName, entityId), newMembership);
+        await setDoc(doc(db, 'projects', projectId, this.subcollectionName, entityId), sanitizeUndefined(newMembership));
       } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
         handleFirestoreError(error, OperationType.WRITE, path);
       }
     }
@@ -280,12 +285,13 @@ export class ProjectMembershipRepository<
 
     if (transaction && auth.currentUser) {
       const docRef = doc(db, 'projects', projectId, this.subcollectionName, entityId);
-      transaction.update(docRef, updates as Record<string, any>);
+      transaction.update(docRef, sanitizeUndefined(updates as Record<string, any>));
     } else if (auth.currentUser) {
       const path = `projects/${projectId}/${this.subcollectionName}/${entityId}`;
       try {
-        await updateDoc(doc(db, 'projects', projectId, this.subcollectionName, entityId), updates as Record<string, any>);
+        await updateDoc(doc(db, 'projects', projectId, this.subcollectionName, entityId), sanitizeUndefined(updates as Record<string, any>));
       } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
         handleFirestoreError(error, OperationType.UPDATE, path);
       }
     }

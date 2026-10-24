@@ -1,3 +1,4 @@
+import { decodeProject, decodeGlobal, decodePersistence, decodeScopedProjection } from '../utils/persistenceBoundary';
 import { adminDb } from '../firebase/admin';
 import { ProjectFleetReadModelReadContext } from './projectFleetReadModel.context';
 import { ProjectTruckMembershipEntity } from '../types/projectMembership';
@@ -25,7 +26,7 @@ export class ProjectFleetReadModelAdminReadContext implements ProjectFleetReadMo
       .collection('truck_memberships')
       .where('status', '==', 'ACTIVE')
       .get();
-    return snap.docs.map((doc: any) => doc.data() as ProjectTruckMembershipEntity);
+    return snap.docs.map((doc: any) => decodeScopedProjection<ProjectTruckMembershipEntity>(doc.data(), 'truckId', doc.id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']));
   }
 
   async getTruckCarrierAffiliation(projectId: string, truckId: string): Promise<ProjectTruckCarrierAffiliationEntity | null> {
@@ -35,7 +36,7 @@ export class ProjectFleetReadModelAdminReadContext implements ProjectFleetReadMo
       .collection('truck_carrier_affiliations')
       .doc(truckId)
       .get();
-    return snap.exists ? (snap.data() as ProjectTruckCarrierAffiliationEntity) : null;
+    return snap.exists ? (decodeScopedProjection<ProjectTruckCarrierAffiliationEntity>(snap.data(), 'truckId', truckId, projectId, ['ACTIVE', 'INACTIVE'])) : null;
   }
 
   async getActiveTruckSlot(projectId: string, truckId: string): Promise<ActiveAssignmentSlotPayload | null> {
@@ -45,7 +46,7 @@ export class ProjectFleetReadModelAdminReadContext implements ProjectFleetReadMo
       .collection('truck_active_assignments')
       .doc(truckId)
       .get();
-    return snap.exists ? (snap.data() as ActiveAssignmentSlotPayload) : null;
+    return snap.exists ? (decodePersistence<ActiveAssignmentSlotPayload>(snap.data(), { required: ['assignmentId'] })) : null;
   }
 
   async getDriverTruckAssignment(projectId: string, assignmentId: string): Promise<ProjectDriverTruckAssignmentEntity | null> {
@@ -55,7 +56,7 @@ export class ProjectFleetReadModelAdminReadContext implements ProjectFleetReadMo
       .collection('driver_truck_assignments')
       .doc(assignmentId)
       .get();
-    return snap.exists ? (snap.data() as ProjectDriverTruckAssignmentEntity) : null;
+    return snap.exists ? (decodeScopedProjection<ProjectDriverTruckAssignmentEntity>(snap.data(), 'assignmentId', assignmentId, projectId, ['ACTIVE', 'CLOSED'])) : null;
   }
 
   async getDriverCarrierAffiliation(projectId: string, driverId: string): Promise<ProjectDriverCarrierAffiliationEntity | null> {
@@ -65,7 +66,7 @@ export class ProjectFleetReadModelAdminReadContext implements ProjectFleetReadMo
       .collection('driver_carrier_affiliations')
       .doc(driverId)
       .get();
-    return snap.exists ? (snap.data() as ProjectDriverCarrierAffiliationEntity) : null;
+    return snap.exists ? (decodeScopedProjection<ProjectDriverCarrierAffiliationEntity>(snap.data(), 'driverId', driverId, projectId, ['ACTIVE', 'INACTIVE'])) : null;
   }
 
   async getActiveAllocationByTruck(projectId: string, truckId: string): Promise<ProjectTruckMaterialAllocationEntity | null> {
@@ -90,7 +91,7 @@ export class ProjectFleetReadModelAdminReadContext implements ProjectFleetReadMo
         `ALLOCATION_POINTER_CORRUPTION: Active slot points to non-existent allocation ${slot.allocationId} for truck ${truckId}`
       );
     }
-    const allocation = allocSnap.data() as ProjectTruckMaterialAllocationEntity;
+    const allocation = allocSnap.data();
     if (allocation.projectId !== projectId || allocation.truckId !== truckId) {
       throw new Error(
         `ALLOCATION_POINTER_CORRUPTION: Active slot points to allocation ${slot.allocationId} with mismatched truck or project`
@@ -101,26 +102,26 @@ export class ProjectFleetReadModelAdminReadContext implements ProjectFleetReadMo
         `ALLOCATION_POINTER_CORRUPTION: Active slot points to inactive or closed allocation ${slot.allocationId}`
       );
     }
-    return allocation;
+    return decodeScopedProjection<ProjectTruckMaterialAllocationEntity>(allocation, 'allocationId', allocSnap.id, projectId, ['ACTIVE', 'CLOSED']);
   }
 
   async getGlobalTruck(truckId: string): Promise<GlobalTruckEntity | null> {
     const snap = await adminDb.collection('trucks').doc(truckId).get();
-    return snap.exists ? (snap.data() as GlobalTruckEntity) : null;
+    return snap.exists ? (decodeGlobal<GlobalTruckEntity>(snap.data(), 'truck', truckId)) : null;
   }
 
   async getGlobalCarrier(carrierId: string): Promise<GlobalCarrierEntity | null> {
     const snap = await adminDb.collection('carriers').doc(carrierId).get();
-    return snap.exists ? (snap.data() as GlobalCarrierEntity) : null;
+    return snap.exists ? (decodeGlobal<GlobalCarrierEntity>(snap.data(), 'carrier', carrierId)) : null;
   }
 
   async getGlobalDriver(driverId: string): Promise<GlobalDriverEntity | null> {
     const snap = await adminDb.collection('drivers').doc(driverId).get();
-    return snap.exists ? (snap.data() as GlobalDriverEntity) : null;
+    return snap.exists ? (decodeGlobal<GlobalDriverEntity>(snap.data(), 'driver', driverId)) : null;
   }
 
   async getGlobalMaterial(materialId: string): Promise<GlobalMaterialEntity | null> {
     const snap = await adminDb.collection('materials').doc(materialId).get();
-    return snap.exists ? (snap.data() as GlobalMaterialEntity) : null;
+    return snap.exists ? (decodeGlobal<GlobalMaterialEntity>(snap.data(), 'material', materialId)) : null;
   }
 }

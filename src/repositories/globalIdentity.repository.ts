@@ -1,3 +1,5 @@
+import { decodeGlobal } from '../utils/persistenceBoundary';
+import { sanitizeUndefined } from '../utils/sanitize';
 import { 
   collection, 
   doc, 
@@ -115,8 +117,9 @@ export class GlobalDriverRepository {
     try {
       const snap = await getDoc(doc(db, this.collectionName, driverId));
       if (!snap.exists()) return this.inMemoryDrivers.get(driverId) || null;
-      return snap.data() as GlobalDriverEntity;
+      return decodeGlobal<GlobalDriverEntity>(snap.data(), 'driver', driverId);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
       return this.inMemoryDrivers.get(driverId) || null;
     }
@@ -149,10 +152,11 @@ export class GlobalDriverRepository {
       const q = query(collection(db, this.collectionName), where('nationalId', '==', normalized));
       const snap = await getDocs(q);
       if (!snap.empty) {
-        return snap.docs[0].data() as GlobalDriverEntity;
+        return decodeGlobal<GlobalDriverEntity>(snap.docs[0].data(), 'driver', snap.docs[0].id);
       }
       return null;
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, this.collectionName);
       const driverId = this.inMemoryIndexByNationalId.get(normalized);
       return driverId ? this.inMemoryDrivers.get(driverId) || null : null;
@@ -235,18 +239,18 @@ export class GlobalDriverRepository {
         throw new Error(`DUPLICATE_NATURAL_KEY: Driver with National ID already exists in global registry`);
       }
 
-      tx.set(driverRef, {
+      tx.set(driverRef, sanitizeUndefined({
         ...newDriver,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      });
+      }));
 
-      tx.set(lookupRef, {
+      tx.set(lookupRef, sanitizeUndefined({
         entityType: 'DRIVER',
         systemId: opaqueId,
         createdAt: serverTimestamp(),
         createdBy: input.createdBy,
-      });
+      }));
     };
 
     if (transaction) {
@@ -295,13 +299,14 @@ export class GlobalDriverRepository {
 
     try {
       const driverRef = doc(db, this.collectionName, driverId);
-      await updateDoc(driverRef, {
+      await updateDoc(driverRef, sanitizeUndefined({
         ...payload,
         updatedAt: serverTimestamp(),
-      });
+      }));
       Object.assign(existing, payload);
       this.inMemoryDrivers.set(driverId, existing);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.UPDATE, `${this.collectionName}/${driverId}`);
       throw error;
     }
@@ -329,8 +334,9 @@ export class GlobalTruckRepository {
     try {
       const snap = await getDoc(doc(db, this.collectionName, truckId));
       if (!snap.exists()) return this.inMemoryTrucks.get(truckId) || null;
-      return snap.data() as GlobalTruckEntity;
+      return decodeGlobal<GlobalTruckEntity>(snap.data(), 'truck', truckId);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
       return this.inMemoryTrucks.get(truckId) || null;
     }
@@ -358,10 +364,11 @@ export class GlobalTruckRepository {
       const q = query(collection(db, this.collectionName), where('normalizedPlate', '==', normalized));
       const snap = await getDocs(q);
       if (!snap.empty) {
-        return snap.docs[0].data() as GlobalTruckEntity;
+        return decodeGlobal<GlobalTruckEntity>(snap.docs[0].data(), 'truck', snap.docs[0].id);
       }
       return null;
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, this.collectionName);
       const truckId = this.inMemoryIndexByPlate.get(normalized);
       return truckId ? this.inMemoryTrucks.get(truckId) || null : null;
@@ -448,18 +455,18 @@ export class GlobalTruckRepository {
         throw new Error(`DUPLICATE_NATURAL_KEY: Truck with plate ${normalized} already exists in global registry`);
       }
 
-      tx.set(truckRef, {
+      tx.set(truckRef, sanitizeUndefined({
         ...newTruck,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      });
+      }));
 
-      tx.set(lookupRef, {
+      tx.set(lookupRef, sanitizeUndefined({
         entityType: 'TRUCK',
         systemId: opaqueId,
         createdAt: serverTimestamp(),
         createdBy: input.createdBy,
-      });
+      }));
     };
 
     if (transaction) {
@@ -517,13 +524,14 @@ export class GlobalTruckRepository {
 
     try {
       const truckRef = doc(db, this.collectionName, truckId);
-      await updateDoc(truckRef, {
+      await updateDoc(truckRef, sanitizeUndefined({
         ...payload,
         updatedAt: serverTimestamp(),
-      });
+      }));
       Object.assign(existing, payload);
       this.inMemoryTrucks.set(truckId, existing);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.UPDATE, `${this.collectionName}/${truckId}`);
       throw error;
     }
@@ -551,8 +559,9 @@ export class GlobalCarrierRepository {
     try {
       const snap = await getDoc(doc(db, this.collectionName, carrierId));
       if (!snap.exists()) return this.inMemoryCarriers.get(carrierId) || null;
-      return snap.data() as GlobalCarrierEntity;
+      return decodeGlobal<GlobalCarrierEntity>(snap.data(), 'carrier', carrierId);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
       return this.inMemoryCarriers.get(carrierId) || null;
     }
@@ -580,10 +589,11 @@ export class GlobalCarrierRepository {
       const q = query(collection(db, this.collectionName), where('commercialRegistrationNo', '==', cr));
       const snap = await getDocs(q);
       if (!snap.empty) {
-        return snap.docs[0].data() as GlobalCarrierEntity;
+        return decodeGlobal<GlobalCarrierEntity>(snap.docs[0].data(), 'carrier', snap.docs[0].id);
       }
       return null;
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, this.collectionName);
       const carrierId = this.inMemoryIndexByCR.get(cr);
       return carrierId ? this.inMemoryCarriers.get(carrierId) || null : null;
@@ -658,18 +668,18 @@ export class GlobalCarrierRepository {
       if (lookupSnap.exists()) {
         throw new Error(`DUPLICATE_NATURAL_KEY: Carrier with CR ${cr} already exists in global registry`);
       }
-      tx.set(carrierRef, {
+      tx.set(carrierRef, sanitizeUndefined({
         ...newCarrier,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      });
+      }));
 
-      tx.set(lookupRef, {
+      tx.set(lookupRef, sanitizeUndefined({
         entityType: 'CARRIER',
         systemId: opaqueId,
         createdAt: serverTimestamp(),
         createdBy: input.createdBy,
-      });
+      }));
     };
 
     if (transaction) {
@@ -718,13 +728,14 @@ export class GlobalCarrierRepository {
 
     try {
       const carrierRef = doc(db, this.collectionName, carrierId);
-      await updateDoc(carrierRef, {
+      await updateDoc(carrierRef, sanitizeUndefined({
         ...payload,
         updatedAt: serverTimestamp(),
-      });
+      }));
       Object.assign(existing, payload);
       this.inMemoryCarriers.set(carrierId, existing);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.UPDATE, `${this.collectionName}/${carrierId}`);
       throw error;
     }
@@ -752,8 +763,9 @@ export class GlobalMaterialRepository {
     try {
       const snap = await getDoc(doc(db, this.collectionName, materialId));
       if (!snap.exists()) return this.inMemoryMaterials.get(materialId) || null;
-      return snap.data() as GlobalMaterialEntity;
+      return decodeGlobal<GlobalMaterialEntity>(snap.data(), 'material', materialId);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
       return this.inMemoryMaterials.get(materialId) || null;
     }
@@ -781,10 +793,11 @@ export class GlobalMaterialRepository {
       const q = query(collection(db, this.collectionName), where('code', '==', canonicalCode));
       const snap = await getDocs(q);
       if (!snap.empty) {
-        return snap.docs[0].data() as GlobalMaterialEntity;
+        return decodeGlobal<GlobalMaterialEntity>(snap.docs[0].data(), 'material', snap.docs[0].id);
       }
       return null;
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, this.collectionName);
       const materialId = this.inMemoryIndexByCode.get(canonicalCode);
       return materialId ? this.inMemoryMaterials.get(materialId) || null : null;
@@ -861,18 +874,18 @@ export class GlobalMaterialRepository {
       if (lookupSnap.exists()) {
         throw new Error(`DUPLICATE_NATURAL_KEY: Material with code ${canonicalCode} already exists in global catalog`);
       }
-      tx.set(matRef, {
+      tx.set(matRef, sanitizeUndefined({
         ...newMaterial,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      });
+      }));
 
-      tx.set(lookupRef, {
+      tx.set(lookupRef, sanitizeUndefined({
         entityType: 'MATERIAL',
         systemId: opaqueId,
         createdAt: serverTimestamp(),
         createdBy: input.createdBy,
-      });
+      }));
     };
 
     if (transaction) {
@@ -923,13 +936,14 @@ export class GlobalMaterialRepository {
 
     try {
       const matRef = doc(db, this.collectionName, materialId);
-      await updateDoc(matRef, {
+      await updateDoc(matRef, sanitizeUndefined({
         ...payload,
         updatedAt: serverTimestamp(),
-      });
+      }));
       Object.assign(existing, payload);
       this.inMemoryMaterials.set(materialId, existing);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.UPDATE, `${this.collectionName}/${materialId}`);
       throw error;
     }

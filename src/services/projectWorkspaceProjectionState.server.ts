@@ -1,3 +1,5 @@
+import { decodePersistence, PersistenceBoundaryError } from '../utils/persistenceBoundary';
+import { sanitizeUndefined } from '../utils/sanitize';
 import { adminDb } from '../firebase/admin';
 import {
   WorkspaceSheetTab,
@@ -7,6 +9,19 @@ import {
 
 export const PROJECTION_STATE_SUBCOLLECTION = 'workspace_projection_state';
 export const PROJECTION_STATE_DOC_ID = 'current';
+
+function decodeProjection(raw: unknown, projectId: string): any {
+  const data = decodePersistence<any>(raw, {
+    projectId,
+    times: { updatedAt: 'iso', dirtySince: 'iso', lastMutationAt: 'iso', lastSuccessfulProjectionAt: 'iso' },
+  });
+  if (typeof data.updatedAt !== 'string') throw new PersistenceBoundaryError('updatedAt');
+  for (const field of ['dirtyTabs', 'lastSuccessfulProjectionTabs']) {
+    if (data[field] !== undefined && !Array.isArray(data[field])) throw new PersistenceBoundaryError(field);
+  }
+  if (data.mutationRevision !== undefined && (!Number.isSafeInteger(data.mutationRevision) || data.mutationRevision < 0)) throw new PersistenceBoundaryError('mutationRevision');
+  return data;
+}
 
 /**
  * Generates a deterministic clean default projection state for a project.
@@ -53,10 +68,7 @@ export async function getState(projectId: string): Promise<ProjectWorkspaceProje
     return createCleanProjectionState(cleanProjectId);
   }
 
-  const data = snap.data();
-  if (!data) {
-    return createCleanProjectionState(cleanProjectId);
-  }
+  const data = decodeProjection(snap.data(), cleanProjectId);
 
   return {
     projectId: cleanProjectId,
@@ -70,7 +82,7 @@ export async function getState(projectId: string): Promise<ProjectWorkspaceProje
       typeof data.mutationRevision === 'number' && Number.isFinite(data.mutationRevision)
         ? data.mutationRevision
         : 0,
-    updatedAt: data.updatedAt || new Date().toISOString(),
+    updatedAt: data.updatedAt,
   };
 }
 
@@ -155,10 +167,10 @@ export async function markDirtyInTransaction(
   const docRef = getProjectionStateDocRef(cleanProjectId);
   const snap = await transaction.get(docRef);
   const exists = snap.exists;
-  const rawData = exists ? snap.data() : null;
+  const rawData = exists ? decodeProjection(snap.data(), cleanProjectId) : null;
 
   const nextState = computeNextDirtyState(cleanProjectId, rawData, tabs, reason, timestamp);
-  transaction.set(docRef, nextState);
+  transaction.set(docRef, sanitizeUndefined(nextState));
   return nextState;
 }
 
@@ -210,7 +222,7 @@ export async function markProjectionSuccessful(
   return await adminDb.runTransaction(async (transaction: any) => {
     const snap = await transaction.get(docRef);
     const exists = snap.exists;
-    const rawData = exists ? snap.data() : null;
+    const rawData = exists ? decodeProjection(snap.data(), cleanProjectId) : null;
 
     const currentRevision =
       typeof rawData?.mutationRevision === 'number' && Number.isFinite(rawData.mutationRevision)
@@ -260,7 +272,7 @@ export async function markProjectionSuccessful(
       updatedAt: now,
     };
 
-    transaction.set(docRef, nextState);
+    transaction.set(docRef, sanitizeUndefined(nextState));
     return nextState;
   });
 }

@@ -1,3 +1,5 @@
+import { decodeTrip, decodeProject, decodePricing, decodeScopedProjection, decodePersistence, decodeGlobal, decodeRelationship } from '../utils/persistenceBoundary';
+import { sanitizeUndefined } from '../utils/sanitize';
 import { adminDb } from '../firebase/admin';
 import { TripEntity, TripExceptionEntity, AuthUserContext } from '../types/entities';
 import { TripPersistenceContext, TripService } from './trip.service';
@@ -18,13 +20,13 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!projectId || !tripId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('trips').doc(tripId).get();
       if (!snap.exists) return null;
-      return snap.data() as TripEntity;
+      return decodeTrip<TripEntity>(snap.data(), tripId, projectId);
     },
 
     async listByProject(projectId: string, maxLimit = 100): Promise<TripEntity[]> {
       if (!projectId) return [];
       const snap = await adminDb.collection('projects').doc(projectId).collection('trips').limit(maxLimit).get();
-      return snap.docs.map((d: any) => d.data() as TripEntity);
+      return snap.docs.map((d: any) => decodeTrip<TripEntity>(d.data(), d.id, projectId));
     },
 
     async create(trip: Omit<TripEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
@@ -37,7 +39,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
         createdAt: now,
         updatedAt: now,
       };
-      await adminDb.collection('projects').doc(trip.projectId).collection('trips').doc(trip.tripId).set(payload);
+      await adminDb.collection('projects').doc(trip.projectId).collection('trips').doc(trip.tripId).set(sanitizeUndefined(payload));
     },
 
     async update(projectId: string, tripId: string, updates: Partial<TripEntity>, updatedBy: string): Promise<void> {
@@ -57,7 +59,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
         updatedAt: now,
         updatedBy,
       };
-      await docRef.update(payload);
+      await docRef.update(sanitizeUndefined(payload));
     },
   };
 
@@ -66,7 +68,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!projectId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeProject(snap.data(), projectId);
     },
   };
 
@@ -75,7 +77,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!carrierId) return null;
       const snap = await adminDb.collection('carriers').doc(carrierId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeGlobal(snap.data(), 'carrier', carrierId);
     },
   };
 
@@ -84,7 +86,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!truckId) return null;
       const snap = await adminDb.collection('trucks').doc(truckId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeGlobal(snap.data(), 'truck', truckId);
     },
   };
 
@@ -93,7 +95,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!driverId) return null;
       const snap = await adminDb.collection('drivers').doc(driverId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeGlobal(snap.data(), 'driver', driverId);
     },
   };
 
@@ -102,7 +104,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!materialId) return null;
       const snap = await adminDb.collection('materials').doc(materialId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeGlobal(snap.data(), 'material', materialId);
     },
   };
 
@@ -111,7 +113,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!projectId || !carrierId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('carrier_memberships').doc(carrierId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeRelationship(snap.data(), 'carrierId', carrierId, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']);
     },
   };
 
@@ -120,7 +122,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!projectId || !truckId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('truck_memberships').doc(truckId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeRelationship(snap.data(), 'truckId', truckId, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']);
     },
   };
 
@@ -129,7 +131,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!projectId || !driverId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('driver_memberships').doc(driverId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeRelationship(snap.data(), 'driverId', driverId, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']);
     },
   };
 
@@ -138,7 +140,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!projectId || !materialId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('material_memberships').doc(materialId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeRelationship(snap.data(), 'materialId', materialId, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']);
     },
   };
 
@@ -147,7 +149,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!projectId || !driverId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('driver_carrier_affiliations').doc(driverId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeRelationship(snap.data(), 'driverId', driverId, projectId, ['ACTIVE', 'INACTIVE']);
     },
   };
 
@@ -156,7 +158,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (!projectId || !truckId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('truck_carrier_affiliations').doc(truckId).get();
       if (!snap.exists) return null;
-      return snap.data();
+      return decodeRelationship(snap.data(), 'truckId', truckId, projectId, ['ACTIVE', 'INACTIVE']);
     },
   };
 
@@ -168,7 +170,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (slotSnap.exists && slotSnap.data()?.assignmentId) {
         const assignSnap = await adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(slotSnap.data()?.assignmentId).get();
         if (assignSnap.exists && assignSnap.data()?.status === 'ACTIVE') {
-          return assignSnap.data();
+          return decodeRelationship(assignSnap.data(), 'assignmentId', assignSnap.id, projectId, ['ACTIVE', 'CLOSED']);
         }
       }
       // 2. Query fallback
@@ -177,7 +179,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
         .get();
       if (!q.empty) {
         const active = q.docs.find((d: any) => d.data()?.status === 'ACTIVE');
-        if (active) return active.data();
+        if (active) return decodeRelationship(active.data(), 'assignmentId', active.id, projectId, ['ACTIVE', 'CLOSED']);
       }
       return null;
     },
@@ -189,7 +191,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (slotSnap.exists && slotSnap.data()?.assignmentId) {
         const assignSnap = await adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(slotSnap.data()?.assignmentId).get();
         if (assignSnap.exists && assignSnap.data()?.status === 'ACTIVE') {
-          return assignSnap.data();
+          return decodeRelationship(assignSnap.data(), 'assignmentId', assignSnap.id, projectId, ['ACTIVE', 'CLOSED']);
         }
       }
       // 2. Query fallback
@@ -198,7 +200,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
         .get();
       if (!q.empty) {
         const active = q.docs.find((d: any) => d.data()?.status === 'ACTIVE');
-        if (active) return active.data();
+        if (active) return decodeRelationship(active.data(), 'assignmentId', active.id, projectId, ['ACTIVE', 'CLOSED']);
       }
       return null;
     },
@@ -212,7 +214,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       if (slotSnap.exists && slotSnap.data()?.allocationId) {
         const allocSnap = await adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(slotSnap.data()?.allocationId).get();
         if (allocSnap.exists && allocSnap.data()?.status === 'ACTIVE') {
-          return allocSnap.data();
+          return decodeRelationship(allocSnap.data(), 'allocationId', allocSnap.id, projectId, ['ACTIVE', 'CLOSED']);
         }
       }
       // 2. Query fallback
@@ -221,7 +223,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
         .get();
       if (!q.empty) {
         const active = q.docs.find((d: any) => d.data()?.status === 'ACTIVE');
-        if (active) return active.data();
+        if (active) return decodeRelationship(active.data(), 'allocationId', active.id, projectId, ['ACTIVE', 'CLOSED']);
       }
       return null;
     },
@@ -231,9 +233,9 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     async findById(projectId: string, pricingRuleId: string): Promise<any> {
       if (!projectId || !pricingRuleId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('pricing_rules').doc(pricingRuleId).get();
-      if (snap.exists) return snap.data();
+      if (snap.exists) return decodePricing(snap.data(), pricingRuleId, projectId);
       const altSnap = await adminDb.collection('projects').doc(projectId).collection('pricingRules').doc(pricingRuleId).get();
-      if (altSnap.exists) return altSnap.data();
+      if (altSnap.exists) return decodeScopedProjection(altSnap.data(), 'pricingRuleId', altSnap.id, projectId);
       return null;
     },
   };
@@ -302,7 +304,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
         createdBy: context.userId,
         updatedBy: context.userId,
       };
-      await adminDb.collection('projects').doc(payload.projectId).collection('trip_events').doc(eventId).set(eventDoc);
+      await adminDb.collection('projects').doc(payload.projectId).collection('trip_events').doc(eventId).set(sanitizeUndefined(eventDoc));
       return eventDoc;
     },
   };
@@ -334,7 +336,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
         createdBy: context.userId,
         updatedBy: context.userId,
       };
-      await adminDb.collection('projects').doc(params.projectId).collection('audit_logs').doc(auditLogId).set(logEntry);
+      await adminDb.collection('projects').doc(params.projectId).collection('audit_logs').doc(auditLogId).set(sanitizeUndefined(logEntry));
       return auditLogId;
     },
   };
@@ -345,7 +347,7 @@ export class ServerExceptionPersistenceAdapter implements ExceptionPersistenceCo
     async listByTrip(projectId: string, tripId: string): Promise<TripExceptionEntity[]> {
       const safeTrip = tripId || '_general';
       const snap = await adminDb.collection('projects').doc(projectId).collection('trips').doc(safeTrip).collection('exceptions').get();
-      return snap.docs.map((d: any) => d.data() as TripExceptionEntity);
+      return snap.docs.map((d: any) => decodePersistence<TripExceptionEntity>(d.data(), { id: ['exceptionId', d.id], projectId }));
     },
 
     async create(exception: Omit<TripExceptionEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
@@ -359,7 +361,7 @@ export class ServerExceptionPersistenceAdapter implements ExceptionPersistenceCo
         createdAt: now,
         updatedAt: now,
       };
-      await adminDb.collection('projects').doc(exception.projectId).collection('trips').doc(safeTrip).collection('exceptions').doc(exception.exceptionId).set(payload);
+      await adminDb.collection('projects').doc(exception.projectId).collection('trips').doc(safeTrip).collection('exceptions').doc(exception.exceptionId).set(sanitizeUndefined(payload));
     },
 
     async update(projectId: string, tripId: string | null, exceptionId: string, updates: Partial<TripExceptionEntity>, updatedBy: string): Promise<void> {
@@ -381,7 +383,7 @@ export class ServerExceptionPersistenceAdapter implements ExceptionPersistenceCo
         updatedAt: now,
         updatedBy,
       };
-      await docRef.update(payload);
+      await docRef.update(sanitizeUndefined(payload));
     },
   };
 
@@ -403,7 +405,7 @@ export class ServerExceptionPersistenceAdapter implements ExceptionPersistenceCo
         updatedAt: now,
         updatedBy,
       };
-      await docRef.update(payload);
+      await docRef.update(sanitizeUndefined(payload));
     },
   };
 
@@ -434,7 +436,7 @@ export class ServerExceptionPersistenceAdapter implements ExceptionPersistenceCo
         createdBy: context.userId,
         updatedBy: context.userId,
       };
-      await adminDb.collection('projects').doc(params.projectId).collection('audit_logs').doc(auditLogId).set(logEntry);
+      await adminDb.collection('projects').doc(params.projectId).collection('audit_logs').doc(auditLogId).set(sanitizeUndefined(logEntry));
       return auditLogId;
     },
   };

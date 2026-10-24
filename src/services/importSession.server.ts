@@ -1,3 +1,5 @@
+import { decodePersistence } from '../utils/persistenceBoundary';
+import { sanitizeUndefined } from '../utils/sanitize';
 import { adminDb } from '../firebase/admin';
 import { AuthUserContext } from '../types/common';
 
@@ -170,7 +172,7 @@ export class ImportSessionServerService {
         err.code = 'SESSION_ALREADY_EXISTS';
         throw err;
       }
-      transaction.set(docRef, sessionRecord);
+      transaction.set(docRef, sanitizeUndefined(sessionRecord));
     });
 
     return sessionRecord;
@@ -192,7 +194,7 @@ export class ImportSessionServerService {
       throw err;
     }
 
-    const data = docSnap.data();
+    const data = decodePersistence<Record<string, any>>(docSnap.data(), { times: {} });
 
     if (data.projectId !== projectId) {
       const err: any = new Error('عزل أمني: عدم تطابق معرف المشروع لجلسة الاستيراد');
@@ -200,7 +202,7 @@ export class ImportSessionServerService {
       throw err;
     }
 
-    return data;
+    return decodePersistence<Record<string, any>>(data, { id: ['importSessionId', importSessionId], projectId, times: { createdAt: 'iso', updatedAt: 'iso' } });
   }
 
   async updateCheckpoint(
@@ -240,13 +242,15 @@ export class ImportSessionServerService {
         throw err;
       }
 
-      const existing = docSnap.data();
+      let existing = decodePersistence<Record<string, any>>(docSnap.data(), { times: {} });
 
       if (existing.projectId !== projectId) {
         const err: any = new Error('عزل أمني: عدم تطابق معرف المشروع');
         err.code = 'PROJECT_MISMATCH';
         throw err;
       }
+
+      existing = decodePersistence(existing, { id: ['importSessionId', importSessionId], projectId, times: { createdAt: 'iso', updatedAt: 'iso' } });
 
       if (existing.version !== concurrency.expectedVersion) {
         const err: any = new Error(`تعارض إصدار (VERSION_CONFLICT): المتوقع ${concurrency.expectedVersion}، الحالي ${existing.version}`);
@@ -306,7 +310,7 @@ export class ImportSessionServerService {
         updatedBy: context.userId,
       };
 
-      transaction.set(docRef, updatedRecord);
+      transaction.set(docRef, sanitizeUndefined(updatedRecord));
     });
 
     return updatedRecord;
@@ -332,7 +336,7 @@ export class ImportSessionServerService {
     snapshot.forEach((doc: any) => {
       const data = doc.data();
       if (data && data.projectId === projectId) {
-        allSessions.push(data);
+        allSessions.push(decodePersistence(data, { id: ['importSessionId', doc.id], projectId, times: { createdAt: 'iso', updatedAt: 'iso' } }));
       }
     });
 
