@@ -92,7 +92,7 @@ describe('Server Authentication Trust Boundary Test Suite', () => {
                     exists: true,
                     data() {
                       return {
-                        userId: 'USR-ADMIN-001',
+                        userId: docId,
                         fullName: 'المهندس طارق بن خالد الشمري',
                         email: 'admin@qsaudi.com',
                         role: 'PROJECT_ADMIN',
@@ -108,7 +108,7 @@ describe('Server Authentication Trust Boundary Test Suite', () => {
                     exists: true,
                     data() {
                       return {
-                        userId: 'USR-SITE-SUPERVISOR-01',
+                        userId: docId,
                         fullName: 'موسى الحازمي',
                         email: 'supervisor@qsaudi.com',
                         role: 'SUPERVISOR',
@@ -124,7 +124,7 @@ describe('Server Authentication Trust Boundary Test Suite', () => {
                     exists: true,
                     data() {
                       return {
-                        userId: 'USR-DISPATCHER-01',
+                        userId: docId,
                         fullName: 'أحمد مرشد',
                         email: 'dispatcher@qsaudi.com',
                         role: 'DISPATCHER',
@@ -140,7 +140,7 @@ describe('Server Authentication Trust Boundary Test Suite', () => {
                     exists: true,
                     data() {
                       return {
-                        userId: 'USR-AUDITOR-01',
+                        userId: docId,
                         fullName: 'خالد عبد الله',
                         email: 'auditor@qsaudi.com',
                         role: 'FINANCE_AUDITOR',
@@ -345,7 +345,7 @@ describe('Server Authentication Trust Boundary Test Suite', () => {
     const { res } = createMockResponse();
     await authenticateUser(req, res, () => {});
     const user = req.user;
-    expect(user.userId).toBe('USR-ADMIN-001');
+    expect(user.userId).toBe('uid-admin');
     expect(user.email).toBe('admin@qsaudi.com');
     expect(user.displayName).toBe('المهندس طارق بن خالد الشمري');
     expect(user.role).toBe('PROJECT_ADMIN');

@@ -40,31 +40,36 @@ service cloud.firestore {
              (!('createdBy' in existing()) || !('createdBy' in data) || data.createdBy == existing().createdBy);
     }
 
-    function isSuperAdmin() {
-      return isSignedIn() && (
-        request.auth.token.isSuperAdmin == true ||
-        request.auth.token.role == 'SUPER_ADMIN' ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SUPER_ADMIN')
-      );
+    function hasCurrentUser() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function currentUser() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isCurrentUserValid() {
+      return hasCurrentUser() &&
+        currentUser().get('userId', request.auth.uid) == request.auth.uid &&
+        currentUser().get('role', '') in ['PROJECT_ADMIN', 'SUPER_ADMIN', 'SITE_SUPERVISOR', 'SUPERVISOR', 'DISPATCHER', 'FINANCE_AUDITOR', 'SCALE_OPERATOR', 'DRIVER', 'VIEWER'] &&
+        currentUser().get('assignedProjectIds', null) is list &&
+        currentUser().get('isActive', true) is bool;
     }
 
     function isUserActive() {
-      return isSignedIn() && (
-        isSuperAdmin() ||
-        request.auth.token.status == 'ACTIVE' ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'ACTIVE')
-      );
+      return isCurrentUserValid() &&
+        currentUser().get('status', currentUser().get('isActive', false) == true ? 'ACTIVE' : 'PENDING_APPROVAL') == 'ACTIVE' &&
+        currentUser().get('isActive', true) != false;
     }
 
-    // Existing Admin Console readers: SUPER_ADMIN and PROJECT_ADMIN.
+    function isSuperAdmin() {
+      return isUserActive() && currentUser().role == 'SUPER_ADMIN';
+    }
+
+    // Current profile owns ordinary admin reads; token claims cannot preserve them.
     function isAdminConsoleReader() {
       return isUserActive() && (
-        isSuperAdmin() ||
-        request.auth.token.get('role', '') == 'PROJECT_ADMIN' ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'PROJECT_ADMIN')
+        isSuperAdmin() || currentUser().role == 'PROJECT_ADMIN'
       );
     }
 
@@ -87,33 +92,22 @@ service cloud.firestore {
     }
 
     function isServerAuthorized() {
-      return isSignedIn() && (
-        request.auth.token.isServer == true ||
-        request.auth.token.role == 'SYSTEM' ||
-        isSuperAdmin()
-      );
+      // Existing infrastructure claims remain separate from human account authority.
+      // A user with a canonical profile cannot use stale system claims to bypass it.
+      return isSuperAdmin() || (isSignedIn() && !hasCurrentUser() && (
+        (request.auth.token.get('isServer', false) == true && !(request.auth.token.get('role', '') in ['PROJECT_ADMIN', 'SUPER_ADMIN', 'SITE_SUPERVISOR', 'SUPERVISOR', 'DISPATCHER', 'FINANCE_AUDITOR', 'SCALE_OPERATOR', 'DRIVER', 'VIEWER'])) || request.auth.token.get('role', '') == 'SYSTEM'
+      ));
     }
 
     function isProjectMember(projectId) {
       return isUserActive() && (
-        isSuperAdmin() ||
-        (request.auth.token.assignedProjectIds != null && projectId in request.auth.token.assignedProjectIds) ||
-        (request.auth.token.projectRoles != null && projectId in request.auth.token.projectRoles) ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         (projectId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedProjectIds ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SUPER_ADMIN'))
+        isSuperAdmin() || projectId in currentUser().assignedProjectIds
       );
     }
 
     function hasProjectRole(projectId, allowedRoles) {
       return isUserActive() && (
-        isSuperAdmin() ||
-        (request.auth.token.role != null && request.auth.token.role in allowedRoles && isProjectMember(projectId)) ||
-        (request.auth.token.projectRoles != null && request.auth.token.projectRoles[projectId] in allowedRoles) ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in allowedRoles ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SUPER_ADMIN') &&
-         projectId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedProjectIds)
+        isSuperAdmin() || (currentUser().role in allowedRoles && projectId in currentUser().assignedProjectIds)
       );
     }
 
