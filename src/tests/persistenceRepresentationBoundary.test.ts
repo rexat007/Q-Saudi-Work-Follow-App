@@ -119,6 +119,26 @@ describe('Write sanitation', () => {
 });
 
 describe('Repository and server adoption', () => {
+  it('decodes trip-number lookup results through the canonical boundary', async () => {
+    vi.mocked(getDocs).mockResolvedValue({ empty: false, docs: [{ id: 't', data: () => ({ tripId: 't', projectId: 'P', createdAt: Timestamp.fromDate(new Date(iso)) }) }] } as any);
+    expect((await new TripRepository().findByTripNumber('P', '001'))?.createdAt).toEqual(new Date(iso));
+  });
+  it.each([{ tripId: 'other', projectId: 'P' }, { tripId: 't', projectId: 'other' }])('rejects invalid trip-number lookup identity/scope %j', async record => {
+    vi.mocked(getDocs).mockResolvedValue({ empty: false, docs: [{ id: 't', data: () => record }] } as any);
+    await expect(new TripRepository().findByTripNumber('P', '001')).rejects.toHaveProperty('code', 'PERSISTENCE_BOUNDARY_INVALID');
+  });
+  it.each([{}, { projectId: 'P' }])('decodes legacy pricing without inventing missing fields %j', async scope => {
+    const record = { pricingRuleId: 'r', ...scope, effectiveFrom: '2026-01-01', effectiveTo: '2026-12-31', createdAt: Timestamp.fromDate(new Date(iso)), legacyValue: 0 };
+    inMemoryAdminStore['projects/P/pricingRules/r'] = record;
+    const result = await new ServerTripPersistenceAdapter().pricingRuleRepository.findById('P', 'r');
+    expect(result).toEqual({ ...record, createdAt: new Date(iso) });
+    expect(Object.hasOwn(result, 'projectId')).toBe(Object.hasOwn(scope, 'projectId'));
+    expect(Object.hasOwn(result, 'updatedAt')).toBe(false);
+  });
+  it.each([{ pricingRuleId: 'other' }, { projectId: 'other' }, { createdAt: 'corrupt' }, { updatedAt: 'corrupt' }])('rejects malformed legacy pricing identity/scope/audit time %j', async patch => {
+    inMemoryAdminStore['projects/P/pricingRules/r'] = { pricingRuleId: 'r', ...patch };
+    await expect(new ServerTripPersistenceAdapter().pricingRuleRepository.findById('P', 'r')).rejects.toHaveProperty('code', 'PERSISTENCE_BOUNDARY_INVALID');
+  });
   it('decodes actual project/user/trip/pricing repository read results', async () => {
     const read = vi.mocked(getDoc);
     read.mockResolvedValue({ exists: () => true, id: 'u', data: user } as any);

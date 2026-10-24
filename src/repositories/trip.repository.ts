@@ -146,7 +146,7 @@ export class TripRepository {
       );
       const snap = await getDocs(q);
       if (snap.empty) return null;
-      return snap.docs[0].data() as TripEntity;
+      return decodeTrip<TripEntity>(snap.docs[0].data(), snap.docs[0].id, projectId);
     } catch (error) {
       if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);

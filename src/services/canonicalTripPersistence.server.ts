@@ -1,4 +1,4 @@
-import { decodeTrip, decodeProject, decodePricing, decodePersistence, decodeGlobal, decodeRelationship } from '../utils/persistenceBoundary';
+import { decodeTrip, decodeProject, decodePricing, decodeScopedProjection, decodePersistence, decodeGlobal, decodeRelationship } from '../utils/persistenceBoundary';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { adminDb } from '../firebase/admin';
 import { TripEntity, TripExceptionEntity, AuthUserContext } from '../types/entities';
@@ -235,7 +235,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       const snap = await adminDb.collection('projects').doc(projectId).collection('pricing_rules').doc(pricingRuleId).get();
       if (snap.exists) return decodePricing(snap.data(), pricingRuleId, projectId);
       const altSnap = await adminDb.collection('projects').doc(projectId).collection('pricingRules').doc(pricingRuleId).get();
-      if (altSnap.exists) return altSnap.data();
+      if (altSnap.exists) return decodeScopedProjection(altSnap.data(), 'pricingRuleId', altSnap.id, projectId);
       return null;
     },
   };
