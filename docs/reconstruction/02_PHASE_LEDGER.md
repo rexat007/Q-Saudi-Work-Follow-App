@@ -1,13 +1,13 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Authority: `CURRENT_AUTHORITY`. Phase 2 activation evidence baseline: `747e86662b867aa5990f87fb0e60c79b077efb86`. Owner decision: ACTIVATE_PHASE_2 = APPROVED. Phase 0 remains VERIFIED / CLOSED / FROZEN; Phase 1 and P1-U1 through P1-U9 remain VERIFIED / CLOSED. Phase 1 closure documentation is merged and independently verified through PR #30. Phase 2 — Persistence & Server Authority is IN_PROGRESS at governance level only. The first unit is UNASSIGNED; no implementation is authorized. NEXT_ACTION: PHASE_2_FIRST_UNIT_DEFINITION_AUDIT.
+Authority: `CURRENT_AUTHORITY`. Current verified GitHub main before this documentation transition: `e09cd613d93d3e6519fe1dc283caf96d4363bcec` (PR #35). Phase 0 remains VERIFIED / CLOSED / FROZEN; Phase 1 is VERIFIED / CLOSED; Phase 2 — Persistence & Server Authority and P2-U1 through P2-U4 are VERIFIED / CLOSED. By explicit owner instruction to proceed, Phase 3 — Authentication, Authorization & Administrative Governance is IN_PROGRESS at governance level. ACTIVE_UNIT is UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT. NEXT_ACTION: PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT.
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Streamlined Reconstruction Execution Method](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md) is the current delivery-method authority, supported by [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md). It supersedes older multi-audit/micro-unit continuation patterns for future work while preserving high-risk gates.
-- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 2 after Phase 1. Phase 1 closure did not activate Phase 2. The subsequent explicit owner decision now activates Phase 2 at governance level only, without defining its first unit. Historical activation and verification evidence below remains scoped to its recorded period.
+- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 3 after Phase 2. Phase 2 is now VERIFIED / CLOSED. The owner's explicit instruction to proceed activates Phase 3 at governance level without pre-assigning a numbered unit. Historical activation and verification evidence below remains scoped to its recorded period.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
@@ -126,8 +126,8 @@ Phase 3 is now governance-active under the accepted foundational scope: RBAC, to
 
 - **Phase 0 — Repository & Engineering Foundation**: VERIFIED / CLOSED / FROZEN
 - **Phase 1 — Canonical Domain Model**: VERIFIED / CLOSED; P1-U1 through P1-U9 VERIFIED / CLOSED; no remaining proven safe Phase 1 seam.
-- **Phase 2 — Persistence & Server Authority**: IN_PROGRESS; governance activation only, first unit UNASSIGNED.
-- **Phase 3 — Authentication, Authorization & Administrative Governance**: NOT_STARTED
+- **Phase 2 — Persistence & Server Authority**: VERIFIED / CLOSED; P2-U1 through P2-U4 VERIFIED / CLOSED.
+- **Phase 3 — Authentication, Authorization & Administrative Governance**: IN_PROGRESS; governance activation only, first unit UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT.
 - **Phase 4 — Project Lifecycle & Project-Scoped State**: NOT_STARTED
 - **Phase 5 — Master Data & Canonical Relationships**: NOT_STARTED
 - **Phase 6 — Project Setup Experience**: NOT_STARTED
