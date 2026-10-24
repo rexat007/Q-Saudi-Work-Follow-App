@@ -4172,6 +4172,13 @@ export const arTranslations: TranslationDictionary = {
   "residual.messages.invalid_payload_forbidden_fields_field_value_is_forbidden": "INVALID_PAYLOAD_FORBIDDEN_FIELDS: Field '{value0}' is forbidden",
   "residual.messages.a_session_record_is_required_to_reconstruct_a_resumed_import": "sessionRecord is required for resume mapping",
   "residual.messages.suspended_deactivated": "موقوفة (DEACTIVATED)",
+  "admin_console.errors.forbidden": "غير مصرح لك بإدارة الحسابات العامة.",
+  "admin_console.errors.last_admin": "لا يمكن تعطيل آخر مدير نظام نشط.",
+  "admin_console.errors.self": "لا يمكنك تغيير صلاحيات حسابك الإداري من هنا.",
+  "admin_console.errors.target_missing": "لم يتم العثور على الحساب.",
+  "admin_console.errors.invalid": "تحقق من إجراء الحساب والمشاريع المختارة.",
+  "admin_console.errors.conflict": "تغيرت بيانات الحساب. حدّث البيانات وحاول مجددًا.",
+  "admin_console.errors.failed": "تعذر إكمال تحديث الحساب.",
 };
 
 

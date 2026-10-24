@@ -532,15 +532,9 @@ service cloud.firestore {
                       (request.auth.uid == userId || isAdminConsoleReader());
       allow list: if isAdminConsoleReader();
       allow create: if isSignedIn() && isValidId(userId) &&
-                       isAuditStampedCreate(incoming()) &&
-                       incoming().userId == userId &&
-                       ((isSuperAdmin() && isUserActive()) || isSafeAccountRequest(userId));
-      // No ordinary profile-editing flow exists. Effective access is admin-managed.
-      allow update: if isSignedIn() && isValidId(userId) &&
-                       isSuperAdmin() && isUserActive() &&
-                       isAuditStampedUpdate(incoming()) &&
-                       incoming().userId == existing().userId &&
-                       incoming().email == existing().email;
+                       isAuditStampedCreate(incoming()) && incoming().userId == userId && isSafeAccountRequest(userId);
+      // All effective global account mutations use the audited Admin SDK command boundary.
+      allow update: if false;
       allow delete: if false;
     }
 
@@ -549,12 +543,15 @@ service cloud.firestore {
     // =========================================================================
     match /audit_logs/{auditLogId} {
       allow get, list: if isAdminConsoleReader();
-      allow create: if isSignedIn() && isValidId(auditLogId) &&
-                       isAuditStampedCreate(incoming()) &&
-                       incoming().auditLogId == auditLogId &&
-                       (incoming().actor.userId == request.auth.uid ||
-                        incoming().createdBy == request.auth.uid ||
-                        isSuperAdmin());
+      allow create: if isUserActive() && isValidId(auditLogId) &&
+                       isAuditStampedCreate(incoming()) && incoming().auditLogId == auditLogId &&
+                       incoming().entityType != 'USER_ROLE' &&
+                       incoming().actor.userId == request.auth.uid &&
+                       incoming().actor.role == currentUser().role &&
+                       incoming().actor.email == request.auth.token.email &&
+                       incoming().createdBy == request.auth.uid && incoming().updatedBy == request.auth.uid &&
+                       (isProjectMember(incoming().projectId) ||
+                        (isSuperAdmin() && incoming().projectId in ['SYSTEM', 'ALL']));
       allow update, delete: if false; // Strictly Immutable
     }
 
