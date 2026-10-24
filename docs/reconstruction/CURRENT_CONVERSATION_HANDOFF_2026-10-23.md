@@ -10,21 +10,21 @@
 - Current state authority: `docs/reconstruction/02_PHASE_LEDGER.md`.
 
 ### 2. Operating method
-Use exactly this cycle:
-**area audit → semantic decision → bounded implementation → technical verification → owner scope review → branch commit/push → independent GitHub audit → PR → user manual merge → independent merge audit → real runtime/browser verification when applicable → explicit acceptance → documentation closure.**
+Follow [STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md).
+
+Normal cycle:
+**phase/area audit → bounded batch definition → implementation → focused verification → owner review → commit + push + PR → owner manual merge → one independent post-merge verification → continue**.
 
 Rules:
-- One bounded unit at a time.
-- Do not invent unit IDs.
-- Do not reopen accepted units without a proven regression.
-- Historical reports/cardinality are not current contracts by default.
-- Vitest is the active automated framework.
-- Tests/build are necessary but not sufficient for product-facing closure.
-- Implementation reports cannot self-declare USER ACCEPTED.
-- Do not state Git state without independent GitHub evidence.
-- User manually merges PRs.
-- Minimize turns, but do not skip governance gates.
-- Do not recursively rewrite historical SHA records merely because main advances.
+- Use one broad phase audit to map meaningful work and ordering; do not audit seam-by-seam by default.
+- Prefer coherent bounded batches over micro-units when purpose, ownership and regression surface align.
+- Skip separate pre-PR publication audits unless the work is high-risk.
+- Browser/runtime verification is required when UI/workflow/network/runtime behavior changes, not automatically for type-only or documentation-only work.
+- Refresh governance documents at phase boundaries, major batch closures, or when current pointers would otherwise mislead; avoid documentation-only loops and recursive SHA updates.
+- Run focused regressions plus required standing gates; do not repeatedly run unrelated broad suites without a reason.
+- High-risk auth, tenant isolation, Firestore rules, destructive migration/persistence, financial correctness and broad server-authority changes may require extra gates.
+- GitHub main remains code truth; owner merge remains manual; accepted work is not reopened without proven regression.
+- The release objective is a safe, coherent Beta 2, not indefinite perfection or governance for its own sake.
 
 ### 3. Phase status
 - **Phase 2 activation evidence baseline (verified GitHub main)**: `747e86662b867aa5990f87fb0e60c79b077efb86` (PR #30 — Phase 1 closure merged).

@@ -16,7 +16,8 @@ Browser/runtime/network observations remain evidence for the exact behavior obse
 
 - [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md): current phase, active/next unit, accepted units and execution/debt routing.
 - [05_DECISION_AND_DEBT_LOG.md](05_DECISION_AND_DEBT_LOG.md): canonical accepted decisions, debt classifications, owners and dispositions; it defers unit status to the ledger.
-- [FOUNDATIONAL_PLAN_PHASE_0_TO_18.md](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md): accepted sequence; [RECONSTRUCTION_PLAN.md](RECONSTRUCTION_PLAN.md): methodology.
+- [FOUNDATIONAL_PLAN_PHASE_0_TO_18.md](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md): accepted phase sequence; [RECONSTRUCTION_PLAN.md](RECONSTRUCTION_PLAN.md): reconstruction classification framework.
+- [STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md): current execution-method authority for audit sizing, batch sizing, verification proportionality, publication consolidation and documentation cadence.
 - [ROOT_TOOLING_HYGIENE_CONTRACT.md](ROOT_TOOLING_HYGIENE_CONTRACT.md), [TOOLCHAIN_CONTRACT.md](TOOLCHAIN_CONTRACT.md), [TEST_TAXONOMY_AND_HARNESS_CONTRACT.md](TEST_TAXONOMY_AND_HARNESS_CONTRACT.md): supporting execution contracts, subordinate to the actual current package/config files.
 - [PRODUCT_RECONSTRUCTION_ACCEPTANCE_GOVERNANCE.md](PRODUCT_RECONSTRUCTION_ACCEPTANCE_GOVERNANCE.md): product verification and explicit user-acceptance requirements.
 - [DOCUMENTATION_AUTHORITY_REVIEW_P0_U5.md](DOCUMENTATION_AUTHORITY_REVIEW_P0_U5.md): exhaustive document classifications and P0-U5 review evidence; not a second state ledger.
@@ -32,6 +33,6 @@ The eight `.aistudio/artifacts/brain/**` Markdown files are preserved historical
 
 Never infer current code from old reports or conflate historical numbering with the reconstruction Phase 0–18 plan. Never alter production merely to satisfy an obsolete static assertion. Distinguish test/build success from product/browser acceptance and formal unit closure.
 
-User acceptance and publication authorization are explicit gates. The user may publish manually or explicitly authorize an agent to publish the reviewed scope; no authorization is implied by a review-ready status. Independent post-push GitHub review remains required before closure. P0-U5 explicitly permits no commit, push or PR.
+User acceptance remains explicit where product/owner acceptance is required, and owner merge remains manual unless explicitly changed. Under the current streamlined method, commit + push + PR may be one publication step after scope review; the normal independent GitHub gate is a single post-merge verification. Separate pre-PR publication audits are reserved for cases where risk materially justifies them. Historical unit-specific rules remain evidence of their period and do not override the current execution method.
 
 When `.git` is available, inspect it directly; when unavailable in Studio, the Sync UI may establish local pending-file scope, not remote code truth. Studio implementation reports remain claims requiring independent verification.

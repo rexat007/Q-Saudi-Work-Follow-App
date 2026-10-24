@@ -6,7 +6,7 @@ Authority: `CURRENT_AUTHORITY`. Phase 2 activation evidence baseline: `747e86662
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
-- **Execution rules**: [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md).
+- **Execution rules**: [Streamlined Reconstruction Execution Method](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md) is the current delivery-method authority, supported by [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md). It supersedes older multi-audit/micro-unit continuation patterns for future work while preserving high-risk gates.
 - **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 2 after Phase 1. Phase 1 closure did not activate Phase 2. The subsequent explicit owner decision now activates Phase 2 at governance level only, without defining its first unit. Historical activation and verification evidence below remains scoped to its recorded period.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
@@ -26,6 +26,8 @@ NEXT_UNIT: NONE_ASSIGNED
 PHASE_2_STATUS: IN_PROGRESS
 P2_U1_STATUS: DOES_NOT_EXIST
 NEXT_ACTION: PHASE_2_FIRST_UNIT_DEFINITION_AUDIT
+EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
+EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
 PHASE_1_CLOSURE_READY: CLOSED
 PHASE_1_REMAINING_SEAMS: 0
 PHASE_1_CLOSURE_AUDIT: PHASE_1_CLOSURE_AUDIT_PASS_READY_FOR_OWNER_CLOSURE_DECISION

@@ -30,13 +30,12 @@ To ensure structured code evolution without destructive rewrites, every componen
 
 ---
 
-### Methodological Invariant: Prohibition of Patch-by-Patch Discovery
-When an issue or test failure is discovered during reconstruction, engineers MUST NOT apply a superficial single-line patch and stop discovery.
-Engineers MUST:
-1. Continue discovery across the entire component, hook, service, and test family.
-2. Identify all related defects and root-cause issues.
-3. Consolidate the entire defect family into a unified target contract.
-4. Apply a holistic fix that satisfies the contract across all callers and test suites.
+### Current execution method
+The detailed current method is [STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md).
+
+The reconstruction remains area-aware and root-cause driven, but it no longer requires a long governance chain for every small change. Use one broad phase/area audit, group compatible work into bounded batches, implement and verify proportionally to risk, combine commit/push/PR into one publication step, keep owner merge manual, and normally perform one independent post-merge GitHub verification. Additional gates are retained for high-risk persistence, security, tenant-isolation, financial or destructive changes.
+
+Patch-by-patch stopping remains prohibited: discovery should cover the relevant component/service/test family before implementation. However, related defects should be consolidated into practical batches rather than converted into an endless series of micro-units.
 
 ### Scope and sequence authority
 

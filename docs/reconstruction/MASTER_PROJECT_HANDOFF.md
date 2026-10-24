@@ -18,7 +18,8 @@ This document serves as the master project handoff reference for the Q-Saudi Wor
 ### Handoff Directives
 1. **Repository Authority**: All reconstruction work operates under the rules defined in `docs/reconstruction/DOCUMENT_AUTHORITY.md`.
 2. **Phase Continuity**: Refer to `docs/reconstruction/02_PHASE_LEDGER.md` for current active phase and unit state.
-3. **Quality Gates**: All code changes must pass through gates defined in `docs/reconstruction/04_VERIFICATION_AND_PUSH_GATE.md`.
+3. **Quality Gates**: Verification is proportional to risk; standing gates remain defined in `docs/reconstruction/04_VERIFICATION_AND_PUSH_GATE.md`.
+4. **Execution Method**: Follow `docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md`: phase-level audit, bounded batches, combined publication, manual owner merge, one normal post-merge audit, and extra gates only where risk justifies them.
 
 ### Current repository and acceptance scope
 
