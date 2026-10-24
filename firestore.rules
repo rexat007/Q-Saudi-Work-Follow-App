@@ -58,6 +58,34 @@ service cloud.firestore {
       );
     }
 
+    // Existing Admin Console readers: SUPER_ADMIN and PROJECT_ADMIN.
+    function isAdminConsoleReader() {
+      return isUserActive() && (
+        isSuperAdmin() ||
+        request.auth.token.get('role', '') == 'PROJECT_ADMIN' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'PROJECT_ADMIN')
+      );
+    }
+
+    // Account requests carry no effective privilege or project membership.
+    function isSafeAccountRequest(userId) {
+      let data = incoming();
+      return request.auth.uid == userId &&
+             data.keys().hasOnly([
+               'userId', 'email', 'fullName', 'role', 'requestedRole', 'requestReason',
+               'assignedProjectIds', 'status', 'isActive',
+               'createdAt', 'createdBy', 'updatedAt', 'updatedBy'
+             ]) &&
+             data.email == request.auth.token.email &&
+             data.fullName is string && data.fullName.size() > 0 &&
+             data.role == 'VIEWER' &&
+             data.status == 'PENDING_APPROVAL' &&
+             data.isActive == false &&
+             data.assignedProjectIds is list && data.assignedProjectIds.size() == 0 &&
+             data.createdBy == request.auth.uid && data.updatedBy == request.auth.uid;
+    }
+
     function isServerAuthorized() {
       return isSignedIn() && (
         request.auth.token.isServer == true ||
@@ -102,7 +130,10 @@ service cloud.firestore {
       allow update: if isSignedIn() && isValidId(projectId) &&
                        hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
                        isAuditStampedUpdate(incoming()) &&
-                       incoming().projectId == existing().projectId;
+                       incoming().projectId == existing().projectId &&
+                       !incoming().diff(existing()).affectedKeys().hasAny([
+                         'status', 'projectCode', 'projectNumber'
+                       ]); // Lifecycle and allocated identity are server-authoritative.
       allow delete: if false; // Soft-delete only via status
 
       // Carriers subcollection
@@ -130,12 +161,7 @@ service cloud.firestore {
       // Pricing Rules subcollection
       match /pricing_rules/{pricingRuleId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(pricingRuleId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
-                         isAuditStampedCreate(incoming()) &&
-                         incoming().pricingRuleId == pricingRuleId &&
-                         incoming().projectId == projectId &&
-                         incoming().baseRateSAR is number;
+        allow create: if false; // Use canonical server pricing creation.
         allow update: if isSignedIn() && isValidId(pricingRuleId) &&
                          hasProjectRole(projectId, ['PROJECT_ADMIN', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
                          isAuditStampedUpdate(incoming()) &&
@@ -376,18 +402,17 @@ service cloud.firestore {
       // Trips subcollection
       match /trips/{tripId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(tripId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SUPER_ADMIN']) &&
-                         isAuditStampedCreate(incoming()) &&
-                         incoming().tripId == tripId &&
-                         incoming().projectId == projectId &&
-                         (isServerAuthorized() || !('tripNumber' in incoming()));
+        allow create: if false; // Use canonical server dispatch/import commands.
         allow update: if isSignedIn() && isValidId(tripId) &&
                          isProjectMember(projectId) &&
                          hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
                          isAuditStampedUpdate(incoming()) &&
                          incoming().tripId == existing().tripId &&
                          incoming().projectId == existing().projectId &&
+                         !incoming().diff(existing()).affectedKeys().hasAny([
+                           'tripNumber', 'projectSnapshot', 'carrierSnapshot', 'truckSnapshot',
+                           'driverSnapshot', 'materialSnapshot', 'pricingSnapshot'
+                         ]) &&
                          incoming().carrierId == existing().carrierId && // Carrier immutable
                          incoming().truckId == existing().truckId && // Truck immutable
                          incoming().pricingRuleId == existing().pricingRuleId && // Pricing rule immutable
@@ -509,16 +534,19 @@ service cloud.firestore {
     // 2. Global Users Collection
     // =========================================================================
     match /users/{userId} {
-      allow get: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isUserActive());
-      allow list: if isUserActive();
+      allow get: if isSignedIn() && isValidId(userId) &&
+                      (request.auth.uid == userId || isAdminConsoleReader());
+      allow list: if isAdminConsoleReader();
       allow create: if isSignedIn() && isValidId(userId) &&
-                       (request.auth.uid == userId || isUserActive()) &&
                        isAuditStampedCreate(incoming()) &&
-                       incoming().userId == userId;
+                       incoming().userId == userId &&
+                       ((isSuperAdmin() && isUserActive()) || isSafeAccountRequest(userId));
+      // No ordinary profile-editing flow exists. Effective access is admin-managed.
       allow update: if isSignedIn() && isValidId(userId) &&
-                       ((isSuperAdmin() && isUserActive()) || (request.auth.uid == userId && incoming().role == existing().role && incoming().status == existing().status)) &&
+                       isSuperAdmin() && isUserActive() &&
                        isAuditStampedUpdate(incoming()) &&
-                       incoming().userId == existing().userId;
+                       incoming().userId == existing().userId &&
+                       incoming().email == existing().email;
       allow delete: if false;
     }
 
@@ -526,7 +554,7 @@ service cloud.firestore {
     // 3. Global Audit Logs Collection (Strict Append-Only with Actor Verification)
     // =========================================================================
     match /audit_logs/{auditLogId} {
-      allow get, list: if isUserActive();
+      allow get, list: if isAdminConsoleReader();
       allow create: if isSignedIn() && isValidId(auditLogId) &&
                        isAuditStampedCreate(incoming()) &&
                        incoming().auditLogId == auditLogId &&
