@@ -112,8 +112,12 @@ export default function App() {
       }
     : undefined;
 
+  const assignedProjectScopeKey = JSON.stringify([...new Set(userProfile?.assignedProjectIds || [])].sort());
+
   // Real-time Firestore project subscription (authoritative lifecycle based on user identity/role)
   useEffect(() => {
+    const assignedProjectIds: string[] = JSON.parse(assignedProjectScopeKey);
+    const isSuperAdmin = effectiveRole === 'SUPER_ADMIN';
     setLoadingProjects(true);
     const unsubscribe = projectRepository.subscribeToProjects(
       (list) => {
@@ -123,10 +127,12 @@ export default function App() {
       (err) => {
         console.error('Error in project subscription:', err);
         setLoadingProjects(false);
-      }
+      },
+      assignedProjectIds,
+      isSuperAdmin
     );
     return () => unsubscribe();
-  }, [user?.uid, effectiveRole]);
+  }, [user?.uid, effectiveRole, assignedProjectScopeKey]);
 
   // Synchronize and reconcile selectedProjectId without restarting project subscription
   useEffect(() => {

@@ -1,3 +1,5 @@
+import { auth } from '../../firebase/config';
+import { userRepository } from '../../repositories/user.repository';
 import { projectRepository } from '../../repositories/project.repository';
 import { projectCarrierMembershipRepository, projectMaterialMembershipRepository } from '../../repositories/projectMembership.repository';
 import { globalCarrierRepository, globalMaterialRepository } from '../../repositories/globalIdentity.repository';
@@ -131,7 +133,8 @@ export class OfflineCacheService {
       const singleProj = await projectRepository.findById(projectId);
       rawProjects = singleProj ? [singleProj] : [];
     } else {
-      rawProjects = await projectRepository.listAll();
+      const profile = auth.currentUser ? await userRepository.findById(auth.currentUser.uid) : null;
+      rawProjects = await projectRepository.listAll(profile?.assignedProjectIds || [], profile?.role === 'SUPER_ADMIN');
     }
 
     const projectsToCache: CachedProject[] = rawProjects.map(p => ({

@@ -117,16 +117,21 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
   const [canonicalDrivers, setCanonicalDrivers] = useState<DriverEntity[]>([]);
   const [canonicalTrips, setCanonicalTrips] = useState<TripRecord[]>([]);
 
+  const assignedProjectScopeKey = JSON.stringify([...new Set(authContext.assignedProjectIds || [])].sort());
+
   useEffect(() => {
     let isMounted = true;
     const loadCanonicalData = async () => {
       try {
         // 1. Projects
-        let prjs = await projectRepository.listAll().catch(() => []);
+        const assignedProjectIds: string[] = JSON.parse(assignedProjectScopeKey);
+        const isSuperAdmin = authContext.role === 'SUPER_ADMIN';
+        let prjs = await projectRepository.listAll(assignedProjectIds, isSuperAdmin).catch(() => []);
         if (!prjs || prjs.length === 0) {
           prjs = await offlineCacheService.getProjects().catch(() => []);
         }
 
+        prjs = prjs.filter(p => isSuperAdmin || assignedProjectIds.includes(p.projectId));
         const targetProjects = prjs.map(p => p.projectId);
         let crs: CarrierEntity[] = [];
         let mats: MaterialEntity[] = [];
@@ -245,7 +250,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
     };
 
     loadCanonicalData();
-  }, []);
+  }, [authContext.userId, authContext.role, assignedProjectScopeKey]);
 
   // 2. Global Dashboard Filters
   const [globalFilters, setGlobalFilters] = useState<DashboardFilterParams>({
