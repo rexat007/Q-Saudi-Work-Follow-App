@@ -1,3 +1,4 @@
+import { strictWorkspaceProject, WorkspaceStorageBoundary, projectStorage, normalizeStorageId, workspaceError } from './workspace.isolation';
 import express from 'express';
 import path from 'path';
 import { adminDb } from '../src/firebase/admin';
@@ -444,6 +445,74 @@ export function resolveWorkspaceErrorStatusCode(error: any): number {
   }
   return 500;
 }
+
+// Only project-owned workspace routes use this boundary. External import sources stay provider-only.
+const projectWorkspacePaths = new Set([
+  '/provision', '/sync/trips', '/sync/initial', '/sync/sheets', '/upload', '/drive/files',
+  '/validate-destination', '/migrate/start', '/archive/download', '/resolve-file',
+]);
+const workspaceRoutePath = (req: express.Request) => req.path.toLowerCase().replace(/\/+$/, '');
+app.use('/api/workspace', (req, res, next) => {
+  if (!projectWorkspacePaths.has(workspaceRoutePath(req))) return next();
+  return strictWorkspaceProject(req, res, next);
+});
+app.use('/api/workspace', async (req, res, next) => {
+  if (!projectWorkspacePaths.has(workspaceRoutePath(req))) return next();
+  try {
+    const actionPath = workspaceRoutePath(req);
+    const projectId = res.locals.workspaceProjectId as string;
+    const boundary = new WorkspaceStorageBoundary();
+    const project = await boundary.project(projectId);
+    const storage = projectStorage(project);
+    await boundary.assertCanonicalStorage(project);
+    res.locals.workspaceProject = project;
+    req.body = { ...(req.body || {}), projectId };
+    const bind = (supplied: unknown, canonical: string | undefined, required = true) => {
+      if (required && !canonical) throw workspaceError('PROJECT_STORAGE_NOT_CONFIGURED');
+      if (supplied !== undefined && (normalizeStorageId(supplied) !== canonical)) throw workspaceError('STORAGE_RESOURCE_MISMATCH', 403);
+      return canonical;
+    };
+    if (actionPath === '/provision') {
+      const supplied = req.body.project || {};
+      bind(supplied.googleDriveFolderId, storage.folderId, false);
+      bind(supplied.googleSpreadsheetId, storage.spreadsheetId, false);
+      req.body.project = { ...project, googleDriveFolderId: storage.folderId, googleSpreadsheetId: storage.spreadsheetId };
+    } else if (actionPath.startsWith('/sync/')) {
+      req.body.spreadsheetId = bind(req.body.spreadsheetId, storage.spreadsheetId);
+    } else if (actionPath === '/migrate/start' || actionPath === '/validate-destination') {
+      req.body.targetFolderId = await boundary.eligibleDestination(projectId, req.body.targetFolderId);
+      if (!['MY_DRIVE', 'SHARED_DRIVE'].includes(req.body.targetProvider || 'SHARED_DRIVE')) throw workspaceError('INVALID_STORAGE_PROVIDER', 400);
+      if (actionPath === '/migrate/start') {
+        req.body.sourceFolderId = bind(req.body.sourceFolderId, storage.folderId);
+        req.body.sourceSpreadsheetId = bind(req.body.sourceSpreadsheetId, storage.spreadsheetId);
+        req.body.projectCode = project.projectCode || project.projectId;
+        req.body.projectNameAr = project.nameAr;
+      } else {
+        req.body.currentFolderId = bind(req.body.currentFolderId, storage.folderId);
+      }
+    } else if (actionPath === '/archive/download') {
+      bind(req.body.project?.settings?.googleDriveFolderId, storage.folderId, false);
+      bind(req.body.project?.settings?.googleSpreadsheetId, storage.spreadsheetId, false);
+      bind(req.body.storageProfile?.currentStorageFolderId, storage.folderId, false);
+      bind(req.body.storageProfile?.currentSpreadsheetId, storage.spreadsheetId, false);
+      req.body.project = project;
+      req.body.storageProfile = project.settings?.storageProfile;
+    } else if (actionPath === '/resolve-file') {
+      // Client-supplied historical mappings are not ownership evidence.
+      res.locals.workspaceMigrationJobs = await boundary.jobs(projectId);
+    } else if (actionPath === '/upload' || actionPath === '/drive/files') {
+      if (!storage.folderId) throw workspaceError('PROJECT_STORAGE_NOT_CONFIGURED');
+      const requested = actionPath === '/upload' ? req.body.subfolderId : req.query.folderId;
+      const resource = requested === undefined && actionPath === '/drive/files' ? storage.folderId : normalizeStorageId(requested);
+      const token = getGoogleAccessToken(req, true);
+      await serverWorkspaceService.assertProjectFolderResource(resource, [storage.folderId], token, await boundary.foreignFolderIds(projectId));
+      res.locals.workspaceFolderId = resource;
+    }
+    next();
+  } catch (error: any) {
+    res.status(resolveWorkspaceErrorStatusCode(error)).json({ success: false, error: error.message, code: error.code });
+  }
+});
 
 // ----------------------------------------------------
 // 3. Provision Google Drive & Sheets for Project
@@ -902,8 +971,8 @@ app.post('/api/workspace/upload', enforceProjectIsolation, enforceFileUploadSecu
 app.get('/api/workspace/drive/files', enforceProjectIsolation, async (req, res) => {
   try {
     const googleToken = getGoogleAccessToken(req, true);
-    const projectId = (req.query.projectId as string) || 'PRJ-NEOM-NORTH-01';
-    const folderId = req.query.folderId as string | undefined;
+    const projectId = res.locals.workspaceProjectId as string;
+    const folderId = res.locals.workspaceFolderId as string;
 
     const result = await serverWorkspaceService.listProjectDriveFiles(projectId, folderId, googleToken);
 
@@ -1061,8 +1130,12 @@ app.post('/api/workspace/archive/download', enforceProjectIsolation, enforceAdmi
 // 4. Resolve File ID via fileIdMap
 app.post('/api/workspace/resolve-file', enforceProjectIsolation, async (req, res) => {
   try {
-    const { fileId, historyRecords } = req.body;
-    const result = serverWorkspaceService.resolveFileId(fileId, historyRecords || []);
+    const fileId = normalizeStorageId(req.body.fileId);
+    const jobs = res.locals.workspaceMigrationJobs || [];
+    const historical = jobs.find((job: any) => job.fileIdMap && Object.prototype.hasOwnProperty.call(job.fileIdMap, fileId));
+    const result = historical
+      ? { resolvedFileId: historical.fileIdMap[fileId], isHistorical: true, sourceHistoryId: historical.migrationJobId }
+      : { resolvedFileId: fileId, isHistorical: false };
     res.json({
       success: true,
       data: result,

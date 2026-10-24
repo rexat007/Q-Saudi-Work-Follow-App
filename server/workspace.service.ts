@@ -1,3 +1,4 @@
+import { WorkspaceStorageBoundary, workspaceError, normalizeStorageId, projectStorage } from './workspace.isolation';
 import { google, sheets_v4, drive_v3 } from 'googleapis';
 import JSZip from 'jszip';
 import { 
@@ -131,6 +132,28 @@ export class ServerWorkspaceService {
     const auth = new google.auth.OAuth2();
     auth.setCredentials({ access_token: cleanToken });
     return auth;
+  }
+
+  public async assertProjectFolderResource(resourceId: string, folderIds: string[], bearerToken?: string, foreignFolderIds: string[] = [], allowUnclaimed = false): Promise<void> {
+    let current = normalizeStorageId(resourceId);
+    if (foreignFolderIds.includes(current)) throw workspaceError('STORAGE_TARGET_CONFLICT', 403);
+    if (folderIds.includes(current)) return;
+    const auth = this.getAuthClient(bearerToken);
+    if (!auth) throw workspaceError('STORAGE_RESOURCE_NOT_BOUND', 403);
+    const drive = google.drive({ version: 'v3', auth });
+    const seen = new Set<string>();
+    for (let depth = 0; depth < 32; depth++) {
+      if (seen.has(current)) break;
+      seen.add(current);
+      const result = await drive.files.get({ fileId: current, fields: 'parents', supportsAllDrives: true });
+      const parents = result.data.parents || [];
+      if (parents.some(parent => foreignFolderIds.includes(parent))) throw workspaceError('STORAGE_TARGET_CONFLICT', 403);
+      if (parents.some(parent => folderIds.includes(parent))) return;
+      if (parents.length === 0 && allowUnclaimed) return;
+      if (parents.length !== 1) break;
+      current = parents[0];
+    }
+    throw workspaceError('STORAGE_RESOURCE_NOT_BOUND', 403);
   }
 
   /**
@@ -1321,7 +1344,11 @@ export class ServerWorkspaceService {
         };
       }
 
-      if (res.data.capabilities && res.data.capabilities.canAddChildren === false) {
+      const actualProvider = res.data.driveId ? 'SHARED_DRIVE' : 'MY_DRIVE';
+      if (actualProvider !== targetProvider || (sharedDriveId && sharedDriveId !== res.data.driveId)) {
+        return { valid: false, folderId: targetFolderId, folderName: res.data.name || '', provider: targetProvider, error: 'STORAGE_PROVIDER_MISMATCH' };
+      }
+      if (res.data.capabilities?.canAddChildren !== true) {
         return {
           valid: false,
           folderId: targetFolderId,
@@ -1331,6 +1358,8 @@ export class ServerWorkspaceService {
         };
       }
 
+      const boundary = new WorkspaceStorageBoundary();
+      await this.assertProjectFolderResource(targetFolderId, [], bearerToken, await boundary.foreignFolderIds(projectId), true);
       return {
         valid: true,
         folderId: targetFolderId,
@@ -1373,6 +1402,16 @@ export class ServerWorkspaceService {
     },
     bearerToken?: string
   ): Promise<MigrationJob> {
+    const boundary = new WorkspaceStorageBoundary();
+    const canonical = await boundary.project(params.projectId);
+    await boundary.assertCanonicalStorage(canonical);
+    const storage = projectStorage(canonical);
+    if (params.sourceFolderId !== storage.folderId || params.sourceSpreadsheetId !== storage.spreadsheetId) {
+      throw workspaceError('STORAGE_RESOURCE_MISMATCH', 403);
+    }
+    params = { ...params, targetFolderId: await boundary.eligibleDestination(params.projectId, params.targetFolderId) };
+    if (!['MY_DRIVE', 'SHARED_DRIVE'].includes(params.targetProvider)) throw workspaceError('INVALID_STORAGE_PROVIDER', 400);
+    if (params.migrationJobId !== undefined) params.migrationJobId = normalizeStorageId(params.migrationJobId);
     const migrationJobId = params.migrationJobId || `mig_job_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const auth = this.getAuthClient(bearerToken);
 
@@ -1408,8 +1447,12 @@ export class ServerWorkspaceService {
       return job;
     }
 
+    const reservation = await boundary.reserve(job);
+    if (!reservation.created) return reservation.job;
+
     job.status = 'COPYING';
     job.updatedAt = new Date().toISOString();
+    await boundary.save(job);
 
     if (!auth) {
       // Sandbox / Test execution pattern
@@ -1421,6 +1464,7 @@ export class ServerWorkspaceService {
       job.copiedFileIds = Object.values(job.fileIdMap);
       job.status = 'READY_TO_SWITCH';
       job.updatedAt = new Date().toISOString();
+      await boundary.save(job);
       return job;
     }
 
@@ -1463,6 +1507,9 @@ export class ServerWorkspaceService {
         },
       });
       const newSpreadsheetId = sheetCreate.data.spreadsheetId!;
+      job.targetSpreadsheetId = newSpreadsheetId;
+      job.updatedAt = new Date().toISOString();
+      await boundary.save(job);
 
       // Move newly created Master Sheet to target root folder
       await drive.files.update({
@@ -1548,6 +1595,7 @@ export class ServerWorkspaceService {
       // Verification Step
       job.status = 'VERIFYING';
       job.updatedAt = new Date().toISOString();
+      await boundary.save(job);
 
       const sheetMeta = await sheets.spreadsheets.get({ spreadsheetId: newSpreadsheetId });
       const titles = (sheetMeta.data.sheets || []).map(s => s.properties?.title || '');
@@ -1556,6 +1604,8 @@ export class ServerWorkspaceService {
       if (!hasAll6Tabs) {
         job.status = 'FAILED';
         job.errorDetails = 'فشل التحقق: شيت الإسقاط الجديد لا يحتوي على تبويبات الأقسام الستة الكاملة';
+        job.updatedAt = new Date().toISOString();
+        await boundary.save(job);
         return job;
       }
 
@@ -1563,11 +1613,13 @@ export class ServerWorkspaceService {
       job.copiedFileIds = copiedFileIds;
       job.status = 'READY_TO_SWITCH';
       job.updatedAt = new Date().toISOString();
+      await boundary.save(job);
       return job;
     } catch (err: any) {
       job.status = 'FAILED';
       job.errorDetails = `فشلت عملية نقل التخزين: ${err.message || 'خطأ أثناء نسخ البيانات'}`;
       job.updatedAt = new Date().toISOString();
+      await boundary.save(job);
       return job;
     }
   }
