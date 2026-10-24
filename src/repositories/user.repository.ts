@@ -1,3 +1,4 @@
+import { decodeUser } from '../utils/persistenceBoundary';
 import { 
   collection, 
   doc, 
@@ -10,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
+import { sanitizeUndefined } from '../utils/sanitize';
 import { UserEntity } from '../types/entities';
 
 export class UserRepository {
@@ -23,8 +25,9 @@ export class UserRepository {
     try {
       const snap = await getDoc(doc(db, this.collectionName, userId));
       if (!snap.exists()) return null;
-      return snap.data() as UserEntity;
+      return decodeUser<UserEntity>(snap.data(), userId);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
     }
   }
@@ -35,8 +38,9 @@ export class UserRepository {
     }
     try {
       const snap = await getDocs(collection(db, this.collectionName));
-      return snap.docs.map(d => d.data() as UserEntity);
+      return snap.docs.map(d => decodeUser<UserEntity>(d.data(), d.id));
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, this.collectionName);
     }
   }
@@ -48,13 +52,14 @@ export class UserRepository {
       return;
     }
     try {
-      const payload = {
+      const payload = sanitizeUndefined({
         ...user,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      };
+      });
       await setDoc(doc(db, this.collectionName, user.userId), payload);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.CREATE, path);
     }
   }
@@ -66,14 +71,15 @@ export class UserRepository {
       return;
     }
     try {
-      const payload = {
+      const payload = sanitizeUndefined({
         ...updates,
         userId,
         updatedAt: serverTimestamp(),
         updatedBy,
-      };
+      });
       await updateDoc(doc(db, this.collectionName, userId), payload);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.UPDATE, path);
     }
   }
@@ -85,7 +91,7 @@ export class UserRepository {
     return onSnapshot(
       collection(db, this.collectionName),
       (snapshot) => {
-        onData(snapshot.docs.map(d => d.data() as UserEntity));
+        onData(snapshot.docs.map(d => decodeUser<UserEntity>(d.data(), d.id)));
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, this.collectionName);

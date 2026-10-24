@@ -1,3 +1,4 @@
+import { decodeProject, decodeGlobal, decodePersistence, decodeScopedProjection } from '../utils/persistenceBoundary';
 import { adminDb } from '../firebase/admin';
 import { ProjectReadinessReadContext } from './projectReadiness.context';
 import { ProjectEntity, PricingRuleEntity } from '../types/entities';
@@ -17,7 +18,7 @@ import { ProjectTruckMaterialAllocationEntity } from '../types/projectTruckMater
 export class ProjectReadinessAdminReadContext implements ProjectReadinessReadContext {
   async getProject(projectId: string): Promise<ProjectEntity | null> {
     const snap = await adminDb.collection('projects').doc(projectId).get();
-    return snap.exists ? (snap.data() as ProjectEntity) : null;
+    return snap.exists ? (decodeProject<ProjectEntity>(snap.data(), projectId)) : null;
   }
 
   async listActiveMaterialMemberships(projectId: string): Promise<ProjectMaterialMembershipEntity[]> {
@@ -27,7 +28,7 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .collection('material_memberships')
       .where('status', '==', 'ACTIVE')
       .get();
-    return snap.docs.map((d: any) => d.data() as ProjectMaterialMembershipEntity);
+    return snap.docs.map((d: any) => decodeScopedProjection<ProjectMaterialMembershipEntity>(d.data(), 'materialId', d.id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']));
   }
 
   async listActiveCarrierMemberships(projectId: string): Promise<ProjectCarrierMembershipEntity[]> {
@@ -37,7 +38,7 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .collection('carrier_memberships')
       .where('status', '==', 'ACTIVE')
       .get();
-    return snap.docs.map((d: any) => d.data() as ProjectCarrierMembershipEntity);
+    return snap.docs.map((d: any) => decodeScopedProjection<ProjectCarrierMembershipEntity>(d.data(), 'carrierId', d.id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']));
   }
 
   async listActiveDriverMemberships(projectId: string): Promise<ProjectDriverMembershipEntity[]> {
@@ -47,7 +48,7 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .collection('driver_memberships')
       .where('status', '==', 'ACTIVE')
       .get();
-    return snap.docs.map((d: any) => d.data() as ProjectDriverMembershipEntity);
+    return snap.docs.map((d: any) => decodeScopedProjection<ProjectDriverMembershipEntity>(d.data(), 'driverId', d.id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']));
   }
 
   async listActiveTruckMemberships(projectId: string): Promise<ProjectTruckMembershipEntity[]> {
@@ -57,7 +58,7 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .collection('truck_memberships')
       .where('status', '==', 'ACTIVE')
       .get();
-    return snap.docs.map((d: any) => d.data() as ProjectTruckMembershipEntity);
+    return snap.docs.map((d: any) => decodeScopedProjection<ProjectTruckMembershipEntity>(d.data(), 'truckId', d.id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']));
   }
 
   async getDriverCarrierAffiliation(projectId: string, driverId: string): Promise<ProjectDriverCarrierAffiliationEntity | null> {
@@ -67,7 +68,7 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .collection('driver_carrier_affiliations')
       .doc(driverId)
       .get();
-    return snap.exists ? (snap.data() as ProjectDriverCarrierAffiliationEntity) : null;
+    return snap.exists ? (decodeScopedProjection<ProjectDriverCarrierAffiliationEntity>(snap.data(), 'driverId', driverId, projectId, ['ACTIVE', 'INACTIVE'])) : null;
   }
 
   async getTruckCarrierAffiliation(projectId: string, truckId: string): Promise<ProjectTruckCarrierAffiliationEntity | null> {
@@ -77,7 +78,7 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .collection('truck_carrier_affiliations')
       .doc(truckId)
       .get();
-    return snap.exists ? (snap.data() as ProjectTruckCarrierAffiliationEntity) : null;
+    return snap.exists ? (decodeScopedProjection<ProjectTruckCarrierAffiliationEntity>(snap.data(), 'truckId', truckId, projectId, ['ACTIVE', 'INACTIVE'])) : null;
   }
 
   async getActiveDriverAssignment(projectId: string, driverId: string): Promise<ProjectDriverTruckAssignmentEntity | null> {
@@ -98,7 +99,7 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .doc(slot.assignmentId)
       .get();
     if (!assignSnap.exists) return null;
-    const assignment = assignSnap.data() as ProjectDriverTruckAssignmentEntity;
+    const assignment = assignSnap.data();
     return assignment && assignment.status === 'ACTIVE' ? assignment : null;
   }
 
@@ -120,7 +121,7 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .doc(slot.assignmentId)
       .get();
     if (!assignSnap.exists) return null;
-    const assignment = assignSnap.data() as ProjectDriverTruckAssignmentEntity;
+    const assignment = assignSnap.data();
     return assignment && assignment.status === 'ACTIVE' ? assignment : null;
   }
 
@@ -142,7 +143,7 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .doc(slot.allocationId)
       .get();
     if (!allocSnap.exists) return null;
-    const allocation = allocSnap.data() as ProjectTruckMaterialAllocationEntity;
+    const allocation = allocSnap.data();
     if (!allocation) return null;
 
     if (
@@ -153,7 +154,7 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
     ) {
       return null;
     }
-    return allocation;
+    return decodeScopedProjection<ProjectTruckMaterialAllocationEntity>(allocation, 'allocationId', allocSnap.id, projectId, ['ACTIVE', 'CLOSED']);
   }
 
   async listPricingRules(projectId: string): Promise<PricingRuleEntity[]> {
@@ -162,6 +163,6 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .doc(projectId)
       .collection('pricing_rules')
       .get();
-    return snap.docs.map((d: any) => d.data() as PricingRuleEntity);
+    return snap.docs.map((d: any) => decodeScopedProjection<PricingRuleEntity>(d.data(), 'pricingRuleId', d.id, projectId));
   }
 }

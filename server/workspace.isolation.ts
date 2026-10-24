@@ -1,3 +1,5 @@
+import { decodeProject, decodeMigration } from '../src/utils/persistenceBoundary';
+import { sanitizeUndefined } from '../src/utils/sanitize';
 import type { Request, Response, NextFunction } from 'express';
 import { adminDb } from '../src/firebase/admin';
 import type { MigrationJob } from '../src/types/workspace';
@@ -51,7 +53,7 @@ export class WorkspaceStorageBoundary {
     if (!snapshot.exists) throw workspaceError('PROJECT_NOT_FOUND', 404);
     const project = snapshot.data();
     if (!project || (project.projectId !== undefined && project.projectId !== projectId)) throw workspaceError('PROJECT_REGISTRY_MISMATCH');
-    return { ...project, projectId };
+    return decodeProject(project, projectId);
   }
 
   private checkProjects(snapshot: any, projectId: string, folderId: string) {
@@ -112,13 +114,13 @@ export class WorkspaceStorageBoundary {
       if (!own) throw workspaceError('PROJECT_NOT_FOUND', 404);
       if (projectStorage(own.data()).folderId === target) throw workspaceError('CURRENT_STORAGE_DESTINATION', 400);
       if (snapshot.exists) {
-        const previous = snapshot.data() as MigrationJob;
+        const previous = decodeMigration<MigrationJob>(snapshot.data(), target);
         if (!previous || previous.projectId !== job.projectId || previous.targetFolderId !== target) throw workspaceError('STORAGE_TARGET_CONFLICT');
         if (previous.migrationJobId === job.migrationJobId && previous.targetProvider === job.targetProvider) return { job: previous, created: false };
         const active = ['REQUESTED', 'VALIDATING', 'COPYING', 'VERIFYING', 'READY_TO_SWITCH'].includes(previous.status);
         throw workspaceError(active ? 'MIGRATION_ALREADY_ACTIVE' : 'MIGRATION_HISTORY_PROTECTED');
       }
-      transaction.set(ref, { ...job, targetFolderId: target });
+      transaction.set(ref, sanitizeUndefined(decodeMigration<MigrationJob>({ ...job, targetFolderId: target }, target)));
       return { job: { ...job, targetFolderId: target }, created: true };
     });
   }
@@ -127,18 +129,18 @@ export class WorkspaceStorageBoundary {
     const ref = this.db.collection('workspace_migration_jobs').doc(normalizeStorageId(job.targetFolderId));
     await this.db.runTransaction(async (transaction: any) => {
       const snapshot = await transaction.get(ref);
-      const previous = snapshot.exists ? snapshot.data() : null;
+      const previous = snapshot.exists ? decodeMigration<MigrationJob>(snapshot.data(), job.targetFolderId) : null;
       if (!previous || previous.targetFolderId !== job.targetFolderId || previous.projectId !== job.projectId || previous.migrationJobId !== job.migrationJobId || previous.targetProvider !== job.targetProvider) {
         throw workspaceError('MIGRATION_RESERVATION_MISMATCH');
       }
-      transaction.update(ref, job);
+      transaction.update(ref, sanitizeUndefined(decodeMigration<MigrationJob>(job, job.targetFolderId)));
     });
   }
 
   async jobs(projectId: string): Promise<MigrationJob[]> {
     const snapshot = await this.db.collection('workspace_migration_jobs').where('projectId', '==', projectId).get();
     return snapshot.docs.map((doc: any) => {
-      const job = doc.data() as MigrationJob;
+      const job = decodeMigration<MigrationJob>(doc.data(), doc.id);
       if (job.projectId !== projectId || job.targetFolderId !== doc.id) throw workspaceError('MIGRATION_REGISTRY_MISMATCH');
       return job;
     });
