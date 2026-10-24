@@ -64,21 +64,24 @@ describe('Firestore persistence trust boundary (structural verification)', () =>
 
   it('denies all ordinary self/cross-user updates, protecting effective access and approval fields by default', () => {
     const update = condition(users, 'update');
-    expect(update).toContain('isSuperAdmin() && isUserActive()');
-    expect(update).not.toContain('||');
-    expect(update).not.toContain('request.auth.uid == userId');
-    expect(update).toContain('incoming().userId == existing().userId');
-    expect(update).toContain('incoming().email == existing().email');
+    expect(update).toBe('false');
+    const service = source('src/services/adminAccount.server.ts');
+    expect(service).toContain("actor.role !== 'SUPER_ADMIN'");
+    expect(service).toContain('before.userId !== targetUserId');
+    expect(service).not.toContain('email: input.email');
   });
 
-  it('preserves the existing super-admin account-management grant and immutable stamps', () => {
-    expect(condition(users, 'create')).toContain('isSuperAdmin() && isUserActive()');
-    expect(condition(users, 'update')).toContain('isAuditStampedUpdate(incoming())');
+  it('preserves server-authoritative super-admin governance and immutable creation metadata', () => {
+    expect(condition(users, 'create')).toContain('isSafeAccountRequest(userId)');
+    expect(condition(users, 'update')).toBe('false');
     expect(condition(users, 'delete')).toBe('false');
     const ui = source('src/components/admin/AdminConsoleView.tsx');
-    expect(ui).toContain('await userRepository.update(userToApprove.userId, updates, authContext.userId)');
-    expect(ui).toContain('approvedBy: authContext.userId');
-    expect(ui).toContain('assignedProjectIds: approvalProjectIds');
+    expect(ui).toContain("command: 'approveAccount'");
+    expect(ui).not.toContain('userRepository.update(');
+    const service = source('src/services/adminAccount.server.ts');
+    expect(service).toContain('approvedBy: actor.userId');
+    expect(service).toContain('assignedProjectIds: assigned');
+    expect(service).toContain('updatedBy: actor.userId');
   });
 
   it('preserves self-read while removing ordinary global user listing', () => {

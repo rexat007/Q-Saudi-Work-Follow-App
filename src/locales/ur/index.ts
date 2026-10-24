@@ -4172,6 +4172,13 @@ export const urTranslations: TranslationDictionary = {
   "residual.messages.invalid_payload_forbidden_fields_field_value_is_forbidden": "INVALID_PAYLOAD_FORBIDDEN_FIELDS: فیلڈ '{value0}' ممنوع ہے",
   "residual.messages.a_session_record_is_required_to_reconstruct_a_resumed_import": "درآمد دوبارہ شروع کرنے کے لیے سیشن کا ریکارڈ ضروری ہے",
   "residual.messages.suspended_deactivated": "معطل (DEACTIVATED)",
+  "admin_console.errors.forbidden": "آپ کو عمومی اکاؤنٹس کے انتظام کی اجازت نہیں۔",
+  "admin_console.errors.last_admin": "آخری فعال سسٹم منتظم محفوظ ہے۔",
+  "admin_console.errors.self": "آپ یہاں اپنی انتظامی رسائی تبدیل نہیں کر سکتے۔",
+  "admin_console.errors.target_missing": "اکاؤنٹ نہیں ملا۔",
+  "admin_console.errors.invalid": "اکاؤنٹ کی کارروائی اور منتخب منصوبے چیک کریں۔",
+  "admin_console.errors.conflict": "اکاؤنٹ تبدیل ہو گیا ہے۔ تازہ کر کے دوبارہ کوشش کریں۔",
+  "admin_console.errors.failed": "اکاؤنٹ کی تبدیلی مکمل نہیں ہو سکی۔",
 };
 
 

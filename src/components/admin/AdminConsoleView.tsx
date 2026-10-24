@@ -1,4 +1,4 @@
-import { presentBatch4Message } from '../../i18n/batch4Messages';
+import { executeAdminAccountCommand, adminErrorKey } from '../../services/adminAccountClient.service';
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ProjectEntity, 
@@ -40,13 +40,7 @@ export function AdminConsoleView() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
-  // Safe authentication fallback for audit logs
-  const authContext = useMemo<AuthUserContext>(() => ({
-    userId: currentUser?.uid || 'USR-ADMIN-001',
-    email: currentUser?.email || 'admin@qsaudi.com',
-    role: (userProfile?.role as any) || 'PROJECT_ADMIN',
-    displayName: userProfile?.fullName || 'مدير النظام الموحد',
-  }), [currentUser, userProfile]);
+  const canManageUsers = Boolean(currentUser && userProfile?.role === 'SUPER_ADMIN' && userProfile.status === 'ACTIVE' && userProfile.isActive !== false);
 
   // Firestore-based canonical collections
   const [users, setUsers] = useState<UserEntity[]>([]);
@@ -186,153 +180,53 @@ export function AdminConsoleView() {
     return Array.from(set);
   }, [auditLogs]);
 
-  // Approve User Action Handler (Canonical Only)
+  const refreshTarget = async (userId: string) => {
+    const fresh = await userRepository.findById(userId);
+    if (!fresh) return;
+    setUsers(previous => previous.map(value => value.userId === userId ? fresh : value));
+    setSelectedUserForSecurity(previous => previous?.userId === userId ? fresh : previous);
+  };
   const handleApproveUserConfirm = async () => {
-    if (!userApprovalModal) return;
-    const userToApprove = userApprovalModal;
-    
+    if (!canManageUsers || !userApprovalModal) return;
     try {
-      const updates = {
-        status: 'ACTIVE' as const,
-        isActive: true,
-        role: approvalRole,
-        assignedProjectIds: approvalProjectIds,
-        approvedBy: authContext.userId,
-        approvedAt: new Date().toISOString()
-      };
-      
-      // 1. Write to Firestore
-      await userRepository.update(userToApprove.userId, updates, authContext.userId);
-
-      // 2. Record immutable system audit log
-      await auditLogService.recordLog({
-        projectId: approvalProjectIds[0] || 'ALL',
-        entityType: 'USER_ROLE',
-        entityId: userToApprove.userId,
-        action: 'UPDATE',
-        before: userToApprove,
-        after: { ...userToApprove, ...updates }
-      }, authContext);
-
-      showBanner(t('admin_console.user_approved', { role: approvalRole }));
-      setUserApprovalModal(null);
-    } catch (error: any) {
-      showBanner(t('admin_console.approval_failed', { error: presentBatch4Message(String(error.message), t) }), 'warning');
-    }
+      await executeAdminAccountCommand(userApprovalModal.userId, { command: 'approveAccount', approvedRole: approvalRole, assignedProjectIds: approvalProjectIds });
+      await refreshTarget(userApprovalModal.userId);
+      showBanner(t('admin_console.user_approved', { role: approvalRole })); setUserApprovalModal(null);
+    } catch (error) { showBanner(t(adminErrorKey(error)), 'warning'); }
   };
-
-  // Reject User Action Handler (Canonical Only)
   const handleRejectUserConfirm = async () => {
-    if (!userRejectionModal || !rejectionReason.trim()) return;
-    const userToReject = userRejectionModal;
-
+    if (!canManageUsers || !userRejectionModal || !rejectionReason.trim()) return;
     try {
-      const updates = {
-        status: 'REJECTED' as const,
-        isActive: false,
-        rejectionReason,
-        rejectedBy: authContext.userId,
-        rejectedAt: new Date().toISOString()
-      };
-
-      // 1. Write to Firestore
-      await userRepository.update(userToReject.userId, updates, authContext.userId);
-
-      // 2. Record immutable audit log
-      await auditLogService.recordLog({
-        projectId: 'ALL',
-        entityType: 'USER_ROLE',
-        entityId: userToReject.userId,
-        action: 'FORCE_STATUS_CHANGE',
-        before: userToReject,
-        after: { ...userToReject, ...updates }
-      }, authContext);
-
-      showBanner(t('admin_console.user_rejected'));
-      setUserRejectionModal(null);
-      setRejectionReason('');
-    } catch (error: any) {
-      showBanner(t('admin_console.rejection_failed', { error: presentBatch4Message(String(error.message), t) }), 'warning');
-    }
+      await executeAdminAccountCommand(userRejectionModal.userId, { command: 'rejectAccount', rejectionReason });
+      await refreshTarget(userRejectionModal.userId);
+      showBanner(t('admin_console.user_rejected')); setUserRejectionModal(null); setRejectionReason('');
+    } catch (error) { showBanner(t(adminErrorKey(error)), 'warning'); }
   };
-
-  // Suspend User Handler (Canonical Only)
-  const handleSuspendUser = async (userToSuspend: UserEntity) => {
+  const handleSuspendUser = async (target: UserEntity) => {
+    if (!canManageUsers) return;
     try {
-      const updates = {
-        status: 'SUSPENDED' as const,
-        isActive: false,
-      };
-
-      await userRepository.update(userToSuspend.userId, updates, authContext.userId);
-
-      await auditLogService.recordLog({
-        projectId: 'ALL',
-        entityType: 'USER_ROLE',
-        entityId: userToSuspend.userId,
-        action: 'FORCE_STATUS_CHANGE',
-        before: userToSuspend,
-        after: { ...userToSuspend, ...updates }
-      }, authContext);
-
+      await executeAdminAccountCommand(target.userId, { command: 'suspendAccount' }); await refreshTarget(target.userId);
       showBanner(t('admin_console.user_suspended'));
-    } catch (error: any) {
-      showBanner(t('admin_console.suspension_failed', { error: presentBatch4Message(String(error.message), t) }), 'warning');
-    }
+    } catch (error) { showBanner(t(adminErrorKey(error)), 'warning'); }
   };
-
-  // Reactivate User Handler (Canonical Only)
-  const handleReactivateUser = async (userToReactivate: UserEntity) => {
+  const handleReactivateUser = async (target: UserEntity) => {
+    if (!canManageUsers) return;
     try {
-      const updates = {
-        status: 'ACTIVE' as const,
-        isActive: true,
-      };
-
-      await userRepository.update(userToReactivate.userId, updates, authContext.userId);
-
-      await auditLogService.recordLog({
-        projectId: 'ALL',
-        entityType: 'USER_ROLE',
-        entityId: userToReactivate.userId,
-        action: 'FORCE_STATUS_CHANGE',
-        before: userToReactivate,
-        after: { ...userToReactivate, ...updates }
-      }, authContext);
-
+      await executeAdminAccountCommand(target.userId, { command: 'reactivateAccount' }); await refreshTarget(target.userId);
       showBanner(t('admin_console.user_reactivated'));
-    } catch (error: any) {
-      showBanner(t('admin_console.reactivation_failed', { error: presentBatch4Message(String(error.message), t) }), 'warning');
-    }
+    } catch (error) { showBanner(t(adminErrorKey(error)), 'warning'); }
   };
-
-  // Security Access Policies modification (Canonical Only)
   const handleSaveSecurityPolicy = async () => {
-    if (!selectedUserForSecurity) return;
+    if (!canManageUsers || !selectedUserForSecurity) return;
     const target = selectedUserForSecurity;
-
+    const original = users.find(value => value.userId === target.userId);
     try {
-      const updates = {
-        role: selectedUserForSecurity.role,
-        assignedProjectIds: selectedUserForSecurity.assignedProjectIds,
-      };
-
-      // 1. Save to Firestore
-      await userRepository.update(target.userId, updates, authContext.userId);
-
-      // 2. Log system security audit log
-      await auditLogService.recordLog({
-        projectId: selectedUserForSecurity.assignedProjectIds[0] || 'ALL',
-        entityType: 'USER_ROLE',
-        entityId: target.userId,
-        action: 'UPDATE',
-        before: target,
-        after: { ...target, ...updates }
-      }, authContext);
-
-      showBanner(t('admin_console.security_updated', { email: target.email }));
-    } catch (error: any) {
-      showBanner(t('admin_console.security_update_failed', { error: presentBatch4Message(String(error.message), t) }), 'warning');
+      if (original?.role !== target.role) await executeAdminAccountCommand(target.userId, { command: 'changeUserRole', newRole: target.role });
+      if (JSON.stringify(original?.assignedProjectIds) !== JSON.stringify(target.assignedProjectIds)) await executeAdminAccountCommand(target.userId, { command: 'replaceAssignedProjects', assignedProjectIds: target.assignedProjectIds });
+      await refreshTarget(target.userId); showBanner(t('admin_console.security_updated', { email: target.email }));
+    } catch (error) {
+      // Each explicit command is atomic; refresh also exposes any earlier successful command.
+      await refreshTarget(target.userId).catch(() => {}); showBanner(t(adminErrorKey(error)), 'warning');
     }
   };
 
@@ -347,7 +241,7 @@ export function AdminConsoleView() {
           'bg-blue-50 text-blue-950 border-blue-200'
         }`}>
           <AlertCircle className="w-5 h-5 shrink-0" />
-          <span className="text-sm font-bold">{presentBatch4Message(banner.message, t)}</span>
+          <span className="text-sm font-bold">{banner.message}</span>
         </div>
       )}
 
@@ -537,7 +431,7 @@ export function AdminConsoleView() {
                           </span>
                         </td>
                         <td className="py-3.5 px-4 text-left space-x-2 rtl:space-x-reverse">
-                          {u.status === 'PENDING_APPROVAL' && (
+                          {canManageUsers && u.userId !== currentUser?.uid && u.status === 'PENDING_APPROVAL' && (
                             <>
                               <button
                                 onClick={() => {
@@ -561,7 +455,7 @@ export function AdminConsoleView() {
                             </>
                           )}
                           
-                          {u.status === 'ACTIVE' && (
+                          {canManageUsers && u.userId !== currentUser?.uid && u.status === 'ACTIVE' && (
                             <button
                               onClick={() => handleSuspendUser(u)}
                               className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold cursor-pointer"
@@ -570,7 +464,7 @@ export function AdminConsoleView() {
                             </button>
                           )}
 
-                          {(u.status === 'SUSPENDED' || u.status === 'REJECTED') && (
+                          {canManageUsers && u.userId !== currentUser?.uid && (u.status === 'SUSPENDED' || u.status === 'REJECTED') && (
                             <button
                               onClick={() => handleReactivateUser(u)}
                               className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[11px] font-bold cursor-pointer"
@@ -657,6 +551,7 @@ export function AdminConsoleView() {
                   </span>
                 </div>
 
+                {canManageUsers && selectedUserForSecurity.userId !== currentUser?.uid ? <>
                 {/* 1. RBAC Selection */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-stone-700 block">{t('admin_console.role_assignment')}</label>
@@ -729,6 +624,8 @@ export function AdminConsoleView() {
                     <span>{t('admin_console.save_matrix')}</span>
                   </button>
                 </div>
+
+                </> : <div className="space-y-2"><p>{t(`navigation.roles.${selectedUserForSecurity.role.toLowerCase()}`)}</p><p>{selectedUserForSecurity.assignedProjectIds.join(', ')}</p></div>}
 
               </div>
             ) : (
@@ -939,7 +836,7 @@ export function AdminConsoleView() {
       {/* ==================================================================== */}
       {/* APPROVAL CONFIG MODAL */}
       {/* ==================================================================== */}
-      {userApprovalModal && (
+      {canManageUsers && userApprovalModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-250">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 border border-stone-200 shadow-2xl animate-in slide-in-from-bottom-8 duration-300">
             <div className="pb-3 border-b border-stone-100 flex items-start justify-between">
@@ -1037,7 +934,7 @@ export function AdminConsoleView() {
       {/* ==================================================================== */}
       {/* REJECTION CONFIG MODAL */}
       {/* ==================================================================== */}
-      {userRejectionModal && (
+      {canManageUsers && userRejectionModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-250">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 border border-stone-200 shadow-2xl animate-in slide-in-from-bottom-8 duration-300">
             <div className="pb-3 border-b border-stone-100 flex items-start justify-between">

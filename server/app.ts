@@ -1,3 +1,4 @@
+import { AdminAccountServerService, AdminCommandError } from '../src/services/adminAccount.server';
 import { strictWorkspaceProject, WorkspaceStorageBoundary, projectStorage, normalizeStorageId, workspaceError } from './workspace.isolation';
 import express from 'express';
 import path from 'path';
@@ -41,6 +42,18 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Global API Authentication Context Resolver
 app.use('/api', authenticateUser);
+
+// Global account governance: current principal plus transaction-time reauthorization.
+app.post('/api/admin/users/:userId/commands', async (req: any, res) => {
+  try {
+    const user = await new AdminAccountServerService().execute(req.params.userId, req.body, req.user);
+    res.json({ success: true, user });
+  } catch (error: any) {
+    const code = error instanceof AdminCommandError ? error.code : 'ADMIN_UPDATE_CONFLICT';
+    const status = code === 'FORBIDDEN_ADMIN_ACTION' ? 403 : code === 'TARGET_USER_NOT_FOUND' ? 404 : code === 'INVALID_ADMIN_COMMAND' ? 400 : 409;
+    res.status(status).json({ success: false, code });
+  }
+});
 
 // ----------------------------------------------------
 // 0. Canonical First-Admin Bootstrap Endpoint

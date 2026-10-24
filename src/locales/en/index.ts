@@ -4172,6 +4172,13 @@ export const enTranslations: TranslationDictionary = {
   "residual.messages.invalid_payload_forbidden_fields_field_value_is_forbidden": "INVALID_PAYLOAD_FORBIDDEN_FIELDS: Field '{value0}' is forbidden",
   "residual.messages.a_session_record_is_required_to_reconstruct_a_resumed_import": "A session record is required to reconstruct a resumed import",
   "residual.messages.suspended_deactivated": "Suspended (DEACTIVATED)",
+  "admin_console.errors.forbidden": "You cannot manage global accounts.",
+  "admin_console.errors.last_admin": "The last active system administrator is protected.",
+  "admin_console.errors.self": "You cannot change your own administrative access here.",
+  "admin_console.errors.target_missing": "The account was not found.",
+  "admin_console.errors.invalid": "Check the account command and selected projects.",
+  "admin_console.errors.conflict": "The account changed. Refresh and try again.",
+  "admin_console.errors.failed": "The account update could not be completed.",
 };
 
 

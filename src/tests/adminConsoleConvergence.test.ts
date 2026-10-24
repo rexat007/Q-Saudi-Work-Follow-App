@@ -58,7 +58,8 @@ describe('Phase 6 — AdminConsole Canonical Authority Convergence Verification'
   it('6. AdminConsoleView subscribes to canonical auditLogService', () => {
     const content = fs.readFileSync(adminConsoleViewPath, 'utf-8');
     expect(content).toContain('auditLogService.subscribeToRecentLogs');
-    expect(content).toContain('auditLogService.recordLog');
+    expect(content).not.toContain('auditLogService.recordLog');
+    expect(fs.readFileSync(path.resolve('src/services/adminAccount.server.ts'), 'utf-8')).toContain("this.db.collection('audit_logs').doc(auditLogId)");
   });
 
   // 7. Legacy Exception tab and modal handlers are completely eliminated from AdminConsoleView
@@ -83,9 +84,10 @@ describe('Phase 6 — AdminConsole Canonical Authority Convergence Verification'
   it('9. User approval performs canonical writes with audit logging and NO legacy dual writes', () => {
     const content = fs.readFileSync(adminConsoleViewPath, 'utf-8');
     expect(content).toContain('handleApproveUserConfirm');
-    expect(content).toContain('userRepository.update(userToApprove.userId');
-    expect(content).toContain("status: 'ACTIVE'");
-    expect(content).toContain('auditLogService.recordLog');
+    expect(content).toContain("executeAdminAccountCommand(userApprovalModal.userId, { command: 'approveAccount'");
+    expect(fs.readFileSync(path.resolve('src/services/adminAccount.server.ts'), 'utf-8')).toContain("status: 'ACTIVE', isActive: true");
+    expect(content).not.toContain('auditLogService.recordLog');
+    expect(fs.readFileSync(path.resolve('src/services/adminAccount.server.ts'), 'utf-8')).toContain("this.db.collection('audit_logs').doc(auditLogId)");
     expect(content).not.toContain('adminConsoleService.approveUser');
   });
 
@@ -93,9 +95,10 @@ describe('Phase 6 — AdminConsole Canonical Authority Convergence Verification'
   it('10. User rejection performs canonical writes with audit logging and NO legacy dual writes', () => {
     const content = fs.readFileSync(adminConsoleViewPath, 'utf-8');
     expect(content).toContain('handleRejectUserConfirm');
-    expect(content).toContain('userRepository.update(userToReject.userId');
-    expect(content).toContain("status: 'REJECTED'");
-    expect(content).toContain('auditLogService.recordLog');
+    expect(content).toContain("executeAdminAccountCommand(userRejectionModal.userId, { command: 'rejectAccount'");
+    expect(fs.readFileSync(path.resolve('src/services/adminAccount.server.ts'), 'utf-8')).toContain("status: 'REJECTED', isActive: false");
+    expect(content).not.toContain('auditLogService.recordLog');
+    expect(fs.readFileSync(path.resolve('src/services/adminAccount.server.ts'), 'utf-8')).toContain("this.db.collection('audit_logs').doc(auditLogId)");
     expect(content).not.toContain('adminConsoleService.rejectUser');
   });
 
