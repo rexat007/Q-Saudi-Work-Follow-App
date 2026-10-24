@@ -1,3 +1,4 @@
+import { ProjectReadinessAdminReadContext } from '../services/projectReadiness.server';
 import { globalDriverRepository, globalTruckRepository, globalCarrierRepository, globalMaterialRepository } from '../repositories/globalIdentity.repository';
 import { projectDriverMembershipRepository } from '../repositories/projectMembership.repository';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -209,5 +210,35 @@ describe('Repository and server adoption', () => {
     inMemoryAdminStore['projects/P'] = { projectId: 'P' };
     inMemoryAdminStore['workspace_migration_jobs/target'] = { ...migration(), status: 'BROKEN' };
     await expect(new WorkspaceStorageBoundary().jobs('P')).rejects.toHaveProperty('code', 'PERSISTENCE_BOUNDARY_INVALID');
+  });
+});
+
+
+describe.each(['driver', 'truck'] as const)('Readiness %s assignment boundary', kind => {
+  const read = () => {
+    const context = new ProjectReadinessAdminReadContext();
+    return kind === 'driver' ? context.getActiveDriverAssignment('P', 'd') : context.getActiveTruckAssignment('P', 't');
+  };
+  const seed = (patch: Record<string, unknown> = {}) => {
+    inMemoryAdminStore[`projects/P/${kind}_active_assignments/${kind === 'driver' ? 'd' : 't'}`] = { assignmentId: 'a' };
+    inMemoryAdminStore['projects/P/driver_truck_assignments/a'] = { assignmentId: 'a', projectId: 'P', status: 'ACTIVE', createdAt: Timestamp.fromDate(new Date(iso)), effectiveFrom: iso, effectiveTo: null, ...patch };
+  };
+  it('decodes valid ACTIVE assignment audit/interval representations', async () => {
+    seed();
+    expect(await read()).toMatchObject({ assignmentId: 'a', projectId: 'P', status: 'ACTIVE', createdAt: new Date(iso), effectiveFrom: iso, effectiveTo: null });
+  });
+  it.each([{ assignmentId: 'other' }, { projectId: 'other' }, { createdAt: 'corrupt' }])('rejects malformed returned assignment %j', async patch => {
+    seed(patch);
+    await expect(read()).rejects.toHaveProperty('code', 'PERSISTENCE_BOUNDARY_INVALID');
+  });
+  it('preserves null for missing slot or assignment', async () => {
+    expect(await read()).toBeNull();
+    seed();
+    delete inMemoryAdminStore['projects/P/driver_truck_assignments/a'];
+    expect(await read()).toBeNull();
+  });
+  it.each(['CLOSED', 'INVALID'])('preserves null for non-ACTIVE status %s', async status => {
+    seed({ status });
+    expect(await read()).toBeNull();
   });
 });

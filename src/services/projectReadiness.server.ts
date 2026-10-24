@@ -100,7 +100,9 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .get();
     if (!assignSnap.exists) return null;
     const assignment = assignSnap.data();
-    return assignment && assignment.status === 'ACTIVE' ? assignment : null;
+    return assignment && assignment.status === 'ACTIVE'
+      ? decodeScopedProjection<ProjectDriverTruckAssignmentEntity>(assignment, 'assignmentId', assignSnap.id, projectId, ['ACTIVE', 'CLOSED'])
+      : null;
   }
 
   async getActiveTruckAssignment(projectId: string, truckId: string): Promise<ProjectDriverTruckAssignmentEntity | null> {
@@ -122,7 +124,9 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
       .get();
     if (!assignSnap.exists) return null;
     const assignment = assignSnap.data();
-    return assignment && assignment.status === 'ACTIVE' ? assignment : null;
+    return assignment && assignment.status === 'ACTIVE'
+      ? decodeScopedProjection<ProjectDriverTruckAssignmentEntity>(assignment, 'assignmentId', assignSnap.id, projectId, ['ACTIVE', 'CLOSED'])
+      : null;
   }
 
   async getActiveTruckAllocation(projectId: string, truckId: string): Promise<ProjectTruckMaterialAllocationEntity | null> {
