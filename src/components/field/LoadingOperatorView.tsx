@@ -80,15 +80,19 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
 
   const [projectsList, setProjectsList] = useState<ProjectEntity[]>([]);
 
+  const assignedProjectScopeKey = JSON.stringify([...new Set(authContext.assignedProjectIds || [])].sort());
+
   useEffect(() => {
     const unsubscribe = projectRepository.subscribeToProjects(
       (list) => {
         setProjectsList(list || []);
       },
-      (err) => console.error(err)
+      (err) => console.error(err),
+      JSON.parse(assignedProjectScopeKey),
+      authContext.role === 'SUPER_ADMIN'
     );
     return () => unsubscribe();
-  }, []);
+  }, [authContext.userId, authContext.role, assignedProjectScopeKey]);
 
   // Available Projects (scoped by assignedProjectIds if set, unless SUPER_ADMIN)
   const availableProjects = useMemo(() => {
@@ -101,10 +105,10 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
         id: p.projectId
       })
     }));
-    if (authContext.role === 'SUPER_ADMIN' || !authContext.assignedProjectIds || authContext.assignedProjectIds.length === 0) {
+    if (authContext.role === 'SUPER_ADMIN') {
       return all;
     }
-    return all.filter(p => authContext.assignedProjectIds!.includes(p.id));
+    return all.filter(p => (authContext.assignedProjectIds || []).includes(p.id));
   }, [projectsList, authContext, t, translate]);
 
   // Form State: Project and Entity Selections (no mock defaults)
@@ -115,10 +119,12 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   const [materialId, setMaterialId] = useState<string>('');
 
   useEffect(() => {
-    if (availableProjects.length > 0 && !projectId) {
-      setProjectId(availableProjects[0].id);
-    }
-  }, [availableProjects, projectId]);
+    setProjectId(current => {
+      if (availableProjects.length === 0) return '';
+      if (current && availableProjects.some(project => project.id === current)) return current;
+      return availableProjects[0].id;
+    });
+  }, [availableProjects]);
 
   // Project Switch Isolation & Canonical Relationship Loading
   useEffect(() => {
