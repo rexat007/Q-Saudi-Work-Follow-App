@@ -1,10 +1,10 @@
+import { planAssignment, planAllocation, writeTemporalPlan } from './temporalRelationshipAuthority.server';
 import { planMembership, planAffiliation, protectAffiliationAssignment, writeParticipationPlan, decodeParticipation } from './projectParticipationAuthority.server';
 import { resolveGlobalNaturalIdentity, authorizeGlobalCommand, assertGlobalEntityExists, decodeAuthoritativeGlobal, auditGlobalMutation } from './globalIdentityAuthority.server';
 import { assertCanEnroll, assertOperationallyEligible } from '../utils/globalIdentityPolicy';
 import crypto from 'crypto';
 import { AuthUserContext } from '../types/common';
 import { DriverTruckIntakePayload, DriverTruckIntakeResult } from './driverTruckIntake.service';
-import { CanonicalFleetRelationshipPolicy, PureAssignment, PureAllocation } from '../utils/canonicalFleetRelationshipPolicy';
 import { markDirtyInTransaction } from './projectWorkspaceProjectionState.server';
 import { WorkspaceSheetTab } from '../types/workspace';
 
@@ -117,7 +117,8 @@ export class DriverTruckIntakeServer {
       const shouldReserveLookupDriver = resolvedDriver.mustReserve, shouldReserveLookupTruck = resolvedTruck.mustReserve;
       if (resolvedDriver.entity) assertCanEnroll('DRIVER', resolvedDriver.entity);
       if (resolvedTruck.entity) assertCanEnroll('TRUCK', resolvedTruck.entity);
-      assertOperationallyEligible('MATERIAL', await assertGlobalEntityExists(transaction, adminDb, 'MATERIAL', materialId));
+      const materialGlobal = await assertGlobalEntityExists(transaction, adminDb, 'MATERIAL', materialId);
+      assertOperationallyEligible('MATERIAL', materialGlobal);
 
       // ----------------------------------------------------
       // PHASE 2: ACCESS PROJECT-LEVEL MEMBERSHIPS & CARRIER
@@ -142,88 +143,10 @@ export class DriverTruckIntakeServer {
       const driverAffilRef = driverId ? adminDb.collection('projects').doc(projectId).collection('driver_carrier_affiliations').doc(driverId) : null;
       const truckAffilRef = truckId ? adminDb.collection('projects').doc(projectId).collection('truck_carrier_affiliations').doc(truckId) : null;
 
-      const driverSlotRef = driverId ? adminDb.collection('projects').doc(projectId).collection('driver_active_assignments').doc(driverId) : null;
-      const truckSlotRef = truckId ? adminDb.collection('projects').doc(projectId).collection('truck_active_assignments').doc(truckId) : null;
-      const truckAllocSlotRef = truckId ? adminDb.collection('projects').doc(projectId).collection('truck_active_material_allocations').doc(truckId) : null;
-
-      const driverMemSnap = driverMemRef ? await transaction.get(driverMemRef) : null;
-      const truckMemSnap = truckMemRef ? await transaction.get(truckMemRef) : null;
-      const driverAffilSnap = driverAffilRef ? await transaction.get(driverAffilRef) : null;
-      const truckAffilSnap = truckAffilRef ? await transaction.get(truckAffilRef) : null;
-
-      const driverSlotSnap = driverSlotRef ? await transaction.get(driverSlotRef) : null;
-      const truckSlotSnap = truckSlotRef ? await transaction.get(truckSlotRef) : null;
-      const truckAllocSlotSnap = truckAllocSlotRef ? await transaction.get(truckAllocSlotRef) : null;
-
-      const currentDriverSlot = driverSlotSnap && driverSlotSnap.exists ? (driverSlotSnap.data() as { assignmentId: string }) : null;
-      const currentTruckSlot = truckSlotSnap && truckSlotSnap.exists ? (truckSlotSnap.data() as { assignmentId: string }) : null;
-      const currentTruckAllocSlot = truckAllocSlotSnap && truckAllocSlotSnap.exists ? (truckAllocSlotSnap.data() as { allocationId: string }) : null;
-
-      let dAssign: PureAssignment | null = null;
-      let tAssign: PureAssignment | null = null;
-      let tAlloc: PureAllocation | null = null;
-
-      if (currentDriverSlot?.assignmentId) {
-        const dAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(currentDriverSlot.assignmentId);
-        const snap = await transaction.get(dAssignRef);
-        if (snap.exists) dAssign = snap.data() as PureAssignment;
-      }
-      if (currentTruckSlot?.assignmentId) {
-        if (currentTruckSlot.assignmentId === currentDriverSlot?.assignmentId) {
-          tAssign = dAssign;
-        } else {
-          const tAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(currentTruckSlot.assignmentId);
-          const snap = await transaction.get(tAssignRef);
-          if (snap.exists) tAssign = snap.data() as PureAssignment;
-        }
-      }
-      if (currentTruckAllocSlot?.allocationId) {
-        const tAllocRef = adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(currentTruckAllocSlot.allocationId);
-        const snap = await transaction.get(tAllocRef);
-        if (snap.exists) tAlloc = snap.data() as PureAllocation;
-      }
-
-      let counterpartTruckSlotSnap: any = null;
-      let counterpartTruckSlotRef: any = null;
-      if (dAssign && dAssign.status === 'ACTIVE' && dAssign.truckId !== truckId) {
-        counterpartTruckSlotRef = adminDb.collection('projects').doc(projectId).collection('truck_active_assignments').doc(dAssign.truckId);
-        counterpartTruckSlotSnap = await transaction.get(counterpartTruckSlotRef);
-      }
-
-      let counterpartDriverSlotSnap: any = null;
-      let counterpartDriverSlotRef: any = null;
-      if (tAssign && tAssign.status === 'ACTIVE' && tAssign.driverId !== driverId) {
-        counterpartDriverSlotRef = adminDb.collection('projects').doc(projectId).collection('driver_active_assignments').doc(tAssign.driverId);
-        counterpartDriverSlotSnap = await transaction.get(counterpartDriverSlotRef);
-      }
-
-      // ----------------------------------------------------
-      // PHASE 3: ONE-SIDED EXISTING IDENTITY VALIDATIONS
-      // ----------------------------------------------------
-      if (driverId) {
-        CanonicalFleetRelationshipPolicy.validateDriverAssignmentSlot(
-          driverId,
-          currentDriverSlot,
-          dAssign,
-          projectId
-        );
-      }
-
-      if (truckId) {
-        CanonicalFleetRelationshipPolicy.validateTruckAssignmentSlot(
-          truckId,
-          currentTruckSlot,
-          tAssign,
-          projectId
-        );
-      }
-
-      CanonicalFleetRelationshipPolicy.validateAllocationPointers(
-        projectId,
-        truckId || '',
-        currentTruckAllocSlot,
-        tAlloc
-      );
+      const driverMemSnap = await transaction.get(driverMemRef);
+      const truckMemSnap = await transaction.get(truckMemRef);
+      const driverAffilSnap = await transaction.get(driverAffilRef);
+      const truckAffilSnap = await transaction.get(truckAffilRef);
 
       // ----------------------------------------------------
       // PHASE 4: EVALUATE TRANSITION DECISIONS
@@ -235,17 +158,17 @@ export class DriverTruckIntakeServer {
       const truckAffiliationPlan = planAffiliation({ kind: 'TRUCK', projectId, entityId: truckId, carrierId, before: truckAffilSnap?.exists ? truckAffilSnap.data() : null, entityMembership: truckMembershipPlan.after, carrierMembership: carrierMemSnap.data(), global: resolvedTruck.entity || { status: 'ACTIVE' }, carrierGlobal, actor: context, command: 'SET_AFFILIATION' });
       await protectAffiliationAssignment(transaction, adminDb, truckAffiliationPlan);
 
-      // Evaluate assignment decision
-      const isAssignmentIdempotent = CanonicalFleetRelationshipPolicy.isAssignmentIdempotent(
-        driverId,
-        truckId,
-        currentDriverSlot,
-        currentTruckSlot,
-        dAssign
-      );
-
-      // Evaluate allocation decision
-      const isAllocationIdempotent = !!(tAlloc && tAlloc.status === 'ACTIVE' && tAlloc.materialId === materialId);
+      const temporalAt = new Date();
+      const temporalContext = {
+        driverGlobal: resolvedDriver.entity || { status: 'ACTIVE' }, truckGlobal: resolvedTruck.entity || { status: 'ACTIVE' }, carrierGlobal, materialGlobal,
+        driverMembership: driverMembershipPlan.after, truckMembership: truckMembershipPlan.after, carrierMembership: carrierMemSnap.data(), materialMembership: materialMemSnap.data(),
+        driverAffiliation: driverAffiliationPlan.after, truckAffiliation: truckAffiliationPlan.after,
+      };
+      // Shared intake already has explicit target-pair/reallocation semantics.
+      const assignmentPlan = await planAssignment(transaction, adminDb, projectId, driverId, truckId, 'REASSIGN', context, temporalAt, temporalContext);
+      const allocationPlan = await planAllocation(transaction, adminDb, projectId, truckId, materialId, 'REALLOCATE', context, temporalAt, temporalContext);
+      const isAssignmentIdempotent = !assignmentPlan.changed;
+      const isAllocationIdempotent = !allocationPlan.changed;
 
       // Evaluate Workspace projection invalidation domains
       const isNewDriver = !resolvedDriver.id;
@@ -287,35 +210,6 @@ export class DriverTruckIntakeServer {
       // ----------------------------------------------------
       // PHASE 5: EXECUTE WRITES
       // ----------------------------------------------------
-      const createAuditLog = (
-        auditLogId: string,
-        entityType: string,
-        entityId: string,
-        action: string,
-        changes: any,
-        correlationId: string
-      ) => {
-        const auditLogRef = adminDb.collection('audit_logs').doc(auditLogId);
-        transaction.set(auditLogRef, {
-          auditLogId,
-          projectId,
-          entityType,
-          entityId,
-          action,
-          actor: {
-            userId: actorId,
-            email: context.email || 'system@q-saudi.com',
-            role: context.role || 'PROJECT_ADMIN',
-          },
-          changes,
-          correlationId,
-          createdBy: actorId,
-          updatedBy: actorId,
-          createdAt: nowIso,
-          updatedAt: nowIso,
-        });
-      };
-
       // 1. Create Driver if completely missing
       if (!resolvedDriver.id) {
         const newDriverRef = adminDb.collection('drivers').doc(driverId);
@@ -402,124 +296,13 @@ export class DriverTruckIntakeServer {
         });
       }
 
-      // Temporal slot writes retain the existing shared-intake semantics.
-
-      const finalDriverSlotRef = adminDb.collection('projects').doc(projectId).collection('driver_active_assignments').doc(driverId);
-      const finalTruckSlotRef = adminDb.collection('projects').doc(projectId).collection('truck_active_assignments').doc(truckId);
-      const finalTruckAllocSlotRef = adminDb.collection('projects').doc(projectId).collection('truck_active_material_allocations').doc(truckId);
-
       // Shared participation plans own state and atomic audits.
       for (const plan of [driverMembershipPlan, truckMembershipPlan, driverAffiliationPlan, truckAffiliationPlan]) writeParticipationPlan(transaction, adminDb, plan);
 
-      // 6. Write Assignments
-      let finalAssignmentId = '';
-      if (isAssignmentIdempotent) {
-        finalAssignmentId = currentDriverSlot!.assignmentId;
-      } else {
-        const closedAssignments: string[] = [];
-
-        if (dAssign && dAssign.status === 'ACTIVE') {
-          const oldDAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(dAssign.assignmentId);
-          transaction.update(oldDAssignRef, {
-            status: 'CLOSED',
-            effectiveTo: nowIso,
-          });
-          closedAssignments.push(dAssign.assignmentId);
-
-          if (counterpartTruckSlotRef && counterpartTruckSlotSnap?.exists && counterpartTruckSlotSnap.data()?.assignmentId === dAssign.assignmentId) {
-            transaction.delete(counterpartTruckSlotRef);
-          }
-        }
-
-        if (tAssign && tAssign.status === 'ACTIVE') {
-          const oldTAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(tAssign.assignmentId);
-          transaction.update(oldTAssignRef, {
-            status: 'CLOSED',
-            effectiveTo: nowIso,
-          });
-          closedAssignments.push(tAssign.assignmentId);
-
-          if (counterpartDriverSlotRef && counterpartDriverSlotSnap?.exists && counterpartDriverSlotSnap.data()?.assignmentId === tAssign.assignmentId) {
-            transaction.delete(counterpartDriverSlotRef);
-          }
-        }
-
-        const hashHex = crypto.randomBytes(16).toString('hex');
-        finalAssignmentId = `ASN-${hashHex}`;
-        const newAssignRef = adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(finalAssignmentId);
-        transaction.set(newAssignRef, {
-          assignmentId: finalAssignmentId,
-          projectId,
-          driverId,
-          truckId,
-          status: 'ACTIVE',
-          effectiveFrom: nowIso,
-          effectiveTo: null,
-          createdAt: nowIso,
-          createdBy: actorId,
-        });
-
-        transaction.set(finalDriverSlotRef, { assignmentId: finalAssignmentId });
-        transaction.set(finalTruckSlotRef, { assignmentId: finalAssignmentId });
-
-        createAuditLog(
-          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-          'TRUCK',
-          truckId,
-          closedAssignments.length > 0 ? 'UPDATE' : 'CREATE',
-          {
-            before: { closedAssignments },
-            after: { assignmentId: finalAssignmentId, driverId, truckId, status: 'ACTIVE', carrierId },
-            deltaFields: ['status', 'driverId', 'truckId'],
-          },
-          `ASN-${projectId}-${finalAssignmentId}`
-        );
-      }
-
-      // 7. Write Allocations
-      let finalAllocationId = '';
-      if (isAllocationIdempotent) {
-        finalAllocationId = tAlloc!.allocationId;
-      } else {
-        const reallocated = !!tAlloc && tAlloc.status === 'ACTIVE';
-        if (tAlloc && tAlloc.status === 'ACTIVE') {
-          const oldAllocRef = adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(tAlloc.allocationId);
-          transaction.update(oldAllocRef, {
-            status: 'CLOSED',
-            effectiveTo: nowIso,
-          });
-        }
-
-        const hashHex = crypto.randomBytes(16).toString('hex');
-        finalAllocationId = `TMA-${hashHex}`;
-        const newAllocRef = adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(finalAllocationId);
-        transaction.set(newAllocRef, {
-          allocationId: finalAllocationId,
-          projectId,
-          truckId,
-          materialId,
-          status: 'ACTIVE',
-          effectiveFrom: nowIso,
-          effectiveTo: null,
-          createdAt: nowIso,
-          createdBy: actorId,
-        });
-
-        transaction.set(finalTruckAllocSlotRef, { allocationId: finalAllocationId });
-
-        createAuditLog(
-          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-          'TRUCK',
-          truckId,
-          reallocated ? 'UPDATE' : 'CREATE',
-          {
-            before: tAlloc && tAlloc.status === 'ACTIVE' ? { allocationId: tAlloc.allocationId, materialId: tAlloc.materialId } : {},
-            after: { allocationId: finalAllocationId, truckId, materialId, status: 'ACTIVE' },
-            deltaFields: ['allocationId', 'truckId', 'materialId', 'status'],
-          },
-          `TMA-${projectId}-${finalAllocationId}`
-        );
-      }
+      writeTemporalPlan(transaction, adminDb, assignmentPlan, temporalAt);
+      writeTemporalPlan(transaction, adminDb, allocationPlan, temporalAt);
+      const finalAssignmentId = assignmentPlan.record.assignmentId;
+      const finalAllocationId = allocationPlan.record.allocationId;
 
       return {
         projectId,

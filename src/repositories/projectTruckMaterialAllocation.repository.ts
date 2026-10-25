@@ -9,7 +9,6 @@ import {
   query,
   where,
   orderBy,
-  runTransaction,
   Transaction,
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
@@ -81,6 +80,7 @@ export class ProjectTruckMaterialAllocationRepository {
     if (!projectId || !allocationId) return null;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       const mem = this.inMemoryAllocations.get(allocationId);
       return mem && mem.projectId === projectId ? mem : null;
     }
@@ -93,15 +93,10 @@ export class ProjectTruckMaterialAllocationRepository {
         return snap.exists() ? snap.data() as ProjectTruckMaterialAllocationEntity : null;
       }
       const snap = await getDoc(docRef);
-      if (!snap.exists()) {
-        const mem = this.inMemoryAllocations.get(allocationId);
-        return mem && mem.projectId === projectId ? mem : null;
-      }
+      if (!snap.exists()) return null;
       return snap.data() as ProjectTruckMaterialAllocationEntity;
     } catch (error) {
       handleFirestoreError(error, OperationType.GET, docPath);
-      const mem = this.inMemoryAllocations.get(allocationId);
-      return mem && mem.projectId === projectId ? mem : null;
     }
   }
 
@@ -117,6 +112,7 @@ export class ProjectTruckMaterialAllocationRepository {
 
     const compKey = this.getSlotKey(projectId, truckId);
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       return this.inMemoryActiveSlots.get(compKey) || null;
     }
 
@@ -128,13 +124,10 @@ export class ProjectTruckMaterialAllocationRepository {
         return snap.exists() ? snap.data() as ActiveTruckMaterialSlotPayload : null;
       }
       const snap = await getDoc(docRef);
-      if (!snap.exists()) {
-        return this.inMemoryActiveSlots.get(compKey) || null;
-      }
+      if (!snap.exists()) return null;
       return snap.data() as ActiveTruckMaterialSlotPayload;
     } catch (error) {
       handleFirestoreError(error, OperationType.GET, docPath);
-      return this.inMemoryActiveSlots.get(compKey) || null;
     }
   }
 
@@ -188,6 +181,7 @@ export class ProjectTruckMaterialAllocationRepository {
     if (!projectId || !truckId) return [];
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return [];
       return Array.from(this.inMemoryAllocations.values())
         .filter((a) => a.projectId === projectId && a.truckId === truckId)
         .sort((a, b) => {
@@ -205,17 +199,9 @@ export class ProjectTruckMaterialAllocationRepository {
       const q = query(colRef, where('truckId', '==', truckId), orderBy('effectiveFrom', 'desc'));
       const snap = await getDocs(q);
       const live = snap.docs.map((d) => d.data() as ProjectTruckMaterialAllocationEntity);
-      if (live.length === 0) {
-        return Array.from(this.inMemoryAllocations.values())
-          .filter((a) => a.projectId === projectId && a.truckId === truckId)
-          .sort((a, b) => new Date(b.effectiveFrom).getTime() - new Date(a.effectiveFrom).getTime());
-      }
       return live;
     } catch (error) {
       handleFirestoreError(error, OperationType.LIST, colPath);
-      return Array.from(this.inMemoryAllocations.values())
-        .filter((a) => a.projectId === projectId && a.truckId === truckId)
-        .sort((a, b) => new Date(b.effectiveFrom).getTime() - new Date(a.effectiveFrom).getTime());
     }
   }
 
@@ -273,6 +259,9 @@ export class ProjectTruckMaterialAllocationRepository {
     actorId: string,
     transaction?: Transaction
   ): Promise<AllocateTruckToMaterialResult> {
+    // TEST_ONLY compatibility: authoritative production commands run on the server.
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('TEMPORAL_SERVER_COMMAND_REQUIRED');
+
     if (!projectId || !truckId || !materialId) {
       throw new Error('INVALID_ARGUMENT: projectId, truckId, and materialId are required');
     }
@@ -284,7 +273,7 @@ export class ProjectTruckMaterialAllocationRepository {
       return this._allocateTruckToMaterialInMemory(projectId, truckId, materialId, actorId);
     }
 
-    return this._allocateTruckToMaterialFirestore(projectId, truckId, materialId, actorId, transaction);
+    throw new Error('TEMPORAL_SERVER_COMMAND_REQUIRED');
   }
 
   /**
@@ -433,146 +422,7 @@ export class ProjectTruckMaterialAllocationRepository {
   /**
    * Live Firestore Transactional implementation of allocateTruckToMaterial
    */
-  private async _allocateTruckToMaterialFirestore(
-    projectId: string,
-    truckId: string,
-    materialId: string,
-    actorId: string,
-    transaction?: Transaction
-  ): Promise<AllocateTruckToMaterialResult> {
-    const colPath = `projects/${projectId}/truck_material_allocations`;
 
-    const executeWithTx = async (tx: Transaction) => {
-        // 1. Transactional Precondition Reads BEFORE any writes
-        const truckMemRef = doc(db, 'projects', projectId, 'truck_memberships', truckId);
-        const truckAffilRef = doc(db, 'projects', projectId, 'truck_carrier_affiliations', truckId);
-        const materialMemRef = doc(db, 'projects', projectId, 'material_memberships', materialId);
-        const truckSlotRef = doc(db, 'projects', projectId, 'truck_active_material_allocations', truckId);
-
-        const [truckMemSnap, truckAffilSnap, materialMemSnap, truckSlotSnap] = await Promise.all([
-          tx.get(truckMemRef),
-          tx.get(truckAffilRef),
-          tx.get(materialMemRef),
-          tx.get(truckSlotRef),
-        ]);
-
-        if (!truckMemSnap.exists() || truckMemSnap.data()?.status !== 'ACTIVE') {
-          throw new Error(`PRECONDITION_FAILED: Truck membership for ID ${truckId} does not exist or is not ACTIVE`);
-        }
-        if (!truckAffilSnap.exists() || truckAffilSnap.data()?.status !== 'ACTIVE') {
-          throw new Error(`PRECONDITION_FAILED: Truck carrier affiliation for ID ${truckId} does not exist or is not ACTIVE`);
-        }
-        if (!materialMemSnap.exists() || materialMemSnap.data()?.status !== 'ACTIVE') {
-          throw new Error(`PRECONDITION_FAILED: Material membership for ID ${materialId} does not exist or is not ACTIVE`);
-        }
-
-        const now = new Date().toISOString();
-        const currentSlot = truckSlotSnap.exists()
-          ? (truckSlotSnap.data() as ActiveTruckMaterialSlotPayload)
-          : null;
-
-        let existingAllocation: ProjectTruckMaterialAllocationEntity | null = null;
-
-        if (currentSlot?.allocationId) {
-          const currentAssignRef = doc(
-            db,
-            'projects',
-            projectId,
-            'truck_material_allocations',
-            currentSlot.allocationId
-          );
-          const assignSnap = await tx.get(currentAssignRef);
-          if (!assignSnap.exists()) {
-            throw new Error(
-              `ALLOCATION_POINTER_CORRUPTION: Active slot points to non-existent allocation ${currentSlot.allocationId}`
-            );
-          }
-          existingAllocation = assignSnap.data() as ProjectTruckMaterialAllocationEntity;
-
-          if (existingAllocation.projectId !== projectId || existingAllocation.truckId !== truckId) {
-            throw new Error(
-              `ALLOCATION_POINTER_CORRUPTION: Active slot points to allocation ${existingAllocation.allocationId} with mismatched truck or project`
-            );
-          }
-          if (existingAllocation.status !== 'ACTIVE' || existingAllocation.effectiveTo !== null) {
-            throw new Error(
-              `ALLOCATION_POINTER_CORRUPTION: Active slot points to inactive or closed allocation ${existingAllocation.allocationId}`
-            );
-          }
-
-          // Idempotency check
-          if (existingAllocation.materialId === materialId) {
-            return {
-              allocation: existingAllocation,
-              idempotent: true,
-              reallocated: false,
-              closedAllocationId: null,
-            };
-          }
-        }
-
-        // Writes begin after all reads complete
-        let reallocated = false;
-        let closedAllocationId: string | null = null;
-
-        if (existingAllocation) {
-          // Close old allocation
-          const oldAssignRef = doc(
-            db,
-            'projects',
-            projectId,
-            'truck_material_allocations',
-            existingAllocation.allocationId
-          );
-          tx.update(oldAssignRef, {
-            status: 'CLOSED',
-            effectiveTo: now,
-          });
-          reallocated = true;
-          closedAllocationId = existingAllocation.allocationId;
-        }
-
-        // Create new allocation
-        const allocationId = generateOpaqueAllocationId();
-        const newAllocation: ProjectTruckMaterialAllocationEntity = {
-          allocationId,
-          projectId,
-          truckId,
-          materialId,
-          status: 'ACTIVE',
-          effectiveFrom: now,
-          effectiveTo: null,
-          createdAt: now,
-          createdBy: actorId,
-        };
-
-        const newAssignRef = doc(db, 'projects', projectId, 'truck_material_allocations', allocationId);
-        tx.set(newAssignRef, newAllocation);
-
-        // Set or update active slot pointer
-        tx.set(truckSlotRef, { allocationId });
-
-        return {
-          allocation: newAllocation,
-          idempotent: false,
-          reallocated,
-          closedAllocationId,
-        };
-    };
-
-    if (transaction) {
-      return await executeWithTx(transaction);
-    }
-
-    try {
-      return await runTransaction(db, async (tx) => {
-        return await executeWithTx(tx);
-      });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, colPath);
-      throw error;
-    }
-  }
 
   /**
    * Canonical Close Allocation Mutation
@@ -582,6 +432,9 @@ export class ProjectTruckMaterialAllocationRepository {
     allocationId: string,
     actorId: string
   ): Promise<CloseTruckMaterialAllocationResult> {
+    // TEST_ONLY compatibility: authoritative production commands run on the server.
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('TEMPORAL_SERVER_COMMAND_REQUIRED');
+
     if (!projectId || !allocationId) {
       throw new Error('INVALID_ARGUMENT: projectId and allocationId are required');
     }
@@ -593,7 +446,7 @@ export class ProjectTruckMaterialAllocationRepository {
       return this._closeTruckMaterialAllocationInMemory(projectId, allocationId, actorId);
     }
 
-    return this._closeTruckMaterialAllocationFirestore(projectId, allocationId, actorId);
+    throw new Error('TEMPORAL_SERVER_COMMAND_REQUIRED');
   }
 
   /**
@@ -666,75 +519,7 @@ export class ProjectTruckMaterialAllocationRepository {
   /**
    * Live Firestore Transactional implementation of closeTruckMaterialAllocation
    */
-  private async _closeTruckMaterialAllocationFirestore(
-    projectId: string,
-    allocationId: string,
-    actorId: string
-  ): Promise<CloseTruckMaterialAllocationResult> {
-    const docPath = `projects/${projectId}/truck_material_allocations/${allocationId}`;
 
-    try {
-      return await runTransaction(db, async (transaction) => {
-        const assignRef = doc(db, 'projects', projectId, 'truck_material_allocations', allocationId);
-        const assignSnap = await transaction.get(assignRef);
-
-        if (!assignSnap.exists()) {
-          throw new Error(`NOT_FOUND: Allocation ${allocationId} not found in project ${projectId}`);
-        }
-
-        const allocation = assignSnap.data() as ProjectTruckMaterialAllocationEntity;
-        if (allocation.projectId !== projectId) {
-          throw new Error(`NOT_FOUND: Allocation ${allocationId} not found in project ${projectId}`);
-        }
-
-        // Idempotent close
-        if (allocation.status === 'CLOSED') {
-          return {
-            allocation,
-            idempotent: true,
-          };
-        }
-
-        // Read active slot
-        const truckSlotRef = doc(
-          db,
-          'projects',
-          projectId,
-          'truck_active_material_allocations',
-          allocation.truckId
-        );
-        const slotSnap = await transaction.get(truckSlotRef);
-
-        if (!slotSnap.exists() || slotSnap.data()?.allocationId !== allocationId) {
-          throw new Error(
-            `ALLOCATION_POINTER_CORRUPTION: Active slot for truck ${allocation.truckId} is missing or points to different allocation`
-          );
-        }
-
-        const now = new Date().toISOString();
-        const closedAllocation: ProjectTruckMaterialAllocationEntity = {
-          ...allocation,
-          status: 'CLOSED',
-          effectiveTo: now,
-        };
-
-        // Write updates
-        transaction.update(assignRef, {
-          status: 'CLOSED',
-          effectiveTo: now,
-        });
-        transaction.delete(truckSlotRef);
-
-        return {
-          allocation: closedAllocation,
-          idempotent: false,
-        };
-      });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, docPath);
-      throw error;
-    }
-  }
 }
 
 export const projectTruckMaterialAllocationRepository =

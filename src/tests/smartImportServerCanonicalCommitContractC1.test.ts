@@ -120,17 +120,17 @@ describe('SMART IMPORT C1 — Server-Authoritative Imported Trip Creation Contra
     });
 
     vi.spyOn(projectDriverTruckAssignmentRepository, 'getActiveAssignmentByDriver').mockImplementation(async (pId, dId) => {
-      if (pId === 'PRJ-C1-TEST' && dId === 'DRV-C1-01') return { driverId: 'DRV-C1-01', truckId: 'TRK-C1-01', status: 'ACTIVE' };
+      if (pId === 'PRJ-C1-TEST' && dId === 'DRV-C1-01') return { assignmentId: 'ASN-C1-01', projectId: pId, driverId: 'DRV-C1-01', truckId: 'TRK-C1-01', status: 'ACTIVE', effectiveFrom: '2026-01-01T00:00:00.000Z', effectiveTo: null, createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'DISPATCHER-C1' };
       return null;
     });
 
     vi.spyOn(projectDriverTruckAssignmentRepository, 'getActiveAssignmentByTruck').mockImplementation(async (pId, tId) => {
-      if (pId === 'PRJ-C1-TEST' && tId === 'TRK-C1-01') return { driverId: 'DRV-C1-01', truckId: 'TRK-C1-01', status: 'ACTIVE' };
+      if (pId === 'PRJ-C1-TEST' && tId === 'TRK-C1-01') return { assignmentId: 'ASN-C1-01', projectId: pId, driverId: 'DRV-C1-01', truckId: 'TRK-C1-01', status: 'ACTIVE', effectiveFrom: '2026-01-01T00:00:00.000Z', effectiveTo: null, createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'DISPATCHER-C1' };
       return null;
     });
 
     vi.spyOn(projectTruckMaterialAllocationRepository, 'getActiveAllocationByTruck').mockImplementation(async (pId, tId) => {
-      if (pId === 'PRJ-C1-TEST' && tId === 'TRK-C1-01') return { truckId: 'TRK-C1-01', materialId: 'MAT-C1-01', status: 'ACTIVE' };
+      if (pId === 'PRJ-C1-TEST' && tId === 'TRK-C1-01') return { allocationId: 'TMA-C1-01', projectId: pId, truckId: 'TRK-C1-01', materialId: 'MAT-C1-01', status: 'ACTIVE', effectiveFrom: '2026-01-01T00:00:00.000Z', effectiveTo: null, createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'DISPATCHER-C1' };
       return null;
     });
 

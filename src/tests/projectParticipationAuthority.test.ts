@@ -1,6 +1,5 @@
 import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import { setTestDbOverride } from '../firebase/admin';
 import { ProjectParticipationAuthority, planMembership } from '../services/projectParticipationAuthority.server';
 import { DriverTruckIntakeServer } from '../services/driverTruckIntake.server';
@@ -157,21 +156,16 @@ describe('P5-B2 current principal and server-only rules', () => {
   it('assigned PROJECT_ADMIN succeeds and audit role is the current role, not token SUPER_ADMIN', async () => {
     x.store['users/actor'].role = 'PROJECT_ADMIN'; await run('DRIVER', 'SUSPEND'); await affiliate('TRUCK', 'SET_AFFILIATION'); expect(audits().every(a => a.actor.role === 'PROJECT_ADMIN')).toBe(true);
   });
-  it('all six browser write boundaries are closed; reads and B3 temporal rules stay unchanged', () => {
+  it('participation and temporal browser write boundaries are closed with scoped reads', () => {
     const current = readFileSync('firestore.rules', 'utf8');
     const block = (source: string, name: string) => source.slice(source.indexOf(`      match /${name}/`)).split('\n      }')[0];
     for (const name of ['driver_memberships', 'truck_memberships', 'carrier_memberships', 'material_memberships', 'driver_carrier_affiliations', 'truck_carrier_affiliations']) {
       expect(block(current, name)).toContain('allow create, update, delete: if false;'); expect(block(current, name)).toContain('allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);');
     }
-    // Frozen B3 rule blocks at the accepted P5-B2 baseline.
-    const temporalBaseline = {
-      driver_truck_assignments: '33234aa8d41f5dff54c0d31944c162ef9aa2bc887c570334e36322ba77a1975a',
-      truck_material_allocations: '34edf0cdae2ad9681183e3482c8746e42f0004c48d992a95789c4df87e89fce5',
-      driver_active_assignments: '64ff2473d54664894d3254c6e2952818563658635fc8bda927065f52c72c664c',
-      truck_active_assignments: 'ce354cf2def3183009a0b681992cf61fd674210e8c4b5db9e5ca09630991de93',
-      truck_active_material_allocations: '060c3c089fbb09662c6588a1f40916c0d052d777e62d23c8c36a73deb6bfc4db',
-    };
-    for (const [name, hash] of Object.entries(temporalBaseline)) expect(createHash('sha256').update(block(current, name)).digest('hex')).toBe(hash);
+    for (const name of ['driver_truck_assignments', 'truck_material_allocations', 'driver_active_assignments', 'truck_active_assignments', 'truck_active_material_allocations']) {
+      expect(block(current, name)).toContain('allow create, update, delete: if false;');
+      expect(block(current, name)).toContain('allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);');
+    }
   });
 });
 
