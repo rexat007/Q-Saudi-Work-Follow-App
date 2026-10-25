@@ -97,6 +97,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
     };
 
     const emptyQuery: any = {
+      doc: () => ({ get: async () => ({ exists: false }) }),
       where: () => emptyQuery,
       get: async () => ({ docs: [] }),
     };
@@ -126,6 +127,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
                   exists: true,
                   data: () => ({
                     driverId: 'DRV-STANDALONE',
+                    status: 'ACTIVE',
                     name: 'سائق غير معين',
                     idNumber: '1099887766',
                     phone: '0501112233',
@@ -138,6 +140,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
                   exists: true,
                   data: () => ({
                     driverId: 'DRV-ASSIGNED',
+                    status: 'ACTIVE',
                     name: 'سائق معين على شاحنة',
                     idNumber: '1022334455',
                     phone: '0504445566',
@@ -166,7 +169,8 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
     expect(standalone).toBeDefined();
     expect(standalone?.fullNameAr).toBe('سائق غير معين');
     expect(standalone?.idNumber).toBe('1099887766');
-    expect(standalone?.status).toBe('ACTIVE');
+    expect(standalone?.membershipStatus).toBe('ACTIVE');
+    expect(standalone?.status).toBe('INACTIVE'); // No carrier affiliation yet: visible participation, not operationally clean.
 
     const assigned = snapshot.drivers.find(d => d.driverId === 'DRV-ASSIGNED');
     expect(assigned).toBeDefined();
@@ -199,6 +203,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
     };
 
     const emptyQuery: any = {
+      doc: () => ({ get: async () => ({ exists: false }) }),
       where: () => emptyQuery,
       get: async () => ({ docs: [] }),
     };

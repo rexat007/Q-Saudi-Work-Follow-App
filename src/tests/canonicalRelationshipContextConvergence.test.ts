@@ -159,6 +159,7 @@ describe('Canonical Relationship Context Convergence Tests', () => {
             driverName: 'عبدالله السعيد',
             materialId: 'MAT-001',
             materialName: 'ركام بازلتي معتمد',
+            assignmentEligible: true, allocationEligible: true,
             assignmentStatus: 'ASSIGNMENT_ACTIVE',
             allocationStatus: 'ALLOCATION_ACTIVE',
             integrityIssues: []

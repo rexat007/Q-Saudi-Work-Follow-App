@@ -1,3 +1,6 @@
+import { readProjectMasterList } from './projectFleetQuery.server';
+import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
+import { isFleetRowDefect } from './projectFleetReadModel.service';
 import { decodeGlobal } from '../utils/persistenceBoundary';
 import { adminDb } from '../firebase/admin';
 import { ProjectProvisioningAdminService } from './projectProvisioning.server';
@@ -16,6 +19,7 @@ export interface ProjectWorkspaceInitialProjectionData {
     phone: string;
     licenseType: string;
     status: string;
+    membershipStatus?: string;
     lastSyncedAt: string;
   }>;
   carriers: Array<{
@@ -25,6 +29,7 @@ export interface ProjectWorkspaceInitialProjectionData {
     commercialRegistrationNo: string;
     transportLicenseNo: string;
     status: string;
+    membershipStatus?: string;
     lastSyncedAt: string;
   }>;
   materials: Array<{
@@ -35,6 +40,7 @@ export interface ProjectWorkspaceInitialProjectionData {
     unitOfMeasure: string;
     standardDensityTonPerM3?: number;
     status: string;
+    membershipStatus?: string;
     lastSyncedAt: string;
   }>;
   fleetRows: Array<{
@@ -81,26 +87,24 @@ export class ProjectWorkspaceInitialProjectionServer {
 
     const cleanProjectId = projectId.trim();
 
-    // 1. DRIVERS Master: Load from canonical project driver memberships + global drivers
-    const driverMembershipsSnap = await adminDb
-      .collection('projects')
-      .doc(cleanProjectId)
-      .collection('driver_memberships')
-      .get();
-
-    const activeDriverMemberships = (driverMembershipsSnap.docs || [])
-      .map((d: any) => ({ id: d.id, ...d.data() }))
-      .filter((m: any) => m.status === 'ACTIVE');
-
-    const driverIds = activeDriverMemberships.map((m: any) => m.driverId || m.id);
-
-    const globalDrivers: any[] = [];
-    for (const driverId of driverIds) {
-      const docSnap = await adminDb.collection('drivers').doc(driverId).get();
-      if (docSnap.exists) {
-        globalDrivers.push(decodeGlobal(docSnap.data(), 'driver', driverId));
-      }
-    }
+    // Drivers master is participation-centric, never derived from Fleet rows.
+    const masterContext = new ProjectFleetReadModelAdminReadContext();
+    const driverEntries = await readProjectMasterList(masterContext, cleanProjectId, 'DRIVER');
+    const activeDriverMemberships = driverEntries.map(entry => entry.membership);
+    const globalDrivers = driverEntries.map(entry => entry.global).filter(Boolean);
+    const driverEligibility = new Map<string, boolean>();
+    await Promise.all(driverEntries.map(async entry => {
+      let usable = entry.eligible;
+      try {
+        const affiliation = await masterContext.getDriverCarrierAffiliation(cleanProjectId, entry.id);
+        usable = usable && affiliation?.status === 'ACTIVE';
+        if (usable) {
+          const [carrier, membership] = await Promise.all([masterContext.getGlobalCarrier(affiliation.carrierId), masterContext.getMembership('CARRIER', cleanProjectId, affiliation.carrierId)]);
+          usable = evaluateGlobalEligibility('CARRIER', carrier).CAN_USE_OPERATIONALLY && membership?.status === 'ACTIVE';
+        }
+      } catch (error) { if (!isFleetRowDefect(error)) throw error; usable = false; }
+      driverEligibility.set(entry.id, usable);
+    }));
 
     const now = new Date().toISOString();
 
@@ -108,10 +112,10 @@ export class ProjectWorkspaceInitialProjectionServer {
       const dId = m.driverId || m.id;
       const g = globalDrivers.find((d: any) => d.driverId === dId);
       const fullNameAr = g?.fullNameAr || g?.name || 'غير معروف';
-      const idNumber = g?.idNumber || g?.nationalOrIqamaId || '—';
+      const idNumber = g?.nationalId || g?.idNumber || g?.nationalOrIqamaId || '—';
       const phone = g?.phone || '—';
       const licenseType = g?.licenseType || (g?.licenseNumber ? `عمومي (${g.licenseNumber})` : 'نقل عام / ثقيل');
-      const status = m.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE';
+      const status = driverEligibility.get(dId) ? 'ACTIVE' : 'INACTIVE';
       return {
         driverId: dId,
         projectId: cleanProjectId,
@@ -120,6 +124,7 @@ export class ProjectWorkspaceInitialProjectionServer {
         phone,
         licenseType,
         status,
+        membershipStatus: m.status,
         lastSyncedAt: now,
       };
     });
@@ -132,7 +137,8 @@ export class ProjectWorkspaceInitialProjectionServer {
       companyNameAr: c.companyNameAr || c.name || 'غير معروف',
       commercialRegistrationNo: c.commercialRegistrationNo || '—',
       transportLicenseNo: c.transportLicenseNo || '—',
-      status: c.status || (c.membershipStatus === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE'),
+      status: c.status || 'INACTIVE',
+      membershipStatus: c.membershipStatus,
       lastSyncedAt: now,
     }));
 
@@ -145,7 +151,8 @@ export class ProjectWorkspaceInitialProjectionServer {
       code: m.code || '—',
       unitOfMeasure: m.unitOfMeasure || 'TON',
       standardDensityTonPerM3: m.standardDensityTonPerM3 || 1.6,
-      status: m.status || (m.membershipStatus === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE'),
+      status: m.status || 'INACTIVE',
+      membershipStatus: m.membershipStatus,
       lastSyncedAt: now,
     }));
 
@@ -165,7 +172,7 @@ export class ProjectWorkspaceInitialProjectionServer {
       materialName: row.materialName,
       assignmentStatus: row.assignmentStatus,
       allocationStatus: row.allocationStatus,
-      integrityStatus: (row.integrityIssues && row.integrityIssues.length > 0) ? 'ISSUE' : 'CLEAN',
+      integrityStatus: row.classification || ((row.integrityIssues && row.integrityIssues.length > 0) ? 'ISSUE' : 'CLEAN'),
       integrityIssueCount: row.integrityIssues ? row.integrityIssues.length : 0,
       lastSyncedAt: now,
     }));

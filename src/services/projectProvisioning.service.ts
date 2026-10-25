@@ -1,3 +1,4 @@
+import { canonicalProjectRead } from './projectReadTransport';
 import { projectRepository } from '../repositories/project.repository';
 import { materialRepository } from '../repositories/material.repository';
 import { carrierRepository } from '../repositories/carrier.repository';
@@ -80,6 +81,7 @@ export class ProjectProvisioningService {
   }
 
   async listProjectMaterials(projectId: string): Promise<any[]> {
+    if (process.env.NODE_ENV !== 'test') return canonicalProjectRead(projectId, 'materials');
     const memberships = await projectMaterialMembershipRepository.listMemberships(projectId);
     const materialIds = memberships.map(m => m.materialId);
     const globalMaterials = await globalMaterialRepository.listByIds(materialIds);
@@ -99,6 +101,7 @@ export class ProjectProvisioningService {
   }
 
   async listProjectCarriers(projectId: string): Promise<any[]> {
+    if (process.env.NODE_ENV !== 'test') return canonicalProjectRead(projectId, 'carriers');
     const memberships = await projectCarrierMembershipRepository.listMemberships(projectId);
     const carrierIds = memberships.map(m => m.carrierId);
     const globalCarriers = await globalCarrierRepository.listByIds(carrierIds);

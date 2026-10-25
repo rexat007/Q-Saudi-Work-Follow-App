@@ -159,7 +159,7 @@ describe('P5-B1 existing operational consumers', () => {
     }
     vi.spyOn(affiliations.projectDriverCarrierAffiliationRepository, 'getAffiliation').mockResolvedValue(x.store['projects/P1/driver_carrier_affiliations/D']);
     vi.spyOn(affiliations.projectTruckCarrierAffiliationRepository, 'getAffiliation').mockResolvedValue(x.store['projects/P1/truck_carrier_affiliations/T']);
-    vi.spyOn(projectFleetReadModelService, 'getProjectFleetReadModel').mockResolvedValue({ rows: [{ truckId: 'T', driverId: 'D', materialId: 'M' }] } as any);
+    vi.spyOn(projectFleetReadModelService, 'getProjectFleetReadModel').mockResolvedValue({ rows: [{ projectId: 'P1', truckId: 'T', driverId: 'D', materialId: 'M', assignmentEligible: true, allocationEligible: true }] } as any);
     const snapshot = structuredClone(originals);
     const context = await new CanonicalRelationshipContextService().getProjectRelationshipContext('P1');
     const property = `known${GLOBAL_IDENTITIES[kind].kind[0].toUpperCase() + GLOBAL_IDENTITIES[kind].kind.slice(1)}s`;

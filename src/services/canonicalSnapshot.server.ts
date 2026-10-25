@@ -1,4 +1,6 @@
-import { decodeGlobal } from '../utils/persistenceBoundary';
+import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
+import { readCurrentAssignment, readCurrentAllocation } from '../utils/temporalRelationshipReads';
+import { decodeGlobal, decodeScopedProjection } from '../utils/persistenceBoundary';
 import { adminDb } from '../firebase/admin';
 
 export class SnapshotError extends Error {
@@ -111,6 +113,8 @@ export class CanonicalSnapshotServerService {
       throw new SnapshotError('MATERIAL_NOT_ACTIVE_IN_PROJECT', 'المادة ليست نشطة في هذا المشروع');
     }
 
+    for (const [snap, field, id] of [[carrierMembership, 'carrierId', carrierId], [truckMembership, 'truckId', truckId], [driverMembership, 'driverId', driverId], [materialMembership, 'materialId', materialId]] as const) decodeScopedProjection(snap.data(), field, id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']);
+
     // 3. Global Canonical Read (Section D)
     const [
       carrierDoc,
@@ -167,12 +171,22 @@ export class CanonicalSnapshotServerService {
       adminDb.collection('projects').doc(projectId).collection('truck_carrier_affiliations').doc(truckId).get(),
     ]);
 
-    if (!driverAffiliation.exists || driverAffiliation.data()?.carrierId !== carrierId) {
+    if (!driverAffiliation.exists || driverAffiliation.data()?.status !== 'ACTIVE' || driverAffiliation.data()?.carrierId !== carrierId) {
       throw new SnapshotError('DRIVER_CARRIER_AFFILIATION_CONFLICT', 'تعارض في ارتباط السائق بالناقل في هذا المشروع');
     }
-    if (!truckAffiliation.exists || truckAffiliation.data()?.carrierId !== carrierId) {
+    if (!truckAffiliation.exists || truckAffiliation.data()?.status !== 'ACTIVE' || truckAffiliation.data()?.carrierId !== carrierId) {
       throw new SnapshotError('TRUCK_CARRIER_AFFILIATION_CONFLICT', 'تعارض في ارتباط الشاحنة بالناقل في هذا المشروع');
     }
+
+    decodeScopedProjection(driverAffiliation.data(), 'driverId', driverId, projectId, ['ACTIVE', 'INACTIVE']);
+    decodeScopedProjection(truckAffiliation.data(), 'truckId', truckId, projectId, ['ACTIVE', 'INACTIVE']);
+    for (const [kind, data] of [['DRIVER', driverData], ['TRUCK', truckData], ['CARRIER', carrierData], ['MATERIAL', materialData]] as const) {
+      if (!evaluateGlobalEligibility(kind, data).CAN_USE_OPERATIONALLY) throw new SnapshotError('GLOBAL_ENTITY_INELIGIBLE', 'GLOBAL_ENTITY_INELIGIBLE');
+    }
+    // Current operational snapshot only. Phase 10 owns historical trip-time reconstruction.
+    const reader = { get: (ref: any) => ref.get() }, at = new Date();
+    const [assignment, allocation] = await Promise.all([readCurrentAssignment(reader, adminDb, projectId, 'truckId', truckId, at), readCurrentAllocation(reader, adminDb, projectId, truckId, at)]);
+    if (!assignment || assignment.driverId !== driverId || !allocation || allocation.materialId !== materialId) throw new SnapshotError('CURRENT_RELATIONSHIP_MISMATCH', 'CURRENT_RELATIONSHIP_MISMATCH');
 
     // 6. Normalization & Fail-Closed Checks (Section G)
     const companyNameAr = carrierData.nameAr || carrierData.companyNameAr || carrierData.companyName || carrierData.name;

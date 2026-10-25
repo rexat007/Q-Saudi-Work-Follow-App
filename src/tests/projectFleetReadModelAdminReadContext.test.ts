@@ -59,7 +59,7 @@ describe('Project Fleet Read Model Server-Safe Admin-Based ReadContext Test Suit
   });
 
   it('4. getDriverTruckAssignment returns assignment entity from Admin collection', async () => {
-    inMemoryAdminStore[`projects/${projectId}/driver_truck_assignments/ASN-001`] = {
+    inMemoryAdminStore[`projects/${projectId}/driver_truck_assignments/ASN-001`] = { effectiveFrom: '2020-01-01T00:00:00.000Z', effectiveTo: null,
       assignmentId: 'ASN-001',
       projectId,
       driverId: 'DRV-001',
@@ -90,7 +90,7 @@ describe('Project Fleet Read Model Server-Safe Admin-Based ReadContext Test Suit
     inMemoryAdminStore[`projects/${projectId}/truck_active_material_allocations/TRK-001`] = {
       allocationId: 'ALC-001',
     };
-    inMemoryAdminStore[`projects/${projectId}/truck_material_allocations/ALC-001`] = {
+    inMemoryAdminStore[`projects/${projectId}/truck_material_allocations/ALC-001`] = { effectiveFrom: '2020-01-01T00:00:00.000Z',
       allocationId: 'ALC-001',
       projectId,
       truckId: 'TRK-001',
@@ -150,10 +150,10 @@ describe('Project Fleet Read Model Server-Safe Admin-Based ReadContext Test Suit
   });
 
   it('10. Global identities can be loaded safely from top-level collections', async () => {
-    inMemoryAdminStore['trucks/TRK-001'] = { truckId: 'TRK-001', plate: '1234 ABC', truckType: 'TIPPER_32M3' };
-    inMemoryAdminStore['carriers/CAR-001'] = { carrierId: 'CAR-001', nameAr: 'الناقل الأول' };
-    inMemoryAdminStore['drivers/DRV-001'] = { driverId: 'DRV-001', fullNameAr: 'السائق الأول' };
-    inMemoryAdminStore['materials/MAT-001'] = { materialId: 'MAT-001', nameAr: 'بحص تجريبي' };
+    inMemoryAdminStore['trucks/TRK-001'] = { status: 'ACTIVE', truckId: 'TRK-001', plate: '1234 ABC', truckType: 'TIPPER_32M3' };
+    inMemoryAdminStore['carriers/CAR-001'] = { status: 'ACTIVE', carrierId: 'CAR-001', nameAr: 'الناقل الأول' };
+    inMemoryAdminStore['drivers/DRV-001'] = { status: 'ACTIVE', driverId: 'DRV-001', fullNameAr: 'السائق الأول' };
+    inMemoryAdminStore['materials/MAT-001'] = { status: 'ACTIVE', materialId: 'MAT-001', nameAr: 'بحص تجريبي' };
 
     const t = await context.getGlobalTruck('TRK-001');
     const c = await context.getGlobalCarrier('CAR-001');
@@ -185,7 +185,7 @@ describe('Project Fleet Read Model Server-Safe Admin-Based ReadContext Test Suit
     inMemoryAdminStore[`projects/${projectId}/truck_active_assignments/TRK-001`] = {
       assignmentId: 'ASN-001',
     };
-    inMemoryAdminStore[`projects/${projectId}/driver_truck_assignments/ASN-001`] = {
+    inMemoryAdminStore[`projects/${projectId}/driver_truck_assignments/ASN-001`] = { effectiveFrom: '2020-01-01T00:00:00.000Z', effectiveTo: null,
       assignmentId: 'ASN-001',
       projectId,
       driverId: 'DRV-001',
@@ -203,7 +203,7 @@ describe('Project Fleet Read Model Server-Safe Admin-Based ReadContext Test Suit
     inMemoryAdminStore[`projects/${projectId}/truck_active_material_allocations/TRK-001`] = {
       allocationId: 'ALC-001',
     };
-    inMemoryAdminStore[`projects/${projectId}/truck_material_allocations/ALC-001`] = {
+    inMemoryAdminStore[`projects/${projectId}/truck_material_allocations/ALC-001`] = { effectiveFrom: '2020-01-01T00:00:00.000Z',
       allocationId: 'ALC-001',
       projectId,
       truckId: 'TRK-001',
@@ -213,11 +213,13 @@ describe('Project Fleet Read Model Server-Safe Admin-Based ReadContext Test Suit
     };
 
     // 5. Globals
-    inMemoryAdminStore['trucks/TRK-001'] = { truckId: 'TRK-001', plate: '1234 ABC', truckType: 'TIPPER_32M3' };
-    inMemoryAdminStore['carriers/CAR-001'] = { carrierId: 'CAR-001', nameAr: 'الناقل الأول' };
-    inMemoryAdminStore['drivers/DRV-001'] = { driverId: 'DRV-001', fullNameAr: 'السائق الأول' };
-    inMemoryAdminStore['materials/MAT-001'] = { materialId: 'MAT-001', nameAr: 'بحص تجريبي' };
+    inMemoryAdminStore['trucks/TRK-001'] = { status: 'ACTIVE', truckId: 'TRK-001', plate: '1234 ABC', truckType: 'TIPPER_32M3' };
+    inMemoryAdminStore['carriers/CAR-001'] = { status: 'ACTIVE', carrierId: 'CAR-001', nameAr: 'الناقل الأول' };
+    inMemoryAdminStore['drivers/DRV-001'] = { status: 'ACTIVE', driverId: 'DRV-001', fullNameAr: 'السائق الأول' };
+    inMemoryAdminStore['materials/MAT-001'] = { status: 'ACTIVE', materialId: 'MAT-001', nameAr: 'بحص تجريبي' };
 
+    inMemoryAdminStore[`projects/${projectId}/driver_active_assignments/DRV-001`] = { assignmentId: 'ASN-001' };
+    for (const [kind, id] of [['driver','DRV-001'],['carrier','CAR-001'],['material','MAT-001']]) inMemoryAdminStore[`projects/${projectId}/${kind}_memberships/${id}`] = { projectId, [kind+'Id']: id, status: 'ACTIVE' };
     const response = await projectFleetReadModelService.getProjectFleetReadModel(projectId, context);
 
     expect(response.projectId).toBe(projectId);

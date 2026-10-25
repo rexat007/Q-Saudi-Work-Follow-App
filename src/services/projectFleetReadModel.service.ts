@@ -1,256 +1,98 @@
-/**
- * PHASE 6 — UNIT 2D: UNIFIED PROJECT FLEET / ROSTER READ-MODEL CONVERGENCE
- *
- * Pure read-composition service.
- * Zero business mutation authority.
- * Zero Firestore writes.
- * Zero legacy Roster fallback.
- *
- * Composes canonical Project Truck Memberships, Truck Carrier Affiliations,
- * Driver-Truck Assignments (via Truck active slot), and Truck-Material Allocations (via Truck active slot)
- * with trusted server-authorized Global Identity display fields.
- */
-
-import {
-  ProjectFleetRowDTO,
-  ProjectFleetReadModelResponse,
-  FleetIntegrityIssue,
-} from '../types/projectFleetReadModel';
-
-import {
-  ProjectFleetReadModelReadContext,
-  DefaultProjectFleetReadModelReadContext,
-} from './projectFleetReadModel.context';
-
+import type { ProjectFleetRowDTO, ProjectFleetReadModelResponse, FleetIntegrityIssue } from '../types/projectFleetReadModel';
+import { ProjectFleetReadModelReadContext, DefaultProjectFleetReadModelReadContext } from './projectFleetReadModel.context';
+import { evaluateGlobalEligibility, GLOBAL_IDENTITIES, validGlobalId, type GlobalKind } from '../utils/globalIdentityPolicy';
+import { decodeGlobal, decodeScopedProjection, PersistenceBoundaryError } from '../utils/persistenceBoundary';
+import { canonicalProjectRead } from './projectReadTransport';
+/** Known row defects may be displayed; network/access/systemic failures must propagate. */
+export const isFleetRowDefect = (e: any) => ['PERSISTENCE_BOUNDARY_INVALID', 'IDENTITY_LOOKUP_INTEGRITY_ERROR', 'ASSIGNMENT_POINTER_INTEGRITY_ERROR', 'ALLOCATION_POINTER_CORRUPTION'].includes(e?.code);
+/** Decode identity/state/time plus the scalar profile fields that a projection can expose. */
+export function decodeFleetGlobal(kind: GlobalKind, raw: unknown, id: string): any {
+  const record = decodeGlobal<any>(raw, GLOBAL_IDENTITIES[kind].kind, id);
+  if (!evaluateGlobalEligibility(kind, record).MEMBERSHIP_RECORD_MAY_REMAIN) throw new PersistenceBoundaryError('status');
+  const fields = { TRUCK: ['plate', 'normalizedPlate', 'truckType'], DRIVER: ['fullNameAr', 'phone', 'nationalId', 'name', 'idNumber', 'nationalOrIqamaId', 'licenseType', 'licenseNumber'], CARRIER: ['nameAr', 'name', 'commercialRegistrationNo', 'transportLicenseNo', 'contactPersonName', 'contactPhone', 'contactEmail'], MATERIAL: ['nameAr', 'nameEn', 'name', 'code', 'unitOfMeasure'] }[kind];
+  for (const field of fields) if (record[field] !== undefined && typeof record[field] !== 'string') throw new PersistenceBoundaryError(field);
+  if (kind === 'MATERIAL' && record.standardDensityTonPerM3 !== undefined && (typeof record.standardDensityTonPerM3 !== 'number' || !Number.isFinite(record.standardDensityTonPerM3))) throw new PersistenceBoundaryError('standardDensityTonPerM3');
+  if (kind === 'CARRIER' && record.contactPerson != null) {
+    if (typeof record.contactPerson !== 'object' || Array.isArray(record.contactPerson)) throw new PersistenceBoundaryError('contactPerson');
+    for (const field of ['name', 'phone', 'email']) if (record.contactPerson[field] !== undefined && typeof record.contactPerson[field] !== 'string') throw new PersistenceBoundaryError('contactPerson.' + field);
+  }
+  return record;
+}
 export class ProjectFleetReadModelService {
-  /**
-   * Compose canonical Project Fleet Read Model for a given project.
-   * Execution must be performed in trusted server context where access to
-   * Global Identity display fields is authorized.
-   */
-  async getProjectFleetReadModel(
-    projectId: string,
-    context?: ProjectFleetReadModelReadContext
-  ): Promise<ProjectFleetReadModelResponse> {
-    if (!projectId || !projectId.trim()) {
-      throw new Error('INVALID_ARGUMENT: projectId is required');
-    }
-
-    const cleanProjectId = projectId.trim();
-    const ctx = context || new DefaultProjectFleetReadModelReadContext();
-
-    // 1. Fetch all ACTIVE Truck memberships in this project
-    const activeTruckMemberships = await ctx.listActiveTruckMemberships(cleanProjectId);
-
-    if (activeTruckMemberships.length === 0) {
-      return {
-        projectId: cleanProjectId,
-        truckCount: 0,
-        rows: [],
-        generatedAt: new Date().toISOString(),
-      };
-    }
-
-    // 2. Resolve relationships per active truck
-    interface InterimTruckData {
-      truckId: string;
-      carrierId: string;
-      carrierMismatch: boolean;
-      driverId: string | null;
-      materialId: string | null;
-      integrityIssues: FleetIntegrityIssue[];
-    }
-
-    const interimData: InterimTruckData[] = [];
-
-    // Unique IDs for global display hydration
-    const uniqueTruckIds = new Set<string>();
-    const uniqueCarrierIds = new Set<string>();
-    const uniqueDriverIds = new Set<string>();
-    const uniqueMaterialIds = new Set<string>();
-
-    for (const tm of activeTruckMemberships) {
-      const truckId = tm.truckId;
-      uniqueTruckIds.add(truckId);
-
-      const issues: FleetIntegrityIssue[] = [];
-
-      // Resolve Truck Carrier Affiliation (Unit 2B-1)
-      const truckAffiliation = await ctx.getTruckCarrierAffiliation(
-        cleanProjectId,
-        truckId
-      );
-
-      let carrierId = '';
-      if (!truckAffiliation || truckAffiliation.status !== 'ACTIVE' || !truckAffiliation.carrierId) {
-        issues.push({
-          code: 'MISSING_CARRIER_AFFILIATION',
-          message: `Truck ${truckId} has no active carrier affiliation in project ${cleanProjectId}`,
-        });
-      } else {
-        carrierId = truckAffiliation.carrierId;
-        uniqueCarrierIds.add(carrierId);
-      }
-
-      // Resolve Active Driver Assignment (Unit 2B-2 via truck active slot)
-      let driverId: string | null = null;
-      try {
-        const truckSlot = await ctx.getActiveTruckSlot(
-          cleanProjectId,
-          truckId
-        );
-
-        if (truckSlot) {
-          if (!truckSlot.assignmentId) {
-            issues.push({
-              code: 'INVALID_DRIVER_ASSIGNMENT_POINTER',
-              message: `Active assignment slot for truck ${truckId} has missing assignmentId`,
-            });
-          } else {
-            const assignment = await ctx.getDriverTruckAssignment(
-              cleanProjectId,
-              truckSlot.assignmentId
-            );
-
-            if (!assignment || assignment.status !== 'ACTIVE' || !assignment.driverId) {
-              issues.push({
-                code: 'INVALID_DRIVER_ASSIGNMENT_POINTER',
-                message: `Active assignment slot for truck ${truckId} points to non-existent or inactive assignment ${truckSlot.assignmentId}`,
-              });
-            } else {
-              driverId = assignment.driverId;
-              uniqueDriverIds.add(driverId);
-
-              // Check carrier alignment if carrierId was established
-              const driverAffil = await ctx.getDriverCarrierAffiliation(cleanProjectId, driverId);
-              if (driverAffil && driverAffil.status === 'ACTIVE' && driverAffil.carrierId && carrierId && driverAffil.carrierId !== carrierId) {
-                issues.push({
-                  code: 'CARRIER_MISMATCH',
-                  message: `Assigned driver ${driverId} carrier (${driverAffil.carrierId}) mismatches truck carrier (${carrierId})`,
-                });
-              }
-            }
-          }
-        }
-      } catch (err: any) {
-        issues.push({
-          code: 'INVALID_DRIVER_ASSIGNMENT_POINTER',
-          message: err.message || `Error resolving active driver assignment for truck ${truckId}`,
-        });
-      }
-
-      // Resolve Active Material Allocation (Unit 2C via truck active slot)
-      let materialId: string | null = null;
-      try {
-        const activeAllocation = await ctx.getActiveAllocationByTruck(
-          cleanProjectId,
-          truckId
-        );
-
-        if (activeAllocation) {
-          if (activeAllocation.status === 'ACTIVE' && activeAllocation.materialId) {
-            materialId = activeAllocation.materialId;
-            uniqueMaterialIds.add(materialId);
-          } else {
-            issues.push({
-              code: 'INVALID_MATERIAL_ALLOCATION_POINTER',
-              message: `Active allocation slot for truck ${truckId} points to non-active or invalid allocation`,
-            });
-          }
-        }
-      } catch (err: any) {
-        issues.push({
-          code: 'INVALID_MATERIAL_ALLOCATION_POINTER',
-          message: err.message || `Error resolving active material allocation for truck ${truckId}`,
-        });
-      }
-
-      interimData.push({
-        truckId,
-        carrierId,
-        carrierMismatch: issues.some((i) => i.code === 'CARRIER_MISMATCH'),
-        driverId,
-        materialId,
-        integrityIssues: issues,
-      });
-    }
-
-    // 3. Hydrate Global Display Identities (In parallel via Promise.all)
-    const truckMap = new Map<string, { plate: string; truckType: string }>();
-    const carrierMap = new Map<string, string>();
-    const driverMap = new Map<string, string>();
-    const materialMap = new Map<string, string>();
-
-    await Promise.all([
-      // Trucks
-      ...Array.from(uniqueTruckIds).map(async (tId) => {
-        const entity = await ctx.getGlobalTruck(tId);
-        if (entity) {
-          truckMap.set(tId, {
-            plate: entity.plate || entity.normalizedPlate || tId,
-            truckType: entity.truckType || 'STANDARD',
-          });
-        }
-      }),
-      // Carriers
-      ...Array.from(uniqueCarrierIds).map(async (cId) => {
-        const entity = await ctx.getGlobalCarrier(cId);
-        if (entity) {
-          carrierMap.set(cId, entity.nameAr || cId);
-        }
-      }),
-      // Drivers
-      ...Array.from(uniqueDriverIds).map(async (dId) => {
-        const entity = await ctx.getGlobalDriver(dId);
-        if (entity) {
-          driverMap.set(dId, entity.fullNameAr || dId);
-        }
-      }),
-      // Materials
-      ...Array.from(uniqueMaterialIds).map(async (mId) => {
-        const entity = await ctx.getGlobalMaterial(mId);
-        if (entity) {
-          materialMap.set(mId, entity.nameAr || entity.nameEn || mId);
-        }
-      }),
-    ]);
-
-    // 4. Construct Final Read Model Rows (Truck-Centric, PII-Minimized)
-    const rows: ProjectFleetRowDTO[] = interimData.map((item) => {
-      const truckMeta = truckMap.get(item.truckId) || { plate: item.truckId, truckType: 'STANDARD' };
-      const carrierName = carrierMap.get(item.carrierId) || (item.carrierId ? item.carrierId : 'غير محدد');
-      const driverName = item.driverId ? (driverMap.get(item.driverId) || item.driverId) : null;
-      const materialName = item.materialId ? (materialMap.get(item.materialId) || item.materialId) : null;
-
-      return {
-        projectId: cleanProjectId,
-        truckId: item.truckId,
-        plateNumber: truckMeta.plate,
-        truckType: truckMeta.truckType,
-
-        carrierId: item.carrierId,
-        carrierName,
-
-        driverId: item.driverId,
-        driverName,
-
-        materialId: item.materialId,
-        materialName,
-
-        assignmentStatus: item.driverId ? 'ASSIGNMENT_ACTIVE' : 'UNASSIGNED_DRIVER',
-        allocationStatus: item.materialId ? 'ALLOCATION_ACTIVE' : 'UNALLOCATED_MATERIAL',
-
-        integrityIssues: item.integrityIssues,
-      };
-    });
-
-    return {
-      projectId: cleanProjectId,
-      truckCount: rows.length,
-      rows,
-      generatedAt: new Date().toISOString(),
+  async getProjectFleetReadModel(projectId: string, context?: ProjectFleetReadModelReadContext): Promise<ProjectFleetReadModelResponse> {
+    if (!validGlobalId(projectId)) throw new Error('INVALID_ARGUMENT: projectId is required');
+    if (!context && process.env.NODE_ENV !== 'test') return canonicalProjectRead(projectId, 'fleet-read-model');
+    const ctx = context || new DefaultProjectFleetReadModelReadContext(), at = new Date();
+    if (!ctx.getCurrentAssignment || !ctx.getMembership) throw new Error('CANONICAL_FLEET_CONTEXT_REQUIRED');
+    const memberships = await ctx.listActiveTruckMemberships(projectId);
+    const globals = new Map<string, Promise<any>>();
+    const participantReads = new Map<string, Promise<any>>();
+    const hydrate = (kind: GlobalKind, id: string) => {
+      const key = `${kind}/${id}`;
+      if (!globals.has(key)) globals.set(key, (async () => {
+        const value = await ({ TRUCK: () => ctx.getGlobalTruck(id), DRIVER: () => ctx.getGlobalDriver(id), CARRIER: () => ctx.getGlobalCarrier(id), MATERIAL: () => ctx.getGlobalMaterial(id) }[kind])();
+        if (!value) return null;
+        const record = decodeFleetGlobal(kind, value, id);
+        return record;
+      })());
+      return globals.get(key)!;
     };
+    const rows = await Promise.all(memberships.map(async membership => {
+      const truckId = membership.truckId;
+      // A malformed membership is a Project-wide participation boundary failure.
+      decodeScopedProjection(membership, 'truckId', truckId, projectId, ['ACTIVE']);
+      const issues: FleetIntegrityIssue[] = [];
+      const issue = (code: FleetIntegrityIssue['code'], category: NonNullable<FleetIntegrityIssue['category']>, entityType?: GlobalKind) => issues.push({ code, category, entityType, message: code });
+      const safe = async <T>(read: () => Promise<T>, code: FleetIntegrityIssue['code']): Promise<T | null> => {
+        try { return await read(); } catch (e) { if (!isFleetRowDefect(e)) throw e; issue(code, 'INTEGRITY'); return null; }
+      };
+      const global = async (kind: GlobalKind, id: string) => {
+        const count = issues.length, result = await safe(() => hydrate(kind, id), 'GLOBAL_ENTITY_INVALID');
+        if (!result && count < issues.length) issues[issues.length - 1].entityType = kind;
+        if (!result && count === issues.length) issue('GLOBAL_ENTITY_MISSING', 'INTEGRITY', kind);
+        else if (result && !evaluateGlobalEligibility(kind, result).CAN_USE_OPERATIONALLY) issue('GLOBAL_ENTITY_INELIGIBLE', 'ELIGIBILITY', kind);
+        return result;
+      };
+      const participant = async (kind: GlobalKind, id: string) => {
+        const key = `${kind}/${id}`;
+        if (!participantReads.has(key)) participantReads.set(key, (async () => { const raw = await ctx.getMembership!(kind, projectId, id); if (!raw) return null; const value = decodeScopedProjection<any>(raw, GLOBAL_IDENTITIES[kind].id, id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']); if (!['ACTIVE', 'SUSPENDED', 'REMOVED'].includes(value.status)) throw new PersistenceBoundaryError('status'); return value; })());
+        const record = await safe(() => participantReads.get(key)!, 'MEMBERSHIP_INTEGRITY_ERROR');
+        if (!record || record.status !== 'ACTIVE') { issue('MEMBERSHIP_INACTIVE', 'ELIGIBILITY', kind); return false; }
+        return true;
+      };
+      const truckGlobal = await global('TRUCK', truckId);
+      const truckAffiliation = await safe(async () => { const raw = await ctx.getTruckCarrierAffiliation(projectId, truckId); if (!raw) return null; const value = decodeScopedProjection<any>(raw, 'truckId', truckId, projectId, ['ACTIVE', 'INACTIVE']); if (!validGlobalId(value.carrierId)) throw new PersistenceBoundaryError('carrierId'); if (!['ACTIVE', 'INACTIVE'].includes(value.status)) throw new PersistenceBoundaryError('status'); return value; }, 'AFFILIATION_INTEGRITY_ERROR');
+      let carrierId = '', carrierGlobal: any = null, carrierMember = false;
+      if (!truckAffiliation) issue('MISSING_CARRIER_AFFILIATION', 'PARTIAL');
+      else if (truckAffiliation.status !== 'ACTIVE') issue('AFFILIATION_INACTIVE', 'ELIGIBILITY', 'TRUCK');
+      else { carrierId = truckAffiliation.carrierId; carrierGlobal = await global('CARRIER', carrierId); carrierMember = await participant('CARRIER', carrierId); }
+      const assignment = await safe(() => ctx.getCurrentAssignment!(projectId, truckId, at), 'INVALID_DRIVER_ASSIGNMENT_POINTER');
+      const allocation = await safe(() => ctx.getActiveAllocationByTruck(projectId, truckId), 'INVALID_MATERIAL_ALLOCATION_POINTER');
+      let driverGlobal: any = null, materialGlobal: any = null, driverMember = false, materialMember = false, driverAffiliated = false;
+      if (!assignment) { if (!issues.some(i => i.code === 'INVALID_DRIVER_ASSIGNMENT_POINTER')) issue('UNASSIGNED_DRIVER', 'PARTIAL'); }
+      else {
+        driverGlobal = await global('DRIVER', assignment.driverId); driverMember = await participant('DRIVER', assignment.driverId);
+        const affiliation = await safe(async () => { const raw = await ctx.getDriverCarrierAffiliation(projectId, assignment.driverId); return raw ? decodeScopedProjection<any>(raw, 'driverId', assignment.driverId, projectId, ['ACTIVE', 'INACTIVE']) : null; }, 'AFFILIATION_INTEGRITY_ERROR');
+        if (!affiliation || affiliation.status !== 'ACTIVE') issue('AFFILIATION_INACTIVE', 'ELIGIBILITY', 'DRIVER');
+        else if (affiliation.carrierId !== carrierId) issue('CARRIER_MISMATCH', 'INTEGRITY');
+        else driverAffiliated = true;
+      }
+      if (!allocation) { if (!issues.some(i => i.code === 'INVALID_MATERIAL_ALLOCATION_POINTER')) issue('UNALLOCATED_MATERIAL', 'PARTIAL'); }
+      else { materialGlobal = await global('MATERIAL', allocation.materialId); materialMember = await participant('MATERIAL', allocation.materialId); }
+      const common = Boolean(evaluateGlobalEligibility('TRUCK', truckGlobal).CAN_USE_OPERATIONALLY && carrierId && evaluateGlobalEligibility('CARRIER', carrierGlobal).CAN_USE_OPERATIONALLY && carrierMember);
+      const row: ProjectFleetRowDTO = {
+        projectId, truckId, plateNumber: truckGlobal?.plate || truckGlobal?.normalizedPlate || truckId, truckType: truckGlobal?.truckType || 'STANDARD', carrierId, carrierName: carrierGlobal?.nameAr || carrierId || 'غير محدد',
+        driverId: assignment?.driverId || null, driverName: assignment ? driverGlobal?.fullNameAr || assignment.driverId : null,
+        materialId: allocation?.materialId || null, materialName: allocation ? materialGlobal?.nameAr || materialGlobal?.nameEn || allocation.materialId : null,
+        assignmentStatus: assignment ? 'ASSIGNMENT_ACTIVE' : 'UNASSIGNED_DRIVER', allocationStatus: allocation ? 'ALLOCATION_ACTIVE' : 'UNALLOCATED_MATERIAL', integrityIssues: issues,
+        classification: issues.some(i => i.category === 'INTEGRITY') ? 'INTEGRITY_ERROR' : issues.some(i => i.category === 'ELIGIBILITY') ? 'INELIGIBLE' : issues.length ? 'PARTIAL' : 'OPERATIONAL',
+        assignmentEligible: Boolean(common && assignment && driverMember && driverAffiliated && evaluateGlobalEligibility('DRIVER', driverGlobal).CAN_USE_OPERATIONALLY),
+        allocationEligible: Boolean(common && allocation && materialMember && evaluateGlobalEligibility('MATERIAL', materialGlobal).CAN_USE_OPERATIONALLY),
+      };
+      return row;
+    }));
+    rows.sort((a, b) => a.plateNumber < b.plateNumber ? -1 : a.plateNumber > b.plateNumber ? 1 : a.truckId < b.truckId ? -1 : a.truckId > b.truckId ? 1 : 0);
+    return { projectId, truckCount: rows.length, rows, generatedAt: new Date().toISOString() };
   }
 }
-
 export const projectFleetReadModelService = new ProjectFleetReadModelService();

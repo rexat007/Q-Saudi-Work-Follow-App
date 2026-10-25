@@ -1,3 +1,5 @@
+import { readProjectMasterList } from './projectFleetQuery.server';
+import { ProjectFleetReadModelAdminReadContext } from './projectFleetReadModel.server';
 import { planMembership, writeParticipationPlan } from './projectParticipationAuthority.server';
 import { resolveGlobalNaturalIdentity, authorizeGlobalCommand, decodeAuthoritativeGlobal, auditGlobalMutation } from './globalIdentityAuthority.server';
 import { assertCanEnroll } from '../utils/globalIdentityPolicy';
@@ -247,40 +249,12 @@ export class ProjectProvisioningAdminService {
    */
   async listProjectMaterials(projectId: string): Promise<any[]> {
     if (!projectId) return [];
-    
-    const membershipsSnap = await adminDb
-      .collection('projects')
-      .doc(projectId)
-      .collection('material_memberships')
-      .get();
-
-    const memberships = membershipsSnap.docs.map((doc: any) => doc.data());
-    const activeMemberships = memberships.filter((m: any) => m.status === 'ACTIVE');
-    if (activeMemberships.length === 0) return [];
-
-    const materialIds = activeMemberships.map((m: any) => m.materialId);
-    
-    const globalMaterials: any[] = [];
-    for (const materialId of materialIds) {
-      const docSnap = await adminDb.collection('materials').doc(materialId).get();
-      if (docSnap.exists) {
-        globalMaterials.push(decodeAuthoritativeGlobal('MATERIAL', docSnap.data(), materialId));
-      }
-    }
-
-    return activeMemberships.map((m: any) => {
-      const g = globalMaterials.find((g: any) => g.materialId === m.materialId);
-      return {
-        materialId: m.materialId,
-        name: g?.nameAr || g?.name || null,
-        code: g?.code || null,
-        unitOfMeasure: g?.unitOfMeasure || null,
-        standardDensityTonPerM3: g?.standardDensityTonPerM3 !== undefined ? g.standardDensityTonPerM3 : null,
-        membershipStatus: m.status,
-        status: m.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
-        isActive: m.status === 'ACTIVE',
-      };
-    });
+    const entries = await readProjectMasterList(new ProjectFleetReadModelAdminReadContext(), projectId, 'MATERIAL');
+    return entries.map(({ id, global: g, membership, eligible, projectionIssue }) => ({
+      materialId: id, name: g?.nameAr || g?.name || null, code: g?.code || null, unitOfMeasure: g?.unitOfMeasure || null,
+      standardDensityTonPerM3: g?.standardDensityTonPerM3 ?? null, membershipStatus: membership.status,
+      status: eligible ? 'ACTIVE' : 'INACTIVE', isActive: eligible, projectionIssue,
+    }));
   }
 
   /**
@@ -288,47 +262,13 @@ export class ProjectProvisioningAdminService {
    */
   async listProjectCarriers(projectId: string): Promise<any[]> {
     if (!projectId) return [];
-
-    const membershipsSnap = await adminDb
-      .collection('projects')
-      .doc(projectId)
-      .collection('carrier_memberships')
-      .get();
-
-    const memberships = membershipsSnap.docs.map((doc: any) => doc.data());
-    const activeMemberships = memberships.filter((m: any) => m.status === 'ACTIVE');
-    if (activeMemberships.length === 0) return [];
-
-    const carrierIds = activeMemberships.map((m: any) => m.carrierId);
-
-    const globalCarriers: any[] = [];
-    for (const carrierId of carrierIds) {
-      const docSnap = await adminDb.collection('carriers').doc(carrierId).get();
-      if (docSnap.exists) {
-        globalCarriers.push(decodeAuthoritativeGlobal('CARRIER', docSnap.data(), carrierId));
-      }
-    }
-
-    return activeMemberships.map((m: any) => {
-      const g = globalCarriers.find((g: any) => g.carrierId === m.carrierId);
-      const carrierItem: any = {
-        carrierId: m.carrierId,
-        name: g?.nameAr || g?.name || 'غير معروف',
-        commercialRegistrationNo: g?.commercialRegistrationNo || '—',
-        membershipStatus: m.status,
-        status: m.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
-        isActive: m.status === 'ACTIVE',
-      };
-
-      if (g?.transportLicenseNo) {
-        carrierItem.transportLicenseNo = g.transportLicenseNo;
-      }
-      if (g?.contactPerson && (g.contactPerson.name || g.contactPerson.phone || g.contactPerson.email)) {
-        carrierItem.contactPerson = g.contactPerson;
-      }
-
-      return carrierItem;
-    });
+    const entries = await readProjectMasterList(new ProjectFleetReadModelAdminReadContext(), projectId, 'CARRIER');
+    return entries.map(({ id, global: g, membership, eligible, projectionIssue }) => ({
+      carrierId: id, name: g?.nameAr || g?.name || id, commercialRegistrationNo: g?.commercialRegistrationNo || '—',
+      transportLicenseNo: g?.transportLicenseNo || null, contactPerson: g?.contactPerson ? { name: g.contactPerson.name, phone: g.contactPerson.phone, email: g.contactPerson.email } : null,
+      contactPersonName: g?.contactPerson?.name || g?.contactPersonName || null, contactPhone: g?.contactPerson?.phone || g?.contactPhone || null, contactEmail: g?.contactPerson?.email || g?.contactEmail || null,
+      membershipStatus: membership.status, status: eligible ? 'ACTIVE' : 'INACTIVE', isActive: eligible, projectionIssue,
+    }));
   }
 
   /**

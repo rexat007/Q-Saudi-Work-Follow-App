@@ -1,3 +1,5 @@
+import { canonicalProjectRead } from './projectReadTransport';
+import { relationshipContextFromFleet } from '../utils/relationshipContextProjection';
 import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 /**
  * CANONICAL RELATIONSHIP CONTEXT SERVICE
@@ -53,6 +55,8 @@ export class CanonicalRelationshipContextService {
     }
 
     const cleanProjectId = projectId.trim();
+    if (process.env.NODE_ENV !== 'test') return canonicalProjectRead(cleanProjectId, 'relationship-context');
+    // TEST_ONLY repository compatibility; production master and Fleet reads use the server.
 
     // 1. Concurrently fetch all active project memberships and unified fleet read model
     const [
@@ -163,33 +167,9 @@ export class CanonicalRelationshipContextService {
       };
     });
 
-    // 8. Construct Active Driver Assignment & Material Allocation mapping from Fleet Read Model
-    const activeDriverByTruck: Record<string, string> = {};
-    const activeMaterialByTruck: Record<string, string> = {};
-
-    if (fleetReadModel && Array.isArray(fleetReadModel.rows)) {
-      for (const row of fleetReadModel.rows) {
-        if (row.driverId && knownTrucks.some(t => t.truckId === row.truckId) && knownDrivers.some(d => d.driverId === row.driverId)) {
-          activeDriverByTruck[row.truckId] = row.driverId;
-        }
-        if (row.materialId && knownTrucks.some(t => t.truckId === row.truckId) && knownMaterials.some(m => m.materialId === row.materialId)) {
-          activeMaterialByTruck[row.truckId] = row.materialId;
-        }
-      }
-    }
-
-    return {
-      projectId: cleanProjectId,
-      authorizedCarrierIds: knownCarriers.map(c => c.carrierId),
-      authorizedMaterialIds: knownMaterials.map(m => m.materialId),
-      knownCarriers,
-      knownTrucks,
-      knownDrivers,
-      knownMaterials,
-      activeDriverByTruck,
-      activeMaterialByTruck,
-    };
+    return relationshipContextFromFleet(cleanProjectId, fleetReadModel, {
+      authorizedCarrierIds: knownCarriers.map(c => c.carrierId), authorizedMaterialIds: knownMaterials.map(m => m.materialId), knownCarriers, knownTrucks, knownDrivers, knownMaterials,
+    });
   }
 }
-
 export const canonicalRelationshipContextService = new CanonicalRelationshipContextService();

@@ -62,7 +62,7 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
         return Promise.resolve({
           ok: fleetOk,
           status: fleetOk ? 200 : 500,
-          json: () => Promise.resolve({ success: fleetOk, data: { rows: fleetRows } }),
+          json: () => Promise.resolve({ success: fleetOk, data: { projectId: decodeURIComponent(url.split('/')[3]), rows: fleetRows.map(row => ({ ...row, projectId: decodeURIComponent(url.split('/')[3]) })) } }),
         });
       }
       return Promise.reject(new Error(`Unexpected URL: ${url}`));
@@ -245,7 +245,7 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
     const service = new ProjectCanonicalRefreshService();
     const result = await service.refresh('PRJ-01', { overrideToken: 'token' });
 
-    expect(result.fleetRows).toEqual([{ truckId: 'TRK-55', plateNumber: '9999 XYZ' }]);
+    expect(result.fleetRows).toEqual([{ projectId: 'PRJ-01', truckId: 'TRK-55', plateNumber: '9999 XYZ' }]);
     vi.unstubAllGlobals();
   });
 

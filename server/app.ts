@@ -1479,37 +1479,20 @@ app.post(
   }
 );
 
-app.get(
-  '/api/projects/:projectId/fleet-read-model',
-  enforceProjectIsolation,
-  async (req, res) => {
-    try {
-      const { projectId } = req.params;
-      if (!projectId) {
-        return res.status(400).json({
-          success: false,
-          error: 'معرف المشروع مطلوب',
-        });
-      }
-
-      const { projectFleetReadModelService } = await import('../src/services/projectFleetReadModel.service');
-      const { ProjectFleetReadModelAdminReadContext } = await import('../src/services/projectFleetReadModel.server');
-      const readContext = new ProjectFleetReadModelAdminReadContext();
-      const data = await projectFleetReadModelService.getProjectFleetReadModel(projectId, readContext);
-
-      res.json({
-        success: true,
-        data,
-      });
-    } catch (error: any) {
-      console.error('Error in /api/projects/:projectId/fleet-read-model:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'فشل استعلام نموذج قراءة أسطول المشروع',
-      });
-    }
-  }
-);
+app.get('/api/projects/:projectId/fleet-read-model', enforceProjectIsolation, async (req, res) => {
+  try {
+    const { ProjectFleetQueryService } = await import('../src/services/projectFleetQuery.server');
+    const data = await new ProjectFleetQueryService().fleet(req.params.projectId, (req as any).user);
+    res.json({ success: true, data });
+  } catch (error: any) { res.status(error.status || 500).json({ success: false, error: error.message, code: error.code }); }
+});
+app.get('/api/projects/:projectId/relationship-context', enforceProjectIsolation, async (req, res) => {
+  try {
+    const { ProjectFleetQueryService } = await import('../src/services/projectFleetQuery.server');
+    const data = await new ProjectFleetQueryService().context(req.params.projectId, (req as any).user);
+    res.json({ success: true, data });
+  } catch (error: any) { res.status(error.status || 500).json({ success: false, error: error.message, code: error.code }); }
+});
 
 // ----------------------------------------------------
 // 10C. Project Setup Provisioning (Phase 6)
