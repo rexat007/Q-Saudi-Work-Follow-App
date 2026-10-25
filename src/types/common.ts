@@ -19,6 +19,7 @@ export type UserRole =
   | 'VIEWER';
 
 export interface AuthUserContext {
+  linkedDriverId?: string;
   userId: string;
   email: string;
   displayName: string;

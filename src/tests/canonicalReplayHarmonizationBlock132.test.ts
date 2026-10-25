@@ -6,6 +6,8 @@ import { runConflictResolutionTestSuite } from './conflictResolution.test';
 import { OutboxOperation } from '../types/offline';
 import { syncOperationRepository } from '../repositories/syncOperation.repository';
 
+vi.mock('../firebase/config', () => ({ auth: { currentUser: { uid: 'actor', getIdToken: async () => 'verified-test-token' } }, db: {} }));
+
 describe('BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization', () => {
   beforeEach(async () => {
     if (typeof navigator !== 'undefined') {
@@ -179,7 +181,9 @@ describe('BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization', () =>
     
     const requestBody = JSON.parse(calledOptions?.body as string);
     expect(requestBody.operationId).toBe(operationId);
-    expect(requestBody.tripId).toBe(tripId);
+    expect(requestBody.command).toBe('RECORD_LOADING');
+    expect(requestBody.payload.driverId).toBe('DRV-501');
+    expect(requestBody).not.toHaveProperty('tripId');
 
     // 5. Assert authoritative Trip is now cached in IndexedDB
     const cachedTrip = (await indexedDBService.getById('trips', tripId)) as any;
@@ -196,7 +200,7 @@ describe('BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization', () =>
     expect(recordedOp?.serverAck?.tripSerial).toBe(1045);
   });
 
-  it('6. Durable Idempotency Proof: Existing sync ledger record instantly commits Outbox PENDING -> SYNCED without calling server', async () => {
+  it('6. A local ledger cannot bypass server reauthorization before idempotent acknowledgement', async () => {
     const operationId = 'OP-IDEMPOTENCY-TEST-456';
     const tripId = 'TRP-IDEMPOTENCY-456';
 
@@ -231,7 +235,7 @@ describe('BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization', () =>
       updatedBy: 'USR-TEST-DISPATCHER',
     } as any);
 
-    const fetchSpy = vi.spyOn(global, 'fetch');
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ success: true, idempotentReplay: true, trip: { tripId, tripSerial: 'SERVER', projectId: 'PRJ-NEOM-NORTH' } }) } as any);
 
     // 3. Trigger syncAll()
     const syncResult = await outboxService.syncAll(false);
@@ -239,14 +243,14 @@ describe('BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization', () =>
     expect(syncResult.failedCount).toBe(0);
 
     // 4. Assert repository was queried but no network call was made
-    expect(repoSpy).toHaveBeenCalledWith('PRJ-NEOM-NORTH', operationId);
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(repoSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
 
     // 5. Assert Outbox operation is SYNCED with Idempotency Hit message
     const ops = await outboxService.getOperations();
     const recordedOp = ops.find(o => o.operationId === operationId);
     expect(recordedOp?.status).toBe('SYNCED');
-    expect(recordedOp?.serverAck?.messageAr).toContain('Idempotency Hit');
+    expect(recordedOp?.serverAck?.tripId).toBe(tripId);
   });
 
   it('7. Conflict False-Success Remediation Proof: Mutating Resolution (OVERRIDE_TO_NEW_PRICING) re-queues Outbox as PENDING with sanitized payload and does not write local Trip', async () => {
@@ -388,8 +392,9 @@ describe('BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization', () =>
 
       expect(fetchSpy).toHaveBeenCalledTimes(1);
       const [calledUrl, calledOptions] = fetchSpy.mock.calls[0];
-      expect(calledUrl).toContain('/api/projects/PRJ-TEST/trips/TRP-UPDATE-123/status');
-      expect(calledOptions?.method).toBe('PATCH');
+      expect(calledUrl).toContain('/api/projects/PRJ-TEST/trips/commands');
+      expect(calledOptions?.method).toBe('POST');
+      expect(JSON.parse(calledOptions?.body as string).command).toBe('START_TRANSIT');
 
       const cachedTrip = await indexedDBService.getById<any>('trips', tripId);
       expect(cachedTrip).toBeDefined();
@@ -444,7 +449,7 @@ describe('BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization', () =>
 
       expect(fetchSpy).toHaveBeenCalledTimes(1);
       const [calledUrl, calledOptions] = fetchSpy.mock.calls[0];
-      expect(calledUrl).toContain('/api/projects/PRJ-TEST/trips/TRP-RECEIPT-123/receipt');
+      expect(calledUrl).toContain('/api/projects/PRJ-TEST/trips/commands');
       expect(calledOptions?.method).toBe('POST');
 
       const cachedTrip = await indexedDBService.getById<any>('trips', tripId);
@@ -506,7 +511,7 @@ describe('BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization', () =>
 
       expect(fetchSpy).toHaveBeenCalledTimes(1);
       const [calledUrl] = fetchSpy.mock.calls[0];
-      expect(calledUrl).toContain('/api/projects/PRJ-TEST/trips/TRP-EXCEPTION-123/exceptions');
+      expect(calledUrl).toContain('/api/projects/PRJ-TEST/trips/commands');
 
       const cachedTrip = await indexedDBService.getById<any>('trips', tripId);
       expect(cachedTrip?.hasExceptions).toBe(true);
@@ -550,7 +555,7 @@ describe('BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization', () =>
       expect(op?.errorReason).toContain('فشل عشوائي بالسيرفر');
     });
 
-    it('5. Durable Idempotency check with local syncOperationRepository instantly commits to SYNCED', async () => {
+    it('5. Revoked server authority wins over a cached processed ledger record', async () => {
       const operationId = 'OP-IDEMPOTENCY-TEST-GAP';
       const tripId = 'TRP-GAP-123';
 
@@ -577,19 +582,20 @@ describe('BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization', () =>
         updatedBy: 'USR-TEST',
       } as any);
 
-      const fetchSpy = vi.spyOn(global, 'fetch');
+      const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({ ok: false, json: async () => ({ success: false, code: 'FORBIDDEN_PROJECT_ACCESS' }) } as any);
 
       const syncResult = await outboxService.syncAll(false);
-      expect(syncResult.syncedCount).toBe(1);
-      expect(syncResult.failedCount).toBe(0);
+      expect(syncResult.syncedCount).toBe(0);
+      expect(syncResult.failedCount).toBe(1);
 
-      expect(repoSpy).toHaveBeenCalledWith('PRJ-TEST', operationId);
-      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(repoSpy).not.toHaveBeenCalled();
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
 
       const ops = await outboxService.getOperations();
       const op = ops.find(o => o.operationId === operationId);
-      expect(op?.status).toBe('SYNCED');
-      expect(op?.serverAck?.messageAr).toContain('Idempotency Hit');
+      expect(op?.status).toBe('FAILED');
+      expect(op?.serverAck).toBeUndefined();
+      expect(op?.errorReason).toContain('FORBIDDEN_PROJECT_ACCESS');
     });
   });
 });

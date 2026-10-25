@@ -18,14 +18,14 @@ function initializer(file: string, name: string) {
 function runtime(kind: 'Driver' | 'Unloading', ids: string[], role = kind === 'Driver' ? 'DRIVER' : 'SCALE_OPERATOR') {
   const file = `src/components/field/${kind === 'Driver' ? 'DriverView' : 'UnloadingOperatorView'}.tsx`;
   const name = kind === 'Driver' ? 'refreshActiveTrip' : 'refreshInboundTrips';
-  const context = { userId: 'u', role: role as any, assignedProjectIds: ids };
+  const context = { userId: 'u', linkedDriverId: 'DRV-A', role: role as any, assignedProjectIds: ids };
   const ref = { current: 'current' };
-  const trips = [{ tripId: 'T1', projectId: 'P1', driverId: 'u', status: 'IN_TRANSIT' }, { tripId: 'T2', projectId: 'P2', driverId: 'u', status: 'IN_TRANSIT' }, { tripId: 'T3', projectId: 'P2', driverId: 'other', status: 'IN_TRANSIT' }];
+  const trips = [{ tripId: 'T1', projectId: 'P1', driverId: 'DRV-A', status: 'IN_TRANSIT' }, { tripId: 'T2', projectId: 'P2', driverId: 'DRV-A', status: 'IN_TRANSIT' }, { tripId: 'T3', projectId: 'P2', driverId: 'other', status: 'IN_TRANSIT' }];
   const selected = vi.fn(), inbound = vi.fn(), cache = vi.fn();
   const repository = { listByProject: vi.fn(async (_projectId: string) => []), listAll: vi.fn(async () => [{ projectId: 'P1' }, { projectId: 'P2' }]) };
   const indexed = { getAll: vi.fn(async () => trips), putMany: vi.fn() };
   const code = ts.transpileModule(`return (${initializer(file, name)});`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
-  const fn = new Function('authContext', 'scopeKey', 'scopeRef', 'isOnline', 'filterProjectScope', 'indexedDBService', 'tripRepository', 'projectRepository', 'setActiveTrip', 'setInboundTrips', 'setTripsCache', code)(context, 'current', ref, true, filterProjectScope, indexed, repository, repository, selected, inbound, cache);
+  const fn = new Function('authContext', 'scopeKey', 'scopeRef', 'isOnline', 'filterProjectScope', 'indexedDBService', 'tripRepository', 'projectRepository', 'setActiveTrip', 'setInboundTrips', 'setTripsCache', 'operationalTripProjection', code)(context, 'current', ref, true, filterProjectScope, indexed, repository, repository, selected, inbound, cache, (trip: any) => trip);
   return { run: fn, selected, inbound, cache, context, ref, repository, indexed, trips };
 }
 describe('Active field cache readers obey current project authority', () => {

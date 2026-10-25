@@ -521,19 +521,27 @@ export class TripService {
       };
     }
 
-    // If destination weighbridge captured
-    if (targetStatus === 'WEIGHED_DESTINATION' && payload.destinationTareKg && payload.destinationGrossKg) {
-      const destinationNetKg = payload.destinationGrossKg - payload.destinationTareKg;
-      const billableWeightKg = destinationNetKg > 0 ? destinationNetKg : (existing.weights.originNetKg || 0);
+    // Destination business commands permit either measured gross/tare or an
+    // explicit net-only reading. Never fabricate gross/tare from a net entry.
+    if (targetStatus === 'WEIGHED_DESTINATION') {
+      const measured = typeof payload.destinationTareKg === 'number' && typeof payload.destinationGrossKg === 'number';
+      const destinationNetKg = measured ? payload.destinationGrossKg - payload.destinationTareKg : payload.destinationNetKg;
+      if (!Number.isFinite(destinationNetKg) || destinationNetKg <= 0) throw new Error('INVALID_DESTINATION_WEIGHT');
       updates.weights = {
         ...existing.weights,
-        destinationTareKg: payload.destinationTareKg,
-        destinationGrossKg: payload.destinationGrossKg,
+        ...(measured ? { destinationTareKg: payload.destinationTareKg, destinationGrossKg: payload.destinationGrossKg } : {}),
         destinationNetKg,
         destinationTicketNo: payload.destinationTicketNo,
-        billableWeightKg,
+        billableWeightKg: destinationNetKg,
+        varianceKg: destinationNetKg - (existing.weights.originNetKg || 0),
       };
+      updates.unloadingDataSource = 'MANUAL'; // measurements entered by the authenticated operator
+      updates.unloadingActorType = 'USER'; updates.unloadingActorId = context.userId;
+      if (payload.unloadDecision === 'ACCEPT_ORIGIN_NET_AS_DESTINATION') (updates as any).unloadDecision = payload.unloadDecision;
     }
+    if (targetStatus === 'AT_DESTINATION') (updates as any).arrivalTime = new Date().toISOString();
+    if (targetStatus === 'WEIGHED_ORIGIN') (updates as any).loadTime = new Date().toISOString();
+    if (targetStatus === 'OFFLOADED') (updates as any).unloadTime = new Date().toISOString();
 
     // If completing trip: calculate server financials automatically
     if (targetStatus === 'COMPLETED') {

@@ -1,9 +1,10 @@
+import { TripCommandsServerService, TripCommandError } from '../src/services/tripCommands.server';
+import { STATUS_COMMANDS } from '../src/types/tripCommands';
 import { AdminAccountServerService, AdminCommandError } from '../src/services/adminAccount.server';
 import { strictWorkspaceProject, WorkspaceStorageBoundary, projectStorage, normalizeStorageId, workspaceError } from './workspace.isolation';
 import express from 'express';
 import path from 'path';
 import { adminDb } from '../src/firebase/admin';
-import { serverTripService, serverExceptionService } from '../src/services/canonicalTripPersistence.server';
 import { serverWorkspaceService } from './workspace.service';
 import { driverTruckIntakeService } from '../src/services/driverTruckIntake.service';
 import { projectWorkspaceInitialProjectionServer } from '../src/services/projectWorkspaceInitialProjection.server';
@@ -53,6 +54,11 @@ app.post('/api/admin/users/:userId/commands', async (req: any, res) => {
     const status = code === 'FORBIDDEN_ADMIN_ACTION' ? 403 : code === 'TARGET_USER_NOT_FOUND' ? 404 : code === 'INVALID_ADMIN_COMMAND' ? 400 : 409;
     res.status(status).json({ success: false, code });
   }
+});
+
+app.get('/api/admin/driver-identities', async (req: any, res) => {
+  try { res.json({ success: true, drivers: await new AdminAccountServerService().listDriverIdentities(req.user) }); }
+  catch { res.status(403).json({ success: false, code: 'FORBIDDEN_ADMIN_ACTION' }); }
 });
 
 // ----------------------------------------------------
@@ -1289,40 +1295,10 @@ app.get('/api/workspace/sheets/:spreadsheetId/values', async (req, res) => {
   }
 });
 
-// ----------------------------------------------------
-// 7. Security Enforcement: Trip Update with RBAC & Weighbridge Integrity
-// ----------------------------------------------------
-app.patch(
-  '/api/projects/:projectId/trips/:tripId',
-  enforceProjectIsolation,
-  enforceTripSupervisorRestrictions,
-  enforceWeighbridgeUnloadIntegrity,
-  (req, res) => {
-    res.json({
-      success: true,
-      message: `تم اعتماد تعديل الرحلة (${req.params.tripId}) بنجاح للمستخدم المصرح له`,
-      tripId: req.params.tripId,
-      projectId: req.params.projectId,
-      appliedUpdates: req.body,
-    });
-  }
-);
-
-// Alternate route for direct trip updates
-app.patch(
-  '/api/trips/:tripId',
-  enforceProjectIsolation,
-  enforceTripSupervisorRestrictions,
-  enforceWeighbridgeUnloadIntegrity,
-  (req, res) => {
-    res.json({
-      success: true,
-      message: `تم اعتماد تعديل الرحلة (${req.params.tripId}) بنجاح`,
-      tripId: req.params.tripId,
-      appliedUpdates: req.body,
-    });
-  }
-);
+// Generic trip patches are retired: callers must express a named business command.
+app.patch(['/api/projects/:projectId/trips/:tripId', '/api/trips/:tripId'], (_req, res) => {
+  res.status(410).json({ success: false, code: 'TRIP_COMMAND_REQUIRED' });
+});
 
 // ----------------------------------------------------
 // 8. Security Enforcement: Import Truck with Carrier Check & RBAC
@@ -1430,499 +1406,39 @@ app.get(
   }
 );
 
-// ----------------------------------------------------
-// 9f. Server-Authoritative Trip Creation (BLOCK 89B / UNIT 6A)
-// ----------------------------------------------------
-app.post(
-  '/api/projects/:projectId/trips',
-  enforceProjectIsolation,
-  enforceDispatcherOrAbove,
-  async (req, res) => {
-    try {
-      const { projectId } = req.params;
-      const user = (req as any).user;
-
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          error: 'غير مصرح: سياق المستخدم مفقود.',
-        });
-      }
-
-      // Check client-supplied payload security (Section 8)
-      if (req.body.tripNumber !== undefined) {
-        return res.status(400).json({
-          success: false,
-          error: 'محاولة غير مصرح بها: لا يمكن للعميل تحديد رقم الرحلة (tripNumber) يدوياً.',
-        });
-      }
-
-      if (
-        req.body.pricingSnapshot !== undefined ||
-        req.body.settlementAmount !== undefined ||
-        req.body.financials !== undefined
-      ) {
-        return res.status(400).json({
-          success: false,
-          error: 'تعارض أمني: يُحظر تحديد لقطات الأسعار أو مبالغ التسوية والماليات يدوياً من قِبل العميل.',
-        });
-      }
-
-      // Enforce project identifier matches the URL parameter
-      if (req.body.projectId && req.body.projectId !== projectId) {
-        return res.status(400).json({
-          success: false,
-          error: 'تعارض أمني: معرف المشروع غير متطابق بين الطلب ورابط الخدمة.',
-        });
-      }
-
-      // Idempotency Check via Admin SDK (operationId or clientUUID)
-      const operationId = req.body.operationId || req.body.clientUUID;
-      if (operationId) {
-        const tripsQuery = await adminDb
-          .collection('projects')
-          .doc(projectId)
-          .collection('trips')
-          .where('clientUUID', '==', operationId)
-          .limit(1)
-          .get();
-        if (!tripsQuery.empty) {
-          const existingTrip = tripsQuery.docs[0].data();
-          console.log(`[Idempotency Hit] Replaying trip creation for clientUUID: ${operationId}`);
-          return res.json({
-            success: true,
-            trip: existingTrip,
-            message: 'تم تأكيد المعالجة السابقة بنجاح (Idempotency Hit)',
-          });
-        }
-      }
-
-      // Dispatch/Create trip authoritatively on the server via Admin SDK
-      const params = {
-        ...req.body,
-        projectId, // override/force matching project ID
-        clientUUID: operationId || req.body.clientUUID,
-      };
-
-      const context = {
-        userId: user.userId,
-        email: user.email,
-        displayName: user.displayName || user.email || 'Dispatcher',
-        role: user.role,
-        assignedProjectIds: user.assignedProjectIds,
-      };
-
-      const newTrip = await serverTripService.dispatchTrip(params, context);
-
-      res.status(201).json({
-        success: true,
-        trip: newTrip,
-        message: 'تم إنشاء وتأكيد الرحلة خادومياً بنجاح مع تخصيص الرقم المتسلسل المعتمد.',
-      });
-    } catch (error: any) {
-      console.error('Error in secure trip creation:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'فشلت عملية إنشاء الرحلة الخادومية المعتمدة.',
-      });
-    }
+// Named operational commands; service re-reads current principal inside the transaction.
+const executeTripCommand = async (req: any, res: any, input: any) => {
+  try {
+    const result = await new TripCommandsServerService().execute(req.params.projectId, input, req.user);
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    const code = error instanceof TripCommandError ? error.code : ['ACCOUNT_NOT_ACTIVE', 'INVALID_ACCOUNT_PROFILE'].includes(error.code) ? error.code : 'TRIP_COMMAND_FAILED';
+    res.status(code.startsWith('FORBIDDEN') ? 403 : code === 'TRIP_NOT_FOUND' ? 404 : 400).json({ success: false, code, error: code });
   }
-);
-
-// ----------------------------------------------------
-// 9f-2. Server-Authoritative Imported Trip Creation (C1)
-// ----------------------------------------------------
-app.post(
-  '/api/projects/:projectId/trips/import',
-  enforceProjectIsolation,
-  enforceDispatcherOrAbove,
-  async (req, res) => {
-    try {
-      const { projectId } = req.params;
-      const user = (req as any).user;
-
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          error: 'غير مصرح: سياق المستخدم مفقود.',
-        });
-      }
-
-      // Security Rejection Checks
-      if (req.body.tripId !== undefined) {
-        return res.status(400).json({
-          success: false,
-          error: 'محاولة غير مصرح بها: معرّف الرحلة (tripId) يتم إنشاؤه خادومياً ولا يمكن للعميل تحديده يدوياً.',
-        });
-      }
-
-      if (req.body.tripNumber !== undefined) {
-        return res.status(400).json({
-          success: false,
-          error: 'محاولة غير مصرح بها: لا يمكن للعميل تحديد رقم الرحلة (tripNumber) يدوياً.',
-        });
-      }
-
-      if (
-        req.body.pricingSnapshot !== undefined ||
-        req.body.settlementAmount !== undefined ||
-        req.body.financials !== undefined
-      ) {
-        return res.status(400).json({
-          success: false,
-          error: 'تعارض أمني: يُحظر تحديد لقطات الأسعار أو مبالغ التسوية والماليات يدوياً من قِبل العميل.',
-        });
-      }
-
-      if (
-        req.body.carrierSnapshot !== undefined ||
-        req.body.truckSnapshot !== undefined ||
-        req.body.driverSnapshot !== undefined ||
-        req.body.materialSnapshot !== undefined
-      ) {
-        return res.status(400).json({
-          success: false,
-          error: 'تعارض أمني: يُحظر تحديد لقطات الكيانات المعتمدة يدوياً من قِبل العميل.',
-        });
-      }
-
-      if (req.body.projectId && req.body.projectId !== projectId) {
-        return res.status(400).json({
-          success: false,
-          error: 'تعارض أمني: معرف المشروع غير متطابق بين الطلب ورابط الخدمة.',
-        });
-      }
-
-      // Idempotency Check via Admin SDK (operationId or clientUUID)
-      const operationId = req.body.clientUUID || req.body.operationId;
-      if (operationId) {
-        const tripsQuery = await adminDb
-          .collection('projects')
-          .doc(projectId)
-          .collection('trips')
-          .where('clientUUID', '==', operationId)
-          .limit(1)
-          .get();
-        if (!tripsQuery.empty) {
-          const existingTrip = tripsQuery.docs[0].data();
-          return res.json({
-            success: true,
-            trip: existingTrip,
-            idempotentReplay: true,
-            message: 'تم تأكيد المعالجة السابقة بنجاح (Idempotency Hit)',
-          });
-        }
-      }
-
-      const params = {
-        ...req.body,
-        projectId,
-        clientUUID: operationId,
-      };
-
-      const context = {
-        userId: user.userId,
-        email: user.email,
-        displayName: user.displayName || user.email || 'Import Committer',
-        role: user.role,
-        assignedProjectIds: user.assignedProjectIds,
-      };
-
-      const newTrip = await serverTripService.dispatchImportedTrip(params, context);
-
-      res.status(201).json({
-        success: true,
-        trip: newTrip,
-        idempotentReplay: false,
-        message: 'تم إنشاء وتأكيد الرحلة المستوردة خادومياً بنجاح.',
-      });
-    } catch (error: any) {
-      console.error('Error in secure imported trip creation:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'فشلت عملية إنشاء الرحلة المستوردة الخادومية المعتمدة.',
-      });
-    }
-  }
-);
-
-// ----------------------------------------------------
-// 9g. Server-Authoritative Trip Status Transition (GAP-P5-04 / UNIT 6A)
-// ----------------------------------------------------
-app.patch(
-  '/api/projects/:projectId/trips/:tripId/status',
-  enforceProjectIsolation,
-  enforceDispatcherOrAbove,
-  async (req, res) => {
-    try {
-      const { projectId, tripId } = req.params;
-      const { status, payload = {}, operationId } = req.body;
-      const user = (req as any).user;
-
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          error: 'غير مصرح: سياق المستخدم مفقود.',
-        });
-      }
-
-      if (!status) {
-        return res.status(400).json({
-          success: false,
-          error: 'حالة الرحلة المستهدفة مطلوبة.',
-        });
-      }
-
-      // Idempotency check via Admin SDK sync_operations
-      if (operationId) {
-        const opSnap = await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).get();
-        if (opSnap.exists) {
-          const tripSnap = await adminDb.collection('projects').doc(projectId).collection('trips').doc(tripId).get();
-          if (tripSnap.exists) {
-            console.log(`[Idempotency Hit] Replaying status transition for operation: ${operationId}`);
-            return res.json({
-              success: true,
-              trip: tripSnap.data(),
-              message: 'تم تأكيد معالجة تحديث الحالة السابقة (Idempotency Hit)',
-            });
-          }
-        }
-      }
-
-      const context = {
-        userId: user.userId,
-        email: user.email,
-        displayName: user.displayName || user.email || 'Dispatcher',
-        role: user.role,
-        assignedProjectIds: user.assignedProjectIds,
-      };
-
-      const updatedTrip = await serverTripService.transitionTripStatus(projectId, tripId, status, payload, context);
-
-      // Save sync_operation ledger via Admin SDK
-      if (operationId) {
-        await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).set({
-          operationId,
-          projectId,
-          clientOperationUUID: operationId,
-          targetCollection: 'trips',
-          targetDocId: tripId,
-          status: 'PROCESSED',
-          processedResponse: {
-            tripId,
-            status,
-            committedAt: new Date().toISOString(),
-          },
-          createdBy: user.userId,
-          updatedBy: user.userId,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }
-
-      res.json({
-        success: true,
-        trip: updatedTrip,
-        message: 'تم تحديث حالة الرحلة واعتمادها خادومياً بنجاح.',
-      });
-    } catch (error: any) {
-      console.error('Error in secure trip status transition:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'فشلت عملية تحديث حالة الرحلة خادومياً',
-      });
-    }
-  }
-);
-
-// ----------------------------------------------------
-// 9h. Server-Authoritative Record Receipt (GAP-P5-04 / UNIT 6A)
-// ----------------------------------------------------
-app.post(
-  '/api/projects/:projectId/trips/:tripId/receipt',
-  enforceProjectIsolation,
-  enforceDispatcherOrAbove,
-  async (req, res) => {
-    try {
-      const { projectId, tripId } = req.params;
-      const { destinationTareKg, destinationGrossKg, destinationTicketNo, operationId } = req.body;
-      const user = (req as any).user;
-
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          error: 'غير مصرح: سياق المستخدم مفقود.',
-        });
-      }
-
-      // Idempotency check via Admin SDK sync_operations
-      if (operationId) {
-        const opSnap = await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).get();
-        if (opSnap.exists) {
-          const tripSnap = await adminDb.collection('projects').doc(projectId).collection('trips').doc(tripId).get();
-          if (tripSnap.exists) {
-            console.log(`[Idempotency Hit] Replaying record receipt for operation: ${operationId}`);
-            return res.json({
-              success: true,
-              trip: tripSnap.data(),
-              message: 'تم تأكيد معالجة إيصال الاستلام السابق (Idempotency Hit)',
-            });
-          }
-        }
-      }
-
-      const context = {
-        userId: user.userId,
-        email: user.email,
-        displayName: user.displayName || user.email || 'Dispatcher',
-        role: user.role,
-        assignedProjectIds: user.assignedProjectIds,
-      };
-
-      const updatedTrip = await serverTripService.transitionTripStatus(
-        projectId,
-        tripId,
-        'WEIGHED_DESTINATION',
-        {
-          destinationTareKg: Number(destinationTareKg || 0),
-          destinationGrossKg: Number(destinationGrossKg || 0),
-          destinationTicketNo: destinationTicketNo || '',
-        },
-        context
-      );
-
-      // Save sync_operation ledger via Admin SDK
-      if (operationId) {
-        await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).set({
-          operationId,
-          projectId,
-          clientOperationUUID: operationId,
-          targetCollection: 'trips',
-          targetDocId: tripId,
-          status: 'PROCESSED',
-          processedResponse: {
-            tripId,
-            committedAt: new Date().toISOString(),
-          },
-          createdBy: user.userId,
-          updatedBy: user.userId,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }
-
-      res.json({
-        success: true,
-        trip: updatedTrip,
-        message: 'تم تسجيل إيصال الاستلام وتحديث أوزان الوجهة بنجاح.',
-      });
-    } catch (error: any) {
-      console.error('Error in secure receipt recording:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'فشلت عملية تسجيل إيصال الاستلام خادومياً',
-      });
-    }
-  }
-);
-
-// ----------------------------------------------------
-// 9i. Server-Authoritative Report Exception (GAP-P5-04 / UNIT 6A)
-// ----------------------------------------------------
-app.post(
-  '/api/projects/:projectId/trips/:tripId/exceptions',
-  enforceProjectIsolation,
-  enforceDispatcherOrAbove,
-  async (req, res) => {
-    try {
-      const { projectId, tripId } = req.params;
-      const { exceptionId, type, severity, descriptionAr, descriptionEn, operationId } = req.body;
-      const user = (req as any).user;
-
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          error: 'غير مصرح: سياق المستخدم مفقود.',
-        });
-      }
-
-      if (!exceptionId) {
-        return res.status(400).json({
-          success: false,
-          error: 'معرف الاستثناء مطلوب.',
-        });
-      }
-
-      // Idempotency check via Admin SDK sync_operations
-      if (operationId) {
-        const opSnap = await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).get();
-        if (opSnap.exists) {
-          const safeTrip = tripId || '_general';
-          const excSnap = await adminDb.collection('projects').doc(projectId).collection('trips').doc(safeTrip).collection('exceptions').doc(exceptionId).get();
-          if (excSnap.exists) {
-            console.log(`[Idempotency Hit] Replaying report exception for operation: ${operationId}`);
-            return res.json({
-              success: true,
-              exception: excSnap.data(),
-              message: 'تم تأكيد الإبلاغ عن الاستثناء السابق (Idempotency Hit)',
-            });
-          }
-        }
-      }
-
-      const context = {
-        userId: user.userId,
-        email: user.email,
-        displayName: user.displayName || user.email || 'Dispatcher',
-        role: user.role,
-        assignedProjectIds: user.assignedProjectIds,
-      };
-
-      const newException = await serverExceptionService.raiseException({
-        projectId,
-        tripId,
-        exceptionId,
-        type: (type || 'ROUTE_DEVIATION') as any,
-        severity: severity || 'MEDIUM',
-        description: descriptionAr || descriptionEn || '',
-        reasonAr: descriptionAr || 'استثناء تشغيلي',
-        status: 'OPEN',
-      }, context);
-
-      // Save sync_operation ledger via Admin SDK
-      if (operationId) {
-        await adminDb.collection('projects').doc(projectId).collection('sync_operations').doc(operationId).set({
-          operationId,
-          projectId,
-          clientOperationUUID: operationId,
-          targetCollection: 'exceptions',
-          targetDocId: exceptionId,
-          status: 'PROCESSED',
-          processedResponse: {
-            exceptionId,
-            committedAt: new Date().toISOString(),
-          },
-          createdBy: user.userId,
-          updatedBy: user.userId,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }
-
-      res.status(201).json({
-        success: true,
-        exception: newException,
-        message: 'تم تسجيل الاستثناء التشغيلي بنجاح وتحديث الرحلة خادومياً.',
-      });
-    } catch (error: any) {
-      console.error('Error in secure exception reporting:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'فشلت عملية تسجيل الاستثناء خادومياً',
-      });
-    }
-  }
-);
+};
+app.post('/api/projects/:projectId/trips/commands', (req, res) => executeTripCommand(req, res, req.body));
+// Existing URLs remain bounded compatibility adapters, never generic field mutation.
+app.post('/api/projects/:projectId/trips', (req, res) => {
+  const { operationId, clientUUID, ...payload } = req.body;
+  return executeTripCommand(req, res, { command: 'DISPATCH_TRIP', payload, operationId: operationId || clientUUID });
+});
+app.post('/api/projects/:projectId/trips/import', (req, res) => {
+  const { operationId, clientUUID, ...payload } = req.body;
+  return executeTripCommand(req, res, { command: 'IMPORT_TRIP', payload, operationId: operationId || clientUUID });
+});
+app.patch('/api/projects/:projectId/trips/:tripId/status', (req, res) => {
+  if (typeof req.body.status !== 'string' || Object.keys(req.body).some(key => !['status', 'payload', 'operationId'].includes(key))) return res.status(400).json({ success: false, code: 'INVALID_TRIP_COMMAND' });
+  const command = STATUS_COMMANDS[req.body.status as keyof typeof STATUS_COMMANDS];
+  return executeTripCommand(req, res, { command, tripId: req.params.tripId, payload: req.body.payload === undefined ? {} : req.body.payload, operationId: req.body.operationId });
+});
+app.post('/api/projects/:projectId/trips/:tripId/receipt', (req, res) => {
+  const { operationId, ...payload } = req.body;
+  return executeTripCommand(req, res, { command: 'RECORD_DESTINATION_WEIGHT', tripId: req.params.tripId, payload, operationId });
+});
+app.post('/api/projects/:projectId/trips/:tripId/exceptions', (req, res) => {
+  const { operationId, ...payload } = req.body;
+  return executeTripCommand(req, res, { command: 'REPORT_EXCEPTION', tripId: req.params.tripId, payload, operationId });
+});
 
 // ----------------------------------------------------
 // 10. Security Enforcement: Idempotent Operations Sync

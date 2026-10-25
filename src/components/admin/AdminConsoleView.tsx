@@ -1,3 +1,4 @@
+import { DriverAccountBindingControl } from './DriverAccountBindingControl';
 import { executeAdminAccountCommand, adminErrorKey } from '../../services/adminAccountClient.service';
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
@@ -552,6 +553,9 @@ export function AdminConsoleView() {
                 </div>
 
                 {canManageUsers && selectedUserForSecurity.userId !== currentUser?.uid ? <>
+                {selectedUserForSecurity.role === 'DRIVER' && users.find(user => user.userId === selectedUserForSecurity.userId)?.role === 'DRIVER' && (
+                  <DriverAccountBindingControl key={selectedUserForSecurity.userId} target={selectedUserForSecurity} onChanged={() => refreshTarget(selectedUserForSecurity.userId)} />
+                )}
                 {/* 1. RBAC Selection */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-stone-700 block">{t('admin_console.role_assignment')}</label>
@@ -569,6 +573,8 @@ export function AdminConsoleView() {
                     <option value="SUPERVISOR">{t('navigation.roles.supervisor')}</option>
                     <option value="SITE_SUPERVISOR">{t('navigation.roles.site_supervisor')}</option>
                     <option value="DISPATCHER">{t('navigation.roles.dispatcher')}</option>
+                    <option value="SCALE_OPERATOR">{t('navigation.roles.scale_operator')}</option>
+                    <option value="DRIVER">{t('navigation.roles.driver')}</option>
                     <option value="FINANCE_AUDITOR">{t('navigation.roles.finance_auditor')}</option>
                     <option value="VIEWER">{t('navigation.roles.viewer')}</option>
                   </select>
@@ -872,6 +878,8 @@ export function AdminConsoleView() {
                   <option value="SUPERVISOR">SUPERVISOR</option>
                   <option value="SITE_SUPERVISOR">SITE_SUPERVISOR</option>
                   <option value="DISPATCHER">DISPATCHER</option>
+                  <option value="SCALE_OPERATOR">{t('navigation.roles.scale_operator')}</option>
+                  <option value="DRIVER">{t('navigation.roles.driver')}</option>
                   <option value="FINANCE_AUDITOR">FINANCE_AUDITOR</option>
                   <option value="VIEWER">VIEWER</option>
                 </select>

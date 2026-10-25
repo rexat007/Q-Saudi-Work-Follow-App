@@ -1,6 +1,20 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "trip_commands.errors.denied": "Your account is not authorized to perform this project action.",
+  "trip_commands.errors.unlinked": "A driver identity must be linked before performing this trip action.",
+  "trip_commands.errors.ownership": "This trip is not assigned to the driver linked to your account.",
+  "trip_commands.errors.invalid": "The action data is invalid or exceeds the permitted operation.",
+  "trip_commands.errors.conflict": "This action conflicts with an earlier request; refresh the trip.",
+  "trip_commands.errors.failed": "The action could not be confirmed; check the trip state and retry.",
+
+  "admin_console.driver_binding": "Driver identity binding",
+  "admin_console.driver_not_linked": "No driver identity linked",
+  "admin_console.driver_choose": "Choose an existing driver",
+  "admin_console.driver_link": "Link driver",
+  "admin_console.driver_unlink": "Unlink driver",
+  "admin_console.errors.driver_linked": "Driver identity is linked to another account",
+
   "project_access.description": "Assignments come from user accounts; roles are global and effective access requires an active account.",
   "project_access.account_status": "Account status",
   "project_access.assignment": "Assignment",

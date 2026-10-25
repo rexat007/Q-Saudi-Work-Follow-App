@@ -10,6 +10,7 @@ export interface AuthenticatedUser {
   displayName: string;
   role: UserRole;
   assignedProjectIds: string[];
+  linkedDriverId?: string;
 }
 
 export interface SecurityAuditResult {

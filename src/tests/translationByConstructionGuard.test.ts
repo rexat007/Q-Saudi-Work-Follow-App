@@ -928,6 +928,7 @@ describe('Batch 4 complete active presentation family', () => {
     'src/components/FirestoreArchitectureView.tsx',
     'src/components/pricing/PricingEngineView.tsx',
     'src/components/admin/AdminConsoleView.tsx',
+    'src/components/admin/DriverAccountBindingControl.tsx',
     'src/components/security/SecurityAuditView.tsx',
     'src/components/migration/LegacyMigrationView.tsx',
     'src/components/navigation/SystemToolsDrawer.tsx',

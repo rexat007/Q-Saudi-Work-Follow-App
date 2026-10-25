@@ -2,8 +2,8 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
-const state = vi.hoisted(() => ({ role: 'PROJECT_ADMIN', section: 'USERS', status: 'PENDING_APPROVAL', arrays: 0, nulls: 0, targetId: 'target' }));
-const target = () => ({ userId: state.targetId, fullName: 'Target Employee', email: 'target@example.invalid', role: 'VIEWER', status: state.status, assignedProjectIds: ['P'] });
+const state = vi.hoisted(() => ({ role: 'PROJECT_ADMIN', section: 'USERS', status: 'PENDING_APPROVAL', arrays: 0, nulls: 0, targetId: 'target', targetRole: 'VIEWER' }));
+const target = () => ({ userId: state.targetId, fullName: 'Target Employee', email: 'target@example.invalid', role: state.targetRole, status: state.status, assignedProjectIds: ['P'] });
 vi.mock('react', async original => {
   const actual = await original<typeof import('react')>();
   return { ...actual, useState: (initial: unknown) => {
@@ -44,6 +44,15 @@ describe('Admin Console governance presentation', () => {
   });
   it('SUPER_ADMIN keeps role/project editors and one permissions-save action', () => {
     const html = render('SUPER_ADMIN', 'SECURITY_ACCESS'); expect(html).toContain('admin_console.save_matrix'); expect(html).toContain('type="checkbox"'); expect(html).toContain('admin_console.role_assignment_description');
+  });
+  it('SUPER_ADMIN sees one compact driver binding control for a DRIVER account', () => {
+    state.targetRole = 'DRIVER';
+    const html = render('SUPER_ADMIN', 'SECURITY_ACCESS');
+    expect(html).toContain('admin_console.driver_binding'); expect(html).toContain('admin_console.driver_link'); expect(html).toContain('admin_console.driver_unlink');
+    state.targetRole = 'VIEWER';
+  });
+  it('PROJECT_ADMIN cannot see binding controls even for a DRIVER account', () => {
+    state.targetRole = 'DRIVER'; expect(render('PROJECT_ADMIN', 'SECURITY_ACCESS')).not.toContain('admin_console.driver_binding'); state.targetRole = 'VIEWER';
   });
   it('wires only explicit server commands and canonical data refresh', () => {
     const source = readFileSync('src/components/admin/AdminConsoleView.tsx', 'utf8');

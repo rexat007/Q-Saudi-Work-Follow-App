@@ -1,6 +1,20 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "trip_commands.errors.denied": "آپ کا اکاؤنٹ اس منصوبے کی کارروائی کا مجاز نہیں ہے۔",
+  "trip_commands.errors.unlinked": "سفر کی کارروائی سے پہلے ڈرائیور کی شناخت منسلک ہونا ضروری ہے۔",
+  "trip_commands.errors.ownership": "یہ سفر آپ کے اکاؤنٹ سے منسلک ڈرائیور کو تفویض نہیں ہے۔",
+  "trip_commands.errors.invalid": "کارروائی کا ڈیٹا غلط ہے یا اجازت سے تجاوز کرتا ہے۔",
+  "trip_commands.errors.conflict": "یہ کارروائی پچھلی درخواست سے متصادم ہے؛ سفر کو تازہ کریں۔",
+  "trip_commands.errors.failed": "کارروائی کی تصدیق نہیں ہو سکی؛ سفر کی حالت دیکھ کر دوبارہ کوشش کریں۔",
+
+  "admin_console.driver_binding": "ڈرائیور شناخت کا ربط",
+  "admin_console.driver_not_linked": "ڈرائیور کی شناخت منسلک نہیں",
+  "admin_console.driver_choose": "موجودہ ڈرائیور منتخب کریں",
+  "admin_console.driver_link": "ڈرائیور منسلک کریں",
+  "admin_console.driver_unlink": "ڈرائیور کا ربط ختم کریں",
+  "admin_console.errors.driver_linked": "ڈرائیور کی شناخت کسی اور اکاؤنٹ سے منسلک ہے",
+
   "project_access.description": "تعیینات صارف اکاؤنٹس سے آتی ہیں؛ کردار عمومی ہیں اور مؤثر رسائی کے لیے فعال اکاؤنٹ ضروری ہے۔",
   "project_access.account_status": "اکاؤنٹ کی حالت",
   "project_access.assignment": "تعیین",

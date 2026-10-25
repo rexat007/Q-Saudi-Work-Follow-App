@@ -72,6 +72,7 @@ export function decodeProject<T>(raw: unknown, id: string): T {
 }
 export function decodeUser<T>(raw: unknown, id: string): T {
   const data = decodePersistence<Record<string, any>>(raw, { id: ['userId', id], required: ['role'], arrays: ['assignedProjectIds'], enums: { role: roles, requestedRole: roles, status: ['PENDING_APPROVAL', 'ACTIVE', 'REJECTED', 'SUSPENDED'] } });
+  if (data.linkedDriverId !== undefined && (typeof data.linkedDriverId !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(data.linkedDriverId))) throw new PersistenceBoundaryError('linkedDriverId');
   if (data.isActive !== undefined && typeof data.isActive !== 'boolean') throw new PersistenceBoundaryError('isActive');
   return data as T;
 }

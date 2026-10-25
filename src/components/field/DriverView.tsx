@@ -1,3 +1,5 @@
+import { tripCommandErrorKey } from '../../i18n/tripCommandErrors';
+import { operationalTripProjection } from '../../utils/operationalTripProjection';
 import { filterProjectScope } from '../../utils/projectScope';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Truck, MapPin, Navigation, QrCode, WifiOff, ShieldAlert } from 'lucide-react';
@@ -16,11 +18,12 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
   const { isOnline, isSimulatedOffline } = useOnlineStatus();
   const { t, isRTL } = useI18n();
 
+  const [actionError, setActionError] = useState('');
   const [storedActiveTrip, setActiveTrip] = useState<any | null>(null);
 
-  const scopeKey = JSON.stringify([authContext.userId, authContext.role, [...(authContext.assignedProjectIds || [])].sort()]);
+  const scopeKey = JSON.stringify([authContext.userId, authContext.linkedDriverId, authContext.role, [...(authContext.assignedProjectIds || [])].sort()]);
   const scopeRef = useRef(scopeKey); scopeRef.current = scopeKey;
-  const activeTrip = storedActiveTrip && (storedActiveTrip.driverId === authContext.userId || storedActiveTrip.assignedDriverId === authContext.userId) && filterProjectScope([storedActiveTrip], authContext).length ? storedActiveTrip : null;
+  const activeTrip = storedActiveTrip && (Boolean(authContext.linkedDriverId) && storedActiveTrip.driverId === authContext.linkedDriverId) && filterProjectScope([storedActiveTrip], authContext).length ? storedActiveTrip : null;
 
   const refreshActiveTrip = useCallback(async () => {
     const requestedScope = scopeKey;
@@ -29,14 +32,14 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
         for (const pId of authContext.assignedProjectIds) {
           const remoteTrips = await tripRepository.listByProject(pId).catch(() => []);
           if (remoteTrips && remoteTrips.length > 0) {
-            await indexedDBService.putMany('trips', remoteTrips).catch(() => {});
+            await indexedDBService.putMany('trips', remoteTrips.map(operationalTripProjection)).catch(() => {});
           }
         }
       }
 
       const all: any[] = filterProjectScope(await indexedDBService.getAll<any>('trips').catch(() => []), authContext);
       const driverActive = all.find(t => 
-        (t.driverId === authContext.userId || t.assignedDriverId === authContext.userId) && 
+        (Boolean(authContext.linkedDriverId) && t.driverId === authContext.linkedDriverId) &&
         (t.status === 'LOADED' || t.status === 'IN_TRANSIT' || t.status === 'ARRIVED' || t.status === 'UNLOADING')
       );
       if (requestedScope === scopeRef.current) setActiveTrip(driverActive || null);
@@ -64,6 +67,7 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
 
   const handleRecordArrival = async () => {
     if (!activeTrip) return;
+    setActionError('');
     try {
       const now = new Date().toISOString();
       const updatedTrip = {
@@ -74,7 +78,7 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
         updatedBy: authContext.userId,
       };
 
-      await indexedDBService.put('trips', updatedTrip);
+      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' });
 
       await outboxService.queueOperation({
         projectId: activeTrip.projectId,
@@ -92,17 +96,20 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
       });
 
       if (isOnline && !isSimulatedOffline) {
-        await outboxService.syncAll(false).catch(() => {});
+        const sync = await outboxService.syncAll(false);
+        if (sync.failedCount > 0) throw new Error('TRIP_COMMAND_FAILED');
       }
 
       setActiveTrip(updatedTrip);
     } catch (e: any) {
+      setActionError(tripCommandErrorKey(e.message || '') || 'trip_commands.errors.failed');
       console.warn('Failed to record arrival:', e);
     }
   };
 
   return (
     <div className="max-w-md mx-auto space-y-4 pb-12" dir={isRTL ? 'rtl' : 'ltr'}>
+      {actionError && <p role="alert">{t(actionError)}</p>}
       {/* Offline Indicator */}
       {(!isOnline || isSimulatedOffline) && (
         <div className="bg-amber-100 text-amber-900 px-4 py-2 rounded-xl flex items-center justify-between text-xs font-bold border border-amber-300">

@@ -5,8 +5,11 @@ export type AdminAccountCommand =
   | { command: 'rejectAccount'; rejectionReason: string }
   | { command: 'suspendAccount' | 'reactivateAccount' }
   | { command: 'changeUserRole'; newRole: UserRole }
+  | { command: 'linkDriverIdentity'; linkedDriverId: string }
+  | { command: 'unlinkDriverIdentity' }
   | { command: 'replaceAssignedProjects'; assignedProjectIds: string[] };
 export const ADMIN_ERROR_KEYS = {
+  DRIVER_IDENTITY_ALREADY_LINKED: 'admin_console.errors.driver_linked',
   FORBIDDEN_ADMIN_ACTION: 'admin_console.errors.forbidden',
   LAST_SUPER_ADMIN_PROTECTED: 'admin_console.errors.last_admin',
   SELF_ADMIN_ACTION_BLOCKED: 'admin_console.errors.self',
@@ -35,4 +38,13 @@ export async function executeAdminAccountCommand(userId: string, command: AdminA
     const code = Object.keys(ADMIN_ERROR_KEYS).find(value => ADMIN_ERROR_KEYS[value as keyof typeof ADMIN_ERROR_KEYS] === key) || 'ADMIN_UPDATE_FAILED';
     throw { code };
   }
+}
+
+export async function listDriverIdentities(): Promise<{ driverId: string; fullNameAr: string; status: string }[]> {
+  if (!auth.currentUser) throw { code: 'FORBIDDEN_ADMIN_ACTION' };
+  const token = await auth.currentUser.getIdToken();
+  const response = await fetch('/api/admin/driver-identities', { headers: { Authorization: `Bearer ${token}` } });
+  const result = await response.json();
+  if (!response.ok || !result.success) throw { code: result.code };
+  return result.drivers;
 }
