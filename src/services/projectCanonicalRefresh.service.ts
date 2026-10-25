@@ -1,3 +1,4 @@
+import { relationshipContextFromFleet } from '../utils/relationshipContextProjection';
 import { auth } from '../firebase/config';
 import { canonicalRelationshipContextService } from './canonicalRelationshipContext.service';
 import { RelationshipContext } from '../types/dataQuality';
@@ -104,7 +105,10 @@ export class ProjectCanonicalRefreshService {
         const fleetRows = Array.isArray(fleetJson.data?.rows) ? fleetJson.data.rows : [];
 
         // 3. Rebuild fresh RelationshipContext
-        const relationshipContext = await canonicalRelationshipContextService.getProjectRelationshipContext(cleanProjectId);
+        if (fleetJson.data?.projectId !== cleanProjectId) throw new Error('CANONICAL_REFRESH_FLEET_SCOPE_MISMATCH');
+        const masterContext = await canonicalRelationshipContextService.getProjectRelationshipContext(cleanProjectId);
+        if (masterContext.projectId !== cleanProjectId) throw new Error('CANONICAL_REFRESH_CONTEXT_SCOPE_MISMATCH');
+        const relationshipContext = relationshipContextFromFleet(cleanProjectId, { ...fleetJson.data, projectId: cleanProjectId, rows: fleetRows }, masterContext);
 
         // 4. Expected Entity Convergence Checks
         if (expect?.carrierId) {

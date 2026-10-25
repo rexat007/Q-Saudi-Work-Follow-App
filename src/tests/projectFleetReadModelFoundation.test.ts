@@ -339,6 +339,7 @@ describe('Phase 6 Unit 2D: Project Fleet Read Model Foundation', () => {
         { assignmentId: fakeAssignmentId, driverId: driver.driverId, carrierId: carrierB.carrierId }
       );
 
+      (projectDriverTruckAssignmentRepository as any).inMemoryDriverSlots.set(`${projectId}#${driver.driverId}`, { assignmentId: fakeAssignmentId });
       const res = await projectFleetReadModelService.getProjectFleetReadModel(projectId);
       const issues = res.rows[0].integrityIssues;
       expect(issues.some((i) => i.code === 'CARRIER_MISMATCH')).toBe(true);

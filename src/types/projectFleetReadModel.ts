@@ -9,6 +9,15 @@ export type FleetAssignmentStatus = 'ASSIGNMENT_ACTIVE' | 'UNASSIGNED_DRIVER';
 export type FleetAllocationStatus = 'ALLOCATION_ACTIVE' | 'UNALLOCATED_MATERIAL';
 
 export type FleetIntegrityIssueCode =
+  | 'GLOBAL_ENTITY_MISSING'
+  | 'GLOBAL_ENTITY_INVALID'
+  | 'GLOBAL_ENTITY_INELIGIBLE'
+  | 'MEMBERSHIP_INTEGRITY_ERROR'
+  | 'MEMBERSHIP_INACTIVE'
+  | 'AFFILIATION_INACTIVE'
+  | 'AFFILIATION_INTEGRITY_ERROR'
+  | 'UNASSIGNED_DRIVER'
+  | 'UNALLOCATED_MATERIAL'
   | 'MISSING_CARRIER_AFFILIATION'
   | 'CARRIER_MISMATCH'
   | 'INVALID_DRIVER_ASSIGNMENT_POINTER'
@@ -17,6 +26,8 @@ export type FleetIntegrityIssueCode =
 export interface FleetIntegrityIssue {
   code: FleetIntegrityIssueCode;
   message: string;
+  category?: 'PARTIAL' | 'ELIGIBILITY' | 'INTEGRITY';
+  entityType?: 'DRIVER' | 'TRUCK' | 'CARRIER' | 'MATERIAL';
 }
 
 /**
@@ -43,6 +54,9 @@ export interface ProjectFleetRowDTO {
   allocationStatus: FleetAllocationStatus;
 
   integrityIssues: FleetIntegrityIssue[];
+  classification?: 'PARTIAL' | 'INELIGIBLE' | 'INTEGRITY_ERROR' | 'OPERATIONAL';
+  assignmentEligible?: boolean;
+  allocationEligible?: boolean;
 }
 
 /**

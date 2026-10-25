@@ -1,3 +1,5 @@
+import { readCurrentAssignment, readCurrentAllocation } from '../utils/temporalRelationshipReads';
+import { projectCarrierMembershipRepository, projectDriverMembershipRepository, projectMaterialMembershipRepository } from '../repositories/projectMembership.repository';
 import { ProjectTruckMembershipEntity } from '../types/projectMembership';
 import {
   ProjectTruckCarrierAffiliationEntity,
@@ -30,6 +32,9 @@ import {
 } from '../repositories/globalIdentity.repository';
 
 export interface ProjectFleetReadModelReadContext {
+  getCurrentAssignment?(projectId: string, truckId: string, at: Date): Promise<ProjectDriverTruckAssignmentEntity | null>;
+  getMembership?(kind: 'DRIVER' | 'TRUCK' | 'CARRIER' | 'MATERIAL', projectId: string, id: string): Promise<any>;
+
   listActiveTruckMemberships(projectId: string): Promise<ProjectTruckMembershipEntity[]>;
   getTruckCarrierAffiliation(projectId: string, truckId: string): Promise<ProjectTruckCarrierAffiliationEntity | null>;
   getActiveTruckSlot(projectId: string, truckId: string): Promise<ActiveAssignmentSlotPayload | null>;
@@ -43,6 +48,25 @@ export interface ProjectFleetReadModelReadContext {
 }
 
 export class DefaultProjectFleetReadModelReadContext implements ProjectFleetReadModelReadContext {
+  constructor() { if (process.env.NODE_ENV !== 'test') throw new Error('CANONICAL_FLEET_SERVER_REQUIRED'); }
+  getMembership(kind: 'DRIVER' | 'TRUCK' | 'CARRIER' | 'MATERIAL', projectId: string, id: string) {
+    return { DRIVER: projectDriverMembershipRepository, TRUCK: projectTruckMembershipRepository, CARRIER: projectCarrierMembershipRepository, MATERIAL: projectMaterialMembershipRepository }[kind].getMembership(projectId, id);
+  }
+  // TEST_ONLY virtual read transport, using exactly the B3 reader and no mutations.
+  private compatibilityDatabase(projectId: string): any {
+    const ref = (path: string, field?: string, value?: string): any => ({ path, id: path.split('/').at(-1), collection: (name: string) => ref(path + '/' + name), doc: (id: string) => ref(path + '/' + id), where: (f: string, _op: string, v: string) => ref(path, f, v), get: async () => {
+      const parts = path.split('/'), collection = parts[2], id = parts[3];
+      if (!id) {
+        const records = collection === 'driver_truck_assignments' ? await (field === 'driverId' ? projectDriverTruckAssignmentRepository.listDriverAssignmentHistory(projectId, value!) : projectDriverTruckAssignmentRepository.listTruckAssignmentHistory(projectId, value!)) : await projectTruckMaterialAllocationRepository.listTruckMaterialHistory(projectId, value!);
+        return { docs: records.map((data: any) => ({ id: data.assignmentId || data.allocationId, data: () => data })) };
+      }
+      const data = collection === 'driver_active_assignments' ? await projectDriverTruckAssignmentRepository.getActiveDriverSlot(projectId, id) : collection === 'truck_active_assignments' ? await projectDriverTruckAssignmentRepository.getActiveTruckSlot(projectId, id) : collection === 'driver_truck_assignments' ? await projectDriverTruckAssignmentRepository.getAssignment(projectId, id) : collection === 'truck_active_material_allocations' ? await projectTruckMaterialAllocationRepository.getActiveSlot(projectId, id) : await projectTruckMaterialAllocationRepository.getAllocation(projectId, id);
+      return { id, exists: data !== null, data: () => data };
+    } });
+    return { collection: (name: string) => ref(name) };
+  }
+  getCurrentAssignment(projectId: string, truckId: string, at: Date) { return readCurrentAssignment({ get: (r: any) => r.get() }, this.compatibilityDatabase(projectId), projectId, 'truckId', truckId, at); }
+
   async listActiveTruckMemberships(projectId: string): Promise<ProjectTruckMembershipEntity[]> {
     return await projectTruckMembershipRepository.listMemberships(projectId, 'ACTIVE');
   }
@@ -64,7 +88,7 @@ export class DefaultProjectFleetReadModelReadContext implements ProjectFleetRead
   }
 
   async getActiveAllocationByTruck(projectId: string, truckId: string): Promise<ProjectTruckMaterialAllocationEntity | null> {
-    return await projectTruckMaterialAllocationRepository.getActiveAllocationByTruck(projectId, truckId);
+    return readCurrentAllocation({ get: (r: any) => r.get() }, this.compatibilityDatabase(projectId), projectId, truckId, new Date());
   }
 
   async getGlobalTruck(truckId: string): Promise<GlobalTruckEntity | null> {

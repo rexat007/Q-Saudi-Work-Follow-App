@@ -34,6 +34,7 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
               const subPathPrefix = `${colName}/${docId}/${subColName}`;
               collectionCalls.push(subPathPrefix);
               return {
+                where: (field: string, _op: string, value: any) => ({ get: async () => ({ docs: Object.entries(mockDbStore).filter(([path, data]) => path.startsWith(subPathPrefix + '/') && !path.slice(subPathPrefix.length + 1).includes('/') && data[field] === value).map(([path, data]) => ({ id: path.split('/').at(-1), data: () => data })) }) }),
                 doc: (subDocId: string) => {
                   const subFullPath = `${colName}/${docId}/${subColName}/${subDocId}`;
                   collectionCalls.push(subFullPath);
@@ -110,6 +111,20 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
       'projects/PRJ-1/driver_carrier_affiliations/DRV-1': { carrierId: 'CAR-1' },
       'projects/PRJ-1/truck_carrier_affiliations/TRK-1': { carrierId: 'CAR-1' },
     };
+    // Canonical current operational graph; negative tests still mutate their exact target.
+    for (const [path, record] of Object.entries(mockDbStore)) {
+      if (/^(drivers|trucks|carriers|materials)\//.test(path)) record.status = 'ACTIVE';
+      if (path.includes('_memberships/') || path.includes('_carrier_affiliations/')) {
+        const field = path.includes('driver_') ? 'driverId' : path.includes('truck_') ? 'truckId' : path.includes('carrier_') ? 'carrierId' : 'materialId';
+        record.projectId = 'PRJ-1'; record[field] = path.split('/').at(-1); record.status = 'ACTIVE';
+      }
+    }
+    mockDbStore['projects/PRJ-1/driver_truck_assignments/ASN-1'] = { assignmentId: 'ASN-1', projectId: 'PRJ-1', driverId: 'DRV-1', truckId: 'TRK-1', status: 'ACTIVE', effectiveFrom: '2020-01-01T00:00:00.000Z', effectiveTo: null };
+    mockDbStore['projects/PRJ-1/driver_active_assignments/DRV-1'] = { assignmentId: 'ASN-1' };
+    mockDbStore['projects/PRJ-1/truck_active_assignments/TRK-1'] = { assignmentId: 'ASN-1' };
+    mockDbStore['projects/PRJ-1/truck_material_allocations/TMA-1'] = { allocationId: 'TMA-1', projectId: 'PRJ-1', truckId: 'TRK-1', materialId: 'MAT-1', status: 'ACTIVE', effectiveFrom: '2020-01-01T00:00:00.000Z', effectiveTo: null };
+    mockDbStore['projects/PRJ-1/truck_active_material_allocations/TRK-1'] = { allocationId: 'TMA-1' };
+
   });
 
   afterEach(() => {

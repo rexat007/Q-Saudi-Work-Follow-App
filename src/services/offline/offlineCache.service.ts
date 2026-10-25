@@ -3,8 +3,7 @@ import { buildPrincipal } from '../../utils/principal';
 import { auth } from '../../firebase/config';
 import { userRepository } from '../../repositories/user.repository';
 import { projectRepository } from '../../repositories/project.repository';
-import { projectCarrierMembershipRepository, projectMaterialMembershipRepository } from '../../repositories/projectMembership.repository';
-import { globalCarrierRepository, globalMaterialRepository } from '../../repositories/globalIdentity.repository';
+import { canonicalProjectRead } from '../projectReadTransport';
 import { projectFleetReadModelService } from '../projectFleetReadModel.service';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
 import { 
@@ -158,52 +157,31 @@ export class OfflineCacheService {
       ? [projectId] 
       : rawProjects.map(p => p.projectId);
 
-    // 2. Carriers - hydrated from ACTIVE ProjectCarrierMembership + Global Carrier Identity
-    const carrierMembershipsList = await Promise.all(
-      targetProjectIds.map(async pId => {
-        try {
-          return await projectCarrierMembershipRepository.listMemberships(pId, 'ACTIVE');
-        } catch {
-          return [];
-        }
-      })
-    );
-    const activeCarrierIds = Array.from(new Set(carrierMembershipsList.flat().map(m => m.carrierId)));
-    const globalCarriers = await globalCarrierRepository.listByIds(activeCarrierIds);
+    // Server-projected participation and effective eligibility; cache is never authority.
+    const globalCarriers = (await Promise.all(targetProjectIds.map(pId => canonicalProjectRead<any[]>(pId, 'carriers')))).flat();
     const carriersToCache: CachedCarrier[] = globalCarriers.map(c => ({
       carrierId: c.carrierId,
       projectId: '',
-      name: c.nameAr,
-      companyNameAr: c.nameAr,
+      name: c.name,
+      companyNameAr: c.name,
       commercialRegistrationNo: c.commercialRegistrationNo,
       transportLicenseNo: c.transportLicenseNo,
-      status: 'ACTIVE',
+      status: c.isActive ? 'ACTIVE' : 'INACTIVE',
       _version: currentVersion,
       _cachedAt: now,
     }));
     await this.reconcileStore('carriers', carriersToCache, c => c.carrierId);
 
-    // 3. Materials - hydrated from ACTIVE ProjectMaterialMembership + Global Material Identity
-    const materialMembershipsList = await Promise.all(
-      targetProjectIds.map(async pId => {
-        try {
-          return await projectMaterialMembershipRepository.listMemberships(pId, 'ACTIVE');
-        } catch {
-          return [];
-        }
-      })
-    );
-    const activeMaterialIds = Array.from(new Set(materialMembershipsList.flat().map(m => m.materialId)));
-    const globalMaterials = await globalMaterialRepository.listByIds(activeMaterialIds);
+    const globalMaterials = (await Promise.all(targetProjectIds.map(pId => canonicalProjectRead<any[]>(pId, 'materials')))).flat();
     const materialsToCache: CachedMaterial[] = globalMaterials.map(m => ({
       materialId: m.materialId,
       projectId: '',
-      name: m.nameAr,
-      nameAr: m.nameAr,
+      name: m.name,
+      nameAr: m.name,
       code: m.code,
       unitOfMeasure: m.unitOfMeasure,
       standardDensityTonPerM3: m.standardDensityTonPerM3,
-      status: 'ACTIVE',
+      status: m.isActive ? 'ACTIVE' : 'INACTIVE',
       _version: currentVersion,
       _cachedAt: now,
     }));
@@ -235,7 +213,7 @@ export class OfflineCacheService {
           truckType: row.truckType,
           tareWeightKg: 14000,
           legalPayloadLimitKg: 45000,
-          status: 'ACTIVE',
+          status: row.classification === 'OPERATIONAL' ? 'ACTIVE' : 'INACTIVE',
           _version: currentVersion,
           _cachedAt: now,
         });
@@ -249,7 +227,7 @@ export class OfflineCacheService {
           fullNameAr: row.driverName || row.driverId,
           phone: '—',
           idNumber: '—',
-          status: 'ACTIVE',
+          status: row.assignmentEligible ? 'ACTIVE' : 'INACTIVE',
           _version: currentVersion,
           _cachedAt: now,
         });
