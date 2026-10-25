@@ -1676,7 +1676,7 @@ app.post('/api/projects/:projectId/activate', enforceProjectIsolation, enforceAd
     await projectActivationService.activateProject(projectId, user);
     res.json({ success: true, message: 'تم تنشيط المشروع بنجاح' });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(error.status || 400).json({ success: false, error: error.message, code: error.code });
   }
 });
 
@@ -1686,16 +1686,27 @@ app.post('/api/projects/:projectId/activate', enforceProjectIsolation, enforceAd
 app.get('/api/projects/:projectId/readiness', enforceProjectIsolation, async (req, res) => {
   try {
     const { projectId } = req.params;
-    const { ProjectReadinessService } = await import('../src/services/projectReadiness.service');
+    const { ProjectReadinessService, lifecycleReadiness } = await import('../src/services/projectReadiness.service');
     const { ProjectReadinessAdminReadContext } = await import('../src/services/projectReadiness.server');
     const readinessService = new ProjectReadinessService();
     const readContext = new ProjectReadinessAdminReadContext();
-    const result = await readinessService.evaluateProjectReadiness(projectId, new Date(), readContext);
+    const actor = await readContext.currentPrincipal(projectId, (req as any).user);
+    const result = await readinessService.evaluateProjectReadiness(projectId, new Date(), readContext, actor);
+    // Scope may have changed while downstream discovery was in flight.
+    const currentActor = await readContext.currentPrincipal(projectId, (req as any).user);
+    const currentProject = await readContext.getProject(projectId);
+    if (!currentProject) return res.status(404).json({ success: false, code: 'PROJECT_NOT_FOUND' });
+    result.lifecycle = lifecycleReadiness(currentProject, projectId, currentActor);
+    result.blockers = [...result.lifecycle.blockers, ...result.operational.blockers];
+    result.ready = result.lifecycle.ready && result.operational.ready;
 
     res.json({
       success: true,
       projectId: result.projectId,
       ready: result.ready,
+      lifecycle: result.lifecycle,
+      operational: result.operational,
+      setup: result.setup,
       evaluatedAt: result.evaluatedAt,
       blockers: result.blockers,
       candidatePath: result.candidatePath ? {
@@ -1710,7 +1721,7 @@ app.get('/api/projects/:projectId/readiness', enforceProjectIsolation, async (re
       res.status(404).json({ success: false, error: error.message });
       return;
     }
-    res.status(500).json({ success: false, error: error.message });
+    res.status(error.status || 400).json({ success: false, error: error.message, code: error.code, category: /FORBIDDEN|ACCOUNT|PROFILE/.test(error.code || '') ? 'AUTHORITY' : 'DATA_INTEGRITY' });
   }
 });
 
