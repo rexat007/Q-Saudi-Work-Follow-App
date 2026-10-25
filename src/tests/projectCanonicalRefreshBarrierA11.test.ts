@@ -565,7 +565,8 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
       wizardFileContent.indexOf('const handleCreateMissingEntity')
     );
     expect(reloadSection).toContain('projectCanonicalRefreshService.refresh(project.projectId)');
-    expect(reloadSection).toContain('applyCanonicalSnapshot(snapshot)');
+    expect(reloadSection).toContain('projectContext.isCurrent(requestContext, editingProjectId)');
+    expect(reloadSection).toContain('applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation)');
   });
 
   // 38. Smart Import pipeline remains untouched

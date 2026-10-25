@@ -33,7 +33,8 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
     expect(effectIdx).toBeGreaterThanOrEqual(0);
     const effectBlock = wizardContent.slice(effectIdx, effectIdx + 3000);
 
-    expect(effectBlock).toContain('projectDataLoadGenerationRef.current += 1');
+    expect(wizardContent).toContain('projectContext.enter(editingProjectId, projectScopeKey)');
+    expect(wizardContent).toContain('projectContext.isCurrent(requestContext, targetProjectId)');
     expect(effectBlock).toContain('setMaterials([])');
     expect(effectBlock).toContain('setCarriers([])');
     expect(effectBlock).toContain('setFleetRows([])');
@@ -89,7 +90,7 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
     const effectBlock = wizardContent.slice(effectIdx, nextEffectIdx);
 
     // Dependency array must depend on [editingProjectId, applyCanonicalSnapshot] and NOT activeSetupLayer
-    expect(effectBlock).toContain('}, [editingProjectId, applyCanonicalSnapshot]);');
+    expect(effectBlock).toContain('}, [editingProjectId, applyCanonicalSnapshot, projectScopeKey]);');
     expect(effectBlock).not.toContain('activeSetupLayer');
   });
 
@@ -97,9 +98,9 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
   it('D. Pricing subscription is not recreated on layer change', () => {
     const pricingIdx = wizardContent.indexOf('// Unit 3A.2: Pricing Rules Subscription depends only on editingProjectId');
     expect(pricingIdx).toBeGreaterThanOrEqual(0);
-    const pricingBlock = wizardContent.slice(pricingIdx, pricingIdx + 400);
+    const pricingBlock = wizardContent.slice(pricingIdx, wizardContent.indexOf('  useEffect(() => {\n    if (editingProjectId)', pricingIdx));
 
-    expect(pricingBlock).toContain('}, [editingProjectId]);');
+    expect(pricingBlock).toContain('}, [editingProjectId, projectScopeKey]);');
     expect(pricingBlock).not.toContain('activeSetupLayer');
   });
 
@@ -162,10 +163,10 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
   it('G. createdProject appears immediately after createProject resolves before globalProjects subscription update', () => {
     const createIdx = wizardContent.indexOf('const handleCreateProject = async');
     expect(createIdx).toBeGreaterThanOrEqual(0);
-    const createBlock = wizardContent.slice(createIdx, createIdx + 2000);
+    const createBlock = wizardContent.slice(createIdx, wizardContent.indexOf('// Trigger Google Workspace', createIdx));
 
-    expect(createBlock).toContain('const createdProject = await projectService.createProject(payload, authContext);');
-    expect(createBlock).toContain('setLocalProjectOverride(createdProject);');
+    expect(createBlock).toContain('const createdProject = await projectService.createProject({ ...payload, operationId: creationCommandRef.current.operationId }, authContext);');
+    expect(createBlock).toContain('setCurrentProjectOverride(createdProject, projectContext.capture());');
     expect(createBlock).toContain('setEditingProjectId(createdProject.projectId);');
 
     // project lookup derivation verifies localProjectOverride
@@ -178,10 +179,10 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
   it('H. Foundation save displays updated project fields immediately after success', () => {
     const saveIdx = wizardContent.indexOf('const handleSaveFoundation = useCallback(async');
     expect(saveIdx).toBeGreaterThanOrEqual(0);
-    const saveBlock = wizardContent.slice(saveIdx, saveIdx + 2500);
+    const saveBlock = wizardContent.slice(saveIdx, wizardContent.indexOf('// Canonical Server Readiness', saveIdx));
 
     expect(saveBlock).toContain('await projectService.updateProject(project.projectId, updates, authContext);');
-    expect(saveBlock).toContain('setLocalProjectOverride(updatedProject);');
+    expect(saveBlock).toContain('setCurrentProjectOverride(updatedProject, requestContext);');
     expect(saveBlock).toContain("setFoundationSaveSuccess(t('projects.messages.changes_saved'));");
     for (const locale of ['ar', 'en', 'ur'] as const) {
       const template = dictionaries[locale]['projects.messages.changes_saved'];
@@ -253,17 +254,17 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
     expect(applyIdx).toBeGreaterThanOrEqual(0);
     const applyBlock = wizardContent.slice(applyIdx, applyIdx + 1200);
 
-    expect(applyBlock).toContain('if (generation !== undefined && generation !== projectDataLoadGenerationRef.current) {');
-    expect(applyBlock).toContain('if (targetProjectId && editingProjectId && targetProjectId !== editingProjectId) {');
+    expect(applyBlock).toContain('!targetProjectId || generation === undefined');
+    expect(applyBlock).toContain('projectContext.isCurrent({ projectId: targetProjectId, generation }, targetProjectId)');
   });
 
   // L. App project subscription is not recreated on activeTab change
   it('L. App project subscription is not recreated on activeTab change', () => {
     const subIdx = appContent.indexOf('// Real-time Firestore project subscription');
     expect(subIdx).toBeGreaterThanOrEqual(0);
-    const subBlock = appContent.slice(subIdx, subIdx + 800);
+    const subBlock = appContent.slice(subIdx, appContent.indexOf('// Synchronize and reconcile selectedProjectId', subIdx));
 
-    expect(subBlock).toContain('}, [user?.uid, effectiveRole]);');
+    expect(subBlock).toContain('}, [user?.uid, effectiveRole, assignedProjectScopeKey]);');
     expect(subBlock).not.toContain('}, [user, activeTab]);');
 
     // Reconciliation effect is separate
