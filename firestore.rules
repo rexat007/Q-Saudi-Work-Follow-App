@@ -397,55 +397,13 @@ service cloud.firestore {
       match /trips/{tripId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
         allow create: if false; // Use canonical server dispatch/import commands.
-        allow update: if isSignedIn() && isValidId(tripId) &&
-                         isProjectMember(projectId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
-                         isAuditStampedUpdate(incoming()) &&
-                         incoming().tripId == existing().tripId &&
-                         incoming().projectId == existing().projectId &&
-                         !incoming().diff(existing()).affectedKeys().hasAny([
-                           'tripNumber', 'projectSnapshot', 'carrierSnapshot', 'truckSnapshot',
-                           'driverSnapshot', 'materialSnapshot', 'pricingSnapshot'
-                         ]) &&
-                         incoming().carrierId == existing().carrierId && // Carrier immutable
-                         incoming().truckId == existing().truckId && // Truck immutable
-                         incoming().pricingRuleId == existing().pricingRuleId && // Pricing rule immutable
-                         (!('tripNumber' in existing()) || incoming().tripNumber == existing().tripNumber) && // tripNumber immutable
-                         // Snapshot & Financial Immutability Protection
-                         (existing().pricingSnapshot == null || incoming().pricingSnapshot == null ||
-                          (incoming().pricingSnapshot.agreedRate == existing().pricingSnapshot.agreedRate &&
-                           incoming().pricingSnapshot.settlementAmount == existing().pricingSnapshot.settlementAmount)) &&
-                         (existing().financials == null || existing().financials.isFinalized != true ||
-                          (incoming().financials.isFinalized == true && incoming().financials.totalAmountSAR == existing().financials.totalAmountSAR)) &&
-                         // Unloading, Weighbridge & Variance Workflow Protection (Gap 2)
-                         (isServerAuthorized() ? (
-                           // Server-authorized writes: enforce variance formula and prevent fake zero variance
-                           (incoming().destNetWeight == null || existing().netWeight == null ||
-                            (incoming().destNetWeight == existing().netWeight ? 
-                               (incoming().varianceWeight == 0 && (existing().destNetWeight != null || incoming().unloadDecision == 'ACCEPT_ORIGIN_NET_AS_DESTINATION' || incoming().unloadingDataSource == 'WEIGHBRIDGE')) :
-                               (incoming().varianceWeight == (incoming().destNetWeight - existing().netWeight)))) &&
-                           (incoming().destNetWeight != null || incoming().varianceWeight == null || incoming().varianceWeight == existing().varianceWeight)
-                         ) : (
-                           // Direct client updates CANNOT mutate unloading workflow fields
-                           (!('destNetWeight' in incoming()) || incoming().destNetWeight == existing().destNetWeight) &&
-                           (!('varianceWeight' in incoming()) || incoming().varianceWeight == existing().varianceWeight) &&
-                           (!('unloadTime' in incoming()) || incoming().unloadTime == existing().unloadTime) &&
-                           (!('unloadingActorType' in incoming()) || incoming().unloadingActorType == existing().unloadingActorType) &&
-                           (!('unloadingActorId' in incoming()) || incoming().unloadingActorId == existing().unloadingActorId) &&
-                           (!('unloadingDataSource' in incoming()) || incoming().unloadingDataSource == existing().unloadingDataSource) &&
-                           (!('unloadDecision' in incoming()) || incoming().unloadDecision == existing().unloadDecision)
-                         ));
+        allow update: if false; // All operational writes use current-principal server business commands.
         allow delete: if false; // Tax/VAT compliance: trips cannot be hard-deleted
 
         // Trip Events (Strict Append-Only Event Stream)
         match /events/{eventId} {
           allow get, list: if isSignedIn() && isProjectMember(projectId);
-          allow create: if isSignedIn() && isValidId(eventId) &&
-                           isProjectMember(projectId) &&
-                           isAuditStampedCreate(incoming()) &&
-                           incoming().eventId == eventId &&
-                           incoming().tripId == tripId &&
-                           incoming().projectId == projectId;
+          allow create: if false; // Events are emitted atomically by server commands.
           allow update, delete: if false; // Strictly Immutable Event Stream
         }
 
@@ -490,11 +448,13 @@ service cloud.firestore {
       match /sync_operations/{operationId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
         allow create: if isSignedIn() && isValidId(operationId) &&
+                         !operationId.matches('^TRIP-CMD-.*') &&
                          isProjectMember(projectId) &&
                          isAuditStampedCreate(incoming()) &&
                          incoming().operationId == operationId &&
                          incoming().projectId == projectId;
         allow update: if isSignedIn() && isValidId(operationId) &&
+                         !operationId.matches('^TRIP-CMD-.*') &&
                          isProjectMember(projectId) &&
                          isAuditStampedUpdate(incoming()) &&
                          incoming().operationId == existing().operationId &&

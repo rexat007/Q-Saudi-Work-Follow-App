@@ -15,16 +15,17 @@ export function validateAccountProfile(raw: unknown, uid: string) {
   if (!PRINCIPAL_ROLES.includes(data.role as UserRole)) return invalid();
   if (!Array.isArray(data.assignedProjectIds) || !data.assignedProjectIds.every(id => typeof id === 'string' && id.trim().length > 0)) return invalid();
   if (data.isActive !== undefined && typeof data.isActive !== 'boolean') return invalid();
+  if (data.linkedDriverId !== undefined && (typeof data.linkedDriverId !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(data.linkedDriverId))) return invalid();
   const status = data.status === undefined ? (data.isActive === true ? 'ACTIVE' : 'PENDING_APPROVAL') : data.status;
   if (!statuses.includes(status as typeof statuses[number])) return invalid();
-  return { userId: uid, role: data.role as UserRole, assignedProjectIds: [...data.assignedProjectIds] as string[], status: status as typeof statuses[number], isActive: data.isActive };
+  return { linkedDriverId: data.linkedDriverId as string | undefined, userId: uid, role: data.role as UserRole, assignedProjectIds: [...data.assignedProjectIds] as string[], status: status as typeof statuses[number], isActive: data.isActive };
 }
 
 export function buildPrincipal(raw: unknown, uid: string, identity: { email?: string; name?: string }) {
   const account = validateAccountProfile(raw, uid);
   if (account.status !== 'ACTIVE' || account.isActive === false) throw new PrincipalError('ACCOUNT_NOT_ACTIVE', account.status);
   const data = raw as Record<string, unknown>;
-  return { userId: uid, role: account.role, assignedProjectIds: account.assignedProjectIds,
+  return { ...(account.linkedDriverId ? { linkedDriverId: account.linkedDriverId } : {}), userId: uid, role: account.role, assignedProjectIds: account.assignedProjectIds,
     email: identity.email || (typeof data.email === 'string' ? data.email : ''),
     displayName: typeof data.fullName === 'string' ? data.fullName : identity.name || '' };
 }

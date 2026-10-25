@@ -1,3 +1,5 @@
+import { tripCommandErrorKey } from '../../i18n/tripCommandErrors';
+import { TRIP_COMMANDS } from '../../types/tripCommands';
 import { presentOperationalMessage } from "../../i18n/operationalMessages";
 import { canonicalRelationshipContextService } from "../../services/canonicalRelationshipContext.service";
 import { ProjectEntity } from '../../types/entities';
@@ -43,14 +45,7 @@ export interface LoadingOperatorViewProps {
 }
 
 // Authorized roles for Loading Operator Interface per Block 76 Architecture & RBAC
-export const LOADING_AUTHORIZED_ROLES: UserRole[] = [
-  'SCALE_OPERATOR',
-  'DISPATCHER',
-  'SUPERVISOR',
-  'SITE_SUPERVISOR',
-  'PROJECT_ADMIN',
-  'SUPER_ADMIN'
-];
+export const LOADING_AUTHORIZED_ROLES: UserRole[] = [...TRIP_COMMANDS.RECORD_LOADING.roles];
 
 export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   authContext = {
@@ -64,7 +59,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   onNotification
 }) => {
   const { t: translate, t, isRTL } = useI18n();
-  const operationalMessage = (message: string) => presentOperationalMessage(message, translate);
+  const operationalMessage = (message: string) => tripCommandErrorKey(message) ? translate(tripCommandErrorKey(message)!) : presentOperationalMessage(message, translate);
   const { isOnline, isSimulatedOffline } = useOnlineStatus();
 
   // Role Authorization Check

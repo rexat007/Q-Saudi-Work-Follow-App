@@ -80,27 +80,7 @@ export class TripRepository {
     trip: Omit<TripEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string },
     transaction?: Transaction
   ): Promise<void> {
-    const path = this.getPath(trip.projectId, trip.tripId);
-    const docRef = doc(db, 'projects', trip.projectId, 'trips', trip.tripId);
-    const payload = {
-      ...trip,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-    if (transaction) {
-      transaction.set(docRef, payload);
-      return;
-    }
-    if (!auth.currentUser) {
-      console.warn(`[TripRepository] User unauthenticated. Skipping live Firestore create for ${path}`);
-      return;
-    }
-    try {
-      await setDoc(docRef, sanitizeUndefined(payload));
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.CREATE, path);
-    }
+    throw new Error('TRIP_COMMAND_REQUIRED');
   }
 
   async update(
@@ -110,29 +90,7 @@ export class TripRepository {
     updatedBy: string,
     transaction?: Transaction
   ): Promise<void> {
-    const path = this.getPath(projectId, tripId);
-    const docRef = doc(db, 'projects', projectId, 'trips', tripId);
-    const payload = {
-      ...updates,
-      tripId,
-      projectId,
-      updatedAt: serverTimestamp(),
-      updatedBy,
-    };
-    if (transaction) {
-      transaction.update(docRef, payload);
-      return;
-    }
-    if (!auth.currentUser) {
-      console.warn(`[TripRepository] User unauthenticated. Skipping live Firestore update for ${path}`);
-      return;
-    }
-    try {
-      await updateDoc(docRef, sanitizeUndefined(payload));
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+    throw new Error('TRIP_COMMAND_REQUIRED');
   }
 
   async findByTripNumber(projectId: string, tripNumber: string): Promise<TripEntity | null> {

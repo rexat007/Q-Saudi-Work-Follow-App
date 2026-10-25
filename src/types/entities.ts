@@ -137,6 +137,7 @@ export interface DriverEntity extends BaseAuditedEntity {
 
 // 7. User Entity
 export interface UserEntity extends BaseAuditedEntity {
+  linkedDriverId?: string;
   userId: string;
   email: string;
   fullName: string;

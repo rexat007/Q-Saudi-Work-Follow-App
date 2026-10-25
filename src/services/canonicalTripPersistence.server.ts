@@ -15,7 +15,27 @@ import { ExceptionPersistenceContext, ExceptionService } from './exception.servi
  */
 
 export class ServerTripPersistenceAdapter implements TripPersistenceContext {
-  public tripRepository = {
+  public tripRepository: TripPersistenceContext['tripRepository'];
+  public projectRepository: TripPersistenceContext['projectRepository'];
+  public globalCarrierRepository: TripPersistenceContext['globalCarrierRepository'];
+  public globalTruckRepository: TripPersistenceContext['globalTruckRepository'];
+  public globalDriverRepository: TripPersistenceContext['globalDriverRepository'];
+  public globalMaterialRepository: TripPersistenceContext['globalMaterialRepository'];
+  public projectCarrierMembershipRepository: TripPersistenceContext['projectCarrierMembershipRepository'];
+  public projectTruckMembershipRepository: TripPersistenceContext['projectTruckMembershipRepository'];
+  public projectDriverMembershipRepository: TripPersistenceContext['projectDriverMembershipRepository'];
+  public projectMaterialMembershipRepository: TripPersistenceContext['projectMaterialMembershipRepository'];
+  public projectDriverCarrierAffiliationRepository: TripPersistenceContext['projectDriverCarrierAffiliationRepository'];
+  public projectTruckCarrierAffiliationRepository: TripPersistenceContext['projectTruckCarrierAffiliationRepository'];
+  public projectDriverTruckAssignmentRepository: TripPersistenceContext['projectDriverTruckAssignmentRepository'];
+  public projectTruckMaterialAllocationRepository: TripPersistenceContext['projectTruckMaterialAllocationRepository'];
+  public pricingRuleRepository: TripPersistenceContext['pricingRuleRepository'];
+  public tripNumberGenerator: TripPersistenceContext['tripNumberGenerator'];
+  public tripEventService: { recordEvent(payload: any, context: AuthUserContext): Promise<any> };
+  public auditLogService: { recordLog(params: any, context: AuthUserContext): Promise<any> };
+  constructor(database: any = adminDb) {
+    const adminDb = database;
+    this.tripRepository = {
     async findById(projectId: string, tripId: string): Promise<TripEntity | null> {
       if (!projectId || !tripId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('trips').doc(tripId).get();
@@ -63,7 +83,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public projectRepository = {
+    this.projectRepository = {
     async findById(projectId: string): Promise<any> {
       if (!projectId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).get();
@@ -72,7 +92,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public globalCarrierRepository = {
+    this.globalCarrierRepository = {
     async findById(carrierId: string): Promise<any> {
       if (!carrierId) return null;
       const snap = await adminDb.collection('carriers').doc(carrierId).get();
@@ -81,7 +101,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public globalTruckRepository = {
+    this.globalTruckRepository = {
     async findById(truckId: string): Promise<any> {
       if (!truckId) return null;
       const snap = await adminDb.collection('trucks').doc(truckId).get();
@@ -90,7 +110,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public globalDriverRepository = {
+    this.globalDriverRepository = {
     async findById(driverId: string): Promise<any> {
       if (!driverId) return null;
       const snap = await adminDb.collection('drivers').doc(driverId).get();
@@ -99,7 +119,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public globalMaterialRepository = {
+    this.globalMaterialRepository = {
     async findById(materialId: string): Promise<any> {
       if (!materialId) return null;
       const snap = await adminDb.collection('materials').doc(materialId).get();
@@ -108,7 +128,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public projectCarrierMembershipRepository = {
+    this.projectCarrierMembershipRepository = {
     async getMembership(projectId: string, carrierId: string): Promise<any> {
       if (!projectId || !carrierId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('carrier_memberships').doc(carrierId).get();
@@ -117,7 +137,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public projectTruckMembershipRepository = {
+    this.projectTruckMembershipRepository = {
     async getMembership(projectId: string, truckId: string): Promise<any> {
       if (!projectId || !truckId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('truck_memberships').doc(truckId).get();
@@ -126,7 +146,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public projectDriverMembershipRepository = {
+    this.projectDriverMembershipRepository = {
     async getMembership(projectId: string, driverId: string): Promise<any> {
       if (!projectId || !driverId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('driver_memberships').doc(driverId).get();
@@ -135,7 +155,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public projectMaterialMembershipRepository = {
+    this.projectMaterialMembershipRepository = {
     async getMembership(projectId: string, materialId: string): Promise<any> {
       if (!projectId || !materialId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('material_memberships').doc(materialId).get();
@@ -144,7 +164,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public projectDriverCarrierAffiliationRepository = {
+    this.projectDriverCarrierAffiliationRepository = {
     async getAffiliation(projectId: string, driverId: string): Promise<any> {
       if (!projectId || !driverId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('driver_carrier_affiliations').doc(driverId).get();
@@ -153,7 +173,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public projectTruckCarrierAffiliationRepository = {
+    this.projectTruckCarrierAffiliationRepository = {
     async getAffiliation(projectId: string, truckId: string): Promise<any> {
       if (!projectId || !truckId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('truck_carrier_affiliations').doc(truckId).get();
@@ -162,7 +182,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public projectDriverTruckAssignmentRepository = {
+    this.projectDriverTruckAssignmentRepository = {
     async getActiveAssignmentByDriver(projectId: string, driverId: string): Promise<any> {
       if (!projectId || !driverId) return null;
       // 1. Direct slot lookup
@@ -206,7 +226,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public projectTruckMaterialAllocationRepository = {
+    this.projectTruckMaterialAllocationRepository = {
     async getActiveAllocationByTruck(projectId: string, truckId: string): Promise<any> {
       if (!projectId || !truckId) return null;
       // 1. Direct slot lookup
@@ -229,7 +249,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public pricingRuleRepository = {
+    this.pricingRuleRepository = {
     async findById(projectId: string, pricingRuleId: string): Promise<any> {
       if (!projectId || !pricingRuleId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('pricing_rules').doc(pricingRuleId).get();
@@ -240,7 +260,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public tripNumberGenerator = {
+    this.tripNumberGenerator = {
     async getNextTripNumber(projectId: string, projectNumberVal?: number): Promise<string> {
       let formattedProjNum = /^Q-PRJ-\d+$/i.test(projectId) ? projectId.toUpperCase() : 'Q-PRJ-0001';
       if (projectNumberVal !== undefined) {
@@ -287,7 +307,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public tripEventService = {
+    this.tripEventService = {
     async recordEvent(payload: any, context: AuthUserContext): Promise<any> {
       const eventId = payload.eventId || `EVT-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
       const now = new Date().toISOString();
@@ -309,7 +329,7 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     },
   };
 
-  public auditLogService = {
+    this.auditLogService = {
     async recordLog(params: any, context: AuthUserContext): Promise<any> {
       const auditLogId = `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
       const now = new Date().toISOString();
@@ -340,10 +360,16 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
       return auditLogId;
     },
   };
+  }
 }
 
 export class ServerExceptionPersistenceAdapter implements ExceptionPersistenceContext {
-  public exceptionRepository = {
+  public exceptionRepository: ExceptionPersistenceContext['exceptionRepository'];
+  public tripRepository: ExceptionPersistenceContext['tripRepository'];
+  public auditLogService: { recordLog(params: any, context: AuthUserContext): Promise<any> };
+  constructor(database: any = adminDb) {
+    const adminDb = database;
+    this.exceptionRepository = {
     async listByTrip(projectId: string, tripId: string): Promise<TripExceptionEntity[]> {
       const safeTrip = tripId || '_general';
       const snap = await adminDb.collection('projects').doc(projectId).collection('trips').doc(safeTrip).collection('exceptions').get();
@@ -387,7 +413,7 @@ export class ServerExceptionPersistenceAdapter implements ExceptionPersistenceCo
     },
   };
 
-  public tripRepository = {
+    this.tripRepository = {
     async update(projectId: string, tripId: string, updates: Partial<TripEntity>, updatedBy: string): Promise<void> {
       if (!projectId || !tripId) {
         throw new Error('INVALID_TRIP_UPDATE: projectId and tripId are required');
@@ -409,7 +435,7 @@ export class ServerExceptionPersistenceAdapter implements ExceptionPersistenceCo
     },
   };
 
-  public auditLogService = {
+    this.auditLogService = {
     async recordLog(params: any, context: AuthUserContext): Promise<any> {
       const auditLogId = `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
       const now = new Date().toISOString();
@@ -440,6 +466,7 @@ export class ServerExceptionPersistenceAdapter implements ExceptionPersistenceCo
       return auditLogId;
     },
   };
+  }
 }
 
 export const serverTripPersistenceAdapter = new ServerTripPersistenceAdapter();

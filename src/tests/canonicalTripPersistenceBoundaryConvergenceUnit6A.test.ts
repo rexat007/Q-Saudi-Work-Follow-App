@@ -1,3 +1,4 @@
+import { TripCommandsServerService } from '../services/tripCommands.server';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
@@ -304,37 +305,37 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
   // Contracts 25–29: Idempotency via Admin SDK
   // =========================================================================
   describe('Contracts 25–29: Idempotency via Admin SDK', () => {
-    it('25. Trip creation endpoint queries clientUUID via adminDb', () => {
-      const appTsPath = path.resolve(__dirname, '../../server/app.ts');
-      const content = fs.readFileSync(appTsPath, 'utf-8');
-      expect(content).toMatch(/adminDb\s*\.collection\('projects'\)\s*\.doc\(projectId\)\s*\.collection\('trips'\)\s*\.where\('clientUUID',\s*'==',\s*operationId\)/);
+    it('25. Creation replay resolves existing clientUUID only after current-principal authorization', () => {
+      const source = fs.readFileSync(path.resolve(__dirname, '../services/tripCommands.server.ts'), 'utf8');
+      expect(source).toContain(".where('clientUUID', '==', raw.operationId).limit(1).get()");
+      expect(source.indexOf('buildPrincipal(')).toBeLessThan(source.indexOf(".where('clientUUID'"));
+      expect(source).toContain('trip.createdBy !== actor.userId');
     });
-
-    it('26. Trip status transition endpoint queries sync_operations via adminDb', () => {
-      const appTsPath = path.resolve(__dirname, '../../server/app.ts');
-      const content = fs.readFileSync(appTsPath, 'utf-8');
-      expect(content).toMatch(/adminDb\s*\.collection\('projects'\)\s*\.doc\(projectId\)\s*\.collection\('sync_operations'\)\s*\.doc\(operationId\)/);
+    it('26. Status replay uses a server transaction ledger scoped to actor and operation', () => {
+      const source = fs.readFileSync(path.resolve(__dirname, '../services/tripCommands.server.ts'), 'utf8');
+      expect(source).toContain('`${actor.userId}:${raw.operationId}`');
+      expect(source).toContain(".collection('sync_operations').doc(ledgerId)");
+      expect(source.indexOf('canExecuteTripCommand(actor.role, command)')).toBeLessThan(source.indexOf('await tx.get(ledger)'));
     });
-
-    it('27. Trip receipt recording endpoint checks sync_operations via adminDb', () => {
-      const appTsPath = path.resolve(__dirname, '../../server/app.ts');
-      const content = fs.readFileSync(appTsPath, 'utf-8');
-      expect(content).toContain("app.post(\n  '/api/projects/:projectId/trips/:tripId/receipt'");
-      expect(content).toMatch(/adminDb\.collection\('projects'\)\.doc\(projectId\)\.collection\('sync_operations'\)\.doc\(operationId\)/);
+    it('27. Receipt endpoint delegates to a named destination-weight command with server idempotency', () => {
+      const app = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf8');
+      expect(app).toContain("app.post('/api/projects/:projectId/trips/:tripId/receipt'");
+      expect(app).toContain("command: 'RECORD_DESTINATION_WEIGHT', tripId: req.params.tripId, payload, operationId");
+      expect(app).toContain('new TripCommandsServerService().execute(req.params.projectId, input, req.user)');
     });
-
-    it('28. Trip exception endpoint checks sync_operations via adminDb', () => {
-      const appTsPath = path.resolve(__dirname, '../../server/app.ts');
-      const content = fs.readFileSync(appTsPath, 'utf-8');
-      expect(content).toContain("app.post(\n  '/api/projects/:projectId/trips/:tripId/exceptions'");
-      expect(content).toMatch(/adminDb\.collection\('projects'\)\.doc\(projectId\)\.collection\('trips'\)\.doc\(safeTrip\)\.collection\('exceptions'\)\.doc\(exceptionId\)/);
+    it('28. Exception endpoint delegates to the audited command and existing exception domain service', () => {
+      const app = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf8');
+      const commands = fs.readFileSync(path.resolve(__dirname, '../services/tripCommands.server.ts'), 'utf8');
+      expect(app).toContain("command: 'REPORT_EXCEPTION', tripId: req.params.tripId, payload, operationId");
+      expect(commands).toContain('new ExceptionService(exceptionPersistence).raiseException');
+      expect(commands).toContain('new ServerExceptionPersistenceAdapter(transaction.db)');
     });
-
-    it('29. Successful status/receipt/exception operations commit sync_operation ledger via adminDb', () => {
-      const appTsPath = path.resolve(__dirname, '../../server/app.ts');
-      const content = fs.readFileSync(appTsPath, 'utf-8');
-      expect(content).toContain("targetCollection: 'trips'");
-      expect(content).toContain("targetCollection: 'exceptions'");
+    it('29. Commands commit the server ledger and domain writes inside one transaction', () => {
+      const source = fs.readFileSync(path.resolve(__dirname, '../services/tripCommands.server.ts'), 'utf8');
+      expect(source).toContain('this.database.runTransaction(async (tx: any) =>');
+      expect(source).toContain('tx.set(ledger, sanitizeUndefined(');
+      expect(source).toContain('transaction.flush()');
+      expect(source).toContain('createdBy: actor.userId');
     });
   });
 
@@ -342,10 +343,11 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
   // Contracts 30–36: Architecture & Boundary Invariants
   // =========================================================================
   describe('Contracts 30–36: Architecture & Boundary Invariants', () => {
-    it('30. server/app.ts imports serverTripService and serverExceptionService', () => {
-      const appTsPath = path.resolve(__dirname, '../../server/app.ts');
-      const content = fs.readFileSync(appTsPath, 'utf-8');
-      expect(content).toContain("import { serverTripService, serverExceptionService } from '../src/services/canonicalTripPersistence.server'");
+    it('30. server/app.ts invokes the command boundary rather than unguarded domain mutations', () => {
+      const content = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf8');
+      expect(content).toContain('import { TripCommandsServerService, TripCommandError }');
+      expect(content).toContain('new TripCommandsServerService().execute');
+      expect(content).not.toContain('serverTripService.transitionTripStatus(');
     });
 
     it('31. server/app.ts does not import client TripService constructor directly', () => {
@@ -405,11 +407,11 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
       expect(clientService).toBeInstanceOf(ExceptionService);
     });
 
-    it('39. Pricing snapshot immutable properties are computed strictly from rule without client overrides', async () => {
-      const appTsPath = path.resolve(__dirname, '../../server/app.ts');
-      const content = fs.readFileSync(appTsPath, 'utf-8');
-      expect(content).toContain("req.body.pricingSnapshot !== undefined");
-      expect(content).toContain("req.body.settlementAmount !== undefined");
+    it('39. Commands reject client pricing/financial/snapshot overrides before persistence', async () => {
+      const service = new TripCommandsServerService();
+      for (const field of ['pricingSnapshot', 'settlementAmount', 'financials', 'driverSnapshot']) {
+        await expect(service.execute('P1', { command: 'DISPATCH_TRIP', operationId: 'override', payload: { [field]: {} } }, { userId: 'u', role: 'SUPER_ADMIN', email: '', displayName: '' })).rejects.toHaveProperty('code', 'INVALID_TRIP_COMMAND');
+      }
     });
 
     it('40. TripNumberGenerator in ServerTripPersistenceAdapter generates sequential Q-PRJ format using adminDb transactions', async () => {

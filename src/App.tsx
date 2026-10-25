@@ -109,6 +109,7 @@ export default function App() {
         email: user.email || '',
         role: effectiveRole,
         assignedProjectIds: userProfile?.assignedProjectIds || [],
+        linkedDriverId: userProfile?.linkedDriverId,
       }
     : undefined;
 

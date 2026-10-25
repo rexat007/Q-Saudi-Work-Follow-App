@@ -5,6 +5,8 @@ import { outboxService } from '../services/offline/outbox.service';
 import { indexedDBService } from '../services/offline/indexedDB.service';
 import { TripValidator } from '../validators/trip.validator';
 
+vi.mock('../firebase/config', () => ({ auth: { currentUser: { uid: 'driver-login', getIdToken: async () => 'test-token' } }, db: {} }));
+
 describe('LU-P6-03 — Field Driver View Operational Convergence Tests', () => {
   beforeEach(async () => {
     if (typeof navigator !== 'undefined') {
@@ -44,7 +46,7 @@ describe('LU-P6-03 — Field Driver View Operational Convergence Tests', () => {
 
     const allTrips = await indexedDBService.getAll<any>('trips');
     const activeTrip = allTrips.find(t =>
-      (t.driverId === testDriverId || t.assignedDriverId === testDriverId) &&
+      t.driverId === testDriverId &&
       ['LOADED', 'IN_TRANSIT', 'ARRIVED', 'UNLOADING'].includes(t.status)
     );
 
@@ -131,13 +133,13 @@ describe('LU-P6-03 — Field Driver View Operational Convergence Tests', () => {
       projectId,
       userId: driverId,
       operationType: 'UPDATE_TRIP_STATUS',
-      payload: { tripId, status: 'ARRIVED' },
+      payload: { tripId, status: 'AT_DESTINATION' },
     });
 
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ trip: { tripId, status: 'ARRIVED', version: 2 } }),
+      json: async () => ({ success: true, trip: { tripId, status: 'AT_DESTINATION', version: 2 } }),
     });
     global.fetch = mockFetch;
 

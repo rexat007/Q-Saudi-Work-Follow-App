@@ -1,6 +1,20 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "trip_commands.errors.denied": "لم يعد حسابك مخولًا لتنفيذ هذه العملية في المشروع.",
+  "trip_commands.errors.unlinked": "يلزم ربط الحساب بهوية السائق قبل تنفيذ إجراء الرحلة.",
+  "trip_commands.errors.ownership": "هذه الرحلة ليست مسندة إلى السائق المرتبط بحسابك.",
+  "trip_commands.errors.invalid": "بيانات العملية غير صالحة أو تتجاوز الإجراء المسموح.",
+  "trip_commands.errors.conflict": "تعارضت العملية مع معالجة سابقة؛ حدّث بيانات الرحلة.",
+  "trip_commands.errors.failed": "تعذر اعتماد الإجراء؛ تحقق من حالة الرحلة وأعد المحاولة.",
+
+  "admin_console.driver_binding": "ربط هوية السائق",
+  "admin_console.driver_not_linked": "لم تُربط هوية سائق",
+  "admin_console.driver_choose": "اختر سائقًا موجودًا",
+  "admin_console.driver_link": "ربط السائق",
+  "admin_console.driver_unlink": "إلغاء الربط",
+  "admin_console.errors.driver_linked": "هوية السائق مرتبطة بحساب آخر",
+
   "project_access.description": "تُشتق التعيينات من حسابات المستخدمين؛ الدور عام والوصول الفعلي يتطلب حسابًا نشطًا.",
   "project_access.account_status": "حالة الحساب",
   "project_access.assignment": "التعيين",

@@ -1,3 +1,5 @@
+import { sendTripCommand } from '../tripCommandClient.service';
+import { TRIP_COMMANDS } from '../../types/tripCommands';
 import { auth } from '../../firebase/config';
 import { ImportedTripDispatchParams } from '../trip.service';
 import { TripEntity } from '../../types/entities';
@@ -21,30 +23,8 @@ export class ImportedTripClientService {
       throw new Error('UNAUTHENTICATED: سياق المستخدم مفقود');
     }
 
-    const token = await currentUser.getIdToken();
-
-    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/trips/import`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify(params),
-    });
-
-    let result: DispatchImportedTripResponse;
-    try {
-      result = await response.json();
-    } catch {
-      throw new Error(`فشل الاتصال بالخادم HTTP ${response.status}`);
-    }
-
-    if (!response.ok || !result.success || !result.trip) {
-      const error = new Error(result.error || `فشل إنشاء الرحلة المستوردة HTTP ${response.status}`);
-      (error as any).code = result.code || `HTTP_${response.status}`;
-      (error as any).status = response.status;
-      throw error;
-    }
+    const payload = Object.fromEntries(TRIP_COMMANDS.IMPORT_TRIP.fields.filter(key => params[key as keyof ImportedTripDispatchParams] !== undefined).map(key => [key, params[key as keyof ImportedTripDispatchParams]]));
+    const result = await sendTripCommand(projectId, 'IMPORT_TRIP', payload, params.clientUUID || crypto.randomUUID());
 
     return {
       trip: result.trip,

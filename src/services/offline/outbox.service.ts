@@ -1,3 +1,5 @@
+import { operationalTripProjection } from '../../utils/operationalTripProjection';
+import { queuedTripCommand, sendTripCommand } from '../tripCommandClient.service';
 /**
  * Outbox Service for Offline-First Architecture.
  * Manages the client-side operation queue, status transitions, and online synchronization pipeline.
@@ -19,7 +21,6 @@
 
 import { indexedDBService } from './indexedDB.service';
 import { OutboxOperation, OutboxStatus, OutboxStats } from '../../types/offline';
-import { syncOperationRepository } from '../../repositories/syncOperation.repository';
 import { conflictResolutionService } from './conflictResolution.service';
 import { auth } from '../../firebase/config';
 
@@ -146,24 +147,13 @@ export class OutboxService {
             continue;
           }
 
-          // Step 3: Idempotency Check
-          const existingSyncRecord = await syncOperationRepository.findById(op.projectId, op.operationId);
-          if (existingSyncRecord) {
-            // Already processed previously on the server!
-            await indexedDBService.updateOutboxStatus(op.operationId, 'SYNCED', {
-              syncedAt: new Date().toISOString(),
-              serverAck: {
-                committedAt: existingSyncRecord.createdAt ? new Date(existingSyncRecord.createdAt as any).toISOString() : new Date().toISOString(),
-                messageAr: 'تم تأكيد المعالجة السابقة خادومياً (Idempotency Hit)',
-              },
-            });
-            syncedCount++;
-            continue;
-          }
-
+          // Idempotency is checked only after current-principal authorization on the server.
           // Step 3.5: Conflict Detection Engine (No Last-Write-Wins)
           // Preserves local command, preserves server state, records conflict, and blocks sync until explicit resolution
-          const conflict = conflictResolutionService.detectConflict(op);
+          // An optimistic cache record is not a server conflict witness. The
+          // authoritative command still checks the current persisted FSM in its transaction.
+          const cached = op.payload.tripId ? indexedDBService.getSync<any>('trips', op.payload.tripId) : null;
+          const conflict = cached?.syncStatus === 'PENDING' ? null : conflictResolutionService.detectConflict(op);
           if (conflict) {
             await indexedDBService.updateOutboxStatus(op.operationId, 'CONFLICT', {
               conflictDetails: {
@@ -182,113 +172,21 @@ export class OutboxService {
           // Step 4: Commit to authoritative stores via canonical replay path
           let commitResult: { tripId: string; tripSerial: string; version: number } = { tripId: '', tripSerial: '', version: 1 };
 
-          let token = '';
-          try {
-            if (auth.currentUser) {
-              token = await auth.currentUser.getIdToken();
-            }
-          } catch (tokErr) {
-            console.warn('[OutboxService] Failed to get auth ID token, continuing with empty header:', tokErr);
-          }
-
-          const headers: Record<string, string> = {
-            'Content-Type': 'application/json',
-          };
-          if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-          }
-
-          const baseUrl = typeof window !== 'undefined' ? '' : (process.env.TEST_API_URL || 'http://localhost:3000');
-          
-          let response: Response;
-          if (op.operationType === 'CREATE_TRIP_LOADING') {
-            response = await fetch(`${baseUrl}/api/projects/${op.projectId}/trips`, {
-              method: 'POST',
-              headers,
-              body: JSON.stringify({
-                ...op.payload,
-                operationId: op.operationId,
-              }),
-            });
-          } else if (op.operationType === 'UPDATE_TRIP_STATUS') {
-            const tripId = op.payload.tripId;
-            response = await fetch(`${baseUrl}/api/projects/${op.projectId}/trips/${tripId}/status`, {
-              method: 'PATCH',
-              headers,
-              body: JSON.stringify({
-                status: op.payload.status,
-                payload: op.payload,
-                operationId: op.operationId,
-              }),
-            });
-          } else if (op.operationType === 'RECORD_RECEIPT') {
-            const tripId = op.payload.tripId;
-            response = await fetch(`${baseUrl}/api/projects/${op.projectId}/trips/${tripId}/receipt`, {
-              method: 'POST',
-              headers,
-              body: JSON.stringify({
-                destinationTareKg: op.payload.destinationTareKg,
-                destinationGrossKg: op.payload.destinationGrossKg,
-                destinationTicketNo: op.payload.destinationTicketNo,
-                operationId: op.operationId,
-              }),
-            });
-          } else if (op.operationType === 'REPORT_EXCEPTION') {
-            const tripId = op.payload.tripId;
-            response = await fetch(`${baseUrl}/api/projects/${op.projectId}/trips/${tripId}/exceptions`, {
-              method: 'POST',
-              headers,
-              body: JSON.stringify({
-                exceptionId: op.payload.exceptionId,
-                type: op.payload.type,
-                severity: op.payload.severity,
-                descriptionAr: op.payload.descriptionAr,
-                descriptionEn: op.payload.descriptionEn,
-                operationId: op.operationId,
-              }),
-            });
-          } else {
-            throw new Error(`نوع العملية غير مدعوم في المزامنة: ${op.operationType}`);
-          }
-
-          if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.error || `فشلت مزامنة العملية مع السيرفر (كود: ${response.status})`);
-          }
-
-          const resData = await response.json();
+          const intent = queuedTripCommand(op);
+          const resData = await sendTripCommand(op.projectId, intent.command, intent.payload, op.operationId, intent.tripId);
 
           if (op.operationType === 'CREATE_TRIP_LOADING') {
             const serverTrip = resData.trip;
             if (op.payload.tripId) {
               await indexedDBService.delete('trips', op.payload.tripId);
             }
-            await indexedDBService.put('trips', serverTrip);
+            await indexedDBService.put('trips', operationalTripProjection(serverTrip));
 
             commitResult = {
               tripId: serverTrip.tripId,
               tripSerial: serverTrip.tripNumber || serverTrip.tripSerial,
               version: serverTrip.version,
             };
-
-            try {
-              await syncOperationRepository.create({
-                operationId: op.operationId,
-                projectId: op.projectId,
-                clientOperationUUID: op.operationId,
-                targetCollection: 'trips',
-                targetDocId: commitResult.tripId,
-                status: 'PROCESSED',
-                processedResponse: {
-                  tripSerial: commitResult.tripSerial,
-                  committedAt: new Date().toISOString(),
-                },
-                createdBy: op.userId,
-                updatedBy: op.userId,
-              });
-            } catch {
-              // Non-fatal
-            }
 
             await indexedDBService.updateOutboxStatus(op.operationId, 'SYNCED', {
               syncedAt: new Date().toISOString(),
@@ -303,7 +201,7 @@ export class OutboxService {
             syncedCount++;
           } else if (op.operationType === 'UPDATE_TRIP_STATUS') {
             const serverTrip = resData.trip;
-            await indexedDBService.put('trips', serverTrip);
+            await indexedDBService.put('trips', operationalTripProjection(serverTrip));
 
             commitResult = {
               tripId: serverTrip.tripId,
@@ -324,7 +222,7 @@ export class OutboxService {
             syncedCount++;
           } else if (op.operationType === 'RECORD_RECEIPT') {
             const serverTrip = resData.trip;
-            await indexedDBService.put('trips', serverTrip);
+            await indexedDBService.put('trips', operationalTripProjection(serverTrip));
 
             commitResult = {
               tripId: serverTrip.tripId,
@@ -413,7 +311,7 @@ export class OutboxService {
     if (op.operationType === 'RECORD_RECEIPT') {
       const { tripId, destinationTareKg, destinationGrossKg } = op.payload;
       if (!tripId) return 'فشل التحقق الخادومي: معرف الرحلة مفقود';
-      if (destinationTareKg !== undefined && destinationGrossKg !== undefined && destinationGrossKg <= destinationTareKg) {
+      if (op.payload.receiptMode !== 'DIRECT' && op.payload.receiptMode !== 'ACCEPT_ORIGIN_NET' && destinationTareKg !== undefined && destinationGrossKg !== undefined && destinationGrossKg <= destinationTareKg) {
         return `فشل التحقق الخادومي: وزن الوجهة القائم (${destinationGrossKg}) يجب أن يكون أكبر من وزن الفارغ (${destinationTareKg})`;
       }
     }

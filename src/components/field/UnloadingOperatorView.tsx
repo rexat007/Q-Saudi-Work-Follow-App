@@ -1,3 +1,6 @@
+import { tripCommandErrorKey } from '../../i18n/tripCommandErrors';
+import { TRIP_COMMANDS } from '../../types/tripCommands';
+import { operationalTripProjection } from '../../utils/operationalTripProjection';
 import { filterProjectScope } from '../../utils/projectScope';
 import { presentOperationalMessage } from "../../i18n/operationalMessages";
 import React, { useState, useMemo, useEffect, useRef } from 'react';
@@ -42,13 +45,7 @@ export interface UnloadingOperatorViewProps {
 }
 
 // Authorized roles for Unloading Operator Interface per Block 76 Architecture & RBAC
-export const UNLOADING_AUTHORIZED_ROLES: UserRole[] = [
-  'SCALE_OPERATOR',
-  'SITE_SUPERVISOR',
-  'SUPERVISOR',
-  'PROJECT_ADMIN',
-  'SUPER_ADMIN'
-];
+export const UNLOADING_AUTHORIZED_ROLES: UserRole[] = [...TRIP_COMMANDS.COMPLETE_UNLOADING.roles];
 
 export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   authContext = {
@@ -62,7 +59,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   onNotification
 }) => {
   const { t, isRTL } = useI18n();
-  const operationalMessage = (message: string) => presentOperationalMessage(message, t);
+  const operationalMessage = (message: string) => tripCommandErrorKey(message) ? t(tripCommandErrorKey(message)!) : presentOperationalMessage(message, t);
   const { isOnline } = useOnlineStatus();
 
   // Role Authorization Check (Dispatchers and Drivers forbidden at destination weighbridge)
@@ -76,6 +73,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   const [searchFeedback, setSearchFeedback] = useState<{ status: string; message: string } | null>(null);
 
   // Weight Entry Mode: DUAL_SCALE (Gross - Tare) or DIRECT (Net)
+  const [acceptOriginNet, setAcceptOriginNet] = useState(false);
   const [weightEntryMode, setWeightEntryMode] = useState<'DUAL_SCALE' | 'DIRECT'>('DIRECT');
   const [destGrossInput, setDestGrossInput] = useState<number | ''>('');
   const [destTareInput, setDestTareInput] = useState<number | ''>('');
@@ -102,6 +100,8 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   const inboundTrips = filterProjectScope(storedInboundTrips, authContext);
   const tripsCache = filterProjectScope(storedTripsCache, authContext);
 
+  useEffect(() => { setAcceptOriginNet(false); }, [activeTrip?.tripId]);
+
   const refreshInboundTrips = async () => {
     const requestedScope = scopeKey;
     try {
@@ -113,7 +113,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         for (const pId of projectIds) {
           const remoteTrips = await tripRepository.listByProject(pId).catch(() => []);
           if (remoteTrips && remoteTrips.length > 0) {
-            await indexedDBService.putMany('trips', remoteTrips).catch(() => {});
+            await indexedDBService.putMany('trips', remoteTrips.map(operationalTripProjection)).catch(() => {});
           }
         }
       }
@@ -278,7 +278,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       };
 
       // Put in local IndexedDB cache optimistically
-      await indexedDBService.put('trips', updatedTrip);
+      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' });
 
       // Queue canonical outbox operation
       await outboxService.queueOperation({
@@ -292,7 +292,8 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       });
 
       if (isOnline) {
-        await outboxService.syncAll(false);
+        const sync = await outboxService.syncAll(false);
+        if (sync.failedCount > 0) throw new Error('TRIP_COMMAND_FAILED');
         const synced = await indexedDBService.getById<any>('trips', activeTrip.tripId);
         setActiveTrip(synced || updatedTrip);
       } else {
@@ -327,7 +328,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       };
 
       // Put in local IndexedDB cache optimistically
-      await indexedDBService.put('trips', updatedTrip);
+      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' });
 
       // Do NOT queue any outbox operation (like status OFFLOADED) prematurely here.
       // OFFLOADED is only valid in FSM after RECORD_RECEIPT (WEIGHED_DESTINATION).
@@ -360,6 +361,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   // STEP 3: Explicit Decision: "Accept Origin Net as Destination"
   const handleAcceptOriginNet = () => {
     if (!activeTrip) return;
+    setAcceptOriginNet(true);
     setDestNetWeightInput(activeTrip.netWeight);
     if (activeTrip.tareWeight) {
       setDestTareInput(activeTrip.tareWeight);
@@ -412,7 +414,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       };
 
       // Store in IndexedDB cache optimistically
-      await indexedDBService.put('trips', updatedTrip);
+      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' });
 
       // 1. Queue RECORD_RECEIPT operation (transitions AT_DESTINATION -> WEIGHED_DESTINATION)
       await outboxService.queueOperation({
@@ -421,6 +423,8 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         operationType: 'RECORD_RECEIPT',
         payload: {
           tripId: activeTrip.tripId,
+          receiptMode: acceptOriginNet ? 'ACCEPT_ORIGIN_NET' : weightEntryMode,
+          destinationNetKg: net,
           destinationTareKg: Number(destTareInput || 0),
           destinationGrossKg: Number(destGrossInput || 0),
           destinationTicketNo: `WB-REC-${Date.now()}`,
@@ -847,7 +851,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                     <input
                       type="number"
                       value={destGrossInput || ''}
-                      onChange={(e) => setDestGrossInput(Number(e.target.value))}
+                      onChange={(e) => { setAcceptOriginNet(false); setDestGrossInput(Number(e.target.value)); }}
                       className="w-full bg-white border border-stone-300 rounded-lg p-2.5 text-base font-black font-mono text-stone-900"
                     />
                   </div>
@@ -856,7 +860,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                     <input
                       type="number"
                       value={destTareInput || ''}
-                      onChange={(e) => setDestTareInput(Number(e.target.value))}
+                      onChange={(e) => { setAcceptOriginNet(false); setDestTareInput(Number(e.target.value)); }}
                       className="w-full bg-white border border-stone-300 rounded-lg p-2.5 text-base font-black font-mono text-stone-900"
                     />
                   </div>
@@ -874,7 +878,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
                     <input
                       type="number"
                       value={destNetWeightInput || ''}
-                      onChange={(e) => setDestNetWeightInput(e.target.value === '' ? '' : Number(e.target.value))}
+                      onChange={(e) => { setAcceptOriginNet(false); setDestNetWeightInput(e.target.value === '' ? '' : Number(e.target.value)); }}
                       className="flex-1 bg-white border border-stone-300 rounded-xl px-4 py-3 text-xl font-black text-stone-900 font-mono focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                     />
                     <div className="flex items-center gap-1">
