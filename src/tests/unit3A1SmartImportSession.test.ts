@@ -939,7 +939,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
 
     const cancelIdx = wizardContent.indexOf('const handleCancelRosterImport');
-    const cancelBlock = wizardContent.slice(cancelIdx, cancelIdx + 1000);
+    const cancelBlock = wizardContent.slice(cancelIdx, wizardContent.indexOf('const processRosterFile', cancelIdx));
 
     expect(cancelBlock).toContain('setImportSessionRecoveryError');
     expect(cancelBlock).toContain('return false;');
@@ -974,11 +974,15 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
 
     // Count all invocations of handleResetRosterImport()
     const matches = wizardContent.match(/handleResetRosterImport\(\)/g) || [];
-    // Exactly 3 invocations:
+    // Three existing session actions plus one project-boundary-only local reset:
     // 1. Inside handleCancelRosterImport (LOCAL_TERMINAL_CLEAR after server cancel)
     // 2. Inside processRosterFile (INTERNAL_PRE-SESSION_RESET)
     // 3. Inside RosterCommitResultLayer onFinish (LOCAL_TERMINAL_CLEAR after terminal commit)
-    expect(matches.length).toBe(3);
+    expect(matches.length).toBe(4);
+    const contextReset = wizardContent.slice(wizardContent.indexOf('  useLayoutEffect(() => {\n    creatingRef.current = false;'), wizardContent.indexOf('// Canonical scope loss'));
+    expect(contextReset).toContain('handleResetRosterImport()');
+    expect(contextReset).toContain('[editingProjectId, projectScopeKey]');
+    expect(contextReset).not.toContain('updateCheckpoint');
   });
 
   it('Hotfix-K: no obsolete handleResetRosterImport test-gaming comments in production props', () => {
