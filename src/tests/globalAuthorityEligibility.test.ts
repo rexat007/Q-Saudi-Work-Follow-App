@@ -134,7 +134,9 @@ describe('P5-B1 mutation authority and atomic audit', () => {
       expect(membership).toContain('allow create, update, delete: if false;');
       expect(membership).toContain('allow get, list:');
     }
-    expect(rules.slice(rules.indexOf('match /driver_truck_assignments/'))).toContain('allow create:');
+    const temporal = rules.slice(rules.indexOf('match /driver_truck_assignments/')).split('\n      }')[0];
+    expect(temporal).toContain('allow create, update, delete: if false;');
+    expect(temporal).toContain('allow get, list:');
   });
 });
 

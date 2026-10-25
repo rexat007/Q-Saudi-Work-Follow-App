@@ -232,83 +232,31 @@ service cloud.firestore {
       // Unit 2B-2: Driver ↔ Truck Temporal Assignment Subcollection
       match /driver_truck_assignments/{assignmentId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(assignmentId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
-                         incoming().assignmentId == assignmentId &&
-                         incoming().projectId == projectId &&
-                         isValidId(incoming().driverId) &&
-                         isValidId(incoming().truckId) &&
-                         incoming().status in ['ACTIVE', 'CLOSED'] &&
-                         incoming().createdBy == request.auth.uid;
-        // Historical assignments can transition from ACTIVE to CLOSED only (fields are immutable once closed)
-        allow update: if isSignedIn() && isValidId(assignmentId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
-                         existing().status == 'ACTIVE' &&
-                         incoming().status == 'CLOSED' &&
-                         incoming().assignmentId == existing().assignmentId &&
-                         incoming().projectId == existing().projectId &&
-                         incoming().driverId == existing().driverId &&
-                         incoming().truckId == existing().truckId &&
-                         incoming().effectiveFrom == existing().effectiveFrom &&
-                         incoming().createdAt == existing().createdAt &&
-                         incoming().createdBy == existing().createdBy;
-        allow delete: if false;
+        allow create, update, delete: if false; // Server temporal authority only.
       }
 
       // Unit 2B-2: Active Driver Slot Concurrency Infrastructure
       match /driver_active_assignments/{driverId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create, update: if isSignedIn() && isValidId(driverId) &&
-                                 hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
-                                 isValidId(incoming().assignmentId);
-        allow delete: if isSignedIn() && isValidId(driverId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']);
+        allow create, update, delete: if false; // Server temporal authority only.
       }
 
       // Unit 2B-2: Active Truck Slot Concurrency Infrastructure
       match /truck_active_assignments/{truckId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create, update: if isSignedIn() && isValidId(truckId) &&
-                                 hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
-                                 isValidId(incoming().assignmentId);
-        allow delete: if isSignedIn() && isValidId(truckId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']);
+        allow create, update, delete: if false; // Server temporal authority only.
       }
 
       // Unit 2C: Truck ↔ Material Temporal Allocation Subcollection
       match /truck_material_allocations/{allocationId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(allocationId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
-                         incoming().allocationId == allocationId &&
-                         incoming().projectId == projectId &&
-                         isValidId(incoming().truckId) &&
-                         isValidId(incoming().materialId) &&
-                         incoming().status in ['ACTIVE', 'CLOSED'] &&
-                         incoming().createdBy == request.auth.uid;
-        // Historical allocations can transition from ACTIVE to CLOSED only (fields are immutable once closed)
-        allow update: if isSignedIn() && isValidId(allocationId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
-                         existing().status == 'ACTIVE' &&
-                         incoming().status == 'CLOSED' &&
-                         incoming().allocationId == existing().allocationId &&
-                         incoming().projectId == existing().projectId &&
-                         incoming().truckId == existing().truckId &&
-                         incoming().materialId == existing().materialId &&
-                         incoming().effectiveFrom == existing().effectiveFrom &&
-                         incoming().createdAt == existing().createdAt &&
-                         incoming().createdBy == existing().createdBy;
-        allow delete: if false;
+        allow create, update, delete: if false; // Server temporal authority only.
       }
 
       // Unit 2C: Active Truck Material Slot Concurrency Infrastructure
       match /truck_active_material_allocations/{truckId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create, update: if isSignedIn() && isValidId(truckId) &&
-                                 hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
-                                 isValidId(incoming().allocationId);
-        allow delete: if isSignedIn() && isValidId(truckId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']);
+        allow create, update, delete: if false; // Server temporal authority only.
       }
 
       // Trips subcollection

@@ -34,6 +34,7 @@ export function commandDatabase(initial: Record<string, any>) {
         get: async (ref: any) => { if (writing) throw Error('read after write'); return snapshot(ref); },
         set: (ref: any, data: any, options?: any) => write(ref, data, Boolean(options?.merge)),
         update: (ref: any, data: any) => write(ref, data, true),
+        delete: (ref: any) => { writing = true; if (failPath && ref.path.includes(failPath)) throw Error('simulated write failure'); pending.push(() => { delete store[ref.path]; }); },
       });
       pending.forEach(commit => commit()); return result;
     }); queue = run.then(() => {}, () => {}); return run;

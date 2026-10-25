@@ -1,3 +1,4 @@
+import { readCurrentAssignment, readCurrentAllocation } from './temporalRelationshipAuthority.server';
 import { decodeTrip, decodeProject, decodePricing, decodeScopedProjection, decodePersistence, decodeGlobal, decodeRelationship } from '../utils/persistenceBoundary';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { adminDb } from '../firebase/admin';
@@ -183,71 +184,21 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
   };
 
     this.projectDriverTruckAssignmentRepository = {
-    async getActiveAssignmentByDriver(projectId: string, driverId: string): Promise<any> {
-      if (!projectId || !driverId) return null;
-      // 1. Direct slot lookup
-      const slotSnap = await adminDb.collection('projects').doc(projectId).collection('driver_active_assignments').doc(driverId).get();
-      if (slotSnap.exists && slotSnap.data()?.assignmentId) {
-        const assignSnap = await adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(slotSnap.data()?.assignmentId).get();
-        if (assignSnap.exists && assignSnap.data()?.status === 'ACTIVE') {
-          return decodeRelationship(assignSnap.data(), 'assignmentId', assignSnap.id, projectId, ['ACTIVE', 'CLOSED']);
-        }
-      }
-      // 2. Query fallback
-      const q = await adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments')
-        .where('driverId', '==', driverId)
-        .get();
-      if (!q.empty) {
-        const active = q.docs.find((d: any) => d.data()?.status === 'ACTIVE');
-        if (active) return decodeRelationship(active.data(), 'assignmentId', active.id, projectId, ['ACTIVE', 'CLOSED']);
-      }
-      return null;
-    },
-
-    async getActiveAssignmentByTruck(projectId: string, truckId: string): Promise<any> {
-      if (!projectId || !truckId) return null;
-      // 1. Direct slot lookup
-      const slotSnap = await adminDb.collection('projects').doc(projectId).collection('truck_active_assignments').doc(truckId).get();
-      if (slotSnap.exists && slotSnap.data()?.assignmentId) {
-        const assignSnap = await adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments').doc(slotSnap.data()?.assignmentId).get();
-        if (assignSnap.exists && assignSnap.data()?.status === 'ACTIVE') {
-          return decodeRelationship(assignSnap.data(), 'assignmentId', assignSnap.id, projectId, ['ACTIVE', 'CLOSED']);
-        }
-      }
-      // 2. Query fallback
-      const q = await adminDb.collection('projects').doc(projectId).collection('driver_truck_assignments')
-        .where('truckId', '==', truckId)
-        .get();
-      if (!q.empty) {
-        const active = q.docs.find((d: any) => d.data()?.status === 'ACTIVE');
-        if (active) return decodeRelationship(active.data(), 'assignmentId', active.id, projectId, ['ACTIVE', 'CLOSED']);
-      }
-      return null;
-    },
-  };
-
+      async getActiveAssignmentByDriver(projectId: string, driverId: string): Promise<any> {
+        if (!projectId || !driverId) return null;
+        return readCurrentAssignment({ get: (ref: any) => ref.get() }, adminDb, projectId, 'driverId', driverId, new Date());
+      },
+      async getActiveAssignmentByTruck(projectId: string, truckId: string): Promise<any> {
+        if (!projectId || !truckId) return null;
+        return readCurrentAssignment({ get: (ref: any) => ref.get() }, adminDb, projectId, 'truckId', truckId, new Date());
+      },
+    };
     this.projectTruckMaterialAllocationRepository = {
-    async getActiveAllocationByTruck(projectId: string, truckId: string): Promise<any> {
-      if (!projectId || !truckId) return null;
-      // 1. Direct slot lookup
-      const slotSnap = await adminDb.collection('projects').doc(projectId).collection('truck_active_allocations').doc(truckId).get();
-      if (slotSnap.exists && slotSnap.data()?.allocationId) {
-        const allocSnap = await adminDb.collection('projects').doc(projectId).collection('truck_material_allocations').doc(slotSnap.data()?.allocationId).get();
-        if (allocSnap.exists && allocSnap.data()?.status === 'ACTIVE') {
-          return decodeRelationship(allocSnap.data(), 'allocationId', allocSnap.id, projectId, ['ACTIVE', 'CLOSED']);
-        }
-      }
-      // 2. Query fallback
-      const q = await adminDb.collection('projects').doc(projectId).collection('truck_material_allocations')
-        .where('truckId', '==', truckId)
-        .get();
-      if (!q.empty) {
-        const active = q.docs.find((d: any) => d.data()?.status === 'ACTIVE');
-        if (active) return decodeRelationship(active.data(), 'allocationId', active.id, projectId, ['ACTIVE', 'CLOSED']);
-      }
-      return null;
-    },
-  };
+      async getActiveAllocationByTruck(projectId: string, truckId: string): Promise<any> {
+        if (!projectId || !truckId) return null;
+        return readCurrentAllocation({ get: (ref: any) => ref.get() }, adminDb, projectId, truckId, new Date());
+      },
+    };
 
     this.pricingRuleRepository = {
     async findById(projectId: string, pricingRuleId: string): Promise<any> {

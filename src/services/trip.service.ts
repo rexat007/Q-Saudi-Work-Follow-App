@@ -1,3 +1,4 @@
+import { isCurrentTemporal, assignmentSlotsAgree } from '../utils/temporalRelationshipPolicy';
 import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 import { tripRepository } from '../repositories/trip.repository';
 import { TripValidator } from '../validators/trip.validator';
@@ -259,6 +260,8 @@ export class TripService {
       throw new Error(`تعارض في التعيين التشغيلي: السائق (${driverId}) معين للشاحنة (${driverAssignment.truckId}) بينما الشاحنة (${truckId}) معينة للسائق (${truckAssignment.driverId})`);
     }
 
+    if (!isCurrentTemporal(driverAssignment, new Date()) || !isCurrentTemporal(truckAssignment, new Date()) || !assignmentSlotsAgree(driverAssignment, driverAssignment, truckAssignment) || driverAssignment.driverId !== driverId || truckAssignment.truckId !== truckId) throw new Error('ASSIGNMENT_POINTER_INTEGRITY_ERROR');
+
     if (!driverAffiliation || driverAffiliation.status !== 'ACTIVE') {
       throw new Error(`السائق (${driverId}) ليس لديه تبعية نشطة لناقل (Carrier Affiliation) في هذا المشروع`);
     }
@@ -279,6 +282,8 @@ export class TripService {
     if (truckMaterialAllocation.materialId !== materialId) {
       throw new Error(`الشاحنة (${truckId}) مخصصة للمادة (${truckMaterialAllocation.materialId}) وليس للمادة المختارة (${materialId}) [العلاقة: Truck ↔ Material]`);
     }
+
+    if (!isCurrentTemporal(truckMaterialAllocation, new Date())) throw new Error('ALLOCATION_POINTER_CORRUPTION');
 
     return {
       project,

@@ -154,7 +154,8 @@ export async function markDirtyInTransaction(
   projectId: string,
   tabs: (string | WorkspaceSheetTab)[],
   reason?: string | null,
-  timestamp?: string
+  timestamp?: string,
+  database: any = adminDb
 ): Promise<ProjectWorkspaceProjectionState> {
   if (!transaction || typeof transaction.get !== 'function' || typeof transaction.set !== 'function') {
     throw new Error('A valid Firestore transaction is required for markDirtyInTransaction');
@@ -164,7 +165,7 @@ export async function markDirtyInTransaction(
     throw new Error('projectId is required and must be a non-empty string');
   }
 
-  const docRef = getProjectionStateDocRef(cleanProjectId);
+  const docRef = database.collection('projects').doc(cleanProjectId).collection(PROJECTION_STATE_SUBCOLLECTION).doc(PROJECTION_STATE_DOC_ID);
   const snap = await transaction.get(docRef);
   const exists = snap.exists;
   const rawData = exists ? decodeProjection(snap.data(), cleanProjectId) : null;

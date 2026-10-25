@@ -117,19 +117,19 @@ describe('LU-P6-02B2 Material Identity & Authority Enforcement', () => {
     // Mock Assignments & Allocations
     vi.spyOn(projectDriverTruckAssignmentRepository, 'getActiveAssignmentByDriver').mockImplementation(async (pId: string, dId: string) => {
       if (dId === 'DRV-01') {
-        return { assignmentId: 'ASN-01', projectId: pId, driverId: 'DRV-01', truckId: 'TRK-01', status: 'ACTIVE', effectiveFrom: '2026-01-01', effectiveTo: null, createdAt: '2026-01-01', createdBy: 'DISPATCHER-01' };
+        return { assignmentId: 'ASN-01', projectId: pId, driverId: 'DRV-01', truckId: 'TRK-01', status: 'ACTIVE', effectiveFrom: '2026-01-01T00:00:00.000Z', effectiveTo: null, createdAt: '2026-01-01', createdBy: 'DISPATCHER-01' };
       }
       return null;
     });
     vi.spyOn(projectDriverTruckAssignmentRepository, 'getActiveAssignmentByTruck').mockImplementation(async (pId: string, tId: string) => {
       if (tId === 'TRK-01') {
-        return { assignmentId: 'ASN-01', projectId: pId, driverId: 'DRV-01', truckId: 'TRK-01', status: 'ACTIVE', effectiveFrom: '2026-01-01', effectiveTo: null, createdAt: '2026-01-01', createdBy: 'DISPATCHER-01' };
+        return { assignmentId: 'ASN-01', projectId: pId, driverId: 'DRV-01', truckId: 'TRK-01', status: 'ACTIVE', effectiveFrom: '2026-01-01T00:00:00.000Z', effectiveTo: null, createdAt: '2026-01-01', createdBy: 'DISPATCHER-01' };
       }
       return null;
     });
     vi.spyOn(projectTruckMaterialAllocationRepository, 'getActiveAllocationByTruck').mockImplementation(async (pId: string, tId: string) => {
       if (tId === 'TRK-01') {
-        return { allocationId: 'ALC-01', projectId: pId, truckId: 'TRK-01', materialId: 'MAT-AGG-01', status: 'ACTIVE', effectiveFrom: '2026-01-01', effectiveTo: null, createdAt: '2026-01-01', createdBy: 'DISPATCHER-01' };
+        return { allocationId: 'ALC-01', projectId: pId, truckId: 'TRK-01', materialId: 'MAT-AGG-01', status: 'ACTIVE', effectiveFrom: '2026-01-01T00:00:00.000Z', effectiveTo: null, createdAt: '2026-01-01', createdBy: 'DISPATCHER-01' };
       }
       return null;
     });

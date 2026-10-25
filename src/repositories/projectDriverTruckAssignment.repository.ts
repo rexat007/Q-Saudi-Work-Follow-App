@@ -6,7 +6,6 @@ import {
   query,
   where,
   orderBy,
-  runTransaction,
   Transaction,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -85,7 +84,7 @@ export function generateOpaqueAssignmentId(): string {
  * - Active Truck slots: /projects/{projectId}/truck_active_assignments/{truckId}
  */
 export class ProjectDriverTruckAssignmentRepository {
-  // In-memory data structures for fast unit tests or when unauthenticated
+  // TEST_ONLY compatibility stores; production mutations require the server authority.
   private inMemoryAssignments: Map<string, ProjectDriverTruckAssignmentEntity> = new Map();
   private inMemoryDriverSlots: Map<string, ActiveAssignmentSlotPayload> = new Map(); // key: `${projectId}#${driverId}`
   private inMemoryTruckSlots: Map<string, ActiveAssignmentSlotPayload> = new Map(); // key: `${projectId}#${truckId}`
@@ -110,6 +109,7 @@ export class ProjectDriverTruckAssignmentRepository {
     if (!projectId || !assignmentId) return null;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       return this.inMemoryAssignments.get(assignmentId) || null;
     }
 
@@ -121,13 +121,10 @@ export class ProjectDriverTruckAssignmentRepository {
         return snap.exists() ? snap.data() as ProjectDriverTruckAssignmentEntity : null;
       }
       const snap = await getDoc(docRef);
-      if (!snap.exists()) {
-        return this.inMemoryAssignments.get(assignmentId) || null;
-      }
+      if (!snap.exists()) return null;
       return snap.data() as ProjectDriverTruckAssignmentEntity;
     } catch (error) {
       handleFirestoreError(error, OperationType.GET, docPath);
-      return this.inMemoryAssignments.get(assignmentId) || null;
     }
   }
 
@@ -150,6 +147,7 @@ export class ProjectDriverTruckAssignmentRepository {
 
     const compKey = this.getSlotKey(projectId, driverId);
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       return this.inMemoryDriverSlots.get(compKey) || null;
     }
 
@@ -161,13 +159,10 @@ export class ProjectDriverTruckAssignmentRepository {
         return snap.exists() ? snap.data() as ActiveAssignmentSlotPayload : null;
       }
       const snap = await getDoc(docRef);
-      if (!snap.exists()) {
-        return this.inMemoryDriverSlots.get(compKey) || null;
-      }
+      if (!snap.exists()) return null;
       return snap.data() as ActiveAssignmentSlotPayload;
     } catch (error) {
       handleFirestoreError(error, OperationType.GET, docPath);
-      return this.inMemoryDriverSlots.get(compKey) || null;
     }
   }
 
@@ -179,6 +174,7 @@ export class ProjectDriverTruckAssignmentRepository {
 
     const compKey = this.getSlotKey(projectId, truckId);
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       return this.inMemoryTruckSlots.get(compKey) || null;
     }
 
@@ -190,13 +186,10 @@ export class ProjectDriverTruckAssignmentRepository {
         return snap.exists() ? snap.data() as ActiveAssignmentSlotPayload : null;
       }
       const snap = await getDoc(docRef);
-      if (!snap.exists()) {
-        return this.inMemoryTruckSlots.get(compKey) || null;
-      }
+      if (!snap.exists()) return null;
       return snap.data() as ActiveAssignmentSlotPayload;
     } catch (error) {
       handleFirestoreError(error, OperationType.GET, docPath);
-      return this.inMemoryTruckSlots.get(compKey) || null;
     }
   }
 
@@ -229,6 +222,7 @@ export class ProjectDriverTruckAssignmentRepository {
     if (!projectId || !driverId) return [];
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return [];
       return Array.from(this.inMemoryAssignments.values())
         .filter((a) => a.projectId === projectId && a.driverId === driverId)
         .sort((a, b) => new Date(b.effectiveFrom).getTime() - new Date(a.effectiveFrom).getTime());
@@ -240,17 +234,9 @@ export class ProjectDriverTruckAssignmentRepository {
       const q = query(colRef, where('driverId', '==', driverId), orderBy('effectiveFrom', 'desc'));
       const snap = await getDocs(q);
       const live = snap.docs.map((d) => d.data() as ProjectDriverTruckAssignmentEntity);
-      if (live.length === 0) {
-        return Array.from(this.inMemoryAssignments.values())
-          .filter((a) => a.projectId === projectId && a.driverId === driverId)
-          .sort((a, b) => new Date(b.effectiveFrom).getTime() - new Date(a.effectiveFrom).getTime());
-      }
       return live;
     } catch (error) {
       handleFirestoreError(error, OperationType.LIST, colPath);
-      return Array.from(this.inMemoryAssignments.values())
-        .filter((a) => a.projectId === projectId && a.driverId === driverId)
-        .sort((a, b) => new Date(b.effectiveFrom).getTime() - new Date(a.effectiveFrom).getTime());
     }
   }
 
@@ -261,6 +247,7 @@ export class ProjectDriverTruckAssignmentRepository {
     if (!projectId || !truckId) return [];
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return [];
       return Array.from(this.inMemoryAssignments.values())
         .filter((a) => a.projectId === projectId && a.truckId === truckId)
         .sort((a, b) => new Date(b.effectiveFrom).getTime() - new Date(a.effectiveFrom).getTime());
@@ -272,17 +259,9 @@ export class ProjectDriverTruckAssignmentRepository {
       const q = query(colRef, where('truckId', '==', truckId), orderBy('effectiveFrom', 'desc'));
       const snap = await getDocs(q);
       const live = snap.docs.map((d) => d.data() as ProjectDriverTruckAssignmentEntity);
-      if (live.length === 0) {
-        return Array.from(this.inMemoryAssignments.values())
-          .filter((a) => a.projectId === projectId && a.truckId === truckId)
-          .sort((a, b) => new Date(b.effectiveFrom).getTime() - new Date(a.effectiveFrom).getTime());
-      }
       return live;
     } catch (error) {
       handleFirestoreError(error, OperationType.LIST, colPath);
-      return Array.from(this.inMemoryAssignments.values())
-        .filter((a) => a.projectId === projectId && a.truckId === truckId)
-        .sort((a, b) => new Date(b.effectiveFrom).getTime() - new Date(a.effectiveFrom).getTime());
     }
   }
 
@@ -357,6 +336,9 @@ export class ProjectDriverTruckAssignmentRepository {
     actorId: string,
     transaction?: Transaction
   ): Promise<AssignDriverToTruckResult> {
+    // TEST_ONLY compatibility: authoritative production commands run on the server.
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('TEMPORAL_SERVER_COMMAND_REQUIRED');
+
     if (!projectId || !driverId || !truckId) {
       throw new Error('INVALID_ARGUMENT: projectId, driverId, and truckId are required');
     }
@@ -369,7 +351,7 @@ export class ProjectDriverTruckAssignmentRepository {
       return this._assignDriverToTruckInMemory(projectId, driverId, truckId, actorId);
     }
 
-    return this._assignDriverToTruckFirestore(projectId, driverId, truckId, actorId, transaction);
+    throw new Error('TEMPORAL_SERVER_COMMAND_REQUIRED');
   }
 
   /**
@@ -533,210 +515,7 @@ export class ProjectDriverTruckAssignmentRepository {
   /**
    * Live Firestore Transactional implementation of assignDriverToTruck
    */
-  private async _assignDriverToTruckFirestore(
-    projectId: string,
-    driverId: string,
-    truckId: string,
-    actorId: string,
-    transaction?: Transaction
-  ): Promise<AssignDriverToTruckResult> {
-    const colPath = `projects/${projectId}/driver_truck_assignments`;
 
-    const executeWithTx = async (tx: Transaction) => {
-        // 1. Transactional Precondition Reads
-        const driverMemRef = doc(db, 'projects', projectId, 'driver_memberships', driverId);
-        const truckMemRef = doc(db, 'projects', projectId, 'truck_memberships', truckId);
-        const driverAffilRef = doc(db, 'projects', projectId, 'driver_carrier_affiliations', driverId);
-        const truckAffilRef = doc(db, 'projects', projectId, 'truck_carrier_affiliations', truckId);
-
-        const [driverMemSnap, truckMemSnap, driverAffilSnap, truckAffilSnap] = await Promise.all([
-          tx.get(driverMemRef),
-          tx.get(truckMemRef),
-          tx.get(driverAffilRef),
-          tx.get(truckAffilRef),
-        ]);
-
-        if (!driverMemSnap.exists() || driverMemSnap.data()?.status !== 'ACTIVE') {
-          throw new Error(`PRECONDITION_FAILED: Driver membership for ID ${driverId} does not exist or is not ACTIVE`);
-        }
-        if (!truckMemSnap.exists() || truckMemSnap.data()?.status !== 'ACTIVE') {
-          throw new Error(`PRECONDITION_FAILED: Truck membership for ID ${truckId} does not exist or is not ACTIVE`);
-        }
-        if (!driverAffilSnap.exists() || driverAffilSnap.data()?.status !== 'ACTIVE') {
-          throw new Error(`PRECONDITION_FAILED: Driver carrier affiliation for ID ${driverId} does not exist or is not ACTIVE`);
-        }
-        if (!truckAffilSnap.exists() || truckAffilSnap.data()?.status !== 'ACTIVE') {
-          throw new Error(`PRECONDITION_FAILED: Truck carrier affiliation for ID ${truckId} does not exist or is not ACTIVE`);
-        }
-
-        const driverCarrierId = driverAffilSnap.data()?.carrierId;
-        const truckCarrierId = truckAffilSnap.data()?.carrierId;
-        if (driverCarrierId !== truckCarrierId) {
-          throw new Error(`PRECONDITION_FAILED: Cross-carrier pairing rejected. Driver ${driverId} belongs to ${driverCarrierId} while Truck ${truckId} belongs to ${truckCarrierId}`);
-        }
-
-        // 2. Read requested Driver and Truck active slots
-        const driverSlotRef = doc(db, 'projects', projectId, 'driver_active_assignments', driverId);
-        const truckSlotRef = doc(db, 'projects', projectId, 'truck_active_assignments', truckId);
-
-        const [driverSlotSnap, truckSlotSnap] = await Promise.all([
-          tx.get(driverSlotRef),
-          tx.get(truckSlotRef),
-        ]);
-
-        const currentDriverSlot = driverSlotSnap.exists() ? (driverSlotSnap.data() as ActiveAssignmentSlotPayload) : null;
-        const currentTruckSlot = truckSlotSnap.exists() ? (truckSlotSnap.data() as ActiveAssignmentSlotPayload) : null;
-
-        // 3. Idempotency Check
-        if (
-          currentDriverSlot &&
-          currentTruckSlot &&
-          currentDriverSlot.assignmentId === currentTruckSlot.assignmentId
-        ) {
-          const assignRef = doc(db, 'projects', projectId, 'driver_truck_assignments', currentDriverSlot.assignmentId);
-          const assignSnap = await tx.get(assignRef);
-          if (assignSnap.exists()) {
-            const existing = assignSnap.data() as ProjectDriverTruckAssignmentEntity;
-            if (existing.status === 'ACTIVE' && existing.driverId === driverId && existing.truckId === truckId) {
-              return {
-                assignment: existing,
-                idempotent: true,
-                reassignedDriver: false,
-                reassignedTruck: false,
-                closedAssignments: [],
-              };
-            }
-          }
-        }
-
-        // 4. Resolve referenced assignment documents for counterpart tracking
-        let dAssign: ProjectDriverTruckAssignmentEntity | null = null;
-        let tAssign: ProjectDriverTruckAssignmentEntity | null = null;
-
-        if (currentDriverSlot?.assignmentId) {
-          const dRef = doc(db, 'projects', projectId, 'driver_truck_assignments', currentDriverSlot.assignmentId);
-          const dSnap = await tx.get(dRef);
-          if (dSnap.exists()) {
-            dAssign = dSnap.data() as ProjectDriverTruckAssignmentEntity;
-            if (dAssign.driverId !== driverId) {
-              throw new Error(`ASSIGNMENT_POINTER_INTEGRITY_ERROR: Driver slot points to assignment ${dAssign.assignmentId} with mismatched driverId ${dAssign.driverId}`);
-            }
-          }
-        }
-
-        if (currentTruckSlot?.assignmentId && currentTruckSlot.assignmentId !== currentDriverSlot?.assignmentId) {
-          const tRef = doc(db, 'projects', projectId, 'driver_truck_assignments', currentTruckSlot.assignmentId);
-          const tSnap = await tx.get(tRef);
-          if (tSnap.exists()) {
-            tAssign = tSnap.data() as ProjectDriverTruckAssignmentEntity;
-            if (tAssign.truckId !== truckId) {
-              throw new Error(`ASSIGNMENT_POINTER_INTEGRITY_ERROR: Truck slot points to assignment ${tAssign.assignmentId} with mismatched truckId ${tAssign.truckId}`);
-            }
-          }
-        }
-
-        // 5. Read counterpart slot documents BEFORE writes
-        let counterpartTruckSlotSnap: any = null;
-        let counterpartTruckSlotRef: any = null;
-        if (dAssign && dAssign.status === 'ACTIVE' && dAssign.truckId !== truckId) {
-          counterpartTruckSlotRef = doc(db, 'projects', projectId, 'truck_active_assignments', dAssign.truckId);
-          counterpartTruckSlotSnap = await tx.get(counterpartTruckSlotRef);
-        }
-
-        let counterpartDriverSlotSnap: any = null;
-        let counterpartDriverSlotRef: any = null;
-        if (tAssign && tAssign.status === 'ACTIVE' && tAssign.driverId !== driverId) {
-          counterpartDriverSlotRef = doc(db, 'projects', projectId, 'driver_active_assignments', tAssign.driverId);
-          counterpartDriverSlotSnap = await tx.get(counterpartDriverSlotRef);
-        }
-
-        // ==========================================
-        // ALL READS COMPLETED -> PROCEED TO WRITES
-        // ==========================================
-        const now = new Date().toISOString();
-        const closedAssignments: string[] = [];
-        let reassignedDriver = false;
-        let reassignedTruck = false;
-
-        // Close old D ↔ A
-        if (dAssign && dAssign.status === 'ACTIVE') {
-          const dRef = doc(db, 'projects', projectId, 'driver_truck_assignments', dAssign.assignmentId);
-          tx.update(dRef, {
-            status: 'CLOSED',
-            effectiveTo: now,
-          });
-          closedAssignments.push(dAssign.assignmentId);
-          reassignedDriver = true;
-
-          // Release counterpart Truck slot if it still points to this assignment
-          if (counterpartTruckSlotRef && counterpartTruckSlotSnap?.exists()) {
-            if (counterpartTruckSlotSnap.data()?.assignmentId === dAssign.assignmentId) {
-              tx.delete(counterpartTruckSlotRef);
-            }
-          }
-        }
-
-        // Close old X ↔ B
-        if (tAssign && tAssign.status === 'ACTIVE') {
-          const tRef = doc(db, 'projects', projectId, 'driver_truck_assignments', tAssign.assignmentId);
-          tx.update(tRef, {
-            status: 'CLOSED',
-            effectiveTo: now,
-          });
-          closedAssignments.push(tAssign.assignmentId);
-          reassignedTruck = true;
-
-          // Release counterpart Driver slot if it still points to this assignment
-          if (counterpartDriverSlotRef && counterpartDriverSlotSnap?.exists()) {
-            if (counterpartDriverSlotSnap.data()?.assignmentId === tAssign.assignmentId) {
-              tx.delete(counterpartDriverSlotRef);
-            }
-          }
-        }
-
-        // Create new assignment D ↔ B
-        const assignmentId = generateOpaqueAssignmentId();
-        const newAssignment: ProjectDriverTruckAssignmentEntity = {
-          assignmentId,
-          projectId,
-          driverId,
-          truckId,
-          status: 'ACTIVE',
-          effectiveFrom: now,
-          effectiveTo: null,
-          createdAt: now,
-          createdBy: actorId,
-        };
-
-        const newAssignRef = doc(db, 'projects', projectId, 'driver_truck_assignments', assignmentId);
-        tx.set(newAssignRef, newAssignment);
-
-        // Update active slot pointers
-        tx.set(driverSlotRef, { assignmentId });
-        tx.set(truckSlotRef, { assignmentId });
-
-        return {
-          assignment: newAssignment,
-          idempotent: false,
-          reassignedDriver,
-          reassignedTruck,
-          closedAssignments,
-        };
-    };
-
-    if (transaction) {
-      return await executeWithTx(transaction);
-    }
-
-    try {
-      return await runTransaction(db, async (tx) => {
-        return await executeWithTx(tx);
-      });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, colPath);
-      throw error;
-    }
-  }
 
   /**
    * Canonical Close Assignment Mutation
@@ -746,6 +525,9 @@ export class ProjectDriverTruckAssignmentRepository {
     assignmentId: string,
     actorId: string
   ): Promise<CloseAssignmentResult> {
+    // TEST_ONLY compatibility: authoritative production commands run on the server.
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('TEMPORAL_SERVER_COMMAND_REQUIRED');
+
     if (!projectId || !assignmentId) {
       throw new Error('INVALID_ARGUMENT: projectId and assignmentId are required');
     }
@@ -757,7 +539,7 @@ export class ProjectDriverTruckAssignmentRepository {
       return this._closeAssignmentInMemory(projectId, assignmentId, actorId);
     }
 
-    return this._closeAssignmentFirestore(projectId, assignmentId, actorId);
+    throw new Error('TEMPORAL_SERVER_COMMAND_REQUIRED');
   }
 
   /**
@@ -829,65 +611,7 @@ export class ProjectDriverTruckAssignmentRepository {
   /**
    * Live Firestore Transactional implementation of closeAssignment
    */
-  private async _closeAssignmentFirestore(
-    projectId: string,
-    assignmentId: string,
-    actorId: string
-  ): Promise<CloseAssignmentResult> {
-    const docPath = `projects/${projectId}/driver_truck_assignments/${assignmentId}`;
 
-    try {
-      return await runTransaction(db, async (transaction) => {
-        const assignRef = doc(db, 'projects', projectId, 'driver_truck_assignments', assignmentId);
-        const assignSnap = await transaction.get(assignRef);
-
-        if (!assignSnap.exists()) {
-          throw new Error(`NOT_FOUND: Assignment ${assignmentId} not found in project ${projectId}`);
-        }
-
-        const assignment = assignSnap.data() as ProjectDriverTruckAssignmentEntity;
-        if (assignment.status === 'CLOSED') {
-          return { assignment, idempotent: true };
-        }
-
-        // Read active slots before writing
-        const driverSlotRef = doc(db, 'projects', projectId, 'driver_active_assignments', assignment.driverId);
-        const truckSlotRef = doc(db, 'projects', projectId, 'truck_active_assignments', assignment.truckId);
-
-        const [driverSlotSnap, truckSlotSnap] = await Promise.all([
-          transaction.get(driverSlotRef),
-          transaction.get(truckSlotRef),
-        ]);
-
-        const now = new Date().toISOString();
-
-        // Close assignment
-        transaction.update(assignRef, {
-          status: 'CLOSED',
-          effectiveTo: now,
-        });
-
-        // Release slots if pointing to this assignment
-        if (driverSlotSnap.exists() && driverSlotSnap.data()?.assignmentId === assignmentId) {
-          transaction.delete(driverSlotRef);
-        }
-        if (truckSlotSnap.exists() && truckSlotSnap.data()?.assignmentId === assignmentId) {
-          transaction.delete(truckSlotRef);
-        }
-
-        const closedAssignment: ProjectDriverTruckAssignmentEntity = {
-          ...assignment,
-          status: 'CLOSED',
-          effectiveTo: now,
-        };
-
-        return { assignment: closedAssignment, idempotent: false };
-      });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, docPath);
-      throw error;
-    }
-  }
 }
 
 export const projectDriverTruckAssignmentRepository = new ProjectDriverTruckAssignmentRepository();
