@@ -597,9 +597,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           addressAr: foundationDraft.addressAr.trim(),
         },
         settings: {
-          ...project.settings,
           zatcaTaxNumber: foundationDraft.zatcaTaxNumber.trim(),
-        },
+        } as ProjectEntity['settings'],
         startDate: foundationDraft.startDate || undefined,
       };
 
@@ -997,6 +996,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     return setupChecklist.every(item => item.isDone);
   }, [setupChecklist]);
 
+  const creationCommandRef = useRef<{ fingerprint: string; operationId: string } | null>(null);
+
   // Phase 1: Initialize New Project (Atomic transaction with sequential custom numbering)
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1039,7 +1040,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         }
       };
 
-      const createdProject = await projectService.createProject(payload, authContext);
+      const fingerprint = JSON.stringify(payload);
+      if (!creationCommandRef.current || creationCommandRef.current.fingerprint !== fingerprint) {
+        creationCommandRef.current = { fingerprint, operationId: crypto.randomUUID() };
+      }
+      const createdProject = await projectService.createProject({ ...payload, operationId: creationCommandRef.current.operationId }, authContext);
+      creationCommandRef.current = null;
       setLocalProjectOverride(createdProject);
       setIsCreatingNew(false);
       setEditingProjectId(createdProject.projectId);

@@ -121,13 +121,7 @@ service cloud.firestore {
         isProjectMember(projectId)
       );
       allow create: if false; // Direct client-side creation denied to enforce single server-authoritative path
-      allow update: if isSignedIn() && isValidId(projectId) &&
-                       hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
-                       isAuditStampedUpdate(incoming()) &&
-                       incoming().projectId == existing().projectId &&
-                       !incoming().diff(existing()).affectedKeys().hasAny([
-                         'status', 'projectCode', 'projectNumber'
-                       ]); // Lifecycle and allocated identity are server-authoritative.
+      allow update: if false; // Project commands and Workspace linkage are server authoritative.
       allow delete: if false; // Soft-delete only via status
 
       // Carriers subcollection

@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { projectService } from '../services/project.service';
+import { projectCommandsServerService } from '../services/projectCommands.server';
+let operation = 0;
+const projectService = { createProject: (payload: any, context: any) => projectCommandsServerService.createProject({ ...payload, operationId: payload.operationId || `creation-test-${++operation}` }, context) };
 import { ProjectValidator } from '../validators/project.validator';
 import { ProjectNumberGenerator } from '../services/projectNumberGenerator';
 import { AuthUserContext } from '../types/common';
@@ -24,7 +26,7 @@ describe('BLOCK 100H-FIX — Project Creation Validation & Atomic Number Allocat
       delete inMemoryAdminStore[key];
     }
     ProjectNumberGenerator.resetInMemorySequence(1);
-    projectService.clearIdempotencyCache();
+    inMemoryAdminStore['users/U-TEST-ADMIN'] = { userId: 'U-TEST-ADMIN', role: 'SUPER_ADMIN', status: 'ACTIVE', assignedProjectIds: [] };
   });
 
   describe('1. Status Validation & Canonical States', () => {
@@ -301,12 +303,13 @@ describe('BLOCK 100H-FIX — Project Creation Validation & Atomic Number Allocat
       expect(rules).toContain('allow write: if false;');
     });
 
-    it('verifies that legitimate project read and update behaviors remain fully preserved', () => {
+    it('preserves project reads while browser authoritative updates require server commands', () => {
       const rulesPath = path.resolve(process.cwd(), 'firestore.rules');
       const rules = fs.readFileSync(rulesPath, 'utf8');
 
       expect(rules).toContain('allow get: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);');
-      expect(rules).toContain("hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN'])");
+      const root = rules.slice(rules.indexOf('match /projects/{projectId} {'), rules.indexOf('// Carriers subcollection'));
+      expect(root).toContain('allow update: if false;');
     });
 
     it('verifies that no malicious email-based bypass or override exists for project creation', () => {

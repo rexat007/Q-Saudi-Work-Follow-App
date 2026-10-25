@@ -1,5 +1,15 @@
 import { ProjectEntity } from '../types/entities';
 
+// Foundation is intentionally separate from operational additions and Workspace linkage.
+export const FOUNDATION_FIELDS = ['nameAr', 'nameEn', 'clientName', 'description', 'startDate', 'endDate', 'location', 'settings'] as const;
+export const FOUNDATION_SETTINGS = ['zatcaTaxNumber', 'vatRatePercent', 'currency'] as const;
+export function canEditProjectFoundation(status: ProjectEntity['status']): boolean {
+  return status === 'SETUP' || status === 'READY_FOR_REVIEW' || status === 'APPROVED';
+}
+export function canEvaluateProjectActivation(status: ProjectEntity['status']): boolean {
+  return status === 'APPROVED';
+}
+
 export type OperationalMutationType =
   | 'ENROLL_CARRIER'
   | 'ENROLL_MATERIAL'

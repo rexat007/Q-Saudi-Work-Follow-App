@@ -15,7 +15,6 @@ import {
 } from '../types/workspace';
 import { GoogleDriveFileItem } from '../types/googleDriveImport';
 import { ProjectEntity, TripEntity } from '../types/entities';
-import { projectRepository } from '../repositories/project.repository';
 import { auth } from '../firebase/config';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
@@ -224,28 +223,7 @@ export class ClientWorkspaceService {
     const data = await res.json();
     const structure: GoogleDriveProjectStructure = data.data;
 
-    // Update Project in Project Registry (Firestore) with the provisioned IDs
-    try {
-      if (auth.currentUser) {
-        await projectRepository.update(project.projectId, {
-          settings: {
-            ...project.settings,
-            googleDriveFolderId: structure.projectFolderId,
-            googleSpreadsheetId: structure.spreadsheetId,
-            googleDriveProvisioning: {
-              enabled: true,
-              rootFolderName: structure.projectFolderName,
-              spreadsheetTitle: structure.projectFolderName,
-              status: 'PROVISIONED',
-            },
-          },
-        }, 'WORKSPACE_INTEGRATION_SERVICE');
-      } else {
-        console.info('[ClientWorkspaceService] User unauthenticated; skipping remote Firestore project update in demo mode.');
-      }
-    } catch (e) {
-      console.warn('Notice updating project registry in Firestore:', e);
-    }
+    // Server provisioning commits only Workspace linkage, with current settings and atomic audit.
 
     return structure;
   }
