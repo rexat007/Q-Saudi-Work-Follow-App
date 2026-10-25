@@ -63,6 +63,11 @@ describe('Project Lifecycle Server Authority Test Suite', () => {
     const testDb = createInMemoryAdminDb({});
     setTestDbOverride(testDb);
 
+    // Server commands rebuild authorization from persisted accounts, not test context claims.
+    for (const account of [superAdminContext, projectAdminContext, auditorContext, driverContext, { userId: 'guest', role: 'VIEWER' }]) {
+      inMemoryAdminStore[`users/${account.userId}`] = { ...account, status: 'ACTIVE', assignedProjectIds: 'assignedProjectIds' in account ? account.assignedProjectIds : [] };
+    }
+
     // Seed baseline project
     inMemoryAdminStore['projects/Q-PRJ-006'] = { ...baselineProject };
   });

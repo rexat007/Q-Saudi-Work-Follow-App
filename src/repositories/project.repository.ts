@@ -4,11 +4,7 @@ import {
   doc, 
   getDoc, 
   getDocs, 
-  setDoc, 
-  updateDoc, 
-  deleteDoc,
   Transaction,
-  serverTimestamp, 
   onSnapshot,
   query,
   where,
@@ -17,7 +13,6 @@ import {
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
 import { ProjectEntity } from '../types/entities';
-import { sanitizeUndefined } from '../utils/sanitize';
 
 export class ProjectRepository {
   private readonly collectionName = 'projects';
@@ -69,65 +64,18 @@ export class ProjectRepository {
     }
   }
 
-  async create(project: Omit<ProjectEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
-    const path = `${this.collectionName}/${project.projectId}`;
-    if (!auth.currentUser) {
-      console.warn(`[ProjectRepository] User unauthenticated. Skipping live Firestore create for ${path}`);
-      return;
-    }
-    try {
-      const payload = sanitizeUndefined({
-        ...project,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      await setDoc(doc(db, this.collectionName, project.projectId), payload);
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.CREATE, path);
-    }
+  // Compatibility signatures remain for unreachable legacy callers; no browser write authority.
+  async create(_project: Omit<ProjectEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
+    throw new Error('PROJECT_SERVER_COMMAND_REQUIRED');
   }
-
-  async update(projectId: string, updates: Partial<ProjectEntity>, updatedBy: string): Promise<void> {
-    const path = `${this.collectionName}/${projectId}`;
-    if (!auth.currentUser) {
-      console.warn(`[ProjectRepository] User unauthenticated. Skipping live Firestore update for ${path}`);
-      return;
-    }
-    try {
-      const payload = sanitizeUndefined({
-        ...updates,
-        projectId, // immutable ID invariant
-        updatedAt: serverTimestamp(),
-        updatedBy,
-      });
-      await updateDoc(doc(db, this.collectionName, projectId), payload);
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+  async update(_projectId: string, _updates: Partial<ProjectEntity>, _updatedBy: string): Promise<void> {
+    throw new Error('PROJECT_SERVER_COMMAND_REQUIRED');
   }
-
-  async delete(projectId: string): Promise<void> {
-    const path = `${this.collectionName}/${projectId}`;
-    if (!auth.currentUser) {
-      return;
-    }
-    try {
-      await deleteDoc(doc(db, this.collectionName, projectId));
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.DELETE, path);
-    }
+  async delete(_projectId: string): Promise<void> {
+    throw new Error('PROJECT_DELETE_NOT_SUPPORTED');
   }
-
-  async updateInTransaction(projectId: string, updates: Partial<ProjectEntity>, updatedBy: string, transaction: Transaction): Promise<void> {
-    const docRef = doc(db, this.collectionName, projectId);
-    transaction.update(docRef, sanitizeUndefined({
-        ...updates,
-        updatedAt: serverTimestamp(),
-        updatedBy
-    }));
+  async updateInTransaction(_projectId: string, _updates: Partial<ProjectEntity>, _updatedBy: string, _transaction: Transaction): Promise<void> {
+    throw new Error('PROJECT_SERVER_COMMAND_REQUIRED');
   }
 
   subscribeToProjects(

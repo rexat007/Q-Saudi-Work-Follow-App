@@ -379,8 +379,8 @@ app.post('/api/projects', async (req: any, res) => {
       });
     }
 
-    const { projectService } = await import('../src/services/project.service');
-    const createdProject = await projectService.createProject(req.body, user);
+    const { projectCommandsServerService } = await import('../src/services/projectCommands.server');
+    const createdProject = await projectCommandsServerService.createProject(req.body, user);
 
     return res.status(201).json({
       success: true,
@@ -533,6 +533,20 @@ app.use('/api/workspace', async (req, res, next) => {
   }
 });
 
+// Foundation commands accept a bounded patch; server account/profile owns authorization.
+app.post('/api/projects/:projectId/foundation', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    if (!req.body || Object.keys(req.body).some(key => key !== 'updates')) {
+      return res.status(400).json({ success: false, code: 'INVALID_PROJECT_COMMAND', error: 'INVALID_PROJECT_COMMAND' });
+    }
+    const { projectCommandsServerService } = await import('../src/services/projectCommands.server');
+    const data = await projectCommandsServerService.updateFoundation(req.params.projectId, req.body.updates, (req as any).user);
+    res.json({ success: true, data });
+  } catch (error: any) {
+    res.status(error.status || 400).json({ success: false, code: error.code, error: error.message });
+  }
+});
+
 // ----------------------------------------------------
 // 3. Provision Google Drive & Sheets for Project
 // ----------------------------------------------------
@@ -548,7 +562,14 @@ app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, 
       });
     }
 
-    const structure = await serverWorkspaceService.provisionProjectDrive(project, googleToken);
+    const { projectCommandsServerService } = await import('../src/services/projectCommands.server');
+    // Use persisted Project truth for provisioning, not a client snapshot of settings.
+    const current = await adminDb.collection('projects').doc(project.projectId).get();
+    if (!current.exists) return res.status(404).json({ success: false, code: 'PROJECT_NOT_FOUND' });
+    const { decodeProject } = await import('../src/utils/persistenceBoundary');
+    const canonical = decodeProject<import('../src/types/entities').ProjectEntity>(current.data(), project.projectId);
+    const structure = await serverWorkspaceService.provisionProjectDrive(canonical, googleToken);
+    await projectCommandsServerService.recordWorkspaceLink(project.projectId, structure, (req as any).user);
 
     res.json({
       success: true,
@@ -1716,7 +1737,7 @@ app.post('/api/projects/:projectId/lifecycle-transition', enforceProjectIsolatio
       message: `تم تحويل حالة المشروع إلى ${targetStatus} بنجاح`,
     });
   } catch (error: any) {
-    res.status(400).json({ success: false, error: error.message });
+    res.status(error.status || 400).json({ success: false, error: error.message, code: error.code });
   }
 });
 
