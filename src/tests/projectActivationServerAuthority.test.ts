@@ -61,18 +61,20 @@ describe('Project Activation Server Authority Test Suite', () => {
 
   const setupFullCoherentOperationalPath = (projectId = 'Q-PRJ-006') => {
     inMemoryAdminStore[`projects/${projectId}`] = { ...baselineProject, projectId };
-    inMemoryAdminStore[`projects/${projectId}/driver_memberships/DRV-001`] = { driverId: 'DRV-001', status: 'ACTIVE' };
-    inMemoryAdminStore[`projects/${projectId}/truck_memberships/TRK-001`] = { truckId: 'TRK-001', status: 'ACTIVE' };
-    inMemoryAdminStore[`projects/${projectId}/carrier_memberships/CAR-001`] = { carrierId: 'CAR-001', status: 'ACTIVE' };
-    inMemoryAdminStore[`projects/${projectId}/material_memberships/MAT-001`] = { materialId: 'MAT-001', status: 'ACTIVE' };
+    for (const [kind, id] of [['driver', 'DRV-001'], ['truck', 'TRK-001'], ['carrier', 'CAR-001'], ['material', 'MAT-001']]) inMemoryAdminStore[`${kind}s/${id}`] = { [`${kind}Id`]: id, status: 'ACTIVE' };
+    inMemoryAdminStore[`projects/${projectId}/driver_memberships/DRV-001`] = { projectId, driverId: 'DRV-001', status: 'ACTIVE' };
+    inMemoryAdminStore[`projects/${projectId}/truck_memberships/TRK-001`] = { projectId, truckId: 'TRK-001', status: 'ACTIVE' };
+    inMemoryAdminStore[`projects/${projectId}/carrier_memberships/CAR-001`] = { projectId, carrierId: 'CAR-001', status: 'ACTIVE' };
+    inMemoryAdminStore[`projects/${projectId}/material_memberships/MAT-001`] = { projectId, materialId: 'MAT-001', status: 'ACTIVE' };
 
-    inMemoryAdminStore[`projects/${projectId}/driver_carrier_affiliations/DRV-001`] = { driverId: 'DRV-001', carrierId: 'CAR-001', status: 'ACTIVE' };
-    inMemoryAdminStore[`projects/${projectId}/truck_carrier_affiliations/TRK-001`] = { truckId: 'TRK-001', carrierId: 'CAR-001', status: 'ACTIVE' };
+    inMemoryAdminStore[`projects/${projectId}/driver_carrier_affiliations/DRV-001`] = { projectId, driverId: 'DRV-001', carrierId: 'CAR-001', status: 'ACTIVE' };
+    inMemoryAdminStore[`projects/${projectId}/truck_carrier_affiliations/TRK-001`] = { projectId, truckId: 'TRK-001', carrierId: 'CAR-001', status: 'ACTIVE' };
 
     inMemoryAdminStore[`projects/${projectId}/driver_active_assignments/DRV-001`] = { assignmentId: 'ASN-001' };
     inMemoryAdminStore[`projects/${projectId}/truck_active_assignments/TRK-001`] = { assignmentId: 'ASN-001' };
     inMemoryAdminStore[`projects/${projectId}/driver_truck_assignments/ASN-001`] = {
       assignmentId: 'ASN-001',
+      projectId, effectiveFrom: '2020-01-01T00:00:00.000Z', effectiveTo: null,
       driverId: 'DRV-001',
       truckId: 'TRK-001',
       status: 'ACTIVE',
@@ -85,7 +87,7 @@ describe('Project Activation Server Authority Test Suite', () => {
       truckId: 'TRK-001',
       materialId: 'MAT-001',
       status: 'ACTIVE',
-      effectiveFrom: '2020-01-01',
+      effectiveFrom: '2020-01-01T00:00:00.000Z',
       effectiveTo: null,
     };
 
@@ -94,7 +96,7 @@ describe('Project Activation Server Authority Test Suite', () => {
       projectId,
       carrierId: 'CAR-001',
       materialId: 'MAT-001',
-      effectiveFrom: '2020-01-01',
+      effectiveFrom: '2020-01-01T00:00:00.000Z',
       effectiveTo: '3000-01-01',
       status: 'ACTIVE',
     };
@@ -107,6 +109,7 @@ describe('Project Activation Server Authority Test Suite', () => {
     const testDb = createInMemoryAdminDb({});
     setTestDbOverride(testDb);
     activationService = new ProjectActivationService();
+    for (const account of [superAdminContext, projectAdminContext, auditorContext, driverContext]) inMemoryAdminStore[`users/${account.userId}`] = { ...account, status: 'ACTIVE', assignedProjectIds: 'assignedProjectIds' in account ? account.assignedProjectIds : [] };
   });
 
   // 1. project must exist
@@ -644,7 +647,7 @@ describe('Project Activation Server Authority Test Suite', () => {
   it('61. ACTIVE + degraded readiness returns idempotent success', async () => {
     // Project is ACTIVE but has NO operational memberships, affiliations, or pricing rules at all
     inMemoryAdminStore['projects/Q-PRJ-ACTIVE'] = {
-      projectId: 'Q-PRJ-ACTIVE',
+      projectId: 'Q-PRJ-ACTIVE', nameAr: 'مشروع نشط',
       projectCode: 'PRJ-ACT',
       projectNumber: 'PN-ACT',
       status: 'ACTIVE',
@@ -660,7 +663,7 @@ describe('Project Activation Server Authority Test Suite', () => {
   // 62. ACTIVE path does NOT invoke evaluateProjectReadiness
   it('62. ACTIVE path does NOT invoke evaluateProjectReadiness', async () => {
     inMemoryAdminStore['projects/Q-PRJ-ACTIVE'] = {
-      projectId: 'Q-PRJ-ACTIVE',
+      projectId: 'Q-PRJ-ACTIVE', nameAr: 'مشروع نشط',
       status: 'ACTIVE',
     };
 
@@ -674,7 +677,7 @@ describe('Project Activation Server Authority Test Suite', () => {
   it('63. ACTIVE path writes zero project updates', async () => {
     const origDate = new Date('2026-01-01T00:00:00Z');
     inMemoryAdminStore['projects/Q-PRJ-ACTIVE'] = {
-      projectId: 'Q-PRJ-ACTIVE',
+      projectId: 'Q-PRJ-ACTIVE', nameAr: 'مشروع نشط',
       status: 'ACTIVE',
       updatedAt: origDate,
       updatedBy: 'ORIGINAL_CREATOR',
@@ -688,7 +691,7 @@ describe('Project Activation Server Authority Test Suite', () => {
   // 64. ACTIVE path writes zero activation audits
   it('64. ACTIVE path writes zero activation audits', async () => {
     inMemoryAdminStore['projects/Q-PRJ-ACTIVE'] = {
-      projectId: 'Q-PRJ-ACTIVE',
+      projectId: 'Q-PRJ-ACTIVE', nameAr: 'مشروع نشط',
       status: 'ACTIVE',
     };
 
@@ -703,7 +706,7 @@ describe('Project Activation Server Authority Test Suite', () => {
     const spy = vi.spyOn((activationService as any).readinessService, 'evaluateProjectReadiness');
     await activationService.activateProject('Q-PRJ-006', superAdminContext as any);
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith('Q-PRJ-006', expect.any(Date), expect.anything());
+    expect(spy).toHaveBeenCalledWith('Q-PRJ-006', expect.any(Date), expect.anything(), expect.objectContaining({ userId: 'super-admin-1', role: 'SUPER_ADMIN' }));
     spy.mockRestore();
   });
 

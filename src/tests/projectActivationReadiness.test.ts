@@ -114,7 +114,7 @@ describe('ProjectReadinessService Behavioral Test Suite', () => {
   beforeEach(() => {
     readinessService = new ProjectReadinessService();
     mockContext = new MockReadContext();
-    mockContext.project = { projectId: 'test-proj', nameAr: 'Test', status: 'SETUP' } as ProjectEntity;
+    mockContext.project = { projectId: 'test-proj', nameAr: 'Test', status: 'APPROVED' } as ProjectEntity;
   });
 
   // Helpers
@@ -127,7 +127,7 @@ describe('ProjectReadinessService Behavioral Test Suite', () => {
     mockContext.truckAffiliations = { t1: { carrierId: 'c1', status: 'ACTIVE' } as any };
     mockContext.driverAssignments = { d1: { truckId: 't1', status: 'ACTIVE', assignmentId: 'a1' } as any };
     mockContext.truckAllocations = { t1: { truckId: 't1', materialId: 'm1', status: 'ACTIVE', allocationId: 'al1' } as any };
-    mockContext.pricingRules = [{ projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' } as any];
+    mockContext.pricingRules = [{ pricingRuleId: 'p1', status: 'ACTIVE', projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' } as any];
   };
 
   it('M01 — no active material', async () => { setupValidPath(); mockContext.materialMemberships = []; const r = await readinessService.evaluateProjectReadiness('test-proj', new Date(), mockContext); expect(r.blockers.some(b => b.code === 'NO_ACTIVE_MATERIAL')).toBe(true); });
@@ -156,7 +156,7 @@ describe('ProjectReadinessService Behavioral Test Suite', () => {
   it('PR01 — zero pricing', async () => { setupValidPath(); mockContext.pricingRules = []; const r = await readinessService.evaluateProjectReadiness('test-proj', new Date(), mockContext); expect(r.ready).toBe(false); });
   it('PR02 — pricing wrong carrier', async () => { setupValidPath(); mockContext.pricingRules = [{ carrierId: 'c2', materialId: 'm1' } as any]; const r = await readinessService.evaluateProjectReadiness('test-proj', new Date(), mockContext); expect(r.ready).toBe(false); });
   it('PR03 — pricing wrong material', async () => { setupValidPath(); mockContext.pricingRules = [{ carrierId: 'c1', materialId: 'm2' } as any]; const r = await readinessService.evaluateProjectReadiness('test-proj', new Date(), mockContext); expect(r.ready).toBe(false); });
-  it('PR04 — pricing project wrong', async () => { setupValidPath(); /* Pricing rule project is implicit */ const r = await readinessService.evaluateProjectReadiness('other-proj', new Date(), mockContext); expect(r.ready).toBe(false); });
+  it('PR04 — pricing project wrong', async () => { setupValidPath(); /* Pricing rule project is implicit */ await expect(readinessService.evaluateProjectReadiness('other-proj', new Date(), mockContext)).rejects.toHaveProperty('code', 'PERSISTENCE_BOUNDARY_INVALID'); });
   it('PR05 — pricing effective future', async () => { setupValidPath(); mockContext.pricingRules = [{ projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '3000-01-01' } as any]; const r = await readinessService.evaluateProjectReadiness('test-proj', new Date(2025, 1, 1), mockContext); expect(r.ready).toBe(false); });
   it('PR06 — pricing expired', async () => { setupValidPath(); mockContext.pricingRules = [{ projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '2000-01-01', effectiveTo: '2020-01-01' } as any]; const r = await readinessService.evaluateProjectReadiness('test-proj', new Date(2025, 1, 1), mockContext); expect(r.ready).toBe(false); });
   it('PR07 — pricing exact match', async () => { setupValidPath(); const r = await readinessService.evaluateProjectReadiness('test-proj', new Date(2010, 1, 1), mockContext); expect(r.ready).toBe(true); });
@@ -184,6 +184,7 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
     const testDb = createInMemoryAdminDb({});
     setTestDbOverride(testDb);
     mockDatabase = inMemoryAdminStore;
+    mockDatabase['users/admin-1'] = { userId: 'admin-1', role: 'PROJECT_ADMIN', assignedProjectIds: ['test-proj'], status: 'ACTIVE' };
 
     // Clear spy on NonTransactionReadContext
     vi.restoreAllMocks();
@@ -251,7 +252,7 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
 
     vi.spyOn(NonTransactionReadContext.prototype, 'listPricingRules').mockResolvedValue([
       {
-        pricingRuleId: 'pr1',
+        pricingRuleId: 'pr1', status: 'ACTIVE',
         projectId: 'test-proj',
         carrierId: 'c1',
         materialId: 'm1',
@@ -273,7 +274,14 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
     mockDatabase['projects/test-proj/driver_truck_assignments/a1'] = { assignmentId: 'a1', driverId: 'd1', truckId: 't1', status: 'ACTIVE' };
     mockDatabase['projects/test-proj/truck_active_material_allocations/t1'] = { allocationId: 'al1' };
     mockDatabase['projects/test-proj/truck_material_allocations/al1'] = { allocationId: 'al1', projectId: 'test-proj', truckId: 't1', materialId: 'm1', status: 'ACTIVE', effectiveTo: null };
-    mockDatabase['projects/test-proj/pricing_rules/pr1'] = { pricingRuleId: 'pr1', projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' };
+    mockDatabase['projects/test-proj/pricing_rules/pr1'] = { pricingRuleId: 'pr1', status: 'ACTIVE', projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' };
+    // Canonical persistence fixtures; no production normalization is introduced.
+    for (const [kind, id] of [['driver','d1'],['truck','t1'],['carrier','c1'],['material','m1']]) {
+      mockDatabase[`${kind}s/${id}`] = { [`${kind}Id`]: id, status: 'ACTIVE' };
+      mockDatabase[`projects/test-proj/${kind}_memberships/${id}`].projectId = 'test-proj';
+    }
+    for (const [kind, id] of [['driver','d1'],['truck','t1']]) mockDatabase[`projects/test-proj/${kind}_carrier_affiliations/${id}`].projectId = 'test-proj';
+    for (const collection of ['driver_truck_assignments/a1','truck_material_allocations/al1']) Object.assign(mockDatabase[`projects/test-proj/${collection}`], { projectId: 'test-proj', effectiveFrom: '2000-01-01T00:00:00.000Z', effectiveTo: null });
   };
 
   it('Scenario A: Attempting activation from SETUP fails (must be APPROVED)', async () => {
@@ -312,7 +320,7 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
 
   it('Scenario D: Candidate discovered, then carrier membership changes/inactive -> activation rejected', async () => {
     setupMocksForValidDiscovery();
-    mockDatabase['projects/test-proj/carrier_memberships/c1'].status = 'INACTIVE';
+    mockDatabase['projects/test-proj/carrier_memberships/c1'].status = 'SUSPENDED';
 
     await expect(activationService.activateProject('test-proj', userContext))
       .rejects.toThrow('فشل تنشيط المشروع: عضوية غير نشطة');
@@ -320,7 +328,7 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
 
   it('Scenario E: Candidate discovered, then material membership changes/inactive -> activation rejected', async () => {
     setupMocksForValidDiscovery();
-    mockDatabase['projects/test-proj/material_memberships/m1'].status = 'INACTIVE';
+    mockDatabase['projects/test-proj/material_memberships/m1'].status = 'SUSPENDED';
 
     await expect(activationService.activateProject('test-proj', userContext))
       .rejects.toThrow('فشل تنشيط المشروع: عضوية غير نشطة');
