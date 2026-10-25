@@ -1,9 +1,10 @@
+import { planMembership, planAffiliation, protectAffiliationAssignment, writeParticipationPlan, decodeParticipation } from './projectParticipationAuthority.server';
 import { resolveGlobalNaturalIdentity, authorizeGlobalCommand, assertGlobalEntityExists, decodeAuthoritativeGlobal, auditGlobalMutation } from './globalIdentityAuthority.server';
 import { assertCanEnroll, assertOperationallyEligible } from '../utils/globalIdentityPolicy';
 import crypto from 'crypto';
 import { AuthUserContext } from '../types/common';
 import { DriverTruckIntakePayload, DriverTruckIntakeResult } from './driverTruckIntake.service';
-import { CanonicalFleetRelationshipPolicy, PureAffiliation, PureAssignment, PureAllocation } from '../utils/canonicalFleetRelationshipPolicy';
+import { CanonicalFleetRelationshipPolicy, PureAssignment, PureAllocation } from '../utils/canonicalFleetRelationshipPolicy';
 import { markDirtyInTransaction } from './projectWorkspaceProjectionState.server';
 import { WorkspaceSheetTab } from '../types/workspace';
 
@@ -110,7 +111,8 @@ export class DriverTruckIntakeServer {
       // ----------------------------------------------------
       const resolvedDriver = await resolveGlobalNaturalIdentity(transaction, adminDb, 'DRIVER', normIdNumber);
       const resolvedTruck = await resolveGlobalNaturalIdentity(transaction, adminDb, 'TRUCK', normPlate);
-      let driverId = resolvedDriver.id, truckId = resolvedTruck.id;
+      const driverId = resolvedDriver.id || `DRV-${crypto.randomBytes(16).toString('hex')}`;
+      const truckId = resolvedTruck.id || `TRK-${crypto.randomBytes(16).toString('hex')}`;
       const lookupRefDriver = resolvedDriver.canonicalRef, lookupRefTruck = resolvedTruck.canonicalRef;
       const shouldReserveLookupDriver = resolvedDriver.mustReserve, shouldReserveLookupTruck = resolvedTruck.mustReserve;
       if (resolvedDriver.entity) assertCanEnroll('DRIVER', resolvedDriver.entity);
@@ -128,10 +130,10 @@ export class DriverTruckIntakeServer {
         transaction.get(materialMemRef),
       ]);
 
-      if (!carrierMemSnap.exists || carrierMemSnap.data()?.status !== 'ACTIVE') {
+      if (!carrierMemSnap.exists || decodeParticipation(carrierMemSnap.data(), 'CARRIER', projectId, carrierId).status !== 'ACTIVE') {
         throw new Error(`CARRIER_NOT_ACTIVE_IN_PROJECT: Carrier ${carrierId} is not active in project ${projectId}`);
       }
-      if (!materialMemSnap.exists || materialMemSnap.data()?.status !== 'ACTIVE') {
+      if (!materialMemSnap.exists || decodeParticipation(materialMemSnap.data(), 'MATERIAL', projectId, materialId).status !== 'ACTIVE') {
         throw new Error(`MATERIAL_NOT_ACTIVE_IN_PROJECT: Material ${materialId} is not active in project ${projectId}`);
       }
 
@@ -226,19 +228,12 @@ export class DriverTruckIntakeServer {
       // ----------------------------------------------------
       // PHASE 4: EVALUATE TRANSITION DECISIONS
       // ----------------------------------------------------
-      const driverAffilExisting = driverAffilSnap && driverAffilSnap.exists ? (driverAffilSnap.data() as PureAffiliation) : null;
-      const driverAffilDecision = CanonicalFleetRelationshipPolicy.evaluateAffiliation(
-        { projectId, entityId: driverId || '', carrierId, entityType: 'driver' },
-        driverAffilExisting,
-        true // isIntake = true
-      );
-
-      const truckAffilExisting = truckAffilSnap && truckAffilSnap.exists ? (truckAffilSnap.data() as PureAffiliation) : null;
-      const truckAffilDecision = CanonicalFleetRelationshipPolicy.evaluateAffiliation(
-        { projectId, entityId: truckId || '', carrierId, entityType: 'truck' },
-        truckAffilExisting,
-        true // isIntake = true
-      );
+      const driverMembershipPlan = planMembership({ kind: 'DRIVER', projectId, entityId: driverId, before: driverMemSnap?.exists ? driverMemSnap.data() : null, global: resolvedDriver.entity || { status: 'ACTIVE' }, actor: context, command: 'ENROLL' });
+      const driverAffiliationPlan = planAffiliation({ kind: 'DRIVER', projectId, entityId: driverId, carrierId, before: driverAffilSnap?.exists ? driverAffilSnap.data() : null, entityMembership: driverMembershipPlan.after, carrierMembership: carrierMemSnap.data(), global: resolvedDriver.entity || { status: 'ACTIVE' }, carrierGlobal, actor: context, command: 'SET_AFFILIATION' });
+      await protectAffiliationAssignment(transaction, adminDb, driverAffiliationPlan);
+      const truckMembershipPlan = planMembership({ kind: 'TRUCK', projectId, entityId: truckId, before: truckMemSnap?.exists ? truckMemSnap.data() : null, global: resolvedTruck.entity || { status: 'ACTIVE' }, actor: context, command: 'ENROLL' });
+      const truckAffiliationPlan = planAffiliation({ kind: 'TRUCK', projectId, entityId: truckId, carrierId, before: truckAffilSnap?.exists ? truckAffilSnap.data() : null, entityMembership: truckMembershipPlan.after, carrierMembership: carrierMemSnap.data(), global: resolvedTruck.entity || { status: 'ACTIVE' }, carrierGlobal, actor: context, command: 'SET_AFFILIATION' });
+      await protectAffiliationAssignment(transaction, adminDb, truckAffiliationPlan);
 
       // Evaluate assignment decision
       const isAssignmentIdempotent = CanonicalFleetRelationshipPolicy.isAssignmentIdempotent(
@@ -253,20 +248,14 @@ export class DriverTruckIntakeServer {
       const isAllocationIdempotent = !!(tAlloc && tAlloc.status === 'ACTIVE' && tAlloc.materialId === materialId);
 
       // Evaluate Workspace projection invalidation domains
-      const isNewDriver = !driverId;
+      const isNewDriver = !resolvedDriver.id;
       const isNewDriverMem = !driverMemSnap || !driverMemSnap.exists;
-      const isNewTruck = !truckId;
+      const isNewTruck = !resolvedTruck.id;
       const isNewTruckMem = !truckMemSnap || !truckMemSnap.exists;
 
-      const isDriverAffilChanged =
-        driverAffilDecision.action === 'CREATE' ||
-        driverAffilDecision.action === 'REACTIVATE' ||
-        driverAffilDecision.action === 'REASSIGN';
+      const isDriverAffilChanged = driverAffiliationPlan.changed;
 
-      const isTruckAffilChanged =
-        truckAffilDecision.action === 'CREATE' ||
-        truckAffilDecision.action === 'REACTIVATE' ||
-        truckAffilDecision.action === 'REASSIGN';
+      const isTruckAffilChanged = truckAffiliationPlan.changed;
 
       const isAssignmentChanged = !isAssignmentIdempotent;
       const isAllocationChanged = !isAllocationIdempotent;
@@ -328,9 +317,7 @@ export class DriverTruckIntakeServer {
       };
 
       // 1. Create Driver if completely missing
-      if (!driverId) {
-        const hashHex = crypto.randomBytes(16).toString('hex');
-        driverId = `DRV-${hashHex}`;
+      if (!resolvedDriver.id) {
         const newDriverRef = adminDb.collection('drivers').doc(driverId);
         const newDriverData = {
           driverId,
@@ -364,9 +351,7 @@ export class DriverTruckIntakeServer {
       }
 
       // 2. Create Truck if completely missing
-      if (!truckId) {
-        const hashHex = crypto.randomBytes(16).toString('hex');
-        truckId = `TRK-${hashHex}`;
+      if (!resolvedTruck.id) {
 
         const newTruckData: any = {
           truckId,
@@ -417,138 +402,14 @@ export class DriverTruckIntakeServer {
         });
       }
 
-      // Refresh references with guaranteed non-null system IDs
-      const finalDriverMemRef = adminDb.collection('projects').doc(projectId).collection('driver_memberships').doc(driverId);
-      const finalTruckMemRef = adminDb.collection('projects').doc(projectId).collection('truck_memberships').doc(truckId);
-      const finalDriverAffilRef = adminDb.collection('projects').doc(projectId).collection('driver_carrier_affiliations').doc(driverId);
-      const finalTruckAffilRef = adminDb.collection('projects').doc(projectId).collection('truck_carrier_affiliations').doc(truckId);
+      // Temporal slot writes retain the existing shared-intake semantics.
 
       const finalDriverSlotRef = adminDb.collection('projects').doc(projectId).collection('driver_active_assignments').doc(driverId);
       const finalTruckSlotRef = adminDb.collection('projects').doc(projectId).collection('truck_active_assignments').doc(truckId);
       const finalTruckAllocSlotRef = adminDb.collection('projects').doc(projectId).collection('truck_active_material_allocations').doc(truckId);
 
-      // 3. Memberships setup
-      if (!driverMemSnap || !driverMemSnap.exists) {
-        transaction.set(finalDriverMemRef, {
-          projectId,
-          driverId,
-          status: 'ACTIVE',
-          statusChangedAt: nowIso,
-          createdAt: nowIso,
-          updatedAt: nowIso,
-          createdBy: actorId,
-          updatedBy: actorId,
-        });
-      } else if (driverMemSnap.data()?.status !== 'ACTIVE') {
-        throw new Error(`MEMBERSHIP_STATE_CONFLICT: Entity "${driverId}" is currently "${driverMemSnap.data()?.status}" in Project "${projectId}".`);
-      }
-
-      if (!truckMemSnap || !truckMemSnap.exists) {
-        transaction.set(finalTruckMemRef, {
-          projectId,
-          truckId,
-          status: 'ACTIVE',
-          statusChangedAt: nowIso,
-          createdAt: nowIso,
-          updatedAt: nowIso,
-          createdBy: actorId,
-          updatedBy: actorId,
-        });
-      } else if (truckMemSnap.data()?.status !== 'ACTIVE') {
-        throw new Error(`MEMBERSHIP_STATE_CONFLICT: Entity "${truckId}" is currently "${truckMemSnap.data()?.status}" in Project "${projectId}".`);
-      }
-
-      // 4. Set Driver Affiliation
-      if (driverAffilDecision.action === 'CREATE') {
-        transaction.set(finalDriverAffilRef, {
-          projectId,
-          driverId,
-          carrierId,
-          status: 'ACTIVE',
-          statusChangedAt: nowIso,
-          createdAt: nowIso,
-          createdBy: actorId,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        });
-        createAuditLog(
-          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-          'CARRIER',
-          driverId,
-          'CREATE',
-          {
-            before: null,
-            after: { carrierId, status: 'ACTIVE', eventCode: 'DRIVER_CARRIER_AFFILIATION_SET' },
-            deltaFields: ['carrierId', 'status', 'updatedAt', 'updatedBy'],
-          },
-          `AFFIL-${projectId}-${driverId}`
-        );
-      } else if (driverAffilDecision.action === 'REACTIVATE' || driverAffilDecision.action === 'REASSIGN') {
-        transaction.update(finalDriverAffilRef, {
-          status: 'ACTIVE',
-          statusChangedAt: nowIso,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        });
-        createAuditLog(
-          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-          'CARRIER',
-          driverId,
-          'UPDATE',
-          {
-            before: driverAffilExisting ? { carrierId: driverAffilExisting.carrierId, status: driverAffilExisting.status } : null,
-            after: { carrierId, status: 'ACTIVE', eventCode: 'DRIVER_CARRIER_AFFILIATION_CHANGED' },
-            deltaFields: ['carrierId', 'status', 'updatedAt', 'updatedBy'],
-          },
-          `AFFIL-${projectId}-${driverId}`
-        );
-      }
-
-      // 5. Set Truck Affiliation
-      if (truckAffilDecision.action === 'CREATE') {
-        transaction.set(finalTruckAffilRef, {
-          projectId,
-          truckId,
-          carrierId,
-          status: 'ACTIVE',
-          statusChangedAt: nowIso,
-          createdAt: nowIso,
-          createdBy: actorId,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        });
-        createAuditLog(
-          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-          'TRUCK',
-          truckId,
-          'CREATE',
-          {
-            before: null,
-            after: { carrierId, status: 'ACTIVE', eventCode: 'TRUCK_CARRIER_AFFILIATION_SET' },
-            deltaFields: ['carrierId', 'status', 'updatedAt', 'updatedBy'],
-          },
-          `AFFIL-${projectId}-${truckId}`
-        );
-      } else if (truckAffilDecision.action === 'REACTIVATE' || truckAffilDecision.action === 'REASSIGN') {
-        transaction.update(finalTruckAffilRef, {
-          status: 'ACTIVE',
-          statusChangedAt: nowIso,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        });
-        createAuditLog(
-          `AUD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-          'TRUCK',
-          truckId,
-          'UPDATE',
-          {
-            before: truckAffilExisting ? { carrierId: truckAffilExisting.carrierId, status: truckAffilExisting.status } : null,
-            after: { carrierId, status: 'ACTIVE', eventCode: 'TRUCK_CARRIER_AFFILIATION_CHANGED' },
-            deltaFields: ['carrierId', 'status', 'updatedAt', 'updatedBy'],
-          },
-          `AFFIL-${projectId}-${truckId}`
-        );
-      }
+      // Shared participation plans own state and atomic audits.
+      for (const plan of [driverMembershipPlan, truckMembershipPlan, driverAffiliationPlan, truckAffiliationPlan]) writeParticipationPlan(transaction, adminDb, plan);
 
       // 6. Write Assignments
       let finalAssignmentId = '';
@@ -727,16 +588,16 @@ export class DriverTruckIntakeServer {
       const carrierGlobal = await assertGlobalEntityExists(transaction, adminDb, 'CARRIER', carrierId);
       assertOperationallyEligible('CARRIER', carrierGlobal);
       const resolvedDriver = await resolveGlobalNaturalIdentity(transaction, adminDb, 'DRIVER', normIdNumber);
-      let driverId = resolvedDriver.id;
+      const driverId = resolvedDriver.id || `DRV-${crypto.randomBytes(16).toString('hex')}`;
       const lookupRefDriver = resolvedDriver.canonicalRef;
       const shouldReserveLookupDriver = resolvedDriver.mustReserve;
-      const identityStatus: 'CREATED' | 'EXISTING' = driverId ? 'EXISTING' : 'CREATED';
+      const identityStatus: 'CREATED' | 'EXISTING' = resolvedDriver.id ? 'EXISTING' : 'CREATED';
       if (resolvedDriver.entity) assertCanEnroll('DRIVER', resolvedDriver.entity);
 
       const carrierMemRef = adminDb.collection('projects').doc(projectId).collection('carrier_memberships').doc(carrierId);
       const carrierMemSnap = await transaction.get(carrierMemRef);
 
-      if (!carrierMemSnap.exists || carrierMemSnap.data()?.status !== 'ACTIVE') {
+      if (!carrierMemSnap.exists || decodeParticipation(carrierMemSnap.data(), 'CARRIER', projectId, carrierId).status !== 'ACTIVE') {
         throw new Error(`CARRIER_NOT_ACTIVE_IN_PROJECT: Carrier ${carrierId} is not active in project ${projectId}`);
       }
 
@@ -746,21 +607,11 @@ export class DriverTruckIntakeServer {
       const driverMemSnap = driverMemRef ? await transaction.get(driverMemRef) : null;
       const driverAffilSnap = driverAffilRef ? await transaction.get(driverAffilRef) : null;
 
-      let affiliationStatus: 'CREATED' | 'EXISTING' = 'CREATED';
-      if (driverAffilSnap && driverAffilSnap.exists) {
-        const existingAffil = driverAffilSnap.data();
-        if (existingAffil?.status === 'ACTIVE' && existingAffil?.carrierId !== carrierId) {
-          throw new Error(`DRIVER_CARRIER_AFFILIATION_CONFLICT: Driver ${driverId} is already actively affiliated with carrier ${existingAffil.carrierId} in project ${projectId}`);
-        }
-        if (existingAffil?.carrierId === carrierId && existingAffil?.status === 'ACTIVE') {
-          affiliationStatus = 'EXISTING';
-        }
-      }
-
-      let membershipStatus: 'CREATED' | 'EXISTING' = 'CREATED';
-      if (driverMemSnap && driverMemSnap.exists && driverMemSnap.data()?.status === 'ACTIVE') {
-        membershipStatus = 'EXISTING';
-      }
+      const driverMembershipPlan = planMembership({ kind: 'DRIVER', projectId, entityId: driverId, before: driverMemSnap?.exists ? driverMemSnap.data() : null, global: resolvedDriver.entity || { status: 'ACTIVE' }, actor: context, command: 'ENROLL' });
+      const driverAffiliationPlan = planAffiliation({ kind: 'DRIVER', projectId, entityId: driverId, carrierId, before: driverAffilSnap?.exists ? driverAffilSnap.data() : null, entityMembership: driverMembershipPlan.after, carrierMembership: carrierMemSnap.data(), global: resolvedDriver.entity || { status: 'ACTIVE' }, carrierGlobal, actor: context, command: 'SET_AFFILIATION' });
+      await protectAffiliationAssignment(transaction, adminDb, driverAffiliationPlan);
+      const membershipStatus = driverMembershipPlan.changed ? 'CREATED' : 'EXISTING';
+      const affiliationStatus = driverAffiliationPlan.changed ? 'CREATED' : 'EXISTING';
 
       if (identityStatus === 'CREATED' || membershipStatus === 'CREATED') {
         await markDirtyInTransaction(
@@ -771,9 +622,7 @@ export class DriverTruckIntakeServer {
         );
       }
 
-      if (!driverId) {
-        const hashHex = crypto.randomBytes(16).toString('hex');
-        driverId = `DRV-${hashHex}`;
+      if (!resolvedDriver.id) {
         const newDriverRef = adminDb.collection('drivers').doc(driverId);
         const newDriverData = {
           driverId,
@@ -804,32 +653,8 @@ export class DriverTruckIntakeServer {
         });
       }
 
-      const targetDriverMemRef = adminDb.collection('projects').doc(projectId).collection('driver_memberships').doc(driverId);
-      if (membershipStatus === 'CREATED') {
-        transaction.set(targetDriverMemRef, {
-          projectId,
-          driverId,
-          status: 'ACTIVE',
-          createdAt: nowIso,
-          createdBy: actorId,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        });
-      }
-
-      const targetDriverAffilRef = adminDb.collection('projects').doc(projectId).collection('driver_carrier_affiliations').doc(driverId);
-      if (affiliationStatus === 'CREATED') {
-        transaction.set(targetDriverAffilRef, {
-          projectId,
-          driverId,
-          carrierId,
-          status: 'ACTIVE',
-          createdAt: nowIso,
-          createdBy: actorId,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        });
-      }
+      writeParticipationPlan(transaction, adminDb, driverMembershipPlan);
+      writeParticipationPlan(transaction, adminDb, driverAffiliationPlan);
 
       if (identityStatus === 'CREATED') {
         const auditLogId = `AUD-${Date.now()}-DRV-${driverId}`;
@@ -894,16 +719,16 @@ export class DriverTruckIntakeServer {
       const carrierGlobal = await assertGlobalEntityExists(transaction, adminDb, 'CARRIER', carrierId);
       assertOperationallyEligible('CARRIER', carrierGlobal);
       const resolvedTruck = await resolveGlobalNaturalIdentity(transaction, adminDb, 'TRUCK', normPlate);
-      let truckId = resolvedTruck.id;
+      const truckId = resolvedTruck.id || `TRK-${crypto.randomBytes(16).toString('hex')}`;
       const lookupRefTruck = resolvedTruck.canonicalRef;
       const shouldReserveLookupTruck = resolvedTruck.mustReserve;
-      const identityStatus: 'CREATED' | 'EXISTING' = truckId ? 'EXISTING' : 'CREATED';
+      const identityStatus: 'CREATED' | 'EXISTING' = resolvedTruck.id ? 'EXISTING' : 'CREATED';
       if (resolvedTruck.entity) assertCanEnroll('TRUCK', resolvedTruck.entity);
 
       const carrierMemRef = adminDb.collection('projects').doc(projectId).collection('carrier_memberships').doc(carrierId);
       const carrierMemSnap = await transaction.get(carrierMemRef);
 
-      if (!carrierMemSnap.exists || carrierMemSnap.data()?.status !== 'ACTIVE') {
+      if (!carrierMemSnap.exists || decodeParticipation(carrierMemSnap.data(), 'CARRIER', projectId, carrierId).status !== 'ACTIVE') {
         throw new Error(`CARRIER_NOT_ACTIVE_IN_PROJECT: Carrier ${carrierId} is not active in project ${projectId}`);
       }
 
@@ -913,21 +738,11 @@ export class DriverTruckIntakeServer {
       const truckMemSnap = truckMemRef ? await transaction.get(truckMemRef) : null;
       const truckAffilSnap = truckAffilRef ? await transaction.get(truckAffilRef) : null;
 
-      let affiliationStatus: 'CREATED' | 'EXISTING' = 'CREATED';
-      if (truckAffilSnap && truckAffilSnap.exists) {
-        const existingAffil = truckAffilSnap.data();
-        if (existingAffil?.status === 'ACTIVE' && existingAffil?.carrierId !== carrierId) {
-          throw new Error(`TRUCK_CARRIER_AFFILIATION_CONFLICT: Truck ${truckId} is already actively affiliated with carrier ${existingAffil.carrierId} in project ${projectId}`);
-        }
-        if (existingAffil?.carrierId === carrierId && existingAffil?.status === 'ACTIVE') {
-          affiliationStatus = 'EXISTING';
-        }
-      }
-
-      let membershipStatus: 'CREATED' | 'EXISTING' = 'CREATED';
-      if (truckMemSnap && truckMemSnap.exists && truckMemSnap.data()?.status === 'ACTIVE') {
-        membershipStatus = 'EXISTING';
-      }
+      const truckMembershipPlan = planMembership({ kind: 'TRUCK', projectId, entityId: truckId, before: truckMemSnap?.exists ? truckMemSnap.data() : null, global: resolvedTruck.entity || { status: 'ACTIVE' }, actor: context, command: 'ENROLL' });
+      const truckAffiliationPlan = planAffiliation({ kind: 'TRUCK', projectId, entityId: truckId, carrierId, before: truckAffilSnap?.exists ? truckAffilSnap.data() : null, entityMembership: truckMembershipPlan.after, carrierMembership: carrierMemSnap.data(), global: resolvedTruck.entity || { status: 'ACTIVE' }, carrierGlobal, actor: context, command: 'SET_AFFILIATION' });
+      await protectAffiliationAssignment(transaction, adminDb, truckAffiliationPlan);
+      const membershipStatus = truckMembershipPlan.changed ? 'CREATED' : 'EXISTING';
+      const affiliationStatus = truckAffiliationPlan.changed ? 'CREATED' : 'EXISTING';
 
       if (identityStatus === 'CREATED' || membershipStatus === 'CREATED' || affiliationStatus === 'CREATED') {
         await markDirtyInTransaction(
@@ -938,9 +753,7 @@ export class DriverTruckIntakeServer {
         );
       }
 
-      if (!truckId) {
-        const hashHex = crypto.randomBytes(16).toString('hex');
-        truckId = `TRK-${hashHex}`;
+      if (!resolvedTruck.id) {
 
         const newTruckData: any = {
           truckId,
@@ -985,32 +798,8 @@ export class DriverTruckIntakeServer {
         });
       }
 
-      const targetTruckMemRef = adminDb.collection('projects').doc(projectId).collection('truck_memberships').doc(truckId);
-      if (membershipStatus === 'CREATED') {
-        transaction.set(targetTruckMemRef, {
-          projectId,
-          truckId,
-          status: 'ACTIVE',
-          createdAt: nowIso,
-          createdBy: actorId,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        });
-      }
-
-      const targetTruckAffilRef = adminDb.collection('projects').doc(projectId).collection('truck_carrier_affiliations').doc(truckId);
-      if (affiliationStatus === 'CREATED') {
-        transaction.set(targetTruckAffilRef, {
-          projectId,
-          truckId,
-          carrierId,
-          status: 'ACTIVE',
-          createdAt: nowIso,
-          createdBy: actorId,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        });
-      }
+      writeParticipationPlan(transaction, adminDb, truckMembershipPlan);
+      writeParticipationPlan(transaction, adminDb, truckAffiliationPlan);
 
       if (identityStatus === 'CREATED') {
         const auditLogId = `AUD-${Date.now()}-TRK-${truckId}`;

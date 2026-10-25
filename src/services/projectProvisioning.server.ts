@@ -1,3 +1,4 @@
+import { planMembership, writeParticipationPlan } from './projectParticipationAuthority.server';
 import { resolveGlobalNaturalIdentity, authorizeGlobalCommand, decodeAuthoritativeGlobal, auditGlobalMutation } from './globalIdentityAuthority.server';
 import { assertCanEnroll } from '../utils/globalIdentityPolicy';
 import { adminDb } from '../firebase/admin';
@@ -62,21 +63,9 @@ export class ProjectProvisioningAdminService {
 
       // --- PHASE 2: VALIDATION & DECISION MAKING ---
 
-      let membershipStatus = 'ACTIVE';
-      let mustCreateMembership = false;
-
-      if (membershipSnap.exists) {
-        const currentMembership = membershipSnap.data();
-        if (currentMembership.status !== 'ACTIVE') {
-          throw new Error(
-            `MEMBERSHIP_STATE_CONFLICT: Entity "${materialId}" is currently "${currentMembership.status}" in Project "${projectId}". Call setMembershipStatus('ACTIVE') to explicitly reactivate.`
-          );
-        } else {
-          membershipStatus = currentMembership.status;
-        }
-      } else {
-        mustCreateMembership = true;
-      }
+      const membershipPlan = planMembership({ kind: 'MATERIAL', projectId, entityId: materialId, before: membershipSnap.exists ? membershipSnap.data() : null, global: resolved.entity || { status: 'ACTIVE' }, command: 'ENROLL', actor: context });
+      const membershipStatus = membershipPlan.after.status;
+      const mustCreateMembership = membershipPlan.changed;
 
       // --- PHASE 3: ALL TRANSACTION WRITES ---
       if (isNewGlobal || mustCreateMembership) {
@@ -123,19 +112,7 @@ export class ProjectProvisioningAdminService {
         });
       }
 
-      if (mustCreateMembership) {
-        const newMembership = {
-          projectId,
-          materialId,
-          status: 'ACTIVE',
-          statusChangedAt: new Date(),
-          createdAt: new Date(),
-          createdBy: context.userId,
-          updatedAt: new Date(),
-          updatedBy: context.userId,
-        };
-        tx.set(membershipDocRef, newMembership);
-      }
+      writeParticipationPlan(tx, adminDb, membershipPlan);
 
       return { materialId, membershipStatus };
     });
@@ -190,21 +167,9 @@ export class ProjectProvisioningAdminService {
 
       // --- PHASE 2: VALIDATION & DECISION MAKING ---
 
-      let membershipStatus = 'ACTIVE';
-      let mustCreateMembership = false;
-
-      if (membershipSnap.exists) {
-        const currentMembership = membershipSnap.data();
-        if (currentMembership.status !== 'ACTIVE') {
-          throw new Error(
-            `MEMBERSHIP_STATE_CONFLICT: Entity "${carrierId}" is currently "${currentMembership.status}" in Project "${projectId}". Call setMembershipStatus('ACTIVE') to explicitly reactivate.`
-          );
-        } else {
-          membershipStatus = currentMembership.status;
-        }
-      } else {
-        mustCreateMembership = true;
-      }
+      const membershipPlan = planMembership({ kind: 'CARRIER', projectId, entityId: carrierId, before: membershipSnap.exists ? membershipSnap.data() : null, global: resolved.entity || { status: 'ACTIVE' }, command: 'ENROLL', actor: context });
+      const membershipStatus = membershipPlan.after.status;
+      const mustCreateMembership = membershipPlan.changed;
 
       // --- PHASE 3: ALL TRANSACTION WRITES ---
       if (isNewGlobal || mustCreateMembership) {
@@ -265,19 +230,7 @@ export class ProjectProvisioningAdminService {
         });
       }
 
-      if (mustCreateMembership) {
-        const newMembership = {
-          projectId,
-          carrierId,
-          status: 'ACTIVE',
-          statusChangedAt: new Date(),
-          createdAt: new Date(),
-          createdBy: context.userId,
-          updatedAt: new Date(),
-          updatedBy: context.userId,
-        };
-        tx.set(membershipDocRef, newMembership);
-      }
+      writeParticipationPlan(tx, adminDb, membershipPlan);
 
       return { carrierId, membershipStatus };
     });
