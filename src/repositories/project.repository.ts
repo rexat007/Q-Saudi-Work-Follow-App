@@ -11,7 +11,8 @@ import {
   serverTimestamp, 
   onSnapshot,
   query,
-  where
+  where,
+  documentId
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
@@ -42,22 +43,22 @@ export class ProjectRepository {
     return snap.exists() ? (decodeProject<ProjectEntity>(snap.data(), projectId)) : null;
   }
 
-  async listAll(assignedProjectIds?: string[], isSuperAdmin?: boolean): Promise<ProjectEntity[]> {
+  async listAll(assignedProjectIds: string[] = [], isSuperAdmin = false): Promise<ProjectEntity[]> {
     if (!auth.currentUser) {
       return [];
     }
     try {
-      // If user is not super admin and assignedProjectIds is provided, restrict to assigned projects
-      if (!isSuperAdmin && assignedProjectIds !== undefined) {
-        if (assignedProjectIds.length === 0) {
-          return [];
+      // Omitted authority is an empty scope, never a global read.
+      if (isSuperAdmin !== true) {
+        const ids = [...new Set(assignedProjectIds || [])].sort();
+        if (!ids.length) return [];
+        const results: ProjectEntity[] = [];
+        for (let i = 0; i < ids.length; i += 30) {
+          const q = query(collection(db, this.collectionName), where(documentId(), 'in', ids.slice(i, i + 30)));
+          const snap = await getDocs(q);
+          results.push(...snap.docs.map(d => decodeProject<ProjectEntity>(d.data(), d.id)));
         }
-        const q = query(
-          collection(db, this.collectionName),
-          where('projectId', 'in', assignedProjectIds.slice(0, 30))
-        );
-        const snap = await getDocs(q);
-        return snap.docs.map(d => decodeProject<ProjectEntity>(d.data(), d.id));
+        return [...new Map(results.map(project => [project.projectId, project])).values()];
       }
 
       const snap = await getDocs(collection(db, this.collectionName));
@@ -132,14 +133,23 @@ export class ProjectRepository {
   subscribeToProjects(
     onData: (projects: ProjectEntity[]) => void, 
     onError?: (err: Error) => void,
-    assignedProjectIds?: string[],
-    isSuperAdmin?: boolean
+    assignedProjectIds: string[] = [],
+    isSuperAdmin = false
   ) {
-    if (!auth.currentUser) {
-      return () => {};
-    }
+    let active = true;
+    let failed = false;
+    const emit = (projects: ProjectEntity[]) => { if (active && !failed) onData(projects); };
+    const fail = (error: Error) => {
+      if (!active || failed) return;
+      failed = true;
+      onData([]);
+      if (onError) onError(error);
+      else console.error('Project subscription failed', error);
+    };
+    if (!auth.currentUser) { emit([]); return () => { active = false; }; }
 
-    if (!isSuperAdmin && assignedProjectIds !== undefined) {
+    if (isSuperAdmin !== true) {
+      assignedProjectIds = [...new Set(assignedProjectIds || [])].sort();
       if (assignedProjectIds.length === 0) {
         onData([]);
         return () => {};
@@ -168,44 +178,46 @@ export class ProjectRepository {
           }
         }
         const mergedList = Array.from(map.values());
-        onData(mergedList);
+        emit(mergedList);
       };
 
       chunks.forEach((chunk, index) => {
-        const q = query(collection(db, this.collectionName), where('projectId', 'in', chunk));
+        const q = query(collection(db, this.collectionName), where(documentId(), 'in', chunk));
         const unsub = onSnapshot(
           q,
           (snapshot) => {
-            chunkResults[index] = snapshot.docs.map(d => decodeProject<ProjectEntity>(d.data(), d.id));
-            chunkInitialEmitted[index] = true;
-            notifyCombinedIfReady();
+            try {
+              chunkResults[index] = snapshot.docs.map(d => decodeProject<ProjectEntity>(d.data(), d.id));
+              chunkInitialEmitted[index] = true;
+              notifyCombinedIfReady();
+            } catch (error) { fail(error as Error); }
           },
           (error) => {
-            if (onError) onError(error);
-            handleFirestoreError(error, OperationType.LIST, this.collectionName);
+            fail(error);
           }
         );
         unsubscribes.push(unsub);
       });
 
       return () => {
+        active = false;
         unsubscribes.forEach(unsub => unsub());
       };
     }
 
     const q = collection(db, this.collectionName);
 
-    return onSnapshot(
+    const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const list = snapshot.docs.map(d => decodeProject<ProjectEntity>(d.data(), d.id));
-        onData(list);
+        try { emit(snapshot.docs.map(d => decodeProject<ProjectEntity>(d.data(), d.id))); }
+        catch (error) { fail(error as Error); }
       },
       (error) => {
-        if (onError) onError(error);
-        handleFirestoreError(error, OperationType.LIST, this.collectionName);
+        fail(error);
       }
     );
+    return () => { active = false; unsubscribe(); };
   }
 }
 

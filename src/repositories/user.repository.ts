@@ -7,7 +7,7 @@ import {
   setDoc, 
   updateDoc, 
   serverTimestamp, 
-  onSnapshot 
+  onSnapshot, query, where
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
@@ -82,6 +82,21 @@ export class UserRepository {
       if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.UPDATE, path);
     }
+  }
+
+  // Inverse view of the canonical profile field, never a second membership list.
+  subscribeToProjectUsers(projectId: string, onData: (users: UserEntity[]) => void, onError: (error: Error) => void, includeUnassigned = false) {
+    let active = true;
+    onData([]);
+    if (!auth.currentUser || !projectId) return () => { active = false; };
+    const users = collection(db, this.collectionName);
+    const source = includeUnassigned ? users : query(users, where('assignedProjectIds', 'array-contains', projectId));
+    const unsubscribe = onSnapshot(source, snapshot => {
+      if (!active) return;
+      try { onData(snapshot.docs.map(d => decodeUser<UserEntity>(d.data(), d.id))); }
+      catch (error) { onData([]); onError(error as Error); }
+    }, error => { if (active) { onData([]); onError(error); } });
+    return () => { active = false; unsubscribe(); };
   }
 
   subscribeToUsers(onData: (users: UserEntity[]) => void) {

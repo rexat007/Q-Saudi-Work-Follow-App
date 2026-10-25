@@ -1,6 +1,20 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "project_access.description": "تُشتق التعيينات من حسابات المستخدمين؛ الدور عام والوصول الفعلي يتطلب حسابًا نشطًا.",
+  "project_access.account_status": "حالة الحساب",
+  "project_access.assignment": "التعيين",
+  "project_access.effective_access": "الوصول الفعلي",
+  "project_access.assigned": "معيّن",
+  "project_access.effective": "وصول فعّال",
+  "project_access.inactive": "الوصول غير فعّال",
+  "project_access.remove": "إزالة من المشروع",
+  "project_access.add": "تعيين للمشروع",
+  "project_access.choose_user": "اختر مستخدمًا",
+  "project_access.empty": "لا يوجد مستخدمون معيّنون لهذا المشروع.",
+  "project_access.read_failed": "تعذر تحميل تعيينات المشروع.",
+  "project_access.read_only_admin": "عرض التعيينات متاح فقط لمدير النظام أو مدير المشروع المصرح له.",
+
   "shared.actions.save": "حفظ",
   "shared.actions.cancel": "إلغاء",
   "shared.actions.confirm": "تأكيد",

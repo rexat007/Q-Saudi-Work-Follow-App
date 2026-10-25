@@ -9,7 +9,7 @@ function deriveTargetProjectId(
   authContext: { role: string; assignedProjectIds?: string[] }
 ): string | undefined {
   if (selectedProjectId && selectedProjectId !== '') {
-    const isGlobalScope = authContext.role === 'SUPER_ADMIN' || authContext.assignedProjectIds?.includes('ALL');
+    const isGlobalScope = authContext.role === 'SUPER_ADMIN';
     const isAuthorized = isGlobalScope || authContext.assignedProjectIds?.includes(selectedProjectId);
     if (isAuthorized) {
       return selectedProjectId;
@@ -35,7 +35,8 @@ describe('TRIP SMART IMPORT — PROJECT SCOPE CONVERGENCE TESTS', () => {
   it('1. FieldSupervisionView source file includes SUPER_ADMIN in isGlobalScope useMemo check', () => {
     const content = fs.readFileSync(supervisionPath, 'utf-8');
     expect(content).toContain("authContext.role === 'SUPER_ADMIN'");
-    expect(content).toContain("authContext.assignedProjectIds?.includes('ALL')");
+    expect(content).not.toContain("authContext.assignedProjectIds?.includes('ALL')");
+    expect(deriveTargetProjectId('P2', { role: 'PROJECT_ADMIN', assignedProjectIds: ['ALL'] })).toBeUndefined();
   });
 
   it('2. selectedProjectId reaches FieldSupervisionView and SUPER_ADMIN resolves targetProjectId globally', () => {

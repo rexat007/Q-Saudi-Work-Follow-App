@@ -298,39 +298,9 @@ export class ProjectProvisioningService {
       pricingRulesCreatedCount++;
     }
 
-    // 8. STEP 5: PROVISION USER ACCESS (/users)
-    let assignedUsersCount = 0;
-    for (const u of data.userAccess) {
-      if (!u.isAssigned) continue;
-      try {
-        const userDoc = await userRepository.findById(u.userId);
-        if (userDoc) {
-          const currentProjects = userDoc.assignedProjectIds || [];
-          if (!currentProjects.includes(projectId)) {
-            await userRepository.update(
-              u.userId,
-              { assignedProjectIds: [...currentProjects, projectId] },
-              context.userId
-            );
-          }
-        } else {
-          // Create user record if not present
-          await userRepository.create({
-            userId: u.userId,
-            fullName: u.fullName,
-            email: u.email,
-            role: u.role,
-            assignedProjectIds: [projectId],
-            isActive: true,
-            createdBy: context.userId,
-            updatedBy: context.userId,
-          });
-        }
-        assignedUsersCount++;
-      } catch (err) {
-        console.warn(`Could not sync user ${u.userId}:`, err);
-      }
-    }
+    // Historical wizard-local access is retired. Human access is managed only
+    // by server admin commands against canonical Firebase UID profiles.
+    const assignedUsersCount = 0;
 
     // 9. STEP 6: GOOGLE DRIVE / SHEETS PROVISIONING OPERATION
     if (data.googleDrive.enabled) {

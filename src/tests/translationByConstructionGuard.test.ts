@@ -932,6 +932,7 @@ describe('Batch 4 complete active presentation family', () => {
     'src/components/migration/LegacyMigrationView.tsx',
     'src/components/navigation/SystemToolsDrawer.tsx',
     'src/components/wizard/ProjectSetupWizard.tsx',
+    'src/components/wizard/ProjectAccessView.tsx',
     'src/components/importCenter/ExcelCsvImportSection.tsx',
     'src/components/importCenter/GoogleSheetsImportSection.tsx',
     'src/components/import/RosterCarrierResolutionLayer.tsx',

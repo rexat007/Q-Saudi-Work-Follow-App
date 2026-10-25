@@ -1,3 +1,4 @@
+import { filterProjectScope } from '../../utils/projectScope';
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ShieldAlert, 
@@ -40,8 +41,8 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
   // Safe project-scope fail-closed derivation
   const targetProjectId = useMemo(() => {
     // 1. Explicit selectedProjectId wins if operator is authorized for it
-    if (selectedProjectId && selectedProjectId !== '') {
-      const isGlobalScope = authContext.role === 'SUPER_ADMIN' || authContext.assignedProjectIds?.includes('ALL');
+    if (selectedProjectId && selectedProjectId !== 'ALL') {
+      const isGlobalScope = authContext.role === 'SUPER_ADMIN';
       const isAuthorized = isGlobalScope || authContext.assignedProjectIds?.includes(selectedProjectId);
       if (isAuthorized) {
         return selectedProjectId;
@@ -64,7 +65,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
     // 4. Zero or more than one assigned project -> unresolved (fail closed)
     return undefined;
   }, [selectedProjectId, authContext.assignedProjectIds, authContext.role]);
-  const [trips, setTrips] = useState<any[]>([]);
+  const [storedTrips, setTrips] = useState<any[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -80,7 +81,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
         const allTrips: any[] = await indexedDBService.getAll('trips').catch(() => []);
         const filteredTrips = targetProjectId
           ? allTrips.filter(t => t.projectId === targetProjectId)
-          : allTrips;
+          : authContext.role === 'SUPER_ADMIN' ? filterProjectScope(allTrips, authContext) : [];
 
         if (isMounted) {
           setTrips(filteredTrips);
@@ -94,14 +95,16 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [targetProjectId, isOnline, isSimulatedOffline]);
+  }, [targetProjectId, isOnline, isSimulatedOffline, authContext]);
+
+  const trips = filterProjectScope(storedTrips, authContext);
 
   const exceptions = useMemo(() => {
     return exceptionEngine.getAllExceptions().filter(e => 
-      (!targetProjectId || e.projectId === targetProjectId) &&
+      (targetProjectId ? e.projectId === targetProjectId : authContext.role === 'SUPER_ADMIN' && filterProjectScope([e], authContext).length > 0) &&
       (e.status === 'OPEN' || e.status === 'UNDER_REVIEW')
     );
-  }, [targetProjectId]);
+  }, [targetProjectId, authContext]);
 
   const loadingQueueCount = useMemo(() => trips.filter(t => t.status === 'LOADED').length, [trips]);
   const inTransitCount = useMemo(() => trips.filter(t => t.status === 'LOADED' || t.status === 'IN_TRANSIT').length, [trips]);

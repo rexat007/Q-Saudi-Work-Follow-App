@@ -1,3 +1,5 @@
+import { filterProjectScope } from '../../utils/projectScope';
+import { buildPrincipal } from '../../utils/principal';
 import { auth } from '../../firebase/config';
 import { userRepository } from '../../repositories/user.repository';
 import { projectRepository } from '../../repositories/project.repository';
@@ -301,7 +303,14 @@ export class OfflineCacheService {
   public async getProjects(): Promise<CachedProject[]> {
     await this.initializeCache();
     const list = await indexedDBService.getAll<CachedProject>('projects');
-    return list.filter(p => !p.status || p.status === 'ACTIVE');
+    const uid = auth.currentUser?.uid;
+    if (!uid) return [];
+    try {
+      const profile = await userRepository.findById(uid);
+      if (auth.currentUser?.uid !== uid) return [];
+      const context = buildPrincipal(profile, uid, {});
+      return filterProjectScope(list, context).filter(p => !p.status || p.status === 'ACTIVE');
+    } catch { return []; }
   }
 
   public async getCarriers(projectId?: string): Promise<CachedCarrier[]> {

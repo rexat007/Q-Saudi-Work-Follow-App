@@ -1,3 +1,4 @@
+import { hasProjectScope, filterProjectScope } from '../../utils/projectScope';
 import { presentAnalyticsText, presentReportCell } from '../../i18n/analyticsPresentation';
 import { useI18n } from '../../i18n';
 import React, { useState, useMemo, useEffect } from 'react';
@@ -120,8 +121,11 @@ export const ReportsEngineView: React.FC = () => {
   const [dataError, setDataError] = useState<string | null>(null);
 
   // Authorized projects
-  const [authorizedProjects, setAuthorizedProjects] = useState<{ id: string; nameAr: string }[]>([]);
-  const [authorizedProjectIds, setAuthorizedProjectIds] = useState<string[]>([]);
+  const [storedAuthorizedProjects, setAuthorizedProjects] = useState<{ id: string; nameAr: string }[]>([]);
+  const [storedAuthorizedProjectIds, setAuthorizedProjectIds] = useState<string[]>([]);
+
+  const authorizedProjects = useMemo(() => storedAuthorizedProjects.filter(project => hasProjectScope(userProfile || undefined, project.id)), [storedAuthorizedProjects, userProfile]);
+  const authorizedProjectIds = useMemo(() => storedAuthorizedProjectIds.filter(id => hasProjectScope(userProfile || undefined, id)), [storedAuthorizedProjectIds, userProfile]);
 
   // Real-time trip database mapping: projectId -> TripRecord[]
   const [tripsByProject, setTripsByProject] = useState<Record<string, TripRecord[]>>({});
@@ -135,6 +139,7 @@ export const ReportsEngineView: React.FC = () => {
       return;
     }
 
+    setAuthorizedProjects([]); setAuthorizedProjectIds([]);
     setIsDataLoading(true);
     setDataError(null);
 
@@ -343,12 +348,12 @@ export const ReportsEngineView: React.FC = () => {
 
   // Merged & Deduplicated canonical datasets
   const allTrips = useMemo(() => {
-    return computeMergedTripsFromProjects(tripsByProject);
-  }, [tripsByProject]);
+    return filterProjectScope(computeMergedTripsFromProjects(tripsByProject), userProfile || undefined);
+  }, [tripsByProject, userProfile]);
 
   const allExceptions = useMemo(() => {
-    return computeMergedExceptionsFromProjects(exceptionsByProject);
-  }, [exceptionsByProject]);
+    return filterProjectScope(computeMergedExceptionsFromProjects(exceptionsByProject), userProfile || undefined);
+  }, [exceptionsByProject, userProfile]);
 
   // Distinct master data options extracted dynamically from live trips & snapshots (RP-27, RP-28, RP-34)
   const availableProjects = useMemo(() => {

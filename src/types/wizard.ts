@@ -66,6 +66,7 @@ export interface WizardPricingRuleItem {
   vatApplicable: boolean;
 }
 
+/** @deprecated Historical local presentation only; never human authorization. */
 export interface WizardUserAccessItem {
   userId: string;
   fullName: string;
