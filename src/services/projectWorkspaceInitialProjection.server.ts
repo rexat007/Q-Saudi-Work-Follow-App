@@ -1,3 +1,4 @@
+import { decodeGlobal } from '../utils/persistenceBoundary';
 import { adminDb } from '../firebase/admin';
 import { ProjectProvisioningAdminService } from './projectProvisioning.server';
 import { projectFleetReadModelService } from './projectFleetReadModel.service';
@@ -97,7 +98,7 @@ export class ProjectWorkspaceInitialProjectionServer {
     for (const driverId of driverIds) {
       const docSnap = await adminDb.collection('drivers').doc(driverId).get();
       if (docSnap.exists) {
-        globalDrivers.push({ driverId, ...docSnap.data() });
+        globalDrivers.push(decodeGlobal(docSnap.data(), 'driver', driverId));
       }
     }
 

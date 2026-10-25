@@ -222,6 +222,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
               exists: true,
               data: () => ({
                 carrierId: id,
+                status: 'ACTIVE',
                 nameAr: 'شركة المجدوعي اللوجستية',
                 commercialRegistrationNo: '1010101010',
                 transportLicenseNo: 'TGA-1234',
@@ -237,6 +238,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
               exists: true,
               data: () => ({
                 materialId: id,
+                status: 'ACTIVE',
                 nameAr: 'رمل ناعم مغسول',
                 code: 'SND-01',
                 unitOfMeasure: 'TON',

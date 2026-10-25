@@ -1,3 +1,4 @@
+import { GLOBAL_IDENTITIES, GlobalIdentityError, decodeGlobalIdentity, normalizeNaturalKey, legacyNaturalKeyTokens, validGlobalId, type GlobalKind, computeNaturalKeyToken } from '../utils/globalIdentityPolicy';
 import { decodeGlobal } from '../utils/persistenceBoundary';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { 
@@ -5,12 +6,8 @@ import {
   doc, 
   getDoc, 
   getDocs, 
-  setDoc, 
-  updateDoc, 
   query, 
   where,
-  runTransaction,
-  serverTimestamp,
   Transaction
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
@@ -65,33 +62,7 @@ export function generateOpaqueGlobalId(prefix: 'DRV' | 'TRK' | 'CAR' | 'MAT'): s
  * Computes a standardized hash/token representation for natural unique key lookups
  * without storing or exposing raw plain National IDs in document paths.
  */
-export function computeNaturalKeyToken(entityType: 'DRIVER' | 'TRUCK' | 'CARRIER' | 'MATERIAL', rawKey: string): string {
-  let cleaned = rawKey.trim();
-  if (entityType === 'DRIVER') {
-    cleaned = normalizeIdNumber(cleaned);
-  } else if (entityType === 'TRUCK') {
-    cleaned = normalizePlate(cleaned).replace(/\s+/g, '_');
-  } else if (entityType === 'CARRIER') {
-    cleaned = cleaned.replace(/[^0-9]/g, '');
-  } else if (entityType === 'MATERIAL') {
-    cleaned = normalizeCode(cleaned);
-  }
-  
-  // Safe deterministic token supporting Unicode Arabic text and ASCII
-  let token: string;
-  try {
-    if (typeof Buffer !== 'undefined') {
-      token = Buffer.from(cleaned, 'utf-8').toString('base64').replace(/[/+=]/g, '_');
-    } else if (typeof btoa === 'function') {
-      token = btoa(encodeURIComponent(cleaned)).replace(/[/+=]/g, '_');
-    } else {
-      token = encodeURIComponent(cleaned).replace(/%/g, '_');
-    }
-  } catch {
-    token = encodeURIComponent(cleaned).replace(/%/g, '_');
-  }
-  return `${entityType}_${token}`;
-}
+export { computeNaturalKeyToken } from '../utils/globalIdentityPolicy';
 
 // ============================================================================
 // 1. GLOBAL DRIVER REPOSITORY
@@ -111,17 +82,18 @@ export class GlobalDriverRepository {
 
   async findById(driverId: string): Promise<GlobalDriverEntity | null> {
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       return this.inMemoryDrivers.get(driverId) || null;
     }
     const path = `${this.collectionName}/${driverId}`;
     try {
       const snap = await getDoc(doc(db, this.collectionName, driverId));
-      if (!snap.exists()) return this.inMemoryDrivers.get(driverId) || null;
+      if (!snap.exists()) return null;
       return decodeGlobal<GlobalDriverEntity>(snap.data(), 'driver', driverId);
     } catch (error) {
       if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
-      return this.inMemoryDrivers.get(driverId) || null;
+      throw error;
     }
   }
 
@@ -130,6 +102,7 @@ export class GlobalDriverRepository {
     if (!normalized) return null;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       const driverId = this.inMemoryIndexByNationalId.get(normalized);
       if (driverId) {
         return this.inMemoryDrivers.get(driverId) || null;
@@ -137,30 +110,7 @@ export class GlobalDriverRepository {
       return null;
     }
 
-    try {
-      // First check direct natural key lookup index document to achieve O(1) concurrency safety
-      const lookupToken = computeNaturalKeyToken('DRIVER', normalized);
-      const lookupRef = doc(db, 'natural_identity_lookups', lookupToken);
-      const lookupSnap = await getDoc(lookupRef);
-      
-      if (lookupSnap.exists()) {
-        const targetId = lookupSnap.data().systemId;
-        return this.findById(targetId);
-      }
-
-      // Fallback query on canonical collection
-      const q = query(collection(db, this.collectionName), where('nationalId', '==', normalized));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        return decodeGlobal<GlobalDriverEntity>(snap.docs[0].data(), 'driver', snap.docs[0].id);
-      }
-      return null;
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.LIST, this.collectionName);
-      const driverId = this.inMemoryIndexByNationalId.get(normalized);
-      return driverId ? this.inMemoryDrivers.get(driverId) || null : null;
-    }
+    return resolvePersistentNaturalIdentity('DRIVER', nationalId) as Promise<GlobalDriverEntity | null>;
   }
 
   async listByIds(driverIds: string[]): Promise<GlobalDriverEntity[]> {
@@ -190,6 +140,8 @@ export class GlobalDriverRepository {
     },
     transaction?: Transaction
   ): Promise<GlobalDriverEntity> {
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
+
     const normalizedNationalId = normalizeIdNumber(input.nationalId);
     if (!normalizedNationalId || !/^[1-2][0-9]{9}$/.test(normalizedNationalId)) {
       throw new Error('INVALID_NATIONAL_ID: Saudi National ID or Iqama must be exactly 10 digits starting with 1 or 2');
@@ -225,43 +177,7 @@ export class GlobalDriverRepository {
       this.inMemoryIndexByNationalId.set(normalizedNationalId, opaqueId);
       return newDriver;
     }
-
-    const executeWithTx = async (tx: Transaction) => {
-      const driverRef = doc(db, this.collectionName, opaqueId);
-      const driverSnap = await tx.get(driverRef);
-      if (driverSnap.exists()) {
-        throw new Error(`ID_COLLISION_DETECTED: Generated driver ID ${opaqueId} already exists`);
-      }
-
-      const lookupRef = doc(db, 'natural_identity_lookups', lookupToken);
-      const lookupSnap = await tx.get(lookupRef);
-      if (lookupSnap.exists()) {
-        throw new Error(`DUPLICATE_NATURAL_KEY: Driver with National ID already exists in global registry`);
-      }
-
-      tx.set(driverRef, sanitizeUndefined({
-        ...newDriver,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      }));
-
-      tx.set(lookupRef, sanitizeUndefined({
-        entityType: 'DRIVER',
-        systemId: opaqueId,
-        createdAt: serverTimestamp(),
-        createdBy: input.createdBy,
-      }));
-    };
-
-    if (transaction) {
-      await executeWithTx(transaction);
-    } else {
-      await runTransaction(db, executeWithTx);
-    }
-
-    this.inMemoryDrivers.set(opaqueId, newDriver);
-    this.inMemoryIndexByNationalId.set(normalizedNationalId, opaqueId);
-    return newDriver;
+    throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
   }
 
   async updateProfile(
@@ -275,6 +191,8 @@ export class GlobalDriverRepository {
       updatedBy: string;
     }
   ): Promise<void> {
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
+
     const existing = await this.findById(driverId);
     if (!existing) {
       throw new Error(`DRIVER_NOT_FOUND: Global driver ${driverId} does not exist`);
@@ -292,24 +210,12 @@ export class GlobalDriverRepository {
     if (updates.status) payload.status = updates.status;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       Object.assign(existing, payload);
       this.inMemoryDrivers.set(driverId, existing);
       return;
     }
-
-    try {
-      const driverRef = doc(db, this.collectionName, driverId);
-      await updateDoc(driverRef, sanitizeUndefined({
-        ...payload,
-        updatedAt: serverTimestamp(),
-      }));
-      Object.assign(existing, payload);
-      this.inMemoryDrivers.set(driverId, existing);
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.UPDATE, `${this.collectionName}/${driverId}`);
-      throw error;
-    }
+    throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
   }
 }
 
@@ -328,17 +234,18 @@ export class GlobalTruckRepository {
 
   async findById(truckId: string): Promise<GlobalTruckEntity | null> {
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       return this.inMemoryTrucks.get(truckId) || null;
     }
     const path = `${this.collectionName}/${truckId}`;
     try {
       const snap = await getDoc(doc(db, this.collectionName, truckId));
-      if (!snap.exists()) return this.inMemoryTrucks.get(truckId) || null;
+      if (!snap.exists()) return null;
       return decodeGlobal<GlobalTruckEntity>(snap.data(), 'truck', truckId);
     } catch (error) {
       if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
-      return this.inMemoryTrucks.get(truckId) || null;
+      throw error;
     }
   }
 
@@ -347,32 +254,12 @@ export class GlobalTruckRepository {
     if (!normalized) return null;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       const truckId = this.inMemoryIndexByPlate.get(normalized);
       return truckId ? this.inMemoryTrucks.get(truckId) || null : null;
     }
 
-    try {
-      const lookupToken = computeNaturalKeyToken('TRUCK', normalized);
-      const lookupRef = doc(db, 'natural_identity_lookups', lookupToken);
-      const lookupSnap = await getDoc(lookupRef);
-
-      if (lookupSnap.exists()) {
-        const targetId = lookupSnap.data().systemId;
-        return this.findById(targetId);
-      }
-
-      const q = query(collection(db, this.collectionName), where('normalizedPlate', '==', normalized));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        return decodeGlobal<GlobalTruckEntity>(snap.docs[0].data(), 'truck', snap.docs[0].id);
-      }
-      return null;
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.LIST, this.collectionName);
-      const truckId = this.inMemoryIndexByPlate.get(normalized);
-      return truckId ? this.inMemoryTrucks.get(truckId) || null : null;
-    }
+    return resolvePersistentNaturalIdentity('TRUCK', plate) as Promise<GlobalTruckEntity | null>;
   }
 
   async listByIds(truckIds: string[]): Promise<GlobalTruckEntity[]> {
@@ -400,6 +287,8 @@ export class GlobalTruckRepository {
     },
     transaction?: Transaction
   ): Promise<GlobalTruckEntity> {
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
+
     const normalized = normalizePlate(input.plate);
     if (!normalized || normalized.length < 3) {
       throw new Error('INVALID_PLATE: Truck plate must be provided and meet Saudi standard');
@@ -431,6 +320,7 @@ export class GlobalTruckRepository {
     };
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       if (this.inMemoryTrucks.has(opaqueId)) {
         throw new Error(`ID_COLLISION_DETECTED: Generated truck ID ${opaqueId} collided`);
       }
@@ -441,43 +331,7 @@ export class GlobalTruckRepository {
       this.inMemoryIndexByPlate.set(normalized, opaqueId);
       return newTruck;
     }
-
-    const executeWithTx = async (tx: Transaction) => {
-      const truckRef = doc(db, this.collectionName, opaqueId);
-      const truckSnap = await tx.get(truckRef);
-      if (truckSnap.exists()) {
-        throw new Error(`ID_COLLISION_DETECTED: Generated truck ID ${opaqueId} already exists`);
-      }
-
-      const lookupRef = doc(db, 'natural_identity_lookups', lookupToken);
-      const lookupSnap = await tx.get(lookupRef);
-      if (lookupSnap.exists()) {
-        throw new Error(`DUPLICATE_NATURAL_KEY: Truck with plate ${normalized} already exists in global registry`);
-      }
-
-      tx.set(truckRef, sanitizeUndefined({
-        ...newTruck,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      }));
-
-      tx.set(lookupRef, sanitizeUndefined({
-        entityType: 'TRUCK',
-        systemId: opaqueId,
-        createdAt: serverTimestamp(),
-        createdBy: input.createdBy,
-      }));
-    };
-
-    if (transaction) {
-      await executeWithTx(transaction);
-    } else {
-      await runTransaction(db, executeWithTx);
-    }
-
-    this.inMemoryTrucks.set(opaqueId, newTruck);
-    this.inMemoryIndexByPlate.set(normalized, opaqueId);
-    return newTruck;
+    throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
   }
 
   async updateProfile(
@@ -494,6 +348,8 @@ export class GlobalTruckRepository {
       updatedBy: string;
     }
   ): Promise<void> {
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
+
     const existing = await this.findById(truckId);
     if (!existing) {
       throw new Error(`TRUCK_NOT_FOUND: Global truck ${truckId} does not exist`);
@@ -517,24 +373,12 @@ export class GlobalTruckRepository {
     if (updates.status) payload.status = updates.status;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       Object.assign(existing, payload);
       this.inMemoryTrucks.set(truckId, existing);
       return;
     }
-
-    try {
-      const truckRef = doc(db, this.collectionName, truckId);
-      await updateDoc(truckRef, sanitizeUndefined({
-        ...payload,
-        updatedAt: serverTimestamp(),
-      }));
-      Object.assign(existing, payload);
-      this.inMemoryTrucks.set(truckId, existing);
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.UPDATE, `${this.collectionName}/${truckId}`);
-      throw error;
-    }
+    throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
   }
 }
 
@@ -553,17 +397,18 @@ export class GlobalCarrierRepository {
 
   async findById(carrierId: string): Promise<GlobalCarrierEntity | null> {
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       return this.inMemoryCarriers.get(carrierId) || null;
     }
     const path = `${this.collectionName}/${carrierId}`;
     try {
       const snap = await getDoc(doc(db, this.collectionName, carrierId));
-      if (!snap.exists()) return this.inMemoryCarriers.get(carrierId) || null;
+      if (!snap.exists()) return null;
       return decodeGlobal<GlobalCarrierEntity>(snap.data(), 'carrier', carrierId);
     } catch (error) {
       if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
-      return this.inMemoryCarriers.get(carrierId) || null;
+      throw error;
     }
   }
 
@@ -572,32 +417,12 @@ export class GlobalCarrierRepository {
     if (!cr) return null;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       const carrierId = this.inMemoryIndexByCR.get(cr);
       return carrierId ? this.inMemoryCarriers.get(carrierId) || null : null;
     }
 
-    try {
-      const lookupToken = computeNaturalKeyToken('CARRIER', cr);
-      const lookupRef = doc(db, 'natural_identity_lookups', lookupToken);
-      const lookupSnap = await getDoc(lookupRef);
-
-      if (lookupSnap.exists()) {
-        const targetId = lookupSnap.data().systemId;
-        return this.findById(targetId);
-      }
-
-      const q = query(collection(db, this.collectionName), where('commercialRegistrationNo', '==', cr));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        return decodeGlobal<GlobalCarrierEntity>(snap.docs[0].data(), 'carrier', snap.docs[0].id);
-      }
-      return null;
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.LIST, this.collectionName);
-      const carrierId = this.inMemoryIndexByCR.get(cr);
-      return carrierId ? this.inMemoryCarriers.get(carrierId) || null : null;
-    }
+    return resolvePersistentNaturalIdentity('CARRIER', commercialRegistrationNo) as Promise<GlobalCarrierEntity | null>;
   }
 
   async listByIds(carrierIds: string[]): Promise<GlobalCarrierEntity[]> {
@@ -622,6 +447,8 @@ export class GlobalCarrierRepository {
     },
     transaction?: Transaction
   ): Promise<GlobalCarrierEntity> {
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
+
     const cr = input.commercialRegistrationNo.replace(/[^0-9]/g, '');
     if (!cr || cr.length !== 10) {
       throw new Error('INVALID_CR_NUMBER: Commercial Registration must be exactly 10 digits');
@@ -645,6 +472,7 @@ export class GlobalCarrierRepository {
     };
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       if (this.inMemoryCarriers.has(opaqueId)) {
         throw new Error(`ID_COLLISION_DETECTED: Generated carrier ID ${opaqueId} collided`);
       }
@@ -655,42 +483,7 @@ export class GlobalCarrierRepository {
       this.inMemoryIndexByCR.set(cr, opaqueId);
       return newCarrier;
     }
-
-    const executeWithTx = async (tx: Transaction) => {
-      const carrierRef = doc(db, this.collectionName, opaqueId);
-      const carrierSnap = await tx.get(carrierRef);
-      if (carrierSnap.exists()) {
-        throw new Error(`ID_COLLISION_DETECTED: Generated carrier ID ${opaqueId} already exists`);
-      }
-
-      const lookupRef = doc(db, 'natural_identity_lookups', lookupToken);
-      const lookupSnap = await tx.get(lookupRef);
-      if (lookupSnap.exists()) {
-        throw new Error(`DUPLICATE_NATURAL_KEY: Carrier with CR ${cr} already exists in global registry`);
-      }
-      tx.set(carrierRef, sanitizeUndefined({
-        ...newCarrier,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      }));
-
-      tx.set(lookupRef, sanitizeUndefined({
-        entityType: 'CARRIER',
-        systemId: opaqueId,
-        createdAt: serverTimestamp(),
-        createdBy: input.createdBy,
-      }));
-    };
-
-    if (transaction) {
-      await executeWithTx(transaction);
-    } else {
-      await runTransaction(db, executeWithTx);
-    }
-
-    this.inMemoryCarriers.set(opaqueId, newCarrier);
-    this.inMemoryIndexByCR.set(cr, opaqueId);
-    return newCarrier;
+    throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
   }
 
   async updateProfile(
@@ -704,6 +497,8 @@ export class GlobalCarrierRepository {
       updatedBy: string;
     }
   ): Promise<void> {
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
+
     const existing = await this.findById(carrierId);
     if (!existing) {
       throw new Error(`CARRIER_NOT_FOUND: Global carrier ${carrierId} does not exist`);
@@ -721,24 +516,12 @@ export class GlobalCarrierRepository {
     if (updates.status) payload.status = updates.status;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       Object.assign(existing, payload);
       this.inMemoryCarriers.set(carrierId, existing);
       return;
     }
-
-    try {
-      const carrierRef = doc(db, this.collectionName, carrierId);
-      await updateDoc(carrierRef, sanitizeUndefined({
-        ...payload,
-        updatedAt: serverTimestamp(),
-      }));
-      Object.assign(existing, payload);
-      this.inMemoryCarriers.set(carrierId, existing);
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.UPDATE, `${this.collectionName}/${carrierId}`);
-      throw error;
-    }
+    throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
   }
 }
 
@@ -757,17 +540,18 @@ export class GlobalMaterialRepository {
 
   async findById(materialId: string): Promise<GlobalMaterialEntity | null> {
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       return this.inMemoryMaterials.get(materialId) || null;
     }
     const path = `${this.collectionName}/${materialId}`;
     try {
       const snap = await getDoc(doc(db, this.collectionName, materialId));
-      if (!snap.exists()) return this.inMemoryMaterials.get(materialId) || null;
+      if (!snap.exists()) return null;
       return decodeGlobal<GlobalMaterialEntity>(snap.data(), 'material', materialId);
     } catch (error) {
       if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
-      return this.inMemoryMaterials.get(materialId) || null;
+      throw error;
     }
   }
 
@@ -776,32 +560,12 @@ export class GlobalMaterialRepository {
     if (!canonicalCode) return null;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       const materialId = this.inMemoryIndexByCode.get(canonicalCode);
       return materialId ? this.inMemoryMaterials.get(materialId) || null : null;
     }
 
-    try {
-      const lookupToken = computeNaturalKeyToken('MATERIAL', canonicalCode);
-      const lookupRef = doc(db, 'natural_identity_lookups', lookupToken);
-      const lookupSnap = await getDoc(lookupRef);
-
-      if (lookupSnap.exists()) {
-        const targetId = lookupSnap.data().systemId;
-        return this.findById(targetId);
-      }
-
-      const q = query(collection(db, this.collectionName), where('code', '==', canonicalCode));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        return decodeGlobal<GlobalMaterialEntity>(snap.docs[0].data(), 'material', snap.docs[0].id);
-      }
-      return null;
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.LIST, this.collectionName);
-      const materialId = this.inMemoryIndexByCode.get(canonicalCode);
-      return materialId ? this.inMemoryMaterials.get(materialId) || null : null;
-    }
+    return resolvePersistentNaturalIdentity('MATERIAL', code) as Promise<GlobalMaterialEntity | null>;
   }
 
   async listByIds(materialIds: string[]): Promise<GlobalMaterialEntity[]> {
@@ -827,6 +591,8 @@ export class GlobalMaterialRepository {
     },
     transaction?: Transaction
   ): Promise<GlobalMaterialEntity> {
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
+
     const canonicalCode = normalizeCode(input.code);
     if (!canonicalCode || canonicalCode.length < 2) {
       throw new Error('INVALID_MATERIAL_CODE: Material code must be at least 2 characters');
@@ -851,6 +617,7 @@ export class GlobalMaterialRepository {
     };
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       if (this.inMemoryMaterials.has(opaqueId)) {
         throw new Error(`ID_COLLISION_DETECTED: Generated material ID ${opaqueId} collided`);
       }
@@ -861,42 +628,7 @@ export class GlobalMaterialRepository {
       this.inMemoryIndexByCode.set(canonicalCode, opaqueId);
       return newMaterial;
     }
-
-    const executeWithTx = async (tx: Transaction) => {
-      const matRef = doc(db, this.collectionName, opaqueId);
-      const matSnap = await tx.get(matRef);
-      if (matSnap.exists()) {
-        throw new Error(`ID_COLLISION_DETECTED: Generated material ID ${opaqueId} already exists`);
-      }
-
-      const lookupRef = doc(db, 'natural_identity_lookups', lookupToken);
-      const lookupSnap = await tx.get(lookupRef);
-      if (lookupSnap.exists()) {
-        throw new Error(`DUPLICATE_NATURAL_KEY: Material with code ${canonicalCode} already exists in global catalog`);
-      }
-      tx.set(matRef, sanitizeUndefined({
-        ...newMaterial,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      }));
-
-      tx.set(lookupRef, sanitizeUndefined({
-        entityType: 'MATERIAL',
-        systemId: opaqueId,
-        createdAt: serverTimestamp(),
-        createdBy: input.createdBy,
-      }));
-    };
-
-    if (transaction) {
-      await executeWithTx(transaction);
-    } else {
-      await runTransaction(db, executeWithTx);
-    }
-
-    this.inMemoryMaterials.set(opaqueId, newMaterial);
-    this.inMemoryIndexByCode.set(canonicalCode, opaqueId);
-    return newMaterial;
+    throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
   }
 
   async updateCatalog(
@@ -911,6 +643,8 @@ export class GlobalMaterialRepository {
       updatedBy: string;
     }
   ): Promise<void> {
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
+
     const existing = await this.findById(materialId);
     if (!existing) {
       throw new Error(`MATERIAL_NOT_FOUND: Global material ${materialId} does not exist`);
@@ -929,24 +663,12 @@ export class GlobalMaterialRepository {
     if (updates.status) payload.status = updates.status;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       Object.assign(existing, payload);
       this.inMemoryMaterials.set(materialId, existing);
       return;
     }
-
-    try {
-      const matRef = doc(db, this.collectionName, materialId);
-      await updateDoc(matRef, sanitizeUndefined({
-        ...payload,
-        updatedAt: serverTimestamp(),
-      }));
-      Object.assign(existing, payload);
-      this.inMemoryMaterials.set(materialId, existing);
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.UPDATE, `${this.collectionName}/${materialId}`);
-      throw error;
-    }
+    throw new Error('GLOBAL_SERVER_COMMAND_REQUIRED');
   }
 }
 
@@ -955,3 +677,28 @@ export const globalDriverRepository = new GlobalDriverRepository();
 export const globalTruckRepository = new GlobalTruckRepository();
 export const globalCarrierRepository = new GlobalCarrierRepository();
 export const globalMaterialRepository = new GlobalMaterialRepository();
+
+async function resolvePersistentNaturalIdentity(kind: GlobalKind, raw: string): Promise<Record<string, any> | null> {
+  const spec = GLOBAL_IDENTITIES[kind], key = normalizeNaturalKey(kind, raw);
+  let resolved: Record<string, any> | null = null, id: string | null = null;
+  for (const token of [computeNaturalKeyToken(kind, key), ...legacyNaturalKeyTokens(kind, key)]) {
+    const lookup = await getDoc(doc(db, 'natural_identity_lookups', token));
+    if (!lookup.exists()) continue;
+    const data = lookup.data();
+    if (data.entityType !== kind || !validGlobalId(data.systemId)) throw new GlobalIdentityError('IDENTITY_LOOKUP_INTEGRITY_ERROR');
+    const target = await getDoc(doc(db, spec.collection, data.systemId));
+    if (!target.exists()) throw new GlobalIdentityError('IDENTITY_LOOKUP_INTEGRITY_ERROR');
+    const entity = decodeGlobalIdentity(kind, target.data(), target.id);
+    if (normalizeNaturalKey(kind, entity[spec.natural]) !== key || (id && id !== target.id)) throw new GlobalIdentityError('IDENTITY_LOOKUP_INTEGRITY_ERROR');
+    resolved = entity; id = target.id;
+  }
+  const matches = await getDocs(query(collection(db, spec.collection), where(spec.natural, '==', key)));
+  if (matches.docs.length > 1) throw new GlobalIdentityError('DUPLICATE_NATURAL_KEY');
+  if (matches.docs.length === 1) {
+    const match = matches.docs[0];
+    if (id && id !== match.id) throw new GlobalIdentityError('IDENTITY_LOOKUP_INTEGRITY_ERROR');
+    resolved = decodeGlobalIdentity(kind, match.data(), match.id);
+    if (normalizeNaturalKey(kind, resolved[spec.natural]) !== key) throw new GlobalIdentityError('IDENTITY_LOOKUP_INTEGRITY_ERROR');
+  }
+  return resolved;
+}

@@ -1,3 +1,4 @@
+import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 import { buildPrincipal } from '../utils/principal';
 import type { AuthUserContext } from '../types/common';
 import { validateCandidateIds, validReadinessId, applicableReadinessPricing, type CandidatePath, type ReadinessBlocker } from './projectReadiness.service';
@@ -63,10 +64,9 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
     };
     const slotsMatch = [slot(8, 'assignmentId', assignmentId, 'driverId', driverId), slot(9, 'assignmentId', assignmentId, 'truckId', truckId), slot(10, 'allocationId', allocationId, 'truckId', truckId)].every(Boolean);
     const pricing = decodePricing<any>(snapshots[11].data(), pricingRuleId, projectId);
-    globalSpecs.forEach(([, kind, id], index) => decodeGlobal(snapshots[index + 12].data(), kind, id));
-    // Global status eligibility remains Phase 5-owned; only existence/representation is asserted here.
+    const ineligible = globalSpecs.filter(([, kind, id], index) => !evaluateGlobalEligibility(kind.toUpperCase() as import('../utils/globalIdentityPolicy').GlobalKind, decodeGlobal<any>(snapshots[index + 12].data(), kind, id)).CAN_USE_OPERATIONALLY);
     const started = (record: any) => { const time = new Date(record.effectiveFrom); return Number.isFinite(time.getTime()) && time <= evaluatedAt && record.effectiveTo === null; };
-    const blockers: ReadinessBlocker[] = [];
+    const blockers: ReadinessBlocker[] = ineligible.map(([, kind]) => ({ category: 'RELATIONSHIP', ownerPhase: 'PHASE_5', code: `GLOBAL_${kind.toUpperCase()}_INELIGIBLE`, message: 'لا يوجد مسار تشغيلي مكتمل' }));
     const relationship = (valid: boolean, code: string, message: string) => { if (!valid) blockers.push({ category: 'RELATIONSHIP', ownerPhase: 'PHASE_5', code, message }); };
     relationship([driver, truck, carrier, material].every(record => record.status === 'ACTIVE'), 'CANDIDATE_MEMBERSHIP_INACTIVE', 'فشل تنشيط المشروع: عضوية غير نشطة');
     relationship(driverAffil.status === 'ACTIVE' && truckAffil.status === 'ACTIVE' && driverAffil.carrierId === carrierId && truckAffil.carrierId === carrierId, 'CANDIDATE_AFFILIATION_CHANGED', 'فشل تنشيط المشروع: انتساب غير نشط أو غير متطابق');

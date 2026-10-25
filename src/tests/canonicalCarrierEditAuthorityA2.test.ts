@@ -14,8 +14,9 @@ import { canonicalRelationshipContextService } from '../services/canonicalRelati
 import { adminDb } from '../firebase/admin';
 
 describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    for (const userId of ['admin-1', 'actor-1', 'admin-updater', 'new-actor', 'user-1']) await adminDb.collection('users').doc(userId).set({ userId, role: 'SUPER_ADMIN', status: 'ACTIVE', assignedProjectIds: [] });
   });
 
   const provisioningServerPath = path.resolve(__dirname, '../services/projectProvisioning.server.ts');
@@ -112,7 +113,7 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
   it('9. missing project membership fails closed', async () => {
     const service = new ProjectProvisioningAdminService();
     await adminDb.collection('projects').doc('PRJ-A2-TEST2').set({ projectId: 'PRJ-A2-TEST2' });
-    await adminDb.collection('carriers').doc('CAR-GLOBAL-ONLY').set({ carrierId: 'CAR-GLOBAL-ONLY', commercialRegistrationNo: '1010000001' });
+    await adminDb.collection('carriers').doc('CAR-GLOBAL-ONLY').set({ status: 'ACTIVE', carrierId: 'CAR-GLOBAL-ONLY', commercialRegistrationNo: '1010000001' });
 
     await expect(
       service.updateProjectCarrier('PRJ-A2-TEST2', 'CAR-GLOBAL-ONLY', { name: 'اسم ناقل جديد' }, { userId: 'admin-1' })
@@ -128,7 +129,7 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
       carrierId: 'CAR-INACTIVE',
       status: 'INACTIVE',
     });
-    await adminDb.collection('carriers').doc('CAR-INACTIVE').set({ carrierId: 'CAR-INACTIVE', commercialRegistrationNo: '1010000002' });
+    await adminDb.collection('carriers').doc('CAR-INACTIVE').set({ status: 'ACTIVE', carrierId: 'CAR-INACTIVE', commercialRegistrationNo: '1010000002' });
 
     await expect(
       service.updateProjectCarrier('PRJ-A2-TEST3', 'CAR-INACTIVE', { name: 'اسم ناقل جديد' }, { userId: 'admin-1' })
@@ -152,7 +153,7 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
       carrierId: 'CAR-CR-TEST',
       status: 'ACTIVE',
     });
-    await adminDb.collection('carriers').doc('CAR-CR-TEST').set({
+    await adminDb.collection('carriers').doc('CAR-CR-TEST').set({ status: 'ACTIVE',
       carrierId: 'CAR-CR-TEST',
       commercialRegistrationNo: '1010111111',
       nameAr: 'الناقل القديم',
@@ -199,7 +200,7 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
       carrierId: 'CAR-UPD-1',
       status: 'ACTIVE',
     });
-    await adminDb.collection('carriers').doc('CAR-UPD-1').set({
+    await adminDb.collection('carriers').doc('CAR-UPD-1').set({ status: 'ACTIVE',
       carrierId: 'CAR-UPD-1',
       commercialRegistrationNo: '1010222222',
       nameAr: 'اسم الناقل القديم',
@@ -268,7 +269,7 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
   // 24. createdAt is preserved
   it('24. createdAt is preserved', async () => {
     const initialCreatedDate = new Date('2026-01-01T00:00:00Z');
-    await adminDb.collection('carriers').doc('CAR-DATE-TEST').set({
+    await adminDb.collection('carriers').doc('CAR-DATE-TEST').set({ status: 'ACTIVE',
       carrierId: 'CAR-DATE-TEST',
       commercialRegistrationNo: '1010333333',
       nameAr: 'ناقل زمني',
@@ -664,7 +665,7 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
     const prjId = 'PRJ-MEM-AUTH-CHECK';
     const carId = 'CAR-MEM-AUTH-CHECK';
     await adminDb.collection('projects').doc(prjId).set({ projectId: prjId });
-    await adminDb.collection('carriers').doc(carId).set({ carrierId: carId, commercialRegistrationNo: '1010888881', nameAr: 'ناقل 1' });
+    await adminDb.collection('carriers').doc(carId).set({ status: 'ACTIVE', carrierId: carId, commercialRegistrationNo: '1010888881', nameAr: 'ناقل 1' });
     
     // No membership doc
     await expect(
@@ -711,7 +712,7 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
 
     await adminDb.collection('projects').doc(prjId).set({ projectId: prjId });
     await adminDb.collection('projects').doc(prjId).collection('carrier_memberships').doc(carId).set(originalMembership);
-    await adminDb.collection('carriers').doc(carId).set({
+    await adminDb.collection('carriers').doc(carId).set({ status: 'ACTIVE',
       carrierId: carId,
       commercialRegistrationNo: '1010999901',
       nameAr: 'اسم الناقل الأصلي',
@@ -830,7 +831,7 @@ describe('FOUNDATION A2 — Canonical Carrier Edit Authority', () => {
       carrierId: carId,
       status: 'ACTIVE',
     });
-    await adminDb.collection('carriers').doc(carId).set({
+    await adminDb.collection('carriers').doc(carId).set({ status: 'ACTIVE',
       carrierId: carId,
       commercialRegistrationNo: '1010777777',
       nameAr: 'ناقل هوية 1',

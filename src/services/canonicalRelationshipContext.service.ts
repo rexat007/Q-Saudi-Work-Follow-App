@@ -1,3 +1,4 @@
+import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 /**
  * CANONICAL RELATIONSHIP CONTEXT SERVICE
  * 
@@ -111,7 +112,7 @@ export class CanonicalRelationshipContextService {
 
     // 4. Construct Known Carriers
     const carrierMap = new Map(globalCarriers.map(c => [c.carrierId, c]));
-    const knownCarriers = authorizedCarrierIds.map(cId => {
+    const knownCarriers = authorizedCarrierIds.filter(id => evaluateGlobalEligibility('CARRIER', carrierMap.get(id)).CAN_USE_OPERATIONALLY).map(cId => {
       const gCarrier = carrierMap.get(cId);
       return {
         carrierId: cId,
@@ -122,7 +123,7 @@ export class CanonicalRelationshipContextService {
 
     // 5. Construct Known Materials
     const materialMap = new Map(globalMaterials.map(m => [m.materialId, m]));
-    const knownMaterials = authorizedMaterialIds.map(mId => {
+    const knownMaterials = authorizedMaterialIds.filter(id => evaluateGlobalEligibility('MATERIAL', materialMap.get(id)).CAN_USE_OPERATIONALLY).map(mId => {
       const gMat = materialMap.get(mId);
       return {
         materialId: mId,
@@ -133,7 +134,7 @@ export class CanonicalRelationshipContextService {
     });
 
     // 6. Construct Known Drivers
-    const knownDrivers = driverAffiliationsAndGlobals.map(({ driverId, affil, globalEntity }) => {
+    const knownDrivers = driverAffiliationsAndGlobals.filter(item => evaluateGlobalEligibility('DRIVER', item.globalEntity).CAN_USE_OPERATIONALLY).map(({ driverId, affil, globalEntity }) => {
       let affiliatedCarrierId = '';
       if (affil && affil.status === 'ACTIVE' && affil.carrierId && authorizedCarrierSet.has(affil.carrierId)) {
         affiliatedCarrierId = affil.carrierId;
@@ -149,7 +150,7 @@ export class CanonicalRelationshipContextService {
     });
 
     // 7. Construct Known Trucks
-    const knownTrucks = truckAffiliationsAndGlobals.map(({ truckId, affil, globalEntity }) => {
+    const knownTrucks = truckAffiliationsAndGlobals.filter(item => evaluateGlobalEligibility('TRUCK', item.globalEntity).CAN_USE_OPERATIONALLY).map(({ truckId, affil, globalEntity }) => {
       let affiliatedCarrierId = '';
       if (affil && affil.status === 'ACTIVE' && affil.carrierId && authorizedCarrierSet.has(affil.carrierId)) {
         affiliatedCarrierId = affil.carrierId;
@@ -168,10 +169,10 @@ export class CanonicalRelationshipContextService {
 
     if (fleetReadModel && Array.isArray(fleetReadModel.rows)) {
       for (const row of fleetReadModel.rows) {
-        if (row.driverId) {
+        if (row.driverId && knownTrucks.some(t => t.truckId === row.truckId) && knownDrivers.some(d => d.driverId === row.driverId)) {
           activeDriverByTruck[row.truckId] = row.driverId;
         }
-        if (row.materialId) {
+        if (row.materialId && knownTrucks.some(t => t.truckId === row.truckId) && knownMaterials.some(m => m.materialId === row.materialId)) {
           activeMaterialByTruck[row.truckId] = row.materialId;
         }
       }
@@ -179,8 +180,8 @@ export class CanonicalRelationshipContextService {
 
     return {
       projectId: cleanProjectId,
-      authorizedCarrierIds,
-      authorizedMaterialIds,
+      authorizedCarrierIds: knownCarriers.map(c => c.carrierId),
+      authorizedMaterialIds: knownMaterials.map(m => m.materialId),
       knownCarriers,
       knownTrucks,
       knownDrivers,

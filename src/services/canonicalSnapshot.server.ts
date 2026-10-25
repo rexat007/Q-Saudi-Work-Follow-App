@@ -1,3 +1,4 @@
+import { decodeGlobal } from '../utils/persistenceBoundary';
 import { adminDb } from '../firebase/admin';
 
 export class SnapshotError extends Error {
@@ -154,6 +155,11 @@ export class CanonicalSnapshotServerService {
     if (materialData.materialId && materialData.materialId !== materialId) {
       throw new SnapshotError('CANONICAL_IDENTITY_MISMATCH', 'معرف الكيان المخزن للمادة لا يطابق المطلوب');
     }
+
+    decodeGlobal(carrierData, 'carrier', carrierId);
+    decodeGlobal(truckData, 'truck', truckId);
+    decodeGlobal(driverData, 'driver', driverId);
+    decodeGlobal(materialData, 'material', materialId);
 
     // 5. Relationship Integrity (Section F)
     const [driverAffiliation, truckAffiliation] = await Promise.all([

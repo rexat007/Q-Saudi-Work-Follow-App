@@ -116,6 +116,10 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
   beforeEach(() => {
     vi.restoreAllMocks();
     mockStore = {};
+    for (const actor of [adminAuth, unauthorizedAuth]) mockStore[`users/${actor.userId}`] = { ...actor, status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}`] = { projectId: testProjectId };
+    for (const carrierId of [testCarrierId, 'CRR-OTHER-99']) mockStore[`carriers/${carrierId}`] = { carrierId, commercialRegistrationNo: '1010111111', status: 'ACTIVE' };
+    mockStore[`materials/${testMaterialId}`] = { materialId: testMaterialId, code: 'AGG-10MM', status: 'ACTIVE' };
 
     // Seed required ACTIVE Carrier & Material memberships on the project
     mockStore[`projects/${testProjectId}/carrier_memberships/${testCarrierId}`] = { status: 'ACTIVE' };
@@ -271,7 +275,7 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
 
     await expect(
       driverTruckIntakeServer.processSharedIntake(payload, unauthorizedAuth)
-    ).rejects.toThrow('غير مصرح لك');
+    ).rejects.toThrow('FORBIDDEN_GLOBAL_COMMAND');
   });
 
   it('7. Handles same-carrier INACTIVE Driver and Truck affiliation, reactivates them to ACTIVE in database, and returns ACTIVE status', async () => {

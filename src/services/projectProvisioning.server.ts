@@ -1,3 +1,5 @@
+import { resolveGlobalNaturalIdentity, authorizeGlobalCommand, decodeAuthoritativeGlobal, auditGlobalMutation } from './globalIdentityAuthority.server';
+import { assertCanEnroll } from '../utils/globalIdentityPolicy';
 import { adminDb } from '../firebase/admin';
 import * as crypto from 'crypto';
 import { 
@@ -14,25 +16,6 @@ import { markDirtyInTransaction } from './projectWorkspaceProjectionState.server
 function generateOpaqueGlobalId(prefix: 'DRV' | 'TRK' | 'CAR' | 'MAT'): string {
   const hex = crypto.randomBytes(16).toString('hex'); // 128 bits of entropy
   return `${prefix}-${hex}`;
-}
-
-/**
- * Computes standardized token representation for natural key lookups
- */
-function computeNaturalKeyToken(entityType: 'DRIVER' | 'TRUCK' | 'CARRIER' | 'MATERIAL', rawKey: string): string {
-  let cleaned = rawKey.trim();
-  if (entityType === 'DRIVER') {
-    cleaned = cleaned.replace(/[^0-9]/g, '');
-  } else if (entityType === 'TRUCK') {
-    cleaned = cleaned.replace(/\s+/g, '_');
-  } else if (entityType === 'CARRIER') {
-    cleaned = cleaned.replace(/[^0-9]/g, '');
-  } else if (entityType === 'MATERIAL') {
-    cleaned = normalizeCode(cleaned);
-  }
-  
-  const token = Buffer.from(cleaned, 'utf-8').toString('base64').replace(/[/+=]/g, '_');
-  return `${entityType}_${token}`;
 }
 
 export class ProjectProvisioningAdminService {
@@ -58,55 +41,15 @@ export class ProjectProvisioningAdminService {
       throw new Error(`PROJECT_NOT_FOUND: Project "${projectId}" does not exist.`);
     }
 
-    // Resolving natural identity lookup token
-    const lookupToken = computeNaturalKeyToken('MATERIAL', canonicalCode);
-    const lookupRef = adminDb.collection('natural_identity_lookups').doc(lookupToken);
-
-    // Perform fallback collection query outside the transaction to maintain clean transaction reads/writes
-    let preTransactionMatchedId: string | null = null;
-    const querySnap = await adminDb.collection('materials').where('code', '==', canonicalCode).get();
-    if (!querySnap.empty) {
-      preTransactionMatchedId = querySnap.docs[0].id;
-    }
-
+    const authenticated = context;
     const result = await adminDb.runTransaction(async (tx: any) => {
-      // --- PHASE 1: ALL TRANSACTION READS (Occur BEFORE any transaction write) ---
-      
-      // Read 1: Read the natural identity lookup
-      const lookupSnap = await tx.get(lookupRef);
-      
-      let materialId: string;
-      let isNewGlobal = false;
-      let mustRepairLookup = false;
-      let globalMatRef = null;
-      let globalMatSnap = null;
-
-      if (lookupSnap.exists) {
-        materialId = lookupSnap.data().systemId;
-        globalMatRef = adminDb.collection('materials').doc(materialId);
-        globalMatSnap = await tx.get(globalMatRef);
-        
-        // Safety: If lookup exists but points to a missing global document, fail closed!
-        if (!globalMatSnap.exists) {
-          throw new Error(`DANGLING_LOOKUP_DETECTED: Material lookup points to non-existent global material ID "${materialId}".`);
-        }
-      } else {
-        // Lookup does not exist
-        if (preTransactionMatchedId) {
-          materialId = preTransactionMatchedId;
-          globalMatRef = adminDb.collection('materials').doc(materialId);
-          globalMatSnap = await tx.get(globalMatRef);
-          
-          if (!globalMatSnap.exists) {
-            throw new Error(`DANGLING_LOOKUP_DETECTED: Fallback query points to non-existent global material ID "${materialId}".`);
-          }
-          mustRepairLookup = true;
-        } else {
-          // Genuinely new material
-          materialId = generateOpaqueGlobalId('MAT');
-          isNewGlobal = true;
-        }
-      }
+      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, projectId);
+      if (materialData.status !== undefined && materialData.status !== 'ACTIVE') throw new Error('INVALID_GLOBAL_STATUS');
+      const resolved = await resolveGlobalNaturalIdentity(tx, adminDb, 'MATERIAL', canonicalCode);
+      const materialId = resolved.id || generateOpaqueGlobalId('MAT');
+      const isNewGlobal = !resolved.id, mustRepairLookup = resolved.mustReserve;
+      const lookupRef = resolved.canonicalRef;
+      if (resolved.entity) assertCanEnroll('MATERIAL', resolved.entity);
 
       // Read 2: Read target Project Membership document
       const membershipDocRef = adminDb
@@ -162,7 +105,9 @@ export class ProjectProvisioningAdminService {
         });
 
         const matDocRef = adminDb.collection('materials').doc(materialId);
+        decodeAuthoritativeGlobal('MATERIAL', globalMatData, materialId);
         tx.set(matDocRef, globalMatData);
+        auditGlobalMutation(tx, adminDb, 'MATERIAL', materialId, context, null, globalMatData, projectId);
         tx.set(lookupRef, {
           entityType: 'MATERIAL',
           systemId: materialId,
@@ -224,55 +169,15 @@ export class ProjectProvisioningAdminService {
       throw new Error(`PROJECT_NOT_FOUND: Project "${projectId}" does not exist.`);
     }
 
-    // Resolving natural identity lookup token
-    const lookupToken = computeNaturalKeyToken('CARRIER', crDigits);
-    const lookupRef = adminDb.collection('natural_identity_lookups').doc(lookupToken);
-
-    // Perform fallback collection query outside the transaction to maintain clean transaction reads/writes
-    let preTransactionMatchedId: string | null = null;
-    const querySnap = await adminDb.collection('carriers').where('commercialRegistrationNo', '==', crDigits).get();
-    if (!querySnap.empty) {
-      preTransactionMatchedId = querySnap.docs[0].id;
-    }
-
+    const authenticated = context;
     const result = await adminDb.runTransaction(async (tx: any) => {
-      // --- PHASE 1: ALL TRANSACTION READS (Occur BEFORE any transaction write) ---
-      
-      // Read 1: Read the natural identity lookup
-      const lookupSnap = await tx.get(lookupRef);
-
-      let carrierId: string;
-      let isNewGlobal = false;
-      let mustRepairLookup = false;
-      let globalCarRef = null;
-      let globalCarSnap = null;
-
-      if (lookupSnap.exists) {
-        carrierId = lookupSnap.data().systemId;
-        globalCarRef = adminDb.collection('carriers').doc(carrierId);
-        globalCarSnap = await tx.get(globalCarRef);
-
-        // Safety: If lookup exists but points to a missing global document, fail closed!
-        if (!globalCarSnap.exists) {
-          throw new Error(`DANGLING_LOOKUP_DETECTED: Carrier lookup points to non-existent global carrier ID "${carrierId}".`);
-        }
-      } else {
-        // Lookup does not exist
-        if (preTransactionMatchedId) {
-          carrierId = preTransactionMatchedId;
-          globalCarRef = adminDb.collection('carriers').doc(carrierId);
-          globalCarSnap = await tx.get(globalCarRef);
-
-          if (!globalCarSnap.exists) {
-            throw new Error(`DANGLING_LOOKUP_DETECTED: Fallback query points to non-existent global carrier ID "${carrierId}".`);
-          }
-          mustRepairLookup = true;
-        } else {
-          // Genuinely new carrier
-          carrierId = generateOpaqueGlobalId('CAR');
-          isNewGlobal = true;
-        }
-      }
+      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, projectId);
+      if (carrierData.status !== undefined && carrierData.status !== 'ACTIVE') throw new Error('INVALID_GLOBAL_STATUS');
+      const resolved = await resolveGlobalNaturalIdentity(tx, adminDb, 'CARRIER', crDigits);
+      const carrierId = resolved.id || generateOpaqueGlobalId('CAR');
+      const isNewGlobal = !resolved.id, mustRepairLookup = resolved.mustReserve;
+      const lookupRef = resolved.canonicalRef;
+      if (resolved.entity) assertCanEnroll('CARRIER', resolved.entity);
 
       // Read 2: Read target Project Membership document
       const membershipDocRef = adminDb
@@ -342,7 +247,9 @@ export class ProjectProvisioningAdminService {
         });
 
         const carDocRef = adminDb.collection('carriers').doc(carrierId);
+        decodeAuthoritativeGlobal('CARRIER', globalCarData, carrierId);
         tx.set(carDocRef, globalCarData);
+        auditGlobalMutation(tx, adminDb, 'CARRIER', carrierId, context, null, globalCarData, projectId);
         tx.set(lookupRef, {
           entityType: 'CARRIER',
           systemId: carrierId,
@@ -404,7 +311,7 @@ export class ProjectProvisioningAdminService {
     for (const materialId of materialIds) {
       const docSnap = await adminDb.collection('materials').doc(materialId).get();
       if (docSnap.exists) {
-        globalMaterials.push(docSnap.data());
+        globalMaterials.push(decodeAuthoritativeGlobal('MATERIAL', docSnap.data(), materialId));
       }
     }
 
@@ -445,7 +352,7 @@ export class ProjectProvisioningAdminService {
     for (const carrierId of carrierIds) {
       const docSnap = await adminDb.collection('carriers').doc(carrierId).get();
       if (docSnap.exists) {
-        globalCarriers.push(docSnap.data());
+        globalCarriers.push(decodeAuthoritativeGlobal('CARRIER', docSnap.data(), carrierId));
       }
     }
 
@@ -527,7 +434,10 @@ export class ProjectProvisioningAdminService {
       }
     }
 
+    if (Object.keys(carrierData).some(key => !['carrierId','name','nameAr','commercialRegistrationNo','transportLicenseNo','contactPerson','contactPersonName','contactPhone','contactEmail'].includes(key))) throw new Error('INVALID_GLOBAL_PROFILE_PATCH');
+    const authenticated = context;
     return await adminDb.runTransaction(async (tx: any) => {
+      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, cleanProjectId, true);
       // --- PHASE 1: ALL TRANSACTION READS ---
       const projectRef = adminDb.collection('projects').doc(cleanProjectId);
       const projectSnap = await tx.get(projectRef);
@@ -559,13 +469,13 @@ export class ProjectProvisioningAdminService {
       if (!carrierSnap.exists) {
         throw new Error('CARRIER_NOT_FOUND: Global carrier record not found');
       }
-      const existingGlobal = carrierSnap.data();
+      const existingGlobal = decodeAuthoritativeGlobal('CARRIER', carrierSnap.data(), cleanCarrierId);
 
       // Check CR immutability
       if (carrierData.commercialRegistrationNo !== undefined) {
         const inCr = carrierData.commercialRegistrationNo.replace(/[^0-9]/g, '');
         const exCr = (existingGlobal.commercialRegistrationNo || '').replace(/[^0-9]/g, '');
-        if (inCr && inCr !== exCr) {
+        if (inCr !== exCr) {
           throw new Error('IMMUTABLE_CARRIER_CR: commercialRegistrationNo is immutable');
         }
       }
@@ -657,7 +567,9 @@ export class ProjectProvisioningAdminService {
         }
       }
 
+      decodeAuthoritativeGlobal('CARRIER', updatedGlobal, cleanCarrierId);
       tx.set(carrierRef, updatedGlobal);
+      auditGlobalMutation(tx, adminDb, 'CARRIER', cleanCarrierId, context, existingGlobal, updatedGlobal, cleanProjectId);
 
       return {
         projectId: cleanProjectId,
@@ -724,7 +636,10 @@ export class ProjectProvisioningAdminService {
       }
     }
 
+    if (Object.keys(materialData).some(key => !['materialId','name','nameAr','code','unitOfMeasure','standardDensityTonPerM3'].includes(key))) throw new Error('INVALID_GLOBAL_PROFILE_PATCH');
+    const authenticated = context;
     return await adminDb.runTransaction(async (tx: any) => {
+      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, cleanProjectId, true);
       // --- PHASE 1: ALL TRANSACTION READS ---
       const projectRef = adminDb.collection('projects').doc(cleanProjectId);
       const projectSnap = await tx.get(projectRef);
@@ -756,13 +671,13 @@ export class ProjectProvisioningAdminService {
       if (!materialSnap.exists) {
         throw new Error('MATERIAL_NOT_FOUND: Global material record not found');
       }
-      const existingGlobal = materialSnap.data();
+      const existingGlobal = decodeAuthoritativeGlobal('MATERIAL', materialSnap.data(), cleanMaterialId);
 
       // Check Code immutability
       if (materialData.code !== undefined) {
         const inCode = normalizeCode(materialData.code);
         const exCode = normalizeCode(existingGlobal.code);
-        if (inCode && inCode !== exCode) {
+        if (inCode !== exCode) {
           throw new Error('IMMUTABLE_MATERIAL_CODE: Material code is immutable');
         }
       }
@@ -807,7 +722,9 @@ export class ProjectProvisioningAdminService {
         }
       }
 
+      decodeAuthoritativeGlobal('MATERIAL', updatedGlobal, cleanMaterialId);
       tx.set(materialRef, updatedGlobal);
+      auditGlobalMutation(tx, adminDb, 'MATERIAL', cleanMaterialId, context, existingGlobal, updatedGlobal, cleanProjectId);
 
       return {
         projectId: cleanProjectId,

@@ -121,6 +121,9 @@ describe('Smart Import Unit 5A-Server Standalone Fleet Boundary Test Suite', () 
 
   beforeEach(() => {
     fakeStore.clear();
+    for (const actor of [adminContext, { ...nonAdminContext, role: 'SITE_SUPERVISOR' }, { userId: 'user-admin-2', role: 'PROJECT_ADMIN', assignedProjectIds: ['PRJ-OTHER'] }]) fakeStore.setDoc(`users/${actor.userId}`, { ...actor, status: 'ACTIVE' });
+    fakeStore.setDoc('projects/PRJ-5A', { projectId: 'PRJ-5A' });
+    for (const carrierId of ['CAR-1', 'CAR-2', 'CAR-INACTIVE-99']) fakeStore.setDoc(`carriers/${carrierId}`, { carrierId, commercialRegistrationNo: '1010111111', status: 'ACTIVE' });
     vi.restoreAllMocks();
 
     // Seed Active Carrier Membership in Project PRJ-5A
@@ -489,7 +492,7 @@ describe('Smart Import Unit 5A-Server Standalone Fleet Boundary Test Suite', () 
         },
         userOtherProject
       )
-    ).rejects.toThrow(/عزل أمني/);
+    ).rejects.toThrow(/FORBIDDEN_GLOBAL_COMMAND/);
   });
 
   it('22. unauthorized role rejected', async () => {
@@ -503,7 +506,7 @@ describe('Smart Import Unit 5A-Server Standalone Fleet Boundary Test Suite', () 
         },
         nonAdminContext
       )
-    ).rejects.toThrow(/غير مصرح لك/);
+    ).rejects.toThrow(/FORBIDDEN_GLOBAL_COMMAND/);
   });
 
   it('23. unauthenticated/missing actor rejected', async () => {
