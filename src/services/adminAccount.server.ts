@@ -1,3 +1,4 @@
+import { decodeGlobal } from '../utils/persistenceBoundary';
 import { FieldValue } from 'firebase-admin/firestore';
 import { randomUUID } from 'node:crypto';
 import { adminDb } from '../firebase/admin';
@@ -40,7 +41,7 @@ export class AdminAccountServerService {
     if (actor.role !== 'SUPER_ADMIN') return deny('FORBIDDEN_ADMIN_ACTION');
     const drivers = await this.db.collection('drivers').get();
     return drivers.docs.map((doc: any) => {
-      const data = doc.data();
+      const data = decodeGlobal<any>(doc.data(), 'driver', doc.id);
       if (data.driverId !== doc.id) return deny('INVALID_ADMIN_COMMAND');
       return { driverId: doc.id, fullNameAr: data.fullNameAr || doc.id, status: data.status };
     });
@@ -83,6 +84,7 @@ export class AdminAccountServerService {
         if (target.role !== 'DRIVER') return deny('INVALID_ADMIN_COMMAND');
         const driver = await tx.get(this.db.collection('drivers').doc(input.linkedDriverId));
         if (!driver.exists || driver.data()?.driverId !== input.linkedDriverId) return deny('INVALID_ADMIN_COMMAND');
+        decodeGlobal(driver.data(), 'driver', driver.id);
         const owners = await tx.get(this.db.collection('users').where('linkedDriverId', '==', input.linkedDriverId));
         if (owners.docs.some((doc: any) => doc.id !== targetUserId)) return deny('DRIVER_IDENTITY_ALREADY_LINKED');
       }

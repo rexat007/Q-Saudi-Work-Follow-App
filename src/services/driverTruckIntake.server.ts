@@ -1,3 +1,5 @@
+import { resolveGlobalNaturalIdentity, authorizeGlobalCommand, assertGlobalEntityExists, decodeAuthoritativeGlobal, auditGlobalMutation } from './globalIdentityAuthority.server';
+import { assertCanEnroll, assertOperationallyEligible } from '../utils/globalIdentityPolicy';
 import crypto from 'crypto';
 import { AuthUserContext } from '../types/common';
 import { DriverTruckIntakePayload, DriverTruckIntakeResult } from './driverTruckIntake.service';
@@ -42,16 +44,8 @@ export interface CreateStandaloneTruckResult {
 
 export class DriverTruckIntakeServer {
   private checkModificationAccess(projectId: string, context: AuthUserContext) {
-    const isSuperAdmin = context.role === 'SUPER_ADMIN';
-    const isProjectAdmin = context.role === 'PROJECT_ADMIN';
-    
-    if (!isSuperAdmin && !isProjectAdmin) {
-      throw new Error('غير مصرح لك: تسجيل السائقين والشاحنات مقتصر على مدير المشروع أو مدير النظام');
-    }
-
-    if (!isSuperAdmin && context.assignedProjectIds && !context.assignedProjectIds.includes(projectId)) {
-      throw new Error(`عزل أمني: المستخدم (${context.userId}) غير مصرح له بالتعديل على بيانات المشروع (${projectId})`);
-    }
+    if (!context?.userId?.trim()) throw new Error('UNAUTHENTICATED_ACTOR');
+    if (!projectId) throw new Error('FORBIDDEN_GLOBAL_COMMAND');
   }
 
   async processSharedIntake(
@@ -92,7 +86,6 @@ export class DriverTruckIntakeServer {
 
     // Node.js transaction logic using adminDb
     const { normalizeArabicText, normalizeName, normalizePlate, normalizePhone, normalizeIdNumber } = await import('../utils/normalization');
-    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
     const { adminDb } = await import('../firebase/admin');
 
     const normName = normalizeName(driverName);
@@ -104,78 +97,25 @@ export class DriverTruckIntakeServer {
       throw new Error('رقم الهوية الوطنية أو الإقامة غير صالح. يجب أن يتكون من 10 خانات ويبدأ بـ 1 أو 2');
     }
 
-    const lookupTokenDriver = computeNaturalKeyToken('DRIVER', normIdNumber);
-    const lookupTokenTruck = computeNaturalKeyToken('TRUCK', normPlate);
 
     const nowIso = new Date().toISOString();
 
+    const authenticated = context;
     return await adminDb.runTransaction(async (transaction) => {
+      const context = await authorizeGlobalCommand(transaction, adminDb, authenticated, projectId);
+      const carrierGlobal = await assertGlobalEntityExists(transaction, adminDb, 'CARRIER', carrierId);
+      assertOperationallyEligible('CARRIER', carrierGlobal);
       // ----------------------------------------------------
       // PHASE 1: NATURAL IDENTITY RESOLUTION & PREVENT DUPLICATES
       // ----------------------------------------------------
-      let driverId: string | null = null;
-      let shouldReserveLookupDriver = false;
-
-      const lookupRefDriver = adminDb.collection('natural_identity_lookups').doc(lookupTokenDriver);
-      const lookupSnapDriver = await transaction.get(lookupRefDriver);
-
-      if (lookupSnapDriver.exists) {
-        driverId = lookupSnapDriver.data()?.systemId;
-        const driverRef = adminDb.collection('drivers').doc(driverId!);
-        const driverSnap = await transaction.get(driverRef);
-
-        if (!driverSnap.exists) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for driver but Global Driver document is missing.');
-        }
-
-        const actualNationalId = driverSnap.data()?.nationalId;
-        if (actualNationalId !== normIdNumber) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for driver but National ID does not match.');
-        }
-      } else {
-        // Fallback: query canonical collection for exact natural key
-        const matchingDriversQuery = adminDb.collection('drivers').where('nationalId', '==', normIdNumber);
-        const matchingDriversSnap = await transaction.get(matchingDriversQuery);
-
-        if (matchingDriversSnap.size === 1) {
-          driverId = matchingDriversSnap.docs[0].id;
-          shouldReserveLookupDriver = true;
-        } else if (matchingDriversSnap.size > 1) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Multiple global driver entities match exact natural key.');
-        }
-      }
-
-      let truckId: string | null = null;
-      let shouldReserveLookupTruck = false;
-
-      const lookupRefTruck = adminDb.collection('natural_identity_lookups').doc(lookupTokenTruck);
-      const lookupSnapTruck = await transaction.get(lookupRefTruck);
-
-      if (lookupSnapTruck.exists) {
-        truckId = lookupSnapTruck.data()?.systemId;
-        const truckRef = adminDb.collection('trucks').doc(truckId!);
-        const truckSnap = await transaction.get(truckRef);
-
-        if (!truckSnap.exists) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for truck but Global Truck document is missing.');
-        }
-
-        const actualNormalizedPlate = truckSnap.data()?.normalizedPlate;
-        if (actualNormalizedPlate !== normPlate) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for truck but normalized plate does not match.');
-        }
-      } else {
-        // Fallback: query canonical collection for exact natural key
-        const matchingTrucksQuery = adminDb.collection('trucks').where('normalizedPlate', '==', normPlate);
-        const matchingTrucksSnap = await transaction.get(matchingTrucksQuery);
-
-        if (matchingTrucksSnap.size === 1) {
-          truckId = matchingTrucksSnap.docs[0].id;
-          shouldReserveLookupTruck = true;
-        } else if (matchingTrucksSnap.size > 1) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Multiple global truck entities match exact natural key.');
-        }
-      }
+      const resolvedDriver = await resolveGlobalNaturalIdentity(transaction, adminDb, 'DRIVER', normIdNumber);
+      const resolvedTruck = await resolveGlobalNaturalIdentity(transaction, adminDb, 'TRUCK', normPlate);
+      let driverId = resolvedDriver.id, truckId = resolvedTruck.id;
+      const lookupRefDriver = resolvedDriver.canonicalRef, lookupRefTruck = resolvedTruck.canonicalRef;
+      const shouldReserveLookupDriver = resolvedDriver.mustReserve, shouldReserveLookupTruck = resolvedTruck.mustReserve;
+      if (resolvedDriver.entity) assertCanEnroll('DRIVER', resolvedDriver.entity);
+      if (resolvedTruck.entity) assertCanEnroll('TRUCK', resolvedTruck.entity);
+      assertOperationallyEligible('MATERIAL', await assertGlobalEntityExists(transaction, adminDb, 'MATERIAL', materialId));
 
       // ----------------------------------------------------
       // PHASE 2: ACCESS PROJECT-LEVEL MEMBERSHIPS & CARRIER
@@ -392,7 +332,7 @@ export class DriverTruckIntakeServer {
         const hashHex = crypto.randomBytes(16).toString('hex');
         driverId = `DRV-${hashHex}`;
         const newDriverRef = adminDb.collection('drivers').doc(driverId);
-        transaction.set(newDriverRef, {
+        const newDriverData = {
           driverId,
           nationalId: normIdNumber,
           fullNameAr: normalizeArabicText(driverName),
@@ -402,7 +342,10 @@ export class DriverTruckIntakeServer {
           createdBy: actorId,
           updatedAt: nowIso,
           updatedBy: actorId,
-        });
+        };
+        decodeAuthoritativeGlobal('DRIVER', newDriverData, driverId);
+        transaction.set(newDriverRef, newDriverData);
+        auditGlobalMutation(transaction, adminDb, 'DRIVER', driverId, context, null, newDriverData, projectId);
 
         transaction.set(lookupRefDriver, {
           entityType: 'DRIVER',
@@ -454,7 +397,9 @@ export class DriverTruckIntakeServer {
         }
 
         const newTruckRef = adminDb.collection('trucks').doc(truckId);
+        decodeAuthoritativeGlobal('TRUCK', newTruckData, truckId);
         transaction.set(newTruckRef, newTruckData);
+        auditGlobalMutation(transaction, adminDb, 'TRUCK', truckId, context, null, newTruckData, projectId);
 
         transaction.set(lookupRefTruck, {
           entityType: 'TRUCK',
@@ -765,7 +710,6 @@ export class DriverTruckIntakeServer {
     }
 
     const { normalizeArabicText, normalizeName, normalizePhone, normalizeIdNumber } = await import('../utils/normalization');
-    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
     const { adminDb } = await import('../firebase/admin');
 
     const phone = normalizePhone(rawPhone || '');
@@ -775,46 +719,19 @@ export class DriverTruckIntakeServer {
       throw new Error('رقم الهوية الوطنية أو الإقامة غير صالح. يجب أن يتكون من 10 خانات ويبدأ بـ 1 أو 2');
     }
 
-    const lookupTokenDriver = computeNaturalKeyToken('DRIVER', normIdNumber);
     const nowIso = new Date().toISOString();
 
+    const authenticated = context;
     return await adminDb.runTransaction(async (transaction) => {
-      let driverId: string | null = null;
-      let shouldReserveLookupDriver = false;
-      let identityStatus: 'CREATED' | 'EXISTING' = 'EXISTING';
-
-      const lookupRefDriver = adminDb.collection('natural_identity_lookups').doc(lookupTokenDriver);
-      const lookupSnapDriver = await transaction.get(lookupRefDriver);
-
-      if (lookupSnapDriver.exists) {
-        driverId = lookupSnapDriver.data()?.systemId;
-        const driverRef = adminDb.collection('drivers').doc(driverId!);
-        const driverSnap = await transaction.get(driverRef);
-
-        if (!driverSnap.exists) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for driver but Global Driver document is missing.');
-        }
-
-        const actualNationalId = driverSnap.data()?.nationalId;
-        if (actualNationalId !== normIdNumber) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for driver but National ID does not match.');
-        }
-        identityStatus = 'EXISTING';
-      } else {
-        const matchingDriversQuery = adminDb.collection('drivers').where('nationalId', '==', normIdNumber);
-        const matchingDriversSnap = await transaction.get(matchingDriversQuery);
-
-        if (matchingDriversSnap.size === 1) {
-          driverId = matchingDriversSnap.docs[0].id;
-          shouldReserveLookupDriver = true;
-          identityStatus = 'EXISTING';
-        } else if (matchingDriversSnap.size > 1) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Multiple global driver entities match exact natural key.');
-        } else {
-          driverId = null;
-          identityStatus = 'CREATED';
-        }
-      }
+      const context = await authorizeGlobalCommand(transaction, adminDb, authenticated, projectId);
+      const carrierGlobal = await assertGlobalEntityExists(transaction, adminDb, 'CARRIER', carrierId);
+      assertOperationallyEligible('CARRIER', carrierGlobal);
+      const resolvedDriver = await resolveGlobalNaturalIdentity(transaction, adminDb, 'DRIVER', normIdNumber);
+      let driverId = resolvedDriver.id;
+      const lookupRefDriver = resolvedDriver.canonicalRef;
+      const shouldReserveLookupDriver = resolvedDriver.mustReserve;
+      const identityStatus: 'CREATED' | 'EXISTING' = driverId ? 'EXISTING' : 'CREATED';
+      if (resolvedDriver.entity) assertCanEnroll('DRIVER', resolvedDriver.entity);
 
       const carrierMemRef = adminDb.collection('projects').doc(projectId).collection('carrier_memberships').doc(carrierId);
       const carrierMemSnap = await transaction.get(carrierMemRef);
@@ -858,7 +775,7 @@ export class DriverTruckIntakeServer {
         const hashHex = crypto.randomBytes(16).toString('hex');
         driverId = `DRV-${hashHex}`;
         const newDriverRef = adminDb.collection('drivers').doc(driverId);
-        transaction.set(newDriverRef, {
+        const newDriverData = {
           driverId,
           nationalId: normIdNumber,
           fullNameAr: normalizeArabicText(driverName),
@@ -868,7 +785,9 @@ export class DriverTruckIntakeServer {
           createdBy: actorId,
           updatedAt: nowIso,
           updatedBy: actorId,
-        });
+        };
+        decodeAuthoritativeGlobal('DRIVER', newDriverData, driverId);
+        transaction.set(newDriverRef, newDriverData);
 
         transaction.set(lookupRefDriver, {
           entityType: 'DRIVER',
@@ -964,50 +883,22 @@ export class DriverTruckIntakeServer {
     if (!plateNumber || !plateNumber.trim()) throw new Error('رقم لوحة الشاحنة مطلوب');
 
     const { normalizePlate } = await import('../utils/normalization');
-    const { computeNaturalKeyToken } = await import('../repositories/globalIdentity.repository');
     const { adminDb } = await import('../firebase/admin');
 
     const normPlate = normalizePlate(plateNumber);
-    const lookupTokenTruck = computeNaturalKeyToken('TRUCK', normPlate);
     const nowIso = new Date().toISOString();
 
+    const authenticated = context;
     return await adminDb.runTransaction(async (transaction) => {
-      let truckId: string | null = null;
-      let shouldReserveLookupTruck = false;
-      let identityStatus: 'CREATED' | 'EXISTING' = 'EXISTING';
-
-      const lookupRefTruck = adminDb.collection('natural_identity_lookups').doc(lookupTokenTruck);
-      const lookupSnapTruck = await transaction.get(lookupRefTruck);
-
-      if (lookupSnapTruck.exists) {
-        truckId = lookupSnapTruck.data()?.systemId;
-        const truckRef = adminDb.collection('trucks').doc(truckId!);
-        const truckSnap = await transaction.get(truckRef);
-
-        if (!truckSnap.exists) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for truck but Global Truck document is missing.');
-        }
-
-        const actualNormalizedPlate = truckSnap.data()?.normalizedPlate;
-        if (actualNormalizedPlate !== normPlate) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Natural lookup exists for truck but normalized plate does not match.');
-        }
-        identityStatus = 'EXISTING';
-      } else {
-        const matchingTrucksQuery = adminDb.collection('trucks').where('normalizedPlate', '==', normPlate);
-        const matchingTrucksSnap = await transaction.get(matchingTrucksQuery);
-
-        if (matchingTrucksSnap.size === 1) {
-          truckId = matchingTrucksSnap.docs[0].id;
-          shouldReserveLookupTruck = true;
-          identityStatus = 'EXISTING';
-        } else if (matchingTrucksSnap.size > 1) {
-          throw new Error('IDENTITY_LOOKUP_INTEGRITY_ERROR: Multiple global truck entities match exact natural key.');
-        } else {
-          truckId = null;
-          identityStatus = 'CREATED';
-        }
-      }
+      const context = await authorizeGlobalCommand(transaction, adminDb, authenticated, projectId);
+      const carrierGlobal = await assertGlobalEntityExists(transaction, adminDb, 'CARRIER', carrierId);
+      assertOperationallyEligible('CARRIER', carrierGlobal);
+      const resolvedTruck = await resolveGlobalNaturalIdentity(transaction, adminDb, 'TRUCK', normPlate);
+      let truckId = resolvedTruck.id;
+      const lookupRefTruck = resolvedTruck.canonicalRef;
+      const shouldReserveLookupTruck = resolvedTruck.mustReserve;
+      const identityStatus: 'CREATED' | 'EXISTING' = truckId ? 'EXISTING' : 'CREATED';
+      if (resolvedTruck.entity) assertCanEnroll('TRUCK', resolvedTruck.entity);
 
       const carrierMemRef = adminDb.collection('projects').doc(projectId).collection('carrier_memberships').doc(carrierId);
       const carrierMemSnap = await transaction.get(carrierMemRef);
@@ -1076,6 +967,7 @@ export class DriverTruckIntakeServer {
         }
 
         const newTruckRef = adminDb.collection('trucks').doc(truckId);
+        decodeAuthoritativeGlobal('TRUCK', newTruckData, truckId);
         transaction.set(newTruckRef, newTruckData);
 
         transaction.set(lookupRefTruck, {

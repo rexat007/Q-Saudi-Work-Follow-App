@@ -1524,7 +1524,7 @@ app.post('/api/projects/:projectId/setup-material', enforceProjectIsolation, enf
     const result = await provisioningService.setupProjectMaterial(projectId, materialData, user);
     res.json({ success: true, ...result });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(error.status || 500).json({ success: false, error: error.message, code: error.code });
   }
 });
 
@@ -1538,7 +1538,7 @@ app.patch('/api/projects/:projectId/materials/:materialId', enforceProjectIsolat
     const result = await provisioningService.updateProjectMaterial(projectId, materialId, materialData, user);
     res.json({ success: true, ...result });
   } catch (error: any) {
-    res.status(400).json({ success: false, error: error.message });
+    res.status(error.status || 400).json({ success: false, error: error.message, code: error.code });
   }
 });
 
@@ -1552,7 +1552,7 @@ app.post('/api/projects/:projectId/setup-carrier', enforceProjectIsolation, enfo
     const result = await provisioningService.setupProjectCarrier(projectId, carrierData, user);
     res.json({ success: true, ...result });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(error.status || 500).json({ success: false, error: error.message, code: error.code });
   }
 });
 
@@ -1566,7 +1566,7 @@ app.patch('/api/projects/:projectId/carriers/:carrierId', enforceProjectIsolatio
     const result = await provisioningService.updateProjectCarrier(projectId, carrierId, carrierData, user);
     res.json({ success: true, ...result });
   } catch (error: any) {
-    res.status(400).json({ success: false, error: error.message });
+    res.status(error.status || 400).json({ success: false, error: error.message, code: error.code });
   }
 });
 

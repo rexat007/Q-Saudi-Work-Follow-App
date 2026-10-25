@@ -1,3 +1,4 @@
+import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 import { tripRepository } from '../repositories/trip.repository';
 import { TripValidator } from '../validators/trip.validator';
 import { TripEntity, TripStatus, OperationSourceType, OperationActorType, TripSourceMetadata } from '../types/entities';
@@ -223,28 +224,28 @@ export class TripService {
       this.persistence.projectTruckMaterialAllocationRepository.getActiveAllocationByTruck(cleanProjectId, truckId),
     ]);
 
-    if (!carrierGlobal || (carrierGlobal.status !== undefined && carrierGlobal.status !== 'ACTIVE')) {
+    if (!carrierGlobal || !evaluateGlobalEligibility('CARRIER', carrierGlobal).CAN_USE_OPERATIONALLY) {
       throw new Error('الناقل المحدد غير موجود في الهوية الموحدة أو غير نشط (INACTIVE)');
     }
     if (!carrierMembership || carrierMembership.status !== 'ACTIVE') {
       throw new Error(`الناقل (${carrierId}) ليس لديه عضوية نشطة (ACTIVE) في هذا المشروع`);
     }
 
-    if (!materialGlobal || (materialGlobal.status !== undefined && materialGlobal.status !== 'ACTIVE')) {
+    if (!materialGlobal || !evaluateGlobalEligibility('MATERIAL', materialGlobal).CAN_USE_OPERATIONALLY) {
       throw new Error('المادة المحددة غير موجودة في الهوية الموحدة أو غير نشطة (INACTIVE)');
     }
     if (!materialMembership || materialMembership.status !== 'ACTIVE') {
       throw new Error(`المادة (${materialId}) ليس لديها عضوية نشطة (ACTIVE) في هذا المشروع`);
     }
 
-    if (!driverGlobal || (driverGlobal.status !== undefined && driverGlobal.status !== 'ACTIVE')) {
+    if (!driverGlobal || !evaluateGlobalEligibility('DRIVER', driverGlobal).CAN_USE_OPERATIONALLY) {
       throw new Error('السائق المحدد غير موجود في الهوية الموحدة أو غير نشط (INACTIVE)');
     }
     if (!driverMembership || driverMembership.status !== 'ACTIVE') {
       throw new Error(`السائق (${driverId}) ليس لديه عضوية نشطة (ACTIVE) في هذا المشروع`);
     }
 
-    if (!truckGlobal || (truckGlobal.status !== undefined && truckGlobal.status !== 'ACTIVE')) {
+    if (!truckGlobal || !evaluateGlobalEligibility('TRUCK', truckGlobal).CAN_USE_OPERATIONALLY) {
       throw new Error('الشاحنة المحددة غير موجودة في الهوية الموحدة أو غير مصرح لها بالعمل (INACTIVE)');
     }
     if (!truckMembership || truckMembership.status !== 'ACTIVE') {

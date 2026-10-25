@@ -1,3 +1,4 @@
+import { computeNaturalKeyToken } from '../utils/globalIdentityPolicy';
 import { describe, it, expect, beforeEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -39,6 +40,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     for (const key of Object.keys(inMemoryAdminStore)) {
       delete inMemoryAdminStore[key];
     }
+    inMemoryAdminStore['users/admin-1'] = { userId: 'admin-1', role: 'SUPER_ADMIN', status: 'ACTIVE', assignedProjectIds: [] };
     const testDb = createInMemoryAdminDb({});
     
     // Instrument runTransaction to strictly enforce Firestore's read-before-write sequence rule AND block undefined writes
@@ -169,8 +171,8 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(globalDoc.code).toBe('NEW-SAND');
     expect(globalDoc.nameAr).toBe('رمل احمر');
 
-    expect(inMemoryAdminStore['natural_identity_lookups/MATERIAL_TkVXLVNBTkQ_']).toBeDefined();
-    expect(inMemoryAdminStore['natural_identity_lookups/MATERIAL_TkVXLVNBTkQ_'].systemId).toBe(result.materialId);
+    expect(inMemoryAdminStore[`natural_identity_lookups/${computeNaturalKeyToken('MATERIAL', 'NEW-SAND')}`]).toBeDefined();
+    expect(inMemoryAdminStore[`natural_identity_lookups/${computeNaturalKeyToken('MATERIAL', 'NEW-SAND')}`].systemId).toBe(result.materialId);
   });
 
   it('3. Project material membership is created ACTIVE', async () => {
@@ -235,7 +237,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(globalDoc.unitOfMeasure).toBe('TON');
   });
 
-  it('9. Lookup -> missing Material target fails closed (DANGLING_LOOKUP_DETECTED)', async () => {
+  it('9. Lookup -> missing Material target fails closed (IDENTITY_LOOKUP_INTEGRITY_ERROR)', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
     
     inMemoryAdminStore['natural_identity_lookups/MATERIAL_QUdHLTEwTU0_'] = {
@@ -245,7 +247,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
 
     await expect(
       service.setupProjectMaterial('Q-PRJ-006', { code: 'AGG-10MM', name: 'بحص 10 مم' }, { userId: 'admin-1' })
-    ).rejects.toThrow('DANGLING_LOOKUP_DETECTED');
+    ).rejects.toThrow('IDENTITY_LOOKUP_INTEGRITY_ERROR');
 
     expect(inMemoryAdminStore['projects/Q-PRJ-006/material_memberships/MAT-missing-999']).toBeUndefined();
   });
@@ -349,7 +351,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(globalDoc.commercialRegistrationNo).toBe('1010111111');
     expect(globalDoc.nameAr).toBe('مؤسسه الرياض اللوجستيه');
 
-    expect(inMemoryAdminStore['natural_identity_lookups/CARRIER_MTAxMDExMTExMQ__']).toBeDefined();
+    expect(inMemoryAdminStore[`natural_identity_lookups/${computeNaturalKeyToken('CARRIER', '1010111111')}`]).toBeDefined();
   });
 
   it('15. Project carrier membership is created ACTIVE', async () => {
@@ -431,10 +433,10 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
     expect(globalDoc.contactPerson).toBeUndefined();
   });
 
-  it('21. Lookup -> missing Carrier target fails closed (DANGLING_LOOKUP_DETECTED)', async () => {
+  it('21. Lookup -> missing Carrier target fails closed (IDENTITY_LOOKUP_INTEGRITY_ERROR)', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
 
-    inMemoryAdminStore['natural_identity_lookups/CARRIER_MTAxMDExMTExMQ__'] = {
+    inMemoryAdminStore[`natural_identity_lookups/${computeNaturalKeyToken('CARRIER', '1010111111')}`] = {
       entityType: 'CARRIER',
       systemId: 'CAR-missing-999',
     };
@@ -444,7 +446,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
         name: 'الناقل اللوجستي',
         commercialRegistrationNo: '1010111111',
       }, { userId: 'admin-1' })
-    ).rejects.toThrow('DANGLING_LOOKUP_DETECTED');
+    ).rejects.toThrow('IDENTITY_LOOKUP_INTEGRITY_ERROR');
 
     expect(inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-missing-999']).toBeUndefined();
   });
@@ -452,7 +454,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
   it('22. Existing ACTIVE carrier membership is idempotent', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
     inMemoryAdminStore['carriers/CAR-active-123'] = { carrierId: 'CAR-active-123', commercialRegistrationNo: '1010111111', status: 'ACTIVE' };
-    inMemoryAdminStore['natural_identity_lookups/CARRIER_MTAxMDExMTExMQ__'] = { entityType: 'CARRIER', systemId: 'CAR-active-123' };
+    inMemoryAdminStore[`natural_identity_lookups/${computeNaturalKeyToken('CARRIER', '1010111111')}`] = { entityType: 'CARRIER', systemId: 'CAR-active-123' };
 
     inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-active-123'] = {
       projectId: 'Q-PRJ-006',
@@ -476,7 +478,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
   it('23. SUSPENDED carrier membership is NOT reactivated and throws MEMBERSHIP_STATE_CONFLICT', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
     inMemoryAdminStore['carriers/CAR-susp-123'] = { carrierId: 'CAR-susp-123', commercialRegistrationNo: '1010111111', status: 'ACTIVE' };
-    inMemoryAdminStore['natural_identity_lookups/CARRIER_MTAxMDExMTExMQ__'] = { entityType: 'CARRIER', systemId: 'CAR-susp-123' };
+    inMemoryAdminStore[`natural_identity_lookups/${computeNaturalKeyToken('CARRIER', '1010111111')}`] = { entityType: 'CARRIER', systemId: 'CAR-susp-123' };
 
     inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-susp-123'] = {
       projectId: 'Q-PRJ-006',
@@ -497,7 +499,7 @@ describe('Project Material/Carrier Server Authority Convergence Test Suite', () 
   it('24. REMOVED carrier membership is NOT reactivated and throws MEMBERSHIP_STATE_CONFLICT', async () => {
     inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status: 'ACTIVE' };
     inMemoryAdminStore['carriers/CAR-rem-123'] = { carrierId: 'CAR-rem-123', commercialRegistrationNo: '1010111111', status: 'ACTIVE' };
-    inMemoryAdminStore['natural_identity_lookups/CARRIER_MTAxMDExMTExMQ__'] = { entityType: 'CARRIER', systemId: 'CAR-rem-123' };
+    inMemoryAdminStore[`natural_identity_lookups/${computeNaturalKeyToken('CARRIER', '1010111111')}`] = { entityType: 'CARRIER', systemId: 'CAR-rem-123' };
 
     inMemoryAdminStore['projects/Q-PRJ-006/carrier_memberships/CAR-rem-123'] = {
       projectId: 'Q-PRJ-006',
