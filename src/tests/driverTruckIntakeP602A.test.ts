@@ -1,3 +1,4 @@
+import { ProjectParticipationAuthority } from '../services/projectParticipationAuthority.server';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { driverTruckIntakeServer } from '../services/driverTruckIntake.server';
 import { AuthUserContext } from '../types/common';
@@ -13,9 +14,11 @@ let mockStore: Record<string, any> = {};
 function mockDocRef(paths: string[]): any {
   const pathKey = paths.join('/');
   return {
+    id: paths.at(-1),
     get: async () => {
       const val = mockStore[pathKey];
       return {
+        id: paths.at(-1),
         exists: val !== undefined,
         data: () => val,
       };
@@ -122,8 +125,8 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     mockStore[`materials/${testMaterialId}`] = { materialId: testMaterialId, code: 'AGG-10MM', status: 'ACTIVE' };
 
     // Seed required ACTIVE Carrier & Material memberships on the project
-    mockStore[`projects/${testProjectId}/carrier_memberships/${testCarrierId}`] = { status: 'ACTIVE' };
-    mockStore[`projects/${testProjectId}/material_memberships/${testMaterialId}`] = { status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/carrier_memberships/${testCarrierId}`] = { projectId: testProjectId, carrierId: testCarrierId, status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/material_memberships/${testMaterialId}`] = { projectId: testProjectId, materialId: testMaterialId, status: 'ACTIVE' };
 
     // Spy on legacy write methods to assert they are never called
     vi.spyOn(driverRepository, 'create').mockImplementation(async () => { throw new Error('LEGACY_WRITE_VIOLATION: driverRepository is deprecated'); });
@@ -217,7 +220,7 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
 
   it('4. Rejects with a validation error if the requested Carrier or Material membership is inactive or absent (No auto-creation)', async () => {
     // Inactivate the seeded material membership
-    mockStore[`projects/${testProjectId}/material_memberships/${testMaterialId}`] = { status: 'INACTIVE' };
+    mockStore[`projects/${testProjectId}/material_memberships/${testMaterialId}`] = { projectId: testProjectId, materialId: testMaterialId, status: 'SUSPENDED' };
 
     const payload = {
       projectId: testProjectId,
@@ -256,11 +259,11 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     };
 
     // Pre-seed the other carrier as active so we don't fail membership checks first
-    mockStore[`projects/${testProjectId}/carrier_memberships/CRR-OTHER-99`] = { status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/carrier_memberships/CRR-OTHER-99`] = { projectId: testProjectId, carrierId: 'CRR-OTHER-99', status: 'ACTIVE' };
 
     await expect(
       driverTruckIntakeServer.processSharedIntake(payload2, adminAuth)
-    ).rejects.toThrow('CARRIER_REASSIGNMENT_CONFLICT');
+    ).rejects.toThrow('DRIVER_CARRIER_AFFILIATION_CONFLICT');
   });
 
   it('6. Rejects non-admin access contexts', async () => {
@@ -278,7 +281,7 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     ).rejects.toThrow('FORBIDDEN_GLOBAL_COMMAND');
   });
 
-  it('7. Handles same-carrier INACTIVE Driver and Truck affiliation, reactivates them to ACTIVE in database, and returns ACTIVE status', async () => {
+  it('7. Same-carrier INACTIVE affiliations require explicit reactivation before intake can return ACTIVE', async () => {
     // 1. Pre-exist Driver & Truck IDs and Global entities
     const driverId = 'DRV-REACTIVE-DRIVER-123';
     const truckId = 'TRK-REACTIVE-TRUCK-123';
@@ -293,10 +296,10 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     mockStore[`natural_identity_lookups/${computeNaturalKeyToken('TRUCK', normalizePlate('أ ب ج 1111'))}`] = { systemId: truckId, entityType: 'TRUCK' };
 
     // Set INACTIVE memberships and same-carrier affiliations
-    mockStore[`projects/${testProjectId}/driver_memberships/${driverId}`] = { status: 'ACTIVE' };
-    mockStore[`projects/${testProjectId}/truck_memberships/${truckId}`] = { status: 'ACTIVE' };
-    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`] = { status: 'INACTIVE', carrierId: testCarrierId };
-    mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`] = { status: 'INACTIVE', carrierId: testCarrierId };
+    mockStore[`projects/${testProjectId}/driver_memberships/${driverId}`] = { projectId: testProjectId, driverId: driverId, status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/truck_memberships/${truckId}`] = { projectId: testProjectId, truckId: truckId, status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`] = { projectId: testProjectId, driverId: driverId, status: 'INACTIVE', carrierId: testCarrierId };
+    mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`] = { projectId: testProjectId, truckId: truckId, status: 'INACTIVE', carrierId: testCarrierId };
 
     const payload = {
       projectId: testProjectId,
@@ -306,6 +309,13 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
       plateNumber: 'أ ب ج 1111',
       residencyId: '1022338899',
     };
+
+    await expect(driverTruckIntakeServer.processSharedIntake(payload, adminAuth)).rejects.toThrow('AFFILIATION_STATE_CONFLICT');
+    expect(mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`].status).toBe('INACTIVE');
+    expect(mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`].status).toBe('INACTIVE');
+    const authority = new ProjectParticipationAuthority();
+    await authority.affiliation(testProjectId, { kind: 'DRIVER', entityId: driverId, carrierId: testCarrierId, command: 'REACTIVATE_AFFILIATION' }, adminAuth);
+    await authority.affiliation(testProjectId, { kind: 'TRUCK', entityId: truckId, carrierId: testCarrierId, command: 'REACTIVATE_AFFILIATION' }, adminAuth);
 
     const result = await driverTruckIntakeServer.processSharedIntake(payload, adminAuth);
 
@@ -334,10 +344,10 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     mockStore[`natural_identity_lookups/${computeNaturalKeyToken('DRIVER', normalizeIdNumber('1022338822'))}`] = { systemId: driverId, entityType: 'DRIVER' };
     mockStore[`natural_identity_lookups/${computeNaturalKeyToken('TRUCK', normalizePlate('أ ب ج 2222'))}`] = { systemId: truckId, entityType: 'TRUCK' };
 
-    mockStore[`projects/${testProjectId}/driver_memberships/${driverId}`] = { status: 'ACTIVE' };
-    mockStore[`projects/${testProjectId}/truck_memberships/${truckId}`] = { status: 'ACTIVE' };
-    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`] = { status: 'ACTIVE', carrierId: testCarrierId };
-    mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`] = { status: 'ACTIVE', carrierId: testCarrierId };
+    mockStore[`projects/${testProjectId}/driver_memberships/${driverId}`] = { projectId: testProjectId, driverId: driverId, status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/truck_memberships/${truckId}`] = { projectId: testProjectId, truckId: truckId, status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`] = { projectId: testProjectId, driverId: driverId, status: 'ACTIVE', carrierId: testCarrierId };
+    mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`] = { projectId: testProjectId, truckId: truckId, status: 'ACTIVE', carrierId: testCarrierId };
 
     // Set corrupt active allocation slot pointing to non-existent allocation document
     mockStore[`projects/${testProjectId}/truck_active_material_allocations/${truckId}`] = { allocationId: 'TMA-NONEXISTENT-999' };
@@ -368,10 +378,10 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     mockStore[`natural_identity_lookups/${computeNaturalKeyToken('DRIVER', normalizeIdNumber('1022338833'))}`] = { systemId: driverId, entityType: 'DRIVER' };
     mockStore[`natural_identity_lookups/${computeNaturalKeyToken('TRUCK', normalizePlate('أ ب ج 3333'))}`] = { systemId: truckId, entityType: 'TRUCK' };
 
-    mockStore[`projects/${testProjectId}/driver_memberships/${driverId}`] = { status: 'ACTIVE' };
-    mockStore[`projects/${testProjectId}/truck_memberships/${truckId}`] = { status: 'ACTIVE' };
-    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`] = { status: 'ACTIVE', carrierId: testCarrierId };
-    mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`] = { status: 'ACTIVE', carrierId: testCarrierId };
+    mockStore[`projects/${testProjectId}/driver_memberships/${driverId}`] = { projectId: testProjectId, driverId: driverId, status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/truck_memberships/${truckId}`] = { projectId: testProjectId, truckId: truckId, status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${driverId}`] = { projectId: testProjectId, driverId: driverId, status: 'ACTIVE', carrierId: testCarrierId };
+    mockStore[`projects/${testProjectId}/truck_carrier_affiliations/${truckId}`] = { projectId: testProjectId, truckId: truckId, status: 'ACTIVE', carrierId: testCarrierId };
 
     // Set active assignment slot pointing to mismatched assignment
     mockStore[`projects/${testProjectId}/driver_active_assignments/${driverId}`] = { assignmentId: 'ASN-MISMATCH' };
@@ -470,8 +480,8 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
       entityType: 'DRIVER',
     };
 
-    mockStore[`projects/${testProjectId}/driver_memberships/${existingDriverId}`] = { status: 'ACTIVE' };
-    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${existingDriverId}`] = { status: 'ACTIVE', carrierId: testCarrierId };
+    mockStore[`projects/${testProjectId}/driver_memberships/${existingDriverId}`] = { projectId: testProjectId, driverId: existingDriverId, status: 'ACTIVE' };
+    mockStore[`projects/${testProjectId}/driver_carrier_affiliations/${existingDriverId}`] = { projectId: testProjectId, driverId: existingDriverId, status: 'ACTIVE', carrierId: testCarrierId };
 
     mockStore[`projects/${testProjectId}/driver_active_assignments/${existingDriverId}`] = { assignmentId: 'ASN-CORRUPT-ONESIDED' };
     mockStore[`projects/${testProjectId}/driver_truck_assignments/ASN-CORRUPT-ONESIDED`] = {

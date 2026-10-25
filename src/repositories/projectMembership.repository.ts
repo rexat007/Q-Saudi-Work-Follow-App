@@ -1,18 +1,12 @@
 import { decodeScopedProjection } from '../utils/persistenceBoundary';
-import { sanitizeUndefined } from '../utils/sanitize';
 import {
   collection,
   doc,
   getDoc,
   getDocs,
-  setDoc,
-  updateDoc,
-  serverTimestamp,
   query,
   where,
-  runTransaction,
   Transaction,
-  Timestamp,
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
@@ -42,6 +36,7 @@ const VALID_TRANSITIONS: Record<MembershipStatus, MembershipStatus[]> = {
 
 export type MembershipEntityType = 'driver' | 'truck' | 'carrier' | 'material';
 
+/** TEST_ONLY legacy fixture compatibility. Server membership commands reject metadata. */
 export interface AttachMemberOptions {
   metadata?: Record<string, any>;
 }
@@ -52,7 +47,7 @@ export interface SetStatusOptions {
 
 /**
  * ============================================================================
- * GENERIC PROJECT MEMBERSHIP REPOSITORY FOUNDATION
+ * PROJECT MEMBERSHIP COMPATIBILITY READS / TEST_ONLY MUTATIONS
  * ============================================================================
  * Provides typed, isolated subcollection persistence for Driver, Truck, Carrier,
  * and Material project memberships without code duplication.
@@ -100,6 +95,7 @@ export class ProjectMembershipRepository<
     const compKey = this.getCompositeKey(projectId, entityId);
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       return this.inMemoryMemberships.get(compKey) || null;
     }
 
@@ -110,16 +106,13 @@ export class ProjectMembershipRepository<
         const snap = await transaction.get(docRef);
         return snap.exists() ? (decodeScopedProjection<TEntity>(snap.data(), this.idKey, entityId, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED'])) : null;
       }
-      
+
       const snap = await getDoc(docRef);
-      if (!snap.exists()) {
-        return this.inMemoryMemberships.get(compKey) || null;
-      }
+      if (!snap.exists()) return null;
       return decodeScopedProjection<TEntity>(snap.data(), this.idKey, entityId, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']);
     } catch (error) {
       if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
-      return this.inMemoryMemberships.get(compKey) || null;
     }
   }
 
@@ -130,6 +123,7 @@ export class ProjectMembershipRepository<
     if (!projectId) return [];
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return [];
       const all = Array.from(this.inMemoryMemberships.values()).filter(m => m.projectId === projectId);
       return statusFilter ? all.filter(m => m.status === statusFilter) : all;
     }
@@ -138,7 +132,7 @@ export class ProjectMembershipRepository<
     try {
       const colRef = collection(db, 'projects', projectId, this.subcollectionName);
       const q = statusFilter ? query(colRef, where('status', '==', statusFilter)) : query(colRef);
-      
+
       if (transaction) {
         const snap = await getDocs(q);
         return snap.docs.map(d => decodeScopedProjection<TEntity>(d.data(), this.idKey, d.id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']));
@@ -146,16 +140,10 @@ export class ProjectMembershipRepository<
 
       const snap = await getDocs(q);
       const live = snap.docs.map(d => decodeScopedProjection<TEntity>(d.data(), this.idKey, d.id, projectId, ['ACTIVE', 'SUSPENDED', 'REMOVED']));
-      if (live.length === 0) {
-        const cached = Array.from(this.inMemoryMemberships.values()).filter(m => m.projectId === projectId);
-        return statusFilter ? cached.filter(m => m.status === statusFilter) : cached;
-      }
       return live;
     } catch (error) {
       if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, path);
-      const cached = Array.from(this.inMemoryMemberships.values()).filter(m => m.projectId === projectId);
-      return statusFilter ? cached.filter(m => m.status === statusFilter) : cached;
     }
   }
 
@@ -168,7 +156,7 @@ export class ProjectMembershipRepository<
   }
 
   /**
-   * Attach an existing Global Entity to Project P
+   * TEST_ONLY: attach an existing Global Entity to Project P
    *
    * Idempotency Policy:
    * - If not present: Creates ACTIVE membership.
@@ -183,6 +171,9 @@ export class ProjectMembershipRepository<
     options?: AttachMemberOptions,
     transaction?: Transaction
   ): Promise<TEntity> {
+    // TEST_ONLY compatibility; production mutations use ProjectParticipationAuthority.
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('PARTICIPATION_SERVER_COMMAND_REQUIRED');
+
     if (!projectId || !entityId) {
       throw new Error('INVALID_ARGUMENT: projectId and entityId are required');
     }
@@ -208,7 +199,7 @@ export class ProjectMembershipRepository<
     }
 
     const now = new Date();
-    const timestampOrDate = auth.currentUser ? serverTimestamp() : now;
+    const timestampOrDate = now;
 
     const newMembership: Record<string, any> = {
       projectId,
@@ -222,18 +213,6 @@ export class ProjectMembershipRepository<
       ...(options?.metadata || {}),
     };
 
-    if (transaction && auth.currentUser) {
-      const docRef = doc(db, 'projects', projectId, this.subcollectionName, entityId);
-      transaction.set(docRef, sanitizeUndefined(newMembership));
-    } else if (auth.currentUser) {
-      const path = `projects/${projectId}/${this.subcollectionName}/${entityId}`;
-      try {
-        await setDoc(doc(db, 'projects', projectId, this.subcollectionName, entityId), sanitizeUndefined(newMembership));
-      } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-        handleFirestoreError(error, OperationType.WRITE, path);
-      }
-    }
 
     const saved = { ...newMembership, statusChangedAt: now, createdAt: now, updatedAt: now } as TEntity;
     this.inMemoryMemberships.set(compKey, saved);
@@ -241,7 +220,7 @@ export class ProjectMembershipRepository<
   }
 
   /**
-   * Explicitly updates membership lifecycle state (ACTIVE <-> SUSPENDED -> REMOVED -> ACTIVE)
+   * TEST_ONLY: explicitly updates membership lifecycle state (ACTIVE <-> SUSPENDED -> REMOVED -> ACTIVE)
    */
   async setMembershipStatus(
     projectId: string,
@@ -251,6 +230,9 @@ export class ProjectMembershipRepository<
     options?: SetStatusOptions,
     transaction?: Transaction
   ): Promise<TEntity> {
+    // TEST_ONLY compatibility; production mutations use ProjectParticipationAuthority.
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('PARTICIPATION_SERVER_COMMAND_REQUIRED');
+
     if (!projectId || !entityId) {
       throw new Error('INVALID_ARGUMENT: projectId and entityId are required');
     }
@@ -273,7 +255,7 @@ export class ProjectMembershipRepository<
     }
 
     const now = new Date();
-    const timestampOrDate = auth.currentUser ? serverTimestamp() : now;
+    const timestampOrDate = now;
 
     const updates: Partial<BaseProjectMembershipEntity> = {
       status: newStatus,
@@ -283,18 +265,6 @@ export class ProjectMembershipRepository<
       updatedBy,
     };
 
-    if (transaction && auth.currentUser) {
-      const docRef = doc(db, 'projects', projectId, this.subcollectionName, entityId);
-      transaction.update(docRef, sanitizeUndefined(updates as Record<string, any>));
-    } else if (auth.currentUser) {
-      const path = `projects/${projectId}/${this.subcollectionName}/${entityId}`;
-      try {
-        await updateDoc(doc(db, 'projects', projectId, this.subcollectionName, entityId), sanitizeUndefined(updates as Record<string, any>));
-      } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-        handleFirestoreError(error, OperationType.UPDATE, path);
-      }
-    }
 
     const updated = {
       ...existing,

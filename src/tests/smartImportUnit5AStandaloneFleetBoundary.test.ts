@@ -556,8 +556,8 @@ describe('Smart Import Unit 5A-Server Standalone Fleet Boundary Test Suite', () 
     const code = fs.readFileSync(serviceFilePath, 'utf-8');
 
     // Verify driverId generation uses crypto.randomBytes
-    expect(code).toContain("driverId = `DRV-${hashHex}`");
-    expect(code).toContain("truckId = `TRK-${hashHex}`");
+    expect(code).toContain("driverId = resolvedDriver.id || `DRV-${crypto.randomBytes(16).toString('hex')}`");
+    expect(code).toContain("truckId = resolvedTruck.id || `TRK-${crypto.randomBytes(16).toString('hex')}`");
     expect(code).not.toContain("driverId = `DRV-${Date.now()}`");
     expect(code).not.toContain("truckId = `TRK-${Date.now()}`");
   });

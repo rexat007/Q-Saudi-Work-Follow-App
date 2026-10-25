@@ -124,12 +124,17 @@ describe('P5-B1 mutation authority and atomic audit', () => {
     const before = structuredClone(x.store); x.failWrites('audit_logs/'); await expect(provisioning.updateProjectCarrier('P1', 'C', { name: 'ناقل محدث' }, actor)).rejects.toThrow();
     await expect(new GlobalIdentityGovernanceService(x.db).setStatus('DRIVER', 'D', 'SUSPENDED', actor)).rejects.toThrow(); expect(x.store).toEqual(before);
   });
-  it('denies global root writes while preserving relationship rules', () => {
+  it('denies global root writes while preserving temporal relationship rules', () => {
     const rules = readFileSync('firestore.rules', 'utf8'); for (const spec of Object.values(GLOBAL_IDENTITIES)) {
       const block = rules.slice(rules.indexOf(`\n    match /${spec.collection}/{${spec.id}} {`)).split('\n    }')[0]; expect(block).toContain('allow create, update: if false;'); expect(block).toContain('allow delete: if false;'); expect(block).toContain('allow get, list:');
     }
     const block = rules.slice(rules.indexOf('match /natural_identity_lookups/{token} {')).split('\n    }')[0]; expect(block).toContain('allow create, update, delete: if false;');
-    expect(rules).toContain("incoming().status in ['ACTIVE', 'SUSPENDED', 'REMOVED']");
+    for (const collection of ['driver_memberships', 'truck_memberships', 'carrier_memberships', 'material_memberships']) {
+      const membership = rules.slice(rules.indexOf(`match /${collection}/`)).split('\n      }')[0];
+      expect(membership).toContain('allow create, update, delete: if false;');
+      expect(membership).toContain('allow get, list:');
+    }
+    expect(rules.slice(rules.indexOf('match /driver_truck_assignments/'))).toContain('allow create:');
   });
 });
 

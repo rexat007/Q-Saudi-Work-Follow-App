@@ -1,15 +1,12 @@
+import { decodeScopedProjection } from '../utils/persistenceBoundary';
 import {
   collection,
   doc,
   getDoc,
   getDocs,
-  setDoc,
-  serverTimestamp,
   query,
   where,
-  runTransaction,
   Transaction,
-  Timestamp,
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import { handleFirestoreError, OperationType } from '../firebase/errors';
@@ -47,7 +44,7 @@ export interface AffiliationAuditActor {
 
 /**
  * ============================================================================
- * GENERIC PROJECT CARRIER AFFILIATION REPOSITORY FOUNDATION
+ * PROJECT CARRIER AFFILIATION COMPATIBILITY READS / TEST_ONLY MUTATIONS
  * ============================================================================
  * Manages Driver and Truck operational Carrier affiliations under /projects/{projectId}
  * with deterministic document ID (driverId or truckId).
@@ -59,7 +56,7 @@ export interface AffiliationAuditActor {
  *    - Target Carrier must have an ACTIVE Project Carrier Membership.
  * 3. Idempotency: Setting same carrier on already ACTIVE affiliation is a no-op.
  * 4. Carrier Reassignment: Atomically updates current affiliation authority and records audit provenance.
- * 5. Concurrency Safe: Uses Firestore transaction to detect concurrent modifications and ensure atomicity.
+ * 5. Production commands, concurrency and atomic audit belong to ProjectParticipationAuthority.
  * 6. Zero Profile/PII Duplication: Contains only canonical IDs, status, and audit stamps.
  * 7. Zero Material IDs: Strictly excluded.
  */
@@ -86,6 +83,7 @@ export class GenericProjectCarrierAffiliationRepository<
     if (!projectId || !entityId) return null;
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return null;
       return this.inMemoryStore.get(this.getStoreKey(projectId, entityId)) || null;
     }
 
@@ -94,16 +92,16 @@ export class GenericProjectCarrierAffiliationRepository<
       const docRef = doc(db, 'projects', projectId, this.subcollectionName, entityId);
       if (transaction) {
         const snap = await transaction.get(docRef);
-        return snap.exists() ? snap.data() as TEntity : null;
+        return snap.exists() ? decodeScopedProjection<TEntity>(snap.data(), this.idKey, entityId, projectId, ['ACTIVE', 'INACTIVE']) : null;
       }
       const snap = await getDoc(docRef);
       if (!snap.exists()) {
         return null;
       }
-      return snap.data() as TEntity;
+      return decodeScopedProjection<TEntity>(snap.data(), this.idKey, entityId, projectId, ['ACTIVE', 'INACTIVE']);
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, docPath);
-      return null;
     }
   }
 
@@ -114,6 +112,7 @@ export class GenericProjectCarrierAffiliationRepository<
     if (!projectId || !carrierId) return [];
 
     if (!auth.currentUser) {
+      if (process.env.NODE_ENV !== 'test') return [];
       return Array.from(this.inMemoryStore.values()).filter(
         (a) => a.projectId === projectId && a.carrierId === carrierId
       );
@@ -126,10 +125,10 @@ export class GenericProjectCarrierAffiliationRepository<
         where('carrierId', '==', carrierId)
       );
       const snap = await getDocs(q);
-      return snap.docs.map((d) => d.data() as TEntity);
+      return snap.docs.map((d) => decodeScopedProjection<TEntity>(d.data(), this.idKey, d.id, projectId, ['ACTIVE', 'INACTIVE']));
     } catch (error) {
+      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.LIST, colPath);
-      return [];
     }
   }
 
@@ -165,7 +164,7 @@ export class GenericProjectCarrierAffiliationRepository<
   }
 
   /**
-   * Set or Reassign Carrier Affiliation
+   * TEST_ONLY: set or reassign Carrier affiliation
    * Enforces idempotency, preconditions, atomic updates, and audit logging.
    */
   async createAffiliation(
@@ -188,6 +187,9 @@ export class GenericProjectCarrierAffiliationRepository<
     transaction?: Transaction,
     actorContext?: AffiliationAuditActor
   ): Promise<SetAffiliationResult<TEntity>> {
+    // TEST_ONLY compatibility; production mutations use ProjectParticipationAuthority.
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('PARTICIPATION_SERVER_COMMAND_REQUIRED');
+
     if (!projectId?.trim()) throw new Error('PROJECT_ID_REQUIRED');
     if (!entityId?.trim()) throw new Error('ENTITY_ID_REQUIRED');
     if (!carrierId?.trim()) throw new Error('CARRIER_ID_REQUIRED');
@@ -198,7 +200,7 @@ export class GenericProjectCarrierAffiliationRepository<
 
     const storeKey = this.getStoreKey(projectId, entityId);
     const docPath = `projects/${projectId}/${this.subcollectionName}/${entityId}`;
-    const timestampOrDate = auth.currentUser ? serverTimestamp() : new Date();
+    const timestampOrDate = new Date();
 
     const executeLogic = async (currentSnapData: TEntity | null): Promise<SetAffiliationResult<TEntity>> => {
       const decision = CanonicalFleetRelationshipPolicy.evaluateAffiliation(
@@ -268,29 +270,6 @@ export class GenericProjectCarrierAffiliationRepository<
       };
     };
 
-    if (auth.currentUser) {
-      try {
-        const docRef = doc(db, 'projects', projectId, this.subcollectionName, entityId);
-
-        if (transaction) {
-          const snap = await transaction.get(docRef);
-          const currentData = snap.exists() ? (snap.data() as TEntity) : null;
-          const result = await executeLogic(currentData);
-          transaction.set(docRef, result.affiliation);
-          return result;
-        } else {
-          return await runTransaction(db, async (tx) => {
-            const snap = await tx.get(docRef);
-            const currentData = snap.exists() ? (snap.data() as TEntity) : null;
-            const result = await executeLogic(currentData);
-            tx.set(docRef, result.affiliation);
-            return result;
-          });
-        }
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, docPath);
-      }
-    }
 
     // Local / In-memory path
     const existing = this.inMemoryStore.get(storeKey) || null;
@@ -298,7 +277,7 @@ export class GenericProjectCarrierAffiliationRepository<
   }
 
   /**
-   * Update Affiliation Status (e.g. ACTIVE -> INACTIVE)
+   * TEST_ONLY: update affiliation status (e.g. ACTIVE -> INACTIVE)
    */
   async setAffiliationStatus(
     projectId: string,
@@ -307,13 +286,16 @@ export class GenericProjectCarrierAffiliationRepository<
     updatedBy: string,
     actorContext?: AffiliationAuditActor
   ): Promise<TEntity> {
+    // TEST_ONLY compatibility; production mutations use ProjectParticipationAuthority.
+    if (auth.currentUser || process.env.NODE_ENV !== 'test') throw new Error('PARTICIPATION_SERVER_COMMAND_REQUIRED');
+
     if (!projectId?.trim()) throw new Error('PROJECT_ID_REQUIRED');
     if (!entityId?.trim()) throw new Error('ENTITY_ID_REQUIRED');
     if (!updatedBy?.trim()) throw new Error('UPDATED_BY_REQUIRED');
 
     const storeKey = this.getStoreKey(projectId, entityId);
     const docPath = `projects/${projectId}/${this.subcollectionName}/${entityId}`;
-    const timestampOrDate = auth.currentUser ? serverTimestamp() : new Date();
+    const timestampOrDate = new Date();
 
     const executeUpdate = async (currentSnapData: TEntity | null): Promise<TEntity> => {
       if (!currentSnapData) {
@@ -360,23 +342,6 @@ export class GenericProjectCarrierAffiliationRepository<
       return updated;
     };
 
-    if (auth.currentUser) {
-      try {
-        const docRef = doc(db, 'projects', projectId, this.subcollectionName, entityId);
-        return await runTransaction(db, async (tx) => {
-          const snap = await tx.get(docRef);
-          if (!snap.exists()) {
-            throw new Error(`NOT_FOUND: Affiliation for ${entityId} does not exist in project ${projectId}`);
-          }
-          const currentData = snap.data() as TEntity;
-          const updated = await executeUpdate(currentData);
-          tx.set(docRef, updated);
-          return updated;
-        });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.UPDATE, docPath);
-      }
-    }
 
     const current = this.inMemoryStore.get(storeKey) || null;
     return await executeUpdate(current);
