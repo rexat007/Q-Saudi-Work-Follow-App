@@ -50,6 +50,8 @@ export interface ProjectFleetRowDTO {
   materialId: string | null;
   materialName: string | null;
 
+  assignmentId?: string | null;
+  allocationId?: string | null;
   assignmentStatus: FleetAssignmentStatus;
   allocationStatus: FleetAllocationStatus;
 

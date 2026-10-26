@@ -108,7 +108,7 @@ export class CarrierManagementClientService {
     }
 
     if (!response.ok || !json.success) {
-      throw new Error(json.error || `فشل إنشاء الناقل (${response.status})`);
+      throw Object.assign(new Error(json.error || `فشل إنشاء الناقل (${response.status})`), { code: json.code, status: response.status });
     }
 
     return {
@@ -194,7 +194,7 @@ export class CarrierManagementClientService {
     }
 
     if (!response.ok || !json.success) {
-      throw new Error(json.error || `فشل تعديل بيانات الناقل (${response.status})`);
+      throw Object.assign(new Error(json.error || `فشل تعديل بيانات الناقل (${response.status})`), { code: json.code, status: response.status });
     }
 
     return {

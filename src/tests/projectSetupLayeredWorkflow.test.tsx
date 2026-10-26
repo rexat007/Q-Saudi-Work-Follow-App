@@ -13,6 +13,8 @@ import { ProjectEntity, MaterialEntity, CarrierEntity, PricingRuleEntity } from 
 import { AuthUserContext } from '../types/common';
 import { projectService } from '../services/project.service';
 
+vi.mock('../services/projectReadTransport', () => ({ canonicalProjectRead: vi.fn(async (projectId: string) => ({ projectId, participants: [], fleet: { projectId, rows: [], truckCount: 0, generatedAt: '2026-01-01' } })) }));
+
 // Mocks for i18n
 vi.mock('../../i18n', () => ({
   useI18n: () => ({
@@ -245,7 +247,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
   // ==================================================
   // D. CENTRAL NAVIGATION BOUNDARY
   // ==================================================
-  it('D. Central Navigation Boundary: Attempting to enter blocked ROSTER without prerequisites fails and triggers error notice', async () => {
+  it('D. ROSTER permits incremental setup with no current Carrier or Material', async () => {
     const root = createRoot(container);
 
     await act(async () => {
@@ -269,9 +271,9 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
       rosterTabBtn?.click();
     });
 
-    // Ensure we did NOT navigate to ROSTER (remained on FOUNDATION) and the gate reason is rendered
-    expect(document.body.textContent).not.toContain(uiKey('projects.batch4.unified_roster'));
-    expect(document.body.textContent).toContain(uiKey('batch4.service.navigation_material_carrier_required'));
+    // Manual partial setup and reactivation remain reachable; pricing retains its separate gate.
+    expect(document.body.textContent).toContain(uiKey('projects.batch4.unified_roster'));
+    expect(canEnterProjectSetupLayer('PRICING', { projectId: mockProject.projectId, carriersCount: 0, materialsCount: 0 }).allowed).toBe(false);
 
     root.unmount();
   });
@@ -279,27 +281,27 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
   // ==================================================
   // E. ROSTER BLOCKED WITHOUT MATERIALS
   // ==================================================
-  it('E. Roster Blocked Without Materials', () => {
+  it('E. Roster allows a Truck without Material while pricing remains gated', () => {
     const result = canEnterProjectSetupLayer('ROSTER', {
       projectId: 'PRJ-RYD-101',
       materialsCount: 0,
       carriersCount: 2,
     });
-    expect(result.allowed).toBe(false);
-    expect(result.reason).toContain('يلزم وجود مادة مصرح بها واحدة على الأقل');
+    expect(result.allowed).toBe(true);
+    expect(canEnterProjectSetupLayer('PRICING', { projectId: 'PRJ-RYD-101', materialsCount: 0, carriersCount: 2 }).allowed).toBe(false);
   });
 
   // ==================================================
   // F. ROSTER BLOCKED WITHOUT CARRIERS
   // ==================================================
-  it('F. Roster Blocked Without Carriers', () => {
+  it('F. Roster remains reachable to restore Carrier participation', () => {
     const result = canEnterProjectSetupLayer('ROSTER', {
       projectId: 'PRJ-RYD-101',
       materialsCount: 3,
       carriersCount: 0,
     });
-    expect(result.allowed).toBe(false);
-    expect(result.reason).toContain('يلزم وجود ناقل معتمد واحد على الأقل');
+    expect(result.allowed).toBe(true);
+    expect(canEnterProjectSetupLayer('PRICING', { projectId: 'PRJ-RYD-101', materialsCount: 3, carriersCount: 0 }).allowed).toBe(false);
   });
 
   // ==================================================
@@ -571,6 +573,7 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
   // O. UNIT 2: SAVE DISPATCHES ONCE WITH CONSOLIDATED DRAFT
   // ==================================================
   it('O. Unit 2: Save validates draft, issues updateProject exactly ONCE, and exits edit mode', async () => {
+    vi.spyOn(projectService, 'getProject').mockResolvedValue({ ...mockProject, nameAr: 'مشروع البنية التحتية بالرياض' });
     const root = createRoot(container);
     const updateSpy = vi.spyOn(projectService, 'updateProject').mockResolvedValue(undefined);
 
@@ -713,7 +716,8 @@ describe('Q-Saudi Project Setup Layered Workflow Test Suite', () => {
     });
 
     // Error is displayed
-    expect(document.body.textContent).toContain('NETWORK_TIMEOUT: Server unreachable');
+    expect(document.body.textContent).toContain('setup.errors.failed');
+    expect(document.body.textContent).not.toContain('NETWORK_TIMEOUT: Server unreachable');
     // Still in edit mode: clientInput is still enabled and has user's draft value
     expect(clientInput.disabled).toBe(false);
     expect(clientInput.value).toBe('شركة تطوير الرياض القابضة');

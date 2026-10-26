@@ -45,6 +45,7 @@ describe('Translation-by-Construction Regression Guard', () => {
   ];
 
   const operationalUiFiles = [
+    'src/components/wizard/FleetSetupWorkspace.tsx',
     'src/components/field/LoadingOperatorView.tsx',
     'src/components/field/UnloadingOperatorView.tsx',
     'src/components/field/FieldOperationsView.tsx',

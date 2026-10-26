@@ -214,7 +214,7 @@ describe('P4-B2 rendered Wizard races', () => {
     await render(B.projectId, [B]); await click('projects.batch4.layer_materials'); expect(container.textContent).not.toContain('MATERIAL-A');
   });
   it('keeps B save busy/draft when A save and fallback refresh finish late', async () => {
-    const a = deferred<void>(), b = deferred<void>(); vi.spyOn(projectService, 'updateProject').mockImplementation(id => id === mockProject.projectId ? a.promise : b.promise); const refresh = vi.spyOn(projectService, 'getProject').mockResolvedValue(null);
+    const a = deferred<void>(), b = deferred<void>(); vi.spyOn(projectService, 'updateProject').mockImplementation(id => id === mockProject.projectId ? a.promise : b.promise); const refresh = vi.spyOn(projectService, 'getProject').mockImplementation(async id => id === B.projectId ? { ...B, nameAr: 'B modified' } : null);
     await render(mockProject.projectId); await editName('A modified'); await click('shared.actions.save');
     await render(B.projectId); await editName('B modified'); await click('shared.actions.save');
     await act(async () => a.resolve());
