@@ -84,6 +84,7 @@ export class ProjectFleetReadModelService {
         projectId, truckId, plateNumber: truckGlobal?.plate || truckGlobal?.normalizedPlate || truckId, truckType: truckGlobal?.truckType || 'STANDARD', carrierId, carrierName: carrierGlobal?.nameAr || carrierId || 'غير محدد',
         driverId: assignment?.driverId || null, driverName: assignment ? driverGlobal?.fullNameAr || assignment.driverId : null,
         materialId: allocation?.materialId || null, materialName: allocation ? materialGlobal?.nameAr || materialGlobal?.nameEn || allocation.materialId : null,
+        assignmentId: assignment?.assignmentId || null, allocationId: allocation?.allocationId || null,
         assignmentStatus: assignment ? 'ASSIGNMENT_ACTIVE' : 'UNASSIGNED_DRIVER', allocationStatus: allocation ? 'ALLOCATION_ACTIVE' : 'UNALLOCATED_MATERIAL', integrityIssues: issues,
         classification: issues.some(i => i.category === 'INTEGRITY') ? 'INTEGRITY_ERROR' : issues.some(i => i.category === 'ELIGIBILITY') ? 'INELIGIBLE' : issues.length ? 'PARTIAL' : 'OPERATIONAL',
         assignmentEligible: Boolean(common && assignment && driverMember && driverAffiliated && evaluateGlobalEligibility('DRIVER', driverGlobal).CAN_USE_OPERATIONALLY),

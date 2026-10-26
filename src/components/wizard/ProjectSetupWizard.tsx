@@ -1,3 +1,6 @@
+import { FleetSetupWorkspace } from './FleetSetupWorkspace';
+import { SetupMutationSession, setupCommand, postSetupJson } from '../../services/setupOrchestration.service';
+import { setupErrorKey } from '../../i18n/setupErrors';
 import { ProjectContextLifetime, type ProjectContextToken } from '../../utils/projectContextLifetime';
 import { ProjectAccessView } from './ProjectAccessView';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
@@ -295,6 +298,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
   const [pricingRules, setPricingRules] = useState<PricingRuleEntity[]>([]);
   const [fleetRows, setFleetRows] = useState<any[]>([]);
+  const [canonicalRevision, setCanonicalRevision] = useState(0);
+  const manualSession = useMemo(() => new SetupMutationSession(), [editingProjectId, projectScopeKey]);
+  const manualLock = useRef(false);
+  const [manualBusy, setManualBusy] = useState(false);
+  const [manualError, setManualError] = useState<string | null>(null);
+  const [manualPreview, setManualPreview] = useState<any>(null);
+  const [manualConfirmed, setManualConfirmed] = useState(false);
+
   const [projectRelationshipContext, setProjectRelationshipContext] = useState<RelationshipContext | null>(null);
   const [cachedSuccessfulDriverResult, setCachedSuccessfulDriverResult] = useState<{
     groupKey: string;
@@ -562,9 +573,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [foundationSaveError, setFoundationSaveError] = useState<string | null>(null);
   const [foundationSaveSuccess, setFoundationSaveSuccess] = useState<string | null>(null);
   const [isSavingFoundation, setIsSavingFoundation] = useState<boolean>(false);
+  const foundationReceipt = useRef<ProjectContextToken | null>(null);
+  const [foundationNeedsRefresh, setFoundationNeedsRefresh] = useState(false);
 
   // Reset foundation edit state before a changed project can paint.
   useLayoutEffect(() => {
+    foundationReceipt.current = null; setFoundationNeedsRefresh(false);
     setIsEditingFoundation(false);
     setFoundationDraft(null);
     setFoundationSaveError(null);
@@ -595,6 +609,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setEditingCarrier(null);
     setIsAddingPricing(false);
     setIsAddingRosterRow(false);
+    manualLock.current = false; setManualBusy(false); setManualError(null); setManualPreview(null); setManualConfirmed(false);
     setPriceCarrierId('ALL'); setPriceMaterialId('ALL_MATERIALS');
     setPriceModel('PER_TRIP'); setPriceFrom(new Date().toISOString().split('T')[0]); setPriceTo('');
     setPriceRate(0); setPriceNotes('');
@@ -658,7 +673,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
     const t = (key: string, params?: Record<string, string | number>) => presentationTranslator.current(key, params);
-    if (!project || !foundationDraft || !isFoundationDirty || isSavingFoundation) return;
+    if (!project || !foundationDraft || (!isFoundationDirty && !foundationNeedsRefresh) || isSavingFoundation) return;
 
     if (!foundationDraft.nameAr.trim() || foundationDraft.nameAr.trim().length < 3) {
       setFoundationSaveError(t('projects.batch4.project_name_minimum'));
@@ -689,34 +704,16 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         startDate: foundationDraft.startDate || undefined,
       };
 
-      await projectService.updateProject(project.projectId, updates, authContext);
+      if (!foundationReceipt.current || !projectContext.isCurrent(foundationReceipt.current, project.projectId)) {
+        await projectService.updateProject(project.projectId, updates, authContext);
+        if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
+        foundationReceipt.current = requestContext;
+        setFoundationNeedsRefresh(true);
+      }
+      const updatedProject = await projectService.getProject(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-
-      // Fetch authoritative updated project immediately or merge locally to avoid waiting for subscription
-      let updatedProject: ProjectEntity | null = null;
-      try {
-        updatedProject = await projectService.getProject(project.projectId);
-        if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      } catch (getErr) {
-        if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-
-        console.warn('Could not fetch updated project immediately, falling back to optimistic local merge', getErr);
-      }
-
-      if (!updatedProject) {
-        updatedProject = {
-          ...project,
-          ...updates,
-          location: {
-            ...project.location,
-            ...updates.location,
-          },
-          settings: {
-            ...project.settings,
-            ...updates.settings,
-          },
-        } as ProjectEntity;
-      }
+      if (!updatedProject) throw new Error('FOUNDATION_REFRESH_FAILED');
+      foundationReceipt.current = null; setFoundationNeedsRefresh(false);
 
       setCurrentProjectOverride(updatedProject, requestContext);
       setIsEditingFoundation(false);
@@ -725,13 +722,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-      setFoundationSaveError(err.message || t('projects.batch4.save_changes_failed'));
+      setFoundationSaveError(t(foundationReceipt.current ? 'setup.errors.refresh' : setupErrorKey(err)));
     } finally {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
       setIsSavingFoundation(false);
     }
-  }, [project, foundationDraft, isFoundationDirty, isSavingFoundation, authContext, renderedContext.generation]);
+  }, [project, foundationDraft, isFoundationDirty, isSavingFoundation, foundationNeedsRefresh, authContext, renderedContext.generation]);
 
   // Canonical Server Readiness States (Phase 5)
   const [serverReadiness, setServerReadiness] = useState<ServerReadinessDTO | null>(null);
@@ -806,6 +803,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
     if (!targetProjectId || generation === undefined || !projectContext.isCurrent({ projectId: targetProjectId, generation }, targetProjectId)) return;
 
+    setProjectDataLoadError(null);
+    setCanonicalRevision(value => value + 1);
     setMaterials(snapshot.materials || []);
     setCarriers(snapshot.carriers || []);
     setFleetRows(snapshot.fleetRows || []);
@@ -1212,69 +1211,34 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
 
 
-  // Phase 2: Add Fleet Row Manually (Uses canonical intake API)
+  // Convenience composite intake: explicit read-only preview, then retained receipt + common refresh.
   const handleAddRosterManual = async (e: React.FormEvent) => {
-    const requestContext = renderedContext;
-    if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-
     e.preventDefault();
-    if (!project || !canPerformOperationalMutation('INTAKE_DRIVER_TRUCK', project.status)) return;
-
-    if (!rostDriverName.trim() || !rostPlate.trim() || !rostCarrier || !rostMaterial || !rostResidency.trim()) {
-      alert(presentBatch4Message(t('projects.batch4.roster_required_fields'), t));
-      return;
-    }
-
+    const requestContext = renderedContext;
+    const current = () => projectContext.isCurrent(requestContext, editingProjectId);
+    if (!current() || !project || manualLock.current || !canPerformOperationalMutation('INTAKE_DRIVER_TRUCK', project.status)) return;
+    if (!manualSession.committed && (!rostDriverName.trim() || !rostPlate.trim() || !rostCarrier || !rostMaterial || !rostResidency.trim())) return;
+    manualLock.current = true; setManualBusy(true); setManualError(null);
+    const payload = { projectId: project.projectId, carrierId: rostCarrier, materialId: rostMaterial, driverName: rostDriverName.trim(), plateNumber: rostPlate.trim(), residencyId: rostResidency.trim(), phone: rostPhone.trim() || undefined };
     try {
-      const payload = {
-        projectId: project.projectId,
-        carrierId: rostCarrier,
-        materialId: rostMaterial,
-        driverName: rostDriverName.trim(),
-        plateNumber: rostPlate.trim().toUpperCase(),
-        phone: rostPhone.trim() || undefined,
-        residencyId: rostResidency.trim(),
-      };
-
-      const token = await auth.currentUser?.getIdToken();
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      const response = await fetch('/api/intake/canonical', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(payload)
-      });
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      if (!response.ok) {
-        const errJson = await response.json();
-        if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-        throw new Error(errJson.error || t('projects.batch4.roster_registration_failed'));
+      if (!manualSession.committed) {
+        const preview = await setupCommand(project.projectId, 'intake-preview', { residencyId: payload.residencyId, plateNumber: payload.plateNumber });
+        if (!current()) return;
+        const displacesAssignment = preview.assignments.some((r: any) => r.driverId !== preview.driverId || r.truckId !== preview.truckId);
+        const displacesMaterial = preview.allocation && preview.allocation.materialId !== payload.materialId;
+        const signature = JSON.stringify({ payload, preview });
+        if ((displacesAssignment || displacesMaterial) && (!manualConfirmed || manualPreview?.signature !== signature)) {
+          setManualPreview({ ...preview, signature }); setManualConfirmed(false); return;
+        }
       }
-
+      const ok = await manualSession.run(project.projectId, () => postSetupJson('/api/intake/canonical', payload), current,
+        snapshot => applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation));
+      if (!ok || !current()) return;
       setIsAddingRosterRow(false);
-      setRostDriverName('');
-      setRostPlate('');
-      setRostPhone('');
-      setRostResidency('');
-      setRostCarrier('');
-      setRostMaterial('');
-
-      // Reload canonical lists/fleet model
-      const headers = { 'Authorization': `Bearer ${token}` };
-      const [matRes, carRes, fleetRes] = await Promise.all([
-        fetch(`/api/projects/${project.projectId}/materials`, { headers }).then(r => r.json()),
-        fetch(`/api/projects/${project.projectId}/carriers`, { headers }).then(r => r.json()),
-        fetch(`/api/projects/${project.projectId}/fleet-read-model`, { headers }).then(r => r.json())
-      ]);
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      setMaterials(matRes.data || []);
-      setCarriers(carRes.data || []);
-      setFleetRows(fleetRes.data?.rows || []);
-
-    } catch (err: any) {
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-
-      alert(presentBatch4Message(err.message || t('projects.batch4.partner_add_failed'), t));
-    }
+      setRostDriverName(''); setRostPlate(''); setRostPhone(''); setRostResidency(''); setRostCarrier(''); setRostMaterial('');
+      setManualPreview(null); setManualConfirmed(false);
+    } catch (err: any) { if (current()) setManualError(manualSession.committed ? 'setup.errors.refresh' : setupErrorKey(err)); }
+    finally { if (current()) { manualLock.current = false; setManualBusy(false); } }
   };
 
   // Phase 2: Roster Unified Import File Input Change
@@ -2526,6 +2490,16 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       const { batch: committedBatch, result } = await DriverTruckPipelineService.commitBatch(revalidated, pipelineCtx);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
+
+      // Canonical Setup handoff; import stage/checkpoint ownership stays unchanged.
+      try {
+        const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+        if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
+        applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation);
+      } catch {
+        if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
+        setProjectDataLoadError(t('setup.errors.refresh'));
+      }
 
       // 6. Store result and batch without clearing
       setImportBatch({ ...committedBatch });
@@ -3820,6 +3794,20 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               </div>
             )}
 
+            {projectDataLoadError && project && <div role="alert" className="rounded-xl border border-amber-800 p-3">
+              <p>{t('setup.errors.read')}</p>
+              <button onClick={async () => {
+                const request = renderedContext;
+                if (!projectContext.isCurrent(request, project.projectId)) return;
+                try {
+                  const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+                  if (!projectContext.isCurrent(request, project.projectId)) return;
+                  applyCanonicalSnapshot(project.projectId, snapshot, request.generation);
+                  setProjectDataLoadError(null);
+                } catch { if (projectContext.isCurrent(request, project.projectId)) setProjectDataLoadError(t('setup.errors.read')); }
+              }}>{t('setup.retry')}</button>
+            </div>}
+
             {/* ================= LAYER 1: FOUNDATION ================= */}
             {activeSetupLayer === 'FOUNDATION' && project && (
               <div className="space-y-6 text-xs text-stone-300">
@@ -3843,16 +3831,16 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             <button
                               type="button"
                               onClick={handleSaveFoundation}
-                              disabled={!isFoundationDirty || isSavingFoundation}
+                              disabled={(!isFoundationDirty && !foundationNeedsRefresh) || isSavingFoundation}
                               className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
                             >
                               {isSavingFoundation ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                              <span>{t('shared.actions.save')}</span>
+                              <span>{t(foundationNeedsRefresh ? 'setup.retry' : 'shared.actions.save')}</span>
                             </button>
                             <button
                               type="button"
                               onClick={handleCancelFoundationEdit}
-                              disabled={isSavingFoundation}
+                              disabled={isSavingFoundation || foundationNeedsRefresh}
                               className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
                             >
                               <X className="w-3.5 h-3.5" />
@@ -3884,7 +3872,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <input 
                         type="text" 
                         value={isEditingFoundation ? (foundationDraft?.nameAr ?? '') : (project.nameAr || '')} 
-                        disabled={!isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
+                        disabled={foundationNeedsRefresh || !isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
                         onChange={(e) => {
                           const val = e.target.value;
                           setFoundationDraft(prev => prev ? ({ ...prev, nameAr: val }) : null);
@@ -3897,7 +3885,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <input 
                         type="text" 
                         value={isEditingFoundation ? (foundationDraft?.clientName ?? '') : (project.clientName || '')} 
-                        disabled={!isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
+                        disabled={foundationNeedsRefresh || !isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
                         onChange={(e) => {
                           const val = e.target.value;
                           setFoundationDraft(prev => prev ? ({ ...prev, clientName: val }) : null);
@@ -3912,7 +3900,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <input 
                         type="text" 
                         value={isEditingFoundation ? (foundationDraft?.addressAr ?? '') : (project.location?.addressAr || '')} 
-                        disabled={!isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
+                        disabled={foundationNeedsRefresh || !isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
                         onChange={(e) => {
                           const val = e.target.value;
                           setFoundationDraft(prev => prev ? ({ ...prev, addressAr: val }) : null);
@@ -3926,7 +3914,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         type="text" 
                         maxLength={15} 
                         value={isEditingFoundation ? (foundationDraft?.zatcaTaxNumber ?? '') : (project.settings?.zatcaTaxNumber || '')} 
-                        disabled={!isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
+                        disabled={foundationNeedsRefresh || !isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
                         onChange={(e) => {
                           const val = e.target.value.replace(/\D/g, '');
                           setFoundationDraft(prev => prev ? ({ ...prev, zatcaTaxNumber: val }) : null);
@@ -3939,7 +3927,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <input 
                         type="date" 
                         value={isEditingFoundation ? (foundationDraft?.startDate ?? '') : (project.startDate || '')} 
-                        disabled={!isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
+                        disabled={foundationNeedsRefresh || !isEditingFoundation || isCoreSetupLocked || isSavingFoundation}
                         onChange={(e) => {
                           const val = e.target.value;
                           setFoundationDraft(prev => prev ? ({ ...prev, startDate: val }) : null);
@@ -4020,6 +4008,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   {/* Reusable Material Creation Modal */}
                   <MaterialEditorModal
+                    key={`1:${project.projectId}:${renderedContext.generation}`}
+                    isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                     open={isAddingMaterial}
                     projectId={project.projectId}
                     onClose={() => setIsAddingMaterial(false)}
@@ -4039,6 +4029,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   {/* Smart Import Dedicated Material Creation Modal */}
                   {project && isSmartImportMaterialModalOpen && (
                     <MaterialEditorModal
+                    key={`2:${project.projectId}:${renderedContext.generation}`}
+                    isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                       open={isSmartImportMaterialModalOpen}
                       mode="CREATE"
                       projectId={project.projectId}
@@ -4054,6 +4046,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   {editingMaterial && (
                     <MaterialEditorModal
+                    key={`3:${project.projectId}:${renderedContext.generation}:${editingMaterial?.materialId}`}
+                    isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                       open={!!editingMaterial}
                       mode="EDIT"
                       projectId={project.projectId}
@@ -4114,7 +4108,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="py-2.5">{m.unitOfMeasure}</td>
                               <td className="py-2.5 font-mono">{m.standardDensityTonPerM3 || 1.6} {t('projects.batch4.ton_per_cubic_meter')}</td>
                               <td className="py-2.5 text-center">
-                                {isOperationallyMutable && (
+                                {isOperationallyMutable && authContext.role === 'SUPER_ADMIN' && (
                                   <button
                                     type="button"
                                     onClick={() => setEditingMaterial(m)}
@@ -4155,6 +4149,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   </div>
 
                   <CarrierEditorModal
+                    key={`4:${project.projectId}:${renderedContext.generation}`}
+                    isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                     open={isCarrierEditorOpen}
                     mode="CREATE"
                     projectId={project.projectId}
@@ -4176,6 +4172,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   {/* Smart Import Dedicated Carrier Creation Modal */}
                   {project && isSmartImportCarrierModalOpen && (
                     <CarrierEditorModal
+                    key={`5:${project.projectId}:${renderedContext.generation}`}
+                    isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                       open={isSmartImportCarrierModalOpen}
                       mode="CREATE"
                       projectId={project.projectId}
@@ -4192,6 +4190,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   {/* Smart Import Dedicated Material Creation Modal (D02: Reachable in Phase 2) */}
                   {project && isSmartImportMaterialModalOpen && (
                     <MaterialEditorModal
+                    key={`6:${project.projectId}:${renderedContext.generation}`}
+                    isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                       open={isSmartImportMaterialModalOpen}
                       mode="CREATE"
                       projectId={project.projectId}
@@ -4207,6 +4207,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   {editingCarrier && (
                     <CarrierEditorModal
+                    key={`7:${project.projectId}:${renderedContext.generation}:${editingCarrier?.carrierId}`}
+                    isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                       open={!!editingCarrier}
                       mode="EDIT"
                       projectId={project.projectId}
@@ -4263,7 +4265,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="py-2.5 font-mono">{c.transportLicenseNo || '—'}</td>
                               <td className="py-2.5 truncate font-mono">{c.contactPerson?.email || '—'}</td>
                               <td className="py-2.5 text-center">
-                                {isOperationallyMutable && (
+                                {isOperationallyMutable && authContext.role === 'SUPER_ADMIN' && (
                                   <button
                                     type="button"
                                     onClick={() => setEditingCarrier(c)}
@@ -4287,6 +4289,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             {/* ================= LAYER 5: OPERATIONAL ROSTER ================= */}
             {activeSetupLayer === 'ROSTER' && project && (
               <div className="space-y-6 text-xs text-stone-300">
+                <FleetSetupWorkspace key={`${project.projectId}:${renderedContext.generation}`} projectId={project.projectId}
+                  revision={canonicalRevision} mutable={isOperationallyMutable}
+                  isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
+                  apply={snapshot => applyCanonicalSnapshot(project.projectId, snapshot, renderedContext.generation)} />
                 {/* Unified Import Pipeline Roster section */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-stone-800 pb-2 gap-3">
@@ -4298,7 +4304,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     {isOperationallyMutable && (
                       <div className="flex items-center gap-2 self-start sm:self-auto">
                         <button
-                          onClick={() => setIsAddingRosterRow(true)}
+                          onClick={() => { manualSession.resetCompleted(); setIsAddingRosterRow(true); setManualPreview(null); setManualConfirmed(false); }}
                           className="px-3 py-1.5 bg-stone-900 border border-stone-850 text-stone-300 hover:text-white rounded-lg text-[10px] font-bold flex items-center gap-1"
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -4335,6 +4341,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   {/* Manual Add Roster Row form */}
                   {isAddingRosterRow && (
                     <form onSubmit={handleAddRosterManual} className="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-3">
+                      <fieldset disabled={manualBusy || manualSession.committed} className="space-y-3">
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                         <div className="space-y-1">
                           <label className="text-stone-400 font-bold">{t('projects.batch4.driver_two_part_name')}</label>
@@ -4369,7 +4376,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
                           >
                             <option value="">{t('projects.batch4.choose_carrier')}</option>
-                            {carriers.map(c => <option key={c.carrierId} value={c.carrierId}>{c.name}</option>)}
+                            {carriers.filter(c => (c as any).isActive).map(c => <option key={c.carrierId} value={c.carrierId}>{c.name}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
@@ -4378,55 +4385,28 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
                           >
                             <option value="">{t('projects.batch4.choose_material')}</option>
-                            {materials.map(m => <option key={m.materialId} value={m.materialId}>{m.nameAr}</option>)}
+                            {materials.filter(m => (m as any).isActive).map(m => <option key={m.materialId} value={m.materialId}>{(m as any).name}</option>)}
                           </select>
                         </div>
                       </div>
 
+                      </fieldset>
+                      {manualPreview && <div className="rounded-lg border border-amber-700 p-3 space-y-2">
+                        <p>{t('setup.displacement')}</p>
+                        {manualPreview.assignments.map((r: any) => <p key={r.assignmentId}>{r.driverId} → {r.truckId}</p>)}
+                        {manualPreview.allocation && <p>{manualPreview.allocation.materialId} → {rostMaterial}</p>}
+                        <p>{t('setup.requested')}: {rostDriverName} → {rostPlate}</p>
+                        <label><input type="checkbox" checked={manualConfirmed} onChange={e => setManualConfirmed(e.target.checked)} disabled={manualBusy || manualSession.committed} />{t('setup.confirmDisplacement')}</label>
+                      </div>}
+                      {manualError && <p role="alert">{t(manualError)} {t('setup.useExplicit')}</p>}
                       <div className="flex justify-end gap-2 pt-2">
                         <button type="button" onClick={() => setIsAddingRosterRow(false)} className="px-3 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg">{t('shared.actions.cancel')}</button>
-                        <button type="submit" className="px-4 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">{t('projects.batch4.register_and_save')}</button>
+                        <button type="submit" disabled={manualBusy} className="px-4 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">{t(manualSession.committed ? 'setup.retry' : manualBusy ? 'shared.status.loading' : 'projects.batch4.register_and_save')}</button>
                       </div>
                     </form>
                   )}
 
-                  {/* Fleet Data Table */}
-                  {fleetRows.length === 0 ? (
-                    <p className="text-center text-stone-500 py-6">{t('projects.batch4.empty_fleet')}</p>
-                  ) : (
-                    <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
-                      <table className="w-full text-right">
-                        <thead className="sticky top-0 bg-stone-950 z-10">
-                          <tr className="border-b border-stone-800 text-stone-500 font-black text-[11px]">
-                            <th className="pb-2">{t('projects.batch4.truck_id')}</th>
-                            <th className="pb-2">{t('entityResolution.labels.driver_name')}</th>
-                            <th className="pb-2">{t('analytics.column.plate_number')}</th>
-                            <th className="pb-2">{t('entityResolution.labels.carrier_3')}</th>
-                            <th className="pb-2">{t('entityResolution.labels.approved_material')}</th>
-                            <th className="pb-2">{t('projects.batch4.assignment_status')}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {fleetRows.map((r) => (
-                            <tr key={r.truckId} className="border-b border-stone-850 text-stone-300 font-semibold">
-                              <td className="py-2.5 font-mono">{r.truckId}</td>
-                              <td className="py-2.5">{r.driverName || '—'}</td>
-                              <td className="py-2.5 font-mono">{r.plateNumber}</td>
-                              <td className="py-2.5 font-semibold">{r.carrierName}</td>
-                              <td className="py-2.5">{r.materialName || '—'}</td>
-                              <td className="py-2.5">
-                                <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                                  r.assignmentStatus === 'ASSIGNMENT_ACTIVE' ? 'bg-emerald-950 text-emerald-400' : 'bg-stone-900 text-stone-500'
-                                }`}>
-                                  {r.assignmentStatus}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+
                 </div>
               </div>
             )}

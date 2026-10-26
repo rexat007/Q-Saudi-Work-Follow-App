@@ -614,6 +614,7 @@ app.post('/api/intake/canonical', enforceProjectIsolation, enforceAdminOnly, asy
     res.status(400).json({
       success: false,
       error: error.message || 'فشلت عملية التسجيل الموثقة للسائق والشاحنة',
+      code: error.code || 'SETUP_COMMAND_FAILED',
     });
   }
 });
@@ -1485,6 +1486,18 @@ app.get('/api/projects/:projectId/fleet-read-model', enforceProjectIsolation, as
     const data = await new ProjectFleetQueryService().fleet(req.params.projectId, (req as any).user);
     res.json({ success: true, data });
   } catch (error: any) { res.status(error.status || 500).json({ success: false, error: error.message, code: error.code }); }
+});
+app.post('/api/projects/:projectId/intake-preview', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    const { SetupFleetQuery } = await import('../src/services/setupFleetQuery.server');
+    res.json({ success: true, data: await new SetupFleetQuery().previewIntake(req.params.projectId, req.body, (req as any).user) });
+  } catch (error: any) { res.status(error.status || 400).json({ success: false, code: error.code || 'SETUP_PREVIEW_UNAVAILABLE' }); }
+});
+app.get('/api/projects/:projectId/setup-context', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    const { SetupFleetQuery } = await import('../src/services/setupFleetQuery.server');
+    res.json({ success: true, data: await new SetupFleetQuery().read(req.params.projectId, (req as any).user) });
+  } catch (error: any) { res.status(error.status || 400).json({ success: false, code: error.code || 'SETUP_READ_FAILED' }); }
 });
 app.get('/api/projects/:projectId/relationship-context', enforceProjectIsolation, async (req, res) => {
   try {

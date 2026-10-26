@@ -50,8 +50,8 @@ export function canEnterProjectSetupLayer(
     case 'CARRIERS':
     case 'ACCESS':
     case 'REVIEW_ACTIVATION':
-      return { allowed: true };
     case 'ROSTER':
+      return { allowed: true };
     case 'PRICING':
       if (context.materialsCount === 0 && context.carriersCount === 0) {
         return { allowed: false, reason: 'سجل تشغيل السائقين وقواعد الأسعار تتطلب مادة مصرحة واحدة وناقل واحد على الأقل.' };

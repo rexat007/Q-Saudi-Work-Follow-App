@@ -1,6 +1,8 @@
+import { useProjectEditorLifetime } from '../wizard/useProjectEditorLifetime';
+import { setupErrorKey } from '../../i18n/setupErrors';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { useI18n } from '../../i18n';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Truck, X, AlertCircle, Loader2 } from 'lucide-react';
 import {
@@ -12,6 +14,7 @@ import {
 } from '../../services/carrierManagementClient.service';
 
 export interface CarrierEditorModalProps {
+  isCurrent?: () => boolean;
   open: boolean;
   projectId: string;
   mode?: 'CREATE' | 'EDIT';
@@ -52,6 +55,7 @@ export interface CarrierEditorModalProps {
 export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   open,
   projectId,
+  isCurrent: ownerIsCurrent,
   mode = 'CREATE',
   initialName = '',
   initialCarrier = null,
@@ -62,6 +66,8 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   zIndexClass = 'z-50',
 }) => {
   const { t, direction } = useI18n();
+  const editor = useProjectEditorLifetime(projectId, open, ownerIsCurrent);
+  const submitLock = useRef(false);
   const isEditMode = mode === 'EDIT';
 
   const [name, setName] = useState('');
@@ -83,6 +89,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   // Synchronize form when opened or initial values change
   useEffect(() => {
     if (open) {
+      submitLock.current = false;
       if (isEditMode && initialCarrier) {
         setName(initialCarrier.name || '');
         setCommercialRegistrationNo(initialCarrier.commercialRegistrationNo || '');
@@ -112,7 +119,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       setUpdatedCarrierResult(null);
       setRefreshFailed(false);
     }
-  }, [open, isEditMode, initialCarrier, initialName]);
+  }, [open, projectId, isEditMode, initialCarrier, initialName]);
 
   if (!open) return null;
 
@@ -156,10 +163,14 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting || submitLock.current) return;
+    const request = editor.capture();
+    if (!editor.isCurrent(request)) return;
     setSubmitError(null);
 
     if (refreshFailed) {
       await handleRetryRefresh();
+          if (!editor.isCurrent(request)) return;
       return;
     }
 
@@ -167,6 +178,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       return;
     }
 
+    submitLock.current = true;
     setIsSubmitting(true);
 
     if (!isEditMode) {
@@ -194,10 +206,12 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           }
 
           result = await clientService.createProjectCarrier(projectId, payload);
+          if (!editor.isCurrent(request)) return;
           setCreatedCarrierResult(result);
         } catch (err: any) {
-          setSubmitError(err.message || t('entityResolution.messages.carrier_save_failed'));
-          setIsSubmitting(false);
+          if (!editor.isCurrent(request)) return;
+          setSubmitError(t(setupErrorKey(err)));
+          submitLock.current = false; setIsSubmitting(false);
           return;
         }
       }
@@ -206,15 +220,18 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       try {
         if (onCreated) {
           await onCreated(result);
+          if (!editor.isCurrent(request)) return;
         }
         onClose();
       } catch (refreshErr: any) {
+          if (!editor.isCurrent(request)) return;
         setRefreshFailed(true);
         setSubmitError(
           t('entityResolution.messages.carrier_saved_refresh_failed')
         );
       } finally {
-        setIsSubmitting(false);
+        if (!editor.isCurrent(request)) return;
+        submitLock.current = false; setIsSubmitting(false);
       }
     } else {
       // EDIT MODE
@@ -236,10 +253,12 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
             carrierManagementClientService.updateProjectCarrier.bind(carrierManagementClientService);
 
           result = await updater(projectId, targetCarrierId, payload);
+          if (!editor.isCurrent(request)) return;
           setUpdatedCarrierResult(result);
         } catch (err: any) {
-          setSubmitError(err.message || t('entityResolution.messages.carrier_update_failed'));
-          setIsSubmitting(false);
+          if (!editor.isCurrent(request)) return;
+          setSubmitError(t(setupErrorKey(err)));
+          submitLock.current = false; setIsSubmitting(false);
           return;
         }
       }
@@ -248,35 +267,45 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       try {
         if (onUpdated) {
           await onUpdated(result);
+          if (!editor.isCurrent(request)) return;
         }
         onClose();
       } catch (refreshErr: any) {
+          if (!editor.isCurrent(request)) return;
         setRefreshFailed(true);
         setSubmitError(
           t('entityResolution.messages.carrier_updated_refresh_failed')
         );
       } finally {
-        setIsSubmitting(false);
+        if (!editor.isCurrent(request)) return;
+        submitLock.current = false; setIsSubmitting(false);
       }
     }
   };
 
   const handleRetryRefresh = async () => {
+    if (isSubmitting || submitLock.current) return;
+    const request = editor.capture();
+    if (!editor.isCurrent(request)) return;
+    submitLock.current = true;
     setIsSubmitting(true);
     setSubmitError(null);
     try {
       if (isEditMode) {
         if (updatedCarrierResult && onUpdated) {
           await onUpdated(updatedCarrierResult);
+          if (!editor.isCurrent(request)) return;
           onClose();
         }
       } else {
         if (createdCarrierResult && onCreated) {
           await onCreated(createdCarrierResult);
+          if (!editor.isCurrent(request)) return;
           onClose();
         }
       }
     } catch (refreshErr: any) {
+          if (!editor.isCurrent(request)) return;
       setRefreshFailed(true);
       setSubmitError(
         isEditMode
@@ -284,7 +313,8 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           : t('entityResolution.messages.carrier_saved_refresh_failed')
       );
     } finally {
-      setIsSubmitting(false);
+        if (!editor.isCurrent(request)) return;
+      submitLock.current = false; setIsSubmitting(false);
     }
   };
 

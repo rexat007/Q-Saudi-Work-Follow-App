@@ -1,7 +1,9 @@
+import { useProjectEditorLifetime } from '../wizard/useProjectEditorLifetime';
+import { setupErrorKey } from '../../i18n/setupErrors';
 import type { GlobalMaterialUom } from '../../types/globalEntities';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { useI18n } from '../../i18n';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Layers, X, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import {
@@ -13,6 +15,7 @@ import {
 } from '../../services/materialManagementClient.service';
 
 export interface MaterialEditorModalProps {
+  isCurrent?: () => boolean;
   open: boolean;
   projectId: string;
   mode?: 'CREATE' | 'EDIT';
@@ -46,6 +49,7 @@ export interface MaterialEditorModalProps {
 export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
   open,
   projectId,
+  isCurrent: ownerIsCurrent,
   mode = 'CREATE',
   initialName = '',
   initialMaterial = null,
@@ -56,6 +60,8 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
   zIndexClass = 'z-50',
 }) => {
   const { t } = useI18n();
+  const editor = useProjectEditorLifetime(projectId, open, ownerIsCurrent);
+  const submitLock = useRef(false);
   const isEditMode = mode === 'EDIT';
 
   const [name, setName] = useState('');
@@ -75,6 +81,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
   // Reset or pre-populate form when modal opens
   useEffect(() => {
     if (open) {
+      submitLock.current = false;
       if (isEditMode && initialMaterial) {
         setName(initialMaterial.name || '');
         setCode(initialMaterial.code || '');
@@ -102,7 +109,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
       setUpdatedMaterialResult(null);
       setRefreshFailed(false);
     }
-  }, [open, isEditMode, initialMaterial, initialName]);
+  }, [open, projectId, isEditMode, initialMaterial, initialName]);
 
   if (!open) return null;
 
@@ -142,16 +149,20 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (isSubmitting || submitLock.current) return;
+    const request = editor.capture();
+    if (!editor.isCurrent(request)) return;
 
     // If mutation already succeeded previously and we are in refresh-failed state, retry refresh directly
     if (refreshFailed) {
       await handleRetryRefresh();
+          if (!editor.isCurrent(request)) return;
       return;
     }
 
     if (!validate()) return;
 
+    submitLock.current = true;
     setIsSubmitting(true);
     setSubmitError(null);
 
@@ -173,10 +184,12 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             materialManagementClientService.createProjectMaterial.bind(materialManagementClientService);
 
           result = await creator(projectId, payload);
+          if (!editor.isCurrent(request)) return;
           setCreatedMaterialResult(result);
         } catch (err: any) {
-          setSubmitError(err.message || t('entityResolution.messages.material_create_failed'));
-          setIsSubmitting(false);
+          if (!editor.isCurrent(request)) return;
+          setSubmitError(t(setupErrorKey(err)));
+          submitLock.current = false; setIsSubmitting(false);
           return;
         }
       }
@@ -185,15 +198,18 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
       try {
         if (onCreated) {
           await onCreated(result);
+          if (!editor.isCurrent(request)) return;
         }
         onClose();
       } catch (refreshErr: any) {
+          if (!editor.isCurrent(request)) return;
         setRefreshFailed(true);
         setSubmitError(
           t('entityResolution.messages.material_saved_refresh_failed')
         );
       } finally {
-        setIsSubmitting(false);
+        if (!editor.isCurrent(request)) return;
+        submitLock.current = false; setIsSubmitting(false);
       }
     } else {
       // EDIT MODE
@@ -213,10 +229,12 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             materialManagementClientService.updateProjectMaterial.bind(materialManagementClientService);
 
           result = await updater(projectId, targetMaterialId, payload);
+          if (!editor.isCurrent(request)) return;
           setUpdatedMaterialResult(result);
         } catch (err: any) {
-          setSubmitError(err.message || t('entityResolution.messages.material_update_failed'));
-          setIsSubmitting(false);
+          if (!editor.isCurrent(request)) return;
+          setSubmitError(t(setupErrorKey(err)));
+          submitLock.current = false; setIsSubmitting(false);
           return;
         }
       }
@@ -225,35 +243,45 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
       try {
         if (onUpdated) {
           await onUpdated(result);
+          if (!editor.isCurrent(request)) return;
         }
         onClose();
       } catch (refreshErr: any) {
+          if (!editor.isCurrent(request)) return;
         setRefreshFailed(true);
         setSubmitError(
           t('entityResolution.messages.material_updated_refresh_failed')
         );
       } finally {
-        setIsSubmitting(false);
+        if (!editor.isCurrent(request)) return;
+        submitLock.current = false; setIsSubmitting(false);
       }
     }
   };
 
   const handleRetryRefresh = async () => {
+    if (isSubmitting || submitLock.current) return;
+    const request = editor.capture();
+    if (!editor.isCurrent(request)) return;
+    submitLock.current = true;
     setIsSubmitting(true);
     setSubmitError(null);
     try {
       if (isEditMode) {
         if (updatedMaterialResult && onUpdated) {
           await onUpdated(updatedMaterialResult);
+          if (!editor.isCurrent(request)) return;
           onClose();
         }
       } else {
         if (createdMaterialResult && onCreated) {
           await onCreated(createdMaterialResult);
+          if (!editor.isCurrent(request)) return;
           onClose();
         }
       }
     } catch (refreshErr: any) {
+          if (!editor.isCurrent(request)) return;
       setRefreshFailed(true);
       setSubmitError(
         isEditMode
@@ -261,7 +289,8 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
           : t('entityResolution.messages.material_saved_refresh_failed')
       );
     } finally {
-      setIsSubmitting(false);
+        if (!editor.isCurrent(request)) return;
+      submitLock.current = false; setIsSubmitting(false);
     }
   };
 

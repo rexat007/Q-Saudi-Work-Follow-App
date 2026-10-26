@@ -99,7 +99,7 @@ export class MaterialManagementClientService {
     }
 
     if (!response.ok || !json.success) {
-      throw new Error(json.error || `فشل إنشاء المادة (${response.status})`);
+      throw Object.assign(new Error(json.error || `فشل إنشاء المادة (${response.status})`), { code: json.code, status: response.status });
     }
 
     return {
@@ -181,7 +181,7 @@ export class MaterialManagementClientService {
     }
 
     if (!response.ok || !json.success) {
-      throw new Error(json.error || `فشل تعديل المادة (${response.status})`);
+      throw Object.assign(new Error(json.error || `فشل تعديل المادة (${response.status})`), { code: json.code, status: response.status });
     }
 
     return {
