@@ -1,3 +1,4 @@
+import { RosterBatchReviewService } from '../services/import/rosterBatchReview.service';
 import { describe, it, expect, vi } from 'vitest';
 import * as XLSX from 'xlsx';
 import { DriverTruckPipelineService as Pipeline } from '../services/import/driverTruckPipeline.service';
@@ -42,8 +43,8 @@ describe('P7-B1 approved roster row contract', () => {
   });
   it('created and grouped decisions also avoid Trip validation, while Trip validation still emits its own errors', async () => {
     let b = await batch(); const trip = vi.spyOn(ExcelCsvTripValidator.prototype, 'validateRow');
-    b = Pipeline.applyGroupedEntityResolutionDecision(b, 'carrier', 'carrier:carrier', 'SELECT_ALTERNATE', { selectedEntityId: 'C' }, context, 'U');
-    b = Pipeline.applyGroupedCreatedEntityResolution(b, 'material', 'material:material', { matchedId: 'M', matchedName: 'Material' }, context);
+    b = Pipeline.applyGroupedEntityResolutionDecision(b, 'carrier', RosterBatchReviewService.getGroupKey(b.rows[0], 'carrier'), 'SELECT_ALTERNATE', { selectedEntityId: 'C' }, context, 'U');
+    b = Pipeline.applyGroupedCreatedEntityResolution(b, 'material', RosterBatchReviewService.getGroupKey(b.rows[0], 'material'), { matchedId: 'M', matchedName: 'Material' }, context);
     b = Pipeline.applyCreatedEntityResolution(b, 1, 'truck', { matchedId: 'T', matchedName: 'ABC 123' }, context);
     expect(trip).not.toHaveBeenCalled(); expect(b.issues.every(i => !/TICKET|LOAD_DATA|TRIP_DATE/.test(i.code))).toBe(true);
     const issues = new ExcelCsvTripValidator().validateRow({ rowNumber: 1, canonical: {}, mapped: {}, validationIssues: [] } as any, context);

@@ -1,3 +1,4 @@
+import type { ImportSourceLocation } from './unifiedImport';
 import type { GlobalKind } from '../utils/globalIdentityPolicy';
 
 /** Working review contract only; prepared keys are never persisted canonical IDs. */
@@ -29,6 +30,8 @@ export interface AllocationIntent {
   rowNumbers: number[];
 }
 export interface RosterCanonicalIntent {
+  /** Emitted by the builder for every row; optional only for legacy working snapshots. Never infers source positions. */
+  sourceRows?: ImportSourceLocation[];
   projectId: string;
   rowDecisions: { rowNumber: number; status: 'CONTRIBUTING' | 'EXCLUDED' | 'BLOCKED'; entities: Partial<Record<'carrier' | 'driver' | 'truck' | 'material', string>> }[];
   entities: IntentEntity[];

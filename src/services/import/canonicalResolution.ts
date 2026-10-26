@@ -26,11 +26,11 @@ export function selectedResolution(entity: Entity, source: string, carrierId: st
 export function resolveCanonicalRoster(row: Record<string,any>, context: PipelineContext, previous?: Record<string,Resolution>): Record<string,Resolution> {
   const result:Record<string,Resolution>={};
   for(const key of ['carrier','material','driver','truck'] as ResolutionKey[]){
-    const source=String(key==='carrier'?row.carrierName||row.carrierId||'':key==='material'?row.materialName||row.materialCode||row.materialId||'':key==='driver'?row.driverName||row.driverIdentity||'':row.truckPlate||'');
+    const source=String(key==='carrier'?row.carrierName||row.carrierId||row.commercialRegistrationNo||'':key==='material'?row.materialName||row.materialCode||row.materialId||'':key==='driver'?row.driverName||row.driverIdentity||'':row.truckPlate||'');
     if(!source && !(key==='material'&&row.materialId) && !(key==='carrier'&&row.carrierId))continue;
     const entities=resolutionEntities(context,key),old=previous?.[key];
-    const natural=(v:string)=>key==='driver'?normalizeIdNumber(v):key==='truck'?normalizePlate(v):key==='material'?normalizeCode(v):v.replace(/[^0-9]/g,'');
-    const rawNatural=key==='driver'?row.driverIdentity:key==='truck'?row.truckPlate:key==='material'?row.materialCode:undefined;
+    const natural=(v:string)=>key==='driver'?normalizeIdNumber(v):key==='truck'?normalizePlate(v):key==='material'?normalizeCode(v):normalizeIdNumber(v);
+    const rawNatural=key==='driver'?row.driverIdentity:key==='truck'?row.truckPlate:key==='material'?row.materialCode:row.commercialRegistrationNo || (/^[0-9]{10}$/.test(normalizeIdNumber(source)) && /^[0-9٠-٩\s-]+$/.test(source) ? source : undefined);
     let candidates:Entity[]=[],reason:string|undefined,method:Resolution['matchMethod']='EXACT',evidenceConflict=false;
     const explicit=old?.decision==='SELECT_ALTERNATE'||old?.decision==='ACCEPT_CANDIDATE'||old?.decision==='REUSE_ACTIVE' ? old.matchedId : undefined;
     const exactId=key==='carrier'?row.carrierId||source:key==='material'?row.materialId:undefined;
@@ -40,7 +40,7 @@ export function resolveCanonicalRoster(row: Record<string,any>, context: Pipelin
       else candidates=matches;
       if(key==='material'&&row.materialName){
         const names=entities.filter(e=>normalizeName(e.name)===normalizeName(row.materialName));
-        if(names.length && (!matches.length||names.some(e=>e.id!==matches[0]?.id))){candidates=[...new Map([...matches,...names].map(e=>[e.id,e])).values()];reason='IDENTITY_AMBIGUITY';evidenceConflict=true;}
+        if(reason!=='CANONICAL_INTEGRITY_ERROR' && names.length && (!matches.length||!names.some(e=>e.id===matches[0]?.id))){candidates=[...new Map([...matches,...names].map(e=>[e.id,e])).values()];reason='IDENTITY_AMBIGUITY';evidenceConflict=true;}
       }
     } else {
       candidates=exactId?entities.filter(e=>e.id===exactId):[];
@@ -49,11 +49,17 @@ export function resolveCanonicalRoster(row: Record<string,any>, context: Pipelin
       if(candidates.length===1&&(key==='carrier'||key==='material')&&candidates[0].name===source)method='EXACT';
       if(candidates.length>1)reason='IDENTITY_AMBIGUITY';
     }
+    if (explicit && rawNatural && reason !== 'CANONICAL_INTEGRITY_ERROR') {
+      const selected = entities.find(e => e.id === explicit);
+      if (!selected?.naturalKey || natural(selected.naturalKey) !== natural(String(rawNatural))) {
+        reason = 'IDENTITY_AMBIGUITY'; evidenceConflict = true;
+      }
+    }
     if(explicit&&reason!=='CANONICAL_INTEGRITY_ERROR'&&!evidenceConflict){
       const selected=entities.filter(e=>e.id===explicit);
-      if(selected.length===1){candidates=selected;reason=undefined;}else reason='CANONICAL_INTEGRITY_ERROR';
+      if(selected.length===1){candidates=selected;reason=undefined;method='EXACT';}else reason='CANONICAL_INTEGRITY_ERROR';
     }
-    if(old?.decision==='LEAVE_UNRESOLVED'){
+    if(old?.decision==='LEAVE_UNRESOLVED'&&reason!=='CANONICAL_INTEGRITY_ERROR'&&!evidenceConflict){
       result[key]={...old,matchedId:undefined,entityId:undefined,isAuthorized:false,recommendation:'REVIEW',resolutionReason:'UNRESOLVED'};continue;
     }
     if(candidates.length===1&&candidates[0].naturalKey){
@@ -63,7 +69,9 @@ export function resolveCanonicalRoster(row: Record<string,any>, context: Pipelin
       }catch{reason='CANONICAL_INTEGRITY_ERROR';}
     }
     if(candidates.length===1&&!reason){
-      result[key]={...selectedResolution(candidates[0],source,result.carrier?.matchedId,context),matchMethod:method,isExact:method==='EXACT',decision:old?.decision||'AUTO_RESOLVED'};
+      const resolved = selectedResolution(candidates[0],source,result.carrier?.matchedId,context);
+      const suggestionOnly = !rawNatural && !explicit && candidates[0].id !== exactId;
+      result[key]={...resolved,matchMethod:method,isExact:method==='EXACT',decision:old?.decision||'AUTO_RESOLVED', ...(suggestionOnly ? {recommendation:'REVIEW',riskLevel:resolved.resolutionReason ? resolved.riskLevel : 'MEDIUM'} : {})};
     }else if(old?.creationDisposition==='PREPARED_NEW'&&!candidates.length){result[key]=old;}
     else result[key]={entityType:key.toUpperCase() as Entity['kind'],originalValue:source,sourceValue:source,confidence:0,isExact:false,isAuthorized:false,matchMethod:candidates.length?method:'NONE',recommendation:'REVIEW',riskLevel:reason?'CRITICAL':'HIGH',relationshipStatus:reason==='CANONICAL_INTEGRITY_ERROR'?'RELATIONSHIP_CONFLICT':'VALID',ambiguous:Boolean(reason),resolutionReason:reason||'UNRESOLVED',candidates:candidates.map(e=>({candidateEntityId:e.id,candidateDisplayName:e.name,confidence:0,canonicalState:e}))};
   }

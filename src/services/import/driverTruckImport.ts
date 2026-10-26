@@ -78,7 +78,7 @@ export function validateRosterMapping(headers: string[], mappings: Record<string
     if (targets.has(target)) return 'MAPPING_DUPLICATE';
     targets.add(target);
   }
-  return targets.has('carrierName') && (targets.has('driverName') || targets.has('driverIdentity') || targets.has('truckPlate')) && (targets.has('materialName') || targets.has('materialCode')) ? null : 'MAPPING_REQUIRED';
+  return targets.has('carrierName') && (targets.has('driverName') || targets.has('driverIdentity') || targets.has('truckPlate')) ? null : 'MAPPING_REQUIRED';
 }
 
 export function translateDiscoveryToRosterTarget(
@@ -365,7 +365,7 @@ export class DriverTruckImportValidator {
     const materialRes = row.entityResolutions?.material;
     const hasMaterialInput = Boolean(canonical.materialName || canonical.materialId || canonical.materialCode);
 
-    if ((!hasMaterialInput && !context.resolutionContext) || (hasMaterialInput && (!materialRes || !materialRes.matchedId || !materialRes.isAuthorized))) {
+    if (hasMaterialInput && (!materialRes || !materialRes.matchedId || !materialRes.isAuthorized)) {
       issues.push({
         issueId: `ISSUE-${row.rowNumber}-MAT-UNRESOLVED`,
         row: row.rowNumber,

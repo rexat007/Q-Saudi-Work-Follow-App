@@ -15,7 +15,10 @@ export function RosterSemanticReview({ intent, onAccept, onBack, busy = false, e
   const { t } = useI18n();
   const [approved, setApproved] = useState<string>();
   const label = (kind: string, key: string) => intent.entities.find(e => e.kind === kind && e.key === key)?.label || key;
-  const rows = (values: number[]) => <span className="text-xs text-stone-400">{t('intent.rows')}: {values.join(', ')}</span>;
+  const rows = (values: number[]) => {
+    const locations = (intent.sourceRows || []).filter(row => values.includes(row.internalRowNumber) && row.sourceRowNumber !== undefined);
+    return <span className="text-xs text-stone-400 break-words">{t('intent.rows')}: {values.join(', ')}{locations.length > 0 && <> · {t('intent.sourceRows')}: {locations.map(row => `${row.sourceSheetName ? `${row.sourceSheetName}: ` : ''}${row.sourceRowNumber}`).join(', ')}</>}</span>;
+  };
   const action = (value: string) => t(`intent.action.${value}`);
   const ready = canAcceptRosterIntent(intent, approved);
   const counts = ['PREPARE_NEW', 'REUSE', 'ASSIGN', 'REASSIGN', 'ALLOCATE', 'REALLOCATE', 'NO_CHANGE'].map(action => ({ action, count: intent.entityConsequences.filter(c => c.action === action).length + intent.assignmentIntents.filter(a => a.action === action).length + intent.allocationIntents.filter(a => a.action === action).length })).filter(item => item.count > 0);

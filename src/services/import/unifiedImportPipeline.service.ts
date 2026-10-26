@@ -161,6 +161,12 @@ export class UnifiedImportPipelineService {
       normalizedRows.push({
         rowNumber: rowNum,
         sourceRowId: raw.sourceRowId || rowNum,
+        sourceLocation: {
+          sourceType: batch.source.sourceType,
+          sourceSheetName: parsedOutput.metadata?.selectedSheet || batch.source.sourceSheetName,
+          internalRowNumber: rowNum,
+          ...(Number.isInteger(raw._sourceRowIndex) && raw._sourceRowIndex > 0 ? { sourceRowNumber: raw._sourceRowIndex } : {}),
+        },
         raw,
         canonical,
         validationIssues: [],
@@ -203,8 +209,8 @@ export class UnifiedImportPipelineService {
     const allIssues: ImportIssue[] = [];
     for (const row of batch.rows) {
       const rowIssues = await this.validator.validateRow(row, context);
-      row.validationIssues = rowIssues;
-      allIssues.push(...rowIssues);
+      row.validationIssues = rowIssues.map(issue => ({ ...issue, sourceLocation: row.sourceLocation }));
+      allIssues.push(...row.validationIssues);
     }
     batch.issues = allIssues;
     batch.commitStatus = 'VALIDATED';
@@ -213,7 +219,7 @@ export class UnifiedImportPipelineService {
     // STAGE 7: DUPLICATE_CHECK
     // -------------------------------------------------------------
     batch.currentStage = 'DUPLICATE_CHECK';
-    batch.rows = await this.duplicateChecker.checkDuplicates(batch.rows, context);
+    batch.rows = (await this.duplicateChecker.checkDuplicates(batch.rows, context)).map(row => ({...row, validationIssues: row.validationIssues.map(issue => ({...issue, sourceLocation:row.sourceLocation}))}));
 
     // -------------------------------------------------------------
     // STAGE 8: REVIEW

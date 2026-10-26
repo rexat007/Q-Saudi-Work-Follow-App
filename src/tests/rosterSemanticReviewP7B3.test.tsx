@@ -30,4 +30,18 @@ describe('P7-B3 semantic review UI', () => {
   it.each(['CROSS_ROW_DRIVER_TRUCK_CONFLICT', 'UNRESOLVED_CANONICAL_ENTITY', 'RELATIONSHIP_CONTEXT_STALE'])('blocks %s even if displacement approved', code => { const v = intent(); v.blockers = [{ code, rowNumbers: [2, 9] }]; render(<I18nProvider initialLocale="en"><RosterSemanticReview intent={v} onAccept={vi.fn()} /></I18nProvider>); expect((screen.getByRole('button', { name: tr['intent.accept'] }) as HTMLButtonElement).disabled).toBe(true); expect(screen.getByRole('alert').textContent).toContain('2, 9'); expect(screen.getByRole('alert').textContent).not.toContain(code); });
   it('uses Arabic labels for direction and explicit relationship approval', () => { render(<I18nProvider initialLocale="ar"><RosterSemanticReview intent={intent()} onAccept={vi.fn()} /></I18nProvider>); expect(screen.getByRole('checkbox').parentElement?.textContent).toContain(arTranslations['intent.confirm']); expect(screen.getAllByText(new RegExp(arTranslations['intent.driver'])).length).toBeGreaterThan(0); expect(screen.queryByText('REASSIGN')).toBeNull(); });
   it('does not present batch-local prepared keys as system IDs', () => { const v = intent(); v.entities[0] = { ...v.entities[0], key: 'prepared:driver:1234567890', prepared: true }; v.assignmentIntents[0].driverId = v.entities[0].key; v.entityConsequences = [{ key: `DRIVER:${v.entities[0].key}`, action: 'PREPARE_NEW', completed: false, rowNumbers: [2] }]; render(<I18nProvider initialLocale="en"><RosterSemanticReview intent={v} onAccept={vi.fn()} /></I18nProvider>); expect(screen.getByText(new RegExp(tr['intent.new.DRIVER']))).toBeTruthy(); expect(screen.queryByText(/prepared:driver:/)).toBeNull(); });
+  it.each(['ar', 'en', 'ur'] as const)('SI-CG1 exposes factual source rows separately from import rows in %s', locale => {
+    const v = intent(); v.sourceRows = [{sourceType:'EXCEL',sourceSheetName:'Roster',sourceRowNumber:6,internalRowNumber:2}];
+    render(<I18nProvider initialLocale={locale}><RosterSemanticReview intent={v} onAccept={vi.fn()} /></I18nProvider>);
+    expect(host.textContent).toContain('Roster: 6');
+    expect(host.textContent).not.toContain('undefined');
+    expect(host.textContent).not.toContain('intent.sourceRows');
+    expect((screen.getByRole('button') as HTMLButtonElement).disabled).toBe(true);
+  });
+  it('SI-CG1 never invents a source row for legacy intent without factual provenance',()=>{
+    render(<I18nProvider initialLocale="en"><RosterSemanticReview intent={intent()} onAccept={vi.fn()} /></I18nProvider>);
+    expect(host.textContent).not.toContain(enTranslations['intent.sourceRows']);
+    expect(host.textContent).toContain(`${enTranslations['intent.rows']}: 2`);
+  });
+
 });

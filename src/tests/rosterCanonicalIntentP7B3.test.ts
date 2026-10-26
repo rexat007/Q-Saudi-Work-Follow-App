@@ -4,7 +4,7 @@ import type { ImportResolutionEntity as Entity } from '../types/importResolution
 import type { ImportRow, PipelineContext, UnifiedImportBatch } from '../types/unifiedImport';
 import { DriverTruckImportCommitter } from '../services/import/driverTruckImport';
 import { DriverTruckPipelineService } from '../services/import/driverTruckPipeline.service';
-function e(kind: Entity['kind'], id: string, extra: Partial<Entity> = {}): Entity { return { kind, id, name: `Label ${id}`, globalStatus: 'ACTIVE', membershipStatus: 'ACTIVE', eligible: true, canReactivate: true, affiliation: kind === 'DRIVER' || kind === 'TRUCK' ? { carrierId: 'C1', status: 'ACTIVE' } : null, assignment: null, allocation: null, ...extra }; }
+function e(kind: Entity['kind'], id: string, extra: Partial<Entity> = {}): Entity { return { kind, id, name: `Label ${id}`, naturalKey: kind === 'TRUCK' ? id : undefined, globalStatus: 'ACTIVE', membershipStatus: 'ACTIVE', eligible: true, canReactivate: true, affiliation: kind === 'DRIVER' || kind === 'TRUCK' ? { carrierId: 'C1', status: 'ACTIVE' } : null, assignment: null, allocation: null, ...extra }; }
 export function fixture() {
   const entities = [e('CARRIER', 'C1'), e('MATERIAL', 'M1'), e('MATERIAL', 'M2'), e('MATERIAL', 'M9'), ...['D1', 'D2', 'D8'].map(id => e('DRIVER', id)), ...['T1', 'T2', 'T9'].map(id => e('TRUCK', id))];
   const context: PipelineContext = { projectId: 'P1', userId: 'U', operationId: 'OP', resolutionContext: { projectId: 'P1', entities } } as PipelineContext;
@@ -53,6 +53,7 @@ describe('P7-B3 selected canonical intent', () => {
     const {context}=fixture(); context.knownEntities={materials:[{materialId:'M1',name:'Label M1',code:'M1'}]} as any;
     const a=row(2), b=row(9); a.canonical!.driverName='Ahmed'; b.canonical!.driverName='Ahmed Ali';
     a.canonical!.driverIdentity=b.canonical!.driverIdentity='1234567890';
+    context.resolutionContext!.entities.find(e=>e.id==='D1')!.naturalKey='1234567890';
     b.validationIssues=[{issueId:'ISSUE-9-DUP-DRV-BATCH',row:9,field:'driverIdentity',code:'IDENTITY_CONFLICT',severity:'BLOCKING',blocking:true,message:'historical source conflict',resolvable:false}];
     const input=batch([a,b]);input.warningConfirmation={confirmed:true,confirmedBy:'U',confirmedAt:'x'};
     const updated=DriverTruckPipelineService.revalidateRosterBatch(input,context);
