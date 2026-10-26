@@ -1,6 +1,14 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "setup.closure.status.SETUP": "ترتیب جاری ہے",
+  "setup.closure.status.READY_FOR_REVIEW": "جائزے کے لیے تیار",
+  "setup.closure.status.ARCHIVED": "محفوظ شدہ",
+  "setup.closure.status.PLANNING": "منصوبہ بندی",
+
+  "setup.closure.returnToSetup": "ترتیب پر واپس جائیں",
+  "setup.closure.tableScrollHint": "تمام کالم اور قطار کے اقدامات دیکھنے کے لیے جدول کو اسکرول کریں۔",
+
   "readiness.lifecycle": "دور حیات کی اہلیت",
   "readiness.setup": "ترتیب کی تکمیل",
   "readiness.operational": "عملی / فعالی تیاری",

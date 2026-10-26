@@ -43,7 +43,7 @@ describe('P6-B1 command receipts and scope', () => {
 describe('P6-B1 bounded i18n error contract', () => {
   it('all new Setup presentation keys have AR/EN/UR parity and non-empty values', () => {
     const keys = Object.keys(dictionaries.en).filter(key => key.startsWith('setup.')).sort();
-    expect(keys).toHaveLength(64);
+    expect(keys).toHaveLength(70);
     for (const dictionary of Object.values(dictionaries)) {
       expect(Object.keys(dictionary).filter(key => key.startsWith('setup.')).sort()).toEqual(keys);
       for (const key of keys) expect(dictionary[key].trim().length).toBeGreaterThan(0);

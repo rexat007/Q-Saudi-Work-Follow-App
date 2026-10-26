@@ -1,6 +1,14 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "setup.closure.status.SETUP": "Setup",
+  "setup.closure.status.READY_FOR_REVIEW": "Ready for review",
+  "setup.closure.status.ARCHIVED": "Archived",
+  "setup.closure.status.PLANNING": "Planning",
+
+  "setup.closure.returnToSetup": "Return to Setup",
+  "setup.closure.tableScrollHint": "Scroll the table to view all columns and row actions.",
+
   "readiness.lifecycle": "Lifecycle eligibility",
   "readiness.setup": "Setup completeness",
   "readiness.operational": "Operational / activation readiness",

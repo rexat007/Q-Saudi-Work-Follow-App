@@ -301,7 +301,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
       aria-modal="true"
       aria-labelledby="material-modal-title"
     >
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col text-slate-100 animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-lg max-h-[90vh] shadow-2xl overflow-hidden flex flex-col text-slate-100 animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
           <div className="flex items-center gap-3">
@@ -330,7 +330,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto min-h-0">
           {submitError && (
             <div
               className={`p-3.5 rounded-xl border flex items-start gap-3 ${

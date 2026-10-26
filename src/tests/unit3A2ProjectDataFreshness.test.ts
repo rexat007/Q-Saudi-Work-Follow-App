@@ -185,7 +185,7 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
     const saveBlock = wizardContent.slice(saveIdx, wizardContent.indexOf('// Canonical Server Readiness', saveIdx));
 
     expect(saveBlock).toContain('await projectService.updateProject(project.projectId, updates, authContext);');
-    expect(saveBlock).toContain('setCurrentProjectOverride(updatedProject, requestContext);');
+    expect(saveBlock).toContain("setCurrentProjectOverride(updatedProject, requestContext, 'FOUNDATION');");
     expect(saveBlock).toContain("setFoundationSaveSuccess(t('projects.messages.changes_saved'));");
     for (const locale of ['ar', 'en', 'ur'] as const) {
       const template = dictionaries[locale]['projects.messages.changes_saved'];
