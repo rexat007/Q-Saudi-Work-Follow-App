@@ -1,3 +1,4 @@
+import { validateRosterFile, RosterSourceError } from './rosterSourceContract';
 import { UnifiedImportPipelineService } from './unifiedImportPipeline.service';
 import { ExcelImportParser } from './excelParser.service';
 import { CsvImportParser } from './csvParser.service';
@@ -9,8 +10,8 @@ import {
   DriverTruckImportDuplicateChecker,
   DriverTruckImportCommitter,
   DriverTruckCanonicalMappingTarget,
+  validateRosterMapping,
 } from './driverTruckImport';
-import { FileIntakeValidator } from './fileIntake.validator';
 import {
   UnifiedImportBatch,
   ImportSource,
@@ -22,7 +23,6 @@ import {
 import { CanonicalDriverTruckRow } from './driverTruckImport';
 import { smartSourceDiscoveryService } from './smartSourceDiscovery.service';
 
-import { ExcelCsvColumnMapper } from './columnMapper.service';
 import { ExcelCsvPipelineService } from './excelCsvPipeline.service';
 import { RosterBatchReviewService } from './rosterBatchReview.service';
 import { normalizeName } from '../../utils/normalization';
@@ -53,10 +53,9 @@ export class DriverTruckPipelineService {
     options?: ProcessDriverTruckFileOptions
   ): Promise<UnifiedImportBatch> {
     // 1. File Intake Validation
-    const intakeValidation = FileIntakeValidator.validate(fileName, fileSize, mimeType);
-    if (!intakeValidation.isValid) {
-      throw new Error(`خطأ في فحص الملف: ${intakeValidation.errors.join(' | ')}`);
-    }
+    const intakeValidation = validateRosterFile({ name: fileName, size: fileSize, type: mimeType });
+    const mappingIssue = options?.customMappings && validateRosterMapping(Object.keys(options.customMappings), options.customMappings);
+    if (mappingIssue) throw new RosterSourceError(mappingIssue);
 
     const sourceType = intakeValidation.fileType === 'EXCEL' ? 'EXCEL' : 'CSV';
     const importBatchId = `BAT-DT-${sourceType.slice(0, 3)}-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
@@ -71,7 +70,7 @@ export class DriverTruckPipelineService {
           importBatchId,
           sourceFileName: fileName,
         };
-        const discovery = await smartSourceDiscoveryService.discover(discSource, inputData);
+        const discovery = await smartSourceDiscoveryService.discover(discSource, inputData, { roster: true });
         if (targetSheetName === undefined) {
           targetSheetName = discovery.selectedSheet || undefined;
         }
@@ -79,7 +78,7 @@ export class DriverTruckPipelineService {
           targetHeaderRowIndex = discovery.detectedHeaderRowIndex;
         }
       } catch (err) {
-        console.error('Auto-discovery for driver/truck failed, defaulting:', err);
+        throw err;
       }
     }
 
@@ -94,7 +93,7 @@ export class DriverTruckPipelineService {
 
     // Use our custom driver/truck stages with approved customMappings
     const normalizer = new DriverTruckImportNormalizer(effectiveOptions.customMappings);
-    const mapper = new ExcelCsvColumnMapper();
+    const mapper = new DriverTruckImportMapper();
     const entityResolver = new DriverTruckImportEntityResolver();
     const validator = new DriverTruckImportValidator();
     const duplicateChecker = new DriverTruckImportDuplicateChecker();
@@ -124,7 +123,9 @@ export class DriverTruckPipelineService {
     const batch = pipeline.createBatch(source, context);
 
     // 3. Process through stages PARSE -> REVIEW
-    const reviewedBatch = await pipeline.processThroughReview(batch, inputData, context, effectiveOptions);
+    const reviewedBatch = await pipeline.processThroughReview(batch, inputData, context, { ...effectiveOptions, roster: true, approvedSourceKeys: Object.keys(options?.customMappings || {}) });
+
+    if (reviewedBatch.totalRows === 0) throw new RosterSourceError('FILE_EMPTY');
 
     // Filter validation issues to count totals properly
     let validRows = 0;
@@ -177,7 +178,8 @@ export class DriverTruckPipelineService {
       decision,
       candidate,
       context,
-      actorId
+      actorId,
+      updated => updated
     );
 
     return this.revalidateRosterBatch(updated, context);
@@ -216,7 +218,8 @@ export class DriverTruckPipelineService {
         decision,
         candidate,
         context,
-        actorId
+        actorId,
+        updated => updated
       );
     });
 
@@ -243,7 +246,8 @@ export class DriverTruckPipelineService {
       rowNumber,
       entityTypeKey,
       result,
-      context
+      context,
+      updated => updated
     );
 
     if (context) {
@@ -287,7 +291,8 @@ export class DriverTruckPipelineService {
         rowNumber,
         entityTypeKey,
         result,
-        context
+        context,
+        updated => updated
       );
     });
 

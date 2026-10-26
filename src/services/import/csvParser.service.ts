@@ -1,3 +1,4 @@
+import { MAX_ROSTER_SOURCE_ROWS, MAX_ROSTER_SOURCE_COLUMNS, assertRosterSourceKeys, rosterSourceColumns, assertRosterDimensions, RosterSourceError } from './rosterSourceContract';
 /**
  * CSV Import Parser
  * BLOCK 31: Parses CSV text or buffer into raw structured rows
@@ -59,7 +60,8 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
     }
 
     // Split lines safely handling \r\n, \r, \n
-    const lines = this.splitCsvLines(csvText);
+    const lines = this.splitCsvLines(csvText, options?.roster);
+    if (options?.roster) assertRosterDimensions(lines.length, 0);
     if (lines.length === 0) {
       return {
         headers: [],
@@ -69,10 +71,11 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
     }
 
     // Auto-detect delimiter if not specified
-    const delimiter = options?.delimiter || this.detectDelimiter(lines[0]);
+    const delimiter = options?.delimiter || this.detectDelimiter(lines[options?.roster ? options.headerRowIndex ?? 0 : 0]);
 
     const headerRowIdx = options?.headerRowIndex ?? 0;
-    const headerTokens = this.parseCsvLine(lines[headerRowIdx], delimiter);
+    if (options?.roster && (!Number.isInteger(headerRowIdx) || headerRowIdx < 0 || headerRowIdx >= lines.length)) throw new RosterSourceError('HEADER_INVALID');
+    const headerTokens = this.parseCsvLine(lines[headerRowIdx], delimiter, options?.roster);
 
     // Deduplicate headers safely
     const seenHeaders = new Map<string, number>();
@@ -92,6 +95,11 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
       }
     });
 
+    if (options?.roster) {
+      assertRosterDimensions(lines.length, headerTokens.length);
+      sanitizedHeaders.splice(0, sanitizedHeaders.length, ...rosterSourceColumns(headerTokens).map(c => c.key));
+    }
+    if (options?.roster) assertRosterSourceKeys(sanitizedHeaders, options.approvedSourceKeys);
     const structuredRows: Record<string, any>[] = [];
     const dataLines = lines.slice(headerRowIdx + 1);
 
@@ -99,7 +107,9 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
       const lineStr = dataLines[i].trim();
       if (!lineStr) continue;
 
-      const cells = this.parseCsvLine(dataLines[i], delimiter);
+      const cells = this.parseCsvLine(dataLines[i], delimiter, options?.roster);
+
+      if (options?.roster && cells.length !== sanitizedHeaders.length) throw new RosterSourceError('FILE_PARSE_ERROR');
 
       // Check if all cells are empty
       const isCompletelyEmpty = cells.every((c) => c === undefined || c.trim() === '');
@@ -131,7 +141,7 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
   /**
    * Split lines handling newlines inside quotes
    */
-  private splitCsvLines(text: string): string[] {
+  private splitCsvLines(text: string, strict = false): string[] {
     const lines: string[] = [];
     let currentLine = '';
     let insideQuotes = false;
@@ -149,6 +159,7 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
         }
         if (currentLine.trim() !== '') {
           lines.push(currentLine);
+          if (strict && lines.length > MAX_ROSTER_SOURCE_ROWS) throw new RosterSourceError('SOURCE_LIMIT');
         }
         currentLine = '';
       } else {
@@ -160,13 +171,14 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
       lines.push(currentLine);
     }
 
+    if (strict && insideQuotes) throw new RosterSourceError('FILE_PARSE_ERROR');
     return lines;
   }
 
   /**
    * Parses a single CSV line into tokens, respecting quotes and escaped quotes
    */
-  private parseCsvLine(line: string, delimiter: string): string[] {
+  private parseCsvLine(line: string, delimiter: string, strict = false): string[] {
     const tokens: string[] = [];
     let currentToken = '';
     let insideQuotes = false;
@@ -185,6 +197,7 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
         }
       } else if (char === delimiter && !insideQuotes) {
         tokens.push(currentToken);
+        if (strict && tokens.length >= MAX_ROSTER_SOURCE_COLUMNS) throw new RosterSourceError('SOURCE_LIMIT');
         currentToken = '';
       } else {
         currentToken += char;

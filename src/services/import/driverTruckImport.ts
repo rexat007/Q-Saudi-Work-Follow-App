@@ -1,3 +1,5 @@
+import { RosterSourceError } from './rosterSourceContract';
+import { ExcelCsvNormalizer } from './normalizer.service';
 import { 
   ImportRow, 
   ImportIssue, 
@@ -11,7 +13,8 @@ import {
   normalizeName, 
   normalizePhone, 
   normalizeIdNumber, 
-  normalizePlate 
+  normalizePlate,
+  normalizeCode
 } from '../../utils/normalization';
 
 import { ExcelCsvColumnMapper } from './columnMapper.service';
@@ -65,6 +68,17 @@ export const ROSTER_CANONICAL_FIELD_OPTIONS: RosterCanonicalFieldOption[] = [
   { value: 'tareWeightKg', labelAr: 'الوزن الفارغ (كجم)', labelEn: 'Tare Weight (kg)' },
   { value: 'maxGrossWeightKg', labelAr: 'الوزن الإجمالي الأقصى (كجم)', labelEn: 'Maximum Gross Weight (kg)' },
 ];
+
+export function validateRosterMapping(headers: string[], mappings: Record<string, DriverTruckCanonicalMappingTarget | 'unmapped'>): string | null {
+  const targets = new Set<string>();
+  for (const [key, target] of Object.entries(mappings)) {
+    if (target === 'unmapped') continue;
+    if (!headers.includes(key) || !ROSTER_CANONICAL_FIELD_OPTIONS.some(o => o.value === target)) return 'MAPPING_SOURCE';
+    if (targets.has(target)) return 'MAPPING_DUPLICATE';
+    targets.add(target);
+  }
+  return targets.has('carrierName') && (targets.has('driverName') || targets.has('truckPlate')) && (targets.has('materialName') || targets.has('materialCode')) ? null : 'MAPPING_REQUIRED';
+}
 
 export function translateDiscoveryToRosterTarget(
   canonicalField?: string
@@ -124,14 +138,26 @@ export class DriverTruckImportNormalizer {
     const canonical: CanonicalDriverTruckRow = { _rowNumber: rowNumber };
     canonical._raw = raw; // Preserve extra fields in source metadata without leaking into entity payload
 
+    const numeric = (value: unknown, field: 'tareWeightKg' | 'maxGrossWeightKg') => {
+      if (value === undefined || value === null || String(value).trim() === '') return;
+      const text = ExcelCsvNormalizer.convertArabicNumerals(String(value).replace(/٬/g, ''));
+      const grouped = text.replace(/^[+-]?\d{1,3}(?:,\d{3})+(?:\.\d+)?(?=\s*(?:kg|كجم|كيلو|طن|tons?)?\s*$)/i, match => match.replace(/,/g, ''));
+      const parsed = /[0-9]/.test(grouped) && /^[0-9\s,.+\-]+(?:kg|كجم|كيلو|طن|tons?)?$/i.test(grouped.trim()) ? ExcelCsvNormalizer.parseFlexibleNumber(grouped) : null;
+      if (parsed === null || !Number.isFinite(parsed)) {
+        (canonical._invalidNumericFields ||= []).push(field);
+      } else canonical[field] = parsed;
+    };
     const effectiveMappings = runtimeCustomMappings || this.customMappings;
 
     if (effectiveMappings && Object.keys(effectiveMappings).length > 0) {
       // Manual approved mappings take precedence deterministically
       const mapped: Partial<Record<DriverTruckCanonicalMappingTarget, any>> = {};
 
+      const seen = new Set<string>();
       for (const [rawHeader, targetField] of Object.entries(effectiveMappings)) {
         if (targetField && targetField !== ('unmapped' as any) && raw[rawHeader] !== undefined && raw[rawHeader] !== null) {
+          if (seen.has(targetField)) throw new RosterSourceError('MAPPING_DUPLICATE');
+          seen.add(targetField);
           mapped[targetField] = raw[rawHeader];
         }
       }
@@ -144,16 +170,10 @@ export class DriverTruckImportNormalizer {
       canonical.truckType = mapped.truckType !== undefined ? String(mapped.truckType).trim() : '';
       canonical.carrierName = mapped.carrierName !== undefined ? String(mapped.carrierName).trim() : '';
       canonical.materialName = mapped.materialName !== undefined ? String(mapped.materialName).trim() : '';
-      canonical.materialCode = mapped.materialCode !== undefined ? String(mapped.materialCode).trim() : '';
+      canonical.materialCode = mapped.materialCode !== undefined ? normalizeCode(String(mapped.materialCode)) : '';
 
-      if (mapped.tareWeightKg !== undefined && mapped.tareWeightKg !== '') {
-        const tareVal = Number(mapped.tareWeightKg);
-        if (!isNaN(tareVal)) canonical.tareWeightKg = tareVal;
-      }
-      if (mapped.maxGrossWeightKg !== undefined && mapped.maxGrossWeightKg !== '') {
-        const grossVal = Number(mapped.maxGrossWeightKg);
-        if (!isNaN(grossVal)) canonical.maxGrossWeightKg = grossVal;
-      }
+      numeric(mapped.tareWeightKg, 'tareWeightKg');
+      numeric(mapped.maxGrossWeightKg, 'maxGrossWeightKg');
     } else {
       // Use shared ExcelCsvColumnMapper logic to identify fields (backward-compatible fallback)
       const headers = Object.keys(raw);
@@ -182,10 +202,10 @@ export class DriverTruckImportNormalizer {
       const matVal = mapped.materialType || mapped.materialName || '';
       canonical.materialName = matVal ? String(matVal).trim() : '';
       
-      canonical.materialCode = mapped.materialCode ? String(mapped.materialCode).trim() : '';
+      canonical.materialCode = mapped.materialCode ? normalizeCode(String(mapped.materialCode)) : '';
 
-      if (raw.tareWeightKg !== undefined) canonical.tareWeightKg = Number(raw.tareWeightKg);
-      if (raw.maxGrossWeightKg !== undefined) canonical.maxGrossWeightKg = Number(raw.maxGrossWeightKg);
+      numeric(raw.tareWeightKg, 'tareWeightKg');
+      numeric(raw.maxGrossWeightKg, 'maxGrossWeightKg');
     }
     
     return canonical;
@@ -454,6 +474,12 @@ export class DriverTruckImportValidator {
   public validateRow(row: ImportRow<any, CanonicalDriverTruckRow>, context: PipelineContext): ImportIssue[] {
     const issues: ImportIssue[] = [];
     const canonical = row.canonical || row.raw || {};
+
+    for (const field of canonical._invalidNumericFields || []) {
+      issues.push({ issueId: `ISSUE-${row.rowNumber}-${field}`, row: row.rowNumber, field,
+        code: 'INVALID_ROSTER_WEIGHT', severity: 'BLOCKING', message: 'INVALID_ROSTER_WEIGHT',
+        resolvable: false, blocking: true });
+    }
 
     const isDriverRow = Boolean(canonical.driverName);
     const isTruckRow = Boolean(canonical.truckPlate);

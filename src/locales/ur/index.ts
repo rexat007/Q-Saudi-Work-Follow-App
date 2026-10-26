@@ -1,6 +1,19 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "import.roster.unsupported": "فائل غیر معاون ہے۔ XLSX، XLS یا CSV منتخب کریں۔",
+  "import.roster.empty": "فائل میں قابل استعمال ڈیٹا نہیں ہے۔",
+  "import.roster.tooLarge": "فائل 25 MiB کی حد سے بڑی ہے۔",
+  "import.roster.mime": "فائل کی قسم اس کی توسیع سے مطابقت نہیں رکھتی۔",
+  "import.roster.read": "فائل پڑھی نہیں جاسکی۔ اسے دوبارہ یا دوسری فائل منتخب کریں۔",
+  "import.roster.parse": "فائل کی ساخت غلط یا خراب ہے۔",
+  "import.roster.limit": "فائل محفوظ درآمد کی حدود سے بڑی ہے: 10,000 قطاریں، 256 کالم یا 1,000,000 خانے۔ فائل تقسیم کریں۔",
+  "import.roster.headers": "فائل میں موجود عنوانات کی قطار منتخب کریں۔",
+  "import.roster.duplicate": "ہر فلیٹ فیلڈ کو صرف ایک ماخذ کالم سے جوڑیں۔",
+  "import.roster.required": "کمپنی، ڈرائیور کا نام یا ٹرک کی پلیٹ، اور مواد کا نام یا کوڈ جوڑیں۔",
+  "import.roster.source": "منظور شدہ کالم اس ماخذ سے نہیں ملتے۔ ربط کا جائزہ لیں۔",
+  "import.roster.weight": "اختیاری فلیٹ وزن غلط ہے۔ اسے درست کریں یا خالی چھوڑیں۔",
+
   "setup.closure.status.SETUP": "ترتیب جاری ہے",
   "setup.closure.status.READY_FOR_REVIEW": "جائزے کے لیے تیار",
   "setup.closure.status.ARCHIVED": "محفوظ شدہ",
