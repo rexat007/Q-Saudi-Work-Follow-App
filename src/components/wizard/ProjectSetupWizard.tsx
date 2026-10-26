@@ -98,6 +98,12 @@ import {
   NavigationGateContext
 } from '../../services/projectSetupWorkflow.service';
 
+const PROJECT_STATUS_KEYS: Record<ProjectEntity['status'], string> = {
+  SETUP: 'setup.closure.status.SETUP', READY_FOR_REVIEW: 'setup.closure.status.READY_FOR_REVIEW',
+  APPROVED: 'analytics.column.approved', ACTIVE: 'setup.status.ACTIVE', SUSPENDED: 'setup.status.SUSPENDED',
+  ARCHIVED: 'setup.closure.status.ARCHIVED', PLANNING: 'setup.closure.status.PLANNING', DRAFT: 'operations.draft',
+};
+
 const LAYER_ICONS: Record<ProjectSetupLayer, React.ComponentType<any>> = {
   FOUNDATION: Building2,
   WORKSPACE: FolderSync,
@@ -284,6 +290,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // Unit 3A.2: Project Data Freshness, Race-Safe Loading & Authoritative Snapshot
   const bridgeContextRef = useRef<ProjectContextToken | null>(null);
+  const bridgeOriginRef = useRef<'CREATION' | 'FOUNDATION'>('CREATION');
   const currentProjectsRef = useRef(globalProjects);
   currentProjectsRef.current = globalProjects;
   const canonicalProjectsSeen = useRef(new Set<string>());
@@ -522,17 +529,20 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const project = useMemo(() => {
     if (!editingProjectId) return null;
     const fromGlobal = globalProjects.find(p => p.projectId === editingProjectId);
-    if (fromGlobal) return fromGlobal;
+    if (bridgeOriginRef.current === 'CREATION') {
+      if (fromGlobal) return fromGlobal;
+    }
+    // This bridge contains only a successful canonical read/command result, never a draft merge.
     if (localProjectOverride && localProjectOverride.projectId === editingProjectId && bridgeContextRef.current && projectContext.isCurrent(bridgeContextRef.current, editingProjectId)) {
       return localProjectOverride;
     }
-    return null;
+    return fromGlobal || null;
   }, [globalProjects, editingProjectId, localProjectOverride]);
 
-  const setCurrentProjectOverride = (value: ProjectEntity, token: ProjectContextToken) => {
+  const setCurrentProjectOverride = (value: ProjectEntity, token: ProjectContextToken, origin: 'CREATION' | 'FOUNDATION' = 'CREATION') => {
     if (!projectContext.isCurrent(token, value.projectId)) return;
-    if (currentProjectsRef.current.some(item => item.projectId === value.projectId)) return;
     bridgeContextRef.current = token;
+    bridgeOriginRef.current = origin;
     setLocalProjectOverride(value);
   };
 
@@ -540,14 +550,16 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   useEffect(() => {
     if (!editingProjectId || !localProjectOverride) return;
 
-    const canonicalExists = globalProjects.some(
-      p => p.projectId === editingProjectId
-    );
-
-    if (
-      canonicalExists &&
-      localProjectOverride.projectId === editingProjectId
-    ) {
+    const canonicalExists = globalProjects.some(p => p.projectId === editingProjectId);
+    const canonical = globalProjects.find(p => p.projectId === editingProjectId);
+    if (!canonicalExists || !canonical) return;
+    const stamp = (value: any): number => {
+      const date = value?.toDate ? value.toDate() : new Date(value);
+      return Number.isFinite(date?.getTime()) ? date.getTime() : 0;
+    };
+    const stable = (value: any): any => value instanceof Date ? value.toISOString() : Array.isArray(value) ? value.map(stable) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, stable(value[key])])) : value;
+    if (localProjectOverride.projectId === editingProjectId &&
+      (bridgeOriginRef.current === 'CREATION' || stamp(canonical.updatedAt) > stamp(localProjectOverride.updatedAt) || JSON.stringify(stable(canonical)) === JSON.stringify(stable(localProjectOverride)))) {
       bridgeContextRef.current = null;
       setLocalProjectOverride(null);
     }
@@ -717,7 +729,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       if (!updatedProject) throw new Error('FOUNDATION_REFRESH_FAILED');
       foundationReceipt.current = null; setFoundationNeedsRefresh(false);
 
-      setCurrentProjectOverride(updatedProject, requestContext);
+      setCurrentProjectOverride(updatedProject, requestContext, 'FOUNDATION');
       setIsEditingFoundation(false);
       setFoundationDraft(null);
       setFoundationSaveSuccess(t('projects.messages.changes_saved'));
@@ -3607,7 +3619,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         p.status === 'READY_FOR_REVIEW' ? 'bg-amber-950 text-amber-400 border-amber-800' :
                         'bg-stone-950 text-stone-500 border-stone-800'
                       }`}>
-                        {p.status}
+                        {t(PROJECT_STATUS_KEYS[p.status] || 'setup.status.MISSING')}
                       </span>
                     </div>
 
@@ -3664,7 +3676,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Main workspace Sidebar (Phases Indicator) */}
           <div className="lg:col-span-3 bg-stone-900 border border-stone-800 p-4 rounded-2xl space-y-4">
-            <div className="p-3 border-b border-stone-800 space-y-1 text-center lg:text-right">
+            <div className="p-3 border-b border-stone-800 space-y-1 text-center lg:text-start">
               <button
                 onClick={() => {
                   setEditingProjectId(null);
@@ -3698,7 +3710,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   <button
                     key={layer.id}
                     onClick={() => attemptProjectSetupLayerNavigation(layer.id)}
-                    className={`w-full p-3 rounded-xl text-right flex items-center gap-3 transition-all ${
+                    className={`w-full p-3 rounded-xl text-start flex items-center gap-3 transition-all ${
                       isActive 
                         ? 'bg-amber-600/10 border border-amber-500/20 text-white font-bold' 
                         : 'hover:bg-stone-850 text-stone-400 border border-transparent'
@@ -3723,7 +3735,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           </div>
 
           {/* Staged Panel Content */}
-          <div className="lg:col-span-9 bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-xl space-y-6 min-h-[500px]">
+          <div className="lg:col-span-9 min-w-0 bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-xl space-y-6 min-h-[500px]">
             {/* Panel Phase Header */}
             <div className="border-b border-stone-800 pb-4 flex justify-between items-center">
               <div>
@@ -4054,7 +4066,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <p className="text-center text-stone-500 py-6">{t('projects.batch4.no_project_materials')}</p>
                   ) : (
                     <div className="overflow-x-auto">
-                      <table className="w-full text-right">
+                      <table className="w-full text-start">
                         <thead>
                           <tr className="border-b border-stone-800/80 text-stone-500 font-black">
                             <th className="pb-2">{t('projects.batch4.material_id')}</th>
@@ -4211,7 +4223,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <p className="text-center text-stone-500 py-6">{t('projects.batch4.no_project_carriers')}</p>
                   ) : (
                     <div className="overflow-x-auto">
-                      <table className="w-full text-right">
+                      <table className="w-full text-start">
                         <thead>
                           <tr className="border-b border-stone-800/80 text-stone-500 font-black">
                             <th className="pb-2">{t('projects.batch4.carrier_id')}</th>
@@ -4482,7 +4494,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <p className="text-center text-stone-500 py-6">{t('projects.batch4.no_pricing_agreements')}</p>
                   ) : (
                     <div className="overflow-x-auto">
-                      <table className="w-full text-right">
+                      <table className="w-full text-start">
                         <thead>
                           <tr className="border-b border-stone-800/80 text-stone-500 font-black">
                             <th className="pb-2">{t('projects.batch4.rule_id')}</th>
@@ -4583,19 +4595,19 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   <div className="space-y-2">
                     <span className="text-stone-500 font-mono font-bold block">{t('projects.batch4.project_governance_cycle')}</span>
                     <div className="flex justify-center gap-2 items-center text-xs font-black">
-                      <span className={`px-2 py-0.5 rounded-md ${(project.status as any) === 'SETUP' ? 'bg-amber-600 text-white' : 'bg-stone-900 text-stone-500'}`}>SETUP</span>
+                      <span className={`px-2 py-0.5 rounded-md ${(project.status as any) === 'SETUP' ? 'bg-amber-600 text-white' : 'bg-stone-900 text-stone-500'}`}>{t(PROJECT_STATUS_KEYS['SETUP'])}</span>
                       <span className="text-stone-700">➔</span>
-                      <span className={`px-2 py-0.5 rounded-md ${(project.status as any) === 'READY_FOR_REVIEW' ? 'bg-amber-600 text-white' : 'bg-stone-900 text-stone-500'}`}>READY_FOR_REVIEW</span>
+                      <span className={`px-2 py-0.5 rounded-md ${(project.status as any) === 'READY_FOR_REVIEW' ? 'bg-amber-600 text-white' : 'bg-stone-900 text-stone-500'}`}>{t(PROJECT_STATUS_KEYS['READY_FOR_REVIEW'])}</span>
                       <span className="text-stone-700">➔</span>
-                      <span className={`px-2 py-0.5 rounded-md ${(project.status as any) === 'APPROVED' ? 'bg-amber-600 text-white' : 'bg-stone-900 text-stone-500'}`}>APPROVED</span>
+                      <span className={`px-2 py-0.5 rounded-md ${(project.status as any) === 'APPROVED' ? 'bg-amber-600 text-white' : 'bg-stone-900 text-stone-500'}`}>{t(PROJECT_STATUS_KEYS['APPROVED'])}</span>
                       <span className="text-stone-700">➔</span>
-                      <span className={`px-2 py-0.5 rounded-md ${(project.status as any) === 'ACTIVE' ? 'bg-emerald-600 text-white' : 'bg-stone-900 text-stone-500'}`}>ACTIVE</span>
+                      <span className={`px-2 py-0.5 rounded-md ${(project.status as any) === 'ACTIVE' ? 'bg-emerald-600 text-white' : 'bg-stone-900 text-stone-500'}`}>{t(PROJECT_STATUS_KEYS['ACTIVE'])}</span>
                     </div>
                   </div>
 
                   <div className="space-y-3">
                     <p className="text-stone-400 leading-relaxed text-[11px] max-w-md mx-auto">
-                      {t('projects.batch4.activation_requires')} <span className="font-bold text-white">ACTIVE</span> {t('projects.batch4.activation_governance_requirements')}
+                      {t('projects.batch4.activation_requires')} <span className="font-bold text-white">{t(PROJECT_STATUS_KEYS['ACTIVE'])}</span> {t('projects.batch4.activation_governance_requirements')}
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-3 pt-2">
@@ -4630,6 +4642,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                       {(project.status as any) === 'APPROVED' && (
                         <div className="flex flex-col items-center gap-2">
+                          <button type="button" onClick={() => handleTransitionStatus('SETUP' as any)} disabled={isTransitioning || isActivating}
+                            className="rounded-lg border border-stone-700 px-4 py-2 text-stone-300 disabled:opacity-50">{t('setup.closure.returnToSetup')}</button>
                           <button
                             onClick={handleActivateProject}
                             disabled={!serverReadiness?.ready || !serverReadiness?.lifecycle.ready || !serverReadiness?.setup.ready || !serverReadiness?.operational.ready || isActivating || isLoadingReadiness || foundationNeedsRefresh || isSavingFoundation || Boolean(projectDataLoadError)}
@@ -4802,7 +4816,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       </span>
                     </div>
                     <div className="overflow-x-auto max-h-[300px]">
-                      <table className="w-full text-right text-xs">
+                      <table className="w-full text-start text-xs">
                         <thead className="bg-stone-900/80 sticky top-0 border-b border-stone-800 text-stone-400 font-bold">
                           <tr>
                             <th className="p-2.5">{t('projects.batch4.source_column_name')}</th>

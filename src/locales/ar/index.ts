@@ -1,6 +1,14 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "setup.closure.status.SETUP": "قيد الإعداد",
+  "setup.closure.status.READY_FOR_REVIEW": "جاهز للمراجعة",
+  "setup.closure.status.ARCHIVED": "مؤرشف",
+  "setup.closure.status.PLANNING": "قيد التخطيط",
+
+  "setup.closure.returnToSetup": "العودة إلى الإعداد",
+  "setup.closure.tableScrollHint": "مرر الجدول لعرض جميع الأعمدة وإجراءات الصفوف.",
+
   "readiness.lifecycle": "أهلية دورة الحياة",
   "readiness.setup": "اكتمال الإعداد",
   "readiness.operational": "جاهزية التشغيل والتفعيل",

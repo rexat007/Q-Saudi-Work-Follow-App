@@ -66,6 +66,25 @@ describe('P6-B1 manual intake continuity', () => {
   });
 });
 describe('P6-B1 Foundation and Global governance presentation', () => {
+  it('keeps the successful canonical Foundation reread visible while the project subscription is delayed', async () => {
+    vi.spyOn(projectService, 'updateProject').mockResolvedValue();
+    vi.spyOn(projectService, 'getProject').mockResolvedValue({ ...project, nameAr: 'Canonical Foundation', updatedAt: new Date('2026-10-26') });
+    await render(); await click('projects.batch4.edit_data'); await change(container.querySelector<HTMLInputElement>('input[value="Example Project"]')!, 'Submitted draft');
+    await click('shared.actions.save');
+    expect(container.querySelector<HTMLInputElement>('input[value="Canonical Foundation"]')?.disabled).toBe(true);
+    expect(container.querySelector('input[value="Submitted draft"]')).toBeNull();
+    await render(); expect(container.querySelector('input[value="Canonical Foundation"]')).not.toBeNull();
+    await act(async () => root.render(<ProjectSetupWizard projects={[{ ...project, nameAr: 'Newer canonical subscription', updatedAt: new Date('2026-10-27') }]} authContext={auth} selectedProjectId="P1" />));
+    expect(container.querySelector('input[value="Newer canonical subscription"]')).not.toBeNull();
+  });
+  it('offers the existing APPROVED return-to-Setup command without requiring operational readiness', async () => {
+    vi.stubGlobal('alert', vi.fn());
+    await act(async () => root.render(<ProjectSetupWizard projects={[{ ...project, status: 'APPROVED' }]} authContext={auth} selectedProjectId="P1" />));
+    const review = Array.from(container.querySelectorAll('button')).find(b => b.textContent?.includes('projects.batch4.layer_activation'))!;
+    await act(async () => review.click()); await click('setup.closure.returnToSetup');
+    const calls = vi.mocked(fetch).mock.calls.filter(([url]) => String(url).endsWith('/lifecycle-transition'));
+    expect(calls).toHaveLength(1); expect(JSON.parse(calls[0][1]!.body as string)).toEqual({ targetStatus: 'SETUP' });
+  });
   it('Foundation refresh failure keeps a receipt; retry never repeats the Project command', async () => {
     const command = vi.spyOn(projectService, 'updateProject').mockResolvedValue();
     vi.spyOn(projectService, 'getProject').mockRejectedValueOnce(Error('read failed')).mockResolvedValue({ ...project, nameAr: 'Changed project' });
