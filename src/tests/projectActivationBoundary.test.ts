@@ -42,7 +42,7 @@ describe('P4-B3 lifecycle and categorized readiness', () => {
     for (const key of Object.keys(x.store)) if (key !== 'projects/P1' && key !== 'users/actor') delete x.store[key];
     const result = await new ProjectReadinessService().evaluateProjectReadiness('P1', new Date(), new ProjectReadinessAdminReadContext(x.db));
     expect(result.lifecycle.ready).toBe(true); expect(result.operational.ready).toBe(false); expect(result.ready).toBe(false);
-    expect(result.blockers.every(blocker => blocker.category === 'RELATIONSHIP' && blocker.ownerPhase === 'PHASE_5')).toBe(true); expect(result.setup).toEqual({ evaluated: false, ownerPhase: 'PHASE_6' });
+    expect(result.operational.blockers.every(blocker => blocker.category === 'RELATIONSHIP' && blocker.ownerPhase === 'PHASE_5')).toBe(true); expect(result.setup).toMatchObject({ evaluated: true, ready: false, ownerPhase: 'PHASE_6' }); expect(result.setup.blockers.map(b => b.code)).toEqual(['NO_USABLE_CARRIER', 'NO_USABLE_MATERIAL']);
   });
   it.each(['SETUP','READY_FOR_REVIEW','DRAFT','PLANNING','SUSPENDED','ARCHIVED'])('%s is not activation lifecycle-ready', status => {
     expect(lifecycleReadiness({ ...baseProject(), status } as any, 'P1')).toMatchObject({ ready: false, state: 'INELIGIBLE', blockers: [expect.objectContaining({ code: 'PROJECT_NOT_APPROVED', category: 'LIFECYCLE' })] });

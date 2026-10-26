@@ -1,3 +1,4 @@
+import { setupParticipationFixture } from './helpers/setupParticipationFixture';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { ProjectCommandsServerService } from '../services/projectCommands.server';
@@ -12,7 +13,7 @@ let x: ReturnType<typeof commandDatabase>, service: ProjectCommandsServerService
 const create = (patch: any = {}) => service.createProject({ ...foundation(), operationId: 'OP-1', ...patch }, actor);
 const audits = () => Object.entries(x.store).filter(([key]) => key.startsWith('audit_logs/'));
 beforeEach(() => {
-  x = commandDatabase({ 'users/actor': accountProfile(), 'projects/P1': project() });
+  x = commandDatabase({ ...setupParticipationFixture('P1'), 'users/actor': accountProfile(), 'projects/P1': project() });
   service = new ProjectCommandsServerService(x.db);
 });
 describe('P4-B1 canonical Project commands', () => {

@@ -1,3 +1,5 @@
+import type { SetupReadinessResult, SetupRecommendedAction } from '../types/setupReadiness';
+import { unavailableSetupReadiness } from '../utils/setupReadiness';
 import { decodeProject, persistenceTime } from '../utils/persistenceBoundary';
 import { ProjectValidator } from '../validators/project.validator';
 import { canEvaluateProjectActivation } from './projectMutability.policy';
@@ -11,6 +13,8 @@ export interface ReadinessBlocker {
   ownerPhase: 'PHASE_4' | 'PHASE_5' | 'PHASE_6' | 'PHASE_9';
   code: string;
   message: string;
+  entityId?: string;
+  recommendedAction?: SetupRecommendedAction;
 }
 
 export interface ReadinessResult {
@@ -18,7 +22,7 @@ export interface ReadinessResult {
   ready: boolean;
   lifecycle: LifecycleReadiness;
   operational: { ready: boolean; blockers: ReadinessBlocker[] };
-  setup: { evaluated: false; ownerPhase: 'PHASE_6' };
+  setup: SetupReadinessResult;
   evaluatedAt: string;
   blockers: ReadinessBlocker[];
   candidatePath?: {
@@ -74,6 +78,7 @@ export class ProjectReadinessService {
     const blockers: ReadinessBlocker[] = [];
 
     const lifecycle = lifecycleReadiness(project, projectId, actor);
+    const setup = readContext.getSetupReadiness ? await readContext.getSetupReadiness(projectId, project) : unavailableSetupReadiness();
 
     // 1. Material membership
     const materials = await readContext.listActiveMaterialMemberships(projectId);
@@ -99,10 +104,10 @@ export class ProjectReadinessService {
 
     return {
       projectId,
-      ready: lifecycle.ready && blockers.length === 0 && additionalBlockers.length === 0,
-      lifecycle, operational: { ready: blockers.length === 0, blockers }, setup: { evaluated: false, ownerPhase: 'PHASE_6' },
+      ready: lifecycle.ready && setup.ready && blockers.length === 0 && additionalBlockers.length === 0,
+      lifecycle, setup, operational: { ready: blockers.length === 0, blockers },
       evaluatedAt: effectiveAt.toISOString(),
-      blockers: [...lifecycle.blockers, ...blockers, ...additionalBlockers],
+      blockers: [...lifecycle.blockers, ...setup.blockers, ...blockers, ...additionalBlockers],
       candidatePath: completePath || undefined,
     };
   }

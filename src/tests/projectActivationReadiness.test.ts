@@ -1,3 +1,4 @@
+import { evaluateSetupReadiness } from '../utils/setupReadiness';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ProjectReadinessService, ReadinessResult } from '../services/projectReadiness.service';
 import { ProjectReadinessReadContext } from '../services/projectReadiness.context';
@@ -82,6 +83,14 @@ vi.mock('firebase/firestore', async (importOriginal) => {
 });
 
 class MockReadContext implements ProjectReadinessReadContext {
+  async getSetupReadiness(projectId: string, project: ProjectEntity) {
+    const participants = [
+      ...this.carrierMemberships.map(m => ({ kind: 'CARRIER', id: m.carrierId, membershipStatus: m.status, eligible: m.status === 'ACTIVE' })),
+      ...this.materialMemberships.map(m => ({ kind: 'MATERIAL', id: m.materialId, membershipStatus: m.status, eligible: m.status === 'ACTIVE' })),
+    ];
+    return evaluateSetupReadiness(project, { projectId, participants, fleet: { projectId, rows: [] } } as any);
+  }
+
   public project: ProjectEntity | null = null;
   public materialMemberships: ProjectMaterialMembershipEntity[] = [];
   public carrierMemberships: ProjectCarrierMembershipEntity[] = [];

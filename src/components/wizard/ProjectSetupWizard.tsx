@@ -1,3 +1,5 @@
+import { SetupReadinessPanel } from './SetupReadinessPanel';
+import { isEvaluatedReadiness, type EvaluatedReadinessView } from '../../i18n/readinessPresentation';
 import { FleetSetupWorkspace } from './FleetSetupWorkspace';
 import { SetupMutationSession, setupCommand, postSetupJson } from '../../services/setupOrchestration.service';
 import { setupErrorKey } from '../../i18n/setupErrors';
@@ -113,7 +115,7 @@ export interface ServerReadinessBlocker {
   message: string;
 }
 
-export interface ServerReadinessDTO {
+export interface ServerReadinessDTO extends EvaluatedReadinessView {
   projectId: string;
   ready: boolean;
   evaluatedAt: string;
@@ -747,6 +749,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     readinessRequestRef.current = readinessRequest;
     const isCurrentReadiness = () => projectContext.isCurrent(requestContext, targetProjectId) && readinessRequestRef.current === readinessRequest;
     setIsLoadingReadiness(true);
+    setServerReadiness(null);
     setReadinessError(null);
     try {
       const token = await auth.currentUser?.getIdToken();
@@ -763,19 +766,21 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-        throw new Error(errData.error || t('projects.batch4.readiness_http_error', { status: res.status }));
+        throw new Error('READINESS_UNAVAILABLE');
       }
       const data: ServerReadinessDTO = await res.json();
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (!isCurrentReadiness()) {
         return;
       }
+      if (!isEvaluatedReadiness(data, targetProjectId)) throw new Error('READINESS_UNAVAILABLE');
       setServerReadiness(data);
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
       if (isCurrentReadiness()) {
-        setReadinessError(err.message || t('projects.batch4.readiness_fetch_failed'));
+        setServerReadiness(null);
+        setReadinessError(t('readiness.unavailable'));
         setServerReadiness(null);
       }
     } finally {
@@ -924,12 +929,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   }, [editingProjectId, projectScopeKey]);
 
   useEffect(() => {
-    if (editingProjectId) {
+    if (editingProjectId && !foundationNeedsRefresh && !isSavingFoundation) {
       fetchServerReadiness(editingProjectId);
     } else {
       setServerReadiness(null);
     }
-  }, [editingProjectId, fetchServerReadiness]);
+  }, [editingProjectId, fetchServerReadiness, canonicalRevision, foundationNeedsRefresh, isSavingFoundation]);
 
   useEffect(() => {
     if (activeSetupLayer === 'REVIEW_ACTIVATION' && editingProjectId) {
@@ -1043,19 +1048,6 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     restoreResumableSession();
   }, [editingProjectId, activeSetupLayer, projectScopeKey]);
 
-  // Calculate Completeness for projects in list
-  const getProjectCompleteness = (p: ProjectEntity) => {
-    // Phase completion logic
-    let score = 0;
-    if (p.nameAr && p.clientName) score += 20; // Phase 1 basic details
-    if (p.settings?.googleSpreadsheetId) score += 20; // Phase 1 Google sync
-    if (p.authorizedMaterialIds && p.authorizedMaterialIds.length > 0) score += 15; // Material
-    if (p.authorizedCarrierIds && p.authorizedCarrierIds.length > 0) score += 15; // Carrier
-    if (p.status === 'ACTIVE') score = 100;
-    else score = Math.min(score, 90);
-    return score;
-  };
-
   // Filtered setup projects
   const setupProjects = useMemo(() => {
     return globalProjects.filter(p => {
@@ -1094,24 +1086,6 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
     return conflicts;
   }, [pricingRules, t]);
-
-  // Setup Progress Checklist calculations (informational progress tracking)
-  const setupChecklist = useMemo(() => {
-    if (!project) return [];
-    return [
-      { id: 'foundation', text: t('projects.batch4.check_foundation'), isDone: !!project.nameAr && !!project.clientName },
-      { id: 'materials', text: t('projects.batch4.check_materials'), isDone: materials.length > 0 },
-      { id: 'carriers', text: t('projects.batch4.check_carriers'), isDone: carriers.length > 0 },
-      { id: 'roster', text: t('projects.batch4.check_roster'), isDone: fleetRows.length > 0 },
-      { id: 'pricing', text: t('projects.batch4.check_pricing'), isDone: pricingRules.length > 0 },
-      { id: 'conflicts', text: t('projects.batch4.check_pricing_conflicts'), isDone: pricingConflicts.length === 0 },
-      { id: 'google_sync', text: t('projects.batch4.check_workspace'), isDone: !!project.settings?.googleSpreadsheetId }
-    ];
-  }, [project, materials, carriers, fleetRows, pricingRules, pricingConflicts, t]);
-
-  const isSetupChecklistComplete = useMemo(() => {
-    return setupChecklist.every(item => item.isDone);
-  }, [setupChecklist]);
 
   const creationCommandRef = useRef<{ fingerprint: string; operationId: string } | null>(null);
 
@@ -3425,7 +3399,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       const data = await res.json();
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (!res.ok) {
-        throw new Error(data.error || t('projects.batch4.project_status_failed'));
+        throw Object.assign(new Error('PROJECT_TRANSITION_FAILED'), { code: data.code });
       }
       alert(presentBatch4Message(t('projects.batch4.project_status_success', { status: nextStatus }), t));
       await fetchServerReadiness(project.projectId);
@@ -3433,7 +3407,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-      alert(presentBatch4Message(err.message || t('projects.batch4.project_status_failed'), t));
+      alert(t(err.code === 'PROJECT_SETUP_NOT_READY' ? 'readiness.reviewBlocked' : 'setup.errors.failed'));
+      await fetchServerReadiness(project.projectId);
     } finally {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
@@ -3623,7 +3598,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {setupProjects.map((p) => {
-                const completeness = getProjectCompleteness(p);
+
                 return (
                   <div key={p.projectId} className="bg-stone-900 border border-stone-800 p-5 rounded-2xl flex flex-col justify-between hover:border-stone-700 transition-all shadow-md overflow-hidden relative group">
                     <div className="absolute top-4 left-4">
@@ -3657,16 +3632,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         </div>
                       </div>
 
-                      {/* Completeness Indicator */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] font-black text-stone-400">
-                          <span>{t('projects.batch4.setup_completion')}</span>
-                          <span className="font-mono">{completeness}%</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-stone-950 rounded-full overflow-hidden">
-                          <div className="h-full bg-amber-600 rounded-full transition-all duration-500" style={{ width: `${completeness}%` }} />
-                        </div>
-                      </div>
+                      <p className="text-[11px] text-stone-400">{t('readiness.openToEvaluate')}</p>
                     </div>
 
                     <div className="mt-5 pt-3 border-t border-stone-800 flex items-center justify-between">
@@ -4567,10 +4533,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <ShieldCheck className="w-5 h-5 text-amber-500" />
                       <div>
                         <h3 className="font-black text-white text-[13px]">
-                          {t('projects.batch4.server_operational_readiness')}
+                          {t('readiness.title')}
                         </h3>
                         <p className="text-[11px] text-stone-400">
-                          {t('projects.batch4.readiness_description')}
+                          {t('readiness.separation')}
                         </p>
                       </div>
                     </div>
@@ -4600,77 +4566,16 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       </div>
                     </div>
                   ) : serverReadiness ? (
-                    <div className="space-y-4">
-                      {serverReadiness.ready ? (
-                        <div className="p-4 bg-emerald-950/40 border border-emerald-800/80 rounded-xl space-y-3">
-                          <div className="flex items-center gap-2.5 text-emerald-400 font-black text-xs">
-                            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                            <span>{t('projects.batch4.readiness_satisfied')}</span>
-                          </div>
-                          <p className="text-[11px] text-emerald-300/80 leading-relaxed">
-                            {t('projects.batch4.readiness_verified_path')}
-                          </p>
-                          {serverReadiness.candidatePath && (
-                            <div className="bg-stone-950/80 border border-emerald-900/60 p-3 rounded-lg flex flex-wrap gap-4 text-[10px] font-mono text-stone-300">
-                              <div><span className="text-stone-500">{t('loading.labels.driver')} </span>{serverReadiness.candidatePath.driverId}</div>
-                              <div><span className="text-stone-500">{t('operations.truck_2')} </span>{serverReadiness.candidatePath.truckId}</div>
-                              <div><span className="text-stone-500">{t('operations.carrier')} </span>{serverReadiness.candidatePath.carrierId}</div>
-                              <div><span className="text-stone-500">{t('loading.labels.material_2')} </span>{serverReadiness.candidatePath.materialId}</div>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="p-4 bg-rose-950/30 border border-rose-800/70 rounded-xl space-y-3">
-                          <div className="flex items-center gap-2.5 text-rose-400 font-black text-xs">
-                            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
-                            <span>{t('projects.batch4.readiness_blocker_count', { count: serverReadiness.blockers.length })}</span>
-                          </div>
-                          <div className="space-y-2 pt-1">
-                            {serverReadiness.blockers.map((b, idx) => (
-                              <div key={idx} className="flex items-start gap-2 bg-stone-950/70 border border-rose-900/40 p-2.5 rounded-lg text-rose-200 text-[11px]">
-                                <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                                <div className="space-y-0.5">
-                                  <span className="font-semibold block">{presentBatch4Message(b.message, t)}</span>
-                                  <span className="text-[10px] font-mono text-stone-500 block">{t('projects.batch4.blocker_code')} {b.code}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    <SetupReadinessPanel result={serverReadiness} onAction={action => {
+                      if (action === 'RETRY_READINESS') { void fetchServerReadiness(project.projectId); return; }
+                      const layers = { OPEN_FOUNDATION: 'FOUNDATION', OPEN_CARRIERS: 'CARRIERS', OPEN_MATERIALS: 'MATERIALS', OPEN_ROSTER: 'ROSTER' } as const;
+                      attemptProjectSetupLayerNavigation(layers[action]);
+                    }} />
                   ) : (
                     <div className="p-4 bg-stone-900 border border-stone-800 rounded-xl text-stone-400 text-center">
                       {t('projects.batch4.readiness_refresh_hint')}
                     </div>
                   )}
-                </div>
-
-                {/* 2. Informational Setup Progress Checklist */}
-                <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
-                  <div className="border-b border-stone-800 pb-2">
-                    <h3 className="font-black text-white text-[13px]">{t('projects.batch4.setup_indicators')}</h3>
-                    <p className="text-[11px] text-stone-500">{t('projects.batch4.setup_indicators_description')}</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {setupChecklist.map((item) => (
-                      <div key={item.id} className="p-3 bg-stone-900 border border-stone-800 rounded-xl flex items-center justify-between">
-                        <span className="text-stone-300 font-semibold text-[11px]">{item.text}</span>
-                        {item.isDone ? (
-                          <span className="px-2 py-0.5 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/60 font-bold flex items-center gap-1 text-[10px]">
-                            <Check className="w-3 h-3 text-emerald-400" />
-                            <span>{t('projects.batch4.fulfilled')}</span>
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 rounded-lg bg-stone-850 text-stone-400 border border-stone-750 font-bold flex items-center gap-1 text-[10px]">
-                            <X className="w-3 h-3 text-stone-500" />
-                            <span>{t('projects.batch4.incomplete')}</span>
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
                 </div>
 
                 {/* 3. Governance and Lifecycle Controller */}
@@ -4697,7 +4602,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       {(project.status as any) === 'SETUP' && (
                         <button
                           onClick={() => handleTransitionStatus('READY_FOR_REVIEW' as any)}
-                          disabled={isTransitioning}
+                          disabled={isTransitioning || isLoadingReadiness || !serverReadiness?.setup.ready || foundationNeedsRefresh || isSavingFoundation || Boolean(projectDataLoadError) || !(authContext.role === 'SUPER_ADMIN' || authContext.role === 'PROJECT_ADMIN' && authContext.assignedProjectIds?.includes(project.projectId))}
                           className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl transition-all shadow-md disabled:opacity-50"
                         >
                           {isTransitioning ? t('projects.batch4.submitting_review') : t('projects.batch4.submit_review')}
@@ -4727,7 +4632,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         <div className="flex flex-col items-center gap-2">
                           <button
                             onClick={handleActivateProject}
-                            disabled={!serverReadiness?.ready || isActivating || isLoadingReadiness}
+                            disabled={!serverReadiness?.ready || !serverReadiness?.lifecycle.ready || !serverReadiness?.setup.ready || !serverReadiness?.operational.ready || isActivating || isLoadingReadiness || foundationNeedsRefresh || isSavingFoundation || Boolean(projectDataLoadError)}
                             className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs flex items-center gap-2 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Unlock className="w-4 h-4" />
