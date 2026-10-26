@@ -2,6 +2,7 @@ import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
   "intent.title": "کینونیکل ارادے کا جائزہ",
+  "intent.sourceRows": "ماخذ کی قطاریں",
   "intent.rows": "قطاریں",
   "intent.count.read": "پڑھی گئی قطاریں",
   "intent.count.contributing": "شامل قطاریں",
@@ -67,7 +68,7 @@ export const urTranslations: TranslationDictionary = {
   "import.roster.limit": "فائل محفوظ درآمد کی حدود سے بڑی ہے: 10,000 قطاریں، 256 کالم یا 1,000,000 خانے۔ فائل تقسیم کریں۔",
   "import.roster.headers": "فائل میں موجود عنوانات کی قطار منتخب کریں۔",
   "import.roster.duplicate": "ہر فلیٹ فیلڈ کو صرف ایک ماخذ کالم سے جوڑیں۔",
-  "import.roster.required": "کمپنی، ڈرائیور کا نام یا ٹرک کی پلیٹ، اور مواد کا نام یا کوڈ جوڑیں۔",
+  "import.roster.required": "کیریئر کے ساتھ ڈرائیور کی شناخت، ڈرائیور کا نام یا ٹرک کی پلیٹ جوڑیں۔ مواد اختیاری ہے۔",
   "import.roster.source": "منظور شدہ کالم اس ماخذ سے نہیں ملتے۔ ربط کا جائزہ لیں۔",
   "import.roster.weight": "اختیاری فلیٹ وزن غلط ہے۔ اسے درست کریں یا خالی چھوڑیں۔",
 

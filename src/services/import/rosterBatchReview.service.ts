@@ -6,7 +6,7 @@ import {
   PreparedDriverPlan,
   PreparedTruckPlan
 } from '../../types/unifiedImport';
-import { normalizeName, normalizePlate, normalizeIdNumber } from '../../utils/normalization';
+import { normalizeName, normalizePlate, normalizeIdNumber, normalizeCode, normalizePhone } from '../../utils/normalization';
 
 export type ReviewGroupEntityType = 'carrier' | 'material' | 'driver' | 'truck';
 
@@ -17,6 +17,7 @@ export interface RosterEntityReviewGroup {
   normalizedSourceKey: string;
   sourceValue: string;
   rowNumbers: number[];
+  sourceRows: NonNullable<ImportRow["sourceLocation"]>[];
   occurrenceCount: number;
   currentResolution?: ImportEntityResolutionInfo;
   candidates: any[];
@@ -52,44 +53,59 @@ export interface TruckCreationDefaultsResult {
   conflicts: Record<string, string[]>;
 }
 
+const planSignature = (plan: PreparedDriverPlan | PreparedTruckPlan) => {
+  const normalized = 'residencyId' in plan
+    ? {...plan, driverName:normalizeName(plan.driverName), residencyId:normalizeIdNumber(plan.residencyId), phone:normalizePhone(plan.phone || '')}
+    : {...plan, plateNumber:normalizePlate(plan.plateNumber)};
+  return JSON.stringify(Object.entries(normalized).filter(([,v])=>v!==undefined).sort(([a],[b])=>a.localeCompare(b)));
+};
+
 export class RosterBatchReviewService {
   /**
    * Derives deterministic group key for a given row and entity type.
    * Priority for drivers:
    * 1. normalized driverIdentity / residencyId when available
-   * 2. normalized driverName only if identity is genuinely unavailable
-   * 3. carrier context remains part of group identity
+   * 2. selected canonical identity
+   * 3. normalized name only as an unresolved review problem
+   * Carrier context remains part of Driver/Truck group identity.
    */
   public static getGroupKey(row: ImportRow, entityType: ReviewGroupEntityType): string {
+    if (row.status === 'REJECTED') return '';
     const canonical = row.canonical || {};
     const raw = row.raw || {};
     const mapped = (row as any).mapped || {};
 
+    const resolution = row.entityResolutions?.[entityType];
+    const selectedId = resolution && !resolution.resolutionReason &&
+      (resolution.recommendation === 'ACCEPT' || ['SELECT_ALTERNATE', 'ACCEPT_CANDIDATE'].includes(resolution.decision || '')) ? resolution.matchedId : undefined;
+    const evidence = (field: string) => canonical[field] ?? mapped[field] ?? raw[field] ?? '';
     if (entityType === 'carrier' || entityType === 'material') {
-      const rawValue = this.extractSourceValue(row, entityType);
-      if (!rawValue || rawValue === 'غير متوفر في المصدر') return '';
-      const normValue = normalizeName(rawValue);
-      if (!normValue) return '';
-      return `${entityType}:${normValue}`;
+      const natural = entityType === 'carrier'
+        ? normalizeIdNumber(String(evidence('commercialRegistrationNo')))
+        : normalizeCode(String(evidence('materialCode')));
+      if (natural) return `${entityType}:natural:${natural}`;
+      if (selectedId) return `${entityType}:canonical:${selectedId}`;
+      const name = normalizeName(this.extractSourceValue(row, entityType));
+      return name ? `${entityType}:${name}` : '';
     }
 
     // Driver and truck groups must preserve carrier context
     const carrierRes = row.entityResolutions?.carrier;
     const resolvedCarrierId = row.resolvedValues?.carrierId || carrierRes?.matchedId;
-    const carrierContext = resolvedCarrierId || 'UNRESOLVED_CARRIER';
+    const carrierContext = resolvedCarrierId || this.getGroupKey(row, 'carrier') || 'UNRESOLVED_CARRIER';
 
     if (entityType === 'driver') {
       // Priority 1: normalized driverIdentity / residencyId when available
       const rawResidency = (
-        canonical.driverIdentity ||
-        canonical.residencyId ||
-        mapped.driverIdentity ||
-        mapped.residencyId ||
-        raw.driverIdentity ||
-        raw.residencyId ||
-        raw['رقم الهوية'] ||
-        raw['رقم الإقامة'] ||
-        raw['الهوية'] ||
+        canonical.driverIdentity ??
+        canonical.residencyId ??
+        mapped.driverIdentity ??
+        mapped.residencyId ??
+        raw.driverIdentity ??
+        raw.residencyId ??
+        raw['رقم الهوية'] ??
+        raw['رقم الإقامة'] ??
+        raw['الهوية'] ??
         ''
       ).toString().trim();
 
@@ -97,6 +113,8 @@ export class RosterBatchReviewService {
       if (normResidency) {
         return `driver:id:${normResidency}::carrier:${carrierContext}`;
       }
+
+      if (selectedId) return `driver:canonical:${selectedId}::carrier:${carrierContext}`;
 
       // Priority 2: normalized driverName only if identity unavailable
       const rawName = this.extractSourceValue(row, 'driver');
@@ -107,8 +125,10 @@ export class RosterBatchReviewService {
     }
 
     if (entityType === 'truck') {
-      const rawPlate = this.extractSourceValue(row, 'truck');
-      if (!rawPlate || rawPlate === 'غير متوفر في المصدر') return '';
+      const plateEvidence = canonical.truckPlate ?? mapped.truckPlate ?? mapped.truckNo ?? raw.truckPlate ?? raw.plate ?? raw['رقم اللوحة'];
+      if (!plateEvidence && selectedId) return `truck:canonical:${selectedId}::carrier:${carrierContext}`;
+      const rawPlate = String(plateEvidence ?? this.extractSourceValue(row, 'truck'));
+      if (!rawPlate || rawPlate === 'غير متوفر في المصدر') return selectedId ? `truck:canonical:${selectedId}::carrier:${carrierContext}` : '';
       const normPlate = normalizePlate(rawPlate);
       if (!normPlate) return '';
       return `truck:${normPlate}::carrier:${carrierContext}`;
@@ -138,8 +158,9 @@ export class RosterBatchReviewService {
       const groupMap = new Map<string, RosterEntityReviewGroup>();
 
       batch.rows.forEach((row) => {
+        if (row.status === 'REJECTED') return;
         const res = row.entityResolutions?.[entityType];
-        const rawValue = this.extractSourceValue(row, entityType);
+        const rawValue = this.extractSourceValue(row, entityType) || res?.matchedName || res?.matchedId;
         if (!rawValue || rawValue === 'غير متوفر في المصدر') return;
 
         const groupKey = this.getGroupKey(row, entityType);
@@ -152,6 +173,7 @@ export class RosterBatchReviewService {
             normalizedSourceKey: groupKey,
             sourceValue: res?.sourceValue || res?.originalValue || rawValue,
             rowNumbers: [row.rowNumber],
+            sourceRows: row.sourceLocation ? [row.sourceLocation] : [],
             occurrenceCount: 1,
             currentResolution: res,
             candidates: res?.candidates || [],
@@ -168,6 +190,12 @@ export class RosterBatchReviewService {
         } else {
           const group = groupMap.get(groupKey)!;
           group.rowNumbers.push(row.rowNumber);
+          if (row.sourceLocation) group.sourceRows.push(row.sourceLocation);
+          // Equal natural keys do not authorize contradictory canonical selections/plans.
+          const priorPlan = group.preparedDriverPlan || group.preparedTruckPlan;
+          const nextPlan = res?.preparedDriverPlan || res?.preparedTruckPlan;
+          if (group.matchedId && res?.matchedId && group.matchedId !== res.matchedId ||
+              priorPlan && nextPlan && planSignature(priorPlan) !== planSignature(nextPlan)) group.status = 'CONFLICT';
           group.occurrenceCount++;
 
           if (res?.creationDisposition === 'PREPARED_NEW' && !group.creationDisposition) {
@@ -287,7 +315,7 @@ export class RosterBatchReviewService {
     const raw = row.raw || {};
 
     if (entityType === 'carrier') {
-      return canonical.carrierName || mapped.carrier || raw.carrier || raw['الناقل'] || '';
+      return canonical.carrierName || canonical.commercialRegistrationNo || mapped.carrierName || mapped.carrier || raw.carrier || raw['الناقل'] || '';
     }
     if (entityType === 'material') {
       return canonical.materialName || canonical.materialCode || mapped.materialType || mapped.materialName || raw.material || raw['المادة'] || '';
@@ -343,8 +371,7 @@ export class RosterBatchReviewService {
     }
 
     const matchingRows = batch.rows.filter((row) => {
-      if (group.rowNumbers && group.rowNumbers.includes(row.rowNumber)) return true;
-      return this.getGroupKey(row, 'driver') === group.normalizedSourceKey;
+      return row.status !== 'REJECTED' && this.getGroupKey(row, 'driver') === group.normalizedSourceKey;
     });
 
     const driverNames = new Set<string>();
@@ -467,8 +494,7 @@ export class RosterBatchReviewService {
     }
 
     const matchingRows = batch.rows.filter((row) => {
-      if (group.rowNumbers && group.rowNumbers.includes(row.rowNumber)) return true;
-      return this.getGroupKey(row, 'truck') === group.normalizedSourceKey;
+      return row.status !== 'REJECTED' && this.getGroupKey(row, 'truck') === group.normalizedSourceKey;
     });
 
     const plateNumbers = new Set<string>();

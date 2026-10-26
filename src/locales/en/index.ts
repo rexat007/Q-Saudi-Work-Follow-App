@@ -2,6 +2,7 @@ import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
   "intent.title": "Canonical intent review",
+  "intent.sourceRows": "Source rows",
   "intent.rows": "Rows",
   "intent.count.read": "Rows read",
   "intent.count.contributing": "Contributing rows",
@@ -67,7 +68,7 @@ export const enTranslations: TranslationDictionary = {
   "import.roster.limit": "The file exceeds the safe import limits: 10,000 rows, 256 columns or 1,000,000 cells. Split the file.",
   "import.roster.headers": "Choose an existing header row.",
   "import.roster.duplicate": "Map each roster field to only one source column.",
-  "import.roster.required": "Map Carrier, Driver Name or Truck Plate, and Material Name or Material Code.",
+  "import.roster.required": "Map Carrier and Driver Identity, Driver Name, or Truck Plate. Material is optional.",
   "import.roster.source": "The approved columns do not match this source. Review the mapping.",
   "import.roster.weight": "The optional roster weight is invalid. Correct it or leave it empty.",
 

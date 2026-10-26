@@ -145,6 +145,8 @@ export class ExcelImportParser implements IImportParser<ArrayBuffer | Uint8Array
     if (options?.roster) assertRosterSourceKeys(sanitizedHeaders, options.approvedSourceKeys);
 
     // Map data rows
+    // sheet_to_json starts at !ref; its array index is not always the worksheet row.
+    const sourceRowOffset = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']).s.r : 0;
     const structuredRows: Record<string, any>[] = [];
     const dataRows = rawRows.slice(headerRowIdx + 1);
 
@@ -161,7 +163,7 @@ export class ExcelImportParser implements IImportParser<ArrayBuffer | Uint8Array
       }
 
       const rowObj: Record<string, any> = {
-        _sourceRowIndex: headerRowIdx + 1 + rIdx + 1, // 1-indexed row number in sheet
+        _sourceRowIndex: sourceRowOffset + headerRowIdx + 1 + rIdx + 1, // 1-indexed row number in sheet
       };
 
       sanitizedHeaders.forEach((header, colIdx) => {

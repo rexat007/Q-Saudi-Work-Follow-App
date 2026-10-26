@@ -202,7 +202,7 @@ export class DriverTruckPipelineService {
     const matchingRowNumbers = batch.rows
       .filter((row) => {
         const key = RosterBatchReviewService.getGroupKey(row, entityTypeKey);
-        return key === normalizedSourceKey;
+        return Boolean(normalizedSourceKey) && row.status !== 'REJECTED' && key === normalizedSourceKey;
       })
       .map((r) => r.rowNumber);
 
@@ -277,7 +277,7 @@ export class DriverTruckPipelineService {
     const matchingRowNumbers = batch.rows
       .filter((row) => {
         const key = RosterBatchReviewService.getGroupKey(row, entityTypeKey);
-        return key === normalizedSourceKey;
+        return Boolean(normalizedSourceKey) && row.status !== 'REJECTED' && key === normalizedSourceKey;
       })
       .map((r) => r.rowNumber);
 
@@ -317,7 +317,7 @@ export class DriverTruckPipelineService {
   ): UnifiedImportBatch {
     const updatedRows = batch.rows.map((row) => {
       const key = RosterBatchReviewService.getGroupKey(row, 'driver');
-      if (key !== normalizedSourceKey) return row;
+      if (!normalizedSourceKey || row.status === 'REJECTED' || key !== normalizedSourceKey) return row;
 
       const resolutions = { ...(row.entityResolutions || {}) };
       resolutions.driver = {
@@ -371,7 +371,7 @@ export class DriverTruckPipelineService {
   ): UnifiedImportBatch {
     const updatedRows = batch.rows.map((row) => {
       const key = RosterBatchReviewService.getGroupKey(row, 'truck');
-      if (key !== normalizedSourceKey) return row;
+      if (!normalizedSourceKey || row.status === 'REJECTED' || key !== normalizedSourceKey) return row;
 
       const resolutions = { ...(row.entityResolutions || {}) };
       resolutions.truck = {
@@ -500,7 +500,7 @@ export class DriverTruckPipelineService {
     const updatedRows = batch.rows.map((original) => {
       if (context.resolutionContext && (original.status === 'REJECTED' || original.status === 'COMMITTED')) return original;
       const row = revalidateCanonicalRow(original, context);
-      const freshRosterIssues = validator.validateRow(row, context);
+      const freshRosterIssues = validator.validateRow(row, context).map(issue => ({ ...issue, sourceLocation: row.sourceLocation }));
 
       const carrierResolved = Boolean(row.entityResolutions?.carrier?.matchedId);
       const materialResolved = Boolean(row.entityResolutions?.material?.matchedId);
@@ -542,7 +542,7 @@ export class DriverTruckPipelineService {
       const hasBlocking = blockingErrorIssues.length > 0;
 
       const carrierUnresolved = (!context.resolutionContext || Boolean(row.canonical?.driverName || row.canonical?.driverIdentity || row.canonical?.truckPlate || row.canonical?.carrierName || row.canonical?.carrierId)) && !row.entityResolutions?.carrier?.matchedId;
-      const materialUnresolved = (!context.resolutionContext || Boolean(row.canonical?.materialName || row.canonical?.materialCode || row.canonical?.materialId)) && !row.entityResolutions?.material?.matchedId;
+      const materialUnresolved = Boolean(row.canonical?.materialName || row.canonical?.materialCode || row.canonical?.materialId) && !row.entityResolutions?.material?.matchedId;
       
       const driverResolved = Boolean(
         row.entityResolutions?.driver?.matchedId ||
@@ -582,7 +582,7 @@ export class DriverTruckPipelineService {
 
       return {
         ...row,
-        validationIssues: issues,
+        validationIssues: issues.map(issue => ({...issue, sourceLocation:row.sourceLocation})),
         status: rowStatus,
         reviewStatus,
       };

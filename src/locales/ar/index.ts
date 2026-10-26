@@ -2,6 +2,7 @@ import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
   "intent.title": "مراجعة القصد التشغيلي",
+  "intent.sourceRows": "صفوف المصدر",
   "intent.rows": "الصفوف",
   "intent.count.read": "الصفوف المقروءة",
   "intent.count.contributing": "الصفوف المشاركة",
@@ -67,7 +68,7 @@ export const arTranslations: TranslationDictionary = {
   "import.roster.limit": "يتجاوز الملف حدود الاستيراد الآمن: 10000 صف أو 256 عمودًا أو 1000000 خلية. قسّم الملف.",
   "import.roster.headers": "اختر صف عناوين موجودًا في الملف.",
   "import.roster.duplicate": "اربط كل حقل أسطول بعمود مصدر واحد فقط.",
-  "import.roster.required": "اربط الناقل، واسم السائق أو لوحة الشاحنة، واسم المادة أو رمزها.",
+  "import.roster.required": "اربط الناقل، ومعه هوية السائق أو اسمه أو لوحة الشاحنة. المادة اختيارية.",
   "import.roster.source": "الأعمدة المعتمدة لا تطابق هذا المصدر. راجع الربط.",
   "import.roster.weight": "وزن الأسطول الاختياري غير صالح. صححه أو اتركه فارغًا.",
 

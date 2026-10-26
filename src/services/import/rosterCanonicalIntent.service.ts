@@ -20,7 +20,7 @@ const blockingResolution = (r: NonNullable<ImportRow['entityResolutions']>[strin
 
 /** One pure authority for selected-ID coherence and consequences. Never performs commands. */
 export function buildRosterCanonicalIntent(batch: UnifiedImportBatch, context: PipelineContext): RosterCanonicalIntent {
-  const intent: RosterCanonicalIntent = { projectId: batch.projectId, rowDecisions: [], entities: [], assignmentIntents: [], allocationIntents: [], entityConsequences: [], blockers: [], warnings: [], requiresDisplacementApproval: false, signature: '' };
+  const intent: RosterCanonicalIntent = { projectId: batch.projectId, sourceRows: batch.rows.map(row => row.sourceLocation ? {...row.sourceLocation} : {sourceType:batch.source.sourceType, sourceSheetName:batch.source.sourceSheetName, internalRowNumber:row.rowNumber}), rowDecisions: [], entities: [], assignmentIntents: [], allocationIntents: [], entityConsequences: [], blockers: [], warnings: [], requiresDisplacementApproval: false, signature: '' };
   const block = (code: string, rows: number[]) => { const existing = intent.blockers.find(i => i.code === code && stable(i.rowNumbers) === stable(sortedNumbers(rows))); if (!existing) intent.blockers.push({ code, rowNumbers: sortedNumbers(rows) }); };
   const ctx = context.resolutionContext;
   const available = ctx && ctx.projectId === batch.projectId && context.projectId === batch.projectId;
@@ -135,7 +135,7 @@ export function buildRosterCanonicalIntent(batch: UnifiedImportBatch, context: P
   intent.requiresDisplacementApproval = intent.assignmentIntents.some(a => a.action === 'REASSIGN') || intent.allocationIntents.some(a => a.action === 'REALLOCATE');
   intent.blockers.sort((a, b) => stable(a).localeCompare(stable(b)));
   // Include labels/plans, row decisions, and current relation IDs: a changed review never retains approval.
-  intent.signature = stable({ ...intent, signature: undefined, sourceRows: batch.rows.map(r => ({ rowNumber: r.rowNumber, status: r.status === 'REJECTED' ? 'EXCLUDED' : 'INCLUDED', canonical: r.canonical, raw: r.raw })), current: (ctx?.entities || []).filter(e => intent.entities.some(i => i.kind === e.kind && i.key === e.id)).map(e => ({ kind: e.kind, id: e.id, assignment: e.assignment, allocation: e.allocation, affiliation: e.affiliation, issue: e.issue })).sort((a, b) => stable(a).localeCompare(stable(b))) });
+  intent.signature = stable({ ...intent, signature: undefined, sourceEvidence: batch.rows.map(r => ({ rowNumber: r.rowNumber, status: r.status === 'REJECTED' ? 'EXCLUDED' : 'INCLUDED', canonical: r.canonical, raw: r.raw })), current: (ctx?.entities || []).filter(e => intent.entities.some(i => i.kind === e.kind && i.key === e.id)).map(e => ({ kind: e.kind, id: e.id, assignment: e.assignment, allocation: e.allocation, affiliation: e.affiliation, issue: e.issue })).sort((a, b) => stable(a).localeCompare(stable(b))) });
   return intent;
 }
 export function canAcceptRosterIntent(intent: RosterCanonicalIntent, displacementSignature?: string): boolean {

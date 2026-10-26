@@ -70,10 +70,17 @@ export type ImportIssueSeverity = 'BLOCKING' | 'WARNING' | 'INFO';
  */
 export type ImportReviewStatus = 'accepted' | 'warning' | 'error' | 'requires_review';
 
-/**
- * Unified Import Issue Definition
- */
+/** Factual parser location; sourceRowNumber is absent when the parser cannot prove it. */
+export interface ImportSourceLocation {
+  sourceType: OperationSourceType;
+  sourceSheetName?: string;
+  sourceRowNumber?: number;
+  internalRowNumber: number;
+}
+
+/** Unified import issue; field retains the existing column/field reference. */
 export interface ImportIssue {
+  sourceLocation?: ImportSourceLocation;
   issueId: string;
   row: number;
   field: string;
@@ -175,6 +182,7 @@ export interface ImportDuplicateInfo {
  */
 export interface ImportRow<TRaw = Record<string, any>, TCanonical = Record<string, any>> {
   rowNumber: number;
+  sourceLocation?: ImportSourceLocation;
   sourceRowId?: string | number;
   raw: TRaw;
   canonical?: TCanonical;

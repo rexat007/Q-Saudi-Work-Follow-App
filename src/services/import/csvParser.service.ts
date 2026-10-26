@@ -60,7 +60,8 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
     }
 
     // Split lines safely handling \r\n, \r, \n
-    const lines = this.splitCsvLines(csvText, options?.roster);
+    const sourceRowNumbers: number[] = [];
+    const lines = this.splitCsvLines(csvText, options?.roster, sourceRowNumbers);
     if (options?.roster) assertRosterDimensions(lines.length, 0);
     if (lines.length === 0) {
       return {
@@ -116,7 +117,7 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
       if (isCompletelyEmpty) continue;
 
       const rowObj: Record<string, any> = {
-        _sourceRowIndex: headerRowIdx + 1 + i + 1,
+        _sourceRowIndex: sourceRowNumbers[headerRowIdx + 1 + i],
       };
 
       sanitizedHeaders.forEach((header, colIdx) => {
@@ -141,10 +142,12 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
   /**
    * Split lines handling newlines inside quotes
    */
-  private splitCsvLines(text: string, strict = false): string[] {
+  private splitCsvLines(text: string, strict = false, sourceRowNumbers: number[] = []): string[] {
     const lines: string[] = [];
     let currentLine = '';
     let insideQuotes = false;
+    let physicalRow = 1;
+    let recordStart = 1;
 
     for (let i = 0; i < text.length; i++) {
       const char = text[i];
@@ -158,16 +161,21 @@ export class CsvImportParser implements IImportParser<string | ArrayBuffer | Uin
           i++; // Skip \n
         }
         if (currentLine.trim() !== '') {
+          sourceRowNumbers.push(recordStart);
           lines.push(currentLine);
           if (strict && lines.length > MAX_ROSTER_SOURCE_ROWS) throw new RosterSourceError('SOURCE_LIMIT');
         }
+        physicalRow++;
+        recordStart = physicalRow;
         currentLine = '';
       } else {
+        if (char === '\n' || char === '\r' && nextChar !== '\n') physicalRow++;
         currentLine += char;
       }
     }
 
     if (currentLine.trim() !== '') {
+      sourceRowNumbers.push(recordStart);
       lines.push(currentLine);
     }
 
