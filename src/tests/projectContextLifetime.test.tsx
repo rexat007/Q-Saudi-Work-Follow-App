@@ -166,7 +166,7 @@ function uiKey(key: string) { return key; }
 function deferred<T = any>() { let resolve!: (value: T) => void, reject!: (error: unknown) => void; const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
 const B = { ...mockProject, projectId: 'PROJECT-B', nameAr: 'مشروع باء', clientName: 'Client B' };
 const snapshot = (name: string) => ({ materials: [{ materialId: name, nameAr: name, name: name, unitOfMeasure: 'TON', status: 'ACTIVE' }], carriers: [], fleetRows: [], relationshipContext: { authorizedCarrierIds: [], authorizedMaterialIds: [], knownCarriers: [], knownMaterials: [], knownDrivers: [], knownTrucks: [] } });
-const ready = (projectId: string, value = false) => ({ ok: true, json: async () => ({ projectId, ready: value, blockers: [], candidatePath: null }) });
+const ready = (projectId: string, value = false) => ({ ok: true, json: async () => ({ projectId, ready: value, lifecycle: { ready: value, blockers: [] }, setup: { evaluated: true, ready: value, ownerPhase: 'PHASE_6', blockers: [] }, operational: { ready: value, blockers: [] }, blockers: [], candidatePath: null }) });
 let container: HTMLDivElement, root: ReturnType<typeof createRoot>;
 let selection = vi.fn<(projectId: string | null) => void>();
 async function render(id: string | null, projects = [mockProject, B], context = mockAuthContext) {

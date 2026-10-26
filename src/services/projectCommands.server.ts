@@ -1,3 +1,5 @@
+import { readSetupReadiness } from './setupReadiness.server';
+import type { SetupReadinessBlocker } from '../types/setupReadiness';
 import { createHash, randomUUID } from 'node:crypto';
 import { adminDb } from '../firebase/admin';
 import { buildPrincipal } from '../utils/principal';
@@ -10,7 +12,7 @@ import type { ProjectEntity } from '../types/entities';
 import type { AuthUserContext } from '../types/common';
 
 export class ProjectCommandError extends Error {
-  constructor(public code: string, public status = 400, message = code) { super(message); }
+  constructor(public code: string, public status = 400, message = code, public blockers?: SetupReadinessBlocker[]) { super(message); }
 }
 const fail = (code: string, status = 400, message?: string): never => { throw new ProjectCommandError(code, status, message); };
 const validId = (value: unknown): value is string => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value) && value !== 'ALL';
@@ -165,6 +167,10 @@ export class ProjectCommandsServerService {
       const project = decodeProject<ProjectEntity>(snap.data(), projectId);
       if (targetStatus === 'ACTIVE') fail('INVALID_PROJECT_TRANSITION', 400, 'لا يمكن تنشيط المشروع عبر مسار الانتقال العادي. يجب استخدام مسار التنشيط الرسمي (ProjectActivationService)');
       if (!Object.hasOwn(LEGAL_LIFECYCLE_TRANSITIONS, project.status) || !LEGAL_LIFECYCLE_TRANSITIONS[project.status].includes(targetStatus)) fail('INVALID_PROJECT_TRANSITION', 409, `انتقال غير صالح لحالة دورة حياة المشروع: لا يمكن الانتقال من ${project.status} إلى ${targetStatus}`);
+      if (project.status === 'SETUP' && targetStatus === 'READY_FOR_REVIEW') {
+        const setup = await readSetupReadiness(projectId, project, this.db, ref => tx.get(ref));
+        if (!setup.ready) throw new ProjectCommandError('PROJECT_SETUP_NOT_READY', 409, 'Project setup is incomplete.', setup.blockers);
+      }
       const now = new Date(), after = { ...project, status: targetStatus, updatedAt: now, updatedBy: actor.userId };
       tx.update(ref, { status: targetStatus, updatedAt: now, updatedBy: actor.userId });
       this.audit(tx, projectId, actor, project, after, 'TRANSITION_PROJECT_LIFECYCLE', reason);

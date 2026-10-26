@@ -53,6 +53,8 @@ export class ProjectActivationService {
       // Re-read the full selected path and globals with the transaction's snapshot.
       const blockers = await reads.revalidateCandidatePath(projectId, path, () => new Date());
       if (blockers.length) throw new ProjectActivationError('PROJECT_NOT_READY', `المشروع غير جاهز للتنشيط: ${blockers.map(blocker => blocker.message).join(' | ')}`);
+      const setup = await reads.getSetupReadiness(projectId, project);
+      if (!setup.ready) throw new ProjectActivationError('PROJECT_SETUP_NOT_READY', 'Project setup is incomplete.');
       const now = new Date(), auditLogId = `AUDIT-ACTIVATION-${projectId}-${randomUUID()}`;
       const update = { status: 'ACTIVE' as const, updatedAt: now, updatedBy: actor.userId };
       const audit = sanitizeUndefined({

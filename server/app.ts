@@ -1718,19 +1718,8 @@ app.post('/api/projects/:projectId/activate', enforceProjectIsolation, enforceAd
 app.get('/api/projects/:projectId/readiness', enforceProjectIsolation, async (req, res) => {
   try {
     const { projectId } = req.params;
-    const { ProjectReadinessService, lifecycleReadiness } = await import('../src/services/projectReadiness.service');
-    const { ProjectReadinessAdminReadContext } = await import('../src/services/projectReadiness.server');
-    const readinessService = new ProjectReadinessService();
-    const readContext = new ProjectReadinessAdminReadContext();
-    const actor = await readContext.currentPrincipal(projectId, (req as any).user);
-    const result = await readinessService.evaluateProjectReadiness(projectId, new Date(), readContext, actor);
-    // Scope may have changed while downstream discovery was in flight.
-    const currentActor = await readContext.currentPrincipal(projectId, (req as any).user);
-    const currentProject = await readContext.getProject(projectId);
-    if (!currentProject) return res.status(404).json({ success: false, code: 'PROJECT_NOT_FOUND' });
-    result.lifecycle = lifecycleReadiness(currentProject, projectId, currentActor);
-    result.blockers = [...result.lifecycle.blockers, ...result.operational.blockers];
-    result.ready = result.lifecycle.ready && result.operational.ready;
+    const { ProjectReadinessQueryService } = await import('../src/services/projectReadinessQuery.server');
+    const result = await new ProjectReadinessQueryService().read(projectId, (req as any).user);
 
     res.json({
       success: true,
@@ -1753,7 +1742,7 @@ app.get('/api/projects/:projectId/readiness', enforceProjectIsolation, async (re
       res.status(404).json({ success: false, error: error.message });
       return;
     }
-    res.status(error.status || 400).json({ success: false, error: error.message, code: error.code, category: /FORBIDDEN|ACCOUNT|PROFILE/.test(error.code || '') ? 'AUTHORITY' : 'DATA_INTEGRITY' });
+    res.status(error.status || 400).json({ success: false, error: 'Project readiness could not be verified.', code: error.code || 'READINESS_UNAVAILABLE', category: /FORBIDDEN|ACCOUNT|PROFILE/.test(error.code || '') ? 'AUTHORITY' : 'DATA_INTEGRITY' });
   }
 });
 
@@ -1780,7 +1769,7 @@ app.post('/api/projects/:projectId/lifecycle-transition', enforceProjectIsolatio
       message: `تم تحويل حالة المشروع إلى ${targetStatus} بنجاح`,
     });
   } catch (error: any) {
-    res.status(error.status || 400).json({ success: false, error: error.message, code: error.code });
+    res.status(error.status || 400).json({ success: false, error: error.code === 'PROJECT_SETUP_NOT_READY' ? 'Project setup is incomplete.' : 'Project transition failed.', code: error.code, blockers: error.blockers });
   }
 });
 

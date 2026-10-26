@@ -1,3 +1,4 @@
+import { setupParticipationFixture } from './helpers/setupParticipationFixture';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createInMemoryAdminDb, setTestDbOverride, inMemoryAdminStore } from '../firebase/admin';
 import { projectLifecycleServerService } from '../services/projectLifecycle.server';
@@ -70,6 +71,7 @@ describe('Project Lifecycle Server Authority Test Suite', () => {
 
     // Seed baseline project
     inMemoryAdminStore['projects/Q-PRJ-006'] = { ...baselineProject };
+    Object.assign(inMemoryAdminStore, setupParticipationFixture('Q-PRJ-006'));
   });
 
   // 1. project must exist

@@ -46,6 +46,7 @@ describe('Translation-by-Construction Regression Guard', () => {
 
   const operationalUiFiles = [
     'src/components/wizard/FleetSetupWorkspace.tsx',
+    'src/components/wizard/SetupReadinessPanel.tsx',
     'src/components/field/LoadingOperatorView.tsx',
     'src/components/field/UnloadingOperatorView.tsx',
     'src/components/field/FieldOperationsView.tsx',
@@ -997,7 +998,10 @@ describe('Batch 4 complete active presentation family', () => {
     expect(wizard).toContain('batch4FieldLabel(t, opt.value, opt.labelAr)');
     expect(csv).toContain('batch4FieldLabel(t, String(opt.value), opt.labelAr)');
     expect(wizard).toContain('presentBatch4Message(syncNotice.text, t)');
-    expect(wizard).toContain('presentBatch4Message(b.message, t)');
+    expect(wizard).toContain('<SetupReadinessPanel result={serverReadiness}');
+    const readinessPanel = fs.readFileSync(path.resolve(process.cwd(), 'src/components/wizard/SetupReadinessPanel.tsx'), 'utf8');
+    expect(readinessPanel).toContain('t(readinessBlockerKey(blocker.code))');
+    expect(readinessPanel).not.toContain('blocker.message');
     expect(csv).toContain('presentBatch4Message(e.messageAr || e.message, t)');
     for (const service of ['src/services/projectSetupWorkflow.service.ts', 'src/services/import/rosterSmartImportWorkflow.service.ts']) {
       expect(fs.readFileSync(path.resolve(process.cwd(), service), 'utf8')).not.toMatch(/from\s+['"][^'"]*i18n/);

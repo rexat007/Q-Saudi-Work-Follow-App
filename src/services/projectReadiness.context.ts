@@ -1,3 +1,4 @@
+import type { SetupReadinessResult } from '../types/setupReadiness';
 import type { CandidatePath, ReadinessBlocker } from './projectReadiness.service';
 import { Transaction } from 'firebase/firestore';
 import { ProjectEntity, PricingRuleEntity } from '../types/entities';
@@ -29,6 +30,7 @@ import { projectTruckMaterialAllocationRepository } from '../repositories/projec
 import { pricingRuleRepository } from '../repositories/pricingRule.repository';
 
 export interface ProjectReadinessReadContext {
+  getSetupReadiness?(projectId: string, project: ProjectEntity): Promise<SetupReadinessResult>;
   revalidateCandidatePath?(projectId: string, path: CandidatePath, at: Date): Promise<ReadinessBlocker[]>;
   getProject(projectId: string): Promise<ProjectEntity | null>;
   listActiveMaterialMemberships(projectId: string): Promise<ProjectMaterialMembershipEntity[]>;

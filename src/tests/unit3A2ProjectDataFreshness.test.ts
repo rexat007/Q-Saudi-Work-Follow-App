@@ -98,7 +98,10 @@ describe('UNIT 3A.2 — Project Data Freshness & Race-Safe Loading Suite', () =>
   it('D. Pricing subscription is not recreated on layer change', () => {
     const pricingIdx = wizardContent.indexOf('// Unit 3A.2: Pricing Rules Subscription depends only on editingProjectId');
     expect(pricingIdx).toBeGreaterThanOrEqual(0);
-    const pricingBlock = wizardContent.slice(pricingIdx, wizardContent.indexOf('  useEffect(() => {\n    if (editingProjectId)', pricingIdx));
+    const subscriptionEnd = '}, [editingProjectId, projectScopeKey]);';
+    const pricingEnd = wizardContent.indexOf(subscriptionEnd, pricingIdx);
+    expect(pricingEnd).toBeGreaterThan(pricingIdx);
+    const pricingBlock = wizardContent.slice(pricingIdx, pricingEnd + subscriptionEnd.length);
 
     expect(pricingBlock).toContain('}, [editingProjectId, projectScopeKey]);');
     expect(pricingBlock).not.toContain('activeSetupLayer');

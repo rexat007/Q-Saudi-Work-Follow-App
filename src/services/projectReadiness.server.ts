@@ -1,3 +1,4 @@
+import { readSetupReadiness } from './setupReadiness.server';
 import { isCurrentTemporal, assignmentSlotsAgree } from '../utils/temporalRelationshipPolicy';
 import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 import { buildPrincipal } from '../utils/principal';
@@ -24,6 +25,9 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
   constructor(private database?: any, private reader?: (reference: any) => Promise<any>) {}
   private get db() { return this.database || adminDb; }
   private get(reference: any) { return this.reader ? this.reader(reference) : reference.get(); }
+  getSetupReadiness(projectId: string, project: ProjectEntity) {
+    return readSetupReadiness(projectId, project, this.db, ref => this.get(ref));
+  }
   async currentPrincipal(projectId: string, authenticated: AuthUserContext, activation = false) {
     if (!validReadinessId(projectId) || !validReadinessId(authenticated?.userId)) throw Object.assign(new Error('غير مصرح لك بتنشيط المشروع'), { code: 'FORBIDDEN_PROJECT_ACCESS', status: 403 });
     const account = await this.get(this.db.collection('users').doc(authenticated.userId));
