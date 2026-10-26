@@ -17,7 +17,7 @@ export interface ProjectMaterialOption {
 export interface RosterMaterialResolutionLayerProps {
   canManageParticipation?: boolean;
   canonicalContext?: RelationshipContext;
-  onCanonicalVerified?: (group: RosterEntityReviewGroup, context: RelationshipContext, id: string) => Promise<void>|void;
+  onCanonicalVerified?: (group: RosterEntityReviewGroup, context: RelationshipContext, id: string, prerequisite?: string) => Promise<void>|void;
   isCurrent?: () => boolean;
   importBatch: UnifiedImportBatch;
   projectMaterials?: ProjectMaterialOption[];
@@ -90,8 +90,8 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
   }, [materialGroups]);
 
   const resolvedCount = materialGroups.length - unresolvedCount;
-  const isMaterialLayerComplete =
-    materialGroups.length > 0 && unresolvedCount === 0 && checkMaterialResolutionReadiness(importBatch);
+  const legacyComplete = materialGroups.length > 0 && unresolvedCount === 0;
+  const isMaterialLayerComplete = canonicalContext ? unresolvedCount === 0 && importBatch.rows.some(r => r.status !== 'REJECTED') && importBatch.rows.filter(r => r.status !== 'REJECTED').every(r => (!r.canonical?.materialName && !r.canonical?.materialCode && !r.canonical?.materialId) || Boolean(r.entityResolutions?.material?.matchedId)) : legacyComplete && checkMaterialResolutionReadiness(importBatch);
 
   const panelContent = (
     <div className={`bg-stone-900 border border-stone-800 rounded-2xl w-full overflow-hidden flex flex-col ${embeddedInWorkflowHost ? 'flex-1 min-h-0' : 'max-w-3xl shadow-2xl max-h-[85vh]'}`}>
@@ -222,7 +222,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                       </div>
                     </div>
 
-                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>onCreateMaterial(group)} onVerified={(ctx,id)=>onCanonicalVerified(group,ctx,id)}/>}
+                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>onCreateMaterial(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
                     {/* Action Controls for Unresolved / Review Groups */}
                     {!canonicalContext && !isResolved && (
                       <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">

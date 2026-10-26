@@ -1,3 +1,4 @@
+import { buildRosterCanonicalIntent, canAcceptRosterIntent } from './rosterCanonicalIntent.service';
 import { revalidateCanonicalRow } from './canonicalResolution';
 import { validateRosterFile, RosterSourceError } from './rosterSourceContract';
 import { UnifiedImportPipelineService } from './unifiedImportPipeline.service';
@@ -497,6 +498,7 @@ export class DriverTruckPipelineService {
     ]);
 
     const updatedRows = batch.rows.map((original) => {
+      if (context.resolutionContext && (original.status === 'REJECTED' || original.status === 'COMMITTED')) return original;
       const row = revalidateCanonicalRow(original, context);
       const freshRosterIssues = validator.validateRow(row, context);
 
@@ -532,14 +534,15 @@ export class DriverTruckPipelineService {
     const rowsWithDuplicates = duplicateChecker.checkDuplicates(updatedRows, context);
 
     const evaluatedRows = rowsWithDuplicates.map((row) => {
+      if (context.resolutionContext && (row.status === 'REJECTED' || row.status === 'COMMITTED')) return row;
       const issues = row.validationIssues || [];
       const blockingErrorIssues = issues.filter(
         (i) => (i.severity === 'BLOCKING' || i.blocking) && i.code !== 'UNRESOLVED_CARRIER' && i.code !== 'UNRESOLVED_MATERIAL'
       );
       const hasBlocking = blockingErrorIssues.length > 0;
 
-      const carrierUnresolved = !row.entityResolutions?.carrier?.matchedId;
-      const materialUnresolved = !row.entityResolutions?.material?.matchedId;
+      const carrierUnresolved = (!context.resolutionContext || Boolean(row.canonical?.driverName || row.canonical?.driverIdentity || row.canonical?.truckPlate || row.canonical?.carrierName || row.canonical?.carrierId)) && !row.entityResolutions?.carrier?.matchedId;
+      const materialUnresolved = (!context.resolutionContext || Boolean(row.canonical?.materialName || row.canonical?.materialCode || row.canonical?.materialId)) && !row.entityResolutions?.material?.matchedId;
       
       const driverResolved = Boolean(
         row.entityResolutions?.driver?.matchedId ||
@@ -616,16 +619,20 @@ export class DriverTruckPipelineService {
       batchStatus = 'READY';
     }
 
+    const semantic = context.resolutionContext ? buildRosterCanonicalIntent({ ...batch, rows:evaluatedRows, issues:allRowIssues },context) : undefined;
+    const prior = batch.metadata?.reviewedCanonicalIntent;
+    const stillReviewed = semantic && prior?.acceptedSignature === semantic.signature && canAcceptRosterIntent(semantic, prior.displacementApprovedSignature);
     return {
       ...batch,
-      rows: evaluatedRows,
+      metadata: semantic ? { ...batch.metadata, canonicalIntent: semantic, reviewedCanonicalIntent: stillReviewed ? prior : undefined } : batch.metadata,
+      rows: evaluatedRows.map(row => semantic?.blockers.some(b => (b.code.startsWith('CROSS_ROW_') || b.code === 'PREPARED_ENTITY_CONFLICT') && b.rowNumbers.includes(row.rowNumber)) ? {...row, reviewStatus:'requires_review' as const} : row),
       issues: allRowIssues,
-      validRows,
+      validRows: semantic ? evaluatedRows.filter(r => r.status === 'VALID' && !semantic.blockers.some(b => b.rowNumbers.includes(r.rowNumber))).length : validRows,
       warningRows,
       errorRows,
-      requiresReviewRows,
+      requiresReviewRows: semantic ? evaluatedRows.filter(r => r.status !== 'REJECTED' && r.status !== 'COMMITTED' && (r.reviewStatus === 'requires_review' || semantic.blockers.some(b => b.rowNumbers.includes(r.rowNumber)))).length : requiresReviewRows,
       validationStatus,
-      commitStatus: batch.commitStatus === 'COMMITTED' ? 'COMMITTED' : commitStatus,
+      commitStatus: batch.commitStatus === 'COMMITTED' ? 'COMMITTED' : semantic && !stillReviewed ? 'AWAITING_REVIEW' : commitStatus,
     };
   }
 

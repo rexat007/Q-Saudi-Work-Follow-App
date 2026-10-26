@@ -27,7 +27,7 @@ export function resolveCanonicalRoster(row: Record<string,any>, context: Pipelin
   const result:Record<string,Resolution>={};
   for(const key of ['carrier','material','driver','truck'] as ResolutionKey[]){
     const source=String(key==='carrier'?row.carrierName||row.carrierId||'':key==='material'?row.materialName||row.materialCode||row.materialId||'':key==='driver'?row.driverName||row.driverIdentity||'':row.truckPlate||'');
-    if((key==='driver'||key==='truck')&&!source)continue;
+    if(!source && !(key==='material'&&row.materialId) && !(key==='carrier'&&row.carrierId))continue;
     const entities=resolutionEntities(context,key),old=previous?.[key];
     const natural=(v:string)=>key==='driver'?normalizeIdNumber(v):key==='truck'?normalizePlate(v):key==='material'?normalizeCode(v):v.replace(/[^0-9]/g,'');
     const rawNatural=key==='driver'?row.driverIdentity:key==='truck'?row.truckPlate:key==='material'?row.materialCode:undefined;

@@ -45,6 +45,7 @@ describe('Translation-by-Construction Regression Guard', () => {
   ];
 
   const operationalUiFiles = [
+    'src/components/import/RosterSemanticReview.tsx',
     'src/components/wizard/FleetSetupWorkspace.tsx',
     'src/components/wizard/SetupReadinessPanel.tsx',
     'src/components/field/LoadingOperatorView.tsx',
@@ -1056,5 +1057,25 @@ describe('Residual offline and PWA translation construction', () => {
     for (const file of ['src/components/auth/AuthButton.tsx', 'src/components/auth/AccountStatusGate.tsx']) {
       expect(readSource(file)).toContain('presentBatch4Message(authError, t)');
     }
+  });
+});
+
+
+describe('P7-B3 semantic review translation boundary', () => {
+  it('covers every semantic review label and rejects unmanaged JSX/accessibility text', () => {
+    const file = 'src/components/import/RosterSemanticReview.tsx';
+    const source = fs.readFileSync(file, 'utf8');
+    const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const unmanaged: string[] = [];
+    const visit = (node: ts.Node) => {
+      const attr = ts.isStringLiteral(node) && ts.isJsxAttribute(node.parent) && ['title', 'aria-label', 'placeholder', 'alt'].includes(node.parent.name.getText(ast));
+      if (ts.isJsxText(node) || attr) { const text = (node as ts.JsxText | ts.StringLiteral).text.trim(); if (/\p{L}/u.test(text)) unmanaged.push(text); }
+      ts.forEachChild(node, visit);
+    };
+    visit(ast);
+    expect(unmanaged).toEqual([]);
+    const keys = Object.keys(enTranslations).filter(k => k.startsWith('intent.'));
+    expect(keys).toHaveLength(36);
+    for (const key of keys) for (const dictionary of [arTranslations, enTranslations, urTranslations]) expect(dictionary[key]?.trim().length, key).toBeGreaterThan(0);
   });
 });

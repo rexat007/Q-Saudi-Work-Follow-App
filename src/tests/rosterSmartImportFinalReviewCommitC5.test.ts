@@ -56,8 +56,10 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
     expect(wizardContent).toContain('hasUnresolvedTrucks');
   });
 
-  it('8. Zero Driver+Truck groups block transition', () => {
-    expect(wizardContent).toContain('if (driverTruckGroups.length === 0)');
+  it('8. Legacy empty groups block transition; canonical partial rows require semantic validation', () => {
+    expect(wizardContent).toContain('if (driverTruckGroups.length === 0 && !projectRelationshipContext?.importResolution)');
+    expect(wizardContent).toContain('const intent = buildRosterCanonicalIntent(revalidated, pipelineCtx)');
+    expect(wizardContent).toContain('if (intent.blockers.length > 0)');
   });
 
   it('9. Pending Driver convergence cache blocks transition', () => {

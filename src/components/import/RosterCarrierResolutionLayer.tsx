@@ -15,7 +15,7 @@ export interface ProjectCarrierOption {
 export interface RosterCarrierResolutionLayerProps {
   canManageParticipation?: boolean;
   canonicalContext?: RelationshipContext;
-  onCanonicalVerified?: (group: RosterEntityReviewGroup, context: RelationshipContext, id: string) => Promise<void>|void;
+  onCanonicalVerified?: (group: RosterEntityReviewGroup, context: RelationshipContext, id: string, prerequisite?: string) => Promise<void>|void;
   isCurrent?: () => boolean;
   importBatch: UnifiedImportBatch;
   projectCarriers?: ProjectCarrierOption[];
@@ -77,7 +77,7 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
 
   const reviewGroups = useMemo(() => {
     return RosterBatchReviewService.getBatchReviewGroups(importBatch);
-  }, [importBatch]);
+  }, [importBatch, canonicalContext]);
 
   // C2: STRICT CARRIER-ONLY SCOPE
   const carrierGroups: RosterEntityReviewGroup[] = reviewGroups.carrier || [];
@@ -90,8 +90,8 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
 
   const resolvedCount = carrierGroups.length - unresolvedCount;
   const isCarrierLayerComplete = useMemo(() => {
-    return checkCarrierResolutionReadiness(importBatch);
-  }, [importBatch]);
+    return canonicalContext ? unresolvedCount === 0 && importBatch.rows.some(r => r.status !== 'REJECTED') && importBatch.rows.filter(r => r.status !== 'REJECTED').every(r => (!r.canonical?.carrierName && !r.canonical?.carrierId && !r.canonical?.driverName && !r.canonical?.driverIdentity && !r.canonical?.truckPlate) || Boolean(r.entityResolutions?.carrier?.matchedId)) : checkCarrierResolutionReadiness(importBatch);
+  }, [importBatch, canonicalContext]);
 
   const panelContent = (
     <div className={`bg-stone-900 border border-stone-800 rounded-2xl w-full overflow-hidden flex flex-col ${embeddedInWorkflowHost ? 'flex-1 min-h-0' : 'max-w-3xl shadow-2xl max-h-[85vh]'}`}>
@@ -222,7 +222,7 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
                       </div>
                     </div>
 
-                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>onCreateCarrier(group)} onVerified={(ctx,id)=>onCanonicalVerified(group,ctx,id)}/>}
+                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>onCreateCarrier(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
                     {/* Action Controls for Unresolved / Review Groups */}
                     {!canonicalContext && !isResolved && (
                       <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">

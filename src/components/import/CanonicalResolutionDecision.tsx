@@ -9,7 +9,7 @@ import { resolutionErrorKey } from '../../i18n/importResolution';
 export interface CanonicalDecisionProps {
   projectId: string; context: RelationshipContext; group: RosterEntityReviewGroup;
   onSelect: (id: string) => Promise<void>|void; onCreate: () => void;
-  onVerified: (context: RelationshipContext, id: string) => Promise<void>|void;
+  onVerified: (context: RelationshipContext, id: string, prerequisite?: string) => Promise<void>|void;
   isCurrent: () => boolean; canMutate?: boolean; carrierId?: string; disabled?: boolean;
 }
 export function CanonicalResolutionDecision({projectId,context,group,onSelect,onCreate,onVerified,isCurrent,carrierId,disabled,canMutate=true}:CanonicalDecisionProps){
@@ -40,7 +40,7 @@ export function CanonicalResolutionDecision({projectId,context,group,onSelect,on
         if((action==='SET_AFFILIATION'||action==='REACTIVATE_AFFILIATION')&&(confirmed.affiliation?.status!=='ACTIVE'||confirmed.affiliation.carrierId!==carrierId))throw Error('CONTEXT_UNAVAILABLE');
         return {materials:[],carriers:[],fleetRows:[],relationshipContext:refreshed};
       });
-      if(ok&&isCurrent()&&refreshed){await onVerified(refreshed,entity.id);if(isCurrent())session.resetCompleted();}
+      if(ok&&isCurrent()&&refreshed){await onVerified(refreshed,entity.id,action === 'SET_AFFILIATION' ? 'AFFILIATE' : action);if(isCurrent())session.resetCompleted();}
     }catch(e){if(isCurrent())setError(session.committed?'import.resolution.refresh':resolutionErrorKey(e));}
     finally{if(isCurrent())setBusy(false);}
   };
