@@ -1,3 +1,4 @@
+import type { RosterCanonicalIntent, ReviewedCanonicalIntent } from './rosterCanonicalIntent';
 import type { ImportResolutionContext, ImportResolutionEntity } from './importResolution';
 /**
  * Unified Import Center Architecture — Domain Model & Types
@@ -234,7 +235,7 @@ export interface UnifiedImportBatch {
   createdBy: string;
   committedAt?: string;
   committedBy?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, any> & { canonicalIntent?: RosterCanonicalIntent; reviewedCanonicalIntent?: ReviewedCanonicalIntent };
 
   // Warning Confirmation for Commit
   warningConfirmation?: {

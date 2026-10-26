@@ -246,7 +246,7 @@ export class DriverTruckImportValidator {
     const isDriverRow = Boolean(canonical.driverName || canonical.driverIdentity);
     const isTruckRow = Boolean(canonical.truckPlate);
 
-    if (!isDriverRow && !isTruckRow) {
+    if (!isDriverRow && !isTruckRow && !(context.resolutionContext && (canonical.carrierName || canonical.carrierId || canonical.materialName || canonical.materialId || canonical.materialCode))) {
       issues.push({
         issueId: `ISSUE-${row.rowNumber}-EMPTY`,
         row: row.rowNumber,
@@ -311,7 +311,7 @@ export class DriverTruckImportValidator {
 
     // C. Carrier Unresolved or Conflict
     const carrierRes = row.entityResolutions?.carrier;
-    if (!carrierRes || !carrierRes.matchedId) {
+    if ((!carrierRes || !carrierRes.matchedId) && (!context.resolutionContext || isDriverRow || isTruckRow || canonical.carrierName || canonical.carrierId)) {
       issues.push({
         issueId: `ISSUE-${row.rowNumber}-CARRIER-UNRESOLVED`,
         row: row.rowNumber,
@@ -365,7 +365,7 @@ export class DriverTruckImportValidator {
     const materialRes = row.entityResolutions?.material;
     const hasMaterialInput = Boolean(canonical.materialName || canonical.materialId || canonical.materialCode);
 
-    if (!hasMaterialInput || !materialRes || !materialRes.matchedId || !materialRes.isAuthorized) {
+    if ((!hasMaterialInput && !context.resolutionContext) || (hasMaterialInput && (!materialRes || !materialRes.matchedId || !materialRes.isAuthorized))) {
       issues.push({
         issueId: `ISSUE-${row.rowNumber}-MAT-UNRESOLVED`,
         row: row.rowNumber,
@@ -377,7 +377,7 @@ export class DriverTruckImportValidator {
         resolvable: false,
         blocking: true,
       });
-    } else {
+    } else if (hasMaterialInput && materialRes?.matchedId) {
       const matName = normalizeName(String(canonical.materialName || canonical.materialCode || canonical.materialId || ''));
       const matId = String(materialRes.matchedId);
       const knownMaterials = context.knownEntities?.materials || [];
@@ -410,19 +410,20 @@ export class DriverTruckImportDuplicateChecker {
 
     return rows.map((row) => {
       const canonical = row.canonical || row.raw || {};
-      const validationIssues = [...row.validationIssues];
+      if (context.resolutionContext && (row.status === 'REJECTED' || row.status === 'COMMITTED')) return row;
+      const validationIssues = (row.validationIssues || []).filter(i => !context.resolutionContext || !/^ISSUE-.*-DUP-(TRK|DRV)-(BATCH|DB)$/.test(i.issueId));
 
       // Plate Duplicates Check
       if (canonical.truckPlate) {
-        const normPlate = normalizePlate(canonical.truckPlate);
+        const normPlate = context.resolutionContext && row.entityResolutions?.truck?.matchedId || normalizePlate(canonical.truckPlate);
 
         // Internal Batch duplicate check
         if (seenPlates.has(normPlate)) {
           const existingRow = seenPlates.get(normPlate);
           const existingCanonical = existingRow?.canonical || existingRow?.raw || {};
           const isConflict = Boolean(
-            (existingCanonical.driverIdentity && canonical.driverIdentity && existingCanonical.driverIdentity !== canonical.driverIdentity) ||
-            (existingCanonical.carrierName && canonical.carrierName && normalizeName(existingCanonical.carrierName) !== normalizeName(canonical.carrierName))
+            (!(context.resolutionContext && row.entityResolutions?.driver?.matchedId && row.entityResolutions.driver.matchedId === existingRow?.entityResolutions?.driver?.matchedId) && existingCanonical.driverIdentity && canonical.driverIdentity && existingCanonical.driverIdentity !== canonical.driverIdentity) ||
+            (!(context.resolutionContext && row.entityResolutions?.carrier?.matchedId && row.entityResolutions.carrier.matchedId === existingRow?.entityResolutions?.carrier?.matchedId) && existingCanonical.carrierName && canonical.carrierName && normalizeName(existingCanonical.carrierName) !== normalizeName(canonical.carrierName))
           );
 
           validationIssues.push({
@@ -461,13 +462,14 @@ export class DriverTruckImportDuplicateChecker {
 
       // Driver Identity Duplicates Check
       if (canonical.driverIdentity) {
-        const normId = normalizeIdNumber(canonical.driverIdentity);
+        const normId = context.resolutionContext && row.entityResolutions?.driver?.matchedId || normalizeIdNumber(canonical.driverIdentity);
 
         // Internal Batch duplicate check
         if (seenDriverIds.has(normId)) {
           const existingRow = seenDriverIds.get(normId);
           const existingCanonical = existingRow?.canonical || existingRow?.raw || {};
           const isConflict = Boolean(
+            !(context.resolutionContext && row.entityResolutions?.driver?.matchedId && row.entityResolutions.driver.matchedId === existingRow?.entityResolutions?.driver?.matchedId) &&
             existingCanonical.driverName && canonical.driverName &&
             normalizeName(existingCanonical.driverName) !== normalizeName(canonical.driverName)
           );
@@ -524,6 +526,9 @@ export class DriverTruckImportDuplicateChecker {
 
 export class DriverTruckImportCommitter {
   public async commit(batch: UnifiedImportBatch, context: PipelineContext): Promise<ImportResult> {
+    // P7-B3 handoff is review-only. The legacy endpoint infers identities/relations from raw rows.
+    // Phase 8 must consume reviewedCanonicalIntent transactionally before this guard can be lifted.
+    if (context.resolutionContext || batch.metadata?.reviewedCanonicalIntent || batch.metadata?.canonicalIntent) throw Error('PHASE8_REVIEWED_INTENT_HANDOFF_REQUIRED');
     const activeRows = batch.rows.filter((r) => r.status !== 'REJECTED' && r.reviewStatus !== 'error');
     const committedIds: string[] = [];
     const importErrors: ImportIssue[] = [];

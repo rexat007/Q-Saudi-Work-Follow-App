@@ -1,3 +1,5 @@
+import { RosterSemanticReview, intentIssueKey } from '../import/RosterSemanticReview';
+import { buildRosterCanonicalIntent, attachReviewedRosterIntent } from '../../services/import/rosterCanonicalIntent.service';
 import type { GlobalKind } from '../../utils/globalIdentityPolicy';
 import { resolutionErrorKey } from '../../i18n/importResolution';
 import { validateRosterFile, RosterSourceError, rosterErrorKey } from '../../services/import/rosterSourceContract';
@@ -1470,11 +1472,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setProjectRelationshipContext(value);
     return value;
   };
-  const applyCanonicalImportChoice = async (group: RosterEntityReviewGroup, context: RelationshipContext, id: string) => {
+  const applyCanonicalImportChoice = async (group: RosterEntityReviewGroup, context: RelationshipContext, id: string, prerequisite?: string) => {
     const request = renderedContext;
     if (!project || !importBatch || !projectContext.isCurrent(request, project.projectId)) return;
     const pipeline = ImportProjectContextAdapter.createPipelineContext({ relContext: context, projectId:project.projectId, userId:authContext.userId, role:authContext.role, operationId:importBatch.operationId });
     const updated=DriverTruckPipelineService.applyGroupedEntityResolutionDecision(importBatch,group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id},pipeline,authContext.userId);
+    if (prerequisite) updated.metadata = { ...updated.metadata, canonicalPrerequisites:[...(updated.metadata?.canonicalPrerequisites || []), {projectId:project.projectId, key:`${group.entityType.toUpperCase()}:${id}`, action:prerequisite, completed:true}] };
     setProjectRelationshipContext(context); setImportBatch(updated);
     await persistSmartImportCheckpoint({batch:updated});
   };
@@ -1778,7 +1781,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!importBatch) return;
     const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
     const carrierGroups = reviewGroups.carrier || [];
-    if (carrierGroups.length === 0) {
+    if (carrierGroups.length === 0 && !projectRelationshipContext?.importResolution) {
       alert(presentBatch4Message(t('projects.batch4.carrier_groups_missing'), t));
       return;
     }
@@ -1793,6 +1796,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     // D10: Carrier row-level required gate
     const activeRows = importBatch.rows.filter((r) => r.status !== 'REJECTED');
     const hasUnresolvedCarrierRow = activeRows.some((r) => {
+      if (projectRelationshipContext?.importResolution && !r.canonical?.carrierName && !r.canonical?.carrierId && !r.canonical?.driverName && !r.canonical?.driverIdentity && !r.canonical?.truckPlate) return false;
       const carrierRes = r.entityResolutions?.carrier;
       return !carrierRes?.matchedId || carrierRes.relationshipStatus === 'RELATIONSHIP_CONFLICT';
     });
@@ -1815,7 +1819,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!importBatch) return;
     const reviewGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch);
     const materialGroups = reviewGroups.material || [];
-    if (materialGroups.length === 0) {
+    if (materialGroups.length === 0 && !projectRelationshipContext?.importResolution) {
       alert(presentBatch4Message(t('projects.batch4.material_groups_missing'), t));
       return;
     }
@@ -1831,6 +1835,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const activeRows = importBatch.rows.filter((r) => r.status !== 'REJECTED');
     const hasUnresolvedMaterialRow = activeRows.some((r) => {
       const materialRes = r.entityResolutions?.material;
+      if (projectRelationshipContext?.importResolution && !r.canonical?.materialName && !r.canonical?.materialCode && !r.canonical?.materialId) return false;
       return !materialRes?.matchedId || materialRes.relationshipStatus === 'RELATIONSHIP_CONFLICT';
     });
     if (hasUnresolvedMaterialRow) {
@@ -2341,6 +2346,38 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
+  const semanticRosterIntent = useMemo(() => {
+    if (!importBatch || !projectRelationshipContext?.importResolution || !project || importBatch.projectId !== project.projectId || projectRelationshipContext.projectId !== project.projectId) return null;
+    const context = ImportProjectContextAdapter.createPipelineContext({ relContext:projectRelationshipContext, projectId:project.projectId, userId:authContext.userId, role:authContext.role, operationId:importBatch.operationId });
+    return buildRosterCanonicalIntent(importBatch, context);
+  }, [importBatch, projectRelationshipContext, project, authContext.userId, authContext.role]);
+
+  // Accept only the exact review displayed. Refresh can change its semantic signature.
+  const handleAcceptCanonicalIntent = async (signature: string, displacementSignature?: string) => {
+    const requestContext = renderedContext;
+    if (!project || !importBatch || isProcessing || !projectContext.isCurrent(requestContext, editingProjectId)) return;
+    const generation = rosterImportSessionGenerationRef.current;
+    setIsProcessing(true);
+    setSmartImportCommitError(null);
+    try {
+      const fresh = await loadImportResolutionContext(project.projectId);
+      if (!projectContext.isCurrent(requestContext, editingProjectId) || generation !== rosterImportSessionGenerationRef.current) return;
+      const ctx = ImportProjectContextAdapter.createPipelineContext({relContext:fresh, projectId:project.projectId, userId:authContext.userId, role:authContext.role, operationId:importBatch.operationId});
+      const revalidated = DriverTruckPipelineService.revalidateRosterBatch(importBatch,ctx);
+      const intent = buildRosterCanonicalIntent(revalidated,ctx);
+      setProjectRelationshipContext(fresh);
+      setImportBatch(revalidated);
+      if (intent.signature !== signature) { setSmartImportCommitError('RELATIONSHIP_CONTEXT_STALE'); return; }
+      const reviewed = attachReviewedRosterIntent(revalidated,intent,displacementSignature);
+      setImportBatch(reviewed);
+      // Phase 8 consumes this explicit handoff. Do not send it to the raw-row intake committer.
+    } catch (e: any) {
+      if (projectContext.isCurrent(requestContext, editingProjectId)) setSmartImportCommitError(e.message || 'RELATIONSHIP_CONTEXT_UNAVAILABLE');
+    } finally {
+      if (projectContext.isCurrent(requestContext, editingProjectId)) setIsProcessing(false);
+    }
+  };
+
   // C5 Smart Import: Progression from Driver/Truck Resolution to Final Review
   const handleSmartImportContinueToFinalReview = async () => {
     const requestContext = renderedContext;
@@ -2356,7 +2393,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const truckGroups = batchGroups.truck || [];
     const driverTruckGroups = [...driverGroups, ...truckGroups];
 
-    if (driverTruckGroups.length === 0) {
+    if (driverTruckGroups.length === 0 && !projectRelationshipContext?.importResolution) {
       alert(presentBatch4Message(t('projects.batch4.final_review_groups_missing'), t));
       return;
     }
@@ -2410,6 +2447,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
+      const intent = buildRosterCanonicalIntent(revalidated, pipelineCtx);
+      setImportBatch({ ...revalidated });
+      if (intent.blockers.length > 0) {
+        setSmartImportCommitError('CANONICAL_INTENT_BLOCKED');
+        return;
+      }
       const persisted = await persistSmartImportCheckpoint({ batch: revalidated, stage: 'FINAL_REVIEW' });
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (!persisted) {
@@ -2569,6 +2612,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       return;
     }
 
+    const returningBatch = {...importBatch, commitStatus:'AWAITING_REVIEW' as const, metadata:{...importBatch.metadata, reviewedCanonicalIntent:undefined}};
+    setImportBatch(returningBatch);
     const blockerType = classifyFinalReviewBlocker(importBatch);
 
     if (blockerType === 'CARRIER') {
@@ -2586,7 +2631,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
 
     if (blockerType === 'MATERIAL') {
-      const persisted = await persistSmartImportCheckpoint({ stage: 'MATERIAL_RESOLUTION' });
+      const persisted = await persistSmartImportCheckpoint({ batch:returningBatch, stage: 'MATERIAL_RESOLUTION' });
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (!persisted) return;
       transitionToRosterStage('MATERIAL_RESOLUTION');
@@ -2594,7 +2639,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
 
     // DRIVER/TRUCK OWNED BLOCKER OR NORMAL BACK
-    const persisted = await persistSmartImportCheckpoint({ stage: 'DRIVER_TRUCK_RESOLUTION' });
+    const persisted = await persistSmartImportCheckpoint({ batch:returningBatch, stage: 'DRIVER_TRUCK_RESOLUTION' });
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
     if (!persisted) return;
     transitionToRosterStage('DRIVER_TRUCK_RESOLUTION');
@@ -4977,8 +5022,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     onSelectAlternate={handleSmartImportDriverTruckSelectAlternate}
                     onCreateDriver={handleSmartImportDriverCreate}
                     onCreateTruck={handleSmartImportTruckCreate}
-                    driverConvergenceError={presentBatch4Message(driverConvergenceError, t)}
-                    truckConvergenceError={presentBatch4Message(truckConvergenceError, t)}
+                    driverConvergenceError={driverConvergenceError ? presentBatch4Message(driverConvergenceError, t) : null}
+                    truckConvergenceError={truckConvergenceError ? presentBatch4Message(truckConvergenceError, t) : null}
                     onRetryDriverConvergence={handleRetryDriverConvergence}
                     onRetryTruckConvergence={handleRetryTruckConvergence}
                     onContinueToFinalReview={handleSmartImportContinueToFinalReview}
@@ -4989,17 +5034,22 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 </div>
               )}
 
+              {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && semanticRosterIntent && semanticRosterIntent.blockers.some(b => b.code.startsWith('CROSS_ROW_') || b.code === 'PREPARED_ENTITY_CONFLICT') && <div role="alert" className="p-3 text-rose-400">{semanticRosterIntent.blockers.map((b,i) => <p key={i}>{t(intentIssueKey(b.code))} · {t('intent.rows')}: {b.rowNumbers.join(', ')}</p>)}</div>}
+              {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && semanticRosterIntent?.warnings.length ? <label className="flex gap-2 p-3 text-amber-500"><input type="checkbox" checked={Boolean(importBatch.warningConfirmation?.confirmed)} disabled={isProcessing} onChange={e => setImportBatch({...importBatch, warningConfirmation:e.target.checked ? {confirmed:true, confirmedBy:authContext.userId, confirmedAt:new Date().toISOString()} : undefined})}/>{t('entityResolution.labels.accept_warning_records')}</label> : null}
               {/* STAGE 6: FINAL_REVIEW */}
-              {importBatch && rosterImportStage === 'FINAL_REVIEW' && (
+              {importBatch && importBatch.projectId === project?.projectId && rosterImportStage === 'FINAL_REVIEW' && (
                 <div>
-                  <RosterFinalReviewLayer
+                  {semanticRosterIntent ? <>
+                    <RosterSemanticReview key={project?.projectId} intent={semanticRosterIntent} onAccept={handleAcceptCanonicalIntent} onBack={handleFinalReviewBack} busy={isProcessing || isCommittingImport} error={smartImportCommitError}/>
+                    {importBatch.metadata?.reviewedCanonicalIntent?.acceptedSignature === semanticRosterIntent.signature && <p role="status" className="p-3 text-emerald-500">{t('intent.ready')}</p>}
+                  </> : <RosterFinalReviewLayer
                     importBatch={importBatch}
                     onCommit={handleSmartImportCommit}
                     isCommitting={isCommittingImport}
                     commitError={smartImportCommitError}
                     onClose={handleFinalReviewBack}
                     embeddedInWorkflowHost={true}
-                  />
+                  />}
                 </div>
               )}
 
