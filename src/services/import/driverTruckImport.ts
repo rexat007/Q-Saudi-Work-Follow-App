@@ -1,3 +1,4 @@
+import { resolveCanonicalRoster } from './canonicalResolution';
 import { RosterSourceError } from './rosterSourceContract';
 import { ExcelCsvNormalizer } from './normalizer.service';
 import { 
@@ -77,7 +78,7 @@ export function validateRosterMapping(headers: string[], mappings: Record<string
     if (targets.has(target)) return 'MAPPING_DUPLICATE';
     targets.add(target);
   }
-  return targets.has('carrierName') && (targets.has('driverName') || targets.has('truckPlate')) && (targets.has('materialName') || targets.has('materialCode')) ? null : 'MAPPING_REQUIRED';
+  return targets.has('carrierName') && (targets.has('driverName') || targets.has('driverIdentity') || targets.has('truckPlate')) && (targets.has('materialName') || targets.has('materialCode')) ? null : 'MAPPING_REQUIRED';
 }
 
 export function translateDiscoveryToRosterTarget(
@@ -227,246 +228,7 @@ export class DriverTruckImportEntityResolver {
     _rowNumber: number,
     context: PipelineContext
   ): Promise<Record<string, ImportEntityResolutionInfo>> {
-    const resolutions: Record<string, ImportEntityResolutionInfo> = {};
-
-    // 1. Resolve Carrier strictly from row input
-    const targetCarrierName = mapped.carrierName || '';
-
-    let carrierId: string | undefined = undefined;
-    let matchedCarrierName: string | undefined = undefined;
-    let carrierMatched = false;
-    let carrierCandidates: any[] = [];
-    let carrierRecommendation: 'ACCEPT' | 'REVIEW' | 'REJECT' = 'REVIEW';
-    let carrierMatchMethod: 'EXACT' | 'NORMALIZED' | 'FUZZY' | 'NONE' = 'NONE';
-
-    if (targetCarrierName) {
-      const normalizedImportCarrier = normalizeName(targetCarrierName);
-      const matched = context.knownEntities?.carriers?.find(
-        (c) =>
-          c.carrierId.toLowerCase() === targetCarrierName.toLowerCase() ||
-          normalizeName(c.name) === normalizedImportCarrier ||
-          c.aliases?.some((a) => normalizeName(a) === normalizedImportCarrier)
-      );
-
-      if (matched) {
-        carrierId = matched.carrierId;
-        matchedCarrierName = matched.name;
-        carrierMatched = true;
-        carrierMatchMethod = 'EXACT';
-        carrierRecommendation = 'ACCEPT';
-      } else {
-        const fuzzyCandidates = context.knownEntities?.carriers?.filter((c) => {
-          const norm = normalizeName(c.name);
-          return norm.includes(normalizedImportCarrier) || normalizedImportCarrier.includes(norm);
-        }) || [];
-
-        if (fuzzyCandidates.length > 0) {
-          carrierCandidates = fuzzyCandidates.map((c) => ({
-            candidateEntityId: c.carrierId,
-            candidateDisplayName: c.name,
-            confidence: 70,
-          }));
-          carrierMatchMethod = 'FUZZY';
-          carrierRecommendation = 'REVIEW';
-        }
-      }
-    }
-
-    resolutions.carrier = {
-      entityType: 'CARRIER',
-      originalValue: targetCarrierName,
-      sourceValue: targetCarrierName,
-      matchedId: carrierId,
-      matchedName: matchedCarrierName,
-      confidence: carrierMatched ? 100 : carrierCandidates.length > 0 ? 70 : 0,
-      isExact: carrierMatched,
-      matchMethod: carrierMatchMethod,
-      recommendation: carrierRecommendation,
-      candidates: carrierCandidates,
-      isAuthorized: Boolean(carrierId),
-      riskLevel: carrierId ? 'LOW' : carrierCandidates.length > 0 ? 'HIGH' : 'CRITICAL',
-    };
-
-    // 2. Resolve Material strictly from row input
-    const targetMaterial = mapped.materialName || mapped.materialCode || '';
-    let materialId: string | undefined = undefined;
-    let matchedMaterialName: string | undefined = undefined;
-    let materialMatched = false;
-    let matCandidates: any[] = [];
-    let matRecommendation: 'ACCEPT' | 'REVIEW' | 'REJECT' = 'REVIEW';
-    let matMatchMethod: 'EXACT' | 'NORMALIZED' | 'FUZZY' | 'NONE' = 'NONE';
-
-    if (targetMaterial) {
-      const normMaterial = normalizeName(targetMaterial);
-      const matchedMat = context.knownEntities?.materials?.find(
-        (m) =>
-          normalizeName(m.name) === normMaterial ||
-          (m.code && normalizeName(m.code) === normMaterial)
-      );
-
-      if (matchedMat) {
-        materialId = matchedMat.materialId;
-        matchedMaterialName = matchedMat.name;
-        materialMatched = true;
-        matMatchMethod = 'EXACT';
-        matRecommendation = 'ACCEPT';
-      } else {
-        const fuzzyMats = context.knownEntities?.materials?.filter((m) => {
-          const norm = normalizeName(m.name);
-          return norm.includes(normMaterial) || normMaterial.includes(norm);
-        }) || [];
-
-        if (fuzzyMats.length > 0) {
-          matCandidates = fuzzyMats.map((m) => ({
-            candidateEntityId: m.materialId,
-            candidateDisplayName: m.name,
-            confidence: 70,
-          }));
-          matMatchMethod = 'FUZZY';
-          matRecommendation = 'REVIEW';
-        }
-      }
-    }
-
-    resolutions.material = {
-      entityType: 'MATERIAL',
-      originalValue: targetMaterial,
-      sourceValue: targetMaterial,
-      matchedId: materialId,
-      matchedName: matchedMaterialName,
-      confidence: materialMatched ? 100 : matCandidates.length > 0 ? 70 : 0,
-      isExact: materialMatched,
-      matchMethod: matMatchMethod,
-      recommendation: matRecommendation,
-      candidates: matCandidates,
-      isAuthorized: Boolean(materialId),
-      riskLevel: materialId ? 'LOW' : matCandidates.length > 0 ? 'HIGH' : 'CRITICAL',
-    };
-
-    // 3. Resolve Driver (using Exact identity search or Normalized unique name search)
-    if (mapped.driverName) {
-      const importId = mapped.driverIdentity || '';
-      const normName = normalizeName(mapped.driverName);
-
-      let foundDriver: any = null;
-      let matchMethod: 'EXACT' | 'NORMALIZED' | 'FUZZY' | 'NONE' = 'NONE';
-      let confidence = 0;
-      let fuzzyCandidate: any = null;
-
-      // Try EXACT match by ID number first
-      if (importId) {
-        foundDriver = context.knownEntities?.drivers?.find((d) => d.idNumber === importId || d.driverId === importId);
-        if (foundDriver) {
-          matchMethod = 'EXACT';
-          confidence = 100;
-        }
-      }
-
-      // Try NORMALIZED unique match by name
-      if (!foundDriver) {
-        const normalizedMatches = context.knownEntities?.drivers?.filter((d) => normalizeName(d.name) === normName) || [];
-        if (normalizedMatches.length === 1) {
-          foundDriver = normalizedMatches[0];
-          matchMethod = 'NORMALIZED';
-          confidence = 90;
-        } else if (normalizedMatches.length > 1) {
-          // Multiple candidates -> ambiguous, requires review
-          matchMethod = 'FUZZY';
-          confidence = 60;
-          fuzzyCandidate = normalizedMatches[0];
-        }
-      }
-
-      // Try FUZZY match by partial name (simple inclusion check)
-      if (!foundDriver && matchMethod !== 'FUZZY') {
-        const fuzzyMatches = context.knownEntities?.drivers?.filter((d) => 
-          normalizeName(d.name).includes(normName) || normName.includes(normalizeName(d.name))
-        ) || [];
-        if (fuzzyMatches.length > 0) {
-          matchMethod = 'FUZZY';
-          confidence = fuzzyMatches.length === 1 ? 75 : 60;
-          fuzzyCandidate = fuzzyMatches[0];
-          // Store as candidate, do NOT set foundDriver to resolve matchedId
-        }
-      }
-
-      let relationshipStatus: ImportEntityResolutionInfo['relationshipStatus'] = 'VALID';
-      let riskLevel: ImportEntityResolutionInfo['riskLevel'] = 'LOW';
-      let conflictDetails = '';
-
-      if (foundDriver) {
-        // Verify driver belongs to resolved/selected carrier
-        if (carrierId && foundDriver.carrierId !== carrierId) {
-          relationshipStatus = 'DRIVER_CARRIER_CONFLICT';
-          riskLevel = 'CRITICAL';
-          conflictDetails = `السائق مسجل مسبقاً للناقل [${foundDriver.carrierId}] بينما الاستيراد الحالي للناقل [${carrierId}]`;
-        }
-      } else if (matchMethod === 'FUZZY') {
-        riskLevel = 'HIGH';
-      }
-
-      resolutions.driver = {
-        entityType: 'DRIVER',
-        originalValue: mapped.driverName,
-        matchedId: foundDriver?.driverId, // Undefined for fuzzy / ambiguous ambiguity
-        matchedName: foundDriver?.name || fuzzyCandidate?.name,
-        confidence,
-        isExact: matchMethod === 'EXACT',
-        matchMethod,
-        relationshipStatus,
-        riskLevel,
-        conflictDetails,
-        isAuthorized: foundDriver ? relationshipStatus === 'VALID' : true,
-      };
-    }
-
-    // 4. Resolve Truck (using plate number)
-    if (mapped.truckPlate) {
-      const normPlate = normalizePlate(mapped.truckPlate);
-
-      let foundTruck: any = null;
-      let matchMethod: 'EXACT' | 'NORMALIZED' | 'NONE' = 'NONE';
-      let confidence = 0;
-
-      // Exact/Normalized match on plate
-      foundTruck = context.knownEntities?.trucks?.find(
-        (t) => normalizePlate(t.plate) === normPlate || t.truckId === normPlate
-      );
-
-      if (foundTruck) {
-        matchMethod = 'EXACT';
-        confidence = 100;
-      }
-
-      let relationshipStatus: ImportEntityResolutionInfo['relationshipStatus'] = 'VALID';
-      let riskLevel: ImportEntityResolutionInfo['riskLevel'] = 'LOW';
-      let conflictDetails = '';
-
-      if (foundTruck) {
-        // Verify truck belongs to resolved/selected carrier
-        if (carrierId && foundTruck.carrierId !== carrierId) {
-          relationshipStatus = 'RELATIONSHIP_CONFLICT'; // Carrier/Truck conflict
-          riskLevel = 'CRITICAL';
-          conflictDetails = `الشاحنة مسجلة مسبقاً للناقل [${foundTruck.carrierId}] بينما الاستيراد الحالي للناقل [${carrierId}]`;
-        }
-      }
-
-      resolutions.truck = {
-        entityType: 'TRUCK',
-        originalValue: mapped.truckPlate,
-        matchedId: foundTruck?.truckId,
-        matchedName: foundTruck?.plate,
-        confidence,
-        isExact: matchMethod === 'EXACT',
-        matchMethod,
-        relationshipStatus,
-        riskLevel,
-        conflictDetails,
-        isAuthorized: foundTruck ? relationshipStatus === 'VALID' : true,
-      };
-    }
-
-    return resolutions;
+    return resolveCanonicalRoster(mapped, context);
   }
 }
 
@@ -481,7 +243,7 @@ export class DriverTruckImportValidator {
         resolvable: false, blocking: true });
     }
 
-    const isDriverRow = Boolean(canonical.driverName);
+    const isDriverRow = Boolean(canonical.driverName || canonical.driverIdentity);
     const isTruckRow = Boolean(canonical.truckPlate);
 
     if (!isDriverRow && !isTruckRow) {
@@ -501,7 +263,7 @@ export class DriverTruckImportValidator {
 
     // A. Driver Validation
     if (isDriverRow) {
-      if (!canonical.driverName || canonical.driverName.trim() === '') {
+      if ((!canonical.driverName || canonical.driverName.trim() === '') && !row.entityResolutions?.driver?.matchedId) {
         issues.push({
           issueId: `ISSUE-${row.rowNumber}-DRV-NAME`,
           row: row.rowNumber,
@@ -561,6 +323,10 @@ export class DriverTruckImportValidator {
         resolvable: false,
         blocking: true,
       });
+    }
+
+    for (const [key, resolution] of Object.entries(row.entityResolutions || {})) {
+      if (resolution.resolutionReason && resolution.resolutionReason !== 'UNRESOLVED') issues.push({ issueId: `RES-${row.rowNumber}-${key}`, row: row.rowNumber, field:key, code:resolution.resolutionReason, severity:'BLOCKING', message:resolution.resolutionReason, blocking:true, resolvable:true });
     }
 
     // D. Driver Carrier Conflict

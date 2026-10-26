@@ -172,9 +172,11 @@ export class ImportProjectContextAdapter {
       pricingRules,
     } = options;
 
+    if (relContext && relContext.projectId !== projectId) throw new Error('PROJECT_CONTEXT_STALE');
     const knownEntities = this.toPipelineKnownEntities(relContext);
 
     return {
+      resolutionContext: relContext?.importResolution,
       projectId: (relContext && relContext.projectId) || projectId,
       userId,
       userName,

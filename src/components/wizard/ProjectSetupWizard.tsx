@@ -1,3 +1,5 @@
+import type { GlobalKind } from '../../utils/globalIdentityPolicy';
+import { resolutionErrorKey } from '../../i18n/importResolution';
 import { validateRosterFile, RosterSourceError, rosterErrorKey } from '../../services/import/rosterSourceContract';
 import { SetupReadinessPanel } from './SetupReadinessPanel';
 import { isEvaluatedReadiness, type EvaluatedReadinessView } from '../../i18n/readinessPresentation';
@@ -1455,6 +1457,46 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     return true;
   };
 
+  const loadImportResolutionContext = async (projectId: string, expectedId?: string) => {
+    const request = renderedContext;
+    let value: RelationshipContext;
+    try { value = await canonicalRelationshipContextService.getProjectRelationshipContext(projectId, { resolution: true }); }
+    catch (error) {
+      if (projectContext.isCurrent(request, projectId) && resolutionErrorKey(error) === 'import.resolution.access') { setProjectRelationshipContext(null); setImportBatch(null); setIsSmartImportOpen(false); }
+      throw new Error(t(resolutionErrorKey(error)));
+    }
+    if (!projectContext.isCurrent(request, projectId)) throw Error('PROJECT_CONTEXT_STALE');
+    if (value.importResolution?.projectId !== projectId || (expectedId && !value.importResolution.entities.some(e => e.id === expectedId && e.membershipStatus === 'ACTIVE' && e.globalStatus === 'ACTIVE'))) throw Error('CONTEXT_UNAVAILABLE');
+    setProjectRelationshipContext(value);
+    return value;
+  };
+  const applyCanonicalImportChoice = async (group: RosterEntityReviewGroup, context: RelationshipContext, id: string) => {
+    const request = renderedContext;
+    if (!project || !importBatch || !projectContext.isCurrent(request, project.projectId)) return;
+    const pipeline = ImportProjectContextAdapter.createPipelineContext({ relContext: context, projectId:project.projectId, userId:authContext.userId, role:authContext.role, operationId:importBatch.operationId });
+    const updated=DriverTruckPipelineService.applyGroupedEntityResolutionDecision(importBatch,group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id},pipeline,authContext.userId);
+    setProjectRelationshipContext(context); setImportBatch(updated);
+    await persistSmartImportCheckpoint({batch:updated});
+  };
+  const inspectCanonicalBeforeCreate = async (kind: GlobalKind, group: RosterEntityReviewGroup, naturalKey: string) => {
+    const request=renderedContext;
+    if(!project||!projectContext.isCurrent(request,project.projectId))return false;
+    if(group.currentResolution?.ambiguous)throw Error('IDENTITY_AMBIGUITY');
+    const context=await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId,{resolution:true,kind,naturalKey});
+    if(!projectContext.isCurrent(request,project.projectId))return false;
+    const lookup=context.importResolution?.lookup;
+    if(!lookup||lookup.kind!==kind||lookup.naturalKey!==naturalKey)throw Error('CONTEXT_UNAVAILABLE');
+    setProjectRelationshipContext(context);
+    if(lookup.matchedId){
+      await applyCanonicalImportChoice(group,context,lookup.matchedId);
+      if(!projectContext.isCurrent(request,project.projectId))return false;
+      if(kind==='CARRIER')setIsSmartImportCarrierModalOpen(false);
+      if(kind==='MATERIAL')setIsSmartImportMaterialModalOpen(false);
+      return false;
+    }
+    return true;
+  };
+
   const processRosterFile = async (file: File) => {
     const requestContext = renderedContext;
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
@@ -1639,12 +1681,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       let relContext = null;
       try {
-        relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+        relContext = await loadImportResolutionContext(project.projectId);
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       } catch (relErr) {
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-        console.warn('Could not load canonical relationship context for roster intake:', relErr);
+        throw new Error('CONTEXT_UNAVAILABLE');
       }
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
 
@@ -1815,7 +1857,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const currentBatchId = importBatch.importBatchId;
     setIsProcessing(true);
     try {
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
@@ -1868,7 +1910,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const currentBatchId = importBatch.importBatchId;
     setIsProcessing(true);
     try {
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
@@ -1934,8 +1976,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         throw new Error(t('projects.batch4.driver_identity_required'));
       }
 
+      if (!(await inspectCanonicalBeforeCreate('DRIVER', group, data.residencyId.trim()))) return;
+      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: projectRelationshipContext || undefined,
+        relContext: await loadImportResolutionContext(project.projectId),
         projectId: project.projectId,
         userId: authContext.userId,
         role: authContext.role,
@@ -1986,7 +2030,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const currentBatchId = importBatch.importBatchId;
     setIsProcessing(true);
     try {
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
@@ -2039,7 +2083,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const currentBatchId = importBatch.importBatchId;
     setIsProcessing(true);
     try {
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
@@ -2102,8 +2146,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         throw new Error(t('entityResolution.messages.truck_plate_required'));
       }
 
+      if (!(await inspectCanonicalBeforeCreate('TRUCK', group, data.plateNumber.trim()))) return;
+      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: projectRelationshipContext || undefined,
+        relContext: await loadImportResolutionContext(project.projectId),
         projectId: project.projectId,
         userId: authContext.userId,
         role: authContext.role,
@@ -2207,7 +2253,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setDriverConvergenceError(null);
       applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation);
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: snapshot.relationshipContext,
+        relContext: await loadImportResolutionContext(project.projectId),
         projectId: project.projectId,
         userId: authContext.userId,
         role: authContext.role,
@@ -2263,7 +2309,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setTruckConvergenceError(null);
       applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation);
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: snapshot.relationshipContext,
+        relContext: await loadImportResolutionContext(project.projectId),
         projectId: project.projectId,
         userId: authContext.userId,
         role: authContext.role,
@@ -2346,7 +2392,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     // 2. Fresh Revalidation before entering FINAL_REVIEW
     setIsProcessing(true);
     try {
-      const freshContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const freshContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
@@ -2412,7 +2458,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
     try {
       // 1. Fetch fresh canonical RelationshipContext
-      const freshContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const freshContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
@@ -2567,7 +2613,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const currentBatchId = importBatch.importBatchId;
     setIsProcessing(true);
     try {
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
@@ -2620,7 +2666,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const currentBatchId = importBatch.importBatchId;
     setIsProcessing(true);
     try {
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
@@ -2681,7 +2727,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation);
 
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: snapshot.relationshipContext,
+        relContext: await loadImportResolutionContext(project.projectId, result.carrierId),
         projectId: project.projectId,
         userId: authContext.userId,
         role: authContext.role,
@@ -2732,7 +2778,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const currentBatchId = importBatch.importBatchId;
     setIsProcessing(true);
     try {
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
@@ -2785,7 +2831,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const currentBatchId = importBatch.importBatchId;
     setIsProcessing(true);
     try {
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
 
@@ -2849,7 +2895,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       // 3. Convert snapshot relationship context into pipeline context via adapter
       const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: snapshot.relationshipContext,
+        relContext: await loadImportResolutionContext(project.projectId, result.materialId),
         projectId: project.projectId,
         userId: authContext.userId,
         role: authContext.role,
@@ -2903,7 +2949,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
     if (!importBatch || !project) return;
     try {
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (!relContext || !relContext.knownCarriers) {
         alert('عفواً، تعذر تحميل سياق العلاقات المصرح به للمشروع');
@@ -2944,7 +2990,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
     if (!importBatch || !project) return;
     try {
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (!relContext || !relContext.knownCarriers) {
         alert('عفواً، تعذر تحميل سياق العلاقات المصرح به للمشروع');
@@ -2984,7 +3030,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const { entityType, normalizedSourceKey, sourceValue } = group;
     try {
       // 1. Fetch & validate canonical relationship context FIRST before prompt or create
-      const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+      const relContext = await loadImportResolutionContext(project.projectId);
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (
         !relContext ||
@@ -3269,7 +3315,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     try {
       let relContext = null;
       try {
-        relContext = await canonicalRelationshipContextService.getProjectRelationshipContext(project.projectId);
+        relContext = await loadImportResolutionContext(project.projectId);
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       } catch (relErr) {
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
@@ -4004,6 +4050,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         setIsSmartImportMaterialModalOpen(false);
                         setSmartImportPendingMaterialGroup(null);
                       }}
+                      beforeCreate={key => smartImportPendingMaterialGroup ? inspectCanonicalBeforeCreate('MATERIAL', smartImportPendingMaterialGroup, key) : Promise.resolve(false)}
                       onCreated={handleSmartImportMaterialCreated}
                     />
                   )}
@@ -4147,6 +4194,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         setIsSmartImportCarrierModalOpen(false);
                         setSmartImportPendingCarrierGroup(null);
                       }}
+                      beforeCreate={key => smartImportPendingCarrierGroup ? inspectCanonicalBeforeCreate('CARRIER', smartImportPendingCarrierGroup, key) : Promise.resolve(false)}
                       onCreated={handleSmartImportCarrierCreated}
                     />
                   )}
@@ -4165,6 +4213,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         setIsSmartImportMaterialModalOpen(false);
                         setSmartImportPendingMaterialGroup(null);
                       }}
+                      beforeCreate={key => smartImportPendingMaterialGroup ? inspectCanonicalBeforeCreate('MATERIAL', smartImportPendingMaterialGroup, key) : Promise.resolve(false)}
                       onCreated={handleSmartImportMaterialCreated}
                     />
                   )}
@@ -4877,7 +4926,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 <div>
                   {/* C2: True Carrier-Only Resolution Layer */}
                   {/* Only Carrier review groups are resolved here before future layers. */}
-                  <RosterCarrierResolutionLayer
+                  <RosterCarrierResolutionLayer canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
+                    onCanonicalVerified={applyCanonicalImportChoice} canManageParticipation={authContext.role==='SUPER_ADMIN'||authContext.role==='PROJECT_ADMIN'} isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                     importBatch={importBatch}
                     projectCarriers={carriers}
                     onAcceptCandidate={handleSmartImportCarrierAcceptCandidate}
@@ -4897,7 +4947,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {/* STAGE 4: MATERIAL_RESOLUTION */}
               {importBatch && rosterImportStage === 'MATERIAL_RESOLUTION' && (
                 <div>
-                  <RosterMaterialResolutionLayer
+                  <RosterMaterialResolutionLayer canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
+                    onCanonicalVerified={applyCanonicalImportChoice} canManageParticipation={authContext.role==='SUPER_ADMIN'||authContext.role==='PROJECT_ADMIN'} isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                     importBatch={importBatch}
                     projectMaterials={materials}
                     onAcceptCandidate={handleSmartImportMaterialAcceptCandidate}
@@ -4917,7 +4968,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {/* STAGE 5: DRIVER_TRUCK_RESOLUTION */}
               {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && (
                 <div>
-                  <RosterDriverTruckResolutionLayer
+                  <RosterDriverTruckResolutionLayer canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
+                    onCanonicalVerified={applyCanonicalImportChoice} canManageParticipation={authContext.role==='SUPER_ADMIN'||authContext.role==='PROJECT_ADMIN'} isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                     importBatch={importBatch}
                     projectDrivers={projectRelationshipContext?.knownDrivers || []}
                     projectTrucks={projectRelationshipContext?.knownTrucks || []}

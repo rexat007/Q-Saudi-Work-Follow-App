@@ -1,3 +1,4 @@
+import type { ImportResolutionReadOptions } from '../types/importResolution';
 import { canonicalProjectRead } from './projectReadTransport';
 import { relationshipContextFromFleet } from '../utils/relationshipContextProjection';
 import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
@@ -49,13 +50,16 @@ export class CanonicalRelationshipContextService {
    * Asynchronously retrieves the canonical RelationshipContext for a specified project.
    * Throws if projectId is invalid, empty, or ALL.
    */
-  async getProjectRelationshipContext(projectId: string): Promise<RelationshipContext> {
+  async getProjectRelationshipContext(projectId: string, options?: ImportResolutionReadOptions): Promise<RelationshipContext> {
     if (!projectId || !projectId.trim() || projectId.trim() === 'ALL') {
       throw new Error('INVALID_PROJECT_ID: projectId must be a valid non-empty project identifier and cannot be ALL');
     }
 
     const cleanProjectId = projectId.trim();
-    if (process.env.NODE_ENV !== 'test') return canonicalProjectRead(cleanProjectId, 'relationship-context');
+    if (options?.resolution || process.env.NODE_ENV !== 'test') {
+      const query = options?.resolution ? `?${new URLSearchParams({ resolution: '1', ...(options.kind ? { kind: options.kind, naturalKey: options.naturalKey || '' } : {}) })}` : '';
+      return canonicalProjectRead(cleanProjectId, `relationship-context${query}`);
+    }
     // TEST_ONLY repository compatibility; production master and Fleet reads use the server.
 
     // 1. Concurrently fetch all active project memberships and unified fleet read model

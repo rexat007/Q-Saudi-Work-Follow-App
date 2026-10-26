@@ -1,3 +1,8 @@
+import { CanonicalResolutionDecision } from '../import/CanonicalResolutionDecision';
+import { applyOperationalGroupChoice } from '../../services/import/importResolutionWorkflow';
+import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
+import { resolutionErrorKey } from '../../i18n/importResolution';
+import { CanonicalImportBoundary } from '../import/CanonicalImportBoundary';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { batch4FieldLabel } from '../../i18n/batch4Presentation';
 import { useI18n } from '../../i18n';
@@ -69,9 +74,11 @@ interface ExcelCsvImportSectionProps {
   onCommitSuccess?: (result: ImportResult) => void;
   canonicalRelationshipContext?: RelationshipContext | null;
   pipelineContext?: PipelineContext;
+  reloadCanonicalContext?: () => Promise<RelationshipContext>;
+  isImportCurrent?: () => boolean;
 }
 
-export function ExcelCsvImportSection({
+function ExcelCsvImportContent({
   currentProjectId = '',
   authContext,
   userId,
@@ -79,7 +86,7 @@ export function ExcelCsvImportSection({
   userRole,
   onCommitSuccess,
   canonicalRelationshipContext,
-  pipelineContext,
+  pipelineContext, reloadCanonicalContext, isImportCurrent = () => true,
 }: ExcelCsvImportSectionProps) {
   const { t, direction, locale } = useI18n();
   // File state
@@ -157,6 +164,7 @@ export function ExcelCsvImportSection({
   };
 
   const handleSaveRowCorrection = async (rowNumber: number) => {
+    if (!isImportCurrent()) return;
     if (!activeBatch) return;
     try {
       setCorrectionError(null);
@@ -237,9 +245,11 @@ export function ExcelCsvImportSection({
             },
             sessionVersion
           );
+    if (!isImportCurrent()) return;
 
           setSessionVersion(updatedSession.version);
         } catch (err: any) {
+    if (!isImportCurrent()) return;
           if (err?.code === 'VERSION_CONFLICT') {
             setProcessError(t('entityResolution.messages.version_conflict_correction'));
           } else {
@@ -248,6 +258,7 @@ export function ExcelCsvImportSection({
         }
       }
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       setCorrectionError(err?.message || t('entityResolution.messages.row_correction_save_failed'));
     }
   };
@@ -298,25 +309,33 @@ export function ExcelCsvImportSection({
     return RosterBatchReviewService.getRowExceptions(activeBatch);
   }, [activeBatch]);
 
+  const creationLock = useRef(false);
+  const creationReceipt = useRef<{ group: string; result: NormalizedEntityResolutionResult } | null>(null);
+  const requireCurrentContext = async () => {
+    if (!isImportCurrent() || !reloadCanonicalContext) throw Error('PROJECT_CONTEXT_STALE');
+    const fresh = await reloadCanonicalContext();
+    if (!isImportCurrent()) throw Error('PROJECT_CONTEXT_STALE');
+    if (!isImportCurrent() || fresh.projectId !== currentProjectId || fresh.importResolution?.projectId !== currentProjectId) throw Error('PROJECT_CONTEXT_STALE');
+    return ImportProjectContextAdapter.createPipelineContext({ relContext:fresh, projectId:currentProjectId, userId:effectiveUserId, userName:effectiveUserName, role:effectiveRole, operationId:activeOperationId || activeBatch?.operationId || context.operationId });
+  };
+  const applyVerifiedChoice = async (group: RosterEntityReviewGroup, fresh: RelationshipContext, id: string) => {
+    await handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id},fresh);
+  };
   const handleGroupResolutionDecision = async (
     entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
     normalizedSourceKey: string,
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
-    candidate?: { selectedEntityId?: string; selectedDisplayName?: string }
+    candidate?: { selectedEntityId?: string; selectedDisplayName?: string },
+    verifiedContext?: RelationshipContext
   ) => {
+    if (!isImportCurrent()) return;
     if (!activeBatch) return;
 
     try {
       setProcessError(null);
-      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
-        activeBatch,
-        entityTypeKey,
-        normalizedSourceKey,
-        decision,
-        candidate || {},
-        context,
-        effectiveUserId || 'user'
-      );
+      const context = verifiedContext ? ImportProjectContextAdapter.createPipelineContext({relContext:verifiedContext,projectId:currentProjectId,userId:effectiveUserId,role:effectiveRole,operationId:activeOperationId||activeBatch!.operationId}) : await requireCurrentContext();
+    if (!isImportCurrent()) return;
+      const updated = applyOperationalGroupChoice(activeBatch, {entityType:entityTypeKey,normalizedSourceKey:normalizedSourceKey}, (candidate || {}).selectedEntityId, context, effectiveUserId || 'user', decision);
 
       setActiveBatch({ ...updated });
 
@@ -347,14 +366,16 @@ export function ExcelCsvImportSection({
           },
           sessionVersion
         );
+    if (!isImportCurrent()) return;
 
         setSessionVersion(updatedSession.version);
       }
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       if (err?.code === 'VERSION_CONFLICT') {
         setProcessError(t('entityResolution.messages.version_conflict_matching'));
       } else {
-        setProcessError(err?.message || t('entityResolution.messages.matching_decision_save_failed'));
+        setProcessError(t(resolutionErrorKey(err)));
       }
     }
   };
@@ -375,20 +396,34 @@ export function ExcelCsvImportSection({
       maxGrossWeightKg?: number;
     }
   ) => {
+    if (!isImportCurrent()) return;
     if (!activeBatch || !currentProjectId) return;
     const representativeRowNumber = group.rowNumbers[0];
     const row = activeBatch.rows.find((r) => r.rowNumber === representativeRowNumber);
     if (!row) return;
 
+    if (creationLock.current) return;
+    creationLock.current=true;
     setProcessError(null);
     setCreateError(null);
     setIsCreatingEntity(true);
 
     try {
-      let result: NormalizedEntityResolutionResult;
+      let result: NormalizedEntityResolutionResult | undefined = creationReceipt.current?.group === group.normalizedSourceKey ? creationReceipt.current.result : undefined;
       const resItem = group.currentResolution;
       const sourceVal = resItem?.sourceValue || resItem?.originalValue || group.sourceValue || formData.nameAr || formData.driverName || formData.plateNumber || formData.code || '';
 
+      if (!result) {
+        if(group.currentResolution?.ambiguous) throw Error('IDENTITY_AMBIGUITY');
+        const kind=group.entityType.toUpperCase() as 'CARRIER'|'MATERIAL'|'DRIVER'|'TRUCK';
+        const naturalKey=String(group.entityType==='carrier'?formData.commercialRegistrationNo:group.entityType==='material'?formData.code:group.entityType==='driver'?formData.residencyId:formData.plateNumber).trim();
+        const lookupContext=await canonicalRelationshipContextService.getProjectRelationshipContext(currentProjectId,{resolution:true,kind,naturalKey});
+    if (!isImportCurrent()) return;
+        if(!isImportCurrent())return;
+        const lookup=lookupContext.importResolution?.lookup;
+        if(!lookup||lookup.kind!==kind||lookup.naturalKey!==naturalKey)throw Error('CONTEXT_UNAVAILABLE');
+        if(lookup.matchedId){await applyVerifiedChoice(group,lookupContext,lookup.matchedId);
+    if (!isImportCurrent()) return;if(isImportCurrent())setActiveCreateGroupKey(null);return;}
       if (group.entityType === 'carrier') {
         if (!formData.commercialRegistrationNo || !formData.commercialRegistrationNo.trim()) {
           throw new Error(t('entityResolution.messages.carrier_registration_required'));
@@ -402,6 +437,7 @@ export function ExcelCsvImportSection({
             ...(formData.transportLicenseNo?.trim() ? { transportLicenseNo: formData.transportLicenseNo.trim() } : {}),
           },
         });
+    if (!isImportCurrent()) return;
       } else if (group.entityType === 'material') {
         if (!formData.code || !formData.code.trim()) {
           throw new Error(t('entityResolution.messages.material_code_required'));
@@ -414,6 +450,7 @@ export function ExcelCsvImportSection({
             nameAr: (formData.nameAr && formData.nameAr.trim()) ? formData.nameAr.trim() : sourceVal,
           },
         });
+    if (!isImportCurrent()) return;
       } else if (group.entityType === 'driver') {
         let carrierId = row.resolvedValues?.carrierId;
         if (!carrierId) {
@@ -438,6 +475,7 @@ export function ExcelCsvImportSection({
             ...(formData.phone?.trim() ? { phone: formData.phone.trim() } : {}),
           },
         });
+    if (!isImportCurrent()) return;
       } else if (group.entityType === 'truck') {
         let carrierId = row.resolvedValues?.carrierId;
         if (!carrierId) {
@@ -463,20 +501,23 @@ export function ExcelCsvImportSection({
             ...(formData.maxGrossWeightKg !== undefined ? { maxGrossWeightKg: formData.maxGrossWeightKg } : {}),
           },
         });
+    if (!isImportCurrent()) return;
       } else {
         throw new Error(t('entityResolution.messages.unsupported_entity_type'));
       }
 
-      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
-        activeBatch,
-        group.entityType,
-        group.normalizedSourceKey,
-        result,
-        context
-      );
+
+        if (!isImportCurrent()) return;
+        creationReceipt.current = {group:group.normalizedSourceKey,result:result!};
+      }
+      const context = await requireCurrentContext();
+    if (!isImportCurrent()) return;
+      if(!context.resolutionContext?.entities.some(e=>e.id===result!.matchedId&&e.kind===result!.entityType&&e.membershipStatus==='ACTIVE'&&e.globalStatus==='ACTIVE'))throw Error('CONTEXT_UNAVAILABLE');
+      const updated = applyOperationalGroupChoice(activeBatch, group, result!.matchedId, context, effectiveUserId);
 
       setActiveBatch({ ...updated });
       setActiveCreateGroupKey(null);
+      creationReceipt.current = null;
 
       if (currentProjectId && activeSessionId) {
         const cleanSnapshot = {
@@ -505,16 +546,20 @@ export function ExcelCsvImportSection({
           },
           sessionVersion
         );
+    if (!isImportCurrent()) return;
 
         setSessionVersion(updatedSession.version);
       }
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       if (err?.code === 'VERSION_CONFLICT') {
         setCreateError(t('entityResolution.messages.version_conflict'));
       } else {
-        setCreateError(err?.message || t('entityResolution.messages.group_entity_create_failed'));
+        setCreateError(t(resolutionErrorKey(err)));
       }
     } finally {
+      creationLock.current=false;
+    if (!isImportCurrent()) return;
       setIsCreatingEntity(false);
     }
   };
@@ -576,11 +621,13 @@ export function ExcelCsvImportSection({
         }
 
         const sessionRecord = await importSessionClientService.getSession(currentProjectId, locator.importSessionId);
+    if (!isImportCurrent()) return;
         if (!sessionRecord || sessionRecord.lifecycleState === 'COMMITTED') {
           sessionStorage.removeItem(locatorKey);
           return;
         }
 
+        if (sessionRecord.projectId !== currentProjectId) throw new Error('PROJECT_CONTEXT_STALE');
         const resumedState = importSessionClientService.reconstructResumedBatch(sessionRecord);
         if (!isMounted) return;
 
@@ -652,6 +699,7 @@ export function ExcelCsvImportSection({
           }
         }
       } catch {
+    if (!isImportCurrent()) return;
         sessionStorage.removeItem(locatorKey);
       }
     };
@@ -664,6 +712,7 @@ export function ExcelCsvImportSection({
   }, [currentProjectId]);
 
   const handleFileSelect = async (file: File) => {
+    if (!isImportCurrent()) return;
     setSelectedFile(file);
     setProcessError(null);
     setCommitResult(null);
@@ -692,6 +741,7 @@ export function ExcelCsvImportSection({
     try {
       setIsProcessing(true);
       const buffer = await file.arrayBuffer();
+    if (!isImportCurrent()) return;
       setFileBuffer(buffer);
 
       const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
@@ -704,6 +754,7 @@ export function ExcelCsvImportSection({
       };
 
       const discovery = await smartSourceDiscoveryService.discover(importSource, buffer);
+    if (!isImportCurrent()) return;
       setDiscoveryResult(discovery);
 
       const sheets = discovery.availableSheets || [];
@@ -746,6 +797,7 @@ export function ExcelCsvImportSection({
               headerRowIndex: detectedIdx,
             },
           });
+    if (!isImportCurrent()) return;
 
           createdSessionId = sessionRecord.importSessionId;
           createdVersion = sessionRecord.version;
@@ -761,19 +813,23 @@ export function ExcelCsvImportSection({
             })
           );
         } catch (err: any) {
+    if (!isImportCurrent()) return;
           console.warn('Session creation notice:', err);
         }
       }
 
       setRequiresSourceFileReattach(false);
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       setProcessError(err?.message || t('entityResolution.messages.file_discovery_failed'));
     } finally {
+    if (!isImportCurrent()) return;
       setIsProcessing(false);
     }
   };
 
   const handleSheetChange = async (sheet: string) => {
+    if (!isImportCurrent()) return;
     setSelectedSheet(sheet);
     if (selectedFile && fileBuffer) {
       try {
@@ -788,6 +844,7 @@ export function ExcelCsvImportSection({
         };
 
         const updatedDiscovery = await smartSourceDiscoveryService.discover(importSource, fileBuffer);
+    if (!isImportCurrent()) return;
         setDiscoveryResult(updatedDiscovery);
         const detectedIdx = updatedDiscovery.detectedHeaderRowIndex || 0;
         setHeaderRowIndex(detectedIdx);
@@ -806,15 +863,18 @@ export function ExcelCsvImportSection({
         }
         setCustomMappingOverrides(updatedMappings);
       } catch (err: any) {
+    if (!isImportCurrent()) return;
         console.error('Sheet change discovery failed:', err);
         setProcessError(err?.message || t('entityResolution.messages.worksheet_discovery_failed'));
       } finally {
+    if (!isImportCurrent()) return;
         setIsProcessing(false);
       }
     }
   };
 
   const handleHeaderRowIndexChange = async (index: number) => {
+    if (!isImportCurrent()) return;
     setHeaderRowIndex(index);
     if (selectedFile && fileBuffer) {
       try {
@@ -830,7 +890,8 @@ export function ExcelCsvImportSection({
               headers = rows[index].map((h: any) => String(h || '').trim()).filter(Boolean);
             }
           }
-        } catch {}
+        } catch {
+    if (!isImportCurrent()) return;}
 
         if (headers.length > 0) {
           const diags = ExcelCsvPipelineService.inspectColumnMappings(headers);
@@ -847,6 +908,7 @@ export function ExcelCsvImportSection({
           setCustomMappingOverrides(newMappings);
         }
       } catch (err: any) {
+    if (!isImportCurrent()) return;
         console.warn('Header row change error:', err);
       }
     }
@@ -860,6 +922,7 @@ export function ExcelCsvImportSection({
   };
 
   const handleApproveAndStartPipeline = async () => {
+    if (!isImportCurrent()) return;
     if (!selectedFile || !fileBuffer) return;
     try {
       setIsProcessing(true);
@@ -877,9 +940,10 @@ export function ExcelCsvImportSection({
       const batchId = activeImportBatchId || `BAT-${Date.now()}`;
 
       const activeContext: PipelineContext = {
-        ...context,
+        ...await requireCurrentContext(),
         operationId: opId,
       };
+    if (!isImportCurrent()) return;
 
       const batch = await ExcelCsvPipelineService.processFileToReview(
         fileBuffer,
@@ -894,6 +958,7 @@ export function ExcelCsvImportSection({
           importBatchId: batchId,
         }
       );
+    if (!isImportCurrent()) return;
 
       setActiveBatch(batch);
 
@@ -940,9 +1005,11 @@ export function ExcelCsvImportSection({
             },
             sessionVersion
           );
+    if (!isImportCurrent()) return;
 
           setSessionVersion(updatedSession.version);
         } catch (err: any) {
+    if (!isImportCurrent()) return;
           if (err?.code === 'VERSION_CONFLICT') {
             setProcessError(t('entityResolution.messages.version_conflict_refresh'));
           } else {
@@ -951,13 +1018,16 @@ export function ExcelCsvImportSection({
         }
       }
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       setProcessError(err?.message || t('entityResolution.messages.file_processing_failed'));
     } finally {
+    if (!isImportCurrent()) return;
       setIsProcessing(false);
     }
   };
 
   const handleRowAction = async (rowNumber: number, action: 'ACCEPT_WARNING' | 'REJECT_ROW') => {
+    if (!isImportCurrent()) return;
     if (!activeBatch) return;
     const updated = ExcelCsvPipelineService.applyRowReview(
       activeBatch,
@@ -996,9 +1066,11 @@ export function ExcelCsvImportSection({
           },
           sessionVersion
         );
+    if (!isImportCurrent()) return;
 
         setSessionVersion(updatedSession.version);
       } catch (err: any) {
+    if (!isImportCurrent()) return;
         if (err?.code === 'VERSION_CONFLICT') {
           setProcessError(t('entityResolution.messages.version_conflict_review'));
         } else {
@@ -1009,6 +1081,7 @@ export function ExcelCsvImportSection({
   };
 
   const handleConfirmWarningsChange = async (checked: boolean) => {
+    if (!isImportCurrent()) return;
     setConfirmWarnings(checked);
     if (currentProjectId && activeSessionId) {
       try {
@@ -1020,8 +1093,10 @@ export function ExcelCsvImportSection({
           },
           sessionVersion
         );
+    if (!isImportCurrent()) return;
         setSessionVersion(updatedSession.version);
       } catch (err: any) {
+    if (!isImportCurrent()) return;
         if (err?.code === 'VERSION_CONFLICT') {
           setProcessError(t('entityResolution.messages.version_conflict'));
         } else {
@@ -1032,6 +1107,7 @@ export function ExcelCsvImportSection({
   };
 
   const handleCommit = async () => {
+    if (!isImportCurrent()) return;
     if (!activeBatch) return;
     try {
       setIsCommitting(true);
@@ -1043,6 +1119,7 @@ export function ExcelCsvImportSection({
       };
 
       const { batch, result } = await ExcelCsvPipelineService.commitBatch(activeBatch, updatedContext);
+    if (!isImportCurrent()) return;
       setActiveBatch({ ...batch });
       setCommitResult(result);
 
@@ -1058,9 +1135,11 @@ export function ExcelCsvImportSection({
               },
               sessionVersion
             );
+    if (!isImportCurrent()) return;
             setSessionVersion(updatedSession.version);
             sessionStorage.removeItem(`qsaudi_import_session_locator_${currentProjectId}`);
           } catch {
+    if (!isImportCurrent()) return;
             // Commit succeeded on business domain; ignore session close error
           }
         }
@@ -1105,16 +1184,20 @@ export function ExcelCsvImportSection({
               },
               sessionVersion
             );
+    if (!isImportCurrent()) return;
 
             setSessionVersion(updatedSession.version);
           } catch (err: any) {
+    if (!isImportCurrent()) return;
             console.warn('Failed to update session checkpoint on partial commit:', err);
           }
         }
       }
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       setProcessError(err?.message || t('entityResolution.messages.shipment_commit_failed'));
     } finally {
+    if (!isImportCurrent()) return;
       setIsCommitting(false);
     }
   };
@@ -1740,14 +1823,15 @@ export function ExcelCsvImportSection({
 
                                         {group.relationshipStatus && group.relationshipStatus !== 'VALID' && (
                                           <div className="text-rose-700 font-bold text-[11px] mt-1">
-                                            {t('entityResolution.labels.relationship_status')} {group.relationshipStatus}
+                                            {t('entityResolution.labels.relationship_status')} {t(resolutionErrorKey({code:group.currentResolution?.resolutionReason||group.relationshipStatus}))}
                                           </div>
                                         )}
                                       </div>
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="flex items-center gap-2 flex-wrap shrink-0">
+                                    {canonicalRelationshipContext?.importResolution&&<CanonicalResolutionDecision canMutate={effectiveRole==='PROJECT_ADMIN'||effectiveRole==='SUPER_ADMIN'} projectId={currentProjectId} context={canonicalRelationshipContext} group={group} carrierId={resolvedCarrierId} isCurrent={isImportCurrent} disabled={isProcessing||isCreatingEntity} onSelect={id=>handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id})} onCreate={()=>handleOpenCreateForm(group)} onVerified={(fresh,id)=>applyVerifiedChoice(group,fresh,id)}/>}
+{!canonicalRelationshipContext?.importResolution&&(<div className="flex items-center gap-2 flex-wrap shrink-0">
                                       {/* Accept Suggestion (Review Required) */}
                                       {isReview && group.matchedId && (
                                         <button
@@ -1843,7 +1927,7 @@ export function ExcelCsvImportSection({
                                           {t('entityResolution.labels.leave_unresolved')}
                                         </button>
                                       )}
-                                    </div>
+                                    </div>)}
                                   </div>
 
                                   {/* Creation Form Panel */}
@@ -1880,7 +1964,7 @@ export function ExcelCsvImportSection({
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({ ...prev, nameAr: e.target.value }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                               <div className="space-y-1">
@@ -1897,7 +1981,7 @@ export function ExcelCsvImportSection({
                                                       commercialRegistrationNo: e.target.value,
                                                     }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                               <div className="space-y-1">
@@ -1912,7 +1996,7 @@ export function ExcelCsvImportSection({
                                                       transportLicenseNo: e.target.value,
                                                     }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                             </>
@@ -1928,7 +2012,7 @@ export function ExcelCsvImportSection({
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({ ...prev, nameAr: e.target.value }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                               <div className="space-y-1">
@@ -1942,7 +2026,7 @@ export function ExcelCsvImportSection({
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({ ...prev, code: e.target.value }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                             </>
@@ -1958,7 +2042,7 @@ export function ExcelCsvImportSection({
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({ ...prev, driverName: e.target.value }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                               <div className="space-y-1">
@@ -1975,7 +2059,7 @@ export function ExcelCsvImportSection({
                                                       residencyId: e.target.value,
                                                     }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                               <div className="space-y-1">
@@ -1987,7 +2071,7 @@ export function ExcelCsvImportSection({
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({ ...prev, phone: e.target.value }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                             </>
@@ -2008,7 +2092,7 @@ export function ExcelCsvImportSection({
                                                       plateNumber: e.target.value,
                                                     }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                               <div className="space-y-1">
@@ -2020,7 +2104,7 @@ export function ExcelCsvImportSection({
                                                   onChange={(e) =>
                                                     setCreateFormData((prev) => ({ ...prev, truckType: e.target.value }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                               <div className="space-y-1">
@@ -2035,7 +2119,7 @@ export function ExcelCsvImportSection({
                                                       tareWeightKg: parseFloat(e.target.value) || undefined,
                                                     }))
                                                   }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900"
+                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
                                                 />
                                               </div>
                                             </>
@@ -2073,7 +2157,7 @@ export function ExcelCsvImportSection({
                                           ) : (
                                             <>
                                               <Check className="w-3.5 h-3.5" />
-                                              <span>{t('entityResolution.labels.create_apply_entity')}</span>
+                                              <span>{t(creationReceipt.current ? 'setup.retry' : 'entityResolution.labels.create_apply_entity')}</span>
                                             </>
                                           )}
                                         </button>
@@ -2963,4 +3047,11 @@ export function ExcelCsvImportSection({
       )}
     </div>
   );
+}
+
+export function ExcelCsvImportSection(props: ExcelCsvImportSectionProps) {
+  const projectId=props.currentProjectId || '';
+  const {t}=useI18n();
+  if(props.pipelineContext&&props.pipelineContext.projectId!==projectId)return <p role="alert">{t('import.resolution.stale')}</p>;
+  return <CanonicalImportBoundary key={projectId} projectId={projectId} owner={JSON.stringify(props.authContext||props.userId)}>{(context,reload,isCurrent)=><ExcelCsvImportContent {...props} canonicalRelationshipContext={context} pipelineContext={props.pipelineContext ? { ...props.pipelineContext, projectId, knownEntities: ImportProjectContextAdapter.toPipelineKnownEntities(context), resolutionContext: context.importResolution } : undefined} reloadCanonicalContext={reload} isImportCurrent={isCurrent}/>}</CanonicalImportBoundary>;
 }

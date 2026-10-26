@@ -1,3 +1,4 @@
+import { resolutionErrorKey } from '../../i18n/importResolution';
 import { useProjectEditorLifetime } from '../wizard/useProjectEditorLifetime';
 import { setupErrorKey } from '../../i18n/setupErrors';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
@@ -34,6 +35,7 @@ export interface CarrierEditorModalProps {
     } | null;
   } | null;
   onClose: () => void;
+  beforeCreate?: (naturalKey: string) => Promise<boolean>;
   onCreated?: (result: CarrierCreationResult) => void | Promise<void>;
   onUpdated?: (result: CarrierUpdateResult) => void | Promise<void>;
   clientService?: {
@@ -60,7 +62,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   initialName = '',
   initialCarrier = null,
   onClose,
-  onCreated,
+  onCreated, beforeCreate,
   onUpdated,
   clientService = carrierManagementClientService,
   zIndexClass = 'z-50',
@@ -187,6 +189,11 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
 
       if (!result) {
         try {
+          if (beforeCreate && !(await beforeCreate(commercialRegistrationNo.trim()))) {
+            if (!editor.isCurrent(request)) return;
+            submitLock.current = false; setIsSubmitting(false); return;
+          }
+          if (!editor.isCurrent(request)) return;
           const payload: CarrierCreateInput = {
             name: name.trim(),
             commercialRegistrationNo: commercialRegistrationNo.trim(),
@@ -210,7 +217,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           setCreatedCarrierResult(result);
         } catch (err: any) {
           if (!editor.isCurrent(request)) return;
-          setSubmitError(t(setupErrorKey(err)));
+          setSubmitError(t(beforeCreate ? resolutionErrorKey(err) : setupErrorKey(err)));
           submitLock.current = false; setIsSubmitting(false);
           return;
         }
@@ -257,7 +264,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           setUpdatedCarrierResult(result);
         } catch (err: any) {
           if (!editor.isCurrent(request)) return;
-          setSubmitError(t(setupErrorKey(err)));
+          setSubmitError(t(beforeCreate ? resolutionErrorKey(err) : setupErrorKey(err)));
           submitLock.current = false; setIsSubmitting(false);
           return;
         }

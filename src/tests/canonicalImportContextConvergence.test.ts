@@ -77,12 +77,13 @@ describe('BETA 2 — Unit 1: Canonical Import Context Convergence Suite', () => 
     it('1.6 createPipelineContext builds valid pipeline context with canonical project boundary', () => {
       const ctx = ImportProjectContextAdapter.createPipelineContext({
         relContext: sampleRelContext,
-        projectId: 'FALLBACK-ID',
+        projectId: 'PRJ-REAL-999',
         userId: 'USR-TEST-01',
         userName: 'م. فحص النظام',
         role: 'PROJECT_ADMIN',
       });
 
+      expect(() => ImportProjectContextAdapter.createPipelineContext({relContext: sampleRelContext,projectId:'FALLBACK-ID',userId:'USR-TEST-01'})).toThrow('PROJECT_CONTEXT_STALE');
       expect(ctx.projectId).toBe('PRJ-REAL-999');
       expect(ctx.userId).toBe('USR-TEST-01');
       expect(ctx.role).toBe('PROJECT_ADMIN');

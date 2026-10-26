@@ -1,3 +1,5 @@
+import { CanonicalResolutionDecision } from './CanonicalResolutionDecision';
+import type { RelationshipContext } from '../../types/dataQuality';
 import { useI18n } from '../../i18n';
 import React, { useMemo, useState } from 'react';
 import { Layers, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ChevronLeft } from 'lucide-react';
@@ -13,6 +15,10 @@ export interface ProjectMaterialOption {
 }
 
 export interface RosterMaterialResolutionLayerProps {
+  canManageParticipation?: boolean;
+  canonicalContext?: RelationshipContext;
+  onCanonicalVerified?: (group: RosterEntityReviewGroup, context: RelationshipContext, id: string) => Promise<void>|void;
+  isCurrent?: () => boolean;
   importBatch: UnifiedImportBatch;
   projectMaterials?: ProjectMaterialOption[];
   onAcceptCandidate: (group: RosterEntityReviewGroup, candidateEntityId: string) => Promise<void> | void;
@@ -56,7 +62,7 @@ export const checkMaterialResolutionReadiness = (batch: UnifiedImportBatch): boo
 };
 
 export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLayerProps> = ({
-  importBatch,
+  importBatch, canManageParticipation = true, canonicalContext, onCanonicalVerified, isCurrent = () => true,
   projectMaterials = [],
   onAcceptCandidate,
   onSelectAlternate,
@@ -216,8 +222,9 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                       </div>
                     </div>
 
+                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>onCreateMaterial(group)} onVerified={(ctx,id)=>onCanonicalVerified(group,ctx,id)}/>}
                     {/* Action Controls for Unresolved / Review Groups */}
-                    {!isResolved && (
+                    {!canonicalContext && !isResolved && (
                       <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">
                         {/* Candidates and Alternate Picker */}
                         <div className="flex items-center gap-1.5 flex-wrap">

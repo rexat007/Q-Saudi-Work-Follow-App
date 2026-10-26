@@ -406,12 +406,12 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
               {/* Conditional rendering of selected child import section */}
               <div className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden p-4">
                 {importSource === 'EXCEL_CSV' ? (
-                  <ExcelCsvImportSection
+                  <ExcelCsvImportSection key={`excel:${targetProjectId}:${authContext.userId}:${authContext.role}:${authContext.assignedProjectIds?.join(',')}`}
                     currentProjectId={targetProjectId}
                     authContext={authContext}
                   />
                 ) : (
-                  <GoogleSheetsImportSection
+                  <GoogleSheetsImportSection key={`sheets:${targetProjectId}:${authContext.userId}:${authContext.role}:${authContext.assignedProjectIds?.join(',')}`}
                     projectId={targetProjectId}
                     authContext={authContext}
                   />

@@ -1,3 +1,6 @@
+import { SetupFleetQuery } from './setupFleetQuery.server';
+import { authorizeGlobalCommand, resolveGlobalNaturalIdentity } from './globalIdentityAuthority.server';
+import type { ImportResolutionReadOptions } from '../types/importResolution';
 import { adminDb } from '../firebase/admin';
 import { buildPrincipal } from '../utils/principal';
 import { decodeProject, decodeGlobal, PersistenceBoundaryError } from '../utils/persistenceBoundary';
@@ -30,6 +33,7 @@ export class ProjectFleetQueryService {
     const project = await tx.get(this.database.collection('projects').doc(p));
     if (!project.exists) throw new GlobalIdentityError('PROJECT_NOT_FOUND', '', 404);
     decodeProject(project.data(), p);
+    return actor;
   }
   async fleet(p: string, actor: { userId: string; email?: string }) {
     return this.database.runTransaction(async (tx: any) => {
@@ -37,9 +41,10 @@ export class ProjectFleetQueryService {
       return projectFleetReadModelService.getProjectFleetReadModel(p, new ProjectFleetReadModelAdminReadContext(this.database, ref => tx.get(ref)));
     });
   }
-  async context(p: string, actor: { userId: string; email?: string }) {
+  async context(p: string, actor: { userId: string; email?: string }, options?: ImportResolutionReadOptions) {
     return this.database.runTransaction(async (tx: any) => {
-      await this.authorize(tx, p, actor);
+      const principal = await this.authorize(tx, p, actor);
+      if (options?.resolution && !['PROJECT_ADMIN','SUPER_ADMIN','DISPATCHER','SUPERVISOR','SITE_SUPERVISOR'].includes(principal.role)) throw new GlobalIdentityError('FORBIDDEN_PROJECT_ACCESS','',403);
       const ctx = new ProjectFleetReadModelAdminReadContext(this.database, ref => tx.get(ref));
       const [fleet, carriers, materials, drivers, trucks] = await Promise.all([projectFleetReadModelService.getProjectFleetReadModel(p, ctx), readProjectMasterList(ctx, p, 'CARRIER'), readProjectMasterList(ctx, p, 'MATERIAL'), readProjectMasterList(ctx, p, 'DRIVER'), readProjectMasterList(ctx, p, 'TRUCK')]);
       const knownCarriers = carriers.filter(c => c.eligible).map(c => ({ carrierId: c.id, name: c.global.nameAr || c.id, status: 'ACTIVE' as const }));
@@ -50,7 +55,26 @@ export class ProjectFleetQueryService {
       };
       const knownDrivers = await Promise.all(drivers.filter(d => d.eligible).map(async d => ({ driverId: d.id, name: d.global.fullNameAr || d.id, phone: d.global.phone, idNumber: d.global.nationalId, carrierId: await carrier('DRIVER', d.id), status: 'ACTIVE' as const })));
       const knownTrucks = await Promise.all(trucks.filter(t => t.eligible).map(async t => ({ truckId: t.id, plate: t.global.plate || t.global.normalizedPlate || t.id, carrierId: await carrier('TRUCK', t.id), status: 'ACTIVE' as const })));
-      return relationshipContextFromFleet(p, fleet, { knownCarriers, knownMaterials, knownDrivers, knownTrucks, authorizedCarrierIds: knownCarriers.map(c => c.carrierId), authorizedMaterialIds: knownMaterials.map(m => m.materialId) });
+      const result = relationshipContextFromFleet(p, fleet, { knownCarriers, knownMaterials, knownDrivers, knownTrucks, authorizedCarrierIds: knownCarriers.map(c => c.carrierId), authorizedMaterialIds: knownMaterials.map(m => m.materialId) });
+      if (options?.resolution) {
+        const projection = await new SetupFleetQuery(this.database).readProjection(p, ref => tx.get(ref));
+        const entities = [...projection.participants];
+        if (options.kind || options.naturalKey !== undefined) {
+          // Targeted natural-key read uses the same current-principal capability as enrollment.
+          // No Global catalog enumeration and no browser repository fallback.
+          await authorizeGlobalCommand(tx, this.database, actor, p);
+          if (!options.kind || typeof options.naturalKey !== 'string') throw new GlobalIdentityError('INVALID_NATURAL_KEY');
+          const found = await resolveGlobalNaturalIdentity(tx, this.database, options.kind, options.naturalKey);
+          if (found.id && !entities.some(e => e.kind === options.kind && e.id === found.id)) {
+            const value = found.entity!, spec = GLOBAL_IDENTITIES[options.kind], policy = evaluateGlobalEligibility(options.kind, value);
+            // No membership in this Project: no affiliation/temporal authority is inferred.
+            return { ...result, importResolution: { projectId: p, lookup: { kind: options.kind, naturalKey: options.naturalKey, matchedId: found.id }, entities: [...entities, { kind: options.kind, id: found.id, name: value.fullNameAr || value.nameAr || value.nameEn || value.plate || found.id, naturalKey: value[spec.natural], globalStatus: value.status, membershipStatus: null, eligible: false, canReactivate: policy.CAN_REACTIVATE_MEMBERSHIP, affiliation: null }], activeDriverByTruck: result.activeDriverByTruck, activeMaterialByTruck: result.activeMaterialByTruck } };
+          }
+          return { ...result, importResolution: { projectId:p, lookup:{kind:options.kind,naturalKey:options.naturalKey,matchedId:found.id}, entities, activeDriverByTruck:result.activeDriverByTruck,activeMaterialByTruck:result.activeMaterialByTruck } };
+        }
+        return { ...result, importResolution: { projectId: p, entities, activeDriverByTruck: result.activeDriverByTruck, activeMaterialByTruck: result.activeMaterialByTruck } };
+      }
+      return result;
     });
   }
 }

@@ -74,6 +74,7 @@ export class SetupFleetQuery {
         const policy = evaluateGlobalEligibility(kind, global);
         return {
           kind, id: doc.id, name: global?.fullNameAr || global?.plate || global?.normalizedPlate || global?.nameAr || global?.nameEn || doc.id,
+          naturalKey: global?.[spec.natural], aliases: Array.isArray(global?.aliases) && global.aliases.every((value: unknown) => typeof value === 'string') ? global.aliases : undefined,
           globalStatus: global?.status || null, membershipStatus: member.status,
           canReactivate: policy.CAN_REACTIVATE_MEMBERSHIP && !issue, assignment, allocation,
           eligible: policy.CAN_USE_OPERATIONALLY && member.status === 'ACTIVE' && !issue, affiliation, issue

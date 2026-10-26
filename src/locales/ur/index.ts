@@ -1,6 +1,26 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "import.resolution.identify": "شناخت جانچیں",
+  "import.resolution.identity": "درست مستند فطری شناخت درج کریں۔",
+
+  "import.resolution.context": "مستند پروجیکٹ سیاق دستیاب نہیں۔ آگے بڑھنے سے پہلے دوبارہ کوشش کریں۔",
+  "import.resolution.stale": "پروجیکٹ سیاق بدل گیا۔ موجودہ پروجیکٹ میں درآمد دوبارہ کھولیں۔",
+  "import.resolution.access": "پروجیکٹ تک رسائی اب دستیاب نہیں۔",
+  "import.resolution.ambiguous": "ایک سے زیادہ شناختیں ممکن ہیں۔ مستند امیدوار منتخب کریں۔",
+  "import.resolution.ineligible": "عالمی شناخت موجود ہے مگر استعمال کے لیے اہل نہیں۔",
+  "import.resolution.missing": "پروجیکٹ رکنیت نہیں ہے۔ واضح اندراج ضروری ہے۔",
+  "import.resolution.membership": "پروجیکٹ رکنیت معطل یا ختم ہے۔ واضح بحالی ضروری ہے۔",
+  "import.resolution.affiliationConflict": "مستند کمپنی کا تعلق اس قطار سے مطابقت نہیں رکھتا۔",
+  "import.resolution.integrity": "مستند شناخت یا تعلق کی سالمیت کا انتظامی جائزہ ضروری ہے۔",
+  "import.resolution.candidate": "مستند امیدوار",
+  "import.resolution.enroll": "موجودہ شناخت کا اندراج",
+  "import.resolution.reactivate": "رکنیت بحال کریں",
+  "import.resolution.create": "نئی شناخت بنائیں",
+  "import.resolution.affiliation": "کمپنی کے تعلق کی تصدیق",
+  "import.resolution.refresh": "حکم کامیاب ہوا۔ صرف مستند حالت دوبارہ تازہ کریں۔",
+  "import.resolution.registration": "تجارتی رجسٹریشن نمبر",
+
   "import.roster.unsupported": "فائل غیر معاون ہے۔ XLSX، XLS یا CSV منتخب کریں۔",
   "import.roster.empty": "فائل میں قابل استعمال ڈیٹا نہیں ہے۔",
   "import.roster.tooLarge": "فائل 25 MiB کی حد سے بڑی ہے۔",

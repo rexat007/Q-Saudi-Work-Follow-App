@@ -372,7 +372,10 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
 
   // 20. Created canonical entity is applied to whole group
   it('20. Created canonical entity is applied to whole group', () => {
-    expect(sectionContent).toContain('DriverTruckPipelineService.applyGroupedCreatedEntityResolution');
+    expect(sectionContent).toContain('applyOperationalGroupChoice(activeBatch, group, result!.matchedId, context, effectiveUserId)');
+    const mechanics = fs.readFileSync(path.resolve(__dirname, '../services/import/importResolutionWorkflow.ts'), 'utf8');
+    expect(mechanics).toContain('RosterBatchReviewService.getGroupKey');
+    expect(mechanics).toContain('ExcelCsvPipelineService.applyEntityResolutionDecision');
   });
 
   // 21. Post-decision batch is revalidated

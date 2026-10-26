@@ -1,3 +1,5 @@
+import { setupCommand } from '../setupOrchestration.service';
+import type { GlobalKind } from '../../utils/globalIdentityPolicy';
 /**
  * Entity Resolution Command Adapter (Unit 5A)
  * 
@@ -87,6 +89,13 @@ export interface CreateTruckParams {
 }
 
 export class EntityResolutionCommandService {
+  membership(projectId: string, kind: GlobalKind, entityId: string, command: 'ENROLL'|'REACTIVATE') {
+    return setupCommand(projectId, 'membership-commands', { kind, entityId, command });
+  }
+  affiliation(projectId: string, kind: 'DRIVER'|'TRUCK', entityId: string, carrierId: string, command: 'SET_AFFILIATION'|'REACTIVATE_AFFILIATION') {
+    return setupCommand(projectId, 'affiliation-commands', { kind, entityId, carrierId, command });
+  }
+
   /**
    * Helper to retrieve Firebase Bearer Token or throw UNAUTHENTICATED
    */

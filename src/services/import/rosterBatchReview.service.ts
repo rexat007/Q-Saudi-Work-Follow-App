@@ -209,6 +209,7 @@ export class RosterBatchReviewService {
   public static determineGroupStatus(res?: ImportEntityResolutionInfo): ReviewGroupStatus {
     if (!res) return 'UNRESOLVED';
 
+    if (res.resolutionReason && res.resolutionReason !== 'UNRESOLVED') return 'CONFLICT';
     const relStatus = res.relationshipStatus || 'VALID';
     const isConflict =
       res.creationDisposition === 'CONFLICT' ||
@@ -292,7 +293,7 @@ export class RosterBatchReviewService {
       return canonical.materialName || canonical.materialCode || mapped.materialType || mapped.materialName || raw.material || raw['المادة'] || '';
     }
     if (entityType === 'driver') {
-      return canonical.driverName || mapped.driverName || raw.driverName || raw['اسم السائق'] || '';
+      return canonical.driverName || canonical.driverIdentity || mapped.driverName || raw.driverName || raw['اسم السائق'] || '';
     }
     if (entityType === 'truck') {
       return canonical.truckPlate || mapped.truckNo || mapped.truckPlate || raw.plate || raw['رقم اللوحة'] || '';

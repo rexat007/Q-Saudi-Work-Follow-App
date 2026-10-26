@@ -1,3 +1,4 @@
+import { resolutionErrorKey } from '../../i18n/importResolution';
 import { useProjectEditorLifetime } from '../wizard/useProjectEditorLifetime';
 import { setupErrorKey } from '../../i18n/setupErrors';
 import type { GlobalMaterialUom } from '../../types/globalEntities';
@@ -28,6 +29,7 @@ export interface MaterialEditorModalProps {
     standardDensityTonPerM3?: number | null;
   } | null;
   onClose: () => void;
+  beforeCreate?: (naturalKey: string) => Promise<boolean>;
   onCreated?: (result: MaterialCreationResult) => void | Promise<void>;
   onUpdated?: (result: MaterialUpdateResult) => void | Promise<void>;
   clientService?: {
@@ -54,7 +56,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
   initialName = '',
   initialMaterial = null,
   onClose,
-  onCreated,
+  onCreated, beforeCreate,
   onUpdated,
   clientService = materialManagementClientService,
   zIndexClass = 'z-50',
@@ -172,6 +174,11 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
 
       if (!result) {
         try {
+          if (beforeCreate && !(await beforeCreate(code.trim()))) {
+            if (!editor.isCurrent(request)) return;
+            submitLock.current = false; setIsSubmitting(false); return;
+          }
+          if (!editor.isCurrent(request)) return;
           const payload: MaterialCreateInput = {
             name: name.trim(),
             code: code.trim().toUpperCase(),
@@ -188,7 +195,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
           setCreatedMaterialResult(result);
         } catch (err: any) {
           if (!editor.isCurrent(request)) return;
-          setSubmitError(t(setupErrorKey(err)));
+          setSubmitError(t(beforeCreate ? resolutionErrorKey(err) : setupErrorKey(err)));
           submitLock.current = false; setIsSubmitting(false);
           return;
         }
@@ -233,7 +240,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
           setUpdatedMaterialResult(result);
         } catch (err: any) {
           if (!editor.isCurrent(request)) return;
-          setSubmitError(t(setupErrorKey(err)));
+          setSubmitError(t(beforeCreate ? resolutionErrorKey(err) : setupErrorKey(err)));
           submitLock.current = false; setIsSubmitting(false);
           return;
         }
