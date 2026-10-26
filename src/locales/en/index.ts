@@ -1,6 +1,19 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "import.roster.unsupported": "Unsupported file. Choose XLSX, XLS or CSV.",
+  "import.roster.empty": "The file contains no usable data.",
+  "import.roster.tooLarge": "The file exceeds the 25 MiB limit.",
+  "import.roster.mime": "The file type does not match its extension.",
+  "import.roster.read": "The file could not be read. Select it again or choose another file.",
+  "import.roster.parse": "The file format is invalid or damaged.",
+  "import.roster.limit": "The file exceeds the safe import limits: 10,000 rows, 256 columns or 1,000,000 cells. Split the file.",
+  "import.roster.headers": "Choose an existing header row.",
+  "import.roster.duplicate": "Map each roster field to only one source column.",
+  "import.roster.required": "Map Carrier, Driver Name or Truck Plate, and Material Name or Material Code.",
+  "import.roster.source": "The approved columns do not match this source. Review the mapping.",
+  "import.roster.weight": "The optional roster weight is invalid. Correct it or leave it empty.",
+
   "setup.closure.status.SETUP": "Setup",
   "setup.closure.status.READY_FOR_REVIEW": "Ready for review",
   "setup.closure.status.ARCHIVED": "Archived",

@@ -1,3 +1,4 @@
+import { validateRosterFile, RosterSourceError, rosterErrorKey } from '../../services/import/rosterSourceContract';
 import { SetupReadinessPanel } from './SetupReadinessPanel';
 import { isEvaluatedReadiness, type EvaluatedReadinessView } from '../../i18n/readinessPresentation';
 import { FleetSetupWorkspace } from './FleetSetupWorkspace';
@@ -54,7 +55,8 @@ import { smartSourceDiscoveryService, DiscoveryResult } from '../../services/imp
 import { 
   DriverTruckCanonicalMappingTarget, 
   ROSTER_CANONICAL_FIELD_OPTIONS, 
-  translateDiscoveryToRosterTarget 
+  translateDiscoveryToRosterTarget,
+  validateRosterMapping
 } from '../../services/import/driverTruckImport';
 import { ExcelCsvColumnMapper } from '../../services/import/columnMapper.service';
 import { ImportSource, ImportResult, UnifiedImportBatch } from '../../types/unifiedImport';
@@ -446,6 +448,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [rosterHeaderRowIndex, setRosterHeaderRowIndex] = useState<number>(0);
   const [rosterCustomMappings, setRosterCustomMappings] = useState<Record<string, DriverTruckCanonicalMappingTarget | 'unmapped'>>({});
   const [isRosterMappingApproved, setIsRosterMappingApproved] = useState<boolean>(false);
+  const rosterMappingIssue = validateRosterMapping(rosterDiscoveryResult?.detectedHeaders || [], rosterCustomMappings);
   const [isDiscoveringRoster, setIsDiscoveringRoster] = useState<boolean>(false);
   const [rosterDiscoveryError, setRosterDiscoveryError] = useState<string | null>(null);
 
@@ -1463,6 +1466,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setIsDiscoveringRoster(true);
 
     try {
+      validateRosterFile(file);
       const reader = new FileReader();
       reader.onload = async (event) => {
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
@@ -1481,7 +1485,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             sourceFileName: file.name,
           };
 
-          const discovery = await smartSourceDiscoveryService.discover(discSource, data);
+          const discovery = await smartSourceDiscoveryService.discover(discSource, data, { roster: true });
           if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
           if (currentGen !== rosterImportSessionGenerationRef.current) return;
           setRosterDiscoveryResult(discovery);
@@ -1506,7 +1510,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
           if (currentGen !== rosterImportSessionGenerationRef.current) return;
-          setRosterDiscoveryError(innerErr.message || t('projects.batch4.roster_discovery_failed'));
+          setRosterDiscoveryError(t(rosterErrorKey(innerErr)));
         } finally {
           if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
@@ -1516,12 +1520,19 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           }
         }
       };
+      const failRead = () => {
+        if (!projectContext.isCurrent(requestContext, editingProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
+        setIsImportingFile(false); setIsDiscoveringRoster(false);
+        setRosterDiscoveryError(t(rosterErrorKey(new RosterSourceError('FILE_READ_ERROR'))));
+      };
+      reader.onerror = failRead;
+      reader.onabort = failRead;
       reader.readAsArrayBuffer(file);
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
-      setRosterDiscoveryError(err.message || t('projects.batch4.roster_import_failed'));
+      setRosterDiscoveryError(t(rosterErrorKey(err)));
       setIsImportingFile(false);
       setIsDiscoveringRoster(false);
     }
@@ -1531,7 +1542,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const requestContext = renderedContext;
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-    setRosterSelectedSheet(sheet);
+    setRosterSelectedSheet(sheet); setRosterDiscoveryError(null);
     if (rosterSelectedFile && rosterBuffer) {
       const currentGen = rosterImportSessionGenerationRef.current;
       try {
@@ -1545,7 +1556,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           sourceSheetName: sheet,
         };
 
-        const updatedDiscovery = await smartSourceDiscoveryService.discover(discSource, rosterBuffer);
+        const updatedDiscovery = await smartSourceDiscoveryService.discover(discSource, rosterBuffer, { roster: true });
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
         if (currentGen !== rosterImportSessionGenerationRef.current) return;
         setRosterDiscoveryResult(updatedDiscovery);
@@ -1563,7 +1574,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
         if (currentGen !== rosterImportSessionGenerationRef.current) return;
         console.error('Roster sheet change discovery error:', err);
-        setRosterDiscoveryError(err?.message || t('entityResolution.messages.worksheet_discovery_failed'));
+        setRosterDiscoveryResult(prev => prev ? { ...prev, detectedHeaders: [] } : null); setRosterCustomMappings({});
+        setRosterDiscoveryError(t(rosterErrorKey(err)));
       } finally {
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
@@ -1574,40 +1586,22 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   };
 
-  const handleRosterHeaderRowIndexChange = (index: number) => {
-    setRosterHeaderRowIndex(index);
-    if (rosterBuffer && rosterSelectedFile) {
-      try {
-        let headers: string[] = [];
-        const wb = XLSX.read(rosterBuffer, { type: 'array' });
-        const targetSheetName = rosterSelectedSheet || wb.SheetNames[0];
-        const ws = wb.Sheets[targetSheetName];
-        if (ws) {
-          const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1 });
-          if (rows && rows[index]) {
-            headers = rows[index].map((h: any) => String(h || '').trim()).filter(Boolean);
-          }
-        }
-
-        if (headers.length > 0) {
-          const diags = ExcelCsvColumnMapper.mapHeaders(headers);
-          setRosterDiscoveryResult((prev) => prev ? {
-            ...prev,
-            detectedHeaderRowIndex: index,
-            detectedHeaders: headers,
-            mappingDiagnostics: diags,
-          } : null);
-
-          const newMappings: Record<string, DriverTruckCanonicalMappingTarget | 'unmapped'> = {};
-          headers.forEach((h) => {
-            const match = diags[h];
-            newMappings[h] = translateDiscoveryToRosterTarget(match?.canonicalField ? String(match.canonicalField) : undefined);
-          });
-          setRosterCustomMappings(newMappings);
-        }
-      } catch (err) {
-        console.warn('Roster header row change error:', err);
-      }
+  const handleRosterHeaderRowIndexChange = async (index: number) => {
+    const requestContext = renderedContext, currentGen = rosterImportSessionGenerationRef.current;
+    if (!projectContext.isCurrent(requestContext, editingProjectId) || !rosterBuffer || !rosterSelectedFile) return;
+    setRosterHeaderRowIndex(index); setIsDiscoveringRoster(true); setRosterDiscoveryError(null);
+    try {
+      const intake = validateRosterFile(rosterSelectedFile);
+      const discovery = await smartSourceDiscoveryService.discover({ sourceType: intake.fileType === 'CSV' ? 'CSV' : 'EXCEL', importBatchId: 'ROSTER-HEADER', sourceSheetName: rosterSelectedSheet || undefined }, rosterBuffer, { roster: true, headerRowIndex: index });
+      if (!projectContext.isCurrent(requestContext, editingProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
+      setRosterDiscoveryResult(discovery);
+      setRosterCustomMappings(Object.fromEntries(discovery.detectedHeaders.map(h => [h, translateDiscoveryToRosterTarget(String(discovery.mappingDiagnostics[h]?.canonicalField || ''))])));
+    } catch (error) {
+      if (!projectContext.isCurrent(requestContext, editingProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
+      setRosterDiscoveryResult(prev => prev ? { ...prev, detectedHeaders: [] } : null); setRosterCustomMappings({});
+      setRosterDiscoveryError(t(rosterErrorKey(error)));
+    } finally {
+      if (projectContext.isCurrent(requestContext, editingProjectId) && currentGen === rosterImportSessionGenerationRef.current) setIsDiscoveringRoster(false);
     }
   };
 
@@ -1636,18 +1630,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         }
       }
 
-      // D12: Required Mapping Gate - Block impossible mappings before batch processing
-      const mappedTargets = Object.values(approvedCustomMappings);
-      const hasCarrierMapping = mappedTargets.includes('carrierName');
-      const hasMaterialMapping = mappedTargets.includes('materialName');
-      const hasDriverOrTruckMapping = mappedTargets.includes('driverName') || mappedTargets.includes('truckPlate');
-
-      if (!hasCarrierMapping || !hasMaterialMapping || !hasDriverOrTruckMapping) {
-        setImportError(
-          t('projects.batch4.mapping_required_fields')
-        );
-        setIsImportingFile(false);
-        setIsProcessing(false);
+      const mappingIssue = validateRosterMapping(rosterDiscoveryResult?.detectedHeaders || [], approvedCustomMappings);
+      if (mappingIssue) {
+        setImportError(t(rosterErrorKey(new RosterSourceError(mappingIssue))));
+        setIsImportingFile(false); setIsProcessing(false);
         return;
       }
 
@@ -1674,7 +1660,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         rosterBuffer,
         rosterSelectedFile.name,
         rosterSelectedFile.size,
-        rosterSelectedFile.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        rosterSelectedFile.type || undefined,
         pipelineCtx,
         {
           sheetName: rosterSelectedSheet || undefined,
@@ -1689,7 +1675,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       // Unit 3A.1 / 3A.1a: Create Server Import Session at durable mapping point BEFORE stage advance
       const discMeta = buildSafeDiscoveryMetadata(rosterDiscoveryResult, rosterSelectedFile.name, rosterSelectedFile.size);
       const createdSessionRecord = await importSessionClientService.createSession(project.projectId, {
-        sourceType: discMeta?.fileName?.endsWith('.csv') ? 'CSV' : 'EXCEL',
+        sourceType: batch.source.sourceType === 'CSV' ? 'CSV' : 'EXCEL',
         currentStage: 'CARRIER_RESOLUTION',
         rosterStage: 'CARRIER_RESOLUTION',
         lifecycleState: 'RESOLUTION',
@@ -1730,8 +1716,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
       console.error('Mapping approval & session initialization error:', err);
-      setImportError(err?.message || t('projects.batch4.roster_analysis_failed'));
-      setImportSessionRecoveryError(err?.message || t('projects.batch4.import_session_save_failed'));
+      setImportError(err instanceof RosterSourceError ? t(rosterErrorKey(err)) : (err?.message || t('projects.batch4.roster_analysis_failed')));
+      setImportSessionRecoveryError(err instanceof RosterSourceError ? null : (err?.message || t('projects.batch4.import_session_save_failed')));
     } finally {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
@@ -4826,7 +4812,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         <tbody className="divide-y divide-stone-850">
                           {(rosterDiscoveryResult.detectedHeaders || []).map((header) => (
                             <tr key={header} className="hover:bg-stone-900/40">
-                              <td className="p-2.5 font-semibold text-stone-200">{header}</td>
+                              <td className="p-2.5 font-semibold text-stone-200">{rosterDiscoveryResult.sourceColumns?.find(c => c.key === header)?.label || header}<small className="block font-mono text-stone-500">{header}</small></td>
                               <td className="p-2.5">
                                 <select
                                   value={rosterCustomMappings[header] || 'unmapped'}
@@ -4854,6 +4840,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                   )}
 
+                  {(rosterMappingIssue || rosterDiscoveryError) && <p role="alert" className="text-xs text-rose-300">{rosterDiscoveryError || t(rosterErrorKey(new RosterSourceError(rosterMappingIssue!)))}</p>}
                   {/* Mapping Approval Actions */}
                   <div className="flex justify-between items-center pt-2 border-t border-stone-800">
                     <button
@@ -4866,7 +4853,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <button
                       type="button"
                       onClick={handleApproveRosterMappingAndStartPipeline}
-                      disabled={isProcessing || isImportingFile}
+                      disabled={isProcessing || isImportingFile || isDiscoveringRoster || Boolean(rosterMappingIssue)}
                       className="px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-black rounded-xl text-xs flex items-center gap-2 shadow-lg disabled:opacity-50"
                     >
                       {isProcessing ? (

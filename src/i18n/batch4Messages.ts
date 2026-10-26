@@ -1923,5 +1923,6 @@ function resolveBatch4Message(message: string, t: OperationalTranslator, depth: 
 }
 
 export function presentBatch4Message(message: string, t: OperationalTranslator): string {
+  if (message === 'INVALID_ROSTER_WEIGHT') return t('import.roster.weight');
   return resolveBatch4Message(message, t, 0);
 }

@@ -21,6 +21,8 @@ export interface ImportParserOptions {
   sheetName?: string;
   headerRowIndex?: number;
   maxRows?: number;
+  roster?: boolean;
+  approvedSourceKeys?: string[];
   delimiter?: string;
 }
 

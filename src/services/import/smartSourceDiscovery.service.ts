@@ -1,3 +1,4 @@
+import { MAX_ROSTER_SOURCE_ROWS, MAX_ROSTER_SOURCE_COLUMNS, rosterSourceColumns, assertRosterWorksheet, assertRosterDimensions, RosterSourceError, type RosterSourceColumn } from './rosterSourceContract';
 /**
  * Smart Source Discovery Service
  * UNIT 2: Shared Service for Import Intelligence
@@ -14,6 +15,7 @@ import { ColumnMappingMatch } from '../../types/excelCsvImport';
 import { ExcelCsvColumnMapper } from './columnMapper.service';
 
 export interface DiscoveryResult {
+  sourceColumns?: RosterSourceColumn[];
   sourceType: OperationSourceType;
   availableSheets: string[];
   selectedSheet: string | null;
@@ -32,8 +34,10 @@ export class SmartSourceDiscoveryService {
    */
   public async discover(
     source: ImportSource,
-    inputData?: any
+    inputData?: any,
+    options?: { roster?: boolean; headerRowIndex?: number }
   ): Promise<DiscoveryResult> {
+    if (options?.roster && options.headerRowIndex !== undefined && (!Number.isInteger(options.headerRowIndex) || options.headerRowIndex < 0 || options.headerRowIndex >= MAX_ROSTER_SOURCE_ROWS)) throw new RosterSourceError('HEADER_INVALID');
     const input = inputData || source.rawInput;
     const sourceType = source.sourceType;
 
@@ -47,6 +51,7 @@ export class SmartSourceDiscoveryService {
     const ambiguityReasons: string[] = [];
 
     if (!input) {
+      if (options?.roster) throw new RosterSourceError('FILE_EMPTY');
       return {
         sourceType,
         availableSheets,
@@ -65,11 +70,12 @@ export class SmartSourceDiscoveryService {
       let workbook: XLSX.WorkBook;
       try {
         if (typeof input === 'string') {
-          workbook = XLSX.read(input, { type: 'binary' });
+          workbook = XLSX.read(input, { type: 'binary', ...(options?.roster ? { sheetRows: Math.max(15, (options.headerRowIndex ?? 0) + 1) } : {}) });
         } else {
-          workbook = XLSX.read(input, { type: 'array' });
+          workbook = XLSX.read(input, { type: 'array', ...(options?.roster ? { sheetRows: Math.max(15, (options.headerRowIndex ?? 0) + 1) } : {}) });
         }
       } catch (err: any) {
+        if (options?.roster) throw new RosterSourceError('FILE_PARSE_ERROR');
         return {
           sourceType,
           availableSheets,
@@ -85,6 +91,7 @@ export class SmartSourceDiscoveryService {
 
       availableSheets = workbook.SheetNames || [];
       if (availableSheets.length === 0) {
+        if (options?.roster) throw new RosterSourceError('FILE_EMPTY');
         return {
           sourceType,
           availableSheets,
@@ -109,6 +116,7 @@ export class SmartSourceDiscoveryService {
       for (const sheetName of availableSheets) {
         const worksheet = workbook.Sheets[sheetName];
         if (!worksheet) continue;
+        if (options?.roster) assertRosterWorksheet(worksheet);
 
         // Convert a sample of rows to array of arrays
         const rawRows = XLSX.utils.sheet_to_json<any[]>(worksheet, {
@@ -177,6 +185,18 @@ export class SmartSourceDiscoveryService {
         }
       }
 
+      if (options?.roster && options.headerRowIndex !== undefined) {
+        const ws = workbook.Sheets[selectedSheet!];
+        if (!ws) throw new RosterSourceError('HEADER_INVALID');
+        assertRosterWorksheet(ws);
+        const rows = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1, blankrows: true, defval: '', raw: false });
+        const index = options.headerRowIndex;
+        if (!Number.isInteger(index) || index < 0 || !rows[index]) throw new RosterSourceError('HEADER_INVALID');
+        detectedHeaderRowIndex = index;
+        detectedHeaders = rows[index].map(v => String(v ?? '').trim());
+        mappingDiagnostics = ExcelCsvColumnMapper.mapHeaders(detectedHeaders);
+      }
+
       // Compute overall confidence and review requirements
       const { confidenceScore, requiresReviewFlag, reasons } = this.calculateFinalMetrics(
         detectedHeaders,
@@ -205,8 +225,10 @@ export class SmartSourceDiscoveryService {
         csvText = csvText.slice(1);
       }
 
-      const lines = this.splitCsvLines(csvText);
+      const lines = this.splitCsvLines(csvText, options?.roster);
+      if (options?.roster) assertRosterDimensions(lines.length, 0);
       if (lines.length === 0) {
+        if (options?.roster) throw new RosterSourceError('FILE_EMPTY');
         return {
           sourceType,
           availableSheets: [],
@@ -220,7 +242,7 @@ export class SmartSourceDiscoveryService {
         };
       }
 
-      const delimiter = this.detectDelimiter(lines[0]);
+      let delimiter = this.detectDelimiter(lines[options?.roster ? options.headerRowIndex ?? 0 : 0]);
       const maxScanLines = Math.min(lines.length, 15);
       let bestScore = -1;
       let bestHeaderIndex = 0;
@@ -229,17 +251,27 @@ export class SmartSourceDiscoveryService {
       let bestAmbiguityReasons: string[] = [];
 
       for (let r = 0; r < maxScanLines; r++) {
-        const tokens = this.parseCsvLine(lines[r], delimiter);
+        const candidateDelimiter = options?.roster && options.headerRowIndex === undefined ? this.detectDelimiter(lines[r]) : delimiter;
+        const tokens = this.parseCsvLine(lines[r], candidateDelimiter, options?.roster);
         const scored = this.scoreCandidateRow(tokens);
         if (scored.score > bestScore) {
           bestScore = scored.score;
           bestHeaderIndex = r;
+          delimiter = candidateDelimiter;
           bestHeaders = tokens.map(t => t.trim());
           bestMappings = scored.mappings;
           bestAmbiguityReasons = scored.ambiguityReasons;
         }
       }
 
+      if (options?.roster && options.headerRowIndex !== undefined) {
+        const index = options.headerRowIndex;
+        if (!Number.isInteger(index) || index < 0 || index >= lines.length) throw new RosterSourceError('HEADER_INVALID');
+        bestHeaderIndex = index;
+        bestHeaders = this.parseCsvLine(lines[index], delimiter, options?.roster).map(v => v.trim());
+        bestMappings = ExcelCsvColumnMapper.mapHeaders(bestHeaders);
+      }
+      if (options?.roster) assertRosterDimensions(lines.length, bestHeaders.length);
       detectedHeaderRowIndex = bestHeaderIndex;
       detectedHeaders = bestHeaders;
       mappingDiagnostics = bestMappings;
@@ -329,7 +361,20 @@ export class SmartSourceDiscoveryService {
       ambiguityReasons.push(`نوع المصدر غير مدعوم للتحليل الذكي: ${sourceType}`);
     }
 
+    let sourceColumns: RosterSourceColumn[] | undefined;
+    if (options?.roster) {
+      if (!detectedHeaders.length) throw new RosterSourceError('FILE_EMPTY');
+      sourceColumns = rosterSourceColumns(detectedHeaders);
+      mappingDiagnostics = Object.fromEntries(sourceColumns.map(c => [c.key, mappingDiagnostics[c.label] || ExcelCsvColumnMapper.mapHeaders([c.label])[c.label]]));
+      for (const column of sourceColumns) {
+        if (['materialcode', 'كودالماده', 'رمزالماده'].includes(ExcelCsvColumnMapper.normalizeHeaderString(column.label))) {
+          mappingDiagnostics[column.key] = { headerName: column.key, canonicalField: 'materialCode', confidence: 1, matchType: 'EXACT' };
+        }
+      }
+      detectedHeaders = sourceColumns.map(c => c.key);
+    }
     return {
+      sourceColumns,
       sourceType,
       availableSheets,
       selectedSheet,
@@ -514,7 +559,7 @@ export class SmartSourceDiscoveryService {
   /**
    * Helper to split lines handling newlines inside quotes
    */
-  private splitCsvLines(text: string): string[] {
+  private splitCsvLines(text: string, strict = false): string[] {
     const lines: string[] = [];
     let currentLine = '';
     let insideQuotes = false;
@@ -532,6 +577,7 @@ export class SmartSourceDiscoveryService {
         }
         if (currentLine.trim() !== '') {
           lines.push(currentLine);
+          if (strict && lines.length > MAX_ROSTER_SOURCE_ROWS) throw new RosterSourceError('SOURCE_LIMIT');
         }
         currentLine = '';
       } else {
@@ -543,13 +589,14 @@ export class SmartSourceDiscoveryService {
       lines.push(currentLine);
     }
 
+    if (strict && insideQuotes) throw new RosterSourceError('FILE_PARSE_ERROR');
     return lines;
   }
 
   /**
    * Parses a single CSV line into tokens, respecting quotes and escaped quotes
    */
-  private parseCsvLine(line: string, delimiter: string): string[] {
+  private parseCsvLine(line: string, delimiter: string, strict = false): string[] {
     const tokens: string[] = [];
     let currentToken = '';
     let insideQuotes = false;
@@ -567,6 +614,7 @@ export class SmartSourceDiscoveryService {
         }
       } else if (char === delimiter && !insideQuotes) {
         tokens.push(currentToken);
+        if (strict && tokens.length >= MAX_ROSTER_SOURCE_COLUMNS) throw new RosterSourceError('SOURCE_LIMIT');
         currentToken = '';
       } else {
         currentToken += char;

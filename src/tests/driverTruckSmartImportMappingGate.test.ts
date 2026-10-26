@@ -70,7 +70,7 @@ describe('Unit DT-01 — Driver/Truck Smart Import: Source Discovery & Explicit 
       wizardContent.indexOf('const processRosterFile'),
       wizardContent.indexOf('const handleRosterSheetChange')
     );
-    expect(processRosterBody).toContain('smartSourceDiscoveryService.discover(discSource, data)');
+    expect(processRosterBody).toContain('smartSourceDiscoveryService.discover(discSource, data, { roster: true })');
   });
 
   // 2. upload does not immediately create importBatch review
@@ -79,7 +79,9 @@ describe('Unit DT-01 — Driver/Truck Smart Import: Source Discovery & Explicit 
       wizardContent.indexOf('const processRosterFile'),
       wizardContent.indexOf('const handleRosterSheetChange')
     );
-    expect(processRosterBody).toContain('setImportBatch(null);');
+    expect(processRosterBody).toContain('handleResetRosterImport();');
+    const resetBody = wizardContent.slice(wizardContent.indexOf('const handleResetRosterImport'), wizardContent.indexOf('const handleCancelRosterImport'));
+    expect(resetBody).toContain('setImportBatch(null);');
     expect(processRosterBody).not.toContain('DriverTruckPipelineService.processFileToReview');
   });
 
@@ -236,6 +238,7 @@ describe('Unit DT-01 — Driver/Truck Smart Import: Source Discovery & Explicit 
           'اسم السائق': 'driverName',
           'رقم اللوحة': 'truckPlate',
           'الناقل': 'carrierName',
+          'المادة': 'materialName',
         },
       }
     );
@@ -323,7 +326,7 @@ describe('Unit DT-01 — Driver/Truck Smart Import: Source Discovery & Explicit 
   it('26. processFileToReview is called only by approval path for the new flow', () => {
     const handleApprovalBody = wizardContent.slice(
       wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline'),
-      wizardContent.indexOf('const handleResetRosterImport')
+      wizardContent.indexOf('const handleSmartImportContinueToMaterials')
     );
     expect(handleApprovalBody).toContain('DriverTruckPipelineService.processFileToReview');
     expect(handleApprovalBody).toContain('setImportBatch(batch);');
@@ -333,7 +336,7 @@ describe('Unit DT-01 — Driver/Truck Smart Import: Source Discovery & Explicit 
   it('27. approval passes selected sheet', () => {
     const handleApprovalBody = wizardContent.slice(
       wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline'),
-      wizardContent.indexOf('const handleResetRosterImport')
+      wizardContent.indexOf('const handleSmartImportContinueToMaterials')
     );
     expect(handleApprovalBody).toContain('sheetName: rosterSelectedSheet');
   });
@@ -342,7 +345,7 @@ describe('Unit DT-01 — Driver/Truck Smart Import: Source Discovery & Explicit 
   it('28. approval passes selected header row', () => {
     const handleApprovalBody = wizardContent.slice(
       wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline'),
-      wizardContent.indexOf('const handleResetRosterImport')
+      wizardContent.indexOf('const handleSmartImportContinueToMaterials')
     );
     expect(handleApprovalBody).toContain('headerRowIndex: rosterHeaderRowIndex');
   });
@@ -351,7 +354,7 @@ describe('Unit DT-01 — Driver/Truck Smart Import: Source Discovery & Explicit 
   it('29. approval passes exact customMappings', () => {
     const handleApprovalBody = wizardContent.slice(
       wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline'),
-      wizardContent.indexOf('const handleResetRosterImport')
+      wizardContent.indexOf('const handleSmartImportContinueToMaterials')
     );
     expect(handleApprovalBody).toContain('customMappings: approvedCustomMappings');
   });

@@ -1,6 +1,19 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "import.roster.unsupported": "الملف غير مدعوم. اختر XLSX أو XLS أو CSV.",
+  "import.roster.empty": "الملف لا يحتوي على بيانات قابلة للقراءة.",
+  "import.roster.tooLarge": "يتجاوز الملف الحد الأقصى البالغ 25 ميبيبايت.",
+  "import.roster.mime": "نوع الملف لا يتطابق مع امتداده.",
+  "import.roster.read": "تعذرت قراءة الملف. أعد اختياره أو اختر ملفًا آخر.",
+  "import.roster.parse": "تنسيق الملف غير صالح أو تالف.",
+  "import.roster.limit": "يتجاوز الملف حدود الاستيراد الآمن: 10000 صف أو 256 عمودًا أو 1000000 خلية. قسّم الملف.",
+  "import.roster.headers": "اختر صف عناوين موجودًا في الملف.",
+  "import.roster.duplicate": "اربط كل حقل أسطول بعمود مصدر واحد فقط.",
+  "import.roster.required": "اربط الناقل، واسم السائق أو لوحة الشاحنة، واسم المادة أو رمزها.",
+  "import.roster.source": "الأعمدة المعتمدة لا تطابق هذا المصدر. راجع الربط.",
+  "import.roster.weight": "وزن الأسطول الاختياري غير صالح. صححه أو اتركه فارغًا.",
+
   "setup.closure.status.SETUP": "قيد الإعداد",
   "setup.closure.status.READY_FOR_REVIEW": "جاهز للمراجعة",
   "setup.closure.status.ARCHIVED": "مؤرشف",

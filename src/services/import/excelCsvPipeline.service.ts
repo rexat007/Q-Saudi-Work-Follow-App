@@ -172,7 +172,8 @@ export class ExcelCsvPipelineService {
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
     candidate: { selectedEntityId?: string; selectedDisplayName?: string },
     context: PipelineContext,
-    actorId: string
+    actorId: string,
+    revalidate?: (batch: UnifiedImportBatch, row: ImportRow, context: PipelineContext) => UnifiedImportBatch
   ): UnifiedImportBatch {
     const rowIdx = batch.rows.findIndex((r) => r.rowNumber === rowNumber);
     if (rowIdx === -1) {
@@ -254,7 +255,7 @@ export class ExcelCsvPipelineService {
       rows: updatedRows,
     };
 
-    return this.revalidateRow(updatedBatch, updatedRow, context);
+    return revalidate ? revalidate(updatedBatch, updatedRow, context) : this.revalidateRow(updatedBatch, updatedRow, context);
   }
 
   /**
@@ -284,7 +285,8 @@ export class ExcelCsvPipelineService {
       sourceValue?: string;
       [key: string]: any;
     },
-    context?: PipelineContext
+    context?: PipelineContext,
+    revalidate?: (batch: UnifiedImportBatch, row: ImportRow, context: PipelineContext) => UnifiedImportBatch
   ): UnifiedImportBatch {
     const rowIdx = batch.rows.findIndex((r) => r.rowNumber === rowNumber);
     if (rowIdx === -1) {
@@ -350,7 +352,7 @@ export class ExcelCsvPipelineService {
     };
 
     if (context) {
-      return this.revalidateRow(updatedBatch, updatedRow, context);
+      return revalidate ? revalidate(updatedBatch, updatedRow, context) : this.revalidateRow(updatedBatch, updatedRow, context);
     }
 
     return this.recalculateBatchCounts(updatedBatch);

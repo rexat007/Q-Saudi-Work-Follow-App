@@ -1,0 +1,37 @@
+// @vitest-environment happy-dom
+import React, { act } from 'react';
+import { createRoot } from 'react-dom/client';
+import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
+import { ProjectSetupWizard } from '../components/wizard/ProjectSetupWizard';
+import { projectCanonicalRefreshService } from '../services/projectCanonicalRefresh.service';
+import { canonicalRelationshipContextService } from '../services/canonicalRelationshipContext.service';
+import { smartSourceDiscoveryService } from '../services/import/smartSourceDiscovery.service';
+import { importSessionClientService } from '../services/importSessionClient.service';
+vi.mock('../firebase/config', () => ({ auth: { currentUser: { getIdToken: async () => 'fixture' } }, db: {} }));
+vi.mock('../i18n', () => ({ useI18n: () => ({ t: (k: string) => k, direction: 'ltr', locale: 'en' }) }));
+vi.mock('../repositories/pricingRule.repository', () => ({ pricingRuleRepository: { subscribeByProject: vi.fn(() => vi.fn()) } }));
+vi.mock('../services/projectCanonicalRefresh.service', () => ({ projectCanonicalRefreshService: { refresh: vi.fn() } }));
+vi.mock('../services/importSessionClient.service', () => ({ importSessionClientService: { listResumableSessions: vi.fn(async () => []), createSession: vi.fn(async () => ({ importSessionId: 'S1', version: 1 })) } }));
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
+const rel: any = { projectId: 'P1', knownCarriers: [{ carrierId: 'C', name: 'Carrier', status: 'ACTIVE' }], knownMaterials: [{ materialId: 'M', name: 'Material', code: 'MAT-1', status: 'ACTIVE' }], knownDrivers: [], knownTrucks: [], authorizedCarrierIds: ['C'], authorizedMaterialIds: ['M'] };
+let host: HTMLDivElement, root: ReturnType<typeof createRoot>, mode: string, read: ReturnType<typeof vi.fn>, body: string;
+beforeEach(() => {
+  host = document.createElement('div'); document.body.append(host); root = createRoot(host); mode = 'success'; body = 'Carrier,Truck,Material Code\nCarrier,ABC 123,MAT-1';
+  vi.mocked(projectCanonicalRefreshService.refresh).mockResolvedValue({ materials: [], carriers: [], fleetRows: [], relationshipContext: rel });
+  vi.spyOn(canonicalRelationshipContextService, 'getProjectRelationshipContext').mockResolvedValue(rel);
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ success: true, data: { projectId: 'P1', participants: [], fleet: { rows: [] } }, ready: false, blockers: [] }) })));
+  read = vi.fn(function(this: any) { queueMicrotask(() => { if (mode === 'error') this.onerror?.(); else if (mode === 'abort') this.onabort?.(); else this.onload?.({ target: { result: new TextEncoder().encode(body).buffer } }) }) });
+  vi.stubGlobal('FileReader', class { readAsArrayBuffer = read; onload: any; onerror: any; onabort: any });
+});
+afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.clearAllMocks() });
+async function click(key: string) { const b = [...host.querySelectorAll('button')].find(b => b.textContent?.trim() === key); expect(b, key).toBeDefined(); await act(async () => b!.click()) }
+async function open() { await act(async () => root.render(<ProjectSetupWizard selectedProjectId="P1" projects={[{ projectId: 'P1', projectCode: 'P1', projectNumber: 1, nameAr: 'Fixture', status: 'SETUP', settings: {}, location: {} } as any]} authContext={{ userId: 'U', role: 'SUPER_ADMIN', assignedProjectIds: ['P1'] } as any} />)); await act(async () => [...host.querySelectorAll('button')].find(b => b.textContent?.includes('projects.batch4.layer_roster'))!.click()); await click('projects.batch4.import_file') }
+async function upload(name = 'r.csv', type = '', content = 'x') { const input = host.querySelector<HTMLInputElement>('input[type=file]')!; Object.defineProperty(input, 'files', { configurable: true, value: [new File([content], name, { type })] }); await act(async () => input.dispatchEvent(new Event('change', { bubbles: true }))) }
+const approve = () => [...host.querySelectorAll('button')].find(b => b.textContent?.includes('projects.labels.approve_mapping_analyze_log'))!;
+describe('P7-B1 rendered intake/mapping boundary', () => {
+  it.each(['empty', 'unsupported', 'mime', 'size'])('rejects %s before any file read/discovery', async kind => { await open(); const discovery = vi.spyOn(smartSourceDiscoveryService, 'discover'); if (kind === 'empty') await upload('r.csv', '', ''); else if (kind === 'unsupported') await upload('r.zip'); else if (kind === 'mime') await upload('r.csv', 'image/png'); else { const input = host.querySelector<HTMLInputElement>('input[type=file]')!; Object.defineProperty(input, 'files', { configurable: true, value: [{ name: 'r.csv', size: 25 * 1024 * 1024 + 1, type: '' }] }); await act(async () => input.dispatchEvent(new Event('change', { bubbles: true }))) } expect(read).not.toHaveBeenCalled(); expect(discovery).not.toHaveBeenCalled(); expect(approve()).toBeUndefined(); expect(host.textContent).toContain('import.roster.') });
+  it.each(['error', 'abort'])('ends loading after FileReader %s and permits another selection', async failure => { await open(); mode = failure; const discovery = vi.spyOn(smartSourceDiscoveryService, 'discover'); await upload(); expect(host.textContent).toContain('import.roster.read'); expect(host.textContent).not.toContain('projects.batch4.discovering_file'); expect(approve()).toBeUndefined(); expect(discovery).not.toHaveBeenCalled(); mode = 'success'; await upload(); expect(approve().disabled).toBe(false) });
+  it('shows a bounded corrupt-workbook error and recovers with a new CSV', async () => { await open(); body = 'PK\u0003\u0004'; await upload('bad.xlsx'); expect(host.textContent).toContain('import.roster.parse'); expect(approve()).toBeUndefined(); expect(host.textContent).not.toContain('zip'); body = 'Carrier,Truck,Material Code\nCarrier,ABC 123,MAT-1'; await upload(); expect(approve().disabled).toBe(false) });
+  it('accepts code-only CSV without MIME only after explicit approval', async () => { await open(); await upload(); expect(approve().disabled).toBe(false); expect(importSessionClientService.createSession).not.toHaveBeenCalled(); await click('projects.labels.approve_mapping_analyze_log'); expect(importSessionClientService.createSession).toHaveBeenCalledTimes(1); const payload = vi.mocked(importSessionClientService.createSession).mock.calls[0][1] as any; expect(payload.importBatch.source.sourceType).toBe('CSV'); expect(payload.importBatch.rows[0].mapped).toMatchObject({ carrierName: 'Carrier', truckPlate: 'ABC 123', materialCode: 'MAT-1' }); expect(payload.importBatch.rows[0].mapped).not.toHaveProperty('truckNo'); expect(host.textContent).toContain('entityResolution.labels.') });
+  it('disables approval for duplicate targets and permits fixing the mapping', async () => { await open(); body = 'Carrier,Truck,Truck B,Material Code\nCarrier,ABC 123,XYZ 999,MAT-1'; await upload(); const selects = [...host.querySelectorAll<HTMLSelectElement>('table select')]; const truckB = selects[2]; await act(async () => { truckB.value = 'truckPlate'; truckB.dispatchEvent(new Event('change', { bubbles: true })) }); expect(approve().disabled).toBe(true); expect(host.textContent).toContain('import.roster.duplicate'); expect(importSessionClientService.createSession).not.toHaveBeenCalled(); await act(async () => { truckB.value = 'unmapped'; truckB.dispatchEvent(new Event('change', { bubbles: true })) }); expect(approve().disabled).toBe(false) });
+});

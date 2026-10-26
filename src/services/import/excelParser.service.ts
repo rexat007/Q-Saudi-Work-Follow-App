@@ -1,3 +1,4 @@
+import { assertRosterSourceKeys, rosterSourceColumns, assertRosterWorksheet, MAX_ROSTER_SOURCE_ROWS, RosterSourceError } from './rosterSourceContract';
 /**
  * Excel Import Parser
  * BLOCK 31: Parses .xlsx and .xls workbooks into raw data
@@ -60,11 +61,12 @@ export class ExcelImportParser implements IImportParser<ArrayBuffer | Uint8Array
     try {
       if (typeof rawInput === 'string') {
         // Binary string or base64
-        workbook = XLSX.read(rawInput, { type: 'binary', cellDates: true });
+        workbook = XLSX.read(rawInput, { type: 'binary', cellDates: true, ...(options?.roster ? { sheetRows: MAX_ROSTER_SOURCE_ROWS + 1 } : {}) });
       } else {
-        workbook = XLSX.read(rawInput, { type: 'array', cellDates: true });
+        workbook = XLSX.read(rawInput, { type: 'array', cellDates: true, ...(options?.roster ? { sheetRows: MAX_ROSTER_SOURCE_ROWS + 1 } : {}) });
       }
     } catch (err: any) {
+      if (options?.roster) throw new RosterSourceError('FILE_PARSE_ERROR');
       throw new Error(`فشل في قراءة ملف الإكسل: ${err?.message || 'تنسيق الملف غير صالح'}`);
     }
 
@@ -89,8 +91,11 @@ export class ExcelImportParser implements IImportParser<ArrayBuffer | Uint8Array
 
     const worksheet = workbook.Sheets[targetSheetName];
     if (!worksheet) {
+      if (options?.roster) throw new RosterSourceError('HEADER_INVALID');
       throw new Error(`ورقة العمل المحددة (${targetSheetName}) غير موجودة في ملف الإكسل. الأوراق المتاحة: ${sheetNames.join(', ')}`);
     }
+
+    if (options?.roster) assertRosterWorksheet(worksheet);
 
     // Convert sheet to array of arrays
     const rawRows = XLSX.utils.sheet_to_json<any[]>(worksheet, {
@@ -115,7 +120,8 @@ export class ExcelImportParser implements IImportParser<ArrayBuffer | Uint8Array
     }
 
     const headerRowIdx = options?.headerRowIndex ?? 0;
-    const rawHeaders = (rawRows[headerRowIdx] || []).map((h) => String(h || '').trim());
+    if (options?.roster && (!Number.isInteger(headerRowIdx) || headerRowIdx < 0 || headerRowIdx >= rawRows.length)) throw new RosterSourceError('HEADER_INVALID');
+    const rawHeaders = (rawRows[headerRowIdx] || []).map((h) => String((options?.roster ? h ?? '' : h || '')).trim());
 
     // Deduplicate headers safely: e.g. ["الوزن", "الوزن"] -> ["الوزن", "الوزن_2"]
     const seenHeaders = new Map<string, number>();
@@ -133,6 +139,10 @@ export class ExcelImportParser implements IImportParser<ArrayBuffer | Uint8Array
         sanitizedHeaders.push(`${baseName}_${nextCount}`);
       }
     });
+
+    if (options?.roster) sanitizedHeaders.splice(0, sanitizedHeaders.length, ...rosterSourceColumns(rawHeaders).map(c => c.key));
+
+    if (options?.roster) assertRosterSourceKeys(sanitizedHeaders, options.approvedSourceKeys);
 
     // Map data rows
     const structuredRows: Record<string, any>[] = [];

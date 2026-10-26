@@ -170,7 +170,7 @@ describe('FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION', () => {
     expect(wizardContent).toContain('onClick={handleApproveRosterMappingAndStartPipeline}');
     const approvalButton = wizardContent.match(/<button\b[^>]*onClick=\{handleApproveRosterMappingAndStartPipeline\}[\s\S]*?<\/button>/)?.[0];
     expect(approvalButton).toBeDefined();
-    expect(approvalButton).toContain('disabled={isProcessing || isImportingFile}');
+    expect(approvalButton).toContain('disabled={isProcessing || isImportingFile || isDiscoveringRoster || Boolean(rosterMappingIssue)}');
     expect(approvalButton).toContain("t('projects.labels.approve_mapping_analyze_log')");
     for (const locale of ['ar', 'en', 'ur'] as const) {
       const key = 'projects.labels.approve_mapping_analyze_log';
