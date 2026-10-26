@@ -162,8 +162,8 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
   });
 
   it('13. PREPARED_NEW Driver creation planning causes ZERO createDriver calls and creates correct prepared plan', () => {
-    const fnIdx = wizardContent.indexOf('handleSmartImportDriverCreate');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 1200);
+    const fnIdx = wizardContent.indexOf('const handleSmartImportDriverCreate');
+    const fnBlock = wizardContent.slice(fnIdx, wizardContent.indexOf('const handleSmartImportTruckAcceptCandidate', fnIdx));
     expect(fnBlock).toContain('DriverTruckPipelineService.applyPreparedNewDriverPlan');
     expect(fnBlock).not.toContain('entityResolutionCommandService.createDriver');
   });
@@ -194,8 +194,8 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
   });
 
   it('19. PREPARED_NEW Truck creation planning causes ZERO createTruck calls and creates correct prepared plan', () => {
-    const fnIdx = wizardContent.indexOf('handleSmartImportTruckCreate');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 1200);
+    const fnIdx = wizardContent.indexOf('const handleSmartImportTruckCreate');
+    const fnBlock = wizardContent.slice(fnIdx, wizardContent.indexOf('const handleRetryDriverConvergence', fnIdx));
     expect(fnBlock).toContain('DriverTruckPipelineService.applyPreparedNewTruckPlan');
     expect(fnBlock).not.toContain('entityResolutionCommandService.createTruck');
   });

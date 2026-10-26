@@ -1,3 +1,4 @@
+import type { ImportResolutionContext, ImportResolutionEntity } from './importResolution';
 /**
  * Unified Import Center Architecture — Domain Model & Types
  * BLOCK 30: Unified, extensible architecture for all future import sources
@@ -127,6 +128,9 @@ export interface PreparedTruckPlan {
  * Resolution info for a mapped entity
  */
 export interface ImportEntityResolutionInfo {
+  canonicalState?: ImportResolutionEntity;
+  resolutionReason?: string;
+  decision?: string;
   entityType: 'CARRIER' | 'TRUCK' | 'DRIVER' | 'MATERIAL' | 'PRICING_RULE' | 'PROJECT';
   originalValue: string;
   matchedId?: string;
@@ -276,6 +280,7 @@ export interface RawParsedOutput<TRaw = Record<string, any>> {
  * Pipeline Execution Context
  */
 export interface PipelineContext {
+  resolutionContext?: ImportResolutionContext;
   projectId: string;
   userId: string;
   userName?: string;

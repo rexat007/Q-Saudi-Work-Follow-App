@@ -1,7 +1,13 @@
+import { CanonicalCreationForm } from '../import/CanonicalCreationForm';
+import { CanonicalResolutionDecision } from '../import/CanonicalResolutionDecision';
+import { applyOperationalGroupChoice } from '../../services/import/importResolutionWorkflow';
+import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
+import { resolutionErrorKey } from '../../i18n/importResolution';
+import { CanonicalImportBoundary } from '../import/CanonicalImportBoundary';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { batch4DiagnosticText } from '../../i18n/batch4Presentation';
 import { useI18n } from '../../i18n';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   FileSpreadsheet,
   RefreshCw,
@@ -13,6 +19,7 @@ import {
   Clock,
   ArrowRight,
   ShieldCheck,
+  ShieldAlert,
   Database,
   Filter,
   Layers,
@@ -56,16 +63,18 @@ interface GoogleSheetsImportSectionProps {
   userRole?: string;
   canonicalRelationshipContext?: RelationshipContext | null;
   pipelineContext?: PipelineContext;
+  reloadCanonicalContext?: () => Promise<RelationshipContext>;
+  isImportCurrent?: () => boolean;
 }
 
-export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps> = ({
+const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
   projectId,
   authContext,
   userId,
   userName,
   userRole,
   canonicalRelationshipContext,
-  pipelineContext,
+  pipelineContext, reloadCanonicalContext, isImportCurrent = () => true,
 }) => {
   const { t, direction, locale } = useI18n();
   // State for Spreadsheets
@@ -111,29 +120,33 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
     return RosterBatchReviewService.getRowExceptions(batch);
   }, [batch]);
 
+  const creationLock = useRef(false);
+  const creationReceipt = useRef<{ group: string; result: NormalizedEntityResolutionResult } | null>(null);
+  const requireCurrentContext = async () => {
+    if (!isImportCurrent() || !reloadCanonicalContext) throw Error('PROJECT_CONTEXT_STALE');
+    const fresh = await reloadCanonicalContext();
+    if (!isImportCurrent()) throw Error('PROJECT_CONTEXT_STALE');
+    if (!isImportCurrent() || fresh.projectId !== projectId || fresh.importResolution?.projectId !== projectId) throw Error('PROJECT_CONTEXT_STALE');
+    return ImportProjectContextAdapter.createPipelineContext({ relContext:fresh, projectId:projectId, userId:effectiveUserId, userName:effectiveUserName, role:effectiveRole, operationId:activeOperationId || batch?.operationId || effectivePipelineContext.operationId });
+  };
+  const applyVerifiedChoice = async (group: RosterEntityReviewGroup, fresh: RelationshipContext, id: string) => {
+    await handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id},fresh);
+  };
   const handleGroupResolutionDecision = async (
     entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
     normalizedSourceKey: string,
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
-    candidate?: { selectedEntityId?: string; selectedDisplayName?: string }
+    candidate?: { selectedEntityId?: string; selectedDisplayName?: string },
+    verifiedContext?: RelationshipContext
   ) => {
+    if (!isImportCurrent()) return;
     if (!batch) return;
 
     try {
       setProcessError(null);
-      const context: PipelineContext = {
-        ...effectivePipelineContext,
-        operationId: activeOperationId || effectivePipelineContext.operationId,
-      };
-      const updated = DriverTruckPipelineService.applyGroupedEntityResolutionDecision(
-        batch,
-        entityTypeKey,
-        normalizedSourceKey,
-        decision,
-        candidate || {},
-        context,
-        effectiveUserId || 'user'
-      );
+      const context = verifiedContext ? ImportProjectContextAdapter.createPipelineContext({relContext:verifiedContext,projectId:projectId,userId:effectiveUserId,role:effectiveRole,operationId:activeOperationId||batch!.operationId}) : await requireCurrentContext();
+    if (!isImportCurrent()) return;
+      const updated = applyOperationalGroupChoice(batch, {entityType:entityTypeKey,normalizedSourceKey:normalizedSourceKey}, (candidate || {}).selectedEntityId, context, effectiveUserId || 'user', decision);
 
       setBatch({ ...updated });
 
@@ -164,14 +177,16 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
           },
           sessionVersion
         );
+    if (!isImportCurrent()) return;
 
         setSessionVersion(updatedSession.version);
       }
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       if (err?.code === 'VERSION_CONFLICT') {
         setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT): تعذر حفظ قرار المطابقة');
       } else {
-        setProcessError(err?.message || 'فشل في حفظ قرار المطابقة في جلسة الخادم');
+        setProcessError(t(resolutionErrorKey(err)));
       }
     }
   };
@@ -192,24 +207,35 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
       maxGrossWeightKg?: number;
     }
   ) => {
+    if (!isImportCurrent()) return;
     if (!batch || !projectId) return;
     const representativeRowNumber = group.rowNumbers[0];
     const row = batch.rows.find((r) => r.rowNumber === representativeRowNumber);
     if (!row) return;
 
+    if (creationLock.current) return;
+    creationLock.current=true;
     setProcessError(null);
     setCreateError(null);
     setIsCreatingEntity(true);
 
     try {
-      let result: NormalizedEntityResolutionResult;
+      let result: NormalizedEntityResolutionResult | undefined = creationReceipt.current?.group === group.normalizedSourceKey ? creationReceipt.current.result : undefined;
       const resItem = group.currentResolution;
       const sourceVal = resItem?.sourceValue || resItem?.originalValue || group.sourceValue || formData.nameAr || formData.driverName || formData.plateNumber || formData.code || '';
-      const context: PipelineContext = {
-        ...effectivePipelineContext,
-        operationId: activeOperationId || effectivePipelineContext.operationId,
-      };
 
+
+      if (!result) {
+        if(group.currentResolution?.ambiguous) throw Error('IDENTITY_AMBIGUITY');
+        const kind=group.entityType.toUpperCase() as 'CARRIER'|'MATERIAL'|'DRIVER'|'TRUCK';
+        const naturalKey=String(group.entityType==='carrier'?formData.commercialRegistrationNo:group.entityType==='material'?formData.code:group.entityType==='driver'?formData.residencyId:formData.plateNumber).trim();
+        const lookupContext=await canonicalRelationshipContextService.getProjectRelationshipContext(projectId,{resolution:true,kind,naturalKey});
+    if (!isImportCurrent()) return;
+        if(!isImportCurrent())return;
+        const lookup=lookupContext.importResolution?.lookup;
+        if(!lookup||lookup.kind!==kind||lookup.naturalKey!==naturalKey)throw Error('CONTEXT_UNAVAILABLE');
+        if(lookup.matchedId){await applyVerifiedChoice(group,lookupContext,lookup.matchedId);
+    if (!isImportCurrent()) return;if(isImportCurrent())setActiveCreateGroupKey(null);return;}
       if (group.entityType === 'carrier') {
         if (!formData.commercialRegistrationNo || !formData.commercialRegistrationNo.trim()) {
           throw new Error('رقم السجل التجاري للناقل مطلوب');
@@ -223,6 +249,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             ...(formData.transportLicenseNo?.trim() ? { transportLicenseNo: formData.transportLicenseNo.trim() } : {}),
           },
         });
+    if (!isImportCurrent()) return;
       } else if (group.entityType === 'material') {
         if (!formData.code || !formData.code.trim()) {
           throw new Error('رمز المادة (code) مطلوب');
@@ -235,6 +262,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             nameAr: (formData.nameAr && formData.nameAr.trim()) ? formData.nameAr.trim() : sourceVal,
           },
         });
+    if (!isImportCurrent()) return;
       } else if (group.entityType === 'driver') {
         let carrierId = row.resolvedValues?.carrierId;
         if (!carrierId) {
@@ -259,6 +287,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             ...(formData.phone?.trim() ? { phone: formData.phone.trim() } : {}),
           },
         });
+    if (!isImportCurrent()) return;
       } else if (group.entityType === 'truck') {
         let carrierId = row.resolvedValues?.carrierId;
         if (!carrierId) {
@@ -284,20 +313,23 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             ...(formData.maxGrossWeightKg !== undefined ? { maxGrossWeightKg: formData.maxGrossWeightKg } : {}),
           },
         });
+    if (!isImportCurrent()) return;
       } else {
         throw new Error('نوع الكيان غير مدعوم');
       }
 
-      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
-        batch,
-        group.entityType,
-        group.normalizedSourceKey,
-        result,
-        context
-      );
+
+        if (!isImportCurrent()) return;
+        creationReceipt.current = {group:group.normalizedSourceKey,result:result!};
+      }
+      const context = await requireCurrentContext();
+    if (!isImportCurrent()) return;
+      if(!context.resolutionContext?.entities.some(e=>e.id===result!.matchedId&&e.kind===result!.entityType&&e.membershipStatus==='ACTIVE'&&e.globalStatus==='ACTIVE'))throw Error('CONTEXT_UNAVAILABLE');
+      const updated = applyOperationalGroupChoice(batch, group, result!.matchedId, context, effectiveUserId);
 
       setBatch({ ...updated });
       setActiveCreateGroupKey(null);
+      creationReceipt.current = null;
 
       if (projectId && activeSessionId) {
         const cleanSnapshot = {
@@ -326,16 +358,20 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
           },
           sessionVersion
         );
+    if (!isImportCurrent()) return;
 
         setSessionVersion(updatedSession.version);
       }
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       if (err?.code === 'VERSION_CONFLICT') {
         setCreateError('تعارض في إصدار الجلسة (VERSION_CONFLICT)');
       } else {
-        setCreateError(err?.message || 'فشل في إنشاء الكيان وإسقاطه على المجموعة');
+        setCreateError(t(resolutionErrorKey(err)));
       }
     } finally {
+      creationLock.current=false;
+    if (!isImportCurrent()) return;
       setIsCreatingEntity(false);
     }
   };
@@ -381,11 +417,13 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         }
 
         const sessionRecord = await importSessionClientService.getSession(projectId, locator.importSessionId);
+    if (!isImportCurrent()) return;
         if (!sessionRecord || sessionRecord.lifecycleState === 'COMMITTED') {
           sessionStorage.removeItem(locatorKey);
           return;
         }
 
+        if (sessionRecord.projectId !== projectId) throw new Error('PROJECT_CONTEXT_STALE');
         const resumedState = importSessionClientService.reconstructResumedBatch(sessionRecord);
         if (!isMounted) return;
 
@@ -450,6 +488,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
           setBatch(reconstructedBatch);
         }
       } catch {
+    if (!isImportCurrent()) return;
         sessionStorage.removeItem(locatorKey);
       }
     };
@@ -471,13 +510,16 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
     setFetchError(null);
     try {
       const res = await clientWorkspaceService.listGoogleSpreadsheets(projectId);
+    if (!isImportCurrent()) return;
       setSpreadsheets(res.spreadsheets);
       if (res.spreadsheets.length > 0 && !selectedSpreadsheet) {
         handleSelectSpreadsheet(res.spreadsheets[0]);
       }
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       setFetchError(err.message || t('entityResolution.messages.sheet_listing_failed'));
     } finally {
+    if (!isImportCurrent()) return;
       setIsLoadingSpreadsheets(false);
     }
   };
@@ -505,6 +547,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
 
   // Run Pipeline from Google Sheets to REVIEW Gate
   const handleProcessSheet = async () => {
+    if (!isImportCurrent()) return;
     if (!selectedSpreadsheet) return;
     if (!isOnline) {
       setProcessError(t('entityResolution.messages.offline_sheet_fetch'));
@@ -544,6 +587,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             sourceSheetName: selectedSheetTab || 'Sheet1',
           },
         });
+    if (!isImportCurrent()) return;
 
         createdSessionId = sessionRecord.importSessionId;
         createdVersion = sessionRecord.version;
@@ -558,6 +602,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
           })
         );
       } catch (err: any) {
+    if (!isImportCurrent()) return;
         // FAIL CLOSED: STOP! DO NOT proceed to discovery/pipeline!
         setIsProcessing(false);
         setProcessError(err?.message || t('entityResolution.messages.session_create_stopped'));
@@ -571,6 +616,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         selectedSpreadsheet.id,
         selectedSheetTab || 'Sheet1'
       );
+    if (!isImportCurrent()) return;
 
       // Run Smart Source Discovery to automatically detect headerRowIndex and sheet details
       const importSource: ImportSource = {
@@ -580,28 +626,12 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         sourceSheetName: selectedSheetTab || 'Sheet1',
       };
       const discovery = await smartSourceDiscoveryService.discover(importSource, sheetData.values);
+    if (!isImportCurrent()) return;
       const detectedIdx = discovery.detectedHeaderRowIndex || 0;
 
       // 2. Build Pipeline Context
-      const context: PipelineContext = pipelineContext || (canonicalRelationshipContext && canonicalRelationshipContext.projectId
-        ? ImportProjectContextAdapter.createPipelineContext({
-            relContext: canonicalRelationshipContext,
-            projectId: canonicalRelationshipContext.projectId,
-            userId: effectiveUserId,
-            userName: effectiveUserName,
-            role: effectiveRole,
-            operationId: opId,
-            allowWarningsCommit: confirmWarnings,
-          })
-        : {
-            projectId,
-            userId: effectiveUserId,
-            userName: effectiveUserName,
-            role: effectiveRole,
-            operationId: opId,
-            allowWarningsCommit: confirmWarnings,
-            knownEntities: ImportProjectContextAdapter.toPipelineKnownEntities(null),
-          });
+      const context: PipelineContext = {...await requireCurrentContext(),operationId:opId};
+    if (!isImportCurrent()) return;
 
       // 3. Process through 8 pipeline stages up to REVIEW (strictly NO writes before COMMIT)
       const reviewedBatch = await GoogleSheetsPipelineService.processSheetsDataToReview(
@@ -611,6 +641,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         context,
         { headerRowIndex: detectedIdx, importBatchId: batchId }
       );
+    if (!isImportCurrent()) return;
 
       setBatch(reviewedBatch);
 
@@ -652,9 +683,11 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
             },
             createdVersion
           );
+    if (!isImportCurrent()) return;
 
           setSessionVersion(updatedSession.version);
         } catch (err: any) {
+    if (!isImportCurrent()) return;
           if (err?.code === 'VERSION_CONFLICT') {
             setProcessError(t('entityResolution.messages.version_conflict_refresh'));
           } else {
@@ -663,8 +696,10 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         }
       }
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       setProcessError(err.message || t('entityResolution.messages.sheet_processing_failed'));
     } finally {
+    if (!isImportCurrent()) return;
       setIsProcessing(false);
     }
   };
@@ -679,6 +714,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         role: effectiveRole || pipelineContext.role,
       };
     }
+    if (canonicalRelationshipContext?.projectId === projectId) return ImportProjectContextAdapter.createPipelineContext({ relContext:canonicalRelationshipContext,projectId,userId:effectiveUserId,role:effectiveRole,operationId:activeOperationId||batch?.operationId||'OP-GSHT' });
     return {
       projectId,
       userId: effectiveUserId || 'user',
@@ -686,10 +722,11 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
       role: effectiveRole || 'OPERATOR',
       operationId: `OP-GSHT-${Date.now()}`,
     };
-  }, [pipelineContext, projectId, effectiveUserId, effectiveUserName, effectiveRole]);
+  }, [pipelineContext, canonicalRelationshipContext, projectId, effectiveUserId, effectiveUserName, effectiveRole, activeOperationId]);
 
   // Row Review Actions
   const handleRowAction = async (rowNumber: number, action: 'ACCEPT_WARNING' | 'REJECT_ROW') => {
+    if (!isImportCurrent()) return;
     if (!batch) return;
     const context: PipelineContext = {
       ...effectivePipelineContext,
@@ -732,9 +769,11 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
           },
           sessionVersion
         );
+    if (!isImportCurrent()) return;
 
         setSessionVersion(updatedSession.version);
       } catch (err: any) {
+    if (!isImportCurrent()) return;
         if (err?.code === 'VERSION_CONFLICT') {
           setProcessError(t('entityResolution.messages.version_conflict_review'));
         } else {
@@ -745,6 +784,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
   };
 
   const handleConfirmWarningsChange = async (checked: boolean) => {
+    if (!isImportCurrent()) return;
     setConfirmWarnings(checked);
     if (projectId && activeSessionId) {
       try {
@@ -756,8 +796,10 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
           },
           sessionVersion
         );
+    if (!isImportCurrent()) return;
         setSessionVersion(updatedSession.version);
       } catch (err: any) {
+    if (!isImportCurrent()) return;
         if (err?.code === 'VERSION_CONFLICT') {
           setProcessError('تعارض في إصدار الجلسة (VERSION_CONFLICT)');
         } else {
@@ -769,6 +811,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
 
   // Final Commit Gate
   const handleCommit = async () => {
+    if (!isImportCurrent()) return;
     if (!batch) return;
     if (!isOnline) {
       alert(presentBatch4Message(t('entityResolution.messages.connection_required_commit'), t));
@@ -792,6 +835,7 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
       };
 
       const { batch: committedBatch, result } = await GoogleSheetsPipelineService.commitBatch(batch, context);
+    if (!isImportCurrent()) return;
       setBatch(committedBatch);
       setCommitResult(result);
 
@@ -809,9 +853,11 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
               },
               sessionVersion
             );
+    if (!isImportCurrent()) return;
             setSessionVersion(updatedSession.version);
             sessionStorage.removeItem(`qsaudi_import_session_locator_${projectId}`);
           } catch {
+    if (!isImportCurrent()) return;
             // Commit succeeded on business domain; ignore session close error
           }
         }
@@ -845,8 +891,10 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
               },
               sessionVersion
             );
+    if (!isImportCurrent()) return;
             setSessionVersion(updatedSession.version);
           } catch (err: any) {
+    if (!isImportCurrent()) return;
             if (err?.code === 'VERSION_CONFLICT') {
               setProcessError(t('entityResolution.messages.version_conflict_partial_commit'));
             } else {
@@ -856,21 +904,27 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
         }
       }
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       alert(presentBatch4Message(t('admin_console.approval_failed', { error: presentBatch4Message(String(err.message), t) }), t));
     } finally {
+    if (!isImportCurrent()) return;
       setIsCommitting(false);
     }
   };
 
   // Run Automated Tests
   const handleRunTests = async () => {
+    if (!isImportCurrent()) return;
     setIsRunningTests(true);
     try {
       const report = await runGoogleSheetsImportTests();
+    if (!isImportCurrent()) return;
       setTestReport(report);
     } catch (err: any) {
+    if (!isImportCurrent()) return;
       console.error(err);
     } finally {
+    if (!isImportCurrent()) return;
       setIsRunningTests(false);
     }
   };
@@ -896,6 +950,8 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
 
   return (
     <div className="space-y-6" dir={direction}>
+      {batch&&canonicalRelationshipContext?.importResolution&&<section className="space-y-3">{Object.values(reviewGroups).flat().map(group=><details key={group.normalizedSourceKey} open={group.status!=='AUTO_RESOLVED'}><summary>{group.sourceValue}</summary><CanonicalResolutionDecision canMutate={effectiveRole==='PROJECT_ADMIN'||effectiveRole==='SUPER_ADMIN'} projectId={projectId} context={canonicalRelationshipContext} group={group} carrierId={batch.rows.find(row=>group.rowNumbers.includes(row.rowNumber))?.entityResolutions?.carrier?.matchedId} isCurrent={isImportCurrent} disabled={isProcessing||isCreatingEntity} onSelect={id=>handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id})} onCreate={()=>setActiveCreateGroupKey(group.normalizedSourceKey)} onVerified={(fresh,id)=>applyVerifiedChoice(group,fresh,id)}/>{activeCreateGroupKey===group.normalizedSourceKey&&<CanonicalCreationForm group={group} onSubmit={data=>handleGroupCreateCanonicalEntity(group,data)} onClose={()=>setActiveCreateGroupKey(null)} busy={isCreatingEntity} committed={Boolean(creationReceipt.current)} error={createError}/>}</details>)}</section>}
+
       {/* Top Banner: Mode & Title */}
       <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1715,3 +1771,10 @@ export const GoogleSheetsImportSection: React.FC<GoogleSheetsImportSectionProps>
       </div>
   );
 };
+
+export function GoogleSheetsImportSection(props: GoogleSheetsImportSectionProps) {
+  const projectId=props.projectId || '';
+  const {t}=useI18n();
+  if(props.pipelineContext&&props.pipelineContext.projectId!==projectId)return <p role="alert">{t('import.resolution.stale')}</p>;
+  return <CanonicalImportBoundary key={projectId} projectId={projectId} owner={JSON.stringify(props.authContext||props.userId)}>{(context,reload,isCurrent)=><GoogleSheetsImportContent {...props} canonicalRelationshipContext={context} pipelineContext={props.pipelineContext ? { ...props.pipelineContext, projectId, knownEntities: ImportProjectContextAdapter.toPipelineKnownEntities(context), resolutionContext: context.importResolution } : undefined} reloadCanonicalContext={reload} isImportCurrent={isCurrent}/>}</CanonicalImportBoundary>;
+}

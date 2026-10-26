@@ -1502,7 +1502,7 @@ app.get('/api/projects/:projectId/setup-context', enforceProjectIsolation, enfor
 app.get('/api/projects/:projectId/relationship-context', enforceProjectIsolation, async (req, res) => {
   try {
     const { ProjectFleetQueryService } = await import('../src/services/projectFleetQuery.server');
-    const data = await new ProjectFleetQueryService().context(req.params.projectId, (req as any).user);
+    const data = await new ProjectFleetQueryService().context(req.params.projectId, (req as any).user, req.query.resolution === '1' ? { resolution: true, kind: req.query.kind as any, naturalKey: typeof req.query.naturalKey === 'string' ? req.query.naturalKey : undefined } : undefined);
     res.json({ success: true, data });
   } catch (error: any) { res.status(error.status || 500).json({ success: false, error: error.message, code: error.code }); }
 });

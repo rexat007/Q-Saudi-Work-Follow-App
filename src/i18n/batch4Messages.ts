@@ -1,3 +1,4 @@
+import { resolutionErrorKey } from './importResolution';
 import { presentOperationalMessage, type OperationalTranslator } from './operationalMessages';
 // Closed, observed presentation mappings. Never imported by services or used for decisions.
 // Unknown and ambiguously interpolated data is returned verbatim.
@@ -1923,6 +1924,7 @@ function resolveBatch4Message(message: string, t: OperationalTranslator, depth: 
 }
 
 export function presentBatch4Message(message: string, t: OperationalTranslator): string {
+  if (['IDENTITY_AMBIGUITY','CANONICAL_INTEGRITY_ERROR','GLOBAL_ENTITY_INELIGIBLE','MEMBERSHIP_MISSING','MEMBERSHIP_STATE_CONFLICT','AFFILIATION_CONFLICT','CONTEXT_UNAVAILABLE','PROJECT_CONTEXT_STALE'].includes(message)) return t(resolutionErrorKey({code:message}));
   if (message === 'INVALID_ROSTER_WEIGHT') return t('import.roster.weight');
   return resolveBatch4Message(message, t, 0);
 }

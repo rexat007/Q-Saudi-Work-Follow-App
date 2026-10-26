@@ -173,7 +173,10 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
     const acceptHandlerIdx = wizardContent.indexOf('const handleSmartImportMaterialAcceptCandidate');
     const acceptHandlerBody = wizardContent.slice(acceptHandlerIdx, wizardContent.indexOf('};', acceptHandlerIdx) + 500);
 
-    expect(acceptHandlerBody).toContain('canonicalRelationshipContextService.getProjectRelationshipContext');
+    expect(acceptHandlerBody).toContain('loadImportResolutionContext(project.projectId)');
+    const contextRead = wizardContent.slice(wizardContent.indexOf('const loadImportResolutionContext'), wizardContent.indexOf('const applyCanonicalImportChoice'));
+    expect(contextRead).toContain('canonicalRelationshipContextService.getProjectRelationshipContext');
+    expect(contextRead).toContain('resolution: true');
     expect(acceptHandlerBody).toContain('ImportProjectContextAdapter.createPipelineContext');
     expect(acceptHandlerBody).not.toContain('relContext.knownEntities');
   });

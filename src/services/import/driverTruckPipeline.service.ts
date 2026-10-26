@@ -1,3 +1,4 @@
+import { revalidateCanonicalRow } from './canonicalResolution';
 import { validateRosterFile, RosterSourceError } from './rosterSourceContract';
 import { UnifiedImportPipelineService } from './unifiedImportPipeline.service';
 import { ExcelImportParser } from './excelParser.service';
@@ -179,7 +180,7 @@ export class DriverTruckPipelineService {
       candidate,
       context,
       actorId,
-      updated => updated
+      updated => ({ ...updated, rows: updated.rows.map(row => row.rowNumber === rowNumber ? { ...row, entityResolutions: { ...row.entityResolutions, [entityTypeKey]: { ...row.entityResolutions![entityTypeKey], decision } } } : row) })
     );
 
     return this.revalidateRosterBatch(updated, context);
@@ -219,7 +220,7 @@ export class DriverTruckPipelineService {
         candidate,
         context,
         actorId,
-        updated => updated
+        updated => ({ ...updated, rows: updated.rows.map(row => row.rowNumber === rowNumber ? { ...row, entityResolutions: { ...row.entityResolutions, [entityTypeKey]: { ...row.entityResolutions![entityTypeKey], decision } } } : row) })
       );
     });
 
@@ -247,7 +248,7 @@ export class DriverTruckPipelineService {
       entityTypeKey,
       result,
       context,
-      updated => updated
+      updated => ({ ...updated, rows: updated.rows.map(row => row.rowNumber === rowNumber ? { ...row, entityResolutions: { ...row.entityResolutions, [entityTypeKey]: { ...row.entityResolutions![entityTypeKey], decision: 'SELECT_ALTERNATE' } } } : row) })
     );
 
     if (context) {
@@ -292,7 +293,7 @@ export class DriverTruckPipelineService {
         entityTypeKey,
         result,
         context,
-        updated => updated
+        updated => ({ ...updated, rows: updated.rows.map(row => row.rowNumber === rowNumber ? { ...row, entityResolutions: { ...row.entityResolutions, [entityTypeKey]: { ...row.entityResolutions![entityTypeKey], decision: 'SELECT_ALTERNATE' } } } : row) })
       );
     });
 
@@ -470,6 +471,7 @@ export class DriverTruckPipelineService {
     batch: UnifiedImportBatch,
     context: PipelineContext
   ): UnifiedImportBatch {
+    if(context.resolutionContext&&batch.projectId!==context.projectId)throw Error('PROJECT_CONTEXT_STALE');
     const validator = new DriverTruckImportValidator();
     const duplicateChecker = new DriverTruckImportDuplicateChecker();
 
@@ -479,6 +481,7 @@ export class DriverTruckPipelineService {
     let requiresReviewRows = 0;
 
     const dynamicCodes = new Set([
+      'IDENTITY_AMBIGUITY', 'CANONICAL_INTEGRITY_ERROR', 'GLOBAL_ENTITY_INELIGIBLE', 'MEMBERSHIP_MISSING', 'MEMBERSHIP_STATE_CONFLICT', 'AFFILIATION_CONFLICT',
       'EMPTY_ROW_DATA',
       'MISSING_DRIVER_NAME',
       'INVALID_ID_FORMAT',
@@ -493,7 +496,8 @@ export class DriverTruckPipelineService {
       'MATERIAL_UNRESOLVED',
     ]);
 
-    const updatedRows = batch.rows.map((row) => {
+    const updatedRows = batch.rows.map((original) => {
+      const row = revalidateCanonicalRow(original, context);
       const freshRosterIssues = validator.validateRow(row, context);
 
       const carrierResolved = Boolean(row.entityResolutions?.carrier?.matchedId);

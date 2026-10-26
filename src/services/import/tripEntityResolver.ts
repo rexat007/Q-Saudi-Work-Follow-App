@@ -1,3 +1,4 @@
+import { resolveCanonicalRoster } from './canonicalResolution';
 /**
  * Excel & CSV Entity Resolver
  * BLOCK 31 & BLOCK 35: Entity Resolution & Intelligent Data Quality
@@ -26,6 +27,7 @@ export class ExcelCsvTripEntityResolver implements IImportEntityResolver<Canonic
     _rowNumber: number,
     context: PipelineContext
   ): Record<string, ImportEntityResolutionInfo> {
+    if (context.resolutionContext) return resolveCanonicalRoster({ ...mapped, carrierName: mapped.carrier, materialName: mapped.materialType, truckPlate: mapped.truckNo }, context);
     const resolutions: Record<string, ImportEntityResolutionInfo> = {};
 
     // 1. Resolve Carrier

@@ -850,7 +850,7 @@ export class EntityResolutionService {
 
     // RULE 20 & 21: Server-side Project Isolation Verification
     if (selectedEntityId && (decision === 'ACCEPT_CANDIDATE' || decision === 'SELECT_ALTERNATE')) {
-      const isEntityInProject = this.verifyEntityBelongsToProject(selectedEntityId, entityType, projectId, context);
+      const isEntityInProject = context.resolutionContext ? context.resolutionContext.projectId === projectId && context.resolutionContext.entities.filter(e => e.kind === entityType && e.id === selectedEntityId).length === 1 : this.verifyEntityBelongsToProject(selectedEntityId, entityType, projectId, context);
       if (!isEntityInProject) {
         throw new Error(
           `Security Violation: Entity ID (${selectedEntityId}) does not belong to project (${projectId}). Cross-project entity hijacking blocked.`
@@ -910,6 +910,7 @@ export class EntityResolutionService {
         break;
     }
 
+    if (context.resolutionContext) (updatedResolution as any).decision = decision;
     // Generate Audit Trail Entry
     const auditEntry: EntityResolutionAuditEntry = {
       projectId,

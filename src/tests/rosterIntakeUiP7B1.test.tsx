@@ -14,6 +14,7 @@ vi.mock('../services/projectCanonicalRefresh.service', () => ({ projectCanonical
 vi.mock('../services/importSessionClient.service', () => ({ importSessionClientService: { listResumableSessions: vi.fn(async () => []), createSession: vi.fn(async () => ({ importSessionId: 'S1', version: 1 })) } }));
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 const rel: any = { projectId: 'P1', knownCarriers: [{ carrierId: 'C', name: 'Carrier', status: 'ACTIVE' }], knownMaterials: [{ materialId: 'M', name: 'Material', code: 'MAT-1', status: 'ACTIVE' }], knownDrivers: [], knownTrucks: [], authorizedCarrierIds: ['C'], authorizedMaterialIds: ['M'] };
+rel.importResolution = {projectId:'P1',entities:[{kind:'CARRIER',id:'C',name:'Carrier',naturalKey:'1010123456',globalStatus:'ACTIVE',membershipStatus:'ACTIVE',eligible:true,canReactivate:true,affiliation:null},{kind:'MATERIAL',id:'M',name:'Material',naturalKey:'MAT-1',globalStatus:'ACTIVE',membershipStatus:'ACTIVE',eligible:true,canReactivate:true,affiliation:null}]};
 let host: HTMLDivElement, root: ReturnType<typeof createRoot>, mode: string, read: ReturnType<typeof vi.fn>, body: string;
 beforeEach(() => {
   host = document.createElement('div'); document.body.append(host); root = createRoot(host); mode = 'success'; body = 'Carrier,Truck,Material Code\nCarrier,ABC 123,MAT-1';

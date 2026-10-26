@@ -1,6 +1,26 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "import.resolution.identify": "Check identity",
+  "import.resolution.identity": "Enter a valid canonical natural identity.",
+
+  "import.resolution.context": "Canonical project context is unavailable. Retry before continuing.",
+  "import.resolution.stale": "The project context changed. Reopen import in the current project.",
+  "import.resolution.access": "Project access is no longer available.",
+  "import.resolution.ambiguous": "More than one identity is plausible. Choose a canonical candidate.",
+  "import.resolution.ineligible": "The global identity exists but is not eligible for use.",
+  "import.resolution.missing": "No project membership. Explicit enrollment is required.",
+  "import.resolution.membership": "Project membership is suspended or removed. Explicit reactivation is required.",
+  "import.resolution.affiliationConflict": "The canonical carrier affiliation does not match this row.",
+  "import.resolution.integrity": "Canonical identity or relationship integrity requires administrative review.",
+  "import.resolution.candidate": "Canonical candidate",
+  "import.resolution.enroll": "Enroll existing identity",
+  "import.resolution.reactivate": "Reactivate membership",
+  "import.resolution.create": "Create new identity",
+  "import.resolution.affiliation": "Confirm carrier affiliation",
+  "import.resolution.refresh": "The command succeeded. Retry canonical refresh only.",
+  "import.resolution.registration": "Commercial registration number",
+
   "import.roster.unsupported": "Unsupported file. Choose XLSX, XLS or CSV.",
   "import.roster.empty": "The file contains no usable data.",
   "import.roster.tooLarge": "The file exceeds the 25 MiB limit.",

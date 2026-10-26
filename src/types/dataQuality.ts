@@ -1,3 +1,4 @@
+import type { ImportResolutionContext } from './importResolution';
 /**
  * Data Quality Engine Type Definitions
  * Saudi Heavy Transport & Multi-Party Project Infrastructure
@@ -69,6 +70,7 @@ export interface MatchingResult {
 }
 
 export interface RelationshipContext {
+  importResolution?: ImportResolutionContext;
   projectId: string;
   authorizedCarrierIds: string[];
   authorizedMaterialIds: string[];

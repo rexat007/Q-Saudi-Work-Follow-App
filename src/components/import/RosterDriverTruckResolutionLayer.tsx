@@ -1,3 +1,5 @@
+import { CanonicalResolutionDecision } from './CanonicalResolutionDecision';
+import type { RelationshipContext } from '../../types/dataQuality';
 import { batch4ConflictFieldLabel } from '../../i18n/batch4Presentation';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { useI18n } from '../../i18n';
@@ -38,6 +40,10 @@ export interface NewTruckFormData {
 }
 
 export interface RosterDriverTruckResolutionLayerProps {
+  canManageParticipation?: boolean;
+  canonicalContext?: RelationshipContext;
+  onCanonicalVerified?: (group: RosterEntityReviewGroup, context: RelationshipContext, id: string) => Promise<void>|void;
+  isCurrent?: () => boolean;
   importBatch: UnifiedImportBatch;
   projectDrivers?: ProjectDriverOption[];
   projectTrucks?: ProjectTruckOption[];
@@ -71,7 +77,7 @@ export function extractGroupCarrierContext(group: RosterEntityReviewGroup): stri
 }
 
 export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolutionLayerProps> = ({
-  importBatch,
+  importBatch, canManageParticipation = true, canonicalContext, onCanonicalVerified, isCurrent = () => true,
   projectDrivers = [],
   projectTrucks = [],
   onAcceptCandidate,
@@ -171,7 +177,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
     setCreatingDriverGroup(group);
     const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(importBatch, group);
     setDriverFormData({
-      driverName: defaults.driverName || group.sourceValue || '',
+      driverName: defaults.driverName || (/^[0-9٠-٩]+$/.test(group.sourceValue) ? '' : group.sourceValue) || '',
       residencyId: defaults.residencyId || '',
       phone: defaults.phone || '',
     });
@@ -456,8 +462,9 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                         </div>
                       </div>
 
+                      {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} carrierId={extractGroupCarrierContext(group)} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>handleOpenDriverCreation(group)} onVerified={(ctx,id)=>onCanonicalVerified(group,ctx,id)}/>}
                       {/* Action Controls for Unresolved Driver Groups */}
-                      {!isResolved && (
+                      {!canonicalContext && !isResolved && (
                         <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {/* Candidate Acceptance */}
@@ -620,8 +627,9 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                         </div>
                       </div>
 
+                      {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} carrierId={extractGroupCarrierContext(group)} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>handleOpenTruckCreation(group)} onVerified={(ctx,id)=>onCanonicalVerified(group,ctx,id)}/>}
                       {/* Action Controls for Unresolved Truck Groups */}
-                      {!isResolved && (
+                      {!canonicalContext && !isResolved && (
                         <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {/* Candidate Acceptance */}

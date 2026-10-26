@@ -6,6 +6,8 @@ export interface SetupParticipant {
   kind: GlobalKind;
   id: string;
   name: string;
+  naturalKey?: string;
+  aliases?: string[];
   globalStatus: string | null;
   membershipStatus: 'ACTIVE' | 'SUSPENDED' | 'REMOVED';
   canReactivate: boolean;

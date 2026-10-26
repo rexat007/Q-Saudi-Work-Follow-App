@@ -1,3 +1,4 @@
+import { revalidateCanonicalRow } from './canonicalResolution';
 /**
  * Excel & CSV Import Pipeline Service
  * BLOCK 31: Bridges file intake to UnifiedImportPipelineService (BLOCK 30)
@@ -366,6 +367,7 @@ export class ExcelCsvPipelineService {
     const rowIdx = batch.rows.findIndex((r) => r.rowNumber === row.rowNumber);
     if (rowIdx === -1) return batch;
 
+    row = revalidateCanonicalRow(row, context);
     const validator = new ExcelCsvTripValidator();
     const freshIssues = validator.validateRow(row as ImportRow<any, CanonicalTripRow>, context);
 

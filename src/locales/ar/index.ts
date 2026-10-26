@@ -1,6 +1,26 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "import.resolution.identify": "التحقق من الهوية",
+  "import.resolution.identity": "أدخل هوية طبيعية معتمدة صالحة.",
+
+  "import.resolution.context": "تعذر تحميل سياق المشروع المعتمد. أعد المحاولة قبل المتابعة.",
+  "import.resolution.stale": "تغيّر سياق المشروع. افتح الاستيراد في المشروع الحالي.",
+  "import.resolution.access": "لم يعد الوصول إلى المشروع متاحًا.",
+  "import.resolution.ambiguous": "توجد أكثر من هوية محتملة. اختر مرشحًا معتمدًا.",
+  "import.resolution.ineligible": "الهوية العامة موجودة لكنها غير مؤهلة للاستخدام.",
+  "import.resolution.missing": "لا توجد عضوية في المشروع. يلزم تسجيل صريح.",
+  "import.resolution.membership": "عضوية المشروع موقوفة أو محذوفة. تلزم إعادة تفعيل صريحة.",
+  "import.resolution.affiliationConflict": "ارتباط الناقل المعتمد لا يطابق هذا الصف.",
+  "import.resolution.integrity": "تتطلب سلامة الهوية أو العلاقة المعتمدة مراجعة إدارية.",
+  "import.resolution.candidate": "المرشح المعتمد",
+  "import.resolution.enroll": "تسجيل الهوية الموجودة",
+  "import.resolution.reactivate": "إعادة تفعيل العضوية",
+  "import.resolution.create": "إنشاء هوية جديدة",
+  "import.resolution.affiliation": "تأكيد ارتباط الناقل",
+  "import.resolution.refresh": "نجح الأمر. أعد تحديث الحالة المعتمدة فقط.",
+  "import.resolution.registration": "رقم السجل التجاري",
+
   "import.roster.unsupported": "الملف غير مدعوم. اختر XLSX أو XLS أو CSV.",
   "import.roster.empty": "الملف لا يحتوي على بيانات قابلة للقراءة.",
   "import.roster.tooLarge": "يتجاوز الملف الحد الأقصى البالغ 25 ميبيبايت.",
