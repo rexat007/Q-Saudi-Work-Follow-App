@@ -20,6 +20,7 @@ export interface CarrierEditorModalProps {
   projectId: string;
   mode?: 'CREATE' | 'EDIT';
   initialName?: string;
+  initialCreateValues?: Partial<CarrierCreateInput>;
   initialCarrier?: {
     carrierId: string;
     name: string;
@@ -60,6 +61,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
   isCurrent: ownerIsCurrent,
   mode = 'CREATE',
   initialName = '',
+  initialCreateValues,
   initialCarrier = null,
   onClose,
   onCreated, beforeCreate,
@@ -106,12 +108,12 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           initialCarrier.contactEmail || initialCarrier.contactPerson?.email || ''
         );
       } else {
-        setName(initialName || initialCarrier?.name || '');
-        setCommercialRegistrationNo('');
-        setTransportLicenseNo('');
-        setContactPersonName('');
-        setContactPhone('');
-        setContactEmail('');
+        setName(initialCreateValues?.name || initialName || initialCarrier?.name || '');
+        setCommercialRegistrationNo(initialCreateValues?.commercialRegistrationNo || '');
+        setTransportLicenseNo(initialCreateValues?.transportLicenseNo || '');
+        setContactPersonName(initialCreateValues?.contactPersonName || '');
+        setContactPhone(initialCreateValues?.contactPhone || '');
+        setContactEmail(initialCreateValues?.contactEmail || '');
       }
 
       setFieldErrors({});
@@ -121,7 +123,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
       setUpdatedCarrierResult(null);
       setRefreshFailed(false);
     }
-  }, [open, projectId, isEditMode, initialCarrier, initialName]);
+  }, [open, projectId, isEditMode, initialCarrier, initialName, JSON.stringify(initialCreateValues)]);
 
   if (!open) return null;
 

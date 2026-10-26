@@ -1,5 +1,6 @@
 export function resolutionErrorKey(error: unknown): string {
   const code=typeof error==='object'&&error ? String((error as any).code || (error as any).message || '') : String(error||'');
+  if(code.includes('MUTATION_REFRESH_PENDING'))return 'import.resolution.refresh';
   if(code.includes('INVALID_NATURAL_KEY'))return 'import.resolution.identity';
   if(code.includes('STALE'))return 'import.resolution.stale';
   if(code.includes('FORBIDDEN')||code.includes('401')||code.includes('403')||code.includes('UNAUTHENTICATED'))return 'import.resolution.access';

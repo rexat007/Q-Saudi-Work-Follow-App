@@ -1,4 +1,5 @@
-import { CanonicalCreationForm } from '../import/CanonicalCreationForm';
+import { ContextualCanonicalCreation } from '../import/ContextualCanonicalCreation';
+import { ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { CanonicalResolutionDecision } from '../import/CanonicalResolutionDecision';
 import { applyOperationalGroupChoice } from '../../services/import/importResolutionWorkflow';
 import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
@@ -73,10 +74,13 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
   userId,
   userName,
   userRole,
-  canonicalRelationshipContext,
+  canonicalRelationshipContext: providedCanonicalContext,
   pipelineContext, reloadCanonicalContext, isImportCurrent = () => true,
 }) => {
   const { t, direction, locale } = useI18n();
+  const [contextualContext,setContextualContext]=useState<RelationshipContext|null>(null);
+  const canonicalRelationshipContext=contextualContext?.projectId===projectId?contextualContext:providedCanonicalContext;
+  useEffect(()=>setContextualContext(null),[providedCanonicalContext,projectId]);
   // State for Spreadsheets
   const [spreadsheets, setSpreadsheets] = useState<GoogleSpreadsheetItem[]>([]);
   const [isLoadingSpreadsheets, setIsLoadingSpreadsheets] = useState<boolean>(false);
@@ -120,8 +124,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
     return RosterBatchReviewService.getRowExceptions(batch);
   }, [batch]);
 
-  const creationLock = useRef(false);
-  const creationReceipt = useRef<{ group: string; result: NormalizedEntityResolutionResult } | null>(null);
+  const contextualReceipts = useRef(new ContextualPrerequisiteReceipts()).current;
   const requireCurrentContext = async () => {
     if (!isImportCurrent() || !reloadCanonicalContext) throw Error('PROJECT_CONTEXT_STALE');
     const fresh = await reloadCanonicalContext();
@@ -129,15 +132,18 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
     if (!isImportCurrent() || fresh.projectId !== projectId || fresh.importResolution?.projectId !== projectId) throw Error('PROJECT_CONTEXT_STALE');
     return ImportProjectContextAdapter.createPipelineContext({ relContext:fresh, projectId:projectId, userId:effectiveUserId, userName:effectiveUserName, role:effectiveRole, operationId:activeOperationId || batch?.operationId || effectivePipelineContext.operationId });
   };
-  const applyVerifiedChoice = async (group: RosterEntityReviewGroup, fresh: RelationshipContext, id: string) => {
-    await handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id},fresh);
+  const applyVerifiedChoice = async (group: RosterEntityReviewGroup, fresh: RelationshipContext, id: string, prerequisite?: string) => {
+    if(!isImportCurrent()||fresh.projectId!==projectId)throw Error('PROJECT_CONTEXT_STALE');
+    setContextualContext(fresh);
+    await handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id},fresh,prerequisite);
   };
   const handleGroupResolutionDecision = async (
     entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
     normalizedSourceKey: string,
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
     candidate?: { selectedEntityId?: string; selectedDisplayName?: string },
-    verifiedContext?: RelationshipContext
+    verifiedContext?: RelationshipContext,
+    prerequisite?: string
   ) => {
     if (!isImportCurrent()) return;
     if (!batch) return;
@@ -148,6 +154,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
     if (!isImportCurrent()) return;
       const updated = applyOperationalGroupChoice(batch, {entityType:entityTypeKey,normalizedSourceKey:normalizedSourceKey}, (candidate || {}).selectedEntityId, context, effectiveUserId || 'user', decision);
 
+      if (prerequisite) updated.metadata={...updated.metadata,canonicalPrerequisites:[...(updated.metadata?.canonicalPrerequisites||[]),{projectId:projectId,key:`${entityTypeKey.toUpperCase()}:${candidate?.selectedEntityId}`,action:prerequisite,completed:true,rowNumbers:RosterBatchReviewService.getBatchReviewGroups(batch)[entityTypeKey].find(g=>g.normalizedSourceKey===normalizedSourceKey)?.rowNumbers||[]}]};
       setBatch({ ...updated });
 
       if (projectId && activeSessionId) {
@@ -191,190 +198,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
     }
   };
 
-  const handleGroupCreateCanonicalEntity = async (
-    group: RosterEntityReviewGroup,
-    formData: {
-      nameAr?: string;
-      commercialRegistrationNo?: string;
-      transportLicenseNo?: string;
-      code?: string;
-      driverName?: string;
-      residencyId?: string;
-      phone?: string;
-      plateNumber?: string;
-      truckType?: string;
-      tareWeightKg?: number;
-      maxGrossWeightKg?: number;
-    }
-  ) => {
-    if (!isImportCurrent()) return;
-    if (!batch || !projectId) return;
-    const representativeRowNumber = group.rowNumbers[0];
-    const row = batch.rows.find((r) => r.rowNumber === representativeRowNumber);
-    if (!row) return;
 
-    if (creationLock.current) return;
-    creationLock.current=true;
-    setProcessError(null);
-    setCreateError(null);
-    setIsCreatingEntity(true);
-
-    try {
-      let result: NormalizedEntityResolutionResult | undefined = creationReceipt.current?.group === group.normalizedSourceKey ? creationReceipt.current.result : undefined;
-      const resItem = group.currentResolution;
-      const sourceVal = resItem?.sourceValue || resItem?.originalValue || group.sourceValue || formData.nameAr || formData.driverName || formData.plateNumber || formData.code || '';
-
-
-      if (!result) {
-        if(group.currentResolution?.ambiguous) throw Error('IDENTITY_AMBIGUITY');
-        const kind=group.entityType.toUpperCase() as 'CARRIER'|'MATERIAL'|'DRIVER'|'TRUCK';
-        const naturalKey=String(group.entityType==='carrier'?formData.commercialRegistrationNo:group.entityType==='material'?formData.code:group.entityType==='driver'?formData.residencyId:formData.plateNumber).trim();
-        const lookupContext=await canonicalRelationshipContextService.getProjectRelationshipContext(projectId,{resolution:true,kind,naturalKey});
-    if (!isImportCurrent()) return;
-        if(!isImportCurrent())return;
-        const lookup=lookupContext.importResolution?.lookup;
-        if(!lookup||lookup.kind!==kind||lookup.naturalKey!==naturalKey)throw Error('CONTEXT_UNAVAILABLE');
-        if(lookup.matchedId){await applyVerifiedChoice(group,lookupContext,lookup.matchedId);
-    if (!isImportCurrent()) return;if(isImportCurrent())setActiveCreateGroupKey(null);return;}
-      if (group.entityType === 'carrier') {
-        if (!formData.commercialRegistrationNo || !formData.commercialRegistrationNo.trim()) {
-          throw new Error('رقم السجل التجاري للناقل مطلوب');
-        }
-        result = await entityResolutionCommandService.createCarrier({
-          projectId,
-          sourceValue: sourceVal,
-          carrierData: {
-            nameAr: (formData.nameAr && formData.nameAr.trim()) ? formData.nameAr.trim() : sourceVal,
-            commercialRegistrationNo: formData.commercialRegistrationNo.trim(),
-            ...(formData.transportLicenseNo?.trim() ? { transportLicenseNo: formData.transportLicenseNo.trim() } : {}),
-          },
-        });
-    if (!isImportCurrent()) return;
-      } else if (group.entityType === 'material') {
-        if (!formData.code || !formData.code.trim()) {
-          throw new Error('رمز المادة (code) مطلوب');
-        }
-        result = await entityResolutionCommandService.createMaterial({
-          projectId,
-          sourceValue: sourceVal,
-          materialData: {
-            code: formData.code.trim(),
-            nameAr: (formData.nameAr && formData.nameAr.trim()) ? formData.nameAr.trim() : sourceVal,
-          },
-        });
-    if (!isImportCurrent()) return;
-      } else if (group.entityType === 'driver') {
-        let carrierId = row.resolvedValues?.carrierId;
-        if (!carrierId) {
-          const carrierRes = row.entityResolutions?.carrier;
-          if (carrierRes) {
-            carrierId = carrierRes.matchedId || carrierRes.entityId;
-          }
-        }
-        if (!carrierId) {
-          throw new Error('يجب حسم الناقل أولاً قبل إنشاء السائق');
-        }
-        if (!formData.residencyId || !formData.residencyId.trim()) {
-          throw new Error('رقم الهوية الوطنية أو الإقامة (residencyId) مطلوب');
-        }
-        result = await entityResolutionCommandService.createDriver({
-          projectId,
-          sourceValue: sourceVal,
-          driverData: {
-            carrierId,
-            driverName: (formData.driverName && formData.driverName.trim()) ? formData.driverName.trim() : sourceVal,
-            residencyId: formData.residencyId.trim(),
-            ...(formData.phone?.trim() ? { phone: formData.phone.trim() } : {}),
-          },
-        });
-    if (!isImportCurrent()) return;
-      } else if (group.entityType === 'truck') {
-        let carrierId = row.resolvedValues?.carrierId;
-        if (!carrierId) {
-          const carrierRes = row.entityResolutions?.carrier;
-          if (carrierRes) {
-            carrierId = carrierRes.matchedId || carrierRes.entityId;
-          }
-        }
-        if (!carrierId) {
-          throw new Error('يجب حسم الناقل أولاً قبل إنشاء الشاحنة');
-        }
-        if (!formData.plateNumber || !formData.plateNumber.trim()) {
-          throw new Error('رقم لوحة الشاحنة (plateNumber) مطلوب');
-        }
-        result = await entityResolutionCommandService.createTruck({
-          projectId,
-          sourceValue: sourceVal,
-          truckData: {
-            carrierId,
-            plateNumber: formData.plateNumber.trim(),
-            ...(formData.truckType?.trim() ? { truckType: formData.truckType.trim() } : {}),
-            ...(formData.tareWeightKg !== undefined ? { tareWeightKg: formData.tareWeightKg } : {}),
-            ...(formData.maxGrossWeightKg !== undefined ? { maxGrossWeightKg: formData.maxGrossWeightKg } : {}),
-          },
-        });
-    if (!isImportCurrent()) return;
-      } else {
-        throw new Error('نوع الكيان غير مدعوم');
-      }
-
-
-        if (!isImportCurrent()) return;
-        creationReceipt.current = {group:group.normalizedSourceKey,result:result!};
-      }
-      const context = await requireCurrentContext();
-    if (!isImportCurrent()) return;
-      if(!context.resolutionContext?.entities.some(e=>e.id===result!.matchedId&&e.kind===result!.entityType&&e.membershipStatus==='ACTIVE'&&e.globalStatus==='ACTIVE'))throw Error('CONTEXT_UNAVAILABLE');
-      const updated = applyOperationalGroupChoice(batch, group, result!.matchedId, context, effectiveUserId);
-
-      setBatch({ ...updated });
-      setActiveCreateGroupKey(null);
-      creationReceipt.current = null;
-
-      if (projectId && activeSessionId) {
-        const cleanSnapshot = {
-          totalRows: updated.totalRows,
-          validRows: updated.validRows,
-          warningRows: updated.warningRows,
-          errorRows: updated.errorRows,
-          requiresReviewRows: updated.requiresReviewRows,
-          committedRows: updated.committedRows,
-          rows: updated.rows.map((r) => {
-            const { rawInput, ...rest } = r as any;
-            return rest;
-          }),
-        };
-
-        const updatedSession = await importSessionClientService.updateCheckpoint(
-          projectId,
-          activeSessionId,
-          {
-            lifecycleState: 'REVIEW_REQUIRED',
-            currentStage: 'REVIEW',
-            reviewSnapshot: cleanSnapshot,
-            validationIssues: updated.issues || [],
-            warningConfirmation: confirmWarnings,
-            reviewAction: { normalizedSourceKey: group.normalizedSourceKey, entityType: group.entityType, action: 'CREATE_CANONICAL' as any },
-          },
-          sessionVersion
-        );
-    if (!isImportCurrent()) return;
-
-        setSessionVersion(updatedSession.version);
-      }
-    } catch (err: any) {
-    if (!isImportCurrent()) return;
-      if (err?.code === 'VERSION_CONFLICT') {
-        setCreateError('تعارض في إصدار الجلسة (VERSION_CONFLICT)');
-      } else {
-        setCreateError(t(resolutionErrorKey(err)));
-      }
-    } finally {
-      creationLock.current=false;
-    if (!isImportCurrent()) return;
-      setIsCreatingEntity(false);
-    }
-  };
 
   // Committing
   const [isCommitting, setIsCommitting] = useState<boolean>(false);
@@ -950,7 +774,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
 
   return (
     <div className="space-y-6" dir={direction}>
-      {batch&&canonicalRelationshipContext?.importResolution&&<section className="space-y-3">{Object.values(reviewGroups).flat().map(group=><details key={group.normalizedSourceKey} open={group.status!=='AUTO_RESOLVED'}><summary>{group.sourceValue}</summary><CanonicalResolutionDecision canMutate={effectiveRole==='PROJECT_ADMIN'||effectiveRole==='SUPER_ADMIN'} projectId={projectId} context={canonicalRelationshipContext} group={group} carrierId={batch.rows.find(row=>group.rowNumbers.includes(row.rowNumber))?.entityResolutions?.carrier?.matchedId} isCurrent={isImportCurrent} disabled={isProcessing||isCreatingEntity} onSelect={id=>handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id})} onCreate={()=>setActiveCreateGroupKey(group.normalizedSourceKey)} onVerified={(fresh,id)=>applyVerifiedChoice(group,fresh,id)}/>{activeCreateGroupKey===group.normalizedSourceKey&&<CanonicalCreationForm group={group} onSubmit={data=>handleGroupCreateCanonicalEntity(group,data)} onClose={()=>setActiveCreateGroupKey(null)} busy={isCreatingEntity} committed={Boolean(creationReceipt.current)} error={createError}/>}</details>)}</section>}
+      {batch&&canonicalRelationshipContext?.importResolution&&<section className="space-y-3">{Object.values(reviewGroups).flat().map(group=><details key={group.normalizedSourceKey} open={group.status!=='AUTO_RESOLVED'}><summary>{group.sourceValue}</summary><CanonicalResolutionDecision receipts={contextualReceipts} receiptScope={batch.importBatchId} canMutate={effectiveRole==='PROJECT_ADMIN'||effectiveRole==='SUPER_ADMIN'} projectId={projectId} context={canonicalRelationshipContext} group={group} carrierId={batch.rows.find(row=>group.rowNumbers.includes(row.rowNumber))?.entityResolutions?.carrier?.matchedId} isCurrent={isImportCurrent} disabled={isProcessing||isCreatingEntity} onSelect={id=>handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id})} onCreate={()=>setActiveCreateGroupKey(group.normalizedSourceKey)} onVerified={(fresh,id,prerequisite)=>applyVerifiedChoice(group,fresh,id,prerequisite)}/>{activeCreateGroupKey===group.normalizedSourceKey&&<ContextualCanonicalCreation key={`${projectId}:${batch.importBatchId}:${group.normalizedSourceKey}`} projectId={projectId} batch={batch} group={group} context={canonicalRelationshipContext} receipts={contextualReceipts} canMutate={effectiveRole==='PROJECT_ADMIN'||effectiveRole==='SUPER_ADMIN'} isCurrent={isImportCurrent} onClose={()=>setActiveCreateGroupKey(null)} onVerified={(fresh,id,prerequisite)=>applyVerifiedChoice(group,fresh,id,prerequisite)}/>}</details>)}</section>}
 
       {/* Top Banner: Mode & Title */}
       <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">

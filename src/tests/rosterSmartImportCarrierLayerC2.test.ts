@@ -1,3 +1,5 @@
+const contextualCreation = fs.readFileSync(path.resolve(__dirname, '../components/import/ContextualCanonicalCreation.tsx'), 'utf8');
+const contextualService = fs.readFileSync(path.resolve(__dirname, '../services/import/contextualCanonicalCreation.service.ts'), 'utf8');
 import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
 import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
@@ -135,11 +137,11 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
   });
 
   it('6. ProjectSetupWizard hooks authoritative CarrierEditorModal for smart import creation', () => {
-    expect(wizardContent).toContain('handleSmartImportCarrierCreated');
-    expect(wizardContent).toContain('isSmartImportCarrierModalOpen');
-    expect(wizardContent).toContain('smartImportPendingCarrierGroup');
-    expect(wizardContent).toContain('projectCanonicalRefreshService.refresh');
-    expect(wizardContent).toContain('DriverTruckPipelineService.applyGroupedCreatedEntityResolution');
+    expect(wizardContent).toContain('<ContextualCanonicalCreation');
+    expect(wizardContent).toContain('smartImportPendingCarrierGroup!');
+    expect(contextualCreation).toContain('<CarrierEditorModal open mode="CREATE"');
+    expect(contextualCreation).toContain('beforeCreate={beforeCreate}');
+    expect(contextualCreation).toContain("onVerified(fresh,value.entityId,'CREATE',snapshot)");
   });
 
   it('7. C2 enforces Stage Ceiling at CARRIER_RESOLUTION (no premature advancement to MATERIAL_RESOLUTION)', () => {
@@ -186,20 +188,10 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
   });
 
   it('11. handleSmartImportCarrierCreated adheres strictly to CarrierCreationResult type contract', () => {
-    const handlerIdx = wizardContent.indexOf('const handleSmartImportCarrierCreated = async (result: CarrierCreationResult) => {');
-    const handlerBody = wizardContent.slice(
-      handlerIdx,
-      wizardContent.indexOf('};', handlerIdx) + 500
-    );
-
-    // Must NOT access result.carrier
-    expect(handlerBody).not.toContain('result.carrier?.');
-    expect(handlerBody).not.toContain('result.carrier.');
-
-    // Must use result.carrierId and smartImportPendingCarrierGroup.sourceValue
-    expect(handlerBody).toContain('matchedId: result.carrierId');
-    expect(handlerBody.includes('createdCarrier?.name') || handlerBody.includes('matchedName: smartImportPendingCarrierGroup.sourceValue')).toBe(true);
-    expect(handlerBody).toContain('sourceValue: smartImportPendingCarrierGroup.sourceValue');
+    expect(contextualCreation).toContain('entityId:result.carrierId');
+    expect(contextualCreation).not.toContain('result.carrier.');
+    expect(contextualCreation).toContain('refreshContextualPrerequisite(projectId,value.kind,value.entityId,current)');
+    expect(contextualService).toContain("kind==='CARRIER'?{carrierId:id}");
   });
 
   it('12. CarrierCreationResult type contract remains authoritative and unmodified', () => {
@@ -215,24 +207,15 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
   });
 
   it('13. Created Carrier grouped resolution uses result.carrierId and pending group context', () => {
-    const handlerIdx = wizardContent.indexOf('const handleSmartImportCarrierCreated = async (result: CarrierCreationResult) => {');
-    const handlerBody = wizardContent.slice(
-      handlerIdx,
-      wizardContent.indexOf('};', handlerIdx) + 500
-    );
-
-    expect(handlerBody).toContain('DriverTruckPipelineService.applyGroupedCreatedEntityResolution(');
-    expect(handlerBody).toContain('importBatch');
-    expect(handlerBody).toContain("'carrier'");
-    expect(handlerBody).toContain('smartImportPendingCarrierGroup.normalizedSourceKey');
-    expect(handlerBody).toContain('resolutionPayload');
-    expect(handlerBody).toContain('pipelineCtx');
+    expect(wizardContent).toContain('applyCanonicalImportChoice(smartImportPendingCarrierGroup!,fresh,id,prerequisite)');
+    expect(wizardContent).toContain("DriverTruckPipelineService.applyGroupedEntityResolutionDecision(importBatch,group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id}");
+    expect(contextualCreation).toContain('entityId:result.carrierId');
   });
 
   it('14. Smart Import CarrierEditorModal renders at z-60 above parent Carrier Resolution layer z-50', () => {
-    const smartImportCarrierModalIdx = wizardContent.indexOf('Smart Import Dedicated Carrier Creation Modal');
-    const smartImportModalBlock = wizardContent.slice(smartImportCarrierModalIdx, smartImportCarrierModalIdx + 600);
-    expect(smartImportModalBlock).toContain('zIndexClass="z-60"');
+    expect(wizardContent).toContain('key={`Carrier:${project.projectId}:${renderedContext.generation}:${importBatch?.importBatchId}`}');
+    expect(contextualCreation).toContain('<CarrierEditorModal open mode="CREATE"');
+    expect(contextualCreation).toContain('zIndexClass="z-60"');
   });
 
   it('15. Candidate Accept Scenario: ACCEPT_CANDIDATE converts group status to AUTO_RESOLVED', () => {

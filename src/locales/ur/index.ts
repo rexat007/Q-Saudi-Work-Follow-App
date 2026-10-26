@@ -1,6 +1,10 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "import.context.noPermission": "مستند شناخت بنانے یا اس کی رکنیت بدلنے کے لیے مجاز منتظم درکار ہے۔ آپ اس گروپ کو غیر حل شدہ چھوڑ سکتے ہیں۔",
+  "import.context.planned": "عالمی شناخت، پروجیکٹ کی رکنیت اور کیریئر سے وابستگی بعد میں عمل کے لیے تیار کریں۔ ابھی کوئی شناخت، ڈرائیور اسائنمنٹ یا مواد کی تخصیص نہیں بنتی۔",
+  "import.context.immediateFleet": "یہ واضح مستند کارروائی عالمی شناخت بناتی یا استعمال کرتی ہے اور پروجیکٹ کی رکنیت اور کیریئر سے وابستگی قائم کرتی ہے۔ ڈرائیور اسائنمنٹ یا مواد کی تخصیص نہیں کرتی۔",
+  "intent.action.CREATE": "مستند سیٹ اپ مکمل",
   "intent.title": "کینونیکل ارادے کا جائزہ",
   "intent.sourceRows": "ماخذ کی قطاریں",
   "intent.rows": "قطاریں",

@@ -21,6 +21,7 @@ export interface MaterialEditorModalProps {
   projectId: string;
   mode?: 'CREATE' | 'EDIT';
   initialName?: string;
+  initialCreateValues?: Partial<MaterialCreateInput>;
   initialMaterial?: {
     materialId: string;
     name: string;
@@ -54,6 +55,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
   isCurrent: ownerIsCurrent,
   mode = 'CREATE',
   initialName = '',
+  initialCreateValues,
   initialMaterial = null,
   onClose,
   onCreated, beforeCreate,
@@ -98,10 +100,10 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             : 1.6
         );
       } else {
-        setName(initialName || initialMaterial?.name || '');
-        setCode('');
-        setUnitOfMeasure('TON');
-        setStandardDensityTonPerM3(1.6);
+        setName(initialCreateValues?.name || initialName || initialMaterial?.name || '');
+        setCode(initialCreateValues?.code || '');
+        setUnitOfMeasure(initialCreateValues?.unitOfMeasure || 'TON');
+        setStandardDensityTonPerM3(initialCreateValues?.standardDensityTonPerM3 ?? 1.6);
       }
 
       setFieldErrors({});
@@ -111,7 +113,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
       setUpdatedMaterialResult(null);
       setRefreshFailed(false);
     }
-  }, [open, projectId, isEditMode, initialMaterial, initialName]);
+  }, [open, projectId, isEditMode, initialMaterial, initialName, JSON.stringify(initialCreateValues)]);
 
   if (!open) return null;
 

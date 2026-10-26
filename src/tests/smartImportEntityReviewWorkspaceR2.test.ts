@@ -1,3 +1,6 @@
+const contextualCreation = fs.readFileSync(path.resolve(__dirname, '../components/import/ContextualCanonicalCreation.tsx'), 'utf8');
+const contextualService = fs.readFileSync(path.resolve(__dirname, '../services/import/contextualCanonicalCreation.service.ts'), 'utf8');
+const fleetEditor=fs.readFileSync(path.resolve(__dirname,'../components/masterData/CanonicalFleetIdentityEditor.tsx'),'utf8');
 import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
 import { dictionaries } from '../locales';
 import { resolveTranslation } from '../i18n';
@@ -329,7 +332,8 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
 
   // 12. Driver create is blocked without resolved carrier
   it('12. Driver create is blocked without resolved carrier', () => {
-    expectCanonicalBatch4Source(sectionContent, 'entityResolution.messages.resolve_carrier_before_create');
+    expect(contextualCreation).toContain("e.kind==='CARRIER'&&e.globalStatus==='ACTIVE'&&e.membershipStatus==='ACTIVE'");
+    expect(fleetEditor).toContain("if(!carriers.some(c=>c.id===data.carrierId))throw Error('AFFILIATION_CONFLICT')");
     expect(sectionContent).toContain('isCarrierBlocked');
   });
 
@@ -340,22 +344,28 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
 
   // 14. Carrier creation uses existing createCarrier command
   it('14. Carrier creation uses existing createCarrier command', () => {
-    expect(sectionContent).toContain('entityResolutionCommandService.createCarrier');
+    expect(sectionContent).toContain('<ContextualCanonicalCreation');
+    expect(contextualCreation).toContain('<CarrierEditorModal open mode="CREATE"');
+    expect(fs.readFileSync(path.resolve(__dirname,'../components/masterData/CarrierEditorModal.tsx'),'utf8')).toContain('clientService.createProjectCarrier(projectId, payload)');
   });
 
   // 15. Material creation uses existing createMaterial command
   it('15. Material creation uses existing createMaterial command', () => {
-    expect(sectionContent).toContain('entityResolutionCommandService.createMaterial');
+    expect(sectionContent).toContain('<ContextualCanonicalCreation');
+    expect(contextualCreation).toContain('<MaterialEditorModal open mode="CREATE"');
+    expect(fs.readFileSync(path.resolve(__dirname,'../components/masterData/MaterialEditorModal.tsx'),'utf8')).toContain('materialManagementClientService.createProjectMaterial.bind');
   });
 
   // 16. Driver creation uses existing createDriver command
   it('16. Driver creation uses existing createDriver command', () => {
-    expect(sectionContent).toContain('entityResolutionCommandService.createDriver');
+    expect(contextualCreation).toContain('entityResolutionCommandService.createDriver');
+    expect(contextualCreation).toContain('driverData:data');
   });
 
   // 17. Truck creation uses existing createTruck command
   it('17. Truck creation uses existing createTruck command', () => {
-    expect(sectionContent).toContain('entityResolutionCommandService.createTruck');
+    expect(contextualCreation).toContain('entityResolutionCommandService.createTruck');
+    expect(contextualCreation).toContain('truckData:data');
   });
 
   // 18. No auto-create during render
@@ -372,8 +382,9 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
 
   // 20. Created canonical entity is applied to whole group
   it('20. Created canonical entity is applied to whole group', () => {
-    expect(sectionContent).toContain('applyOperationalGroupChoice(activeBatch, group, result!.matchedId, context, effectiveUserId)');
-    const mechanics = fs.readFileSync(path.resolve(__dirname, '../services/import/importResolutionWorkflow.ts'), 'utf8');
+    expect(sectionContent).toContain('applyOperationalGroupChoice(activeBatch, {entityType:entityTypeKey,normalizedSourceKey:normalizedSourceKey}');
+    expect(sectionContent).toContain('applyVerifiedChoice(group,fresh,id,prerequisite)');
+    const mechanics=fs.readFileSync(path.resolve(__dirname,'../services/import/importResolutionWorkflow.ts'),'utf8');
     expect(mechanics).toContain('RosterBatchReviewService.getGroupKey');
     expect(mechanics).toContain('ExcelCsvPipelineService.applyEntityResolutionDecision');
   });
@@ -414,7 +425,9 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
   // 25. No row-by-row duplicate entity decision workflow is introduced
   it('25. No row-by-row duplicate entity decision workflow is introduced', () => {
     expect(sectionContent).toContain('handleGroupResolutionDecision');
-    expect(sectionContent).toContain('handleGroupCreateCanonicalEntity');
+    expect(sectionContent).toContain('group={group}');
+    expect(sectionContent).toContain('receipts={contextualReceipts}');
+    expect(contextualCreation).toContain("contextualReceiptKey(projectId,batch.importBatchId,group,'CREATE')");
   });
 
   // 26. R1 approval gate remains intact

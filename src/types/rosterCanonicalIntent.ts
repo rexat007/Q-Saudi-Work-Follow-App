@@ -37,7 +37,7 @@ export interface RosterCanonicalIntent {
   entities: IntentEntity[];
   assignmentIntents: AssignmentIntent[];
   allocationIntents: AllocationIntent[];
-  entityConsequences: { key: string; action: 'REUSE' | 'PREPARE_NEW' | 'ENROLL' | 'REACTIVATE' | 'AFFILIATE' | 'REACTIVATE_AFFILIATION'; completed: boolean; rowNumbers: number[] }[];
+  entityConsequences: { key: string; action: 'REUSE' | 'PREPARE_NEW' | 'CREATE' | 'ENROLL' | 'REACTIVATE' | 'AFFILIATE' | 'REACTIVATE_AFFILIATION'; completed: boolean; rowNumbers: number[] }[];
   blockers: IntentIssue[];
   warnings: IntentIssue[];
   requiresDisplacementApproval: boolean;

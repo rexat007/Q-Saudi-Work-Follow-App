@@ -1,3 +1,4 @@
+import type { ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { CanonicalResolutionDecision } from './CanonicalResolutionDecision';
 import type { RelationshipContext } from '../../types/dataQuality';
 import { useI18n } from '../../i18n';
@@ -13,6 +14,7 @@ export interface ProjectCarrierOption {
 }
 
 export interface RosterCarrierResolutionLayerProps {
+  receipts?: ContextualPrerequisiteReceipts;
   canManageParticipation?: boolean;
   canonicalContext?: RelationshipContext;
   onCanonicalVerified?: (group: RosterEntityReviewGroup, context: RelationshipContext, id: string, prerequisite?: string) => Promise<void>|void;
@@ -61,7 +63,7 @@ export const checkCarrierResolutionReadiness = (batch: UnifiedImportBatch): bool
 };
 
 export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayerProps> = ({
-  importBatch, canManageParticipation = true, canonicalContext, onCanonicalVerified, isCurrent = () => true,
+  importBatch, canManageParticipation = true, receipts, canonicalContext, onCanonicalVerified, isCurrent = () => true,
   projectCarriers = [],
   onAcceptCandidate,
   onSelectAlternate,
@@ -222,7 +224,7 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
                       </div>
                     </div>
 
-                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>onCreateCarrier(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
+                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>onCreateCarrier(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
                     {/* Action Controls for Unresolved / Review Groups */}
                     {!canonicalContext && !isResolved && (
                       <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">
@@ -285,7 +287,7 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
                         {/* Create Missing Carrier Action */}
                         <button
                           type="button"
-                          disabled={isProcessing}
+                          disabled={isProcessing || !canManageParticipation}
                           onClick={() => onCreateCarrier(group)}
                           className="px-3 py-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-[10px] font-black transition-colors flex items-center gap-1.5 shadow-sm shadow-amber-950/50"
                         >

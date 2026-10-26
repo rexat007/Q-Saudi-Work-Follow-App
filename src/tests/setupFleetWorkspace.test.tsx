@@ -36,9 +36,9 @@ async function renderEditor(mode: any, id?: string, props: any = {}, projectId =
 async function change(element: HTMLInputElement | HTMLSelectElement, value: string) {
   await act(async () => { Object.getOwnPropertyDescriptor(element instanceof HTMLSelectElement ? window.HTMLSelectElement.prototype : window.HTMLInputElement.prototype, 'value')!.set!.call(element, value); element.dispatchEvent(new Event('change', { bubbles: true })); });
 }
-async function submit() { await act(async () => { container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); }); }
-const selects = () => Array.from(container.querySelectorAll('select'));
-const inputs = () => Array.from(container.querySelectorAll<HTMLInputElement>('input:not([type=checkbox])'));
+async function submit() { await act(async () => { document.body.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); }); }
+const selects = () => Array.from(document.body.querySelectorAll('select'));
+const inputs = () => Array.from(document.body.querySelectorAll<HTMLInputElement>('input:not([type=checkbox])'));
 const body = () => JSON.parse(vi.mocked(fetch).mock.calls.at(-1)![1]!.body as string);
 describe('P6-B1 selector and command intent', () => {
   it('chooses ASSIGN/ALLOCATE for empty relationships and preserves matching idempotent intent', () => {
@@ -56,26 +56,29 @@ describe('P6-B1 selector and command intent', () => {
   });
   it.each(['DRIVER', 'TRUCK'])('%s create/reuse submits only the standalone endpoint', async mode => {
     await renderEditor(mode); if (mode === 'DRIVER') await change(inputs()[0], 'Driver');
-    await change(inputs().at(-1)!, mode === 'DRIVER' ? '1234567890' : 'AAA'); await change(selects()[0], 'C1'); await submit();
+    await change(document.body.querySelector<HTMLInputElement>(`input[name="${mode==='DRIVER'?'residencyId':'plateNumber'}"]`)!, mode === 'DRIVER' ? '1234567890' : 'AAA'); await change(selects()[0], 'C1'); await submit();
     expect(fetch).toHaveBeenCalledTimes(1); expect(vi.mocked(fetch).mock.calls[0][0]).toContain(`/setup-${mode.toLowerCase()}`);
     expect(JSON.stringify(body())).not.toMatch(/assignment|allocation|materialId/);
+  });
+  it('identity creation with an unavailable read context retries reads without mutation or closing', async()=>{
+    const cb=await renderEditor('DRIVER',undefined,{readAvailable:false});expect(inputs().every(input=>input.disabled)).toBe(true);await submit();expect(fetch).not.toHaveBeenCalled();expect(cb.refresh).toHaveBeenCalledOnce();expect(cb.onClose).not.toHaveBeenCalled();
   });
   it('does not repeat a standalone command when canonical refresh fails', async () => {
     const refresh = vi.fn().mockRejectedValueOnce(Error('network')).mockResolvedValue(snapshot), cb = await renderEditor('DRIVER', undefined, { refresh });
     await change(inputs()[0], 'Driver'); await change(inputs()[1], '1234567890'); await change(selects()[0], 'C1'); await submit();
-    expect(container.textContent).toContain('setup.errors.refresh'); expect(cb.onClose).not.toHaveBeenCalled(); expect(inputs()[0].disabled).toBe(true);
+    expect(document.body.textContent).toContain('import.resolution.refresh'); expect(cb.onClose).not.toHaveBeenCalled(); expect(inputs()[0].disabled).toBe(true);
     await submit(); expect(fetch).toHaveBeenCalledTimes(1); expect(refresh).toHaveBeenCalledTimes(2); expect(cb.onClose).toHaveBeenCalledTimes(1);
   });
   it('requires confirmation and previews all displaced assignments before REASSIGN', async () => {
     ctx.participants.find(p => p.id === 'D1')!.assignment = { assignmentId: 'OLD', driverId: 'D1', truckId: 'T2' };
     await renderEditor('ASSIGNMENT', 'T1'); await change(selects()[0], 'D1'); await submit(); expect(fetch).not.toHaveBeenCalled();
-    expect(container.textContent).toContain('D1 → T2'); expect(container.textContent).toContain('D1 → T1');
-    await act(async () => container.querySelector<HTMLInputElement>('input[type=checkbox]')!.click()); await submit();
+    expect(document.body.textContent).toContain('D1 → T2'); expect(document.body.textContent).toContain('D1 → T1');
+    await act(async () => document.body.querySelector<HTMLInputElement>('input[type=checkbox]')!.click()); await submit();
     expect(body()).toEqual({ command: 'REASSIGN', driverId: 'D1', truckId: 'T1' });
   });
   it('uses CLOSE with the current assignment ID without deleting history', async () => {
     ctx.participants.find(p => p.id === 'T1')!.assignment = { assignmentId: 'A', driverId: 'D1', truckId: 'T1' };
-    await renderEditor('ASSIGNMENT', 'T1'); await act(async () => container.querySelector<HTMLInputElement>('input[type=checkbox]')!.click()); await submit();
+    await renderEditor('ASSIGNMENT', 'T1'); await act(async () => document.body.querySelector<HTMLInputElement>('input[type=checkbox]')!.click()); await submit();
     expect(body()).toEqual({ command: 'CLOSE', assignmentId: 'A' });
   });
   it('requires explicit REALLOCATE confirmation and excludes inactive materials', async () => {
@@ -83,21 +86,21 @@ describe('P6-B1 selector and command intent', () => {
     ctx.participants.find(p => p.id === 'M1')!.eligible = false;
     await renderEditor('ALLOCATION', 'T1'); expect(Array.from(selects()[1].options).map(o => o.value)).not.toContain('M1');
     await change(selects()[1], 'M2'); await submit(); expect(fetch).not.toHaveBeenCalled();
-    expect(container.textContent).toContain('M1 → M2');
-    await act(async () => container.querySelectorAll<HTMLInputElement>('input[type=checkbox]')[1].click()); await submit();
+    expect(document.body.textContent).toContain('M1 → M2');
+    await act(async () => document.body.querySelectorAll<HTMLInputElement>('input[type=checkbox]')[1].click()); await submit();
     expect(body()).toEqual({ command: 'REALLOCATE', truckId: 'T1', materialId: 'M2' });
   });
   it('closes allocation using only its canonical ID', async () => {
     ctx.participants.find(p => p.id === 'T1')!.allocation = { allocationId: 'L', truckId: 'T1', materialId: 'M1' };
-    await renderEditor('ALLOCATION', 'T1'); await act(async () => container.querySelector<HTMLInputElement>('input[type=checkbox]')!.click()); await submit(); expect(body()).toEqual({ command: 'CLOSE', allocationId: 'L' });
+    await renderEditor('ALLOCATION', 'T1'); await act(async () => document.body.querySelector<HTMLInputElement>('input[type=checkbox]')!.click()); await submit(); expect(body()).toEqual({ command: 'CLOSE', allocationId: 'L' });
   });
   it.each(['D1', 'T1'])('%s affiliation reassignment is explicit and dependency error guides without cascading', async id => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 409, json: async () => ({ success: false, code: 'P5_B3_RELATIONSHIP_DEPENDENCY', error: 'private stack' }) })));
     const cb = await renderEditor('AFFILIATION', id); await change(selects()[0], 'C2'); await submit(); expect(fetch).not.toHaveBeenCalled();
-    await act(async () => container.querySelectorAll<HTMLInputElement>('input[type=checkbox]')[1].click()); await submit();
+    await act(async () => document.body.querySelectorAll<HTMLInputElement>('input[type=checkbox]')[1].click()); await submit();
     expect(body()).toMatchObject({ command: 'REASSIGN', entityId: id }); expect(fetch).toHaveBeenCalledTimes(1);
-    expect(container.textContent).toContain('setup.errors.dependency'); expect(container.textContent).not.toContain('private stack');
-    await act(async () => Array.from(container.querySelectorAll('button')).find(b => b.textContent === 'setup.manageAssignment')!.click()); expect(cb.onDependency).toHaveBeenCalledTimes(1);
+    expect(document.body.textContent).toContain('setup.errors.dependency'); expect(document.body.textContent).not.toContain('private stack');
+    await act(async () => Array.from(document.body.querySelectorAll('button')).find(b => b.textContent === 'setup.manageAssignment')!.click()); expect(cb.onDependency).toHaveBeenCalledTimes(1);
   });
   it('reactivates an eligible removed membership explicitly', async () => {
     ctx.participants.find(p => p.id === 'D1')!.membershipStatus = 'REMOVED'; await renderEditor('REACTIVATE', 'D1'); await submit();
@@ -105,7 +108,7 @@ describe('P6-B1 selector and command intent', () => {
   });
   it('does not reactivate an ineligible global', async () => {
     Object.assign(ctx.participants.find(p => p.id === 'T1')!, { membershipStatus: 'REMOVED', globalStatus: 'MAINTENANCE', canReactivate: false, eligible: false });
-    await renderEditor('REACTIVATE', 'T1'); await submit(); expect(fetch).not.toHaveBeenCalled(); expect(container.textContent).toContain('setup.status.MAINTENANCE');
+    await renderEditor('REACTIVATE', 'T1'); await submit(); expect(fetch).not.toHaveBeenCalled(); expect(document.body.textContent).toContain('setup.status.MAINTENANCE');
   });
 });
 describe('P6-B1 rendered state and editor races', () => {
@@ -113,10 +116,10 @@ describe('P6-B1 rendered state and editor races', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ success: true, data: ctx }) })));
     const props = { projectId: 'P1', mutable: true, isCurrent: () => true, apply: vi.fn() };
     await act(async () => root.render(<FleetSetupWorkspace {...props} revision={1} />));
-    expect(container.textContent).toContain('T1');
+    expect(document.body.textContent).toContain('T1');
     vi.mocked(fetch).mockResolvedValue({ ok: false, status: 403 } as any);
     await act(async () => root.render(<FleetSetupWorkspace {...props} revision={2} />));
-    expect(container.textContent).not.toContain('T1'); expect(container.textContent).toContain('setup.errors.read'); expect(container.querySelector('select')).toBeNull();
+    expect(document.body.textContent).not.toContain('T1'); expect(document.body.textContent).toContain('setup.errors.read'); expect(document.body.querySelector('select')).toBeNull();
   });
   it.each(['Carrier', 'Material'] as const)('late %s refresh cannot close a B modal', async kind => {
     const pending = deferred(), onClose = vi.fn(), onCreated = vi.fn(() => pending.promise);
@@ -135,20 +138,20 @@ describe('P6-B1 rendered state and editor races', () => {
     ctx.fleet.rows[0].classification = classification;
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ success: true, data: ctx }) })));
     await act(async () => root.render(<FleetSetupWorkspace projectId="P1" mutable isCurrent={() => true} apply={vi.fn()} />));
-    expect(container.textContent).toContain(`setup.state.${classification}`); expect(container.textContent).toContain('T1');
-    expect(container.textContent).toContain('setup.unavailable'); expect(container.textContent).not.toContain('not a UI message');
-    if (classification === 'INTEGRITY_ERROR') expect(container.querySelector('select[aria-label="setup.actions T1"]')).toBeNull();
+    expect(document.body.textContent).toContain(`setup.state.${classification}`); expect(document.body.textContent).toContain('T1');
+    expect(document.body.textContent).toContain('setup.unavailable'); expect(document.body.textContent).not.toContain('not a UI message');
+    if (classification === 'INTEGRITY_ERROR') expect(document.body.querySelector('select[aria-label="setup.actions T1"]')).toBeNull();
   });
   it.each(['DRIVER', 'TRUCK', 'ASSIGNMENT'] as const)('late %s response cannot close or mutate a B editor', async mode => {
     const pending = deferred(), onClose = vi.fn(), refresh = vi.fn(async () => snapshot);
     vi.stubGlobal('fetch', vi.fn(() => pending.promise));
     await renderEditor(mode, mode === 'ASSIGNMENT' ? 'T1' : undefined, { onClose, refresh });
     if (mode === 'DRIVER') await change(inputs()[0], 'Driver');
-    if (mode !== 'ASSIGNMENT') { await change(inputs().at(-1)!, mode === 'DRIVER' ? '1234567890' : 'AAA'); await change(selects()[0], 'C1'); }
+    if (mode !== 'ASSIGNMENT') { await change(document.body.querySelector<HTMLInputElement>(`input[name="${mode==='DRIVER'?'residencyId':'plateNumber'}"]`)!, mode === 'DRIVER' ? '1234567890' : 'AAA'); await change(selects()[0], 'C1'); }
     else await change(selects()[0], 'D1');
     await submit(); await renderEditor('TRUCK', undefined, { onClose, refresh }, 'P2');
     await act(async () => pending.resolve(ok()));
-    expect(onClose).not.toHaveBeenCalled(); expect(refresh).not.toHaveBeenCalled(); expect(inputs()[0].disabled).toBe(false); expect(container.textContent).not.toContain('setup.errors.refresh');
+    expect(onClose).not.toHaveBeenCalled(); expect(refresh).not.toHaveBeenCalled(); expect(inputs()[0].disabled).toBe(false); expect(document.body.textContent).not.toContain('import.resolution.refresh');
   });
   it.each(['Carrier', 'Material'] as const)('late %s command cannot affect the reused B modal', async kind => {
     const pending = deferred(), onClose = vi.fn(), onCreated = vi.fn();
