@@ -27,6 +27,7 @@ export interface GoogleSpreadsheetItem {
 }
 
 export interface GoogleSheetsProcessOptions {
+  importBatchId?: string;
   sheetName?: string;
   headerRowIndex?: number;
   customMappings?: Record<string, string>;

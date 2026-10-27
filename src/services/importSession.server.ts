@@ -1,3 +1,6 @@
+import { validateSessionChunk } from './import/sessionArtifactCodec';
+import { assertSessionPayload, sessionError, validateDurableCheckpoint, prepareDurableBatch } from './import/durableSessionContract';
+import { packSessionArtifact, readSessionArtifact, validateManifest, SESSION_CHUNK_BYTES } from './importSessionArtifacts.server';
 import { decodePersistence } from '../utils/persistenceBoundary';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { adminDb } from '../firebase/admin';
@@ -106,8 +109,72 @@ export class ImportSessionServerService {
     this.db = db;
   }
 
+  private snapshotFields(value: any) {
+    const result: any = {};
+    for (const key of ['importBatch','reviewSnapshot','reviewedCanonicalIntent','entityResolutions','validationIssues']) if (value[key] !== undefined) result[key] = value[key];
+    if (result.importBatch) result.importBatch = prepareDurableBatch(result.importBatch);
+    if (result.importBatch?.metadata) { result.importBatch.metadata = { ...result.importBatch.metadata }; delete result.importBatch.metadata.reviewedCanonicalIntent; }
+    return result;
+  }
+
+  private async hydrateSnapshots(reader: (ref:any)=>Promise<any>, docRef:any, header:any) {
+    const keys = ['importBatch','reviewSnapshot','reviewedCanonicalIntent','entityResolutions','validationIssues'];
+    const references = header.artifactFields || (header.checkpointArtifact ? Object.fromEntries(keys.map(key=>[key,header.checkpointArtifact])) : {});
+    const cache = new Map<string,any>(); const result:any = {};
+    for (const key of keys) {
+      const manifest=references[key]; if(!manifest) continue;
+      const id=JSON.stringify(manifest);
+      if(!cache.has(id)) cache.set(id,await readSessionArtifact(reader,docRef,manifest));
+      const artifact=cache.get(id); if(Object.hasOwn(artifact,key)) result[key]=artifact[key];
+    }
+    return this.snapshotFields(result);
+  }
+
+  private writePacked(transaction: any, docRef: any, record: any, staged?: any, stagedUpdates?: any) {
+    const { importBatch, reviewSnapshot, reviewedCanonicalIntent, entityResolutions, validationIssues, checkpointArtifact: oldArtifact, artifactFields: oldFields, ...header } = record;
+    const keys=['importBatch','reviewSnapshot','reviewedCanonicalIntent','entityResolutions','validationIssues'];
+    const allSnapshots:any={importBatch,reviewSnapshot,reviewedCanonicalIntent,entityResolutions,validationIssues};
+    const fields={...(oldFields || (oldArtifact ? Object.fromEntries(keys.map(key=>[key,oldArtifact])) : {}))};
+    const changed=stagedUpdates ? keys.filter(key=>Object.hasOwn(stagedUpdates,key) || stagedUpdates.replaceSource === true) : keys;
+    const snapshots=sanitizeUndefined(Object.fromEntries(changed.filter(key=>record[key]!==undefined).map(key=>[key,allSnapshots[key]])));
+    for(const key of keys) if(record[key]===undefined || (stagedUpdates?.replaceSource && record[key]===null)) delete fields[key];
+    header.reviewAcceptance=reviewedCanonicalIntent ? {acceptedAt:reviewedCanonicalIntent.acceptedAt,acceptedBy:reviewedCanonicalIntent.acceptedBy} : null;
+    header.hasReviewedIntent=Boolean(reviewedCanonicalIntent);
+    if(staged) {
+      for(const key of changed) if(record[key]!==undefined && !(stagedUpdates?.replaceSource && record[key]===null)) fields[key]=staged;
+      transaction.set(docRef,sanitizeUndefined({...header,checkpointArtifact:staged,artifactFields:fields}));return;
+    }
+    if(!Object.keys(snapshots).length) {
+      transaction.set(docRef,sanitizeUndefined({...header,checkpointArtifact:oldArtifact,artifactFields:fields}));return;
+    }
+    const packed=packSessionArtifact(snapshots);
+    if(packed.chunks.length>32) sessionError('IMPORT_SESSION_REQUIRES_STAGED_ARTIFACT');
+    packed.chunks.forEach((text,index)=>transaction.set(docRef.collection('checkpointChunks').doc(`${packed.manifest.artifactId}_${index}`),{...packed.manifest,index,text}));
+    for(const key of Object.keys(snapshots)) fields[key]=packed.manifest;
+    transaction.set(docRef,sanitizeUndefined({...header,checkpointArtifact:packed.manifest,artifactFields:fields}));
+  }
+
+  private async stageChunk(projectId: string, id: string, chunk: any, expectedVersion: number, context: AuthUserContext) {
+    validateManifest(chunk); assertSessionPayload(chunk);
+    validateSessionChunk(chunk.text);
+    if (!Number.isSafeInteger(chunk.index) || chunk.index < 0 || chunk.index >= chunk.count || typeof chunk.text !== 'string' || Buffer.byteLength(chunk.text) > SESSION_CHUNK_BYTES) sessionError('INVALID_IMPORT_SESSION_ARTIFACT');
+    const ref = this.db.collection('projects').doc(projectId).collection('importSessions').doc(id);
+    await this.db.runTransaction(async (transaction: any) => {
+      const snap = await transaction.get(ref); const existing = snap.exists ? snap.data() : null;
+      if (!existing || existing.projectId !== projectId) sessionError('IMPORT_SESSION_NOT_FOUND');
+      if (existing.version !== expectedVersion) throw Object.assign(new Error('VERSION_CONFLICT'), { code: 'VERSION_CONFLICT', serverVersion: existing.version });
+      if (['COMMITTED','CANCELLED','FAILED_TERMINAL','COMMITTING'].includes(existing.lifecycleState)) sessionError('INVALID_IMPORT_SESSION_TRANSITION');
+      const chunkRef = ref.collection('checkpointChunks').doc(`${chunk.artifactId}_${chunk.index}`);
+      const old = await transaction.get(chunkRef);
+      const stagedChunk = { ...chunk, stagedVersion: expectedVersion };
+      if (old.exists && JSON.stringify(old.data()) !== JSON.stringify(stagedChunk)) sessionError('IMMUTABLE_IMPORT_SESSION_ARTIFACT');
+      transaction.set(chunkRef, stagedChunk);
+    });
+    return { staged: true, version: expectedVersion };
+  }
+
   async createSession(projectId: string, payload: any, context: AuthUserContext) {
-    if (!context || !['PROJECT_ADMIN', 'SUPER_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SITE_SUPERVISOR', 'FINANCE_AUDITOR'].includes(context.role)) {
+    if (!context || !['PROJECT_ADMIN', 'SUPER_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SITE_SUPERVISOR'].includes(context.role)) {
       const err: any = new Error('غير مصرح لك بإنشاء جلسات الاستيراد');
       err.code = 'AUTHORIZATION_ERROR';
       throw err;
@@ -125,6 +192,9 @@ export class ImportSessionServerService {
       throw err;
     }
 
+    assertSessionPayload(payload);
+    if (payload.schemaVersion !== undefined && payload.schemaVersion !== 2) sessionError('UNSUPPORTED_IMPORT_SESSION_SCHEMA');
+    if (payload.mapping !== undefined || payload.reviewedCanonicalIntent !== undefined) sessionError('INVALID_IMPORT_SESSION_TRANSITION');
     if (hasForbiddenFields(payload)) {
       const err: any = new Error('يُحظر تضمين كائنات الملفات (File objects) أو الرموز السرية/الحساسة في جلسة الاستيراد بجميع المستويات');
       err.code = 'INVALID_PAYLOAD_FORBIDDEN_FIELDS';
@@ -137,26 +207,30 @@ export class ImportSessionServerService {
 
     const now = new Date().toISOString();
 
-    const sessionRecord = {
+    const sessionRecord: any = {
+      schemaVersion: 2,
+      domain: payload.domain,
+      source: payload.source,
+      mapping: payload.mapping,
       importSessionId,
       projectId,
       operationId,
       importBatchId,
-      sourceType: payload.sourceType || 'EXCEL_CSV',
-      lifecycleState: payload.lifecycleState || payload.state || 'SOURCE',
-      currentStage: payload.currentStage || 'PARSING',
+      sourceType: payload.sourceType,
+      lifecycleState: payload.lifecycleState || 'SOURCE',
+      currentStage: payload.currentStage || (payload.domain === 'ROSTER' ? 'SOURCE_DISCOVERY' : 'PARSING'),
       version: 1,
       createdAt: now,
       updatedAt: now,
       createdBy: context.userId,
       updatedBy: context.userId,
       sourceMetadata: payload.sourceMetadata || {},
-      reviewSnapshot: payload.reviewSnapshot || {},
+      reviewSnapshot: payload.reviewSnapshot ?? null,
       entityResolutions: payload.entityResolutions || {},
       reviewAction: payload.reviewAction || null,
       validationIssues: payload.validationIssues || [],
       warningConfirmation: payload.warningConfirmation || false,
-      rosterStage: payload.rosterStage || 'SOURCE_DISCOVERY',
+      ...(payload.domain === 'ROSTER' ? { rosterStage: payload.rosterStage || 'SOURCE_DISCOVERY' } : {}),
       importBatch: payload.importBatch || null,
       smartImportCommitResult: payload.smartImportCommitResult || null,
       isRosterMappingApproved: payload.isRosterMappingApproved ?? false,
@@ -165,6 +239,7 @@ export class ImportSessionServerService {
 
     const docRef = this.db.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
 
+    validateDurableCheckpoint(null, sessionRecord, context.userId, now);
     await this.db.runTransaction(async (transaction: any) => {
       const docSnap = await transaction.get(docRef);
       if (docSnap.exists) {
@@ -172,7 +247,7 @@ export class ImportSessionServerService {
         err.code = 'SESSION_ALREADY_EXISTS';
         throw err;
       }
-      transaction.set(docRef, sanitizeUndefined(sessionRecord));
+      this.writePacked(transaction, docRef, sessionRecord);
     });
 
     return sessionRecord;
@@ -202,7 +277,13 @@ export class ImportSessionServerService {
       throw err;
     }
 
-    return decodePersistence<Record<string, any>>(data, { id: ['importSessionId', importSessionId], projectId, times: { createdAt: 'iso', updatedAt: 'iso' } });
+    if (data.schemaVersion !== undefined && ![1,2].includes(data.schemaVersion)) sessionError('UNSUPPORTED_IMPORT_SESSION_SCHEMA');
+    const hydrated = data.checkpointArtifact ? { ...data, ...await this.hydrateSnapshots(ref => ref.get(), docRef, data) } : data;
+    if (data.hasReviewedIntent === false) delete hydrated.reviewedCanonicalIntent;
+    if (hydrated.reviewedCanonicalIntent && data.reviewAcceptance) Object.assign(hydrated.reviewedCanonicalIntent, data.reviewAcceptance);
+    // The header is current warning consent; an older row artifact cannot revive revoked consent.
+    if (data.schemaVersion === 2 && data.warningConfirmation === false && hydrated.importBatch) { hydrated.importBatch = {...hydrated.importBatch}; delete hydrated.importBatch.warningConfirmation; }
+    return decodePersistence<Record<string, any>>(hydrated, { id: ['importSessionId', importSessionId], projectId, times: { createdAt: 'iso', updatedAt: 'iso' } });
   }
 
   async updateCheckpoint(
@@ -212,7 +293,7 @@ export class ImportSessionServerService {
     concurrency: { expectedVersion: number },
     context: AuthUserContext
   ) {
-    if (!context || !['PROJECT_ADMIN', 'SUPER_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SITE_SUPERVISOR', 'FINANCE_AUDITOR'].includes(context.role)) {
+    if (!context || !['PROJECT_ADMIN', 'SUPER_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SITE_SUPERVISOR'].includes(context.role)) {
       const err: any = new Error('غير مصرح لك بتعديل جلسات الاستيراد');
       err.code = 'AUTHORIZATION_ERROR';
       throw err;
@@ -224,6 +305,8 @@ export class ImportSessionServerService {
       throw err;
     }
 
+    if (updates.artifactChunk) return this.stageChunk(projectId, importSessionId, updates.artifactChunk, concurrency.expectedVersion, context);
+    assertSessionPayload(updates);
     if (hasForbiddenFields(updates)) {
       const err: any = new Error('يُحظر تضمين كائنات الملفات (File objects) أو الرموز السرية/الحساسة في تحديث جلسة الاستيراد');
       err.code = 'INVALID_PAYLOAD_FORBIDDEN_FIELDS';
@@ -233,6 +316,7 @@ export class ImportSessionServerService {
     const docRef = this.db.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
 
     let updatedRecord: any = null;
+    const staged = updates.checkpointArtifact;
 
     await this.db.runTransaction(async (transaction: any) => {
       const docSnap = await transaction.get(docRef);
@@ -255,9 +339,17 @@ export class ImportSessionServerService {
       if (existing.version !== concurrency.expectedVersion) {
         const err: any = new Error(`تعارض إصدار (VERSION_CONFLICT): المتوقع ${concurrency.expectedVersion}، الحالي ${existing.version}`);
         err.code = 'VERSION_CONFLICT';
+        err.serverVersion = existing.version;
         throw err;
       }
 
+      if (existing.checkpointArtifact) existing = { ...existing, ...await this.hydrateSnapshots(ref => transaction.get(ref), docRef, existing) };
+      if (existing.hasReviewedIntent === false) delete existing.reviewedCanonicalIntent;
+      if (existing.reviewedCanonicalIntent && existing.reviewAcceptance) Object.assign(existing.reviewedCanonicalIntent,existing.reviewAcceptance);
+      if (updates.checkpointArtifact) {
+        updates = await readSessionArtifact(ref => transaction.get(ref), docRef, updates.checkpointArtifact, concurrency.expectedVersion);
+        assertSessionPayload(updates);
+      }
       if (updates.importSessionId !== undefined && updates.importSessionId !== existing.importSessionId) {
         const err: any = new Error('تغيير معرف جلسة الاستيراد (importSessionId) محظور');
         err.code = 'IMMUTABLE_IDENTITY_VIOLATION';
@@ -294,6 +386,22 @@ export class ImportSessionServerService {
         throw err;
       }
 
+      const allowed = new Set(['targetLifecycleState','lifecycleState','currentStage','rosterStage','importBatch','reviewSnapshot','reviewedCanonicalIntent','source','mapping','sourceMetadata','rosterDiscoveryResult','smartImportCommitResult','isRosterMappingApproved','warningConfirmation','validationIssues','entityResolutions','reviewAction','invalidateReview','replaceSource','importSessionId','projectId','operationId','importBatchId','createdAt','createdBy','version']);
+      if (Object.keys(updates).some(key => !allowed.has(key))) sessionError('INVALID_IMPORT_SESSION_CHECKPOINT');
+      if (updates.targetLifecycleState) { updates.lifecycleState = updates.targetLifecycleState; delete updates.targetLifecycleState; }
+      if (existing.domain === 'TRIP') {
+        if (updates.lifecycleState === 'REVIEW_REQUIRED') updates.lifecycleState = 'REVIEW';
+        if (updates.lifecycleState === 'FAILED') updates.lifecycleState = 'FAILED_RECOVERABLE';
+        delete updates.rosterStage;
+      }
+      const targetState = updates.lifecycleState || existing.lifecycleState;
+      if (existing.domain === 'ROSTER') {
+        const stageByState: Record<string,string> = { SOURCE:'SOURCE_DISCOVERY', DISCOVERED:'MAPPING_APPROVAL', MAPPING:'MAPPING_APPROVAL', RESOLUTION:'CARRIER_RESOLUTION', REVIEW:'FINAL_REVIEW', INTENT_REVIEWED:'FINAL_REVIEW', CANCELLED:'SOURCE_DISCOVERY' };
+        if (updates.lifecycleState && updates.lifecycleState !== existing.lifecycleState && !updates.rosterStage) updates.rosterStage = stageByState[targetState];
+        if (updates.rosterStage && !updates.currentStage) updates.currentStage = updates.rosterStage;
+      } else if (updates.lifecycleState && updates.lifecycleState !== existing.lifecycleState && !updates.currentStage) {
+        updates.currentStage = ({ SOURCE:'PARSING', DISCOVERED:'DISCOVERY', MAPPING:'MAPPING_APPROVAL', RESOLUTION:'RESOLUTION', REVIEW:'REVIEW', COMMITTING:'COMMITTING', COMMITTED:'COMMITTED', CANCELLED:'CANCELLED', FAILED_RECOVERABLE:'REVIEW' } as Record<string,string>)[targetState];
+      }
       const now = new Date().toISOString();
 
       updatedRecord = {
@@ -310,14 +418,26 @@ export class ImportSessionServerService {
         updatedBy: context.userId,
       };
 
-      transaction.set(docRef, sanitizeUndefined(updatedRecord));
+      if (updates.replaceSource === true) {
+        if (updatedRecord.lifecycleState !== 'DISCOVERED') sessionError('INVALID_IMPORT_SESSION_TRANSITION');
+        updatedRecord.mapping = null; updatedRecord.importBatch = null; updatedRecord.reviewSnapshot = null;
+        updatedRecord.reviewedCanonicalIntent = null; updatedRecord.isRosterMappingApproved = false;
+      }
+      if (existing.reviewedCanonicalIntent && !updates.reviewedCanonicalIntent && (['importBatch','reviewSnapshot','mapping'].some(key => updates[key] !== undefined && JSON.stringify(updates[key]) !== JSON.stringify(existing[key])) || updates.warningConfirmation !== undefined && updates.warningConfirmation !== existing.warningConfirmation)) {
+        updatedRecord.invalidateReview = true;
+        if (updatedRecord.lifecycleState === 'INTENT_REVIEWED') { updatedRecord.lifecycleState = 'REVIEW'; updatedRecord.currentStage = 'FINAL_REVIEW'; updatedRecord.rosterStage = 'FINAL_REVIEW'; }
+      }
+      if (existing.schemaVersion === 2 && updatedRecord.importBatch) updatedRecord.importBatch = prepareDurableBatch(updatedRecord.importBatch);
+      if (existing.schemaVersion === 2 && updatedRecord.warningConfirmation === false && updatedRecord.importBatch) { updatedRecord.importBatch={...updatedRecord.importBatch}; delete updatedRecord.importBatch.warningConfirmation; }
+      validateDurableCheckpoint(existing, updatedRecord, context.userId, now);
+      this.writePacked(transaction, docRef, updatedRecord, staged, updates);
     });
 
     return updatedRecord;
   }
 
   async listResumableSessions(projectId: string, context: AuthUserContext) {
-    if (!context || !['PROJECT_ADMIN', 'SUPER_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SITE_SUPERVISOR', 'FINANCE_AUDITOR'].includes(context.role)) {
+    if (!context || !['PROJECT_ADMIN', 'SUPER_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SITE_SUPERVISOR'].includes(context.role)) {
       const err: any = new Error('غير مصرح لك باستعراض جلسات الاستيراد');
       err.code = 'AUTHORIZATION_ERROR';
       throw err;
@@ -330,18 +450,16 @@ export class ImportSessionServerService {
     }
 
     const colRef = this.db.collection('projects').doc(projectId).collection('importSessions');
-    const snapshot = await colRef.orderBy('updatedAt', 'desc').get();
+    const snapshot = await colRef.get();
 
-    const allSessions: any[] = [];
-    snapshot.forEach((doc: any) => {
-      const data = doc.data();
-      if (data && data.projectId === projectId) {
-        allSessions.push(decodePersistence(data, { id: ['importSessionId', doc.id], projectId, times: { createdAt: 'iso', updatedAt: 'iso' } }));
-      }
-    });
+    const documents: any[] = [];
+    const append = (doc: any) => { if (doc.data()?.projectId === projectId && doc.data()?.createdBy === context.userId) documents.push(doc); };
+    if (Array.isArray(snapshot.docs)) snapshot.docs.forEach(append); else snapshot.forEach(append);
+    const allSessions: any[] = documents.map(doc => decodePersistence<Record<string,any>>(doc.data(), {id:['importSessionId',doc.id],projectId,times:{createdAt:'iso',updatedAt:'iso'}}));
 
     const resumable = allSessions.filter((s) => {
-      if (s.lifecycleState === 'COMMITTED' || s.lifecycleState === 'CANCELLED' || s.lifecycleState === 'REJECTED') {
+      if (s.schemaVersion !== undefined && ![1,2].includes(s.schemaVersion)) return false;
+      if (s.lifecycleState === 'COMMITTED' || s.lifecycleState === 'CANCELLED' || s.lifecycleState === 'REJECTED' || s.lifecycleState === 'FAILED_TERMINAL' || s.lifecycleState === 'COMMITTING') {
         return false;
       }
       if (s.importBatch?.commitStatus === 'COMMITTED') {
@@ -359,7 +477,7 @@ export class ImportSessionServerService {
       return true;
     });
 
-    return resumable;
+    return resumable.sort((a,b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || String(a.importSessionId).localeCompare(String(b.importSessionId))).map(({importBatch:_batch,reviewSnapshot:_snapshot,reviewedCanonicalIntent:_intent,entityResolutions:_resolutions,validationIssues:_issues,...header})=>header);
   }
 }
 

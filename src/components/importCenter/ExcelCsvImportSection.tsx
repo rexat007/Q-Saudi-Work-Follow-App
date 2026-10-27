@@ -1,3 +1,4 @@
+import { acceptedSourceRevision, prepareDurableBatch, reconstructSmartImportResumeState, sourceFingerprint, verifySourceReattach } from '../../services/import/durableSessionContract';
 import { ContextualCanonicalCreation } from '../import/ContextualCanonicalCreation';
 import { ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { CanonicalResolutionDecision } from '../import/CanonicalResolutionDecision';
@@ -109,6 +110,26 @@ function ExcelCsvImportContent({
   const [activeOperationId, setActiveOperationId] = useState<string | null>(null);
   const [activeImportBatchId, setActiveImportBatchId] = useState<string | null>(null);
   const [sessionVersion, setSessionVersion] = useState<number>(0);
+  const [checkpointStatus, setCheckpointStatus] = useState<'SAVED'|'SAVING'|'UNSAVED'|'CONFLICT'>('SAVED');
+  const checkpointPending = useRef(0);
+  const checkpointFailed = useRef(false);
+  const pendingCheckpoint = useRef<Parameters<typeof importSessionClientService.updateCheckpoint> | null>(null);
+  const saveSessionCheckpoint = async (...args: Parameters<typeof importSessionClientService.updateCheckpoint>) => {
+    checkpointPending.current++; setCheckpointStatus('SAVING');
+    try {
+      const saved = await importSessionClientService.updateCheckpoint(...args);
+      if (isImportCurrent()) { checkpointFailed.current=false; pendingCheckpoint.current=null; setCheckpointStatus('SAVED'); }
+      return saved;
+    } catch (error: any) {
+      if (isImportCurrent()) {
+        checkpointFailed.current=true;
+        if (error.code === 'VERSION_CONFLICT') { pendingCheckpoint.current=null; setCheckpointStatus('CONFLICT'); setSessionVersion(-1); }
+        else { pendingCheckpoint.current=args; setCheckpointStatus('UNSAVED'); }
+      }
+      throw error;
+    } finally { checkpointPending.current--; }
+  };
+
   const [requiresSourceFileReattach, setRequiresSourceFileReattach] = useState<boolean>(false);
 
   // Pipeline Batch State
@@ -221,13 +242,14 @@ function ExcelCsvImportContent({
             }),
           };
 
-          const updatedSession = await importSessionClientService.updateCheckpoint(
+          const updatedSession = await saveSessionCheckpoint(
             currentProjectId,
             activeSessionId,
             {
               lifecycleState: 'REVIEW_REQUIRED',
               currentStage: 'REVIEW',
               reviewSnapshot: cleanSnapshot,
+              importBatch: prepareDurableBatch(updated),
               validationIssues: updated.issues || [],
               warningConfirmation: confirmWarnings,
               reviewAction: {
@@ -246,7 +268,8 @@ function ExcelCsvImportContent({
           if (err?.code === 'VERSION_CONFLICT') {
             setProcessError(t('entityResolution.messages.version_conflict_correction'));
           } else {
-            console.warn('Failed to update session checkpoint:', err);
+            setProcessError(t('entityResolution.messages.review_save_failed'));
+            return;
           }
         }
       }
@@ -320,13 +343,14 @@ function ExcelCsvImportContent({
           }),
         };
 
-        const updatedSession = await importSessionClientService.updateCheckpoint(
+        const updatedSession = await saveSessionCheckpoint(
           currentProjectId,
           activeSessionId,
           {
             lifecycleState: 'REVIEW_REQUIRED',
             currentStage: 'REVIEW',
             reviewSnapshot: cleanSnapshot,
+              importBatch: prepareDurableBatch(updated),
             validationIssues: updated.issues || [],
             warningConfirmation: confirmWarnings,
             reviewAction: { normalizedSourceKey, entityType: entityTypeKey, action: decision as any },
@@ -423,69 +447,31 @@ function ExcelCsvImportContent({
         setConfirmWarnings(Boolean(sessionRecord.warningConfirmation));
         setRequiresSourceFileReattach(resumedState.requiresSourceFileReattach);
 
-        if (resumedState.reviewSnapshot) {
-          const snapshot = resumedState.reviewSnapshot;
-          const rows: ImportRow[] = snapshot.rows || [];
-          const issues = sessionRecord.validationIssues || snapshot.issues || [];
-
-          // Derive counts deterministically from rows/snapshot if missing
-          const totalRows = snapshot.totalRows ?? rows.length;
-          const validRows = snapshot.validRows ?? rows.filter((r) => r.status === 'VALID' || r.reviewStatus === 'accepted').length;
-          const warningRows = snapshot.warningRows ?? rows.filter((r) => r.status === 'WARNING' || r.reviewStatus === 'warning').length;
-          const errorRows = snapshot.errorRows ?? rows.filter((r) => r.status === 'ERROR' || r.reviewStatus === 'error').length;
-          const requiresReviewRows = snapshot.requiresReviewRows ?? rows.filter((r) => r.reviewStatus === 'requires_review').length;
-          const committedRows = snapshot.committedRows ?? 0;
-
-          const batch: UnifiedImportBatch = {
-            importBatchId: sessionRecord.importBatchId,
-            projectId: sessionRecord.projectId,
-            source: {
-              sourceType: (sessionRecord.sourceType as any) || 'EXCEL_CSV',
-              importBatchId: sessionRecord.importBatchId,
-              sourceFileName: sessionRecord.sourceMetadata?.sourceFileName || 'resumed_file.xlsx',
-              sourceMimeType: sessionRecord.sourceMetadata?.sourceMimeType,
-              sourceSheetName: sessionRecord.sourceMetadata?.sourceSheetName,
-            },
-            currentStage: (sessionRecord.currentStage as any) || 'REVIEW',
-            validationStatus: snapshot.validationStatus || 'PASSED',
-            commitStatus: sessionRecord.lifecycleState === 'COMMITTED' ? 'COMMITTED' : 'AWAITING_REVIEW',
-            totalRows,
-            validRows,
-            warningRows,
-            errorRows,
-            requiresReviewRows,
-            committedRows,
-            rows,
-            issues,
-            operationId: sessionRecord.operationId,
-            createdAt: sessionRecord.createdAt,
-            createdBy: sessionRecord.createdBy,
-            warningConfirmation: sessionRecord.warningConfirmation !== undefined ? {
-              confirmed: Boolean(sessionRecord.warningConfirmation),
-              confirmedBy: sessionRecord.createdBy || 'user',
-              confirmedAt: sessionRecord.updatedAt || sessionRecord.createdAt,
-            } : undefined,
-            auditTrail: [
-              {
-                timestamp: sessionRecord.updatedAt || sessionRecord.createdAt,
-                userId: sessionRecord.createdBy || 'system',
-                action: 'SESSION_RESUMED',
-                details: 'Resumed import session from server persistence',
-              },
-            ],
-          };
-
-          setActiveBatch(batch);
-
-          if (batch.rows.length > 0 && batch.rows[0].raw) {
-            const rawHeaders = Object.keys(batch.rows[0].raw).filter((k) => !k.startsWith('_'));
-            const mappings = ExcelCsvPipelineService.inspectColumnMappings(rawHeaders);
-            setColumnMappings(mappings);
-          }
+        const facts = reconstructSmartImportResumeState(sessionRecord, currentProjectId);
+        const discovery = sessionRecord.sourceMetadata?.discovery || facts.sourceRevision?.discovery;
+        if (discovery && Array.isArray(discovery.detectedHeaders) && Array.isArray(discovery.availableSheets) && Number.isInteger(discovery.detectedHeaderRowIndex)) {
+          setDiscoveryResult(discovery);
+          setAvailableSheets(discovery.availableSheets);
+          setSelectedSheet(sessionRecord.sourceMetadata?.sourceSheetName ?? discovery.selectedSheet ?? '');
+          setHeaderRowIndex(sessionRecord.sourceMetadata?.headerRowIndex ?? discovery.detectedHeaderRowIndex);
+          // Persisted diagnostics are suggestions until a new approval ACK; never infer approved mapping.
+          const suggestions = Object.fromEntries(discovery.detectedHeaders.map((header: string) => [header, discovery.mappingDiagnostics?.[header]?.canonicalField || 'unmapped']));
+          setCustomMappingOverrides(sessionRecord.sourceMetadata?.customMappings || suggestions);
         }
+
+        if (facts.reviewSnapshot) {
+          // Existing canonical provider refresh is mandatory before restored rows become actionable.
+          const refreshed = await requireCurrentContext();
+          if (!isImportCurrent()) return;
+          const stored = facts.reviewSnapshot;
+          if (!stored.source || !Array.isArray(stored.rows) || stored.projectId !== currentProjectId) throw Error('INVALID_IMPORT_SESSION_BATCH');
+          const restored = ExcelCsvPipelineService.revalidateBatch(stored, refreshed);
+          setActiveBatch(restored);
+        }
+
       } catch {
     if (!isImportCurrent()) return;
-        sessionStorage.removeItem(locatorKey);
+        setProcessError(t('projects.batch4.import_restore_invalid'));
       }
     };
 
@@ -498,6 +484,22 @@ function ExcelCsvImportContent({
 
   const handleFileSelect = async (file: File) => {
     if (!isImportCurrent()) return;
+    if (requiresSourceFileReattach && activeSessionId && currentProjectId) {
+      try {
+        const session = await importSessionClientService.getSession(currentProjectId, activeSessionId);
+        if (!isImportCurrent()) return;
+        const source = (session as any).source || (session.schemaVersion === 2 && session.lifecycleState === 'SOURCE' ? acceptedSourceRevision(session.sourceType, session.sourceMetadata) : null);
+        if (!source || !await verifySourceReattach(source, file)) { setProcessError(t('projects.batch4.import_restore_invalid')); return; }
+        if (!isImportCurrent()) return;
+        if (!session.source) {
+          const accepted = await saveSessionCheckpoint(currentProjectId, activeSessionId, {lifecycleState:'DISCOVERED',currentStage:'DISCOVERY',source}, session.version);
+          if (!isImportCurrent()) return;
+          setSessionVersion(accepted.version);
+        }
+        setSelectedFile(file); setFileBuffer(await file.arrayBuffer()); setRequiresSourceFileReattach(false); return;
+      } catch { if (isImportCurrent()) setProcessError(t('projects.batch4.import_restore_invalid')); return; }
+    }
+    if (activeSessionId) { await handleReset(); if (!isImportCurrent() || checkpointFailed.current) return; }
     setSelectedFile(file);
     setProcessError(null);
     setCommitResult(null);
@@ -572,9 +574,11 @@ function ExcelCsvImportContent({
             operationId: opId || `OP-${Date.now()}`,
             importBatchId: batchId || `BAT-${Date.now()}`,
             sourceType,
-            lifecycleState: 'MAPPING_REQUIRED',
-            currentStage: 'DISCOVERY',
+            lifecycleState: 'SOURCE',
+            currentStage: 'PARSING',
             sourceMetadata: {
+              fingerprint: await sourceFingerprint(buffer),
+              discovery,
               sourceFileName: file.name,
               sourceMimeType: file.type,
               fileSize: file.size,
@@ -597,9 +601,17 @@ function ExcelCsvImportContent({
               importSessionId: createdSessionId,
             })
           );
+          const accepted = await saveSessionCheckpoint(currentProjectId, createdSessionId, {
+            lifecycleState:'DISCOVERED', currentStage:'DISCOVERY',
+            source:acceptedSourceRevision(sourceType, { sourceFileName:file.name, fileSize:file.size, sourceMimeType:file.type, fingerprint:await sourceFingerprint(buffer), discovery }),
+          }, createdVersion);
+          if (!isImportCurrent()) return;
+          setSessionVersion(accepted.version);
+
         } catch (err: any) {
     if (!isImportCurrent()) return;
-          console.warn('Session creation notice:', err);
+          setProcessError(t('entityResolution.messages.session_create_stopped'));
+          return;
         }
       }
 
@@ -707,8 +719,9 @@ function ExcelCsvImportContent({
   };
 
   const handleApproveAndStartPipeline = async () => {
+    if (checkpointPending.current || checkpointFailed.current) { setProcessError(t('projects.batch4.checkpoint_persistence_failed')); return; }
     if (!isImportCurrent()) return;
-    if (!selectedFile || !fileBuffer) return;
+    if (!activeSessionId || !selectedFile || !fileBuffer) return;
     try {
       setIsProcessing(true);
       setProcessError(null);
@@ -730,6 +743,13 @@ function ExcelCsvImportContent({
       };
     if (!isImportCurrent()) return;
 
+      const mapped = await saveSessionCheckpoint(currentProjectId, activeSessionId, {
+        lifecycleState:'MAPPING', currentStage:'MAPPING_APPROVAL',
+        sourceMetadata:{ sourceFileName:selectedFile.name, sourceMimeType:selectedFile.type, fileSize:selectedFile.size, sourceSheetName:selectedSheet, headerRowIndex, discovery:discoveryResult, customMappings:approvedMappings },
+      }, sessionVersion);
+      if (!isImportCurrent()) return;
+      setSessionVersion(mapped.version);
+
       const batch = await ExcelCsvPipelineService.processFileToReview(
         fileBuffer,
         selectedFile.name,
@@ -745,7 +765,7 @@ function ExcelCsvImportContent({
       );
     if (!isImportCurrent()) return;
 
-      setActiveBatch(batch);
+      // Working analysis is retained on failure, but only ACK marks it resumable.
 
       // Inspect column mappings
       if (batch.rows.length > 0 && batch.rows[0].raw) {
@@ -770,13 +790,14 @@ function ExcelCsvImportContent({
             }),
           };
 
-          const updatedSession = await importSessionClientService.updateCheckpoint(
+          const updatedSession = await saveSessionCheckpoint(
             currentProjectId,
             activeSessionId,
             {
               lifecycleState: 'REVIEW_REQUIRED',
               currentStage: 'REVIEW',
               reviewSnapshot: cleanSnapshot,
+              importBatch: prepareDurableBatch(batch),
               validationIssues: batch.issues || [],
               warningConfirmation: confirmWarnings,
               sourceMetadata: {
@@ -785,20 +806,23 @@ function ExcelCsvImportContent({
                 fileSize: selectedFile.size,
                 sourceSheetName: selectedSheet,
                 headerRowIndex,
+                discovery: discoveryResult,
                 customMappings: approvedMappings,
               },
             },
-            sessionVersion
+            mapped.version
           );
     if (!isImportCurrent()) return;
 
           setSessionVersion(updatedSession.version);
+          setActiveBatch(batch);
         } catch (err: any) {
     if (!isImportCurrent()) return;
           if (err?.code === 'VERSION_CONFLICT') {
             setProcessError(t('entityResolution.messages.version_conflict_refresh'));
           } else {
-            console.warn('Failed to update session checkpoint:', err);
+            setProcessError(t('entityResolution.messages.review_save_failed'));
+            return;
           }
         }
       }
@@ -838,13 +862,14 @@ function ExcelCsvImportContent({
           }),
         };
 
-        const updatedSession = await importSessionClientService.updateCheckpoint(
+        const updatedSession = await saveSessionCheckpoint(
           currentProjectId,
           activeSessionId,
           {
             lifecycleState: 'REVIEW_REQUIRED',
             currentStage: 'REVIEW',
             reviewSnapshot: cleanSnapshot,
+              importBatch: prepareDurableBatch(updated),
             validationIssues: updated.issues || [],
             warningConfirmation: confirmWarnings,
             reviewAction: { rowNumber, action },
@@ -870,7 +895,7 @@ function ExcelCsvImportContent({
     setConfirmWarnings(checked);
     if (currentProjectId && activeSessionId) {
       try {
-        const updatedSession = await importSessionClientService.updateCheckpoint(
+        const updatedSession = await saveSessionCheckpoint(
           currentProjectId,
           activeSessionId,
           {
@@ -892,6 +917,8 @@ function ExcelCsvImportContent({
   };
 
   const handleCommit = async () => {
+    if (checkpointPending.current || checkpointFailed.current) { setProcessError(t('projects.batch4.checkpoint_persistence_failed')); return; }
+
     if (!isImportCurrent()) return;
     if (!activeBatch) return;
     try {
@@ -911,7 +938,7 @@ function ExcelCsvImportContent({
       if (result.success) {
         if (currentProjectId && activeSessionId) {
           try {
-            const updatedSession = await importSessionClientService.updateCheckpoint(
+            const updatedSession = await saveSessionCheckpoint(
               currentProjectId,
               activeSessionId,
               {
@@ -953,13 +980,14 @@ function ExcelCsvImportContent({
               }),
             };
 
-            const updatedSession = await importSessionClientService.updateCheckpoint(
+            const updatedSession = await saveSessionCheckpoint(
               currentProjectId,
               activeSessionId,
               {
                 lifecycleState: 'REVIEW_REQUIRED',
                 currentStage: 'REVIEW',
                 reviewSnapshot: cleanSnapshot,
+              importBatch: prepareDurableBatch(batch),
                 validationIssues: result.issues || batch.issues || [],
                 warningConfirmation: confirmWarnings,
                 reviewAction: {
@@ -987,7 +1015,16 @@ function ExcelCsvImportContent({
     }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
+    if (activeSessionId && currentProjectId) {
+      try {
+        const current = await importSessionClientService.getSession(currentProjectId, activeSessionId);
+        if (!isImportCurrent()) return;
+        const saved = ['COMMITTED','CANCELLED'].includes(current.lifecycleState) ? current : await saveSessionCheckpoint(currentProjectId, activeSessionId, { lifecycleState: 'CANCELLED', currentStage: 'SOURCE_DISCOVERY', rosterStage: 'SOURCE_DISCOVERY' }, sessionVersion);
+        if (!isImportCurrent()) return;
+        setSessionVersion(saved.version);
+      } catch { if (isImportCurrent()) setProcessError(t('entityResolution.messages.review_save_failed')); return; }
+    }
     if (currentProjectId) {
       sessionStorage.removeItem(`qsaudi_import_session_locator_${currentProjectId}`);
     }
@@ -1029,6 +1066,12 @@ function ExcelCsvImportContent({
 
   return (
     <div className="space-y-6" dir={direction}>
+      {checkpointStatus === 'SAVING' && <p role="status">{t('entityResolution.labels.saving')}</p>}
+      {(checkpointStatus === 'UNSAVED' || checkpointStatus === 'CONFLICT') && <div role="alert" className="p-3 text-rose-600">
+        <p>{t(checkpointStatus === 'CONFLICT' ? 'entityResolution.messages.version_conflict_refresh' : 'projects.batch4.checkpoint_persistence_failed')}</p>
+        {checkpointStatus === 'CONFLICT' ? <button onClick={() => window.location.reload()}>{t('shared.error_boundary.reload')}</button> : <button onClick={async () => { const command = pendingCheckpoint.current; if (!command) return; try { const saved=await saveSessionCheckpoint(...command); if(isImportCurrent()) { setSessionVersion(saved.version); window.location.reload(); } } catch { /* Working state and retry remain visible. */ } }}>{t('shared.error_boundary.retry')}</button>}
+      </div>}
+
       {/* Reattach Source File Banner */}
       {requiresSourceFileReattach && !fileBuffer && (
         <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
@@ -1075,7 +1118,7 @@ function ExcelCsvImportContent({
             </div>
           </div>
 
-          {(selectedFile || activeBatch) && (
+          {(selectedFile || activeBatch || activeSessionId) && (
             <div className="flex items-center gap-2">
               <button
                 onClick={handleReset}
@@ -1148,7 +1191,7 @@ function ExcelCsvImportContent({
             {activeBatch && (
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setActiveBatch(null)}
+                  onClick={handleReset}
                   className="px-3.5 py-1.5 rounded-lg bg-white border border-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-100 transition-colors cursor-pointer"
                 >
                   {t('batch4.presentation.reconfigure_mapping')}

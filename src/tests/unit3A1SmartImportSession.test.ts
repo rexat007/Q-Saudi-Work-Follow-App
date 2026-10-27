@@ -1,3 +1,4 @@
+import { makePersistedSessionFixture, sessionMapDatabase } from './helpers/importSessionFixtures';
 import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
 import { dictionaries } from '../locales';
 import { resolveTranslation } from '../i18n';
@@ -69,63 +70,16 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
 
   beforeEach(() => {
     mockFirestoreStore = new Map<string, any>();
-    mockAdminDb = {
-      collection: (colName: string) => ({
-        doc: (docId: string) => ({
-          collection: (subColName: string) => ({
-            doc: (subDocId: string) => {
-              const pathStr = `${colName}/${docId}/${subColName}/${subDocId}`;
-              return {
-                get: async () => {
-                  const data = mockFirestoreStore.get(pathStr);
-                  return {
-                    exists: Boolean(data),
-                    data: () => (data ? JSON.parse(JSON.stringify(data)) : undefined),
-                  };
-                },
-                set: async (val: any) => {
-                  mockFirestoreStore.set(pathStr, JSON.parse(JSON.stringify(val)));
-                },
-              };
-            },
-            orderBy: (field: string, direction: 'asc' | 'desc') => ({
-              get: async () => {
-                const prefix = `${colName}/${docId}/${subColName}/`;
-                const docs: any[] = [];
-                for (const [key, val] of mockFirestoreStore.entries()) {
-                  if (key.startsWith(prefix)) {
-                    docs.push({
-                      data: () => JSON.parse(JSON.stringify(val)),
-                    });
-                  }
-                }
-                docs.sort((a, b) => {
-                  const valA = a.data()[field] || '';
-                  const valB = b.data()[field] || '';
-                  if (direction === 'desc') {
-                    return valB.localeCompare(valA);
-                  }
-                  return valA.localeCompare(valB);
-                });
-                return {
-                  forEach: (cb: (d: any) => void) => docs.forEach(cb),
-                };
-              },
-            }),
-          }),
-        }),
-      }),
-      runTransaction: async (updateFunction: (transaction: any) => Promise<any>) => {
-        const tx = {
-          get: async (docRef: any) => docRef.get(),
-          set: (docRef: any, data: any) => docRef.set(data),
-        };
-        return updateFunction(tx);
-      },
-    };
+    mockAdminDb = sessionMapDatabase(mockFirestoreStore);
 
     serverService = new ImportSessionServerService(mockAdminDb);
   });
+
+  const seedSession = async (pid: string, payload: any, context: AuthUserContext) => {
+    const record = makePersistedSessionFixture(pid, context.userId, { importSessionId:`fixture-${payload.importBatchId || 'default'}`, ...payload });
+    mockFirestoreStore.set(`projects/${pid}/importSessions/${record.importSessionId}`, structuredClone(record));
+    return record;
+  };
 
   // ==========================================
   // SECTION 1: CORE UNIT 3A.1 TESTS (A to V)
@@ -136,8 +90,8 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       projectId,
       {
         sourceType: 'EXCEL',
-        rosterStage: 'CARRIER_RESOLUTION',
-        lifecycleState: 'RESOLUTION',
+        domain: 'ROSTER', rosterStage: 'SOURCE_DISCOVERY',
+        lifecycleState: 'SOURCE',
         importBatchId: 'BAT-TEST-001',
         operationId: 'OP-TEST-001',
       },
@@ -149,11 +103,11 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     expect(session.projectId).toBe(projectId);
     expect(session.importBatchId).toBe('BAT-TEST-001');
     expect(session.operationId).toBe('OP-TEST-001');
-    expect(session.lifecycleState).toBe('RESOLUTION');
+    expect(session.lifecycleState).toBe('SOURCE');
   });
 
   it('B. PREPARED_NEW Driver survives checkpoint persistence and restoration', async () => {
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -163,7 +117,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       mockAdminContext
     );
 
-    const batchWithDriverPlan: Partial<UnifiedImportBatch> = {
+    const batchWithDriverPlan: Partial<UnifiedImportBatch> = { projectId, operationId:'OP-TEST-002',
       importBatchId: 'BAT-TEST-002',
       rows: [
         {
@@ -208,7 +162,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('C. PREPARED_NEW Truck survives checkpoint persistence and restoration', async () => {
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -218,7 +172,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       mockAdminContext
     );
 
-    const batchWithTruckPlan: Partial<UnifiedImportBatch> = {
+    const batchWithTruckPlan: Partial<UnifiedImportBatch> = { projectId, operationId:'OP-TEST-003',
       importBatchId: 'BAT-TEST-003',
       rows: [
         {
@@ -263,7 +217,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('D. COMMITTED row survives checkpoint and persists status', async () => {
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -273,7 +227,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       mockAdminContext
     );
 
-    const batchWithCommittedRow: Partial<UnifiedImportBatch> = {
+    const batchWithCommittedRow: Partial<UnifiedImportBatch> = { projectId, operationId:'OP-TEST-004',
       importBatchId: 'BAT-TEST-004',
       rows: [
         {
@@ -289,7 +243,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       projectId,
       session.importSessionId,
       {
-        rosterStage: 'COMMIT_RESULT',
+        rosterStage: 'DRIVER_TRUCK_RESOLUTION',
         importBatch: batchWithCommittedRow,
       },
       { expectedVersion: 1 },
@@ -306,7 +260,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       await serverService.createSession(
         projectId,
         {
-          sourceType: 'EXCEL',
+          domain: 'ROSTER', sourceType: 'EXCEL',
           token: 'bearer_token_abc_123',
         },
         mockAdminContext
@@ -319,7 +273,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('F. DRIVER_TRUCK_RESOLUTION restores after checkpoint/remount', async () => {
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -338,7 +292,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('G. FINAL_REVIEW restores after checkpoint/remount', async () => {
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -378,7 +332,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       executedAt: new Date().toISOString(),
     };
 
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -395,8 +349,10 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     const resumable = await serverService.listResumableSessions(projectId, mockAdminContext);
     expect(resumable).toHaveLength(1);
     expect(resumable[0].importSessionId).toBe(session.importSessionId);
-    expect(resumable[0].importBatch?.rows.filter((r: any) => r.status === 'COMMITTED')).toHaveLength(39);
-    expect(resumable[0].importBatch?.rows.filter((r: any) => r.status === 'ERROR')).toHaveLength(1);
+    expect(resumable[0].importBatch).toBeUndefined();
+    const restored=await serverService.getSession(projectId,resumable[0].importSessionId,mockAdminContext);
+    expect(restored.importBatch?.rows.filter((r: any) => r.status === 'COMMITTED')).toHaveLength(39);
+    expect(restored.importBatch?.rows.filter((r: any) => r.status === 'ERROR')).toHaveLength(1);
   });
 
   it('I. retry sends only uncommitted/failed row (COMMITTED rows are preserved)', async () => {
@@ -411,7 +367,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('J. COMMITTED session excluded from resumable sessions', async () => {
-    await serverService.createSession(
+    await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -429,7 +385,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('K. CANCELLED session excluded from resumable sessions', async () => {
-    await serverService.createSession(
+    await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -446,7 +402,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('L. VERSION_CONFLICT blocks stale overwrite', async () => {
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -474,7 +430,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('M. wrong-project session rejected', async () => {
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -503,12 +459,14 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   it('O. multiple resumable sessions obey current deterministic policy (newest updatedAt first)', async () => {
     mockFirestoreStore.set(`projects/${projectId}/importSessions/sess_old`, {
       importSessionId: 'sess_old',
+      createdBy: mockAdminContext.userId, createdAt:'2026-01-01T00:00:00.000Z',
       projectId,
       lifecycleState: 'RESOLUTION',
       updatedAt: '2026-01-01T10:00:00.000Z',
     });
     mockFirestoreStore.set(`projects/${projectId}/importSessions/sess_new`, {
       importSessionId: 'sess_new',
+      createdBy: mockAdminContext.userId, createdAt:'2026-01-01T00:00:00.000Z',
       projectId,
       lifecycleState: 'RESOLUTION',
       updatedAt: '2026-01-02T10:00:00.000Z',
@@ -531,7 +489,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('Q. normalized checkpoint resumes without File/ArrayBuffer', async () => {
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -559,7 +517,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('S. explicit Cancel persists CANCELLED before local clear', async () => {
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -602,8 +560,8 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     expect(threw).toBe(true);
   });
 
-  it('U. full success persists COMMITTED before local finish/clear', async () => {
-    const session = await serverService.createSession(
+  it('U. roster completion cannot bypass the Phase-8 reviewed-intent execution fence', async () => {
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -613,22 +571,18 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       mockAdminContext
     );
 
-    const committed = await serverService.updateCheckpoint(
-      projectId,
-      session.importSessionId,
-      {
-        lifecycleState: 'COMMITTED',
-        rosterStage: 'COMMIT_RESULT',
-      },
-      { expectedVersion: 1 },
-      mockAdminContext
-    );
-
-    expect(committed.lifecycleState).toBe('COMMITTED');
+    await expect(serverService.updateCheckpoint(
+      projectId, session.importSessionId,
+      { lifecycleState:'COMMITTED', rosterStage:'COMMIT_RESULT' },
+      { expectedVersion:1 }, mockAdminContext
+    )).rejects.toMatchObject({ code:'PHASE8_REVIEWED_INTENT_HANDOFF_REQUIRED' });
+    const unchanged = await serverService.getSession(projectId, session.importSessionId, mockAdminContext);
+    expect(unchanged.version).toBe(1);
+    expect(unchanged.lifecycleState).toBe(session.lifecycleState);
   });
 
-  it('V. partial failure remains non-terminal/retryable with committedRows > 0', async () => {
-    const session = await serverService.createSession(
+  it('V. legacy partial-failure facts remain resumable evidence with committedRows > 0', async () => {
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -638,13 +592,10 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       mockAdminContext
     );
 
-    await serverService.updateCheckpoint(
-      projectId,
-      session.importSessionId,
-      {
-        lifecycleState: 'FAILED',
-        rosterStage: 'COMMIT_RESULT',
-        importBatch: { importBatchId: 'BAT-PARTIAL-V', committedRows: 5, rows: [] },
+    // Historical execution facts remain recoverable evidence; P8-B1 cannot create new execution facts.
+    mockFirestoreStore.set(`projects/${projectId}/importSessions/${session.importSessionId}`, {
+      ...session, schemaVersion:1, lifecycleState:'FAILED', rosterStage:'COMMIT_RESULT', currentStage:'COMMIT_RESULT',
+      importBatch: { projectId, operationId:session.operationId, importBatchId:session.importBatchId, committedRows:5, rows:[] },
         smartImportCommitResult: {
           projectId,
           operationId: 'OP-PARTIAL-V',
@@ -659,10 +610,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
           issues: [],
           executedAt: new Date().toISOString(),
         },
-      },
-      { expectedVersion: 1 },
-      mockAdminContext
-    );
+    });
 
     const resumable = await serverService.listResumableSessions(projectId, mockAdminContext);
     expect(resumable).toHaveLength(1);
@@ -679,7 +627,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       await serverService.createSession(
         projectId,
         {
-          sourceType: 'EXCEL',
+          domain: 'ROSTER', sourceType: 'EXCEL',
           foo: new ArrayBuffer(32),
         },
         mockAdminContext
@@ -698,7 +646,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       await serverService.createSession(
         projectId,
         {
-          sourceType: 'EXCEL',
+          domain: 'ROSTER', sourceType: 'EXCEL',
           nestedPayload: {
             arbitraryData: new Uint8Array([10, 20, 30, 40]),
           },
@@ -719,7 +667,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
       await serverService.createSession(
         projectId,
         {
-          sourceType: 'EXCEL',
+          domain: 'ROSTER', sourceType: 'EXCEL',
           apiKey: 'key_1234567890',
         },
         mockAdminContext
@@ -737,7 +685,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     const valid = await serverService.createSession(
       projectId,
       {
-        sourceType: 'EXCEL',
+        domain: 'ROSTER', sourceType: 'EXCEL',
         sourceMetadata: { fileName: 'test.xlsx', fileSize: 1024 },
       },
       mockAdminContext
@@ -776,7 +724,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
   });
 
   it('3A.1a-G: VERSION_CONFLICT still blocks stale overwrite', async () => {
-    const session = await serverService.createSession(
+    const session = await seedSession(
       projectId,
       {
         sourceType: 'EXCEL',
@@ -880,51 +828,35 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     expect(wizardContent).toContain('if (!persisted) return;');
   });
 
-  it('Hotfix-C: createSession failure keeps workflow in MAPPING_APPROVAL', () => {
-    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
-    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
-
-    const approveIdx = wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline');
-    const nextFnIdx = wizardContent.indexOf('const handleSmartImportContinueToMaterials');
-    const approveBlock = wizardContent.slice(approveIdx, nextFnIdx);
-
-    expect(approveBlock).toContain('createSession');
-    expect(approveBlock).toContain('transitionToRosterStage(\'CARRIER_RESOLUTION\'');
-    // transitionToRosterStage appears strictly AFTER createSession
-    const createIdx = approveBlock.indexOf('createSession');
-    const transIdx = approveBlock.indexOf('transitionToRosterStage(\'CARRIER_RESOLUTION\'');
-    expect(transIdx).toBeGreaterThan(createIdx);
+  it('Hotfix-C: createSession failure blocks source acceptance and mapping advancement', () => {
+    const content = fs.readFileSync(path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx'), 'utf-8');
+    const sourceBlock = content.slice(content.indexOf('const processRosterFile'), content.indexOf('const handleRosterSheetChange'));
+    const acceptBlock = content.slice(content.indexOf('const acceptRosterSource'), content.indexOf('const processRosterFile'));
+    expect(acceptBlock).toContain('await importSessionClientService.createSession');
+    expect(acceptBlock.indexOf('await importSessionClientService.createSession')).toBeLessThan(acceptBlock.indexOf('rememberDurableSession(record)'));
+    expect(sourceBlock).toContain('await acceptRosterSource(file, data, discovery)');
+    expect(sourceBlock.indexOf('await acceptRosterSource')).toBeLessThan(sourceBlock.indexOf("transitionToRosterStage('MAPPING_APPROVAL'"));
   });
 
   it('Hotfix-D: createSession failure surfaces recovery error', () => {
-    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
-    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
-
-    const approveIdx = wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline');
-    const nextFnIdx = wizardContent.indexOf('const handleSmartImportContinueToMaterials');
-    const approveBlock = wizardContent.slice(approveIdx, nextFnIdx);
-
-    expect(approveBlock).toContain("setImportSessionRecoveryError(err?.message || t('projects.batch4.import_session_save_failed'));");
-    expectCanonicalBatch4Source(approveBlock, 'projects.batch4.import_session_save_failed');
+    const content = fs.readFileSync(path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx'), 'utf-8');
+    const sourceBlock = content.slice(content.indexOf('const processRosterFile'), content.indexOf('const handleRosterSheetChange'));
+    expect(sourceBlock).toContain('catch (innerErr: any)');
+    expect(sourceBlock).toContain('setImportSessionRecoveryError(innerErr instanceof RosterSourceError ? null :');
+    expectCanonicalBatch4Source(sourceBlock, 'projects.batch4.import_session_save_failed');
   });
 
-  it('Hotfix-E: successful createSession happens before CARRIER_RESOLUTION transition', () => {
-    const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
-    const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
-
-    const approveIdx = wizardContent.indexOf('const handleApproveRosterMappingAndStartPipeline');
-    const nextFnIdx = wizardContent.indexOf('const handleSmartImportContinueToMaterials');
-    const approveBlock = wizardContent.slice(approveIdx, nextFnIdx);
-
-    const createIdx = approveBlock.indexOf('importSessionClientService.createSession');
-    const setSessionIdIdx = approveBlock.indexOf('setImportSessionId');
-    const transIdx = approveBlock.indexOf('transitionToRosterStage(\'CARRIER_RESOLUTION\'');
-
-    expect(createIdx).toBeGreaterThan(-1);
-    expect(setSessionIdIdx).toBeGreaterThan(-1);
-    expect(transIdx).toBeGreaterThan(-1);
-    expect(createIdx).toBeLessThan(setSessionIdIdx);
-    expect(setSessionIdIdx).toBeLessThan(transIdx);
+  it('Hotfix-E: mapping and snapshot acknowledgments precede CARRIER_RESOLUTION', () => {
+    const content = fs.readFileSync(path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx'), 'utf-8');
+    const approve = content.slice(content.indexOf('const handleApproveRosterMappingAndStartPipeline'), content.indexOf('const handleSmartImportContinueToMaterials'));
+    const mappingAck = approve.indexOf('rememberDurableSession(session)');
+    const analysis = approve.indexOf('DriverTruckPipelineService.processFileToReview');
+    const snapshotAck = approve.indexOf('rememberDurableSession(saved)');
+    const advance = approve.indexOf("transitionToRosterStage('CARRIER_RESOLUTION'");
+    expect(mappingAck).toBeGreaterThan(-1); expect(analysis).toBeGreaterThan(mappingAck);
+    expect(snapshotAck).toBeGreaterThan(analysis); expect(advance).toBeGreaterThan(snapshotAck);
+    expect(approve).toContain('importBatchId: session.importBatchId');
+    expect(approve).toContain('operationId: session.operationId');
   });
 
   it('Hotfix-F: mapping cancel uses server CANCELLED path (handleCancelRosterImport)', () => {
@@ -974,11 +906,17 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
 
     // Count all invocations of handleResetRosterImport()
     const matches = wizardContent.match(/handleResetRosterImport\(\)/g) || [];
-    // Three existing session actions plus one project-boundary-only local reset:
+    // Existing guarded session actions, project-boundary teardown, and the ACK-guarded cancellation retry:
     // 1. Inside handleCancelRosterImport (LOCAL_TERMINAL_CLEAR after server cancel)
     // 2. Inside processRosterFile (INTERNAL_PRE-SESSION_RESET)
     // 3. Inside RosterCommitResultLayer onFinish (LOCAL_TERMINAL_CLEAR after terminal commit)
-    expect(matches.length).toBe(4);
+    expect(matches.length).toBe(5);
+    const retry = wizardContent.slice(wizardContent.indexOf('const retryRosterCheckpoint'), wizardContent.indexOf('const processRosterFile'));
+    expect(retry.indexOf('await saveRosterCheckpoint')).toBeLessThan(retry.indexOf('handleResetRosterImport()'));
+    expect(retry).toContain("if(saved.lifecycleState==='CANCELLED')");
+    const file = wizardContent.slice(wizardContent.indexOf('const processRosterFile'), wizardContent.indexOf('const handleRosterSheetChange'));
+    expect(file).toContain('durableSessionRef.current && !await handleCancelRosterImport()');
+    expect(wizardContent).toContain("if (durableSessionRef.current?.lifecycleState !== 'COMMITTED')");
     const contextReset = wizardContent.slice(wizardContent.indexOf('  useLayoutEffect(() => {\n    creatingRef.current = false;'), wizardContent.indexOf('// Canonical scope loss'));
     expect(contextReset).toContain('handleResetRosterImport()');
     expect(contextReset).toContain('[editingProjectId, projectScopeKey]');

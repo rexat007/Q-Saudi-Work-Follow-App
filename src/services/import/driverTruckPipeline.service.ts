@@ -30,6 +30,7 @@ import { RosterBatchReviewService } from './rosterBatchReview.service';
 import { normalizeName } from '../../utils/normalization';
 
 export interface ProcessDriverTruckFileOptions {
+  importBatchId?: string;
   sheetName?: string;
   headerRowIndex?: number;
   customMappings?: Record<string, DriverTruckCanonicalMappingTarget>;
@@ -60,7 +61,7 @@ export class DriverTruckPipelineService {
     if (mappingIssue) throw new RosterSourceError(mappingIssue);
 
     const sourceType = intakeValidation.fileType === 'EXCEL' ? 'EXCEL' : 'CSV';
-    const importBatchId = `BAT-DT-${sourceType.slice(0, 3)}-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const importBatchId = options?.importBatchId || `BAT-DT-${sourceType.slice(0, 3)}-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
     let targetSheetName = options?.sheetName;
     let targetHeaderRowIndex = options?.headerRowIndex;

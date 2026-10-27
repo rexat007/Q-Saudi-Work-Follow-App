@@ -1,3 +1,5 @@
+import { encodeSessionChunks } from './import/sessionArtifactCodec';
+import { assertSessionPayload, sourceFingerprint, prepareDurableBatch } from './import/durableSessionContract';
 import { auth } from '../firebase/config';
 import {
   CreateImportSessionPayload,
@@ -9,6 +11,7 @@ export class ImportSessionVersionConflictError extends Error {
   public code = 'VERSION_CONFLICT';
   public expectedVersion: number;
   public serverVersion?: number;
+  public authoritativeSession?: ImportSessionRecord;
 
   constructor(message: string, expectedVersion: number, serverVersion?: number) {
     super(message);
@@ -23,7 +26,7 @@ export class ImportSessionClientService {
     if (overrideToken) return overrideToken;
     const currentUser = auth.currentUser;
     if (!currentUser) {
-      throw new Error('المستخدم غير مسجل الدخول');
+      throw Object.assign(new Error('المستخدم غير موثق'), { code: 'UNAUTHENTICATED' });
     }
     const token = await currentUser.getIdToken();
     if (!token) {
@@ -47,6 +50,7 @@ export class ImportSessionClientService {
 
     const token = await this.getAuthToken(overrideToken);
 
+    assertSessionPayload(payload);
     const response = await fetch(`/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions`, {
       method: 'POST',
       headers: {
@@ -173,11 +177,22 @@ export class ImportSessionClientService {
     if (!importSessionId || !importSessionId.trim()) {
       throw new Error('معرف جلسة الاستيراد مطلوب');
     }
-    if (typeof expectedVersion !== 'number') {
+    if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1) {
       throw new Error('رقم الإصدار المتوقع (expectedVersion) مطلوب للتحكم بالتزامن المتفائل');
     }
 
     const token = await this.getAuthToken(overrideToken);
+
+    assertSessionPayload(updates);
+    if (updates.importBatch) updates = { ...updates, importBatch: prepareDurableBatch(updates.importBatch) };
+    const requiresChunks = JSON.stringify(updates).length > 40000;
+    if (!updates.artifactChunk && !updates.checkpointArtifact && requiresChunks) {
+      const chunks = encodeSessionChunks(updates);
+      const digest = await sourceFingerprint(new TextEncoder().encode(chunks.join('')).buffer as ArrayBuffer);
+      const manifest = { artifactId: crypto.randomUUID(), count: chunks.length, digest };
+      for (let index = 0; index < manifest.count; index++) await this.updateCheckpoint(projectId, importSessionId, { artifactChunk: { ...manifest, index, text: chunks[index] } }, expectedVersion, overrideToken);
+      updates = { checkpointArtifact: manifest };
+    }
 
     const response = await fetch(
       `/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions/${encodeURIComponent(importSessionId.trim())}`,
@@ -203,10 +218,13 @@ export class ImportSessionClientService {
 
     if (!response.ok || !json.success) {
       if (json.code === 'VERSION_CONFLICT' || response.status === 409) {
-        throw new ImportSessionVersionConflictError(
+        const conflict = new ImportSessionVersionConflictError(
           json.error || 'تعارض في إصدار جلسة الاستيراد (VERSION_CONFLICT): تم تعديل الجلسة من جهة أخرى.',
-          expectedVersion
+          expectedVersion, json.serverVersion
         );
+        // Recovery read only. Never automatically retry the stale mutation.
+        try { conflict.authoritativeSession = await this.getSession(projectId, importSessionId, overrideToken); } catch { /* Access/network failures leave the mutation fenced. */ }
+        throw conflict;
       }
       const err: any = new Error(json.error || `فشل تحديث نقطة استئناف الاستيراد (${response.status})`);
       err.code = json.code || 'UPDATE_CHECKPOINT_FAILED';

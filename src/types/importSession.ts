@@ -1,3 +1,4 @@
+import type { SourceRevision, MappingRevision, DurableReviewedIntent } from '../services/import/durableSessionContract';
 /**
  * Q-SAUDI — Smart Import Session & Checkpoint Contract
  * Unit 3A.1: Bounded Persistence & Resumption Schema
@@ -11,6 +12,9 @@ export type ImportSessionLifecycleState =
   | 'DISCOVERED'
   | 'MAPPING'
   | 'RESOLUTION'
+  | 'INTENT_REVIEWED'
+  | 'FAILED_RECOVERABLE'
+  | 'FAILED_TERMINAL'
   | 'REVIEW'
   | 'COMMITTING'
   | 'COMMITTED'
@@ -34,6 +38,9 @@ export const LIFECYCLE_TO_ROSTER_STAGE_MAP: Record<ImportSessionLifecycleState, 
   MAPPING: 'MAPPING_APPROVAL',
   RESOLUTION: 'CARRIER_RESOLUTION',
   REVIEW: 'FINAL_REVIEW',
+  INTENT_REVIEWED: 'FINAL_REVIEW',
+  FAILED_RECOVERABLE: 'SOURCE_DISCOVERY',
+  FAILED_TERMINAL: 'SOURCE_DISCOVERY',
   COMMITTING: 'COMMIT_RESULT',
   COMMITTED: 'COMMIT_RESULT',
   FAILED: 'COMMIT_RESULT',
@@ -73,6 +80,11 @@ export interface SmartImportCheckpointData {
  * projects/{projectId}/importSessions/{importSessionId}
  */
 export interface ImportSessionRecord {
+  schemaVersion?: number;
+  domain?: 'ROSTER' | 'TRIP';
+  source?: SourceRevision;
+  mapping?: MappingRevision;
+  reviewedCanonicalIntent?: DurableReviewedIntent;
   importSessionId: string;
   projectId: string;
   operationId: string;
@@ -97,6 +109,9 @@ export interface ImportSessionRecord {
 }
 
 export interface CreateImportSessionPayload {
+  domain?: 'ROSTER' | 'TRIP';
+  source?: SourceRevision;
+  mapping?: MappingRevision;
   importSessionId?: string;
   operationId?: string;
   importBatchId?: string;
