@@ -436,6 +436,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [importBatch, setImportBatch] = useState<UnifiedImportBatch | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [isCommittingImport, setIsCommittingImport] = useState(false);
+  const reviewedCommitInFlight = useRef(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const rosterImportSessionGenerationRef = useRef(0);
 
@@ -2585,7 +2586,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const requestContext = renderedContext;
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-    if (isProcessing || isCommittingImport || !project || !importBatch) return;
+    if (reviewedCommitInFlight.current || isProcessing || isCommittingImport || !project || !importBatch) return;
     const currentGen = rosterImportSessionGenerationRef.current;
     const currentBatchId = importBatch.importBatchId;
 
@@ -2596,95 +2597,34 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       return;
     }
 
+    reviewedCommitInFlight.current = true;
     setIsCommittingImport(true);
     setIsProcessing(true);
     setSmartImportCommitError(null);
 
     try {
-      // 1. Fetch fresh canonical RelationshipContext
-      const freshContext = await loadImportResolutionContext(project.projectId);
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-      setProjectRelationshipContext(freshContext);
-
-      // 2. Build fresh PipelineContext
-      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: freshContext,
-        projectId: project.projectId,
-        userId: authContext.userId,
-        role: authContext.role,
-        operationId: `OP-COMMIT-${Date.now()}`
-      });
-
-      // 3. Revalidate SAME importBatch again (Preflight)
-      const revalidated = await DriverTruckPipelineService.revalidateRosterBatch(importBatch, pipelineCtx);
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-      // 4. Inspect row-level readiness again using RosterBatchReviewService
-      const activeRows = revalidated.rows.filter((r) => r.status !== 'REJECTED');
-      const revalidatedGroups = RosterBatchReviewService.getBatchReviewGroups(revalidated);
-      const allRevalidatedGroups = [
-        ...(revalidatedGroups.carrier || []),
-        ...(revalidatedGroups.material || []),
-        ...(revalidatedGroups.driver || []),
-        ...(revalidatedGroups.truck || [])
-      ];
-      const hasUnresolved = allRevalidatedGroups.some(
-        (g) => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT'
-      );
-      const hasRowErrors = activeRows.some(
-        (r) => r.reviewStatus === 'requires_review' || r.reviewStatus === 'error' || r.status === 'ERROR'
-      );
-      const hasBlockingIssues = (revalidated.issues || []).some(
-        (iss) => (iss.severity === 'BLOCKING' || iss.blocking) && iss.code !== 'WARNING'
-      );
-
-      if (hasUnresolved || hasRowErrors || hasBlockingIssues) {
-        setImportBatch({ ...revalidated });
+      const session = durableSessionRef.current;
+      if (!session || session.lifecycleState !== 'INTENT_REVIEWED' || pendingRosterCheckpoint.current || session.version !== importSessionVersionRef.current || session.importBatchId !== currentBatchId) {
         setSmartImportCommitError(t('projects.batch4.commit_preflight_pending'));
-        setIsCommittingImport(false);
         return;
       }
-
-      // 5. Execute Commit via DriverTruckPipelineService.commitBatch ONLY
-      const { batch: committedBatch, result } = await DriverTruckPipelineService.commitBatch(revalidated, pipelineCtx);
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-      // Canonical Setup handoff; import stage/checkpoint ownership stays unchanged.
-      try {
-        const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
-        if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-        applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation);
-      } catch {
-        if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-        setProjectDataLoadError(t('setup.errors.refresh'));
-      }
-
-      // 6. Store result and batch without clearing
-      setImportBatch({ ...committedBatch });
+      const committed = await importSessionClientService.commitReviewedIntent(project.projectId, session.importSessionId, session.version);
+      if (!projectContext.isCurrent(requestContext, editingProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
+      if (committed.lifecycleState !== 'COMMITTED' || committed.receipt.operationId !== session.operationId || committed.receipt.importSessionId !== session.importSessionId) throw Error('INVALID_REVIEWED_COMMIT_RESPONSE');
+      durableSessionRef.current = {...session,lifecycleState:'COMMITTED',currentStage:'COMMIT_RESULT',version:committed.receipt.committedVersion};
+      importSessionVersionRef.current = committed.receipt.committedVersion;
+      setImportSessionVersion(committed.receipt.committedVersion);
+      const result: ImportResult = {success:true,totalRows:importBatch.rows.length,committedRows:committed.receipt.resultSummary.contributingRows,failedRows:0,skippedRows:importBatch.rows.length-committed.receipt.resultSummary.contributingRows,issues:[],importBatchId:session.importBatchId,projectId:session.projectId,operationId:session.operationId,sourceType:importBatch.source.sourceType,executedAt:committed.receipt.committedAt};
       setSmartImportCommitResult(result);
       transitionToRosterStage('COMMIT_RESULT');
-
-      // 7. Unit 3A.1a Durable Checkpoint on Commit Result (COMMITTED or retryable FAILED)
-      const isFullSuccess = result.success && (result.failedRows || 0) === 0;
-      const targetLifecycle = isFullSuccess ? 'COMMITTED' : 'FAILED';
-      const persisted = await persistSmartImportCheckpoint({
-        batch: committedBatch,
-        commitResult: result,
-        stage: 'COMMIT_RESULT',
-        lifecycleState: targetLifecycle,
-      });
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-
-      if (!persisted) {
-        if (isFullSuccess) {
-          setSmartImportCommitError(t('projects.messages.checkpoint_full_failure'));
-        } else {
-          setSmartImportCommitError(t('projects.messages.checkpoint_partial_failure'));
-        }
+      // Durable COMMITTED truth precedes refresh. Never retry the business transaction on refresh failure.
+      try {
+        const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
+        if (!projectContext.isCurrent(requestContext, editingProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
+        applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation);
+        if (committed.canonicalRefresh === 'PENDING') setProjectDataLoadError(t('setup.errors.refresh'));
+      } catch {
+        if (projectContext.isCurrent(requestContext, editingProjectId)) setProjectDataLoadError(t('setup.errors.refresh'));
       }
 
     } catch (err: any) {
@@ -2692,8 +2632,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
       console.error('Commit execution error:', err);
-      setSmartImportCommitError(err.message || t('projects.batch4.commit_execution_failed'));
+      setSmartImportCommitError(t(err.code === 'VERSION_CONFLICT' ? 'projects.batch4.import_version_conflict' : 'projects.batch4.commit_execution_failed'));
+      if (err.code === 'VERSION_CONFLICT') { importSessionVersionRef.current = -1; setImportSessionVersion(-1); }
     } finally {
+      reviewedCommitInFlight.current = false;
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
       if (currentGen === rosterImportSessionGenerationRef.current) {
@@ -4980,7 +4922,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 <div>
                   {semanticRosterIntent ? <>
                     <RosterSemanticReview key={project?.projectId} intent={semanticRosterIntent} onAccept={handleAcceptCanonicalIntent} onBack={handleFinalReviewBack} busy={isProcessing || isCommittingImport} error={smartImportCommitError}/>
-                    {importBatch.metadata?.reviewedCanonicalIntent?.acceptedSignature === semanticRosterIntent.signature && <p role="status" className="p-3 text-emerald-500">{t('intent.ready')}</p>}
+                    {importBatch.metadata?.reviewedCanonicalIntent?.acceptedSignature === semanticRosterIntent.signature && <>
+                      <p role="status" className="p-3 text-emerald-500">{t('intent.ready')}</p>
+                      <button type="button" disabled={isProcessing || isCommittingImport || importSessionVersion < 1} onClick={() => void handleSmartImportCommit()} className="rounded-xl bg-emerald-600 px-4 py-2 disabled:opacity-40">{t(isCommittingImport ? 'entityResolution.labels.committing_import' : 'entityResolution.labels.approve_commit_import')}</button>
+                    </>}
                   </> : <RosterFinalReviewLayer
                     importBatch={importBatch}
                     onCommit={handleSmartImportCommit}
@@ -4998,39 +4943,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   <RosterCommitResultLayer
                     importBatch={importBatch}
                     commitResult={smartImportCommitResult!}
-                    onClose={async () => {
-                      const requestContext = renderedContext;
-                      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-
-                      const persisted = await persistSmartImportCheckpoint({
-                        stage: 'FINAL_REVIEW',
-                        lifecycleState: 'REVIEW',
-                      });
-                      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-                      if (!persisted) {
-                        return;
-                      }
-                      transitionToRosterStage('FINAL_REVIEW');
-                    }}
+                    onClose={() => { if (durableSessionRef.current?.lifecycleState === 'COMMITTED') setIsSmartImportOpen(false); }}
                     onFinish={async () => {
                       const requestContext = renderedContext;
                       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-                      if (smartImportCommitResult?.success && (smartImportCommitResult.failedRows || 0) === 0) {
-                        if (importSessionRecoveryError) {
-                          const retrySuccess = await persistSmartImportCheckpoint({
-                            batch: importBatch,
-                            commitResult: smartImportCommitResult,
-                            stage: 'COMMIT_RESULT',
-                            lifecycleState: 'COMMITTED',
-                          });
-                          if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-                          if (!retrySuccess) {
-                            setSmartImportCommitError(t('projects.messages.checkpoint_full_failure'));
-                            return;
-                          }
-                        }
-                      }
                       if (durableSessionRef.current?.lifecycleState !== 'COMMITTED') { setSmartImportCommitError(t('projects.messages.checkpoint_full_failure')); return; }
                       handleResetRosterImport();
                       setIsSmartImportOpen(false);

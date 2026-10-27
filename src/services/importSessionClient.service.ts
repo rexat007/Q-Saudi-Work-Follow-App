@@ -22,6 +22,16 @@ export class ImportSessionVersionConflictError extends Error {
 }
 
 export class ImportSessionClientService {
+  public async commitReviewedIntent(projectId: string, importSessionId: string, expectedVersion: number): Promise<import('../types/importSession').ReviewedRosterCommitResponse> {
+    const token = await this.getAuthToken();
+    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(importSessionId)}/commit-reviewed-intent`, {
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({expectedVersion})
+    });
+    const json = await response.json();
+    if(!response.ok || !json.success) throw Object.assign(new Error(json.code || 'REVIEWED_COMMIT_FAILED'),{code:json.code,serverVersion:json.serverVersion});
+    return json.data;
+  }
+
   private async getAuthToken(overrideToken?: string): Promise<string> {
     if (overrideToken) return overrideToken;
     const currentUser = auth.currentUser;

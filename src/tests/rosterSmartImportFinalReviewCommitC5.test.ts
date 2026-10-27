@@ -24,6 +24,7 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   const wizardContent = findFileContent('src/components/wizard/ProjectSetupWizard.tsx');
   const driverTruckContent = findFileContent('src/components/import/RosterDriverTruckResolutionLayer.tsx');
   const finalReviewContent = findFileContent('src/components/import/RosterFinalReviewLayer.tsx');
+  const serverCommitContent = findFileContent('src/services/import/reviewedRosterCommit.server.ts');
   const commitResultContent = findFileContent('src/components/import/RosterCommitResultLayer.tsx');
 
   // TRANSITION TO FINAL REVIEW
@@ -284,21 +285,24 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
     const fnBlock = wizardContent.slice(fnIdx, fnIdx + 4000);
     expect(fnBlock).toContain('setSmartImportCommitError');
-    expect(fnBlock).toContain('hasBlockingIssues');
+    expect(serverCommitContent).toContain('buildRosterCanonicalIntent(batch,pipeline)');
+    expect(serverCommitContent).toContain("fail('REVIEWED_INTENT_STALE')");
   });
 
-  it('40. commitBatch not called when preflight fails', () => {
+  it('40. Failed server preflight cannot publish canonical mutations', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
     const fnBlock = wizardContent.slice(fnIdx, fnIdx + 4000);
-    expect(fnBlock).toContain('if (hasUnresolved || hasRowErrors || hasBlockingIssues)');
-    expect(fnBlock).toContain('setIsCommittingImport(false);');
+    expect(serverCommitContent.indexOf('rebuilt.signature!==reviewed.acceptedSignature')).toBeLessThan(serverCommitContent.indexOf('writes.publish()'));
+    expect(fnBlock).toContain('commitReviewedIntent');
+    expect(wizardContent).toContain("setSmartImportCommitError(t(err.code === 'VERSION_CONFLICT'");
   });
 
   // COMMIT EXECUTION
-  it('41. Only DriverTruckPipelineService.commitBatch used for commitment', () => {
+  it('41. Only the durable reviewed-intent server endpoint performs roster commitment', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
     const fnBlock = wizardContent.slice(fnIdx, fnIdx + 4000);
-    expect(fnBlock).toContain('DriverTruckPipelineService.commitBatch(revalidated, pipelineCtx)');
+    expect(fnBlock).toContain('commitReviewedIntent(project.projectId, session.importSessionId, session.version)');
+    expect(fnBlock).not.toContain('DriverTruckPipelineService.commitBatch');
     expect(fnBlock).not.toContain('/api/intake/canonical');
   });
 
@@ -461,17 +465,16 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
     expect(stepperBlock).not.toContain('onClick');
   });
 
-  it('66. COMMIT_RESULT mount passes onClose for partial retry navigation while full success remains terminal', () => {
+  it('66. Atomic COMMITTED result remains terminal on dismiss and finish', () => {
     const layerIdx = wizardContent.indexOf('<RosterCommitResultLayer');
-    const layerBlock = wizardContent.slice(layerIdx, layerIdx + 1200);
+    const layerBlock = wizardContent.slice(layerIdx, layerIdx + 1600);
     expect(layerBlock).toContain('onClose=');
-    expect(layerBlock).toContain("transitionToRosterStage('FINAL_REVIEW')");
-    expect(layerBlock).toContain('persistSmartImportCheckpoint');
-    expect(layerBlock).toContain("stage: 'FINAL_REVIEW'");
-    const persistIdx = layerBlock.indexOf('persistSmartImportCheckpoint');
-    const transitionIdx = layerBlock.indexOf("transitionToRosterStage('FINAL_REVIEW')");
-    expect(persistIdx).toBeGreaterThan(0);
-    expect(transitionIdx).toBeGreaterThan(persistIdx);
+    expect(layerBlock).toContain("durableSessionRef.current?.lifecycleState === 'COMMITTED'");
+    expect(layerBlock).toContain('setIsSmartImportOpen(false)');
+    expect(layerBlock).not.toContain('persistSmartImportCheckpoint');
+    expect(layerBlock).not.toContain("transitionToRosterStage('FINAL_REVIEW')");
+    expect(layerBlock).toContain("durableSessionRef.current?.lifecycleState !== 'COMMITTED'");
+    expect(layerBlock.indexOf("durableSessionRef.current?.lifecycleState !== 'COMMITTED'")).toBeLessThan(layerBlock.indexOf('handleResetRosterImport()'));
   });
 
   it('67. handleSmartImportCommit blocks repeat commit only on full success; partial failure remains retryable', () => {
