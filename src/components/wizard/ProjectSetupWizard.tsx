@@ -1,3 +1,5 @@
+import { ContextualCanonicalCreation } from '../import/ContextualCanonicalCreation';
+import { ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { RosterSemanticReview, intentIssueKey } from '../import/RosterSemanticReview';
 import { buildRosterCanonicalIntent, attachReviewedRosterIntent } from '../../services/import/rosterCanonicalIntent.service';
 import type { GlobalKind } from '../../utils/globalIdentityPolicy';
@@ -1459,6 +1461,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     return true;
   };
 
+  const contextualReceipts = useRef(new ContextualPrerequisiteReceipts()).current;
   const loadImportResolutionContext = async (projectId: string, expectedId?: string) => {
     const request = renderedContext;
     let value: RelationshipContext;
@@ -1477,7 +1480,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!project || !importBatch || !projectContext.isCurrent(request, project.projectId)) return;
     const pipeline = ImportProjectContextAdapter.createPipelineContext({ relContext: context, projectId:project.projectId, userId:authContext.userId, role:authContext.role, operationId:importBatch.operationId });
     const updated=DriverTruckPipelineService.applyGroupedEntityResolutionDecision(importBatch,group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id},pipeline,authContext.userId);
-    if (prerequisite) updated.metadata = { ...updated.metadata, canonicalPrerequisites:[...(updated.metadata?.canonicalPrerequisites || []), {projectId:project.projectId, key:`${group.entityType.toUpperCase()}:${id}`, action:prerequisite, completed:true}] };
+    if (prerequisite) updated.metadata = { ...updated.metadata, canonicalPrerequisites:[...(updated.metadata?.canonicalPrerequisites || []), {projectId:project.projectId, key:`${group.entityType.toUpperCase()}:${id}`, action:prerequisite, completed:true, rowNumbers:group.rowNumbers}] };
     setProjectRelationshipContext(context); setImportBatch(updated);
     await persistSmartImportCheckpoint({batch:updated});
   };
@@ -2012,7 +2015,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-      alert(presentBatch4Message(err.message || t('projects.batch4.driver_prepare_failed'), t));
+      throw err;
     } finally {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
@@ -2183,7 +2186,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-      alert(presentBatch4Message(err.message || t('projects.batch4.truck_prepare_failed'), t));
+      throw err;
     } finally {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
@@ -2752,63 +2755,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   };
 
   // C2 Smart Import: Carrier Creation via Authoritative CarrierEditorModal
-  const handleSmartImportCarrierCreated = async (result: CarrierCreationResult) => {
-    const requestContext = renderedContext;
-    if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-    if (isProcessing || !project || !importBatch || !smartImportPendingCarrierGroup) return;
-    const currentGen = rosterImportSessionGenerationRef.current;
-    const currentBatchId = importBatch.importBatchId;
-    setIsProcessing(true);
-
-    try {
-      const snapshot = await projectCanonicalRefreshService.refresh(
-        project.projectId,
-        { expect: { carrierId: result.carrierId } }
-      );
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-      applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation);
-
-      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: await loadImportResolutionContext(project.projectId, result.carrierId),
-        projectId: project.projectId,
-        userId: authContext.userId,
-        role: authContext.role,
-        operationId: `OP-CARRIER-CREATE-${Date.now()}`
-      });
-
-      const createdCarrier = snapshot.relationshipContext.knownCarriers?.find((c) => c.carrierId === result.carrierId);
-      const resolutionPayload = {
-        matchedId: result.carrierId,
-        matchedName: createdCarrier?.name || smartImportPendingCarrierGroup.sourceValue,
-        sourceValue: smartImportPendingCarrierGroup.sourceValue,
-      };
-
-      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
-        importBatch,
-        'carrier',
-        smartImportPendingCarrierGroup.normalizedSourceKey,
-        resolutionPayload,
-        pipelineCtx
-      );
-
-      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-      setImportBatch({ ...updated });
-      setIsSmartImportCarrierModalOpen(false);
-      setSmartImportPendingCarrierGroup(null);
-      await persistSmartImportCheckpoint({ batch: updated });
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-    } finally {
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-
-      if (currentGen === rosterImportSessionGenerationRef.current) {
-        setIsProcessing(false);
-      }
-    }
-  };
 
   // C3 Smart Import: Accept Material Candidate
   const handleSmartImportMaterialAcceptCandidate = async (
@@ -2917,71 +2864,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   };
 
   // C3 Smart Import: Material Creation via Authoritative MaterialEditorModal
-  const handleSmartImportMaterialCreated = async (result: MaterialCreationResult) => {
-    const requestContext = renderedContext;
-    if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-    if (isProcessing || !project || !importBatch || !smartImportPendingMaterialGroup) return;
-    const currentGen = rosterImportSessionGenerationRef.current;
-    const currentBatchId = importBatch.importBatchId;
-    setIsProcessing(true);
-
-    try {
-      // 1. Refresh canonical project data expecting the created materialId
-      const snapshot = await projectCanonicalRefreshService.refresh(
-        project.projectId,
-        { expect: { materialId: result.materialId } }
-      );
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-      // 2. Apply canonical snapshot to local wizard state
-      applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation);
-
-      // 3. Convert snapshot relationship context into pipeline context via adapter
-      const pipelineCtx = ImportProjectContextAdapter.createPipelineContext({
-        relContext: await loadImportResolutionContext(project.projectId, result.materialId),
-        projectId: project.projectId,
-        userId: authContext.userId,
-        role: authContext.role,
-        operationId: `OP-MATERIAL-CREATE-${Date.now()}`
-      });
-
-      // 4. Construct resolution payload
-      const createdMaterial = snapshot.relationshipContext.knownMaterials?.find((m) => m.materialId === result.materialId);
-      const resolutionPayload = {
-        matchedId: result.materialId,
-        matchedName: createdMaterial?.name || smartImportPendingMaterialGroup.sourceValue,
-        sourceValue: smartImportPendingMaterialGroup.sourceValue,
-      };
-
-      // 5. Apply grouped created material resolution to the SAME importBatch
-      const updated = DriverTruckPipelineService.applyGroupedCreatedEntityResolution(
-        importBatch,
-        'material',
-        smartImportPendingMaterialGroup.normalizedSourceKey,
-        resolutionPayload,
-        pipelineCtx
-      );
-
-      if (currentGen !== rosterImportSessionGenerationRef.current || importBatch?.importBatchId !== currentBatchId) return;
-
-      // 6. Update local batch state in place
-      setImportBatch({ ...updated });
-
-      // 7. Close modal and clean up pending group
-      setIsSmartImportMaterialModalOpen(false);
-      setSmartImportPendingMaterialGroup(null);
-      await persistSmartImportCheckpoint({ batch: updated });
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-    } finally {
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-
-      if (currentGen === rosterImportSessionGenerationRef.current) {
-        setIsProcessing(false);
-      }
-    }
-  };
 
   const handleApplyResolutionDecision = async (
     rowNumber: number,
@@ -4082,23 +3965,6 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   />
 
                   {/* Smart Import Dedicated Material Creation Modal */}
-                  {project && isSmartImportMaterialModalOpen && (
-                    <MaterialEditorModal
-                    key={`2:${project.projectId}:${renderedContext.generation}`}
-                    isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
-                      open={isSmartImportMaterialModalOpen}
-                      mode="CREATE"
-                      projectId={project.projectId}
-                      zIndexClass="z-60"
-                      initialName={smartImportPendingMaterialGroup ? smartImportPendingMaterialGroup.sourceValue : ''}
-                      onClose={() => {
-                        setIsSmartImportMaterialModalOpen(false);
-                        setSmartImportPendingMaterialGroup(null);
-                      }}
-                      beforeCreate={key => smartImportPendingMaterialGroup ? inspectCanonicalBeforeCreate('MATERIAL', smartImportPendingMaterialGroup, key) : Promise.resolve(false)}
-                      onCreated={handleSmartImportMaterialCreated}
-                    />
-                  )}
 
                   {editingMaterial && (
                     <MaterialEditorModal
@@ -4226,42 +4092,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   />
 
                   {/* Smart Import Dedicated Carrier Creation Modal */}
-                  {project && isSmartImportCarrierModalOpen && (
-                    <CarrierEditorModal
-                    key={`5:${project.projectId}:${renderedContext.generation}`}
-                    isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
-                      open={isSmartImportCarrierModalOpen}
-                      mode="CREATE"
-                      projectId={project.projectId}
-                      zIndexClass="z-60"
-                      initialName={smartImportPendingCarrierGroup ? smartImportPendingCarrierGroup.sourceValue : ''}
-                      onClose={() => {
-                        setIsSmartImportCarrierModalOpen(false);
-                        setSmartImportPendingCarrierGroup(null);
-                      }}
-                      beforeCreate={key => smartImportPendingCarrierGroup ? inspectCanonicalBeforeCreate('CARRIER', smartImportPendingCarrierGroup, key) : Promise.resolve(false)}
-                      onCreated={handleSmartImportCarrierCreated}
-                    />
-                  )}
 
                   {/* Smart Import Dedicated Material Creation Modal (D02: Reachable in Phase 2) */}
-                  {project && isSmartImportMaterialModalOpen && (
-                    <MaterialEditorModal
-                    key={`6:${project.projectId}:${renderedContext.generation}`}
-                    isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
-                      open={isSmartImportMaterialModalOpen}
-                      mode="CREATE"
-                      projectId={project.projectId}
-                      zIndexClass="z-60"
-                      initialName={smartImportPendingMaterialGroup ? smartImportPendingMaterialGroup.sourceValue : ''}
-                      onClose={() => {
-                        setIsSmartImportMaterialModalOpen(false);
-                        setSmartImportPendingMaterialGroup(null);
-                      }}
-                      beforeCreate={key => smartImportPendingMaterialGroup ? inspectCanonicalBeforeCreate('MATERIAL', smartImportPendingMaterialGroup, key) : Promise.resolve(false)}
-                      onCreated={handleSmartImportMaterialCreated}
-                    />
-                  )}
 
                   {editingCarrier && (
                     <CarrierEditorModal
@@ -4760,6 +4592,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       )}
 
       {/* Root Layered Smart Import Workflow Host */}
+      {isSmartImportOpen && project && importBatch && smartImportPendingCarrierGroup && projectRelationshipContext && isSmartImportCarrierModalOpen && (<ContextualCanonicalCreation key={`Carrier:${project.projectId}:${renderedContext.generation}:${importBatch?.importBatchId}`} projectId={project.projectId} batch={importBatch!} group={smartImportPendingCarrierGroup!} context={projectRelationshipContext!} receipts={contextualReceipts} canMutate={authContext.role==='PROJECT_ADMIN'||authContext.role==='SUPER_ADMIN'} isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)} onClose={()=>{setIsSmartImportCarrierModalOpen(false);setSmartImportPendingCarrierGroup(null);}} onVerified={async(fresh,id,prerequisite,snapshot)=>{if(snapshot)applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation);await applyCanonicalImportChoice(smartImportPendingCarrierGroup!,fresh,id,prerequisite);}}/>)}
+      {isSmartImportOpen && project && importBatch && smartImportPendingMaterialGroup && projectRelationshipContext && isSmartImportMaterialModalOpen && (<ContextualCanonicalCreation key={`Material:${project.projectId}:${renderedContext.generation}:${importBatch?.importBatchId}`} projectId={project.projectId} batch={importBatch!} group={smartImportPendingMaterialGroup!} context={projectRelationshipContext!} receipts={contextualReceipts} canMutate={authContext.role==='PROJECT_ADMIN'||authContext.role==='SUPER_ADMIN'} isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)} onClose={()=>{setIsSmartImportMaterialModalOpen(false);setSmartImportPendingMaterialGroup(null);}} onVerified={async(fresh,id,prerequisite,snapshot)=>{if(snapshot)applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation);await applyCanonicalImportChoice(smartImportPendingMaterialGroup!,fresh,id,prerequisite);}}/>)}
       {isSmartImportOpen && project && (
         <div className="fixed inset-0 z-50 bg-stone-950/90 backdrop-blur-md flex flex-col justify-center p-4 md:p-8 overflow-y-auto">
           <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-5xl w-full mx-auto my-auto shadow-2xl p-6 space-y-6 flex flex-col max-h-[90vh] overflow-hidden">
@@ -4971,7 +4805,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 <div>
                   {/* C2: True Carrier-Only Resolution Layer */}
                   {/* Only Carrier review groups are resolved here before future layers. */}
-                  <RosterCarrierResolutionLayer canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
+                  <RosterCarrierResolutionLayer receipts={contextualReceipts} canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
                     onCanonicalVerified={applyCanonicalImportChoice} canManageParticipation={authContext.role==='SUPER_ADMIN'||authContext.role==='PROJECT_ADMIN'} isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                     importBatch={importBatch}
                     projectCarriers={carriers}
@@ -4992,7 +4826,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {/* STAGE 4: MATERIAL_RESOLUTION */}
               {importBatch && rosterImportStage === 'MATERIAL_RESOLUTION' && (
                 <div>
-                  <RosterMaterialResolutionLayer canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
+                  <RosterMaterialResolutionLayer receipts={contextualReceipts} canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
                     onCanonicalVerified={applyCanonicalImportChoice} canManageParticipation={authContext.role==='SUPER_ADMIN'||authContext.role==='PROJECT_ADMIN'} isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                     importBatch={importBatch}
                     projectMaterials={materials}
@@ -5013,7 +4847,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {/* STAGE 5: DRIVER_TRUCK_RESOLUTION */}
               {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && (
                 <div>
-                  <RosterDriverTruckResolutionLayer canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
+                  <RosterDriverTruckResolutionLayer receipts={contextualReceipts} canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
                     onCanonicalVerified={applyCanonicalImportChoice} canManageParticipation={authContext.role==='SUPER_ADMIN'||authContext.role==='PROJECT_ADMIN'} isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                     importBatch={importBatch}
                     projectDrivers={projectRelationshipContext?.knownDrivers || []}

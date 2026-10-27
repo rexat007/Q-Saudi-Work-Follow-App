@@ -1,3 +1,4 @@
+import {CanonicalFleetIdentityEditor} from '../masterData/CanonicalFleetIdentityEditor';
 import React, { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../i18n';
 import { canonicalProjectRead } from '../../services/projectReadTransport';
@@ -99,7 +100,6 @@ export function FleetCommandEditor({ projectId, context, action, isCurrent, onCl
   const life = useProjectEditorLifetime(projectId, true, isCurrent);
   const session = useRef(new SetupMutationSession()).current;
   const [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null);
-  const [name, setName] = useState(''), [natural, setNatural] = useState('');
   const [carrierId, setCarrierId] = useState(action.entity?.affiliation?.carrierId || '');
   const [driverId, setDriverId] = useState(action.entity?.kind === 'DRIVER' ? action.entity.id : action.entity?.assignment?.driverId || '');
   const [truckId, setTruckId] = useState(action.entity?.kind === 'TRUCK' ? action.entity.id : action.entity?.assignment?.truckId || '');
@@ -118,8 +118,7 @@ export function FleetCommandEditor({ projectId, context, action, isCurrent, onCl
   const replacing = !close && (mode === 'ASSIGNMENT' && assignment?.command === 'REASSIGN' || mode === 'ALLOCATION' && allocation?.command === 'REALLOCATE' || mode === 'AFFILIATION' && affiliationCommand === 'REASSIGN');
   const confirmationSignature = JSON.stringify({ driverId, truckId, materialId, carrierId, affected: assignment?.affected, allocation: allocation?.current, affiliation: entity?.affiliation });
   const confirmationValid = confirmed === confirmationSignature;
-  const valid = mode === 'DRIVER' || mode === 'TRUCK' ? Boolean((mode === 'TRUCK' || name.trim()) && natural.trim() && carriers.some(c => c.id === carrierId)) :
-    mode === 'REACTIVATE' ? Boolean(entity?.canReactivate && entity.membershipStatus !== 'ACTIVE') :
+  const valid = mode === 'REACTIVATE' ? Boolean(entity?.canReactivate && entity.membershipStatus !== 'ACTIVE') :
       mode === 'AFFILIATION' ? close ? Boolean(entity?.affiliation) : Boolean(entity?.eligible && carriers.some(c => c.id === carrierId)) :
         mode === 'ASSIGNMENT' ? close ? Boolean(currentAssignment) : Boolean(assignment) : close ? Boolean(currentAllocation) : Boolean(allocation);
   const display = (id?: string) => context.participants.find(p => p.id === id)?.name || id || '—';
@@ -131,8 +130,6 @@ export function FleetCommandEditor({ projectId, context, action, isCurrent, onCl
     try {
       if (!readAvailable && !session.committed) { await refresh(); return; }
       const ok = await session.run(projectId, () => {
-        if (mode === 'DRIVER') return setupCommand(projectId, 'setup-driver', { driverData: { driverName: name.trim(), residencyId: natural.trim(), carrierId } });
-        if (mode === 'TRUCK') return setupCommand(projectId, 'setup-truck', { truckData: { plateNumber: natural.trim(), carrierId } });
         if (mode === 'REACTIVATE') return setupCommand(projectId, 'membership-commands', { kind: entity!.kind, entityId: entity!.id, command: 'REACTIVATE' });
         if (mode === 'AFFILIATION') return setupCommand(projectId, 'affiliation-commands', { kind: entity!.kind, entityId: entity!.id, carrierId: close ? entity!.affiliation!.carrierId : carrierId, command: affiliationCommand });
         if (mode === 'ASSIGNMENT') return setupCommand(projectId, 'assignment-commands', close ? { command: 'CLOSE', assignmentId: currentAssignment!.assignmentId } : { command: assignment!.command, driverId, truckId });
@@ -143,10 +140,16 @@ export function FleetCommandEditor({ projectId, context, action, isCurrent, onCl
     finally { if (current()) setBusy(false); }
   };
   const select = (label: string, value: string, change: (v: string) => void, options: SetupParticipant[]) => <label className="block space-y-1">{t(label)}<select required className={control} value={value} disabled={busy || session.committed || !readAvailable} onChange={e => { change(e.target.value); setConfirmed(''); }}><option value="">{t('setup.choose')}</option>{options.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>;
+  if(mode==='DRIVER'||mode==='TRUCK')return <CanonicalFleetIdentityEditor projectId={projectId} kind={mode} carriers={carriers} isCurrent={isCurrent} onClose={onClose} readAvailable={readAvailable} committed={session.committed} onSubmit={async data=>{
+    if(!readAvailable&&!session.committed){await refresh();return false;}
+    const request=life.capture(),current=()=>life.isCurrent(request);setBusy(true);
+    try{const ok=await session.run(projectId,()=>mode==='DRIVER'?setupCommand(projectId,'setup-driver',{driverData:{driverName:data.driverName,residencyId:data.residencyId,carrierId:data.carrierId,...(data.phone?{phone:data.phone}:{})}}):setupCommand(projectId,'setup-truck',{truckData:{plateNumber:data.plateNumber,carrierId:data.carrierId,...(data.truckType?{truckType:data.truckType}:{}),...(data.tareWeightKg!==undefined?{tareWeightKg:data.tareWeightKg}:{}),...(data.maxGrossWeightKg!==undefined?{maxGrossWeightKg:data.maxGrossWeightKg}:{})}}),current,()=>{},refresh);if(!ok)throw Error('PROJECT_CONTEXT_STALE');}
+    catch(e){if(session.committed)throw Error('MUTATION_REFRESH_PENDING');throw e;}finally{if(current())setBusy(false);}
+  }}/>;
   return <div dir={direction} className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-stone-950/80 p-4" role="dialog" aria-modal="true" aria-label={t(`setup.editor.${mode}`)}>
     <form onSubmit={submit} className="max-h-[90vh] w-full max-w-xl space-y-4 overflow-y-auto rounded-2xl border border-stone-700 bg-stone-900 p-4 sm:p-6">
       <h3 className="font-bold">{t(`setup.editor.${mode}`)} {entity?.name}</h3>
-      {(mode === 'DRIVER' || mode === 'TRUCK') && <>{mode === 'DRIVER' && <label className="block">{t('setup.name')}<input required className={control} disabled={busy || session.committed || !readAvailable} value={name} onChange={e => setName(e.target.value)} /></label>}<label className="block">{t(mode === 'DRIVER' ? 'setup.nationalId' : 'setup.plate')}<input required className={control} disabled={busy || session.committed || !readAvailable} value={natural} onChange={e => setNatural(e.target.value)} /></label>{select('setup.carrier', carrierId, setCarrierId, carriers)}</>}
+
       {mode === 'REACTIVATE' && <p>{entity?.id} · {t(`setup.status.${entity?.membershipStatus}`)} · {t(`setup.status.${entity?.globalStatus || 'MISSING'}`)}</p>}
       {mode === 'AFFILIATION' && <><p>{t('setup.current')}: {display(entity?.affiliation?.carrierId)}</p>{!close && select('setup.carrier', carrierId, setCarrierId, carriers)}</>}
       {mode === 'ASSIGNMENT' && <><p>{t('setup.current')}: {display(currentAssignment?.driverId)} → {display(currentAssignment?.truckId)}</p>{!close && <>{select('setup.driver', driverId, setDriverId, drivers)}{select('setup.truck', truckId, setTruckId, trucks.filter(p => !selectedDriver || p.affiliation?.carrierId === selectedDriver.affiliation?.carrierId))}</>}</>}

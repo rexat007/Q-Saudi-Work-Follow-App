@@ -1,3 +1,5 @@
+const contextualCreation = fs.readFileSync(path.resolve(__dirname, '../components/import/ContextualCanonicalCreation.tsx'), 'utf8');
+const contextualService = fs.readFileSync(path.resolve(__dirname, '../services/import/contextualCanonicalCreation.service.ts'), 'utf8');
 import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
 import { dictionaries } from '../locales';
 import { resolveTranslation } from '../i18n';
@@ -183,47 +185,27 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
 
   // 5. CREATE MATERIAL TESTS
   it('11. Material creation uses authoritative MaterialEditorModal in CREATE mode without prompt()', () => {
-    expect(wizardContent).toContain('handleSmartImportMaterialCreated');
-    expect(wizardContent).toContain('isSmartImportMaterialModalOpen');
-    expect(wizardContent).toContain('smartImportPendingMaterialGroup');
-    expect(wizardContent).toContain('<MaterialEditorModal');
-    expect(wizardContent).toContain('initialName={smartImportPendingMaterialGroup ? smartImportPendingMaterialGroup.sourceValue : \'\'}');
-
-    const smartImportCreationIdx = wizardContent.indexOf('{project && isSmartImportMaterialModalOpen && (');
-    const modalMountBlock = wizardContent.slice(smartImportCreationIdx, smartImportCreationIdx + 600);
-    expect(modalMountBlock).toContain('mode="CREATE"');
-    expect(modalMountBlock).not.toContain('prompt(');
+    expect(wizardContent).toContain('<ContextualCanonicalCreation');
+    expect(wizardContent).toContain('smartImportPendingMaterialGroup!');
+    expect(contextualCreation).toContain('<MaterialEditorModal open mode="CREATE"');
+    expect(contextualCreation).toContain('beforeCreate={beforeCreate}');
+    expect(contextualCreation).not.toContain('prompt(');
   });
 
   it('12. MaterialCreationResult contract compliance — never accesses result.material', () => {
-    const handlerIdx = wizardContent.indexOf('const handleSmartImportMaterialCreated = async (result: MaterialCreationResult) => {');
-    const handlerBody = wizardContent.slice(handlerIdx, wizardContent.indexOf('};', handlerIdx) + 500);
-
-    expect(handlerBody).not.toContain('result.material?.');
-    expect(handlerBody).not.toContain('result.material.');
-    expect(handlerBody).toContain('matchedId: result.materialId');
-    expect(handlerBody.includes('createdMaterial?.name') || handlerBody.includes('matchedName: smartImportPendingMaterialGroup.sourceValue')).toBe(true);
-    expect(handlerBody).toContain('sourceValue: smartImportPendingMaterialGroup.sourceValue');
-
-    const sampleResult: MaterialCreationResult = {
-      success: true,
-      projectId: 'PRJ-100',
-      materialId: 'MAT-100',
-      membershipStatus: 'ACTIVE',
-    };
+    expect(contextualCreation).toContain('entityId:result.materialId');
+    expect(contextualCreation).not.toContain('result.material.');
+    const sampleResult: MaterialCreationResult={success:true,projectId:'PRJ-100',materialId:'MAT-100',membershipStatus:'ACTIVE'};
     expect(sampleResult.materialId).toBe('MAT-100');
   });
 
   it('13. Post-create flow refreshes project data expecting materialId and applies grouped resolution', () => {
-    const handlerIdx = wizardContent.indexOf('const handleSmartImportMaterialCreated = async (result: MaterialCreationResult) => {');
-    const handlerBody = wizardContent.slice(handlerIdx, wizardContent.indexOf('};', handlerIdx) + 500);
-
-    expect(handlerBody).toContain('projectCanonicalRefreshService.refresh(');
-    expect(handlerBody).toContain('{ expect: { materialId: result.materialId } }');
-    expect(handlerBody).toContain('applyCanonicalSnapshot(snapshot)');
-    expect(handlerBody).toContain('DriverTruckPipelineService.applyGroupedCreatedEntityResolution(');
-    expect(handlerBody).toContain("'material'");
-    expect(handlerBody).toContain('smartImportPendingMaterialGroup.normalizedSourceKey');
+    expect(contextualService).toContain("kind==='MATERIAL'?{materialId:id}");
+    expect(contextualService).toContain('projectCanonicalRefreshService.refresh(projectId,{expect})');
+    expect(contextualCreation).toContain('refreshContextualPrerequisite(projectId,value.kind,value.entityId,current)');
+    expect(wizardContent).toContain('if(snapshot)applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation)');
+    expect(wizardContent).toContain('applyCanonicalImportChoice(smartImportPendingMaterialGroup!,fresh,id,prerequisite)');
+    expect(wizardContent).toContain('group.normalizedSourceKey');
   });
 
   // 6. COMPLETION GATE AND STAGE CEILING TESTS
@@ -336,9 +318,9 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
   });
 
   it('19. Smart Import MaterialEditorModal renders at z-60 above parent Material Resolution layer z-50', () => {
-    const smartImportMaterialModalIdx = wizardContent.indexOf('Smart Import Dedicated Material Creation Modal');
-    const smartImportModalBlock = wizardContent.slice(smartImportMaterialModalIdx, smartImportMaterialModalIdx + 600);
-    expect(smartImportModalBlock).toContain('zIndexClass="z-60"');
+    expect(wizardContent).toContain('key={`Material:${project.projectId}:${renderedContext.generation}:${importBatch?.importBatchId}`}');
+    expect(contextualCreation).toContain('<MaterialEditorModal open mode="CREATE"');
+    expect(contextualCreation).toContain('zIndexClass="z-60"');
   });
 });
 

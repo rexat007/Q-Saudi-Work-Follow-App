@@ -1,10 +1,10 @@
+import { CanonicalFleetIdentityEditor } from '../masterData/CanonicalFleetIdentityEditor';
+import { contextualFleetDefaults, type ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { CanonicalResolutionDecision } from './CanonicalResolutionDecision';
 import type { RelationshipContext } from '../../types/dataQuality';
-import { batch4ConflictFieldLabel } from '../../i18n/batch4Presentation';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { useI18n } from '../../i18n';
 import React, { useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { Users, Truck, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { UnifiedImportBatch } from '../../types/unifiedImport';
 import { RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
@@ -40,6 +40,7 @@ export interface NewTruckFormData {
 }
 
 export interface RosterDriverTruckResolutionLayerProps {
+  receipts?: ContextualPrerequisiteReceipts;
   canManageParticipation?: boolean;
   canonicalContext?: RelationshipContext;
   onCanonicalVerified?: (group: RosterEntityReviewGroup, context: RelationshipContext, id: string, prerequisite?: string) => Promise<void>|void;
@@ -77,7 +78,7 @@ export function extractGroupCarrierContext(group: RosterEntityReviewGroup): stri
 }
 
 export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolutionLayerProps> = ({
-  importBatch, canManageParticipation = true, canonicalContext, onCanonicalVerified, isCurrent = () => true,
+  importBatch, canManageParticipation = true, receipts, canonicalContext, onCanonicalVerified, isCurrent = () => true,
   projectDrivers = [],
   projectTrucks = [],
   onAcceptCandidate,
@@ -98,19 +99,8 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   const [selectedAlternateDriver, setSelectedAlternateDriver] = useState<Record<string, string>>({});
   const [selectedAlternateTruck, setSelectedAlternateTruck] = useState<Record<string, string>>({});
 
-  // Subform modal states & Conflict Tracking
-  const [creatingDriverGroup, setCreatingDriverGroup] = useState<RosterEntityReviewGroup | null>(null);
-  const [driverFormData, setDriverFormData] = useState<NewDriverFormData>({ driverName: '', residencyId: '', phone: '' });
-  const [driverFormError, setDriverFormError] = useState<string | null>(null);
-  const [unresolvedDriverConflictFields, setUnresolvedDriverConflictFields] = useState<string[]>([]);
-  const [driverConflictDetails, setDriverConflictDetails] = useState<Record<string, string[]>>({});
-
-  const [creatingTruckGroup, setCreatingTruckGroup] = useState<RosterEntityReviewGroup | null>(null);
-  const [truckFormData, setTruckFormData] = useState<NewTruckFormData>({ plateNumber: '', truckType: '' });
-  const [truckFormError, setTruckFormError] = useState<string | null>(null);
-  const [unresolvedTruckConflictFields, setUnresolvedTruckConflictFields] = useState<string[]>([]);
-  const [truckConflictDetails, setTruckConflictDetails] = useState<Record<string, string[]>>({});
-
+  const [creatingDriverGroup,setCreatingDriverGroup]=useState<RosterEntityReviewGroup|null>(null);
+  const [creatingTruckGroup,setCreatingTruckGroup]=useState<RosterEntityReviewGroup|null>(null);
   const reviewGroups = useMemo(() => {
     return RosterBatchReviewService.getBatchReviewGroups(importBatch);
   }, [importBatch]);
@@ -140,131 +130,13 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   const isTruckLayerComplete = truckGroups.length > 0 ? unresolvedTruckCount === 0 : true;
   const isLayerComplete = (totalGroups > 0 || Boolean(canonicalContext)) && totalUnresolved === 0;
 
-  const resolveDriverConflictField = (fieldKey: string) => {
-    setUnresolvedDriverConflictFields((prev) => {
-      const next = prev.filter((f) => f !== fieldKey);
-      if (next.length === 0) setDriverFormError(null);
-      return next;
-    });
-  };
-
-  const resolveTruckConflictField = (fieldKey: string) => {
-    setUnresolvedTruckConflictFields((prev) => {
-      const next = prev.filter((f) => f !== fieldKey);
-      if (next.length === 0) setTruckFormError(null);
-      return next;
-    });
-  };
-
-  const handleCloseDriverModal = () => {
-    setCreatingDriverGroup(null);
-    setDriverFormData({ driverName: '', residencyId: '', phone: '' });
-    setUnresolvedDriverConflictFields([]);
-    setDriverConflictDetails({});
-    setDriverFormError(null);
-  };
-
-  const handleCloseTruckModal = () => {
-    setCreatingTruckGroup(null);
-    setTruckFormData({ plateNumber: '', truckType: '' });
-    setUnresolvedTruckConflictFields([]);
-    setTruckConflictDetails({});
-    setTruckFormError(null);
-  };
-
-  // Open Driver Creation subform
-  const handleOpenDriverCreation = (group: RosterEntityReviewGroup) => {
-    setCreatingDriverGroup(group);
-    const defaults = RosterBatchReviewService.deriveDriverCreationDefaults(importBatch, group);
-    setDriverFormData({
-      driverName: defaults.driverName || (/^[0-9٠-٩]+$/.test(group.sourceValue) ? '' : group.sourceValue) || '',
-      residencyId: defaults.residencyId || '',
-      phone: defaults.phone || '',
-    });
-    if (defaults.hasConflict) {
-      const conflictKeys = Object.keys(defaults.conflicts);
-      setUnresolvedDriverConflictFields(conflictKeys);
-      setDriverConflictDetails(defaults.conflicts);
-      setDriverFormError(t('entityResolution.messages.driver_source_conflicts'));
-    } else {
-      setUnresolvedDriverConflictFields([]);
-      setDriverConflictDetails({});
-      setDriverFormError(null);
-    }
-  };
-
-  // Submit Driver Creation
-  const handleSubmitDriverCreation = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!creatingDriverGroup) return;
-
-    if (unresolvedDriverConflictFields.length > 0) {
-      setDriverFormError(t('entityResolution.messages.driver_resolve_before_create'));
-      return;
-    }
-
-    if (!driverFormData.driverName.trim()) {
-      setDriverFormError(t('entityResolution.messages.driver_name_required'));
-      return;
-    }
-    if (!driverFormData.residencyId.trim() || driverFormData.residencyId.trim().length !== 10) {
-      setDriverFormError(t('entityResolution.messages.residency_identifier_length'));
-      return;
-    }
-
-    try {
-      await onCreateDriver(creatingDriverGroup, driverFormData);
-      handleCloseDriverModal();
-    } catch (err: any) {
-      setDriverFormError(err.message || t('entityResolution.messages.driver_create_failed'));
-    }
-  };
-
-  // Open Truck Creation subform
-  const handleOpenTruckCreation = (group: RosterEntityReviewGroup) => {
-    setCreatingTruckGroup(group);
-    const defaults = RosterBatchReviewService.deriveTruckCreationDefaults(importBatch, group);
-    setTruckFormData({
-      plateNumber: defaults.plateNumber || group.sourceValue || '',
-      truckType: defaults.truckType || '',
-      tareWeightKg: defaults.tareWeightKg,
-      maxGrossWeightKg: defaults.maxGrossWeightKg,
-    });
-    if (defaults.hasConflict) {
-      const conflictKeys = Object.keys(defaults.conflicts);
-      setUnresolvedTruckConflictFields(conflictKeys);
-      setTruckConflictDetails(defaults.conflicts);
-      setTruckFormError(t('entityResolution.messages.truck_source_conflicts'));
-    } else {
-      setUnresolvedTruckConflictFields([]);
-      setTruckConflictDetails({});
-      setTruckFormError(null);
-    }
-  };
-
-  // Submit Truck Creation
-  const handleSubmitTruckCreation = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!creatingTruckGroup) return;
-
-    if (unresolvedTruckConflictFields.length > 0) {
-      setTruckFormError(t('entityResolution.messages.truck_resolve_before_create'));
-      return;
-    }
-
-    if (!truckFormData.plateNumber.trim()) {
-      setTruckFormError(t('entityResolution.messages.truck_plate_required'));
-      return;
-    }
-
-    try {
-      await onCreateTruck(creatingTruckGroup, truckFormData);
-      handleCloseTruckModal();
-    } catch (err: any) {
-      setTruckFormError(err.message || t('entityResolution.messages.truck_create_failed'));
-    }
-  };
-
+  const handleOpenDriverCreation=(group:RosterEntityReviewGroup)=>setCreatingDriverGroup(group);
+  const handleOpenTruckCreation=(group:RosterEntityReviewGroup)=>setCreatingTruckGroup(group);
+  const handleCloseDriverModal=()=>setCreatingDriverGroup(null);
+  const handleCloseTruckModal=()=>setCreatingTruckGroup(null);
+  const creatingGroup=creatingDriverGroup||creatingTruckGroup;
+  const defaults=creatingGroup?contextualFleetDefaults(importBatch,creatingGroup):undefined;
+  const creationCarriers=(canonicalContext?.importResolution?.entities||[]).filter(e=>e.kind==='CARRIER'&&e.membershipStatus==='ACTIVE'&&e.globalStatus==='ACTIVE'&&!e.issue);
   const panelContent = (
     <>
       <div className={`bg-stone-900 border border-stone-800 rounded-2xl w-full overflow-hidden flex flex-col ${embeddedInWorkflowHost ? 'flex-1 min-h-0' : 'max-w-4xl shadow-2xl max-h-[90vh]'}`}>
@@ -462,7 +334,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                         </div>
                       </div>
 
-                      {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} carrierId={extractGroupCarrierContext(group)} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>handleOpenDriverCreation(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
+                      {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} carrierId={extractGroupCarrierContext(group)} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>handleOpenDriverCreation(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
                       {/* Action Controls for Unresolved Driver Groups */}
                       {!canonicalContext && !isResolved && (
                         <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">
@@ -526,7 +398,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                           {carrierContext ? (
                             <button
                               type="button"
-                              disabled={isProcessing}
+                              disabled={isProcessing || !canManageParticipation}
                               onClick={() => handleOpenDriverCreation(group)}
                               className="px-3 py-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-[10px] font-black transition-colors flex items-center gap-1.5 shadow-sm shadow-amber-950/50"
                             >
@@ -627,7 +499,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                         </div>
                       </div>
 
-                      {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} carrierId={extractGroupCarrierContext(group)} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>handleOpenTruckCreation(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
+                      {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} carrierId={extractGroupCarrierContext(group)} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>handleOpenTruckCreation(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
                       {/* Action Controls for Unresolved Truck Groups */}
                       {!canonicalContext && !isResolved && (
                         <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">
@@ -691,7 +563,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                           {carrierContext ? (
                             <button
                               type="button"
-                              disabled={isProcessing}
+                              disabled={isProcessing || !canManageParticipation}
                               onClick={() => handleOpenTruckCreation(group)}
                               className="px-3 py-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-[10px] font-black transition-colors flex items-center gap-1.5 shadow-sm shadow-amber-950/50"
                             >
@@ -768,269 +640,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
         </div>
       </div>
 
-      {/* COMPACT MODAL: CREATE DRIVER (NO PROMPT) */}
-      {creatingDriverGroup && (() => {
-        const modalContent = (
-          <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-60 flex items-center justify-center p-4">
-            <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl p-5 space-y-4">
-              <div className="flex justify-between items-center border-b border-stone-800 pb-3">
-                <h4 className="text-sm font-black text-white flex items-center gap-2">
-                  <Users className="w-4 h-4 text-amber-500" />
-                  <span>{t('entityResolution.labels.create_carrier_driver')}</span>
-                </h4>
-                <button
-                  type="button"
-                  onClick={handleCloseDriverModal}
-                  className="text-stone-400 hover:text-white p-1"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {driverFormError && (
-                <div className="bg-rose-950/70 border border-rose-800 p-2.5 rounded-xl text-[11px] text-rose-300 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{presentBatch4Message(driverFormError, t)}</span>
-                </div>
-              )}
-
-              {Object.keys(driverConflictDetails).length > 0 && (
-                <div className="bg-amber-950/60 border border-amber-700/80 p-3 rounded-xl space-y-1 text-xs text-amber-200">
-                  <div className="font-black flex items-center gap-1.5 text-amber-300">
-                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>{t('entityResolution.labels.resolve_source_conflicts')}</span>
-                  </div>
-                  <ul className="list-disc list-inside text-[11px] font-mono space-y-0.5">
-                    {Object.entries(driverConflictDetails).map(([f, vals]) => (
-                      <li key={f} className={unresolvedDriverConflictFields.includes(f) ? 'text-rose-300 font-bold' : 'text-emerald-300 line-through opacity-70'}>
-                        {batch4ConflictFieldLabel(t, f)}: {vals.join(` ${t('entityResolution.labels.versus')} `)} {unresolvedDriverConflictFields.includes(f) ? t('entityResolution.labels.awaiting_resolution') : t('entityResolution.labels.resolved_status')}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="text-[10px] text-amber-300/70 pt-1">{t('entityResolution.labels.enter_approved_conflict_value')}</p>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmitDriverCreation} className="space-y-3 text-xs">
-                <div>
-                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.automatic_carrier')}</label>
-                  <input
-                    type="text"
-                    disabled
-                    value={extractGroupCarrierContext(creatingDriverGroup) || t('shared.labels.unspecified')}
-                    className="w-full bg-stone-950 border border-stone-800 text-stone-400 px-3 py-2 rounded-xl text-xs font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.driver_full_name')}</label>
-                  <input
-                    type="text"
-                    required
-                    value={driverFormData.driverName}
-                    onChange={(e) => {
-                      setDriverFormData({ ...driverFormData, driverName: e.target.value });
-                      if (e.target.value.trim()) resolveDriverConflictField('اسم السائق');
-                    }}
-                    placeholder={t('shared.labels.example_value', { value: "سالم علي القحطاني" })}
-                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs focus:outline-hidden focus:border-amber-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.residency_identifier_label')}</label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={10}
-                    value={driverFormData.residencyId}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      setDriverFormData({ ...driverFormData, residencyId: val });
-                      if (val.length === 10) resolveDriverConflictField('رقم الهوية/الإقامة');
-                    }}
-                    placeholder={t('shared.labels.example_value', { value: t('shared.labels.alternative_values', { first: '1023456789', second: '2023456789' }) })}
-                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.mobile_optional')}</label>
-                  <input
-                    type="text"
-                    value={driverFormData.phone || ''}
-                    onChange={(e) => {
-                      setDriverFormData({ ...driverFormData, phone: e.target.value });
-                      if (e.target.value.trim()) resolveDriverConflictField('رقم الجوال');
-                    }}
-                    placeholder={t('shared.labels.example_value', { value: "0501234567" })}
-                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2 border-t border-stone-800">
-                  <button
-                    type="button"
-                    onClick={handleCloseDriverModal}
-                    disabled={isProcessing}
-                    className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
-                  >
-                    {t('shared.actions.cancel')}
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isProcessing}
-                    className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>{t('entityResolution.labels.save_create_driver')}</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        );
-        return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
-      })()}
-
-      {/* COMPACT MODAL: CREATE TRUCK (NO PROMPT) */}
-      {creatingTruckGroup && (() => {
-        const modalContent = (
-          <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-60 flex items-center justify-center p-4">
-            <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl p-5 space-y-4">
-              <div className="flex justify-between items-center border-b border-stone-800 pb-3">
-                <h4 className="text-sm font-black text-white flex items-center gap-2">
-                  <Truck className="w-4 h-4 text-amber-500" />
-                  <span>{t('entityResolution.labels.create_carrier_truck')}</span>
-                </h4>
-                <button
-                  type="button"
-                  onClick={handleCloseTruckModal}
-                  className="text-stone-400 hover:text-white p-1"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {truckFormError && (
-                <div className="bg-rose-950/70 border border-rose-800 p-2.5 rounded-xl text-[11px] text-rose-300 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{presentBatch4Message(truckFormError, t)}</span>
-                </div>
-              )}
-
-              {Object.keys(truckConflictDetails).length > 0 && (
-                <div className="bg-amber-950/60 border border-amber-700/80 p-3 rounded-xl space-y-1 text-xs text-amber-200">
-                  <div className="font-black flex items-center gap-1.5 text-amber-300">
-                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>{t('entityResolution.labels.resolve_source_conflicts')}</span>
-                  </div>
-                  <ul className="list-disc list-inside text-[11px] font-mono space-y-0.5">
-                    {Object.entries(truckConflictDetails).map(([f, vals]) => (
-                      <li key={f} className={unresolvedTruckConflictFields.includes(f) ? 'text-rose-300 font-bold' : 'text-emerald-300 line-through opacity-70'}>
-                        {batch4ConflictFieldLabel(t, f)}: {vals.join(` ${t('entityResolution.labels.versus')} `)} {unresolvedTruckConflictFields.includes(f) ? t('entityResolution.labels.awaiting_resolution') : t('entityResolution.labels.resolved_status')}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="text-[10px] text-amber-300/70 pt-1">{t('entityResolution.labels.enter_approved_conflict_value')}</p>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmitTruckCreation} className="space-y-3 text-xs">
-                <div>
-                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.automatic_carrier')}</label>
-                  <input
-                    type="text"
-                    disabled
-                    value={extractGroupCarrierContext(creatingTruckGroup) || t('shared.labels.unspecified')}
-                    className="w-full bg-stone-950 border border-stone-800 text-stone-400 px-3 py-2 rounded-xl text-xs font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.truck_plate_label')}</label>
-                  <input
-                    type="text"
-                    required
-                    value={truckFormData.plateNumber}
-                    onChange={(e) => {
-                      setTruckFormData({ ...truckFormData, plateNumber: e.target.value });
-                      if (e.target.value.trim()) resolveTruckConflictField('رقم اللوحة');
-                    }}
-                    placeholder={t('shared.labels.example_value', { value: "أ ب ج 1234" })}
-                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.truck_body_optional')}</label>
-                  <input
-                    type="text"
-                    value={truckFormData.truckType || ''}
-                    onChange={(e) => {
-                      setTruckFormData({ ...truckFormData, truckType: e.target.value });
-                      if (e.target.value.trim()) resolveTruckConflictField('نوع الشاحنة');
-                    }}
-                    placeholder={t('shared.labels.example_value', { value: t('entityResolution.labels.truck_body_examples') })}
-                    className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs focus:outline-hidden focus:border-amber-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.tare_kg_optional')}</label>
-                    <input
-                      type="number"
-                      value={truckFormData.tareWeightKg || ''}
-                      onChange={(e) => {
-                        const val = e.target.value ? Number(e.target.value) : undefined;
-                        setTruckFormData({ ...truckFormData, tareWeightKg: val });
-                        if (val !== undefined && !isNaN(val)) resolveTruckConflictField('الوزن الفارغ');
-                      }}
-                      placeholder={t('shared.labels.example_value', { value: "14000" })}
-                      className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-stone-400 mb-1 font-bold">{t('entityResolution.labels.max_weight_kg_optional')}</label>
-                    <input
-                      type="number"
-                      value={truckFormData.maxGrossWeightKg || ''}
-                      onChange={(e) => {
-                        const val = e.target.value ? Number(e.target.value) : undefined;
-                        setTruckFormData({ ...truckFormData, maxGrossWeightKg: val });
-                        if (val !== undefined && !isNaN(val)) resolveTruckConflictField('الوزن الأقصى');
-                      }}
-                      placeholder={t('shared.labels.example_value', { value: "45000" })}
-                      className="w-full bg-stone-950 border border-stone-800 text-stone-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-hidden focus:border-amber-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2 border-t border-stone-800">
-                  <button
-                    type="button"
-                    onClick={handleCloseTruckModal}
-                    disabled={isProcessing}
-                    className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
-                  >
-                    {t('shared.actions.cancel')}
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isProcessing}
-                    className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>{t('entityResolution.labels.save_create_truck')}</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        );
-        return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
-      })()}
+      {creatingGroup && defaults && <CanonicalFleetIdentityEditor key={`${importBatch.projectId}:${importBatch.importBatchId}:${creatingGroup.normalizedSourceKey}`} projectId={importBatch.projectId} kind={creatingDriverGroup?'DRIVER':'TRUCK'} initialValues={defaults} conflicts={defaults.conflicts} carriers={creationCarriers} lockCarrier planned isCurrent={isCurrent} onClose={()=>{handleCloseDriverModal();handleCloseTruckModal();}} onSubmit={async data=>{if(!canManageParticipation)throw Error('FORBIDDEN');if(creatingDriverGroup)await onCreateDriver(creatingDriverGroup,data);else if(creatingTruckGroup)await onCreateTruck(creatingTruckGroup,data);}}/>}
     </>
   );
 

@@ -1,6 +1,10 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "import.context.noPermission": "Creating canonical identity or changing its participation requires an authorized administrator. You can leave this group unresolved.",
+  "import.context.planned": "Prepare Global identity, Project membership and Carrier affiliation for later execution. No identity is created now; no assignment or allocation is executed.",
+  "import.context.immediateFleet": "This explicit canonical action creates or reuses Global identity and establishes Project membership and Carrier affiliation now. It does not execute Driver assignment or Material allocation.",
+  "intent.action.CREATE": "Canonical setup completed",
   "intent.title": "Canonical intent review",
   "intent.sourceRows": "Source rows",
   "intent.rows": "Rows",

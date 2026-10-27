@@ -1075,7 +1075,7 @@ describe('P7-B3 semantic review translation boundary', () => {
     visit(ast);
     expect(unmanaged).toEqual([]);
     const keys = Object.keys(enTranslations).filter(k => k.startsWith('intent.'));
-    expect(keys).toHaveLength(37);
+    expect(keys).toHaveLength(38);
     expect(source).toContain("t('intent.sourceRows')");
     for (const key of keys) for (const dictionary of [arTranslations, enTranslations, urTranslations]) expect(dictionary[key]?.trim().length, key).toBeGreaterThan(0);
   });

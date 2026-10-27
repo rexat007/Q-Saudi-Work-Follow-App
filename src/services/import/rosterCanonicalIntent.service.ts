@@ -127,7 +127,14 @@ export function buildRosterCanonicalIntent(batch: UnifiedImportBatch, context: P
   intent.entityConsequences = intent.entities.map(e => ({ key: `${e.kind}:${e.key}`, action: e.prepared ? 'PREPARE_NEW' : 'REUSE', completed: !e.prepared, rowNumbers: e.rowNumbers }));
   // Optional receipts only describe commands B2 actually completed; never infer them from membership state.
   for (const receipt of batch.metadata?.canonicalPrerequisites || []) {
-    if (receipt.projectId === batch.projectId && ['ENROLL', 'REACTIVATE', 'AFFILIATE', 'REACTIVATE_AFFILIATION'].includes(receipt.action) && receipt.completed === true && intent.entities.some(e => `${e.kind}:${e.key}` === receipt.key) && !intent.entityConsequences.some(c => c.key === receipt.key && c.action === receipt.action)) intent.entityConsequences.push({ key: receipt.key, action: receipt.action, completed: true, rowNumbers: intent.entities.find(e => `${e.kind}:${e.key}` === receipt.key)!.rowNumbers });
+    if (receipt.projectId !== batch.projectId || !['CREATE', 'ENROLL', 'REACTIVATE', 'AFFILIATE', 'REACTIVATE_AFFILIATION'].includes(receipt.action) || receipt.completed !== true) continue;
+    let displayEntity = intent.entities.find(e => `${e.kind}:${e.key}` === receipt.key);
+    if (!displayEntity) {
+      // Acknowledged prerequisites survive row exclusion; they are not pending import work.
+      const current = ctx?.entities.find(e => `${e.kind}:${e.id}` === receipt.key);
+      if (current) { displayEntity = {key:current.id,kind:current.kind,label:current.name,prepared:false,rowNumbers:[]}; intent.entities.push(displayEntity); }
+    }
+    if (displayEntity && !intent.entityConsequences.some(c => c.key === receipt.key && c.action === receipt.action)) intent.entityConsequences.push({ key: receipt.key, action: receipt.action, completed: true, rowNumbers: receipt.rowNumbers || displayEntity.rowNumbers });
   }
   for (const e of ctx?.entities || []) {
     if (!intent.entities.some(i => i.kind === e.kind && i.key === e.id) && (intent.assignmentIntents.some(a => a.displaced.some(d => e.kind === 'DRIVER' && d.driverId === e.id || e.kind === 'TRUCK' && d.truckId === e.id)) || intent.allocationIntents.some(a => e.kind === 'MATERIAL' && a.displaced?.materialId === e.id))) intent.entities.push({ key: e.id, kind: e.kind, label: e.name, prepared: false, rowNumbers: [] });

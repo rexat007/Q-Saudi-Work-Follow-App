@@ -1,6 +1,10 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "import.context.noPermission": "يتطلب إنشاء الهوية المعتمدة أو تغيير عضويتها مديراً مخولاً. يمكنك ترك هذه المجموعة دون حسم.",
+  "import.context.planned": "هذه خطة لهوية عامة وعضوية مشروع وارتباط بالناقل للتنفيذ لاحقاً. لا تُحفظ هوية الآن ولا يُنفذ إسناد أو تخصيص.",
+  "import.context.immediateFleet": "ينشئ هذا الإجراء المعتمد الهوية العامة أو يعيد استخدامها، ويثبت عضوية المشروع والارتباط بالناقل الآن. لا ينفذ إسناد سائق أو تخصيص مادة.",
+  "intent.action.CREATE": "إعداد معتمد مكتمل",
   "intent.title": "مراجعة القصد التشغيلي",
   "intent.sourceRows": "صفوف المصدر",
   "intent.rows": "الصفوف",

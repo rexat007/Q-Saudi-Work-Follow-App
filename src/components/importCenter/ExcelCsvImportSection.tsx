@@ -1,3 +1,5 @@
+import { ContextualCanonicalCreation } from '../import/ContextualCanonicalCreation';
+import { ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { CanonicalResolutionDecision } from '../import/CanonicalResolutionDecision';
 import { applyOperationalGroupChoice } from '../../services/import/importResolutionWorkflow';
 import { canonicalRelationshipContextService } from '../../services/canonicalRelationshipContext.service';
@@ -85,10 +87,13 @@ function ExcelCsvImportContent({
   userName,
   userRole,
   onCommitSuccess,
-  canonicalRelationshipContext,
+  canonicalRelationshipContext: providedCanonicalContext,
   pipelineContext, reloadCanonicalContext, isImportCurrent = () => true,
 }: ExcelCsvImportSectionProps) {
   const { t, direction, locale } = useI18n();
+  const [contextualContext,setContextualContext]=useState<RelationshipContext|null>(null);
+  const canonicalRelationshipContext=contextualContext?.projectId===currentProjectId?contextualContext:providedCanonicalContext;
+  useEffect(()=>setContextualContext(null),[providedCanonicalContext,currentProjectId]);
   // File state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileBuffer, setFileBuffer] = useState<ArrayBuffer | null>(null);
@@ -128,19 +133,7 @@ function ExcelCsvImportContent({
   const [activeCorrectionRowNumber, setActiveCorrectionRowNumber] = useState<number | null>(null);
   const [correctionDraft, setCorrectionDraft] = useState<Partial<CanonicalTripRow>>({});
   const [correctionError, setCorrectionError] = useState<string | null>(null);
-  const [createFormData, setCreateFormData] = useState<{
-    nameAr?: string;
-    commercialRegistrationNo?: string;
-    transportLicenseNo?: string;
-    code?: string;
-    driverName?: string;
-    residencyId?: string;
-    phone?: string;
-    plateNumber?: string;
-    truckType?: string;
-    tareWeightKg?: number;
-    maxGrossWeightKg?: number;
-  }>({});
+
 
   const handleStartRowCorrection = (row: ImportRow) => {
     setActiveCorrectionRowNumber(row.rowNumber);
@@ -263,36 +256,7 @@ function ExcelCsvImportContent({
     }
   };
 
-  const handleOpenCreateForm = (group: RosterEntityReviewGroup) => {
-    setActiveCreateGroupKey(group.normalizedSourceKey);
-    setCreateError(null);
-    const sourceVal = group.sourceValue || '';
-    if (group.entityType === 'carrier') {
-      setCreateFormData({
-        nameAr: sourceVal,
-        commercialRegistrationNo: '',
-        transportLicenseNo: '',
-      });
-    } else if (group.entityType === 'material') {
-      setCreateFormData({
-        nameAr: sourceVal,
-        code: '',
-      });
-    } else if (group.entityType === 'driver') {
-      setCreateFormData({
-        driverName: sourceVal,
-        residencyId: '',
-        phone: '',
-      });
-    } else if (group.entityType === 'truck') {
-      setCreateFormData({
-        plateNumber: sourceVal,
-        truckType: '',
-        tareWeightKg: undefined,
-        maxGrossWeightKg: undefined,
-      });
-    }
-  };
+  const handleOpenCreateForm = (group: RosterEntityReviewGroup) => setActiveCreateGroupKey(group.normalizedSourceKey);
 
   const reviewGroups = useMemo(() => {
     if (!activeBatch) return { carrier: [], material: [], driver: [], truck: [] };
@@ -309,8 +273,7 @@ function ExcelCsvImportContent({
     return RosterBatchReviewService.getRowExceptions(activeBatch);
   }, [activeBatch]);
 
-  const creationLock = useRef(false);
-  const creationReceipt = useRef<{ group: string; result: NormalizedEntityResolutionResult } | null>(null);
+  const contextualReceipts = useRef(new ContextualPrerequisiteReceipts()).current;
   const requireCurrentContext = async () => {
     if (!isImportCurrent() || !reloadCanonicalContext) throw Error('PROJECT_CONTEXT_STALE');
     const fresh = await reloadCanonicalContext();
@@ -318,15 +281,18 @@ function ExcelCsvImportContent({
     if (!isImportCurrent() || fresh.projectId !== currentProjectId || fresh.importResolution?.projectId !== currentProjectId) throw Error('PROJECT_CONTEXT_STALE');
     return ImportProjectContextAdapter.createPipelineContext({ relContext:fresh, projectId:currentProjectId, userId:effectiveUserId, userName:effectiveUserName, role:effectiveRole, operationId:activeOperationId || activeBatch?.operationId || context.operationId });
   };
-  const applyVerifiedChoice = async (group: RosterEntityReviewGroup, fresh: RelationshipContext, id: string) => {
-    await handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id},fresh);
+  const applyVerifiedChoice = async (group: RosterEntityReviewGroup, fresh: RelationshipContext, id: string, prerequisite?: string) => {
+    if(!isImportCurrent()||fresh.projectId!==currentProjectId)throw Error('PROJECT_CONTEXT_STALE');
+    setContextualContext(fresh);
+    await handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id},fresh,prerequisite);
   };
   const handleGroupResolutionDecision = async (
     entityTypeKey: 'carrier' | 'truck' | 'driver' | 'material',
     normalizedSourceKey: string,
     decision: 'ACCEPT_CANDIDATE' | 'SELECT_ALTERNATE' | 'LEAVE_UNRESOLVED',
     candidate?: { selectedEntityId?: string; selectedDisplayName?: string },
-    verifiedContext?: RelationshipContext
+    verifiedContext?: RelationshipContext,
+    prerequisite?: string
   ) => {
     if (!isImportCurrent()) return;
     if (!activeBatch) return;
@@ -337,6 +303,7 @@ function ExcelCsvImportContent({
     if (!isImportCurrent()) return;
       const updated = applyOperationalGroupChoice(activeBatch, {entityType:entityTypeKey,normalizedSourceKey:normalizedSourceKey}, (candidate || {}).selectedEntityId, context, effectiveUserId || 'user', decision);
 
+      if (prerequisite) updated.metadata={...updated.metadata,canonicalPrerequisites:[...(updated.metadata?.canonicalPrerequisites||[]),{projectId:currentProjectId,key:`${entityTypeKey.toUpperCase()}:${candidate?.selectedEntityId}`,action:prerequisite,completed:true,rowNumbers:RosterBatchReviewService.getBatchReviewGroups(activeBatch)[entityTypeKey].find(g=>g.normalizedSourceKey===normalizedSourceKey)?.rowNumbers||[]}]};
       setActiveBatch({ ...updated });
 
       if (currentProjectId && activeSessionId) {
@@ -380,189 +347,7 @@ function ExcelCsvImportContent({
     }
   };
 
-  const handleGroupCreateCanonicalEntity = async (
-    group: RosterEntityReviewGroup,
-    formData: {
-      nameAr?: string;
-      commercialRegistrationNo?: string;
-      transportLicenseNo?: string;
-      code?: string;
-      driverName?: string;
-      residencyId?: string;
-      phone?: string;
-      plateNumber?: string;
-      truckType?: string;
-      tareWeightKg?: number;
-      maxGrossWeightKg?: number;
-    }
-  ) => {
-    if (!isImportCurrent()) return;
-    if (!activeBatch || !currentProjectId) return;
-    const representativeRowNumber = group.rowNumbers[0];
-    const row = activeBatch.rows.find((r) => r.rowNumber === representativeRowNumber);
-    if (!row) return;
 
-    if (creationLock.current) return;
-    creationLock.current=true;
-    setProcessError(null);
-    setCreateError(null);
-    setIsCreatingEntity(true);
-
-    try {
-      let result: NormalizedEntityResolutionResult | undefined = creationReceipt.current?.group === group.normalizedSourceKey ? creationReceipt.current.result : undefined;
-      const resItem = group.currentResolution;
-      const sourceVal = resItem?.sourceValue || resItem?.originalValue || group.sourceValue || formData.nameAr || formData.driverName || formData.plateNumber || formData.code || '';
-
-      if (!result) {
-        if(group.currentResolution?.ambiguous) throw Error('IDENTITY_AMBIGUITY');
-        const kind=group.entityType.toUpperCase() as 'CARRIER'|'MATERIAL'|'DRIVER'|'TRUCK';
-        const naturalKey=String(group.entityType==='carrier'?formData.commercialRegistrationNo:group.entityType==='material'?formData.code:group.entityType==='driver'?formData.residencyId:formData.plateNumber).trim();
-        const lookupContext=await canonicalRelationshipContextService.getProjectRelationshipContext(currentProjectId,{resolution:true,kind,naturalKey});
-    if (!isImportCurrent()) return;
-        if(!isImportCurrent())return;
-        const lookup=lookupContext.importResolution?.lookup;
-        if(!lookup||lookup.kind!==kind||lookup.naturalKey!==naturalKey)throw Error('CONTEXT_UNAVAILABLE');
-        if(lookup.matchedId){await applyVerifiedChoice(group,lookupContext,lookup.matchedId);
-    if (!isImportCurrent()) return;if(isImportCurrent())setActiveCreateGroupKey(null);return;}
-      if (group.entityType === 'carrier') {
-        if (!formData.commercialRegistrationNo || !formData.commercialRegistrationNo.trim()) {
-          throw new Error(t('entityResolution.messages.carrier_registration_required'));
-        }
-        result = await entityResolutionCommandService.createCarrier({
-          projectId: currentProjectId,
-          sourceValue: sourceVal,
-          carrierData: {
-            nameAr: (formData.nameAr && formData.nameAr.trim()) ? formData.nameAr.trim() : sourceVal,
-            commercialRegistrationNo: formData.commercialRegistrationNo.trim(),
-            ...(formData.transportLicenseNo?.trim() ? { transportLicenseNo: formData.transportLicenseNo.trim() } : {}),
-          },
-        });
-    if (!isImportCurrent()) return;
-      } else if (group.entityType === 'material') {
-        if (!formData.code || !formData.code.trim()) {
-          throw new Error(t('entityResolution.messages.material_code_required'));
-        }
-        result = await entityResolutionCommandService.createMaterial({
-          projectId: currentProjectId,
-          sourceValue: sourceVal,
-          materialData: {
-            code: formData.code.trim(),
-            nameAr: (formData.nameAr && formData.nameAr.trim()) ? formData.nameAr.trim() : sourceVal,
-          },
-        });
-    if (!isImportCurrent()) return;
-      } else if (group.entityType === 'driver') {
-        let carrierId = row.resolvedValues?.carrierId;
-        if (!carrierId) {
-          const carrierRes = row.entityResolutions?.carrier;
-          if (carrierRes) {
-            carrierId = carrierRes.matchedId || carrierRes.entityId;
-          }
-        }
-        if (!carrierId) {
-          throw new Error(t('entityResolution.messages.resolve_carrier_before_create', { entity: t('legacyMigration.labels.driver_2') }));
-        }
-        if (!formData.residencyId || !formData.residencyId.trim()) {
-          throw new Error(t('entityResolution.messages.residency_identifier_required'));
-        }
-        result = await entityResolutionCommandService.createDriver({
-          projectId: currentProjectId,
-          sourceValue: sourceVal,
-          driverData: {
-            carrierId,
-            driverName: (formData.driverName && formData.driverName.trim()) ? formData.driverName.trim() : sourceVal,
-            residencyId: formData.residencyId.trim(),
-            ...(formData.phone?.trim() ? { phone: formData.phone.trim() } : {}),
-          },
-        });
-    if (!isImportCurrent()) return;
-      } else if (group.entityType === 'truck') {
-        let carrierId = row.resolvedValues?.carrierId;
-        if (!carrierId) {
-          const carrierRes = row.entityResolutions?.carrier;
-          if (carrierRes) {
-            carrierId = carrierRes.matchedId || carrierRes.entityId;
-          }
-        }
-        if (!carrierId) {
-          throw new Error(t('entityResolution.messages.resolve_carrier_before_create', { entity: t('legacyMigration.labels.truck_2') }));
-        }
-        if (!formData.plateNumber || !formData.plateNumber.trim()) {
-          throw new Error(`${t('entityResolution.messages.truck_plate_required')} (plateNumber)`);
-        }
-        result = await entityResolutionCommandService.createTruck({
-          projectId: currentProjectId,
-          sourceValue: sourceVal,
-          truckData: {
-            carrierId,
-            plateNumber: formData.plateNumber.trim(),
-            ...(formData.truckType?.trim() ? { truckType: formData.truckType.trim() } : {}),
-            ...(formData.tareWeightKg !== undefined ? { tareWeightKg: formData.tareWeightKg } : {}),
-            ...(formData.maxGrossWeightKg !== undefined ? { maxGrossWeightKg: formData.maxGrossWeightKg } : {}),
-          },
-        });
-    if (!isImportCurrent()) return;
-      } else {
-        throw new Error(t('entityResolution.messages.unsupported_entity_type'));
-      }
-
-
-        if (!isImportCurrent()) return;
-        creationReceipt.current = {group:group.normalizedSourceKey,result:result!};
-      }
-      const context = await requireCurrentContext();
-    if (!isImportCurrent()) return;
-      if(!context.resolutionContext?.entities.some(e=>e.id===result!.matchedId&&e.kind===result!.entityType&&e.membershipStatus==='ACTIVE'&&e.globalStatus==='ACTIVE'))throw Error('CONTEXT_UNAVAILABLE');
-      const updated = applyOperationalGroupChoice(activeBatch, group, result!.matchedId, context, effectiveUserId);
-
-      setActiveBatch({ ...updated });
-      setActiveCreateGroupKey(null);
-      creationReceipt.current = null;
-
-      if (currentProjectId && activeSessionId) {
-        const cleanSnapshot = {
-          totalRows: updated.totalRows,
-          validRows: updated.validRows,
-          warningRows: updated.warningRows,
-          errorRows: updated.errorRows,
-          requiresReviewRows: updated.requiresReviewRows,
-          committedRows: updated.committedRows,
-          rows: updated.rows.map((r) => {
-            const { rawInput, ...rest } = r as any;
-            return rest;
-          }),
-        };
-
-        const updatedSession = await importSessionClientService.updateCheckpoint(
-          currentProjectId,
-          activeSessionId,
-          {
-            lifecycleState: 'REVIEW_REQUIRED',
-            currentStage: 'REVIEW',
-            reviewSnapshot: cleanSnapshot,
-            validationIssues: updated.issues || [],
-            warningConfirmation: confirmWarnings,
-            reviewAction: { normalizedSourceKey: group.normalizedSourceKey, entityType: group.entityType, action: 'CREATE_CANONICAL' as any },
-          },
-          sessionVersion
-        );
-    if (!isImportCurrent()) return;
-
-        setSessionVersion(updatedSession.version);
-      }
-    } catch (err: any) {
-    if (!isImportCurrent()) return;
-      if (err?.code === 'VERSION_CONFLICT') {
-        setCreateError(t('entityResolution.messages.version_conflict'));
-      } else {
-        setCreateError(t(resolutionErrorKey(err)));
-      }
-    } finally {
-      creationLock.current=false;
-    if (!isImportCurrent()) return;
-      setIsCreatingEntity(false);
-    }
-  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -1830,7 +1615,7 @@ function ExcelCsvImportContent({
                                     </div>
 
                                     {/* Action Buttons */}
-                                    {canonicalRelationshipContext?.importResolution&&<CanonicalResolutionDecision canMutate={effectiveRole==='PROJECT_ADMIN'||effectiveRole==='SUPER_ADMIN'} projectId={currentProjectId} context={canonicalRelationshipContext} group={group} carrierId={resolvedCarrierId} isCurrent={isImportCurrent} disabled={isProcessing||isCreatingEntity} onSelect={id=>handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id})} onCreate={()=>handleOpenCreateForm(group)} onVerified={(fresh,id)=>applyVerifiedChoice(group,fresh,id)}/>}
+                                    {canonicalRelationshipContext?.importResolution&&<CanonicalResolutionDecision receipts={contextualReceipts} receiptScope={activeBatch.importBatchId} canMutate={effectiveRole==='PROJECT_ADMIN'||effectiveRole==='SUPER_ADMIN'} projectId={currentProjectId} context={canonicalRelationshipContext} group={group} carrierId={resolvedCarrierId} isCurrent={isImportCurrent} disabled={isProcessing||isCreatingEntity} onSelect={id=>handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id})} onCreate={()=>handleOpenCreateForm(group)} onVerified={(fresh,id,prerequisite)=>applyVerifiedChoice(group,fresh,id,prerequisite)}/>}
 {!canonicalRelationshipContext?.importResolution&&(<div className="flex items-center gap-2 flex-wrap shrink-0">
                                       {/* Accept Suggestion (Review Required) */}
                                       {isReview && group.matchedId && (
@@ -1930,240 +1715,7 @@ function ExcelCsvImportContent({
                                     </div>)}
                                   </div>
 
-                                  {/* Creation Form Panel */}
-                                  {isCreateOpen && (
-                                    <div className="mt-4 pt-4 border-t border-stone-200/80 bg-white p-4 rounded-xl space-y-4 shadow-2xs">
-                                      <div className="flex items-center justify-between">
-                                        <h5 className="text-xs font-black text-stone-900 flex items-center gap-1.5">
-                                          <PlusCircle className="w-4 h-4 text-emerald-600" />
-                                          <span>{t('entityResolution.labels.create_project_entity_kind', { kind: group.entityType })}</span>
-                                        </h5>
-                                        <button
-                                          onClick={() => setActiveCreateGroupKey(null)}
-                                          className="text-stone-400 hover:text-stone-600 text-xs font-bold cursor-pointer"
-                                        >
-                                          {t('shared.actions.cancel')}
-                                        </button>
-                                      </div>
-
-                                      {isCarrierBlocked ? (
-                                        <div className="p-3 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold flex items-center gap-2">
-                                          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                                          <span>
-                                            {t('entityResolution.messages.resolve_carrier_before_create', { entity: group.entityType === 'driver' ? t('legacyMigration.labels.driver_2') : t('legacyMigration.labels.truck_2') })}. {t('entityResolution.messages.confirm_carrier_tab_first')}</span>
-                                        </div>
-                                      ) : (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-                                          {group.entityType === 'carrier' && (
-                                            <>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">{t('entityResolution.labels.carrier_name_arabic')}</label>
-                                                <input
-                                                  type="text"
-                                                  value={createFormData.nameAr ?? group.sourceValue}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({ ...prev, nameAr: e.target.value }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">
-                                                  {t('entityResolution.labels.commercial_registration')} <span className="text-rose-600">*</span>
-                                                </label>
-                                                <input
-                                                  type="text"
-                                                  placeholder={t('shared.labels.example_value', { value: "1010123456" })}
-                                                  value={createFormData.commercialRegistrationNo || ''}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({
-                                                      ...prev,
-                                                      commercialRegistrationNo: e.target.value,
-                                                    }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">{`${t('entityResolution.labels.transport_license_tga')} (${t('entityResolution.labels.optional')})`}</label>
-                                                <input
-                                                  type="text"
-                                                  placeholder={t('entityResolution.labels.optional')}
-                                                  value={createFormData.transportLicenseNo || ''}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({
-                                                      ...prev,
-                                                      transportLicenseNo: e.target.value,
-                                                    }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                            </>
-                                          )}
-
-                                          {group.entityType === 'material' && (
-                                            <>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">{t('analytics.column.material_name')}</label>
-                                                <input
-                                                  type="text"
-                                                  value={createFormData.nameAr ?? group.sourceValue}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({ ...prev, nameAr: e.target.value }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">
-                                                  {t('materials.labels.material_2')} <span className="text-rose-600">*</span>
-                                                </label>
-                                                <input
-                                                  type="text"
-                                                  placeholder={t('shared.labels.example_value', { value: "MAT-AGG-20" })}
-                                                  value={createFormData.code || ''}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({ ...prev, code: e.target.value }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                            </>
-                                          )}
-
-                                          {group.entityType === 'driver' && (
-                                            <>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">{t('entityResolution.labels.driver_name')}</label>
-                                                <input
-                                                  type="text"
-                                                  value={createFormData.driverName ?? group.sourceValue}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({ ...prev, driverName: e.target.value }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">
-                                                  {t('entityResolution.labels.residency_identifier')} <span className="text-rose-600">*</span>
-                                                </label>
-                                                <input
-                                                  type="text"
-                                                  placeholder={t('shared.labels.example_value', { value: '2412345678' })}
-                                                  value={createFormData.residencyId || ''}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({
-                                                      ...prev,
-                                                      residencyId: e.target.value,
-                                                    }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">{t('entityResolution.labels.mobile_optional')}</label>
-                                                <input
-                                                  type="text"
-                                                  placeholder="05xxxxxxxx"
-                                                  value={createFormData.phone || ''}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({ ...prev, phone: e.target.value }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                            </>
-                                          )}
-
-                                          {group.entityType === 'truck' && (
-                                            <>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">
-                                                  {t('analytics.column.plate_number')} <span className="text-rose-600">*</span>
-                                                </label>
-                                                <input
-                                                  type="text"
-                                                  value={createFormData.plateNumber ?? group.sourceValue}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({
-                                                      ...prev,
-                                                      plateNumber: e.target.value,
-                                                    }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">{t('entityResolution.labels.truck_body_optional')}</label>
-                                                <input
-                                                  type="text"
-                                                  placeholder={t('shared.labels.example_value', { value: t('entityResolution.labels.three_axle_tipper_example') })}
-                                                  value={createFormData.truckType || ''}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({ ...prev, truckType: e.target.value }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                              <div className="space-y-1">
-                                                <label className="font-bold text-stone-700 block">{t('entityResolution.labels.tare_kg_optional')}</label>
-                                                <input
-                                                  type="number"
-                                                  placeholder={t('shared.labels.example_value', { value: "14500" })}
-                                                  value={createFormData.tareWeightKg || ''}
-                                                  onChange={(e) =>
-                                                    setCreateFormData((prev) => ({
-                                                      ...prev,
-                                                      tareWeightKg: parseFloat(e.target.value) || undefined,
-                                                    }))
-                                                  }
-                                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-bold text-stone-900" disabled={isCreatingEntity || creationReceipt.current !== null}
-                                                />
-                                              </div>
-                                            </>
-                                          )}
-                                        </div>
-                                      )}
-
-                                      {createError && (
-                                        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold">
-                                          {presentBatch4Message(createError, t)}
-                                        </div>
-                                      )}
-
-                                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
-                                        <button
-                                          onClick={() => setActiveCreateGroupKey(null)}
-                                          className="px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold cursor-pointer"
-                                        >
-                                          {t('shared.actions.cancel')}
-                                        </button>
-                                        <button
-                                          onClick={() => handleGroupCreateCanonicalEntity(group, createFormData)}
-                                          disabled={isCreatingEntity || isCarrierBlocked}
-                                          className={`px-4 py-1.5 rounded-lg text-xs font-black text-white flex items-center gap-1.5 shadow-xs cursor-pointer ${
-                                            isCreatingEntity || isCarrierBlocked
-                                              ? 'bg-stone-300 cursor-not-allowed'
-                                              : 'bg-emerald-600 hover:bg-emerald-700'
-                                          }`}
-                                        >
-                                          {isCreatingEntity ? (
-                                            <>
-                                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                              <span>{t('entityResolution.labels.creating_entity')}</span>
-                                            </>
-                                          ) : (
-                                            <>
-                                              <Check className="w-3.5 h-3.5" />
-                                              <span>{t(creationReceipt.current ? 'setup.retry' : 'entityResolution.labels.create_apply_entity')}</span>
-                                            </>
-                                          )}
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
+                                  {isCreateOpen && canonicalRelationshipContext && <ContextualCanonicalCreation key={`${currentProjectId}:${activeBatch.importBatchId}:${group.normalizedSourceKey}`} projectId={currentProjectId} batch={activeBatch} group={group} context={canonicalRelationshipContext} receipts={contextualReceipts} canMutate={effectiveRole==='PROJECT_ADMIN'||effectiveRole==='SUPER_ADMIN'} isCurrent={isImportCurrent} onClose={()=>setActiveCreateGroupKey(null)} onVerified={(fresh,id,prerequisite)=>applyVerifiedChoice(group,fresh,id,prerequisite)}/>}
                                 </div>
                               );
                             })}
