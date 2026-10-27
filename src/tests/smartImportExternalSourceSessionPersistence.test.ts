@@ -1,3 +1,4 @@
+import { assertSessionPayload } from '../services/import/durableSessionContract';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { importSessionClientService, ImportSessionRecord } from '../services/import/importSessionClient.service';
 import { GoogleSheetsPipelineService } from '../services/import/googleSheetsPipeline.service';
@@ -1219,7 +1220,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
 
     it('42. binary file content / ArrayBuffer is not persisted in session payload', () => {
       expect(() => {
-        (importSessionClientService as any).sanitizePayload({
+        assertSessionPayload({
           rawBuffer: new ArrayBuffer(64),
         });
       }).toThrow('INVALID_PAYLOAD_FORBIDDEN_FIELDS');
@@ -1746,13 +1747,13 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
 
     it('63. no auth tokens or credentials persisted in session payload', () => {
       expect(() => {
-        (importSessionClientService as any).sanitizePayload({
+        assertSessionPayload({
           token: 'secret_oauth_token_123',
         });
       }).toThrow('INVALID_PAYLOAD_FORBIDDEN_FIELDS');
 
       expect(() => {
-        (importSessionClientService as any).sanitizePayload({
+        assertSessionPayload({
           refreshToken: 'secret_refresh_token_123',
         });
       }).toThrow('INVALID_PAYLOAD_FORBIDDEN_FIELDS');
@@ -1760,10 +1761,10 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
 
     it('64. raw binary data is rejected during sanitization', () => {
       expect(() => {
-        (importSessionClientService as any).sanitizePayload({
+        assertSessionPayload({
           buffer: new ArrayBuffer(128),
         });
-      }).toThrow('Raw ArrayBuffers cannot be persisted');
+      }).toThrow('INVALID_PAYLOAD_FORBIDDEN_FIELDS');
     });
 
     it('65. reuses the existing single importSessionClientService singleton without parallel service', () => {

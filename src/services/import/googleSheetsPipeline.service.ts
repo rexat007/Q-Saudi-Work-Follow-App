@@ -61,7 +61,7 @@ export class GoogleSheetsPipelineService {
       throw new Error('معرف جدول بيانات Google Sheets مطلوب.');
     }
 
-    const importBatchId = `BAT-GSHT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const importBatchId = options?.importBatchId || `BAT-GSHT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
     // 1. Instantiate existing parser & pipeline components (NO DUPLICATION)
     const parser = new GoogleSheetsImportParser();

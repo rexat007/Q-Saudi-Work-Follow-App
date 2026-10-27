@@ -1,4 +1,5 @@
-import { auth } from '../../firebase/config';
+import { importSessionClientService as durableClient } from '../importSessionClient.service';
+import { assertSessionPayload, reconstructSmartImportResumeState } from './durableSessionContract';
 
 export interface SourceMetadata {
   sourceFileName?: string;
@@ -57,6 +58,9 @@ export interface ImportSessionRecord {
   reviewAction?: any;
   validationIssues?: any[];
   warningConfirmation?: boolean;
+  importBatch?: any;
+  source?: any;
+  schemaVersion?: number;
 }
 
 export interface ResumedImportBatchState {
@@ -74,6 +78,8 @@ export interface ResumedImportBatchState {
   validationIssues: any[];
   warningConfirmation: boolean;
   requiresSourceFileReattach: boolean;
+  durableStage?: string;
+  legacyClassification?: string;
 }
 
 export class ImportSessionClientService {
@@ -90,78 +96,6 @@ export class ImportSessionClientService {
   }
 
   /**
-   * Check for forbidden keys or non-serializable objects (File/Blob/Buffer)
-   */
-  private sanitizePayload(payload: any): any {
-    if (!payload || typeof payload !== 'object') {
-      return payload;
-    }
-
-    if (typeof File !== 'undefined' && payload instanceof File) {
-      const err: any = new Error('INVALID_PAYLOAD_FORBIDDEN_FIELDS: Browser File objects cannot be persisted');
-      err.code = 'INVALID_PAYLOAD_FORBIDDEN_FIELDS';
-      throw err;
-    }
-    if (typeof Blob !== 'undefined' && payload instanceof Blob) {
-      const err: any = new Error('INVALID_PAYLOAD_FORBIDDEN_FIELDS: Blob objects cannot be persisted');
-      err.code = 'INVALID_PAYLOAD_FORBIDDEN_FIELDS';
-      throw err;
-    }
-    if (typeof ArrayBuffer !== 'undefined' && payload instanceof ArrayBuffer) {
-      const err: any = new Error('INVALID_PAYLOAD_FORBIDDEN_FIELDS: Raw ArrayBuffers cannot be persisted');
-      err.code = 'INVALID_PAYLOAD_FORBIDDEN_FIELDS';
-      throw err;
-    }
-
-    const forbiddenKeys = [
-      'token',
-      'accesstoken',
-      'refreshtoken',
-      'apikey',
-      'secret',
-      'password',
-      'authorization',
-      'credential',
-      'credentials',
-      'privatekey',
-      'file',
-    ];
-
-    if (Array.isArray(payload)) {
-      return payload.map(item => this.sanitizePayload(item));
-    }
-
-    const cleaned: Record<string, any> = {};
-    for (const [key, value] of Object.entries(payload)) {
-      if (forbiddenKeys.includes(key.toLowerCase())) {
-        const err: any = new Error(`INVALID_PAYLOAD_FORBIDDEN_FIELDS: Field '${key}' is forbidden`);
-        err.code = 'INVALID_PAYLOAD_FORBIDDEN_FIELDS';
-        throw err;
-      }
-      cleaned[key] = this.sanitizePayload(value);
-    }
-    return cleaned;
-  }
-
-  /**
-   * Acquire Firebase ID token from canonical auth user
-   */
-  private async getAuthHeaders(): Promise<Record<string, string>> {
-    const user = auth.currentUser;
-    if (!user) {
-      const err: any = new Error('المستخدم غير موثق');
-      err.code = 'UNAUTHENTICATED';
-      throw err;
-    }
-
-    const token = await user.getIdToken();
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    };
-  }
-
-  /**
    * Create a new server-authoritative import session
    */
   async createSession(
@@ -174,32 +108,14 @@ export class ImportSessionClientService {
       throw err;
     }
 
-    const sanitized = this.sanitizePayload(payload);
-
-    // Ensure stable identities if not supplied
-    if (!sanitized.operationId || !sanitized.importBatchId) {
-      const stable = this.generateStableIdentities();
-      sanitized.operationId = sanitized.operationId || stable.operationId;
-      sanitized.importBatchId = sanitized.importBatchId || stable.importBatchId;
-    }
-
-    const headers = await this.getAuthHeaders();
-
-    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/import-sessions`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(sanitized),
-    });
-
-    const resData = await response.json();
-
-    if (!response.ok || !resData.success) {
-      const err: any = new Error(resData.error || 'Failed to create import session');
-      err.code = resData.code || 'IMPORT_SESSION_CREATE_FAILED';
-      throw err;
-    }
-
-    return resData.data;
+    assertSessionPayload(payload);
+    const stable = (!payload.operationId || !payload.importBatchId) ? this.generateStableIdentities() : null;
+    // Shape adapter only: one create, always the canonical initial state. Source acceptance is a host command.
+    return durableClient.createSession(projectId, {
+      ...payload, domain: 'TRIP', operationId: payload.operationId || stable!.operationId,
+      importBatchId: payload.importBatchId || stable!.importBatchId,
+      lifecycleState: 'SOURCE', currentStage: 'PARSING',
+    } as any) as any;
   }
 
   /**
@@ -212,25 +128,7 @@ export class ImportSessionClientService {
       throw err;
     }
 
-    const headers = await this.getAuthHeaders();
-
-    const response = await fetch(
-      `/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(importSessionId)}`,
-      {
-        method: 'GET',
-        headers,
-      }
-    );
-
-    const resData = await response.json();
-
-    if (!response.ok || !resData.success) {
-      const err: any = new Error(resData.error || 'Failed to get import session');
-      err.code = resData.code || 'IMPORT_SESSION_GET_FAILED';
-      throw err;
-    }
-
-    return resData.data;
+    return durableClient.getSession(projectId, importSessionId) as any;
   }
 
   /**
@@ -254,30 +152,9 @@ export class ImportSessionClientService {
       throw err;
     }
 
-    const sanitizedUpdates = this.sanitizePayload(updates);
-    const headers = await this.getAuthHeaders();
-
-    const response = await fetch(
-      `/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(importSessionId)}`,
-      {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({
-          ...sanitizedUpdates,
-          expectedVersion,
-        }),
-      }
-    );
-
-    const resData = await response.json();
-
-    if (!response.ok || !resData.success) {
-      const err: any = new Error(resData.error || 'Failed to update import session checkpoint');
-      err.code = resData.code || (response.status === 409 ? 'VERSION_CONFLICT' : 'IMPORT_SESSION_UPDATE_FAILED');
-      throw err;
-    }
-
-    return resData.data;
+    assertSessionPayload(updates);
+    // The server validates the transition and OCC in one transaction. No preflight GET or hidden state walking.
+    return durableClient.updateCheckpoint(projectId, importSessionId, updates as any, expectedVersion) as any;
   }
 
   /**
@@ -288,13 +165,17 @@ export class ImportSessionClientService {
       throw new Error('sessionRecord is required for resume mapping');
     }
 
+    const state = reconstructSmartImportResumeState(sessionRecord, sessionRecord.projectId);
+
     return {
       importSessionId: sessionRecord.importSessionId,
       projectId: sessionRecord.projectId,
       operationId: sessionRecord.operationId,
       importBatchId: sessionRecord.importBatchId,
-      sourceType: sessionRecord.sourceType || 'EXCEL_CSV',
-      lifecycleState: sessionRecord.lifecycleState || 'REVIEW',
+      sourceType: sessionRecord.sourceType,
+      lifecycleState: state.legacy ? 'SOURCE' : sessionRecord.lifecycleState,
+      durableStage: state.durableStage,
+      legacyClassification: state.legacyClassification,
       version: sessionRecord.version,
       sourceMetadata: sessionRecord.sourceMetadata || {},
       reviewSnapshot: sessionRecord.reviewSnapshot || null,
@@ -302,7 +183,7 @@ export class ImportSessionClientService {
       reviewAction: sessionRecord.reviewAction || null,
       validationIssues: sessionRecord.validationIssues || [],
       warningConfirmation: Boolean(sessionRecord.warningConfirmation),
-      requiresSourceFileReattach: true, // Binary file is not stored in session persistence
+      requiresSourceFileReattach: state.requiresSourceReattach, // Binary file is not stored in session persistence
     };
   }
 }

@@ -1,3 +1,5 @@
+import { ExcelCsvPipelineService } from '../../services/import/excelCsvPipeline.service';
+import { acceptedSourceRevision, prepareDurableBatch, reconstructSmartImportResumeState, sourceFingerprint } from '../../services/import/durableSessionContract';
 import { ContextualCanonicalCreation } from '../import/ContextualCanonicalCreation';
 import { ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { CanonicalResolutionDecision } from '../import/CanonicalResolutionDecision';
@@ -96,6 +98,26 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
   const [activeOperationId, setActiveOperationId] = useState<string | null>(null);
   const [activeImportBatchId, setActiveImportBatchId] = useState<string | null>(null);
   const [sessionVersion, setSessionVersion] = useState<number>(0);
+  const [checkpointStatus, setCheckpointStatus] = useState<'SAVED'|'SAVING'|'UNSAVED'|'CONFLICT'>('SAVED');
+  const checkpointPending = useRef(0);
+  const checkpointFailed = useRef(false);
+  const pendingCheckpoint = useRef<Parameters<typeof importSessionClientService.updateCheckpoint> | null>(null);
+  const saveSessionCheckpoint = async (...args: Parameters<typeof importSessionClientService.updateCheckpoint>) => {
+    checkpointPending.current++; setCheckpointStatus('SAVING');
+    try {
+      const saved = await importSessionClientService.updateCheckpoint(...args);
+      if (isImportCurrent()) { checkpointFailed.current=false; pendingCheckpoint.current=null; setCheckpointStatus('SAVED'); }
+      return saved;
+    } catch (error: any) {
+      if (isImportCurrent()) {
+        checkpointFailed.current=true;
+        if (error.code === 'VERSION_CONFLICT') { pendingCheckpoint.current=null; setCheckpointStatus('CONFLICT'); setSessionVersion(-1); }
+        else { pendingCheckpoint.current=args; setCheckpointStatus('UNSAVED'); }
+      }
+      throw error;
+    } finally { checkpointPending.current--; }
+  };
+
   const [confirmWarnings, setConfirmWarnings] = useState<boolean>(false);
 
   // Processing & Pipeline
@@ -171,13 +193,14 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
           }),
         };
 
-        const updatedSession = await importSessionClientService.updateCheckpoint(
+        const updatedSession = await saveSessionCheckpoint(
           projectId,
           activeSessionId,
           {
             lifecycleState: 'REVIEW_REQUIRED',
             currentStage: 'REVIEW',
             reviewSnapshot: cleanSnapshot,
+              importBatch: prepareDurableBatch(updated),
             validationIssues: updated.issues || [],
             warningConfirmation: confirmWarnings,
             reviewAction: { normalizedSourceKey, entityType: entityTypeKey, action: decision as any },
@@ -257,63 +280,32 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
         setSessionVersion(sessionRecord.version);
         setConfirmWarnings(Boolean(sessionRecord.warningConfirmation));
 
-        if (resumedState.reviewSnapshot) {
-          const snapshot = resumedState.reviewSnapshot;
-          const rows: ImportRow[] = snapshot.rows || [];
-          const issues = sessionRecord.validationIssues || snapshot.issues || [];
-
-          // Derive counts deterministically from rows/snapshot if missing
-          const totalRows = snapshot.totalRows ?? rows.length;
-          const validRows = snapshot.validRows ?? rows.filter((r) => r.status === 'VALID' || r.reviewStatus === 'accepted').length;
-          const warningRows = snapshot.warningRows ?? rows.filter((r) => r.status === 'WARNING' || r.reviewStatus === 'warning').length;
-          const errorRows = snapshot.errorRows ?? rows.filter((r) => r.status === 'ERROR' || r.reviewStatus === 'error').length;
-          const requiresReviewRows = snapshot.requiresReviewRows ?? rows.filter((r) => r.reviewStatus === 'requires_review').length;
-          const committedRows = snapshot.committedRows ?? 0;
-
-          const reconstructedBatch: UnifiedImportBatch = {
-            importBatchId: sessionRecord.importBatchId,
-            projectId: sessionRecord.projectId,
-            source: {
-              sourceType: (sessionRecord.sourceType as any) || 'GOOGLE_SHEETS',
-              importBatchId: sessionRecord.importBatchId,
-              sourceFileName: sessionRecord.sourceMetadata?.sourceFileName || sessionRecord.sourceMetadata?.spreadsheetTitle || 'resumed_sheet',
-              sourceMimeType: sessionRecord.sourceMetadata?.sourceMimeType,
-              sourceSheetName: sessionRecord.sourceMetadata?.sourceSheetName || sessionRecord.sourceMetadata?.sheetTitle,
-            },
-            currentStage: (sessionRecord.currentStage as any) || 'REVIEW',
-            validationStatus: snapshot.validationStatus || 'PASSED',
-            commitStatus: sessionRecord.lifecycleState === 'COMMITTED' ? 'COMMITTED' : 'AWAITING_REVIEW',
-            totalRows,
-            validRows,
-            warningRows,
-            errorRows,
-            requiresReviewRows,
-            committedRows,
-            rows,
-            issues,
-            operationId: sessionRecord.operationId,
-            createdAt: sessionRecord.createdAt,
-            createdBy: sessionRecord.createdBy,
-            warningConfirmation: sessionRecord.warningConfirmation !== undefined ? {
-              confirmed: Boolean(sessionRecord.warningConfirmation),
-              confirmedBy: sessionRecord.createdBy || 'user',
-              confirmedAt: sessionRecord.updatedAt || sessionRecord.createdAt,
-            } : undefined,
-            auditTrail: [
-              {
-                timestamp: sessionRecord.updatedAt || sessionRecord.createdAt,
-                userId: sessionRecord.createdBy || 'system',
-                action: 'SESSION_RESUMED',
-                details: 'Resumed Google Sheets import session from server persistence',
-              },
-            ],
-          };
-
-          setBatch(reconstructedBatch);
+        const facts = reconstructSmartImportResumeState(sessionRecord, projectId);
+        if (facts.sourceRevision?.remote) {
+          const remote = facts.sourceRevision.remote;
+          const currentValues = await clientWorkspaceService.getSpreadsheetValues(remote.spreadsheetId, remote.sheetTitle);
+          if (!isImportCurrent()) return;
+          const fingerprint = await sourceFingerprint(new TextEncoder().encode(JSON.stringify(currentValues.values)).buffer as ArrayBuffer);
+          if (!facts.sourceRevision.fingerprint || facts.sourceRevision.fingerprint !== fingerprint) throw Error('CHECKPOINT_STALE');
+          const provider = await clientWorkspaceService.listGoogleSpreadsheets(projectId);
+          if (!isImportCurrent()) return;
+          const selected = provider.spreadsheets.find(item => item.id === remote.spreadsheetId);
+          if (!selected) throw Error('CHECKPOINT_STALE');
+          setSelectedSpreadsheet(selected); setSelectedSheetTab(remote.sheetTitle);
         }
+        if (facts.reviewSnapshot) {
+          // Existing canonical provider refresh is mandatory before restored rows become actionable.
+          const refreshed = await requireCurrentContext();
+          if (!isImportCurrent()) return;
+          const stored = facts.reviewSnapshot;
+          if (!stored.source || !Array.isArray(stored.rows) || stored.projectId !== projectId) throw Error('INVALID_IMPORT_SESSION_BATCH');
+          const restored = ExcelCsvPipelineService.revalidateBatch(stored, refreshed);
+          setBatch(restored);
+        }
+
       } catch {
     if (!isImportCurrent()) return;
-        sessionStorage.removeItem(locatorKey);
+        setProcessError(t('projects.batch4.import_restore_invalid'));
       }
     };
 
@@ -336,7 +328,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
       const res = await clientWorkspaceService.listGoogleSpreadsheets(projectId);
     if (!isImportCurrent()) return;
       setSpreadsheets(res.spreadsheets);
-      if (res.spreadsheets.length > 0 && !selectedSpreadsheet) {
+      if (res.spreadsheets.length > 0 && !selectedSpreadsheet && !sessionStorage.getItem(`qsaudi_import_session_locator_${projectId}`)) {
         handleSelectSpreadsheet(res.spreadsheets[0]);
       }
     } catch (err: any) {
@@ -352,7 +344,17 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
     loadSpreadsheets();
   }, [projectId]);
 
-  const handleSelectSpreadsheet = (item: GoogleSpreadsheetItem) => {
+  const handleSelectSpreadsheet = async (item: GoogleSpreadsheetItem) => {
+    if (activeSessionId) {
+      try {
+        const current = await importSessionClientService.getSession(projectId, activeSessionId);
+        if (!isImportCurrent()) return;
+        if (current.lifecycleState !== 'COMMITTED' && current.lifecycleState !== 'CANCELLED') await saveSessionCheckpoint(projectId, activeSessionId, { lifecycleState:'CANCELLED' }, sessionVersion);
+        if (!isImportCurrent()) return;
+        sessionStorage.removeItem(`qsaudi_import_session_locator_${projectId}`);
+        setActiveSessionId(null); setSessionVersion(0); setActiveOperationId(null); setActiveImportBatchId(null);
+      } catch { if (isImportCurrent()) setProcessError(t('entityResolution.messages.review_save_failed')); return; }
+    }
     setSelectedSpreadsheet(item);
     setBatch(null);
     setCommitResult(null);
@@ -371,6 +373,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
 
   // Run Pipeline from Google Sheets to REVIEW Gate
   const handleProcessSheet = async () => {
+    if (checkpointPending.current || checkpointFailed.current) { setProcessError(t('projects.batch4.checkpoint_persistence_failed')); return; }
     if (!isImportCurrent()) return;
     if (!selectedSpreadsheet) return;
     if (!isOnline) {
@@ -378,6 +381,11 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
       return;
     }
 
+    if (activeSessionId) {
+      const selected = selectedSpreadsheet;
+      await handleSelectSpreadsheet(selected);
+      if (!isImportCurrent() || checkpointFailed.current) return;
+    }
     setIsProcessing(true);
     setProcessError(null);
     setCommitResult(null);
@@ -393,6 +401,26 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
     let createdSessionId: string | null = null;
     let createdVersion = 0;
 
+
+    try {
+      // 1. Fetch 2D values from server API
+      const sheetData = await clientWorkspaceService.getSpreadsheetValues(
+        selectedSpreadsheet.id,
+        selectedSheetTab || 'Sheet1'
+      );
+    if (!isImportCurrent()) return;
+
+      // Run Smart Source Discovery to automatically detect headerRowIndex and sheet details
+      const importSource: ImportSource = {
+        sourceType: 'GOOGLE_SHEETS',
+        importBatchId: batchId,
+        sourceFileName: selectedSpreadsheet.name,
+        sourceSheetName: selectedSheetTab || 'Sheet1',
+      };
+      const discovery = await smartSourceDiscoveryService.discover(importSource, sheetData.values);
+    if (!isImportCurrent()) return;
+      const detectedIdx = discovery.detectedHeaderRowIndex || 0;
+
     // Create server session BEFORE processing source to REVIEW (FAIL CLOSED)
     if (projectId) {
       try {
@@ -402,6 +430,8 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
           importBatchId: batchId,
           sourceType: 'GOOGLE_SHEETS',
           sourceMetadata: {
+            fingerprint: await sourceFingerprint(new TextEncoder().encode(JSON.stringify(sheetData.values)).buffer as ArrayBuffer),
+            discovery,
             spreadsheetId: selectedSpreadsheet.id,
             spreadsheetTitle: selectedSpreadsheet.name,
             sheetTitle: selectedSheetTab || 'Sheet1',
@@ -434,24 +464,13 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
       }
     }
 
-    try {
-      // 1. Fetch 2D values from server API
-      const sheetData = await clientWorkspaceService.getSpreadsheetValues(
-        selectedSpreadsheet.id,
-        selectedSheetTab || 'Sheet1'
-      );
-    if (!isImportCurrent()) return;
-
-      // Run Smart Source Discovery to automatically detect headerRowIndex and sheet details
-      const importSource: ImportSource = {
-        sourceType: 'GOOGLE_SHEETS',
-        importBatchId: batchId,
-        sourceFileName: selectedSpreadsheet.name,
-        sourceSheetName: selectedSheetTab || 'Sheet1',
-      };
-      const discovery = await smartSourceDiscoveryService.discover(importSource, sheetData.values);
-    if (!isImportCurrent()) return;
-      const detectedIdx = discovery.detectedHeaderRowIndex || 0;
+      if (!createdSessionId) throw Error('IMPORT_SESSION_NOT_FOUND');
+      const accepted = await saveSessionCheckpoint(projectId, createdSessionId, {
+        lifecycleState:'DISCOVERED', currentStage:'DISCOVERY',
+        source:acceptedSourceRevision('GOOGLE_SHEETS', { sourceFileName:selectedSpreadsheet.name, sourceMimeType:'application/vnd.google-apps.spreadsheet', spreadsheetId:selectedSpreadsheet.id, sheetTitle:selectedSheetTab || 'Sheet1', modifiedTime:selectedSpreadsheet.modifiedTime, fingerprint:await sourceFingerprint(new TextEncoder().encode(JSON.stringify(sheetData.values)).buffer as ArrayBuffer), discovery }),
+      }, createdVersion);
+      if (!isImportCurrent()) return;
+      createdVersion = accepted.version; setSessionVersion(accepted.version);
 
       // 2. Build Pipeline Context
       const context: PipelineContext = {...await requireCurrentContext(),operationId:opId};
@@ -467,7 +486,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
       );
     if (!isImportCurrent()) return;
 
-      setBatch(reviewedBatch);
+      // Wait for durable review ACK before exposing a resumable review stage;
 
       // 4. Save initial REVIEW checkpoint to server session
       if (projectId && createdSessionId) {
@@ -485,13 +504,14 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
             }),
           };
 
-          const updatedSession = await importSessionClientService.updateCheckpoint(
+          const updatedSession = await saveSessionCheckpoint(
             projectId,
             createdSessionId,
             {
               lifecycleState: 'REVIEW_REQUIRED',
               currentStage: 'REVIEW',
               reviewSnapshot: cleanSnapshot,
+              importBatch: prepareDurableBatch(reviewedBatch),
               validationIssues: reviewedBatch.issues || [],
               warningConfirmation: confirmWarnings,
               sourceMetadata: {
@@ -503,6 +523,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
                 sourceFileName: selectedSpreadsheet.name,
                 sourceSheetName: selectedSheetTab || 'Sheet1',
                 headerRowIndex: detectedIdx,
+                customMappings: Object.fromEntries(Object.entries(discovery.mappingDiagnostics).filter(([, match]) => match.canonicalField && !String(match.canonicalField).startsWith('unmapped_')).map(([header, match]) => [header, String(match.canonicalField)])),
               },
             },
             createdVersion
@@ -510,12 +531,14 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
     if (!isImportCurrent()) return;
 
           setSessionVersion(updatedSession.version);
+          setBatch(reviewedBatch);
         } catch (err: any) {
     if (!isImportCurrent()) return;
           if (err?.code === 'VERSION_CONFLICT') {
             setProcessError(t('entityResolution.messages.version_conflict_refresh'));
           } else {
-            console.warn('Failed to update session checkpoint:', err);
+            setProcessError(t('entityResolution.messages.review_save_failed'));
+            return;
           }
         }
       }
@@ -580,13 +603,14 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
           }),
         };
 
-        const updatedSession = await importSessionClientService.updateCheckpoint(
+        const updatedSession = await saveSessionCheckpoint(
           projectId,
           activeSessionId,
           {
             lifecycleState: 'REVIEW_REQUIRED',
             currentStage: 'REVIEW',
             reviewSnapshot: cleanSnapshot,
+              importBatch: prepareDurableBatch(updated),
             validationIssues: updated.issues || [],
             warningConfirmation: confirmWarnings,
             reviewAction: { rowNumber, action },
@@ -612,7 +636,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
     setConfirmWarnings(checked);
     if (projectId && activeSessionId) {
       try {
-        const updatedSession = await importSessionClientService.updateCheckpoint(
+        const updatedSession = await saveSessionCheckpoint(
           projectId,
           activeSessionId,
           {
@@ -635,6 +659,8 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
 
   // Final Commit Gate
   const handleCommit = async () => {
+    if (checkpointPending.current || checkpointFailed.current) { setProcessError(t('projects.batch4.checkpoint_persistence_failed')); return; }
+
     if (!isImportCurrent()) return;
     if (!batch) return;
     if (!isOnline) {
@@ -668,7 +694,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
       if (isFullSuccess) {
         if (projectId && activeSessionId) {
           try {
-            const updatedSession = await importSessionClientService.updateCheckpoint(
+            const updatedSession = await saveSessionCheckpoint(
               projectId,
               activeSessionId,
               {
@@ -702,13 +728,14 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
               }),
             };
 
-            const updatedSession = await importSessionClientService.updateCheckpoint(
+            const updatedSession = await saveSessionCheckpoint(
               projectId,
               activeSessionId,
               {
                 lifecycleState: 'REVIEW_REQUIRED',
                 currentStage: 'REVIEW',
                 reviewSnapshot: cleanSnapshot,
+              importBatch: prepareDurableBatch(committedBatch),
                 validationIssues: committedBatch.issues || [],
                 warningConfirmation: confirmWarnings,
                 reviewAction: { action: 'PARTIAL_COMMIT_ATTEMPT' },
@@ -774,6 +801,12 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
 
   return (
     <div className="space-y-6" dir={direction}>
+      {checkpointStatus === 'SAVING' && <p role="status">{t('entityResolution.labels.saving')}</p>}
+      {(checkpointStatus === 'UNSAVED' || checkpointStatus === 'CONFLICT') && <div role="alert" className="p-3 text-rose-600">
+        <p>{t(checkpointStatus === 'CONFLICT' ? 'entityResolution.messages.version_conflict_refresh' : 'projects.batch4.checkpoint_persistence_failed')}</p>
+        {checkpointStatus === 'CONFLICT' ? <button onClick={() => window.location.reload()}>{t('shared.error_boundary.reload')}</button> : <button onClick={async () => { const command = pendingCheckpoint.current; if (!command) return; try { const saved=await saveSessionCheckpoint(...command); if(isImportCurrent()) { setSessionVersion(saved.version); window.location.reload(); } } catch { /* Working state and retry remain visible. */ } }}>{t('shared.error_boundary.retry')}</button>}
+      </div>}
+
       {batch&&canonicalRelationshipContext?.importResolution&&<section className="space-y-3">{Object.values(reviewGroups).flat().map(group=><details key={group.normalizedSourceKey} open={group.status!=='AUTO_RESOLVED'}><summary>{group.sourceValue}</summary><CanonicalResolutionDecision receipts={contextualReceipts} receiptScope={batch.importBatchId} canMutate={effectiveRole==='PROJECT_ADMIN'||effectiveRole==='SUPER_ADMIN'} projectId={projectId} context={canonicalRelationshipContext} group={group} carrierId={batch.rows.find(row=>group.rowNumbers.includes(row.rowNumber))?.entityResolutions?.carrier?.matchedId} isCurrent={isImportCurrent} disabled={isProcessing||isCreatingEntity} onSelect={id=>handleGroupResolutionDecision(group.entityType,group.normalizedSourceKey,'SELECT_ALTERNATE',{selectedEntityId:id})} onCreate={()=>setActiveCreateGroupKey(group.normalizedSourceKey)} onVerified={(fresh,id,prerequisite)=>applyVerifiedChoice(group,fresh,id,prerequisite)}/>{activeCreateGroupKey===group.normalizedSourceKey&&<ContextualCanonicalCreation key={`${projectId}:${batch.importBatchId}:${group.normalizedSourceKey}`} projectId={projectId} batch={batch} group={group} context={canonicalRelationshipContext} receipts={contextualReceipts} canMutate={effectiveRole==='PROJECT_ADMIN'||effectiveRole==='SUPER_ADMIN'} isCurrent={isImportCurrent} onClose={()=>setActiveCreateGroupKey(null)} onVerified={(fresh,id,prerequisite)=>applyVerifiedChoice(group,fresh,id,prerequisite)}/>}</details>)}</section>}
 
       {/* Top Banner: Mode & Title */}
@@ -1019,7 +1052,7 @@ const GoogleSheetsImportContent: React.FC<GoogleSheetsImportSectionProps> = ({
                   {selectedSpreadsheet.sheets.map((tab) => (
                     <button
                       key={tab.sheetId}
-                      onClick={() => setSelectedSheetTab(tab.title)}
+                      onClick={async () => { if (activeSessionId && selectedSpreadsheet) { await handleSelectSpreadsheet(selectedSpreadsheet); if (checkpointFailed.current) return; } setSelectedSheetTab(tab.title); }}
                       className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
                         selectedSheetTab === tab.title
                           ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'

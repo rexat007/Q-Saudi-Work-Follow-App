@@ -28,6 +28,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('1. create session', async () => {
     const session = await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-101',
       operationId: 'op-101',
       importBatchId: 'batch-101',
@@ -41,6 +42,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('2. stored projectId', async () => {
     const session = await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-102',
       operationId: 'op-102',
       importBatchId: 'batch-102',
@@ -53,6 +55,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('3. stable importSessionId', async () => {
     const session = await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-103',
       operationId: 'op-103',
       importBatchId: 'batch-103',
@@ -60,7 +63,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
     const updated = await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-103', {
       importSessionId: 'ses-103',
-      currentStage: 'VALIDATING',
+      currentStage: 'PARSING',
     }, { expectedVersion: 1 }, adminContext);
 
     expect(updated.importSessionId).toBe('ses-103');
@@ -68,6 +71,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('4. stable operationId', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-104',
       operationId: 'op-104',
       importBatchId: 'batch-104',
@@ -75,7 +79,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
     const updated = await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-104', {
       operationId: 'op-104',
-      currentStage: 'REVIEWING',
+      currentStage: 'PARSING',
     }, { expectedVersion: 1 }, adminContext);
 
     expect(updated.operationId).toBe('op-104');
@@ -83,6 +87,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('5. stable importBatchId', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-105',
       operationId: 'op-105',
       importBatchId: 'batch-105',
@@ -90,7 +95,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
     const updated = await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-105', {
       importBatchId: 'batch-105',
-      currentStage: 'APPROVED',
+      currentStage: 'PARSING',
     }, { expectedVersion: 1 }, adminContext);
 
     expect(updated.importBatchId).toBe('batch-105');
@@ -98,6 +103,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('6. get existing session', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-106',
       operationId: 'op-106',
       importBatchId: 'batch-106',
@@ -129,68 +135,75 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('9. valid checkpoint update', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-107',
       operationId: 'op-107',
       importBatchId: 'batch-107',
     }, adminContext);
 
     const updated = await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-107', {
-      currentStage: 'NORMALIZING',
+      currentStage: 'PARSING',
     }, { expectedVersion: 1 }, adminContext);
 
-    expect(updated.currentStage).toBe('NORMALIZING');
+    expect(updated.currentStage).toBe('PARSING');
     expect(updated.version).toBe(2);
   });
 
   it('10. version increments once', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-108',
       operationId: 'op-108',
       importBatchId: 'batch-108',
     }, adminContext);
 
-    const u1 = await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-108', { currentStage: 'S1' }, { expectedVersion: 1 }, adminContext);
+    const u1 = await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-108', { currentStage: 'PARSING' }, { expectedVersion: 1 }, adminContext);
     expect(u1.version).toBe(2);
 
-    const u2 = await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-108', { currentStage: 'S2' }, { expectedVersion: 2 }, adminContext);
+    const u2 = await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-108', { currentStage: 'PARSING' }, { expectedVersion: 2 }, adminContext);
     expect(u2.version).toBe(3);
   });
 
   it('11. stale expectedVersion rejected', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-109',
       operationId: 'op-109',
       importBatchId: 'batch-109',
     }, adminContext);
 
-    await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-109', { currentStage: 'S1' }, { expectedVersion: 1 }, adminContext);
+    await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-109', { currentStage: 'PARSING' }, { expectedVersion: 1 }, adminContext);
 
     await expect(
-      importSessionServerService.updateCheckpoint('PRJ-001', 'ses-109', { currentStage: 'S2' }, { expectedVersion: 1 }, adminContext)
+      importSessionServerService.updateCheckpoint('PRJ-001', 'ses-109', { currentStage: 'PARSING' }, { expectedVersion: 1 }, adminContext)
     ).rejects.toThrow('تعارض إصدار (VERSION_CONFLICT)');
   });
 
   it('12. stale update does not overwrite newer state', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-110',
       operationId: 'op-110',
       importBatchId: 'batch-110',
     }, adminContext);
 
-    await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-110', { currentStage: 'NEWER' }, { expectedVersion: 1 }, adminContext);
+    await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-110', { currentStage: 'PARSING', reviewAction: { marker:'NEWER' } }, { expectedVersion: 1 }, adminContext);
 
     try {
-      await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-110', { currentStage: 'STALE' }, { expectedVersion: 1 }, adminContext);
+      await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-110', { currentStage: 'PARSING', reviewAction: { marker:'STALE' } }, { expectedVersion: 1 }, adminContext);
     } catch (e) {
       // Expected
     }
 
     const current = await importSessionServerService.getSession('PRJ-001', 'ses-110', adminContext);
-    expect(current.currentStage).toBe('NEWER');
+    expect(current.currentStage).toBe('PARSING');
+    expect(current.reviewAction).toEqual({ marker:'NEWER' });
+    expect(current.version).toBe(2);
   });
 
   it('13. importSessionId mutation rejected', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-111',
       operationId: 'op-111',
       importBatchId: 'batch-111',
@@ -203,6 +216,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('14. operationId mutation rejected', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-112',
       operationId: 'op-112',
       importBatchId: 'batch-112',
@@ -215,6 +229,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('15. importBatchId mutation rejected', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-113',
       operationId: 'op-113',
       importBatchId: 'batch-113',
@@ -227,6 +242,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('16. reviewSnapshot persists', async () => {
     const updated = await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-114',
       operationId: 'op-114',
       importBatchId: 'batch-114',
@@ -238,6 +254,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('17. entityResolutions persist', async () => {
     const updated = await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-115',
       operationId: 'op-115',
       importBatchId: 'batch-115',
@@ -249,6 +266,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('18. reviewAction persists', async () => {
     const updated = await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-116',
       operationId: 'op-116',
       importBatchId: 'batch-116',
@@ -260,6 +278,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('19. validationIssues persist', async () => {
     const updated = await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-117',
       operationId: 'op-117',
       importBatchId: 'batch-117',
@@ -272,6 +291,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('20. warning confirmation persists', async () => {
     const updated = await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-118',
       operationId: 'op-118',
       importBatchId: 'batch-118',
@@ -284,6 +304,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
   it('21. browser File-like payload rejected/sanitized', async () => {
     await expect(
       importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
         importSessionId: 'ses-119',
         file: { name: 'test.csv' },
       }, adminContext)
@@ -293,6 +314,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
   it('22. secrets/tokens rejected/sanitized', async () => {
     await expect(
       importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
         importSessionId: 'ses-120',
         token: 'secret-jwt',
       }, adminContext)
@@ -308,6 +330,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
   it('24. project isolation middleware/service enforced', async () => {
     await expect(
       importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
         projectId: 'PRJ-002',
         importSessionId: 'ses-iso',
       }, adminContext)
@@ -316,6 +339,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('25. no canonical business collections written', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-121',
       operationId: 'op-121',
       importBatchId: 'batch-121',
@@ -335,6 +359,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
   it('27. nested secret rejection at any depth', async () => {
     await expect(
       importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
         importSessionId: 'ses-sec-nest',
         reviewSnapshot: {
           metadata: {
@@ -345,6 +370,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
     ).rejects.toSatisfy((err: any) => err.code === 'INVALID_PAYLOAD_FORBIDDEN_FIELDS');
 
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-sec-nest2',
     }, adminContext);
 
@@ -362,6 +388,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
   it('28. nested file-like field rejection', async () => {
     await expect(
       importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
         importSessionId: 'ses-file-nest',
         entityResolutions: [
           { details: { file: { name: 'nested.csv' } } },
@@ -372,6 +399,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('29. createdAt / createdBy mutation rejected and preserved', async () => {
     const session = await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-provenance',
       operationId: 'op-prov',
       importBatchId: 'batch-prov',
@@ -390,7 +418,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
     ).rejects.toThrow('تغيير مكوّن الإنشاء');
 
     const updated = await importSessionServerService.updateCheckpoint('PRJ-001', 'ses-provenance', {
-      currentStage: 'VALIDATING',
+      currentStage: 'PARSING',
     }, { expectedVersion: 1 }, adminContext);
 
     expect(updated.createdAt).toBe(session.createdAt);
@@ -399,6 +427,7 @@ describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
 
   it('30. caller-supplied version cannot override server version', async () => {
     await importSessionServerService.createSession('PRJ-001', {
+      domain: 'TRIP',
       importSessionId: 'ses-ver-override',
     }, adminContext);
 

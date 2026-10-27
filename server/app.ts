@@ -308,7 +308,8 @@ app.patch(
       return res.status(status).json({
         success: false,
         error: error.message || 'فشل تحديث جلسة الاستيراد.',
-        code
+        code,
+        serverVersion: error.serverVersion
       });
     }
   }

@@ -359,6 +359,11 @@ export class ExcelCsvPipelineService {
     return this.recalculateBatchCounts(updatedBatch);
   }
 
+  public static revalidateBatch(batch: UnifiedImportBatch, context: PipelineContext): UnifiedImportBatch {
+    // Reuse the existing validator and canonical selection semantics at restore.
+    return batch.rows.filter(row => row.status !== 'REJECTED' && row.status !== 'COMMITTED').reduce((current, row) => this.revalidateRow(current, row, context), batch);
+  }
+
   public static revalidateRow(
     batch: UnifiedImportBatch,
     row: ImportRow,
