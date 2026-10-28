@@ -63,16 +63,16 @@ Closure documentation must record:
 - explicit user acceptance status
 
 ## User Acceptance Authority
-AI Studio may report: IMPLEMENTED, TECHNICALLY VERIFIED, BROWSER VERIFIED.
-AI Studio may NOT report: USER ACCEPTED, unless explicit user acceptance has been given.
+Codex implementation reports may record: IMPLEMENTED, TECHNICALLY VERIFIED, BROWSER VERIFIED, with exact evidence boundaries.
+No agent may report USER ACCEPTED without explicit owner acceptance. Local completion never authorizes publication.
 Final product acceptance authority remains with the user.
 
-## Accepted current-stage disposition (P0-U5 documentation record)
+## Historical accepted-stage disposition (P0-U5 documentation record)
 
 The owner accepts the merged Whole-App i18n Batches 1–4 and residual remediation at `2b52180304ac02d71b506f16dc69722c94ba9b6f` sufficiently for the current reconstruction stage. Browser review is accepted to that bounded extent. This is not a claim that every visible label was manually checked or that every future product unit or Beta 2 exit is accepted.
 
 Some Arabic-mode views may still display mixed Arabic/English or bilingual labels. These are `DEFERRED_NON_BLOCKING_PRODUCT_DEBT`, recorded in [05_DECISION_AND_DEBT_LOG.md](05_DECISION_AND_DEBT_LOG.md), and do not reopen accepted foundation units or block continuing P0. Full cosmetic language perfection is not a prerequisite to that continuation. New product-facing work retains the translation-by-construction and four-layer acceptance rules above.
 
-This supporting contract does not own current unit pointers; see [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). P0-U5 is now VERIFIED / CLOSED following reviewed implementation, completed publication and independently verified merge `15529b85848a80322dea033e80903fd2fd1e294c`. P0-U6 is VERIFIED / CLOSED at owner-confirmed independently audited merge `54f6d829c184a371e96c2812b08738c42280552b`, with corrected PR and post-merge main run #3 runtime verification. The owner-approved P0-U7 governance decision closes/freezes Phase 0 and makes Phase 1 — Canonical Domain Model NOT_STARTED / ACTIVE; its first unit remains UNASSIGNED / REQUIRES PHASE_1 UNIT DEFINITION. P0-U7 debt reassessment is complete without debt remediation or waiver. CI success does not mean lint PASS. The canonical ledger owns these pointers; this closure does not broaden the bounded i18n/browser acceptance above.
+This supporting contract does not own current unit pointers; see [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). P0-U5 is now VERIFIED / CLOSED following reviewed implementation, completed publication and independently verified merge `15529b85848a80322dea033e80903fd2fd1e294c`. P0-U6 is VERIFIED / CLOSED at owner-confirmed independently audited merge `54f6d829c184a371e96c2812b08738c42280552b`, with corrected PR and post-merge main run #3 runtime verification. At the historical P0-U7 exit snapshot the owner-approved governance decision closed/froze Phase 0 and activated the then-unstarted Phase 1 with its first unit unassigned; the ledger records subsequent progression. P0-U7 debt reassessment is complete without debt remediation or waiver. CI success does not mean lint PASS. The canonical ledger owns these pointers; this closure does not broaden the bounded i18n/browser acceptance above.
 
 [PHASE_0_FREEZE_CONTRACT.md](PHASE_0_FREEZE_CONTRACT.md) records foundation stability, not full product/browser acceptance, localization polish, offline/external reliability, final security hardening, completed distribution architecture, globally green tests or Beta 2 readiness. Lint, root npm test and verify:beta2 are NOT PASS in the accepted exit evidence. DD-01 through DD-04 and future product verification/explicit owner acceptance obligations remain open. This documentation/governance transition does not start Phase 1 implementation; P0-U7 publication is MERGED / VERIFIED through PR #9 at `3b0fc03d27a4b663e85d330f581550c37d62999d`, recorded in the canonical ledger.

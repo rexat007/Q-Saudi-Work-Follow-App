@@ -144,6 +144,7 @@ export interface ReviewedRosterCommitReceipt {
   sourceRevisionId:string;mappingRevisionId:string;reviewedSignature:string;signatureEncoding:'SHA256';
   requestVersion:number;committedVersion:number;committedAt:string;committedBy:string;
   preparedIdentityMap:Record<string,string>;
+  receiptDetails?:{executionKey:string;source:'EXECUTION_JOURNAL';truncated:true};
   resultSummary:{contributingRows:number;createdIdentities:number;reusedConcurrentIdentities:number;canonicalEntities:{kind:string;id:string;carrierId?:string}[];
     assignments:{action:string;assignmentId:string;driverId:string;truckId:string}[];
     allocations:{action:string;allocationId:string;truckId:string;materialId:string}[]};

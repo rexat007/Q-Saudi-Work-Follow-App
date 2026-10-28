@@ -39,21 +39,31 @@ export class ReviewedRosterCommitServer {
   constructor(private db: any = adminDb, private refresh?: (p:string,actor:{userId:string;email?:string})=>Promise<any>) {}
   async commit(projectId:string, importSessionId:string, request:{expectedVersion:number;operationId?:string;reviewedSignature?:string}, authenticated:{userId:string;email?:string}):Promise<ReviewedRosterCommitResponse> {
     if(!validGlobalId(projectId)||!validGlobalId(importSessionId)||!request||Object.keys(request).some(k=>!['expectedVersion','operationId','reviewedSignature'].includes(k))||!Number.isSafeInteger(request.expectedVersion)||request.expectedVersion<1)fail('INVALID_REVIEWED_COMMIT_COMMAND');
-    const db=this.db,ref=db.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
-    const receipt:ReviewedRosterCommitReceipt=await db.runTransaction(async(tx:any)=>{
+    const db=this.db;
+    const receipt:ReviewedRosterCommitReceipt = await db.runTransaction((tx:any) => this.executeWithinTransaction(tx, projectId, importSessionId, request, authenticated));
+    return this.proveCanonical(receipt, authenticated);
+  }
+  /** Internal composition only; never receives client-supplied scopes or write callbacks. */
+  async executeWithinTransaction(tx:any, projectId:string, importSessionId:string, request:{expectedVersion:number;operationId?:string;reviewedSignature?:string}, authenticated:{userId:string;email?:string}, recovery?: {
+    prepare?: (facts:any)=>any;
+    scope?: import('../../types/importExecution').ImportExecutionGroup;
+    publish?: (writes:any, facts:any)=>Promise<void>;
+  }):Promise<any> {
+    const db=this.db, ref=db.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
       const actor=await authorizeGlobalCommand(tx,db,authenticated,projectId);
       const snap=await tx.get(ref);if(!snap.exists)fail('IMPORT_SESSION_NOT_FOUND');
       const header=decodePersistence<any>(snap.data(),{id:['importSessionId',importSessionId],projectId,times:{createdAt:'iso',updatedAt:'iso'}});
+      if(header.executionOperationId && !recovery) fail('IMPORT_EXECUTION_MANAGED');
       if(header.schemaVersion!==2||header.domain!=='ROSTER')fail('INVALID_REVIEWED_COMMIT_SESSION');
       if(header.lifecycleState!=='INTENT_REVIEWED'&&header.lifecycleState!=='COMMITTED')fail('INVALID_REVIEWED_COMMIT_SESSION');
       if(header.lifecycleState==='INTENT_REVIEWED'&&header.version!==request.expectedVersion)throw Object.assign(new GlobalIdentityError('VERSION_CONFLICT'),{serverVersion:header.version});
       const artifacts=await new ImportSessionServerService(db).hydrateSnapshots((r:any)=>tx.get(r),ref,header);
       const reviewed=artifacts.reviewedCanonicalIntent||header.reviewedCanonicalIntent;
-      const batch=artifacts.importBatch||header.importBatch;
+      let batch=artifacts.importBatch||header.importBatch;
       if(header.hasReviewedIntent===false||!reviewed||!batch||!Array.isArray(batch.rows)||batch.rows.length>10000)fail('INVALID_REVIEWED_INTENT_BINDING');
       for(const key of ['projectId','importSessionId','operationId','importBatchId'])if(reviewed[key]!==header[key])fail('INVALID_REVIEWED_INTENT_BINDING');
       if(batch.projectId!==projectId||batch.importBatchId!==header.importBatchId||batch.operationId!==header.operationId||reviewed.intent?.projectId!==projectId||reviewed.sourceRevisionId!==header.source?.sourceRevisionId||reviewed.mappingRevisionId!==header.mapping?.mappingRevisionId||header.mapping?.sourceRevisionId!==header.source?.sourceRevisionId||header.mapping?.approved!==true)fail('INVALID_REVIEWED_INTENT_BINDING');
-      const intent:RosterCanonicalIntent=reviewed.intent;
+      let intent:RosterCanonicalIntent=reviewed.intent;
       if(!intent.signature||reviewed.acceptedSignature!==intent.signature||!Array.isArray(intent.blockers)||intent.blockers.length||!intent.rowDecisions?.some(r=>r.status==='CONTRIBUTING')||intent.rowDecisions.some(r=>r.status==='BLOCKED'))fail('INVALID_REVIEWED_IMPORT_INTENT');
       if(intent.requiresDisplacementApproval&&reviewed.displacementApprovedSignature!==intent.signature)fail('DISPLACEMENT_APPROVAL_REQUIRED');
       if(intent.warnings?.length&&header.warningConfirmation!==true)fail('WARNING_APPROVAL_REQUIRED');
@@ -66,6 +76,13 @@ export class ReviewedRosterCommitServer {
       }
       const query=new ProjectFleetQueryService(db);
       const current=await query.contextInTransaction(tx,projectId,authenticated,actor,{resolution:true});
+      const originalIntent = intent;
+      if(recovery?.scope) {
+        const rows=new Set(recovery.scope.rows);
+        const { scopedExecutionBatch } = await import('./rosterExecutionPlan.server');
+        batch=scopedExecutionBatch(batch,recovery.scope.rows);
+        intent={...recovery.scope.plan,rowDecisions:originalIntent.rowDecisions.filter(r=>rows.has(r.rowNumber)),signature:originalIntent.signature};
+      }
       const prepared=intent.entities.filter(e=>e.prepared);
       // Materialization races are proved against reviewed fields, then omitted ONLY from the pre-materialization builder view.
       const raced=new Set<string>();const identities=new Map<string,any>();const idMap:Record<string,string>={};
@@ -90,7 +107,11 @@ export class ReviewedRosterCommitServer {
       const proofContext={...current,importResolution:{...current.importResolution!,entities:current.importResolution!.entities.filter(e=>!raced.has(`${e.kind}:${e.id}`))}};
       const pipeline=ImportProjectContextAdapter.createPipelineContext({relContext:proofContext,projectId,userId:actor.userId,role:actor.role,operationId:header.operationId});
       const rebuilt=buildRosterCanonicalIntent(batch,pipeline);
-      if(rebuilt.signature!==reviewed.acceptedSignature||!same(rebuilt,intent))fail('REVIEWED_INTENT_STALE');
+      if(recovery?.scope) {
+        const { validateRecoveryScope } = await import('./rosterExecutionPlan.server');
+        validateRecoveryScope(recovery.scope,rebuilt,proofContext);
+      } else if(rebuilt.signature!==reviewed.acceptedSignature||!same(rebuilt,intent))fail('REVIEWED_INTENT_STALE');
+      if(recovery?.prepare) return recovery.prepare({header,reviewed,batch,current:proofContext,actor});
       const participating=new Map<string,any>(),membershipPlans:any[]=[],affiliationPlans:any[]=[],temporalPlans:any[]=[];
       const canonicalId=(key:string)=>idMap[key]||key;
       for(const entity of intent.entities) {
@@ -122,13 +143,13 @@ export class ReviewedRosterCommitServer {
         const driverId=canonicalId(consequence.driverId),truckId=canonicalId(consequence.truckId),d=participating.get(`DRIVER:${driverId}`),t=participating.get(`TRUCK:${truckId}`),c=participating.get(`CARRIER:${t?.affiliation?.carrierId}`);
         if(!d||!t||!c)fail('REVIEWED_INTENT_STALE');
         const plan=await planAssignment(tx,db,projectId,driverId,truckId,consequence.action==='REASSIGN'?'REASSIGN':'ASSIGN',actor,at,{driverGlobal:d.global,truckGlobal:t.global,driverMembership:d.membership,truckMembership:t.membership,driverAffiliation:d.affiliation,truckAffiliation:t.affiliation,carrierGlobal:c.global,carrierMembership:c.membership});
-        if((consequence.action==='NO_CHANGE')!==!plan.changed||consequence.action==='REASSIGN'&&!same(plan.before.map(r=>({assignmentId:r.assignmentId,driverId:r.driverId,truckId:r.truckId})).sort((a,b)=>a.assignmentId.localeCompare(b.assignmentId)),consequence.displaced))fail('REVIEWED_INTENT_STALE');
+        if((consequence.action==='NO_CHANGE'&&plan.changed || !recovery?.scope && consequence.action!=='NO_CHANGE'&&!plan.changed)||consequence.action==='REASSIGN'&&plan.changed&&!same(plan.before.map(r=>({assignmentId:r.assignmentId,driverId:r.driverId,truckId:r.truckId})).sort((a,b)=>a.assignmentId.localeCompare(b.assignmentId)),consequence.displaced))fail('REVIEWED_INTENT_STALE');
         temporalPlans.push(plan);
       }
       for(const consequence of intent.allocationIntents) {
         const truckId=canonicalId(consequence.truckId),t=participating.get(`TRUCK:${truckId}`),m=participating.get(`MATERIAL:${consequence.materialId}`);if(!t||!m)fail('REVIEWED_INTENT_STALE');
         const plan=await planAllocation(tx,db,projectId,truckId,consequence.materialId,consequence.action==='REALLOCATE'?'REALLOCATE':'ALLOCATE',actor,at,{truckGlobal:t.global,materialGlobal:m.global,truckMembership:t.membership,materialMembership:m.membership,truckAffiliation:t.affiliation});
-        if((consequence.action==='NO_CHANGE')!==!plan.changed||consequence.action==='REALLOCATE'&&!same(plan.before.map(r=>({allocationId:r.allocationId,truckId:r.truckId,materialId:r.materialId})),[consequence.displaced]))fail('REVIEWED_INTENT_STALE');
+        if((consequence.action==='NO_CHANGE'&&plan.changed || !recovery?.scope && consequence.action!=='NO_CHANGE'&&!plan.changed)||consequence.action==='REALLOCATE'&&plan.changed&&!same(plan.before.map(r=>({allocationId:r.allocationId,truckId:r.truckId,materialId:r.materialId})),[consequence.displaced]))fail('REVIEWED_INTENT_STALE');
         temporalPlans.push(plan);
       }
       const writes=writePlan(tx),w=writes.staged;
@@ -141,13 +162,18 @@ export class ReviewedRosterCommitServer {
       for(const plan of temporalPlans)writeTemporalPlan(w,db,plan,at,false);
       if([...membershipPlans,...affiliationPlans,...temporalPlans].some(p=>p.changed)||[...identities.values()].some(i=>i.newRecord))await markDirtyInTransaction(w,projectId,[...([...identities.values()].some(i=>i.kind==='DRIVER'&&i.newRecord)||membershipPlans.some(p=>p.kind==='DRIVER'&&p.changed)?['DRIVERS']:[]),'FLEET_ROSTER'],'REVIEWED_ROSTER_COMMIT',now,db);
       const receipt:ReviewedRosterCommitReceipt={projectId,importSessionId,operationId:header.operationId,importBatchId:header.importBatchId,sourceRevisionId:reviewed.sourceRevisionId,mappingRevisionId:reviewed.mappingRevisionId,reviewedSignature:signature,signatureEncoding:'SHA256',requestVersion:request.expectedVersion,committedVersion:header.version+1,committedAt:now,committedBy:actor.userId,preparedIdentityMap:idMap,resultSummary:{canonicalEntities:[...participating.entries()].map(([key,value])=>({kind:key.split(':')[0],id:key.split(':')[1],...(value.affiliation?{carrierId:value.affiliation.carrierId}:{})})),contributingRows:intent.rowDecisions.filter(r=>r.status==='CONTRIBUTING').length,createdIdentities:[...identities.values()].filter(i=>i.newRecord).length,reusedConcurrentIdentities:[...identities.values()].filter(i=>!i.newRecord).length,assignments:temporalPlans.filter(p=>p.kind==='ASSIGNMENT').map(p=>({action:p.changed?p.command:'NO_CHANGE',assignmentId:p.record.assignmentId,driverId:p.record.driverId,truckId:p.record.truckId})),allocations:temporalPlans.filter(p=>p.kind==='ALLOCATION').map(p=>({action:p.changed?p.command:'NO_CHANGE',allocationId:p.record.allocationId,truckId:p.record.truckId,materialId:p.record.materialId}))}};
-      w.update(ref,{lifecycleState:'COMMITTED',currentStage:'COMMIT_RESULT',rosterStage:'COMMIT_RESULT',version:receipt.committedVersion,updatedAt:now,updatedBy:actor.userId,commitReceipt:receipt});
+      if(!recovery?.publish) w.update(ref,{lifecycleState:'COMMITTED',currentStage:'COMMIT_RESULT',rosterStage:'COMMIT_RESULT',version:receipt.committedVersion,updatedAt:now,updatedBy:actor.userId,commitReceipt:receipt});
       const auditLogId=`AUD-IMPORT-${randomUUID()}`;w.set(db.collection('audit_logs').doc(auditLogId),sanitizeUndefined({auditLogId,projectId,entityType:'IMPORT_SESSION',entityId:importSessionId,action:'COMMIT_REVIEWED_INTENT',actor:{userId:actor.userId,role:actor.role,email:actor.email},changes:{operationId:header.operationId,importBatchId:header.importBatchId,sourceRevisionId:reviewed.sourceRevisionId,mappingRevisionId:reviewed.mappingRevisionId,reviewedSignature:signature,preparedIdentityMap:idMap},createdAt:now,updatedAt:now,createdBy:actor.userId,updatedBy:actor.userId}));
+      if(recovery?.publish) await recovery.publish(w,{receipt,header,reviewed,identities:[...identities.values()],membershipPlans,affiliationPlans,temporalPlans});
       writes.publish();return receipt;
-    });
+  }
+  async proveCanonical(receipt:ReviewedRosterCommitReceipt, authenticated:{userId:string;email?:string}):Promise<ReviewedRosterCommitResponse> {
+    const projectId=receipt.projectId;
+
+    if(receipt.receiptDetails?.truncated) return {lifecycleState:'COMMITTED',receipt,canonicalRefresh:'PENDING',code:'COMMIT_SUCCEEDED_CANONICAL_REFRESH_PENDING'};
     // Commit truth is already durable. A later read failure must never trigger business replay.
     try {
-      const context=await (this.refresh?this.refresh(projectId,authenticated):new ProjectFleetQueryService(db).context(projectId,authenticated,{resolution:true}));
+      const context=await (this.refresh?this.refresh(projectId,authenticated):new ProjectFleetQueryService(this.db).context(projectId,authenticated,{resolution:true}));
       const entities=context.importResolution?.entities||[];
       for(const expected of receipt.resultSummary.canonicalEntities)if(!entities.some((e:any)=>e.kind===expected.kind&&e.id===expected.id&&e.eligible&&e.membershipStatus==='ACTIVE'&&(!expected.carrierId||e.affiliation?.status==='ACTIVE'&&e.affiliation.carrierId===expected.carrierId)))throw Error('CANONICAL_PROOF_PENDING');
       for(const a of receipt.resultSummary.assignments)if(!entities.some((e:any)=>e.kind==='DRIVER'&&e.id===a.driverId&&e.assignment?.assignmentId===a.assignmentId&&e.assignment?.truckId===a.truckId))throw Error('CANONICAL_PROOF_PENDING');

@@ -22,7 +22,7 @@ export class ImportSessionVersionConflictError extends Error {
 }
 
 export class ImportSessionClientService {
-  public async commitReviewedIntent(projectId: string, importSessionId: string, expectedVersion: number): Promise<import('../types/importSession').ReviewedRosterCommitResponse> {
+  public async commitReviewedIntent(projectId: string, importSessionId: string, expectedVersion: number): Promise<import('../types/importExecution').RosterExecutionCommitResponse> {
     const token = await this.getAuthToken();
     const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(importSessionId)}/commit-reviewed-intent`, {
       method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({expectedVersion})
@@ -30,6 +30,24 @@ export class ImportSessionClientService {
     const json = await response.json();
     if(!response.ok || !json.success) throw Object.assign(new Error(json.code || 'REVIEWED_COMMIT_FAILED'),{code:json.code,serverVersion:json.serverVersion});
     return json.data;
+  }
+
+  /** Transport for future P8-B4 integration; no completion/plan authority lives in the browser. */
+  public async getExecutionStatus(projectId:string, sessionId:string):Promise<import('../types/importExecution').ImportExecutionStatus> {
+    return this.executionCommand(projectId,sessionId);
+  }
+  public async retryExecution(projectId:string,sessionId:string,expectedOperationVersion:number):Promise<import('../types/importExecution').ImportExecutionStatus> {
+    return this.executionCommand(projectId,sessionId,'retry',expectedOperationVersion);
+  }
+  public async cancelExecution(projectId:string,sessionId:string,expectedOperationVersion:number):Promise<import('../types/importExecution').ImportExecutionStatus> {
+    return this.executionCommand(projectId,sessionId,'cancel',expectedOperationVersion);
+  }
+  private async executionCommand(projectId:string,sessionId:string,action?:'retry'|'cancel',expectedOperationVersion?:number) {
+    const token=await this.getAuthToken();
+    const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(sessionId)}/execution${action?'/'+action:''}`,{
+      method:action?'POST':'GET',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},...(action?{body:JSON.stringify({expectedOperationVersion})}:{})
+    });
+    const json=await response.json();if(!response.ok||!json.success)throw Object.assign(new Error(json.code||'EXECUTION_REQUEST_FAILED'),{code:json.code});return json.data;
   }
 
   private async getAuthToken(overrideToken?: string): Promise<string> {

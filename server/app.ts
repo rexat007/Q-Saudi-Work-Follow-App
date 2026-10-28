@@ -281,14 +281,31 @@ app.post(
   enforceDispatcherOrAbove,
   async (req: any, res) => {
     try {
-      const { ReviewedRosterCommitServer } = await import('../src/services/import/reviewedRosterCommit.server');
-      const data = await new ReviewedRosterCommitServer().commit(req.params.projectId, req.params.importSessionId, req.body, req.user);
+      const { RosterExecutionServer } = await import('../src/services/import/rosterExecution.server');
+      const data = await new RosterExecutionServer().requestCommit(req.params.projectId, req.params.importSessionId, req.body, req.user);
       return res.json({success:true,data});
     } catch (error: any) {
       return res.status(error.status || 400).json({success:false,code:error.code || 'REVIEWED_COMMIT_FAILED',serverVersion:error.serverVersion});
     }
   }
 );
+
+// P8-B3 operation recovery API. No client completion list or execution plan is accepted.
+app.get('/api/projects/:projectId/import-sessions/:importSessionId/execution', enforceProjectIsolation, enforceDispatcherOrAbove, async (req:any,res) => {
+  try {
+    const { RosterExecutionServer } = await import('../src/services/import/rosterExecution.server');
+    return res.json({success:true,data:await new RosterExecutionServer().status(req.params.projectId,req.params.importSessionId,req.user)});
+  } catch(error:any) {return res.status(error.status || 400).json({success:false,code:error.code || 'EXECUTION_STATUS_FAILED'});}
+});
+for (const action of ['retry','cancel'] as const) app.post(`/api/projects/:projectId/import-sessions/:importSessionId/execution/${action}`, enforceProjectIsolation, enforceDispatcherOrAbove, async (req:any,res) => {
+  try {
+    if(!req.body || Object.keys(req.body).some(k=>k!=='expectedOperationVersion'))return res.status(400).json({success:false,code:'INVALID_EXECUTION_COMMAND'});
+    const { RosterExecutionServer } = await import('../src/services/import/rosterExecution.server');
+    const authority=new RosterExecutionServer();
+    const data=await authority[action==='retry'?'advance':'cancel'](req.params.projectId,req.params.importSessionId,req.body.expectedOperationVersion,req.user);
+    return res.json({success:true,data});
+  } catch(error:any) {return res.status(error.status || 400).json({success:false,code:error.code || 'EXECUTION_COMMAND_FAILED'});}
+});
 
 app.patch(
   '/api/projects/:projectId/import-sessions/:importSessionId',

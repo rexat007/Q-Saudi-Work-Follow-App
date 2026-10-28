@@ -4,8 +4,8 @@
 ### 1. Code & Environment Truth
 - **GitHub Main Authority**: The GitHub `main` branch is the sole code truth.
 - **Runtime Evidence Superiority**: Automated execution evidence overrides static assumptions or historical reports.
-- **Environment Disambiguation**: When `.git` is unavailable inside Google AI Studio, the Google AI Studio GitHub Sync UI provides the authoritative unpushed-file scope evidence.
-- **Publication Authorization**: The user publishes manually or explicitly authorizes an agent to publish the reviewed scope; independent post-push GitHub verification follows. This does not authorize publication during P0-U5.
+- **Execution Environment**: Work in Codex against the actual local Git repository. Inspect branch, HEAD and the complete working-tree diff; merged GitHub history is the accepted baseline. Historical editor workflows are not current operational authority.
+- **Publication Authorization**: Implementation and documentation completion do not authorize a commit, publication, PR or merge. Follow the active unit's explicit owner instruction and stop at its local owner-review gate; owner merge remains manual. Independent verification is a separate evidence class.
 
 ### 2. Architectural Integrity & Authority
 - **Server Authority**: The server is the sole business authority for state transitions, pricing calculations, waybill creation, and persistent reconciliation.

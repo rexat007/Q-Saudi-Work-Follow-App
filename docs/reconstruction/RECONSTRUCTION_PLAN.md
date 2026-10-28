@@ -39,11 +39,9 @@ Patch-by-patch stopping remains prohibited: discovery should cover the relevant 
 
 ### Scope and sequence authority
 
-This document defines methodology, not current progress. The accepted order is in [FOUNDATIONAL_PLAN_PHASE_0_TO_18.md](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md); current phase/unit and next-unit entry are owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Area-wide discovery does not authorize edits outside a bounded user instruction: P0-U5 changes documentation only and does not reopen accepted i18n work.
+This document defines methodology, not current progress. The accepted order is in [FOUNDATIONAL_PLAN_PHASE_0_TO_18.md](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md); current phase/unit and next-unit entry are owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Area-wide discovery does not authorize edits outside a bounded user instruction: the historical P0-U5 unit changed documentation only and does not reopen accepted i18n work.
 
 
-### Current continuation checkpoint
+### Current continuation authority
 
-At verified GitHub main `e09cd613d93d3e6519fe1dc283caf96d4363bcec`, Phase 0 remains VERIFIED / CLOSED / FROZEN, Phase 1 is VERIFIED / CLOSED, and Phase 2 — Persistence & Server Authority plus P2-U1 through P2-U4 are VERIFIED / CLOSED. Phase 3 — Authentication, Authorization & Administrative Governance is IN_PROGRESS at governance level by owner instruction to proceed.
-
-Phase 3 purpose remains the accepted foundational scope: RBAC, token verification, field-level authorization, IDOR defense and administrative controls. Known carryovers include the intentionally deferred wizard role subset, UserValidator role allowlist and server AuthenticatedUser/auth-context semantics. Under the streamlined method, NEXT_ACTION is one broad `PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT` that maps meaningful Phase-3 defects and groups compatible work into bounded batches. No P3 unit is pre-assigned. Current status remains owned by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
+Use the actual local Codex repository and [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) for the merged baseline, active unit and next action. The former Phase-3-first-audit pointer is historical; subsequent accepted source history has progressed through P8-B2. The current P8-B3 unit ends at owner review. No publication or P8-B4 implementation follows automatically. Phase purposes and ordering remain in the foundational roadmap; this methodological document does not own progress state.

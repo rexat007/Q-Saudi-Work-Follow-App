@@ -1,3 +1,18 @@
+# Current Phase 8 trust boundary — bounded source reference
+
+Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. Acceptance and active unit remain owned by [the ledger](reconstruction/02_PHASE_LEDGER.md). This section describes source behavior, not a live penetration-test or Firebase deployment certification.
+
+- Session mutations are authenticated HTTP/server operations. Server lifecycle validation owns legal transitions; schema/domain requirements distinguish Trip and Roster. Deep payload validation rejects raw File/Blob/Buffer/ArrayBuffer, credentials and nested/mixed-case secret fields.
+- The route Project, persisted Session Project, reviewed intent and operation binding must agree. Execution status/retry/cancel reauthorize the current canonical account and Project permission on each transaction. A prior acceptedBy, client signature, browser state or token-role claim alone grants no commit authority.
+- Commit authority loads the durable reviewed intent; clients send a version request, not target selections or completion lists. Source/mapping revisions, stable Session/Operation/Batch identities, signatures, warning consent and displacement approval remain bound. Immutable artifact digests are integrity evidence, not authentication.
+- Current canonical identity, participation, affiliation and relationship authorities are reused. PREPARED_NEW materialization rechecks natural identity transactionally; no label/fuzzy/default target fallback or independent uniqueness scheme is introduced.
+- Operation versions and server-generation fences serialize progress and reject stale attempts. Canonical mutation and receipt publication are atomic at each dependency-group boundary. A lost response must be resolved from durable status, never by assuming browser memory is completion authority.
+- Completed receipts survive retries, cancellation and process replacement. Cancellation linearizes with group transactions and preserves completed effects; it is not rollback. Canonical drift may reduce pending work only within the approved maximum effect set; broader displacement requires renewed review.
+- Generic checkpoint/chunk PATCH cannot bypass a managed execution. The legacy raw-row path remains guarded by `PHASE8_REVIEWED_INTENT_HANDOFF_REQUIRED`. No browser Firestore write authority or rule change is added; unmatched operation/session journal paths remain under the existing rules' default deny and are accessed through protected server/Admin SDK services.
+- Local tests include serialized-store/service restart and browser loss/reload cases using a transactional in-memory database. They do not prove live Firebase, emulator behavior, exhaustive cross-role journeys or owner acceptance. P8-B4 UX and broader release/security gates remain separate.
+
+## Historical original specification — preserved reference
+
 > **HISTORICAL_RECORD — original design/reference specification.** The preserved body may combine implemented behavior with former targets; it is not proof of current routes, schemas, security, deployment or reconstruction status. Current GitHub main takes precedence. For the verified repository overview see [MASTER_PROJECT_HANDOFF.md](reconstruction/MASTER_PROJECT_HANDOFF.md); current state is [02_PHASE_LEDGER.md](reconstruction/02_PHASE_LEDGER.md). No historical target here authorizes product changes.
 
 # Q Saudi Work Follow — نموذج الأمان والتحكم بالوصول (Security Model & Access Control)

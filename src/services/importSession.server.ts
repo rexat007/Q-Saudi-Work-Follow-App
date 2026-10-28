@@ -162,6 +162,7 @@ export class ImportSessionServerService {
     await this.db.runTransaction(async (transaction: any) => {
       const snap = await transaction.get(ref); const existing = snap.exists ? snap.data() : null;
       if (!existing || existing.projectId !== projectId) sessionError('IMPORT_SESSION_NOT_FOUND');
+      if (existing.executionOperationId) sessionError('IMPORT_EXECUTION_MANAGED');
       if (existing.version !== expectedVersion) throw Object.assign(new Error('VERSION_CONFLICT'), { code: 'VERSION_CONFLICT', serverVersion: existing.version });
       if (['COMMITTED','CANCELLED','FAILED_TERMINAL','COMMITTING'].includes(existing.lifecycleState)) sessionError('INVALID_IMPORT_SESSION_TRANSITION');
       const chunkRef = ref.collection('checkpointChunks').doc(`${chunk.artifactId}_${chunk.index}`);
@@ -343,6 +344,7 @@ export class ImportSessionServerService {
         throw err;
       }
 
+      if (existing.executionOperationId) sessionError('IMPORT_EXECUTION_MANAGED');
       if (existing.checkpointArtifact) existing = { ...existing, ...await this.hydrateSnapshots(ref => transaction.get(ref), docRef, existing) };
       if (existing.hasReviewedIntent === false) delete existing.reviewedCanonicalIntent;
       if (existing.reviewedCanonicalIntent && existing.reviewAcceptance) Object.assign(existing.reviewedCanonicalIntent,existing.reviewAcceptance);
