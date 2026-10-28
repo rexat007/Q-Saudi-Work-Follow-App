@@ -45,6 +45,11 @@ export class ProjectFleetQueryService {
     return this.database.runTransaction(async (tx: any) => {
       const principal = await this.authorize(tx, p, actor);
       if (options?.resolution && !['PROJECT_ADMIN','SUPER_ADMIN','DISPATCHER','SUPERVISOR','SITE_SUPERVISOR'].includes(principal.role)) throw new GlobalIdentityError('FORBIDDEN_PROJECT_ACCESS','',403);
+      return this.contextInTransaction(tx, p, actor, principal, options);
+    });
+  }
+  /** Internal read composition; outer authority owns the transaction and current actor. */
+  async contextInTransaction(tx: any, p: string, actor: { userId: string; email?: string }, principal: ReturnType<typeof buildPrincipal>, options?: ImportResolutionReadOptions) {
       const ctx = new ProjectFleetReadModelAdminReadContext(this.database, ref => tx.get(ref));
       const [fleet, carriers, materials, drivers, trucks] = await Promise.all([projectFleetReadModelService.getProjectFleetReadModel(p, ctx), readProjectMasterList(ctx, p, 'CARRIER'), readProjectMasterList(ctx, p, 'MATERIAL'), readProjectMasterList(ctx, p, 'DRIVER'), readProjectMasterList(ctx, p, 'TRUCK')]);
       const knownCarriers = carriers.filter(c => c.eligible).map(c => ({ carrierId: c.id, name: c.global.nameAr || c.id, status: 'ACTIVE' as const }));
@@ -75,6 +80,5 @@ export class ProjectFleetQueryService {
         return { ...result, importResolution: { projectId: p, entities, activeDriverByTruck: result.activeDriverByTruck, activeMaterialByTruck: result.activeMaterialByTruck } };
       }
       return result;
-    });
   }
 }

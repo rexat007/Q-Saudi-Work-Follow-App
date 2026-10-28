@@ -275,6 +275,21 @@ app.get(
   }
 );
 
+app.post(
+  '/api/projects/:projectId/import-sessions/:importSessionId/commit-reviewed-intent',
+  enforceProjectIsolation,
+  enforceDispatcherOrAbove,
+  async (req: any, res) => {
+    try {
+      const { ReviewedRosterCommitServer } = await import('../src/services/import/reviewedRosterCommit.server');
+      const data = await new ReviewedRosterCommitServer().commit(req.params.projectId, req.params.importSessionId, req.body, req.user);
+      return res.json({success:true,data});
+    } catch (error: any) {
+      return res.status(error.status || 400).json({success:false,code:error.code || 'REVIEWED_COMMIT_FAILED',serverVersion:error.serverVersion});
+    }
+  }
+);
+
 app.patch(
   '/api/projects/:projectId/import-sessions/:importSessionId',
   enforceProjectIsolation,

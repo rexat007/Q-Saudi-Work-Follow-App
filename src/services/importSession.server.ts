@@ -117,7 +117,7 @@ export class ImportSessionServerService {
     return result;
   }
 
-  private async hydrateSnapshots(reader: (ref:any)=>Promise<any>, docRef:any, header:any) {
+  async hydrateSnapshots(reader: (ref:any)=>Promise<any>, docRef:any, header:any) {
     const keys = ['importBatch','reviewSnapshot','reviewedCanonicalIntent','entityResolutions','validationIssues'];
     const references = header.artifactFields || (header.checkpointArtifact ? Object.fromEntries(keys.map(key=>[key,header.checkpointArtifact])) : {});
     const cache = new Map<string,any>(); const result:any = {};

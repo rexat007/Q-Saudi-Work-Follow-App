@@ -45,14 +45,20 @@ export async function planAllocation(tx: any, db: any, p: string, truckId: strin
   const now = at.toISOString(), record = { allocationId: `TMA-${randomUUID().replace(/-/g, '')}`, projectId: p, truckId, materialId, status: 'ACTIVE', effectiveFrom: now, effectiveTo: null, createdAt: now, createdBy: actor.userId, updatedAt: now, updatedBy: actor.userId };
   return { kind: 'ALLOCATION', projectId: p, command, actor, before, record, changed: true, reason };
 }
-export function writeTemporalPlan(tx: any, db: any, plan: TemporalPlan, at: Date) {
+/** Separate phase permits several reviewed plans to release old slots before any replacement slot is written. */
+export function writeTemporalClosures(tx: any, db: any, plan: TemporalPlan, at: Date) {
   if (!plan.changed) return;
-  const { kind, projectId, actor, before, record, command, reason } = plan, spec = TEMPORAL[kind], root = base(db, projectId), now = at.toISOString();
+  const {kind, projectId, actor, before} = plan, spec = TEMPORAL[kind], root = base(db,projectId), now = at.toISOString();
   for (const old of before) {
     tx.update(root.collection(spec.collection).doc(old[spec.id]), { status: 'CLOSED', effectiveTo: now, updatedAt: now, updatedBy: actor.userId });
     if (kind === 'ASSIGNMENT') { tx.delete(root.collection('driver_active_assignments').doc(old.driverId)); tx.delete(root.collection('truck_active_assignments').doc(old.truckId)); }
     else tx.delete(root.collection('truck_active_material_allocations').doc(old.truckId));
   }
+}
+export function writeTemporalPlan(tx: any, db: any, plan: TemporalPlan, at: Date, closeDisplaced = true) {
+  if (!plan.changed) return;
+  const { kind, projectId, actor, before, record, command, reason } = plan, spec = TEMPORAL[kind], root = base(db, projectId), now = at.toISOString();
+  if (closeDisplaced) writeTemporalClosures(tx, db, plan, at);
   if (command !== 'CLOSE') {
     tx.set(root.collection(spec.collection).doc(record[spec.id]), record);
     if (kind === 'ASSIGNMENT') { tx.set(root.collection('driver_active_assignments').doc(record.driverId), { assignmentId: record.assignmentId }); tx.set(root.collection('truck_active_assignments').doc(record.truckId), { assignmentId: record.assignmentId }); }

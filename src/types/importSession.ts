@@ -137,3 +137,17 @@ export interface UpdateImportSessionPayload {
   rosterDiscoveryResult?: SafeDiscoveryMetadata | null;
   [key: string]: any;
 }
+
+/** Atomic P8-B2 receipt. Signature is SHA-256 of the durable semantic signature, avoiding an oversized header. */
+export interface ReviewedRosterCommitReceipt {
+  projectId:string;importSessionId:string;operationId:string;importBatchId:string;
+  sourceRevisionId:string;mappingRevisionId:string;reviewedSignature:string;signatureEncoding:'SHA256';
+  requestVersion:number;committedVersion:number;committedAt:string;committedBy:string;
+  preparedIdentityMap:Record<string,string>;
+  resultSummary:{contributingRows:number;createdIdentities:number;reusedConcurrentIdentities:number;canonicalEntities:{kind:string;id:string;carrierId?:string}[];
+    assignments:{action:string;assignmentId:string;driverId:string;truckId:string}[];
+    allocations:{action:string;allocationId:string;truckId:string;materialId:string}[]};
+}
+export interface ReviewedRosterCommitResponse {
+  lifecycleState:'COMMITTED';receipt:ReviewedRosterCommitReceipt;canonicalRefresh:'VERIFIED'|'PENDING';code?:'COMMIT_SUCCEEDED_CANONICAL_REFRESH_PENDING';
+}

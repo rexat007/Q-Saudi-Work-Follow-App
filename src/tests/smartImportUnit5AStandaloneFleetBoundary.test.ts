@@ -555,9 +555,13 @@ describe('Smart Import Unit 5A-Server Standalone Fleet Boundary Test Suite', () 
     const serviceFilePath = path.resolve(__dirname, '../services/driverTruckIntake.server.ts');
     const code = fs.readFileSync(serviceFilePath, 'utf-8');
 
-    // Verify driverId generation uses crypto.randomBytes
-    expect(code).toContain("driverId = resolvedDriver.id || `DRV-${crypto.randomBytes(16).toString('hex')}`");
-    expect(code).toContain("truckId = resolvedTruck.id || `TRK-${crypto.randomBytes(16).toString('hex')}`");
+    const shared = fs.readFileSync(path.resolve(__dirname, '../services/fleetIdentityCreation.server.ts'), 'utf-8');
+    // Both public intake and reviewed execution reuse the same opaque ID authority.
+    expect(code).toContain("driverId = resolvedDriver.id || newFleetIdentityId('DRIVER')");
+    expect(shared).toContain("crypto.randomBytes(16).toString('hex')");
+    expect(shared).toContain("kind === 'DRIVER' ? 'DRV' : 'TRK'");
+    expect(code).toContain("truckId = resolvedTruck.id || newFleetIdentityId('TRUCK')");
+    expect(shared).not.toMatch(/Date\.now|Math\.random/);
     expect(code).not.toContain("driverId = `DRV-${Date.now()}`");
     expect(code).not.toContain("truckId = `TRK-${Date.now()}`");
   });

@@ -2,7 +2,7 @@ import { planAssignment, planAllocation, writeTemporalPlan } from './temporalRel
 import { planMembership, planAffiliation, protectAffiliationAssignment, writeParticipationPlan, decodeParticipation } from './projectParticipationAuthority.server';
 import { resolveGlobalNaturalIdentity, authorizeGlobalCommand, assertGlobalEntityExists, decodeAuthoritativeGlobal, auditGlobalMutation } from './globalIdentityAuthority.server';
 import { assertCanEnroll, assertOperationallyEligible } from '../utils/globalIdentityPolicy';
-import crypto from 'crypto';
+import { newFleetIdentityId, driverCreationRecord, truckCreationRecord } from './fleetIdentityCreation.server';
 import { AuthUserContext } from '../types/common';
 import { DriverTruckIntakePayload, DriverTruckIntakeResult } from './driverTruckIntake.service';
 import { markDirtyInTransaction } from './projectWorkspaceProjectionState.server';
@@ -111,8 +111,8 @@ export class DriverTruckIntakeServer {
       // ----------------------------------------------------
       const resolvedDriver = await resolveGlobalNaturalIdentity(transaction, adminDb, 'DRIVER', normIdNumber);
       const resolvedTruck = await resolveGlobalNaturalIdentity(transaction, adminDb, 'TRUCK', normPlate);
-      const driverId = resolvedDriver.id || `DRV-${crypto.randomBytes(16).toString('hex')}`;
-      const truckId = resolvedTruck.id || `TRK-${crypto.randomBytes(16).toString('hex')}`;
+      const driverId = resolvedDriver.id || newFleetIdentityId('DRIVER');
+      const truckId = resolvedTruck.id || newFleetIdentityId('TRUCK');
       const lookupRefDriver = resolvedDriver.canonicalRef, lookupRefTruck = resolvedTruck.canonicalRef;
       const shouldReserveLookupDriver = resolvedDriver.mustReserve, shouldReserveLookupTruck = resolvedTruck.mustReserve;
       if (resolvedDriver.entity) assertCanEnroll('DRIVER', resolvedDriver.entity);
@@ -213,17 +213,7 @@ export class DriverTruckIntakeServer {
       // 1. Create Driver if completely missing
       if (!resolvedDriver.id) {
         const newDriverRef = adminDb.collection('drivers').doc(driverId);
-        const newDriverData = {
-          driverId,
-          nationalId: normIdNumber,
-          fullNameAr: normalizeArabicText(driverName),
-          phone,
-          status: 'ACTIVE',
-          createdAt: nowIso,
-          createdBy: actorId,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        };
+        const newDriverData = driverCreationRecord(driverId, { driverName, residencyId: normIdNumber, phone }, actorId, nowIso);
         decodeAuthoritativeGlobal('DRIVER', newDriverData, driverId);
         transaction.set(newDriverRef, newDriverData);
         auditGlobalMutation(transaction, adminDb, 'DRIVER', driverId, context, null, newDriverData, projectId);
@@ -247,33 +237,7 @@ export class DriverTruckIntakeServer {
       // 2. Create Truck if completely missing
       if (!resolvedTruck.id) {
 
-        const newTruckData: any = {
-          truckId,
-          plate: plateNumber.trim(),
-          normalizedPlate: normPlate,
-          status: 'ACTIVE',
-          createdAt: nowIso,
-          createdBy: actorId,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        };
-
-        if (truckType && truckType.trim()) {
-          newTruckData.truckType = truckType.trim();
-        }
-
-        const validTare = typeof tareWeightKg === 'number' && tareWeightKg > 0;
-        const validGross = typeof maxGrossWeightKg === 'number' && maxGrossWeightKg > 0;
-
-        if (validTare) {
-          newTruckData.tareWeightKg = tareWeightKg;
-        }
-        if (validGross) {
-          newTruckData.maxGrossWeightKg = maxGrossWeightKg;
-        }
-        if (validTare && validGross && maxGrossWeightKg! > tareWeightKg!) {
-          newTruckData.legalPayloadLimitKg = maxGrossWeightKg! - tareWeightKg!;
-        }
+        const newTruckData = truckCreationRecord(truckId, { plateNumber, truckType, tareWeightKg, maxGrossWeightKg }, actorId, nowIso, false);
 
         const newTruckRef = adminDb.collection('trucks').doc(truckId);
         decodeAuthoritativeGlobal('TRUCK', newTruckData, truckId);
@@ -371,7 +335,7 @@ export class DriverTruckIntakeServer {
       const carrierGlobal = await assertGlobalEntityExists(transaction, adminDb, 'CARRIER', carrierId);
       assertOperationallyEligible('CARRIER', carrierGlobal);
       const resolvedDriver = await resolveGlobalNaturalIdentity(transaction, adminDb, 'DRIVER', normIdNumber);
-      const driverId = resolvedDriver.id || `DRV-${crypto.randomBytes(16).toString('hex')}`;
+      const driverId = resolvedDriver.id || newFleetIdentityId('DRIVER');
       const lookupRefDriver = resolvedDriver.canonicalRef;
       const shouldReserveLookupDriver = resolvedDriver.mustReserve;
       const identityStatus: 'CREATED' | 'EXISTING' = resolvedDriver.id ? 'EXISTING' : 'CREATED';
@@ -407,17 +371,7 @@ export class DriverTruckIntakeServer {
 
       if (!resolvedDriver.id) {
         const newDriverRef = adminDb.collection('drivers').doc(driverId);
-        const newDriverData = {
-          driverId,
-          nationalId: normIdNumber,
-          fullNameAr: normalizeArabicText(driverName),
-          phone,
-          status: 'ACTIVE',
-          createdAt: nowIso,
-          createdBy: actorId,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        };
+        const newDriverData = driverCreationRecord(driverId, { driverName, residencyId: normIdNumber, phone }, actorId, nowIso);
         decodeAuthoritativeGlobal('DRIVER', newDriverData, driverId);
         transaction.set(newDriverRef, newDriverData);
 
@@ -502,7 +456,7 @@ export class DriverTruckIntakeServer {
       const carrierGlobal = await assertGlobalEntityExists(transaction, adminDb, 'CARRIER', carrierId);
       assertOperationallyEligible('CARRIER', carrierGlobal);
       const resolvedTruck = await resolveGlobalNaturalIdentity(transaction, adminDb, 'TRUCK', normPlate);
-      const truckId = resolvedTruck.id || `TRK-${crypto.randomBytes(16).toString('hex')}`;
+      const truckId = resolvedTruck.id || newFleetIdentityId('TRUCK');
       const lookupRefTruck = resolvedTruck.canonicalRef;
       const shouldReserveLookupTruck = resolvedTruck.mustReserve;
       const identityStatus: 'CREATED' | 'EXISTING' = resolvedTruck.id ? 'EXISTING' : 'CREATED';
@@ -538,29 +492,7 @@ export class DriverTruckIntakeServer {
 
       if (!resolvedTruck.id) {
 
-        const newTruckData: any = {
-          truckId,
-          plate: plateNumber.trim(),
-          normalizedPlate: normPlate,
-          status: 'ACTIVE',
-          createdAt: nowIso,
-          createdBy: actorId,
-          updatedAt: nowIso,
-          updatedBy: actorId,
-        };
-
-        if (truckType && truckType.trim()) {
-          newTruckData.truckType = truckType.trim();
-        }
-        if (tareWeightKg !== undefined && Number(tareWeightKg) > 0) {
-          newTruckData.tareWeightKg = Number(tareWeightKg);
-        }
-        if (maxGrossWeightKg !== undefined && Number(maxGrossWeightKg) > 0) {
-          newTruckData.maxGrossWeightKg = Number(maxGrossWeightKg);
-        }
-        if (tareWeightKg !== undefined && maxGrossWeightKg !== undefined && Number(maxGrossWeightKg) > Number(tareWeightKg)) {
-          newTruckData.legalPayloadLimitKg = Number(maxGrossWeightKg) - Number(tareWeightKg);
-        }
+        const newTruckData = truckCreationRecord(truckId, { plateNumber, truckType, tareWeightKg, maxGrossWeightKg }, actorId, nowIso, true);
 
         const newTruckRef = adminDb.collection('trucks').doc(truckId);
         decodeAuthoritativeGlobal('TRUCK', newTruckData, truckId);
