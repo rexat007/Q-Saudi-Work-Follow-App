@@ -4,12 +4,14 @@
 Authority: `CURRENT_AUTHORITY`. Current observed merged main for the owner-authorized P8-B3 implementation: `1f7f3344e65dfc9b6837b10cb5349827da1587eb`. Phase 8 — Smart Import Persistence, Resume & Commit Integrity is active; P8-B3 — Recovery, Receipts & Execution Safety is locally implemented and owner-review accepted locally; publication is NOT_STARTED. P8-B1 and P8-B2 source implementations are merged and present. P8-B4 remains NOT_STARTED. This implementation record does not close P8-B3 or Phase 8, and does not invent closure evidence for intervening phases. Phase 0 freeze and previously recorded closures remain unchanged.
 
 Historical phase-transition context (before the owner-authorized subsequent implementation batches): Current verified GitHub main before this documentation transition: `e09cd613d93d3e6519fe1dc283caf96d4363bcec` (PR #35). Phase 0 remains VERIFIED / CLOSED / FROZEN; Phase 1 is VERIFIED / CLOSED; Phase 2 — Persistence & Server Authority and P2-U1 through P2-U4 are VERIFIED / CLOSED. By explicit owner instruction to proceed, Phase 3 — Authentication, Authorization & Administrative Governance is IN_PROGRESS at governance level. ACTIVE_UNIT is UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT. NEXT_ACTION: PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT.
+Authority: `CURRENT_AUTHORITY`. Current verified GitHub main: `1f7f3344e65dfc9b6837b10cb5349827da1587eb` (PR #58 — P8-B2 merged and independently source-verified). Phase 0 remains VERIFIED / CLOSED / FROZEN; Phases 1–2 remain VERIFIED / CLOSED. The current reconstruction track has advanced through the accepted Phase 3–6 source work and Phase 7 Smart Import Core source closure. The Smart Import pre-Phase-8 correction gate (SI-CG1 + SI-CG2) is CLOSED. Phase 8 — Smart Import Persistence, Resume & Commit Integrity is IN_PROGRESS. P8-B1 and P8-B2 are VERIFIED / CLOSED. ACTIVE_UNIT is P8-B3 — Durable Execution Journal & Recovery, status NOT_STARTED. NEXT_ACTION: P8_B3_BOUNDED_IMPLEMENTATION_DEFINITION.
 
 This is the sole current source for phase, active/next unit, accepted units, and the routing of open debt and execution rules. Other documents support this ledger; historical reports and Studio snapshots cannot advance its pointers. Closure requires accepted evidence and explicit owner authority. P0-A0 through P0-U6 retain their recorded closures; the owner explicitly approved the P0-U7 governance/freeze closure implemented below. Its reviewed documentation publication has since merged through PR #9; the verified GitHub facts supplied by the owner and the merge present on main establish the publication record below.
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Streamlined Reconstruction Execution Method](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md) is the current delivery-method authority, supported by [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md). It supersedes older multi-audit/micro-unit continuation patterns for future work while preserving high-risk gates.
 - **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) remains the phase sequence authority. The Phase 2 closure / Phase 3 activation evidence below is historical and remains scoped to its recorded period; it does not override the owner-authorized P8-B3 implementation pointer above.
+- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) defines phase ownership and ordering. Current active pointers are the YAML block and latest dated checkpoint in this ledger. Older Phase 2→3 activation records below are historical evidence only and do not override the current Phase 8 pointer.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
@@ -69,6 +71,58 @@ HISTORICAL_AUTHENTICATED_USER_ROLE_STATUS: PHASE_3_AUDIT_REQUIRED / NOT_REASSESS
 
 
 ### Phase 2 Closure / Phase 3 Activation — 2026-10-24 (historical record)
+ACTIVE_UNIT: P8-B3_DURABLE_EXECUTION_JOURNAL_AND_RECOVERY
+ACTIVE_UNIT_STATUS: NOT_STARTED
+ACTIVE_UNIT_TYPE: BOUNDED_HIGH_RISK_SERVER_COMMIT_RECOVERY
+PHASE_0_STATUS: VERIFIED / CLOSED / FROZEN
+PHASE_1_STATUS: VERIFIED / CLOSED
+PHASE_2_STATUS: VERIFIED / CLOSED
+PHASE_7_STATUS: SOURCE_CLOSED
+SMART_IMPORT_MASTER_DESIGN_STATUS: ACCEPTED_AFTER_BOUNDED_CORRECTION
+SI_CG1_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
+SI_CG2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
+PRE_PHASE8_CORRECTION_GATE: CLOSED
+P8_B1_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
+P8_B1_PR: 57
+P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
+P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
+P8_B2_PR: 58
+P8_B2_IMPLEMENTATION_COMMIT: 6b56d2def2f02aae1d60b5a7d3352210cc584931
+P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
+P8_B3_STATUS: NOT_STARTED
+NEXT_UNIT: P8-B3_DURABLE_EXECUTION_JOURNAL_AND_RECOVERY
+NEXT_ACTION: P8_B3_BOUNDED_IMPLEMENTATION_DEFINITION
+CURRENT_CODE_BASELINE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
+CURRENT_TS_DIAGNOSTICS_BASELINE: 440
+LINT_STATUS: EXIT_2_NOT_PASS_HISTORICAL_DEBT
+P8_B2_NEW_TEST_FAILURES: 0
+P8_B2_REMAINING_FOCUSED_FAILURES: HISTORICAL_C5_38_61_62_67
+P8_B1_LIVE_FIREBASE_ACCEPTANCE: NOT_CLAIMED
+P8_B2_LIVE_FIREBASE_ACCEPTANCE: NOT_CLAIMED
+PHASE8_REVIEWED_INTENT_HANDOFF_FENCE: PRESERVED_FOR_LEGACY_RAW_ROW_PATH
+EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
+EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
+```
+
+
+### Phase 8 Smart Import Checkpoint — 2026-10-28
+
+The Smart Import track was deliberately paused before Phase 8 for a master design and historical-failure review. The review established the binding product model: **External Source → Human-Reviewed Canonical Intent → Canonical Commit**, with layered identity/participation/affiliation resolution, unique-group human decisions rather than row-by-row review, no fuzzy-match authority, no duplicate Master Data authority, no raw-row reinterpretation after semantic review, and explicit durable resume/recovery boundaries.
+
+The bounded pre-Phase-8 corrections are closed:
+- **SI-CG1 — Identity, Grouping & Provenance Correction**: fixed natural-identity grouping precedence, rejected-row exclusion, Material-optional roster mapping and factual source-row provenance.
+- **SI-CG2 — Layer & Contextual Creation Convergence**: converged contextual Carrier/Material/Driver/Truck resolution onto canonical application capabilities, separated Create / Enroll / Reactivate / Affiliation, preserved PREPARED_NEW semantics and prevented hidden temporal side effects.
+
+**P8-B1 — Durable Session & Reviewed Intent Authority** is VERIFIED / CLOSED. PR #57 merged at `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`. It established schema-v2 durable session authority, server lifecycle validation, source and mapping revisions, first-class durable reviewed intent, version fencing, safe source reattach and chunked large-session artifacts. The initial implementation draft introduced 86 regressions; the recovery pass reduced newly introduced failures to zero before publication. P8-B1 does not claim live Firebase acceptance.
+
+**P8-B2 — Server Commit Authority & Prepared Identity Materialization** is VERIFIED / CLOSED. Implementation `6b56d2def2f02aae1d60b5a7d3352210cc584931`, PR #58, verified merge/current main `1f7f3344e65dfc9b6837b10cb5349827da1587eb`. The dedicated reviewed-intent commit endpoint consumes the durable reviewed artifact, rebuilds the current canonical intent from current Project Fleet context, fails closed on stale semantics, materializes PREPARED_NEW Driver/Truck identities using canonical identity semantics, reuses existing participation and temporal authorities, and publishes identity/membership/affiliation/temporal consequences plus receipt/audit/session-COMMITTED truth in one bounded Firestore transaction. The legacy raw-row roster committer remains fenced by `PHASE8_REVIEWED_INTENT_HANDOFF_REQUIRED`. Normal checkpoint PATCH cannot directly commit a roster session.
+
+P8-B2 verification reported baseline 722/726 and final 772/776 with 50/50 new P8-B2 tests, zero new failures, Build PASS, diagnostics 440→440 and lint EXIT 2 / NOT PASS unchanged. The four remaining focused failures are historical C5 cases 38, 61, 62 and 67. Controlled browser verification was 4/4; live Firebase acceptance was not claimed.
+
+**Next bounded unit: P8-B3 — Durable Execution Journal & Recovery.** P8-B3 must extend recovery beyond the single bounded atomic commit without weakening the exact reviewed-intent authority, durable P8-B1 bindings or P8-B2 canonical execution semantics. It must not reintroduce raw-row commit authority or silently reinterpret reviewed consequences.
+
+
+### Phase 2 Closure / Phase 3 Activation — 2026-10-24
 
 Phase 2 closed after four accepted bounded units. P2-U1 established durable Firebase Admin persistence selection; P2-U2 hardened the Firestore trust boundary and was completed by publishing the rules plus owner smoke verification; P2-U3 enforced project-scoped storage isolation with durable migration reservations; P2-U4 normalized active Firestore read/write representation boundaries and closed remaining direct raw domain returns. No Phase-2-owned Beta 2 blocker remains known. Repository-wide diagnostics baseline 445 and lint EXIT 2 remain global debt and are not Phase 2 blockers.
 

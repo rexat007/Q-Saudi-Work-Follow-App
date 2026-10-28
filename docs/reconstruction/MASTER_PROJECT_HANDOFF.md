@@ -37,3 +37,60 @@ The [ledger](02_PHASE_LEDGER.md) is the single current-state authority. Accepted
 Smart Import separates source discovery, approved mapping, canonical resolution, reviewed semantic intent, durable session artifacts, server commit authority and execution recovery. Current reference sections are in [Architecture](../ARCHITECTURE.md), [Data Model](../DATA_MODEL.md), [API Contract](../API_CONTRACT.md) and [Security Model](../SECURITY_MODEL.md). B3 reuses B2 and canonical business authorities; independent dependency groups retain atomic mutation/receipt boundaries. Completed effects are not replayed or rolled back by cancellation. Terminal summary limits retain full journal details and do not imply full current convergence proof.
 
 Remaining gates are local verification and owner review, followed only by separately authorized publication. P8-B4 resume UX and full Sheets Roster convergence remain outside this unit. Typecheck/lint debt and external-dependent test failures remain separately observed; passing build or local in-memory tests does not certify live Firebase, Beta 2, user acceptance or release readiness.
+### Current Reconstruction Checkpoint — 2026-10-28
+
+- Current verified GitHub main: `1f7f3344e65dfc9b6837b10cb5349827da1587eb`.
+- Latest verified merge: PR #58 — P8-B2 `feat(import): execute reviewed roster intent atomically`.
+- Phase 0: VERIFIED / CLOSED / FROZEN.
+- Phases 1–2: VERIFIED / CLOSED.
+- Phase 7 — Smart Import Core: SOURCE CLOSED.
+- Pre-Phase-8 correction gate: CLOSED through SI-CG1 + SI-CG2.
+- Phase 8 — Smart Import Persistence, Resume & Commit Integrity: IN_PROGRESS.
+- P8-B1 — Durable Session & Reviewed Intent Authority: MERGED / SOURCE VERIFIED / CLOSED, PR #57, merge `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`.
+- P8-B2 — Server Commit Authority & Prepared Identity Materialization: MERGED / SOURCE VERIFIED / CLOSED, implementation `6b56d2def2f02aae1d60b5a7d3352210cc584931`, PR #58, merge `1f7f3344e65dfc9b6837b10cb5349827da1587eb`.
+- Active next unit: **P8-B3 — Durable Execution Journal & Recovery**, NOT_STARTED.
+- Current diagnostics baseline: **440**.
+- Lint remains **EXIT 2 / NOT PASS** historical debt.
+- Remaining focused Smart Import failures are historical C5 cases **38, 61, 62, 67**; P8-B2 introduced zero new failures.
+- P8-B1 and P8-B2 do not have live Firebase acceptance; controlled automated/browser evidence is accepted as source verification only.
+
+### Smart Import binding architecture at this checkpoint
+
+The accepted Smart Import product model is:
+
+```text
+SOURCE
+→ DISCOVERY
+→ MAPPING APPROVAL
+→ NORMALIZATION
+→ CANONICAL IDENTITY RESOLUTION
+→ PROJECT PARTICIPATION / AFFILIATION RESOLUTION
+→ CROSS-ROW CANONICAL INTENT
+→ TRUE EXCEPTION-ONLY HUMAN REVIEW
+→ SEMANTIC FINAL REVIEW
+→ DURABLE REVIEWED INTENT
+→ SERVER CANONICAL COMMIT AUTHORITY
+→ CANONICAL REFRESH / PROOF
+→ RESULT / RECOVERY
+```
+
+Binding rules:
+
+1. **One decision per semantic identity/problem, not per source row.**
+2. **Natural identity outranks name/fuzzy evidence.**
+3. **Rejected rows remain provenance but do not participate in active semantic groups.**
+4. **Material is optional for participation-only roster inputs.**
+5. **Contextual missing-entity handling reuses canonical application capabilities.** Smart Import may invoke creation/enrollment/reactivation/affiliation but must not own a parallel Master Data authority.
+6. **PREPARED_NEW remains distinct from immediate contextual canonical creation.**
+7. **No hidden temporal side effects** during contextual entity creation.
+8. **Resume restores persisted facts only; missing source bytes require explicit reattach.**
+9. **Reviewed intent is bound to Project + Session + Operation + Batch + Source Revision + Mapping Revision + accepted semantic signature.**
+10. **Raw rows are not commit authority after semantic review.**
+11. The legacy roster row committer remains fenced by `PHASE8_REVIEWED_INTENT_HANDOFF_REQUIRED`.
+12. P8-B2's atomic commit authority may execute only the exact currently revalidated reviewed consequences; stale semantics fail closed.
+13. P8-B3 must preserve all above invariants while adding durable execution journal/recovery for work that cannot remain a single bounded atomic execution.
+
+### Immediate continuation
+
+Open [CURRENT_CONVERSATION_HANDOFF_2026-10-28.md](CURRENT_CONVERSATION_HANDOFF_2026-10-28.md) and continue from **P8-B3 — Durable Execution Journal & Recovery**. Do not reopen SI-CG1, SI-CG2, P8-B1 or P8-B2 without a concrete regression supported by current GitHub main.
+

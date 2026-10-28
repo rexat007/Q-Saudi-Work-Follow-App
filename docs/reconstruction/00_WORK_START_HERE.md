@@ -8,17 +8,32 @@ This directory (`docs/reconstruction/`) contains repository-governed current con
 
 **Current state has one owner:** [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Use it for the active phase/unit, next unit, closed units, open-debt routing and execution rules. Do not use Studio copies or historical release reports as competing ledgers.
 
-The historical P0-U5 unit was documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
+P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
 
 
-### Current continuation — local Codex owner-review gate
+### Current Continuation Checkpoint — 2026-10-28
 
-- Verified merged main: `1f7f3344e65dfc9b6837b10cb5349827da1587eb` (P8-B2, PR #58).
-- Current work is Phase 8 / P8-B3, locally implemented and awaiting owner review; exact state belongs only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
-- P8-B1 and P8-B2 are MERGED / SOURCE_VERIFIED / CLOSED; their merge evidence is in the ledger.
-- Continue in the actual local Codex Git repository. Inspect branch, HEAD, tracked and untracked scope; preserve the existing worktree.
-- Next action: owner review of the local P8-B3 implementation and documentation. Completion does not authorize commit, publication or another unit. Publication requires a later explicit owner instruction; owner merge remains manual.
-- P8-B4 remains NOT_STARTED. Historical handoffs are evidence, not continuation instructions.
+- **Current verified GitHub main**: `1f7f3344e65dfc9b6837b10cb5349827da1587eb` (PR #58 — P8-B2 merged and source-verified).
+- **Phase 0**: VERIFIED / CLOSED / FROZEN.
+- **Phase 1**: VERIFIED / CLOSED.
+- **Phase 2**: VERIFIED / CLOSED.
+- **Phases 3–6**: source reconstruction closed for the current track; previously recorded live/deployment gates remain separate where applicable and are not silently promoted by this checkpoint.
+- **Phase 7 — Smart Import Core**: SOURCE CLOSED.
+- **Smart Import pre-Phase-8 correction gate**: CLOSED.
+  - SI-CG1 — Identity, Grouping & Provenance Correction: MERGED / SOURCE VERIFIED.
+  - SI-CG2 — Layer & Contextual Creation Convergence: MERGED / SOURCE VERIFIED.
+- **Phase 8 — Smart Import Persistence, Resume & Commit Integrity**: IN_PROGRESS.
+  - P8-B1 — Durable Session & Reviewed Intent Authority: MERGED / SOURCE VERIFIED / CLOSED — PR #57, merge `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`.
+  - P8-B2 — Server Commit Authority & Prepared Identity Materialization: MERGED / SOURCE VERIFIED / CLOSED — PR #58, merge `1f7f3344e65dfc9b6837b10cb5349827da1587eb`.
+- **Active unit**: P8-B3 — Durable Execution Journal & Recovery.
+- **P8-B3 status**: NOT_STARTED.
+- **Next action**: define and implement the bounded P8-B3 contract without weakening P8-B1/P8-B2 reviewed-intent authority.
+- **Current TypeScript diagnostics baseline**: 440 after P8-B2; new diagnostics added by P8-B2: 0.
+- **Lint**: EXIT 2 / NOT PASS remains historical debt, not a new P8-B2 regression.
+- **Remaining focused Smart Import test debt**: historical C5 cases 38, 61, 62 and 67; no new P8-B2 failures.
+- **Live Firebase acceptance** for P8-B1/P8-B2 is NOT claimed; verification used focused automated tests and controlled browser/in-memory service checks.
+- **Current conversation handoff**: [CURRENT_CONVERSATION_HANDOFF_2026-10-28.md](CURRENT_CONVERSATION_HANDOFF_2026-10-28.md).
+
 
 ---
 
