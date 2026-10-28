@@ -11,20 +11,29 @@ This directory (`docs/reconstruction/`) contains repository-governed current con
 P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
 
 
-### Current Continuation Checkpoint — 2026-10-24
+### Current Continuation Checkpoint — 2026-10-28
 
-- **Current verified GitHub main**: `e09cd613d93d3e6519fe1dc283caf96d4363bcec` (PR #35 — P2-U4 merged).
+- **Current verified GitHub main**: `1f7f3344e65dfc9b6837b10cb5349827da1587eb` (PR #58 — P8-B2 merged and source-verified).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
-- **Phase 1 and P1-U1 through P1-U9**: VERIFIED / CLOSED.
-- **Phase 2 — Persistence & Server Authority**: VERIFIED / CLOSED.
-- **P2-U1** Durable Admin Persistence Selection: VERIFIED / CLOSED — PR #32, verified merge `ff5dc79cb380a8ea2713eb539f6cad326407ea16`.
-- **P2-U2** Firestore Persistence Trust Boundary: VERIFIED / CLOSED — PR #33, verified merge `fafbadd90a37988ad97d18a4cfa3191532307255`; Firestore rules published and owner smoke verification passed.
-- **P2-U3** Server Project and Storage Resource Isolation: VERIFIED / CLOSED — PR #34, verified merge `48c016e790dbc6f1b64e09cbc22ef60e78743d1c`.
-- **P2-U4** Persistence Read/Write Representation Boundary: VERIFIED / CLOSED — PR #35, verified merge `e09cd613d93d3e6519fe1dc283caf96d4363bcec`.
-- **Active phase**: PHASE_3 — Authentication, Authorization & Administrative Governance, IN_PROGRESS.
-- **Active unit**: UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT.
-- **Next action**: `PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT`.
-- Phase 3 audit must map RBAC, token/auth context, field-level authorization, IDOR/admin controls, and the intentional role-boundary deferrals from Phase 1 before defining bounded implementation batches.
+- **Phase 1**: VERIFIED / CLOSED.
+- **Phase 2**: VERIFIED / CLOSED.
+- **Phases 3–6**: source reconstruction closed for the current track; previously recorded live/deployment gates remain separate where applicable and are not silently promoted by this checkpoint.
+- **Phase 7 — Smart Import Core**: SOURCE CLOSED.
+- **Smart Import pre-Phase-8 correction gate**: CLOSED.
+  - SI-CG1 — Identity, Grouping & Provenance Correction: MERGED / SOURCE VERIFIED.
+  - SI-CG2 — Layer & Contextual Creation Convergence: MERGED / SOURCE VERIFIED.
+- **Phase 8 — Smart Import Persistence, Resume & Commit Integrity**: IN_PROGRESS.
+  - P8-B1 — Durable Session & Reviewed Intent Authority: MERGED / SOURCE VERIFIED / CLOSED — PR #57, merge `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`.
+  - P8-B2 — Server Commit Authority & Prepared Identity Materialization: MERGED / SOURCE VERIFIED / CLOSED — PR #58, merge `1f7f3344e65dfc9b6837b10cb5349827da1587eb`.
+- **Active unit**: P8-B3 — Durable Execution Journal & Recovery.
+- **P8-B3 status**: NOT_STARTED.
+- **Next action**: define and implement the bounded P8-B3 contract without weakening P8-B1/P8-B2 reviewed-intent authority.
+- **Current TypeScript diagnostics baseline**: 440 after P8-B2; new diagnostics added by P8-B2: 0.
+- **Lint**: EXIT 2 / NOT PASS remains historical debt, not a new P8-B2 regression.
+- **Remaining focused Smart Import test debt**: historical C5 cases 38, 61, 62 and 67; no new P8-B2 failures.
+- **Live Firebase acceptance** for P8-B1/P8-B2 is NOT claimed; verification used focused automated tests and controlled browser/in-memory service checks.
+- **Current conversation handoff**: [CURRENT_CONVERSATION_HANDOFF_2026-10-28.md](CURRENT_CONVERSATION_HANDOFF_2026-10-28.md).
+
 
 ---
 
