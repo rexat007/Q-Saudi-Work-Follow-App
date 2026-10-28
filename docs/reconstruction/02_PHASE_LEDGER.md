@@ -7,7 +7,7 @@ This is the sole current source for phase, active/next unit, accepted units, and
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Streamlined Reconstruction Execution Method](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md) is the current delivery-method authority, supported by [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md). It supersedes older multi-audit/micro-unit continuation patterns for future work while preserving high-risk gates.
-- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) places Phase 3 after Phase 2. Phase 2 is now VERIFIED / CLOSED. The owner's explicit instruction to proceed activates Phase 3 at governance level without pre-assigning a numbered unit. Historical activation and verification evidence below remains scoped to its recorded period.
+- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) defines phase ownership and ordering. Current active pointers are the YAML block and latest dated checkpoint in this ledger. Older Phase 2→3 activation records below are historical evidence only and do not override the current Phase 8 pointer.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
