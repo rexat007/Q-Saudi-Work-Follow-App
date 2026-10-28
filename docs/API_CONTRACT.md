@@ -1,3 +1,28 @@
+# Current Phase 8 API — bounded source contract
+
+Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. Exact implementation/owner acceptance state is in [the ledger](reconstruction/02_PHASE_LEDGER.md). These routes are implemented in `server/app.ts`; prior endpoints in the preserved original specification below are not automatically current authority.
+
+All paths below begin `/api/projects/:projectId/import-sessions`. Firebase Bearer authentication and Project isolation precede service-level authorization. Session handlers apply existing allowed-role checks; commit/execution/recovery additionally use the current canonical command principal (SUPER_ADMIN, or PROJECT_ADMIN assigned to the Project), not a client role or acceptedBy stamp.
+
+| Method / suffix | Current contract |
+|---|---|
+| `POST /` | Create a canonical initial session. Never create directly at advanced review/execution lifecycle. Returns `{success,data}` |
+| `GET /` | List authorized resumable session headers: `{success,sessions,count}`; selected artifacts are loaded separately |
+| `GET /:importSessionId` | Read the server session/artifacts: `{success,data}`; legacy B2 terminal receipts remain available here |
+| `PATCH /:importSessionId` | Versioned checkpoint or bounded immutable chunk staging. `expectedVersion` required; legal server transitions only. Generic Roster execution transitions remain fenced; execution-managed sessions reject ordinary checkpoint/chunk mutation |
+| `POST /:importSessionId/commit-reviewed-intent` | `{expectedVersion}`; optional `operationId` / SHA256 `reviewedSignature` must match if supplied. Never accepts a client execution plan, intent, receipt or completion list |
+| `GET /:importSessionId/execution` | Durable B3 operation status: `{success,data:{operation,retryAllowed,reviewRequired,completed,remaining}}` |
+| `POST /:importSessionId/execution/retry` | Only `{expectedOperationVersion}`. Acquires a new server fence and executes only unfinished groups; stale version or terminal/review-required state is rejected |
+| `POST /:importSessionId/execution/cancel` | Only `{expectedOperationVersion}`. Persists an acknowledged stop at a safe transaction boundary; completed effects/receipts remain |
+
+The commit endpoint creates a B3 operation and normally advances at most four independent groups per request. An existing EXECUTING/PARTIAL operation is reported rather than blindly taken over by an old commit request; explicit retry uses the current operation version. Terminal success returns `{lifecycleState:'COMMITTED',receipt,canonicalRefresh}` plus B3 execution status. Other states return `{lifecycleState,execution}` and do not authorize optimistic UI success. Matching completed retries return the existing receipt; cancelled operations do not restart. A pre-B3 B2 atomic receipt retains its existing idempotent commit behavior; no historical B3 journal is fabricated for it, and its session read remains authoritative.
+
+`VERSION_CONFLICT`, `EXECUTION_VERSION_CONFLICT`, `EXECUTION_FENCE_STALE`, binding mismatch and REVIEW_REQUIRED are distinct from completion. A committed transaction followed by failed canonical refresh remains committed; `COMMIT_SUCCEEDED_CANONICAL_REFRESH_PENDING` must not cause business replay. A summary referencing truncated journal detail likewise does not claim complete canonical proof.
+
+The recovery transport in `ImportSessionClientService` exposes status/retry/cancel for later P8-B4 integration. Full resume UX, long-running background execution and automatic publication are not implemented by this API contract. Route envelopes expose service error codes; an error response is not proof that a transaction never committed—query durable status after response uncertainty.
+
+## Historical original specification — preserved reference
+
 > **HISTORICAL_RECORD — original design/reference specification.** The preserved body may combine implemented behavior with former targets; it is not proof of current routes, schemas, security, deployment or reconstruction status. Current GitHub main takes precedence. For the verified repository overview see [MASTER_PROJECT_HANDOFF.md](reconstruction/MASTER_PROJECT_HANDOFF.md); current state is [02_PHASE_LEDGER.md](reconstruction/02_PHASE_LEDGER.md). No historical target here authorizes product changes.
 
 # Q Saudi Work Follow — عقد واجهات برمجة التطبيقات (API Contract)

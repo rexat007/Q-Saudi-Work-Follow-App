@@ -2,7 +2,7 @@
 
 Arabic title: عقد سلطة أنواع الدومين وحدود الهوية ونطاق المشروع.
 
-Classification: **CURRENT_SUPPORTING**. The [Phase Ledger](02_PHASE_LEDGER.md) is the sole phase/unit state authority; this document defines the architectural contract, not an independent progress ledger. Type: **CONTRACT_FIRST_UNIT**. Owner acceptance **PASSED** before publication. P1-U1 is **VERIFIED / CLOSED**; contract publication is **MERGED / VERIFIED**, PR **#12**, implementation/publication commit `438b3695757f9da3f1a782e85193340b25d6fb74`, verified merge `06696db883db2a47526b207f5a94e27321c49ec7`. Current authoritative main baseline is `06696db883db2a47526b207f5a94e27321c49ec7`; the architectural evidence baseline below is retained.
+Classification: **CURRENT_SUPPORTING**. The [Phase Ledger](02_PHASE_LEDGER.md) is the sole phase/unit state authority; this document defines the architectural contract, not an independent progress ledger. Type: **CONTRACT_FIRST_UNIT**. Owner acceptance **PASSED** before publication. P1-U1 is **VERIFIED / CLOSED**; contract publication is **MERGED / VERIFIED**, PR **#12**, implementation/publication commit `438b3695757f9da3f1a782e85193340b25d6fb74`, verified merge `06696db883db2a47526b207f5a94e27321c49ec7`. The historical P1-U1 verified-merge baseline is `06696db883db2a47526b207f5a94e27321c49ec7`; the architectural evidence baseline below is retained.
 
 ## 1. Evidence and scope
 

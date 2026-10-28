@@ -3,6 +3,10 @@
 
 Authority: `CURRENT_SUPPORTING`. Current phase/unit status remains owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
 
+## Local execution and explicit unit authorization
+
+Current execution uses Codex and the actual local Git repository. Merged GitHub history supplies the accepted baseline; the ledger owns current phase/unit state. The cycle below is a general method, not permission to publish. A unit's explicit owner instruction overrides the default cycle: current P8-B3 work stops for local owner review, with no automatic commit, publication, PR or merge. Do not infer a publication action from implementation completion.
+
 ## 1. Purpose
 
 The reconstruction program exists to move the product through the remaining build phases, close material architectural and implementation gaps, correct prior execution defects, and reach a sound Beta 2 release. Governance exists to protect that result; it must not become an endless process of micro-approvals, duplicate audits, or documentation-only loops.
@@ -118,9 +122,9 @@ If the answer is no, the step should normally be skipped, combined, or deferred.
 
 Perfection is not the target of reconstruction. A safe, coherent, testable Beta 2 is the target. Non-blocking debt should remain recorded and owned by the correct later phase rather than extending the active phase indefinitely.
 
-## 9. Current Phase 3 application
+## 9. Historical Phase 3 application of the method
 
-For Phase 3 — Authentication, Authorization & Administrative Governance:
+At the historical Phase 2-to-3 transition, the method was applied to Phase 3 — Authentication, Authorization & Administrative Governance as follows; these bullets are not current continuation instructions:
 
 - perform one broad `PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT`;
 - map RBAC, token/auth-context, field-level authorization, IDOR defenses and administrative controls as one coherent authorization surface;

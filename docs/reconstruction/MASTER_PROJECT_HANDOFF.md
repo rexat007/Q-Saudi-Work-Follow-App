@@ -30,15 +30,10 @@ The setup layers in `projectSetupWorkflow.service.ts` are FOUNDATION, WORKSPACE,
 Whole-App i18n Batches 1–4 and residual remediation are merged and accepted for the current stage. AR/EN/UR parity is established; dictionary size is dynamic. Browser review is sufficiently accepted for this stage, without claiming exhaustive manual label verification. Mixed/bilingual labels remain deferred non-blocking debt. Future desktop/company/database/licensing directions remain proposals under [the future-direction document](FUTURE_ARCHITECTURE_AND_DISTRIBUTION_DIRECTION.md), not current implementation.
 
 
-### Current Reconstruction Checkpoint — 2026-10-24
+### Current reconstruction checkpoint
 
-- Current verified GitHub main: `e09cd613d93d3e6519fe1dc283caf96d4363bcec`.
-- Phase 0: VERIFIED / CLOSED / FROZEN.
-- Phase 1: VERIFIED / CLOSED.
-- Phase 2 — Persistence & Server Authority: VERIFIED / CLOSED.
-- P2-U1 through P2-U4: VERIFIED / CLOSED.
-- Phase 3 — Authentication, Authorization & Administrative Governance: IN_PROGRESS at governance level.
-- Active unit: UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT.
-- Next action: `PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT`.
-- Known Phase-3 carryovers include wizard role-subset semantics, UserValidator authorization-role semantics, server AuthenticatedUser/auth-context convergence, RBAC/field authorization, IDOR defenses and administrative governance.
-- Global TypeScript diagnostics baseline 445 and lint EXIT 2 / NOT PASS remain debt; they are not Phase 2 closure blockers.
+The [ledger](02_PHASE_LEDGER.md) is the single current-state authority. Accepted source history has progressed through the Smart Import Master Design correction, SI-CG1, SI-CG2, durable sessions (P8-B1) and reviewed-intent commit authority (P8-B2). The P8-B2 merge is `1f7f3344e65dfc9b6837b10cb5349827da1587eb`; the local P8-B3 recovery layer is awaiting owner review and is not published or accepted.
+
+Smart Import separates source discovery, approved mapping, canonical resolution, reviewed semantic intent, durable session artifacts, server commit authority and execution recovery. Current reference sections are in [Architecture](../ARCHITECTURE.md), [Data Model](../DATA_MODEL.md), [API Contract](../API_CONTRACT.md) and [Security Model](../SECURITY_MODEL.md). B3 reuses B2 and canonical business authorities; independent dependency groups retain atomic mutation/receipt boundaries. Completed effects are not replayed or rolled back by cancellation. Terminal summary limits retain full journal details and do not imply full current convergence proof.
+
+Remaining gates are local verification and owner review, followed only by separately authorized publication. P8-B4 resume UX and full Sheets Roster convergence remain outside this unit. Typecheck/lint debt and external-dependent test failures remain separately observed; passing build or local in-memory tests does not certify live Firebase, Beta 2, user acceptance or release readiness.

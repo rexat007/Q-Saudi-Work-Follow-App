@@ -2,6 +2,40 @@
 
 Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This is the canonical decision/debt record, not a second unit ledger. Closed decisions below preserve their unit-scoped evidence; past suite/key totals, no-change statements and verification results do not describe all later work.
 
+## Current Smart Import decisions and debt reconciliation
+
+Current state and accepted merge evidence belong only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). The owner's P8-B3 Course Correction authorizes this documentation reconciliation and preserves the existing implementation; it does not accept or publish local B3 work. P8-B1 merged at `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`, P8-B2 at `1f7f3344e65dfc9b6837b10cb5349827da1587eb`. Earlier decision IDs and their historical evidence below are preserved.
+
+### Source-supported decisions
+
+- Master Design Review → SI-CG1 → SI-CG2 → Phase 8 is the accepted correction sequence. Natural/canonical identity outranks names; rejected rows do not contribute; Material is not universally mandatory; source-row provenance is explicit. Contextual canonical Create/Enroll/Reactivate/Affiliation remain distinct capabilities, separate from PREPARED_NEW and temporal consequences.
+- B1 replaces fabricated snapshot reconstruction with schema-v2 session, source/mapping revisions and first-class durable reviewed intent. Immutable chunks publish through complete manifests, with stable identity/version fencing, exact reattach and separate Trip semantics. Its 86 introduced failures were classified and resolved before publication; that dated observation is not a cardinality gate.
+- B2 consumes the server-loaded reviewed semantic intent, revalidates current canonical state and reuses shared canonical identity/participation/temporal authorities. The legacy raw-row path remains fenced rather than restored as a second authority.
+- Local B3 adds deterministic semantic consequence identities, a Project/Session-bound journal, explicit generation/version fencing and atomic mutation-plus-receipt groups. Retry skips receipted groups; satisfaction can reduce work but not broaden the review. Cancellation preserves completed effects. Bounded summaries reference full receipt detail; incomplete refresh proof remains pending. These implementation facts are awaiting owner review, not VERIFIED/CLOSED.
+- Current work uses Codex and local Git. No automatic commit, publication, PR or merge follows completion. Old dated handoffs and `.aistudio/artifacts/brain/**` remain historical; no new handoff mirror is required.
+
+### Disposition of prior debt and remaining obligations
+
+| Existing debt / subject | Disposition | Current source evidence / remaining owner |
+|---|---|---|
+| Identity ambiguity and display-name grouping | RESOLVED within the accepted SI-CG1 source contract | Natural/canonical identity, explicit ambiguity handling, rejected-row exclusion and physical/internal row provenance; unresolved choices still require human resolution |
+| Duplicate Smart Import creation authority | SUPERSEDED | SI-CG2 invokes canonical Master Data capability; no duplicate creation/affiliation/temporal policy is owned by import |
+| Legacy raw-row semantic commit authority | SUPERSEDED | Durable reviewed intent is authority; the legacy Phase-8 fence stays in place |
+| DD-01 original full-batch session-restore representation | SUPERSEDED by B1 | Versioned source/mapping/review artifacts and factual resume replace the old snapshot contract; original debt evidence below is preserved |
+| DD-01 complete user-facing resume / reattach / provider journey | ROUTED_TO_LATER_PHASE | P8-B4 remains NOT_STARTED; full Sheets Roster adapter and final resume UX are not completed by B3 |
+| Partial execution, response loss and durable recovery | STILL_OPEN at owner-acceptance level | B3 is locally implemented with atomic group receipts, status/retry/cancel and fences; review/publication/independent acceptance have not occurred |
+| P1-U1 boundary observations | SUPERSEDED where accepted later authorities exist; STILL_OPEN for unverified remnants | Canonical natural identity, participation, temporal and persistence authorities now exist in source; this record does not waive remaining type/legacy-contract debt |
+| TYPECHECK_BASELINE_DEBT | STILL_OPEN | Last local observation: 440 diagnostics / lint exit 2, zero added; dated evidence, never a frozen permitted total or PASS |
+| Historical C5 and translation-guard assertions | STILL_OPEN | Baseline-reproduced source-shape assertions remain separately reported; no blanket assertion rewrite or retirement is authorized |
+| CURRENT_EXTERNAL_DEPENDENCY_BOUNDARY | STILL_OPEN / ROUTED_TO_LATER_PHASE | Firestore/proxy-dependent suites remain external debt, with domain, Phase 16 and Phase 18 ownership; not a targeted-test PASS |
+| DD-02 build chunk-size warning | ROUTED_TO_LATER_PHASE | Phase 15 performance scope; no package/bundler change here |
+| DD-03 mixed/bilingual cosmetic polish | ROUTED_TO_LATER_PHASE | Separately bounded product-polish scope; not authorization to reopen accepted i18n convergence |
+| DD-04 breadth of product/browser acceptance | STILL_OPEN / ROUTED_TO_LATER_PHASE | Owning product phases, Phase 16 and Phase 18; local in-memory tests do not certify live Firebase or release |
+| P0-U6 sparse lockfile metadata observation | ROUTED_TO_LATER_PHASE | Separate supply-chain/Phase 17 hardening scope; package/lock unchanged |
+| P0-U6 credential-filename ignore observation | ROUTED_TO_LATER_PHASE | Separate hardening/Phase 17 scope; no tracked-secret or ignore-rule change claimed |
+
+The following CLOSED_DECISIONS section is an append-only historical decision sequence. Present-tense statements inside a dated decision describe its recorded period; this current reconciliation and the phase ledger supersede old continuation pointers, not the historical facts.
+
 ## CLOSED_DECISIONS
 - **CD-70 — Owner-approved Phase 2 closure and Phase 3 activation**: On independently verified main `e09cd613d93d3e6519fe1dc283caf96d4363bcec`, PR #35 is merged and P2-U4 is VERIFIED / CLOSED. Phase 2 — Persistence & Server Authority is therefore VERIFIED / CLOSED after P2-U1 through P2-U4. Accepted merge evidence: P2-U1 PR #32 `ff5dc79cb380a8ea2713eb539f6cad326407ea16`; P2-U2 PR #33 `fafbadd90a37988ad97d18a4cfa3191532307255` plus Firestore rules publication and owner smoke verification; P2-U3 PR #34 `48c016e790dbc6f1b64e09cbc22ef60e78743d1c`; P2-U4 PR #35 `e09cd613d93d3e6519fe1dc283caf96d4363bcec`. No known Phase-2-owned Beta 2 blocker remains. Global TypeScript diagnostics baseline 445 and lint EXIT 2 / NOT PASS remain debt. By the owner's explicit instruction to proceed, Phase 3 — Authentication, Authorization & Administrative Governance is activated at governance level. Its accepted scope remains RBAC, token verification, field-level authorization, IDOR defense and admin controls. The first action is one broad `PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT` under CD-69 streamlined execution, covering the known Phase-1 deferrals (wizard role subset, UserValidator role allowlist, server AuthenticatedUser role/auth context) together with active authorization/admin boundaries. No P3 unit is pre-assigned by activation.
 - **CD-69 — Owner-approved streamlined reconstruction execution method**: The owner rejected unnecessary micro-staging that was extending the reconstruction without proportional product value. Future work uses the minimum-governance delivery model in `STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md`: one broad phase/area audit should map the meaningful work; compatible defects may be grouped into bounded batches; implementation review is followed by commit + push + PR in one publication step; owner merge remains manual; one independent post-merge GitHub verification is the normal merge gate; browser/runtime verification is required only when behavior or product surfaces change; documentation refresh is concentrated at phase boundaries, major batch closures, or when current pointers would otherwise mislead. Separate pre-PR publication audits, documentation-only loops, repeated unrelated full-suite runs and micro-units are skipped unless they materially protect correctness, data integrity, security, tenant isolation or release quality. High-risk auth, tenant isolation, Firestore rules, destructive persistence/data migration, financial correctness and broad server-authority changes retain additional gates as needed. This changes execution process only; it does not reopen closed phases or alter phase ownership. Phase 2 remains governance-active with no P2-U1 yet; its first-unit audit must produce a practical phase map rather than force seam-by-seam auditing.
@@ -592,6 +626,11 @@ Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This is the canon
 ---
 
 ## OPEN_DECISIONS
+
+Current unresolved decisions are owner acceptance of local P8-B3 and later separately authorized product/release work. P8-B4 has not started. The current disposition table above supersedes former Phase-1-first-unit and Phase-3-first-audit continuation directions.
+
+### Historical open-decision snapshot — before completed Phase 1 closure
+
 - The accepted P0-U7 audit found no unresolved foundation contract decision blocking Phase 0 closure. The owner has now selected P1-U1 (CD-51); its contract-definition deliverables are now documented (CD-52), and explicit owner acceptance has PASSED; the owner has now defined P1-U2 (CD-53), and its bounded implementation (CD-54) is owner accepted and VERIFIED / CLOSED by the post-merge closure record. P1-U3 (CD-55/CD-56) is now owner accepted and VERIFIED / CLOSED under CD-57. The completed Phase 1 closure audit found five remaining type-authority families, so Phase 1 is not ready for closure; P1-U4 is now VERIFIED / CLOSED after owner review and PR #19 merge (CD-59). P1-U5 is now VERIFIED / CLOSED after owner review and PR #21 merge (CD-61). P1-U6 is now VERIFIED / CLOSED after owner review and PR #23 merge (CD-63). P1-U7 is now VERIFIED / CLOSED after owner review and PR #25 merge (CD-65). The accepted User Role semantic audit assigns only the two full-vocabulary UserEntity fields to P1-U8, NOT_STARTED / ACTIVE. Wizard context subset, validator accepted subset and server AuthenticatedUser context are explicitly deferred to their Phase 3 reviews, not unresolved P1-U8 work. After P1-U8 implementation, merge and verification, PHASE_1_CLOSURE_AUDIT must validate those deferrals and absence of further safe Phase 1 seams; closure is not automatic. Broader convergence still requires a separate bounded decision. Future distribution/licensing/provider choices remain undecided under the future proposal and do not authorize implementation.
 
 ---
@@ -601,7 +640,7 @@ Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This is the canon
 
 ---
 
-### P1-U1 identity/type boundary observations (unresolved; no new debt ID)
+### Historical P1-U1 identity/type boundary observations (original evidence; current dispositions above)
 
 The [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md) documents current string-only ID separation, cast-based reads, legacy/global coexistence, natural-lookup declaration/writer drift, partial policy views and duplicate temporal interval declarations. These remain known gaps, not UNKNOWN authority or silent remediation. Section 11 preserves the original PureAssignment/PureAllocation CANDIDATE_NEXT_IMPLEMENTATION_SEAM recommendation from the P1-U1 closure snapshot. CD-53 assigned that bounded seam to P1-U2. Its two duplicate interval type declarations are now converged through canonical aliases (CD-54), now VERIFIED / CLOSED; runtime enforcement, natural lookup, legacy/global coexistence and other documented gaps remain unresolved. This is not broad debt remediation or contract acceptance. Phase 1 owns type/boundary contracts; Phase 2 persistence, Phase 3 auth, Phase 4 lifecycle, Phase 5 master/relationship behavior and Phases 7–11 their Import/Pricing/Trip/offline semantics remain unchanged. Existing typecheck and domain debt below is not rewritten or waived.
 
@@ -620,7 +659,7 @@ The [P1_U1_CANONICAL_DOMAIN_AUTHORITY_AND_IDENTITY_CONTRACT.md](P1_U1_CANONICAL_
   - Historical / non-active tests: 393 diagnostics (across 32 historical, retired, or unlisted test files in `src/tests/` due to repository-wide implicit inclusion from `tsconfig.json` lacking explicit include/exclude)
   - Production source: 23 diagnostics (routed to owning future phases: 20 in Phase 7/8 Smart Import, 3 in Phase 10 Trip/Operations)
   - Tooling / config / scripts: 0 diagnostics
-  - Superseding Reconciliation Statement: The current 445 observation is NOT identical to the historical 420 baseline. Therefore any previous statement claiming exact equality with the 420 baseline is superseded by this reconciliation.
+  - Superseding Reconciliation Statement (historical P0-U5 record): The then-current 445 observation is NOT identical to the historical 420 baseline. Therefore any previous statement claiming exact equality with the 420 baseline is superseded by this reconciliation.
 
 ### Principal Debt Families:
 1. **Stale Smart Import / entity-resolution test fixtures**: Object shape drift in test mocks where `ImportEntityResolutionInfo` expanded to include mandatory fields (`originalValue`, `confidence`, `isExact`, `riskLevel`).
@@ -679,9 +718,9 @@ Status: ENVIRONMENTAL_EXTERNAL_DEPENDENCY / UNRESOLVED / NON_BLOCKING_FOR_PHASE_
 
 Future verification belongs to the domain-owning phases (Phase 10 for trip numbering), Phase 16 for broader integration/E2E and Phase 18 for the Beta 2 gate where applicable. Deferral is safe for Phase 0 because secret-free foundation gates are independently verified and this boundary is explicit. Environmental failure is not test retirement and is not product acceptance. No production workaround, credential injection, emulator or test migration is authorized by this exit record.
 
-### Canonical open-debt inventory at Phase 0 exit
+### Historical canonical open-debt inventory at Phase 0 exit
 
-All entries remain open. All are NON_BLOCKING_FOR_PHASE_0_EXIT, not waived for their owning phase or release gates. Existing identifiers are retained; preventive observations below use descriptive references rather than invented debt IDs.
+At that historical exit snapshot all entries remained open. All were NON_BLOCKING_FOR_PHASE_0_EXIT, not waived for their owning phase or release gates. Existing identifiers are retained; preventive observations below use descriptive references rather than invented debt IDs.
 
 | Existing reference | Current status / evidence | Future owner | Reason safe to defer at foundation exit |
 |---|---|---|---|
@@ -696,7 +735,7 @@ All entries remain open. All are NON_BLOCKING_FOR_PHASE_0_EXIT, not waived for t
 
 Proposed follow-up phases remain explicitly identified as proposals from the accepted audit, not invented implementation units or authorization to remediate. Existing future distribution/provider decisions and retirement candidates remain separate decisions, not unproven new foundation debt or permission to act.
 
-## DEFERRED_DEBT
+## Historical deferred-debt register — original routing preserved; current dispositions above
 - **DD-03 — Deferred language polish**: `DEFERRED_NON_BLOCKING_PRODUCT_DEBT`. Some Arabic-mode surfaces may still show deliberate or unresolved mixed Arabic/English or bilingual labels. Preserve current accepted stage behavior; full cosmetic language perfection is not required before continuing P0. Future remediation needs a separately bounded product scope and acceptance; P0-U5 performs no localization changes.
 - **DD-04 — Product verification breadth**: Browser review is accepted sufficiently for this reconstruction stage, not claimed exhaustive. Future product-facing phases retain surface/workflow/language/device/role evidence and explicit user acceptance obligations; historical release-ready reports do not satisfy them automatically.
 - **DD-01 (DEFERRED_TO_PHASE_8)**: Known Smart Import session-restore contract edge case during full batch recovery. Tracked for resolution during Phase 8 (Smart Import Persistence, Resume & Commit Integrity), NOT as a Phase 0 quick patch task.

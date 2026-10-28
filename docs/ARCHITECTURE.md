@@ -1,3 +1,33 @@
+# Current Smart Import architecture — bounded Phase 8 reference
+
+Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. Exact phase/unit status and accepted merges belong only to [the Phase Ledger](reconstruction/02_PHASE_LEDGER.md). This section describes merged B1/B2 plus the local B3 implementation awaiting owner review; it does not declare B3 accepted or published.
+
+```mermaid
+flowchart TD
+    Source[External Source] --> Discovery[Discovery]
+    Discovery --> Mapping[Approved Mapping]
+    Mapping --> Resolution[Canonical Resolution Layers]
+    Resolution --> Review[Reviewed Canonical Intent]
+    Review --> Session[Durable Import Session / reviewed revision]
+    Session --> Commit[Server Commit Authority]
+    Commit --> Recovery[Durable Execution / Recovery]
+    Recovery --> Canonical[Canonical Source of Truth]
+```
+
+The durable session begins at intake; the diagram's session step is publication of the reviewed revision, not deferred creation of the session. B1 checkpoints preserve stable Project/Session/Operation/Batch identities, source/mapping revisions and first-class reviewed intent. Local file bytes do not survive restart and must be reattached and verified. Immutable chunks are staged before a complete manifest becomes active. Trip and Roster contracts remain distinct.
+
+The pre-Phase-8 Master Design Review led to SI-CG1 and SI-CG2 before B1. Grouping is based on natural/canonical identity; rejected rows are excluded; Material is not a universal roster prerequisite; internal and physical source rows are separate provenance. Natural identity outranks display-name/fuzzy evidence. Contextual Create, Enroll, Reactivate and Affiliation use existing Master Data authority and are distinct from PREPARED_NEW review plans. Identity creation never hides temporal changes.
+
+B2's `ReviewedRosterCommitServer` loads the durable approved artifact, authorizes the current actor, revalidates the canonical state and calls shared identity/participation/temporal plan/write primitives. Raw labels do not choose execution targets. The old raw-row path and ordinary Roster checkpoint-to-COMMITTED path remain fenced.
+
+Local B3's `RosterExecutionServer` adds a Project-scoped operation journal, deterministic consequence identities and immutable group plans. Independent dependency components may progress separately; coupled identities/relationships/displaced slots remain atomic through B2. A successful group commits canonical writes, receipts and operation/session versions together. Explicit retries replace a generation fence and skip receipted groups. Current satisfaction may reduce work; broader effects require renewed review. Cancellation linearizes at the transaction boundary and preserves completed effects. Status is read from durable records after response loss or restart.
+
+Server limits still apply to each atomic group. A connected group exceeding B2 limits is rejected before its writes; B3 does not split an indivisible relationship invariant. Full receipts remain durable when a terminal summary is bounded; a truncated summary reports canonical refresh pending rather than claiming proof from incomplete data. Artifact staging interrupted before manifest publication leaves no executable operation claim. Local in-memory verification is not live-Firebase acceptance.
+
+P8-B4 resume UX, full Sheets Roster convergence, offline redesign, pricing and Trip lifecycle changes are outside this implementation. No browser Firestore write authority is introduced. See [Data Model](DATA_MODEL.md), [API](API_CONTRACT.md) and [Security](SECURITY_MODEL.md) for the bounded current contracts.
+
+## Historical original specification — preserved reference
+
 > **HISTORICAL_RECORD — original design/reference specification.** The preserved body may combine implemented behavior with former targets; it is not proof of current routes, schemas, security, deployment or reconstruction status. Current GitHub main takes precedence. For the verified repository overview see [MASTER_PROJECT_HANDOFF.md](reconstruction/MASTER_PROJECT_HANDOFF.md); current state is [02_PHASE_LEDGER.md](reconstruction/02_PHASE_LEDGER.md). No historical target here authorizes product changes.
 
 # Q Saudi Work Follow — النظام المعماري الشامل (Architecture Specification)

@@ -1,3 +1,28 @@
+# Current Phase 8 persistence model — bounded source reference
+
+Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. State/acceptance is owned by [the ledger](reconstruction/02_PHASE_LEDGER.md). Fields below come from `src/types/importSession.ts`, `src/types/importExecution.ts`, the durable session contract and the B3 server source. Original design text below is historical.
+
+| Durable location / concept | Implemented representation and binding |
+|---|---|
+| `projects/{projectId}/importSessions/{importSessionId}` | Schema-v2 header: `schemaVersion`, `domain`, `projectId`, `importSessionId`, `operationId`, `importBatchId`, `sourceType`, `lifecycleState`, `currentStage`, `version`, actor/time stamps; Roster uses `rosterStage` |
+| Source revision | `source.sourceRevisionId`, source type and accepted discovery/provider facts; local files retain fingerprint/name/size/MIME and `requiresReattach`, not file bytes |
+| Mapping revision | `mappingRevisionId`, `sourceRevisionId`, approved mappings and server approval stamps |
+| First-class reviewed intent | Project/Session/Operation/Batch, source/mapping revisions, accepted/displacement signatures and semantic intent; stored as a first-class artifact, not approval inferred from a row blob |
+| Session artifacts | Immutable `checkpointChunks/{artifactId}_{index}` with count/digest/index/text; `checkpointArtifact` / `artifactFields` manifest pointers publish only complete artifacts; header review acceptance/consent controls remain authoritative |
+| Managed execution session linkage | `executionOperationId`, `executionBindingHash`; ordinary checkpoint/chunk mutation is blocked once the execution owns the session |
+| `projects/{projectId}/importExecutions/{executionKey}` | Locator hash of Project + existing operation ID, not a new canonical entity ID. Binds Project/Session/Operation/Batch, reviewed signature digest, source/mapping revisions and optional review artifact digest |
+| Operation concurrency and progress | `version`, `fence`, `requestVersion`, `sessionVersion`, group/consequence counts and completed counters; `READY`, `EXECUTING`, `PARTIAL`, `REVIEW_REQUIRED`, `CANCELLED`, `COMPLETED` |
+| Immutable execution plan | `planManifest` points to operation `checkpointChunks`, using the B1 artifact codec; groups contain sealed semantic plans, provenance/relationship proof and deterministic consequences |
+| `importExecutions/{executionKey}/receipts/{groupId}` | Atomic group evidence: binding/fence, completed actor/time, consequence IDs, MUTATED/SATISFIED outcomes and proof references, plus B2 canonical result |
+| Failure and cancellation | `failure` identifies the unfinished failed group/code and retry/review flags; `cancellation.requestedAt/requestedBy/acknowledgedAt` records durable stop without deleting successful receipts |
+| Terminal truth | `receipt` / session `commitReceipt`, prepared-to-canonical map and result summary. `accumulated` carries bounded progress; `receiptDetails` references full execution-journal detail when summary arrays are truncated |
+
+The operation binding prevents reuse of the same Project-scoped operation for a different Session/Batch/review. Consequence hashes bind semantic effects to the reviewed operation; row numbers are provenance, not retryable-effect identities. Canonical Driver/Truck IDs and natural identity rules remain owned by the existing authorities.
+
+A group mutation, receipt and version advance are one transaction. Failed groups produce no partial canonical writes; earlier completed groups stay complete. Cancellation records completed and remaining knowledge and does not claim rollback. Final bounded summaries never replace the full group receipts or claim complete fresh canonical proof when truncated. No per-field source payload, new schema field or durable UI cache is inferred from the old design below.
+
+## Historical original specification — preserved reference
+
 > **HISTORICAL_RECORD — original design/reference specification.** The preserved body may combine implemented behavior with former targets; it is not proof of current routes, schemas, security, deployment or reconstruction status. Current GitHub main takes precedence. For the verified repository overview see [MASTER_PROJECT_HANDOFF.md](reconstruction/MASTER_PROJECT_HANDOFF.md); current state is [02_PHASE_LEDGER.md](reconstruction/02_PHASE_LEDGER.md). No historical target here authorizes product changes.
 
 # Q Saudi Work Follow — نموذج البيانات والمخطط الهيكلي (Data Model & Schema)

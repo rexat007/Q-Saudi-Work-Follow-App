@@ -8,23 +8,17 @@ This directory (`docs/reconstruction/`) contains repository-governed current con
 
 **Current state has one owner:** [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Use it for the active phase/unit, next unit, closed units, open-debt routing and execution rules. Do not use Studio copies or historical release reports as competing ledgers.
 
-P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
+The historical P0-U5 unit was documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
 
 
-### Current Continuation Checkpoint — 2026-10-24
+### Current continuation — local Codex owner-review gate
 
-- **Current verified GitHub main**: `e09cd613d93d3e6519fe1dc283caf96d4363bcec` (PR #35 — P2-U4 merged).
-- **Phase 0**: VERIFIED / CLOSED / FROZEN.
-- **Phase 1 and P1-U1 through P1-U9**: VERIFIED / CLOSED.
-- **Phase 2 — Persistence & Server Authority**: VERIFIED / CLOSED.
-- **P2-U1** Durable Admin Persistence Selection: VERIFIED / CLOSED — PR #32, verified merge `ff5dc79cb380a8ea2713eb539f6cad326407ea16`.
-- **P2-U2** Firestore Persistence Trust Boundary: VERIFIED / CLOSED — PR #33, verified merge `fafbadd90a37988ad97d18a4cfa3191532307255`; Firestore rules published and owner smoke verification passed.
-- **P2-U3** Server Project and Storage Resource Isolation: VERIFIED / CLOSED — PR #34, verified merge `48c016e790dbc6f1b64e09cbc22ef60e78743d1c`.
-- **P2-U4** Persistence Read/Write Representation Boundary: VERIFIED / CLOSED — PR #35, verified merge `e09cd613d93d3e6519fe1dc283caf96d4363bcec`.
-- **Active phase**: PHASE_3 — Authentication, Authorization & Administrative Governance, IN_PROGRESS.
-- **Active unit**: UNASSIGNED / REQUIRES_PHASE_3_AREA_AUDIT.
-- **Next action**: `PHASE_3_AUTHORIZATION_GOVERNANCE_AUDIT`.
-- Phase 3 audit must map RBAC, token/auth context, field-level authorization, IDOR/admin controls, and the intentional role-boundary deferrals from Phase 1 before defining bounded implementation batches.
+- Verified merged main: `1f7f3344e65dfc9b6837b10cb5349827da1587eb` (P8-B2, PR #58).
+- Current work is Phase 8 / P8-B3, locally implemented and awaiting owner review; exact state belongs only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
+- P8-B1 and P8-B2 are MERGED / SOURCE_VERIFIED / CLOSED; their merge evidence is in the ledger.
+- Continue in the actual local Codex Git repository. Inspect branch, HEAD, tracked and untracked scope; preserve the existing worktree.
+- Next action: owner review of the local P8-B3 implementation and documentation. Completion does not authorize commit, publication or another unit. Publication requires a later explicit owner instruction; owner merge remains manual.
+- P8-B4 remains NOT_STARTED. Historical handoffs are evidence, not continuation instructions.
 
 ---
 

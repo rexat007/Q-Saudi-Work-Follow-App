@@ -2,9 +2,9 @@
 
 Classification: CURRENT_SUPPORTING. The sole current phase/unit authority is [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); debt authority is [05_DECISION_AND_DEBT_LOG.md](05_DECISION_AND_DEBT_LOG.md).
 
-## Owner decision and transition
+## Historical owner decision and Phase 0 exit transition
 
-The owner approved Phase 0 governance closure and freeze after accepting `P0_U7_PHASE_0_CLOSURE_AUDIT_COMPLETE_READY_FOR_CLOSURE_DECISION` on audit baseline `9bd5f7c971f21119ecb53717999786b8d1ad9609` (historical audit context). Current authoritative main is `3b0fc03d27a4b663e85d330f581550c37d62999d`.
+The owner approved Phase 0 governance closure and freeze after accepting `P0_U7_PHASE_0_CLOSURE_AUDIT_COMPLETE_READY_FOR_CLOSURE_DECISION` on audit baseline `9bd5f7c971f21119ecb53717999786b8d1ad9609` (historical audit context). The historical P0-U7 verified merge is `3b0fc03d27a4b663e85d330f581550c37d62999d`; current continuation belongs to the phase ledger.
 
 - PHASE_0: VERIFIED / CLOSED / FROZEN.
 - P0-U7: VERIFIED / CLOSED, as a governance/freeze closure, not a product-remediation unit.
