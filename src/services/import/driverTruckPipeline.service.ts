@@ -1,3 +1,4 @@
+import { GoogleSheetsImportParser } from './googleSheetsParser.service';
 import { buildRosterCanonicalIntent, canAcceptRosterIntent } from './rosterCanonicalIntent.service';
 import { revalidateCanonicalRow } from './canonicalResolution';
 import { validateRosterFile, RosterSourceError } from './rosterSourceContract';
@@ -91,11 +92,23 @@ export class DriverTruckPipelineService {
       customMappings: options?.customMappings,
     };
 
+    const source: ImportSource = { sourceType, importBatchId, sourceFileName: fileName, sourceMimeType: mimeType, sourceSheetName: effectiveOptions.sheetName, rawInput: inputData };
+    return this.reviewSource(source, inputData, context, effectiveOptions, sourceType === 'EXCEL' ? new ExcelImportParser() : new CsvImportParser());
+  }
+
+  /** Source adapter only: the same Roster stages and reviewed authority are used. */
+  public static async processSheetsToReview(values: any[][], source: ImportSource, context: PipelineContext, options: ProcessDriverTruckFileOptions): Promise<UnifiedImportBatch> {
+    if (source.sourceType !== 'GOOGLE_SHEETS' || !source.sourceFileId || !source.sourceSheetName || !Array.isArray(values)) throw new RosterSourceError('FILE_EMPTY');
+    const issue = validateRosterMapping(Object.keys(options.customMappings || {}), options.customMappings || {});
+    if (issue) throw new RosterSourceError(issue);
+    return this.reviewSource(source, values, context, options, new GoogleSheetsImportParser());
+  }
+
+  private static async reviewSource(source: ImportSource, inputData: any, context: PipelineContext, options: ProcessDriverTruckFileOptions, parser: any): Promise<UnifiedImportBatch> {
     // Instantiate appropriate parser
-    const parser = sourceType === 'EXCEL' ? new ExcelImportParser() : new CsvImportParser();
 
     // Use our custom driver/truck stages with approved customMappings
-    const normalizer = new DriverTruckImportNormalizer(effectiveOptions.customMappings);
+    const normalizer = new DriverTruckImportNormalizer(options?.customMappings);
     const mapper = new DriverTruckImportMapper();
     const entityResolver = new DriverTruckImportEntityResolver();
     const validator = new DriverTruckImportValidator();
@@ -113,20 +126,11 @@ export class DriverTruckPipelineService {
       committer: committer as any,
     });
 
-    const source: ImportSource = {
-      sourceType,
-      importBatchId,
-      sourceFileName: fileName,
-      sourceMimeType: mimeType,
-      sourceSheetName: effectiveOptions.sheetName,
-      rawInput: inputData,
-    };
-
     // 2. Create batch (Stage: SOURCE)
     const batch = pipeline.createBatch(source, context);
 
     // 3. Process through stages PARSE -> REVIEW
-    const reviewedBatch = await pipeline.processThroughReview(batch, inputData, context, { ...effectiveOptions, roster: true, approvedSourceKeys: Object.keys(options?.customMappings || {}) });
+    const reviewedBatch = await pipeline.processThroughReview(batch, inputData, context, { ...options, roster: true, approvedSourceKeys: Object.keys(options?.customMappings || {}) });
 
     if (reviewedBatch.totalRows === 0) throw new RosterSourceError('FILE_EMPTY');
 

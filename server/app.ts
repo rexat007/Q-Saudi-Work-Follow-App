@@ -229,7 +229,7 @@ app.get(
       const { projectId } = req.params;
       const user = req.user;
       const { importSessionServerService } = await import('../src/services/importSession.server');
-      const sessions = await importSessionServerService.listResumableSessions(projectId, user);
+      const sessions = await importSessionServerService.listResumableSessions(projectId, user, req.query.includeRosterResults === 'true');
       return res.json({
         success: true,
         sessions,

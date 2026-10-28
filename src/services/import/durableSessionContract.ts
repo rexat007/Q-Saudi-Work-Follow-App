@@ -139,8 +139,8 @@ export function reconstructSmartImportResumeState(record: any, projectId: string
 export async function sourceFingerprint(buffer: ArrayBuffer): Promise<string> {
   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', buffer))).map(v => v.toString(16).padStart(2, '0')).join('');
 }
-export async function verifySourceReattach(source: SourceRevision, file: File): Promise<boolean> {
-  return source.fileName === file.name && source.fileSize === file.size && (!source.mimeType || source.mimeType === file.type) && Boolean(source.fingerprint) && source.fingerprint === await sourceFingerprint(await file.arrayBuffer());
+export async function verifySourceReattach(source: SourceRevision, file: File, verifiedBuffer?: ArrayBuffer): Promise<boolean> {
+  return source.fileName === file.name && source.fileSize === file.size && (!source.mimeType || source.mimeType === file.type) && Boolean(source.fingerprint) && source.fingerprint === await sourceFingerprint(verifiedBuffer ?? await file.arrayBuffer());
 }
 
 /** Preserve source-row evidence and choices, discard runtime input and cached canonical authority. */

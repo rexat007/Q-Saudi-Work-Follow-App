@@ -154,7 +154,8 @@ export class ImportSessionClientService {
    */
   public async listResumableSessions(
     projectId: string,
-    overrideToken?: string
+    overrideToken?: string,
+    includeRosterResults = false
   ): Promise<ImportSessionRecord[]> {
     if (!projectId || !projectId.trim()) {
       throw new Error('معرف المشروع مطلوب');
@@ -163,7 +164,7 @@ export class ImportSessionClientService {
     const token = await this.getAuthToken(overrideToken);
 
     const response = await fetch(
-      `/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions`,
+      `/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions${includeRosterResults ? "?includeRosterResults=true" : ""}`,
       {
         method: 'GET',
         headers: {

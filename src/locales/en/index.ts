@@ -1,6 +1,15 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "import.recovery.title": "Import recovery",
+  "import.recovery.READY": "Ready to execute",
+  "import.recovery.EXECUTING": "Execution in progress",
+  "import.recovery.PARTIAL": "Partially completed. Retry unfinished work only.",
+  "import.recovery.REVIEW_REQUIRED": "Review required. Approved effects cannot be expanded.",
+  "import.recovery.CANCELLED": "Cancelled. Completed effects were preserved.",
+  "import.recovery.COMPLETED": "Completed",
+  "import.recovery.completed": "Completed consequences",
+  "import.recovery.remaining": "Remaining consequences",
   "import.context.noPermission": "Creating canonical identity or changing its participation requires an authorized administrator. You can leave this group unresolved.",
   "import.context.planned": "Prepare Global identity, Project membership and Carrier affiliation for later execution. No identity is created now; no assignment or allocation is executed.",
   "import.context.immediateFleet": "This explicit canonical action creates or reuses Global identity and establishes Project membership and Carrier affiliation now. It does not execute Driver assignment or Material allocation.",

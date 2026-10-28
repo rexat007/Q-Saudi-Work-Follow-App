@@ -756,7 +756,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
 
     const cancelIdx = wizardContent.indexOf('const handleCancelRosterImport');
-    const cancelBlock = wizardContent.slice(cancelIdx, cancelIdx + 1200);
+    const cancelBlock = wizardContent.slice(cancelIdx, wizardContent.indexOf('const contextualReceipts', cancelIdx));
 
     expect(cancelBlock).toContain('setImportSessionRecoveryError');
     expect(cancelBlock).toContain('return false;');
@@ -910,7 +910,10 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     // 1. Inside handleCancelRosterImport (LOCAL_TERMINAL_CLEAR after server cancel)
     // 2. Inside processRosterFile (INTERNAL_PRE-SESSION_RESET)
     // 3. Inside RosterCommitResultLayer onFinish (LOCAL_TERMINAL_CLEAR after terminal commit)
-    expect(matches.length).toBe(5);
+    expect(matches.length).toBe(6);
+    const recoveryFinish = wizardContent.slice(wizardContent.indexOf("if (['COMPLETED','CANCELLED'].includes(rosterExecution?.operation.state"));
+    expect(recoveryFinish).toContain("['COMMITTED','CANCELLED'].includes(durableSessionRef.current?.lifecycleState");
+    expect(recoveryFinish.indexOf("if (['COMPLETED','CANCELLED']")).toBeLessThan(recoveryFinish.indexOf('handleResetRosterImport()'));
     const retry = wizardContent.slice(wizardContent.indexOf('const retryRosterCheckpoint'), wizardContent.indexOf('const processRosterFile'));
     expect(retry.indexOf('await saveRosterCheckpoint')).toBeLessThan(retry.indexOf('handleResetRosterImport()'));
     expect(retry).toContain("if(saved.lifecycleState==='CANCELLED')");

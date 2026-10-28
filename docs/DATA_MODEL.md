@@ -1,6 +1,6 @@
 # Current Phase 8 persistence model — bounded source reference
 
-Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. State/acceptance is owned by [the ledger](reconstruction/02_PHASE_LEDGER.md). Fields below come from `src/types/importSession.ts`, `src/types/importExecution.ts`, the durable session contract and the B3 server source. Original design text below is historical.
+Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. State/acceptance is owned by [the ledger](reconstruction/02_PHASE_LEDGER.md). Fields below come from `src/types/importSession.ts`, `src/types/importExecution.ts`, the durable session contract and the B3 server source. B4 adds no new persisted schema or journal: it consumes these same records. Original design text below is historical.
 
 | Durable location / concept | Implemented representation and binding |
 |---|---|
@@ -20,6 +20,8 @@ Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. State/acceptanc
 The operation binding prevents reuse of the same Project-scoped operation for a different Session/Batch/review. Consequence hashes bind semantic effects to the reviewed operation; row numbers are provenance, not retryable-effect identities. Canonical Driver/Truck IDs and natural identity rules remain owned by the existing authorities.
 
 A group mutation, receipt and version advance are one transaction. Failed groups produce no partial canonical writes; earlier completed groups stay complete. Cancellation records completed and remaining knowledge and does not claim rollback. Final bounded summaries never replace the full group receipts or claim complete fresh canonical proof when truncated. No per-field source payload, new schema field or durable UI cache is inferred from the old design below.
+
+B4 remote-source resume compares the persisted spreadsheet/tab and SHA-256 of the accepted values snapshot. Local reattach checks persisted file metadata and SHA-256 against the same buffer supplied to analysis. Terminal receipts and durable review snapshots require no source bytes.
 
 ## Historical original specification — preserved reference
 
