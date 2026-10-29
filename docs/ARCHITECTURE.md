@@ -1,3 +1,13 @@
+## PFAG-RB1 authority and relationship safety
+
+Current architecture reference; exact unit/acceptance state belongs to [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
+`Current server principal + Project scope → central Project lifecycle policy → canonical command → consequence reads/plan → atomic membership/temporal-slot/history/audit writes`.
+
+No silent cascade. No dangling active dependency in the scoped membership consequence paths. Driver/Truck/Material transitions execute bounded safe temporal closures atomically; Carrier rejects with dependency evidence instead of arbitrary cascading. Existing temporal history and global identities remain intact. New allocation also checks the current canonical Carrier global status and membership through Truck affiliation. Cleanup retains parent-command authorization and never broadens roles.
+
+Historical reports consume saved Trip snapshots, then saved legacy snapshot representations, then canonical IDs. Current master lookup cannot overwrite historical labels, capacity, Project print header or pricing. Missing historical capacity/tax facts remain unavailable. This does not implement H3 coherent refresh or broad maintenance UX; those remain PFAG-RB2 scope. Controlled in-memory transaction verification is not native Firestore certification.
+
 # Current pricing authority — P9-U1 / P9-U2
 
 Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit/publication state belongs only to [the ledger](reconstruction/02_PHASE_LEDGER.md).

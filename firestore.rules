@@ -150,12 +150,7 @@ service cloud.firestore {
       match /pricing_rules/{pricingRuleId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
         allow create: if false; // Use canonical server pricing creation.
-        allow update: if isSignedIn() && isValidId(pricingRuleId) &&
-                         hasProjectRole(projectId, ['PROJECT_ADMIN', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
-                         isAuditStampedUpdate(incoming()) &&
-                         incoming().pricingRuleId == existing().pricingRuleId &&
-                         incoming().projectId == existing().projectId &&
-                         incoming().baseRateSAR == existing().baseRateSAR; // Base rate is immutable once created (requires Copy-on-Write v2)
+        allow update: if false; // Canonical server commands enforce versions, lineage and audit.
         allow delete: if false;
       }
 

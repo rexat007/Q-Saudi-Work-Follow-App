@@ -1,3 +1,5 @@
+import {assertFoundationMutation} from './projectMutability.policy';
+import {decodeProject} from '../utils/persistenceBoundary';
 import { decodeGlobal } from '../utils/persistenceBoundary';
 import { FieldValue } from 'firebase-admin/firestore';
 import { randomUUID } from 'node:crypto';
@@ -78,7 +80,8 @@ export class AdminAccountServerService {
       });
       const assigned = input.assignedProjectIds as string[] | undefined;
       if (assigned) for (const id of assigned) {
-        if (!(await tx.get(this.db.collection('projects').doc(id))).exists) return deny('INVALID_ADMIN_COMMAND');
+        const project=await tx.get(this.db.collection('projects').doc(id));if(!project.exists)return deny('INVALID_ADMIN_COMMAND');
+        if(!target.assignedProjectIds.includes(id))assertFoundationMutation(decodeProject<any>(project.data(),id).status,'NEW_OPERATION');
       }
       if (input.command === 'linkDriverIdentity') {
         if (target.role !== 'DRIVER') return deny('INVALID_ADMIN_COMMAND');

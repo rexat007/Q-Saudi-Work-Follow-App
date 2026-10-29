@@ -1,3 +1,11 @@
+## PFAG-RB1 pricing/report boundary correction
+
+Current architecture reference; exact acceptance/publication state is in [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
+Direct browser writes to canonical pricing rules are denied for create/update/delete. Authenticated canonical server commands retain version replacement, activation/deactivation, effective-window, overlap, lineage and atomic audit semantics. On SUSPENDED/ARCHIVED Projects only status-only deactivation is allowed as cleanup; commercial/name/notes edits and activation remain fenced.
+
+Historical reporting never consults current master/profile facts to replace saved Trip entity/pricing snapshots. Missing labels fall back to canonical IDs; capacity and tax facts remain unavailable if not captured. No default 32-ton historical payload limit or invented Project tax number is used. Existing pricing models/calculation semantics are unchanged. Source tests are not a substitute for native rules runtime acceptance.
+
 # Current pricing contract — P9-U1 / P9-U2
 
 Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit/publication state belongs only to [the ledger](reconstruction/02_PHASE_LEDGER.md).

@@ -99,3 +99,15 @@ export const ACTIVE_PROJECT_OPERATIONAL_NOTICE_AR =
 
 export const ACTIVE_PROJECT_OPERATIONAL_NOTICE_EN =
   'Project is active. Authorized operational modifications are enabled subject to RBAC, auditing, and history preservation.';
+
+
+/** One lifecycle decision for Project-scoped canonical foundation commands. */
+export type FoundationMutationClass = 'NEW_OPERATION' | 'MAINTENANCE' | 'CONSISTENCY_CLEANUP';
+export function canPerformFoundationMutation(status: unknown, kind: FoundationMutationClass): boolean {
+  if(!['NEW_OPERATION','MAINTENANCE','CONSISTENCY_CLEANUP'].includes(kind))return false;
+  if(['SETUP','READY_FOR_REVIEW','APPROVED','ACTIVE'].includes(status as string))return true;
+  return ['SUSPENDED','ARCHIVED'].includes(status as string) && kind==='CONSISTENCY_CLEANUP';
+}
+export function assertFoundationMutation(status: unknown, kind: FoundationMutationClass): void {
+  if(!canPerformFoundationMutation(status,kind))throw Object.assign(new Error('PROJECT_LIFECYCLE_MUTATION_DENIED'),{code:'PROJECT_LIFECYCLE_MUTATION_DENIED',status:409,mutationClass:kind});
+}

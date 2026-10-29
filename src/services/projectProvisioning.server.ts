@@ -46,7 +46,7 @@ export class ProjectProvisioningAdminService {
 
     const authenticated = context;
     const result = await adminDb.runTransaction(async (tx: any) => {
-      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, projectId);
+      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, projectId, false, 'NEW_OPERATION');
       if (materialData.status !== undefined && materialData.status !== 'ACTIVE') throw new Error('INVALID_GLOBAL_STATUS');
       const resolved = await resolveGlobalNaturalIdentity(tx, adminDb, 'MATERIAL', canonicalCode);
       const materialId = resolved.id || generateOpaqueGlobalId('MAT');
@@ -150,7 +150,7 @@ export class ProjectProvisioningAdminService {
 
     const authenticated = context;
     const result = await adminDb.runTransaction(async (tx: any) => {
-      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, projectId);
+      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, projectId, false, 'NEW_OPERATION');
       if (carrierData.status !== undefined && carrierData.status !== 'ACTIVE') throw new Error('INVALID_GLOBAL_STATUS');
       const resolved = await resolveGlobalNaturalIdentity(tx, adminDb, 'CARRIER', crDigits);
       const carrierId = resolved.id || generateOpaqueGlobalId('CAR');
@@ -330,7 +330,7 @@ export class ProjectProvisioningAdminService {
     if (Object.keys(carrierData).some(key => !['carrierId','name','nameAr','commercialRegistrationNo','transportLicenseNo','contactPerson','contactPersonName','contactPhone','contactEmail'].includes(key))) throw new Error('INVALID_GLOBAL_PROFILE_PATCH');
     const authenticated = context;
     return await adminDb.runTransaction(async (tx: any) => {
-      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, cleanProjectId, true);
+      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, cleanProjectId, true, 'MAINTENANCE');
       // --- PHASE 1: ALL TRANSACTION READS ---
       const projectRef = adminDb.collection('projects').doc(cleanProjectId);
       const projectSnap = await tx.get(projectRef);
@@ -532,7 +532,7 @@ export class ProjectProvisioningAdminService {
     if (Object.keys(materialData).some(key => !['materialId','name','nameAr','code','unitOfMeasure','standardDensityTonPerM3'].includes(key))) throw new Error('INVALID_GLOBAL_PROFILE_PATCH');
     const authenticated = context;
     return await adminDb.runTransaction(async (tx: any) => {
-      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, cleanProjectId, true);
+      const context = await authorizeGlobalCommand(tx, adminDb, authenticated, cleanProjectId, true, 'MAINTENANCE');
       // --- PHASE 1: ALL TRANSACTION READS ---
       const projectRef = adminDb.collection('projects').doc(cleanProjectId);
       const projectSnap = await tx.get(projectRef);

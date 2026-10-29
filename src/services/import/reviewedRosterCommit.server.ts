@@ -50,7 +50,7 @@ export class ReviewedRosterCommitServer {
     publish?: (writes:any, facts:any)=>Promise<void>;
   }):Promise<any> {
     const db=this.db, ref=db.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
-      const actor=await authorizeGlobalCommand(tx,db,authenticated,projectId);
+      const actor=await authorizeGlobalCommand(tx,db,authenticated,projectId,false,'NEW_OPERATION');
       const snap=await tx.get(ref);if(!snap.exists)fail('IMPORT_SESSION_NOT_FOUND');
       const header=decodePersistence<any>(snap.data(),{id:['importSessionId',importSessionId],projectId,times:{createdAt:'iso',updatedAt:'iso'}});
       if(header.executionOperationId && !recovery) fail('IMPORT_EXECUTION_MANAGED');
@@ -147,8 +147,8 @@ export class ReviewedRosterCommitServer {
         temporalPlans.push(plan);
       }
       for(const consequence of intent.allocationIntents) {
-        const truckId=canonicalId(consequence.truckId),t=participating.get(`TRUCK:${truckId}`),m=participating.get(`MATERIAL:${consequence.materialId}`);if(!t||!m)fail('REVIEWED_INTENT_STALE');
-        const plan=await planAllocation(tx,db,projectId,truckId,consequence.materialId,consequence.action==='REALLOCATE'?'REALLOCATE':'ALLOCATE',actor,at,{truckGlobal:t.global,materialGlobal:m.global,truckMembership:t.membership,materialMembership:m.membership,truckAffiliation:t.affiliation});
+        const truckId=canonicalId(consequence.truckId),t=participating.get(`TRUCK:${truckId}`),m=participating.get(`MATERIAL:${consequence.materialId}`),c=participating.get(`CARRIER:${t?.affiliation?.carrierId}`);if(!t||!m||!c)fail('REVIEWED_INTENT_STALE');
+        const plan=await planAllocation(tx,db,projectId,truckId,consequence.materialId,consequence.action==='REALLOCATE'?'REALLOCATE':'ALLOCATE',actor,at,{truckGlobal:t.global,materialGlobal:m.global,truckMembership:t.membership,materialMembership:m.membership,truckAffiliation:t.affiliation,carrierGlobal:c.global,carrierMembership:c.membership});
         if((consequence.action==='NO_CHANGE'&&plan.changed || !recovery?.scope && consequence.action!=='NO_CHANGE'&&!plan.changed)||consequence.action==='REALLOCATE'&&plan.changed&&!same(plan.before.map(r=>({allocationId:r.allocationId,truckId:r.truckId,materialId:r.materialId})),[consequence.displaced]))fail('REVIEWED_INTENT_STALE');
         temporalPlans.push(plan);
       }

@@ -120,14 +120,15 @@ describe('Firestore persistence trust boundary (structural verification)', () =>
     expect(source('src/services/project.service.ts')).toContain('await projectRepository.update(projectId, sanitizedUpdates, context.userId)');
   });
 
-  it('denies direct pricing creation while preserving the existing read/update boundary and canonical server creation', () => {
+  it('denies direct pricing mutations while preserving scoped reads and canonical server commands', () => {
     expect(condition(pricing, 'create')).toBe('false');
     expect(condition(pricing, 'get, list')).toContain('isProjectMember(projectId)');
-    expect(condition(pricing, 'update')).toContain('incoming().baseRateSAR == existing().baseRateSAR');
+    expect(condition(pricing, 'update')).toBe('false');
+    expect(condition(pricing, 'delete')).toBe('false');
     const app = source('server/app.ts');
     expect(app).toContain("'/api/projects/:projectId/pricing-rules'");
     expect(app).toContain('projectPricingServerService.createPricingRule(');
-    expect(source('src/services/projectPricing.server.ts')).toContain('adminDb.runTransaction(');
+    expect(source('src/services/projectPricing.server.ts')).toContain('this.db.runTransaction(');
   });
 
   it('denies direct trip creation and protects all server snapshots while preserving legitimate reads/guarded updates', () => {

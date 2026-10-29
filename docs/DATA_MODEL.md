@@ -1,3 +1,22 @@
+## PFAG-RB1 historical projection and consequence representation
+
+Current architecture reference; see [the ledger](reconstruction/02_PHASE_LEDGER.md) for acceptance/publication.
+
+Membership consequences preserve temporal documents as CLOSED with effectiveTo/updated actor/time, delete corresponding active-slot pointers and retain original intervals. Existing membership/temporal audit records carry the requested parent action and closed relationship identities; no second audit store is introduced. Global identity records are not changed. Existing projection dirty markers are updated atomically; no new coherent-read protocol is claimed.
+
+Historical report fallback mapping:
+
+| Field | Classification | Missing or conflicting captured value |
+|---|---|---|
+| Project/Carrier/Driver/Truck plate/Material display | HISTORICAL_SNAPSHOT_REQUIRED; ID_ONLY_SAFE_FALLBACK | Saved root/nested snapshot, then legacy captured flat label, then canonical ID; differing labels in one group use its ID |
+| Pricing terms, rates and commercial facts | HISTORICAL_SNAPSHOT_REQUIRED | Preserve stored pricing snapshot; do not reprice from today's rule |
+| Truck legal payload / utilization | UNAVAILABLE_IF_NOT_CAPTURED | No live/default capacity; missing or mixed captured limits yield unavailable derived utilization |
+| Printed Project name | HISTORICAL_SNAPSHOT_REQUIRED; ID_ONLY_SAFE_FALLBACK | Unanimous saved name or Project ID, never live Project display |
+| Printed Project tax number | UNAVAILABLE_IF_NOT_CAPTURED | Unanimous captured tax number or unavailable, never fabricated default |
+| Explicit current-profile screens | LIVE_PROFILE_ALLOWED | Current Master Data only on explicitly live surfaces; not historical report output |
+
+Single-Project report output exposes optional `historicalProjectInfo` from the captured Trips. No migration, snapshot backfill or new persisted commercial authority is introduced.
+
 # Current pricing snapshots and versions — P9-U1 / P9-U2
 
 Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit/publication state belongs only to [the ledger](reconstruction/02_PHASE_LEDGER.md).
