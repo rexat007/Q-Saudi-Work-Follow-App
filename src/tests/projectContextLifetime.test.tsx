@@ -214,14 +214,15 @@ describe('P4-B2 rendered Wizard races', () => {
     await render(B.projectId, [B]); await click('projects.batch4.layer_materials'); expect(container.textContent).not.toContain('MATERIAL-A');
   });
   it('keeps B save busy/draft when A save and fallback refresh finish late', async () => {
-    const a = deferred<void>(), b = deferred<void>(); vi.spyOn(projectService, 'updateProject').mockImplementation(id => id === mockProject.projectId ? a.promise : b.promise); const refresh = vi.spyOn(projectService, 'getProject').mockImplementation(async id => id === B.projectId ? { ...B, nameAr: 'B modified' } : null);
+    let savedB=false; const a = deferred<void>(), b = deferred<void>(); vi.spyOn(projectService, 'updateProject').mockImplementation(id => id === mockProject.projectId ? a.promise : b.promise); const refresh = vi.mocked(projectCanonicalRefreshService.refresh).mockImplementation(async id => ({...snapshot('default'),project:id===B.projectId?{...B,nameAr:savedB?'B modified':B.nameAr}:mockProject} as any));
     await render(mockProject.projectId); await editName('A modified'); await click('shared.actions.save');
     await render(B.projectId); await editName('B modified'); await click('shared.actions.save');
+    const aReadsBefore=vi.mocked(refresh).mock.calls.filter(c=>c[0]===mockProject.projectId).length;
     await act(async () => a.resolve());
-    expect(refresh).not.toHaveBeenCalledWith(mockProject.projectId); expect(container.textContent).not.toContain('projects.messages.changes_saved');
+    expect(vi.mocked(refresh).mock.calls.filter(c=>c[0]===mockProject.projectId)).toHaveLength(aReadsBefore); expect(container.textContent).not.toContain('projects.messages.changes_saved');
     expect(container.querySelector('input[value="B modified"]')).not.toBeNull();
     const save = Array.from(container.querySelectorAll('button')).find(b => b.textContent?.includes(uiKey('shared.actions.save'))) as HTMLButtonElement; expect(save.disabled).toBe(true);
-    await act(async () => b.resolve()); expect(container.textContent).toContain('projects.messages.changes_saved');
+    await act(async () => {savedB=true;b.resolve();}); expect(container.textContent).toContain('projects.messages.changes_saved');
   });
   it('does not let an abandoned creation hijack selection or recreate its bridge', async () => {
     const creation = deferred(); vi.spyOn(projectService, 'createProject').mockReturnValue(creation.promise);
@@ -232,9 +233,11 @@ describe('P4-B2 rendered Wizard races', () => {
   });
   it('keeps B readiness loading/result when A readiness settles late', async () => {
     const a = deferred(), b = deferred(); vi.stubGlobal('fetch', vi.fn((url: string) => url.includes(B.projectId) ? b.promise : a.promise));
+    vi.mocked(projectCanonicalRefreshService.refresh).mockImplementation(async id=>({...snapshot('default'),readiness:await (await fetch(`/api/projects/${id}/readiness`)).json()} as any));
     await render(mockProject.projectId); await render(B.projectId); await act(async () => a.resolve(ready(mockProject.projectId, true)));
-    await click('projects.batch4.layer_activation'); expect(container.textContent).toContain('projects.batch4.readiness_checking'); expect(container.textContent).not.toContain('projects.batch4.readiness_satisfied');
+    await click('projects.batch4.layer_activation'); expect(container.textContent).toContain('projects.messages.canonical_data_loading'); expect(container.textContent).not.toContain('projects.batch4.readiness_satisfied');
     await act(async () => b.resolve(ready(B.projectId, false)));
+    await click('projects.batch4.layer_activation');
     expect(container.textContent).not.toContain(mockProject.projectId + '-READY');
     // Loading must finish for B rather than being invalidated by the canonical-load effect order.
     expect(container.textContent).not.toContain(uiKey('projects.batch4.readiness_checking'));

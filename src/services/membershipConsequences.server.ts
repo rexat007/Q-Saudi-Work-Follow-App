@@ -11,9 +11,10 @@ export async function planMembershipConsequences(tx:any,db:any,p:string,kind:key
   const reject=(dependencies:Record<string,number>)=>{throw Object.assign(new GlobalIdentityError('DEPENDENT_RELATIONSHIPS_ACTIVE'),{dependencies});};
   const active=(snap:any)=>snap.docs.filter((d:any)=>d.data()?.status==='ACTIVE');
   if(kind==='CARRIER'){
-    const drivers=active(await tx.get(root.collection('driver_carrier_affiliations').where('carrierId','==',id)));
-    const trucks=active(await tx.get(root.collection('truck_carrier_affiliations').where('carrierId','==',id)));
-    const d=new Set(drivers.map((v:any)=>v.id)),t=new Set(trucks.map((v:any)=>v.id));
+    const driverRecords=await tx.get(root.collection('driver_carrier_affiliations').where('carrierId','==',id)),truckRecords=await tx.get(root.collection('truck_carrier_affiliations').where('carrierId','==',id));
+    const drivers=active(driverRecords),trucks=active(truckRecords);
+    // Historical inactive affiliations still identify affected active temporal dependencies.
+    const d=new Set(driverRecords.docs.map((v:any)=>v.id)),t=new Set(truckRecords.docs.map((v:any)=>v.id));
     const assignments=active(await tx.get(root.collection('driver_truck_assignments'))).filter((v:any)=>d.has(v.data().driverId)||t.has(v.data().truckId));
     const allocations=active(await tx.get(root.collection('truck_material_allocations'))).filter((v:any)=>t.has(v.data().truckId));
     const pricing=(await tx.get(root.collection('pricing_rules').where('carrierId','==',id))).docs.filter((d:any)=>canonicalPricingRule(d.data()).status==='ACTIVE');

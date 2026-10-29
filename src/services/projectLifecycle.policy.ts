@@ -13,6 +13,7 @@ export type GovernanceProjectStatus = 'SETUP' | 'READY_FOR_REVIEW' | 'APPROVED';
  * Note: ACTIVE is exclusively reached via ProjectActivationService.
  */
 export const LEGAL_LIFECYCLE_TRANSITIONS: Record<string, ProjectEntity['status'][]> = {
+  ACTIVE: ['SUSPENDED'],
   SETUP: ['READY_FOR_REVIEW'],
   READY_FOR_REVIEW: ['APPROVED', 'SETUP'],
   APPROVED: ['READY_FOR_REVIEW', 'SETUP'],

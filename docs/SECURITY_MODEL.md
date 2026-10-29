@@ -1,3 +1,11 @@
+## PFAG-RB2 maintenance trust boundary
+
+Current supporting contract. [The ledger](reconstruction/02_PHASE_LEDGER.md) owns acceptance; [the field and permission matrix](reconstruction/PROJECT_FOUNDATION_MAINTENANCE_CONTRACT.md) is the maintenance policy reference.
+
+Project create remains SUPER_ADMIN-only; UI now suppresses that control for PROJECT_ADMIN. Project profile/lifecycle and Driver/Truck profile commands require the current active PA/SA and Project scope. Driver/Truck edits additionally require an active scoped membership, preserve natural identity, enforce expected profile version and atomically audit. No global RBAC expansion or browser Firestore write authority is introduced. FINANCE_AUDITOR's existing canonical pricing permission is discoverable through the existing Wizard pricing form; other maintenance actions remain unavailable. Project user assignment remains SUPER_ADMIN-only.
+
+Coherent foundation reads are scoped and restricted to PA/SA/FINANCE_AUDITOR. Maintenance profile fields are opt-in for PA/SA; operational import-resolution readers never receive them. All underlying reads use one server transaction; client generation/scope/projection and expected-result checks precede apply. Project switches invalidate late callbacks, including receipt-refresh paths. Existing operational lifecycle guards reject new operations on SUSPENDED Projects; cleanup remains legal. Runtime rules debt PFAG-RULES-01 stays OPEN / ENVIRONMENT_BLOCKED; no native emulator/deployed security acceptance is claimed.
+
 ## PFAG-RB1 persistence and lifecycle boundary
 
 Current supporting security contract; status belongs to [the ledger](reconstruction/02_PHASE_LEDGER.md).

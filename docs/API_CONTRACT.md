@@ -1,3 +1,17 @@
+## PFAG-RB2 coherent foundation and maintenance API
+
+Current source reference; [the ledger](reconstruction/02_PHASE_LEDGER.md) owns status. Detailed field/permission policy is [the maintenance contract](reconstruction/PROJECT_FOUNDATION_MAINTENANCE_CONTRACT.md).
+
+| Route | Current bounded contract |
+|---|---|
+| GET /api/projects/:projectId/foundation-snapshot | Active scoped PA/SA/FINANCE_AUDITOR; one transaction returns Project, Carrier/Material lists, relationship context, Fleet rows, Setup participants and readiness, plus canonical pricing list metadata. consistency = SERVER_TRANSACTION_SNAPSHOT |
+| POST /api/projects/:projectId/foundation | PA/SA; body only updates and integer expectedVersion. Single existing Project command validates allowlist/status/expected version and audits. ACTIVE allows nameAr/nameEn/clientName/description only; historical-sensitive settings/location/dates remain locked |
+| POST /api/projects/:projectId/lifecycle-transition | Existing PA/SA lifecycle command additionally accepts ACTIVE → SUSPENDED; preserves membership/temporal state and history |
+| POST /api/projects/:projectId/reactivate | PA/SA; explicit SUSPENDED → ACTIVE through existing activation readiness/path/pricing/transaction authority; failure returns blockers |
+| POST /api/projects/:projectId/fleet-profile/:kind/:entityId | PA/SA; DRIVER/TRUCK only, active Project membership, updates + expectedVersion. Immutable identity/status/relationship/ownership fields reject. Optional mutable null/empty clears supported |
+
+Legacy profile versions default to zero; successful profile writes increment. PROFILE_VERSION_CONFLICT / PROJECT_VERSION_CONFLICT reject stale forms. IDENTITY_MIGRATION_REQUIRED rejects identity correction through ordinary editing. REFRESH_INCOHERENT and REFRESH_STALE_GENERATION are client-side convergence boundaries; confirmed mutation + failed refresh retains receipt and retries only refresh. Canonical pricing list flags normalize the accepted legacy isActive alias without changing persisted records. Pricing status cleanup uses the existing save endpoint; no new pricing authority/form is added.
+
 ## PFAG-RB1 foundation safety contract
 
 Classification: CURRENT_ARCHITECTURE_REFERENCE; acceptance and publication are owned by [the ledger](reconstruction/02_PHASE_LEDGER.md).

@@ -13,7 +13,7 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 
 ### Current Continuation Checkpoint — 2026-10-29
 
-- **Verified implementation baseline**: `f261ebc5508d881c9bfbe3dc77af1ccad75ec914` (PR #63 — P9-U2 merged and source-verified).
+- **Verified implementation baseline**: `f56418f3ae16cbe2f2d4c726a0590d26bd6e2310` (RB1 merged and source-verified).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
 - **Phase 1**: VERIFIED / CLOSED.
 - **Phase 2**: VERIFIED / CLOSED.
@@ -25,9 +25,9 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 - **Phase 8 — Smart Import Persistence, Resume & Commit Integrity**: MERGED / SOURCE_VERIFIED / CLOSED.
   - P8-B1 — Durable Session & Reviewed Intent Authority: MERGED / SOURCE VERIFIED / CLOSED — PR #57, merge `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`.
   - P8-B2 — Server Commit Authority & Prepared Identity Materialization: MERGED / SOURCE VERIFIED / CLOSED — PR #58, merge `1f7f3344e65dfc9b6837b10cb5349827da1587eb`.
-- **Continuation**: consult [the phase ledger](02_PHASE_LEDGER.md) for the exact current unit/status. Phase 9 is source-closed. PFAG-RB1 foundation safety remediation is locally implemented, with native Firestore rule-runtime verification deferred under the owner-approved fallback (PFAG-RULES-01; official artifact unavailable, HTTP 403).
+- **Continuation**: [the ledger](02_PHASE_LEDGER.md) owns the current PFAG-RB2 state. RB1 is merged/source-verified/closed; PFAG-RULES-01 remains open. The maintenance contract records the bounded field/lifecycle/permission policy.
 - **P8-B3**: MERGED / SOURCE_VERIFIED / CLOSED.
-- **Next action**: follow the ledger’s PFAG-RB1 verification gate; source merge may proceed under the approved fallback after zero overlapping client write grants and no new regressions are proven; native/deployed rules acceptance is not claimed. PFAG-RB2 remains required; do not start Phase 10.
+- **Next action**: follow the ledger’s RB2 full-assurance verification/owner-merge gate; native/deployed rules acceptance is not claimed. Do not start Phase 10.
 - **Current TypeScript diagnostics baseline**: 440 after P8-B2; new diagnostics added by P8-B2: 0.
 - **Lint**: EXIT 2 / NOT PASS remains historical debt, not a new P8-B2 regression.
 - **Remaining focused Smart Import test debt**: historical C5 cases 38, 61, 62 and 67; no new P8-B2 failures.

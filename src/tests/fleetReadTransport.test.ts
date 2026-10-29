@@ -33,10 +33,10 @@ describe('P5-B4 production projection transport', () => {
 });
 
 describe('P5-B4 refresh mapping coherence', () => {
-  it('refresh mappings follow its fetched Fleet rows even if a master context contains stale mapping values', async () => {
+  it('refresh rejects a contradictory relationship mapping rather than repairing independently read surfaces', async () => {
     const { ProjectCanonicalRefreshService } = await import('../services/projectCanonicalRefresh.service');
     vi.spyOn(canonicalRelationshipContextService, 'getProjectRelationshipContext').mockResolvedValue({ projectId: 'P1', authorizedCarrierIds: ['C1'], authorizedMaterialIds: ['M1'], knownCarriers: [], knownMaterials: [{ materialId: 'M1', name: 'M', code: 'M', status: 'ACTIVE' }], knownTrucks: [{ truckId: 'T1', plate: 'T', carrierId: 'C1', status: 'ACTIVE' }], knownDrivers: [{ driverId: 'D1', name: 'D', carrierId: 'C1', status: 'ACTIVE' }], activeDriverByTruck: { T1: 'STALE' }, activeMaterialByTruck: { T1: 'STALE' } });
-    vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: true, json: async () => ({ success: true, data: url.endsWith('fleet-read-model') ? { projectId: 'P1', rows: [{ projectId: 'P1', truckId: 'T1', driverId: 'D1', materialId: 'M1', assignmentEligible: true, allocationEligible: true }] } : [] }) })));
-    const result = await new ProjectCanonicalRefreshService().refresh('P1', { overrideToken: 'TOKEN' }); expect(result.relationshipContext.activeDriverByTruck).toEqual({ T1: 'D1' }); expect(result.relationshipContext.activeMaterialByTruck).toEqual({ T1: 'M1' });
+    vi.stubGlobal('fetch',vi.fn(async()=>({ok:true,json:async()=>({success:true,data:{projectId:'P1',consistency:'SERVER_TRANSACTION_SNAPSHOT',project:{projectId:'P1'},setup:{projectId:'P1',participants:[]},readiness:{projectId:'P1'},materials:[],carriers:[],fleetRows:[{projectId:'P1',truckId:'T1',driverId:'D1',materialId:'M1',assignmentEligible:true,allocationEligible:true}],relationshipContext:{projectId:'P1',authorizedCarrierIds:[],authorizedMaterialIds:[],knownCarriers:[],knownMaterials:[],activeDriverByTruck:{T1:'STALE'},activeMaterialByTruck:{T1:'STALE'}}}})})));
+    await expect(new ProjectCanonicalRefreshService().refresh('P1',{overrideToken:'TOKEN',maxAttempts:1})).rejects.toThrow('REFRESH_INCOHERENT');
   });
 });

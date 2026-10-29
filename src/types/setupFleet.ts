@@ -3,6 +3,7 @@ import type { ProjectFleetReadModelResponse } from './projectFleetReadModel';
 
 /** Ephemeral administrative participation projection; never persisted. */
 export interface SetupParticipant {
+  profile?: Record<string,any>;
   kind: GlobalKind;
   id: string;
   name: string;

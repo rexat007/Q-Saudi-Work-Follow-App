@@ -1,3 +1,4 @@
+import {relationshipContextFromFleet} from '../utils/relationshipContextProjection';
 import { dictionaries } from '../locales';
 import { resolveTranslation } from '../i18n';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -29,6 +30,7 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
 
   // Helper mock factory
   const createMockFetch = (overrides?: {
+    alignContext?: boolean;
     matOk?: boolean;
     carOk?: boolean;
     fleetOk?: boolean;
@@ -44,6 +46,15 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
     const fleetRows = overrides?.fleetRows ?? [{ truckId: 'TRK-01', plateNumber: '1234 ABC' }];
 
     return vi.fn().mockImplementation((url: string) => {
+      if(url.endsWith('/foundation-snapshot'))return Promise.resolve({ok:matOk&&carOk&&fleetOk,status:matOk&&carOk&&fleetOk?200:500,json:async()=>{
+        const projectId=decodeURIComponent(url.split('/')[3]);
+        const implementation=vi.mocked(canonicalRelationshipContextService.getProjectRelationshipContext).getMockImplementation?.();
+        const base=implementation?await implementation(projectId):mockRelContext();
+        const context={...base};
+        if(overrides?.alignContext&&overrides?.materials){context.authorizedMaterialIds=materials.map(m=>m.materialId);context.knownMaterials=materials.map(m=>({materialId:m.materialId,name:m.name,status:'ACTIVE',code:m.code||''}));}
+        if(overrides?.alignContext&&overrides?.carriers){context.authorizedCarrierIds=carriers.map(c=>c.carrierId);context.knownCarriers=carriers.map(c=>({carrierId:c.carrierId,name:c.name,status:'ACTIVE'}));}
+        return {success:true,data:{projectId,consistency:'SERVER_TRANSACTION_SNAPSHOT',project:{projectId},setup:{projectId,participants:[]},readiness:{projectId},materials,carriers,fleetRows:fleetRows.map(row=>({...row,projectId})),relationshipContext:relationshipContextFromFleet(projectId,{projectId,rows:fleetRows.map(row=>({...row,projectId}))} as any,context)}};
+      }});
       if (url.includes('/materials')) {
         return Promise.resolve({
           ok: matOk,
@@ -123,7 +134,7 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
     await service.refresh('PRJ-01', { overrideToken: 'token' });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/projects/PRJ-01/materials',
+      '/api/projects/PRJ-01/foundation-snapshot',
       expect.anything()
     );
     vi.unstubAllGlobals();
@@ -139,7 +150,7 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
     await service.refresh('PRJ-01', { overrideToken: 'token' });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/projects/PRJ-01/carriers',
+      '/api/projects/PRJ-01/foundation-snapshot',
       expect.anything()
     );
     vi.unstubAllGlobals();
@@ -155,7 +166,7 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
     await service.refresh('PRJ-01', { overrideToken: 'token' });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/projects/PRJ-01/fleet-read-model',
+      '/api/projects/PRJ-01/foundation-snapshot',
       expect.anything()
     );
     vi.unstubAllGlobals();
@@ -168,7 +179,7 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
 
     const service = new ProjectCanonicalRefreshService();
     await expect(service.refresh('PRJ-01', { overrideToken: 'token', maxAttempts: 1 })).rejects.toThrow(
-      /CANONICAL_REFRESH_MATERIALS_FAILED/
+      /CANONICAL_REFRESH_FAILED/
     );
     vi.unstubAllGlobals();
   });
@@ -180,7 +191,7 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
 
     const service = new ProjectCanonicalRefreshService();
     await expect(service.refresh('PRJ-01', { overrideToken: 'token', maxAttempts: 1 })).rejects.toThrow(
-      /CANONICAL_REFRESH_CARRIERS_FAILED/
+      /CANONICAL_REFRESH_FAILED/
     );
     vi.unstubAllGlobals();
   });
@@ -192,13 +203,13 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
 
     const service = new ProjectCanonicalRefreshService();
     await expect(service.refresh('PRJ-01', { overrideToken: 'token', maxAttempts: 1 })).rejects.toThrow(
-      /CANONICAL_REFRESH_FLEET_FAILED/
+      /CANONICAL_REFRESH_FAILED/
     );
     vi.unstubAllGlobals();
   });
 
   // 10. Refresh rebuilds RelationshipContext
-  it('10. Refresh rebuilds RelationshipContext', async () => {
+  it('10. Refresh consumes the server-composed RelationshipContext without a second read', async () => {
     const fetchMock = createMockFetch();
     vi.stubGlobal('fetch', fetchMock);
     const relSpy = vi.spyOn(canonicalRelationshipContextService, 'getProjectRelationshipContext').mockResolvedValue(mockRelContext() as any);
@@ -206,13 +217,13 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
     const service = new ProjectCanonicalRefreshService();
     await service.refresh('PRJ-01', { overrideToken: 'token' });
 
-    expect(relSpy).toHaveBeenCalledWith('PRJ-01');
+    expect(relSpy).not.toHaveBeenCalled(); // Context is supplied by the single server transaction, never independently fetched.
     vi.unstubAllGlobals();
   });
 
   // 11. Refresh returns materials
   it('11. Refresh returns materials', async () => {
-    const fetchMock = createMockFetch({ materials: [{ materialId: 'MAT-99', name: 'رمل' }] });
+    const fetchMock = createMockFetch({ alignContext:true, materials: [{ materialId: 'MAT-99', name: 'رمل' }] });
     vi.stubGlobal('fetch', fetchMock);
     vi.spyOn(canonicalRelationshipContextService, 'getProjectRelationshipContext').mockResolvedValue(mockRelContext() as any);
 
@@ -225,7 +236,7 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
 
   // 12. Refresh returns carriers
   it('12. Refresh returns carriers', async () => {
-    const fetchMock = createMockFetch({ carriers: [{ carrierId: 'CAR-88', name: 'أساطيل الشرق' }] });
+    const fetchMock = createMockFetch({ alignContext:true, carriers: [{ carrierId: 'CAR-88', name: 'أساطيل الشرق' }] });
     vi.stubGlobal('fetch', fetchMock);
     vi.spyOn(canonicalRelationshipContextService, 'getProjectRelationshipContext').mockResolvedValue(mockRelContext() as any);
 
@@ -427,7 +438,7 @@ describe('FOUNDATION A1.1 — Immediate Canonical Refresh Barrier', () => {
     ).rejects.toThrow();
 
     // 3 calls to each of materials, carriers, fleet = 9 calls total
-    expect(fetchMock).toHaveBeenCalledTimes(9);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     vi.unstubAllGlobals();
   });
 

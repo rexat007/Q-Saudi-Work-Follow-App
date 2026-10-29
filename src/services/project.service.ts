@@ -29,8 +29,8 @@ export class ProjectService {
     return this.command('/api/projects', { ...payload, operationId: payload.operationId || context.operationId });
   }
 
-  async updateProject(projectId: string, updates: Partial<ProjectEntity>, _context: AuthUserContext): Promise<void> {
-    await this.command(`/api/projects/${encodeURIComponent(projectId)}/foundation`, { updates });
+  async updateProject(projectId: string, updates: Partial<ProjectEntity>, _context: AuthUserContext, expectedVersion?:number): Promise<void> {
+    await this.command(`/api/projects/${encodeURIComponent(projectId)}/foundation`, { updates, expectedVersion });
   }
 
   async deleteProject(_projectId: string, _context: AuthUserContext): Promise<void> {

@@ -1,3 +1,4 @@
+import {ProjectOperationalReadiness} from '../wizard/ProjectOperationalReadiness';
 import { filterProjectScope } from '../../utils/projectScope';
 import { presentAnalyticsText } from '../../i18n/analyticsPresentation';
 import React, { useState, useMemo, useEffect } from 'react';
@@ -446,6 +447,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
   return (
     <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       
+      <ProjectOperationalReadiness projectId={globalFilters.projectId} status={canonicalProjects.find(p=>p.projectId===globalFilters.projectId)?.status} scopeKey={JSON.stringify([authContext.userId,authContext.role,authContext.assignedProjectIds])}/>
       {/* 1. Header & Security Role Switcher (Project Authorization Enforcement) */}
       <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">

@@ -35,6 +35,27 @@ export class ProjectFleetQueryService {
     decodeProject(project.data(), p);
     return actor;
   }
+  /** All foundation projections share the transaction read snapshot. No independently fetched surface is merged. */
+  async foundation(p: string, identity: {userId:string;email?:string}) {
+    const {ProjectProvisioningAdminService}=await import('./projectProvisioning.server');
+    const {ProjectReadinessAdminReadContext}=await import('./projectReadiness.server');
+    const {ProjectReadinessService}=await import('./projectReadiness.service');
+    const {ProjectPricingServerService}=await import('./projectPricing.server');
+    return this.database.runTransaction(async(tx:any)=>{
+      const principal=await this.authorize(tx,p,identity);
+      if(!['PROJECT_ADMIN','SUPER_ADMIN','FINANCE_AUDITOR'].includes(principal.role))throw new GlobalIdentityError('FORBIDDEN_PROJECT_ACCESS','',403);
+      const reads=new ProjectFleetReadModelAdminReadContext(this.database,ref=>tx.get(ref));
+      const provisioning=new ProjectProvisioningAdminService();
+      const [materials,carriers,relationshipContext,setup,readiness,projectSnap,pricingRules]=await Promise.all([
+        provisioning.listProjectMaterials(p,reads),provisioning.listProjectCarriers(p,reads),
+        this.contextInTransaction(tx,p,identity,principal),new SetupFleetQuery(this.database).readProjection(p,ref=>tx.get(ref),principal.role!=='FINANCE_AUDITOR'),
+        new ProjectReadinessService().evaluateProjectReadiness(p,new Date(),new ProjectReadinessAdminReadContext(this.database,ref=>tx.get(ref)),principal),
+        tx.get(this.database.collection('projects').doc(p)),new ProjectPricingServerService(this.database).listPricingRulesInTransaction(tx,p)
+      ]);
+      if(principal.role==='FINANCE_AUDITOR')setup.participants=setup.participants.filter(participant=>participant.membershipStatus==='ACTIVE'&&participant.eligible).map(({profile,naturalKey,aliases,...participant})=>({...participant,canReactivate:false}));
+      return {projectId:p,pricingRules,consistency:'SERVER_TRANSACTION_SNAPSHOT',project:decodeProject(projectSnap.data(),p),materials,carriers,fleetRows:setup.fleet.rows,relationshipContext,setup,readiness};
+    });
+  }
   async fleet(p: string, actor: { userId: string; email?: string }) {
     return this.database.runTransaction(async (tx: any) => {
       await this.authorize(tx, p, actor);

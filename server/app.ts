@@ -573,11 +573,11 @@ app.use('/api/workspace', async (req, res, next) => {
 // Foundation commands accept a bounded patch; server account/profile owns authorization.
 app.post('/api/projects/:projectId/foundation', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
-    if (!req.body || Object.keys(req.body).some(key => key !== 'updates')) {
+    if (!req.body || Object.keys(req.body).some(key => !['updates','expectedVersion'].includes(key)) || !Number.isInteger(req.body.expectedVersion)) {
       return res.status(400).json({ success: false, code: 'INVALID_PROJECT_COMMAND', error: 'INVALID_PROJECT_COMMAND' });
     }
     const { projectCommandsServerService } = await import('../src/services/projectCommands.server');
-    const data = await projectCommandsServerService.updateFoundation(req.params.projectId, req.body.updates, (req as any).user);
+    const data = await projectCommandsServerService.updateFoundation(req.params.projectId, req.body.updates, (req as any).user, req.body.expectedVersion);
     res.json({ success: true, data });
   } catch (error: any) {
     res.status(error.status || 400).json({ success: false, code: error.code, error: error.message });
@@ -605,6 +605,8 @@ app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, 
     if (!current.exists) return res.status(404).json({ success: false, code: 'PROJECT_NOT_FOUND' });
     const { decodeProject } = await import('../src/utils/persistenceBoundary');
     const canonical = decodeProject<import('../src/types/entities').ProjectEntity>(current.data(), project.projectId);
+    const {assertFoundationMutation}=await import('../src/services/projectMutability.policy');
+    assertFoundationMutation(canonical.status,'MAINTENANCE');
     const structure = await serverWorkspaceService.provisionProjectDrive(canonical, googleToken);
     await projectCommandsServerService.recordWorkspaceLink(project.projectId, structure, (req as any).user);
 
@@ -1516,6 +1518,18 @@ app.post(
   }
 );
 
+app.post('/api/projects/:projectId/fleet-profile/:kind/:entityId', enforceProjectIsolation, enforceAdminOnly, async(req,res)=>{
+ try{if(!['DRIVER','TRUCK'].includes(req.params.kind)||!req.body||Object.keys(req.body).some(k=>!['updates','expectedVersion'].includes(k)))return res.status(400).json({success:false,code:'INVALID_PROFILE_COMMAND'});
+ const {FleetProfileMaintenanceServer}=await import('../src/services/fleetProfileMaintenance.server');
+ res.json({success:true,data:await new FleetProfileMaintenanceServer().update(req.params.projectId,req.params.kind as 'DRIVER'|'TRUCK',req.params.entityId,req.body.updates,req.body.expectedVersion,(req as any).user)});
+ }catch(error:any){res.status(error.status||409).json({success:false,code:error.code||'PROFILE_UPDATE_FAILED'});}
+});
+app.get('/api/projects/:projectId/foundation-snapshot', enforceProjectIsolation, async(req,res)=>{
+  try { const {ProjectFleetQueryService}=await import('../src/services/projectFleetQuery.server');
+    res.json({success:true,data:await new ProjectFleetQueryService().foundation(req.params.projectId,(req as any).user)});
+  } catch(error:any){res.status(error.status||400).json({success:false,code:error.code||'FOUNDATION_READ_FAILED'});}
+});
+
 app.get('/api/projects/:projectId/fleet-read-model', enforceProjectIsolation, async (req, res) => {
   try {
     const { ProjectFleetQueryService } = await import('../src/services/projectFleetQuery.server');
@@ -1736,6 +1750,10 @@ app.get('/api/projects/:projectId/carriers', enforceProjectIsolation, async (req
 // ----------------------------------------------------
 // 10D. Project Activation (Phase 6)
 // ----------------------------------------------------
+app.post('/api/projects/:projectId/reactivate', enforceProjectIsolation, enforceAdminOnly, async(req,res)=>{
+ try{const {projectActivationService}=await import('../src/services/projectActivation.service');await projectActivationService.reactivateProject(req.params.projectId,(req as any).user);res.json({success:true});}
+ catch(error:any){res.status(error.status||409).json({success:false,code:error.code,error:error.message,blockers:error.blockers});}
+});
 app.post('/api/projects/:projectId/activate', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
     const { projectId } = req.params;
