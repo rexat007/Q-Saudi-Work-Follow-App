@@ -201,7 +201,7 @@ export class ReportsEngineService {
   }
 
   /**
-   * Resolves entity names using live Master Data / cache / entity snapshots.
+   * Resolves historical labels from captured facts; missing names fall back to canonical IDs.
    * Does NOT rely on static DEFAULT_CARRIERS or DEFAULT_PROJECTS arrays in production reports (RP-27, RP-28, RP-34).
    */
   public getEntityLabels(trip: TripRecord, customLookup?: LiveMasterDataLookup): {
@@ -209,32 +209,20 @@ export class ReportsEngineService {
     carrierName: string;
     materialName: string;
     truckPlate: string;
-    truckPayloadLimit: number;
+    truckPayloadLimit: number | undefined;
     driverName: string;
   } {
-    const lookup = customLookup || this.masterDataCache.get(trip.projectId) || this.masterDataCache.get('ALL');
-    const entitySnapshots = (trip as any).entitySnapshots;
-
-    // 1. Project
-    const projectLive = lookup?.projects?.get(trip.projectId);
-    const projectName = projectLive?.nameAr || entitySnapshots?.projectName || trip.projectId;
-
-    // 2. Carrier
-    const carrierLive = lookup?.carriers?.get(trip.carrierId);
-    const carrierName = carrierLive?.companyNameAr || carrierLive?.name || entitySnapshots?.carrierName || (trip as any).carrierName || trip.carrierId;
-
-    // 3. Material
-    const materialLive = lookup?.materials?.get(trip.materialId);
-    const materialName = materialLive?.nameAr || entitySnapshots?.materialName || (trip as any).materialName || trip.materialId;
-
-    // 4. Truck
-    const truckLive = lookup?.trucks?.get(trip.truckId);
-    const truckPlate = truckLive?.plateNumberAr || entitySnapshots?.truckPlate || (trip as any).truckPlate || trip.truckId;
-    const truckPayloadLimit = truckLive?.legalPayloadLimitKg || (trip as any).legalPayloadLimitKg || 32000;
-
-    // 5. Driver
-    const driverLive = lookup?.drivers?.get(trip.driverId);
-    const driverName = driverLive?.fullNameAr || entitySnapshots?.driverName || (trip as any).driverName || trip.driverId;
+    // This API labels historical Trip rows. A supplied live lookup never replaces saved facts.
+    const snapshots=(trip as any).entitySnapshots || {};
+    const saved=(kind:string)=>(trip as any)[kind+'Snapshot'] || snapshots[kind] || {};
+    const project=saved('project'),carrier=saved('carrier'),material=saved('material'),truck=saved('truck'),driver=saved('driver');
+    const projectName=project.nameAr || project.nameEn || snapshots.projectName || trip.projectId;
+    const carrierName=carrier.companyNameAr || carrier.nameAr || carrier.name || snapshots.carrierName || (trip as any).carrierName || trip.carrierId;
+    const materialName=material.nameAr || material.nameEn || material.name || snapshots.materialName || (trip as any).materialName || trip.materialId;
+    const truckPlate=truck.plateNumberAr || truck.plateNumber || truck.plate || truck.normalizedPlate || snapshots.truckPlate || (trip as any).truckPlate || trip.truckId;
+    const driverName=driver.fullNameAr || driver.fullName || driver.name || snapshots.driverName || (trip as any).driverName || trip.driverId;
+    const capturedLimit=truck.legalPayloadLimitKg ?? (trip as any).legalPayloadLimitKg;
+    const truckPayloadLimit=typeof capturedLimit==='number' && Number.isFinite(capturedLimit) && capturedLimit>=0 ? capturedLimit:undefined;
 
     return {
       projectName,
@@ -244,6 +232,14 @@ export class ReportsEngineService {
       truckPayloadLimit,
       driverName,
     };
+  }
+
+  /** A grouped historical header cannot choose one captured name when the group contains several. */
+  private groupEntityLabels(trips:TripRecord[]) {
+    const labels=trips.map(t=>this.getEntityLabels(t)),first=labels[0];
+    const same=(key:keyof typeof first)=>labels.every(v=>v[key]===first[key]);
+    const id=(key:'projectId'|'carrierId'|'materialId'|'truckId'|'driverId')=>trips.every(t=>t[key]===trips[0][key])?trips[0][key]:'—';
+    return {...first,projectName:same('projectName')?first.projectName:id('projectId'),carrierName:same('carrierName')?first.carrierName:id('carrierId'),materialName:same('materialName')?first.materialName:id('materialId'),truckPlate:same('truckPlate')?first.truckPlate:id('truckId'),driverName:same('driverName')?first.driverName:id('driverId')};
   }
 
   /**
@@ -609,7 +605,7 @@ export class ReportsEngineService {
 
     const rows: Record<string, any>[] = [];
     carrierMap.forEach((carrierTrips, carrierId) => {
-      const labels = this.getEntityLabels(carrierTrips[0]);
+      const labels = this.groupEntityLabels(carrierTrips);
       const grpSummary = this.calculateSummary(carrierTrips);
       const completed = carrierTrips.filter(t => t.status === 'COMPLETED').length;
       const returned = carrierTrips.filter(t => t.status === 'RETURNED' || t.status === 'RETURN_REQUESTED').length;
@@ -696,7 +692,7 @@ export class ReportsEngineService {
 
     const rows: Record<string, any>[] = [];
     matMap.forEach((matTrips, materialId) => {
-      const labels = this.getEntityLabels(matTrips[0]);
+      const labels = this.groupEntityLabels(matTrips);
       const grpSummary = this.calculateSummary(matTrips);
       const density = 1.6; // standard aggregate density ton/m3
       const volumeM3 = Math.round((grpSummary.totalNetWeightTons / density) * 10) / 10;
@@ -783,11 +779,13 @@ export class ReportsEngineService {
 
     const rows: Record<string, any>[] = [];
     truckMap.forEach((truckTrips, truckId) => {
-      const labels = this.getEntityLabels(truckTrips[0]);
+      const labels = this.groupEntityLabels(truckTrips);
       const grpSummary = this.calculateSummary(truckTrips);
-      const legalLimitTons = labels.truckPayloadLimit / 1000;
+      const capturedLimits=truckTrips.map(t=>this.getEntityLabels(t).truckPayloadLimit);
+      const sameCapturedLimit=capturedLimits.length>0 && capturedLimits.every(v=>v!==undefined&&v>0&&v===capturedLimits[0]);
+      const legalLimitTons=sameCapturedLimit ? capturedLimits[0]!/1000:undefined;
       const avgPayloadTons = truckTrips.length > 0 ? (grpSummary.totalNetWeightTons / truckTrips.length) : 0;
-      const utilizationRate = legalLimitTons > 0 ? Math.round((avgPayloadTons / legalLimitTons) * 100) : 0;
+      const utilizationRate = legalLimitTons !== undefined ? Math.round((avgPayloadTons / legalLimitTons) * 100) : null;
 
       rows.push({
         plateNumber: labels.truckPlate,
@@ -795,7 +793,7 @@ export class ReportsEngineService {
         carrierName: labels.carrierName,
         tripsCount: truckTrips.length,
         totalTons: grpSummary.totalNetWeightTons,
-        legalLimitTons: legalLimitTons.toFixed(1),
+        legalLimitTons: legalLimitTons?.toFixed(1) ?? null,
         avgPayloadTons: avgPayloadTons.toFixed(2),
         utilizationRate,
         grossAmount: grpSummary.grossAmountSAR,
@@ -1153,7 +1151,7 @@ export class ReportsEngineService {
 
     const rows: Record<string, any>[] = [];
     carrierMap.forEach((carrierTrips, carrierId) => {
-      const labels = this.getEntityLabels(carrierTrips[0]);
+      const labels = this.groupEntityLabels(carrierTrips);
       const grpSummary = this.calculateSummary(carrierTrips);
 
       const perTripCount = carrierTrips.filter(t => t.pricingType === 'PER_TRIP').length;
@@ -1303,7 +1301,7 @@ export class ReportsEngineService {
 
     const rows: Record<string, any>[] = [];
     matMap.forEach((matTrips, materialId) => {
-      const labels = this.getEntityLabels(matTrips[0]);
+      const labels = this.groupEntityLabels(matTrips);
       const grpSummary = this.calculateSummary(matTrips);
       const avgCostPerTon = grpSummary.totalNetWeightTons > 0 ? (grpSummary.netAmountSAR / grpSummary.totalNetWeightTons).toFixed(2) : '0';
 
@@ -1579,7 +1577,7 @@ export class ReportsEngineService {
 
     const rows: Record<string, any>[] = [];
     projectMap.forEach((prjTrips, projectId) => {
-      const labels = this.getEntityLabels(prjTrips[0]);
+      const labels = this.groupEntityLabels(prjTrips);
       const grpSummary = this.calculateSummary(prjTrips);
       const vat = Math.round(grpSummary.netAmountSAR * 0.15 * 100) / 100;
       const totalPayable = Math.round(grpSummary.netAmountSAR * 1.15 * 100) / 100;
@@ -1761,39 +1759,10 @@ export class ReportsEngineService {
     // 9. Snapshot fields
     const pricingSnapshot = trip.pricingSnapshot;
     
-    let entitySnapshots: any = undefined;
-    if (trip.carrierSnapshot || trip.truckSnapshot || trip.driverSnapshot || trip.materialSnapshot) {
-      entitySnapshots = {};
-      if (trip.carrierSnapshot) {
-        entitySnapshots.carrier = {
-          carrierId: trip.carrierSnapshot.carrierId,
-          companyNameAr: trip.carrierSnapshot.companyNameAr,
-          commercialRegistrationNo: trip.carrierSnapshot.commercialRegistrationNo,
-        };
-      }
-      if (trip.truckSnapshot) {
-        entitySnapshots.truck = {
-          truckId: trip.truckSnapshot.truckId,
-          plateNumberAr: trip.truckSnapshot.plateNumberAr,
-          tareWeightKg: trip.truckSnapshot.tareWeightKg,
-        };
-      }
-      if (trip.driverSnapshot) {
-        entitySnapshots.driver = {
-          driverId: trip.driverSnapshot.driverId,
-          fullNameAr: trip.driverSnapshot.fullNameAr,
-          nationalOrIqamaId: trip.driverSnapshot.nationalOrIqamaId,
-          phone: trip.driverSnapshot.phone,
-        };
-      }
-      if (trip.materialSnapshot) {
-        entitySnapshots.material = {
-          materialId: trip.materialSnapshot.materialId,
-          nameAr: trip.materialSnapshot.nameAr,
-          code: trip.materialSnapshot.code,
-          unitOfMeasure: trip.materialSnapshot.unitOfMeasure,
-        };
-      }
+    let entitySnapshots:any=trip.entitySnapshots ? {...trip.entitySnapshots}:undefined;
+    for(const kind of ['project','carrier','truck','driver','material']){
+      const captured=trip[kind+'Snapshot'];
+      if(captured){entitySnapshots ||= {};entitySnapshots[kind]={...captured};}
     }
 
     const hasExceptions = trip.hasExceptions;
@@ -1864,7 +1833,7 @@ export class ReportsEngineService {
     }
     const trips = customTrips;
 
-    switch (type) {
+    const dataset=(()=>{switch (type) {
       // 9 Operational
       case 'DAILY_OPERATIONS':
         return this.generateDailyOperationsReport(trips, filters);
@@ -1903,7 +1872,15 @@ export class ReportsEngineService {
 
       default:
         return this.generateDailyOperationsReport(trips, filters);
+    }})();
+    const selected=this.filterTrips(trips,filters);
+    const ids=[...new Set(selected.map(t=>t.projectId))];
+    if(ids.length===1 && filters.projectId!=='ALL'){
+      const captured=selected.map(t=>(t as any).projectSnapshot || (t as any).entitySnapshots?.project || {});
+      const unanimous=(read:(value:any)=>unknown)=>{const values=captured.map(read);return values.length && values.every(v=>typeof v==='string'&&v.trim()&&v===values[0]) ? values[0] as string:undefined;};
+      dataset.historicalProjectInfo={projectId:ids[0],nameAr:unanimous(v=>v.nameAr),nameEn:unanimous(v=>v.nameEn),zatcaTaxNumber:unanimous(v=>v.zatcaTaxNumber ?? v.settings?.zatcaTaxNumber)};
     }
+    return dataset;
   }
 
   // =========================================================================

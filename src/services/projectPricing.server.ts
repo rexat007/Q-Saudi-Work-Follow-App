@@ -1,4 +1,4 @@
-import { canPerformOperationalMutation } from './projectMutability.policy';
+import { assertFoundationMutation, type FoundationMutationClass } from './projectMutability.policy';
 import { randomUUID } from 'node:crypto';
 import { adminDb } from '../firebase/admin';
 import { ProjectReadinessAdminReadContext } from './projectReadiness.server';
@@ -20,11 +20,12 @@ export class ProjectPricingServerService {
     if(write && !['SUPER_ADMIN','PROJECT_ADMIN','FINANCE_AUDITOR'].includes(a.role)) fail('FORBIDDEN_PRICING_ACTION');
     return a;
   }
-  private async participation(tx:any,p:string,carrierId:string,materialId?:string,writing=false){
+  private async participation(tx:any,p:string,carrierId:string,materialId?:string,writing?:FoundationMutationClass){
     if(!id(carrierId)||materialId && !id(materialId))fail('INVALID_PRICING_IDENTITY');
     const project=await tx.get(this.db.collection('projects').doc(p));if(!project.exists)fail('PROJECT_NOT_FOUND');
     const projectData=decodeProject<any>(project.data(),p);
-    if(writing && !canPerformOperationalMutation('CREATE_PRICING_RULE',projectData.status))fail('PROJECT_READ_ONLY');
+    if(writing){try{assertFoundationMutation(projectData.status,writing);}catch{fail('PROJECT_READ_ONLY');}}
+    if(writing==='CONSISTENCY_CLEANUP')return;
     for(const [kind,entityId] of [['carrier',carrierId],...(materialId ? [['material',materialId]]:[])]){
       const member=await tx.get(this.db.collection('projects').doc(p).collection(kind+'_memberships').doc(entityId));
       const global=await tx.get(this.db.collection(kind+'s').doc(entityId));
@@ -86,13 +87,13 @@ export class ProjectPricingServerService {
       const now=new Date().toISOString();
       const rule:any=sanitizeUndefined({pricingRuleId:ruleId,projectId:p,carrierId:input.carrierId,materialId,name:input.name?.trim() || ruleId,pricingModel:model,baseRateSAR:rate,currency:input.currency || 'SAR',effectiveFrom:from,effectiveTo:to,notes:input.notes?.trim() || undefined,minimumBillableWeightKg:input.minimumBillableWeightKg,demurrageRatePerHourSAR:input.demurrageRatePerHourSAR ?? (old ? undefined:50),freeTimeHours:input.freeTimeHours ?? (old ? undefined:2),vatApplicable:input.vatApplicable ?? (old ? undefined:true),vatRatePercent:input.vatRatePercent ?? 15,parentRuleId:old?.parentRuleId,supersededByRuleId:old?.supersededByRuleId,supersededFrom:old?.supersededFrom,status,isActive:status==='ACTIVE',version:(old?.version || 0)+1,createdAt:old?.createdAt || now,createdBy:old?.createdBy || actor.userId,updatedAt:now,updatedBy:actor.userId});
       const valid=PricingRuleValidator.validate(rule);if(!valid.isValid)fail('INVALID_PRICING_RULE');
-      await this.participation(tx,p,rule.carrierId,materialId,true);
       const all=await this.rules(tx,p);
       const trips=old ? await tx.get(this.db.collection('projects').doc(p).collection('trips')):null;
       const linked=trips?.docs.some((d:any)=>{const t=d.data();return t.pricingRuleId===ruleId||t.pricingSnapshot?.pricingRuleId===ruleId;});
       const commercial=['carrierId','materialId','pricingModel','baseRateSAR','currency','effectiveFrom','effectiveTo','minimumBillableWeightKg','demurrageRatePerHourSAR','freeTimeHours','vatApplicable','vatRatePercent'];
       const normalizedOld=old ? {...old,materialId:canonicalOld!.materialId,pricingModel:canonicalOld!.pricingType,baseRateSAR:canonicalOld!.rate,currency:old.currency || 'SAR',effectiveFrom:canonicalPricingDate(old.effectiveFrom),effectiveTo:old.effectiveTo ? canonicalPricingDate(old.effectiveTo):undefined,vatRatePercent:old.vatRatePercent ?? 15}:null;
       const changed=old && commercial.some(k=>JSON.stringify(normalizedOld[k] ?? null)!==JSON.stringify(rule[k] ?? null));
+      await this.participation(tx,p,rule.carrierId,materialId,old&&status==='INACTIVE'&&!changed&&['name','notes'].every(k=>JSON.stringify(normalizedOld[k] ?? null)===JSON.stringify(rule[k] ?? null))?'CONSISTENCY_CLEANUP':old?'MAINTENANCE':'NEW_OPERATION');
       if(old?.supersededByRuleId && changed)fail('PRICING_RULE_ALREADY_REPLACED');
       if(linked && changed){
         if(!allowReplacement)fail('PRICING_RULE_HISTORICAL_MUTATION_BLOCKED');

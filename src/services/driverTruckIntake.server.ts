@@ -103,7 +103,7 @@ export class DriverTruckIntakeServer {
 
     const authenticated = context;
     return await adminDb.runTransaction(async (transaction) => {
-      const context = await authorizeGlobalCommand(transaction, adminDb, authenticated, projectId);
+      const context = await authorizeGlobalCommand(transaction, adminDb, authenticated, projectId, false, 'NEW_OPERATION');
       const carrierGlobal = await assertGlobalEntityExists(transaction, adminDb, 'CARRIER', carrierId);
       assertOperationallyEligible('CARRIER', carrierGlobal);
       // ----------------------------------------------------
@@ -331,7 +331,7 @@ export class DriverTruckIntakeServer {
 
     const authenticated = context;
     return await adminDb.runTransaction(async (transaction) => {
-      const context = await authorizeGlobalCommand(transaction, adminDb, authenticated, projectId);
+      const context = await authorizeGlobalCommand(transaction, adminDb, authenticated, projectId, false, 'NEW_OPERATION');
       const carrierGlobal = await assertGlobalEntityExists(transaction, adminDb, 'CARRIER', carrierId);
       assertOperationallyEligible('CARRIER', carrierGlobal);
       const resolvedDriver = await resolveGlobalNaturalIdentity(transaction, adminDb, 'DRIVER', normIdNumber);
@@ -452,7 +452,7 @@ export class DriverTruckIntakeServer {
 
     const authenticated = context;
     return await adminDb.runTransaction(async (transaction) => {
-      const context = await authorizeGlobalCommand(transaction, adminDb, authenticated, projectId);
+      const context = await authorizeGlobalCommand(transaction, adminDb, authenticated, projectId, false, 'NEW_OPERATION');
       const carrierGlobal = await assertGlobalEntityExists(transaction, adminDb, 'CARRIER', carrierId);
       assertOperationallyEligible('CARRIER', carrierGlobal);
       const resolvedTruck = await resolveGlobalNaturalIdentity(transaction, adminDb, 'TRUCK', normPlate);

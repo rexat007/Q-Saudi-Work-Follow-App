@@ -8,7 +8,7 @@ import { authorizeGlobalCommand, assertGlobalEntityExists } from './globalIdenti
 export type MembershipCommand = 'ENROLL' | 'SUSPEND' | 'REMOVE' | 'REACTIVATE';
 export type AffiliationCommand = 'SET_AFFILIATION' | 'REACTIVATE_AFFILIATION' | 'REASSIGN' | 'INACTIVATE';
 type Actor = Awaited<ReturnType<typeof authorizeGlobalCommand>>;
-type Plan = { kind: GlobalKind; projectId: string; entityId: string; category: 'MEMBERSHIP' | 'AFFILIATION'; command: string; before: any; after: any; changed: boolean; actor: Actor };
+type Plan = { closedRelationships?:{kind:string;id:string}[]; kind: GlobalKind; projectId: string; entityId: string; category: 'MEMBERSHIP' | 'AFFILIATION'; command: string; before: any; after: any; changed: boolean; actor: Actor };
 const membershipFields = ['projectId', 'status', 'statusChangedAt', 'statusReason', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'];
 const affiliationFields = ['projectId', 'carrierId', 'status', 'statusChangedAt', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'];
 const fail = (code: string): never => { throw new GlobalIdentityError(code); };
@@ -117,7 +117,7 @@ export function writeParticipationPlan(tx: any, db: any, plan: Plan) {
   tx.set(db.collection('audit_logs').doc(auditLogId), sanitizeUndefined({
     auditLogId, projectId, entityType: kind, entityId, action: before ? 'UPDATE' : 'CREATE', command,
     actor: { userId: actor.userId, email: actor.email, role: actor.role },
-    changes: { before, after, previousStatus: before?.status ?? null, newStatus: after.status, previousCarrierId: before?.carrierId, newCarrierId: after.carrierId, reason: after.statusReason },
+    changes: { before, after, closedRelationships:plan.closedRelationships, previousStatus: before?.status ?? null, newStatus: after.status, previousCarrierId: before?.carrierId, newCarrierId: after.carrierId, reason: after.statusReason },
     createdAt: now, updatedAt: now, createdBy: actor.userId, updatedBy: actor.userId,
   }));
 }
@@ -129,13 +129,17 @@ export class ProjectParticipationAuthority {
     scope(input.kind, projectId, input.entityId);
     const db = this.database || adminDb;
     return db.runTransaction(async (tx: any) => {
-      const actor = await authorizeGlobalCommand(tx, db, authenticated, projectId);
+      const actor = await authorizeGlobalCommand(tx, db, authenticated, projectId, false, ['SUSPEND','REMOVE'].includes(input.command)?'CONSISTENCY_CLEANUP':'NEW_OPERATION');
       const spec = GLOBAL_IDENTITIES[input.kind];
       const snap = await tx.get(db.collection('projects').doc(projectId).collection(`${spec.kind}_memberships`).doc(input.entityId));
       const global = input.command === 'ENROLL' || input.command === 'REACTIVATE' ? await assertGlobalEntityExists(tx, db, input.kind, input.entityId) : undefined;
       const plan = planMembership({ ...input, projectId, before: snap.exists ? snap.data() : null, global, actor });
+      const {planMembershipConsequences,writeMembershipConsequences}=await import('./membershipConsequences.server');
+      const consequences=['SUSPEND','REMOVE'].includes(input.command) ? await planMembershipConsequences(tx,db,projectId,input.kind,input.entityId,actor,input.command,input.reason):{plans:[],at:new Date()};
+      plan.closedRelationships=consequences.plans.map(v=>({kind:v.kind,id:v.record[v.kind==='ASSIGNMENT'?'assignmentId':'allocationId']}));
+      await writeMembershipConsequences(tx,db,projectId,consequences,input.kind,plan.changed);
       writeParticipationPlan(tx, db, plan);
-      return { membership: plan.after, idempotent: !plan.changed };
+      return { membership: plan.after, idempotent: !plan.changed&&!consequences.plans.length, closedRelationships:plan.closedRelationships };
     });
   }
   async affiliation(projectId: string, input: { kind: 'DRIVER' | 'TRUCK'; entityId: string; carrierId: string; command: AffiliationCommand }, authenticated: { userId: string; email?: string }) {
@@ -144,7 +148,7 @@ export class ProjectParticipationAuthority {
     if (!['DRIVER', 'TRUCK'].includes(input.kind) || !validGlobalId(input.carrierId)) fail('INVALID_PARTICIPATION_COMMAND');
     const db = this.database || adminDb;
     return db.runTransaction(async (tx: any) => {
-      const actor = await authorizeGlobalCommand(tx, db, authenticated, projectId);
+      const actor = await authorizeGlobalCommand(tx, db, authenticated, projectId, false, input.command==='INACTIVATE'?'CONSISTENCY_CLEANUP':'NEW_OPERATION');
       const base = db.collection('projects').doc(projectId), spec = GLOBAL_IDENTITIES[input.kind];
       const snap = await tx.get(base.collection(`${spec.kind}_carrier_affiliations`).doc(input.entityId));
       let global: any, carrierGlobal: any, entityMembership: any, carrierMembership: any;

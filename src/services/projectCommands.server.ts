@@ -7,7 +7,7 @@ import { decodeProject } from '../utils/persistenceBoundary';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { ProjectValidator } from '../validators/project.validator';
 import { LEGAL_LIFECYCLE_TRANSITIONS } from './projectLifecycle.policy';
-import { canEditProjectFoundation, FOUNDATION_FIELDS, FOUNDATION_SETTINGS } from './projectMutability.policy';
+import { assertFoundationMutation, canEditProjectFoundation, FOUNDATION_FIELDS, FOUNDATION_SETTINGS } from './projectMutability.policy';
 import type { ProjectEntity } from '../types/entities';
 import type { AuthUserContext } from '../types/common';
 
@@ -151,6 +151,7 @@ export class ProjectCommandsServerService {
       if (!snap.exists) fail('PROJECT_NOT_FOUND', 404, 'المشروع غير موجود');
       const project = decodeProject<ProjectEntity>(snap.data(), projectId);
       if (!canEditProjectFoundation(project.status)) fail('PROJECT_FOUNDATION_LOCKED', 409);
+      assertFoundationMutation(project.status,'MAINTENANCE');
       const after = { ...project, ...patch, settings: { ...project.settings, ...patch.settings }, updatedAt: new Date(), updatedBy: actor.userId };
       validateProject(after);
       tx.update(ref, sanitizeUndefined({ ...patch, settings: after.settings, updatedAt: after.updatedAt, updatedBy: actor.userId }));
@@ -185,6 +186,7 @@ export class ProjectCommandsServerService {
       const ref = this.db.collection('projects').doc(projectId), snap = await tx.get(ref);
       if (!snap.exists) fail('PROJECT_NOT_FOUND', 404);
       const project = decodeProject<ProjectEntity>(snap.data(), projectId);
+      assertFoundationMutation(project.status,'MAINTENANCE');
       const settings = { ...project.settings, googleDriveFolderId: structure.projectFolderId, googleSpreadsheetId: structure.spreadsheetId, googleDriveProvisioning: { ...project.settings?.googleDriveProvisioning, enabled: true, rootFolderName: structure.projectFolderName, spreadsheetTitle: structure.projectFolderName, status: 'PROVISIONED' as const } };
       const after = { ...project, settings, updatedAt: new Date(), updatedBy: actor.userId };
       tx.update(ref, { settings, updatedAt: after.updatedAt, updatedBy: actor.userId });

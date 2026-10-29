@@ -3,7 +3,6 @@ import { useI18n } from '../../i18n';
 import React from 'react';
 import { X, Printer, ShieldCheck, Building2, Calendar, FileText } from 'lucide-react';
 import { ReportDataset } from '../../types/reports';
-import { reportsEngineService } from '../../services/reportsEngine.service';
 
 interface PrintableReportModalProps {
   dataset: ReportDataset;
@@ -12,11 +11,10 @@ interface PrintableReportModalProps {
 
 export const PrintableReportModal: React.FC<PrintableReportModalProps> = ({ dataset, onClose }) => {
   const { t: translate, isRTL } = useI18n();
-  const projectId = dataset.filtersApplied.projectId;
-  const projectLookup = reportsEngineService.getMasterDataLookup(projectId) || reportsEngineService.getMasterDataLookup('ALL');
-  const projectInfo = projectLookup?.projects?.get(projectId);
-  const projectName = projectInfo?.nameAr || (projectId === 'ALL' ? translate("analytics.ui.all_construction_projects") : projectId);
-  const zatcaTaxNo = (projectInfo as any)?.settings?.zatcaTaxNumber || '300012345600003';
+  const projectId = dataset.filtersApplied.projectId || dataset.historicalProjectInfo?.projectId || 'ALL';
+  const projectInfo=dataset.historicalProjectInfo;
+  const projectName = projectInfo?.nameAr || projectInfo?.nameEn || (projectId === 'ALL' ? translate("analytics.ui.all_construction_projects") : projectId);
+  const zatcaTaxNo = projectInfo?.zatcaTaxNumber || '—';
   const referenceCode = `REP-${dataset.reportType.slice(0, 4)}-${Date.now().toString().slice(-6)}`;
 
   const handlePrint = () => {

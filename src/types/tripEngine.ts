@@ -119,6 +119,7 @@ export interface TripPricingSnapshot {
 }
 
 export interface TripEntitySnapshot {
+  project?: {projectId:string;nameAr?:string;nameEn?:string;projectNumber?:number};
   carrier?: {
     carrierId: string;
     companyNameAr: string;
@@ -127,6 +128,7 @@ export interface TripEntitySnapshot {
   truck?: {
     truckId: string;
     plateNumberAr: string;
+    legalPayloadLimitKg?: number;
     truckType?: string;
     tareWeightKg?: number;
   };

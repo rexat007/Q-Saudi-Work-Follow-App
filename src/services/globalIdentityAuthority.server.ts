@@ -1,3 +1,5 @@
+import {assertFoundationMutation, type FoundationMutationClass} from './projectMutability.policy';
+import {decodeProject} from '../utils/persistenceBoundary';
 import { randomUUID } from 'node:crypto';
 import { adminDb } from '../firebase/admin';
 import { buildPrincipal } from '../utils/principal';
@@ -37,12 +39,12 @@ export async function resolveGlobalNaturalIdentity(tx: any, db: any, kind: Globa
   }
   return { id, entity, canonicalRef, mustReserve: !lookups[0].exists };
 }
-export async function authorizeGlobalCommand(tx: any, db: any, authenticated: { userId: string; email?: string }, projectId?: string, globalGovernance = false) {
+export async function authorizeGlobalCommand(tx: any, db: any, authenticated: { userId: string; email?: string }, projectId?: string, globalGovernance = false, mutationClass?:FoundationMutationClass) {
   if (!validGlobalId(authenticated?.userId) || (projectId !== undefined && !validGlobalId(projectId))) throw new GlobalIdentityError('FORBIDDEN_GLOBAL_COMMAND', '', 403);
   const account = await tx.get(db.collection('users').doc(authenticated.userId));
   const actor = buildPrincipal(account.exists ? account.data() : null, authenticated.userId, { email: authenticated.email });
   if (actor.role !== 'SUPER_ADMIN' && (globalGovernance || actor.role !== 'PROJECT_ADMIN' || !projectId || !actor.assignedProjectIds.includes(projectId))) throw new GlobalIdentityError('FORBIDDEN_GLOBAL_COMMAND', '', 403);
-  if (projectId && !(await tx.get(db.collection('projects').doc(projectId))).exists) throw new GlobalIdentityError('PROJECT_NOT_FOUND');
+  if(projectId){const project=await tx.get(db.collection('projects').doc(projectId));if(!project.exists)throw new GlobalIdentityError('PROJECT_NOT_FOUND');if(mutationClass)assertFoundationMutation(decodeProject<any>(project.data(),projectId).status,mutationClass);}
   return actor;
 }
 export function auditGlobalMutation(tx: any, db: any, kind: GlobalKind, id: string, actor: ReturnType<typeof buildPrincipal>, before: any, after: any, projectId?: string) {

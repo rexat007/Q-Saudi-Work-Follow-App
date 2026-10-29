@@ -6,7 +6,7 @@ const account = (id: string, role = 'VIEWER', status = 'ACTIVE') => ({ userId: i
 const principal = (id = 'admin', role = 'SUPER_ADMIN') => ({ userId: id, role, email: `${id}@example.invalid`, displayName: '' }) as any;
 // Transaction model with staged writes and rollback; not a Firestore emulator.
 function database() {
-  const store: Record<string, any> = { 'users/admin': account('admin', 'SUPER_ADMIN'), 'users/other': account('other', 'SUPER_ADMIN'), 'users/target': account('target'), 'projects/P': { projectId: 'P' } };
+  const store: Record<string, any> = { 'users/admin': account('admin', 'SUPER_ADMIN'), 'users/other': account('other', 'SUPER_ADMIN'), 'users/target': account('target'), 'projects/P': { projectId: 'P', status:'SETUP' } };
   let queue = Promise.resolve(); let failAudit = false;
   const collection = (path: string) => ({ doc: (id: string) => ({ path: `${path}/${id}` }), where: (field: string, op: string, value: unknown) => ({ path, field, value, query: true }) });
   const db = { collection, runTransaction: (callback: any) => {

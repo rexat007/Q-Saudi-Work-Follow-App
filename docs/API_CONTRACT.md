@@ -1,3 +1,13 @@
+## PFAG-RB1 foundation safety contract
+
+Classification: CURRENT_ARCHITECTURE_REFERENCE; acceptance and publication are owned by [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
+Project membership SUSPEND/REMOVE commands now compose consequence planning and writes in the same transaction. The response includes `closedRelationships`; `DEPENDENT_RELATIONSHIPS_ACTIVE` includes `dependencies` category counts. Driver closes its active assignment; Truck closes assignment/allocation; Material closes allocations up to the bounded limit of 50. Larger Material plans reject before writes and require explicit canonical cleanup. Carrier uses rejection outcome B: active Driver/Truck affiliations, affected assignments/allocations and active pricing rules must be cleaned up first. No mass cascade is implied.
+
+Canonical pricing writes remain authenticated server commands, not browser Firestore writes. Direct client create/update/delete on `pricing_rules` are denied. Current account, scope, expected version, overlap, lineage and audit checks remain authoritative. Status-only deactivation is consistency cleanup; activation or changes to commercial/name/notes fields are not cleanup.
+
+All scoped foundation writes consume the central mutation classification: NEW_OPERATION, MAINTENANCE or CONSISTENCY_CLEANUP. ARCHIVED/SUSPENDED reject expansion and maintenance; safe explicit cleanup remains available. Unknown/legacy lifecycle states fail closed. No Project suspension/reactivation endpoint is added.
+
 # Current pricing API — P9-U1 / P9-U2
 
 Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit/publication state belongs only to [the ledger](reconstruction/02_PHASE_LEDGER.md).

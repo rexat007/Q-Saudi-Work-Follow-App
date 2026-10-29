@@ -71,6 +71,7 @@ export interface ReportColumnDef {
 }
 
 export interface ReportDataset {
+  historicalProjectInfo?: {projectId:string;nameAr?:string;nameEn?:string;zatcaTaxNumber?:string};
   reportType: ReportType;
   category: ReportCategory;
   titleAr: string;

@@ -120,7 +120,7 @@ describe('LU-P6-02A Driver/Truck Project Intake Canonical Verification Suite (Ze
     vi.restoreAllMocks();
     mockStore = {};
     for (const actor of [adminAuth, unauthorizedAuth]) mockStore[`users/${actor.userId}`] = { ...actor, status: 'ACTIVE' };
-    mockStore[`projects/${testProjectId}`] = { projectId: testProjectId };
+    mockStore[`projects/${testProjectId}`] = { projectId: testProjectId, status:'SETUP' };
     for (const carrierId of [testCarrierId, 'CRR-OTHER-99']) mockStore[`carriers/${carrierId}`] = { carrierId, commercialRegistrationNo: '1010111111', status: 'ACTIVE' };
     mockStore[`materials/${testMaterialId}`] = { materialId: testMaterialId, code: 'AGG-10MM', status: 'ACTIVE' };
 

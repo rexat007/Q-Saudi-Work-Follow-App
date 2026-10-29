@@ -1,8 +1,18 @@
+## PFAG-RB1 persistence and lifecycle boundary
+
+Current supporting security contract; status belongs to [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
+Canonical pricing rules deny all direct client create/update/delete, including privileged client writes. Admin SDK server commands remain the mutation authority and enforce current principal/Project scope, optimistic version, commercial validation, overlap, lineage and audit. Scoped reads remain available. This source correction is not a claim that deployed rules have changed.
+
+Central foundation lifecycle policy allows appropriate existing commands in SETUP/READY_FOR_REVIEW/APPROVED/ACTIVE, permits only explicit consistency cleanup in SUSPENDED/ARCHIVED, and denies unknown/legacy states. Existing command-specific restrictions still apply. Membership cleanup inherits authorized parent command scope/roles; no child privilege escalation or silent ENROLL reactivation is introduced. Carrier eligibility is revalidated for allocation. Failure in temporal closure, pointer cleanup or audit aborts the combined transaction.
+
+Evidence boundary: negative pricing-rule tests inspect unconditional deny clauses. Native Firestore rules execution remains unverified locally because the official emulator download returns HTTP 403; in-memory services do not execute security rules. Live Firebase acceptance and rules deployment are not claimed.
+
 # Current pricing trust boundary — P9-U1 / P9-U2
 
 Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit/publication state belongs only to [the ledger](reconstruction/02_PHASE_LEDGER.md).
 
-Server-authoritative create/edit/save/status/version commands re-read the current canonical account, Project scope and lifecycle, and active Carrier/applicable Material participation. Existing commercial admin authority is PROJECT_ADMIN / FINANCE_AUDITOR / SUPER_ADMIN; a forged browser role or legacy authorization array cannot override it. UI visibility is not authorization.
+Server-authoritative create/edit/save/status/version commands re-read the current canonical account, Project scope and lifecycle, and active Carrier/applicable Material participation for expansion/maintenance. Status-only deactivation permits consistency cleanup after eligibility loss. Existing commercial admin authority is PROJECT_ADMIN / FINANCE_AUDITOR / SUPER_ADMIN; a forged browser role or legacy authorization array cannot override it. UI visibility is not authorization.
 
 Expected-version checks and transaction query/read sets fence conflicting edits and replacements. The server owns successor IDs, lineage, usage and cutoff metadata. Rule mutation and existing CREATE/UPDATE audit records commit atomically with one replacement correlation ID. Failure rolls back the whole replacement; no evidence is deleted. Browser-calculated rates/tax totals are not final persistence inputs. Fixed Trip snapshots and stored financials cannot be repriced by a later commercial configuration change. This source verification is not live Firebase certification.
 

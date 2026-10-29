@@ -9,7 +9,7 @@ import { TEMPORAL, decodeTemporal, isCurrentTemporal, assignmentSlotsAgree, type
 import { markDirtyInTransaction } from './projectWorkspaceProjectionState.server';
 import { sanitizeUndefined } from '../utils/sanitize';
 type Actor = Awaited<ReturnType<typeof authorizeGlobalCommand>>;
-export type TemporalPlan = { kind: TemporalKind; projectId: string; command: string; actor: Actor; before: any[]; record: any; changed: boolean; reason?: string };
+export type TemporalPlan = { parentMembership?: {kind:string;entityId:string;command:string}; kind: TemporalKind; projectId: string; command: string; actor: Actor; before: any[]; record: any; changed: boolean; reason?: string };
 const integrity = (kind: TemporalKind): never => { throw new GlobalIdentityError(kind === 'ASSIGNMENT' ? 'ASSIGNMENT_POINTER_INTEGRITY_ERROR' : 'ALLOCATION_POINTER_CORRUPTION'); };
 const fail = (code: string): never => { throw new GlobalIdentityError(code); };
 const base = (db: any, p: string) => db.collection('projects').doc(p);
@@ -25,6 +25,8 @@ export function assertAssignmentParticipation(p: string, driverId: string, truck
 }
 export function assertAllocationParticipation(p: string, truckId: string, materialId: string, context: any) {
   assertOperationallyEligible('TRUCK', context.truckGlobal); assertOperationallyEligible('MATERIAL', context.materialGlobal);
+  assertOperationallyEligible('CARRIER',context.carrierGlobal);
+  if(!context.carrierMembership || decodeParticipation(context.carrierMembership,'CARRIER',p,context.truckAffiliation?.carrierId).status!=='ACTIVE')fail('TEMPORAL_PARTICIPATION_INACTIVE');
   if (!context.truckMembership || decodeParticipation(context.truckMembership, 'TRUCK', p, truckId).status !== 'ACTIVE' || !context.materialMembership || decodeParticipation(context.materialMembership, 'MATERIAL', p, materialId).status !== 'ACTIVE' || !context.truckAffiliation || decodeParticipation(context.truckAffiliation, 'TRUCK', p, truckId, true).status !== 'ACTIVE') fail('TEMPORAL_PARTICIPATION_INACTIVE');
 }
 export async function planAssignment(tx: any, db: any, p: string, driverId: string, truckId: string, command: 'ASSIGN' | 'REASSIGN', actor: Actor, at: Date, context: any, reason?: string): Promise<TemporalPlan> {
@@ -65,7 +67,7 @@ export function writeTemporalPlan(tx: any, db: any, plan: TemporalPlan, at: Date
     else tx.set(root.collection('truck_active_material_allocations').doc(record.truckId), { allocationId: record.allocationId });
   }
   const auditLogId = `AUD-TEMPORAL-${randomUUID()}`;
-  tx.set(db.collection('audit_logs').doc(auditLogId), sanitizeUndefined({ auditLogId, projectId, entityType: 'TRUCK', entityId: record.truckId, command, action: before.length ? 'UPDATE' : 'CREATE', actor: { userId: actor.userId, role: actor.role, email: actor.email }, changes: { before, after: record, oldAssignmentIds: kind === 'ASSIGNMENT' ? before.map(r => r.assignmentId) : undefined, newAssignmentId: kind === 'ASSIGNMENT' && command !== 'CLOSE' ? record.assignmentId : undefined, driverId: record.driverId, oldTruckIds: kind === 'ASSIGNMENT' ? before.map(r => r.truckId) : undefined, newTruckId: record.truckId, oldAllocationId: kind === 'ALLOCATION' ? before[0]?.allocationId : undefined, newAllocationId: kind === 'ALLOCATION' && command !== 'CLOSE' ? record.allocationId : undefined, oldMaterialId: kind === 'ALLOCATION' ? before[0]?.materialId : undefined, newMaterialId: record.materialId, reason }, createdAt: now, updatedAt: now, createdBy: actor.userId, updatedBy: actor.userId }));
+  tx.set(db.collection('audit_logs').doc(auditLogId), sanitizeUndefined({ auditLogId, projectId, entityType: 'TRUCK', entityId: record.truckId, command, action: before.length ? 'UPDATE' : 'CREATE', actor: { userId: actor.userId, role: actor.role, email: actor.email }, changes: { parentMembership:plan.parentMembership, before, after: record, oldAssignmentIds: kind === 'ASSIGNMENT' ? before.map(r => r.assignmentId) : undefined, newAssignmentId: kind === 'ASSIGNMENT' && command !== 'CLOSE' ? record.assignmentId : undefined, driverId: record.driverId, oldTruckIds: kind === 'ASSIGNMENT' ? before.map(r => r.truckId) : undefined, newTruckId: record.truckId, oldAllocationId: kind === 'ALLOCATION' ? before[0]?.allocationId : undefined, newAllocationId: kind === 'ALLOCATION' && command !== 'CLOSE' ? record.allocationId : undefined, oldMaterialId: kind === 'ALLOCATION' ? before[0]?.materialId : undefined, newMaterialId: record.materialId, reason }, createdAt: now, updatedAt: now, createdBy: actor.userId, updatedBy: actor.userId }));
 }
 async function participation(tx: any, db: any, p: string, driverId: string | undefined, truckId: string, materialId?: string) {
   const root = base(db, p), read = async (collection: string, id: string) => { const s = await tx.get(root.collection(collection).doc(id)); return s.exists ? s.data() : null; };
@@ -76,6 +78,7 @@ async function participation(tx: any, db: any, p: string, driverId: string | und
     const carrierId = truckAffiliation?.carrierId; if (!validGlobalId(carrierId)) fail('TEMPORAL_PARTICIPATION_INACTIVE');
     result.carrierGlobal = await assertGlobalEntityExists(tx, db, 'CARRIER', carrierId); result.carrierMembership = await read('carrier_memberships', carrierId);
   }
+  if(materialId && !driverId){const carrierId=truckAffiliation?.carrierId;if(!validGlobalId(carrierId))fail('TEMPORAL_PARTICIPATION_INACTIVE');result.carrierGlobal=await assertGlobalEntityExists(tx,db,'CARRIER',carrierId);result.carrierMembership=await read('carrier_memberships',carrierId);}
   if (materialId) { result.materialGlobal = await assertGlobalEntityExists(tx, db, 'MATERIAL', materialId); result.materialMembership = await read('material_memberships', materialId); }
   return result;
 }
@@ -90,7 +93,7 @@ export class TemporalRelationshipAuthority {
     if (input.command === 'CLOSE' ? !validGlobalId(input[spec.id]) || spec.fields.some(f => input[f] !== undefined) : spec.fields.some(f => !validGlobalId(input[f])) || input[spec.id] !== undefined) fail('INVALID_TEMPORAL_COMMAND');
     const db = this.database || adminDb;
     return db.runTransaction(async (tx: any) => {
-      const actor = await authorizeGlobalCommand(tx, db, authenticated, p); let plan: TemporalPlan;
+      const actor = await authorizeGlobalCommand(tx, db, authenticated, p, false, input.command==='CLOSE'?'CONSISTENCY_CLEANUP':'NEW_OPERATION'); let plan: TemporalPlan;
       if (input.command === 'CLOSE') {
         const snap = await tx.get(base(db, p).collection(spec.collection).doc(input[spec.id])); if (!snap.exists) fail('TEMPORAL_RELATIONSHIP_NOT_FOUND');
         const record = decodeTemporal(kind, snap.data(), input[spec.id], p), at = this.clock();

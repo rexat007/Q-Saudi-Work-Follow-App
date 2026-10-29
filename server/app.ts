@@ -1569,7 +1569,7 @@ app.post('/api/projects/:projectId/membership-commands', enforceProjectIsolation
     const result = await new ProjectParticipationAuthority().membership(req.params.projectId, req.body, (req as any).user);
     res.json({ success: true, ...result });
   } catch (error: any) {
-    res.status(error.status || 400).json({ success: false, error: error.message, code: error.code });
+    res.status(error.status || 400).json({ success: false, error: error.message, code: error.code, dependencies:error.dependencies });
   }
 });
 app.post('/api/projects/:projectId/affiliation-commands', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {

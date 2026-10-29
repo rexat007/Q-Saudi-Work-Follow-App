@@ -1,3 +1,17 @@
+## PFAG-RB1 bounded remediation decisions
+
+Exact current status is owned by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `f261ebc5508d881c9bfbe3dc77af1ccad75ec914` (P9-U2 PR #63 merged).
+
+- C1 source correction: deny direct canonical pricing writes; preserve server Admin SDK mutation authority. Native rules runtime verification is STILL_OPEN: no local emulator, official download HTTP 403 even with network permission. Structural deny assertions do not prove execution on the native rules engine.
+- C2 source correction: saved historical snapshots outrank mutable master data; IDs are safe label fallback, uncaptured capacity/tax facts remain unavailable. No historical repricing or migration.
+- H1 approved policy: no silent cascade and no dangling scoped dependency. Compose bounded Driver/Truck/Material temporal closure with membership/audit atomically; Material cap 50 rejects larger plans before writes. Carrier outcome B rejects with affiliation/assignment/allocation/pricing dependency counts; explicit cleanup first.
+- H2 central NEW_OPERATION / MAINTENANCE / CONSISTENCY_CLEANUP policy; nonmutable Projects allow safe cleanup, not expansion. No Project suspend/reactivate implementation.
+- Historical test compatibility: intake/Admin assignment fixtures explicitly seed existing SETUP lifecycle; one obsolete pricing-rule assertion now checks the approved deny boundary. Other baseline failures remain reported, not rewritten.
+- H3 coherent refresh and H4 maintenance UX are STILL_OPEN / ROUTED_TO_PFAG_RB2. Global governance cascades are not added by RB1. Phase 10 remains NOT_STARTED.
+- Local evidence at this checkpoint: focused RB1 54/54; selected baseline 1260/1271 versus final 1315/1325 (54 added, one stale pricing-boundary assertion converged, ten baseline failures retained); Phase-8 regressions 184/184; Reports standalone harnesses 12/12, 48/48 and 18/18; i18n runtime 16/16; controlled browser pricing journey 8/8; canonical service probes 8/8. These use transactional in-memory persistence, not native rules. Build passes; diagnostics 440 → 440, zero added/removed; lint EXIT 2 / NOT PASS. No test removals/skips.
+- Owner-approved closure fallback: all 35 match blocks were inspected. Only the exact pricing block (create/update/delete false) and recursive default-deny block match canonical pricing documents. The parent Project match is not recursive; the collection-group exceptions match is read-only and does not match pricing. CLIENT_PRICING_WRITE_ALLOW_PATHS_FOUND = 0. Native syntax/runtime validation was unavailable; source inspection is not relabeled emulator acceptance.
+- PFAG-RULES-01 — STILL_OPEN / DEFERRED_ENVIRONMENT_BLOCKED: verify direct-client pricing-rule rejection in native Firestore Rules runtime at the first available emulator/deployed verification gate. Owner-approved fallback permits RB1 source merge with this bounded deployment/release debt; no deployed rules, emulator or Live Firebase acceptance is claimed. No package installation or emulator redownload was performed for closure.
+
 # DECISION AND TECHNICAL DEBT LOG
 
 Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This is the canonical decision/debt record, not a second unit ledger. Closed decisions below preserve their unit-scoped evidence; past suite/key totals, no-change statements and verification results do not describe all later work.
