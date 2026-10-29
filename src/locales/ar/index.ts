@@ -1,6 +1,15 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "import.recovery.title": "استعادة الاستيراد",
+  "import.recovery.READY": "جاهز للتنفيذ",
+  "import.recovery.EXECUTING": "التنفيذ قيد التقدم",
+  "import.recovery.PARTIAL": "اكتمل جزئياً. أعد محاولة العمل المتبقي فقط.",
+  "import.recovery.REVIEW_REQUIRED": "المراجعة مطلوبة. لا يمكن توسيع الآثار المعتمدة.",
+  "import.recovery.CANCELLED": "تم الإلغاء. حُفظت الآثار المكتملة.",
+  "import.recovery.COMPLETED": "مكتمل",
+  "import.recovery.completed": "الآثار المكتملة",
+  "import.recovery.remaining": "الآثار المتبقية",
   "import.context.noPermission": "يتطلب إنشاء الهوية المعتمدة أو تغيير عضويتها مديراً مخولاً. يمكنك ترك هذه المجموعة دون حسم.",
   "import.context.planned": "هذه خطة لهوية عامة وعضوية مشروع وارتباط بالناقل للتنفيذ لاحقاً. لا تُحفظ هوية الآن ولا يُنفذ إسناد أو تخصيص.",
   "import.context.immediateFleet": "ينشئ هذا الإجراء المعتمد الهوية العامة أو يعيد استخدامها، ويثبت عضوية المشروع والارتباط بالناقل الآن. لا ينفذ إسناد سائق أو تخصيص مادة.",

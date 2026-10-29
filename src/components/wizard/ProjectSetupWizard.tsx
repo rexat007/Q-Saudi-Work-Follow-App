@@ -1,5 +1,8 @@
+import { WORKSPACE_TABS } from '../../types/workspace';
+import { rosterResumeJourney, RosterJourneyLifetime, verifyRosterRemoteSource } from '../../services/import/rosterResumeJourney';
+import type { ImportExecutionStatus } from '../../types/importExecution';
 import type { CreateImportSessionPayload, ImportSessionRecord } from '../../types/importSession';
-import { acceptedSourceRevision, prepareDurableBatch, reconstructSmartImportResumeState, sourceFingerprint, verifySourceReattach } from '../../services/import/durableSessionContract';
+import { acceptedSourceRevision, prepareDurableBatch, sourceFingerprint, verifySourceReattach } from '../../services/import/durableSessionContract';
 import { ContextualCanonicalCreation } from '../import/ContextualCanonicalCreation';
 import { ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { RosterSemanticReview, intentIssueKey } from '../import/RosterSemanticReview';
@@ -439,6 +442,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const reviewedCommitInFlight = useRef(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const rosterImportSessionGenerationRef = useRef(0);
+  const rosterJourneyLifetime = useRef(new RosterJourneyLifetime()).current;
 
   // Unit 3A.1 Persistent Import Session & Checkpoint State
   const [importSessionId, setImportSessionId] = useState<string | null>(null);
@@ -448,6 +452,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [isRestoringImportSession, setIsRestoringImportSession] = useState<boolean>(false);
   const pendingSessionCreation = useRef<CreateImportSessionPayload | null>(null);
   const durableSessionRef = useRef<ImportSessionRecord | null>(null);
+  const [rosterExecution, setRosterExecution] = useState<ImportExecutionStatus | null>(null);
+  const [rosterRecoveryVisible, setRosterRecoveryVisible] = useState(false);
   const pendingRosterCheckpoint = useRef<Parameters<typeof importSessionClientService.updateCheckpoint> | null>(null);
   const saveRosterCheckpoint = async (...args: Parameters<typeof importSessionClientService.updateCheckpoint>) => {
     try {
@@ -471,6 +477,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // DT-01 Roster Smart Import Discovery & Mapping Approval State
   const [rosterSelectedFile, setRosterSelectedFile] = useState<File | null>(null);
   const [rosterBuffer, setRosterBuffer] = useState<ArrayBuffer | null>(null);
+  const [rosterSheetValues, setRosterSheetValues] = useState<any[][] | null>(null);
   const [rosterDiscoveryResult, setRosterDiscoveryResult] = useState<DiscoveryResult | null>(null);
   const [rosterSelectedSheet, setRosterSelectedSheet] = useState<string>('');
   const [rosterHeaderRowIndex, setRosterHeaderRowIndex] = useState<number>(0);
@@ -494,7 +501,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [isSmartImportMaterialModalOpen, setIsSmartImportMaterialModalOpen] = useState<boolean>(false);
 
   const rosterWorkflowContext: RosterWorkflowContext = useMemo(() => ({
-    hasSource: Boolean(rosterSelectedFile && rosterBuffer),
+    hasSource: Boolean(rosterSheetValues || (rosterSelectedFile && rosterBuffer)),
     hasDiscovery: Boolean(rosterDiscoveryResult),
     hasDetectedHeaders: Boolean(rosterDiscoveryResult?.detectedHeaders && rosterDiscoveryResult.detectedHeaders.length > 0),
     isMappingApproved: Boolean(isRosterMappingApproved),
@@ -504,7 +511,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       isCommittingImport ||
       (importBatch && (importBatch.commitStatus === 'COMMITTED' || importBatch.commitStatus === 'FAILED' || importBatch.committedRows > 0))
     ),
-  }), [rosterSelectedFile, rosterBuffer, rosterDiscoveryResult, isRosterMappingApproved, importBatch, smartImportCommitResult, isCommittingImport]);
+  }), [rosterSheetValues, rosterSelectedFile, rosterBuffer, rosterDiscoveryResult, isRosterMappingApproved, importBatch, smartImportCommitResult, isCommittingImport]);
 
   // Guarded workflow transition helper with explicit effective next context support
   const transitionToRosterStage = (
@@ -881,6 +888,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       setSmartImportCommitResult(null);
       setSmartImportCommitError(null);
       durableSessionRef.current = null;
+      rosterJourneyLifetime.invalidate(); setRosterExecution(null); setRosterRecoveryVisible(false); setRosterSheetValues(null);
       pendingSessionCreation.current = null;
       pendingRosterCheckpoint.current = null;
     setRequiresRosterSourceReattach(false);
@@ -918,6 +926,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setSmartImportCommitResult(null);
     setSmartImportCommitError(null);
     durableSessionRef.current = null;
+    rosterJourneyLifetime.invalidate(); setRosterExecution(null); setRosterRecoveryVisible(false); setRosterSheetValues(null);
     pendingSessionCreation.current = null;
     pendingRosterCheckpoint.current = null;
     setRequiresRosterSourceReattach(false);
@@ -1002,12 +1011,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
       const targetProjectId = editingProjectId;
-      const currentGen = requestContext.generation;
+      const currentGen = rosterImportSessionGenerationRef.current;
       try {
         setIsRestoringImportSession(true);
-        const sessions = await importSessionClientService.listResumableSessions(targetProjectId);
+        const sessions = await importSessionClientService.listResumableSessions(targetProjectId, undefined, true);
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-        if (!projectContext.isCurrent(requestContext, targetProjectId)) {
+        if (!projectContext.isCurrent(requestContext, targetProjectId) || currentGen !== rosterImportSessionGenerationRef.current) {
           return;
         }
         if (!sessions || sessions.length === 0) {
@@ -1029,17 +1038,32 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
           return;
         }
 
-        if (!projectContext.isCurrent(requestContext, targetProjectId)) {
+        if (!projectContext.isCurrent(requestContext, targetProjectId) || currentGen !== rosterImportSessionGenerationRef.current) {
           return;
         }
 
         const authoritative = await importSessionClientService.getSession(targetProjectId, candidate.importSessionId);
-        if (!projectContext.isCurrent(requestContext, targetProjectId)) return;
-        const facts = reconstructSmartImportResumeState(authoritative, targetProjectId);
+        if (!projectContext.isCurrent(requestContext, targetProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
+        const execution = (authoritative as any).executionOperationId
+          ? await importSessionClientService.getExecutionStatus(targetProjectId, authoritative.importSessionId) : null;
+        if (!projectContext.isCurrent(requestContext, targetProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
+        const journey = rosterResumeJourney(authoritative, targetProjectId, execution);
+        if (!journey.facts) {
+          durableSessionRef.current = authoritative;
+          setImportSessionId(authoritative.importSessionId); setImportSessionVersion(authoritative.version);
+          importSessionVersionRef.current = authoritative.version;
+          setImportSessionOperationId(authoritative.operationId);
+          setImportBatch(authoritative.importBatch || null);
+          setRosterExecution(execution); setRosterRecoveryVisible(true);
+          setRequiresRosterSourceReattach(false); setRosterSelectedFile(null); setRosterBuffer(null);
+          setRosterImportStage('COMMIT_RESULT'); setIsSmartImportOpen(true); setImportSessionRecoveryError(null);
+          return;
+        }
+        const facts = journey.facts;
         let working = facts.reviewSnapshot;
         if (working) {
           const fresh = await loadImportResolutionContext(targetProjectId);
-          if (!projectContext.isCurrent(requestContext, targetProjectId)) return;
+          if (!projectContext.isCurrent(requestContext, targetProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
           const ctx = ImportProjectContextAdapter.createPipelineContext({ relContext: fresh, projectId: targetProjectId, userId: authContext.userId, role: authContext.role, operationId: authoritative.operationId });
           working = DriverTruckPipelineService.revalidateRosterBatch(working, ctx);
           const currentIntent = facts.reviewedIntent ? buildRosterCanonicalIntent(working, ctx) : null;
@@ -1054,11 +1078,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         setImportSessionOperationId(authoritative.operationId);
         setImportBatch(working);
         setRosterSelectedFile(null); setRosterBuffer(null);
-        setRequiresRosterSourceReattach(facts.requiresSourceReattach);
+        setRequiresRosterSourceReattach(journey.requiresSourceReattach);
         setIsRosterMappingApproved(facts.mappingRevision?.approved === true);
         const discovery = facts.sourceRevision?.discovery;
-        if (discovery) setRosterDiscoveryResult(discovery as unknown as DiscoveryResult);
+        if (discovery) { setRosterDiscoveryResult(discovery as unknown as DiscoveryResult); setRosterSelectedSheet((discovery as any).selectedSheet || ''); setRosterHeaderRowIndex((discovery as any).detectedHeaderRowIndex ?? 0); }
         if (facts.mappingRevision) setRosterCustomMappings(facts.mappingRevision.mappings as any);
+        else if (discovery) setRosterCustomMappings(Object.fromEntries((discovery as any).detectedHeaders.map((h:string) => [h, translateDiscoveryToRosterTarget(String((discovery as any).mappingDiagnostics?.[h]?.canonicalField || ''))])));
         setRosterImportStage((facts.durableStage || 'SOURCE_DISCOVERY') as RosterSmartImportStage);
         setIsSmartImportOpen(true);
         setImportSessionRecoveryError(null);
@@ -1436,6 +1461,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setDriverConvergenceError(null);
     setTruckConvergenceError(null);
     durableSessionRef.current = null;
+    rosterJourneyLifetime.invalidate(); setRosterExecution(null); setRosterRecoveryVisible(false); setRosterSheetValues(null);
     pendingSessionCreation.current = null;
     pendingRosterCheckpoint.current = null;
     setRequiresRosterSourceReattach(false);
@@ -1447,12 +1473,42 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const recoverRosterExecution = async (action: 'status' | 'retry' | 'cancel' | 'refresh' = 'status') => {
+    const request = renderedContext, session = durableSessionRef.current;
+    const generation = rosterImportSessionGenerationRef.current, token = rosterJourneyLifetime.enter();
+    const current = () => rosterJourneyLifetime.current(token) && !!session && projectContext.isCurrent(request, session.projectId) && generation === rosterImportSessionGenerationRef.current && durableSessionRef.current?.importSessionId === session.importSessionId;
+    if (!session || !current()) return;
+    setIsProcessing(true); setSmartImportCommitError(null);
+    try {
+      const status = action === 'retry' && rosterExecution
+        ? await importSessionClientService.retryExecution(session.projectId, session.importSessionId, rosterExecution.operation.version)
+        : action === 'cancel' && rosterExecution
+          ? await importSessionClientService.cancelExecution(session.projectId, session.importSessionId, rosterExecution.operation.version)
+          : await importSessionClientService.getExecutionStatus(session.projectId, session.importSessionId);
+      if (!current()) return;
+      rosterResumeJourney(session, session.projectId, status);
+      setRosterExecution(status); setRosterRecoveryVisible(true); setRequiresRosterSourceReattach(false);
+      setRosterImportStage('COMMIT_RESULT');
+      if (status.operation.state === 'COMPLETED' || action === 'refresh') {
+        try {
+          const snapshot = await projectCanonicalRefreshService.refresh(session.projectId);
+          if (!current()) return;
+          applyCanonicalSnapshot(session.projectId, snapshot, request.generation); setProjectDataLoadError(null);
+        } catch { if (current()) setProjectDataLoadError(t('setup.errors.refresh')); }
+      }
+      return status;
+    } catch {
+      if (current()) setSmartImportCommitError(t('projects.batch4.commit_execution_failed'));
+    } finally { if (current()) setIsProcessing(false); }
+  };
+
   const handleCancelRosterImport = async (): Promise<boolean> => {
     const requestContext = renderedContext;
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return false;
 
+    if (rosterExecution && !['COMPLETED','CANCELLED'].includes(rosterExecution.operation.state)) { await recoverRosterExecution('cancel'); return false; }
     // EXPLICIT_CANCEL: Persist CANCELLED lifecycle on server, then clear local state
-    if (importSessionId && project) {
+    if (importSessionId && project && !rosterExecution && !['COMMITTED','CANCELLED'].includes(durableSessionRef.current?.lifecycleState || '')) {
       try {
         setIsProcessing(true);
         const expectedVer = importSessionVersionRef.current;
@@ -1592,14 +1648,26 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (durableSessionRef.current && durableSessionRef.current.schemaVersion !== 2) { setImportSessionRecoveryError(t('projects.batch4.import_restore_invalid')); return; }
 
     if (requiresRosterSourceReattach && durableSessionRef.current?.source) {
-      if (!await verifySourceReattach(durableSessionRef.current.source, file)) {
-        setImportSessionRecoveryError(t('projects.batch4.import_restore_invalid')); return;
+      const reattachGeneration = rosterImportSessionGenerationRef.current, reattachSession = durableSessionRef.current.importSessionId;
+      const source = durableSessionRef.current.source;
+      try {
+        const buffer = await file.arrayBuffer();
+        if (!await verifySourceReattach(source, file, buffer)) {
+          if (!projectContext.isCurrent(requestContext, editingProjectId) || reattachGeneration !== rosterImportSessionGenerationRef.current || durableSessionRef.current?.importSessionId !== reattachSession) return;
+          setImportSessionRecoveryError(t('projects.batch4.import_restore_invalid')); return;
+        }
+        if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
+        if (!projectContext.isCurrent(requestContext, editingProjectId) || reattachGeneration !== rosterImportSessionGenerationRef.current || durableSessionRef.current?.importSessionId !== reattachSession) return;
+        setRosterSelectedFile(file); setRosterBuffer(buffer); setRequiresRosterSourceReattach(false); setImportSessionRecoveryError(null); return;
+      } catch {
+        if (projectContext.isCurrent(requestContext, editingProjectId) && reattachGeneration === rosterImportSessionGenerationRef.current && durableSessionRef.current?.importSessionId === reattachSession) setImportSessionRecoveryError(t('projects.batch4.import_restore_invalid'));
+        return;
       }
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      setRosterSelectedFile(file); setRosterBuffer(await file.arrayBuffer()); setRequiresRosterSourceReattach(false); return;
     }
-    if (durableSessionRef.current && !await handleCancelRosterImport()) return;
-    handleResetRosterImport();
+    if (durableSessionRef.current?.lifecycleState !== 'SOURCE') {
+      if (durableSessionRef.current && !await handleCancelRosterImport()) return;
+      handleResetRosterImport();
+    }
     const currentGen = rosterImportSessionGenerationRef.current;
     setRosterSelectedFile(file);
     setIsImportingFile(true);
@@ -1762,7 +1830,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const requestContext = renderedContext;
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-    if (importSessionVersionRef.current < 0 || isProcessing || isImportingFile || !rosterSelectedFile || !rosterBuffer || !project) return;
+    if (importSessionVersionRef.current < 0 || isProcessing || isImportingFile || (!rosterSheetValues && (!rosterSelectedFile || !rosterBuffer)) || !project) return;
     const currentGen = rosterImportSessionGenerationRef.current;
     setIsProcessing(true);
     setIsImportingFile(true);
@@ -1785,7 +1853,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       let session = durableSessionRef.current;
       if (!session?.source || JSON.stringify(session.source.discovery) !== JSON.stringify(rosterDiscoveryResult)) {
-        session = await acceptRosterSource(rosterSelectedFile, rosterBuffer, rosterDiscoveryResult!);
+        session = await acceptRosterSource(rosterSelectedFile!, rosterBuffer!, rosterDiscoveryResult!);
       }
       if (session.lifecycleState !== 'MAPPING' || JSON.stringify(session.mapping?.mappings) !== JSON.stringify(approvedCustomMappings)) {
         session = await saveRosterCheckpoint(project.projectId, session.importSessionId, {
@@ -1816,11 +1884,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         operationId: session.operationId
       });
 
-      const batch = await DriverTruckPipelineService.processFileToReview(
-        rosterBuffer,
-        rosterSelectedFile.name,
-        rosterSelectedFile.size,
-        rosterSelectedFile.type || undefined,
+      const batch = rosterSheetValues && session.source?.sourceType === 'GOOGLE_SHEETS'
+        ? await DriverTruckPipelineService.processSheetsToReview(rosterSheetValues, { sourceType:'GOOGLE_SHEETS',importBatchId:session.importBatchId,sourceFileId:session.source.remote!.spreadsheetId,sourceFileName:session.source.fileName,sourceSheetName:session.source.remote!.sheetTitle }, pipelineCtx, {customMappings:approvedCustomMappings,sheetName:session.source.remote!.sheetTitle,headerRowIndex:rosterHeaderRowIndex,importBatchId:session.importBatchId})
+        : await DriverTruckPipelineService.processFileToReview(
+        rosterBuffer!,
+        rosterSelectedFile!.name,
+        rosterSelectedFile!.size,
+        rosterSelectedFile!.type || undefined,
         pipelineCtx,
         {
           sheetName: rosterSelectedSheet || undefined,
@@ -2610,27 +2680,21 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       }
       const committed = await importSessionClientService.commitReviewedIntent(project.projectId, session.importSessionId, session.version);
       if (!projectContext.isCurrent(requestContext, editingProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
-      if (committed.lifecycleState !== 'COMMITTED' || committed.receipt.operationId !== session.operationId || committed.receipt.importSessionId !== session.importSessionId) throw Error('INVALID_REVIEWED_COMMIT_RESPONSE');
-      durableSessionRef.current = {...session,lifecycleState:'COMMITTED',currentStage:'COMMIT_RESULT',version:committed.receipt.committedVersion};
-      importSessionVersionRef.current = committed.receipt.committedVersion;
-      setImportSessionVersion(committed.receipt.committedVersion);
-      const result: ImportResult = {success:true,totalRows:importBatch.rows.length,committedRows:committed.receipt.resultSummary.contributingRows,failedRows:0,skippedRows:importBatch.rows.length-committed.receipt.resultSummary.contributingRows,issues:[],importBatchId:session.importBatchId,projectId:session.projectId,operationId:session.operationId,sourceType:importBatch.source.sourceType,executedAt:committed.receipt.committedAt};
-      setSmartImportCommitResult(result);
-      transitionToRosterStage('COMMIT_RESULT');
-      // Durable COMMITTED truth precedes refresh. Never retry the business transaction on refresh failure.
-      try {
-        const snapshot = await projectCanonicalRefreshService.refresh(project.projectId);
-        if (!projectContext.isCurrent(requestContext, editingProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
-        applyCanonicalSnapshot(project.projectId, snapshot, requestContext.generation);
-        if (committed.canonicalRefresh === 'PENDING') setProjectDataLoadError(t('setup.errors.refresh'));
-      } catch {
-        if (projectContext.isCurrent(requestContext, editingProjectId)) setProjectDataLoadError(t('setup.errors.refresh'));
+      // The response may be partial. Completion is recovered only from the B3 journal.
+      if ('execution' in committed && committed.execution) {
+        rosterResumeJourney(session, session.projectId, committed.execution);
+        setRosterExecution(committed.execution); setRosterRecoveryVisible(true); setRequiresRosterSourceReattach(false);
+        setRosterImportStage('COMMIT_RESULT');
       }
+      await recoverRosterExecution();
 
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
       if (currentGen !== rosterImportSessionGenerationRef.current) return;
+      const recovered = await recoverRosterExecution();
+      if (recovered) return;
+      if (!projectContext.isCurrent(requestContext, editingProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
       console.error('Commit execution error:', err);
       setSmartImportCommitError(t(err.code === 'VERSION_CONFLICT' ? 'projects.batch4.import_version_conflict' : 'projects.batch4.commit_execution_failed'));
       if (err.code === 'VERSION_CONFLICT') { importSessionVersionRef.current = -1; setImportSessionVersion(-1); }
@@ -3327,7 +3391,48 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const requestContext = renderedContext;
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-    alert(presentBatch4Message(t('projects.batch4.sheets_integration_pending'), t));
+    if (!project?.settings?.googleSpreadsheetId || isProcessing) return;
+    const generation = rosterImportSessionGenerationRef.current;
+    const oldSession = durableSessionRef.current;
+    const current = () => projectContext.isCurrent(requestContext, editingProjectId) && generation === rosterImportSessionGenerationRef.current;
+    setIsProcessing(true); setImportSessionRecoveryError(null);
+    try {
+      if (oldSession && (oldSession.sourceType !== 'GOOGLE_SHEETS' || oldSession.importBatch || (oldSession as any).executionOperationId)) throw Error('SOURCE_REVISION_REQUIRED');
+      await clientWorkspaceService.requestGoogleScopes();
+      if (!current()) return;
+      const spreadsheetId = oldSession?.source?.remote?.spreadsheetId || project.settings.googleSpreadsheetId;
+      const sheetTitle = oldSession?.source?.remote?.sheetTitle || WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr;
+      const remote = await clientWorkspaceService.getSpreadsheetValues(spreadsheetId, sheetTitle);
+      if (!current()) return;
+      const fingerprint = await verifyRosterRemoteSource(spreadsheetId, sheetTitle, remote, oldSession?.source);
+      if (!current()) return;
+      const source = {sourceType:'GOOGLE_SHEETS' as const,importBatchId:oldSession?.importBatchId || `BAT-ROSTER-${crypto.randomUUID()}`,sourceFileId:spreadsheetId,sourceFileName:remote.spreadsheetTitle,sourceSheetName:sheetTitle};
+      const discovery = oldSession?.source?.discovery || await smartSourceDiscoveryService.discover(source, remote.values, {roster:true});
+      if (!current()) return;
+      let session = oldSession;
+      if (!session) {
+        if (!pendingSessionCreation.current) pendingSessionCreation.current = {domain:'ROSTER',sourceType:'GOOGLE_SHEETS',lifecycleState:'SOURCE',rosterStage:'SOURCE_DISCOVERY',currentStage:'SOURCE_DISCOVERY',importSessionId:`SESSION-${crypto.randomUUID()}`,importBatchId:source.importBatchId,operationId:`OP-ROSTER-${crypto.randomUUID()}`};
+        const identity = pendingSessionCreation.current;
+        try { session = await importSessionClientService.createSession(project.projectId,identity); }
+        catch (error:any) {
+          if (error.code !== 'SESSION_ALREADY_EXISTS') throw error;
+          session = await importSessionClientService.getSession(project.projectId,identity.importSessionId!);
+          if (session.operationId !== identity.operationId || session.importBatchId !== identity.importBatchId || session.createdBy !== authContext.userId) throw Error('IMMUTABLE_IDENTITY_VIOLATION');
+        }
+        if (!current()) return;
+        rememberDurableSession(session);
+      }
+      if (!session.source) {
+        session = await saveRosterCheckpoint(project.projectId,session.importSessionId,{lifecycleState:'DISCOVERED',rosterStage:'MAPPING_APPROVAL',currentStage:'MAPPING_APPROVAL',source:acceptedSourceRevision('GOOGLE_SHEETS',{spreadsheetId,sheetTitle,sourceFileName:remote.spreadsheetTitle,fingerprint,discovery})},session.version);
+        if (!current()) return;
+        rememberDurableSession(session);
+      }
+      setRosterSheetValues(remote.values); setRosterDiscoveryResult(discovery as unknown as DiscoveryResult);
+      setRosterSelectedSheet(sheetTitle); setRosterHeaderRowIndex((discovery as any).detectedHeaderRowIndex ?? 0);
+      setRosterCustomMappings(session.mapping?.mappings as any || Object.fromEntries((discovery as any).detectedHeaders.map((h:string)=>[h,translateDiscoveryToRosterTarget(String((discovery as any).mappingDiagnostics?.[h]?.canonicalField || ''))])));
+      setIsSmartImportOpen(true); setRosterImportStage('MAPPING_APPROVAL');
+    } catch { if (current()) setImportSessionRecoveryError(t('projects.batch4.import_restore_invalid')); }
+    finally { if (current()) setIsProcessing(false); }
   };
 
   // Phase 3: Add Pricing Rule
@@ -4662,6 +4767,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {importSessionRecoveryError && <div role="alert" className="p-3 text-rose-400"><p>{importSessionRecoveryError}</p>
                 {importSessionVersion < 0 ? <button onClick={() => window.location.reload()}>{t('shared.error_boundary.reload')}</button> : pendingRosterCheckpoint.current ? <button disabled={isProcessing} onClick={retryRosterCheckpoint}>{t('shared.error_boundary.retry')}</button> : rosterSelectedFile && rosterBuffer && rosterDiscoveryResult ? <button disabled={isProcessing} onClick={async () => { try { await acceptRosterSource(rosterSelectedFile,rosterBuffer,rosterDiscoveryResult); setRosterImportStage('MAPPING_APPROVAL'); } catch { /* Retry remains available. */ } }}>{t('shared.error_boundary.retry')}</button> : null}
               </div>}
+              {durableSessionRef.current?.sourceType === 'GOOGLE_SHEETS' && !rosterSheetValues && !importBatch && !rosterRecoveryVisible && <button disabled={isProcessing} onClick={handleSyncRosterFromSheet}>{t('entityResolution.labels.refresh_data')}</button>}
               {requiresRosterSourceReattach && (durableSessionRef.current?.schemaVersion !== 2 ? <div role="status" className="p-3 text-amber-400"><p>{t('projects.batch4.import_restore_invalid')}</p><button onClick={async () => { if(await handleCancelRosterImport()) {setIsSmartImportOpen(true);setRosterImportStage('SOURCE_DISCOVERY');} }}>{t('entityResolution.labels.reset_new_file')}</button></div> : <label className="block p-3 text-amber-400">{t('entityResolution.messages.review_session_resumed')}<input aria-label={t('entityResolution.labels.reattach_file')} type="file" accept=".csv,.xls,.xlsx" onChange={e => { const file=e.target.files?.[0]; if(file) void processRosterFile(file); }} /></label>)}
               {/* C1 Layered Smart Import Stage Indicator Stepper (Orientation & Progress Indicator) */}
               <div className="flex items-center justify-between gap-1 overflow-x-auto pb-2 border-b border-stone-800">
@@ -4762,6 +4868,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         type="number"
                         min={0}
                         value={rosterHeaderRowIndex}
+                        disabled={durableSessionRef.current?.sourceType === 'GOOGLE_SHEETS'}
                         onChange={(e) => handleRosterHeaderRowIndexChange(parseInt(e.target.value, 10) || 0)}
                         className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden font-mono font-bold"
                       />
@@ -4918,7 +5025,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && semanticRosterIntent && semanticRosterIntent.blockers.some(b => b.code.startsWith('CROSS_ROW_') || b.code === 'PREPARED_ENTITY_CONFLICT') && <div role="alert" className="p-3 text-rose-400">{semanticRosterIntent.blockers.map((b,i) => <p key={i}>{t(intentIssueKey(b.code))} · {t('intent.rows')}: {b.rowNumbers.join(', ')}</p>)}</div>}
               {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && semanticRosterIntent?.warnings.length ? <label className="flex gap-2 p-3 text-amber-500"><input type="checkbox" checked={Boolean(importBatch.warningConfirmation?.confirmed)} disabled={isProcessing} onChange={e => setImportBatch({...importBatch, warningConfirmation:e.target.checked ? {confirmed:true, confirmedBy:authContext.userId, confirmedAt:new Date().toISOString()} : undefined})}/>{t('entityResolution.labels.accept_warning_records')}</label> : null}
               {/* STAGE 6: FINAL_REVIEW */}
-              {importBatch && importBatch.projectId === project?.projectId && rosterImportStage === 'FINAL_REVIEW' && (
+              {!rosterRecoveryVisible && importBatch && importBatch.projectId === project?.projectId && rosterImportStage === 'FINAL_REVIEW' && (
                 <div>
                   {semanticRosterIntent ? <>
                     <RosterSemanticReview key={project?.projectId} intent={semanticRosterIntent} onAccept={handleAcceptCanonicalIntent} onBack={handleFinalReviewBack} busy={isProcessing || isCommittingImport} error={smartImportCommitError}/>
@@ -4937,8 +5044,28 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 </div>
               )}
 
+              {rosterRecoveryVisible && <section aria-label={t('import.recovery.title')} className="space-y-3 rounded-xl border p-4">
+                <h3>{t('import.recovery.title')}</h3>
+                <p role="status">{t(`import.recovery.${rosterExecution?.operation.state || (durableSessionRef.current?.lifecycleState === 'COMMITTED' ? 'COMPLETED' : 'CANCELLED')}`)}</p>
+                {rosterExecution && <>
+                  <p>{t('import.recovery.completed')}: {rosterExecution.operation.completedConsequences} / {rosterExecution.operation.consequenceCount}</p>
+                  <p>{t('import.recovery.remaining')}: {rosterExecution.operation.consequenceCount - rosterExecution.operation.completedConsequences}</p>
+                  <ul aria-label={t('import.recovery.completed')}>{rosterExecution.completed.flatMap(r => r.consequences).map(c => <li key={c.id}>{c.subject}{c.target ? ` → ${c.target}` : ''}</li>)}</ul>
+                  <ul aria-label={t('import.recovery.remaining')}>{rosterExecution.remaining.flatMap(r => r.consequences).map(c => <li key={c.id}>{c.subject}{c.target ? ` → ${c.target}` : ''}</li>)}</ul>
+                  {rosterExecution.retryAllowed && !rosterExecution.reviewRequired && <button disabled={isProcessing} onClick={() => void recoverRosterExecution('retry')}>{t('shared.error_boundary.retry')}</button>}
+                  {!['COMPLETED','CANCELLED'].includes(rosterExecution.operation.state) && <button disabled={isProcessing} onClick={() => void recoverRosterExecution('cancel')}>{t('entityResolution.labels.cancel_import')}</button>}
+                  <button disabled={isProcessing} onClick={() => void recoverRosterExecution('status')}>{t('entityResolution.labels.refresh_data')}</button>
+                  {rosterExecution.operation.state === 'COMPLETED' && <button disabled={isProcessing} onClick={() => void recoverRosterExecution('refresh')}>{t('setup.retry')}</button>}
+                </>}
+                {smartImportCommitError && <p role="alert">{smartImportCommitError}</p>}
+                {projectDataLoadError && <p role="alert">{projectDataLoadError}</p>}
+                <button onClick={() => {
+                  if (['COMPLETED','CANCELLED'].includes(rosterExecution?.operation.state || '') || ['COMMITTED','CANCELLED'].includes(durableSessionRef.current?.lifecycleState || '')) handleResetRosterImport();
+                  setIsSmartImportOpen(false);
+                }}>{t('entityResolution.labels.finish_import')}</button>
+              </section>}
               {/* STAGE 7: COMMIT_RESULT */}
-              {importBatch && rosterImportStage === 'COMMIT_RESULT' && (
+              {importBatch && !rosterRecoveryVisible && rosterImportStage === 'COMMIT_RESULT' && (
                 <div>
                   <RosterCommitResultLayer
                     importBatch={importBatch}

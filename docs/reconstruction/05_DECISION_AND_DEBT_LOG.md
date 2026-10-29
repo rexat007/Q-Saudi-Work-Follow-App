@@ -4,15 +4,15 @@ Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This is the canon
 
 ## Current Smart Import decisions and debt reconciliation
 
-Current state and accepted merge evidence belong only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). The owner's P8-B3 Course Correction authorizes this documentation reconciliation and preserves the existing implementation; it does not accept or publish local B3 work. P8-B1 merged at `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`, P8-B2 at `1f7f3344e65dfc9b6837b10cb5349827da1587eb`. Earlier decision IDs and their historical evidence below are preserved.
+Current state and accepted merge evidence belong only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). The P8-B3 Course Correction record below is historical; B3 has since merged through PR #60. Current acceptance/publication pointers are owned by the phase ledger. P8-B1 merged at `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`, P8-B2 at `1f7f3344e65dfc9b6837b10cb5349827da1587eb`. Earlier decision IDs and their historical evidence below are preserved.
 
 ### Source-supported decisions
 
 - Master Design Review → SI-CG1 → SI-CG2 → Phase 8 is the accepted correction sequence. Natural/canonical identity outranks names; rejected rows do not contribute; Material is not universally mandatory; source-row provenance is explicit. Contextual canonical Create/Enroll/Reactivate/Affiliation remain distinct capabilities, separate from PREPARED_NEW and temporal consequences.
 - B1 replaces fabricated snapshot reconstruction with schema-v2 session, source/mapping revisions and first-class durable reviewed intent. Immutable chunks publish through complete manifests, with stable identity/version fencing, exact reattach and separate Trip semantics. Its 86 introduced failures were classified and resolved before publication; that dated observation is not a cardinality gate.
 - B2 consumes the server-loaded reviewed semantic intent, revalidates current canonical state and reuses shared canonical identity/participation/temporal authorities. The legacy raw-row path remains fenced rather than restored as a second authority.
-- Local B3 adds deterministic semantic consequence identities, a Project/Session-bound journal, explicit generation/version fencing and atomic mutation-plus-receipt groups. Retry skips receipted groups; satisfaction can reduce work but not broaden the review. Cancellation preserves completed effects. Bounded summaries reference full receipt detail; incomplete refresh proof remains pending. These implementation facts are awaiting owner review, not VERIFIED/CLOSED.
-- Current work uses Codex and local Git. No automatic commit, publication, PR or merge follows completion. Old dated handoffs and `.aistudio/artifacts/brain/**` remain historical; no new handoff mirror is required.
+- Merged B3 provides deterministic semantic consequence identities, a Project/Session-bound journal, explicit generation/version fencing and atomic mutation-plus-receipt groups. Retry skips receipted groups; satisfaction can reduce work but not broaden the review. Cancellation preserves completed effects. Bounded summaries reference full receipt detail; incomplete refresh proof remains pending. B3 is merged/source-verified/closed through PR #60; live Firebase certification is not implied.
+- Current work uses Codex and local Git. Commit/publication require an explicit unit instruction; the B4 owner instruction authorizes one commit and branch publication after verification. Merge remains owner-only. Old dated handoffs and `.aistudio/artifacts/brain/**` remain historical; no new handoff mirror is required.
 
 ### Disposition of prior debt and remaining obligations
 
@@ -22,8 +22,8 @@ Current state and accepted merge evidence belong only to [02_PHASE_LEDGER.md](02
 | Duplicate Smart Import creation authority | SUPERSEDED | SI-CG2 invokes canonical Master Data capability; no duplicate creation/affiliation/temporal policy is owned by import |
 | Legacy raw-row semantic commit authority | SUPERSEDED | Durable reviewed intent is authority; the legacy Phase-8 fence stays in place |
 | DD-01 original full-batch session-restore representation | SUPERSEDED by B1 | Versioned source/mapping/review artifacts and factual resume replace the old snapshot contract; original debt evidence below is preserved |
-| DD-01 complete user-facing resume / reattach / provider journey | ROUTED_TO_LATER_PHASE | P8-B4 remains NOT_STARTED; full Sheets Roster adapter and final resume UX are not completed by B3 |
-| Partial execution, response loss and durable recovery | STILL_OPEN at owner-acceptance level | B3 is locally implemented with atomic group receipts, status/retry/cancel and fences; review/publication/independent acceptance have not occurred |
+| DD-01 complete user-facing resume / reattach / provider journey | RESOLVED_IN_B4_SOURCE_SCOPE | B4 adds the actual resume/reattach/recovery and shared Sheets adapter journey; live integration/release acceptance is not claimed |
+| Partial execution, response loss and durable recovery | RESOLVED_IN_B3_SOURCE_SCOPE | B3 merged/source-verified at PR #60 with atomic receipts and fences; B4 adds the active UI recovery coordination |
 | P1-U1 boundary observations | SUPERSEDED where accepted later authorities exist; STILL_OPEN for unverified remnants | Canonical natural identity, participation, temporal and persistence authorities now exist in source; this record does not waive remaining type/legacy-contract debt |
 | TYPECHECK_BASELINE_DEBT | STILL_OPEN | Last local observation: 440 diagnostics / lint exit 2, zero added; dated evidence, never a frozen permitted total or PASS |
 | Historical C5 and translation-guard assertions | STILL_OPEN | Baseline-reproduced source-shape assertions remain separately reported; no blanket assertion rewrite or retirement is authorized |
@@ -749,3 +749,12 @@ Proposed follow-up phases remain explicitly identified as proposals from the acc
 - Root-level ad-hoc diagnostic scripts (`test-*.ts`, `verify-*.ts`) after proving zero runtime callers.
 - Legacy or duplicate mock services superseded by canonical server services.
 - **Historical CD-41 supplemental provenance (not a retirement candidate or a new decision ID)**: Block82 historical fixed 1,128-key invariant retired; current locale dictionaries remain translation authority; 1128 was historical migration-era cardinality only; 1129 is NOT introduced as a replacement frozen contract; dry-run integrity now uses dynamic current locale parity/counts; cleanup verification uses pre/post count preservation; final reports display dynamic current counts; CLN-04/05/06/09 aligned to current authority; all 9 Block82 tests retained; no locale dictionary changes; taxonomy corrected from UI_DOM/FIREBASE_MOCK to UNIT/PURE_LOGIC; production service changed only to remove stale historical cardinality logic.
+
+## P8-B4 source/resume decisions
+
+- RESOLVED within the Roster source journey: terminal result discovery, execution-first restore, partial result visibility, explicit unfinished-only retry/cancel, and lost-response status recovery. B3 remains the sole execution authority.
+- RESOLVED within the source adapters: exact local reattach preserves the Session/mapping/review; remote values are bound to the accepted spreadsheet/tab/snapshot and use the shared Roster core. The existing Trip Sheets path remains separate.
+- SUPERSEDED: the prior pending Sheets Roster button and the assumption that all post-restart Roster stages need local bytes. Resolution snapshots and execution receipts are already durable evidence.
+- STILL_OPEN: existing typecheck debt and reproduced historical assertion/external-dependency failures. Source/browser verification does not waive live Firebase/Google integration acceptance.
+- ROUTED_TO_LATER_PHASE: offline/outbox redesign, pricing and broad release certification remain outside this unit. Phase 9 is not started.
+- TEST_HARNESS_COMPATIBILITY_CORRECTION: three existing test files retain their test counts while replacing the superseded local-result state requirement with durable journal-result assertions, recognizing the separately guarded legacy result panel, and using the full cancellation-handler boundary rather than a fixed character window. No historical failure was deleted or reclassified to hide a regression.

@@ -19,7 +19,7 @@ The commit endpoint creates a B3 operation and normally advances at most four in
 
 `VERSION_CONFLICT`, `EXECUTION_VERSION_CONFLICT`, `EXECUTION_FENCE_STALE`, binding mismatch and REVIEW_REQUIRED are distinct from completion. A committed transaction followed by failed canonical refresh remains committed; `COMMIT_SUCCEEDED_CANONICAL_REFRESH_PENDING` must not cause business replay. A summary referencing truncated journal detail likewise does not claim complete canonical proof.
 
-The recovery transport in `ImportSessionClientService` exposes status/retry/cancel for later P8-B4 integration. Full resume UX, long-running background execution and automatic publication are not implemented by this API contract. Route envelopes expose service error codes; an error response is not proof that a transaction never committed—query durable status after response uncertainty.
+B4 integrates the existing status/retry/cancel transport into the Wizard. The list route accepts optional `includeRosterResults=true`: only schema-v2 Roster COMMITTED/CANCELLED records are additionally returned, under the existing Project/creator authorization; default resumable and Trip filtering remains unchanged. The existing Workspace spreadsheet-values reader supplies the Sheets source adapter. Long-running background execution is not added by this contract. Route envelopes expose service error codes; an error response is not proof that a transaction never committed—query durable status after response uncertainty.
 
 ## Historical original specification — preserved reference
 

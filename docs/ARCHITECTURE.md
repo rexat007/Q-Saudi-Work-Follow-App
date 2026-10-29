@@ -1,6 +1,6 @@
 # Current Smart Import architecture — bounded Phase 8 reference
 
-Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. Exact phase/unit status and accepted merges belong only to [the Phase Ledger](reconstruction/02_PHASE_LEDGER.md). This section describes merged B1/B2 plus the local B3 implementation awaiting owner review; it does not declare B3 accepted or published.
+Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. Exact phase/unit status and accepted merges belong only to [the Phase Ledger](reconstruction/02_PHASE_LEDGER.md). This section describes merged B1–B3 and the B4 source/resume coordination; exact local acceptance and publication status is in the ledger.
 
 ```mermaid
 flowchart TD
@@ -24,7 +24,7 @@ Local B3's `RosterExecutionServer` adds a Project-scoped operation journal, dete
 
 Server limits still apply to each atomic group. A connected group exceeding B2 limits is rejected before its writes; B3 does not split an indivisible relationship invariant. Full receipts remain durable when a terminal summary is bounded; a truncated summary reports canonical refresh pending rather than claiming proof from incomplete data. Artifact staging interrupted before manifest publication leaves no executable operation claim. Local in-memory verification is not live-Firebase acceptance.
 
-P8-B4 resume UX, full Sheets Roster convergence, offline redesign, pricing and Trip lifecycle changes are outside this implementation. No browser Firestore write authority is introduced. See [Data Model](DATA_MODEL.md), [API](API_CONTRACT.md) and [Security](SECURITY_MODEL.md) for the bounded current contracts.
+B4 makes the Wizard consume durable execution status before restoring managed Sessions. Local file reattach is exact and needed only before analysis. Google Sheets Roster supplies a different parser to the same Roster discovery/review pipeline; Trip retains its separate adapter. Terminal/partial/cancelled/review-required panels show journal evidence, and canonical refresh is independent from commit. Offline redesign, pricing and Trip lifecycle changes remain outside this implementation. No browser Firestore write authority is introduced. See [Data Model](DATA_MODEL.md), [API](API_CONTRACT.md) and [Security](SECURITY_MODEL.md) for the bounded current contracts.
 
 ## Historical original specification — preserved reference
 

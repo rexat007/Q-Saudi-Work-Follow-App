@@ -251,7 +251,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
     const finishAction = commitResultLayerContent.slice(finishStart, finishEnd);
     expect(finishAction).toContain('onClick={onFinish}');
     expect(finishAction).toContain("<span>{t('entityResolution.labels.finish_import')}</span>");
-    const resultStageStart = wizardContent.indexOf("importBatch && rosterImportStage === 'COMMIT_RESULT'");
+    const resultStageStart = wizardContent.indexOf("importBatch && !rosterRecoveryVisible && rosterImportStage === 'COMMIT_RESULT'");
     expect(resultStageStart).toBeGreaterThanOrEqual(0);
     const resultStage = wizardContent.slice(resultStageStart);
     expect(resultStage).toContain('onFinish={async () => {');

@@ -438,7 +438,7 @@ export class ImportSessionServerService {
     return updatedRecord;
   }
 
-  async listResumableSessions(projectId: string, context: AuthUserContext) {
+  async listResumableSessions(projectId: string, context: AuthUserContext, includeRosterResults = false) {
     if (!context || !['PROJECT_ADMIN', 'SUPER_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SITE_SUPERVISOR'].includes(context.role)) {
       const err: any = new Error('غير مصرح لك باستعراض جلسات الاستيراد');
       err.code = 'AUTHORIZATION_ERROR';
@@ -461,6 +461,7 @@ export class ImportSessionServerService {
 
     const resumable = allSessions.filter((s) => {
       if (s.schemaVersion !== undefined && ![1,2].includes(s.schemaVersion)) return false;
+      if (includeRosterResults && s.schemaVersion === 2 && s.domain === 'ROSTER' && ['COMMITTED','CANCELLED'].includes(s.lifecycleState)) return true;
       if (s.lifecycleState === 'COMMITTED' || s.lifecycleState === 'CANCELLED' || s.lifecycleState === 'REJECTED' || s.lifecycleState === 'FAILED_TERMINAL' || s.lifecycleState === 'COMMITTING') {
         return false;
       }

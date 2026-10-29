@@ -1,6 +1,15 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "import.recovery.title": "درآمد کی بازیابی",
+  "import.recovery.READY": "عمل کے لیے تیار",
+  "import.recovery.EXECUTING": "عمل جاری ہے",
+  "import.recovery.PARTIAL": "جزوی طور پر مکمل۔ صرف باقی کام دوبارہ آزمائیں۔",
+  "import.recovery.REVIEW_REQUIRED": "جائزہ درکار ہے۔ منظور شدہ اثرات کو بڑھایا نہیں جا سکتا۔",
+  "import.recovery.CANCELLED": "منسوخ۔ مکمل اثرات محفوظ ہیں۔",
+  "import.recovery.COMPLETED": "مکمل",
+  "import.recovery.completed": "مکمل اثرات",
+  "import.recovery.remaining": "باقی اثرات",
   "import.context.noPermission": "مستند شناخت بنانے یا اس کی رکنیت بدلنے کے لیے مجاز منتظم درکار ہے۔ آپ اس گروپ کو غیر حل شدہ چھوڑ سکتے ہیں۔",
   "import.context.planned": "عالمی شناخت، پروجیکٹ کی رکنیت اور کیریئر سے وابستگی بعد میں عمل کے لیے تیار کریں۔ ابھی کوئی شناخت، ڈرائیور اسائنمنٹ یا مواد کی تخصیص نہیں بنتی۔",
   "import.context.immediateFleet": "یہ واضح مستند کارروائی عالمی شناخت بناتی یا استعمال کرتی ہے اور پروجیکٹ کی رکنیت اور کیریئر سے وابستگی قائم کرتی ہے۔ ڈرائیور اسائنمنٹ یا مواد کی تخصیص نہیں کرتی۔",

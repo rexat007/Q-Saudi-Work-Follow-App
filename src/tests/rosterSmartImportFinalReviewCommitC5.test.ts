@@ -316,8 +316,12 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
     expect(finalReviewContent).toContain('disabled={!canCommit || isCommitting}');
   });
 
-  it('44. Result stored in smartImportCommitResult', () => {
-    expect(wizardContent).toContain('setSmartImportCommitResult(result)');
+  it('44. Reviewed Roster result is retained from the durable execution journal', () => {
+    expect(wizardContent).toContain('rosterResumeJourney(session, session.projectId, committed.execution)');
+    expect(wizardContent).toContain('setRosterExecution(committed.execution)');
+    expect(wizardContent).toContain("setRosterImportStage('COMMIT_RESULT')");
+    expect(wizardContent).toContain('rosterExecution.completed.flatMap(r => r.consequences)');
+    expect(wizardContent).toContain('rosterExecution.retryAllowed && !rosterExecution.reviewRequired');
   });
 
   it('45. Committed batch stored in importBatch', () => {
