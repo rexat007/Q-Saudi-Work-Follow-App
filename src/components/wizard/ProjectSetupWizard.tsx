@@ -1,4 +1,4 @@
-import { canonicalPricingRule } from '../../services/pricing.service';
+import { pricingResolutionWindow, canonicalPricingRule } from '../../services/pricing.service';
 import { PricingRuleValidator } from '../../validators/pricingRule.validator';
 import { WORKSPACE_TABS } from '../../types/workspace';
 import { rosterResumeJourney, RosterJourneyLifetime, verifyRosterRemoteSource } from '../../services/import/rosterResumeJourney';
@@ -57,7 +57,7 @@ import { projectService } from '../../services/project.service';
 import { projectRepository } from '../../repositories/project.repository';
 import { materialRepository } from '../../repositories/material.repository';
 import { carrierRepository } from '../../repositories/carrier.repository';
-import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
+import { pricingRuleRepository, type PricingRuleSummary } from '../../repositories/pricingRule.repository';
 import { clientWorkspaceService } from '../../services/workspace.service';
 import { DriverTruckPipelineService } from '../../services/import/driverTruckPipeline.service';
 import { entityResolutionCommandService } from '../../services/import/entityResolutionCommand.service';
@@ -320,7 +320,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [navigationError, setNavigationError] = useState<string | null>(null);
   const [materials, setMaterials] = useState<MaterialEntity[]>([]);
   const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
-  const [pricingRules, setPricingRules] = useState<PricingRuleEntity[]>([]);
+  const [pricingRules, setPricingRules] = useState<PricingRuleSummary[]>([]);
   const [fleetRows, setFleetRows] = useState<any[]>([]);
   const [canonicalRevision, setCanonicalRevision] = useState(0);
   const manualSession = useMemo(() => new SetupMutationSession(), [editingProjectId, projectScopeKey]);
@@ -417,10 +417,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [editingCarrier, setEditingCarrier] = useState<CarrierEntity | null>(null);
 
   const [isAddingPricing, setIsAddingPricing] = useState(false);
-  const [editingPricingRule, setEditingPricingRule] = useState<PricingRuleEntity | null>(null);
+  const [editingPricingRule, setEditingPricingRule] = useState<PricingRuleSummary | null>(null);
   const [priceCarrierId, setPriceCarrierId] = useState('');
   const [priceMaterialId, setPriceMaterialId] = useState('ALL_MATERIALS');
   const [priceModel, setPriceModel] = useState<'PER_TRIP' | 'PER_TON'>('PER_TRIP');
+  const [priceStatus,setPriceStatus]=useState<'ACTIVE'|'INACTIVE'>('ACTIVE');
   const [priceRate, setPriceRate] = useState(0);
   const [priceFrom, setPriceFrom] = useState(new Date().toISOString().split('T')[0]);
   const [priceTo, setPriceTo] = useState('');
@@ -665,7 +666,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setIsAddingPricing(false); setEditingPricingRule(null);
     setIsAddingRosterRow(false);
     manualLock.current = false; setManualBusy(false); setManualError(null); setManualPreview(null); setManualConfirmed(false);
-    setPriceCarrierId('ALL'); setPriceMaterialId('ALL_MATERIALS');
+    setPriceCarrierId(''); setPriceMaterialId('ALL_MATERIALS');
     setPriceModel('PER_TRIP'); setPriceFrom(new Date().toISOString().split('T')[0]); setPriceTo('');
     setPriceRate(0); setPriceNotes('');
     setActiveSetupLayer('FOUNDATION'); setNavigationError(null);
@@ -1118,7 +1119,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // Presentation warnings use the same overlap policy as server writes.
   const pricingConflicts = useMemo(() => {
-    const rules=pricingRules.map(canonicalPricingRule).filter(r=>r.status==='ACTIVE');
+    const rules=pricingRules.map(canonicalPricingRule).map(pricingResolutionWindow).filter(r=>r.status==='ACTIVE');
     return rules.flatMap((rule,index)=>PricingRuleValidator.checkOverlap(rule,rules.slice(index+1)).conflictingRules.map(other=>t('projects.batch4.pricing_overlap',{first:rule.name || rule.pricingRuleId,second:other.name || other.pricingRuleId})));
   }, [pricingRules, t]);
 
@@ -3436,21 +3437,24 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         name: `تعرفة ${carrierName} - ${modelLabel} (${priceRate} ريال)`,
         pricingModel: priceModel,
         baseRateSAR: Number(priceRate),
-        currency: 'SAR',
+        currency: editingPricingRule?.currency || 'SAR',
         effectiveFrom: priceFrom,
-        effectiveTo: priceTo || undefined,
+        effectiveTo: priceTo || '',
         notes: priceNotes.trim(),
-        demurrageRatePerHourSAR: 50,
-        freeTimeHours: 2,
-        vatApplicable: true,
-        isActive: true,
+        demurrageRatePerHourSAR: editingPricingRule?.demurrageRatePerHourSAR ?? 50,
+        freeTimeHours: editingPricingRule?.freeTimeHours ?? 2,
+        vatApplicable: editingPricingRule?.vatApplicable ?? true,
+        ...(editingPricingRule?.vatRatePercent!==undefined ? {vatRatePercent:editingPricingRule.vatRatePercent}:{}),
+        ...(editingPricingRule?.minimumBillableWeightKg!==undefined ? {minimumBillableWeightKg:editingPricingRule.minimumBillableWeightKg}:{}),
+        status:priceStatus,
+        isActive: priceStatus==='ACTIVE',
         createdBy: authContext.userId,
         updatedBy: authContext.userId
       };
 
       const token = await auth.currentUser?.getIdToken();
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      const response = await fetch(`/api/projects/${project.projectId}/pricing-rules${editingPricingRule ? `/${encodeURIComponent(editingPricingRule.pricingRuleId)}/update` : ''}`, {
+      const response = await fetch(`/api/projects/${project.projectId}/pricing-rules${editingPricingRule ? `/${encodeURIComponent(editingPricingRule.pricingRuleId)}/save` : ''}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -3462,7 +3466,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       if (!response.ok) {
         const errorData = await response.json();
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-        throw new Error(errorData.error || t('projects.batch4.pricing_add_failed'));
+        throw new Error(errorData.code || errorData.error || t('projects.batch4.pricing_add_failed'));
       }
       window.dispatchEvent(new Event('pricing-rules-updated'));
       setEditingPricingRule(null); setIsAddingPricing(false);
@@ -3471,7 +3475,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-      alert(t('projects.batch4.pricing_add_failed'));
+      alert(t(err.message==='PRICING_VERSION_CONFLICT' ? 'pricing.version_conflict':'projects.batch4.pricing_add_failed'));
     }
   };
 
@@ -4455,7 +4459,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                     {isOperationallyMutable && (
                       <button
-                        onClick={() => { setEditingPricingRule(null); setIsAddingPricing(true); }}
+                        onClick={() => { setEditingPricingRule(null); setPriceStatus('ACTIVE'); setPriceCarrierId(''); setPriceRate(0); setPriceFrom(new Date().toISOString().slice(0,10)); setPriceTo(''); setPriceNotes(''); setIsAddingPricing(true); }}
                         className="text-amber-500 font-bold hover:underline flex items-center gap-1"
                       >
                         <Plus className="w-3.5 h-3.5" />
@@ -4469,7 +4473,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="space-y-1">
                           <label className="text-stone-400 font-bold">{t('analytics.column.concerned_carrier')}</label>
-                          <select required value={priceCarrierId} onChange={(e) => setPriceCarrierId(e.target.value)}
+                          <select disabled={!!(editingPricingRule?.hasHistoricalTrips || editingPricingRule?.supersededByRuleId)} required value={priceCarrierId} onChange={(e) => setPriceCarrierId(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
                           >
                             <option value="" disabled>{t('projects.batch4.choose_carrier')}</option>
@@ -4478,7 +4482,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         </div>
                         <div className="space-y-1">
                           <label className="text-stone-400 font-bold">{t('projects.batch4.target_material')}</label>
-                          <select required value={priceMaterialId} onChange={(e) => setPriceMaterialId(e.target.value)}
+                          <select disabled={!!(editingPricingRule?.hasHistoricalTrips || editingPricingRule?.supersededByRuleId)} required value={priceMaterialId} onChange={(e) => setPriceMaterialId(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
                           >
                             <option value="ALL_MATERIALS">{t('projects.batch4.all_authorized_materials')}</option>
@@ -4487,7 +4491,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         </div>
                         <div className="space-y-1">
                           <label className="text-stone-400 font-bold">{t('analytics.column.pricing_model')}</label>
-                          <select required value={priceModel} onChange={(e) => setPriceModel(e.target.value as any)}
+                          <select disabled={!!editingPricingRule?.supersededByRuleId} required value={priceModel} onChange={(e) => setPriceModel(e.target.value as any)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-bold"
                           >
                             <option value="PER_TRIP">{t('operations.per_trip_per_trip')}</option>
@@ -4499,19 +4503,19 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="space-y-1">
                           <label className="text-stone-400 font-bold">{t('projects.batch4.base_rate_sar')}</label>
-                          <input type="number" min={0} step={0.01} required value={priceRate} onChange={(e) => setPriceRate(Number(e.target.value))}
+                          <input disabled={!!editingPricingRule?.supersededByRuleId} type="number" min={0} step={0.01} required value={priceRate} onChange={(e) => setPriceRate(Number(e.target.value))}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-mono font-bold"
                           />
                         </div>
                         <div className="space-y-1">
                           <label className="text-stone-400 font-bold">{t('projects.batch4.effective_from')}</label>
-                          <input type="date" required value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)}
+                          <input disabled={!!editingPricingRule?.supersededByRuleId} type="date" required value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-mono"
                           />
                         </div>
                         <div className="space-y-1">
                           <label className="text-stone-400 font-bold">{t('projects.batch4.expires_optional')}</label>
-                          <input type="date" value={priceTo} onChange={(e) => setPriceTo(e.target.value)}
+                          <input disabled={!!editingPricingRule?.supersededByRuleId} type="date" value={priceTo} onChange={(e) => setPriceTo(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-800 text-white px-2 py-1.5 rounded-lg focus:outline-hidden font-mono"
                           />
                         </div>
@@ -4524,6 +4528,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         />
                       </div>
 
+                      <p className="text-xs text-stone-400">{t(editingPricingRule?.supersededByRuleId ? 'pricing.predecessor_hint':editingPricingRule?.hasHistoricalTrips ? 'pricing.replace_hint':'pricing.edit_hint')}</p>
+                      <label className="text-stone-400 text-xs">{t('pricing.lifecycle')}
+                        <select aria-label={t('pricing.lifecycle')} value={priceStatus} onChange={e=>setPriceStatus(e.target.value as 'ACTIVE'|'INACTIVE')} className="ms-2 bg-stone-950 p-1">
+                          <option value="ACTIVE">{t('pricing.active')}</option><option value="INACTIVE">{t('pricing.inactive')}</option>
+                        </select>
+                      </label>
                       <div className="flex justify-end gap-2 pt-2">
                         <button type="button" onClick={() => setIsAddingPricing(false)} className="px-3 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg">{t('shared.actions.cancel')}</button>
                         <button type="submit" className="px-4 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">{t('projects.batch4.save_tariff')}</button>
@@ -4561,10 +4571,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="py-2.5 font-mono text-emerald-400">{r.baseRateSAR} {t('shared.units.sar')}</td>
                               <td className="py-2.5 font-mono">{r.effectiveFrom}</td>
                               <td className="py-2.5 font-mono">{r.effectiveTo || t('projects.batch4.open_ended')}</td>
-                              <td>{isOperationallyMutable && <button type="button" disabled={!['PER_TRIP','PER_TON'].includes(r.pricingModel)} onClick={() => {
-                                setEditingPricingRule(r); setPriceCarrierId(r.carrierId || 'ALL'); setPriceMaterialId(r.materialId || 'ALL_MATERIALS');
+                              <td><span className="block text-xs">{t(r.status==='INACTIVE'?'pricing.inactive':'pricing.active')}</span>{r.supersededByRuleId && <span className="block text-xs">{t('pricing.replaced', {date:r.supersededFrom || ''})}</span>}{isOperationallyMutable && <button type="button" disabled={!['PER_TRIP','PER_TON'].includes(r.pricingModel)} onClick={() => {
+                                setEditingPricingRule(r); setPriceStatus(r.status==='INACTIVE'?'INACTIVE':'ACTIVE'); setPriceCarrierId(r.carrierId || ''); setPriceMaterialId(r.materialId || 'ALL_MATERIALS');
                                 setPriceModel(r.pricingModel === 'PER_TRIP' ? 'PER_TRIP' : 'PER_TON'); setPriceRate(r.baseRateSAR); setPriceFrom(r.effectiveFrom); setPriceTo(r.effectiveTo || ''); setPriceNotes(r.notes || ''); setIsAddingPricing(true);
-                              }}>{t('shared.actions.edit')}</button>}</td>
+                              }}>{t(r.hasHistoricalTrips ? 'pricing.manage_used':'shared.actions.edit')}</button>}</td>
                             </tr>
                           ))}
                         </tbody>

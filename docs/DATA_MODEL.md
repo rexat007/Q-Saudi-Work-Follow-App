@@ -1,8 +1,10 @@
-# Current pricing snapshots — P9-U1
+# Current pricing snapshots and versions — P9-U1 / P9-U2
 
-Classification: CURRENT_ARCHITECTURE_REFERENCE; exact status is in [the ledger](reconstruction/02_PHASE_LEDGER.md). Rules remain at `projects/{projectId}/pricing_rules/{pricingRuleId}`. The writer assigns canonical identity/audit fields and an incrementing version; updates require expectedVersion. Canonical Carrier membership is required; specific Material rules require canonical Material membership. No legacy authorization array is written.
+Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit/publication state belongs only to [the ledger](reconstruction/02_PHASE_LEDGER.md).
 
-`TripEntity.pricingSnapshot` consumes the existing `TripPricingSnapshot` type. Persisted snapshots include rate/type/currency, rule version/effective terms and waiting-rate/free-time terms needed to interpret historical charges. Project/Carrier/Material bindings remain on the Trip. Existing quantity-derived settlement fields may change through legitimate unloading; the contracted rate and capture facts are not re-queried. Missing old snapshot terms are not backfilled with current prices. No Trip migration is performed.
+Canonical rules remain `projects/{projectId}/pricing_rules/{pricingRuleId}`. Existing `version` is the server optimistic revision. A successor receives a new server-generated ID, `parentRuleId` and an advanced version. The predecessor retains original commercial fields and gains `supersededByRuleId` / `supersededFrom`, plus a revision/audit stamp. `supersededFrom` is an exclusive query cutoff, not an overwrite of original effective dates. These bindings cannot be supplied by clients. `hasHistoricalTrips` is computed list metadata and is not stored on the rule.
+
+TripPricingSnapshot retains selected ID/version, rate/model/currency, effective facts, minimum billable weight, VAT applicability/percentage and contractual waiting terms. Final amount and tax remain stored on the Trip. Subsequent rule/configuration replacement never changes those records. Existing explicit imported pending snapshots are unresolved evidence, not zero-price agreements. Historical unsupported model snapshots remain readable; they do not authorize new unsupported calculations. No mass migration is performed.
 
 # Current Phase 8 persistence model — bounded source reference
 

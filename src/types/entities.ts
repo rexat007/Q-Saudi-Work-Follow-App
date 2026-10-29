@@ -65,6 +65,10 @@ export interface CarrierEntity extends BaseAuditedEntity {
 // 3. Pricing Rule Entity
 export interface PricingRuleEntity extends BaseAuditedEntity {
   version?: number; // Server-assigned optimistic concurrency version; legacy records may omit it.
+  parentRuleId?: string;
+  supersededByRuleId?: string;
+  supersededFrom?: string; // Exclusive resolution cutoff; original effective terms are preserved.
+  vatRatePercent?: number;
   pricingRuleId: string;
   projectId: string;
   carrierId?: string; // Optional: carrier-specific tariff

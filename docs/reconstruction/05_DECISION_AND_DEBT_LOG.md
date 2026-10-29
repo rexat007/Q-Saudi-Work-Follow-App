@@ -759,7 +759,7 @@ Proposed follow-up phases remain explicitly identified as proposals from the acc
 - ROUTED_TO_LATER_PHASE: offline/outbox redesign, pricing and broad release certification remain outside this unit. Phase 9 is not started.
 - TEST_HARNESS_COMPATIBILITY_CORRECTION: three existing test files retain their test counts while replacing the superseded local-result state requirement with durable journal-result assertions, recognizing the separately guarded legacy result panel, and using the full cancellation-handler boundary rather than a fixed character window. No historical failure was deleted or reclassified to hide a regression.
 
-## P9-U1 pricing authority reconciliation — 2026-10-29
+## Historical P9-U1 pricing authority reconciliation — 2026-10-29
 
 - RESOLVED: browser Firestore/cache pricing writes and the success-only update endpoint are replaced by authenticated canonical server operations with version fencing, overlap rejection and audit. Forged role/Project/legacy authorization-array claims do not override canonical participation.
 - RESOLVED: readiness, operational assignment and pure previews share the pricing selection policy. Existing timestamp precision is retained; a transaction-time expiry regression test remains enforced.
@@ -770,3 +770,18 @@ Proposed follow-up phases remain explicitly identified as proposals from the acc
 - TEST_HARNESS_COMPATIBILITY_CORRECTION: existing pricing server tests gain canonical account/global fixtures and structured error assertions; alternate-schema writes now prove fail-closed rejection. The pricing slice of the persistence-boundary test uses authenticated HTTP transport while preserving timestamp/identity checks. Three readiness/activation fixture files gain the pricing model and positive rate required for a valid commercial rule, without changing workflow assertions. Test counts are retained (76/75/41/67/28 across the five existing changed suites).
 
 The P8-B4 merge closes Phase 8 at source level. Publication for this P9-U1 branch is explicitly authorized; owner merge remains manual. Live Firebase acceptance is not claimed.
+
+
+## P9-U2 commercial versioning reconciliation — 2026-10-29
+
+Baseline `303469ef29b7cf906964316691e491c0df6d5e45` merges P9-U1 through PR #62. The ledger alone governs exact status.
+
+- RESOLVED: minimum required used-rule COW/version UX. One save rechecks usage; replacement preserves old commercial fields, creates a successor and exclusive resolution cutoff, and writes correlated existing CREATE/UPDATE audits atomically. Stale/concurrent replacement and branching fail closed. Status mutations are server-authorized and do not reprice historical Trips.
+- RESOLVED: supported minimum billable weight was previously stored but not applied/captured consistently. The common calculator now applies the existing term after positive measured weight, leaving physical weight unchanged. VAT calculations use captured applicability/percentage through one totals policy; zero tax percentage remains zero, not fallback 15. Historical tax/waiting results survive later replacement.
+- SUPERSEDED: the P9-U1 deferral of minimum COW UX is satisfied by the server save command. The unused old client COW placeholder remains a fail-closed historical method; it is not required for or reachable from the active Wizard path.
+- STILL_OPEN: baseline-reproduced test/diagnostic debt and live Firebase acceptance. Legacy optional-term absence is retained rather than manufacturing historical terms.
+- ROUTED_WITHOUT_BLOCKING_PHASE: speculative legacy database mass migration requires a separately proven inventory. Supported aliases/general-Material sentinels normalize deterministically through current policy; unsupported model selection fails closed. No unsupported calculator is activated.
+- NOT_IN_APPROVED_SCOPE: generalized tax/accounting/invoicing, new automatic waiting accrual and unused browser adjustment approval workflow. Stored contractual terms/charges remain preserved; no new monetary command or approval workflow is added.
+- ROUTED_TO_LATER_PHASE: Trip FSM, offline and audit subsystem reconstruction retain their existing phase owners. No Phase 10 work is started.
+
+Historical records and original design bodies are retained. Phase 9 source closure readiness is conditional on the ledger's completed verification matrix and owner merge, not live deployment or release certification.

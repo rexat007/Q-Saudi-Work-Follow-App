@@ -1,6 +1,16 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "pricing.predecessor_hint": "Replaced rule: only its status can change. Its replacement boundary and historical commercial terms remain fixed.",
+  "pricing.version_conflict": "This rule changed. Reload pricing before saving again.",
+  "pricing.replace_hint": "Used by Trips. A commercial change creates a replacement from the effective date; previous Trips keep their terms. Change only status to activate or deactivate.",
+  "pricing.edit_hint": "Unused rule: save edits this rule. The server checks usage again before saving.",
+  "pricing.lifecycle": "Rule status",
+  "pricing.active": "Active",
+  "pricing.inactive": "Inactive",
+  "pricing.replaced": "Replaced from {date}",
+  "pricing.manage_used": "Manage / replace",
+
   "pricing.diagnostic_only": "Simulation only. These sample rules are not saved. Manage live project pricing in Project Setup.",
   "import.recovery.title": "Import recovery",
   "import.recovery.READY": "Ready to execute",
