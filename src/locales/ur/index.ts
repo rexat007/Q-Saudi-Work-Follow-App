@@ -1,6 +1,7 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "pricing.diagnostic_only": "صرف مشق کے لیے۔ یہ نمونہ قواعد محفوظ نہیں ہوتے۔ منصوبے کی اصل قیمتیں منصوبے کی ترتیب میں منظم کریں۔",
   "import.recovery.title": "درآمد کی بازیابی",
   "import.recovery.READY": "عمل کے لیے تیار",
   "import.recovery.EXECUTING": "عمل جاری ہے",

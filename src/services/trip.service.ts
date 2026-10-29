@@ -1,3 +1,4 @@
+import { PricingService } from './pricing.service';
 import { isCurrentTemporal, assignmentSlotsAgree } from '../utils/temporalRelationshipPolicy';
 import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 import { tripRepository } from '../repositories/trip.repository';
@@ -129,6 +130,7 @@ export interface TripPersistenceContext {
     getActiveAllocationByTruck(projectId: string, truckId: string): Promise<any>;
   };
   pricingRuleRepository: {
+    resolve?(projectId:string,carrierId:string,materialId:string,date:string,requestedId?:string):Promise<any>;
     findById(projectId: string, pricingRuleId: string): Promise<any>;
   };
   tripNumberGenerator: {
@@ -325,7 +327,9 @@ export class TripService {
     const { project, carrierGlobal, materialGlobal, driverGlobal, truckGlobal } =
       await this.validateCanonicalTripEntities(cleanProjectId, params.carrierId, params.truckId, params.driverId, params.materialId);
 
-    const pricingRule = await this.persistence.pricingRuleRepository.findById(cleanProjectId, params.pricingRuleId);
+    const pricingRule = this.persistence.pricingRuleRepository.resolve
+      ? await this.persistence.pricingRuleRepository.resolve(cleanProjectId,params.carrierId,params.materialId,new Date().toISOString(),params.pricingRuleId)
+      : await this.persistence.pricingRuleRepository.findById(cleanProjectId, params.pricingRuleId);
 
     // 11. Pricing Rule Canonical Authority Validation
     if (!pricingRule || (pricingRule.status !== undefined && pricingRule.status !== 'ACTIVE' && pricingRule.status !== ('ACTIVE' as any)) || (pricingRule.status === undefined && pricingRule.isActive === false)) {
@@ -404,6 +408,12 @@ export class TripService {
       },
       pricingSnapshot: {
         pricingRuleId: pricingRule.pricingRuleId,
+        pricingRuleVersion: pricingRule.version || 1,
+        effectiveFrom: pricingRule.effectiveFrom,
+        effectiveTo: pricingRule.effectiveTo || null,
+        materialId: params.materialId,
+        demurrageRatePerHourSAR: pricingRule.demurrageRatePerHourSAR,
+        freeTimeHours: pricingRule.freeTimeHours,
         pricingType,
         agreedRate,
         currency: (pricingRule as any).currency || 'SAR',
@@ -559,13 +569,14 @@ export class TripService {
       let baseAmount = 0;
       let settlementBase = 0;
 
-      if (pricingType === 'PER_TON') {
-        settlementBase = Number(billableTons.toFixed(3));
-        baseAmount = Number((settlementBase * rate).toFixed(2));
+      if (existing.pricingSnapshot.pricingType !== 'LEGACY_UNRESOLVED') {
+        const calculation = new PricingService().calculateSettlement({pricingRule:{...existing.pricingSnapshot,pricingType,rate} as any,netWeightKg:billableWeightKg,allowMissingWeight:true});
+        settlementBase=calculation.settlementBase; baseAmount=calculation.settlementAmount;
       } else {
-        settlementBase = 1;
-        baseAmount = rate; // PER_TRIP
+        // Preserve the explicit legacy pending marker and its existing completion representation.
+        settlementBase=1; baseAmount=rate;
       }
+
 
       updates.pricingSnapshot = {
         ...existing.pricingSnapshot,
@@ -576,7 +587,7 @@ export class TripService {
       const demurrage = payload.demurrageAmountSAR || 0;
       const deductions = payload.deductionsAmountSAR || 0;
       const subtotal = Math.max(0, baseAmount + demurrage - deductions);
-      const vat = existing.pricingSnapshot.vatApplicable ? Math.round(subtotal * 0.15 * 100) / 100 : 0;
+      const vat = existing.pricingSnapshot.vatApplicable ? Math.round(subtotal * ((existing.pricingSnapshot.vatRatePercent ?? 15) / 100) * 100) / 100 : 0;
       const total = subtotal + vat;
 
       updates.financials = {
@@ -788,20 +799,20 @@ export class TripService {
 
     // 2. Pricing Resolution Authority
     let pricingRule: any = null;
-    if (params.pricingRuleId && params.pricingRuleId !== 'UNRESOLVED_PENDING' && params.pricingRuleId !== 'PENDING') {
-      try {
-        pricingRule = await this.persistence.pricingRuleRepository.findById(cleanProjectId, params.pricingRuleId);
-      } catch {
-        pricingRule = null;
-      }
-    }
+    if (params.pricingRuleId && !['UNRESOLVED_PENDING','PENDING'].includes(params.pricingRuleId)) {
+      pricingRule = this.persistence.pricingRuleRepository.resolve
+        ? await this.persistence.pricingRuleRepository.resolve(cleanProjectId,params.carrierId,params.materialId,params.operationalData?.shiftDate || new Date().toISOString(),params.pricingRuleId)
+        : await this.persistence.pricingRuleRepository.findById(cleanProjectId,params.pricingRuleId);
+      if (!pricingRule) throw Error('MISSING_PRICING');
+      if (pricingRule.projectId !== cleanProjectId || pricingRule.carrierId !== params.carrierId || pricingRule.materialId && !['ALL','ALL_MATERIALS','GENERAL',params.materialId].includes(pricingRule.materialId)) throw Error('PRICING_SELECTION_MISMATCH');
+    } else if(params.pricingMode==='RESOLVED') throw Error('MISSING_PRICING');
 
     const opData = params.operationalData || {};
     let pricingSnapshot: any;
     let financials: any;
     let finalPricingRuleId: string;
 
-    if (pricingRule && (pricingRule.status === 'ACTIVE' || pricingRule.isActive !== false)) {
+    if (pricingRule && (pricingRule.status !== undefined ? pricingRule.status === 'ACTIVE' : pricingRule.isActive === true)) {
       finalPricingRuleId = pricingRule.pricingRuleId;
       const rate = pricingRule.baseRateSAR !== undefined 
         ? pricingRule.baseRateSAR 
@@ -815,6 +826,13 @@ export class TripService {
 
       pricingSnapshot = {
         pricingRuleId: pricingRule.pricingRuleId,
+        pricingRuleVersion: pricingRule.version || 1,
+        effectiveFrom: pricingRule.effectiveFrom,
+        effectiveTo: pricingRule.effectiveTo || null,
+        materialId: params.materialId,
+        demurrageRatePerHourSAR: pricingRule.demurrageRatePerHourSAR,
+        freeTimeHours: pricingRule.freeTimeHours,
+        vatApplicable: pricingRule.vatApplicable,
         pricingType: pType,
         agreedRate: rate,
         currency: pricingRule.currency || 'SAR',
@@ -864,6 +882,13 @@ export class TripService {
       } else if (typeof originNet !== 'number') {
         originNet = computedNet;
       }
+    }
+
+    if (pricingRule) {
+      const calculation = new PricingService().calculateSettlement({pricingRule:{...pricingRule,pricingType:pricingRule.pricingType || pricingRule.pricingModel,rate:pricingRule.baseRateSAR ?? pricingRule.rate},netWeightKg:opData.destinationNetWeightKg ?? originNet,allowMissingWeight:true});
+      pricingSnapshot={...pricingSnapshot,...calculation.snapshot,vatApplicable:pricingRule.vatApplicable,vatRatePercent:pricingRule.vatRatePercent || 15};
+      const vat=pricingRule.vatApplicable ? Math.round(calculation.settlementAmount*((pricingRule.vatRatePercent || 15)/100)*100)/100:0;
+      financials={...financials,baseAmountSAR:calculation.settlementAmount,vatAmountSAR:vat,totalAmountSAR:Math.round((calculation.settlementAmount+vat)*100)/100};
     }
 
     // 4. Status Mapping

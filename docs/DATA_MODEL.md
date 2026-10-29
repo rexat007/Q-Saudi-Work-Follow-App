@@ -1,3 +1,9 @@
+# Current pricing snapshots — P9-U1
+
+Classification: CURRENT_ARCHITECTURE_REFERENCE; exact status is in [the ledger](reconstruction/02_PHASE_LEDGER.md). Rules remain at `projects/{projectId}/pricing_rules/{pricingRuleId}`. The writer assigns canonical identity/audit fields and an incrementing version; updates require expectedVersion. Canonical Carrier membership is required; specific Material rules require canonical Material membership. No legacy authorization array is written.
+
+`TripEntity.pricingSnapshot` consumes the existing `TripPricingSnapshot` type. Persisted snapshots include rate/type/currency, rule version/effective terms and waiting-rate/free-time terms needed to interpret historical charges. Project/Carrier/Material bindings remain on the Trip. Existing quantity-derived settlement fields may change through legitimate unloading; the contracted rate and capture facts are not re-queried. Missing old snapshot terms are not backfilled with current prices. No Trip migration is performed.
+
 # Current Phase 8 persistence model — bounded source reference
 
 Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. State/acceptance is owned by [the ledger](reconstruction/02_PHASE_LEDGER.md). Fields below come from `src/types/importSession.ts`, `src/types/importExecution.ts`, the durable session contract and the B3 server source. B4 adds no new persisted schema or journal: it consumes these same records. Original design text below is historical.

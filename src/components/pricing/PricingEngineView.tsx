@@ -299,6 +299,7 @@ export const PricingEngineView: React.FC = () => {
     <div className="space-y-6 pb-16" dir={direction} id="pricing-engine-container">
       {/* Top Banner Header */}
       <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs" id="pricing-header-card">
+        <p role="note" className="mb-3 text-sm text-amber-800">{t('pricing.diagnostic_only')}</p>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-amber-600 mb-1">

@@ -31,7 +31,6 @@ import {
   PRICING_REPORTS_METADATA 
 } from '../types/reports';
 import { TripExceptionEntity } from '../types/entities';
-import { pricingService } from './pricing.service';
 import { masterDataService } from './masterData.service';
 
 export interface LiveEntityLookup {
@@ -349,15 +348,13 @@ export class ReportsEngineService {
         } else {
           const contractualRate = 
             trip.pricingSnapshot?.demurrageRatePerHourSAR ??
-            (trip as any).demurrageRatePerHourSAR ??
-            pricingService.getPricingRule(trip.pricingRuleId)?.demurrageRatePerHourSAR;
+            (trip as any).demurrageRatePerHourSAR;
 
           const billableHours = 
             trip.pricingSnapshot?.waitingDurationHours ??
-            (trip as any).waitingDurationHours ??
-            1;
+            (trip as any).waitingDurationHours;
 
-          if (contractualRate !== undefined && contractualRate > 0) {
+          if (contractualRate !== undefined && contractualRate > 0 && typeof billableHours === 'number' && Number.isFinite(billableHours) && billableHours >= 0) {
             demurrageAmount = Math.round(contractualRate * billableHours * 100) / 100;
             demurrageStatus = 'RESOLVED';
             adjustments += demurrageAmount;

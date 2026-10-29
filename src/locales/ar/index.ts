@@ -1,6 +1,7 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "pricing.diagnostic_only": "محاكاة فقط. هذه القواعد النموذجية لا تُحفظ. تُدار أسعار المشروع الفعلية من إعداد المشروع.",
   "import.recovery.title": "استعادة الاستيراد",
   "import.recovery.READY": "جاهز للتنفيذ",
   "import.recovery.EXECUTING": "التنفيذ قيد التقدم",

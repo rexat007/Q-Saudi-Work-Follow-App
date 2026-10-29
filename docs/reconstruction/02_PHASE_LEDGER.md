@@ -1,7 +1,9 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Current checkpoint: P8-B3 merged through PR #60; source lineage includes `ed5688c81e95952d69a21e8fbacae4c0095967c4`. P8-B4 is IMPLEMENTED / VERIFIED LOCALLY from merged main `8c6a348d17b0f94215a56bb9a66f2e643c19f24c`. Phase 8 is IMPLEMENTATION COMPLETE / AWAITING MERGE; Phase 9 NOT_STARTED. Prior checkpoints below are dated historical evidence.
+Current checkpoint: P8-B4 merge PR #61 at `31b2065f00b0d07763afc153582ef9be71dbd159` contains `71abdcd3b586be486e6aec74f8ad9e32c868eae9`. Phase 8 is MERGED / SOURCE_VERIFIED / CLOSED. Phase 9 is IN_PROGRESS with P9-U1 IMPLEMENTED / VERIFIED LOCALLY; Phase 10 is NOT_STARTED. Source/browser evidence is not live deployment certification.
+
+Historical Phase-8 implementation checkpoint: P8-B3 merged through PR #60; source lineage includes `ed5688c81e95952d69a21e8fbacae4c0095967c4`. P8-B4 is IMPLEMENTED / VERIFIED LOCALLY from merged main `8c6a348d17b0f94215a56bb9a66f2e643c19f24c`. Phase 8 is IMPLEMENTATION COMPLETE / AWAITING MERGE; Phase 9 NOT_STARTED. Prior checkpoints below are dated historical evidence.
 
 Historical pre-publication P8-B3 checkpoint: `1f7f3344e65dfc9b6837b10cb5349827da1587eb`. Phase 8 — Smart Import Persistence, Resume & Commit Integrity is active; P8-B3 — Recovery, Receipts & Execution Safety is locally implemented and owner-review accepted locally; publication is NOT_STARTED. P8-B1 and P8-B2 source implementations are merged and present. P8-B4 remains NOT_STARTED. This implementation record does not close P8-B3 or Phase 8, and does not invent closure evidence for intervening phases. Phase 0 freeze and previously recorded closures remain unchanged.
 
@@ -12,27 +14,30 @@ This is the sole current source for phase, active/next unit, accepted units, and
 
 - **Open debt authority**: [Decision and Debt Log](05_DECISION_AND_DEBT_LOG.md); classifications and owners live there, not in competing ledgers.
 - **Execution rules**: [Streamlined Reconstruction Execution Method](STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md) is the current delivery-method authority, supported by [Document Authority](DOCUMENT_AUTHORITY.md), [Unit Protocol](03_IMPLEMENTATION_UNIT_TEMPLATE.md), and [Verification Gate](04_VERIFICATION_AND_PUSH_GATE.md). It supersedes older multi-audit/micro-unit continuation patterns for future work while preserving high-risk gates.
-- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) remains the phase sequence authority. The Phase 2 closure / Phase 3 activation evidence below is historical and remains scoped to its recorded period; it does not override the owner-authorized P8-B3 implementation pointer above.
-- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) defines phase ownership and ordering. Current active pointers are the YAML block and latest dated checkpoint in this ledger. Older Phase 2→3 activation records below are historical evidence only and do not override the current Phase 8 pointer.
+- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) remains the phase sequence authority. The Phase 2 closure / Phase 3 activation evidence below is historical and remains scoped to its recorded period; it does not override the current active-state block above.
+- **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) defines phase ownership and ordering. Current active pointers are the YAML block and latest dated checkpoint in this ledger. Older Phase 2→3 activation records below are historical evidence only and do not override the current active-state block.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
 ### Current Active State
 ```yaml
-ACTIVE_PHASE: PHASE_8
-ACTIVE_PHASE_STATUS: IMPLEMENTATION COMPLETE / AWAITING MERGE
-PHASE_8_STATUS: IMPLEMENTATION COMPLETE / AWAITING MERGE
-PHASE_9_STATUS: NOT_STARTED
-ACTIVE_UNIT: P8-B4 — Resume Closure, Source Reattach & Beta-2 Journey
+ACTIVE_PHASE: PHASE_9
+ACTIVE_PHASE_STATUS: IN_PROGRESS
+PHASE_8_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
+PHASE_9_STATUS: IN_PROGRESS
+ACTIVE_UNIT: P9-U1 — Pricing Authority & Historical Snapshot Integrity
 ACTIVE_UNIT_STATUS: IMPLEMENTED / VERIFIED LOCALLY
-ACTIVE_UNIT_TYPE: BOUNDED_EXECUTION_RECOVERY
+ACTIVE_UNIT_TYPE: BOUNDED_PRICING_AUTHORITY_AND_SNAPSHOT
 P8_B1_SOURCE: MERGED / PRESENT
 P8_B2_SOURCE: MERGED / PRESENT
 P8_B3_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B3_LOCAL_REVIEW_GATE: ACCEPTED_LOCALLY
 P8_B3_PUBLICATION_STATUS: MERGED / VERIFIED
 P8_B3_VERIFIED_MERGE: 8c6a348d17b0f94215a56bb9a66f2e643c19f24c
-P8_B4_STATUS: IMPLEMENTED / VERIFIED LOCALLY
-P8_B4_PUBLICATION_GATE: AUTHORIZED_BRANCH_ONLY / OWNER_MERGE_PENDING
+P8_B4_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
+P8_B4_VERIFIED_MERGE: 31b2065f00b0d07763afc153582ef9be71dbd159
+P9_U1_STATUS: IMPLEMENTED / VERIFIED LOCALLY
+PHASE_10_STATUS: NOT_STARTED
+P8_B4_PUBLICATION_GATE: MERGED / VERIFIED
 P8_B3_BASELINE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
 PHASE_0_STATUS: VERIFIED / CLOSED / FROZEN
 PHASE_1_STATUS: VERIFIED / CLOSED
@@ -64,9 +69,9 @@ P8_B1_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
 P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
-NEXT_UNIT: NONE / PHASE_9_NOT_STARTED
-NEXT_ACTION: OWNER_MERGE_REVIEW_P8_B4
-CURRENT_CODE_BASELINE: 8c6a348d17b0f94215a56bb9a66f2e643c19f24c
+NEXT_UNIT: NONE_ASSIGNED
+NEXT_ACTION: OWNER_MERGE_P9_U1
+CURRENT_CODE_BASELINE: 31b2065f00b0d07763afc153582ef9be71dbd159
 EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
 EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
 HISTORICAL_USER_ROLE_CONVERGENCE_STATUS: PHASE_3_AUDIT_REQUIRED / NOT_REASSESSED_IN_P8_B3
@@ -1115,7 +1120,7 @@ Candidate audit territory, not remediation authorization: persistence authority;
 
 Boundaries remain intact: Phase 3 authentication/RBAC/role and validation semantics (including wizard, UserValidator and authenticated-user role differences); Phase 4 project lifecycle; Phase 5 canonical relationship/master-data behavior; Phases 7–8 import parsing/matching/checkpoints/commit integrity; Phase 9 pricing; Phase 10 trip lifecycle/models; Phase 11 offline/outbox/replay/conflicts; Phase 12 exception lifecycle. A domain's persistence representation does not authorize changes to its behavior. Known 445 diagnostics and lint EXIT 2 / NOT PASS remain recorded debt, not a fresh verification or waiver. This task changes documentation only: no production, test, server, Firestore rules, SDK, schema, decoder, timestamp code, package/config/workflow, lockfile or generated-output changes.
 
-### P8-B4 — Resume closure implementation record
+### Historical P8-B4 pre-publication implementation record
 
 Baseline: `8c6a348d17b0f94215a56bb9a66f2e643c19f24c`, PR #60, including accepted B3 implementation `ed5688c81e95952d69a21e8fbacae4c0095967c4`. B3 source and history were verified before starting this unit. P8-B4 coordinates the existing durable Session/B2/B3 authorities; it does not replace their business rules.
 
@@ -1126,3 +1131,26 @@ Local sources are reattached only before analysis when bytes are needed: name/si
 Project and Session generation checks fence late resume/status/reattach/retry/cancel/refresh results. The legacy Roster raw-row committer remains fenced and its old Wizard handler has no active caller. Local verification uses actual UI and server services with a transactional in-memory database; live Firebase and live Google OAuth/Sheets acceptance are not claimed. Publication is authorized only for this B4 branch; owner merge remains manual. Phase 9 is not started.
 
 Local verification observation for this implementation: B4 14/14, B3 30/30, B2 50/50, B1 41/41. Combined relevant verification 1559/1628 with 69 failing assertions reproduced on this exact merged baseline; zero newly failing tests. Three historical test files preserve their test counts while converging superseded presentation/source-layout assertions. Build passes; diagnostics 440→440, added/removed zero; lint EXIT 2 / NOT PASS. Ten actual-Wizard browser checks exercise journeys A–I plus canonical refresh failure using transactional in-memory persistence and controlled Google transport. These counts are dated evidence, not permanent cardinality rules. No live Firebase/Google acceptance is claimed. The unit's bounded interruption/resume exit gate is locally verified; owner merge and broader deployment/release gates remain separate.
+
+### P9-U1 — Pricing Authority & Historical Snapshot Integrity — 2026-10-29
+
+Source baseline `31b2065f00b0d07763afc153582ef9be71dbd159` contains P8-B4 implementation `71abdcd3b586be486e6aec74f8ad9e32c868eae9`, merged through PR #61. Phase 8 is source-verified/closed under the owner's instruction; this is not a live deployment certification. Phase 9 is IN_PROGRESS. Phase 10 is NOT_STARTED.
+
+The impact map identifies `ProjectPricingServerService` as the authenticated rule write/query authority and `PricingService` as its shared pure selection/calculation policy. Wizard reads/edits and field previews use server transport, not client Firestore writes or cache fallbacks. Server Trip assignment composes the same canonical query with the existing transaction-backed adapter. Project readiness uses the same selection predicate within its activation read set. Canonical current-account, Project, Carrier and applicable Material participation are revalidated; legacy authorization arrays cannot authorize pricing.
+
+Calendar-date boundaries include the complete UTC day. Explicit ISO cutoffs preserve their precise instant, including transaction-time expiry checks. Writes conservatively reject overlapping calendar-day windows at the same Project/Carrier/Material specificity; no intraday rule-ordering feature is introduced. Specific Material wins over general, and ambiguous equal-specificity candidates fail closed. Dispatch uses current server time; imported Trips use their explicit operational date when present. Missing pricing rejects normal dispatch; the existing explicit imported pending mode remains separate.
+
+Trip snapshots preserve rate, type, currency, version, effective terms and contractual waiting terms. Completion calculates quantity against that snapshot using the shared engine. Linked commercial rule mutation is rejected; deactivation/replacement does not rewrite Trips. Reports no longer query current master rates to manufacture missing historical waiting charges: insufficient stored evidence stays pending.
+
+The client-only COW placeholder is fail-closed, not promoted into a new repricing feature. The non-persistent Pricing Engine simulator is explicitly labelled. Read-only legacy inspection remains separate from active pricing selection; general COW UX and migration of unsupported legacy pricing models remain separately bounded work, not a new unit ID. These limitations are why Phase 9 is not declared complete by P9-U1.
+
+
+#### P9-U1 local verification observation — 2026-10-29
+
+P9-U1 is IMPLEMENTED / VERIFIED LOCALLY; Phase 9 remains IN_PROGRESS. NEXT_ACTION is OWNER_MERGE_P9_U1, following the explicitly authorized single implementation commit and branch publication. This record does not assert that publication or owner merge has already occurred. Phase 10 is NOT_STARTED.
+
+Focused pricing tests: 31/31. Relevant pricing/setup/readiness/Trip/report regressions plus focused tests: 465/472, with seven baseline-reproduced failures; the original baseline runs observed 433/441. A baseline outbox replay failure was intermittent (baseline standalone rerun 5/5) and is not claimed as a P9 fix. Additional import regressions are unchanged at 68/95 before/after, with the same 27 historical failures. NEW_FAILURES = 0; REMOVED_TESTS = 0; SKIPPED_TESTS = 0. Existing changed test counts remain 76, 75, 41, 67 and 28 respectively for persistence-boundary, activation-boundary, activation-readiness, activation-server and pricing-server suites.
+
+Build PASS. Typecheck diagnostics 440→440, added 0 / removed 0 after normalizing source locations; lint EXIT 2 / NOT PASS. i18n runtime 16/16 PASS; current dictionaries each have 4375 keys (one simulator-label addition), with no duplicate keys, parity gaps or empty values. Seven browser/runtime checks passed using actual Wizard UI and actual pricing/Trip services with transactional IN_MEMORY persistence and controlled authentication transport; no emulator/live Firebase acceptance is claimed. Historical Trip persistence reopening is checked through actual services, not represented as exhaustive live Trip-screen certification. These counts are observations, not frozen cardinality rules.
+
+The shared policy rejects invalid/non-positive commercial rates and unsupported models both for readiness and operational selection. Legacy rate aliases are normalized once; a conflicting agreedRate cannot override the canonical selected rate. Existing stored VAT terms are retained without changing VAT policy. General COW/versioning UX and unsupported legacy model migration remain separately bounded debt.

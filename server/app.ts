@@ -25,7 +25,6 @@ import {
   enforceProjectIsolation,
   enforceTripSupervisorRestrictions,
   enforceTruckCarrierIntegrity,
-  enforcePricingRuleHistoricalProtection,
   enforceIdempotency,
   enforceFileUploadSecurity,
   enforceRole,
@@ -157,6 +156,11 @@ app.post('/api/auth/bootstrap', async (req: any, res) => {
 // ----------------------------------------------------
 // 0.2 Server-Authoritative Pricing Rule Creation Endpoint
 // ----------------------------------------------------
+app.get('/api/projects/:projectId/pricing-rules', enforceProjectIsolation, async(req:any,res)=>{
+  try{const {projectPricingServerService}=await import('../src/services/projectPricing.server');return res.json({success:true,data:await projectPricingServerService.listPricingRules(req.params.projectId,req.user)});}
+  catch(error:any){return res.status(error.status||403).json({success:false,code:error.code||'PRICING_READ_FAILED'});}
+});
+
 app.post(
   '/api/projects/:projectId/pricing-rules',
   enforceProjectIsolation,
@@ -180,10 +184,10 @@ app.post(
       });
     } catch (error: any) {
       console.error('Pricing creation failed:', error);
-      return res.status(400).json({
+      return res.status(error.status || 400).json({
         success: false,
         error: error.message || 'فشلت عملية إنشاء قاعدة التسعير خادومياً.',
-        code: 'PRICING_CREATION_FAILED'
+        code: error.code || 'PRICING_CREATION_FAILED'
       });
     }
   }
@@ -1378,20 +1382,12 @@ app.post(
 // ----------------------------------------------------
 // 9. Security Enforcement: Pricing Rule Update & Immutability (Auditor or Admin)
 // ----------------------------------------------------
-app.post(
-  '/api/projects/:projectId/pricing-rules/:ruleId/update',
-  enforceProjectIsolation,
-  enforceAuditorOrAdmin,
-  enforcePricingRuleHistoricalProtection,
-  (req, res) => {
-    res.json({
-      success: true,
-      message: `تم تحديث قاعدة التسعير (${req.params.ruleId}) بنجاح`,
-      ruleId: req.params.ruleId,
-      projectId: req.params.projectId,
-    });
-  }
-);
+app.post('/api/projects/:projectId/pricing-rules/:ruleId/update', enforceProjectIsolation, enforceAuditorOrAdmin, async (req:any,res) => {
+  try { const { projectPricingServerService }=await import('../src/services/projectPricing.server');
+    const data=await projectPricingServerService.updatePricingRule(req.params.projectId,req.params.ruleId,req.body,req.user);
+    return res.json({success:true,data});
+  } catch(error:any){return res.status(error.status||400).json({success:false,code:error.code||'PRICING_UPDATE_FAILED'});}
+});
 
 // ----------------------------------------------------
 // 9b. Legacy Migration Commit (Admin Only)

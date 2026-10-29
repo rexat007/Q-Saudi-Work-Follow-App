@@ -1,0 +1,77 @@
+import {describe,it,expect,beforeEach} from 'vitest';
+import {ProjectPricingServerService} from '../services/projectPricing.server';
+import {TripCommandsServerService} from '../services/tripCommands.server';
+import {ServerTripPersistenceAdapter} from '../services/canonicalTripPersistence.server';
+import {commandDatabase,accountProfile} from './helpers/commandDatabase';
+import {buildPrincipal} from '../utils/principal';
+import {PricingService,pricingService} from '../services/pricing.service';
+import {reportsEngineService} from '../services/reportsEngine.service';
+import {readinessPricing} from '../services/projectReadiness.service';
+function fixture(){const profile=accountProfile('PROJECT_ADMIN');const x=commandDatabase({'users/actor':profile});return {...x,actor:buildPrincipal(profile,'actor',{}),service:new TripCommandsServerService(x.db)};}
+function dispatchGraph(x: ReturnType<typeof fixture>) {
+  Object.assign(x.store, {
+    'projects/P1': { projectId: 'P1', projectNumber: 1, nameAr: 'Project', nameEn: 'Project', status: 'ACTIVE' },
+    'carriers/CAR': { carrierId: 'CAR', nameAr: 'Carrier', status: 'ACTIVE' },
+    'trucks/TRK': { truckId: 'TRK', plate: 'ABC', status: 'ACTIVE', tareWeightKg: 10000 },
+    'drivers/DRV-A': { driverId: 'DRV-A', fullNameAr: 'Driver', nationalId: '1234567890', status: 'ACTIVE' },
+    'materials/MAT': { materialId: 'MAT', nameAr: 'Material', unitOfMeasure: 'TON', status: 'ACTIVE' },
+    'projects/P1/pricing_rules/PRICE': { pricingRuleId: 'PRICE', projectId: 'P1', carrierId: 'CAR', materialId: 'MAT', status: 'ACTIVE', pricingModel: 'PER_TON', baseRateSAR: 10, effectiveFrom:'2020-01-01' },
+    'projects/P1/driver_active_assignments/DRV-A': { assignmentId: 'ASG' },
+    'projects/P1/truck_active_assignments/TRK': { assignmentId: 'ASG' },
+    'projects/P1/driver_truck_assignments/ASG': { assignmentId: 'ASG', projectId: 'P1', driverId: 'DRV-A', truckId: 'TRK', status: 'ACTIVE', effectiveFrom: '2020-01-01T00:00:00Z', effectiveTo: null },
+    'projects/P1/truck_active_material_allocations/TRK': { allocationId: 'ALC' },
+    'projects/P1/truck_material_allocations/ALC': { allocationId: 'ALC', projectId: 'P1', truckId: 'TRK', materialId: 'MAT', status: 'ACTIVE', effectiveFrom: '2020-01-01T00:00:00Z', effectiveTo: null },
+  });
+  for (const [kind, id] of [['carrier', 'CAR'], ['truck', 'TRK'], ['driver', 'DRV-A'], ['material', 'MAT']])
+    x.store[`projects/P1/${kind}_memberships/${id}`] = { [`${kind}Id`]: id, projectId: 'P1', status: 'ACTIVE' };
+  for (const [kind, id] of [['driver', 'DRV-A'], ['truck', 'TRK']])
+    x.store[`projects/P1/${kind}_carrier_affiliations/${id}`] = { [`${kind}Id`]: id, projectId: 'P1', carrierId: 'CAR', status: 'ACTIVE' };
+}
+
+let x:ReturnType<typeof fixture>, prices:ProjectPricingServerService;
+const rule=(id='PRICE',rate=10,extra:any={})=>({pricingRuleId:id,carrierId:'CAR',materialId:'MAT',pricingModel:'PER_TON',baseRateSAR:rate,effectiveFrom:'2020-01-01',currency:'SAR',...extra});
+const payload={carrierId:'CAR',driverId:'DRV-A',truckId:'TRK',materialId:'MAT',pricingRuleId:'PRICE'};
+beforeEach(()=>{x=fixture();dispatchGraph(x);delete x.store['projects/P1/pricing_rules/PRICE'];prices=new ProjectPricingServerService(x.db);});
+describe('P9-U1 canonical pricing and historical snapshots',()=>{
+ it('canonical project/carrier/material lookup is shared with setup readiness',async()=>{await prices.createPricingRule('P1',rule(),x.actor);const selected=await prices.resolvePricing('P1','CAR','MAT','2026-10-29');const setup=readinessPricing(await prices.listPricingRules('P1',x.actor),'P1','CAR','MAT',new Date('2026-10-29T23:59:59Z'));expect(selected.pricingRuleId).toBe('PRICE');expect(setup.selectedRule?.pricingRuleId).toBe(selected.pricingRuleId);});
+ it.each(['carrier','material'])('canonical %s membership cannot be overridden by legacy arrays',async kind=>{x.store['projects/P1'].authorizedCarrierIds=['CAR'];x.store['projects/P1'].authorizedMaterialIds=['MAT'];x.store[`projects/P1/${kind}_memberships/${kind==='carrier'?'CAR':'MAT'}`].status='REMOVED';await expect(prices.createPricingRule('P1',rule(),x.actor)).rejects.toThrow('PRICING_PARTICIPATION_REQUIRED');expect(x.store['projects/P1/pricing_rules/PRICE']).toBeUndefined();});
+ it('general-material pricing still requires canonical Carrier participation',async()=>{await prices.createPricingRule('P1',rule('GENERAL',12,{materialId:'ALL_MATERIALS'}),x.actor);expect((await prices.resolvePricing('P1','CAR','MAT','2026-10-29')).pricingRuleId).toBe('GENERAL');});
+ it('specific material wins over general without a second selection algorithm',async()=>{await prices.createPricingRule('P1',rule('GENERAL',12,{materialId:'ALL_MATERIALS'}),x.actor);await prices.createPricingRule('P1',rule(),x.actor);expect((await prices.resolvePricing('P1','CAR','MAT','2026-10-29')).pricingRuleId).toBe('PRICE');});
+ it('effective start/end include the entire operational calendar day',async()=>{await prices.createPricingRule('P1',rule('PRICE',10,{effectiveFrom:'2026-10-29',effectiveTo:'2026-10-29'}),x.actor);expect((await prices.resolvePricing('P1','CAR','MAT','2026-10-29T23:59:59Z')).rate).toBe(10);await expect(prices.resolvePricing('P1','CAR','MAT','2026-10-30')).rejects.toThrow('EXPIRED_PRICING');await expect(prices.resolvePricing('P1','CAR','MAT','2026-10-28')).rejects.toThrow('FUTURE_PRICING');});
+ it.each(['2026-02-30','invalid'])('invalid date %s fails closed',async date=>{await expect(prices.createPricingRule('P1',rule('PRICE',10,{effectiveFrom:date}),x.actor)).rejects.toThrow('INVALID_PRICING_DATE');});
+ it('no applicable rule fails without a guessed or cached price',async()=>{await expect(prices.resolvePricing('P1','CAR','MAT','2026-10-29')).rejects.toThrow('MISSING_PRICING');});
+ it('overlapping same-specificity writes are rejected atomically',async()=>{await prices.createPricingRule('P1',rule(),x.actor);await expect(prices.createPricingRule('P1',rule('OTHER'),x.actor)).rejects.toThrow('PRICING_OVERLAP');expect(x.store['projects/P1/pricing_rules/OTHER']).toBeUndefined();});
+ it('corrupt pre-existing ambiguity cannot become an arbitrary selected rate',async()=>{await prices.createPricingRule('P1',rule(),x.actor);x.store['projects/P1/pricing_rules/OTHER']={...x.store['projects/P1/pricing_rules/PRICE'],pricingRuleId:'OTHER'};await expect(prices.resolvePricing('P1','CAR','MAT','2026-10-29')).rejects.toThrow('AMBIGUOUS_PRICING');});
+ it('concurrent equivalent rules converge to one active interval',async()=>{const r=await Promise.allSettled([prices.createPricingRule('P1',rule(),x.actor),prices.createPricingRule('P1',rule('OTHER'),x.actor)]);expect(r.filter(v=>v.status==='fulfilled')).toHaveLength(1);expect(Object.keys(x.store).filter(p=>p.includes('/pricing_rules/'))).toHaveLength(1);});
+ it('canonical account revocation defeats a forged client role',async()=>{x.store['users/actor'].role='VIEWER';await expect(prices.createPricingRule('P1',rule(),{...x.actor,role:'SUPER_ADMIN'})).rejects.toThrow('FORBIDDEN_PRICING_ACTION');});
+ it('project isolation applies to reads and writes',async()=>{x.store['users/actor'].assignedProjectIds=[];await expect(prices.listPricingRules('P1',x.actor)).rejects.toThrow();await expect(prices.createPricingRule('P1',rule(),x.actor)).rejects.toThrow();});
+ it('unreferenced edits are persisted, version fenced and audited',async()=>{await prices.createPricingRule('P1',rule(),x.actor);const changed=await prices.updatePricingRule('P1','PRICE',{baseRateSAR:20,expectedVersion:1},x.actor);expect(changed.baseRateSAR).toBe(20);expect((changed as any).version).toBe(2);await expect(prices.updatePricingRule('P1','PRICE',{baseRateSAR:30,expectedVersion:1},x.actor)).rejects.toThrow('PRICING_VERSION_CONFLICT');expect(Object.keys(x.store).filter(p=>p.startsWith('audit_logs/'))).toHaveLength(2);});
+ it('dispatch persists the selected rate and commercial terms; rule changes never rewrite it',async()=>{await prices.createPricingRule('P1',rule(),x.actor);const first=await x.service.execute('P1',{command:'DISPATCH_TRIP',payload,operationId:'first'},x.actor);const snapshot=structuredClone(first.trip.pricingSnapshot);expect(snapshot.agreedRate).toBe(10);expect(snapshot.demurrageRatePerHourSAR).toBe(50);expect(snapshot.pricingRuleVersion).toBe(1);
+ await expect(prices.updatePricingRule('P1','PRICE',{baseRateSAR:20,expectedVersion:1},x.actor)).rejects.toThrow('PRICING_RULE_HISTORICAL_MUTATION_BLOCKED');
+ await prices.updatePricingRule('P1','PRICE',{status:'INACTIVE',expectedVersion:1},x.actor);await prices.createPricingRule('P1',rule('NEW',20),x.actor);
+ const reopened=await new ServerTripPersistenceAdapter(x.db).tripRepository.findById('P1',first.trip.tripId);expect(reopened!.pricingSnapshot).toEqual(snapshot);
+ const second=await x.service.execute('P1',{command:'DISPATCH_TRIP',payload:{...payload,pricingRuleId:'NEW'},operationId:'second'},x.actor);expect(second.trip.pricingSnapshot.agreedRate).toBe(20);expect(reopened!.pricingSnapshot.agreedRate).toBe(10);
+ });
+ it('existing Trip unloading uses its fixed rate after a new rule replaces the old one',async()=>{
+ await prices.createPricingRule('P1',rule(),x.actor);let t=(await x.service.execute('P1',{command:'RECORD_LOADING',payload:{...payload,originTareKg:10000,originGrossKg:30000},operationId:'load'},x.actor)).trip;
+ await prices.updatePricingRule('P1','PRICE',{status:'INACTIVE',expectedVersion:1},x.actor);await prices.createPricingRule('P1',rule('NEW',20),x.actor);
+ for(const command of ['RECORD_ARRIVAL','ACCEPT_ORIGIN_NET','COMPLETE_UNLOADING','COMPLETE_TRIP'] as const)t=(await x.service.execute('P1',{command,tripId:t.tripId,payload:{},operationId:'old-'+command},x.actor)).trip;
+ expect(t.pricingSnapshot.agreedRate).toBe(10);expect(t.pricingSnapshot.settlementAmount).toBe(200);expect(t.pricingSnapshot.demurrageRatePerHourSAR).toBe(50);
+ });
+ it('explicit ISO expiry retains transaction-time precision',async()=>{await prices.createPricingRule('P1',rule('EXACT',10,{effectiveFrom:'2026-10-29T10:00:00Z',effectiveTo:'2026-10-29T12:00:00Z'}),x.actor);expect((await prices.resolvePricing('P1','CAR','MAT','2026-10-29T12:00:00Z')).rate).toBe(10);await expect(prices.resolvePricing('P1','CAR','MAT','2026-10-29T12:00:01Z')).rejects.toThrow('EXPIRED_PRICING');});
+ it('existing lifecycle mutability rejects archived pricing writes',async()=>{x.store['projects/P1'].status='ARCHIVED';await expect(prices.createPricingRule('P1',rule(),x.actor)).rejects.toThrow('PROJECT_READ_ONLY');});
+ it('a future effective rule cannot price today but resolves on its start date',async()=>{await prices.createPricingRule('P1',rule('FUTURE',20,{effectiveFrom:'2031-01-01'}),x.actor);await expect(prices.resolvePricing('P1','CAR','MAT','2030-12-31')).rejects.toThrow('FUTURE_PRICING');expect((await prices.resolvePricing('P1','CAR','MAT','2031-01-01')).rate).toBe(20);});
+ it('new imported historical Trip selects its operational date and calculates actual tonnage',async()=>{await prices.createPricingRule('P1',rule('OLD',10,{effectiveTo:'2025-12-31'}),x.actor);await prices.createPricingRule('P1',rule('NEW',20,{effectiveFrom:'2026-01-01'}),x.actor);const result=await x.service.execute('P1',{command:'IMPORT_TRIP',payload:{...payload,pricingRuleId:'OLD',pricingMode:'RESOLVED',operationalData:{shiftDate:'2025-10-29',tareWeightKg:10000,grossWeightKg:30000}},operationId:'import'},x.actor);expect(result.trip.pricingSnapshot.agreedRate).toBe(10);expect(result.trip.pricingSnapshot.settlementAmount).toBe(200);});
+ it('reports keep missing historical demurrage pending instead of reading mutable master rates',()=>{
+ pricingService.registerRules([{pricingRuleId:'PRICE',rate:999,demurrageRatePerHourSAR:999}] as any);
+ try {const result=reportsEngineService.computeTripFinancialBreakdown({pricingRuleId:'PRICE',notes:'بدل انتظار',pricingSnapshot:{pricingRuleId:'PRICE',pricingType:'PER_TON',agreedRate:10,settlementAmount:100,waitingDurationHours:2,isPending:false}} as any);expect(result.grossAmount).toBe(100);expect(result.netAmount).toBe(100);expect(result.demurrageAmount).toBe(0);expect(result.demurrageStatus).toBe('DEMURRAGE_PENDING');}
+ finally{pricingService.clearRules();}
+ });
+ it('legacy inspection does not grant active pricing authority',async()=>{x.store['projects/P1/pricingRules/LEGACY']={...rule('LEGACY'),projectId:'P1',status:'ACTIVE'};expect(await new ServerTripPersistenceAdapter(x.db).pricingRuleRepository.findById('P1','LEGACY')).not.toBeNull();await expect(prices.resolvePricing('P1','CAR','MAT','2026-10-29','LEGACY')).rejects.toThrow('MISSING_PRICING');});
+ it('import retains the existing VAT term in its fixed commercial snapshot',async()=>{await prices.createPricingRule('P1',rule(),x.actor);x.store['projects/P1/pricing_rules/PRICE'].vatRatePercent=20;const result=await x.service.execute('P1',{command:'IMPORT_TRIP',payload:{...payload,pricingMode:'RESOLVED',operationalData:{shiftDate:'2026-10-29',tareWeightKg:10000,grossWeightKg:30000}},operationId:'vat-import'},x.actor);expect(result.trip.pricingSnapshot.vatRatePercent).toBe(20);expect(result.trip.financials.vatAmountSAR).toBe(40);expect(result.trip.financials.totalAmountSAR).toBe(240);});
+ it.each([{demurrageRatePerHourSAR:'50'},{vatApplicable:'false'},{name:{}}])('malformed commercial representation cannot be stored %j',async patch=>{await expect(prices.createPricingRule('P1',rule('BAD',10,patch),x.actor)).rejects.toThrow('INVALID_PRICING_RULE');expect(x.store['projects/P1/pricing_rules/BAD']).toBeUndefined();});
+ it('explicit imported pending pricing remains distinct from a resolved zero-price agreement',async()=>{const result=await x.service.execute('P1',{command:'IMPORT_TRIP',payload:{...payload,pricingRuleId:null,pricingMode:'PENDING',operationalData:{shiftDate:'2026-10-29',tareWeightKg:10000,grossWeightKg:30000}},operationId:'pending-import'},x.actor);expect(result.trip.pricingRuleId).toBe('UNRESOLVED_PENDING');expect(result.trip.pricingSnapshot.pricingType).toBe('LEGACY_UNRESOLVED');expect(result.trip.pricingSnapshot.agreedRate).toBe(0);expect(result.trip.financials.baseAmountSAR).toBe(0);expect(await prices.listPricingRules('P1',x.actor)).toEqual([]);});
+ it('setup and operations both reject a malformed stored commercial rate',async()=>{await prices.createPricingRule('P1',rule(),x.actor);x.store['projects/P1/pricing_rules/PRICE'].baseRateSAR=0;const rules=await prices.listPricingRules('P1',x.actor);expect(readinessPricing(rules,'P1','CAR','MAT',new Date('2026-10-29T12:00:00Z')).status).toBe('INVALID');await expect(prices.resolvePricing('P1','CAR','MAT','2026-10-29')).rejects.toThrow('INVALID_PRICING_RULE');});
+ it('legacy rate aliases cannot override the rate selected by canonical pricing policy',async()=>{const legacy:any={...rule(),projectId:'P1',status:'ACTIVE',rate:20,agreedRate:999};delete legacy.baseRateSAR;x.store['projects/P1/pricing_rules/PRICE']=legacy;const selected=await prices.resolvePricing('P1','CAR','MAT','2026-10-29');expect(selected.baseRateSAR).toBe(20);expect((await prices.listPricingRules('P1',x.actor))[0].baseRateSAR).toBe(20);const result=await x.service.execute('P1',{command:'DISPATCH_TRIP',payload,operationId:'alias-trip'},x.actor);expect(result.trip.pricingSnapshot.agreedRate).toBe(20);});
+ it('requested wrong rule cannot bypass deterministic material/date selection',async()=>{await prices.createPricingRule('P1',rule(),x.actor);await expect(prices.resolvePricing('P1','CAR','MAT','2026-10-29','OTHER')).rejects.toThrow('PRICING_SELECTION_MISMATCH');});
+});

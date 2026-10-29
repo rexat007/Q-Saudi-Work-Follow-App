@@ -1,161 +1,27 @@
+import { auth } from '../firebase/config';
 import { decodePricing } from '../utils/persistenceBoundary';
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  setDoc, 
-  updateDoc, 
-  serverTimestamp, 
-  onSnapshot,
-  Transaction,
-} from 'firebase/firestore';
-import { db, auth } from '../firebase/config';
-import { handleFirestoreError, OperationType } from '../firebase/errors';
-import { PricingRuleEntity } from '../types/entities';
-import { sanitizeUndefined } from '../utils/sanitize';
-
+import type { PricingRuleEntity } from '../types/entities';
+/** Client transport only. No local-cache or browser Firestore commercial authority. */
 export class PricingRuleRepository {
-  private getPath(projectId: string, pricingRuleId?: string): string {
-    return pricingRuleId ? `projects/${projectId}/pricing_rules/${pricingRuleId}` : `projects/${projectId}/pricing_rules`;
+  private async request(p:string,suffix='',body?:any){
+    if(!p || p==='ALL') throw Error('INVALID_PROJECT_ID');
+    const token=await auth.currentUser?.getIdToken();if(!token)throw Error('UNAUTHENTICATED');
+    const res=await fetch(`/api/projects/${encodeURIComponent(p)}/pricing-rules${suffix}`,{method:body?'POST':'GET',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+    const json=await res.json();if(!res.ok||!json.success)throw Object.assign(new Error(json.code||json.error||'PRICING_REQUEST_FAILED'),{code:json.code});
+    if(body && typeof window!=='undefined')window.dispatchEvent(new Event('pricing-rules-updated'));
+    return json.data;
   }
-
-  private getStorageKey(projectId: string): string {
-    return `Q_SAUDI_PRICING_RULES_${projectId}`;
-  }
-
-  private getLocalCache(projectId: string): PricingRuleEntity[] {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        const raw = window.localStorage.getItem(this.getStorageKey(projectId));
-        if (raw) return JSON.parse(raw);
-      }
-    } catch {}
-    return [];
-  }
-
-  private saveLocalCache(projectId: string, rules: PricingRuleEntity[]): void {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.setItem(this.getStorageKey(projectId), JSON.stringify(rules));
-      }
-    } catch {}
-  }
-
-  async findById(projectId: string, pricingRuleId: string): Promise<PricingRuleEntity | null> {
-    const path = this.getPath(projectId, pricingRuleId);
-    if (!auth.currentUser) {
-      const local = this.getLocalCache(projectId).find(r => r.pricingRuleId === pricingRuleId);
-      return local || null;
-    }
-    try {
-      const snap = await getDoc(doc(db, 'projects', projectId, 'pricing_rules', pricingRuleId));
-      if (!snap.exists()) {
-        const local = this.getLocalCache(projectId).find(r => r.pricingRuleId === pricingRuleId);
-        return local || null;
-      }
-      return decodePricing<PricingRuleEntity>(snap.data(), pricingRuleId, projectId);
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      const local = this.getLocalCache(projectId).find(r => r.pricingRuleId === pricingRuleId);
-      if (local) return local;
-      handleFirestoreError(error, OperationType.GET, path);
-    }
-  }
-
-  async listByProject(projectId: string): Promise<PricingRuleEntity[]> {
-    const cached = this.getLocalCache(projectId);
-    if (!auth.currentUser) {
-      return cached;
-    }
-    const path = this.getPath(projectId);
-    try {
-      const snap = await getDocs(collection(db, 'projects', projectId, 'pricing_rules'));
-      const rules = snap.docs.map(d => decodePricing<PricingRuleEntity>(d.data(), d.id, projectId));
-      if (rules.length > 0) {
-        this.saveLocalCache(projectId, rules);
-        return rules;
-      }
-      return cached.length > 0 ? cached : rules;
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      if (cached.length > 0) return cached;
-      handleFirestoreError(error, OperationType.LIST, path);
-    }
-  }
-
-  async listByProjectInTransaction(projectId: string, transaction: Transaction): Promise<PricingRuleEntity[]> {
-    const colRef = collection(db, 'projects', projectId, 'pricing_rules');
-    const snap = await getDocs(colRef);
-    return snap.docs.map(d => decodePricing<PricingRuleEntity>(d.data(), d.id, projectId));
-  }
-
-  async create(rule: Omit<PricingRuleEntity, 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<void> {
-    const path = this.getPath(rule.projectId, rule.pricingRuleId);
-    // Update local cache immediately for instant UI and reload persistence
-    const current = this.getLocalCache(rule.projectId);
-    const updated = [...current.filter(r => r.pricingRuleId !== rule.pricingRuleId), rule as PricingRuleEntity];
-    this.saveLocalCache(rule.projectId, updated);
-
-    if (!auth.currentUser) {
-      return;
-    }
-
-    try {
-      const payload = sanitizeUndefined({
-        ...rule,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      await setDoc(doc(db, 'projects', rule.projectId, 'pricing_rules', rule.pricingRuleId), payload);
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.CREATE, path);
-    }
-  }
-
-  async update(projectId: string, pricingRuleId: string, updates: Partial<PricingRuleEntity>, updatedBy: string): Promise<void> {
-    const path = this.getPath(projectId, pricingRuleId);
-    // Update local cache
-    const current = this.getLocalCache(projectId);
-    const updated = current.map(r => r.pricingRuleId === pricingRuleId ? { ...r, ...updates, updatedBy } : r);
-    this.saveLocalCache(projectId, updated);
-
-    if (!auth.currentUser) {
-      return;
-    }
-
-    try {
-      const payload = sanitizeUndefined({
-        ...updates,
-        pricingRuleId,
-        projectId,
-        updatedAt: serverTimestamp(),
-        updatedBy,
-      });
-      await updateDoc(doc(db, 'projects', projectId, 'pricing_rules', pricingRuleId), payload);
-    } catch (error) {
-      if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
-  }
-
-  subscribeByProject(projectId: string, onData: (rules: PricingRuleEntity[]) => void) {
-    if (!auth.currentUser) {
-      onData(this.getLocalCache(projectId));
-      return () => {};
-    }
-    const path = this.getPath(projectId);
-    return onSnapshot(
-      collection(db, 'projects', projectId, 'pricing_rules'),
-      (snapshot) => {
-        onData(snapshot.docs.map(d => decodePricing<PricingRuleEntity>(d.data(), d.id, projectId)));
-      },
-      (error) => {
-        handleFirestoreError(error, OperationType.LIST, path);
-      }
-    );
+  async listByProject(p:string):Promise<PricingRuleEntity[]>{const rows=await this.request(p);return rows.map((r:any)=>decodePricing<PricingRuleEntity>(r,r.pricingRuleId,p));}
+  async findById(projectId:string,pricingRuleId:string):Promise<PricingRuleEntity|null>{return (await this.listByProject(projectId)).find(r=>r.pricingRuleId===pricingRuleId)||null;}
+  async create(rule:any){await this.request(rule.projectId,'',rule);}
+  async update(p:string,id:string,updates:any,_actor:string){await this.request(p,`/${encodeURIComponent(id)}/update`,updates);}
+  async listByProjectInTransaction(_p:string,_tx:any):Promise<PricingRuleEntity[]>{throw Error('SERVER_PRICING_TRANSACTION_REQUIRED');}
+  subscribeByProject(p:string,onData:(rules:PricingRuleEntity[])=>void){
+    let active=true,sequence=0;
+    const load=async()=>{const version=++sequence;try{const rules=await this.listByProject(p);if(active&&version===sequence)onData(rules);}catch{if(active&&version===sequence)onData([]);}};
+    void load();const timer=setInterval(()=>void load(),5000);
+    if(typeof window!=='undefined')window.addEventListener('pricing-rules-updated',load);
+    return()=>{active=false;sequence++;clearInterval(timer);if(typeof window!=='undefined')window.removeEventListener('pricing-rules-updated',load);};
   }
 }
-
-export const pricingRuleRepository = new PricingRuleRepository();
+export const pricingRuleRepository=new PricingRuleRepository();

@@ -1,3 +1,4 @@
+import type { TripPricingSnapshot } from './pricing';
 import { Timestamp } from 'firebase/firestore';
 import { BaseAuditedEntity, type UserRole } from './common';
 import { ProjectStorageProfile } from './workspace';
@@ -63,6 +64,7 @@ export interface CarrierEntity extends BaseAuditedEntity {
 
 // 3. Pricing Rule Entity
 export interface PricingRuleEntity extends BaseAuditedEntity {
+  version?: number; // Server-assigned optimistic concurrency version; legacy records may omit it.
   pricingRuleId: string;
   projectId: string;
   carrierId?: string; // Optional: carrier-specific tariff
@@ -242,20 +244,7 @@ export interface TripEntity extends BaseAuditedEntity {
     nameAr: string;
     unitOfMeasure: string;
   };
-  pricingSnapshot: {
-    pricingRuleId: string;
-    pricingType: 'PER_TRIP' | 'PER_TON' | 'LEGACY_UNRESOLVED' | 'PER_KM' | 'FLAT_RATE';
-    agreedRate: number;
-    currency: string;
-    settlementBase: number;
-    settlementAmount: number;
-    pricingSnapshotAt: string;
-    // Backwards compatibility helpers
-    pricingModel?: string;
-    baseRateSAR?: number;
-    vatApplicable?: boolean;
-    vatRatePercent?: number;
-  };
+  pricingSnapshot: TripPricingSnapshot;
 
   status: TripStatus;
 

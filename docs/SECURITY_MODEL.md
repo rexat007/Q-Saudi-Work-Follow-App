@@ -1,3 +1,9 @@
+# Current pricing trust boundary — P9-U1
+
+Classification: CURRENT_ARCHITECTURE_REFERENCE; acceptance is owned by [the ledger](reconstruction/02_PHASE_LEDGER.md). Rule writes re-read the canonical account and Project scope, enforce existing operational mutability and canonical global/membership eligibility, and perform validation/version/overlap checks before atomic rule/audit writes. Browser Firestore writes and local-cache authorization are removed from the pricing repository.
+
+Trip commands reauthorize the actor and resolve canonical pricing within the existing transaction-backed context. Later rule changes cannot become authority for a fixed Trip's rate. Commercial edits to linked rules are blocked; reports require stored evidence for historical charges. The client-only versioning placeholder is fenced, and the simulator is labelled non-persistent. Controlled in-memory/browser verification does not certify live Firebase or deployment rules.
+
 # Current Phase 8 trust boundary — bounded source reference
 
 Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. Acceptance and active unit remain owned by [the ledger](reconstruction/02_PHASE_LEDGER.md). This section describes source behavior, not a live penetration-test or Firebase deployment certification.

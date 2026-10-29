@@ -1,6 +1,7 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "pricing.diagnostic_only": "Simulation only. These sample rules are not saved. Manage live project pricing in Project Setup.",
   "import.recovery.title": "Import recovery",
   "import.recovery.READY": "Ready to execute",
   "import.recovery.EXECUTING": "Execution in progress",

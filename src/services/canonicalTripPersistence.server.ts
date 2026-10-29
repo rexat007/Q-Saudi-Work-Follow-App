@@ -1,3 +1,4 @@
+import { ProjectPricingServerService } from './projectPricing.server';
 import { readCurrentAssignment, readCurrentAllocation } from './temporalRelationshipAuthority.server';
 import { decodeTrip, decodeProject, decodePricing, decodeScopedProjection, decodePersistence, decodeGlobal, decodeRelationship } from '../utils/persistenceBoundary';
 import { sanitizeUndefined } from '../utils/sanitize';
@@ -201,10 +202,12 @@ export class ServerTripPersistenceAdapter implements TripPersistenceContext {
     };
 
     this.pricingRuleRepository = {
+    resolve: (p:string,c:string,m:string,date:string,id?:string) => new ProjectPricingServerService(adminDb).resolvePricing(p,c,m,date,id),
     async findById(projectId: string, pricingRuleId: string): Promise<any> {
       if (!projectId || !pricingRuleId) return null;
       const snap = await adminDb.collection('projects').doc(projectId).collection('pricing_rules').doc(pricingRuleId).get();
       if (snap.exists) return decodePricing(snap.data(), pricingRuleId, projectId);
+      // Read-only legacy inspection compatibility. Active assignment uses resolve(), never this fallback.
       const altSnap = await adminDb.collection('projects').doc(projectId).collection('pricingRules').doc(pricingRuleId).get();
       if (altSnap.exists) return decodeScopedProjection(altSnap.data(), 'pricingRuleId', altSnap.id, projectId);
       return null;

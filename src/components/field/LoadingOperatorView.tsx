@@ -1,3 +1,4 @@
+import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
 import { tripCommandErrorKey } from '../../i18n/tripCommandErrors';
 import { TRIP_COMMANDS } from '../../types/tripCommands';
 import { presentOperationalMessage } from "../../i18n/operationalMessages";
@@ -171,7 +172,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   const [grossWeight, setGrossWeight] = useState<number>(0);
 
   // Pricing Rule Selection
-  const [pricingRuleId, setPricingRuleId] = useState<string>('PRC-NEOM-HAUL-TON-8.5');
+  const [pricingRuleId, setPricingRuleId] = useState<string>('');
 
   // Execution States
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -231,21 +232,18 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     }
   }, [carrierId, availableTrucks, availableDrivers, truckId, driverId]);
 
-  // Applicable Pricing Rules
-  const applicablePricingRules = useMemo(() => {
-    return pricingService.getRules().filter(r => 
-      r.projectId === projectId &&
-      (!r.carrierId || r.carrierId === carrierId) &&
-      (!r.materialId || r.materialId === materialId)
-    );
-  }, [projectId, carrierId, materialId]);
-
-  // Active Pricing Rule
-  const activePricingRule = useMemo<MasterPricingRule | undefined>(() => {
-    const found = applicablePricingRules.find(r => r.pricingRuleId === pricingRuleId);
-    if (found) return found;
-    return applicablePricingRules[0] || pricingService.getRules().find(r => r.pricingRuleId === pricingRuleId) || pricingService.getRules()[0];
-  }, [applicablePricingRules, pricingRuleId]);
+  const [canonicalPricingRules, setCanonicalPricingRules] = useState<any[]>([]);
+  useEffect(() => {
+    setCanonicalPricingRules([]); setPricingRuleId('');
+    if(!projectId) return;
+    let current=true;
+    const stop=pricingRuleRepository.subscribeByProject(projectId,rules=>{if(current)setCanonicalPricingRules(rules.map(r=>({...r,pricingType:r.pricingModel,rate:r.baseRateSAR,agreedRate:r.baseRateSAR})));});
+    return()=>{current=false;stop();};
+  },[projectId]);
+  const pricingResolution=useMemo(()=>pricingService.resolvePricingRuleFromList(canonicalPricingRules,{projectId,carrierId,materialId,tripDate:new Date().toISOString()}),[canonicalPricingRules,projectId,carrierId,materialId]);
+  const applicablePricingRules=pricingResolution.candidates;
+  const activePricingRule=pricingResolution.selectedRule as MasterPricingRule | undefined;
+  useEffect(()=>{setPricingRuleId(activePricingRule?.pricingRuleId || '');},[activePricingRule?.pricingRuleId]);
 
   // Derived Net Weight (Client display calculation - strictly verified server-side upon dispatch)
   const netWeightKg = useMemo(() => {
@@ -389,7 +387,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
           driverId,
           materialId,
           pricingRuleId: activePricingRule?.pricingRuleId || pricingRuleId,
-          shiftDate: '2026-09-09',
+          shiftDate: new Date().toISOString().slice(0,10),
         });
         if (active) setOfflinePrereq(report);
       } catch (err) {
@@ -458,7 +456,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
 
       const localNetKg = grossWeight - tareWeight;
       const localNetTons = parseFloat((localNetKg / 1000).toFixed(3));
-      const resolvedPricing = offlinePrereq?.pricingRule || activePricingRule;
+      const resolvedPricing = isOnline && !isSimulatedOffline ? activePricingRule : offlinePrereq?.pricingRule || activePricingRule;
 
       const rate = resolvedPricing?.agreedRate || 0;
       const localSettlement = resolvedPricing?.pricingType === 'PER_TON'

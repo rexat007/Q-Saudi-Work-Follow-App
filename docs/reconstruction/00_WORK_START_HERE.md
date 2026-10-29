@@ -11,9 +11,9 @@ This directory (`docs/reconstruction/`) contains repository-governed current con
 P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
 
 
-### Current Continuation Checkpoint — 2026-10-28
+### Current Continuation Checkpoint — 2026-10-29
 
-- **Verified implementation baseline**: `8c6a348d17b0f94215a56bb9a66f2e643c19f24c` (PR #60 — P8-B3 merged and source-verified).
+- **Verified implementation baseline**: `31b2065f00b0d07763afc153582ef9be71dbd159` (PR #61 — P8-B4 merged and source-verified).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
 - **Phase 1**: VERIFIED / CLOSED.
 - **Phase 2**: VERIFIED / CLOSED.
@@ -22,12 +22,12 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 - **Smart Import pre-Phase-8 correction gate**: CLOSED.
   - SI-CG1 — Identity, Grouping & Provenance Correction: MERGED / SOURCE VERIFIED.
   - SI-CG2 — Layer & Contextual Creation Convergence: MERGED / SOURCE VERIFIED.
-- **Phase 8 — Smart Import Persistence, Resume & Commit Integrity**: IN_PROGRESS.
+- **Phase 8 — Smart Import Persistence, Resume & Commit Integrity**: MERGED / SOURCE_VERIFIED / CLOSED.
   - P8-B1 — Durable Session & Reviewed Intent Authority: MERGED / SOURCE VERIFIED / CLOSED — PR #57, merge `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`.
   - P8-B2 — Server Commit Authority & Prepared Identity Materialization: MERGED / SOURCE VERIFIED / CLOSED — PR #58, merge `1f7f3344e65dfc9b6837b10cb5349827da1587eb`.
-- **Continuation**: consult [the phase ledger](02_PHASE_LEDGER.md) for the exact current unit/status. P8-B4 closes the user-facing resume journey.
+- **Continuation**: consult [the phase ledger](02_PHASE_LEDGER.md) for the exact current unit/status. P9-U1 converges pricing authority and historical snapshots.
 - **P8-B3**: MERGED / SOURCE_VERIFIED / CLOSED.
-- **Next action**: follow the ledger’s P8-B4 verification/owner-merge gate; do not start Phase 9.
+- **Next action**: follow the ledger’s P9-U1 verification/owner-merge gate; do not start Phase 10.
 - **Current TypeScript diagnostics baseline**: 440 after P8-B2; new diagnostics added by P8-B2: 0.
 - **Lint**: EXIT 2 / NOT PASS remains historical debt, not a new P8-B2 regression.
 - **Remaining focused Smart Import test debt**: historical C5 cases 38, 61, 62 and 67; no new P8-B2 failures.
