@@ -30,11 +30,11 @@ export class SetupFleetQuery {
   async read(projectId: string, identity: { userId: string; email?: string }): Promise<SetupFleetContext> {
     return this.db.runTransaction(async (tx: any) => {
       await authorizeGlobalCommand(tx, this.db, identity, projectId);
-      return this.readProjection(projectId, ref => tx.get(ref));
+      return this.readProjection(projectId, ref => tx.get(ref),true);
     });
   }
   /** Internal composition: caller owns current-principal authorization and read consistency. */
-  async readProjection(projectId: string, reader: (ref: any) => Promise<any>): Promise<SetupFleetContext> {
+  async readProjection(projectId: string, reader: (ref: any) => Promise<any>, includeProfiles=false): Promise<SetupFleetContext> {
     const tx = { get: reader };
     const ctx = new ProjectFleetReadModelAdminReadContext(this.db, reader);
     const fleet = await projectFleetReadModelService.getProjectFleetReadModel(projectId, ctx);
@@ -74,7 +74,7 @@ export class SetupFleetQuery {
         const policy = evaluateGlobalEligibility(kind, global);
         return {
           kind, id: doc.id, name: global?.fullNameAr || global?.plate || global?.normalizedPlate || global?.nameAr || global?.nameEn || doc.id,
-          naturalKey: global?.[spec.natural], aliases: Array.isArray(global?.aliases) && global.aliases.every((value: unknown) => typeof value === 'string') ? global.aliases : undefined,
+          ...(includeProfiles?{profile:global}:{}), naturalKey: global?.[spec.natural], aliases: Array.isArray(global?.aliases) && global.aliases.every((value: unknown) => typeof value === 'string') ? global.aliases : undefined,
           globalStatus: global?.status || null, membershipStatus: member.status,
           canReactivate: policy.CAN_REACTIVATE_MEMBERSHIP && !issue, assignment, allocation,
           eligible: policy.CAN_USE_OPERATIONALLY && member.status === 'ACTIVE' && !issue, affiliation, issue

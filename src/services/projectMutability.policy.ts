@@ -111,3 +111,7 @@ export function canPerformFoundationMutation(status: unknown, kind: FoundationMu
 export function assertFoundationMutation(status: unknown, kind: FoundationMutationClass): void {
   if(!canPerformFoundationMutation(status,kind))throw Object.assign(new Error('PROJECT_LIFECYCLE_MUTATION_DENIED'),{code:'PROJECT_LIFECYCLE_MUTATION_DENIED',status:409,mutationClass:kind});
 }
+
+/** Historical-sensitive fields remain locked after activation; identity/provenance never enter patches. */
+export const ACTIVE_PROJECT_PROFILE_FIELDS=['nameAr','nameEn','clientName','description'] as const;
+export function canMaintainProjectProfile(status:unknown){return ['SETUP','READY_FOR_REVIEW','APPROVED','ACTIVE'].includes(status as string);}

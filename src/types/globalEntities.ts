@@ -21,6 +21,7 @@ import { BaseAuditedEntity } from './common';
 // 1. GLOBAL DRIVER ENTITY
 // ==========================================
 export interface GlobalDriverEntity extends BaseAuditedEntity {
+  version?: number; // Optimistic profile revision; legacy missing value is zero.
   /** Opaque immutable system primary key (e.g. DRV-7k9p2m4x) */
   driverId: string;
   /** Normalized Saudi National ID or Iqama (10 digits) - Protected Natural Key */
@@ -45,6 +46,7 @@ export interface GlobalDriverEntity extends BaseAuditedEntity {
 export type GlobalTruckType = 'TIPPER_32M3' | 'TRAILER_24M' | 'FLATBED' | 'DUMPER';
 
 export interface GlobalTruckEntity extends BaseAuditedEntity {
+  version?: number; // Optimistic profile revision; legacy missing value is zero.
   /** Opaque immutable system primary key (e.g. TRK-3v8n5x2q) */
   truckId: string;
   /** Display plate as registered */

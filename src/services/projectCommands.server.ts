@@ -7,7 +7,7 @@ import { decodeProject } from '../utils/persistenceBoundary';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { ProjectValidator } from '../validators/project.validator';
 import { LEGAL_LIFECYCLE_TRANSITIONS } from './projectLifecycle.policy';
-import { assertFoundationMutation, canEditProjectFoundation, FOUNDATION_FIELDS, FOUNDATION_SETTINGS } from './projectMutability.policy';
+import { ACTIVE_PROJECT_PROFILE_FIELDS, assertFoundationMutation, canEditProjectFoundation, FOUNDATION_FIELDS, FOUNDATION_SETTINGS } from './projectMutability.policy';
 import type { ProjectEntity } from '../types/entities';
 import type { AuthUserContext } from '../types/common';
 
@@ -141,7 +141,7 @@ export class ProjectCommandsServerService {
       return project;
     });
   }
-  async updateFoundation(projectId: string, patch: any, authenticated: AuthUserContext) {
+  async updateFoundation(projectId: string, patch: any, authenticated: AuthUserContext, expectedVersion?:number) {
     if (!validId(projectId)) fail('INVALID_PROJECT_COMMAND');
     validateFoundation(patch);
     if (!Object.keys(patch).length) fail('INVALID_PROJECT_COMMAND');
@@ -150,11 +150,13 @@ export class ProjectCommandsServerService {
       const ref = this.db.collection('projects').doc(projectId), snap = await tx.get(ref);
       if (!snap.exists) fail('PROJECT_NOT_FOUND', 404, 'المشروع غير موجود');
       const project = decodeProject<ProjectEntity>(snap.data(), projectId);
-      if (!canEditProjectFoundation(project.status)) fail('PROJECT_FOUNDATION_LOCKED', 409);
+      if(project.status==='ACTIVE'){if(expectedVersion===undefined)fail('PROJECT_FOUNDATION_LOCKED',409);if(Object.keys(patch).some(k=>!ACTIVE_PROJECT_PROFILE_FIELDS.includes(k as any)))fail('PROJECT_FIELD_LOCKED',409);}
+      else if (!canEditProjectFoundation(project.status)) fail('PROJECT_FOUNDATION_LOCKED', 409);
+      if(expectedVersion!==undefined && (!Number.isInteger(expectedVersion)||expectedVersion!==((project as any).version||0)))fail('PROJECT_VERSION_CONFLICT',409);
       assertFoundationMutation(project.status,'MAINTENANCE');
-      const after = { ...project, ...patch, settings: { ...project.settings, ...patch.settings }, updatedAt: new Date(), updatedBy: actor.userId };
+      const after = { ...project, ...patch, version:((project as any).version||0)+1, settings: { ...project.settings, ...patch.settings }, updatedAt: new Date(), updatedBy: actor.userId };
       validateProject(after);
-      tx.update(ref, sanitizeUndefined({ ...patch, settings: after.settings, updatedAt: after.updatedAt, updatedBy: actor.userId }));
+      tx.update(ref, sanitizeUndefined({ ...patch, version:after.version, settings: after.settings, updatedAt: after.updatedAt, updatedBy: actor.userId }));
       this.audit(tx, projectId, actor, project, after, 'UPDATE_PROJECT_FOUNDATION');
       return after;
     });

@@ -1,3 +1,27 @@
+## PFAG-RB2 current maintenance decisions
+
+Current status belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). RB1 is merged/source-verified at `f56418f3ae16cbe2f2d4c726a0590d26bd6e2310`, containing `7887aa321a014360640972232abc4fa88ea33ded`. Older RB1 implementation observations below retain their historical unit scope.
+
+- H3: replace independently fetched refresh generations with one server transaction-composed foundation payload. Existing canonical readers, pricing projection and readiness policy are reused. Receipt retry is read-only; expected result and Project/editor generation fences precede atomic apply.
+- H4: ACTIVE-safe Project fields are the four live display/reference fields; location, dates, currency/tax and operational configuration remain locked or separately governed. Profile expected versions prevent stale saves. [The maintenance contract](PROJECT_FOUNDATION_MAINTENANCE_CONTRACT.md) records all Project fields and role/status/impact/audit classifications.
+- ACTIVE → SUSPENDED preserves memberships, temporal records and history. Explicit SUSPENDED → ACTIVE reuses full canonical activation readiness, including transaction-time revalidation; ordinary activation/status PATCH cannot bypass it. Archive transition remains DEFERRED_WITH_FENCE; no terminal lifecycle semantics are invented.
+- Driver/Truck profile editing uses one reusable server service and editor. Natural ID/plate correction is IDENTITY_MIGRATION_REQUIRED. Optional mutable clears, typed dates/weights and version/audit checks are explicit. No Smart-Import-specific profile or creation authority is introduced.
+- UI follows existing server roles: SA Project creation and user assignment; scoped PA/SA maintenance; existing Finance pricing access is discoverable. One Fleet action menu covers membership and profile operations. Pricing cleanup on nonmutable Projects reuses canonical status save, with receipt/refresh proof.
+- RB1 compatibility: Truck affiliation inactivation now rejects an active allocation, requiring explicit closure. Carrier dependency inspection also counts active temporal dependencies referenced by historical inactive affiliations. This closes an integrated cleanup escape without changing the no-cascade consequence policy.
+- ACTIVE status is not operational readiness. Wizard and selected-Project dashboard display readiness/blockers without automatic suspension.
+- PFAG-RULES-01 remains STILL_OPEN / ENVIRONMENT_BLOCKED: native direct-client pricing rejection must be checked at the first available emulator/deployed gate. No repeat download/install was attempted. The approved source-only fallback remains applicable; assurance is not deployment certification.
+- Historical stale tests remain separately observed against the exact RB2 baseline; no blanket retirement, test removal or skipped-coverage policy is introduced. H3 transport/source-shape assertions and race fixtures are converged only to the new same-transaction contract, preserving rejection/continuation coverage.
+
+### RB2 verification observation — 2026-10-29
+
+Evidence baseline: `f56418f3ae16cbe2f2d4c726a0590d26bd6e2310`. RB2 focused server/UI tests 64/64, RB1 54/54, Phase 8 184/184, report harnesses 12/12 + 48/48 + 18/18, auth trust boundary 23/23; controlled browser maintenance 15 checks, late-response race 1 check and pricing/Trip snapshot regression 8 checks passed. This is serialized transactional in-memory persistence with controlled auth/network, not native Firestore or live Firebase. Native pricing rule verification remains PFAG-RULES-01.
+
+Selected baseline including navigation: 1338/1348; final 1402/1412 with 64 added tests, zero new failures, zero removals/skips. Both aggregate commands exit 1: ten identical baseline assertion failures remain (three old rules-shape assertions, Fleet HTTP mock, page-reload source guard, import-session call shape, two portal-direction assertions and two Setup/readiness fixtures). Both also include the unchanged no-Vitest-suite error for reportsEngineConvergence; its actual standalone harness passes 48/48. i18n/auth selection is 129/130 both baseline/final: the same historical TBC-B4 checkpoint-anchor guard fails; it is not hidden or retired. Runtime-key audit itself passes 16/16.
+
+Build passes. TypeScript diagnostics remain 440 → 440, zero added/removed after path/line normalization; lint is EXIT 2 / NOT PASS. AR/EN/UR each have 4420 keys, zero duplicate/empty/parity gaps. Counts are this unit's observations, not permanent cardinality rules. All existing tests in modified historical test files retain their counts; assertions/fixtures changed only for composed refresh and current permission presentation.
+
+Source assurance found no remaining critical/high scoped defect. Bounded residual obligations are native rules/deployment verification, historical harness debt, and live external-provider/release acceptance. Archive remains explicitly deferred with its mutation fence, and a non-ready suspended Project is deliberately rejected rather than restored by bypass. No Phase 10 implementation, i18n reopening, pricing calculation change or Smart Import architecture change is authorized by these observations.
+
 ## PFAG-RB1 bounded remediation decisions
 
 Exact current status is owned by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `f261ebc5508d881c9bfbe3dc77af1ccad75ec914` (P9-U2 PR #63 merged).

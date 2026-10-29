@@ -1,3 +1,11 @@
+## PFAG-RB2 maintenance representation
+
+Current source reference; [maintenance field matrix](reconstruction/PROJECT_FOUNDATION_MAINTENANCE_CONTRACT.md) defines editable/locked fields, while [the ledger](reconstruction/02_PHASE_LEDGER.md) owns state.
+
+Project and global Driver/Truck profile records use optional integer version for optimistic profile edits; legacy missing version means zero. The server increments version on accepted profile saves. Clients submit expectedVersion separately, not a version field patch. Existing audit records retain before/after and actor/time. No historical Trip/report/pricing snapshot is rewritten, and no identity migration/backfill is performed.
+
+The foundation snapshot is an ephemeral transaction-composed response, not a persisted journal or new domain revision/event model. Driver/Truck maintenance profiles are present for authorized Project administrators; Finance receives pricing/readiness context without the maintenance profile details. Suspension changes only Project lifecycle/audit. Reactivation persists ACTIVE only after authoritative readiness revalidation. ARCHIVED transition is deferred with its existing mutation fence intact.
+
 ## PFAG-RB1 historical projection and consequence representation
 
 Current architecture reference; see [the ledger](reconstruction/02_PHASE_LEDGER.md) for acceptance/publication.

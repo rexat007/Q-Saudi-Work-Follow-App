@@ -247,9 +247,9 @@ export class ProjectProvisioningAdminService {
   /**
    * List Project Materials server-safely using adminDb (only returns active project setup data)
    */
-  async listProjectMaterials(projectId: string): Promise<any[]> {
+  async listProjectMaterials(projectId: string, reads = new ProjectFleetReadModelAdminReadContext()): Promise<any[]> {
     if (!projectId) return [];
-    const entries = await readProjectMasterList(new ProjectFleetReadModelAdminReadContext(), projectId, 'MATERIAL');
+    const entries = await readProjectMasterList(reads, projectId, 'MATERIAL');
     return entries.map(({ id, global: g, membership, eligible, projectionIssue }) => ({
       materialId: id, name: g?.nameAr || g?.name || null, code: g?.code || null, unitOfMeasure: g?.unitOfMeasure || null,
       standardDensityTonPerM3: g?.standardDensityTonPerM3 ?? null, membershipStatus: membership.status,
@@ -260,9 +260,9 @@ export class ProjectProvisioningAdminService {
   /**
    * List Project Carriers server-safely using adminDb (only returns active project setup data)
    */
-  async listProjectCarriers(projectId: string): Promise<any[]> {
+  async listProjectCarriers(projectId: string, reads = new ProjectFleetReadModelAdminReadContext()): Promise<any[]> {
     if (!projectId) return [];
-    const entries = await readProjectMasterList(new ProjectFleetReadModelAdminReadContext(), projectId, 'CARRIER');
+    const entries = await readProjectMasterList(reads, projectId, 'CARRIER');
     return entries.map(({ id, global: g, membership, eligible, projectionIssue }) => ({
       carrierId: id, name: g?.nameAr || g?.name || id, commercialRegistrationNo: g?.commercialRegistrationNo || '—',
       transportLicenseNo: g?.transportLicenseNo || null, contactPerson: g?.contactPerson ? { name: g.contactPerson.name, phone: g.contactPerson.phone, email: g.contactPerson.email } : null,

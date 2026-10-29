@@ -238,7 +238,7 @@ test('TEST-81-11', 'Verify VIEWER has read-only access to Dashboard, Reports, an
 test('TEST-81-12', 'Verify isTabAuthorizedForRole rejects unauthorized tab requests', () => {
   expect(navigationService.isTabAuthorizedForRole('ADMIN_CONSOLE', 'DRIVER')).toBe(false);
   expect(navigationService.isTabAuthorizedForRole('SECURITY_AUDIT', 'SCALE_OPERATOR')).toBe(false);
-  expect(navigationService.isTabAuthorizedForRole('WIZARD', 'FINANCE_AUDITOR')).toBe(false);
+  expect(navigationService.isTabAuthorizedForRole('WIZARD', 'FINANCE_AUDITOR')).toBe(true); // Existing canonical pricing authority is discoverable; other maintenance remains denied.
   expect(navigationService.isTabAuthorizedForRole('OPERATIONS_DASHBOARD', 'SUPER_ADMIN')).toBe(true);
 });
 

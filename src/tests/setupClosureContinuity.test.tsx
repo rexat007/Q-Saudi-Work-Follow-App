@@ -35,9 +35,9 @@ describe('P6-B3 recovery and host continuity', () => {
   it('keeps a committed editor mounted after host refresh failure and retries reads without repeating the command', async () => {
     let fail = false, commands = 0;
     const ctx = context(); ctx.participants.find(p => p.id === 'T')!.membershipStatus = 'REMOVED';
-    vi.spyOn(projectCanonicalRefreshService, 'refresh').mockResolvedValue({ materials: [], carriers: [], fleetRows: [], relationshipContext: {} } as any);
+    vi.spyOn(projectCanonicalRefreshService, 'refresh').mockImplementation(async()=>{if(fail)throw Error('controlled snapshot read failure');return {materials:[],carriers:[],fleetRows:[],relationshipContext:{},setup:ctx} as any;});
     vi.stubGlobal('fetch', vi.fn(async (_url: string, options?: RequestInit) => {
-      if (options?.method === 'POST') { commands++; fail = true; return { ok: true, json: async () => ({ success: true, data: {} }) }; }
+      if (options?.method === 'POST') { commands++; fail = true;ctx.participants.find(p=>p.id==='T')!.membershipStatus='ACTIVE';return { ok: true, json: async () => ({ success: true, data: {membership:{projectId:'P1',truckId:'T',status:'ACTIVE'}} }) }; }
       if (fail) throw Error('controlled read failure');
       return { ok: true, json: async () => ({ success: true, data: ctx }) };
     }));

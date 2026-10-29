@@ -29,6 +29,10 @@ export interface ProjectCanonicalRefreshExpectation {
 }
 
 export interface ProjectCanonicalRefreshSnapshot {
+  pricingRules?: any[];
+  project?: any;
+  setup?: import('../types/setupFleet').SetupFleetContext;
+  readiness?: any;
   materials: any[];
   carriers: any[];
   fleetRows: any[];
@@ -37,6 +41,7 @@ export interface ProjectCanonicalRefreshSnapshot {
 
 export interface ProjectCanonicalRefreshOptions {
   expect?: ProjectCanonicalRefreshExpectation;
+  isCurrent?: () => boolean;
   overrideToken?: string;
   maxAttempts?: number;
   delayMs?: number;
@@ -76,39 +81,22 @@ export class ProjectCanonicalRefreshService {
           'Content-Type': 'application/json',
         };
 
-        // 1. Concurrently fetch canonical server read surfaces
-        const [matRes, carRes, fleetRes] = await Promise.all([
-          fetch(`/api/projects/${encodeURIComponent(cleanProjectId)}/materials`, { headers }),
-          fetch(`/api/projects/${encodeURIComponent(cleanProjectId)}/carriers`, { headers }),
-          fetch(`/api/projects/${encodeURIComponent(cleanProjectId)}/fleet-read-model`, { headers }),
-        ]);
-
-        // 2. HTTP Fail-Closed Checks
-        if (!matRes.ok) {
-          throw new Error(`CANONICAL_REFRESH_MATERIALS_FAILED: HTTP ${matRes.status}`);
+        if(options?.isCurrent && !options.isCurrent())throw Object.assign(Error('REFRESH_STALE_GENERATION'),{code:'REFRESH_STALE_GENERATION'});
+        const response=await fetch(`/api/projects/${encodeURIComponent(cleanProjectId)}/foundation-snapshot`,{headers});
+        if(!response.ok)throw Error(`CANONICAL_REFRESH_FAILED: HTTP ${response.status}`);
+        const json=await response.json(),payload=json.data;
+        if(!json.success || payload?.projectId!==cleanProjectId || payload.consistency!=='SERVER_TRANSACTION_SNAPSHOT' || payload.project?.projectId!==cleanProjectId || payload.setup?.projectId!==cleanProjectId || !payload.readiness || !Array.isArray(payload.materials)||!Array.isArray(payload.carriers)||!Array.isArray(payload.fleetRows))throw Object.assign(Error('REFRESH_INCOHERENT: CANONICAL_REFRESH_NOT_CONVERGED'),{code:'REFRESH_INCOHERENT'});
+        const {materials,carriers,fleetRows,relationshipContext}=payload;
+        if(relationshipContext?.projectId!==cleanProjectId)throw Object.assign(Error('REFRESH_INCOHERENT: CANONICAL_REFRESH_NOT_CONVERGED'),{code:'REFRESH_INCOHERENT'});
+        const sameIds=(left:string[],right:string[])=>JSON.stringify([...left].sort())===JSON.stringify([...right].sort());
+        if(!sameIds(carriers.filter((x:any)=>x.isActive!==false&&x.status!=='INACTIVE').map((x:any)=>x.carrierId),relationshipContext.authorizedCarrierIds||[]) || !sameIds(materials.filter((x:any)=>x.isActive!==false&&x.status!=='INACTIVE').map((x:any)=>x.materialId),relationshipContext.authorizedMaterialIds||[]))throw Object.assign(Error('REFRESH_INCOHERENT: CANONICAL_REFRESH_NOT_CONVERGED'),{code:'REFRESH_INCOHERENT'});
+        const projected=relationshipContextFromFleet(cleanProjectId,{projectId:cleanProjectId,rows:fleetRows} as any,{...relationshipContext,knownDrivers:relationshipContext.knownDrivers||[],knownTrucks:relationshipContext.knownTrucks||[],knownMaterials:relationshipContext.knownMaterials||[]});
+        const sameMap=(a:any,b:any)=>JSON.stringify(Object.entries(a||{}).sort())===JSON.stringify(Object.entries(b||{}).sort());
+        if(!sameMap(projected.activeDriverByTruck,relationshipContext.activeDriverByTruck)||!sameMap(projected.activeMaterialByTruck,relationshipContext.activeMaterialByTruck))throw Object.assign(Error('REFRESH_INCOHERENT: CANONICAL_REFRESH_NOT_CONVERGED'),{code:'REFRESH_INCOHERENT'});
+        for(const [items,known,id] of [[carriers,relationshipContext.knownCarriers,'carrierId'],[materials,relationshipContext.knownMaterials,'materialId']] as any){
+          for(const item of items.filter((x:any)=>x.isActive!==false&&x.status!=='INACTIVE')){if(!known?.some((k:any)=>k[id]===item[id]&&k.name===item.name))throw Object.assign(Error('REFRESH_INCOHERENT: CANONICAL_REFRESH_NOT_CONVERGED'),{code:'REFRESH_INCOHERENT'});}
         }
-        if (!carRes.ok) {
-          throw new Error(`CANONICAL_REFRESH_CARRIERS_FAILED: HTTP ${carRes.status}`);
-        }
-        if (!fleetRes.ok) {
-          throw new Error(`CANONICAL_REFRESH_FLEET_FAILED: HTTP ${fleetRes.status}`);
-        }
-
-        const [matJson, carJson, fleetJson] = await Promise.all([
-          matRes.json(),
-          carRes.json(),
-          fleetRes.json(),
-        ]);
-
-        const materials = Array.isArray(matJson.data) ? matJson.data : [];
-        const carriers = Array.isArray(carJson.data) ? carJson.data : [];
-        const fleetRows = Array.isArray(fleetJson.data?.rows) ? fleetJson.data.rows : [];
-
-        // 3. Rebuild fresh RelationshipContext
-        if (fleetJson.data?.projectId !== cleanProjectId) throw new Error('CANONICAL_REFRESH_FLEET_SCOPE_MISMATCH');
-        const masterContext = await canonicalRelationshipContextService.getProjectRelationshipContext(cleanProjectId);
-        if (masterContext.projectId !== cleanProjectId) throw new Error('CANONICAL_REFRESH_CONTEXT_SCOPE_MISMATCH');
-        const relationshipContext = relationshipContextFromFleet(cleanProjectId, { ...fleetJson.data, projectId: cleanProjectId, rows: fleetRows }, masterContext);
+        if(options?.isCurrent && !options.isCurrent())throw Object.assign(Error('REFRESH_STALE_GENERATION'),{code:'REFRESH_STALE_GENERATION'});
 
         // 4. Expected Entity Convergence Checks
         if (expect?.carrierId) {
@@ -290,6 +278,7 @@ export class ProjectCanonicalRefreshService {
 
         // Complete verified coherent snapshot
         return {
+          pricingRules:payload.pricingRules, project:payload.project, setup:payload.setup, readiness:payload.readiness,
           materials,
           carriers,
           fleetRows,

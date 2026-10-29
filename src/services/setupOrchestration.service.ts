@@ -15,7 +15,7 @@ export async function postSetupJson(path: string, payload: unknown) {
   });
   let json: any;
   try { json = await response.json(); } catch { throw new SetupCommandError('SETUP_COMMAND_FAILED', response.status); }
-  if (!response.ok || json.success !== true) throw new SetupCommandError(json.code || 'SETUP_COMMAND_FAILED', response.status, json.error);
+  if (!response.ok || json.success !== true) throw Object.assign(new SetupCommandError(json.code || 'SETUP_COMMAND_FAILED', response.status, json.error),{blockers:json.blockers,dependencies:json.dependencies});
   return json.data ?? json;
 }
 

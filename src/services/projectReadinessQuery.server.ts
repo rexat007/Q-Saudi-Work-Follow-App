@@ -1,24 +1,26 @@
 import { adminDb } from '../firebase/admin';
 import { ProjectReadinessAdminReadContext } from './projectReadiness.server';
-import { ProjectReadinessService, lifecycleReadiness } from './projectReadiness.service';
+import { ProjectReadinessService } from './projectReadiness.service';
 import type { AuthUserContext } from '../types/common';
 
-/** Existing readiness endpoint orchestration: coherent read snapshot, then current-scope recheck. */
+/** One coherent readiness snapshot; post-read reauthorization may reject it, never recompose its dimensions. */
 export class ProjectReadinessQueryService {
   constructor(private db: any = adminDb) { }
   async read(projectId: string, identity: AuthUserContext) {
-    const result = await this.db.runTransaction(async (tx: any) => {
+    const snapshot = await this.db.runTransaction(async (tx: any) => {
       const reads = new ProjectReadinessAdminReadContext(this.db, ref => tx.get(ref));
       const actor = await reads.currentPrincipal(projectId, identity);
-      return new ProjectReadinessService().evaluateProjectReadiness(projectId, new Date(), reads, actor);
+      const project = await reads.getProject(projectId);
+      if (!project) throw Object.assign(new Error('PROJECT_NOT_FOUND'), {code:'PROJECT_NOT_FOUND',status:404});
+      const readiness=await new ProjectReadinessService().evaluateProjectReadiness(projectId,new Date(),reads,actor);
+      return {readiness,role:actor.role,projectStatus:project.status,projectVersion:project.version||0};
     });
     const reads = new ProjectReadinessAdminReadContext(this.db);
     const actor = await reads.currentPrincipal(projectId, identity);
     const project = await reads.getProject(projectId);
-    if (!project) throw Object.assign(new Error('PROJECT_NOT_FOUND'), { code: 'PROJECT_NOT_FOUND', status: 404 });
-    result.lifecycle = lifecycleReadiness(project, projectId, actor);
-    result.blockers = [...result.lifecycle.blockers, ...result.setup.blockers, ...result.operational.blockers];
-    result.ready = result.lifecycle.ready && result.setup.ready && result.operational.ready;
-    return result;
+    if (!project) throw Object.assign(new Error('PROJECT_NOT_FOUND'), {code:'PROJECT_NOT_FOUND',status:404});
+    if(actor.role!==snapshot.role||project.status!==snapshot.projectStatus||(project.version||0)!==snapshot.projectVersion)
+      throw Object.assign(new Error('REFRESH_STALE_GENERATION'),{code:'REFRESH_STALE_GENERATION',status:409});
+    return {...snapshot.readiness,projectStatus:snapshot.projectStatus};
   }
 }

@@ -1,3 +1,5 @@
+import {assertSetupReceiptConverged} from '../../services/setupConvergenceProof';
+import {FleetProfileEditor} from '../masterData/FleetProfileEditor';
 import {CanonicalFleetIdentityEditor} from '../masterData/CanonicalFleetIdentityEditor';
 import React, { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../i18n';
@@ -9,17 +11,19 @@ import type { SetupFleetContext, SetupParticipant } from '../../types/setupFleet
 import { assignmentPreview, allocationPreview, eligibleAffiliatedParticipants, eligibleSetupParticipants } from '../../utils/setupFleetActions';
 import { useProjectEditorLifetime } from './useProjectEditorLifetime';
 
-type Action = { mode: 'DRIVER' | 'TRUCK' | 'AFFILIATION' | 'ASSIGNMENT' | 'ALLOCATION' | 'REACTIVATE'; entity?: SetupParticipant };
+type Action = { mode: 'DRIVER' | 'TRUCK' | 'AFFILIATION' | 'ASSIGNMENT' | 'ALLOCATION' | 'REACTIVATE' | 'SUSPEND' | 'REMOVE' | 'PROFILE'; entity?: SetupParticipant };
 interface Props {
   projectId: string;
   mutable: boolean;
+  cleanupAllowed?: boolean;
+  canonicalContext?: SetupFleetContext|null;
   revision?: number;
   isCurrent: () => boolean;
   apply: (snapshot: ProjectCanonicalRefreshSnapshot) => void;
 }
 const control = 'w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-white disabled:opacity-50';
 
-export function FleetSetupWorkspace({ projectId, mutable, revision, isCurrent, apply }: Props) {
+export function FleetSetupWorkspace({ projectId, mutable, revision, isCurrent, apply, cleanupAllowed=false, canonicalContext }: Props) {
   const { t, direction } = useI18n();
   const life = useProjectEditorLifetime(projectId, true, isCurrent);
   const latestRead = useRef<symbol | null>(null);
@@ -29,14 +33,15 @@ export function FleetSetupWorkspace({ projectId, mutable, revision, isCurrent, a
   const [tab, setTab] = useState<'DRIVER' | 'TRUCK' | 'PARTICIPATION'>('TRUCK');
   const [action, setAction] = useState<Action | null>(null);
   const editorContext = useRef<SetupFleetContext | null>(null);
+  useEffect(()=>{if(!mutable&&!cleanupAllowed){setAction(null);editorContext.current=null;}},[mutable,cleanupAllowed]);
   const openAction = (next: Action) => { if (context) editorContext.current = context; setAction(next); };
   const load = async () => {
     const request = life.capture(), readId = Symbol('setup-read'); latestRead.current = readId; setError(false); setLoading(true);
-    try { const data = await canonicalProjectRead<SetupFleetContext>(projectId, 'setup-context'); if (life.isCurrent(request) && latestRead.current === readId) setContext(data); }
+    try { const snapshot=canonicalContext!==undefined?await projectCanonicalRefreshService.refresh(projectId,{isCurrent:()=>life.isCurrent(request)}):null;const data=snapshot?snapshot.setup!:await canonicalProjectRead<SetupFleetContext>(projectId, 'setup-context'); if (life.isCurrent(request) && latestRead.current === readId){if(snapshot)apply(snapshot);setContext(data);} }
     catch { if (life.isCurrent(request) && latestRead.current === readId) { setContext(null); setError(true); } }
     finally { if (life.isCurrent(request) && latestRead.current === readId) setLoading(false); }
   };
-  useEffect(() => { void load(); }, [projectId, revision]);
+  useEffect(() => {if(canonicalContext?.projectId===projectId){latestRead.current=Symbol('coherent-parent');setContext(canonicalContext);setLoading(false);setError(false);}else void load();}, [projectId, revision,canonicalContext]);
 
   const participants = (context?.participants || []).filter(p => tab === 'PARTICIPATION' ? p.kind === 'CARRIER' || p.kind === 'MATERIAL' : p.kind === tab);
   const name = (id: string | null | undefined) => context?.participants.find(p => p.id === id)?.name || id || '—';
@@ -65,23 +70,26 @@ export function FleetSetupWorkspace({ projectId, mutable, revision, isCurrent, a
               {row && <><small className="block">{t('setup.assignment')}: {t(row.assignmentEligible ? 'setup.usable' : 'setup.unavailable')}</small><small className="block">{t('setup.allocation')}: {t(row.allocationEligible ? 'setup.usable' : 'setup.unavailable')}</small>
                 {[...new Set(row.integrityIssues.map(issue => issue.category))].filter(category => category !== 'INTEGRITY' && category !== 'ELIGIBILITY').map((category, index) => <small className="block" key={index}>{t('setup.partial')}</small>)}</>}
             </td>
-            <td className="p-2">{mutable && !loading && !integrity && <select aria-label={`${t('setup.actions')} ${p.name}`} value="" className={control} onChange={e => { if (e.target.value) openAction({ mode: e.target.value as Action['mode'], entity: p }); }}>
+            <td className="p-2">{(mutable||cleanupAllowed) && !loading && !integrity && <select aria-label={`${t('setup.actions')} ${p.name}`} value="" className={control} onChange={e => { if (e.target.value) openAction({ mode: e.target.value as Action['mode'], entity: p }); }}>
               <option value="">{t('setup.manage')}</option>
-              {p.membershipStatus !== 'ACTIVE' && <option value="REACTIVATE" disabled={!p.canReactivate}>{t('setup.reactivate')}</option>}
-              {(p.kind === 'DRIVER' || p.kind === 'TRUCK') && <><option value="AFFILIATION">{t('setup.manageCarrier')}</option><option value="ASSIGNMENT">{t('setup.manageAssignment')}</option></>}
-              {p.kind === 'TRUCK' && <option value="ALLOCATION">{t('setup.manageAllocation')}</option>}
+              {mutable && p.membershipStatus !== 'ACTIVE' && <option value="REACTIVATE" disabled={!p.canReactivate}>{t('setup.reactivate')}</option>}
+              {cleanupAllowed && <>{p.membershipStatus==='ACTIVE'&&<option value="SUSPEND">{t('rb2.suspend')}</option>}{p.membershipStatus!=='REMOVED'&&<option value="REMOVE">{t('rb2.remove')}</option>}</>}
+              {mutable && p.membershipStatus==='ACTIVE' && (p.kind==='DRIVER'||p.kind==='TRUCK') && <option value="PROFILE">{t('rb2.profile')}</option>}
+              {(p.kind === 'DRIVER' || p.kind === 'TRUCK') && <><option disabled={!mutable&&!p.affiliation} value="AFFILIATION">{t('setup.manageCarrier')}</option><option disabled={!mutable&&!p.assignment} value="ASSIGNMENT">{t('setup.manageAssignment')}</option></>}
+              {p.kind === 'TRUCK' && <option disabled={!mutable&&!p.allocation} value="ALLOCATION">{t('setup.manageAllocation')}</option>}
             </select>}</td>
           </tr>;
         })}</tbody></table>
       {!loading && !participants.length && <p className="p-4">{t('setup.empty')}</p>}
     </div>
     </>}
-    {action && editorContext.current && <FleetCommandEditor key={`${action.mode}/${action.entity?.id || 'new'}`} projectId={projectId} context={context || editorContext.current} action={action} readAvailable={Boolean(context) && !loading} isCurrent={isCurrent}
-      onClose={() => setAction(null)} onDependency={() => openAction({ mode: 'ASSIGNMENT', entity: action.entity })}
-      refresh={async () => {
+    {action && editorContext.current && <FleetCommandEditor key={`${action.mode}/${action.entity?.id || 'new'}`} projectId={projectId} context={context || editorContext.current} action={action} cleanupOnly={!mutable} readAvailable={Boolean(context) && !loading} isCurrent={isCurrent}
+      onClose={() => setAction(null)} onDependency={() => openAction({ mode: !action.entity?.assignment&&action.entity?.allocation?'ALLOCATION':'ASSIGNMENT', entity: action.entity })}
+      refresh={async (verify) => {
         const request = life.capture(), readId = Symbol('setup-refresh'); latestRead.current = readId;
         try {
-          const [snapshot, next] = await Promise.all([projectCanonicalRefreshService.refresh(projectId), canonicalProjectRead<SetupFleetContext>(projectId, 'setup-context')]);
+          const snapshot=await projectCanonicalRefreshService.refresh(projectId,{isCurrent:()=>life.isCurrent(request)}),next=snapshot.setup!;
+          verify?.(snapshot);
           if (life.isCurrent(request) && latestRead.current === readId) { setContext(next); setLoading(false); setError(false); apply(snapshot); }
           return snapshot;
         } catch (error) {
@@ -92,19 +100,23 @@ export function FleetSetupWorkspace({ projectId, mutable, revision, isCurrent, a
   </section>;
 }
 
-export function FleetCommandEditor({ projectId, context, action, isCurrent, onClose, onDependency, refresh, readAvailable = true }: {
+export function FleetCommandEditor({ projectId, context, action, isCurrent, onClose, onDependency, refresh, readAvailable = true, cleanupOnly=false }: {
   projectId: string; context: SetupFleetContext; action: Action; isCurrent: () => boolean; onClose: () => void; onDependency: () => void;
-  refresh: () => Promise<ProjectCanonicalRefreshSnapshot>; readAvailable?: boolean;
+  refresh: (verify?:(snapshot:ProjectCanonicalRefreshSnapshot)=>void) => Promise<ProjectCanonicalRefreshSnapshot>; readAvailable?: boolean;cleanupOnly?:boolean;
 }) {
   const { t, direction } = useI18n();
   const life = useProjectEditorLifetime(projectId, true, isCurrent);
   const session = useRef(new SetupMutationSession()).current;
+  const receipt=useRef<{surface:string;payload:any;result:any}|null>(null);
+  const execute=async(surface:string,payload:any)=>{const result=await setupCommand(projectId,surface,payload);receipt.current={surface,payload,result};return result;};
+  const refreshWithProof=()=>refresh(snapshot=>{const r=receipt.current;if(!r)throw Error('REFRESH_INCOHERENT');assertSetupReceiptConverged(projectId,r.surface,r.payload,r.result,snapshot);});
   const [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null);
+  const [dependencies,setDependencies]=useState<Record<string,number>|null>(null);
   const [carrierId, setCarrierId] = useState(action.entity?.affiliation?.carrierId || '');
   const [driverId, setDriverId] = useState(action.entity?.kind === 'DRIVER' ? action.entity.id : action.entity?.assignment?.driverId || '');
   const [truckId, setTruckId] = useState(action.entity?.kind === 'TRUCK' ? action.entity.id : action.entity?.assignment?.truckId || '');
   const [materialId, setMaterialId] = useState(action.entity?.allocation?.materialId || '');
-  const [close, setClose] = useState(false), [confirmed, setConfirmed] = useState('');
+  const [close, setClose] = useState(cleanupOnly), [confirmed, setConfirmed] = useState('');
   const { mode, entity } = action;
   const carriers = eligibleSetupParticipants(context, 'CARRIER');
   const drivers = eligibleAffiliatedParticipants(context, 'DRIVER');
@@ -118,7 +130,7 @@ export function FleetCommandEditor({ projectId, context, action, isCurrent, onCl
   const replacing = !close && (mode === 'ASSIGNMENT' && assignment?.command === 'REASSIGN' || mode === 'ALLOCATION' && allocation?.command === 'REALLOCATE' || mode === 'AFFILIATION' && affiliationCommand === 'REASSIGN');
   const confirmationSignature = JSON.stringify({ driverId, truckId, materialId, carrierId, affected: assignment?.affected, allocation: allocation?.current, affiliation: entity?.affiliation });
   const confirmationValid = confirmed === confirmationSignature;
-  const valid = mode === 'REACTIVATE' ? Boolean(entity?.canReactivate && entity.membershipStatus !== 'ACTIVE') :
+  const valid = mode==='REMOVE' ? Boolean(entity&&entity.membershipStatus!=='REMOVED') : mode==='SUSPEND' ? entity?.membershipStatus==='ACTIVE' : mode === 'REACTIVATE' ? Boolean(entity?.canReactivate && entity.membershipStatus !== 'ACTIVE') :
       mode === 'AFFILIATION' ? close ? Boolean(entity?.affiliation) : Boolean(entity?.eligible && carriers.some(c => c.id === carrierId)) :
         mode === 'ASSIGNMENT' ? close ? Boolean(currentAssignment) : Boolean(assignment) : close ? Boolean(currentAllocation) : Boolean(allocation);
   const display = (id?: string) => context.participants.find(p => p.id === id)?.name || id || '—';
@@ -130,37 +142,39 @@ export function FleetCommandEditor({ projectId, context, action, isCurrent, onCl
     try {
       if (!readAvailable && !session.committed) { await refresh(); return; }
       const ok = await session.run(projectId, () => {
-        if (mode === 'REACTIVATE') return setupCommand(projectId, 'membership-commands', { kind: entity!.kind, entityId: entity!.id, command: 'REACTIVATE' });
-        if (mode === 'AFFILIATION') return setupCommand(projectId, 'affiliation-commands', { kind: entity!.kind, entityId: entity!.id, carrierId: close ? entity!.affiliation!.carrierId : carrierId, command: affiliationCommand });
-        if (mode === 'ASSIGNMENT') return setupCommand(projectId, 'assignment-commands', close ? { command: 'CLOSE', assignmentId: currentAssignment!.assignmentId } : { command: assignment!.command, driverId, truckId });
-        return setupCommand(projectId, 'allocation-commands', close ? { command: 'CLOSE', allocationId: currentAllocation!.allocationId } : { command: allocation!.command, truckId, materialId });
-      }, current, () => { }, refresh);
+        if(mode==='SUSPEND'||mode==='REMOVE')return execute('membership-commands',{kind:entity!.kind,entityId:entity!.id,command:mode});
+        if (mode === 'REACTIVATE') return execute( 'membership-commands', { kind: entity!.kind, entityId: entity!.id, command: 'REACTIVATE' });
+        if (mode === 'AFFILIATION') return execute( 'affiliation-commands', { kind: entity!.kind, entityId: entity!.id, carrierId: close ? entity!.affiliation!.carrierId : carrierId, command: affiliationCommand });
+        if (mode === 'ASSIGNMENT') return execute( 'assignment-commands', close ? { command: 'CLOSE', assignmentId: currentAssignment!.assignmentId } : { command: assignment!.command, driverId, truckId });
+        return execute( 'allocation-commands', close ? { command: 'CLOSE', allocationId: currentAllocation!.allocationId } : { command: allocation!.command, truckId, materialId });
+      }, current, () => { }, refreshWithProof);
       if (ok && current()) onClose();
-    } catch (err: any) { if (current()) setError(session.committed ? 'setup.errors.refresh' : !readAvailable ? 'setup.errors.read' : setupErrorKey(err)); }
+    } catch (err: any) { if (current()){setError(session.committed ? 'setup.errors.refresh' : !readAvailable ? 'setup.errors.read' : setupErrorKey(err));setDependencies(err.dependencies||null);} }
     finally { if (current()) setBusy(false); }
   };
   const select = (label: string, value: string, change: (v: string) => void, options: SetupParticipant[]) => <label className="block space-y-1">{t(label)}<select required className={control} value={value} disabled={busy || session.committed || !readAvailable} onChange={e => { change(e.target.value); setConfirmed(''); }}><option value="">{t('setup.choose')}</option>{options.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>;
+  if(mode==='PROFILE')return <FleetProfileEditor projectId={projectId} entity={entity!} isCurrent={isCurrent} onClose={onClose} refresh={refresh}/>;
   if(mode==='DRIVER'||mode==='TRUCK')return <CanonicalFleetIdentityEditor projectId={projectId} kind={mode} carriers={carriers} isCurrent={isCurrent} onClose={onClose} readAvailable={readAvailable} committed={session.committed} onSubmit={async data=>{
     if(!readAvailable&&!session.committed){await refresh();return false;}
     const request=life.capture(),current=()=>life.isCurrent(request);setBusy(true);
-    try{const ok=await session.run(projectId,()=>mode==='DRIVER'?setupCommand(projectId,'setup-driver',{driverData:{driverName:data.driverName,residencyId:data.residencyId,carrierId:data.carrierId,...(data.phone?{phone:data.phone}:{})}}):setupCommand(projectId,'setup-truck',{truckData:{plateNumber:data.plateNumber,carrierId:data.carrierId,...(data.truckType?{truckType:data.truckType}:{}),...(data.tareWeightKg!==undefined?{tareWeightKg:data.tareWeightKg}:{}),...(data.maxGrossWeightKg!==undefined?{maxGrossWeightKg:data.maxGrossWeightKg}:{})}}),current,()=>{},refresh);if(!ok)throw Error('PROJECT_CONTEXT_STALE');}
+    try{const ok=await session.run(projectId,()=>mode==='DRIVER'?execute('setup-driver',{driverData:{driverName:data.driverName,residencyId:data.residencyId,carrierId:data.carrierId,...(data.phone?{phone:data.phone}:{})}}):execute('setup-truck',{truckData:{plateNumber:data.plateNumber,carrierId:data.carrierId,...(data.truckType?{truckType:data.truckType}:{}),...(data.tareWeightKg!==undefined?{tareWeightKg:data.tareWeightKg}:{}),...(data.maxGrossWeightKg!==undefined?{maxGrossWeightKg:data.maxGrossWeightKg}:{})}}),current,()=>{},refreshWithProof);if(!ok)throw Error('PROJECT_CONTEXT_STALE');}
     catch(e){if(session.committed)throw Error('MUTATION_REFRESH_PENDING');throw e;}finally{if(current())setBusy(false);}
   }}/>;
-  return <div dir={direction} className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-stone-950/80 p-4" role="dialog" aria-modal="true" aria-label={t(`setup.editor.${mode}`)}>
+  return <div dir={direction} className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-stone-950/80 p-4" role="dialog" aria-modal="true" aria-label={t(mode==='SUSPEND'?'rb2.suspend':mode==='REMOVE'?'rb2.remove':`setup.editor.${mode}`)}>
     <form onSubmit={submit} className="max-h-[90vh] w-full max-w-xl space-y-4 overflow-y-auto rounded-2xl border border-stone-700 bg-stone-900 p-4 sm:p-6">
-      <h3 className="font-bold">{t(`setup.editor.${mode}`)} {entity?.name}</h3>
+      <h3 className="font-bold">{t(mode==='SUSPEND'?'rb2.suspend':mode==='REMOVE'?'rb2.remove':`setup.editor.${mode}`)} {entity?.name}</h3>
 
       {mode === 'REACTIVATE' && <p>{entity?.id} · {t(`setup.status.${entity?.membershipStatus}`)} · {t(`setup.status.${entity?.globalStatus || 'MISSING'}`)}</p>}
       {mode === 'AFFILIATION' && <><p>{t('setup.current')}: {display(entity?.affiliation?.carrierId)}</p>{!close && select('setup.carrier', carrierId, setCarrierId, carriers)}</>}
       {mode === 'ASSIGNMENT' && <><p>{t('setup.current')}: {display(currentAssignment?.driverId)} → {display(currentAssignment?.truckId)}</p>{!close && <>{select('setup.driver', driverId, setDriverId, drivers)}{select('setup.truck', truckId, setTruckId, trucks.filter(p => !selectedDriver || p.affiliation?.carrierId === selectedDriver.affiliation?.carrierId))}</>}</>}
       {mode === 'ALLOCATION' && <><p>{t('setup.current')}: {display(currentAllocation?.materialId)}</p>{!close && <>{select('setup.truck', truckId, setTruckId, trucks)}{select('setup.material', materialId, setMaterialId, eligibleSetupParticipants(context, 'MATERIAL'))}</>}</>}
-      {((mode === 'ASSIGNMENT' && currentAssignment) || (mode === 'ALLOCATION' && currentAllocation) || (mode === 'AFFILIATION' && entity?.affiliation?.status === 'ACTIVE')) && <label className="flex gap-2"><input type="checkbox" checked={close} disabled={busy || session.committed || !readAvailable} onChange={e => { setClose(e.target.checked); setConfirmed(''); }} />{t(mode === 'AFFILIATION' ? 'setup.inactivate' : 'setup.closeRelationship')}</label>}
+      {((mode === 'ASSIGNMENT' && currentAssignment) || (mode === 'ALLOCATION' && currentAllocation) || (mode === 'AFFILIATION' && entity?.affiliation?.status === 'ACTIVE')) && <label className="flex gap-2"><input type="checkbox" checked={close} disabled={busy || session.committed || !readAvailable || cleanupOnly} onChange={e => { setClose(e.target.checked); setConfirmed(''); }} />{t(mode === 'AFFILIATION' ? 'setup.inactivate' : 'setup.closeRelationship')}</label>}
       {replacing && <div className="space-y-2 rounded-lg border border-amber-700 p-3"><p>{t('setup.displacement')}</p>
         {mode === 'ASSIGNMENT' && assignment?.affected.map(r => <p key={r.assignmentId}>{display(r.driverId)} → {display(r.truckId)}</p>)}
         <p>{t('setup.requested')}: {mode === 'ASSIGNMENT' ? `${display(driverId)} → ${display(truckId)}` : mode === 'ALLOCATION' ? `${display(currentAllocation?.materialId)} → ${display(materialId)}` : `${display(entity?.affiliation?.carrierId)} → ${display(carrierId)}`}</p>
         <label className="flex gap-2"><input type="checkbox" checked={confirmationValid} disabled={busy || session.committed || !readAvailable} onChange={e => setConfirmed(e.target.checked ? confirmationSignature : '')} />{t('setup.confirmDisplacement')}</label>
       </div>}
-      {error && <div role="alert"><p>{t(error)}</p>{error === 'setup.errors.dependency' && <button type="button" onClick={onDependency}>{t('setup.manageAssignment')}</button>}</div>}
+      {error && <div role="alert"><p>{t(error)}</p>{dependencies&&Object.entries(dependencies).filter(([,count])=>count>0).map(([kind,count])=><p key={kind}>{t(`rb2.dependencies.${kind}`)}: {count}</p>)}{error === 'setup.errors.dependency' && (entity?.kind==='DRIVER'||entity?.kind==='TRUCK') && <button type="button" onClick={onDependency}>{t(!entity?.assignment&&entity?.allocation?'setup.manageAllocation':'setup.manageAssignment')}</button>}</div>}
       <div className="flex flex-wrap justify-end gap-3"><button type="button" disabled={busy} onClick={onClose}>{t('shared.actions.cancel')}</button><button className="rounded-lg bg-amber-700 px-4 py-2 disabled:opacity-50" disabled={busy || readAvailable && !session.committed && (!valid || replacing && !confirmationValid)}>{t(busy ? 'shared.status.loading' : session.committed || !readAvailable ? 'setup.retry' : 'shared.actions.confirm')}</button></div>
     </form>
   </div>;

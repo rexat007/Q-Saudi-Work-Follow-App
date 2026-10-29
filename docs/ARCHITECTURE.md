@@ -1,3 +1,13 @@
+## PFAG-RB2 coherent maintenance composition
+
+Current architecture reference; exact acceptance state belongs to [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
+`Reusable maintenance editor → existing scoped server authority → version/validation/audit transaction → receipt → foundation-snapshot read transaction → cross-surface/expected-result proof → generation-fenced atomic apply → same workflow`.
+
+ProjectFleetQueryService composes existing Master Data, Setup/Fleet, relationship, pricing-list and readiness readers in one transaction. No broad event/revision framework, independent-result stitching or alternate business authority is introduced. Wizard remains an orchestrator and reusable-capability host. Its Fleet child and pricing/readiness presentation consume the same composed payload; refresh-only retries cannot replay a successful command. A scoped dashboard readiness badge distinguishes ACTIVE status from current operational readiness without changing status.
+
+Project maintenance is allowlisted; identity and historical-sensitive configuration remain protected. Suspension preserves graph/history; explicit reactivation reuses activation readiness. Global Driver/Truck profile edits reuse one service/editor; import architecture and reviewed-intent authority are unchanged. Existing contextual import creation remains a useful shortcut to canonical capabilities, not a duplicate business path.
+
 ## PFAG-RB1 authority and relationship safety
 
 Current architecture reference; exact unit/acceptance state belongs to [the ledger](reconstruction/02_PHASE_LEDGER.md).

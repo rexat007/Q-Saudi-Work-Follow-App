@@ -11,7 +11,7 @@ import { UserRole } from '../types/common';
  * 3. VIEWER, DRIVER, SUPERVISOR, SCALE_OPERATOR, etc. are strictly read-only / non-administrative.
  */
 export function canEditProject(userProfile: UserEntity | null, projectId: string): boolean {
-  if (!userProfile) return false;
+  if (!userProfile || userProfile.status && userProfile.status!=='ACTIVE' || userProfile.isActive===false) return false;
   if (userProfile.role === 'SUPER_ADMIN') {
     return true;
   }
@@ -26,7 +26,7 @@ export function canEditProject(userProfile: UserEntity | null, projectId: string
  * Checks if a user has administrative status across system or project.
  */
 export function hasAdminRole(userProfile: UserEntity | null): boolean {
-  if (!userProfile) return false;
+  if (!userProfile || userProfile.status && userProfile.status!=='ACTIVE' || userProfile.isActive===false) return false;
   return (
     userProfile.role === 'SUPER_ADMIN' ||
     userProfile.role === 'PROJECT_ADMIN'
@@ -39,4 +39,9 @@ export function hasAdminRole(userProfile: UserEntity | null): boolean {
 export function getEffectiveRole(userProfile: UserEntity | null, fallbackRole: UserRole = 'VIEWER'): UserRole {
   if (!userProfile) return fallbackRole;
   return userProfile.role || fallbackRole;
+}
+
+/** Presentation capability only; the canonical server account remains authoritative. */
+export function canPresentProjectAction(identity:any,projectId:string,roles:readonly string[]=['SUPER_ADMIN','PROJECT_ADMIN']):boolean {
+  return Boolean(identity?.userId && identity.isActive!==false && (!identity.status||identity.status==='ACTIVE') && roles.includes(identity.role) && (identity.role==='SUPER_ADMIN'||projectId&&identity.assignedProjectIds?.includes(projectId)));
 }

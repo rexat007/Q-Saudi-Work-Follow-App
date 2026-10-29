@@ -96,7 +96,7 @@ export const PRIMARY_AREAS: PrimaryAreaDef[] = [
     titleEn: 'Projects & Master Data',
     icon: 'Building2',
     descriptionAr: 'معالج تهيئة المشاريع وإدارة الأساطيل، المقاولين، والمواد',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN'],
+    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'FINANCE_AUDITOR'],
   },
   {
     id: 'REPORTS',
@@ -128,7 +128,7 @@ export const NAV_ITEMS_REGISTRY: NavItemDef[] = [
     badgeEn: '7 Steps',
     badgeVariant: 'amber',
     icon: 'Building2',
-    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN'],
+    allowedRoles: ['SUPER_ADMIN', 'PROJECT_ADMIN', 'FINANCE_AUDITOR'],
     descriptionAr: 'معالج إنشاء وتهيئة المشاريع الكبرى وسلاسل الإمداد',
     isPrimary: true,
   },

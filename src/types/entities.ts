@@ -6,6 +6,7 @@ import type { GlobalTruckType, GlobalMaterialUom } from './globalEntities';
 
 // 1. Project Entity
 export interface ProjectEntity extends BaseAuditedEntity {
+  version?: number; // Optimistic profile revision; legacy missing value is zero.
   projectId: string;
   projectCode?: string;
   nameAr: string;

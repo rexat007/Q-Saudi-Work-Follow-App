@@ -11,7 +11,7 @@ vi.mock('../i18n', () => ({ useI18n: () => ({ t: (key: string) => key, direction
 vi.mock('../firebase/config', () => ({ db: {}, auth: { currentUser: { getIdToken: async () => 'token' } } }));
 vi.mock('../repositories/project.repository', () => ({ projectRepository: { findById: vi.fn(), subscribeToProjects: vi.fn(() => vi.fn()) } }));
 vi.mock('../repositories/pricingRule.repository', () => ({ pricingRuleRepository: { subscribeByProject: vi.fn(() => vi.fn()) } }));
-vi.mock('../services/projectCanonicalRefresh.service', () => ({ projectCanonicalRefreshService: { refresh: vi.fn(async () => ({ materials: [], carriers: [], fleetRows: [], relationshipContext: {} })) } }));
+vi.mock('../services/projectCanonicalRefresh.service', () => ({ projectCanonicalRefreshService: { refresh: vi.fn(async (id:string) => {const response=await fetch(`/api/projects/${id}/readiness`);if(!response.ok)throw Error('READINESS_UNAVAILABLE');return { materials: [], carriers: [], fleetRows: [], relationshipContext: {},readiness:await response.json() };}) } }));
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 const project = { projectId: 'P1', projectCode: 'P1', projectNumber: 1, nameAr: 'Example project', clientName: 'Client', status: 'SETUP', settings: {}, location: { addressAr: 'Address' } } as any;
 const auth = { userId: 'actor', role: 'SUPER_ADMIN', assignedProjectIds: ['P1'] } as any;

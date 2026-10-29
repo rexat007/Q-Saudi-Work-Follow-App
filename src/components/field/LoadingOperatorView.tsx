@@ -1,3 +1,5 @@
+import {ProjectOperationalReadiness} from '../wizard/ProjectOperationalReadiness';
+import {isProjectOperationallyMutable} from '../../services/projectMutability.policy';
 import { pricingRuleRepository } from '../../repositories/pricingRule.repository';
 import { tripCommandErrorKey } from '../../i18n/tripCommandErrors';
 import { TRIP_COMMANDS } from '../../types/tripCommands';
@@ -287,6 +289,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
       errors.push(translate("field_operations.validation_project_required"));
       return errors;
     }
+    if(!isProjectOperationallyMutable(projectsList.find(p=>p.projectId===projectId)?.status)){errors.push(translate('rb2.lifecycle_denied'));return errors;}
     if (hasMasterDataError) {
       errors.push(translate("operations.failed_to_load_approved_project_data_from_the_database"));
       return errors;
@@ -353,6 +356,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     projectId,
     hasMasterDataError,
     isMasterDataReady,
+    projectsList,
     context,
     carrierId,
     truckId,
@@ -722,6 +726,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   // =========================================================================
   return (
     <div className={`max-w-6xl mx-auto space-y-6 ${isRTL ? 'text-right' : 'text-left'} pb-12`} dir={isRTL ? 'rtl' : 'ltr'}>
+      <ProjectOperationalReadiness projectId={projectId} status={projectsList.find(p=>p.projectId===projectId)?.status} scopeKey={JSON.stringify([authContext.userId,authContext.role,authContext.assignedProjectIds])}/>
       {/* Top Station Status Banner */}
       <div className="bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">

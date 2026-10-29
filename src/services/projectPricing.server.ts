@@ -39,10 +39,14 @@ export class ProjectPricingServerService {
   async listPricingRules(p:string,c:AuthUserContext){
     return this.db.runTransaction(async(tx:any)=>{
       await this.actor(tx,p,c);
+      return this.listPricingRulesInTransaction(tx,p);
+    });
+  }
+  /** Caller owns current-principal authorization and the shared transaction snapshot. */
+  async listPricingRulesInTransaction(tx:any,p:string){
       const rules=await this.rules(tx,p);
       const trips=await tx.get(this.db.collection('projects').doc(p).collection('trips'));
-      return rules.map((r:any)=>{const canonical=mapped(r);return {...r,pricingModel:canonical.pricingType,baseRateSAR:canonical.rate,hasHistoricalTrips:trips.docs.some((d:any)=>{const t=d.data();return t.pricingRuleId===r.pricingRuleId||t.pricingSnapshot?.pricingRuleId===r.pricingRuleId;})};});
-    });
+      return rules.map((r:any)=>{const canonical=mapped(r);return {...r,status:canonical.status,isActive:canonical.status==='ACTIVE',pricingModel:canonical.pricingType,baseRateSAR:canonical.rate,hasHistoricalTrips:trips.docs.some((d:any)=>{const t=d.data();return t.pricingRuleId===r.pricingRuleId||t.pricingSnapshot?.pricingRuleId===r.pricingRuleId;})};});
   }
   /** Internal server query, composed inside the caller's transaction-backed database. */
   async resolvePricing(p:string,carrierId:string,materialId:string,date:string,requestedId?:string){

@@ -1,3 +1,4 @@
+import {readCurrentAllocation} from '../utils/temporalRelationshipReads';
 import { randomUUID } from 'node:crypto';
 import { adminDb } from '../firebase/admin';
 import { decodePersistence, decodeScopedProjection, PersistenceBoundaryError } from '../utils/persistenceBoundary';
@@ -96,6 +97,7 @@ export async function protectAffiliationAssignment(tx: any, db: any, plan: Plan)
     if (assignment.status !== 'ACTIVE' || assignment[spec.id] !== entityId) fail('P5_B3_RELATIONSHIP_DEPENDENCY');
     assignments.set(doc.id, assignment);
   }
+  if(kind==='TRUCK'&&after.status!=='ACTIVE'&&await readCurrentAllocation(tx,db,projectId,entityId,new Date()))fail('P5_B3_RELATIONSHIP_DEPENDENCY');
   if (assignments.size > 1) fail('P5_B3_RELATIONSHIP_DEPENDENCY');
   for (const assignment of assignments.values()) {
     if (assignment[spec.id] !== entityId || after.status !== 'ACTIVE') fail('P5_B3_RELATIONSHIP_DEPENDENCY');

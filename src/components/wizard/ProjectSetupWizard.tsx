@@ -1,3 +1,6 @@
+import {canPresentProjectAction} from '../../utils/permissions';
+import {PricingCleanupAction} from './PricingCleanupAction';
+import {ProjectMaintenancePanel} from './ProjectMaintenancePanel';
 import { pricingResolutionWindow, canonicalPricingRule } from '../../services/pricing.service';
 import { PricingRuleValidator } from '../../validators/pricingRule.validator';
 import { WORKSPACE_TABS } from '../../types/workspace';
@@ -362,6 +365,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   }, [selectedProjectId]);
 
   const attemptProjectSetupLayerNavigation = useCallback((targetLayer: ProjectSetupLayer) => {
+    if(targetLayer==='ACCESS'&&!canPresentProjectAction(authContext,editingProjectId||'')){setNavigationError(presentationTranslator.current('setup.errors.denied'));return;}
     const t = (key: string, params?: Record<string, string | number>) => presentationTranslator.current(key, params);
     // Unit 3A.2: Block data-dependent layers while project data is loading or project ID not yet loaded
     if (editingProjectId && (isProjectDataLoading || loadedProjectId !== editingProjectId)) {
@@ -609,13 +613,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // Core foundation setup lock for Active Projects (primary identifiers & metadata)
   const isCoreSetupLocked = useMemo(() => {
-    return project?.status === 'ACTIVE';
-  }, [project]);
+    return !project || !['SETUP','READY_FOR_REVIEW','APPROVED'].includes(project.status) || !canPresentProjectAction(authContext,project.projectId);
+  }, [project,authContext]);
 
   // Operational Mutability check (Active projects allow operational additions/mutations under governance)
   const isOperationallyMutable = useMemo(() => {
-    return isProjectOperationallyMutable(project?.status);
-  }, [project]);
+    return isProjectOperationallyMutable(project?.status) && canPresentProjectAction(authContext,project?.projectId||'');
+  }, [project,authContext]);
 
   // Unit 2 — Foundation Edit / Save / Cancel Boundary State
   const [isEditingFoundation, setIsEditingFoundation] = useState<boolean>(false);
@@ -704,8 +708,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     );
   }, [isEditingFoundation, foundationDraft, project]);
 
+  const foundationDraftVersion=useRef(0);
   const handleEnterFoundationEdit = useCallback(() => {
     if (isCoreSetupLocked || !project) return;
+    foundationDraftVersion.current=(project as any).version||0;
     setFoundationDraft({
       nameAr: project.nameAr || '',
       clientName: project.clientName || '',
@@ -761,16 +767,18 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       };
 
       if (!foundationReceipt.current || !projectContext.isCurrent(foundationReceipt.current, project.projectId)) {
-        await projectService.updateProject(project.projectId, updates, authContext);
+        await projectService.updateProject(project.projectId, updates, authContext, foundationDraftVersion.current);
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
         foundationReceipt.current = requestContext;
         setFoundationNeedsRefresh(true);
       }
-      const updatedProject = await projectService.getProject(project.projectId);
+      const refreshed = await projectCanonicalRefreshService.refresh(project.projectId,{isCurrent:()=>projectContext.isCurrent(requestContext,editingProjectId)});
+      const updatedProject=refreshed.project;
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
       if (!updatedProject) throw new Error('FOUNDATION_REFRESH_FAILED');
       foundationReceipt.current = null; setFoundationNeedsRefresh(false);
 
+      applyCanonicalSnapshot(project.projectId,refreshed,requestContext.generation);
       setCurrentProjectOverride(updatedProject, requestContext, 'FOUNDATION');
       setIsEditingFoundation(false);
       setFoundationDraft(null);
@@ -806,29 +814,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setServerReadiness(null);
     setReadinessError(null);
     try {
-      const token = await auth.currentUser?.getIdToken();
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      const res = await fetch(`/api/projects/${targetProjectId}/readiness`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      if (!isCurrentReadiness()) {
-        return;
-      }
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-        throw new Error('READINESS_UNAVAILABLE');
-      }
-      const data: ServerReadinessDTO = await res.json();
-      if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
-      if (!isCurrentReadiness()) {
-        return;
-      }
-      if (!isEvaluatedReadiness(data, targetProjectId)) throw new Error('READINESS_UNAVAILABLE');
-      setServerReadiness(data);
+      const snapshot=await projectCanonicalRefreshService.refresh(targetProjectId,{isCurrent:isCurrentReadiness});
+      if(!isCurrentReadiness())return;
+      const data=snapshot.readiness;
+      if(!isEvaluatedReadiness(data,targetProjectId))throw Error('READINESS_UNAVAILABLE');
+      applyCanonicalSnapshot(targetProjectId,snapshot,requestContext.generation,false);
+      setServerReadiness(snapshot.readiness as ServerReadinessDTO);
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
@@ -846,10 +837,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
   }, [editingProjectId, projectScopeKey, projectContext]);
 
+  const [canonicalSetupSnapshot,setCanonicalSetupSnapshot]=useState<import('../../types/setupFleet').SetupFleetContext|null>(null);
   const applyCanonicalSnapshot = useCallback((
     arg1: string | ProjectCanonicalRefreshSnapshot,
     arg2?: ProjectCanonicalRefreshSnapshot,
-    generation?: number
+    generation?: number,
+    advanceRevision=true
   ) => {
     let targetProjectId: string | undefined;
     let snapshot: ProjectCanonicalRefreshSnapshot;
@@ -862,8 +855,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
     if (!targetProjectId || generation === undefined || !projectContext.isCurrent({ projectId: targetProjectId, generation }, targetProjectId)) return;
 
+    if(snapshot.project)setCurrentProjectOverride(snapshot.project,{projectId:targetProjectId,generation},'FOUNDATION');
+    if(snapshot.readiness)setServerReadiness(snapshot.readiness);
+    if(snapshot.pricingRules)setPricingRules(snapshot.pricingRules);
+    setCanonicalSetupSnapshot(snapshot.setup||null);
     setProjectDataLoadError(null);
-    setCanonicalRevision(value => value + 1);
+    if(advanceRevision)setCanonicalRevision(value => value + 1);
     setMaterials(snapshot.materials || []);
     setCarriers(snapshot.carriers || []);
     setFleetRows(snapshot.fleetRows || []);
@@ -976,21 +973,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     fetchCanonicalData();
   }, [editingProjectId, applyCanonicalSnapshot, projectScopeKey]);
 
-  // Unit 3A.2: Pricing Rules Subscription depends only on editingProjectId
-  useEffect(() => {
-    if (!editingProjectId) {
-      setPricingRules([]);
-      return;
-    }
-    const subscriptionContext = projectContext.capture();
-    const unsubP = pricingRuleRepository.subscribeByProject(editingProjectId, (list) => {
-      if (!projectContext.isCurrent(subscriptionContext, editingProjectId)) return;
-      setPricingRules(list || []);
-    });
-    return () => {
-      unsubP();
-    };
-  }, [editingProjectId, projectScopeKey]);
+  // Pricing changes use the same coherent foundation read; no independently applied list generation.
+  useEffect(()=>{const refresh=()=>{if(editingProjectId)void fetchServerReadiness(editingProjectId);};window.addEventListener('pricing-rules-updated',refresh);return()=>window.removeEventListener('pricing-rules-updated',refresh);},[editingProjectId,projectScopeKey,fetchServerReadiness]);
 
   useEffect(() => {
     if (editingProjectId && !foundationNeedsRefresh && !isSavingFoundation) {
@@ -3579,13 +3563,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="bg-stone-950 border border-stone-800 px-4 py-2 rounded-xl text-xs text-white focus:outline-hidden focus:border-amber-500"
               />
-              <button
+              {canPresentProjectAction(authContext,'',['SUPER_ADMIN'])&&<button
                 onClick={() => setIsCreatingNew(true)}
                 className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all"
               >
                 <Plus className="w-4 h-4" />
                 <span>{t('navigation.labels.provision_new_project')}</span>
-              </button>
+              </button>}
             </div>
           </div>
 
@@ -3783,6 +3767,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               </span>
             </div>
 
+            {project&&<ProjectMaintenancePanel key={`${project.projectId}:${renderedContext.generation}`} project={project} readiness={serverReadiness} canManage={canPresentProjectAction(authContext,project.projectId)} isCurrent={()=>projectContext.isCurrent(renderedContext,project.projectId)} apply={snapshot=>applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation)}/>}
             {/* Locked setup alert */}
             {isCoreSetupLocked && (
               <div className="p-3 bg-emerald-950/40 border border-emerald-800 rounded-xl text-emerald-400 text-[10px] font-bold flex items-center gap-2">
@@ -3793,7 +3778,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
             {/* Layer Selector Stack */}
             <div className="space-y-1.5">
-              {PROJECT_SETUP_LAYERS.map((layer) => {
+              {PROJECT_SETUP_LAYERS.filter(layer=>layer.id!=='ACCESS'||canPresentProjectAction(authContext,project?.projectId||'')).map((layer) => {
                 const isActive = activeSetupLayer === layer.id;
                 const Icon = LAYER_ICONS[layer.id];
                 return (
@@ -4043,14 +4028,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   </div>
 
                   <div className="pt-2 flex justify-end">
-                    <button
+                    {isOperationallyMutable&&<button
                       onClick={handleSyncGoogleWorkspace}
                       disabled={isSyncingGoogle}
                       className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-4 py-2 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50"
                     >
                       {isSyncingGoogle ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <FolderSync className="w-4 h-4" />}
                       <span>{project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')}</span>
-                    </button>
+                    </button>}
                   </div>
                 </div>
               </div>
@@ -4160,7 +4145,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="py-2.5">{m.unitOfMeasure}</td>
                               <td className="py-2.5 font-mono">{m.standardDensityTonPerM3 || 1.6} {t('projects.batch4.ton_per_cubic_meter')}</td>
                               <td className="py-2.5 text-center">
-                                {isOperationallyMutable && authContext.role === 'SUPER_ADMIN' && (
+                                {isOperationallyMutable && (
                                   <button
                                     type="button"
                                     onClick={() => setEditingMaterial(m)}
@@ -4285,7 +4270,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="py-2.5 font-mono">{c.transportLicenseNo || '—'}</td>
                               <td className="py-2.5 truncate font-mono">{c.contactPerson?.email || '—'}</td>
                               <td className="py-2.5 text-center">
-                                {isOperationallyMutable && authContext.role === 'SUPER_ADMIN' && (
+                                {isOperationallyMutable && (
                                   <button
                                     type="button"
                                     onClick={() => setEditingCarrier(c)}
@@ -4311,7 +4296,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               <div className="space-y-6 text-xs text-stone-300">
                 {isRestoringImportSession && <p role="status">{t('projects.batch4.loading_canonical_project')}</p>}
                 <FleetSetupWorkspace key={`${project.projectId}:${renderedContext.generation}`} projectId={project.projectId}
-                  revision={canonicalRevision} mutable={isOperationallyMutable}
+                  canonicalContext={canonicalSetupSnapshot} revision={canonicalRevision} mutable={isOperationallyMutable} cleanupAllowed={canPresentProjectAction(authContext,project.projectId)}
                   isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
                   apply={snapshot => applyCanonicalSnapshot(project.projectId, snapshot, renderedContext.generation)} />
                 {/* Unified Import Pipeline Roster section */}
@@ -4457,7 +4442,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       <p className="text-[10px] text-stone-500">{t('projects.batch4.pricing_agreements_description')}</p>
                     </div>
 
-                    {isOperationallyMutable && (
+                    {(isOperationallyMutable||canPresentProjectAction(authContext,project?.projectId||'',['FINANCE_AUDITOR'])&&isProjectOperationallyMutable(project?.status)) && (
                       <button
                         onClick={() => { setEditingPricingRule(null); setPriceStatus('ACTIVE'); setPriceCarrierId(''); setPriceRate(0); setPriceFrom(new Date().toISOString().slice(0,10)); setPriceTo(''); setPriceNotes(''); setIsAddingPricing(true); }}
                         className="text-amber-500 font-bold hover:underline flex items-center gap-1"
@@ -4571,7 +4556,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="py-2.5 font-mono text-emerald-400">{r.baseRateSAR} {t('shared.units.sar')}</td>
                               <td className="py-2.5 font-mono">{r.effectiveFrom}</td>
                               <td className="py-2.5 font-mono">{r.effectiveTo || t('projects.batch4.open_ended')}</td>
-                              <td><span className="block text-xs">{t(r.status==='INACTIVE'?'pricing.inactive':'pricing.active')}</span>{r.supersededByRuleId && <span className="block text-xs">{t('pricing.replaced', {date:r.supersededFrom || ''})}</span>}{isOperationallyMutable && <button type="button" disabled={!['PER_TRIP','PER_TON'].includes(r.pricingModel)} onClick={() => {
+                              <td><span className="block text-xs">{t(r.status==='INACTIVE'?'pricing.inactive':'pricing.active')}</span>{['SUSPENDED','ARCHIVED'].includes(project.status)&&r.status!=='INACTIVE'&&canPresentProjectAction(authContext,project.projectId,['SUPER_ADMIN','PROJECT_ADMIN','FINANCE_AUDITOR'])&&<PricingCleanupAction projectId={project.projectId} rule={r} isCurrent={()=>projectContext.isCurrent(renderedContext,project.projectId)} apply={snapshot=>applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation)}/>} {r.supersededByRuleId && <span className="block text-xs">{t('pricing.replaced', {date:r.supersededFrom || ''})}</span>}{(isOperationallyMutable||canPresentProjectAction(authContext,project?.projectId||'',['FINANCE_AUDITOR'])&&isProjectOperationallyMutable(project?.status)) && <button type="button" disabled={!['PER_TRIP','PER_TON'].includes(r.pricingModel)} onClick={() => {
                                 setEditingPricingRule(r); setPriceStatus(r.status==='INACTIVE'?'INACTIVE':'ACTIVE'); setPriceCarrierId(r.carrierId || ''); setPriceMaterialId(r.materialId || 'ALL_MATERIALS');
                                 setPriceModel(r.pricingModel === 'PER_TRIP' ? 'PER_TRIP' : 'PER_TON'); setPriceRate(r.baseRateSAR); setPriceFrom(r.effectiveFrom); setPriceTo(r.effectiveTo || ''); setPriceNotes(r.notes || ''); setIsAddingPricing(true);
                               }}>{t(r.hasHistoricalTrips ? 'pricing.manage_used':'shared.actions.edit')}</button>}</td>
