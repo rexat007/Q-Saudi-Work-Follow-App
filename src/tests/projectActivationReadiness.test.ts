@@ -136,7 +136,7 @@ describe('ProjectReadinessService Behavioral Test Suite', () => {
     mockContext.truckAffiliations = { t1: { carrierId: 'c1', status: 'ACTIVE' } as any };
     mockContext.driverAssignments = { d1: { truckId: 't1', status: 'ACTIVE', assignmentId: 'a1' } as any };
     mockContext.truckAllocations = { t1: { truckId: 't1', materialId: 'm1', status: 'ACTIVE', allocationId: 'al1' } as any };
-    mockContext.pricingRules = [{ pricingRuleId: 'p1', status: 'ACTIVE', projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' } as any];
+    mockContext.pricingRules = [{ pricingRuleId: 'p1', pricingModel:'PER_TON', baseRateSAR:10, status: 'ACTIVE', projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' } as any];
   };
 
   it('M01 — no active material', async () => { setupValidPath(); mockContext.materialMemberships = []; const r = await readinessService.evaluateProjectReadiness('test-proj', new Date(), mockContext); expect(r.blockers.some(b => b.code === 'NO_ACTIVE_MATERIAL')).toBe(true); });
@@ -261,7 +261,7 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
 
     vi.spyOn(NonTransactionReadContext.prototype, 'listPricingRules').mockResolvedValue([
       {
-        pricingRuleId: 'pr1', status: 'ACTIVE',
+        pricingRuleId: 'pr1', pricingModel:'PER_TON', baseRateSAR:10, status: 'ACTIVE',
         projectId: 'test-proj',
         carrierId: 'c1',
         materialId: 'm1',
@@ -283,7 +283,7 @@ describe('ProjectActivationService Transaction Consistency Tests', () => {
     mockDatabase['projects/test-proj/driver_truck_assignments/a1'] = { assignmentId: 'a1', driverId: 'd1', truckId: 't1', status: 'ACTIVE' };
     mockDatabase['projects/test-proj/truck_active_material_allocations/t1'] = { allocationId: 'al1' };
     mockDatabase['projects/test-proj/truck_material_allocations/al1'] = { allocationId: 'al1', projectId: 'test-proj', truckId: 't1', materialId: 'm1', status: 'ACTIVE', effectiveTo: null };
-    mockDatabase['projects/test-proj/pricing_rules/pr1'] = { pricingRuleId: 'pr1', status: 'ACTIVE', projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' };
+    mockDatabase['projects/test-proj/pricing_rules/pr1'] = { pricingRuleId: 'pr1', pricingModel:'PER_TON', baseRateSAR:10, status: 'ACTIVE', projectId: 'test-proj', carrierId: 'c1', materialId: 'm1', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' };
     // Canonical persistence fixtures; no production normalization is introduced.
     for (const [kind, id] of [['driver','d1'],['truck','t1'],['carrier','c1'],['material','m1']]) {
       mockDatabase[`${kind}s/${id}`] = { [`${kind}Id`]: id, status: 'ACTIVE' };

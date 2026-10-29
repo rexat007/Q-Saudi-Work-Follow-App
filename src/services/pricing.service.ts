@@ -7,7 +7,28 @@ import {
   TripPricingSnapshot,
   PricingResolutionResult
 } from '../types/pricing';
-import { pricingRuleRepository } from '../repositories/pricingRule.repository';
+
+
+/** Calendar dates are UTC days; explicit ISO instants retain their actual cutoff. */
+export function pricingInstant(value:any,endOfDay=false):number|undefined {
+  if(value && typeof value.toDate==='function')return pricingInstant(value.toDate(),endOfDay);
+  if(value instanceof Date)return Number.isFinite(value.getTime())?value.getTime():undefined;
+  if(typeof value!=='string')return undefined;
+  const day=value.slice(0,10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(Date.parse(day))||new Date(day).toISOString().slice(0,10)!==day)return undefined;
+  if(value===day)return Date.parse(day)+(endOfDay?86400000-1:0);
+  if(!/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(value))return undefined;
+  const at=Date.parse(value);return Number.isFinite(at)?at:undefined;
+}
+export function canonicalPricingDate(value:any):string|undefined {
+  const at=pricingInstant(value);if(at===undefined)return undefined;
+  return typeof value==='string'&&value.length===10?value:new Date(at).toISOString();
+}
+
+/** Representation mapping only; no fabricated dates, actors, fallback rate or cross-project default. */
+export function canonicalPricingRule(r:any): PricingRule {
+  return {...r,pricingType:r.pricingModel ?? r.pricingType,rate:r.baseRateSAR ?? r.rate,status:r.status ?? (r.isActive===true ? 'ACTIVE':'INACTIVE')};
+}
 
 export class PricingService {
   private inMemoryRules: Map<string, PricingRule> = new Map();
@@ -60,7 +81,8 @@ export class PricingService {
   public normalizeDate(dateVal: string | Date | any): string {
     if (!dateVal) return '';
     if (typeof dateVal === 'string') {
-      return dateVal.split('T')[0].trim();
+      const day = dateVal.split('T')[0].trim();
+      return /^\d{4}-\d{2}-\d{2}$/.test(day) && Number.isFinite(Date.parse(day)) && new Date(day).toISOString().slice(0,10) === day ? day : '';
     }
     if (dateVal instanceof Date) {
       return dateVal.toISOString().split('T')[0];
@@ -86,6 +108,7 @@ export class PricingService {
     params: ResolvePricingParams
   ): PricingResolutionResult {
     const targetDate = this.normalizeDate(params.tripDate);
+    const targetInstant = pricingInstant(params.tripDate);
 
     // Validate parameters
     if (!params.projectId || !params.projectId.trim()) {
@@ -112,7 +135,7 @@ export class PricingService {
       };
     }
 
-    if (!targetDate) {
+    if (!targetDate || targetInstant === undefined) {
       return {
         status: 'INVALID',
         selectedRule: null,
@@ -161,7 +184,7 @@ export class PricingService {
 
     // 3. Active status filter
     const activeRules = typeFiltered.filter(
-      (r) => r.status === 'ACTIVE' || (r as any).isActive === true
+      (r) => r.status !== undefined ? r.status === 'ACTIVE' : (r as any).isActive === true
     );
 
     if (activeRules.length === 0) {
@@ -177,19 +200,16 @@ export class PricingService {
     }
 
     // 4. Match within effective date range
-    const validDateRules = activeRules.filter((r) => {
-      const from = this.normalizeDate(r.effectiveFrom);
-      const to = r.effectiveTo ? this.normalizeDate(r.effectiveTo) : null;
-      const afterFrom = !from || targetDate >= from;
-      const beforeTo = !to || targetDate <= to;
-      return afterFrom && beforeTo;
+    const validDateRules = activeRules.filter(r=>{
+      const from=pricingInstant(r.effectiveFrom),to=r.effectiveTo?pricingInstant(r.effectiveTo,true):undefined;
+      return from!==undefined && targetInstant!>=from && (!r.effectiveTo || to!==undefined && targetInstant!<=to);
     });
 
     if (validDateRules.length === 0) {
       // Check if expired
       const expiredRules = activeRules.filter((r) => {
-        const to = r.effectiveTo ? this.normalizeDate(r.effectiveTo) : null;
-        return to && targetDate > to;
+        const to = r.effectiveTo ? pricingInstant(r.effectiveTo,true) : undefined;
+        return to !== undefined && targetInstant! > to;
       });
 
       if (expiredRules.length > 0) {
@@ -206,8 +226,8 @@ export class PricingService {
 
       // Check if future
       const futureRules = activeRules.filter((r) => {
-        const from = this.normalizeDate(r.effectiveFrom);
-        return from && targetDate < from;
+        const from = pricingInstant(r.effectiveFrom);
+        return from !== undefined && targetInstant! < from;
       });
 
       if (futureRules.length > 0) {
@@ -283,6 +303,7 @@ export class PricingService {
 
     // Deterministic unambiguous match
     const resolvedRule = candidatePool[0];
+    if (!['PER_TRIP','PER_TON'].includes(resolvedRule.pricingType) || !Number.isFinite(resolvedRule.rate) || resolvedRule.rate <= 0) return {status:'INVALID',selectedRule:null,rule:null,reason:'INVALID_PRICING_RULE',reasonAr:'INVALID_PRICING_RULE',reasonCode:'INVALID_PRICING_RULE',candidates:candidatePool};
     return {
       status: 'RESOLVED',
       selectedRule: resolvedRule,
@@ -299,27 +320,10 @@ export class PricingService {
    */
   async resolvePricingRule(params: ResolvePricingParams): Promise<PricingResolutionResult> {
     try {
+      const { pricingRuleRepository } = await import('../repositories/pricingRule.repository');
       const rawEntities = await pricingRuleRepository.listByProject(params.projectId);
 
-      const rules: PricingRule[] = rawEntities.map((e: any) => ({
-        pricingRuleId: e.pricingRuleId,
-        projectId: e.projectId,
-        carrierId: e.carrierId || '',
-        materialId: e.materialId || null,
-        pricingType: (e.pricingModel === 'PER_TRIP' || e.pricingType === 'PER_TRIP') ? 'PER_TRIP' : 'PER_TON',
-        rate: e.rate !== undefined ? e.rate : (e.baseRateSAR !== undefined ? e.baseRateSAR : 0),
-        currency: e.currency || 'SAR',
-        settlementBase: e.settlementBase,
-        effectiveFrom: e.effectiveFrom || '2020-01-01',
-        effectiveTo: e.effectiveTo || null,
-        status: e.status || (e.isActive !== false ? 'ACTIVE' : 'INACTIVE'),
-        version: e.version || 1,
-        parentRuleId: e.parentRuleId,
-        createdAt: e.createdAt || new Date().toISOString(),
-        createdBy: e.createdBy || 'system',
-        updatedAt: e.updatedAt || new Date().toISOString(),
-        notes: e.notes,
-      }));
+      const rules: PricingRule[] = rawEntities.map(canonicalPricingRule);
 
       return this.resolvePricingRuleFromList(rules, params);
     } catch (err: any) {

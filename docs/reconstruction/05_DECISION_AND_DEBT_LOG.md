@@ -750,7 +750,7 @@ Proposed follow-up phases remain explicitly identified as proposals from the acc
 - Legacy or duplicate mock services superseded by canonical server services.
 - **Historical CD-41 supplemental provenance (not a retirement candidate or a new decision ID)**: Block82 historical fixed 1,128-key invariant retired; current locale dictionaries remain translation authority; 1128 was historical migration-era cardinality only; 1129 is NOT introduced as a replacement frozen contract; dry-run integrity now uses dynamic current locale parity/counts; cleanup verification uses pre/post count preservation; final reports display dynamic current counts; CLN-04/05/06/09 aligned to current authority; all 9 Block82 tests retained; no locale dictionary changes; taxonomy corrected from UI_DOM/FIREBASE_MOCK to UNIT/PURE_LOGIC; production service changed only to remove stale historical cardinality logic.
 
-## P8-B4 source/resume decisions
+## Historical P8-B4 pre-publication source/resume decisions
 
 - RESOLVED within the Roster source journey: terminal result discovery, execution-first restore, partial result visibility, explicit unfinished-only retry/cancel, and lost-response status recovery. B3 remains the sole execution authority.
 - RESOLVED within the source adapters: exact local reattach preserves the Session/mapping/review; remote values are bound to the accepted spreadsheet/tab/snapshot and use the shared Roster core. The existing Trip Sheets path remains separate.
@@ -758,3 +758,15 @@ Proposed follow-up phases remain explicitly identified as proposals from the acc
 - STILL_OPEN: existing typecheck debt and reproduced historical assertion/external-dependency failures. Source/browser verification does not waive live Firebase/Google integration acceptance.
 - ROUTED_TO_LATER_PHASE: offline/outbox redesign, pricing and broad release certification remain outside this unit. Phase 9 is not started.
 - TEST_HARNESS_COMPATIBILITY_CORRECTION: three existing test files retain their test counts while replacing the superseded local-result state requirement with durable journal-result assertions, recognizing the separately guarded legacy result panel, and using the full cancellation-handler boundary rather than a fixed character window. No historical failure was deleted or reclassified to hide a regression.
+
+## P9-U1 pricing authority reconciliation — 2026-10-29
+
+- RESOLVED: browser Firestore/cache pricing writes and the success-only update endpoint are replaced by authenticated canonical server operations with version fencing, overlap rejection and audit. Forged role/Project/legacy authorization-array claims do not override canonical participation.
+- RESOLVED: readiness, operational assignment and pure previews share the pricing selection policy. Existing timestamp precision is retained; a transaction-time expiry regression test remains enforced.
+- RESOLVED: fixed Trip snapshots retain commercial terms; completion uses stored rates, and reports cannot infer missing historical waiting charges from a mutable master rule.
+- SUPERSEDED: the client-only COW placeholder and fake default rule are not business authority. Unreachable prototype `CanonicalPricingRepository` retains its old read contract; active pricing does not call it. The server adapter's legacy read-only inspection fallback is not used by active assignment, which calls `resolve`.
+- STILL_OPEN: a separately designed production COW/versioning UX, unsupported legacy model migration, existing diagnostics and baseline-reproduced test debt. No new Phase-9 unit ID is assigned and no repricing feature is invented.
+- ROUTED_TO_LATER_PHASE: broad accounting/invoicing, offline reconstruction and Trip lifecycle redesign remain outside this unit.
+- TEST_HARNESS_COMPATIBILITY_CORRECTION: existing pricing server tests gain canonical account/global fixtures and structured error assertions; alternate-schema writes now prove fail-closed rejection. The pricing slice of the persistence-boundary test uses authenticated HTTP transport while preserving timestamp/identity checks. Three readiness/activation fixture files gain the pricing model and positive rate required for a valid commercial rule, without changing workflow assertions. Test counts are retained (76/75/41/67/28 across the five existing changed suites).
+
+The P8-B4 merge closes Phase 8 at source level. Publication for this P9-U1 branch is explicitly authorized; owner merge remains manual. Live Firebase acceptance is not claimed.

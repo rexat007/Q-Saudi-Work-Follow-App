@@ -148,7 +148,7 @@ export class PricingRuleValidator {
       // Must be same carrier
       if (r.carrierId !== candidate.carrierId) return false;
       // Must be active
-      if (r.status !== 'ACTIVE' && (r as any).isActive === false) return false;
+      if (r.status !== undefined ? r.status !== 'ACTIVE' : (r as any).isActive !== true) return false;
       // Must be same material specificity
       const rMat = r.materialId || null;
       if (candMat !== rMat) return false;

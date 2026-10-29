@@ -3,7 +3,7 @@ import { isCurrentTemporal, assignmentSlotsAgree } from '../utils/temporalRelati
 import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 import { buildPrincipal } from '../utils/principal';
 import type { AuthUserContext } from '../types/common';
-import { validateCandidateIds, validReadinessId, applicableReadinessPricing, type CandidatePath, type ReadinessBlocker } from './projectReadiness.service';
+import { validateCandidateIds, validReadinessId, applicableReadinessPricing, readinessPricing, type CandidatePath, type ReadinessBlocker } from './projectReadiness.service';
 import { decodeProject, decodeGlobal, decodePersistence, decodeScopedProjection, decodeRelationship, decodePricing, PersistenceBoundaryError } from '../utils/persistenceBoundary';
 import { adminDb } from '../firebase/admin';
 import { ProjectReadinessReadContext } from './projectReadiness.context';
@@ -78,7 +78,9 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
     relationship(slotsMatch && assignmentSlotsAgree(assignment, snapshots[8].data(), snapshots[9].data()), 'CANDIDATE_SLOT_CHANGED', 'فشل تنشيط المشروع: مؤشر التعيين النشط غير متطابق');
     relationship(assignment.status === 'ACTIVE' && assignment.driverId === driverId && assignment.truckId === truckId && started(assignment), 'CANDIDATE_ASSIGNMENT_CHANGED', 'فشل تنشيط المشروع: تفاصيل التعيين غير متطابقة أو غير نشطة');
     relationship(allocation.status === 'ACTIVE' && allocation.truckId === truckId && allocation.materialId === materialId && started(allocation), 'CANDIDATE_ALLOCATION_CHANGED', 'فشل تنشيط المشروع: تفاصيل التخصيص غير متطابقة أو غير نشطة');
-    if (!applicableReadinessPricing(pricing, projectId, carrierId, materialId, evaluatedAt)) blockers.push({ category: 'PRICING', ownerPhase: 'PHASE_9', code: 'NO_APPLICABLE_PRICING', message: 'فشل تنشيط المشروع: قاعدة التسعير منتهية الصلاحية أو غير سارية' });
+    const currentRules = await this.get(base.collection('pricing_rules'));
+    const priceSelection = readinessPricing(currentRules.docs.map((d:any)=>decodePricing<any>(d.data(),d.id,projectId)),projectId,carrierId,materialId,evaluatedAt);
+    if (priceSelection.status !== 'RESOLVED' || priceSelection.selectedRule?.pricingRuleId !== pricingRuleId) blockers.push({ category: 'PRICING', ownerPhase: 'PHASE_9', code: 'NO_APPLICABLE_PRICING', message: 'فشل تنشيط المشروع: قاعدة التسعير منتهية الصلاحية أو غير سارية' });
     return blockers;
   }
 

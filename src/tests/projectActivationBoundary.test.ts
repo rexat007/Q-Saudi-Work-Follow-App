@@ -23,7 +23,7 @@ function fixtures() {
   store[prefix + 'driver_truck_assignments/ASN'] = { ...interval, assignmentId: 'ASN', driverId: 'D', truckId: 'T' };
   store[prefix + 'truck_material_allocations/ALC'] = { ...interval, allocationId: 'ALC', truckId: 'T', materialId: 'M' };
   store[prefix + 'truck_active_material_allocations/T'] = { allocationId: 'ALC' };
-  store[prefix + 'pricing_rules/PRICE'] = { projectId: 'P1', pricingRuleId: 'PRICE', carrierId: 'C', materialId: 'M', status: 'ACTIVE', isActive: true, effectiveFrom: '2020-01-01', effectiveTo: '2099-01-01' };
+  store[prefix + 'pricing_rules/PRICE'] = { projectId: 'P1', pricingRuleId: 'PRICE', pricingModel:'PER_TON', baseRateSAR:10, carrierId: 'C', materialId: 'M', status: 'ACTIVE', isActive: true, effectiveFrom: '2020-01-01', effectiveTo: '2099-01-01' };
   return store;
 }
 let x: ReturnType<typeof commandDatabase>, service: ProjectActivationService;

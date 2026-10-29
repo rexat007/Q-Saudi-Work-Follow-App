@@ -16,7 +16,7 @@ import { ImportSessionServerService } from '../services/importSession.server';
 import { getState, markDirty } from '../services/projectWorkspaceProjectionState.server';
 import { WorkspaceStorageBoundary } from '../../server/workspace.isolation';
 
-vi.mock('../firebase/config', () => ({ db: {}, auth: { currentUser: { uid: 'u', email: 'u@example.invalid' } } }));
+vi.mock('../firebase/config', () => ({ db: {}, auth: { currentUser: { uid: 'u', email: 'u@example.invalid', getIdToken:async()=> 'TEST_TOKEN' } } }));
 vi.mock('firebase/firestore', async original => ({
   ...await original<typeof import('firebase/firestore')>(),
   doc: vi.fn((...args: unknown[]) => ({ id: args.at(-1) })), collection: vi.fn(() => ({})), query: vi.fn(() => ({})), where: vi.fn(() => ({})), orderBy: vi.fn(() => ({})), limit: vi.fn(() => ({})),
@@ -149,7 +149,11 @@ describe('Repository and server adoption', () => {
     read.mockResolvedValue({ exists: () => true, id: 't', data: () => ({ tripId: 't', projectId: 'P', createdAt: iso }) } as any);
     expect((await new TripRepository().findById('P', 't'))?.createdAt).toEqual(new Date(iso));
     read.mockResolvedValue({ exists: () => true, id: 'r', data: () => ({ pricingRuleId: 'r', projectId: 'P', createdAt: iso }) } as any);
-    expect((await new PricingRuleRepository().findById('P', 'r'))?.createdAt).toEqual(new Date(iso));
+    const http = vi.spyOn(globalThis,'fetch').mockResolvedValueOnce({ok:true,json:async()=>({success:true,data:[{pricingRuleId:'r',projectId:'P',createdAt:iso}]})} as any);
+    try {
+      expect((await new PricingRuleRepository().findById('P', 'r'))?.createdAt).toEqual(new Date(iso));
+      expect(http).toHaveBeenCalledWith('/api/projects/P/pricing-rules',expect.objectContaining({method:'GET',headers:expect.objectContaining({Authorization:'Bearer TEST_TOKEN'})}));
+    } finally { http.mockRestore(); }
   });
   it.each([
     [globalDriverRepository, 'driverId'], [globalTruckRepository, 'truckId'],

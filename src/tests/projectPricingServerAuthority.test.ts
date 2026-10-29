@@ -30,8 +30,12 @@ describe('Project Pricing Server Authority Test Suite', () => {
     const testDb = createInMemoryAdminDb({});
     setTestDbOverride(testDb);
 
+    // Canonical current-account/global fixtures; client role claims are not authority.
+    for (const [uid,role] of [['admin-1','PROJECT_ADMIN'],['auditor-1','FINANCE_AUDITOR'],['super-1','SUPER_ADMIN'],['user-1','DRIVER']]) inMemoryAdminStore['users/'+uid]={userId:uid,role,status:'ACTIVE',assignedProjectIds:['Q-PRJ-006','URL-PRJ-AUTHORITATIVE']};
+    for (const id of ['CAR-1','CAR-2','CAR-ACTIVE','CAR-SUSP','CAR-REM']) inMemoryAdminStore['carriers/'+id]={carrierId:id,status:'ACTIVE'};
+    for (const id of ['MAT-1','MAT-2','MAT-ACTIVE','MAT-INACTIVE','MAT-SUSP']) inMemoryAdminStore['materials/'+id]={materialId:id,status:'ACTIVE'};
     // Seed baseline project
-    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', nameAr: 'مشروع الاختبار' };
+    inMemoryAdminStore['projects/Q-PRJ-006'] = { projectId: 'Q-PRJ-006', status:'SETUP', nameAr: 'مشروع الاختبار' };
   });
 
   // Original Baseline Tests (Preserved)
@@ -59,7 +63,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
   it('Fails creation if unauthorized', async () => {
     await expect(
       projectPricingServerService.createPricingRule('Q-PRJ-006', {}, { userId: 'user-1', role: 'DRIVER' } as any)
-    ).rejects.toThrow('غير مصرح لك بإنشاء أو تعديل قواعد التسعير');
+    ).rejects.toThrow('FORBIDDEN_PRICING_ACTION');
   });
 
   it('Fails creation if rule overlaps', async () => {
@@ -93,7 +97,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
 
     await expect(
       projectPricingServerService.createPricingRule('Q-PRJ-006', payload, adminContext as any)
-    ).rejects.toThrow('يوجد تداخل زمني مع قاعدة تسعير سارية');
+    ).rejects.toThrow('PRICING_OVERLAP');
   });
 
   // Expanded Coverage Contract Tests
@@ -121,7 +125,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
     };
     await expect(
       projectPricingServerService.createPricingRule('Q-PRJ-006', payload, adminContext as any)
-    ).rejects.toThrow('الناقل غير موجود في المشروع أو غير نشط');
+    ).rejects.toThrow('PRICING_PARTICIPATION_REQUIRED');
   });
 
   it('3. SUSPENDED carrier membership rejected', async () => {
@@ -135,7 +139,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
     };
     await expect(
       projectPricingServerService.createPricingRule('Q-PRJ-006', payload, adminContext as any)
-    ).rejects.toThrow('الناقل غير موجود في المشروع أو غير نشط');
+    ).rejects.toThrow('PRICING_PARTICIPATION_REQUIRED');
   });
 
   it('4. REMOVED carrier membership rejected', async () => {
@@ -149,7 +153,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
     };
     await expect(
       projectPricingServerService.createPricingRule('Q-PRJ-006', payload, adminContext as any)
-    ).rejects.toThrow('الناقل غير موجود في المشروع أو غير نشط');
+    ).rejects.toThrow('PRICING_PARTICIPATION_REQUIRED');
   });
 
   it('5. ACTIVE material membership accepted', async () => {
@@ -179,7 +183,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
     };
     await expect(
       projectPricingServerService.createPricingRule('Q-PRJ-006', payload, adminContext as any)
-    ).rejects.toThrow('المادة غير موجودة في المشروع أو غير نشطة');
+    ).rejects.toThrow('PRICING_PARTICIPATION_REQUIRED');
   });
 
   it('7. non-ACTIVE material membership rejected', async () => {
@@ -195,7 +199,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
     };
     await expect(
       projectPricingServerService.createPricingRule('Q-PRJ-006', payload, adminContext as any)
-    ).rejects.toThrow('المادة غير موجودة في المشروع أو غير نشطة');
+    ).rejects.toThrow('PRICING_PARTICIPATION_REQUIRED');
   });
 
   it('8. PricingRuleValidator enforced', async () => {
@@ -208,7 +212,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
         baseRateSAR: 100,
         effectiveFrom: '2026-01-01',
       }, adminContext as any)
-    ).rejects.toThrow('خطأ في مصفوفة التسعير');
+    ).rejects.toThrow('INVALID_PRICING_RULE');
   });
 
   it('9. baseRateSAR <= 0 rejected', async () => {
@@ -221,7 +225,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
         baseRateSAR: 0,
         effectiveFrom: '2026-01-01',
       }, adminContext as any)
-    ).rejects.toThrow('خطأ في مصفوفة التسعير');
+    ).rejects.toThrow('INVALID_PRICING_RULE');
 
     await expect(
       projectPricingServerService.createPricingRule('Q-PRJ-006', {
@@ -231,7 +235,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
         baseRateSAR: -50,
         effectiveFrom: '2026-01-01',
       }, adminContext as any)
-    ).rejects.toThrow('خطأ في مصفوفة التسعير');
+    ).rejects.toThrow('INVALID_PRICING_RULE');
   });
 
   it('10. invalid date range rejected', async () => {
@@ -245,7 +249,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
         effectiveFrom: '2026-12-31',
         effectiveTo: '2026-01-01',
       }, adminContext as any)
-    ).rejects.toThrow('تاريخ نهاية السريان يجب أن يكون لاحقًا لتاريخ البداية');
+    ).rejects.toThrow('INVALID_PRICING_DATE');
   });
 
   it('11. canonical overlap rejected', async () => {
@@ -273,7 +277,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
 
     await expect(
       projectPricingServerService.createPricingRule('Q-PRJ-006', payload, auditorContext as any)
-    ).rejects.toThrow('يوجد تداخل زمني مع قاعدة تسعير سارية');
+    ).rejects.toThrow('PRICING_OVERLAP');
   });
 
   it('12. non-overlap accepted', async () => {
@@ -326,7 +330,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
 
     await expect(
       projectPricingServerService.createPricingRule('Q-PRJ-006', payload, adminContext as any)
-    ).rejects.toThrow('معرّف قاعدة التسعير موجود مسبقًا');
+    ).rejects.toThrow('PRICING_RULE_ALREADY_EXISTS');
   });
 
   it('14. existing rule never overwritten', async () => {
@@ -416,13 +420,9 @@ describe('Project Pricing Server Authority Test Suite', () => {
       endDate: '2026-12-31',
     };
 
-    await projectPricingServerService.createPricingRule('Q-PRJ-006', payload, adminContext as any);
-    const stored = inMemoryAdminStore['projects/Q-PRJ-006/pricing_rules/PR-NO-ALTERNATE'];
+    await expect(projectPricingServerService.createPricingRule('Q-PRJ-006', payload, adminContext as any)).rejects.toThrow('INVALID_PRICING_COMMAND');
+    expect(inMemoryAdminStore['projects/Q-PRJ-006/pricing_rules/PR-NO-ALTERNATE']).toBeUndefined();
 
-    expect(stored.ruleType).toBeUndefined();
-    expect(stored.value).toBeUndefined();
-    expect(stored.effectiveDate).toBeUndefined();
-    expect(stored.endDate).toBeUndefined();
   });
 
   it('17. no undefined values reach Firestore', async () => {
@@ -469,7 +469,7 @@ describe('Project Pricing Server Authority Test Suite', () => {
   });
 
   it('19. URL projectId is authoritative', async () => {
-    inMemoryAdminStore['projects/URL-PRJ-AUTHORITATIVE'] = { projectId: 'URL-PRJ-AUTHORITATIVE' };
+    inMemoryAdminStore['projects/URL-PRJ-AUTHORITATIVE'] = { projectId: 'URL-PRJ-AUTHORITATIVE',status:'SETUP' };
     inMemoryAdminStore['projects/URL-PRJ-AUTHORITATIVE/carrier_memberships/CAR-1'] = { carrierId: 'CAR-1', status: 'ACTIVE' };
 
     const payload = {

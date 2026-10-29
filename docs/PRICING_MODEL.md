@@ -1,3 +1,17 @@
+# Current pricing contract — P9-U1 source reference
+
+Classification: CURRENT_ARCHITECTURE_REFERENCE for this prefix only. The original specification below remains HISTORICAL_RECORD. Current phase/unit is defined only by [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
+- ProjectPricingServerService owns authenticated canonical rule writes and operational query; PricingService owns the shared pure selector/calculator. Client UI calculations are previews.
+- Canonical Project/Carrier/Material IDs and active participation determine eligibility. Legacy authorizedCarrierIds/authorizedMaterialIds never override it. General-material rules remain permitted for an explicitly selected Carrier.
+- Date-only start/end are inclusive UTC calendar days. Explicit ISO boundaries retain their instant (including offsets normalized on write). Normal dispatch selects using current server time; import uses its operational date when supplied. Same-specificity overlapping calendar-day windows are rejected, including same-day candidate windows; no intraday split-rule ordering is introduced. Specific Material outranks general; ambiguous equal-specificity candidates fail closed.
+- Missing pricing rejects normal dispatch. Explicit imported pending mode stays pending, not a fabricated zero-price agreement. Supported canonical calculation models remain PER_TON and PER_TRIP; unsupported legacy models are not silently reinterpreted.
+- New/fixed Trip snapshots capture the applicable rate and historical terms. Unloading computes quantity against that fixed rate. No current master lookup is used to reconstruct a historical total or missing waiting rate.
+- Updates use expectedVersion and audit. Linked commercial mutations are blocked. No automatic repricing or new COW endpoint is created; the old client-only placeholder fails closed.
+- Legacy read-only inspection/prototype contracts and the explicitly labelled simulator are not production assignment authorities. Live Firebase verification and broader legacy/COW migration are not claimed by this unit.
+
+---
+
 > **HISTORICAL_RECORD — original design/reference specification.** The preserved body may combine implemented behavior with former targets; it is not proof of current routes, schemas, security, deployment or reconstruction status. Current GitHub main takes precedence. For the verified repository overview see [MASTER_PROJECT_HANDOFF.md](reconstruction/MASTER_PROJECT_HANDOFF.md); current state is [02_PHASE_LEDGER.md](reconstruction/02_PHASE_LEDGER.md). No historical target here authorizes product changes.
 
 # Q Saudi Work Follow — نموذج التسعير والمحاسبة الخادومي (Pricing & Financial Engine)

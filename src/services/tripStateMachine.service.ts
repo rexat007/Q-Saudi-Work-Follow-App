@@ -323,25 +323,8 @@ export class TripStateMachine {
       return { passed: false, message: 'مبلغ التسوية المحسوب غير صحيح أو يساوي صفراً.' };
     }
 
-    // Verify against active master data pricing rules
-    const activePricingRules = pricingService.getRules().filter(r => r.projectId === trip.projectId);
-    const matchedRule = activePricingRules.find(r => r.pricingRuleId === trip.pricingRuleId);
-
-    if (!matchedRule) {
-      return { passed: false, message: `قاعدة التسعير (${trip.pricingRuleId}) غير مسجلة في المشروع الحالي.` };
-    }
-
-    if (matchedRule.status !== 'ACTIVE') {
-      return { passed: false, message: `قاعدة التسعير (${matchedRule.name}) معطلة أو غير نشطة حالياً.` };
-    }
-
-    if (matchedRule.effectiveFrom && trip.shiftDate < matchedRule.effectiveFrom) {
-      return { passed: false, message: `تاريخ الرحلة (${trip.shiftDate}) يسبق تاريخ بدء سريان التسعيرة (${matchedRule.effectiveFrom}).` };
-    }
-
-    if (matchedRule.effectiveTo && trip.shiftDate > matchedRule.effectiveTo) {
-      return { passed: false, message: `انتهت صلاحية قاعدة التسعير في (${matchedRule.effectiveTo}) وتاريخ الوردية (${trip.shiftDate}).` };
-    }
+    // A fixed Trip is historical authority; current master status/rate is not a gate.
+    if (trip.pricingSnapshot.pricingRuleId !== trip.pricingRuleId) return {passed:false,message:'PRICING_SNAPSHOT_BINDING_MISMATCH'};
 
     return { passed: true, message: 'تم التحقق بنجاح من قاعدة التسعير وصلاحية التاريخ والتسوية.' };
   }

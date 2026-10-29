@@ -92,7 +92,7 @@ describe('Project Activation Server Authority Test Suite', () => {
     };
 
     inMemoryAdminStore[`projects/${projectId}/pricing_rules/PRC-001`] = {
-      pricingRuleId: 'PRC-001',
+      pricingRuleId: 'PRC-001', pricingModel:'PER_TON', baseRateSAR:10,
       projectId,
       carrierId: 'CAR-001',
       materialId: 'MAT-001',

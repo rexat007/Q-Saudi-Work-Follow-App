@@ -1,3 +1,11 @@
+# Current pricing authority — P9-U1
+
+Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit state belongs to [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
+`Wizard / field preview → authenticated pricing transport → ProjectPricingServerService → canonical Project + Carrier/Material participation → pricing_rules → shared PricingService policy`. Trip commands resolve in the existing transaction-backed persistence context, then capture immutable rate/terms. Completion calculates against the stored snapshot, never a current rule. Readiness uses the same selector in its transaction read set. Legacy arrays, browser caches and sample simulator rules are not commercial authority.
+
+The read-only prototype pricing schema and old inspection adapter remain compatibility references, not alternative assignment paths. No new Trip lifecycle, offline or accounting authority is introduced.
+
 # Current Smart Import architecture — bounded Phase 8 reference
 
 Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. Exact phase/unit status and accepted merges belong only to [the Phase Ledger](reconstruction/02_PHASE_LEDGER.md). This section describes merged B1–B3 and the B4 source/resume coordination; exact local acceptance and publication status is in the ledger.

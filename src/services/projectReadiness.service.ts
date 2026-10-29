@@ -1,3 +1,4 @@
+import { PricingService, canonicalPricingRule } from './pricing.service';
 import type { SetupReadinessResult, SetupRecommendedAction } from '../types/setupReadiness';
 import { unavailableSetupReadiness } from '../utils/setupReadiness';
 import { decodeProject, persistenceTime } from '../utils/persistenceBoundary';
@@ -54,21 +55,10 @@ export function lifecycleReadiness(project: ProjectEntity, projectId: string, ac
   return { ready: blockers.length === 0, state, blockers };
 }
 /** Preserve the current Pricing status fallback; do not treat malformed dates as applicable. */
-export function applicableReadinessPricing(rule: any, projectId: string, carrierId: string, materialId: string, at: Date) {
-  const status = rule.status || (rule.isActive === true ? 'ACTIVE' : 'INACTIVE');
-  const instant = (value: unknown): Date | null => {
-    try {
-      if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        const date = new Date(value);
-        return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value ? date : null;
-      }
-      return persistenceTime(value, 'pricingEffectiveTime', 'date') as Date;
-    } catch { return null; }
-  };
-  const hasEnd = rule.effectiveTo !== undefined && rule.effectiveTo !== null && rule.effectiveTo !== '';
-  const from = instant(rule.effectiveFrom), to = hasEnd ? instant(rule.effectiveTo) : null;
-  return Boolean(from && (!hasEnd || to)) && status === 'ACTIVE' && rule.projectId === projectId && rule.carrierId === carrierId && rule.materialId === materialId && from! <= at && (!to || (Number.isFinite(to.getTime()) && to >= at));
+export function readinessPricing(rules:any[],projectId:string,carrierId:string,materialId:string,at:Date){
+  return new PricingService().resolvePricingRuleFromList(rules.map(canonicalPricingRule),{projectId,carrierId,materialId,tripDate:at.toISOString()});
 }
+export function applicableReadinessPricing(rule:any,projectId:string,carrierId:string,materialId:string,at:Date){return readinessPricing([rule],projectId,carrierId,materialId,at).status==='RESOLVED';}
 
 export class ProjectReadinessService {
   async evaluateProjectReadiness(projectId: string, effectiveAt: Date, readContext: ProjectReadinessReadContext, actor?: AuthUserContext, additionalBlockers: ReadinessBlocker[] = []): Promise<ReadinessResult> {
@@ -148,7 +138,7 @@ export class ProjectReadinessService {
 
         // Verify pricing for this path
         const pricing = await readContext.listPricingRules(projectId);
-        const validPricing = pricing.find(p => applicableReadinessPricing(p, projectId, carrierId, allocation.materialId, effectiveAt));
+        const validPricing = readinessPricing(pricing, projectId, carrierId, allocation.materialId, effectiveAt).selectedRule;
         if (!validPricing) missingPricing = true;
         if (validPricing) {
           return {

@@ -1,3 +1,15 @@
+# Current pricing API — P9-U1
+
+Classification: CURRENT_ARCHITECTURE_REFERENCE; exact state is in [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
+| Endpoint | Contract |
+|---|---|
+| `GET /api/projects/:projectId/pricing-rules` | Authenticated, currently scoped account; canonical rule list `{success,data}` |
+| `POST /api/projects/:projectId/pricing-rules` | Current PROJECT_ADMIN / FINANCE_AUDITOR / SUPER_ADMIN; canonical participation, validation, collision/overlap rejection and atomic audit |
+| `POST /api/projects/:projectId/pricing-rules/:ruleId/update` | Same write authority; expectedVersion required; actual persistence/audit, not a success-only stub; linked commercial terms cannot mutate |
+
+The URL Project is authoritative. Current account/profile and lifecycle mutability are rechecked on the server. Client totals and authorization arrays are not pricing inputs. Internal `resolvePricing` is composed by the canonical server Trip adapter and is not an unauthenticated public endpoint. Normal dispatch requires an applicable requested canonical rule; existing imported pending mode remains separate. No new version/repricing endpoint is introduced; the former client placeholder fails closed.
+
 # Current Phase 8 API — bounded source contract
 
 Classification: CURRENT_ARCHITECTURE_REFERENCE for this section. Exact implementation/owner acceptance state is in [the ledger](reconstruction/02_PHASE_LEDGER.md). These routes are implemented in `server/app.ts`; prior endpoints in the preserved original specification below are not automatically current authority.
