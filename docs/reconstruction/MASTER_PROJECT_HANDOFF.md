@@ -36,11 +36,12 @@ The [ledger](02_PHASE_LEDGER.md) is the single current-state authority. Accepted
 
 Smart Import separates source discovery, approved mapping, canonical resolution, reviewed semantic intent, durable session artifacts, server commit authority and execution recovery. Current reference sections are in [Architecture](../ARCHITECTURE.md), [Data Model](../DATA_MODEL.md), [API Contract](../API_CONTRACT.md) and [Security Model](../SECURITY_MODEL.md). B3 reuses B2 and canonical business authorities; independent dependency groups retain atomic mutation/receipt boundaries. Completed effects are not replayed or rolled back by cancellation. Terminal summary limits retain full journal details and do not imply full current convergence proof.
 
-The P9-U1 instruction authorizes local verification, documentation, one commit and branch publication; owner merge remains manual for the current unit. Merged B4 includes resume UI and the shared Sheets Roster adapter. Typecheck/lint debt and external-dependent test failures remain separately observed; passing build or local in-memory tests does not certify live Firebase, Beta 2, user acceptance or release readiness.
+The P9-U2 instruction authorizes local verification, documentation, one commit and branch publication; owner merge remains manual for the current unit. Merged B4 includes resume UI and the shared Sheets Roster adapter. Typecheck/lint debt and external-dependent test failures remain separately observed; passing build or local in-memory tests does not certify live Firebase, Beta 2, user acceptance or release readiness.
 ### Current Reconstruction Checkpoint — 2026-10-29
 
 - Historical merged B3 baseline used to implement B4: `8c6a348d17b0f94215a56bb9a66f2e643c19f24c`.
-- Verified P9-U1 implementation baseline: PR #61 — P8-B4, `31b2065f00b0d07763afc153582ef9be71dbd159`.
+- Historical P9-U1 implementation baseline: PR #61 — P8-B4, `31b2065f00b0d07763afc153582ef9be71dbd159`.
+- Verified P9-U2 implementation baseline: PR #62 — P9-U1, `303469ef29b7cf906964316691e491c0df6d5e45`.
 - Phase 0: VERIFIED / CLOSED / FROZEN.
 - Phases 1–2: VERIFIED / CLOSED.
 - Phase 7 — Smart Import Core: SOURCE CLOSED.
@@ -97,4 +98,4 @@ Open [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) for current continuation. [The dat
 
 ### Pricing authority continuation
 
-Exact current unit/status is owned by [the ledger](02_PHASE_LEDGER.md). P9-U1 uses authenticated server rule reads/writes, canonical participation, one effective-date/selection policy, transaction-backed operational assignment and fixed Trip snapshots. Setup and field previews do not own separate commercial persistence. Later rules cannot reprice historical Trips; missing historical waiting terms are pending rather than inferred from today's rules. The simulator is non-persistent. Client-only COW stubs do not constitute a production repricing service. Phase 9 remains in progress and Phase 10 is not started.
+Exact current unit/status is owned by [the ledger](02_PHASE_LEDGER.md). Merged P9-U1 established canonical server pricing and fixed Trip snapshots. P9-U2 adds server-decided copy-on-write, explicit replacement cutoffs, status UX, correlated existing audit records, stored tax/minimum-weight preservation and closure evidence. Setup and operations share the same pricing policy; old rule/configuration changes do not reprice historical Trips. Unsupported legacy calculators and unused browser adjustment approvals are not activated. The source-closure decision and owner-merge gate are defined only in the ledger; Phase 10 is not started.

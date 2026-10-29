@@ -1,8 +1,10 @@
-# Current pricing trust boundary — P9-U1
+# Current pricing trust boundary — P9-U1 / P9-U2
 
-Classification: CURRENT_ARCHITECTURE_REFERENCE; acceptance is owned by [the ledger](reconstruction/02_PHASE_LEDGER.md). Rule writes re-read the canonical account and Project scope, enforce existing operational mutability and canonical global/membership eligibility, and perform validation/version/overlap checks before atomic rule/audit writes. Browser Firestore writes and local-cache authorization are removed from the pricing repository.
+Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit/publication state belongs only to [the ledger](reconstruction/02_PHASE_LEDGER.md).
 
-Trip commands reauthorize the actor and resolve canonical pricing within the existing transaction-backed context. Later rule changes cannot become authority for a fixed Trip's rate. Commercial edits to linked rules are blocked; reports require stored evidence for historical charges. The client-only versioning placeholder is fenced, and the simulator is labelled non-persistent. Controlled in-memory/browser verification does not certify live Firebase or deployment rules.
+Server-authoritative create/edit/save/status/version commands re-read the current canonical account, Project scope and lifecycle, and active Carrier/applicable Material participation. Existing commercial admin authority is PROJECT_ADMIN / FINANCE_AUDITOR / SUPER_ADMIN; a forged browser role or legacy authorization array cannot override it. UI visibility is not authorization.
+
+Expected-version checks and transaction query/read sets fence conflicting edits and replacements. The server owns successor IDs, lineage, usage and cutoff metadata. Rule mutation and existing CREATE/UPDATE audit records commit atomically with one replacement correlation ID. Failure rolls back the whole replacement; no evidence is deleted. Browser-calculated rates/tax totals are not final persistence inputs. Fixed Trip snapshots and stored financials cannot be repriced by a later commercial configuration change. This source verification is not live Firebase certification.
 
 # Current Phase 8 trust boundary — bounded source reference
 

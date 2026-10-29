@@ -1,7 +1,7 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-Current checkpoint: P8-B4 merge PR #61 at `31b2065f00b0d07763afc153582ef9be71dbd159` contains `71abdcd3b586be486e6aec74f8ad9e32c868eae9`. Phase 8 is MERGED / SOURCE_VERIFIED / CLOSED. Phase 9 is IN_PROGRESS with P9-U1 IMPLEMENTED / VERIFIED LOCALLY; Phase 10 is NOT_STARTED. Source/browser evidence is not live deployment certification.
+Historical P9-U1 implementation checkpoint: P8-B4 merge PR #61 at `31b2065f00b0d07763afc153582ef9be71dbd159` contains `71abdcd3b586be486e6aec74f8ad9e32c868eae9`. Phase 8 is MERGED / SOURCE_VERIFIED / CLOSED. Phase 9 is IN_PROGRESS with P9-U1 IMPLEMENTED / VERIFIED LOCALLY; Phase 10 is NOT_STARTED. Source/browser evidence is not live deployment certification.
 
 Historical Phase-8 implementation checkpoint: P8-B3 merged through PR #60; source lineage includes `ed5688c81e95952d69a21e8fbacae4c0095967c4`. P8-B4 is IMPLEMENTED / VERIFIED LOCALLY from merged main `8c6a348d17b0f94215a56bb9a66f2e643c19f24c`. Phase 8 is IMPLEMENTATION COMPLETE / AWAITING MERGE; Phase 9 NOT_STARTED. Prior checkpoints below are dated historical evidence.
 
@@ -18,15 +18,17 @@ This is the sole current source for phase, active/next unit, accepted units, and
 - **Phase-transition authority**: the accepted [Foundational Plan](FOUNDATIONAL_PLAN_PHASE_0_TO_18.md) defines phase ownership and ordering. Current active pointers are the YAML block and latest dated checkpoint in this ledger. Older Phase 2→3 activation records below are historical evidence only and do not override the current active-state block.
 - **P0-U3 / P0-U4** remain **VERIFIED / CLOSED**; this documentation unit does not reopen them.
 
+Current checkpoint: P9-U1 is merged through PR #62 at `303469ef29b7cf906964316691e491c0df6d5e45`, containing `3d7aa9a0a09210e409fc554fe7a02a8446a625ee`. P9-U2 implementation is owner-authorized; exact state follows. Phase 10 is NOT_STARTED.
+
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PHASE_9
-ACTIVE_PHASE_STATUS: IN_PROGRESS
+ACTIVE_PHASE_STATUS: IMPLEMENTATION COMPLETE / AWAITING MERGE
 PHASE_8_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
-PHASE_9_STATUS: IN_PROGRESS
-ACTIVE_UNIT: P9-U1 — Pricing Authority & Historical Snapshot Integrity
+PHASE_9_STATUS: IMPLEMENTATION COMPLETE / AWAITING MERGE
+ACTIVE_UNIT: P9-U2 — Commercial Rule Versioning & Phase 9 Closure
 ACTIVE_UNIT_STATUS: IMPLEMENTED / VERIFIED LOCALLY
-ACTIVE_UNIT_TYPE: BOUNDED_PRICING_AUTHORITY_AND_SNAPSHOT
+ACTIVE_UNIT_TYPE: BOUNDED_COMMERCIAL_VERSIONING_AND_PHASE_9_CLOSURE
 P8_B1_SOURCE: MERGED / PRESENT
 P8_B2_SOURCE: MERGED / PRESENT
 P8_B3_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
@@ -35,7 +37,9 @@ P8_B3_PUBLICATION_STATUS: MERGED / VERIFIED
 P8_B3_VERIFIED_MERGE: 8c6a348d17b0f94215a56bb9a66f2e643c19f24c
 P8_B4_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B4_VERIFIED_MERGE: 31b2065f00b0d07763afc153582ef9be71dbd159
-P9_U1_STATUS: IMPLEMENTED / VERIFIED LOCALLY
+P9_U1_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
+P9_U1_VERIFIED_MERGE: 303469ef29b7cf906964316691e491c0df6d5e45
+P9_U2_STATUS: IMPLEMENTED / VERIFIED LOCALLY
 PHASE_10_STATUS: NOT_STARTED
 P8_B4_PUBLICATION_GATE: MERGED / VERIFIED
 P8_B3_BASELINE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
@@ -70,8 +74,8 @@ P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
 P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
 NEXT_UNIT: NONE_ASSIGNED
-NEXT_ACTION: OWNER_MERGE_P9_U1
-CURRENT_CODE_BASELINE: 31b2065f00b0d07763afc153582ef9be71dbd159
+NEXT_ACTION: OWNER_MERGE_P9_U2
+CURRENT_CODE_BASELINE: 303469ef29b7cf906964316691e491c0df6d5e45
 EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
 EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
 HISTORICAL_USER_ROLE_CONVERGENCE_STATUS: PHASE_3_AUDIT_REQUIRED / NOT_REASSESSED_IN_P8_B3
@@ -1132,7 +1136,7 @@ Project and Session generation checks fence late resume/status/reattach/retry/ca
 
 Local verification observation for this implementation: B4 14/14, B3 30/30, B2 50/50, B1 41/41. Combined relevant verification 1559/1628 with 69 failing assertions reproduced on this exact merged baseline; zero newly failing tests. Three historical test files preserve their test counts while converging superseded presentation/source-layout assertions. Build passes; diagnostics 440→440, added/removed zero; lint EXIT 2 / NOT PASS. Ten actual-Wizard browser checks exercise journeys A–I plus canonical refresh failure using transactional in-memory persistence and controlled Google transport. These counts are dated evidence, not permanent cardinality rules. No live Firebase/Google acceptance is claimed. The unit's bounded interruption/resume exit gate is locally verified; owner merge and broader deployment/release gates remain separate.
 
-### P9-U1 — Pricing Authority & Historical Snapshot Integrity — 2026-10-29
+### Historical P9-U1 implementation record — Pricing Authority & Historical Snapshot Integrity — 2026-10-29
 
 Source baseline `31b2065f00b0d07763afc153582ef9be71dbd159` contains P8-B4 implementation `71abdcd3b586be486e6aec74f8ad9e32c868eae9`, merged through PR #61. Phase 8 is source-verified/closed under the owner's instruction; this is not a live deployment certification. Phase 9 is IN_PROGRESS. Phase 10 is NOT_STARTED.
 
@@ -1154,3 +1158,40 @@ Focused pricing tests: 31/31. Relevant pricing/setup/readiness/Trip/report regre
 Build PASS. Typecheck diagnostics 440→440, added 0 / removed 0 after normalizing source locations; lint EXIT 2 / NOT PASS. i18n runtime 16/16 PASS; current dictionaries each have 4375 keys (one simulator-label addition), with no duplicate keys, parity gaps or empty values. Seven browser/runtime checks passed using actual Wizard UI and actual pricing/Trip services with transactional IN_MEMORY persistence and controlled authentication transport; no emulator/live Firebase acceptance is claimed. Historical Trip persistence reopening is checked through actual services, not represented as exhaustive live Trip-screen certification. These counts are observations, not frozen cardinality rules.
 
 The shared policy rejects invalid/non-positive commercial rates and unsupported models both for readiness and operational selection. Legacy rate aliases are normalized once; a conflicting agreedRate cannot override the canonical selected rate. Existing stored VAT terms are retained without changing VAT policy. General COW/versioning UX and unsupported legacy model migration remain separately bounded debt.
+
+
+### P9-U2 — Commercial Rule Versioning & Phase 9 Closure — 2026-10-29
+
+Merged baseline `303469ef29b7cf906964316691e491c0df6d5e45` (PR #62) contains accepted P9-U1 `3d7aa9a0a09210e409fc554fe7a02a8446a625ee` and its canonical authority/snapshot protections. P9-U1 is MERGED / SOURCE_VERIFIED / CLOSED. P9-U2 is IMPLEMENTED / VERIFIED LOCALLY. Phase 9 is IMPLEMENTATION COMPLETE / AWAITING MERGE, not MERGED/CLOSED. Phase 10 is NOT_STARTED; no subsequent unit is assigned. Owner merge remains manual. Commit/branch publication are explicitly authorized, but this pre-commit evidence record does not claim they already happened.
+
+The remaining-gap audit classified canonical authority/participation/date policy and snapshot protection as COMPLETE_IN_P9_U1; used-rule atomic replacement, minimum lifecycle UX and shared captured-tax calculation as IMPLEMENT_IN_P9_U2; legacy aliases/optional-term preservation, minimum billed weight and configuration validation as SUPPORTED_BUT_NEEDS_HARDENING. Generalized calculators, tax/accounting and new waiting/approval workflows are NOT_IN_APPROVED_PRODUCT_SCOPE. Existing unused legacy approval/prototype methods are HISTORICAL_ONLY / DEAD_OR_UNREACHABLE for the active commercial journey. Offline/Trip/audit reconstruction and live deployment certification retain their later/separate gates.
+
+`POST pricing-rules/:ruleId/save` is one server-decided action: unused rules edit; used commercial changes create a successor; status-only changes retain identity. The server rechecks usage/authorization/participation/version inside the transaction. A predecessor retains original commercial fields and receives server-owned `supersededByRuleId` / `supersededFrom` metadata. The successor has a new canonical ID and parent/version lineage. Replacement starts at an explicit UTC day later than the predecessor start, retains Carrier/Material identity, and passes the existing conservative calendar-day conflict policy. Old resolution ends exclusively at the cutoff; deactivating the successor never revives its predecessor. Mutation of an already replaced rule's commercial terms is rejected. No rule is deleted. Two existing CREATE/UPDATE audits share one replacement correlation; both rule changes and audits commit or roll back together.
+
+PER_TON and PER_TRIP remain the only active calculators. Measured tonnage is rounded to three decimals, the configured minimum billable weight is captured/applied when positive weight exists, and monetary base is rounded to two decimals. Physical weights are unchanged. Rates are tax-exclusive; stored applicability/percentage (default 15 only when absent) govern subtotal→VAT→total rounding to two decimals. Current rule changes never reprice a fixed Trip. Existing waiting/free-time terms and stored report charges remain preserved; missing historical evidence remains pending. Canonical Trip command fields do not expose manual financial charges or automatic waiting accrual. The old browser settlement-approval service has no active UI/server caller and is not activated. Legacy supported aliases/general-Material sentinels normalize once into the same policy; absent historical optional terms are retained. Unsupported models fail closed and are not silently converted. No speculative live-data migration is claimed.
+
+#### Phase 9 source closure matrix
+
+| Phase 9 requirement | Status | Evidence |
+|---|---|---|
+| One server pricing authority | VERIFIED_COMPLETE | ProjectPricingServerService; one save/create/update authority, authenticated transport |
+| Canonical participation | VERIFIED_COMPLETE | Current account, Project, global + Project Carrier/Material checks; U1 and U2 negative cases |
+| Deterministic effective period | VERIFIED_COMPLETE | Shared PricingService; inclusive UTC calendar days, precise ISO instants, explicit exclusive predecessor cutoff |
+| Supported pricing models | VERIFIED_COMPLETE | Server PER_TON/PER_TRIP completion/import, rounding and minimum-weight tests |
+| VAT/tax | VERIFIED_COMPLETE | Stored applicability/percentage, shared commercialTotals, historical replacement and zero-rate cases |
+| Demurrage/adjustments | VERIFIED_COMPLETE | Existing contractual terms/stored charges preserved; reports do not infer missing historical terms; no new accrual/approval capability is claimed |
+| Overlap/conflict protection | VERIFIED_COMPLETE | Transactional conflict query, legacy general-sentinel normalization, concurrent replacement test |
+| Activation/deactivation | VERIFIED_COMPLETE | Version-fenced status changes; deactivation cannot revive predecessor; historical snapshot unchanged |
+| Version/COW semantics | VERIFIED_COMPLETE | New successor ID/parent, immutable predecessor commercial terms, atomic cutoff/audit, stale and branching rejection |
+| Immutable historical snapshot | VERIFIED_COMPLETE | Trip A complete→V2→reopen unchanged; Trip B gets V2; tax/waiting/minimum terms retained |
+| Admin-only mutation | VERIFIED_COMPLETE | Existing PROJECT_ADMIN / FINANCE_AUDITOR / SUPER_ADMIN authority re-read on server; forged role and scope rejection |
+| Audit events | VERIFIED_COMPLETE | Existing CREATE/UPDATE events with full before/after, actor, Project, timestamps and shared replacement correlation |
+| Legacy compatibility bounded | ROUTED_WITHOUT_BLOCKING_PHASE | Supported aliases normalized; unsupported models rejected, read-only prototypes not active authority; speculative dataset migration requires separate inventory |
+
+BLOCKING = 0 for the approved Phase 9 source contract. New accounting/invoicing, generalized tax, automatic waiting accrual, unreachable legacy adjustment approvals and unsupported calculators are NOT_IN_APPROVED_SCOPE, not missing approved features silently waived. Live Firebase/deployment acceptance and general release certification are not claimed by this closure decision.
+
+#### Verification observation (not frozen cardinalities)
+
+Exact merged baseline: 523/531 across the same relevant regression + i18n selection. Final: 550/558, including 27/27 new P9-U2 tests; P9-U1 remains 31/31. NEW_FAILURES = 0; REMOVED_TESTS = 0; SKIPPED_TESTS = 0. No existing test file was modified. The eight reproduced failures are canonical dispatch cases A/U, activation-readiness M, three Trip-command legacy allocation fixture cases, the persistence import-session ISO/metadata case, and TBC-B4's historical Smart Import checkpoint-key expectation. These suites are NOT represented as wholly passing and are not repaired outside scope.
+
+Build PASS. Diagnostics 440→440, added 0 / removed 0; lint EXIT 2 / NOT PASS. Browser/runtime 8/8 with actual Wizard and pricing/Trip services, transactional IN_MEMORY persistence and controlled authentication transport. No emulator/live Firebase acceptance. AR/EN/UR each 4384 keys (nine lifecycle/hint keys added); duplicate keys/parity gaps/empty values 0. `git diff --check` PASS. Historical specification bodies, old handoffs and Studio snapshots are preserved. Dependencies/config/workflows/rules, offline/Trip FSM and report/dashboard architecture are unchanged.

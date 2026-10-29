@@ -1,6 +1,16 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "pricing.predecessor_hint": "تبدیل شدہ قاعدہ: صرف حالت بدل سکتی ہے۔ متبادل کی حد اور تاریخی تجارتی شرائط برقرار رہتی ہیں۔",
+  "pricing.version_conflict": "یہ قاعدہ بدل گیا ہے۔ دوبارہ محفوظ کرنے سے پہلے قیمتیں تازہ کریں۔",
+  "pricing.replace_hint": "سفروں میں استعمال شدہ۔ تجارتی تبدیلی مؤثر تاریخ سے متبادل بناتی ہے؛ پچھلے سفر اپنی شرائط رکھتے ہیں۔ فعال یا غیر فعال کرنے کے لیے صرف حالت بدلیں۔",
+  "pricing.edit_hint": "غیر استعمال شدہ قاعدہ: محفوظ کرنے سے اسی قاعدے میں ترمیم ہوتی ہے۔ سرور محفوظ کرنے سے پہلے استعمال دوبارہ جانچتا ہے۔",
+  "pricing.lifecycle": "قاعدے کی حالت",
+  "pricing.active": "فعال",
+  "pricing.inactive": "غیر فعال",
+  "pricing.replaced": "{date} سے تبدیل شدہ",
+  "pricing.manage_used": "انتظام / تبدیل کریں",
+
   "pricing.diagnostic_only": "صرف مشق کے لیے۔ یہ نمونہ قواعد محفوظ نہیں ہوتے۔ منصوبے کی اصل قیمتیں منصوبے کی ترتیب میں منظم کریں۔",
   "import.recovery.title": "درآمد کی بازیابی",
   "import.recovery.READY": "عمل کے لیے تیار",

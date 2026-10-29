@@ -1,10 +1,12 @@
-# Current pricing authority — P9-U1
+# Current pricing authority — P9-U1 / P9-U2
 
-Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit state belongs to [the ledger](reconstruction/02_PHASE_LEDGER.md).
+Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit/publication state belongs only to [the ledger](reconstruction/02_PHASE_LEDGER.md).
 
-`Wizard / field preview → authenticated pricing transport → ProjectPricingServerService → canonical Project + Carrier/Material participation → pricing_rules → shared PricingService policy`. Trip commands resolve in the existing transaction-backed persistence context, then capture immutable rate/terms. Completion calculates against the stored snapshot, never a current rule. Readiness uses the same selector in its transaction read set. Legacy arrays, browser caches and sample simulator rules are not commercial authority.
+`Wizard / field preview → authenticated pricing transport → ProjectPricingServerService → canonical participation + pricing_rules → shared PricingService selector/calculator → transactional Trip persistence`.
 
-The read-only prototype pricing schema and old inspection adapter remain compatibility references, not alternative assignment paths. No new Trip lifecycle, offline or accounting authority is introduced.
+The single save action is server-decided: unused edit, status mutation or used-rule copy-on-write. Replacement writes predecessor cutoff metadata, a successor and correlated CREATE/UPDATE audit records atomically. Original commercial effective terms/rates remain preserved. Selection clips the predecessor's resolution window without rewriting its commercial terms; terminal snapshots never consult today's rule. A deactivated successor does not revive its predecessor.
+
+PER_TON and PER_TRIP are production-supported. Quantity/minimum weight, tax rounding and stored terms are handled by the shared pricing policy. No new waiting accrual, adjustment approval, accounting or Trip lifecycle subsystem is activated. Unused old SettlementAdjustmentService/browser approval methods have no active product caller and remain outside the supported mutation surface. Read-only legacy aliases are normalized into the same policy; unsupported models fail closed. Live deployment is a separate acceptance gate.
 
 # Current Smart Import architecture — bounded Phase 8 reference
 

@@ -1382,6 +1382,13 @@ app.post(
 // ----------------------------------------------------
 // 9. Security Enforcement: Pricing Rule Update & Immutability (Auditor or Admin)
 // ----------------------------------------------------
+app.post('/api/projects/:projectId/pricing-rules/:ruleId/save', enforceProjectIsolation, enforceAuditorOrAdmin, async (req:any,res) => {
+  try { const {projectPricingServerService}=await import('../src/services/projectPricing.server');
+    const data=await projectPricingServerService.savePricingRule(req.params.projectId,req.params.ruleId,req.body,req.user);
+    return res.json({success:true,data});
+  } catch(error:any){return res.status(error.status||400).json({success:false,code:error.code||'PRICING_SAVE_FAILED'});}
+});
+
 app.post('/api/projects/:projectId/pricing-rules/:ruleId/update', enforceProjectIsolation, enforceAuditorOrAdmin, async (req:any,res) => {
   try { const { projectPricingServerService }=await import('../src/services/projectPricing.server');
     const data=await projectPricingServerService.updatePricingRule(req.params.projectId,req.params.ruleId,req.body,req.user);

@@ -1,4 +1,4 @@
-import { PricingService } from './pricing.service';
+import { commercialTotals, PricingService } from './pricing.service';
 import { isCurrentTemporal, assignmentSlotsAgree } from '../utils/temporalRelationshipPolicy';
 import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 import { tripRepository } from '../repositories/trip.repository';
@@ -412,6 +412,7 @@ export class TripService {
         effectiveFrom: pricingRule.effectiveFrom,
         effectiveTo: pricingRule.effectiveTo || null,
         materialId: params.materialId,
+        minimumBillableWeightKg: pricingRule.minimumBillableWeightKg,
         demurrageRatePerHourSAR: pricingRule.demurrageRatePerHourSAR,
         freeTimeHours: pricingRule.freeTimeHours,
         pricingType,
@@ -423,7 +424,7 @@ export class TripService {
         pricingModel: pricingRule.pricingModel || pricingType,
         baseRateSAR: agreedRate,
         vatApplicable: pricingRule.vatApplicable,
-        vatRatePercent: 15,
+        vatRatePercent: pricingRule.vatRatePercent ?? 15,
       },
 
       clientUUID: params.clientUUID || `CUUID-${Date.now()}`,
@@ -586,17 +587,13 @@ export class TripService {
 
       const demurrage = payload.demurrageAmountSAR || 0;
       const deductions = payload.deductionsAmountSAR || 0;
-      const subtotal = Math.max(0, baseAmount + demurrage - deductions);
-      const vat = existing.pricingSnapshot.vatApplicable ? Math.round(subtotal * ((existing.pricingSnapshot.vatRatePercent ?? 15) / 100) * 100) / 100 : 0;
-      const total = subtotal + vat;
+      const totals=commercialTotals(baseAmount,existing.pricingSnapshot,demurrage,deductions);
 
       updates.financials = {
         baseAmountSAR: Math.round(baseAmount * 100) / 100,
         demurrageAmountSAR: demurrage,
         deductionsAmountSAR: deductions,
-        subtotalSAR: subtotal,
-        vatAmountSAR: vat,
-        totalAmountSAR: total,
+        ...totals,
         currency: 'SAR',
         isFinalized: true,
         finalizedAt: new Date(),
@@ -830,6 +827,7 @@ export class TripService {
         effectiveFrom: pricingRule.effectiveFrom,
         effectiveTo: pricingRule.effectiveTo || null,
         materialId: params.materialId,
+        minimumBillableWeightKg: pricingRule.minimumBillableWeightKg,
         demurrageRatePerHourSAR: pricingRule.demurrageRatePerHourSAR,
         freeTimeHours: pricingRule.freeTimeHours,
         vatApplicable: pricingRule.vatApplicable,
@@ -886,9 +884,8 @@ export class TripService {
 
     if (pricingRule) {
       const calculation = new PricingService().calculateSettlement({pricingRule:{...pricingRule,pricingType:pricingRule.pricingType || pricingRule.pricingModel,rate:pricingRule.baseRateSAR ?? pricingRule.rate},netWeightKg:opData.destinationNetWeightKg ?? originNet,allowMissingWeight:true});
-      pricingSnapshot={...pricingSnapshot,...calculation.snapshot,vatApplicable:pricingRule.vatApplicable,vatRatePercent:pricingRule.vatRatePercent || 15};
-      const vat=pricingRule.vatApplicable ? Math.round(calculation.settlementAmount*((pricingRule.vatRatePercent || 15)/100)*100)/100:0;
-      financials={...financials,baseAmountSAR:calculation.settlementAmount,vatAmountSAR:vat,totalAmountSAR:Math.round((calculation.settlementAmount+vat)*100)/100};
+      pricingSnapshot={...pricingSnapshot,...calculation.snapshot,vatApplicable:pricingRule.vatApplicable,vatRatePercent:pricingRule.vatRatePercent ?? 15};
+      financials={...financials,baseAmountSAR:calculation.settlementAmount,...commercialTotals(calculation.settlementAmount,pricingSnapshot)};
     }
 
     // 4. Status Mapping

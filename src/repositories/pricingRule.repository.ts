@@ -1,6 +1,7 @@
 import { auth } from '../firebase/config';
 import { decodePricing } from '../utils/persistenceBoundary';
 import type { PricingRuleEntity } from '../types/entities';
+export type PricingRuleSummary = PricingRuleEntity & {hasHistoricalTrips?:boolean};
 /** Client transport only. No local-cache or browser Firestore commercial authority. */
 export class PricingRuleRepository {
   private async request(p:string,suffix='',body?:any){
@@ -11,8 +12,9 @@ export class PricingRuleRepository {
     if(body && typeof window!=='undefined')window.dispatchEvent(new Event('pricing-rules-updated'));
     return json.data;
   }
-  async listByProject(p:string):Promise<PricingRuleEntity[]>{const rows=await this.request(p);return rows.map((r:any)=>decodePricing<PricingRuleEntity>(r,r.pricingRuleId,p));}
+  async listByProject(p:string):Promise<PricingRuleSummary[]>{const rows=await this.request(p);return rows.map((r:any)=>decodePricing<PricingRuleSummary>(r,r.pricingRuleId,p));}
   async findById(projectId:string,pricingRuleId:string):Promise<PricingRuleEntity|null>{return (await this.listByProject(projectId)).find(r=>r.pricingRuleId===pricingRuleId)||null;}
+  async save(p:string,id:string,updates:any):Promise<PricingRuleEntity>{return this.request(p,`/${encodeURIComponent(id)}/save`,updates);}
   async create(rule:any){await this.request(rule.projectId,'',rule);}
   async update(p:string,id:string,updates:any,_actor:string){await this.request(p,`/${encodeURIComponent(id)}/update`,updates);}
   async listByProjectInTransaction(_p:string,_tx:any):Promise<PricingRuleEntity[]>{throw Error('SERVER_PRICING_TRANSACTION_REQUIRED');}

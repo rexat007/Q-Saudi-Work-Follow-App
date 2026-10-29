@@ -25,9 +25,28 @@ export function canonicalPricingDate(value:any):string|undefined {
   return typeof value==='string'&&value.length===10?value:new Date(at).toISOString();
 }
 
+/** Effective resolution window only; persisted predecessor commercial terms remain unchanged. */
+export function pricingResolutionWindow<T extends { effectiveTo?: string | null; supersededFrom?: string }>(rule:T):T {
+  if (!rule.supersededFrom) return rule;
+  const cutoff = pricingInstant(rule.supersededFrom);
+  if (cutoff === undefined) return {...rule, effectiveTo:'INVALID_REPLACEMENT_BOUNDARY'};
+  const end = rule.effectiveTo ? pricingInstant(rule.effectiveTo,true) : undefined;
+  return {...rule,effectiveTo:new Date(Math.min(end ?? Infinity,cutoff-1)).toISOString()};
+}
+
+/** Tax-exclusive rates; round subtotal, then VAT, then total to two SAR decimals. */
+export function commercialTotals(base:number,terms:{vatApplicable?:boolean;vatRatePercent?:number},demurrage=0,deductions=0) {
+  const percent=terms.vatRatePercent ?? 15;
+  if (![base,demurrage,deductions,percent].every(Number.isFinite) || base<0 || demurrage<0 || deductions<0 || percent<0 || percent>100) throw Error('INVALID_COMMERCIAL_TERMS');
+  const round=(n:number)=>Math.round((n+Number.EPSILON)*100)/100;
+  const subtotal=round(Math.max(0,base+demurrage-deductions));
+  const vat=terms.vatApplicable ? round(subtotal*percent/100):0;
+  return {subtotalSAR:subtotal,vatAmountSAR:vat,totalAmountSAR:round(subtotal+vat)};
+}
+
 /** Representation mapping only; no fabricated dates, actors, fallback rate or cross-project default. */
 export function canonicalPricingRule(r:any): PricingRule {
-  return {...r,pricingType:r.pricingModel ?? r.pricingType,rate:r.baseRateSAR ?? r.rate,status:r.status ?? (r.isActive===true ? 'ACTIVE':'INACTIVE')};
+  return {...r,materialId:['ALL','ALL_MATERIALS','GENERAL','*','',null,undefined].includes(r.materialId)?undefined:r.materialId,pricingType:r.pricingModel ?? r.pricingType,rate:r.baseRateSAR ?? r.rate,status:r.status ?? (r.isActive===true ? 'ACTIVE':'INACTIVE')};
 }
 
 export class PricingService {
@@ -201,8 +220,9 @@ export class PricingService {
 
     // 4. Match within effective date range
     const validDateRules = activeRules.filter(r=>{
-      const from=pricingInstant(r.effectiveFrom),to=r.effectiveTo?pricingInstant(r.effectiveTo,true):undefined;
-      return from!==undefined && targetInstant!>=from && (!r.effectiveTo || to!==undefined && targetInstant!<=to);
+      const window=pricingResolutionWindow(r);
+      const from=pricingInstant(r.effectiveFrom),to=window.effectiveTo?pricingInstant(window.effectiveTo,true):undefined;
+      return from!==undefined && targetInstant!>=from && (!window.effectiveTo || to!==undefined && targetInstant!<=to);
     });
 
     if (validDateRules.length === 0) {
@@ -304,6 +324,11 @@ export class PricingService {
     // Deterministic unambiguous match
     const resolvedRule = candidatePool[0];
     if (!['PER_TRIP','PER_TON'].includes(resolvedRule.pricingType) || !Number.isFinite(resolvedRule.rate) || resolvedRule.rate <= 0) return {status:'INVALID',selectedRule:null,rule:null,reason:'INVALID_PRICING_RULE',reasonAr:'INVALID_PRICING_RULE',reasonCode:'INVALID_PRICING_RULE',candidates:candidatePool};
+    try {
+      commercialTotals(0,resolvedRule);
+      if(resolvedRule.vatApplicable!==undefined && typeof resolvedRule.vatApplicable!=='boolean')throw Error('INVALID_COMMERCIAL_TERMS');
+      for(const key of ['minimumBillableWeightKg','demurrageRatePerHourSAR','freeTimeHours']){const value=(resolvedRule as any)[key];if(value!==undefined && (!Number.isFinite(value)||value<0))throw Error('INVALID_COMMERCIAL_TERMS');}
+    } catch {return {status:'INVALID',selectedRule:null,rule:null,reason:'INVALID_COMMERCIAL_TERMS',reasonAr:'INVALID_COMMERCIAL_TERMS',reasonCode:'INVALID_COMMERCIAL_TERMS',candidates:candidatePool};}
     return {
       status: 'RESOLVED',
       selectedRule: resolvedRule,
@@ -410,7 +435,9 @@ export class PricingService {
         settlementAmount = 0;
         calculationDetailsAr = `بانتظار احتساب الوزن المعتمد للفوترة بالطن (السعر المتفق عليه: ${pricingRule.rate} ${pricingRule.currency}/طن)`;
       } else {
-        settlementBase = Number(weightTon.toFixed(3));
+        const minimumKg=(pricingRule as any).minimumBillableWeightKg ?? 0;
+        if(!Number.isFinite(minimumKg)||minimumKg<0 || !Number.isFinite(weightTon)||weightTon<0)throw Error('INVALID_COMMERCIAL_TERMS');
+        settlementBase = Number((weightTon>0 ? Math.max(weightTon,minimumKg/1000):weightTon).toFixed(3));
         settlementAmount = Number((settlementBase * pricingRule.rate).toFixed(2));
         calculationDetailsAr = `حساب صافي بالوزن: ${settlementBase} طن × ${pricingRule.rate} ${pricingRule.currency}/طن = ${settlementAmount} ${pricingRule.currency}`;
       }
@@ -446,6 +473,7 @@ export class PricingService {
       pendingReason,
       pricingModel: pricingRule.pricingType,
       baseRateSAR: pricingRule.rate,
+      minimumBillableWeightKg: (pricingRule as any).minimumBillableWeightKg,
       demurrageRatePerHourSAR: (pricingRule as any).demurrageRatePerHourSAR,
       freeTimeHours: (pricingRule as any).freeTimeHours,
       waitingDurationHours: (params as any).waitingDurationHours,

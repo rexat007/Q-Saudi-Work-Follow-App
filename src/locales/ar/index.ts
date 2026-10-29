@@ -1,6 +1,16 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "pricing.predecessor_hint": "قاعدة مستبدلة: يمكن تغيير حالتها فقط. تبقى حدود الاستبدال وشروطها التجارية التاريخية ثابتة.",
+  "pricing.version_conflict": "تغيّرت هذه القاعدة. أعد تحميل الأسعار قبل الحفظ مجددًا.",
+  "pricing.replace_hint": "مستخدمة في رحلات. تعديل الشروط ينشئ بديلًا من تاريخ السريان وتحتفظ الرحلات السابقة بشروطها. غيّر الحالة فقط للتفعيل أو التعطيل.",
+  "pricing.edit_hint": "قاعدة غير مستخدمة: يعدّل الحفظ هذه القاعدة. يتحقق الخادم من الاستخدام مجددًا قبل الحفظ.",
+  "pricing.lifecycle": "حالة القاعدة",
+  "pricing.active": "نشطة",
+  "pricing.inactive": "غير نشطة",
+  "pricing.replaced": "مستبدلة من {date}",
+  "pricing.manage_used": "إدارة / استبدال",
+
   "pricing.diagnostic_only": "محاكاة فقط. هذه القواعد النموذجية لا تُحفظ. تُدار أسعار المشروع الفعلية من إعداد المشروع.",
   "import.recovery.title": "استعادة الاستيراد",
   "import.recovery.READY": "جاهز للتنفيذ",

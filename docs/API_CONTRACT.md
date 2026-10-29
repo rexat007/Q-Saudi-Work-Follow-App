@@ -1,14 +1,17 @@
-# Current pricing API — P9-U1
+# Current pricing API — P9-U1 / P9-U2
 
-Classification: CURRENT_ARCHITECTURE_REFERENCE; exact state is in [the ledger](reconstruction/02_PHASE_LEDGER.md).
+Classification: CURRENT_ARCHITECTURE_REFERENCE. Exact phase/unit/publication state belongs only to [the ledger](reconstruction/02_PHASE_LEDGER.md).
 
 | Endpoint | Contract |
 |---|---|
-| `GET /api/projects/:projectId/pricing-rules` | Authenticated, currently scoped account; canonical rule list `{success,data}` |
-| `POST /api/projects/:projectId/pricing-rules` | Current PROJECT_ADMIN / FINANCE_AUDITOR / SUPER_ADMIN; canonical participation, validation, collision/overlap rejection and atomic audit |
-| `POST /api/projects/:projectId/pricing-rules/:ruleId/update` | Same write authority; expectedVersion required; actual persistence/audit, not a success-only stub; linked commercial terms cannot mutate |
+| `GET /api/projects/:projectId/pricing-rules` | Authenticated scoped account; canonical list `{success,data}` with computed `hasHistoricalTrips` projection |
+| `POST /api/projects/:projectId/pricing-rules` | Current PROJECT_ADMIN / FINANCE_AUDITOR / SUPER_ADMIN; canonical participation, overlap and atomic audit |
+| `POST /api/projects/:projectId/pricing-rules/:ruleId/update` | Strict edit; expectedVersion required; linked commercial mutation rejected |
+| `POST /api/projects/:projectId/pricing-rules/:ruleId/save` | Same current server write authority and expectedVersion. Unused rule edits retain identity. Used commercial changes atomically create a server-ID successor, predecessor cutoff and correlated audit events. Status-only changes retain identity. Returns the actually persisted rule, which may have a new ID |
 
-The URL Project is authoritative. Current account/profile and lifecycle mutability are rechecked on the server. Client totals and authorization arrays are not pricing inputs. Internal `resolvePricing` is composed by the canonical server Trip adapter and is not an unauthenticated public endpoint. Normal dispatch requires an applicable requested canonical rule; existing imported pending mode remains separate. No new version/repricing endpoint is introduced; the former client placeholder fails closed.
+The URL Project and current account govern authorization. `hasHistoricalTrips`, lineage and cutoffs are server-owned, never accepted as client authority. Replacement requires the same Carrier/Material, a date-only UTC start later than the predecessor start, ACTIVE successor, and a conflict-free resolution window. There is one successor per predecessor; stale versions fail closed. Clearing an end date uses an explicit empty/null value; omitting it preserves the current end. No deletion or automatic historical repricing endpoint exists.
+
+The server internally resolves the canonical Project/Carrier/Material/date before new Trip persistence. The same pure policy is used by readiness. Rates are tax-exclusive; existing stored tax terms, not browser totals, govern final calculation. The old unused client COW placeholder remains fail-closed and is not the production command; the Wizard uses `/save`.
 
 # Current Phase 8 API — bounded source contract
 

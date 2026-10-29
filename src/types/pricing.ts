@@ -36,6 +36,8 @@ export interface PricingRule {
   status: PricingRuleStatus;
   version?: number;
   parentRuleId?: string;
+  supersededByRuleId?: string;
+  supersededFrom?: string;
   createdAt?: string | Date | Timestamp;
   createdBy?: string;
   updatedAt?: string | Date | Timestamp;
@@ -47,9 +49,11 @@ export interface PricingRule {
   baseRateSAR?: number;
   pricingModel?: string;
   isActive?: boolean;
+  minimumBillableWeightKg?: number;
   demurrageRatePerHourSAR?: number;
   freeTimeHours?: number;
   vatApplicable?: boolean;
+  vatRatePercent?: number;
 }
 
 /**
@@ -80,6 +84,7 @@ export interface TripPricingSnapshot {
   baseRateSAR?: number;
   vatApplicable?: boolean;
   vatRatePercent?: number;
+  minimumBillableWeightKg?: number;
   demurrageRatePerHourSAR?: number;
   demurrageAmountSAR?: number;
   waitingDurationHours?: number;
