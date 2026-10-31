@@ -1,6 +1,10 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "gws.app_update_required": "A newer app version is available. Updating before Workspace setup continues.",
+  "gws.version_unavailable": "Unable to verify the app version. Connect to the internet and try again.",
+  "gws.current_attempt": "Current attempt",
+  "gws.previous_issue": "Previous sync issue",
   "gws.destination": "Destination parent folder",
 
   "gws.status_unavailable": "Workspace status not verified",

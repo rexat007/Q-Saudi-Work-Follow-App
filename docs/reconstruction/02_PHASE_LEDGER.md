@@ -32,6 +32,12 @@ Merged GWS1 baseline: `cfd4e96fe25a938a726e92356541233915c0e571`, containing `78
 
 The owner superseded hidden-template copying. New provisioning selects only a destination folder, then generates a native workbook and bound script from a versioned compiled asset using human-user OAuth. The owner supplied Projects_Tamplate.xlsx and nine real Script files. GWS1B-LOCAL-01 approves local-source capture instead of Google capture. GWS1B-TRIGGER-01 supersedes installable/timer dependencies: only onOpen/onEdit are automatic, report structures are born clean through the compiled blueprint, and routed edit refreshes require no remote installer execution. SABIL-HAIL-V1 is locally captured and sanitized; Google deployment/runtime acceptance remains separate. Prior GWS1/template descriptions are historical where superseded by [the current sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md). No publication, GWS2 or Phase 10 is authorized by this checkpoint.
 
+### GWS1B-LIVE-01 — PWA generation convergence — 2026-10-31
+
+Verified merged GitHub main: `a38c0b00e581638169f8740816f9a4646c30dbe0` (PR #68), containing GWS1B `0e2809370a1b3128a47e4d56deff4fff12f93d2f`. Owner reports retired-template HTTP behavior after Render redeploy: classification PWA_DEPLOYMENT_SPLIT_BRAIN, consistent with old client/new server. Production URL/browser/profile/cache were not independently available; no claim of a live Render trace or fresh live Google acceptance.
+
+Bounded local correction adds one artifact build identity, public no-store runtime-version endpoint, exact-generation Workspace command fences, explicit registerSW activation/reload handling and a guarded legacy-client Workbox migration. Offline shell stays available; old precache revisions are cleaned through Workbox. Current setup errors and relevant previous sync issues are distinct; superseded template errors are not current business guidance. Persistence/audit evidence is unchanged. Google scopes, destination writability, blueprint, Apps Script and Firebase/RBAC semantics are untouched. Source/control verification supports owner review, not deployed certification. Exact protocol and limitations: [the continuity contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PRE_PHASE_10_FOUNDATION_ASSURANCE
@@ -39,9 +45,9 @@ ACTIVE_PHASE_STATUS: IN_PROGRESS
 PHASE_8_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PHASE_9_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PROJECT_FOUNDATION_ASSURANCE: MERGED / SOURCE_VERIFIED / CLOSED
-ACTIVE_UNIT: GWS1B — Versioned Programmatic Project Workspace Blueprint
-ACTIVE_UNIT_STATUS: IMPLEMENTED / REAL_LOCAL_BLUEPRINT_CAPTURED / VERIFIED LOCALLY
-ACTIVE_UNIT_TYPE: BOUNDED_VERSIONED_BLUEPRINT_CORRECTION
+ACTIVE_UNIT: GWS1B-LIVE-01 — PWA Deployment Version Convergence
+ACTIVE_UNIT_STATUS: IMPLEMENTED / VERIFIED LOCALLY / AWAITING_OWNER_REVIEW
+ACTIVE_UNIT_TYPE: BOUNDED_PWA_GENERATION_CONVERGENCE
 P8_B1_SOURCE: MERGED / PRESENT
 P8_B2_SOURCE: MERGED / PRESENT
 P8_B3_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
@@ -64,14 +70,16 @@ PFAG_GWS1_STATUS: MERGED / SOURCE_VERIFIED
 PFAG_GWS1_VERIFIED_MERGE: cfd4e96fe25a938a726e92356541233915c0e571
 GWS_LIVE_01A_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 GWS_LIVE_01A_VERIFIED_MERGE: ca63d9f61fb4cac6ae0c6089ef8639691b1117b4
-GWS1B_STATUS: IMPLEMENTED / REAL_LOCAL_BLUEPRINT_CAPTURED / VERIFIED LOCALLY
-GWS1B_PUBLICATION: AUTHORIZED / OWNER_MERGE_PENDING
+GWS1B_STATUS: MERGED / SOURCE_VERIFIED
+GWS1B_VERIFIED_MERGE: a38c0b00e581638169f8740816f9a4646c30dbe0
+GWS1B_LIVE_01_STATUS: IMPLEMENTED / VERIFIED LOCALLY / AWAITING_OWNER_REVIEW
+GWS1B_PUBLICATION: MERGED / VERIFIED
 GWS1B_SOURCE_CAPTURE_METHOD: OWNER_PROVIDED_XLSX_PLUS_SCRIPT_SOURCE
 GWS1B_TRIGGER_MODEL: SIMPLE_ONEDIT_DISPATCHER / INSTALLABLE_NONE
 GWS_LIVE_01_STATUS: READY_TO_RESUME_AFTER_MERGE_DEPLOY / NOT_YET_PASSED
 GWS_SYNC_AUTONOMY_01: OPEN
 PFAG_OPS_01: OPEN
-GOOGLE_WORKSPACE_LIVE_ACCEPTANCE: PENDING_EXTERNAL_OAUTH_CONFIGURATION
+GOOGLE_WORKSPACE_LIVE_ACCEPTANCE: PENDING_PWA_CONVERGENCE_THEN_SEPARATE_GOOGLE_ACCEPTANCE
 FOUNDATION_SOURCE_ASSURANCE: PASS_WITH_DEBT
 PFAG_CRITICAL_OPEN: 0
 PFAG_HIGH_OPEN: 0
@@ -109,8 +117,8 @@ P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
 P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
 NEXT_UNIT: NONE_ASSIGNED
-NEXT_ACTION: OWNER_MERGE_REVIEW_AFTER_BRANCH_PUBLICATION
-CURRENT_CODE_BASELINE: ca63d9f61fb4cac6ae0c6089ef8639691b1117b4
+NEXT_ACTION: OWNER_REVIEW_PWA_CONVERGENCE_THEN_MERGE_DEPLOY_AND_RESUME_SEPARATE_GWS_LIVE_ACCEPTANCE
+CURRENT_CODE_BASELINE: a38c0b00e581638169f8740816f9a4646c30dbe0
 EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
 EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
 HISTORICAL_USER_ROLE_CONVERGENCE_STATUS: PHASE_3_AUDIT_REQUIRED / NOT_REASSESSED_IN_P8_B3

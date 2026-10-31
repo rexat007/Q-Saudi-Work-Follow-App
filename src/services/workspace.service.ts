@@ -1,3 +1,5 @@
+import {CLIENT_BUILD_ID,ensureRuntimeGeneration,assertRuntimeGeneration} from '../runtime/runtimeGeneration';
+import {workspaceFailureCode} from '../utils/workspaceGenerationErrors';
 import { selectWorkspaceDestinationFolder } from './googleTemplatePicker';
 import { classifyGoogleWorkspaceError } from '../utils/googleWorkspaceErrors';
 import type { ProjectGoogleStatus } from '../types/projectGoogleWorkspace';
@@ -116,6 +118,7 @@ export class ClientWorkspaceService {
     }
 
     // 2. Google OAuth Access Token (X-Google-Access-Token: <Google OAuth Token>)
+    headers['X-App-Build']=CLIENT_BUILD_ID;
     const googleToken = this.getAccessToken();
     if (googleToken) {
       headers['X-Google-Access-Token'] = googleToken;
@@ -127,9 +130,10 @@ export class ClientWorkspaceService {
   /**
    * Requests a Google-only Workspace permission grant without changing the Firebase session.
    */
-  public prepareGoogleAuthorization(): Promise<void> { return prepareWorkspaceGoogleAuthorization(); }
+  public async prepareGoogleAuthorization(): Promise<void> { await Promise.all([ensureRuntimeGeneration(),prepareWorkspaceGoogleAuthorization()]); }
 
   public async requestGoogleScopes(): Promise<string> {
+    assertRuntimeGeneration();
     const current = auth.currentUser;
     const uid = current?.uid;
     const subject = current?.providerData.find(provider => provider.providerId === 'google.com')?.uid;
@@ -148,6 +152,7 @@ export class ClientWorkspaceService {
   }
 
   public async selectProjectWorkspaceDestination(projectId: string): Promise<string> {
+    await ensureRuntimeGeneration();
     const token = this.getAccessToken();
     if (!token) throw new Error('AUTHORIZATION_DENIED');
     const destinationRootFolderId = await selectWorkspaceDestinationFolder(token);
@@ -156,7 +161,7 @@ export class ClientWorkspaceService {
       method:'POST',headers,body:JSON.stringify({destinationRootFolderId}),
     });
     const result=await response.json();
-    if(!response.ok)throw new Error(result.code||'DESTINATION_FOLDER_INVALID');
+    if(!response.ok)throw new Error(workspaceFailureCode(result.code||'DESTINATION_FOLDER_INVALID'));
     return result.data.destinationRootFolderId;
   }
 
@@ -209,6 +214,7 @@ export class ClientWorkspaceService {
    * Provisions Google Drive folders and Google Sheets for a project via server.
    */
   public async provisionProjectDrive(project: ProjectEntity, destinationRootFolderId?: string): Promise<GoogleDriveProjectStructure> {
+    await ensureRuntimeGeneration();
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
     const res = await fetch('/api/workspace/provision', {
@@ -219,7 +225,7 @@ export class ClientWorkspaceService {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
-      throw new Error(err.error || 'فشلت عملية تهيئة مجلدات Google Drive');
+      throw new Error(workspaceFailureCode(err.code || err.error || 'PROVISIONING_FAILED'));
     }
 
     const data = await res.json();

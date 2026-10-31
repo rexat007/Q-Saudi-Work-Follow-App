@@ -1,6 +1,10 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "gws.app_update_required": "يتوفر إصدار أحدث من التطبيق. جارٍ التحديث قبل متابعة إعداد مساحة العمل.",
+  "gws.version_unavailable": "تعذر التحقق من إصدار التطبيق. اتصل بالإنترنت ثم أعد المحاولة.",
+  "gws.current_attempt": "المحاولة الحالية",
+  "gws.previous_issue": "مشكلة سابقة في المزامنة",
   "gws.destination": "المجلد الأب لحفظ المشروع",
 
   "gws.status_unavailable": "تعذر التحقق من حالة مساحة العمل",

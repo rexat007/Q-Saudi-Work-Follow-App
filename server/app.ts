@@ -1,3 +1,4 @@
+import {runtimeVersionHandler,workspaceGenerationFence} from './runtimeVersion';
 import { projectGoogleBlueprintPort } from './projectGoogleBlueprint.adapter';
 import { projectGoogleWorkspaceServer, continuityRef } from '../src/services/projectGoogleWorkspace.server';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
@@ -42,6 +43,9 @@ const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Public, non-sensitive and never cached; precedes application authentication.
+app.get('/api/runtime-version',runtimeVersionHandler);
 
 // Global API Authentication Context Resolver
 app.use('/api', authenticateUser);
@@ -592,7 +596,7 @@ app.post('/api/projects/:projectId/foundation', enforceProjectIsolation, enforce
 // ----------------------------------------------------
 // 3. Provision Google Drive & Sheets for Project
 // ----------------------------------------------------
-app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, workspaceGenerationFence, async (req, res) => {
   try {
     const googleToken = getGoogleAccessToken(req, true);
     const { projectId, destinationRootFolderId } = req.body;
@@ -649,8 +653,8 @@ app.post('/api/intake/canonical', enforceProjectIsolation, enforceAdminOnly, asy
 });
 
 // Retired: normal Project users never receive or select a runtime reference template.
-app.get('/api/projects/:projectId/workspace/template', enforceProjectIsolation, enforceAdminOnly, (_req, res) => res.status(410).json({success:false,code:'RUNTIME_TEMPLATE_SELECTION_RETIRED'}));
-app.post('/api/projects/:projectId/workspace/destination', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+app.get('/api/projects/:projectId/workspace/template', enforceProjectIsolation, enforceAdminOnly, (_req, res) => res.status(410).json({success:false,code:'APP_UPDATE_REQUIRED',retiredCode:'RUNTIME_TEMPLATE_SELECTION_RETIRED'}));
+app.post('/api/projects/:projectId/workspace/destination', enforceProjectIsolation, enforceAdminOnly, workspaceGenerationFence, async (req, res) => {
   try {
     if(Object.keys(req.body||{}).some(key=>key!=='destinationRootFolderId')) return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
     const data=await projectGoogleWorkspaceServer.approveDestination(req.params.projectId,req.body.destinationRootFolderId,(req as any).user,projectGoogleBlueprintPort(getGoogleAccessToken(req,true),req.params.projectId));

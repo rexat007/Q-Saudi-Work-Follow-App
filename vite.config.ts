@@ -1,3 +1,5 @@
+import {resolveBuildId} from './tooling/runtimeBuild';
+import {pwaGenerationScript} from './tooling/pwaGeneration';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import fs from 'fs';
@@ -65,9 +67,14 @@ function aistudioMediaPlugin(): Plugin {
 }
 // LINT.ThenChange(//depot/google3/java/com/google/alkali/boq/makersuite/applet_dev_service/templates/initializers/react_theme/vite.config.ts:aistudio_media_plugin)
 
-export default defineConfig(() => {
+export default defineConfig(({command}) => {
+  const buildId=resolveBuildId();
+  if(command==='build' && buildId==='UNAVAILABLE')throw new Error('APP_BUILD_ID_REQUIRED');
+  const generationFile=`assets/pwa-generation-${buildId}.js`;
   return {
+    define:{__APP_BUILD_ID__:JSON.stringify(buildId)},
     plugins: [
+      {name:'runtime-build-artifact',generateBundle(){this.emitFile({type:'asset',fileName:'runtime-build.json',source:JSON.stringify({buildId,workspaceContract:'GWS1B'})});this.emitFile({type:'asset',fileName:generationFile,source:pwaGenerationScript(buildId)});}},
       react(),
       tailwindcss(),
       aistudioMediaPlugin(),
@@ -106,6 +113,9 @@ export default defineConfig(() => {
           ],
         },
         workbox: {
+          skipWaiting:true,clientsClaim:true,cleanupOutdatedCaches:true,
+          importScripts:[generationFile],
+          navigateFallback:'/index.html',navigateFallbackDenylist:[/^\/api(?:\/|$)/],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MiB for XLSX & rich engine bundles
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
           runtimeCaching: [

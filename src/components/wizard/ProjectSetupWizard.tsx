@@ -1,3 +1,4 @@
+import {workspaceFailureCode,visiblePreviousWorkspaceError} from '../../utils/workspaceGenerationErrors';
 import { beginWorkspaceIntent, workspaceIntentCurrent, type WorkspaceAuthorizationIntent } from '../../utils/workspaceAuthorizationIntent';
 import { continuityStateLabel } from '../../utils/googleWorkspaceErrors';
 import type { ProjectGoogleStatus } from '../../types/projectGoogleWorkspace';
@@ -239,6 +240,7 @@ export async function executeProjectWorkspaceSyncOrchestration(
       ? 'تمت تهيئة مساحة العمل في Google بنجاح وإسقاط بيانات المشروع الأولية في جدول البيانات'
       : 'تم تحديث وإسقاط بيانات المشروع في جدول البيانات بنجاح دون إعادة تهيئة مساحة العمل'});
   } catch (error: any) {
+    if(workspaceFailureCode(error.message||'')==='APP_UPDATE_REQUIRED'){setSyncNotice({type:'error',text:'APP_UPDATE_REQUIRED'});return;}
     setSyncNotice({type:'error',text: provisionSucceeded
       ? `تمت تهيئة مساحة العمل في Google Drive بنجاح، ولكن تعذر إكمال إسقاط البيانات الأولية: ${error.message || 'PROVISIONING_FAILED'}`
       : existingWorkspace ? `فشل تحديث وإسقاط البيانات في جدول البيانات: ${error.message || 'PROVISIONING_FAILED'}`
@@ -560,12 +562,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setGoogleAuthorizationReady(false);
     if (activeSetupLayer !== 'WORKSPACE') return;
     if (!clientWorkspaceService.prepareGoogleAuthorization) { setGoogleAuthorizationReady(true); return; }
-    clientWorkspaceService.prepareGoogleAuthorization().then(() => {
-      if (!disposed) setGoogleAuthorizationReady(true);
+    const prepare=()=>{clientWorkspaceService.prepareGoogleAuthorization().then(() => {
+      if (!disposed) {setGoogleAuthorizationReady(true);setSyncNotice(previous=>previous?.type==='error' && ['APP_UPDATE_REQUIRED','APP_VERSION_UNAVAILABLE'].includes(workspaceFailureCode(previous.text))?null:previous);}
     }).catch((error: unknown) => {
-      if (!disposed) setSyncNotice({type:'error',text:error instanceof Error ? error.message : 'NETWORK_ERROR'});
-    });
-    return () => { disposed = true; };
+      if (!disposed) {setGoogleAuthorizationReady(false);setSyncNotice({type:'error',text:workspaceFailureCode(error instanceof Error ? error.message : 'NETWORK_ERROR')});}
+    });};
+    prepare();window.addEventListener('online',prepare);window.addEventListener('focus',prepare);
+    return () => { disposed = true;window.removeEventListener('online',prepare);window.removeEventListener('focus',prepare); };
   }, [activeSetupLayer, editingProjectId, projectScopeKey]);
 
   // Active project lookup helper with temporary local bridge override
@@ -4028,7 +4031,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                       googleContinuity?.binding ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'
                     }`}>
-                      {googleContinuity ? continuityStateLabel(googleContinuity.state, t) : t('gws.status_unavailable')}
+                      {googleContinuity ? continuityStateLabel(syncNotice?.type==='error' && workspaceFailureCode(syncNotice.text)==='APP_UPDATE_REQUIRED'?'APP_UPDATE_REQUIRED':googleContinuity.state, t) : t('gws.status_unavailable')}
                     </span>
                   </div>
 
@@ -4037,7 +4040,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       syncNotice.type === 'success' ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300' : 'bg-rose-950/40 border-rose-800 text-rose-300'
                     }`}>
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
-                      <span>{syncNotice.text.includes('OAUTH_APP_CONFIGURATION_BLOCK') ? t('gws.oauth_configuration') : syncNotice.text.includes('AUTHORIZATION_DENIED') ? t('gws.authorization_denied') : syncNotice.text.includes('POPUP_CLOSED') ? t('gws.popup_closed') : syncNotice.text.includes('TOKEN_EXPIRED') ? t('gws.token_expired') : syncNotice.text.includes('SCOPE_DENIED') ? t('gws.scope_denied') : syncNotice.text.includes('NETWORK_ERROR') ? t('gws.network_error') : /DESTINATION_|SCRIPT_|BLUEPRINT_|TEMPLATE_|WORKSPACE_|SHEET_|GOOGLE_PICKER_|GOOGLE_OAUTH_/.test(syncNotice.text) ? t('gws.action_required') : presentBatch4Message(syncNotice.text, t)}</span>
+                      <span><span className="font-bold">{t('gws.current_attempt')}: </span>{workspaceFailureCode(syncNotice.text)==='APP_UPDATE_REQUIRED' ? t('gws.app_update_required') : syncNotice.text.includes('APP_VERSION_UNAVAILABLE') ? t('gws.version_unavailable') : syncNotice.text.includes('OAUTH_APP_CONFIGURATION_BLOCK') ? t('gws.oauth_configuration') : syncNotice.text.includes('AUTHORIZATION_DENIED') ? t('gws.authorization_denied') : syncNotice.text.includes('POPUP_CLOSED') ? t('gws.popup_closed') : syncNotice.text.includes('TOKEN_EXPIRED') ? t('gws.token_expired') : syncNotice.text.includes('SCOPE_DENIED') ? t('gws.scope_denied') : syncNotice.text.includes('NETWORK_ERROR') ? t('gws.network_error') : /DESTINATION_|SCRIPT_|BLUEPRINT_|TEMPLATE_|WORKSPACE_|SHEET_|GOOGLE_PICKER_|GOOGLE_OAUTH_/.test(syncNotice.text) ? t('gws.action_required') : presentBatch4Message(syncNotice.text, t)}</span>
                     </div>
                   )}
 
@@ -4056,12 +4059,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   <p>{t('gws.purpose')}</p>
                   {googleContinuity && <div className="space-y-1" aria-live="polite">
-                    <p>{t('gws.state')}: {continuityStateLabel(googleContinuity.state, t)}</p>
+                    <p>{t('gws.state')}: {continuityStateLabel(syncNotice?.type==='error' && workspaceFailureCode(syncNotice.text)==='APP_UPDATE_REQUIRED'?'APP_UPDATE_REQUIRED':googleContinuity.state, t)}</p>
                     <p>{t('gws.destination')}: {googleContinuity.binding?.destinationRootFolderId || t('projects.batch4.not_configured')}</p>
                     <p>{t('gws.account')}: {googleContinuity.binding?.googleAccountLabel || t('projects.batch4.not_configured')}</p>
                     <p>{t('gws.last_sync')}: {googleContinuity.lastSuccessfulSyncAt || t('projects.batch4.not_configured')}</p>
                     <p>{t('gws.pending')}: {googleContinuity.pendingSyncCount}</p>
-                    {googleContinuity.lastSyncError && <p>{t('gws.last_error')}: {t('gws.action_required')} ({googleContinuity.lastSyncError})</p>}
+                    {visiblePreviousWorkspaceError(googleContinuity.lastSyncError,syncNotice?.text) && <p>{t('gws.previous_issue')}: {t('gws.action_required')} ({googleContinuity.lastSyncError})</p>}
                     {googleContinuity.binding && <a className="text-amber-400 underline" target="_blank" rel="noopener noreferrer" href={googleContinuity.binding.spreadsheetUrl}>{t('gws.open')}</a>}
                   </div>}
                   <div className="pt-2 flex justify-end">

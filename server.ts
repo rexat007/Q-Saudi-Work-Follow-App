@@ -1,3 +1,4 @@
+import {shellCacheHeaders} from './server/runtimeVersion';
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
@@ -14,8 +15,9 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+    app.use(express.static(distPath,{setHeaders:shellCacheHeaders}));
     app.get('*', (req, res) => {
+      res.setHeader('Cache-Control','no-cache, max-age=0, must-revalidate');
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }

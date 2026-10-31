@@ -1,3 +1,9 @@
+## GWS1B-LIVE-01 — runtime generation boundary
+
+The public runtime-version response exposes only buildId/workspaceContract and is no-store. Build IDs are compatibility evidence, not authentication or entitlement. Existing Firebase/principal/Project/lifecycle checks remain authoritative. Critical destination/provision routes require the exact served artifact build in X-App-Build before Google access; a forged matching public header cannot bypass normal authorization.
+
+Version checks/grant preparation are token-free. Google OAuth client, origins, scopes, Picker keys, destination checks and blueprint/Script code are unchanged. PWA update only manages app/Workbox generations: no localStorage/session/auth/database/outbox clearing, no service-worker unregister, no user-data cache purge. Legacy page navigation is same-origin, generation-checked, once per worker/client and does not replay API mutations. Modern reload guards remember bounded target history and rate-limit across rolling deployments. Offline version failure blocks Workspace mutations while preserving offline app shell. Actual deployed/browser acceptance remains separate from source tests; status defers to [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
 ## GWS1B — generated Workspace trust boundary
 
 [The ledger](reconstruction/02_PHASE_LEDGER.md) owns acceptance. Isolated Google Identity Services authorization preserves Firebase UID and Google provider-subject equality. Request only `drive.file`, `spreadsheets`, `script.projects` and basic identity; no unrestricted Drive scope. Picker selects one destination folder only. Server rechecks active actor, Project scope/lifecycle, folder writability, foreign storage registry and operation/version tags. Only the human user's transient OAuth token creates native resources; service-account ownership is not the provisioning model.

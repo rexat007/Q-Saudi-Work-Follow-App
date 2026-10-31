@@ -228,3 +228,23 @@ describe('GWS-LIVE-01A actual Wizard context and continuation',()=>{
    await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();expect(clientWorkspaceService.selectProjectWorkspaceDestination).not.toHaveBeenCalled();expect(container.textContent).toContain('NETWORK_ERROR');
  });
 });
+
+describe('GWS1B live generation error presentation',()=>{
+ it('current APP_UPDATE_REQUIRED never presents the persisted legacy timezone error as cause',async()=>{
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue({...status(unbound.projectId),lastSyncError:'TEMPLATE_TIMEZONE_INVALID'} as any);
+  vi.mocked(clientWorkspaceService.requestGoogleScopes).mockRejectedValueOnce(Error('APP_UPDATE_REQUIRED'));
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
+  expect(container.textContent).toContain('gws.app_update_required');expect(container.textContent).toContain('gws.current_attempt');expect(container.textContent).not.toContain('TEMPLATE_TIMEZONE_INVALID');expect(clientWorkspaceService.selectProjectWorkspaceDestination).not.toHaveBeenCalled();
+ });
+ it('retired response becomes current update guidance without template selection language',async()=>{
+  vi.mocked(clientWorkspaceService.selectProjectWorkspaceDestination).mockRejectedValueOnce(Error('RUNTIME_TEMPLATE_SELECTION_RETIRED'));
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
+  expect(container.textContent).toContain('gws.app_update_required');expect(container.textContent).not.toContain('RUNTIME_TEMPLATE_SELECTION_RETIRED');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
+ });
+ it('retains a different relevant historical issue under a separate previous label',async()=>{
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue({...status(unbound.projectId),lastSyncError:'DESTINATION_NOT_WRITABLE'} as any);
+  vi.mocked(clientWorkspaceService.requestGoogleScopes).mockRejectedValueOnce(Error('APP_UPDATE_REQUIRED'));
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
+  expect(container.textContent).toContain('gws.app_update_required');expect(container.textContent).toContain('gws.previous_issue');expect(container.textContent).toContain('DESTINATION_NOT_WRITABLE');
+ });
+});

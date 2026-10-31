@@ -1,3 +1,11 @@
+## GWS1B-LIVE-01 — client/server generation convergence
+
+Current supporting architecture; [the ledger](reconstruction/02_PHASE_LEDGER.md) alone owns status. Vite compiles APP_BUILD_ID and emits runtime-build.json in the same dist artifact. The production server advertises that artifact's identity, never a later checkout SHA. Build identity derives from commit/deployment SHA; local dirty/restricted builds use a deterministic source suffix, no timestamp. A missing identity fails the build; missing runtime artifact fails closed.
+
+GET /api/runtime-version is public, credential-free and no-store. Token-free startup/layer preparation checks server identity/Workspace contract; a recent confirmed snapshot preserves the synchronous OAuth click gesture. Each destination/provision request rechecks and carries X-App-Build; server route fences reject mismatches before Google access. Existing auth/Project/storage authorization remains intact. Known mismatch means APP_UPDATE_REQUIRED, unavailable version means APP_VERSION_UNAVAILABLE, not Drive failure.
+
+Supported registerSW callbacks, Workbox skipWaiting/clientsClaim and a narrow importScripts hook converge controllers and pages. Modern tabs reload only after confirming the new controller; legacy unaware tabs can be navigated once after verified activation, without waiting for that navigation inside activate. No auth/outbox storage is cleared. Workbox keeps offline navigation fallback and cleans obsolete precache revisions; API navigation is excluded. HTML/worker/version responses revalidate or are no-store, hashed assets remain immutable. See [the continuity contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) for loop/race/offline limitations. No Google/blueprint redesign.
+
 ## GWS1B — versioned Workspace generation
 
 Current supporting architecture; exact state defers to [the ledger](reconstruction/02_PHASE_LEDGER.md).
