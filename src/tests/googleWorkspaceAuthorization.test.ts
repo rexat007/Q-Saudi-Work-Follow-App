@@ -1,5 +1,6 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 import {requestWorkspaceGoogleToken} from '../services/googleWorkspaceAuthorization';
+import {REQUIRED_WORKSPACE_SCOPES} from '../utils/googleWorkspaceScopes';
 import {beginWorkspaceIntent,workspaceIntentCurrent} from '../utils/workspaceAuthorizationIntent';
 let options:any;
 const granted='openid email https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/script.projects';
@@ -11,10 +12,27 @@ beforeEach(()=>{
 afterEach(()=>{vi.unstubAllGlobals();vi.unstubAllEnvs();vi.restoreAllMocks()});
 async function begin(stillCurrent=()=>true){const promise=requestWorkspaceGoogleToken('google-subject',stillCurrent);await Promise.resolve();await Promise.resolve();return {promise,finish:(patch:any={})=>options.callback({access_token:'fixture',scope:granted,...patch})}}
 describe('GWS-LIVE-01A isolated authorization and bounded intent',()=>{
- it('acquires a Google-only grant and verifies the original provider subject',async()=>{const f=await begin();f.finish();expect(await f.promise).toBe('fixture');expect(options.client_id).toBe('fixture.apps.googleusercontent.com');expect(fetch).toHaveBeenCalledWith('https://www.googleapis.com/oauth2/v3/userinfo',expect.any(Object));});
+ it('acquires a Google-only grant and verifies the original provider subject',async()=>{const f=await begin();f.finish();expect(await f.promise).toBe('fixture');expect(options.client_id).toBe('fixture.apps.googleusercontent.com');expect(options.scope).toBe(granted);expect(fetch).toHaveBeenCalledWith('https://www.googleapis.com/oauth2/v3/userinfo',expect.any(Object));});
  it('rejects a different provider account without changing app identity',async()=>{vi.mocked(fetch).mockResolvedValueOnce({ok:true,json:async()=>({sub:'different-account'})} as any);const f=await begin();f.finish();await expect(f.promise).rejects.toThrow('WORKSPACE_GOOGLE_ACCOUNT_MISMATCH');});
  it('rejects logout/account switch while authorization is open',async()=>{let current=true;const f=await begin(()=>current);current=false;f.finish();await expect(f.promise).rejects.toThrow('WORKSPACE_IDENTITY_CHANGED');expect(fetch).not.toHaveBeenCalled();});
  it('rejects scope denial rather than continuing to Picker',async()=>{const f=await begin();f.finish({scope:'openid email'});await expect(f.promise).rejects.toThrow('SCOPE_DENIED');});
+ it.each([
+  ['script.projects', ['https://www.googleapis.com/auth/script.projects']],
+  ['drive.file', ['https://www.googleapis.com/auth/drive.file']],
+  ['spreadsheets', ['https://www.googleapis.com/auth/spreadsheets']],
+  ['drive.file,script.projects', ['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/script.projects']],
+ ])('identifies exactly %s missing from the GIS grant without using the token',async(aliases,missing)=>{
+  const f=await begin();f.finish({scope:REQUIRED_WORKSPACE_SCOPES.filter(scope=>!missing.includes(scope)).join(' '),access_token:'sensitive-access-fixture',id_token:'sensitive-id-fixture',code:'sensitive-code-fixture',email:'sensitive-person-fixture'});
+  const error=await f.promise.catch(error=>error);
+  expect(error.message).toBe(`SCOPE_DENIED:${aliases}`);expect(Object.keys(error)).toEqual([]);expect(fetch).not.toHaveBeenCalled();
+ });
+ it('accepts whitespace-normalized grants and equivalent identity email spelling without widening required scopes',async()=>{
+  const f=await begin();f.finish({scope:`openid https://www.googleapis.com/auth/userinfo.email\t${REQUIRED_WORKSPACE_SCOPES.join('\n  ')}`});
+  await expect(f.promise).resolves.toBe('fixture');
+ });
+ it('fails closed without inventing missing names when GIS omits grant metadata',async()=>{
+  const f=await begin();f.finish({scope:undefined});await expect(f.promise).rejects.toThrow(/^SCOPE_DENIED$/);expect(fetch).not.toHaveBeenCalled();
+ });
  it('exposes missing client configuration before opening a popup',async()=>{vi.stubEnv('VITE_FIREBASE_OAUTH_CLIENT_ID','');await expect(requestWorkspaceGoogleToken('google-subject',()=>true)).rejects.toThrow('GOOGLE_OAUTH_CONFIGURATION_REQUIRED');});
  it('preserves access_denied evidence returned by Google',async()=>{const f=await begin();f.finish({error:'access_denied',error_description:'not permitted'});await expect(f.promise).rejects.toMatchObject({code:'access_denied'});});
  it('retains no token or file reference in the bounded intent',()=>{const intent=beginWorkspaceIntent('u','P1','scope',100);expect(Object.keys(intent).sort()).toEqual(['action','projectId','scope','setupLayer','startedAt','userId']);const context={userId:'u',projectId:'P1',scope:'scope',layer:'WORKSPACE'};expect(workspaceIntentCurrent(intent,context,101)).toBe(true);expect(workspaceIntentCurrent(intent,{...context,projectId:'P2'},101)).toBe(false);expect(workspaceIntentCurrent(intent,{...context,userId:'v'},101)).toBe(false);expect(workspaceIntentCurrent(intent,{...context,scope:'revoked'},101)).toBe(false);expect(workspaceIntentCurrent(intent,context,600100)).toBe(false);});

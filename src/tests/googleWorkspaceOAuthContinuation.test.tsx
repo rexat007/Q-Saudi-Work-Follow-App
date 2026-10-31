@@ -251,6 +251,12 @@ describe('GWS1B live generation error presentation',()=>{
 });
 
 describe('initial destination error guidance',()=>{
+ it.each(['requestGoogleScopes','selectProjectWorkspaceDestination'] as const)('shows only the missing scope aliases from %s before provisioning',async(method)=>{
+  vi.mocked(clientWorkspaceService[method]).mockRejectedValueOnce(Error('SCOPE_DENIED:drive.file,script.projects'));
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
+  expect(container.textContent).toContain('gws.scope_denied');expect(container.querySelector('code[role="status"]')?.textContent).toBe('SCOPE_DENIED:drive.file,script.projects');
+  expect(container.textContent).not.toContain('https://www.googleapis.com/auth/');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
+ });
  it.each([
   ['DESTINATION_NOT_WRITABLE','gws.destination_not_writable'],
   ['STORAGE_TARGET_CONFLICT','gws.destination_conflict'],

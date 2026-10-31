@@ -2,6 +2,7 @@ import {CLIENT_BUILD_ID,ensureRuntimeGeneration,assertRuntimeGeneration} from '.
 import {workspaceFailureCode} from '../utils/workspaceGenerationErrors';
 import { selectWorkspaceDestinationFolder } from './googleTemplatePicker';
 import { classifyGoogleWorkspaceError } from '../utils/googleWorkspaceErrors';
+import {workspaceScopeDiagnosticCode} from '../utils/googleWorkspaceScopes';
 import type { ProjectGoogleStatus } from '../types/projectGoogleWorkspace';
 import type { StorageProviderType } from '../types/workspace';
 import { 
@@ -146,6 +147,8 @@ export class ClientWorkspaceService {
     } catch (error: unknown) {
       this.setAccessToken(null);
       const code = error instanceof Error ? error.message : '';
+      const scopeDiagnostic=workspaceScopeDiagnosticCode(code);
+      if(scopeDiagnostic) throw new Error(scopeDiagnostic);
       if (/^(GOOGLE_OAUTH_CONFIGURATION_REQUIRED|WORKSPACE_IDENTITY_CHANGED|WORKSPACE_GOOGLE_ACCOUNT_MISMATCH)$/.test(code)) throw new Error(code);
       throw new Error(classifyGoogleWorkspaceError(error));
     }
