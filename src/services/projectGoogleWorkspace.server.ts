@@ -10,6 +10,9 @@ import type { ProjectEntity } from '../types/entities';
 import type { ProjectGoogleBinding, ProjectGoogleStatus } from '../types/projectGoogleWorkspace';
 import type { OperationalSheetInput } from './projectGoogleSheetContract';
 import {classifyWorkspaceGenerationFailure, type WorkspaceGenerationDiagnostic, type WorkspaceGenerationOperation} from '../utils/workspaceGenerationDiagnostics';
+import type {CanonicalWorkspaceMasterProjection} from './projectWorkspaceMasterContract';
+import {MASTER_TABS,isMasterTab} from './projectWorkspaceMasterContract';
+import {markDirtyInTransaction,getState as projectionState,markProjectionSuccessful} from './projectWorkspaceProjectionState.server';
 
 export class GoogleWorkspaceCommandError extends Error {
   constructor(public code: string, public status = 409, public diagnostic?: WorkspaceGenerationDiagnostic) { super(code); }
@@ -45,6 +48,7 @@ export interface GoogleBlueprintPort extends GoogleTemplatePort {
   authorizeBinding():Promise<void>;
   verifyBinding(rootId:string,folderId:string,fileId:string,version:string):Promise<{title:string}>;
   verifyWorkbook(fileId:string,blueprint:WorkspaceBlueprint):Promise<void>;
+  projectMasterTabs(fileId:string,snapshot:CanonicalWorkspaceMasterProjection,tabs:readonly string[]):Promise<void>;
   validateDestination(folderId:string,projectId:string):Promise<void>;
   findResource(operationId:string,role:'FOLDER'|'SPREADSHEET'):Promise<Array<{id:string;parentId:string}>>;
   createProjectFolder(name:string,parentId:string,operationId:string,version:string):Promise<string>;
@@ -205,6 +209,7 @@ export class ProjectGoogleWorkspaceServer {
       await withWorkspaceGenerationDiagnostic('PERSIST_BINDING',()=>this.db.runTransaction(async(tx:any)=>{
         const {project}=await this.authorized(tx,projectId,who),snap=await tx.get(ref);
         if(snap.data()?.owner!==owner||snap.data()?.binding)return gwsFail('WORKSPACE_EXECUTION_FENCED');
+        await markDirtyInTransaction(tx,projectId,MASTER_TABS.map(spec=>spec.key),'WORKSPACE_CONNECTED',undefined,this.db);
         tx.set(ref,{...snap.data(),binding,state:'READY',workspaceState:'CONNECTED',automationState:snap.data()?.automationState||'NOT_INSTALLED',stage:'BOUND',leaseUntil:0,lastSyncError:null,lastGenerationDiagnostic:null});
         tx.update(this.db.collection('projects').doc(projectId),{settings:{...project.settings,googleDriveFolderId:binding.projectFolderId,googleSpreadsheetId:binding.spreadsheetId,googleDriveProvisioning:{enabled:true,status:'PROVISIONED',rootFolderName:name,spreadsheetTitle:name}},updatedBy:who.userId,updatedAt:new Date().toISOString()});
         this.audit(tx,projectId,who.userId,'WORKSPACE_BOUND',{fileId:binding.spreadsheetId,workspaceBlueprintVersion:blueprint.version,...(binding.scriptProjectId?{scriptProjectId:binding.scriptProjectId}:{})});
@@ -316,7 +321,7 @@ export class ProjectGoogleWorkspaceServer {
     }
   }
   /** Drain only server-recorded events. Request never supplies a file ID or row payload. */
-  async retrySync(projectId:string,who:AuthUserContext,google:GoogleTemplatePort) {
+  async retrySync(projectId:string,who:AuthUserContext,google:GoogleTemplatePort&Partial<GoogleBlueprintPort>) {
     const owner=randomUUID(),ref=continuityRef(this.db,projectId);
     const state=await this.db.runTransaction(async(tx:any)=>{
       await this.authorized(tx,projectId,who);
@@ -327,13 +332,28 @@ export class ProjectGoogleWorkspaceServer {
     });
     try {
       if(await google.subject()!==state.binding.googleSubject) return gwsFail('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION');
-      await google.verify(state.binding.spreadsheetId,workspaceOperation(projectId));
+      if(state.binding.workspaceBlueprintVersion){
+        if(!google.verifyBinding)return gwsFail('NATIVE_BINDING_VERIFIER_REQUIRED');
+        await google.verifyBinding(state.binding.destinationRootFolderId,state.binding.projectFolderId,state.binding.spreadsheetId,state.binding.workspaceBlueprintVersion);
+      } else await google.verify(state.binding.spreadsheetId,workspaceOperation(projectId));
       const events=await syncOutboxRef(this.db,projectId).get();
-      for(const doc of events.docs) {
+      for(const doc of [...events.docs.filter((d:any)=>d.data().kind==='MASTER_DATA'),...events.docs.filter((d:any)=>d.data().kind!=='MASTER_DATA')]) {
         const event=doc.data();if(event.status==='DELIVERED') continue;
-        if(event.projectId!==projectId || event.input?.projectId!==projectId) return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
-        if(!event.input) return gwsFail('SHEET_SOURCE_MAPPING_REQUIRED');
-        await google.upsert(state.binding.spreadsheetId,event.input);
+        if(event.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
+        if(event.kind==='MASTER_DATA') {
+          if(!google.projectMasterTabs)return gwsFail('MASTER_PROJECTION_PORT_REQUIRED');
+          const freshness=await projectionState(projectId,this.db);
+          const tabs=(freshness.dirtyTabs.length?freshness.dirtyTabs:event.dirtyTabs||[]).filter(isMasterTab);
+          if(!tabs.length)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
+          const {ProjectWorkspaceInitialProjectionServer}=await import('./projectWorkspaceInitialProjection.server');
+          const snapshot=await new ProjectWorkspaceInitialProjectionServer().buildCanonicalProjection(projectId,this.db);
+          await google.projectMasterTabs(state.binding.spreadsheetId,snapshot,tabs);
+          await markProjectionSuccessful(projectId,tabs,undefined,freshness.mutationRevision,this.db,{owner,authorize:tx=>this.authorized(tx,projectId,who)});
+        } else {
+          if(event.input?.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
+          if(!event.input)return gwsFail('SHEET_SOURCE_MAPPING_REQUIRED');
+          await google.upsert(state.binding.spreadsheetId,event.input);
+        }
         await this.db.runTransaction(async(tx:any)=>{
           await this.authorized(tx,projectId,who);
           const s=await tx.get(ref),fresh=await tx.get(syncOutboxRef(this.db,projectId).doc(doc.id));

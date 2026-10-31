@@ -3,6 +3,8 @@ import {LOADING_WRITABLE,OFFLOAD_WRITABLE,LOADING_FORMULAS,OFFLOAD_FORMULAS} fro
 import { google } from 'googleapis';
 import {missingWorkspaceScopes, missingWorkspaceBindingScopes, workspaceScopeDeniedCode} from '../src/utils/googleWorkspaceScopes';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
+import {serverWorkspaceService} from './workspace.service';
+import {MASTER_TABS,masterTabTitle} from '../src/services/projectWorkspaceMasterContract';
 import { WorkspaceStorageBoundary } from './workspace.isolation';
 import { GoogleWorkspaceCommandError, gwsFail, workspaceOperation, withWorkspaceGenerationDiagnostic, type GoogleBlueprintPort } from '../src/services/projectGoogleWorkspace.server';
 import { blueprintRequests, blueprintRequestBatches, verifyBlueprintWorkbook, type WorkspaceBlueprint } from '../src/services/googleWorkspaceBlueprint/contract';
@@ -17,7 +19,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       if(error instanceof GoogleWorkspaceCommandError)throw error;
       const e=error as {code?:number;status?:number;response?:{status?:number}};
       const status=e.response?.status||e.status||e.code;
-      return gwsFail(status===401?'TOKEN_EXPIRED':status===403&&code!=='BOUND_FILE_UNAVAILABLE'?'SCOPE_DENIED':code,status===401?401:status===403?403:502);
+      return gwsFail(status===401?'TOKEN_EXPIRED':status===403&&!['BOUND_FILE_UNAVAILABLE','MASTER_DATA_SYNC_FAILED'].includes(code)?'SCOPE_DENIED':code,status===401?401:status===403?403:502);
     }
   };
   const owned=async(fileId:string,version?:string)=>{
@@ -53,6 +55,16 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     });
   };
   return {...base,
+    async projectMasterTabs(fileId,snapshot,tabs){await guarded('MASTER_DATA_SYNC_FAILED',async()=>{
+      if(snapshot.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
+      if(!tabs.length||tabs.some(tab=>!MASTER_TABS.some(spec=>spec.key===tab)))return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
+      for(const spec of MASTER_TABS.filter(spec=>tabs.includes(spec.key))){
+        const rows=snapshot[spec.source];const ids=new Set<string>();
+        for(const row of rows){const id=row[spec.primaryKey];if(row.projectId!==projectId||typeof id!=='string'||!id||ids.has(id))return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);ids.add(id);}
+      }
+      await owned(fileId);
+      for(const spec of MASTER_TABS.filter(spec=>tabs.includes(spec.key)))await serverWorkspaceService.reconcileTabSnapshot(fileId,masterTabTitle(spec.key),spec.primaryKey,snapshot[spec.source],spec.columns,token,'RAW');
+    });},
     async authorizeBinding(){await guarded('AUTHORIZATION_REQUIRED',async()=>{
       const info=await auth.getTokenInfo(token),missing=missingWorkspaceBindingScopes(info.scopes);
       if(missing.length)return gwsFail(workspaceScopeDeniedCode(missing),403);

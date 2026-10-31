@@ -1,4 +1,8 @@
-## GWS1B-LIVE-02 continuation
+## GWS2 continuation
+
+Exact current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). The owner superseded Script-required binding: Firestore is canonical, Sheets is its projection, and Apps Script is optional. GWS2-A+B are implemented / verified / awaiting owner merge on the LIVE-04 merged baseline. GWS2-B adds current canonical master snapshots, atomic dirty/outbox invalidation and stable-ID reconciliation. Both require owner merge and real Q-PRJ-007 acceptance; no live recovery or Google write has been performed here. Existing binding resources must be reused. GWS2-C persistent offline authorization and unattended delivery remain unimplemented and externally blocked; request-driven retries are not autonomous sync. See [the sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) and [authorization prerequisites](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md). No Phase 10 or PFAG-OPS work starts here. Earlier checkpoints below are historical where superseded.
+
+## Historical GWS1B-LIVE-02 continuation
 
 Exact current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). PR #69 merged PWA generation convergence; owner reports the current Q-PRJ-007 error is DESTINATION_NOT_WRITABLE. Initial provisioning now validates the Picker-granted writable folder and selected-ID registry/reservation checks without migration ancestry traversal. drive.file is preserved; migration validation/scopes/blueprint/Script are unchanged. Source fix requires owner review/merge/deploy and a retry on the same Project; no live Google success is claimed. Contract/proof: [PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
 
@@ -6,7 +10,7 @@ Exact current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). PR #69 merged PWA
 
 Exact state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). PR #68 merged GWS1B. Owner-reported RUNTIME_TEMPLATE_SELECTION_RETIRED after redeploy is consistent with an old controlled client reaching the new retired route. Current source has no production client caller. This bounded unit reconciles PWA/app/API generations using shared build metadata, critical command fences, supported worker activation and guarded reload, plus separates current attempt and previous sync errors. Do not change Google permissions or destination validation to address that retired-call symptom. After owner merge/deploy, verify real deployed build convergence first, then retry Q-PRJ-007 Workspace/Google acceptance separately. No GWS2, PFAG-OPS-01 or Phase10 work is activated.
 
-## GWS1B current continuation
+## Historical GWS1B continuation
 
 Supporting summary only; [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Current merged baseline is `a38c0b00e581638169f8740816f9a4646c30dbe0`, including isolated Workspace OAuth correction. GWS1B replaces hidden template copying with destination-only selection and programmatic versioned native workbook/bound-script generation. The owner-local XLSX and nine Script files are now captured into sanitized SABIL-HAIL-V1. Simple onOpen/onEdit replace four installable/timer dependencies; static initialization is generated directly. Local source/controlled verification is separate from live acceptance. Read [the sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) for capture, validation, recovery and remaining acceptance gates. No GWS2, autonomous refresh, dynamic intake or Phase 10 change.
 

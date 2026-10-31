@@ -101,11 +101,11 @@ export class TemporalRelationshipAuthority {
         if (kind === 'ASSIGNMENT') await readCurrentAssignment(tx, db, p, 'truckId', record.truckId, at);
         if (record.status === 'ACTIVE' && current?.[spec.id] !== record[spec.id]) integrity(kind);
         plan = { kind, projectId: p, command: 'CLOSE', actor, before: [record], record: record.status === 'CLOSED' ? record : { ...record, status: 'CLOSED', effectiveTo: at.toISOString(), updatedAt: at.toISOString(), updatedBy: actor.userId }, changed: record.status !== 'CLOSED', reason: input.reason };
-        if (plan.changed) { await markDirtyInTransaction(tx, p, ['FLEET_ROSTER'], 'TEMPORAL_CLOSE', at.toISOString(), db); writeTemporalPlan(tx, db, plan, at); }
+        if (plan.changed) { await markDirtyInTransaction(tx, p, kind==='ASSIGNMENT'?['DRIVERS','FLEET_ROSTER']:['FLEET_ROSTER'], 'TEMPORAL_CLOSE', at.toISOString(), db); writeTemporalPlan(tx, db, plan, at); }
       } else {
         const context = await participation(tx, db, p, kind === 'ASSIGNMENT' ? input.driverId : undefined, input.truckId, input.materialId), at = this.clock();
         plan = kind === 'ASSIGNMENT' ? await planAssignment(tx, db, p, input.driverId, input.truckId, input.command, actor, at, context, input.reason) : await planAllocation(tx, db, p, input.truckId, input.materialId, input.command, actor, at, context, input.reason);
-        if (plan.changed) { await markDirtyInTransaction(tx, p, ['FLEET_ROSTER'], 'TEMPORAL_' + input.command, at.toISOString(), db); writeTemporalPlan(tx, db, plan, at); }
+        if (plan.changed) { await markDirtyInTransaction(tx, p, kind==='ASSIGNMENT'?['DRIVERS','FLEET_ROSTER']:['FLEET_ROSTER'], 'TEMPORAL_' + input.command, at.toISOString(), db); writeTemporalPlan(tx, db, plan, at); }
       }
       return { relationship: plan.record, idempotent: !plan.changed, closedIds: plan.changed ? plan.before.map(r => r[spec.id]) : [] };
     });

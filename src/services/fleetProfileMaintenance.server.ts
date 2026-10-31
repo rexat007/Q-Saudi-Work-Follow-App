@@ -1,4 +1,4 @@
-import {markDirtyInTransaction} from './projectWorkspaceProjectionState.server';
+import {invalidateGlobalWorkspaceProjection} from './projectWorkspaceGlobalInvalidation.server';
 import {normalizePhone} from '../utils/normalization';
 import {adminDb} from '../firebase/admin';
 import {authorizeGlobalCommand,auditGlobalMutation,assertGlobalEntityExists,decodeAuthoritativeGlobal} from './globalIdentityAuthority.server';
@@ -32,7 +32,7 @@ export class FleetProfileMaintenanceServer {
    }
    after.version=(old.version||0)+1;after.updatedAt=new Date();after.updatedBy=actor.userId;
    decodeAuthoritativeGlobal(kind,after,id);
-   await markDirtyInTransaction(tx,p,['FLEET_ROSTER'],'FLEET_PROFILE_UPDATED',after.updatedAt.toISOString(),this.db);
+   await invalidateGlobalWorkspaceProjection(tx,this.db,kind,id,'FLEET_PROFILE_UPDATED',after.updatedAt.toISOString());
    tx.set(this.db.collection(kind==='DRIVER'?'drivers':'trucks').doc(id),after);
    auditGlobalMutation(tx,this.db,kind,id,actor,old,after,p);
    return after;

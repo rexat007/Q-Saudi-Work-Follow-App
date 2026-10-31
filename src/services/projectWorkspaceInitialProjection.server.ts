@@ -6,6 +6,9 @@ import { adminDb } from '../firebase/admin';
 import { ProjectProvisioningAdminService } from './projectProvisioning.server';
 import { projectFleetReadModelService } from './projectFleetReadModel.service';
 import { ProjectFleetReadModelAdminReadContext } from './projectFleetReadModel.server';
+import {SetupFleetQuery} from './setupFleetQuery.server';
+import type {CanonicalWorkspaceMasterProjection} from './projectWorkspaceMasterContract';
+import type {SetupFleetContext} from '../types/setupFleet';
 
 const projectProvisioningAdminService = new ProjectProvisioningAdminService();
 
@@ -74,6 +77,21 @@ export interface ProjectWorkspaceInitialProjectionData {
  * 4. FLEET_ROSTER operational state comes from ProjectFleetReadModel.
  */
 export class ProjectWorkspaceInitialProjectionServer {
+  /** Native Workspace reader: a current server transaction, all participation states,
+   * no fabricated names/units/densities and no relationship inference from Sheet rows. */
+  async buildCanonicalProjection(projectId:string,database:any=adminDb):Promise<CanonicalWorkspaceMasterProjection> {
+    const context:SetupFleetContext=await database.runTransaction((tx:any)=>new SetupFleetQuery(database).readProjection(projectId,(ref:any)=>tx.get(ref),true));
+    const all=context.participants,now=new Date().toISOString();
+    const name=(kind:string,id:string|undefined)=>{const g=all.find(item=>item.kind===kind&&item.id===id)?.profile;return g?.fullNameAr||g?.nameAr||'';};
+    const date=(value:any)=>value instanceof Date?value.toISOString():typeof value==='string'?value:'';
+    const base=(item:typeof all[number])=>({projectId,status:item.globalStatus||'',membershipStatus:item.membershipStatus,lastSyncedAt:now});
+    return {projectId,
+      carriers:all.filter(item=>item.kind==='CARRIER').map(item=>{const g=item.profile||{};return {...base(item),carrierId:item.id,companyNameAr:g.nameAr||'',commercialRegistrationNo:g.commercialRegistrationNo||'',transportLicenseNo:g.transportLicenseNo||'',contactPhone:g.contactPerson?.phone||g.contactPhone||''};}),
+      materials:all.filter(item=>item.kind==='MATERIAL').map(item=>{const g=item.profile||{};return {...base(item),materialId:item.id,nameAr:g.nameAr||'',code:g.code||'',unitOfMeasure:g.unitOfMeasure||'',...(g.standardDensityTonPerM3!==undefined?{standardDensityTonPerM3:g.standardDensityTonPerM3}:{})};}),
+      drivers:all.filter(item=>item.kind==='DRIVER').map(item=>{const g=item.profile||{},carrierId=item.affiliation?.status==='ACTIVE'?item.affiliation.carrierId:'';return {...base(item),driverId:item.id,fullNameAr:g.fullNameAr||'',idNumber:g.nationalId||'',phone:g.phone||'',licenseNumber:g.licenseNumber||'',licenseValidUntil:date(g.licenseValidUntil),carrierId,carrierName:name('CARRIER',carrierId),assignedTruckId:item.assignment?.truckId||''};}),
+      fleetRows:all.filter(item=>item.kind==='TRUCK').map(item=>{const g=item.profile||{},carrierId=item.affiliation?.status==='ACTIVE'?item.affiliation.carrierId:'',driverId=item.assignment?.driverId||'',materialId=item.allocation?.materialId||'';return {...base(item),truckId:item.id,plateNumber:g.plate||g.normalizedPlate||'',truckType:g.truckType||'',carrierId,carrierName:name('CARRIER',carrierId),driverId,driverName:name('DRIVER',driverId),materialId,materialName:name('MATERIAL',materialId),mvpiValidUntil:date(g.mvpiValidUntil),insuranceValidUntil:date(g.insuranceValidUntil)};}),
+    };
+  }
   /**
    * Builds the server-authoritative initial projection data for a project.
    */

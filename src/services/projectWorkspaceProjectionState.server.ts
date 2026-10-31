@@ -1,6 +1,7 @@
 import { decodePersistence, PersistenceBoundaryError } from '../utils/persistenceBoundary';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { adminDb } from '../firebase/admin';
+import {isMasterTab} from './projectWorkspaceMasterContract';
 import {
   WorkspaceSheetTab,
   ProjectWorkspaceProjectionState,
@@ -44,11 +45,11 @@ export function createCleanProjectionState(projectId: string): ProjectWorkspaceP
  * Returns the document reference for the project's projection state document:
  * projects/{projectId}/workspace_projection_state/current
  */
-export function getProjectionStateDocRef(projectId: string): any {
+export function getProjectionStateDocRef(projectId: string,database:any=adminDb): any {
   if (!projectId || typeof projectId !== 'string' || !projectId.trim()) {
     throw new Error('projectId is required and must be a non-empty string');
   }
-  return adminDb
+  return database
     .collection('projects')
     .doc(projectId.trim())
     .collection(PROJECTION_STATE_SUBCOLLECTION)
@@ -59,8 +60,8 @@ export function getProjectionStateDocRef(projectId: string): any {
  * Retrieves the current projection freshness state for a project.
  * If no state document exists, returns a deterministic clean default state.
  */
-export async function getState(projectId: string): Promise<ProjectWorkspaceProjectionState> {
-  const docRef = getProjectionStateDocRef(projectId);
+export async function getState(projectId: string,database:any=adminDb): Promise<ProjectWorkspaceProjectionState> {
+  const docRef = getProjectionStateDocRef(projectId,database);
   const cleanProjectId = projectId.trim();
   const snap = await docRef.get();
 
@@ -172,6 +173,10 @@ export async function markDirtyInTransaction(
 
   const nextState = computeNextDirtyState(cleanProjectId, rawData, tabs, reason, timestamp);
   transaction.set(docRef, sanitizeUndefined(nextState));
+  const masterTabs=nextState.dirtyTabs.filter(isMasterTab);
+  if(masterTabs.length)transaction.set(database.collection('projects').doc(cleanProjectId).collection('workspace_sync_outbox').doc('MASTER_DATA'),{
+    projectId:cleanProjectId,kind:'MASTER_DATA',revision:nextState.mutationRevision,dirtyTabs:masterTabs,status:'PENDING',updatedAt:nextState.updatedAt,
+  });
   return nextState;
 }
 
@@ -214,14 +219,21 @@ export async function markProjectionSuccessful(
   projectId: string,
   projectedTabs: (string | WorkspaceSheetTab)[],
   projectedAt?: string,
-  expectedMutationRevision?: number
+  expectedMutationRevision?: number,
+  database:any=adminDb,
+  leaseGuard?:{owner:string;authorize?:(transaction:any)=>Promise<unknown>}
 ): Promise<ProjectWorkspaceProjectionState> {
-  const docRef = getProjectionStateDocRef(projectId);
+  const docRef = getProjectionStateDocRef(projectId,database);
   const cleanProjectId = projectId.trim();
   const normalizedProjected = normalizeWorkspaceDirtyTabs(projectedTabs);
 
-  return await adminDb.runTransaction(async (transaction: any) => {
+  return await database.runTransaction(async (transaction: any) => {
+    if(leaseGuard?.authorize)await leaseGuard.authorize(transaction);
     const snap = await transaction.get(docRef);
+    if(leaseGuard){
+      const lease=await transaction.get(database.collection('projects').doc(cleanProjectId).collection('workspace_continuity').doc('current'));
+      if(lease.data()?.syncOwner!==leaseGuard.owner)throw Object.assign(new Error('WORKSPACE_EXECUTION_FENCED'),{code:'WORKSPACE_EXECUTION_FENCED'});
+    }
     const exists = snap.exists;
     const rawData = exists ? decodeProjection(snap.data(), cleanProjectId) : null;
 

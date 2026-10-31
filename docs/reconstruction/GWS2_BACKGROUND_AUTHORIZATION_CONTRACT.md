@@ -15,6 +15,8 @@ Exchange the one-use code on the server. Keep refresh credentials outside Projec
 
 Extend the existing `workspace_sync_outbox` and `workspace_projection_state/current`; do not introduce a competing business or sync engine. The worker claims expiring Project leases transactionally, validates current grant/principal scope, refreshes authorization server-side, loads current Firestore snapshots, verifies the Project binding, writes only dirty domains, and acknowledges only the claimed unchanged revisions. Stale/racing acknowledgments leave work pending. Transient/provider failures preserve the binding and pending work; revoked authorization becomes AUTHORIZATION_REQUIRED; missing/moved/inaccessible bound files become BOUND_FILE_UNAVAILABLE with no replacement.
 
+GWS2-B has prepared this single drain for master events, current snapshots, owner/revision/principal acknowledgment and global invalidation; it is still request driven, not a scheduled worker. The existing hard-crash syncOwner fence is not an expiring/recoverable unattended lease and remains a GWS2-C implementation requirement.
+
 Master-data writes use stable canonical IDs and current Project participation/temporal relationships. Operational writes retain approved Trip/Ticket correlation and event-time snapshots. No Sheet-to-Firestore master mutation is authorized here. Global entity changes need explicit Project fan-out and durable invalidation, including Projects whose membership/affiliation is suspended/removed; existing command dirty markers alone are not proof of full coverage.
 
 ## External prerequisites and remaining implementation

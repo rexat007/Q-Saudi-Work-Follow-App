@@ -3,6 +3,7 @@ import {decodeProject} from '../utils/persistenceBoundary';
 import { randomUUID } from 'node:crypto';
 import { adminDb } from '../firebase/admin';
 import { buildPrincipal } from '../utils/principal';
+import {invalidateGlobalWorkspaceProjection} from './projectWorkspaceGlobalInvalidation.server';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { GLOBAL_IDENTITIES, decodeGlobalIdentity, GlobalIdentityError, normalizeNaturalKey, computeNaturalKeyToken, legacyNaturalKeyTokens, validGlobalId, type GlobalKind } from '../utils/globalIdentityPolicy';
 
@@ -62,6 +63,7 @@ export class GlobalIdentityGovernanceService {
       const before = await assertGlobalEntityExists(tx, db, kind, id);
       if (before.status === status) return before;
       const after = { ...before, status, updatedAt: new Date(), updatedBy: actor.userId };
+      await invalidateGlobalWorkspaceProjection(tx,db,kind,id,'GLOBAL_STATUS_UPDATED',after.updatedAt.toISOString());
       tx.update(db.collection(GLOBAL_IDENTITIES[kind].collection).doc(id), { status, updatedAt: after.updatedAt, updatedBy: actor.userId });
       auditGlobalMutation(tx, db, kind, id, actor, before, after);
       return after;

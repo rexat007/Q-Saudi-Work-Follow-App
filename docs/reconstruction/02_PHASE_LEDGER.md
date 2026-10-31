@@ -5,7 +5,7 @@
 
 The owner explicitly supersedes SCRIPT_REQUIRED_FOR_WORKSPACE_READY. Firestore is the canonical data hub; the application consumes/mutates it, Sheets is a projection/continuity surface, and Apps Script is optional workbook automation. GWS2-A separates verified binding from automation, adds a server-derived resume command and contextual minimal UI. Existing SCRIPT_REQUESTED evidence is retained as automationStage rather than requiring a Script ID or issuing another create. Q-PRJ-007 live recovery remains unexecuted: owner-supplied continuity/receipt evidence is available, but live Firestore/Google resources are not accessible from this workspace. Local tests do not constitute Google acceptance.
 
-This is only GWS2-A. Existing master projection and outbox infrastructure is reused and audited, not claimed as complete GWS2-B or autonomous GWS2-C. Persistent Google authorization, encryption configuration and a real offline grant are unavailable. Background delivery remains unimplemented. See [the current contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) and [the bounded authorization design](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md). PFAG-OPS-01 and Phase 10 remain separate/not started. Older GWS1B coupling and scope statements below are historical where superseded by this explicit decision.
+GWS2-A and GWS2-B are implemented and verified locally, awaiting owner merge. Merge preparation preserves the merged LIVE-04 generation diagnostics and the two logical GWS2 commits. Native initial projection and MASTER_DATA delivery now use a fresh canonical transaction snapshot, stable-ID RAW writes and existing tab reconciliation. Atomic dirty-state/outbox events cover Project participation, temporal changes and shared global identity updates across participating Projects. This is not autonomous GWS2-C. Persistent Google authorization, encryption configuration and a real offline grant are unavailable. The unattended worker and persistent authorization remain unimplemented; browser/session-driven delivery is not claimed as autonomy. See [the current contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) and [the bounded authorization design](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md). PFAG-OPS-01 and Phase 10 remain separate/not started. Older GWS1B coupling and scope statements below are historical where superseded by this explicit decision.
 
 
 Historical P9-U1 implementation checkpoint: P8-B4 merge PR #61 at `31b2065f00b0d07763afc153582ef9be71dbd159` contains `71abdcd3b586be486e6aec74f8ad9e32c868eae9`. Phase 8 is MERGED / SOURCE_VERIFIED / CLOSED. Phase 9 is IN_PROGRESS with P9-U1 IMPLEMENTED / VERIFIED LOCALLY; Phase 10 is NOT_STARTED. Source/browser evidence is not live deployment certification.
@@ -58,9 +58,9 @@ ACTIVE_PHASE_STATUS: IN_PROGRESS
 PHASE_8_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PHASE_9_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PROJECT_FOUNDATION_ASSURANCE: MERGED / SOURCE_VERIFIED / CLOSED
-ACTIVE_UNIT: GWS2-A — Verified Sheet Binding Independent Of Automation
+ACTIVE_UNIT: GWS2-B — Canonical Master Projection And Durable Invalidation
 ACTIVE_UNIT_STATUS: IMPLEMENTED / VERIFIED LOCALLY / AWAITING_OWNER_REVIEW
-ACTIVE_UNIT_TYPE: OWNER_AUTHORIZED_BINDING_AUTHORITY_CORRECTION
+ACTIVE_UNIT_TYPE: EXISTING_PROJECTION_AND_OUTBOX_CONVERGENCE
 P8_B1_SOURCE: MERGED / PRESENT
 P8_B2_SOURCE: MERGED / PRESENT
 P8_B3_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
@@ -91,16 +91,18 @@ GWS1B_LIVE_02_STATUS: MERGED / SOURCE_VERIFIED
 GWS1B_LIVE_02_VERIFIED_MERGE: 27b39f1db93a9070a378c6c22168d45ae093308b
 GWS1B_LIVE_03_STATUS: MERGED / SOURCE_VERIFIED
 GWS1B_LIVE_03_VERIFIED_MERGE: 2c99d6506963dd1a2f73c5c5b646ee9294072e27
-GWS2_A_STATUS: IMPLEMENTED / VERIFIED_LOCALLY / LIVE_ACCEPTANCE_BLOCKED
-GWS2_B_STATUS: NOT_STARTED
-GWS2_C_STATUS: NOT_STARTED / EXTERNAL_AUTHORIZATION_CONFIGURATION_REQUIRED
+GWS2_A_STATUS: IMPLEMENTED / VERIFIED / AWAITING_OWNER_MERGE
+GWS2_A_ORIGINAL_IMPLEMENTATION_COMMIT: 39a2fe780c8f37a066ea7bfcd5ca5cabc3d621d3
+GWS2_B_STATUS: IMPLEMENTED / VERIFIED / AWAITING_OWNER_MERGE
+GWS2_C_STATUS: NOT_IMPLEMENTED / EXTERNAL_AUTHORIZATION_CONFIGURATION_REQUIRED
+GWS2_OVERALL: PARTIAL / NOT_LIVE_ACCEPTED
 GWS1B_PUBLICATION: MERGED / VERIFIED
 GWS1B_SOURCE_CAPTURE_METHOD: OWNER_PROVIDED_XLSX_PLUS_SCRIPT_SOURCE
 GWS1B_TRIGGER_MODEL: SIMPLE_ONEDIT_DISPATCHER / INSTALLABLE_NONE
 GWS_LIVE_01_STATUS: READY_TO_RESUME_AFTER_MERGE_DEPLOY / NOT_YET_PASSED
-GWS_SYNC_AUTONOMY_01: OPEN
+GWS_SYNC_AUTONOMY_01: IN_PROGRESS / A_B_SOURCE_IMPLEMENTED / C_EXTERNAL_AUTHORIZATION_BLOCKED
 PFAG_OPS_01: OPEN
-GOOGLE_WORKSPACE_LIVE_ACCEPTANCE: PENDING_INITIAL_DESTINATION_FIX_THEN_SEPARATE_GOOGLE_ACCEPTANCE
+GOOGLE_WORKSPACE_LIVE_ACCEPTANCE: BLOCKED / Q_PRJ_007_RECOVERY_AND_CANONICAL_PROJECTION_NOT_EXECUTED
 FOUNDATION_SOURCE_ASSURANCE: PASS_WITH_DEBT
 PFAG_CRITICAL_OPEN: 0
 PFAG_HIGH_OPEN: 0
@@ -137,9 +139,9 @@ P8_B1_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
 P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
-NEXT_UNIT: GWS2-B — Canonical Master Data Projection
-NEXT_ACTION: OWNER_REVIEW_GWS2_A_AND_RESOLVE_EXTERNAL_GOOGLE_AUTHORIZATION_FOR_LIVE_ACCEPTANCE
-CURRENT_CODE_BASELINE: 2c99d6506963dd1a2f73c5c5b646ee9294072e27
+NEXT_UNIT: GWS2-C — Offline Authorization And Autonomous Delivery
+NEXT_ACTION: OWNER_REVIEW_GWS2_A_B_AND_RESOLVE_EXTERNAL_GOOGLE_AUTHORIZATION_FOR_GWS2_C
+CURRENT_CODE_BASELINE: 4cc2ab16a5aec9a4fc39e68aeb0d4a954a0cbfa8
 EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
 EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
 HISTORICAL_USER_ROLE_CONVERGENCE_STATUS: PHASE_3_AUDIT_REQUIRED / NOT_REASSESSED_IN_P8_B3

@@ -203,10 +203,11 @@ describe('GWS-LIVE-01A actual Wizard context and continuation',()=>{
   await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
   expect(container.textContent).toContain('gws.sheet_connected');expect(container.textContent).toContain('gws.bound_sync_degraded');expect(container.textContent).toContain('gws.retry_sync');expect(container.textContent).not.toContain(uiKey('projects.labels.initialize_workspace_sync'));expect(container.querySelector('a')?.href).toContain('new-sheet');
  });
- it('resumes a partial binding through the same button without Picker and shows the existing sheet',async()=>{
+ it.each(['absent','stale','incomplete'])('resumes a partial binding without Picker despite %s compatibility IDs',async mode=>{
   let bound=false;vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockImplementation(async id=>({...status(id,bound),recoveryAvailable:!bound}) as any);
   vi.mocked(clientWorkspaceService.resumeProjectWorkspace).mockImplementationOnce(async()=>{bound=true;return {spreadsheetId:'new-sheet',projectFolderId:'new-folder'} as any});
-  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');expect(container.textContent).toContain('gws.partial_resume');await click('gws.resume_setup');
+  const selected=mode==='absent'?unbound:mode==='stale'?mockProject:{...mockProject,settings:{...mockProject.settings,googleDriveFolderId:undefined}};
+  await render(selected.projectId,[selected]);await click('projects.batch4.layer_workspace');expect(container.textContent).toContain('gws.partial_resume');await click('gws.resume_setup');
   expect(clientWorkspaceService.resumeProjectWorkspace).toHaveBeenCalledWith(unbound.projectId);expect(clientWorkspaceService.selectProjectWorkspaceDestination).not.toHaveBeenCalled();expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
   expect(container.textContent).toContain('gws.sheet_connected');expect(container.querySelector('a')?.href).toContain('new-sheet');expect(container.textContent).not.toContain(uiKey('projects.labels.initialize_workspace_sync'));
  });

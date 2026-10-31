@@ -219,8 +219,8 @@ export async function executeProjectWorkspaceSyncOrchestration(
       ? await workspaceService.getGoogleWorkspaceStatus(project.projectId) : null;
     if (!isCurrent()) return;
     if (status) params.onWorkspaceStatus?.(status);
-    if (!status?.binding && hasFolderId !== hasSpreadsheetId) throw new Error('WORKSPACE_BINDING_INCOMPLETE: معرفات Google Workspace للمشروع غير مكتملة أو غير متطابقة');
-    let spreadsheetId = status?.binding?.spreadsheetId || project.settings?.googleSpreadsheetId;
+    if (!status?.binding && !status?.recoveryAvailable && hasFolderId !== hasSpreadsheetId) throw new Error('WORKSPACE_BINDING_INCOMPLETE: معرفات Google Workspace للمشروع غير مكتملة أو غير متطابقة');
+    let spreadsheetId = status ? status.binding?.spreadsheetId : project.settings?.googleSpreadsheetId;
     existingWorkspace = Boolean(spreadsheetId);
     if (!spreadsheetId) {
       let result;
