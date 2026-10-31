@@ -198,7 +198,7 @@ describe('PFAG-GWS1 actual Project Setup Wizard — controlled DOM',()=>{
  });
  it('surfaces actionable popup guidance without asserting an unseen Google error',async()=>{
    vi.mocked(clientWorkspaceService.requestGoogleScopes).mockRejectedValueOnce(new Error('POPUP_CLOSED'));
-   await render(mockProject.projectId);await click('projects.batch4.layer_workspace');await click('projects.labels.update_workspace_sync');
+   await render(mockProject.projectId);await click('projects.batch4.layer_workspace');await click('gws.retry_sync');
    expect(container.textContent).toContain('gws.popup_closed');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
  });
  it('late A continuity status never overwrites current B',async()=>{

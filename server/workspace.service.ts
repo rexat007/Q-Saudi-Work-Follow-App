@@ -482,10 +482,12 @@ export class ServerWorkspaceService {
     primaryKeyName: string,
     records: Record<string, any>[],
     expectedColumns: readonly string[] | string[],
-    bearerToken?: string
+    bearerToken?: string,
+    valueInputOption:'RAW'|'USER_ENTERED'='USER_ENTERED'
   ): Promise<UpsertResult> {
     const startTime = Date.now();
     const auth = this.getAuthClient(bearerToken);
+    if(valueInputOption==='RAW'&&!auth)throw Object.assign(new Error('GOOGLE_ACCESS_TOKEN_REQUIRED'),{code:'GOOGLE_ACCESS_TOKEN_REQUIRED',statusCode:401});
 
     if (!auth) {
       // Simulated upsert when running without external OAuth token
@@ -579,7 +581,7 @@ export class ServerWorkspaceService {
       await sheets.spreadsheets.values.batchUpdate({
         spreadsheetId,
         requestBody: {
-          valueInputOption: 'USER_ENTERED',
+          valueInputOption,
           data: updateRequests,
         },
       });
@@ -590,7 +592,7 @@ export class ServerWorkspaceService {
       await sheets.spreadsheets.values.append({
         spreadsheetId,
         range: `${tabTitle}!A1`,
-        valueInputOption: 'USER_ENTERED',
+        valueInputOption,
         insertDataOption: 'INSERT_ROWS',
         requestBody: {
           values: rowsToAppend,
@@ -645,10 +647,12 @@ export class ServerWorkspaceService {
     primaryKeyName: string,
     authoritativeRecords: Record<string, any>[],
     expectedColumns: readonly string[] | string[],
-    bearerToken?: string
+    bearerToken?: string,
+    valueInputOption?:'RAW'|'USER_ENTERED'
   ): Promise<UpsertResult> {
     const startTime = Date.now();
     const auth = this.getAuthClient(bearerToken);
+    if(valueInputOption==='RAW'&&!auth)throw Object.assign(new Error('GOOGLE_ACCESS_TOKEN_REQUIRED'),{code:'GOOGLE_ACCESS_TOKEN_REQUIRED',statusCode:401});
 
     if (!auth) {
       // In simulated / no-auth environment: do not execute external Google Sheets deletion
@@ -728,7 +732,7 @@ export class ServerWorkspaceService {
     }
 
     // 10. ONLY AFTER successful deletion: call existing upsertTabRecords(authoritativeRecords)
-    const upsertRes = await this.upsertTabRecords(
+    const upsertRes = valueInputOption ? await this.upsertTabRecords(spreadsheetId,tabTitle,primaryKeyName,authoritativeRecords,expectedColumns,bearerToken,valueInputOption) : await this.upsertTabRecords(
       spreadsheetId,
       tabTitle,
       primaryKeyName,

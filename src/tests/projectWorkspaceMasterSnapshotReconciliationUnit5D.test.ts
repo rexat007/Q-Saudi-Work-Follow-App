@@ -35,7 +35,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
     expect(routeIndex).toBeGreaterThan(-1);
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     expect(routeSnippet).toContain('WORKSPACE_TABS.DRIVERS.tabTitleAr');
     const drvCall = routeSnippet.slice(routeSnippet.indexOf('// 2. DRIVERS Master:'), routeSnippet.indexOf('// 3. CARRIERS Master:'));
@@ -50,7 +50,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const carCall = routeSnippet.slice(routeSnippet.indexOf('// 3. CARRIERS Master:'), routeSnippet.indexOf('// 4. MATERIALS Master:'));
     expect(carCall).toContain('serverWorkspaceService.reconcileTabSnapshot');
@@ -64,7 +64,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const matCall = routeSnippet.slice(routeSnippet.indexOf('// 4. MATERIALS Master:'), routeSnippet.indexOf('// 5. FLEET_ROSTER:'));
     expect(matCall).toContain('serverWorkspaceService.reconcileTabSnapshot');
@@ -78,7 +78,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const fleetCall = routeSnippet.slice(routeSnippet.indexOf('// 5. FLEET_ROSTER:'), routeSnippet.indexOf('const projectionCompletedAt'));
     expect(fleetCall).toContain('serverWorkspaceService.reconcileTabSnapshot');
@@ -106,7 +106,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const drvCall = routeSnippet.slice(routeSnippet.indexOf('// 2. DRIVERS Master:'), routeSnippet.indexOf('// 3. CARRIERS Master:'));
     expect(drvCall).not.toContain('upsertTabRecords');
@@ -119,7 +119,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const carCall = routeSnippet.slice(routeSnippet.indexOf('// 3. CARRIERS Master:'), routeSnippet.indexOf('// 4. MATERIALS Master:'));
     expect(carCall).not.toContain('upsertTabRecords');
@@ -132,7 +132,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const matCall = routeSnippet.slice(routeSnippet.indexOf('// 4. MATERIALS Master:'), routeSnippet.indexOf('// 5. FLEET_ROSTER:'));
     expect(matCall).not.toContain('upsertTabRecords');
@@ -386,7 +386,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     // Verify all four tabs invoke reconcileTabSnapshot unconditionally (no if length > 0 guard)
     expect(routeSnippet).not.toContain('if (snapshot.drivers.length > 0)');
@@ -401,7 +401,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     expect(routeSnippet).toContain("successfullyProjectedTabs.push('DRIVERS')");
     expect(routeSnippet).toContain("successfullyProjectedTabs.push('CARRIERS')");
@@ -415,7 +415,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const matches = routeSnippet.match(/markWorkspaceProjectionSuccessful\(/g);
     expect(matches).not.toBeNull();
@@ -428,7 +428,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const drvPos = routeSnippet.indexOf("WORKSPACE_TABS.DRIVERS.tabTitleAr");
     const carPos = routeSnippet.indexOf("WORKSPACE_TABS.CARRIERS.tabTitleAr");
@@ -449,7 +449,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     // Any error in Google operations jumps to catch block before acknowledgement
     expect(routeSnippet).toContain('} catch (error: any) {');
@@ -463,7 +463,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const tryBlock = routeSnippet.slice(0, routeSnippet.indexOf('} catch (error: any) {'));
     expect(tryBlock).toContain('await serverWorkspaceService.reconcileTabSnapshot(\n      cleanSpreadsheetId,\n      WORKSPACE_TABS.CARRIERS.tabTitleAr');
@@ -475,7 +475,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const tryBlock = routeSnippet.slice(0, routeSnippet.indexOf('} catch (error: any) {'));
     expect(tryBlock).toContain('await serverWorkspaceService.reconcileTabSnapshot(\n      cleanSpreadsheetId,\n      WORKSPACE_TABS.MATERIALS.tabTitleAr');
@@ -487,7 +487,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const tryBlock = routeSnippet.slice(0, routeSnippet.indexOf('} catch (error: any) {'));
     expect(tryBlock).toContain('await serverWorkspaceService.reconcileTabSnapshot(\n      cleanSpreadsheetId,\n      WORKSPACE_TABS.FLEET_ROSTER.tabTitleAr');
@@ -499,7 +499,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const revisionReadPos = routeSnippet.indexOf('getWorkspaceProjectionState');
     const snapshotBuildPos = routeSnippet.indexOf('buildInitialProjectionSnapshot');

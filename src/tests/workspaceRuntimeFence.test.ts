@@ -7,6 +7,10 @@ vi.mock('../services/googleTemplatePicker',()=>({selectWorkspaceDestinationFolde
 import {ClientWorkspaceService} from '../services/workspace.service';
 beforeEach(()=>{vi.clearAllMocks();f.check.mockResolvedValue(undefined);f.assert.mockImplementation(()=>{});f.grant.mockResolvedValue('token');f.picker.mockResolvedValue('root');vi.stubGlobal('fetch',f.fetch);f.fetch.mockResolvedValue({ok:true,json:async()=>({data:{destinationRootFolderId:'root',spreadsheetId:'file',projectFolderId:'folder'}})});});
 describe('actual Workspace client critical generation fences',()=>{
+ it('sends only projectId to the server-derived recovery operation',async()=>{
+  const c=new ClientWorkspaceService();c.setAccessToken('token');await c.resumeProjectWorkspace('P1');
+  expect(f.picker).not.toHaveBeenCalled();expect(f.fetch).toHaveBeenCalledWith('/api/projects/P1/workspace/resume',expect.objectContaining({method:'POST',body:JSON.stringify({projectId:'P1'})}));
+ });
  it('known mismatch rejects before any Google grant',async()=>{f.assert.mockImplementation(()=>{throw Error('APP_UPDATE_REQUIRED')});await expect(new ClientWorkspaceService().requestGoogleScopes()).rejects.toThrow('APP_UPDATE_REQUIRED');expect(f.grant).not.toHaveBeenCalled();});
  it('destination mismatch opens no picker and approves no destination',async()=>{f.check.mockRejectedValue(Error('APP_UPDATE_REQUIRED'));const c=new ClientWorkspaceService();c.setAccessToken('token');await expect(c.selectProjectWorkspaceDestination('P1')).rejects.toThrow('APP_UPDATE_REQUIRED');expect(f.picker).not.toHaveBeenCalled();expect(f.fetch).not.toHaveBeenCalled();});
  it('provision mismatch sends no command',async()=>{f.check.mockRejectedValue(Error('APP_UPDATE_REQUIRED'));await expect(new ClientWorkspaceService().provisionProjectDrive({projectId:'P1'} as any,'root')).rejects.toThrow('APP_UPDATE_REQUIRED');expect(f.fetch).not.toHaveBeenCalled();});

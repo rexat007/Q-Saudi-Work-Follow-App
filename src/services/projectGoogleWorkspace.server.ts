@@ -10,6 +10,9 @@ import type { ProjectEntity } from '../types/entities';
 import type { ProjectGoogleBinding, ProjectGoogleStatus } from '../types/projectGoogleWorkspace';
 import type { OperationalSheetInput } from './projectGoogleSheetContract';
 import {classifyWorkspaceGenerationFailure, type WorkspaceGenerationDiagnostic, type WorkspaceGenerationOperation} from '../utils/workspaceGenerationDiagnostics';
+import type {CanonicalWorkspaceMasterProjection} from './projectWorkspaceMasterContract';
+import {MASTER_TABS,isMasterTab} from './projectWorkspaceMasterContract';
+import {markDirtyInTransaction,getState as projectionState,markProjectionSuccessful} from './projectWorkspaceProjectionState.server';
 
 export class GoogleWorkspaceCommandError extends Error {
   constructor(public code: string, public status = 409, public diagnostic?: WorkspaceGenerationDiagnostic) { super(code); }
@@ -42,6 +45,10 @@ export interface GoogleTemplatePort {
 }
 export interface GoogleBlueprintPort extends GoogleTemplatePort {
   authorizeProvisioning():Promise<void>;
+  authorizeBinding():Promise<void>;
+  verifyBinding(rootId:string,folderId:string,fileId:string,version:string):Promise<{title:string}>;
+  verifyWorkbook(fileId:string,blueprint:WorkspaceBlueprint):Promise<void>;
+  projectMasterTabs(fileId:string,snapshot:CanonicalWorkspaceMasterProjection,tabs:readonly string[]):Promise<void>;
   validateDestination(folderId:string,projectId:string):Promise<void>;
   findResource(operationId:string,role:'FOLDER'|'SPREADSHEET'):Promise<Array<{id:string;parentId:string}>>;
   createProjectFolder(name:string,parentId:string,operationId:string,version:string):Promise<string>;
@@ -57,7 +64,7 @@ export function continuityRef(db: any, projectId: string) { return db.collection
 export function syncOutboxRef(db: any, projectId: string) { return db.collection('projects').doc(projectId).collection('workspace_sync_outbox'); }
 
 function publicBinding(raw: ProjectGoogleBinding): ProjectGoogleBinding {
-  return { projectId:raw.projectId,provider:'GOOGLE',spreadsheetId:raw.spreadsheetId,driveFileId:raw.driveFileId,spreadsheetUrl:raw.spreadsheetUrl,templateId:raw.templateId,templateVersion:raw.templateVersion,...(raw.workspaceBlueprintVersion?{destinationRootFolderId:raw.destinationRootFolderId,projectFolderId:raw.projectFolderId,workspaceBlueprintVersion:raw.workspaceBlueprintVersion,appsScriptBlueprintVersion:raw.appsScriptBlueprintVersion,scriptProjectId:raw.scriptProjectId}:{}),googleSubject:raw.googleSubject,googleAccountLabel:raw.googleAccountLabel||raw.googleSubject,provisionedAt:raw.provisionedAt,provisionedBy:raw.provisionedBy,revision:raw.revision };
+  return { projectId:raw.projectId,provider:'GOOGLE',spreadsheetId:raw.spreadsheetId,driveFileId:raw.driveFileId,spreadsheetUrl:raw.spreadsheetUrl,...(raw.spreadsheetTitle?{spreadsheetTitle:raw.spreadsheetTitle}:{}),templateId:raw.templateId,templateVersion:raw.templateVersion,...(raw.workspaceBlueprintVersion?{destinationRootFolderId:raw.destinationRootFolderId,projectFolderId:raw.projectFolderId,workspaceBlueprintVersion:raw.workspaceBlueprintVersion,appsScriptBlueprintVersion:raw.appsScriptBlueprintVersion,...(raw.scriptProjectId?{scriptProjectId:raw.scriptProjectId}:{})}:{}),googleSubject:raw.googleSubject,googleAccountLabel:raw.googleAccountLabel||raw.googleSubject,provisionedAt:raw.provisionedAt,provisionedBy:raw.provisionedBy,revision:raw.revision };
 }
 /** One canonical server authority; Google port is transient authorization, never a credential DTO. */
 export class ProjectGoogleWorkspaceServer {
@@ -89,13 +96,13 @@ export class ProjectGoogleWorkspaceServer {
       const snap=await tx.get(continuityRef(this.db,projectId));return snap.exists?snap.data():{};
     });
     const jobs=await syncOutboxRef(this.db,projectId).get();
-    return {state:state.state||'NOT_CONNECTED',binding:state.binding?publicBinding(state.binding):null,lastSuccessfulSyncAt:state.lastSuccessfulSyncAt||null,lastSyncError:state.lastSyncError||null,pendingSyncCount:jobs.docs.filter((d:any)=>d.data().status!=='DELIVERED').length};
+    return {state:state.state||'NOT_CONNECTED',binding:state.binding?publicBinding(state.binding):null,lastSuccessfulSyncAt:state.lastSuccessfulSyncAt||null,lastSyncError:state.lastSyncError||null,pendingSyncCount:jobs.docs.filter((d:any)=>d.data().status!=='DELIVERED').length,workspaceState:state.binding?(['AUTHORIZATION_REQUIRED','BOUND_FILE_UNAVAILABLE','SYNC_DEGRADED'].includes(state.state)?state.state:'CONNECTED'):state.folderId||state.fileId?'CONNECTING':'NOT_CONNECTED',automationState:state.automationState||'NOT_INSTALLED',recoveryAvailable:!state.binding&&Boolean(state.destinationRootFolderId&&(state.folderId||state.fileId))};
   }
   async approveDestination(projectId:string,rootId:string,who:AuthUserContext,google:GoogleBlueprintPort) {
     if(!validId(rootId))return gwsFail('DESTINATION_FOLDER_REQUIRED',400);
     await this.db.runTransaction((tx:any)=>this.authorized(tx,projectId,who));
-    const subject=await google.subject();await google.authorizeProvisioning();
-    assertBlueprint(this.blueprint());
+    const subject=await google.subject();await google.authorizeBinding();
+    assertBlueprint(this.blueprint(),false);
     await google.validateDestination(rootId,projectId);
     return this.db.runTransaction(async(tx:any)=>{
       await this.authorized(tx,projectId,who);
@@ -110,7 +117,25 @@ export class ProjectGoogleWorkspaceServer {
       return {destinationRootFolderId:rootId};
     });
   }
-  async provision(projectId:string,rootId:string,who:AuthUserContext,google:GoogleBlueprintPort):Promise<ProjectGoogleBinding> {
+  async resume(projectId:string,who:AuthUserContext,google:GoogleBlueprintPort):Promise<ProjectGoogleBinding> {
+    const rootId=await this.db.runTransaction(async(tx:any)=>{
+      await this.authorized(tx,projectId,who);const snap=await tx.get(continuityRef(this.db,projectId));
+      if(!snap.exists)return gwsFail('WORKSPACE_RECOVERY_REQUIRED');
+      const s=snap.data();if(s.projectId!==projectId||!validId(s.destinationRootFolderId))return gwsFail('WORKSPACE_EXTERNAL_BINDING_INVALID');
+      this.audit(tx,projectId,who.userId,'WORKSPACE_RECOVERY_REQUESTED',{stage:s.stage||null});return s.destinationRootFolderId;
+    });
+    return this.provision(projectId,rootId,who,google,true);
+  }
+  async initialProjectionResult(projectId:string,fileId:string,who:AuthUserContext,error:string|null) {
+    await this.db.runTransaction(async(tx:any)=>{
+      await this.authorized(tx,projectId,who);const ref=continuityRef(this.db,projectId),snap=await tx.get(ref),state=snap.data();
+      if(!state?.binding||state.binding.projectId!==projectId||state.binding.spreadsheetId!==fileId)return gwsFail('WORKSPACE_BINDING_INVALID');
+      const next=error?(error==='TOKEN_EXPIRED'||error==='GOOGLE_ACCESS_TOKEN_REQUIRED'||error.startsWith('SCOPE_DENIED')?'AUTHORIZATION_REQUIRED':error==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':'SYNC_DEGRADED'):'READY';
+      tx.set(ref,{...state,state:next,lastSyncError:error,...(!error?{lastSuccessfulSyncAt:new Date().toISOString()}:{})});
+      this.audit(tx,projectId,who.userId,error?'WORKSPACE_INITIAL_PROJECTION_FAILED':'WORKSPACE_INITIAL_PROJECTED',{code:error});
+    });
+  }
+  async provision(projectId:string,rootId:string,who:AuthUserContext,google:GoogleBlueprintPort,recovery=false):Promise<ProjectGoogleBinding> {
     await this.db.runTransaction((tx:any)=>this.authorized(tx,projectId,who));
     const subject=await google.subject();
     const op=workspaceOperation(projectId),owner=randomUUID(),ref=continuityRef(this.db,projectId);
@@ -118,16 +143,25 @@ export class ProjectGoogleWorkspaceServer {
     if(prior.binding) {
       if(prior.binding.googleSubject!==subject)return gwsFail('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION');
       if(rootId&&prior.binding.destinationRootFolderId!==rootId)return gwsFail('EXPLICIT_MIGRATION_REQUIRED');
-      await google.verify(prior.binding.spreadsheetId,op);return prior.binding;
+      try {
+        if(prior.binding.workspaceBlueprintVersion)await google.verifyBinding(prior.binding.destinationRootFolderId!,prior.binding.projectFolderId!,prior.binding.spreadsheetId,prior.binding.workspaceBlueprintVersion);
+        else await google.verify(prior.binding.spreadsheetId,op);
+      } catch(error) {
+        const code=error instanceof GoogleWorkspaceCommandError?error.code:'BOUND_FILE_UNAVAILABLE';
+        await this.db.runTransaction(async(tx:any)=>{await this.authorized(tx,projectId,who);const snap=await tx.get(ref);tx.set(ref,{...snap.data(),state:['TOKEN_EXPIRED','AUTHORIZATION_REQUIRED','SCOPE_DENIED'].includes(code)?'AUTHORIZATION_REQUIRED':'BOUND_FILE_UNAVAILABLE',lastSyncError:code});});
+        throw new GoogleWorkspaceCommandError(code,502);
+      }
+      return prior.binding;
     }
     if(!validId(rootId))return gwsFail('DESTINATION_FOLDER_REQUIRED',400);
-    const blueprint=this.blueprint();assertBlueprint(blueprint);
-    await google.authorizeProvisioning();await google.validateDestination(rootId,projectId);
+    const blueprint=this.blueprint();assertBlueprint(blueprint,false);
+    await google.authorizeBinding();await google.validateDestination(rootId,projectId);
     let state=await this.db.runTransaction(async(tx:any)=>{
       const {project}=await this.authorized(tx,projectId,who),snap=await tx.get(ref);
       const receipt=await tx.get(this.db.collection('projects').doc(projectId).collection('workspace_destination').doc('current'));
       const r=receipt.data(),s=snap.exists?snap.data():{};
-      if(!r||r.projectId!==projectId||r.rootId!==rootId||r.subject!==subject||r.actorId!==who.userId)return gwsFail('DESTINATION_RECEIPT_REQUIRED',403);
+      if(!r||r.projectId!==projectId||r.rootId!==rootId||r.subject!==subject||(!recovery&&r.actorId!==who.userId))return gwsFail('DESTINATION_RECEIPT_REQUIRED',403);
+      if(s.projectId&&s.projectId!==projectId||s.operationId&&s.operationId!==op)return gwsFail('WORKSPACE_EXTERNAL_BINDING_INVALID');
       if(s.binding)return gwsFail('WORKSPACE_PROVISIONING_IN_PROGRESS');
       if(project.settings?.googleSpreadsheetId)return gwsFail('LEGACY_WORKSPACE_REQUIRES_EXPLICIT_MIGRATION');
       if(s.stage&&!s.workspaceBlueprintVersion)return gwsFail('WORKSPACE_RECOVERY_REQUIRED');
@@ -135,7 +169,7 @@ export class ProjectGoogleWorkspaceServer {
       if(s.googleSubject&&s.googleSubject!==subject)return gwsFail('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION');
       if(s.workspaceBlueprintVersion&&s.workspaceBlueprintVersion!==blueprint.version)return gwsFail('WORKSPACE_RECOVERY_REQUIRED');
       if(s.leaseUntil>Date.now())return gwsFail('WORKSPACE_PROVISIONING_IN_PROGRESS');
-      const next={...s,projectId,destinationRootFolderId:rootId,googleSubject:subject,workspaceBlueprintVersion:blueprint.version,operationId:op,owner,leaseUntil:Date.now()+120000,state:'PROVISIONING',lastGenerationDiagnostic:null};
+      const next={...s,projectId,destinationRootFolderId:rootId,googleSubject:subject,workspaceBlueprintVersion:blueprint.version,operationId:op,owner,leaseUntil:Date.now()+120000,state:'PROVISIONING',lastGenerationDiagnostic:null,automationStage:s.automationStage||(['SCRIPT_REQUESTED','SCRIPT_CREATED','SCRIPT_INSTALLED'].includes(s.stage)?s.stage:'NOT_INSTALLED')};
       tx.set(ref,next);return {...next,project};
     });
     const save=async(patch:Record<string,unknown>)=>{
@@ -169,25 +203,16 @@ export class ProjectGoogleWorkspaceServer {
       if(!['BLUEPRINT_APPLIED','SCRIPT_REQUESTED','SCRIPT_CREATED','SCRIPT_INSTALLED','VERIFIED'].includes(state.stage)) {
         await google.applyBlueprint(state.fileId,blueprint);await save({stage:'BLUEPRINT_APPLIED'});
       }
-      if(!state.scriptProjectId) {
-        // Apps Script has no create idempotency key / get-by-parent endpoint. Never create twice
-        // when a response was lost. An operator must recover the existing bound script ID.
-        if(state.stage==='SCRIPT_REQUESTED')return await withWorkspaceGenerationDiagnostic('CREATE_BOUND_SCRIPT',async()=>gwsFail('WORKSPACE_RECOVERY_REQUIRED'));
-        await save({stage:'SCRIPT_REQUESTED'});
-        const scriptProjectId=await google.createBoundScript(state.fileId);
-        await save({scriptProjectId,stage:'SCRIPT_CREATED'});
-      }
-      if(!['SCRIPT_INSTALLED','VERIFIED'].includes(state.stage)) {
-        await google.installScript(state.scriptProjectId,blueprint);await save({stage:'SCRIPT_INSTALLED'});
-      }
-      await google.verifyGenerated(state.fileId,state.scriptProjectId,blueprint);await save({stage:'VERIFIED'});
-      const binding:ProjectGoogleBinding={projectId,provider:'GOOGLE',destinationRootFolderId:rootId,projectFolderId:state.folderId,spreadsheetId:state.fileId,driveFileId:state.fileId,spreadsheetUrl:`https://docs.google.com/spreadsheets/d/${state.fileId}/edit`,workspaceBlueprintVersion:blueprint.version,appsScriptBlueprintVersion:blueprint.script!.version,scriptProjectId:state.scriptProjectId,googleSubject:subject,googleAccountLabel:google.accountLabel?.()||subject,provisionedAt:new Date().toISOString(),provisionedBy:who.userId,revision:1};
+      const resource=await google.verifyBinding(rootId,state.folderId,state.fileId,blueprint.version);
+      await google.verifyWorkbook(state.fileId,blueprint);await save({stage:'VERIFIED'});
+      const binding:ProjectGoogleBinding={projectId,provider:'GOOGLE',destinationRootFolderId:rootId,projectFolderId:state.folderId,spreadsheetId:state.fileId,driveFileId:state.fileId,spreadsheetUrl:`https://docs.google.com/spreadsheets/d/${state.fileId}/edit`,spreadsheetTitle:resource.title,workspaceBlueprintVersion:blueprint.version,...(state.scriptProjectId?{scriptProjectId:state.scriptProjectId,...(blueprint.script?{appsScriptBlueprintVersion:blueprint.script.version}:{})}:{}),googleSubject:subject,googleAccountLabel:google.accountLabel?.()||subject,provisionedAt:new Date().toISOString(),provisionedBy:who.userId,revision:1};
       await withWorkspaceGenerationDiagnostic('PERSIST_BINDING',()=>this.db.runTransaction(async(tx:any)=>{
         const {project}=await this.authorized(tx,projectId,who),snap=await tx.get(ref);
         if(snap.data()?.owner!==owner||snap.data()?.binding)return gwsFail('WORKSPACE_EXECUTION_FENCED');
-        tx.set(ref,{...snap.data(),binding,state:'READY',stage:'BOUND',leaseUntil:0,lastSyncError:null,lastGenerationDiagnostic:null});
+        await markDirtyInTransaction(tx,projectId,MASTER_TABS.map(spec=>spec.key),'WORKSPACE_CONNECTED',undefined,this.db);
+        tx.set(ref,{...snap.data(),binding,state:'READY',workspaceState:'CONNECTED',automationState:snap.data()?.automationState||'NOT_INSTALLED',stage:'BOUND',leaseUntil:0,lastSyncError:null,lastGenerationDiagnostic:null});
         tx.update(this.db.collection('projects').doc(projectId),{settings:{...project.settings,googleDriveFolderId:binding.projectFolderId,googleSpreadsheetId:binding.spreadsheetId,googleDriveProvisioning:{enabled:true,status:'PROVISIONED',rootFolderName:name,spreadsheetTitle:name}},updatedBy:who.userId,updatedAt:new Date().toISOString()});
-        this.audit(tx,projectId,who.userId,'WORKSPACE_BOUND',{fileId:binding.spreadsheetId,workspaceBlueprintVersion:blueprint.version,scriptProjectId:binding.scriptProjectId});
+        this.audit(tx,projectId,who.userId,'WORKSPACE_BOUND',{fileId:binding.spreadsheetId,workspaceBlueprintVersion:blueprint.version,...(binding.scriptProjectId?{scriptProjectId:binding.scriptProjectId}:{})});
       }));return binding;
     } catch(error) {
       const code=(error as {code?:string}).code||'SPREADSHEET_GENERATION_FAILED';
@@ -296,7 +321,7 @@ export class ProjectGoogleWorkspaceServer {
     }
   }
   /** Drain only server-recorded events. Request never supplies a file ID or row payload. */
-  async retrySync(projectId:string,who:AuthUserContext,google:GoogleTemplatePort) {
+  async retrySync(projectId:string,who:AuthUserContext,google:GoogleTemplatePort&Partial<GoogleBlueprintPort>) {
     const owner=randomUUID(),ref=continuityRef(this.db,projectId);
     const state=await this.db.runTransaction(async(tx:any)=>{
       await this.authorized(tx,projectId,who);
@@ -307,13 +332,28 @@ export class ProjectGoogleWorkspaceServer {
     });
     try {
       if(await google.subject()!==state.binding.googleSubject) return gwsFail('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION');
-      await google.verify(state.binding.spreadsheetId,workspaceOperation(projectId));
+      if(state.binding.workspaceBlueprintVersion){
+        if(!google.verifyBinding)return gwsFail('NATIVE_BINDING_VERIFIER_REQUIRED');
+        await google.verifyBinding(state.binding.destinationRootFolderId,state.binding.projectFolderId,state.binding.spreadsheetId,state.binding.workspaceBlueprintVersion);
+      } else await google.verify(state.binding.spreadsheetId,workspaceOperation(projectId));
       const events=await syncOutboxRef(this.db,projectId).get();
-      for(const doc of events.docs) {
+      for(const doc of [...events.docs.filter((d:any)=>d.data().kind==='MASTER_DATA'),...events.docs.filter((d:any)=>d.data().kind!=='MASTER_DATA')]) {
         const event=doc.data();if(event.status==='DELIVERED') continue;
-        if(event.projectId!==projectId || event.input?.projectId!==projectId) return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
-        if(!event.input) return gwsFail('SHEET_SOURCE_MAPPING_REQUIRED');
-        await google.upsert(state.binding.spreadsheetId,event.input);
+        if(event.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
+        if(event.kind==='MASTER_DATA') {
+          if(!google.projectMasterTabs)return gwsFail('MASTER_PROJECTION_PORT_REQUIRED');
+          const freshness=await projectionState(projectId,this.db);
+          const tabs=(freshness.dirtyTabs.length?freshness.dirtyTabs:event.dirtyTabs||[]).filter(isMasterTab);
+          if(!tabs.length)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
+          const {ProjectWorkspaceInitialProjectionServer}=await import('./projectWorkspaceInitialProjection.server');
+          const snapshot=await new ProjectWorkspaceInitialProjectionServer().buildCanonicalProjection(projectId,this.db);
+          await google.projectMasterTabs(state.binding.spreadsheetId,snapshot,tabs);
+          await markProjectionSuccessful(projectId,tabs,undefined,freshness.mutationRevision,this.db,{owner,authorize:tx=>this.authorized(tx,projectId,who)});
+        } else {
+          if(event.input?.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
+          if(!event.input)return gwsFail('SHEET_SOURCE_MAPPING_REQUIRED');
+          await google.upsert(state.binding.spreadsheetId,event.input);
+        }
         await this.db.runTransaction(async(tx:any)=>{
           await this.authorized(tx,projectId,who);
           const s=await tx.get(ref),fresh=await tx.get(syncOutboxRef(this.db,projectId).doc(doc.id));

@@ -287,7 +287,7 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
     expect(routeIndex).toBeGreaterThan(-1);
 
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const getStatePos = routeSnippet.indexOf('getWorkspaceProjectionState');
     const buildSnapshotPos = routeSnippet.indexOf('buildInitialProjectionSnapshot');
@@ -303,7 +303,7 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const reconcileFleetPos = routeSnippet.indexOf('reconcileTabSnapshot');
     const markAckPos = routeSnippet.indexOf('markWorkspaceProjectionSuccessful');
@@ -319,7 +319,7 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     const matches = routeSnippet.match(/markWorkspaceProjectionSuccessful\(/g);
     expect(matches).not.toBeNull();
@@ -332,7 +332,7 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     expect(routeSnippet).toContain("reconcileTabSnapshot(\n      cleanSpreadsheetId,\n      WORKSPACE_TABS.DRIVERS.tabTitleAr");
     expect(routeSnippet).toContain("successfullyProjectedTabs.push('DRIVERS')");
@@ -355,7 +355,7 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     expect(routeSnippet).toContain("reconcileTabSnapshot(\n      cleanSpreadsheetId,\n      WORKSPACE_TABS.CARRIERS.tabTitleAr");
     expect(routeSnippet).toContain("successfullyProjectedTabs.push('CARRIERS')");
@@ -377,7 +377,7 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     expect(routeSnippet).toContain("reconcileTabSnapshot(\n      cleanSpreadsheetId,\n      WORKSPACE_TABS.MATERIALS.tabTitleAr");
     expect(routeSnippet).toContain("successfullyProjectedTabs.push('MATERIALS')");
@@ -399,7 +399,7 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     expect(routeSnippet).toContain('reconcileTabSnapshot');
     expect(routeSnippet).toContain("successfullyProjectedTabs.push('FLEET_ROSTER')");
@@ -419,7 +419,7 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     // If an error throws in Google calls (Phase 2-5), it jumps directly to catch block without executing Phase 6 ack
     expect(routeSnippet).toContain('} catch (error: any) {');
@@ -431,7 +431,7 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     // markWorkspaceProjectionSuccessful is awaited inside try block BEFORE res.json({ success: true })
     const markAckPos = routeSnippet.indexOf('markWorkspaceProjectionSuccessful');
@@ -458,7 +458,7 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, routeIndex + 5000);
+    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
 
     expect(routeSnippet).toContain('const projectionCompletedAt = new Date().toISOString();');
     expect(routeSnippet).toContain('markWorkspaceProjectionSuccessful(');

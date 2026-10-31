@@ -1,6 +1,15 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "gws.sheet_connected": "Google Sheets سے منسلک",
+  "gws.sync_healthy": "ہم وقت سازی درست کام کر رہی ہے",
+  "gws.sync_pending": "تبدیلیاں ہم وقت سازی کی منتظر ہیں",
+  "gws.bound_sync_degraded": "فائل منصوبے سے منسلک ہے، مگر ہم وقت سازی کا جائزہ ضروری ہے",
+  "gws.bound_authorization_required": "فائل منصوبے سے منسلک ہے۔ ہم وقت سازی کے لیے Google کو دوبارہ اجازت دیں",
+  "gws.bound_file_unavailable": "درج شدہ فائل دستیاب نہیں۔ بحالی سے پہلے رسائی کی تصدیق کریں؛ متبادل فائل خودکار طور پر نہیں بنے گی۔",
+  "gws.partial_resume": "ورک اسپیس کی ترتیب نامکمل ہے؛ آخری کامیاب مرحلے سے جاری ہوگی",
+  "gws.resume_setup": "ورک اسپیس کی ترتیب جاری رکھیں",
+  "gws.retry_sync": "ہم وقت سازی دوبارہ آزمائیں",
   "gws.destination_not_writable": "منسلک اکاؤنٹ اس فولڈر میں فائلیں شامل نہیں کر سکتا۔ ایسا فولڈر منتخب کریں جس میں اسے فائلیں شامل کرنے کی اجازت ہو۔",
   "gws.destination_conflict": "یہ فولڈر کسی دوسرے منصوبے کے لیے درج یا محفوظ ہے۔ دوسرا فولڈر منتخب کریں۔",
   "gws.destination_is_current": "یہ منصوبے کا موجودہ فولڈر ہے۔ اس کی جگہ بدلنے کے لیے اسٹوریج منتقلی درکار ہے، ابتدائی تیاری نہیں۔",

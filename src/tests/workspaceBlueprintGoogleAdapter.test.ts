@@ -1,8 +1,8 @@
 import {beforeEach,describe,it,expect,vi} from 'vitest';
 import {blueprintFixture} from './helpers/workspaceBlueprintFixture';
-const f=vi.hoisted(()=>({fileGet:vi.fn(),fileCreate:vi.fn(),fileList:vi.fn(),copy:vi.fn(),sheetGet:vi.fn(),batch:vi.fn(),scriptCreate:vi.fn(),scriptGet:vi.fn(),scriptInstall:vi.fn(),scriptContent:vi.fn(),token:vi.fn(),user:vi.fn(),destination:vi.fn(),eligible:vi.fn(),registry:vi.fn(),valueGet:vi.fn(),valueBatch:vi.fn()}));
+const f=vi.hoisted(()=>({reconcile:vi.fn(),fileGet:vi.fn(),fileCreate:vi.fn(),fileList:vi.fn(),copy:vi.fn(),sheetGet:vi.fn(),batch:vi.fn(),scriptCreate:vi.fn(),scriptGet:vi.fn(),scriptInstall:vi.fn(),scriptContent:vi.fn(),token:vi.fn(),user:vi.fn(),destination:vi.fn(),eligible:vi.fn(),registry:vi.fn(),valueGet:vi.fn(),valueBatch:vi.fn()}));
 vi.mock('googleapis',()=>({google:{auth:{OAuth2:class{setCredentials(){}getTokenInfo(){return f.token()}}},drive:()=>({files:{get:f.fileGet,create:f.fileCreate,list:f.fileList,copy:f.copy}}),sheets:()=>({spreadsheets:{get:f.sheetGet,batchUpdate:f.batch,values:{get:f.valueGet,batchUpdate:f.valueBatch}}}),script:()=>({projects:{create:f.scriptCreate,get:f.scriptGet,updateContent:f.scriptInstall,getContent:f.scriptContent}}),oauth2:()=>({userinfo:{get:f.user}})}}));
-vi.mock('../../server/workspace.service',()=>({serverWorkspaceService:{validateDestinationFolder:f.destination}}));
+vi.mock('../../server/workspace.service',()=>({serverWorkspaceService:{validateDestinationFolder:f.destination,reconcileTabSnapshot:f.reconcile}}));
 vi.mock('../../server/workspace.isolation',()=>({WorkspaceStorageBoundary:class{eligibleDestination=f.eligible;assertCanonicalStorage=f.registry}}));
 import {projectGoogleBlueprintPort} from '../../server/projectGoogleBlueprint.adapter';
 import {workspaceOperation} from '../services/projectGoogleWorkspace.server';
@@ -16,6 +16,25 @@ beforeEach(()=>{
  f.scriptGet.mockResolvedValue({data:{parentId:'file'}});f.scriptCreate.mockResolvedValue({data:{scriptId:'script'}});f.scriptContent.mockResolvedValue({data:{files:b.script!.files}});
 });
 describe('GWS1B Google native generation API boundary',()=>{
+ it('writes only the dirty master tab through existing snapshot reconciliation and rejects foreign rows',async()=>{
+  const p=projectGoogleBlueprintPort('fixture','P1'),snapshot={projectId:'P1',drivers:[],carriers:[{carrierId:'C',projectId:'P1',companyNameAr:'Canonical'}],materials:[],fleetRows:[]};
+  await p.projectMasterTabs('file',snapshot,['CARRIERS']);expect(f.reconcile).toHaveBeenCalledOnce();expect(f.reconcile.mock.calls[0].slice(0,3)).toEqual(['file','الناقلين','carrierId']);expect(f.reconcile.mock.calls[0][6]).toBe('RAW');
+  f.reconcile.mockClear();snapshot.carriers[0].projectId='P2';await expect(p.projectMasterTabs('file',snapshot,['CARRIERS'])).rejects.toThrow('WORKSPACE_EVENT_SCOPE_INVALID');expect(f.reconcile).not.toHaveBeenCalled();
+ });
+ it('does not classify a bare master-data write 403 as missing OAuth scope',async()=>{
+  f.reconcile.mockRejectedValueOnce({response:{status:403}});
+  await expect(projectGoogleBlueprintPort('fixture','P1').projectMasterTabs('file',{projectId:'P1',drivers:[],carriers:[],materials:[],fleetRows:[]},['CARRIERS'])).rejects.toMatchObject({code:'MASTER_DATA_SYNC_FAILED'});
+ });
+ it('requires only Drive file and Sheets for binding while keeping Script permission mandatory for optional automation',async()=>{
+  f.token.mockResolvedValue({scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets']});
+  await expect(projectGoogleBlueprintPort('fixture','P1').authorizeBinding()).resolves.toBeUndefined();await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toThrow('SCOPE_DENIED:script.projects');
+ });
+ it.each(['valid','foreign-project','folder-parent','sheet-parent','operation','role','version','trashed'])('checks canonical resource ownership and parent bindings: %s',async mode=>{
+  f.fileGet.mockImplementation(async({fileId}:any)=>({data:fileId==='root'?{mimeType:'application/vnd.google-apps.folder'}:{name:'Project file',mimeType:fileId==='folder'?'application/vnd.google-apps.folder':'application/vnd.google-apps.spreadsheet',trashed:mode==='trashed',parents:[fileId==='folder'?(mode==='folder-parent'?'foreign':'root'):(mode==='sheet-parent'?'foreign':'folder')],appProperties:{projectId:mode==='foreign-project'?'P2':'P1',qSaudiWorkspaceOperation:mode==='operation'?'foreign':workspaceOperation('P1'),resourceRole:mode==='role'?'FOREIGN':fileId==='folder'?'FOLDER':'SPREADSHEET',workspaceBlueprintVersion:mode==='version'?'OTHER':'TEST-V1'}}}));
+  const result=projectGoogleBlueprintPort('fixture','P1').verifyBinding('root','folder','file','TEST-V1');
+  if(mode==='valid')await expect(result).resolves.toEqual({title:'Project file'});else await expect(result).rejects.toThrow(/BOUND_FILE_UNAVAILABLE|WORKSPACE_EXTERNAL_BINDING_INVALID/);
+  expect(f.fileCreate).not.toHaveBeenCalled();expect(f.scriptCreate).not.toHaveBeenCalled();
+ });
  it('creates a tagged native spreadsheet under the Project folder without files.copy',async()=>{const p=projectGoogleBlueprintPort('fixture','P1');await p.createProjectSpreadsheet('Project name','folder',workspaceOperation('P1'),'TEST-V1');expect(f.fileCreate).toHaveBeenCalledWith(expect.objectContaining({requestBody:expect.objectContaining({mimeType:'application/vnd.google-apps.spreadsheet',parents:['folder'],appProperties:expect.objectContaining({resourceRole:'SPREADSHEET',workspaceBlueprintVersion:'TEST-V1'})})}));expect(f.copy).not.toHaveBeenCalled()});
  it('requires script.projects for generation while preserving the narrow Drive scope',async()=>{const p=projectGoogleBlueprintPort('fixture','P1');await p.authorizeProvisioning();f.token.mockResolvedValueOnce({scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets']});await expect(p.authorizeProvisioning()).rejects.toThrow('SCOPE_DENIED')});
  it.each([

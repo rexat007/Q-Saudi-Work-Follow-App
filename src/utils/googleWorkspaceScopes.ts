@@ -6,6 +6,8 @@ export const REQUIRED_WORKSPACE_SCOPES = [
 ] as const;
 
 const aliases = ['spreadsheets', 'drive.file', 'script.projects'] as const;
+export const BINDING_WORKSPACE_SCOPES = REQUIRED_WORKSPACE_SCOPES.slice(0,2);
+export const missingWorkspaceBindingScopes = (granted: unknown): string[] => missingWorkspaceScopes(granted).filter(scope=>BINDING_WORKSPACE_SCOPES.includes(scope as typeof BINDING_WORKSPACE_SCOPES[number]));
 
 export function missingWorkspaceScopes(granted: unknown): string[] {
   // GIS returns a space-delimited string; google-auth-library returns an array.

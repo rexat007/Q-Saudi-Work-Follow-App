@@ -37,7 +37,7 @@ export async function planMembershipConsequences(tx:any,db:any,p:string,kind:key
 export async function writeMembershipConsequences(tx:any,db:any,p:string,result:Awaited<ReturnType<typeof planMembershipConsequences>>,kind:keyof typeof GLOBAL_IDENTITIES,parentChanged:boolean){
   if(!result.plans.length&&!parentChanged)return;
   // This helper performs the final read before any temporal or parent membership writes.
-  const tabs=kind==='CARRIER'?['CARRIERS']:kind==='MATERIAL'?['MATERIALS']:['FLEET_ROSTER'];if(result.plans.length&&!tabs.includes('FLEET_ROSTER'))tabs.push('FLEET_ROSTER');
+  const tabs=kind==='CARRIER'?['CARRIERS','DRIVERS','FLEET_ROSTER']:kind==='MATERIAL'?['MATERIALS','FLEET_ROSTER']:['DRIVERS','FLEET_ROSTER'];
   await markDirtyInTransaction(tx,p,tabs,'MEMBERSHIP_CONSEQUENCES',result.at.toISOString(),db);
   for(const plan of result.plans)writeTemporalPlan(tx,db,plan,result.at);
 }

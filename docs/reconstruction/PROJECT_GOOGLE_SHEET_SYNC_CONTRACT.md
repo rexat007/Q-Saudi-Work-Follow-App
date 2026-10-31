@@ -1,5 +1,36 @@
 # Project Google Sheet continuity contract — PFAG-GWS1
 
+## GWS2 current binding authority (owner decision, 2026-10-31)
+
+Exact current state defers to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). SCRIPT_REQUIRED_FOR_WORKSPACE_READY is SUPERSEDED. Verified Project folder + verified Google Sheet + durable scoped binding establish CONNECTED without a Script ID or installation. Binding authentication needs drive.file and spreadsheets; optional automation still requires script.projects and the strict automation asset/verification contract. No broader Drive scopes were added.
+
+POST /api/projects/:projectId/workspace/resume accepts projectId only. The server derives destination/resource identities from continuity and receipt, rechecks current Project authority, Google subject and immutable operation/version bindings, and reuses existing folder/file. Parent/root membership and Project/resourceRole/operation/version tags must match before binding. No manual Firestore reset, destination replacement or script-create retry is used. The original uncertain script stage remains in automationStage after the binding reaches BOUND. Existing binding survives revoked authorization or BOUND_FILE_UNAVAILABLE; replacement remains an explicit decision.
+
+Workspace state and automation state are independent. UI shows linked Sheet, title when available, successful-sync time, pending count and contextual status. A healthy binding has only the existing open-sheet action; pending/auth/degraded states may show retry. Partial state uses the same button for resume without Picker. Canonical AR/EN/UR labels are provided.
+
+Initial sync verifies canonical binding and current Google subject before reading/writing Project snapshots. Seven approved operational tabs and captured Script source files are unchanged; four existing master-projection tabs may coexist with the operational workbook. Binding verification ignores absent Apps Script function runtime only; it retains workbook structure/formula/format/validation checks. Strict optional automation verification remains unchanged.
+
+Scope of this delivery: GWS2-A + GWS2-B source, implemented / verified / awaiting owner merge. Overall GWS2 remains PARTIAL / NOT_LIVE_ACCEPTED. Latest main LIVE-04 stage diagnostics are preserved: optional Script adapter operations keep their exact stage; binding persistence and workbook verification retain bounded diagnostics. Bare provider 403 is not evidence of scope denial. GWS2-C remains open (encrypted offline authorization, revocation and leased autonomous worker). Current browser-session delivery is not autonomous. Q-PRJ-007 live recovery and real CRUD/membership-to-Sheet acceptance have not been executed. [Authorization design and blockers](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md).
+
+
+Verification after LIVE-04 convergence (2026-11-01): 673 PASS / 35 FAIL / 0 pending in the 30-file bounded selection; the command is not all green. All 35 failures were independently reproduced on merged main `4cc2ab16a5aec9a4fc39e68aeb0d4a954a0cbfa8` (632 PASS / 35 FAIL across the 28 existing files). No new failures, removed tests or skips. Generation diagnostics remain 16/16; the initial three-suite focused check is 70/70. Build PASS; normalized diagnostics 440→440, added/removed 0; lint EXIT 2 / NOT PASS; diff check PASS. These are source/controlled results, not live Google acceptance.
+
+## GWS2-B canonical master projection and durable invalidation
+
+The native snapshot is built by buildCanonicalProjection in the existing initial-projection service, composed through SetupFleetQuery within one Firestore transaction. It includes current Global profiles, ACTIVE/SUSPENDED/REMOVED Project memberships and canonical temporal relationships. Missing names/units/license/density fields are blank/absent, never fabricated. Standalone Driver/Truck participation is retained. The previous initial reader remains only for legacy bindings/compatibility; native delivery does not use its historical placeholders.
+
+Project membership/identity/affiliation/temporal commands reuse markDirtyInTransaction. That helper now atomically writes a stable MASTER_DATA marker in the existing workspace_sync_outbox together with the revisioned dirty state. Global Carrier/Material profile changes, Driver/Truck maintenance and Global status changes invalidate all participating Projects, including suspended/removed membership. Global fan-out reads all Project membership references before flushing projection metadata writes; it adds no Google calls or new business validation. It inherits Firestore transaction limits and does not claim unbounded fan-out scale.
+
+The existing retrySync authority prioritizes master work, verifies the bound Project resources and current principal, builds fresh canonical data rather than trusting queued/client row payloads, and reconciles only dirty domains through the existing snapshot writer. Stable canonical IDs, stale/duplicate-row reconciliation and RAW writes preserve identity, leading zeros and formula-like strings as data. RAW delivery without Google authorization fails closed rather than returning simulated success. Seven operational tabs are untouched; no mutable master data is used to rewrite historical operational snapshots.
+
+Dirty acknowledgment checks captured mutationRevision, execution owner and current Project authorization transactionally. Failed or racing writes retain pending work; binding remains recorded. The initial route acknowledges its matching master marker only after all four canonical datasets project successfully. Empty Projects create valid empty master tabs with headers. No client row objects are accepted. Complete native initial projection and controlled tests are not real Google acceptance.
+
+Delivery still requires a request carrying authorized Google credentials. GWS2-C, offline consent, encrypted credential storage, refresh/revocation, scheduling and expiring-worker-lease recovery remain open; no browser-closed synchronization is claimed. Actual Q-PRJ-007 resource recovery and live per-entity CRUD/membership acceptance are not executed locally.
+
+## Historical GWS1B implementation and verification records
+
+The remaining dated records preserve provenance. Their Script-required readiness, three-scope binding and no-GWS2 statements describe the old contract and do not override the GWS2 decision above.
+
 Classification: CURRENT_SUPPORTING_CONTRACT. Exact active state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
 
 ## Authority and evidence

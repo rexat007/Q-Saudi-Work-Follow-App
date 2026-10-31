@@ -175,6 +175,12 @@ export class ClientWorkspaceService {
     if (!response.ok) throw new Error(result.code || 'PROVISIONING_FAILED');
     return result.data;
   }
+  public async resumeProjectWorkspace(projectId:string):Promise<{spreadsheetId:string;projectFolderId:string}> {
+    await ensureRuntimeGeneration();
+    const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/resume`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({projectId})});
+    const result=await response.json();if(!response.ok)throw new Error(workspaceFailureCode(result.code||'WORKSPACE_RECOVERY_REQUIRED'));
+    const binding=result.data;return {spreadsheetId:binding.spreadsheetId,projectFolderId:binding.projectFolderId};
+  }
 
   /**
    * Fetches the Schema Migration Plan from the server.

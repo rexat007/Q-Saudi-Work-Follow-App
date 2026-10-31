@@ -1,5 +1,33 @@
 ## GWS1B-LIVE-02 — current initial-destination decision
 
+## GWS2 A+B merge preparation — 2026-11-01
+
+- Preserve LIVE-04 stage-aware provider diagnostics from merged main `4cc2ab16a5aec9a4fc39e68aeb0d4a954a0cbfa8` together with script-independent binding. Optional Script diagnostics are tested directly, not restored as mandatory provisioning.
+- A+B are implemented / verified / awaiting owner merge; overall PARTIAL / NOT_LIVE_ACCEPTED. C remains NOT_IMPLEMENTED / EXTERNAL_AUTHORIZATION_CONFIGURATION_REQUIRED.
+
+## GWS2-B — current canonical projection/outbox decisions — 2026-10-31
+
+- RESOLVED_LOCALLY: the native initial path now reads current SetupFleet canonical profiles, membership states and temporal pointers in a transaction; historical placeholder names/units/densities from the legacy reader are not native authority.
+- RESOLVED_LOCALLY: one stable metadata-only MASTER_DATA record is atomically queued alongside revisioned dirty state. Existing membership/import/temporal hooks are reused. Global profile/status updates fan out to participating Projects, with all reads before writes. No business-history cascade, new identity authority or parallel sync engine is introduced.
+- RESOLVED_LOCALLY: the existing drain prioritizes master work and uses current server snapshots, scoped binding verification, RAW values and stable keys. Mutation-revision/current-principal/execution-owner checks prevent stale delivery acknowledgment. Provider errors leave the binding and pending work intact.
+- PRESERVED: seven approved operational tabs, captured automation source, operational Trip/Ticket correlation and event-time snapshots. No client-controlled master payload or second canonical Sheet database.
+- STILL_OPEN / SCALE: global invalidation fan-out is one Firestore transaction and inherits its platform limits. Large-scale chunking/fan-out must be proven before claiming unbounded Project scale.
+- STILL_OPEN / GWS2-C: persistent OAuth configuration/owner grant and encrypted credential authority are unavailable; the autonomous worker is not implemented. Manual/browser-token delivery is not the target architecture and is not called complete.
+- STILL_OPEN / LIVE: real Q-PRJ-007 Google resource verification and CRUD/membership-to-Sheet acceptance remain unexecuted. Baseline historical failures and lint EXIT 2 are reported separately.
+
+## GWS2-A — owner-authorized binding correction — 2026-10-31
+
+Current authority: [phase ledger](02_PHASE_LEDGER.md).
+
+- SUPERSEDED: requiring Apps Script create/install/verification before a valid Sheet binding can be connected. Historical tests encoding that gate are converged to binding/automation independence; test counts and substantive Project/subject/receipt/isolation/lease/resource-reuse checks are preserved.
+- RESOLVED_LOCALLY: server-derived resume uses the durable destination instead of reopening Picker; SCRIPT_REQUESTED no longer blocks a verified binding or triggers another Script create. Original uncertain automation evidence is preserved separately. Root/folder/file appProperties and parent mismatches fail closed.
+- RESOLVED_LOCALLY: bound Sheet identity is checked before initial canonical projection. Client-supplied external targets cannot redirect Project snapshots. Binding persists on authorization/file-access failures; no silent replacement.
+- TEST_HARNESS_COMPATIBILITY_CORRECTION: two projection tests now inspect the complete route instead of a fixed 5000-character slice. Their acknowledgment/error-order assertions remain. UI assertions follow the owner-required open/retry/resume controls. The prior 28 bounded-suite failures remain baseline debt, not successful tests.
+- STILL_OPEN: real Q-PRJ-007 resource verification/recovery; credentials/network access prevented local live acceptance. Owner-supplied state is evidence of the intended recovery path, not successful execution.
+- RESOLVED_LOCALLY_BY_GWS2_B: native canonical master snapshots and durable global/membership/relationship invalidation are implemented. Actual live acceptance remains open, and session-driven delivery is not GWS2-C autonomy.
+- STILL_OPEN / GWS2-C / EXTERNAL_AUTHORIZATION_CONFIGURATION_REQUIRED: server OAuth client secret, encryption key, redirect configuration and an explicit offline Google grant are absent. No refresh credential was collected, stored or exposed. A background worker is not implemented or claimed. See [bounded design](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md).
+- PRESERVED: historical operational snapshots, canonical identities and business authorization/lifecycle rules; no Phase 10/PFAG-OPS work.
+
 Exact status authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline b936019580778394ccdcb07523ad635ec0295956 merges PWA convergence PR #69. Owner reports the current error is destination validation, not retired template selection.
 
 - PROVEN_SOURCE_DEFECT: selected writable folder passes metadata but the migration validator traverses an ungranted parent (403/404) and the adapter collapses that into DESTINATION_NOT_WRITABLE. Two cases failed before production changes; after correction the same cases pass with one selected-folder read and zero parent reads.

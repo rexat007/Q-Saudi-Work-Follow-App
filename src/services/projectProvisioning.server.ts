@@ -12,6 +12,7 @@ import {
 } from '../utils/normalization';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { markDirtyInTransaction } from './projectWorkspaceProjectionState.server';
+import {invalidateGlobalWorkspaceProjection} from './projectWorkspaceGlobalInvalidation.server';
 
 /**
  * Generates an opaque, cryptographically robust system ID.
@@ -374,12 +375,7 @@ export class ProjectProvisioningAdminService {
       }
 
       // --- PHASE 2: ALL TRANSACTION WRITES ---
-      await markDirtyInTransaction(
-        tx,
-        cleanProjectId,
-        ['CARRIERS'],
-        'PROJECT_CARRIER_UPDATED'
-      );
+      await invalidateGlobalWorkspaceProjection(tx,adminDb,'CARRIER',cleanCarrierId,'PROJECT_CARRIER_UPDATED');
 
       const updatedGlobal: Record<string, any> = {
         ...existingGlobal,
@@ -576,12 +572,7 @@ export class ProjectProvisioningAdminService {
       }
 
       // --- PHASE 2: ALL TRANSACTION WRITES ---
-      await markDirtyInTransaction(
-        tx,
-        cleanProjectId,
-        ['MATERIALS'],
-        'PROJECT_MATERIAL_UPDATED'
-      );
+      await invalidateGlobalWorkspaceProjection(tx,adminDb,'MATERIAL',cleanMaterialId,'PROJECT_MATERIAL_UPDATED');
 
       const updatedGlobal: Record<string, any> = {
         ...existingGlobal,

@@ -1,6 +1,5 @@
-import {missingWorkspaceScopes, workspaceScopeDeniedCode} from '../utils/googleWorkspaceScopes';
+import {BINDING_WORKSPACE_SCOPES, REQUIRED_WORKSPACE_SCOPES, missingWorkspaceScopes, missingWorkspaceBindingScopes, workspaceScopeDeniedCode} from '../utils/googleWorkspaceScopes';
 /** Workspace permission grant only. Never calls Firebase sign-in/reauth or creates an app identity. */
-const scopes=['openid','email','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/script.projects'];
 let loading: Promise<void> | undefined;
 async function identityLibrary(): Promise<void> {
   if ((window as any).google?.accounts?.oauth2) return;
@@ -16,7 +15,8 @@ export async function prepareWorkspaceGoogleAuthorization() {
   if (!import.meta.env?.VITE_FIREBASE_OAUTH_CLIENT_ID) throw new Error('GOOGLE_OAUTH_CONFIGURATION_REQUIRED');
   await identityLibrary();
 }
-export async function requestWorkspaceGoogleToken(expectedSubject: string, stillCurrent:()=>boolean):Promise<string> {
+export async function requestWorkspaceGoogleToken(expectedSubject: string, stillCurrent:()=>boolean, automation=false):Promise<string> {
+  const scopes=['openid','email',...(automation?REQUIRED_WORKSPACE_SCOPES:BINDING_WORKSPACE_SCOPES)];
   const clientId=import.meta.env?.VITE_FIREBASE_OAUTH_CLIENT_ID;
   const appId=import.meta.env?.VITE_GOOGLE_APP_ID;
   if (!clientId || (appId && clientId.split('-')[0] !== appId)) throw new Error('GOOGLE_OAUTH_CONFIGURATION_REQUIRED');
@@ -29,7 +29,7 @@ export async function requestWorkspaceGoogleToken(expectedSubject: string, still
       callback:(response:any)=>{
         if(response.error) return reject({code:response.error,error_description:response.error_description});
         if(!response.access_token) return reject(new Error('AUTHORIZATION_DENIED'));
-        const missingScopes=missingWorkspaceScopes(response.scope);
+        const missingScopes=(automation?missingWorkspaceScopes:missingWorkspaceBindingScopes)(response.scope);
         if(missingScopes.length) return reject(new Error(typeof response.scope==='string' ? workspaceScopeDeniedCode(missingScopes) : 'SCOPE_DENIED'));
         resolve(response.access_token);
       },
