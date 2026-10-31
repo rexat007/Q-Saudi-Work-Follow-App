@@ -1,3 +1,15 @@
+## GWS-LIVE-01A — bounded OAuth-return defect remediation
+
+Current supporting decision; [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns status.
+
+- OWNER_OBSERVED: Google consent succeeds for Q-PRJ-007, then Project Workspace selection/layer is lost and provisioning remains absent.
+- ROOT_CAUSE_SOURCE: Firebase reauthentication triggers the existing fail-closed token/profile refresh, clearing App Project scope/selection and unmounting the Wizard. Guarded notices from the old component can no longer display failures. The missing Picker has no independent deployed HTTP trace here.
+- DECISION: use an isolated Google permission grant, with Firebase UID/provider-subject equality checks. Do not weaken auth-session clearing, RBAC, server authorization or ProjectContextLifetime. Preload the Google library and keep popup grant tied to the button gesture.
+- DECISION: keep a token-free, expiring Project/Workspace intent; fence every asynchronous boundary. Canonical Workspace status overrides stale Project IDs and is re-read after success/reopen. No receipt reset or replacement workbook fallback.
+- CONFIGURATION_OBSERVATION: the local legacy OAuth client hint uses project-number prefix 98229909734 while the owner expects App ID 1009549718216. Deployment remains unverified. Explicit matching public OAuth client configuration is required; no Console changes or secrets are committed.
+- GWS-LIVE-01 — STILL_OPEN / RESUME_LIVE_ACCEPTANCE after remediation review/deployment; no template/formula/Apps Script/live-row acceptance is claimed.
+- GWS-OAUTH-PROD-01, GWS-SYNC-AUTONOMY-01, GWS-SYNC-RECOVERY-01 and PFAG-OPS-01 — STILL_OPEN. No GWS2, refresh worker, dynamic intake, readiness, migration or Trip FSM work.
+
 ## PFAG-GWS1 — template continuity decisions and explicit limits
 
 Current supporting debt record; exact active status remains in [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).

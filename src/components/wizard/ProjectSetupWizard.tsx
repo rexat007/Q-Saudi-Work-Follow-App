@@ -1,3 +1,4 @@
+import { beginWorkspaceIntent, workspaceIntentCurrent, type WorkspaceAuthorizationIntent } from '../../utils/workspaceAuthorizationIntent';
 import { continuityStateLabel } from '../../utils/googleWorkspaceErrors';
 import type { ProjectGoogleStatus } from '../../types/projectGoogleWorkspace';
 import {canPresentProjectAction} from '../../utils/permissions';
@@ -179,6 +180,7 @@ export interface ProjectWorkspaceSyncParams {
   setSyncNotice: (notice: { type: 'success' | 'error'; text: string } | null) => void;
   workspaceService?: typeof clientWorkspaceService;
   isCurrent?: () => boolean;
+  onWorkspaceStatus?: (status: ProjectGoogleStatus) => void;
 }
 
 export async function executeProjectWorkspaceSyncOrchestration(
@@ -197,95 +199,54 @@ export async function executeProjectWorkspaceSyncOrchestration(
   const setSyncNotice = (notice: { type: 'success' | 'error'; text: string } | null) => { if (isCurrent()) updateNotice(notice); };
   if (!project || isSyncingGoogle || !isCurrent()) return;
 
-  const hasFolderId = Boolean(project.settings?.googleDriveFolderId);
-  const hasSpreadsheetId = Boolean(project.settings?.googleSpreadsheetId);
-
-  // Inconsistent Workspace ID State: Fail closed if exactly one Workspace identifier exists
-  if ((hasFolderId && !hasSpreadsheetId) || (!hasFolderId && hasSpreadsheetId)) {
-    setSyncNotice({
-      type: 'error',
-      text: 'معرفات Google Workspace للمشروع غير مكتملة أو غير متطابقة (يلزم توفر معرف المجلد ومعرف الشيت معاً)',
-    });
-    return;
-  }
-
   setIsSyncingGoogle(true);
   setSyncNotice(null);
-
-  // Flow B: Existing Workspace (Both IDs already exist)
-  if (hasFolderId && hasSpreadsheetId) {
-    try {
-      // 1. Request Google OAuth scopes
-      await workspaceService.requestGoogleScopes();
-
-      // 2. DO NOT call provisionProjectDrive() - perform initial projection against existing spreadsheet
-      await workspaceService.syncInitialProjectWorkspace(
-        project.projectId,
-        project.settings!.googleSpreadsheetId!
-      );
-
-      setSyncNotice({
-        type: 'success',
-        text: 'تم تحديث وإسقاط بيانات المشروع في جدول البيانات بنجاح دون إعادة تهيئة مساحة العمل',
-      });
-    } catch (err: any) {
-      setSyncNotice({
-        type: 'error',
-        text: `فشل تحديث وإسقاط البيانات في جدول البيانات: ${err.message || 'خطأ غير معروف'}`,
-      });
-    } finally {
-      setIsSyncingGoogle(false);
-    }
-    return;
-  }
-
-  // Flow A: First-time Workspace (Neither ID exists)
-  let provisionedSpreadsheetId: string | null = null;
   let provisionSucceeded = false;
-
+  let existingWorkspace = false;
   try {
-    // 1. Request Google OAuth scopes
+    const hasFolderId = Boolean(project.settings?.googleDriveFolderId);
+    const hasSpreadsheetId = Boolean(project.settings?.googleSpreadsheetId);
+    if (!workspaceService.getGoogleWorkspaceStatus && hasFolderId !== hasSpreadsheetId) throw new Error('WORKSPACE_BINDING_INCOMPLETE: معرفات Google Workspace للمشروع غير مكتملة أو غير متطابقة');
+    existingWorkspace = hasSpreadsheetId;
+    // The SDK is preloaded by the layer. Keep the grant tied to the button gesture, before HTTP awaits.
     await workspaceService.requestGoogleScopes();
-
-    // Narrow drive.file access must explicitly cover the canonical template before copy.
-    if (workspaceService.authorizeProjectTemplate) await workspaceService.authorizeProjectTemplate(project.projectId);
-
-    // 2. Provision Drive folders and spreadsheet
-    const syncResult = await workspaceService.provisionProjectDrive(project as any);
-    if (!syncResult?.spreadsheetId || !syncResult?.projectFolderId) {
-      throw new Error('فشلت تهيئة مساحة العمل: لم يتم إرجاع معرفات المجلد أو جدول البيانات');
+    if (!isCurrent()) return;
+    // Durable continuity outranks stale Project compatibility IDs. Read failure is never absence.
+    const status = workspaceService.getGoogleWorkspaceStatus
+      ? await workspaceService.getGoogleWorkspaceStatus(project.projectId) : null;
+    if (!isCurrent()) return;
+    if (status) params.onWorkspaceStatus?.(status);
+    if (!status?.binding && hasFolderId !== hasSpreadsheetId) throw new Error('WORKSPACE_BINDING_INCOMPLETE: معرفات Google Workspace للمشروع غير مكتملة أو غير متطابقة');
+    let spreadsheetId = status?.binding?.spreadsheetId || project.settings?.googleSpreadsheetId;
+    existingWorkspace = Boolean(spreadsheetId);
+    if (!spreadsheetId) {
+      if (workspaceService.authorizeProjectTemplate) await workspaceService.authorizeProjectTemplate(project.projectId);
+      if (!isCurrent()) return;
+      const result = await workspaceService.provisionProjectDrive(project as any);
+      if (!isCurrent()) return;
+      if (!result?.spreadsheetId || !result?.projectFolderId) throw new Error('WORKSPACE_BINDING_INCOMPLETE');
+      spreadsheetId = result.spreadsheetId;
+      provisionSucceeded = true;
     }
-
-    provisionedSpreadsheetId = syncResult.spreadsheetId;
-    provisionSucceeded = true;
-
-    // 3. Initial projection using returned spreadsheetId directly (never waiting for React state)
-    await workspaceService.syncInitialProjectWorkspace(
-      project.projectId,
-      provisionedSpreadsheetId
-    );
-
-    setSyncNotice({
-      type: 'success',
-      text: 'تمت تهيئة مساحة العمل في Google بنجاح وإسقاط بيانات المشروع الأولية في جدول البيانات',
-    });
-  } catch (err: any) {
-    if (provisionSucceeded && provisionedSpreadsheetId) {
-      // Partial failure: Provisioning succeeded, but initial projection failed
-      setSyncNotice({
-        type: 'error',
-        text: `تمت تهيئة مساحة العمل في Google Drive بنجاح، ولكن تعذر إكمال إسقاط البيانات الأولية: ${err.message || 'خطأ غير معروف'}`,
-      });
-    } else {
-      // OAuth or Provisioning failure
-      setSyncNotice({
-        type: 'error',
-        text: err.message || 'فشلت عملية تهيئة مجلدات ومساحة عمل Google',
-      });
+    await workspaceService.syncInitialProjectWorkspace(project.projectId, spreadsheetId);
+    if (!isCurrent()) return;
+    if (workspaceService.getGoogleWorkspaceStatus) {
+      const latest = await workspaceService.getGoogleWorkspaceStatus(project.projectId);
+      if (!isCurrent()) return;
+      params.onWorkspaceStatus?.(latest);
     }
+    setSyncNotice({type:'success',text:provisionSucceeded
+      ? 'تمت تهيئة مساحة العمل في Google بنجاح وإسقاط بيانات المشروع الأولية في جدول البيانات'
+      : 'تم تحديث وإسقاط بيانات المشروع في جدول البيانات بنجاح دون إعادة تهيئة مساحة العمل'});
+  } catch (error: any) {
+    setSyncNotice({type:'error',text: provisionSucceeded
+      ? `تمت تهيئة مساحة العمل في Google Drive بنجاح، ولكن تعذر إكمال إسقاط البيانات الأولية: ${error.message || 'PROVISIONING_FAILED'}`
+      : existingWorkspace ? `فشل تحديث وإسقاط البيانات في جدول البيانات: ${error.message || 'PROVISIONING_FAILED'}`
+      : error.message || 'PROVISIONING_FAILED'});
   } finally {
     setIsSyncingGoogle(false);
   }
+
 }
 
 export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
@@ -574,8 +535,38 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // Google Sync Action state
   const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
+  const workspaceIntent = useRef<WorkspaceAuthorizationIntent | null>(null);
+  const workspaceContext = useRef({userId:authContext.userId,projectId:editingProjectId,scope:projectScopeKey,layer:activeSetupLayer});
+  workspaceContext.current = {userId:authContext.userId,projectId:editingProjectId,scope:projectScopeKey,layer:activeSetupLayer};
+  const [googleAuthorizationReady, setGoogleAuthorizationReady] = useState(false);
   const [googleContinuity, setGoogleContinuity] = useState<ProjectGoogleStatus | null>(null);
   const [syncNotice, setSyncNotice] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  useEffect(() => {
+    workspaceIntent.current = null;
+    setIsSyncingGoogle(false);
+    setSyncNotice(null);
+  }, [editingProjectId, projectScopeKey]);
+
+  useEffect(() => {
+    if (activeSetupLayer !== 'WORKSPACE') {
+      workspaceIntent.current = null;
+      setIsSyncingGoogle(false);
+    }
+  }, [activeSetupLayer]);
+
+  useEffect(() => {
+    let disposed = false;
+    setGoogleAuthorizationReady(false);
+    if (activeSetupLayer !== 'WORKSPACE') return;
+    if (!clientWorkspaceService.prepareGoogleAuthorization) { setGoogleAuthorizationReady(true); return; }
+    clientWorkspaceService.prepareGoogleAuthorization().then(() => {
+      if (!disposed) setGoogleAuthorizationReady(true);
+    }).catch((error: unknown) => {
+      if (!disposed) setSyncNotice({type:'error',text:error instanceof Error ? error.message : 'NETWORK_ERROR'});
+    });
+    return () => { disposed = true; };
+  }, [activeSetupLayer, editingProjectId, projectScopeKey]);
 
   // Active project lookup helper with temporary local bridge override
   const project = useMemo(() => {
@@ -603,7 +594,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       })();
     }
     return () => { disposed = true; };
-  }, [editingProjectId, activeSetupLayer, authContext.role]);
+  }, [editingProjectId, activeSetupLayer, authContext.role, projectScopeKey]);
 
   const setCurrentProjectOverride = (value: ProjectEntity, token: ProjectContextToken, origin: 'CREATION' | 'FOUNDATION' = 'CREATION') => {
     if (!projectContext.isCurrent(token, value.projectId)) return;
@@ -1211,14 +1202,22 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const requestContext = renderedContext;
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
+    if (!editingProjectId || activeSetupLayer !== 'WORKSPACE') return;
+    const intent = beginWorkspaceIntent(authContext.userId, editingProjectId, projectScopeKey);
+    workspaceIntent.current = intent;
     await executeProjectWorkspaceSyncOrchestration({
       project,
       isSyncingGoogle,
       setIsSyncingGoogle,
       setSyncNotice,
       workspaceService: clientWorkspaceService,
-      isCurrent: () => projectContext.isCurrent(requestContext, editingProjectId),
+      onWorkspaceStatus: setGoogleContinuity,
+      isCurrent: () => workspaceIntent.current === intent && workspaceIntentCurrent(intent, workspaceContext.current) && projectContext.isCurrent(requestContext, editingProjectId),
     });
+    if (workspaceIntent.current === intent) {
+      if (projectContext.isCurrent(requestContext, editingProjectId)) setIsSyncingGoogle(false);
+      workspaceIntent.current = null;
+    }
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
     if (editingProjectId) {
       try {
@@ -4027,9 +4026,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
                     <h3 className="font-black text-white text-[13px]">{t('projects.batch4.workspace_sync_status')}</h3>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                      project.settings?.googleSpreadsheetId ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'
+                      googleContinuity?.binding ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'
                     }`}>
-                      {project.settings?.googleSpreadsheetId ? t('entityResolution.labels.complete') : t('projects.batch4.awaiting_workspace_setup')}
+                      {googleContinuity ? continuityStateLabel(googleContinuity.state, t) : t('gws.status_unavailable')}
                     </span>
                   </div>
 
@@ -4038,14 +4037,16 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       syncNotice.type === 'success' ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300' : 'bg-rose-950/40 border-rose-800 text-rose-300'
                     }`}>
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
-                      <span>{syncNotice.text.includes('OAUTH_APP_CONFIGURATION_BLOCK') ? t('gws.oauth_configuration') : syncNotice.text.includes('AUTHORIZATION_DENIED') ? t('gws.authorization_denied') : syncNotice.text.includes('POPUP_CLOSED') ? t('gws.popup_closed') : syncNotice.text.includes('TOKEN_EXPIRED') ? t('gws.token_expired') : syncNotice.text.includes('SCOPE_DENIED') ? t('gws.scope_denied') : syncNotice.text.includes('NETWORK_ERROR') ? t('gws.network_error') : /TEMPLATE_|WORKSPACE_|SHEET_|GOOGLE_PICKER_/.test(syncNotice.text) ? t('gws.action_required') : presentBatch4Message(syncNotice.text, t)}</span>
+                      <span>{syncNotice.text.includes('OAUTH_APP_CONFIGURATION_BLOCK') ? t('gws.oauth_configuration') : syncNotice.text.includes('AUTHORIZATION_DENIED') ? t('gws.authorization_denied') : syncNotice.text.includes('POPUP_CLOSED') ? t('gws.popup_closed') : syncNotice.text.includes('TOKEN_EXPIRED') ? t('gws.token_expired') : syncNotice.text.includes('SCOPE_DENIED') ? t('gws.scope_denied') : syncNotice.text.includes('NETWORK_ERROR') ? t('gws.network_error') : /TEMPLATE_|WORKSPACE_|SHEET_|GOOGLE_PICKER_|GOOGLE_OAUTH_/.test(syncNotice.text) ? t('gws.action_required') : presentBatch4Message(syncNotice.text, t)}</span>
                     </div>
                   )}
+
+                  {syncNotice?.type === 'error' && /[A-Z][A-Z_]{3,}/.test(syncNotice.text) && <code role="status">{syncNotice.text.match(/[A-Z][A-Z_]{3,}/)?.[0]}</code>}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px] text-stone-400">
                     <div>
                       <span className="block text-stone-500 font-bold">{t('projects.batch4.trip_spreadsheet_id')}</span>
-                      <span className="font-mono text-stone-200 block truncate">{project.settings?.googleSpreadsheetId || t('projects.batch4.not_configured')}</span>
+                      <span className="font-mono text-stone-200 block truncate">{googleContinuity?.binding?.spreadsheetId || project.settings?.googleSpreadsheetId || t('projects.batch4.not_configured')}</span>
                     </div>
                     <div>
                       <span className="block text-stone-500 font-bold">{t('projects.batch4.project_root_folder_id')}</span>
@@ -4065,11 +4066,11 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   <div className="pt-2 flex justify-end">
                     {isOperationallyMutable && ['PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role) && <button
                       onClick={handleSyncGoogleWorkspace}
-                      disabled={isSyncingGoogle}
+                      disabled={isSyncingGoogle || !googleAuthorizationReady}
                       className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-4 py-2 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50"
                     >
                       {isSyncingGoogle ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <FolderSync className="w-4 h-4" />}
-                      <span>{project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')}</span>
+                      <span>{googleContinuity?.binding || (project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId) ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')}</span>
                     </button>}
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 /** drive.file grants access to files explicitly selected/opened with this application.
  * A shared template URL alone does not grant the OAuth app per-file access. */
 export async function authorizeTemplateSelection(token: string, templateId: string) {
-  const env=(import.meta as any).env||{};
+  const env=(import.meta.env||{}) as Record<string,string|undefined>;
   if(!env.VITE_GOOGLE_PICKER_API_KEY||!env.VITE_GOOGLE_APP_ID) throw new Error('GOOGLE_PICKER_CONFIGURATION_REQUIRED');
   const api=window as any;
   if(!api.gapi) await new Promise<void>((resolve,reject)=>{

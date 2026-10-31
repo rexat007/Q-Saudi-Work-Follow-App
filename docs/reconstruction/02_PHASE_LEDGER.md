@@ -24,6 +24,10 @@ Historical pre-PFAG checkpoint: P9-U1 is merged through PR #62 at `303469ef29b7c
 
 PFAG-RB2 merged at `093b75b6889ec2b592d9af022f38f15ad039da3e`; Project Foundation source assurance is MERGED / SOURCE_VERIFIED / CLOSED with recorded debt preserved. PFAG-GWS1 implements native-template provisioning, durable binding/recovery evidence and a canonical-input projection outbox. See [the sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) for exact mapping, authority boundaries, verification and limitations. Local source verification does not establish live Google acceptance. GWS-OAUTH-PROD-01, GWS-LIVE-01 and the documented hard-crash sync-fence reconciliation limitation remain open; PFAG-OPS-01 is the separate next foundation intake/readiness issue. Phase 10 remains NOT_STARTED.
 
+### GWS-LIVE-01A local checkpoint — 2026-10-31
+
+Merged GWS1 baseline: `cfd4e96fe25a938a726e92356541233915c0e571`, containing `78a2869c8766b05c5c6dabd45bf1ff254e8e0b1c`. Workspace permission acquisition is isolated from Firebase application sign-in/reauthentication. Token-free intent/generation checks fence genuine Project/account/scope changes; durable Workspace status outranks stale compatibility IDs. Source and controlled verification are recorded in the sync contract. GWS-LIVE-01 is not passed; deployed configuration, real OAuth/Picker, template/formula/Apps Script and controlled live-row acceptance remain unverified. GWS-SYNC-AUTONOMY-01 and PFAG-OPS-01 remain OPEN; Phase 10 remains NOT_STARTED.
+
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PRE_PHASE_10_FOUNDATION_ASSURANCE
@@ -31,9 +35,9 @@ ACTIVE_PHASE_STATUS: IN_PROGRESS
 PHASE_8_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PHASE_9_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PROJECT_FOUNDATION_ASSURANCE: MERGED / SOURCE_VERIFIED / CLOSED
-ACTIVE_UNIT: PFAG-GWS1 — Project Google Workspace Template Provisioning & Durable Sync Foundation
+ACTIVE_UNIT: GWS-LIVE-01A — OAuth Return Context Preservation & Provisioning Continuation
 ACTIVE_UNIT_STATUS: IMPLEMENTED / VERIFIED LOCALLY
-ACTIVE_UNIT_TYPE: BOUNDED_PROJECT_TEMPLATE_AND_DURABLE_PROJECTION
+ACTIVE_UNIT_TYPE: BOUNDED_OAUTH_CONTEXT_AND_CONTINUATION_REMEDIATION
 P8_B1_SOURCE: MERGED / PRESENT
 P8_B2_SOURCE: MERGED / PRESENT
 P8_B3_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
@@ -52,7 +56,12 @@ PFAG_RULES_01_STATUS: OPEN / VERIFICATION_DEBT
 FIRESTORE_RULES_RUNTIME_VERIFICATION: DEFERRED_ENVIRONMENT_BLOCKED
 PFAG_RB2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PFAG_RB2_VERIFIED_MERGE: 093b75b6889ec2b592d9af022f38f15ad039da3e
-PFAG_GWS1_STATUS: IMPLEMENTED / VERIFIED LOCALLY
+PFAG_GWS1_STATUS: MERGED / SOURCE_VERIFIED
+PFAG_GWS1_VERIFIED_MERGE: cfd4e96fe25a938a726e92356541233915c0e571
+GWS_LIVE_01A_STATUS: IMPLEMENTED / VERIFIED LOCALLY
+GWS_LIVE_01_STATUS: RESUME_LIVE_ACCEPTANCE / NOT_YET_PASSED
+GWS_SYNC_AUTONOMY_01: OPEN
+PFAG_OPS_01: OPEN
 GOOGLE_WORKSPACE_LIVE_ACCEPTANCE: PENDING_EXTERNAL_OAUTH_CONFIGURATION
 FOUNDATION_SOURCE_ASSURANCE: PASS_WITH_DEBT
 PFAG_CRITICAL_OPEN: 0
@@ -91,8 +100,8 @@ P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
 P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
 NEXT_UNIT: NONE_ASSIGNED
-NEXT_ACTION: OWNER_MERGE_PFAG_GWS1
-CURRENT_CODE_BASELINE: 093b75b6889ec2b592d9af022f38f15ad039da3e
+NEXT_ACTION: OWNER_MERGE_GWS_LIVE_01A_THEN_RESUME_GWS_LIVE_01
+CURRENT_CODE_BASELINE: cfd4e96fe25a938a726e92356541233915c0e571
 EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
 EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
 HISTORICAL_USER_ROLE_CONVERGENCE_STATUS: PHASE_3_AUDIT_REQUIRED / NOT_REASSESSED_IN_P8_B3

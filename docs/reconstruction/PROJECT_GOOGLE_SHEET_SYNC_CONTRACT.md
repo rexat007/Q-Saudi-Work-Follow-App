@@ -98,7 +98,7 @@ Canonical Trip command commit and event staging share the existing buffered Fire
 
 Authenticated administrative retry/initial-sync drains durable events using the stored binding, never a client-provided row or file ID. Projection is at-least-once, with correlation-based idempotent row writes. Failed calls leave events pending. A revision changed during delivery is not acknowledged as delivered; the next drain projects the latest snapshot. Per-Project execution owner prevents concurrent drains from overwriting newer results.
 
-Existing browser Google authorization is transient, not a server refresh-token grant. This unit provides an explicit authenticated drain/retry, not an unattended background scheduler. Reconnect is required when authorization expires. An abrupt process death retaining `syncOwner` fails closed as `WORKSPACE_SYNC_RECONCILIATION_REQUIRED`; operator reconciliation must prove no old writer remains before releasing that fence. No automatic expiring lease permits overlapping Google writes. This limitation is recorded, not a claim of autonomous crash recovery.
+Browser Google authorization is transient, not a server refresh-token grant. This unit provides an explicit authenticated drain/retry, not an unattended background scheduler. Reconnect is required when authorization expires. An abrupt process death retaining `syncOwner` fails closed as `WORKSPACE_SYNC_RECONCILIATION_REQUIRED`; operator reconciliation must prove no old writer remains before releasing that fence. No automatic expiring lease permits overlapping Google writes. This limitation is recorded, not a claim of autonomous crash recovery.
 
 ## API and compatibility
 
@@ -113,7 +113,7 @@ Legacy `ServerWorkspaceService.provisionProjectDrive` is not called by the curre
 
 ## OAuth operator contract
 
-Scopes: `https://www.googleapis.com/auth/drive.file` for selected template/copy/folder access and `https://www.googleapis.com/auth/spreadsheets` for metadata and source-cell updates. Firebase Google sign-in also supplies its standard basic identity scopes for the account subject/profile/email; those do not grant broader Drive access. No unrestricted Drive scope is requested. Google Picker grants the app per-file access to the canonical template; a shared URL alone is insufficient. Picker selection must equal the server-configured template ID. Reauthorization uses the current Firebase identity, not a sign-in that silently switches the application's user.
+Scopes: `https://www.googleapis.com/auth/drive.file` for selected template/copy/folder access and `https://www.googleapis.com/auth/spreadsheets` for metadata and source-cell updates. Firebase Google sign-in also supplies its standard basic identity scopes for the account subject/profile/email; those do not grant broader Drive access. No unrestricted Drive scope is requested. Google Picker grants the app per-file access to the canonical template; a shared URL alone is insufficient. Picker selection must equal the server-configured template ID. Workspace authorization now uses a dedicated Google Identity Services permission grant. It does not call Firebase sign-in or reauthentication. The current Firebase UID and its google.com provider subject are checked before/after the grant; a different provider account fails closed.
 
 Configure public `VITE_GOOGLE_PICKER_API_KEY` and `VITE_GOOGLE_APP_ID` (Cloud project number), matching the OAuth client project. Restrict the key to approved browser origins and required APIs. Enable Google Drive API, Sheets API and Google Picker API. Template owner must permit access/copy by the chosen account. Existing bound copies must remain accessible to that account.
 
@@ -152,3 +152,31 @@ Historical workspace integration exported harness: 6/8 on baseline and final (WS
 Build PASS. TypeScript/lint observations: 440 -> 440, added 0, removed 0; lint EXIT 2 / NOT PASS. Runtime-key audit 16/16; auth trust boundary 23/23. Diff whitespace check PASS. Counts are dated observations, not frozen invariants.
 
 One existing PFAG-RB2 static test assertion is converged to the new canonical provisioning authority: lifecycle and fresh authorization must precede Google subject access/copy. The remaining role/context assertions and its 58-test count are preserved.
+
+## GWS-LIVE-01A — return context and continuation
+
+Owner-observed live defect: Q-PRJ-007 / WORKSPACE -> successful Google consent -> Project dashboard -> no visible Picker/error -> unconfigured Workspace. This observation is supplied by the owner; no independent deployed trace is claimed here.
+
+Source chain before correction: ClientWorkspaceService.requestGoogleScopes -> Firebase reauthenticateWithPopup -> onIdTokenChanged -> createAuthSession.change -> clear(user/profile/token) -> App temporarily derives VIEWER/empty scope and filters projects -> selectedProjectId clears; App's profile-loading gate unmounts the Wizard. Remount initializes editingProjectId/layer and generation again. The old asynchronous flow could continue while its UI notices were fenced, hiding configuration errors. Losing the screen alone does not prove that the template HTTP request never happened.
+
+Chosen bounded correction is isolated permission acquisition, not weakening AuthSession or ProjectContextLifetime. Workspace uses Google Identity Services with explicit public VITE_FIREBASE_OAUTH_CLIENT_ID. It must match the intended OAuth Cloud project / configured VITE_GOOGLE_APP_ID, expected by the owner to be 1009549718216. The local JSON's legacy oAuthClientId starts with 98229909734; that is not proof of the deployed Firebase Google provider's client. The new Workspace grant deliberately does not silently use that legacy fallback. Operator must verify the actual deployed Web client, without publishing any secret or broadly changing Console settings.
+
+Google library preparation is token-free on entering the Workspace layer. The action remains unavailable until preparation succeeds; configuration/network errors remain visible. The grant begins from the button before HTTP awaits, preserving popup user activation. It requests the existing drive.file + spreadsheets permission family plus basic openid/email for provider-subject verification. The returned Google subject must equal the existing Firebase google.com provider subject and the application UID must remain unchanged. No second app identity, sign-in, reauth, refresh-token store or autonomous worker is introduced.
+
+A transient bounded intent holds only userId, projectId, PROVISION_GOOGLE_WORKSPACE, WORKSPACE, startedAt and scope. Identity/scope/layer/Project generation are checked after every awaited boundary. It expires after ten minutes; logout, different UID/scope, real Project switch, layer departure and unmount fence continuation. It contains no token or arbitrary file ID and cannot blindly restore a prior Project.
+
+GET /api/projects/:projectId/workspace is authoritative for continuity and branch selection. A READY binding takes precedence over absent/stale Project compatibility IDs; status-read failure is not absence. The same flow then performs Picker when needed, provisioning, initial sync, and a fresh status read. Existing receipts are honored; none are cleared. Status is fetched again on reopen. Errors retain a translated actionable explanation and their exact sanitized support code on the Workspace layer.
+
+Current execution evidence and publication state defer to the phase ledger. Controlled browser tests are not deployed OAuth acceptance. GWS-LIVE-01 remains open; GWS-SYNC-AUTONOMY-01, GWS-SYNC-RECOVERY-01 and PFAG-OPS-01 remain open. No GWS2 or Phase 10 work is authorized by this correction.
+
+### GWS-LIVE-01A verification observation — 2026-10-31
+
+New focused tests: 15/15 PASS. Existing GWS1 suite: 59/59 PASS, preserving its count. Existing Wizard wiring: 18/18 PASS, preserving its count while replacing stale prop-variable/source-layout assertions with the durable-binding-first shared call. Existing auth-session tests: 12/12 PASS without production auth-session changes. Auth trust boundary: 23/23; runtime-key audit: 16/16.
+
+Combined relevant native selection: 632 PASS / 33 FAIL across 30 files (not an all-green command). The isolated exact merged baseline has 617 PASS / the same 33 FAIL across the corresponding 28 files; the added 15 tests pass, and no failing case is new. The retained failure groups remain those listed in the GWS1 observation above. No historical failure is relabeled as a new Google defect.
+
+Actual Wizard/client pipeline in controlled Chromium: 5/5 PASS, no runtime exceptions. The test drives isolated Google grant -> same-identity profile rerender -> actual Picker authorization helper -> canonical client provision/sync/status calls -> READY and one open-file link. Trace: GET /api/projects/Q-PRJ-007/workspace/template 200; POST /api/workspace/provision 200; POST /api/workspace/sync/initial 200; GET /api/projects/Q-PRJ-007/workspace 200. Google/API responses are controlled fixtures, not live services.
+
+Build PASS; diagnostics 440 -> 440, added 0, removed 0; lint EXIT 2 / NOT PASS; diff whitespace check PASS. These are observations, not frozen cardinality gates. Local live-configuration variables are absent; deployed values, real OAuth return and real Google resources remain UNVERIFIED. No Console changes or live writes occurred.
+
+Additional layered-Wizard regression: `projectSetupLayeredWorkflow.test.tsx` reports 6 PASS / 12 FAIL (timeouts); all twelve case identities were reproduced on the exact merged baseline. The initial current run also emitted a Vitest RPC/console teardown error. A follow-up with console forwarding suppressed (`--silent`) completed without that runner error and retained exactly the same twelve baseline failures. Both runs are reported; this command is NOT PASS and those tests were not rewritten or skipped. The principal 30-file comparison above and this additional suite are reported separately.

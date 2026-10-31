@@ -1,6 +1,8 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "gws.status_unavailable": "Workspace status not verified",
+
   "gws.action_required": "Reconnect Google or ask your administrator to verify template access and the workspace recovery state.",
 
   "gws.not_connected": "Not connected",

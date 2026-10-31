@@ -397,7 +397,7 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
     expect(buttonMatches.length).toBe(1);
 
     // Dynamic button label based on both IDs presence
-    expect(wizardContent).toContain("project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')");
+    expect(wizardContent).toContain("googleContinuity?.binding || (project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId) ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')");
     expect(wizardContent).toContain("t('projects.labels.update_workspace_sync')");
     for (const locale of ['ar', 'en', 'ur'] as const) {
       const template = dictionaries[locale]['projects.labels.update_workspace_sync'];
@@ -444,13 +444,9 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
     const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
     const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
 
-    // Confirm the invocation passes only 2 arguments
-    expect(wizardContent).toMatch(
-      /workspaceService\.syncInitialProjectWorkspace\s*\(\s*project\.projectId\s*,\s*provisionedSpreadsheetId\s*\)/
-    );
-    expect(wizardContent).toMatch(
-      /workspaceService\.syncInitialProjectWorkspace\s*\(\s*project\.projectId\s*,\s*project\.settings!\.googleSpreadsheetId!\s*\)/
-    );
+    // One shared two-argument call receives the durable binding first, legacy IDs only as fallback.
+    expect(wizardContent).toMatch(/workspaceService\.syncInitialProjectWorkspace\s*\(\s*project\.projectId\s*,\s*spreadsheetId\s*\)/);
+    expect(wizardContent).toContain('status?.binding?.spreadsheetId || project.settings?.googleSpreadsheetId');
 
     // Confirm no client-side master-data arrays are passed within the call arguments
     expect(wizardContent).not.toMatch(/syncInitialProjectWorkspace\s*\([^)]*drivers/);

@@ -19,7 +19,7 @@ import {
 import { GoogleDriveFileItem } from '../types/googleDriveImport';
 import { ProjectEntity, TripEntity } from '../types/entities';
 import { auth } from '../firebase/config';
-import { GoogleAuthProvider, reauthenticateWithPopup } from 'firebase/auth';
+import { requestWorkspaceGoogleToken, prepareWorkspaceGoogleAuthorization } from './googleWorkspaceAuthorization';
 
 export function mapTripToWorkspaceProjection(trip: TripEntity): WorkspaceTripProjectionDTO {
   return {
@@ -125,23 +125,24 @@ export class ClientWorkspaceService {
   }
 
   /**
-   * Requests Google OAuth access token with Spreadsheets and Drive scopes via Firebase Auth.
+   * Requests a Google-only Workspace permission grant without changing the Firebase session.
    */
+  public prepareGoogleAuthorization(): Promise<void> { return prepareWorkspaceGoogleAuthorization(); }
+
   public async requestGoogleScopes(): Promise<string> {
-    const provider = new GoogleAuthProvider();
-    provider.addScope('https://www.googleapis.com/auth/spreadsheets');
-    provider.addScope('https://www.googleapis.com/auth/drive.file');
-    provider.setCustomParameters({ prompt: 'consent' });
+    const current = auth.currentUser;
+    const uid = current?.uid;
+    const subject = current?.providerData.find(provider => provider.providerId === 'google.com')?.uid;
     try {
-      if (!auth.currentUser) throw { code: 'authorization_denied' };
-      const result = await reauthenticateWithPopup(auth.currentUser, provider);
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      if (!credential?.accessToken) throw { code: 'authorization_denied' };
-      this.setAccessToken(credential.accessToken);
-      return credential.accessToken;
+      if (!uid || !subject) throw new Error('WORKSPACE_GOOGLE_ACCOUNT_MISMATCH');
+      const token = await requestWorkspaceGoogleToken(subject, () => auth.currentUser?.uid === uid);
+      if (auth.currentUser?.uid !== uid) throw new Error('WORKSPACE_IDENTITY_CHANGED');
+      this.setAccessToken(token);
+      return token;
     } catch (error: unknown) {
       this.setAccessToken(null);
-      // Never fabricate a Google token or log provider error objects containing credential data.
+      const code = error instanceof Error ? error.message : '';
+      if (/^(GOOGLE_OAUTH_CONFIGURATION_REQUIRED|WORKSPACE_IDENTITY_CHANGED|WORKSPACE_GOOGLE_ACCOUNT_MISMATCH)$/.test(code)) throw new Error(code);
       throw new Error(classifyGoogleWorkspaceError(error));
     }
   }

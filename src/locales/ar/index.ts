@@ -1,6 +1,8 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "gws.status_unavailable": "تعذر التحقق من حالة مساحة العمل",
+
   "gws.action_required": "أعد ربط Google أو اطلب من مسؤول المشروع التحقق من صلاحية الوصول للقالب وحالة استرداد مساحة العمل.",
 
   "gws.not_connected": "غير مرتبط",
