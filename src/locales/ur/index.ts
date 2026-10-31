@@ -1,6 +1,8 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "gws.status_unavailable": "ورک اسپیس کی حالت کی تصدیق نہیں ہوئی",
+
   "gws.action_required": "Google کو دوبارہ جوڑیں یا اپنے منتظم سے ٹیمپلیٹ تک رسائی اور ورک اسپیس کی بحالی کی حالت کی جانچ کروائیں۔",
 
   "gws.not_connected": "منسلک نہیں",
