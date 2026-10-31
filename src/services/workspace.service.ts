@@ -1,3 +1,6 @@
+import { authorizeTemplateSelection } from './googleTemplatePicker';
+import { classifyGoogleWorkspaceError } from '../utils/googleWorkspaceErrors';
+import type { ProjectGoogleStatus } from '../types/projectGoogleWorkspace';
 import type { StorageProviderType } from '../types/workspace';
 import { 
   WORKSPACE_TABS, 
@@ -16,7 +19,7 @@ import {
 import { GoogleDriveFileItem } from '../types/googleDriveImport';
 import { ProjectEntity, TripEntity } from '../types/entities';
 import { auth } from '../firebase/config';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, reauthenticateWithPopup } from 'firebase/auth';
 
 export function mapTripToWorkspaceProjection(trip: TripEntity): WorkspaceTripProjectionDTO {
   return {
@@ -125,35 +128,40 @@ export class ClientWorkspaceService {
    * Requests Google OAuth access token with Spreadsheets and Drive scopes via Firebase Auth.
    */
   public async requestGoogleScopes(): Promise<string> {
-    const isProduction = 
-      (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') ||
-      (typeof import.meta !== 'undefined' && (import.meta as any).env?.PROD === true);
-
     const provider = new GoogleAuthProvider();
     provider.addScope('https://www.googleapis.com/auth/spreadsheets');
     provider.addScope('https://www.googleapis.com/auth/drive.file');
     provider.setCustomParameters({ prompt: 'consent' });
-
     try {
-      const result = await signInWithPopup(auth, provider);
+      if (!auth.currentUser) throw { code: 'authorization_denied' };
+      const result = await reauthenticateWithPopup(auth.currentUser, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential?.accessToken;
-      if (token) {
-        this.setAccessToken(token);
-        return token;
-      }
-      throw new Error('لم يتم إرجاع رمز الوصول (Access Token) من حساب Google');
-    } catch (err: any) {
-      if (isProduction) {
-        console.error('[ClientWorkspaceService] Production Google OAuth authentication failed (Fail-Closed):', err);
-        throw new Error(`فشل المصادقة مع Google Workspace: ${err.message || 'تعذر تشغيل نافذة تسجيل الدخول'}`);
-      }
-      console.warn('[ClientWorkspaceService] Google Auth popup notice (Non-Production Dev Fallback):', err);
-      // In non-production testing environment only:
-      const fallbackToken = `mock_oauth_token_${Date.now()}`;
-      this.setAccessToken(fallbackToken);
-      return fallbackToken;
+      if (!credential?.accessToken) throw { code: 'authorization_denied' };
+      this.setAccessToken(credential.accessToken);
+      return credential.accessToken;
+    } catch (error: unknown) {
+      this.setAccessToken(null);
+      // Never fabricate a Google token or log provider error objects containing credential data.
+      throw new Error(classifyGoogleWorkspaceError(error));
     }
+  }
+
+  public async authorizeProjectTemplate(projectId: string): Promise<void> {
+    const headers = await this.getWorkspaceHeaders({}, true);
+    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/template`, { headers });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.code || 'TEMPLATE_CONFIGURATION_REQUIRED');
+    const token = this.getAccessToken();
+    if (!token) throw new Error('AUTHORIZATION_DENIED');
+    await authorizeTemplateSelection(token, result.data.id);
+  }
+
+  public async getGoogleWorkspaceStatus(projectId: string): Promise<ProjectGoogleStatus> {
+    const headers = await this.getWorkspaceHeaders({}, true);
+    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace`, { headers });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.code || 'PROVISIONING_FAILED');
+    return result.data;
   }
 
   /**

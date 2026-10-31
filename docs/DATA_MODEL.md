@@ -1,3 +1,9 @@
+## PFAG-GWS1 — durable continuity representation
+
+Current reference; [the ledger](reconstruction/02_PHASE_LEDGER.md) owns status. `projects/{projectId}/workspace_continuity/current` stores provisioning stages, execution fencing and the public Google binding (template ID/version, subject/account label, file ID/URL, provisionedAt/by, revision), plus continuity/error/sync observations. Project settings retain existing folder/spreadsheet links. No OAuth credentials are persisted in either document.
+
+`projects/{projectId}/workspace_sync_outbox/{sha256(tripId)}` stores the latest canonical projection snapshot, monotonic revision, mappingRequired and pending/delivered evidence. Writes share the canonical Trip command transaction. Missing source-series metadata is explicit debt, never fabricated. Sheet correlation is separate from canonical Trip identity. See [the complete field/ownership contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
 ## PFAG-RB2 maintenance representation
 
 Current source reference; [maintenance field matrix](reconstruction/PROJECT_FOUNDATION_MAINTENANCE_CONTRACT.md) defines editable/locked fields, while [the ledger](reconstruction/02_PHASE_LEDGER.md) owns state.

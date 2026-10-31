@@ -1,3 +1,4 @@
+import { enqueueTripGoogleProjection } from './projectGoogleSheetEvent.server';
 import { createHash } from 'node:crypto';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { adminDb } from '../firebase/admin';
@@ -107,6 +108,7 @@ export class TripCommandsServerService {
       if (!current) return deny('TRIP_NOT_FOUND');
       current = await persistence.tripRepository.findById(projectId, current.tripId);
       if (!current) return deny('TRIP_NOT_FOUND');
+      await enqueueTripGoogleProjection(transaction.db, current);
       tx.set(ledger, sanitizeUndefined({ operationId: raw.operationId, command, fingerprint, tripId: current.tripId, linkedDriverId: actor.linkedDriverId || null, trip: current, status: 'PROCESSED', projectId, createdBy: actor.userId, updatedBy: actor.userId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }));
       transaction.flush();
       return { trip: current, ...(exception ? { exception } : {}), idempotentReplay: false };

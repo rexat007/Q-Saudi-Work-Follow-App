@@ -1,6 +1,30 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "gws.action_required": "أعد ربط Google أو اطلب من مسؤول المشروع التحقق من صلاحية الوصول للقالب وحالة استرداد مساحة العمل.",
+
+  "gws.not_connected": "غير مرتبط",
+  "gws.connected": "الحساب مرتبط",
+  "gws.provisioning": "جارٍ تهيئة الملف",
+  "gws.ready": "الملف جاهز",
+  "gws.degraded": "المزامنة تحتاج متابعة",
+  "gws.authorization_required": "يلزم إعادة الربط",
+  "gws.failed": "مساحة العمل غير متاحة",
+
+  "gws.purpose": "اربط حساب Google لنسخ ملف المشروع المعتمد وحفظ نسخة تشغيلية مستمرة. تبقى سجلات التطبيق المرجع المعتمد، ويُقيّم الاستعداد التشغيلي بصورة مستقلة.",
+  "gws.state": "حالة استمرارية Google",
+  "gws.account": "معرّف حساب Google المرتبط",
+  "gws.last_sync": "آخر مزامنة ناجحة",
+  "gws.pending": "سجلات بانتظار المزامنة",
+  "gws.last_error": "آخر مشكلة مزامنة",
+  "gws.open": "فتح ملف المشروع في Google Sheets",
+  "gws.oauth_configuration": "حظرت Google تطبيق التفويض. يجب على المشغّل التحقق من إعدادات الموافقة وحسابات الاختبار المسموح بها.",
+  "gws.authorization_denied": "رُفض تفويض Google. أعد الربط وراجع الأذونات المطلوبة.",
+  "gws.popup_closed": "أُغلقت نافذة Google دون اكتمال التفويض. إذا ظهر حظر وصول، اطلب من المشغّل مراجعة إعدادات الموافقة وحسابات الاختبار.",
+  "gws.token_expired": "انتهى تفويض Google. أعد الربط لمتابعة استخدام الملف نفسه.",
+  "gws.scope_denied": "لم تُمنح أذونات Google المطلوبة. أعد الربط وراجع الأذونات.",
+  "gws.network_error": "تعذر الاتصال بـGoogle. بيانات التطبيق محفوظة؛ أعد محاولة المزامنة لاحقًا.",
+
   "rb2.truckType.TIPPER_32M3": "قلاب ٣٢ م³",
   "rb2.truckType.TRAILER_24M": "مقطورة ٢٤ م",
   "rb2.truckType.FLATBED": "سطحة",
