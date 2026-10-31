@@ -1,6 +1,13 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "gws.destination_not_writable": "منسلک اکاؤنٹ اس فولڈر میں فائلیں شامل نہیں کر سکتا۔ ایسا فولڈر منتخب کریں جس میں اسے فائلیں شامل کرنے کی اجازت ہو۔",
+  "gws.destination_conflict": "یہ فولڈر کسی دوسرے منصوبے کے لیے درج یا محفوظ ہے۔ دوسرا فولڈر منتخب کریں۔",
+  "gws.destination_is_current": "یہ منصوبے کا موجودہ فولڈر ہے۔ اس کی جگہ بدلنے کے لیے اسٹوریج منتقلی درکار ہے، ابتدائی تیاری نہیں۔",
+  "gws.destination_invalid": "منتخب فولڈر غیر درست ہے یا حذف ہو چکا ہے۔ Google Drive سے درست فولڈر منتخب کریں۔",
+  "gws.destination_access_failed": "منتخب فولڈر تک رسائی نہیں ہو سکی۔ منسلک اکاؤنٹ سے اسے دوبارہ منتخب کریں اور کوشش کریں۔",
+  "gws.registry_unavailable": "منصوبوں کے اسٹوریج ریکارڈ کی جانچ نہیں ہو سکی۔ بعد میں دوبارہ کوشش کریں۔",
+
   "gws.app_update_required": "ایپ کا نیا ورژن دستیاب ہے۔ ورک اسپیس کی تیاری سے پہلے اپ ڈیٹ ہو رہی ہے۔",
   "gws.version_unavailable": "ایپ کے ورژن کی تصدیق نہیں ہو سکی۔ انٹرنیٹ سے جڑیں اور دوبارہ کوشش کریں۔",
   "gws.current_attempt": "موجودہ کوشش",

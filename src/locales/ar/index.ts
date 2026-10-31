@@ -1,6 +1,13 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "gws.destination_not_writable": "الحساب المرتبط لا يستطيع إضافة ملفات إلى هذا المجلد. اختر مجلدًا يسمح له بالإضافة.",
+  "gws.destination_conflict": "هذا المجلد مسجل أو محجوز لمشروع آخر. اختر مجلدًا آخر.",
+  "gws.destination_is_current": "هذا هو مجلد المشروع الحالي. تغيير موقعه يتطلب نقل التخزين، وليس التهيئة الأولى.",
+  "gws.destination_invalid": "المجلد المختار غير صالح أو محذوف. اختر مجلدًا صالحًا من Google Drive.",
+  "gws.destination_access_failed": "تعذر الوصول إلى المجلد المختار. أعد اختياره بالحساب المرتبط ثم أعد المحاولة.",
+  "gws.registry_unavailable": "تعذر التحقق من سجلات تخزين المشاريع. أعد المحاولة لاحقًا.",
+
   "gws.app_update_required": "يتوفر إصدار أحدث من التطبيق. جارٍ التحديث قبل متابعة إعداد مساحة العمل.",
   "gws.version_unavailable": "تعذر التحقق من إصدار التطبيق. اتصل بالإنترنت ثم أعد المحاولة.",
   "gws.current_attempt": "المحاولة الحالية",

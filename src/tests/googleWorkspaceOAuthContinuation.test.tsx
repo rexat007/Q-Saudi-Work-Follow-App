@@ -3,6 +3,7 @@ import React, { act } from 'react';
 import fs from 'fs';
 import path from 'path';
 import { canonicalBatch4Label } from './batch4I18nTestSupport';
+import {workspaceDestinationMessageKey} from '../utils/googleWorkspaceErrors';
 import { dictionaries } from '../locales';
 import { resolveTranslation } from '../i18n/utils';
 import { createRoot } from 'react-dom/client';
@@ -247,4 +248,23 @@ describe('GWS1B live generation error presentation',()=>{
   await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
   expect(container.textContent).toContain('gws.app_update_required');expect(container.textContent).toContain('gws.previous_issue');expect(container.textContent).toContain('DESTINATION_NOT_WRITABLE');
  });
+});
+
+describe('initial destination error guidance',()=>{
+ it.each([
+  ['DESTINATION_NOT_WRITABLE','gws.destination_not_writable'],
+  ['STORAGE_TARGET_CONFLICT','gws.destination_conflict'],
+  ['CURRENT_STORAGE_DESTINATION','gws.destination_is_current'],
+  ['SCOPE_DENIED','gws.scope_denied'],
+  ['DESTINATION_ACCESS_FAILED','gws.destination_access_failed'],
+ ])('shows accurate guidance and original support code for %s',async(code,key)=>{
+  vi.mocked(clientWorkspaceService.selectProjectWorkspaceDestination).mockRejectedValueOnce(Error(code));
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
+  expect(container.textContent).toContain(key);expect(container.textContent).toContain(code);expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
+ });
+});
+
+it.each(['DESTINATION_NOT_WRITABLE','STORAGE_TARGET_CONFLICT','CURRENT_STORAGE_DESTINATION','SCOPE_DENIED','DESTINATION_ACCESS_FAILED','DESTINATION_FOLDER_INVALID','WORKSPACE_REGISTRY_ACCESS_FAILED'])('resolves destination guidance for %s through canonical AR/EN/UR keys',code=>{
+ const key=workspaceDestinationMessageKey(code);expect(key).not.toBeNull();
+ for(const locale of ['ar','en','ur'] as const){expect(Object.prototype.hasOwnProperty.call(dictionaries[locale],key!)).toBe(true);expect(resolveTranslation(key!,locale).trim()).not.toBe('');expect(resolveTranslation(key!,locale)).not.toBe(key);}
 });

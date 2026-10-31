@@ -1,3 +1,7 @@
+## GWS1B-LIVE-02 — selected-folder grant boundary
+
+Initial validation is scoped to the Picker-granted folder: fresh Project/account/lifecycle authorization is preserved, canonical registry/current/foreign/reservation checks run before Google, and exact canAddChildren===true proves writability without ownership assumptions. No Drive ancestry read beyond the selected folder and no scope widening. This initial policy checks selected IDs; it does not assert that all inaccessible ancestors were inspected. Storage migration and existing resource ancestry verification are unchanged. Failed validation creates no Google folder/Sheet/Script. Canonical conflicts and sanitized token/scope/access/writability errors remain distinct; unknown registry transport failures return WORKSPACE_REGISTRY_ACCESS_FAILED, not a Google-permission diagnosis. No credentials/provider details are exposed. Exact state: [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
 ## GWS1B-LIVE-01 — runtime generation boundary
 
 The public runtime-version response exposes only buildId/workspaceContract and is no-store. Build IDs are compatibility evidence, not authentication or entitlement. Existing Firebase/principal/Project/lifecycle checks remain authoritative. Critical destination/provision routes require the exact served artifact build in X-App-Build before Google access; a forged matching public header cannot bypass normal authorization.

@@ -38,6 +38,12 @@ Verified merged GitHub main: `a38c0b00e581638169f8740816f9a4646c30dbe0` (PR #68)
 
 Bounded local correction adds one artifact build identity, public no-store runtime-version endpoint, exact-generation Workspace command fences, explicit registerSW activation/reload handling and a guarded legacy-client Workbox migration. Offline shell stays available; old precache revisions are cleaned through Workbox. Current setup errors and relevant previous sync issues are distinct; superseded template errors are not current business guidance. Persistence/audit evidence is unchanged. Google scopes, destination writability, blueprint, Apps Script and Firebase/RBAC semantics are untouched. Source/control verification supports owner review, not deployed certification. Exact protocol and limitations: [the continuity contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
 
+### GWS1B-LIVE-02 — initial destination correction — 2026-10-31
+
+Verified merged main: `b936019580778394ccdcb07523ad635ec0295956` (PR #69, PWA convergence). Owner confirms the retired-template/PWA symptom is no longer active; current Q-PRJ-007 failure is DESTINATION_NOT_WRITABLE. Two controlled pre-fix cases reproduced the false rejection through actual validation code: selected folder writable, unselected parent returns 403/404. The initial adapter had reused the migration ancestry validator and collapsed failures.
+
+By explicit owner decision, initial validation now checks only the Picker-selected folder plus canonical local registry/reservation conflicts. No unselected Drive ancestor read, no broader scopes. Migration and operational ancestry code remains byte-for-byte unchanged. Exact canonical/access/writability errors reach current operator guidance; original support codes and persisted history remain. Source/controlled verification is local; the supplied Render URL probe was blocked by this environment's outbound proxy (CONNECT403, not an application response). No real Google/Project mutation or live acceptance claim. GWS2, PFAG-OPS-01 and Phase10 remain unchanged. See [the contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PRE_PHASE_10_FOUNDATION_ASSURANCE
@@ -45,9 +51,9 @@ ACTIVE_PHASE_STATUS: IN_PROGRESS
 PHASE_8_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PHASE_9_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PROJECT_FOUNDATION_ASSURANCE: MERGED / SOURCE_VERIFIED / CLOSED
-ACTIVE_UNIT: GWS1B-LIVE-01 — PWA Deployment Version Convergence
+ACTIVE_UNIT: GWS1B-LIVE-02 — Initial Workspace Destination Validation Correction
 ACTIVE_UNIT_STATUS: IMPLEMENTED / VERIFIED LOCALLY / AWAITING_OWNER_REVIEW
-ACTIVE_UNIT_TYPE: BOUNDED_PWA_GENERATION_CONVERGENCE
+ACTIVE_UNIT_TYPE: BOUNDED_INITIAL_DESTINATION_VALIDATION_CORRECTION
 P8_B1_SOURCE: MERGED / PRESENT
 P8_B2_SOURCE: MERGED / PRESENT
 P8_B3_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
@@ -72,14 +78,16 @@ GWS_LIVE_01A_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 GWS_LIVE_01A_VERIFIED_MERGE: ca63d9f61fb4cac6ae0c6089ef8639691b1117b4
 GWS1B_STATUS: MERGED / SOURCE_VERIFIED
 GWS1B_VERIFIED_MERGE: a38c0b00e581638169f8740816f9a4646c30dbe0
-GWS1B_LIVE_01_STATUS: IMPLEMENTED / VERIFIED LOCALLY / AWAITING_OWNER_REVIEW
+GWS1B_LIVE_01_STATUS: MERGED / SOURCE_VERIFIED
+GWS1B_LIVE_01_VERIFIED_MERGE: b936019580778394ccdcb07523ad635ec0295956
+GWS1B_LIVE_02_STATUS: IMPLEMENTED / VERIFIED LOCALLY / AWAITING_OWNER_REVIEW
 GWS1B_PUBLICATION: MERGED / VERIFIED
 GWS1B_SOURCE_CAPTURE_METHOD: OWNER_PROVIDED_XLSX_PLUS_SCRIPT_SOURCE
 GWS1B_TRIGGER_MODEL: SIMPLE_ONEDIT_DISPATCHER / INSTALLABLE_NONE
 GWS_LIVE_01_STATUS: READY_TO_RESUME_AFTER_MERGE_DEPLOY / NOT_YET_PASSED
 GWS_SYNC_AUTONOMY_01: OPEN
 PFAG_OPS_01: OPEN
-GOOGLE_WORKSPACE_LIVE_ACCEPTANCE: PENDING_PWA_CONVERGENCE_THEN_SEPARATE_GOOGLE_ACCEPTANCE
+GOOGLE_WORKSPACE_LIVE_ACCEPTANCE: PENDING_INITIAL_DESTINATION_FIX_THEN_SEPARATE_GOOGLE_ACCEPTANCE
 FOUNDATION_SOURCE_ASSURANCE: PASS_WITH_DEBT
 PFAG_CRITICAL_OPEN: 0
 PFAG_HIGH_OPEN: 0
@@ -117,8 +125,8 @@ P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
 P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
 NEXT_UNIT: NONE_ASSIGNED
-NEXT_ACTION: OWNER_REVIEW_PWA_CONVERGENCE_THEN_MERGE_DEPLOY_AND_RESUME_SEPARATE_GWS_LIVE_ACCEPTANCE
-CURRENT_CODE_BASELINE: a38c0b00e581638169f8740816f9a4646c30dbe0
+NEXT_ACTION: OWNER_REVIEW_INITIAL_DESTINATION_FIX_THEN_MERGE_DEPLOY_AND_RETRY_Q_PRJ_007
+CURRENT_CODE_BASELINE: b936019580778394ccdcb07523ad635ec0295956
 EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
 EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
 HISTORICAL_USER_ROLE_CONVERGENCE_STATUS: PHASE_3_AUDIT_REQUIRED / NOT_REASSESSED_IN_P8_B3

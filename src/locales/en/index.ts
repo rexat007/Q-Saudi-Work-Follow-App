@@ -1,6 +1,13 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "gws.destination_not_writable": "The connected account cannot add files to this folder. Choose a folder where it can add files.",
+  "gws.destination_conflict": "This folder is registered or reserved for another project. Choose another folder.",
+  "gws.destination_is_current": "This is the current project folder. Changing its location requires storage migration, not initial setup.",
+  "gws.destination_invalid": "The selected folder is invalid or deleted. Select a valid Google Drive folder.",
+  "gws.destination_access_failed": "The selected folder could not be accessed. Select it again using the connected account and retry.",
+  "gws.registry_unavailable": "Project storage records could not be checked. Try again later.",
+
   "gws.app_update_required": "A newer app version is available. Updating before Workspace setup continues.",
   "gws.version_unavailable": "Unable to verify the app version. Connect to the internet and try again.",
   "gws.current_attempt": "Current attempt",

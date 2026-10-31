@@ -1,3 +1,14 @@
+## GWS1B-LIVE-02 — current initial-destination decision
+
+Exact status authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline b936019580778394ccdcb07523ad635ec0295956 merges PWA convergence PR #69. Owner reports the current error is destination validation, not retired template selection.
+
+- PROVEN_SOURCE_DEFECT: selected writable folder passes metadata but the migration validator traverses an ungranted parent (403/404) and the adapter collapses that into DESTINATION_NOT_WRITABLE. Two cases failed before production changes; after correction the same cases pass with one selected-folder read and zero parent reads.
+- SUPERSEDED_FOR_INITIAL_ONLY: calling serverWorkspaceService.validateDestinationFolder from initial provisioning. Initial validateInitialWorkspaceDestination reuses real eligibleDestination registry checks and selected-folder metadata; migration/operational assertProjectFolderResource stays unchanged. No wider Drive scopes or bypass of current/foreign canonical/reservation IDs.
+- TEST_GAP_CORRECTED: new integration tests use the actual initial adapter, actual registry boundary and actual migration validator with only Google/Firestore dependencies simulated. Prior adapter assertion requiring migration validator invocation is converged to the new explicit contract, with its original test count preserved.
+- RESOLVED_LOCALLY: canonical current/conflict errors no longer become DESTINATION_NOT_WRITABLE; metadata access/token/scope errors and registry failures remain bounded/distinct. UI consumes canonical AR/EN/UR guidance and keeps support codes/history. Writability requires strict true, not ownership/canEdit/canShare.
+- STILL_OPEN: deployed Q-PRJ-007 Google acceptance. The owner supplied Render URL; the environment proxy rejected CONNECT with403 before any application response. No claim about live account/folder permissions or successful real provisioning. Do not create a replacement Project to avoid this failure.
+- PRESERVED: blueprint, Apps Script, OAuth scopes, migration validation, GWS2/PFAG-OPS-01/Phase10 boundaries and existing baseline diagnostic/test debt.
+
 ## GWS1B-LIVE-01 — current deployment-generation decisions
 
 Status authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). GitHub baseline a38c0b00e581638169f8740816f9a4646c30dbe0 includes PR #68. Owner's live retired-route observation is treated as PWA_DEPLOYMENT_SPLIT_BRAIN; no independent production profile/cache trace was available.

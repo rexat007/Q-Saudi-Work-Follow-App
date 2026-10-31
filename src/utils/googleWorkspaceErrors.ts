@@ -28,3 +28,21 @@ export function continuityStateLabel(state: string, t: (key: string)=>string): s
     default: return t('gws.failed');
   }
 }
+
+/** Bounded operator guidance; preserves support codes and does not alter validation. */
+const destinationMessages = {
+  DESTINATION_NOT_WRITABLE:'gws.destination_not_writable',
+  STORAGE_TARGET_CONFLICT:'gws.destination_conflict',
+  CURRENT_STORAGE_DESTINATION:'gws.destination_is_current',
+  DESTINATION_FOLDER_INVALID:'gws.destination_invalid',
+  INVALID_STORAGE_RESOURCE_ID:'gws.destination_invalid',
+  DESTINATION_FOLDER_REQUIRED:'gws.destination_invalid',
+  DESTINATION_ACCESS_FAILED:'gws.destination_access_failed',
+  WORKSPACE_REGISTRY_ACCESS_FAILED:'gws.registry_unavailable',
+  SCOPE_DENIED:'gws.scope_denied',
+  TOKEN_EXPIRED:'gws.token_expired',
+} as const;
+export function workspaceDestinationMessageKey(message:string):string|null {
+  for(const [code,key] of Object.entries(destinationMessages))if(new RegExp(`\\b${code}\\b`).test(message))return key;
+  return null;
+}

@@ -1,6 +1,6 @@
 import {workspaceFailureCode,visiblePreviousWorkspaceError} from '../../utils/workspaceGenerationErrors';
 import { beginWorkspaceIntent, workspaceIntentCurrent, type WorkspaceAuthorizationIntent } from '../../utils/workspaceAuthorizationIntent';
-import { continuityStateLabel } from '../../utils/googleWorkspaceErrors';
+import { continuityStateLabel,workspaceDestinationMessageKey } from '../../utils/googleWorkspaceErrors';
 import type { ProjectGoogleStatus } from '../../types/projectGoogleWorkspace';
 import {canPresentProjectAction} from '../../utils/permissions';
 import {PricingCleanupAction} from './PricingCleanupAction';
@@ -4040,7 +4040,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       syncNotice.type === 'success' ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300' : 'bg-rose-950/40 border-rose-800 text-rose-300'
                     }`}>
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
-                      <span><span className="font-bold">{t('gws.current_attempt')}: </span>{workspaceFailureCode(syncNotice.text)==='APP_UPDATE_REQUIRED' ? t('gws.app_update_required') : syncNotice.text.includes('APP_VERSION_UNAVAILABLE') ? t('gws.version_unavailable') : syncNotice.text.includes('OAUTH_APP_CONFIGURATION_BLOCK') ? t('gws.oauth_configuration') : syncNotice.text.includes('AUTHORIZATION_DENIED') ? t('gws.authorization_denied') : syncNotice.text.includes('POPUP_CLOSED') ? t('gws.popup_closed') : syncNotice.text.includes('TOKEN_EXPIRED') ? t('gws.token_expired') : syncNotice.text.includes('SCOPE_DENIED') ? t('gws.scope_denied') : syncNotice.text.includes('NETWORK_ERROR') ? t('gws.network_error') : /DESTINATION_|SCRIPT_|BLUEPRINT_|TEMPLATE_|WORKSPACE_|SHEET_|GOOGLE_PICKER_|GOOGLE_OAUTH_/.test(syncNotice.text) ? t('gws.action_required') : presentBatch4Message(syncNotice.text, t)}</span>
+                      <span><span className="font-bold">{t('gws.current_attempt')}: </span>{workspaceFailureCode(syncNotice.text)==='APP_UPDATE_REQUIRED' ? t('gws.app_update_required') : syncNotice.text.includes('APP_VERSION_UNAVAILABLE') ? t('gws.version_unavailable') : syncNotice.text.includes('OAUTH_APP_CONFIGURATION_BLOCK') ? t('gws.oauth_configuration') : syncNotice.text.includes('AUTHORIZATION_DENIED') ? t('gws.authorization_denied') : syncNotice.text.includes('POPUP_CLOSED') ? t('gws.popup_closed') : syncNotice.text.includes('TOKEN_EXPIRED') ? t('gws.token_expired') : syncNotice.text.includes('SCOPE_DENIED') ? t('gws.scope_denied') : syncNotice.text.includes('NETWORK_ERROR') ? t('gws.network_error') : workspaceDestinationMessageKey(syncNotice.text) ? t(workspaceDestinationMessageKey(syncNotice.text)!) : /DESTINATION_|SCRIPT_|BLUEPRINT_|TEMPLATE_|WORKSPACE_|SHEET_|GOOGLE_PICKER_|GOOGLE_OAUTH_/.test(syncNotice.text) ? t('gws.action_required') : presentBatch4Message(syncNotice.text, t)}</span>
                     </div>
                   )}
 
@@ -4064,7 +4064,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     <p>{t('gws.account')}: {googleContinuity.binding?.googleAccountLabel || t('projects.batch4.not_configured')}</p>
                     <p>{t('gws.last_sync')}: {googleContinuity.lastSuccessfulSyncAt || t('projects.batch4.not_configured')}</p>
                     <p>{t('gws.pending')}: {googleContinuity.pendingSyncCount}</p>
-                    {visiblePreviousWorkspaceError(googleContinuity.lastSyncError,syncNotice?.text) && <p>{t('gws.previous_issue')}: {t('gws.action_required')} ({googleContinuity.lastSyncError})</p>}
+                    {visiblePreviousWorkspaceError(googleContinuity.lastSyncError,syncNotice?.text) && <p>{t('gws.previous_issue')}: {t(workspaceDestinationMessageKey(googleContinuity.lastSyncError)||'gws.action_required')} ({googleContinuity.lastSyncError})</p>}
                     {googleContinuity.binding && <a className="text-amber-400 underline" target="_blank" rel="noopener noreferrer" href={googleContinuity.binding.spreadsheetUrl}>{t('gws.open')}</a>}
                   </div>}
                   <div className="pt-2 flex justify-end">
